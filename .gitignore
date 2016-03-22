@@ -1,0 +1,10 @@
+**/*.dll
+**/*.exe
+**/*.pdb
+**/*.sdps
+**/.vs/*
+**/bin/Debug/*
+**/bin/Release/*
+**/coverage.xml
+**/obj/Debug/*
+**/obj/Release/*
