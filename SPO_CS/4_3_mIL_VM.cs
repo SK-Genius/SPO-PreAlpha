@@ -262,8 +262,8 @@ public static class mIL_VM {
 		public const tInt32 ARG   = 6;
 		public const tInt32 RES   = 7;
 		
-		internal System.Collections.Generic.List<mStd.tTuple<tOpCode, tInt32, tInt32>>
-			_Commands = new System.Collections.Generic.List<mStd.tTuple<tOpCode, tInt32, tInt32>>();
+		internal mList.tList<mStd.tTuple<tOpCode, tInt32, tInt32>>
+			_Commands = mList.List<mStd.tTuple<tOpCode, tInt32, tInt32>>();
 		
 		internal tInt32 _LastReg = 7;
 		
@@ -275,7 +275,7 @@ public static class mIL_VM {
 			tInt32 a2 = -1
 		//================================================================================
 		) {
-			_Commands.Add(mStd.Tuple(Command, a1, a2));
+			_Commands = mList.Concat(_Commands, mList.List(mStd.Tuple(Command, a1, a2)));
 		}
 		
 		//================================================================================
@@ -429,7 +429,7 @@ public static class mIL_VM {
 		Step(
 		//================================================================================
 		) {
-			var Command = _ProcDef._Commands[_CodePointer];
+			var Command = _ProcDef._Commands.Skip(_CodePointer)._Head;
 			_CodePointer += 1;
 			_Obj = EMPTY();
 			

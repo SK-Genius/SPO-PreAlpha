@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using tBool = System.Boolean;
+﻿using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
