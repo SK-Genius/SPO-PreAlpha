@@ -48,7 +48,7 @@ public static class  mIL_Parser {
 	
 	public static tIL_Parser _SIGNUM_ = _POSITIV_ | _NEGATIV_;
 	
-	public static tIL_Parser _INT_ = (_SIGNUM_ + _NAT_)
+ 	public static tIL_Parser _INT_ = (_SIGNUM_ + _NAT_)
 		.Modify((int Sig, int Abs) => Sig * Abs);
 	
 	public static tIL_Parser _NUM_ = _INT_ | _NAT_;
@@ -75,13 +75,13 @@ public static class  mIL_Parser {
 		(+IDENT -TOKEN("=>") +IDENT -TOKEN(":") +IDENT)    .Modify(mIL_AST.Proof)
 	);
 	
-	public static tIL_Parser BLOCK = (-_ +COMMAND -NL)[0, null]
+	public static tIL_Parser BLOCK = (-_ +COMMAND -NL)[1, null]
 		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)));
 	
 	public static tIL_Parser DEF = (-Token("DEF") -__ +IDENT -NL +BLOCK)
 		.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => mStd.Tuple(aID, aBlock));
 	
-	public static tIL_Parser MODULE = DEF[0, null]
+	public static tIL_Parser MODULE = DEF[1, null]
 		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>>)));
 	
 	#region TEST
@@ -104,10 +104,10 @@ public static class  mIL_Parser {
 		return ResultList;
 	}
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"SubParser",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					mStd.AssertEq(_INT_.Parse("+1_234..."), mParserGen.ResultList(1234));
 					mStd.AssertEq(_STRING_.Parse("\"BLA\"..."), mParserGen.ResultList("BLA"));
@@ -118,7 +118,7 @@ public static class  mIL_Parser {
 		),
 		mStd.Tuple(
 			"Commands",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					mStd.AssertEq(COMMAND.Parse("a := b, c ..."),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair,      "a", "b", "c")));
 					mStd.AssertEq(COMMAND.Parse("a := §1st b ..."),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First,     "a", "b")));

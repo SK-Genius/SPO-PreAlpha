@@ -6,7 +6,7 @@ namespace UnitTestProject1 {
 	public class UnitTest1 {
 		[Test]
 		public void TestMethod1() {
-			Program.Main(null);
+			Program.Main(new string[]{""});
 		}
 	}
 }

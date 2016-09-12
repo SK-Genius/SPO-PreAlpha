@@ -115,10 +115,10 @@ public static class mMap {
 	
 	// TODO
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"tMap.ToString()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					return true;
 				}

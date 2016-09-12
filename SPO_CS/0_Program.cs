@@ -18,13 +18,17 @@ public static class Program {
 	//================================================================================
 	public static void
 	Main(
-		string[] args
+		tText[] aArgs
 	//================================================================================
 	) {
+		var Args = mList.List<tText>();
+		foreach (var Arg in aArgs) {
+			Args = mList.Concat(Args, mList.List(Arg));
+		}
 		mTest.Tests(
 			mStd.Tuple("mStd", mStd.Test),
 			mStd.Tuple("mList", mList.Test),
-//			mStd.Tuple(nameof(mTest), mTest.Test),
+//			mStd.Tuple("mTest", mTest.Test),
 			mStd.Tuple("mParserGen", mParserGen.Test),
 			mStd.Tuple("mTextParser", mTextParser.Test),
 			mStd.Tuple("mIL_AST", mIL_AST.Test),
@@ -34,10 +38,13 @@ public static class Program {
 			mStd.Tuple("mSPO_AST", mSPO_AST.Test),
 			mStd.Tuple("mSPO_Parser", mSPO_Parser.Test)
 		)(
-			aLine => System.Console.WriteLine(aLine)
+			aLine => System.Console.WriteLine(aLine),
+			Args
 		);
 		
-		//System.Console.ReadKey();
+#		if DEBUG && false
+			System.Console.ReadKey();
+#		endif
 	}
 	
 }

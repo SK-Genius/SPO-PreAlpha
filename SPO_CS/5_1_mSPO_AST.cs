@@ -22,7 +22,7 @@ public static class mSPO_AST {
 	
 	public class tTextNode : tLiteralNode {
 		internal tText _Value;
-
+		
 		//================================================================================
 		public tBool
 		Equals(
@@ -234,10 +234,10 @@ public static class mSPO_AST {
 	#region TEST
 	
 	// TODO: test
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"???",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					return true;
 				}

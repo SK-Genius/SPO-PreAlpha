@@ -196,7 +196,7 @@ public static class mTextParser {
 		tText aToken
 	//================================================================================
 	) {
-		mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>> Parser = mParserGen.EmptyParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
+		var Parser = mParserGen.EmptyParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
 		foreach (var Char in aToken) {
 			Parser += GetChar(Char);
 		}
@@ -207,10 +207,10 @@ public static class mTextParser {
 	
 	// TODO: test
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"GetChar",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					return true;
 				}

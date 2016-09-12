@@ -266,10 +266,10 @@ public static class mList {
 	
 	#region TEST
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"tList.ToString()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					// TODO: AssertEq(List<tInt32>().ToString(), "[]"); ???
 					mStd.AssertEq(List(1).ToString(), "[1]");
@@ -291,7 +291,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"tList.Equals()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List<tInt32>(), List<tInt32>());
 					mStd.AssertEq(List(1), List(1));
@@ -314,7 +314,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Concat()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(Concat(List(1, 2), List(3, 4)), List(1, 2, 3, 4));
 					mStd.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
@@ -326,7 +326,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Map()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
 					mStd.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
@@ -336,7 +336,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Reduce()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
 					mStd.AssertEq(List(1).Reduce(0, (a1, a2) => a1+a2), 1);
@@ -347,7 +347,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Join()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => a1+","+a2), "a,b,c,d");
 					mStd.AssertEq(List("a").Join((a1, a2) => a1+","+a2), "a");
@@ -358,7 +358,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Take()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List(1, 2, 3, 4).Take(3), List(1, 2, 3));
 					mStd.AssertEq(List(1, 2, 3).Take(4), List(1, 2, 3));
@@ -371,7 +371,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Skip()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List(1, 2, 3, 4).Skip(3), List(4));
 					mStd.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
@@ -384,7 +384,7 @@ public static class mList {
 		),
 		mStd.Tuple(
 			"Every()",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
 					mStd.AssertEq(List(1, 2).Every(2), List(1));

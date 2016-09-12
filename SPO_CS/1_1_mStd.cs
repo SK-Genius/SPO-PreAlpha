@@ -209,6 +209,10 @@ public static class mStd {
 		out t aValue
 	//================================================================================
 	) {
+		if (typeof(t) == typeof(tAny)) {
+			mStd.Assert(false);
+		}
+		
 		if (a._Value is t) {
 			aValue = (t)a._Value;
 			return true;
@@ -346,10 +350,10 @@ public static class mStd {
 	
 	#region TEST
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"tMaybe.ToString()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(OK(1).ToString(), "1");
 					AssertEq(Fail<tText>().ToString(), "FAIL");
@@ -359,7 +363,7 @@ public static class mStd {
 		),
 		mStd.Tuple(
 			"tMaybe.Equals()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(OK(1), OK(1));
 					AssertEq(OK("1"), OK("1"));
@@ -370,7 +374,7 @@ public static class mStd {
 		),
 		mStd.Tuple(
 			"tVar.ToString()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(Any(1).ToString(), "1");
 					AssertEq(Any("1").ToString(), "1");
@@ -380,7 +384,7 @@ public static class mStd {
 		),
 		mStd.Tuple(
 			"tVar.Equals()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(Any(1), Any(1));
 					AssertEq(Any("1"), Any("1"));
@@ -394,7 +398,7 @@ public static class mStd {
 		),
 		mStd.Tuple(
 			"tTuple.ToString()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(Tuple(1, "2").ToString(), "(1, 2)");
 					AssertEq(Tuple(1, "2", Tuple("A", "B")).ToString(), "(1, 2, (A, B))");
@@ -404,7 +408,7 @@ public static class mStd {
 		),
 		mStd.Tuple(
 			"tTuple.Equals()",
-			Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					AssertEq(Tuple(1, "2"), Tuple(1, "2"));
 					AssertEq(Tuple(1, "2", Tuple("A", "B")), Tuple(1, "2", Tuple("A", "B")));

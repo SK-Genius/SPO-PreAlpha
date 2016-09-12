@@ -1,4 +1,5 @@
-﻿using tBool = System.Boolean;
+﻿using System.Text.RegularExpressions;
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -253,14 +254,14 @@ public static class mIL_VM {
 	
 	public class tProcDef {
 		// standard stack indexes
-		public const tInt32 EMPTY = 0;
-		public const tInt32 ONE   = 1;
-		public const tInt32 FALSE = 2;
-		public const tInt32 TRUE  = 3;
-		public const tInt32 ENV   = 4;
-		public const tInt32 OBJ   = 5;
-		public const tInt32 ARG   = 6;
-		public const tInt32 RES   = 7;
+		public const tInt32 EMPTY_Reg = 0;
+		public const tInt32 ONE_Reg   = 1;
+		public const tInt32 FALSE_Reg = 2;
+		public const tInt32 TRUE_Reg  = 3;
+		public const tInt32 ENV_Reg   = 4;
+		public const tInt32 OBJ_Reg   = 5;
+		public const tInt32 ARG_Reg   = 6;
+		public const tInt32 RES_Reg   = 7;
 		
 		internal mList.tList<mStd.tTuple<tOpCode, tInt32, tInt32>>
 			_Commands = mList.List<mStd.tTuple<tOpCode, tInt32, tInt32>>();
@@ -440,7 +441,10 @@ public static class mIL_VM {
 			
 			switch (OpCode) {
 				case tOpCode.NEW_PAIR: {
-						_Reg = mList.Concat(_Reg, mList.List(PAIR(_Reg.Skip(Arg1)._Head, _Reg.Skip(Arg2)._Head)));
+					_Reg = mList.Concat(
+						_Reg,
+						mList.List(PAIR(_Reg.Skip(Arg1)._Head, _Reg.Skip(Arg2)._Head))
+					);
 				} break;
 				
 				case tOpCode.FIRST: {
@@ -469,19 +473,22 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.ADD_PREFIX: {
-					_Reg = mList.Concat(_Reg, mList.List((Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Reg.Skip(Arg2)._Head)))));
+					_Reg = mList.Concat(
+						_Reg,
+						mList.List((Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Reg.Skip(Arg2)._Head))))
+					);
 				} break;
 				
 				case tOpCode.DEL_PREFIX: {
 					mStd.tTuple<tInt32, tData> PrefixData;
-					tData Data;
+					tData Data_;
 					tInt32 Prefix;
 					if (
 						_Reg.Skip(Arg2)._Head.MATCH(tDataType.PREFIX, out PrefixData) &&
-						PrefixData.MATCH(out Prefix, out Data) &&
+						PrefixData.MATCH(out Prefix, out Data_) &&
 						Prefix.Equals(Arg1)
 					) {
-						_Reg = mList.Concat(_Reg, mList.List(Data));
+						_Reg = mList.Concat(_Reg, mList.List(Data_));
 					} else {
 						mStd.Assert(false);
 					}
@@ -526,7 +533,7 @@ public static class mIL_VM {
 					mStd.Assert(_Reg.Skip(Arg1)._Head.MATCH(tDataType.BOOL, out Cond));
 					if (Cond) {
 						var Src = _Reg.Skip(Arg2)._Head;
-						var Des = _Reg.Skip(tProcDef.RES)._Head;
+						var Des = _Reg.Skip(tProcDef.RES_Reg)._Head;
 						Des._DataType = Src._DataType;
 						Des._Value = Src._Value;
 						return _Parent;
@@ -542,14 +549,20 @@ public static class mIL_VM {
 							INT(1),
 							BOOL(false),
 							BOOL(true),
-							_Reg.Skip(tProcDef.ENV)._Head,
-							_Reg.Skip(tProcDef.OBJ)._Head,
+							_Reg.Skip(tProcDef.ENV_Reg)._Head,
+							_Reg.Skip(tProcDef.OBJ_Reg)._Head,
 							_Reg.Skip(Arg2)._Head,
-							_Reg.Skip(tProcDef.RES)._Head
+							_Reg.Skip(tProcDef.RES_Reg)._Head
 						);
 						_CodePointer = 0;
 					}
 				} break;
+				
+				// TODO:
+				// - Create Process
+				// - Send Message
+				// - Create Var
+				// - Pattern Matching (Element e is from Type t?)
 				
 				default: {
 					mStd.Assert(false);
@@ -558,6 +571,31 @@ public static class mIL_VM {
 			return this;
 		}
 	}
+	
+	// TODO: GetModule
+	#if !true
+	public static tData GetModule(
+		mList.tList<mIL_VM.tProcDef> aDefs,
+		tData aArgs
+	) {
+		var Env = EMPTY();
+		mIL_VM.tProcDef LastDef = EMPTY();
+		tProcDef Head;
+		while (aDefs.MATCH(out Head, out aDefs)) {
+			var Def = DEF(Head);
+			Env = PAIR(Env, Def);
+			LastDef = Def;
+		}
+		
+		var Res = mIL_VM.EMPTY();
+		var CallStack = new mIL_VM.tCallStack(null, LastDef, Env, EMPTY(), aArgs, Res);
+		while (CallStack != null) {
+			CallStack = CallStack.Step();
+		}
+		
+		return Res;
+	}
+	#endif
 	
 	#region TEST
 	//TODO: test First, Second, AddPrefix, DelPrefix, Assert ...
@@ -580,23 +618,23 @@ public static class mIL_VM {
 		return INT(Arg1_ + Arg2_);
 	};
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"ExternDef",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var Env = EXTERN_DEF(Add);
 					
 					var Proc1 = new tProcDef();
-					var r1 = Proc1.Pair(tProcDef.ONE, tProcDef.ONE);
-					var r2 = Proc1.Call(tProcDef.ENV, tProcDef.EMPTY);
+					var r1 = Proc1.Pair(tProcDef.ONE_Reg, tProcDef.ONE_Reg);
+					var r2 = Proc1.Call(tProcDef.ENV_Reg, tProcDef.EMPTY_Reg);
 					var r3 = Proc1.Call(r2, r1);
-					Proc1.ReturnIf(tProcDef.TRUE, r3);
+					Proc1.ReturnIf(tProcDef.TRUE_Reg, r3);
 					
 					var Res = EMPTY();
 					var CallStack = new tCallStack(null, Proc1, Env, EMPTY(), EMPTY(), Res);
 					while (CallStack.Step() != null) { }
-					mStd.AssertEq(CallStack._Reg.Skip(tProcDef.RES)._Head, INT(2));
+					mStd.AssertEq(CallStack._Reg.Skip(tProcDef.RES_Reg)._Head, INT(2));
 					
 					return true;
 				}
@@ -604,21 +642,21 @@ public static class mIL_VM {
 		),
 		mStd.Tuple(
 			"InternDef",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var Env = EXTERN_DEF(Add);
 					
 					var Proc2 = new tProcDef();
 					Proc2.ReturnIf(
-						tProcDef.TRUE,
+						tProcDef.TRUE_Reg,
 						Proc2.Call(
 							Proc2.Call(
-								tProcDef.ENV,
-								tProcDef.EMPTY
+								tProcDef.ENV_Reg,
+								tProcDef.EMPTY_Reg
 							),
 							Proc2.Pair(
-								tProcDef.ONE,
-								tProcDef.ONE
+								tProcDef.ONE_Reg,
+								tProcDef.ONE_Reg
 							)
 						)
 					);
@@ -636,7 +674,7 @@ public static class mIL_VM {
 		)
 		// TODO: viele Tests
 	);
-		
+	
 	#endregion
 	
 }

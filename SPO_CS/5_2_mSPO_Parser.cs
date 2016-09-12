@@ -119,7 +119,7 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +BLOCK )
 		.Modify(mSPO_AST.Lambda);
 	
-	public static tSPO_Parser Module = (ASSIGNMENT +(-NL +ASSIGNMENT)[0, null])
+	public static tSPO_Parser MODUL = (ASSIGNMENT +(-NL +ASSIGNMENT)[0, null])
 		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tAssignmantNode>)));
 	
 	static mSPO_Parser() {
@@ -153,10 +153,10 @@ public static class  mSPO_Parser {
 	}
 	
 	// TODO: test
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"Atoms",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(  _NUM_.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
 					mStd.AssertEq(LITERAL.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
@@ -173,7 +173,7 @@ public static class  mSPO_Parser {
 		),
 		mStd.Tuple(
 			"Tuple",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
 						ELEMENT.Parse("(+1_234, \"BLA\")..."),
@@ -192,7 +192,7 @@ public static class  mSPO_Parser {
 		),
 		mStd.Tuple(
 			"Match",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
 						MATCH.Parse("(12)"),
@@ -231,7 +231,7 @@ public static class  mSPO_Parser {
 		),
 		mStd.Tuple(
 			"Call",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
 						ELEMENT.Parse("(x .* x)"),
@@ -266,7 +266,7 @@ public static class  mSPO_Parser {
 		),
 		mStd.Tuple(
 			"???",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					// TODO
 					#if true

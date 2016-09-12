@@ -27,6 +27,7 @@ public static class mIL_Interpreter {
 	//================================================================================
 	) {
 		// TODO 
+		SourceCode.ToString();
 		return null;
 	}
 	
@@ -45,6 +46,8 @@ public static class mIL_Interpreter {
 		mStd.Assert(Text.MATCH(out Stream, out Info));
 		var ParserResult = mIL_Parser.MODULE.Parse(Stream);
 		
+		mStd.Assert(ParserResult._IsOK);
+		
 		mParserGen.tResultList ResultList;
 		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> RestStream;
 		ParserResult.MATCH(out ResultList, out RestStream);
@@ -54,6 +57,18 @@ public static class mIL_Interpreter {
 		mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs;
 		ResultList.MATCH(out Defs);
 		
+		return ParseModule(Defs);
+	}
+		
+	//================================================================================
+	private static mStd.tTuple<
+		mList.tList<mIL_VM.tProcDef>,
+		mMap.tMap<tText, tInt32>
+	>
+	ParseModule(
+		mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs
+	//================================================================================
+	) {
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
 		var Module = mList.List<mIL_VM.tProcDef>();
 		
@@ -69,15 +84,15 @@ public static class mIL_Interpreter {
 			Module = mList.Concat(Module, mList.List(NewProc));
 			
 			var Reg = mMap.Map<tText, tInt32>((a, b) => a.Equals(b))
-				.Set("ENV"   , mIL_VM.tProcDef.ENV)
-				.Set("OBJ"   , mIL_VM.tProcDef.OBJ)
-				.Set("ARG"   , mIL_VM.tProcDef.ARG)
-				.Set("RES"   , mIL_VM.tProcDef.RES)
-				.Set("_"     , mIL_VM.tProcDef.EMPTY)
-				.Set("1"     , mIL_VM.tProcDef.ONE)
-				.Set("FALSE" , mIL_VM.tProcDef.FALSE)
-				.Set("TRUE"  , mIL_VM.tProcDef.TRUE);
-		
+				.Set("ENV"   , mIL_VM.tProcDef.ENV_Reg)
+				.Set("OBJ"   , mIL_VM.tProcDef.OBJ_Reg)
+				.Set("ARG"   , mIL_VM.tProcDef.ARG_Reg)
+				.Set("RES"   , mIL_VM.tProcDef.RES_Reg)
+				.Set("_"     , mIL_VM.tProcDef.EMPTY_Reg)
+				.Set("1"     , mIL_VM.tProcDef.ONE_Reg)
+				.Set("FALSE" , mIL_VM.tProcDef.FALSE_Reg)
+				.Set("TRUE"  , mIL_VM.tProcDef.TRUE_Reg);
+			
 			var RestCommands = Commands;
 			mIL_AST.tCommandNode Command;
 			while (RestCommands.MATCH(out Command, out RestCommands)) {
@@ -183,10 +198,10 @@ public static class mIL_Interpreter {
 		return mIL_VM.BOOL(Arg1_.Equals(Arg2_));
 	};
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"Call",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
@@ -217,7 +232,7 @@ public static class mIL_Interpreter {
 		),
 		mStd.Tuple(
 			"Prefix",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
@@ -250,7 +265,7 @@ public static class mIL_Interpreter {
 		),
 		mStd.Tuple(
 			"Assert",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
@@ -293,7 +308,7 @@ public static class mIL_Interpreter {
 		),
 		mStd.Tuple(
 			"ParseModule",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF bla\n" +
@@ -381,7 +396,7 @@ public static class mIL_Interpreter {
 					var Proc2 = Module.Skip(ModuleMap.Get("bla2"))._Head;
 					var Proc3 = Module.Skip(ModuleMap.Get("...!!"))._Head;
 					var Proc4 = Module.Skip(ModuleMap.Get("...!"))._Head;
-			
+					
 					var Env = mIL_VM.PAIR(
 						mIL_VM.EXTERN_DEF(Add),
 						mIL_VM.PAIR(

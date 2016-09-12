@@ -228,10 +228,10 @@ public static class mParserGen {
 	//================================================================================
 	) {
 		var List = mList.List<t>();
-		t Head;
+		mStd.tAny Head;
 		var RestArgs = aArgs;
 		while (RestArgs.GetHeadTail(out Head, out RestArgs)) {
-			List = mList.Concat(List, mList.List(Head));
+			List = mList.Concat(List, mList.List(aFunc(Head)));
 		}
 		return List;
 	}
@@ -250,6 +250,26 @@ public static class mParserGen {
 			aInitialAgregate = aAgregatorFunc(aInitialAgregate, Head.To<tElem>());
 		}
 		return ResultList(aInitialAgregate);
+	}
+	
+	//================================================================================
+	public static tBool
+	GetHeadTail(
+		this tResultList aList,
+		out mStd.tAny aHead,
+		out tResultList aTail
+	//================================================================================
+	) {
+		mList.tList<mStd.tAny> Tail;
+		if (
+			aList._Value.MATCH(out aHead, out Tail)
+		) {
+			aTail = new tResultList{_Value = Tail};
+			return true;
+		} else {
+			aTail = default(tResultList);
+			return false;
+		}
 	}
 	
 	//================================================================================
@@ -566,15 +586,15 @@ public static class mParserGen {
 	public static tParser<t>
 	Modify_<t>(
 		this tParser<t> aParser,
-		mStd.tFunc<tResultList, tResultList> ModifyFunc
+		mStd.tFunc<tResultList, tResultList> aModifyFunc
 	//================================================================================
 	) {
 		return new tParser<t>{
 			_ParseFunc = (mList.tList<t> aStream) => {
-				tResultList ResultList;
+				tResultList ResultList_;
 				mList.tList<t> RestStream;
-				if (aParser._ParseFunc(aStream).MATCH(out ResultList, out RestStream)) {
-					return OK(ModifyFunc(ResultList), RestStream);
+				if (aParser._ParseFunc(aStream).MATCH(out ResultList_, out RestStream)) {
+					return OK(aModifyFunc(ResultList_), RestStream);
 				} else {
 					return Fail<t>();
 				}
@@ -632,10 +652,10 @@ public static class mParserGen {
 	
 	#region Test
 	
-	public static mStd.tFunc<tBool, mStd.tAction<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"AtomParser",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					
@@ -655,7 +675,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...+...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					var B = AtomParser((tChar a) => a == 'B');
@@ -677,7 +697,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...-...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					var B = AtomParser((tChar a) => a == 'B');
@@ -699,7 +719,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"-...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = -AtomParser((tChar a) => a == 'A');
 					
@@ -718,7 +738,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"n*...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A3 = 3 * AtomParser((tChar a) => a == 'A');
 					
@@ -743,7 +763,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"-n*...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A3 = -3 * AtomParser((tChar a) => a == 'A');
 					
@@ -768,7 +788,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...*n",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A3 = AtomParser((tChar a) => a == 'A') * 3;
 					
@@ -789,7 +809,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...|...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					var B = AtomParser((tChar a) => a == 'B');
@@ -815,7 +835,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...[m, n]",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A2_4 = AtomParser((tChar a) => a == 'A')[2, 4];
 					
@@ -849,7 +869,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"...[n, null]",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A2_ = AtomParser((tChar a) => a == 'A')[2, null];
 					
@@ -875,7 +895,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"....Modify(...=>...)",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A2_ = AtomParser((tChar a) => a == 'A')[2, null]
 						.Modify_(
@@ -912,7 +932,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"....Modify(a => a.Reduce(...))",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A2_ = AtomParser((tChar a) => a == 'A')[2, null]
 						.Modify_(a => a.Reduce(0, (int aCount, tChar aElem) => aCount + 1));
@@ -939,7 +959,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"~...",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					var B = AtomParser((tChar a) => a == 'B');
@@ -968,7 +988,7 @@ public static class mParserGen {
 		),
 		mStd.Tuple(
 			"Eval('MathExpr')",
-			mStd.Func(
+			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					var CharIn = mStd.Func(
 						(tText aChars) => AtomParser(
