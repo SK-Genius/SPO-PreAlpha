@@ -36,13 +36,17 @@ public static class Program {
 			mStd.Tuple("mIL_VM", mIL_VM.Test),
 			mStd.Tuple("mIL_Interpreter", mIL_Interpreter.Test),
 			mStd.Tuple("mSPO_AST", mSPO_AST.Test),
-			mStd.Tuple("mSPO_Parser", mSPO_Parser.Test)
+			mStd.Tuple("mSPO_Parser", mSPO_Parser.Test),
+			mStd.Tuple("mSPO2IL", mSPO2IL.Test)
 		)(
-			aLine => System.Console.WriteLine(aLine),
+			aLine => {
+				System.Console.WriteLine(aLine);
+				System.Diagnostics.Debug.WriteLine(aLine);
+			},
 			Args
 		);
 		
-#		if DEBUG && false
+#		if !true
 			System.Console.ReadKey();
 #		endif
 	}

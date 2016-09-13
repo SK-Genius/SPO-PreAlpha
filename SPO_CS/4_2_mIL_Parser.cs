@@ -53,6 +53,8 @@ public static class  mIL_Parser {
 	
 	public static tIL_Parser _NUM_ = _INT_ | _NAT_;
 	
+	public static tIL_Parser NUM = _NUM_.Modify((tInt32 a) => a.ToString());
+	
 	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
 	public static tIL_Parser IDENT = ( ( CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) | Token("...") )[1, null] -__ )
@@ -61,6 +63,7 @@ public static class  mIL_Parser {
 	public static tIL_Parser LITERAL = (_NUM_ | _STRING_) -__;
 	
 	public static tIL_Parser COMMAND = (
+		(+IDENT -TOKEN(":=") +NUM)                         .Modify(mIL_AST.CreateInt) |
 		(+IDENT -TOKEN(":=") +IDENT -TOKEN(",") +IDENT)    .Modify(mIL_AST.CreatePair) |
 		(+IDENT -TOKEN(":=") -TOKEN("§1st") +IDENT)        .Modify(mIL_AST.GetFirst) |
 		(+IDENT -TOKEN(":=") -TOKEN("§2nd") +IDENT)        .Modify(mIL_AST.GetSecond) |

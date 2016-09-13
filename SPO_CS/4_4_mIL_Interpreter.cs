@@ -73,7 +73,6 @@ public static class mIL_Interpreter {
 				.Set("ARG"   , mIL_VM.tProcDef.ARG_Reg)
 				.Set("RES"   , mIL_VM.tProcDef.RES_Reg)
 				.Set("_"     , mIL_VM.tProcDef.EMPTY_Reg)
-				.Set("1"     , mIL_VM.tProcDef.ONE_Reg)
 				.Set("FALSE" , mIL_VM.tProcDef.FALSE_Reg)
 				.Set("TRUE"  , mIL_VM.tProcDef.TRUE_Reg);
 			
@@ -83,6 +82,8 @@ public static class mIL_Interpreter {
 				tText RegId1, RegId2, RegId3, Prefix;
 				if (Command.MATCH(mIL_AST.tCommandNodeType.Call, out RegId1, out RegId2, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Call(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Int, out RegId1, out RegId2)) {
+					Reg = Reg.Set(RegId1, NewProc.Int(int.Parse(RegId2)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Pair, out RegId1, out RegId2, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Pair(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.First, out RegId1, out RegId2)) {
@@ -190,8 +191,9 @@ public static class mIL_Interpreter {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	add := ENV _\n" +
+						"	1_ := 1\n" +
 						
-						"	arg_1 := ARG, 1\n" +
+						"	arg_1 := ARG, 1_\n" +
 						"	res := add arg_1\n" +
 						"	§RETURN res IF TRUE\n"
 					);
@@ -217,9 +219,10 @@ public static class mIL_Interpreter {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	add := ENV _\n" +
+						"	1_ := 1\n" +
 						
 						"	arg := -VECTOR ARG\n" +
-						"	arg_1 := arg, 1\n" +
+						"	arg_1 := arg, 1_\n" +
 						"	inc := add arg_1\n" +
 						"	res := +VECTOR inc\n" +
 						"	§RETURN res IF TRUE\n"
@@ -246,7 +249,8 @@ public static class mIL_Interpreter {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	...=...? := ENV _\n" +
-						"	arg_1 := ARG, 1\n" +
+						"	1_ := 1\n" + 
+						"	arg_1 := ARG, 1_\n" +
 						"	arg_eq_1? := ...=...? arg_1\n" +
 						"	§ASSERT TRUE => arg_eq_1?\n" +
 						"	§RETURN arg_eq_1? IF TRUE\n"
@@ -285,15 +289,17 @@ public static class mIL_Interpreter {
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF bla\n" +
+						"	_1 := 1\n" +
 						"	add_ := §1st ENV\n" +
 						
 						"	add := add_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
 						
-						"	p := 1, 1\n" +
+						"	p := _1, _1\n" +
 						"	r := add p\n" +
 						"	§RETURN r IF TRUE\n" +
 						
 						"DEF bla2\n" +
+						"	_1 := 1\n" +
 						"	add_  := §1st ENV\n" +
 						"	rest1 := §2nd ENV\n" +
 						"	sub_  := §1st rest1\n" +
@@ -304,9 +310,9 @@ public static class mIL_Interpreter {
 						"	sub := sub_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
 						"	mul := mul_ _\n" + // mul_ :: _ => (€Int, €Int) => €Int
 						
-						"	_1_1 := 1, 1\n" +
+						"	_1_1 := _1, _1\n" +
 						"	_2   := add _1_1\n" +
-						"	_2_1 := _2, 1\n" +
+						"	_2_1 := _2, _1\n" +
 						"	_3   := add _2_1\n" +
 						"	_2_2 := _2, _2\n" +
 						"	_4   := add _2_2\n" +
@@ -315,6 +321,7 @@ public static class mIL_Interpreter {
 						"	§RETURN _12 IF TRUE\n" +
 						
 						"DEF ...!!\n" +
+						"	_1 := 1\n" +
 						"	add_  := §1st ENV\n" +
 						"	rest1 := §2nd ENV\n" +
 						"	sub_  := §1st rest1\n" +
@@ -328,7 +335,7 @@ public static class mIL_Interpreter {
 						"	mul := mul_ _\n" + // mul_ :: _ => (€Int, €Int) => €Int
 						"	eq  := eq_ _\n" + // mul_ :: _ => (€Int, €Int) => €Bool
 						
-						"	1_1 := 1, 1\n" +
+						"	1_1 := _1, _1\n" +
 						"	0   := sub 1_1\n" +
 						
 						"	arg    := §1st ARG\n" +
@@ -339,12 +346,13 @@ public static class mIL_Interpreter {
 						
 						"	res_arg := res, arg\n" +
 						"	newRes  := mul res_arg\n" +
-						"	arg_1   := arg, 1\n" +
+						"	arg_1   := arg, _1\n" +
 						"	newArg  := sub arg_1\n" +
 						"	newArg_newRes := newArg, newRes\n" +
 						"	§REPEAT newArg_newRes IF TRUE\n" +
 						
 						"DEF ...!\n" +
+						"	_1 := 1\n" +
 						"	add_  := §1st ENV\n" +
 						"	rest1 := §2nd ENV\n" +
 						"	sub_  := §1st rest1\n" +
@@ -356,7 +364,7 @@ public static class mIL_Interpreter {
 						"	...!!_ := §1st rest4\n" +
 						"	...!! := ...!!_ ENV\n" +
 						
-						"	arg_1 := ARG, 1\n" +
+						"	arg_1 := ARG, _1\n" +
 						"	res   := ...!! arg_1\n" +
 						"	§RETURN res IF TRUE\n"
 					);

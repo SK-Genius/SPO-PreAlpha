@@ -264,6 +264,21 @@ public static class mList {
 		return Result;
 	}
 	
+	//================================================================================
+	public static tList<t>
+	Reverse<t>(
+		this tList<t> aList
+	//================================================================================
+	) {
+		var Result = List<t>();
+		var RestList = aList;
+		t Head;
+		while (RestList.MATCH(out Head, out RestList)) {
+			Result = List(Head, Result);
+		}
+		return Result;
+	}
+	
 	#region TEST
 	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(

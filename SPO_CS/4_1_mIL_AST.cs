@@ -16,6 +16,7 @@ using tText = System.String;
 public static class mIL_AST {
 	
 	public enum tCommandNodeType {
+		Int,
 		Pair,
 		First,
 		Second,
@@ -144,6 +145,14 @@ public static class mIL_AST {
 		aId3 = aNode._3;
 		return true;
 	}
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText>
+	CreateInt = (
+		tText aId1,
+		tText aId2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.Int, aId1, aId2);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>

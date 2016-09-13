@@ -242,6 +242,7 @@ public static class mIL_VM {
 	#endregion
 	
 	public enum tOpCode {
+		NEW_INT,
 		NEW_PAIR,
 		FIRST,
 		SECOND,
@@ -292,6 +293,15 @@ public static class mIL_VM {
 			_AddCommand(Command, a1, a2);
 			_LastReg += 1;
 			return _LastReg;
+		}
+		
+		//================================================================================
+		public tInt32
+		Int(
+			tInt32 a1
+		//================================================================================
+		) {
+			return _AddReg(tOpCode.NEW_INT, a1);
 		}
 		
 		//================================================================================
@@ -442,6 +452,13 @@ public static class mIL_VM {
 			Command.MATCH(out OpCode, out Arg1, out Arg2);
 			
 			switch (OpCode) {
+				case tOpCode.NEW_INT: {
+					_Reg = mList.Concat(
+						_Reg,
+						mList.List(INT(Arg1))
+					);
+				} break;
+				
 				case tOpCode.NEW_PAIR: {
 					_Reg = mList.Concat(
 						_Reg,
