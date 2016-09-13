@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -142,6 +143,7 @@ public static class mIL_VM {
 		tData a2
 	//================================================================================
 	) {
+		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.PROC, a1, a2);
 	}
 	
@@ -572,33 +574,50 @@ public static class mIL_VM {
 		}
 	}
 	
-	// TODO: GetModule
-	#if !true
-	public static tData GetModule(
-		mList.tList<mIL_VM.tProcDef> aDefs,
-		tData aArgs
+	//================================================================================
+	public static tData
+	GetModuleFactory(
+		mList.tList<tProcDef> aDefs
+	//================================================================================
 	) {
 		var Env = EMPTY();
-		mIL_VM.tProcDef LastDef = EMPTY();
-		tProcDef Head;
-		while (aDefs.MATCH(out Head, out aDefs)) {
-			var Def = DEF(Head);
-			Env = PAIR(Env, Def);
-			LastDef = Def;
+		tProcDef DefTemp;
+		tProcDef LastDef;
+		mStd.Assert(aDefs.MATCH(out LastDef, out aDefs));
+		while (aDefs.MATCH(out DefTemp, out aDefs)) {
+			Env = PAIR(Env, DEF(LastDef));
+			LastDef = DefTemp;
 		}
 		
-		var Res = mIL_VM.EMPTY();
-		var CallStack = new mIL_VM.tCallStack(null, LastDef, Env, EMPTY(), aArgs, Res);
-		while (CallStack != null) {
-			CallStack = CallStack.Step();
-		}
-		
-		return Res;
+		return PROC(LastDef, Env);
 	}
-	#endif
+	
+	//================================================================================
+	public static void
+	Run(
+		tData aProc,
+		tData aObj,
+		tData aArg,
+		tData aRes
+	//================================================================================
+	) {
+		tProcDef Def;
+		mStd.tFunc<tData, tData, tData, tData> ExternDef;
+		tData Env;
+		if(aProc.MATCH(tDataType.PROC, out Def, out Env)) {
+			var CallStack = new tCallStack(null, Def, Env, aObj, aArg, aRes);
+			while (CallStack != null) {
+				CallStack = CallStack.Step();
+			}
+		} else if (aProc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out Env)) {
+			var Res = ExternDef(Env, aObj, aArg);
+			aRes._DataType = Res._DataType;
+			aRes._Value = Res._Value;
+		}
+	}
 	
 	#region TEST
-	//TODO: test First, Second, AddPrefix, DelPrefix, Assert ...
+	//TODO: add tests (First, Second, AddPrefix, DelPrefix, Assert, ...)
 	
 	//================================================================================
 	private static readonly mStd.tFunc<tData, tData, tData, tData>
@@ -632,9 +651,8 @@ public static class mIL_VM {
 					Proc1.ReturnIf(tProcDef.TRUE_Reg, r3);
 					
 					var Res = EMPTY();
-					var CallStack = new tCallStack(null, Proc1, Env, EMPTY(), EMPTY(), Res);
-					while (CallStack.Step() != null) { }
-					mStd.AssertEq(CallStack._Reg.Skip(tProcDef.RES_Reg)._Head, INT(2));
+					Run(PROC(Proc1, Env), EMPTY(), EMPTY(), Res);
+					mStd.AssertEq(Res, INT(2));
 					
 					return true;
 				}
@@ -662,17 +680,14 @@ public static class mIL_VM {
 					);
 					
 					var Res = EMPTY();
-					var CallStack = new tCallStack(null, Proc2, Env, EMPTY(), EMPTY(), Res);
-					while (CallStack != null) {
-						CallStack = CallStack.Step();
-					}
+					Run(PROC(Proc2, Env), EMPTY(), EMPTY(), Res);
 					mStd.AssertEq(Res, INT(2));
 					
 					return true;
 				}
 			)
 		)
-		// TODO: viele Tests
+		// TODO: add tests
 	);
 	
 	#endregion

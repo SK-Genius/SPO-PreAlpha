@@ -15,32 +15,16 @@ using tText = System.String;
 
 public static class mIL_Interpreter {
 	
-	// TODO:
-	//	collect all defs (except the last) to a list;
-	//	put them as env to the last def;
-	//	return the result as module factory function
-	
-	//================================================================================
-	private static mIL_VM.tData
-	ParseModule_(
-		tText SourceCode
-	//================================================================================
-	) {
-		// TODO 
-		SourceCode.ToString();
-		return null;
-	}
-	
 	//================================================================================
 	private static mStd.tTuple<
 		mList.tList<mIL_VM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	>
 	ParseModule(
-		tText SourceCode
+		tText aSourceCode
 	//================================================================================
 	) {
-		var Text = mTextParser.TextStream(mTextParser.TextToStream(SourceCode));
+		var Text = mTextParser.TextStream(mTextParser.TextToStream(aSourceCode));
 		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> Stream;
 		mTextParser.tFailInfo Info;
 		mStd.Assert(Text.MATCH(out Stream, out Info));
@@ -129,14 +113,14 @@ public static class mIL_Interpreter {
 	//================================================================================
 	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
 	Add = (
-		mIL_VM.tData Env,
-		mIL_VM.tData Obj,
-		mIL_VM.tData Arg
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(Arg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.INT, out Arg1_));
 		tInt32 Arg2_;
@@ -147,14 +131,14 @@ public static class mIL_Interpreter {
 	//================================================================================
 	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
 	Sub = (
-		mIL_VM.tData Env,
-		mIL_VM.tData Obj,
-		mIL_VM.tData Arg
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(Arg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.INT, out Arg1_));
 		tInt32 Arg2_;
@@ -165,14 +149,14 @@ public static class mIL_Interpreter {
 	//================================================================================
 	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
 	Mul = (
-		mIL_VM.tData Env,
-		mIL_VM.tData Obj,
-		mIL_VM.tData Arg
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(Arg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.INT, out Arg1_));
 		tInt32 Arg2_;
@@ -183,14 +167,14 @@ public static class mIL_Interpreter {
 	//================================================================================
 	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
 	Eq = (
-		mIL_VM.tData Env,
-		mIL_VM.tData Obj,
-		mIL_VM.tData Arg
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(Arg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.INT, out Arg1_));
 		tInt32 Arg2_;
@@ -219,11 +203,7 @@ public static class mIL_Interpreter {
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
 					var Res = mIL_VM.EMPTY();
-					
-					var CallStack = new mIL_VM.tCallStack(null, Proc, Env, mIL_VM.EMPTY(), mIL_VM.INT(5), Res);
-					while (CallStack != null) {
-						CallStack = CallStack.Step();
-					}
+					mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(5), Res);
 					mStd.AssertEq(Res, mIL_VM.INT(6));
 					
 					return true;
@@ -252,11 +232,7 @@ public static class mIL_Interpreter {
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
 					var Res = mIL_VM.EMPTY();
-					
-					var CallStack = new mIL_VM.tCallStack(null, Proc, Env, mIL_VM.EMPTY(), mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)), Res);
-					while (CallStack != null) {
-						CallStack = CallStack.Step();
-					}
+					mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)), Res);
 					mStd.AssertEq(Res, mIL_VM.PREFIX("VECTOR", mIL_VM.INT(13)));
 					
 					return true;
@@ -293,10 +269,7 @@ public static class mIL_Interpreter {
 					var HasThrowException = false;
 					try {
 						Res = mIL_VM.EMPTY();
-						CallStack = new mIL_VM.tCallStack(null, Proc, Env, mIL_VM.EMPTY(), mIL_VM.INT(2), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+						mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(2), Res);
 					} catch {
 						HasThrowException = true;
 					}
@@ -415,34 +388,22 @@ public static class mIL_Interpreter {
 					);
 					{
 						var Res = mIL_VM.EMPTY();
-						var CallStack = new mIL_VM.tCallStack(null, Proc1, Env, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+						mIL_VM.Run(mIL_VM.PROC(Proc1, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
 						mStd.AssertEq(Res, mIL_VM.INT(2));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						var CallStack = new mIL_VM.tCallStack(null, Proc2, Env, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+						mIL_VM.Run(mIL_VM.PROC(Proc2, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
 						mStd.AssertEq(Res, mIL_VM.INT(12));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						var CallStack = new mIL_VM.tCallStack(null, Proc3, Env, mIL_VM.EMPTY(), mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+						mIL_VM.Run(mIL_VM.PROC(Proc3, Env), mIL_VM.EMPTY(), mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)), Res);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						var CallStack = new mIL_VM.tCallStack(null, Proc4, Env, mIL_VM.EMPTY(), mIL_VM.INT(3), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+						mIL_VM.Run(mIL_VM.PROC(Proc4, Env), mIL_VM.EMPTY(), mIL_VM.INT(3), Res);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					return true;
@@ -452,5 +413,4 @@ public static class mIL_Interpreter {
 	);
 	
 	#endregion
-	
 }

@@ -205,7 +205,7 @@ public static class mTextParser {
 	
 	#region Test
 	
-	// TODO: test
+	// TODO: add tests
 	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(

@@ -152,7 +152,6 @@ public static class  mSPO_Parser {
 		return ResultList;
 	}
 	
-	// TODO: test
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"Atoms",
@@ -268,8 +267,6 @@ public static class  mSPO_Parser {
 			"???",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					// TODO
-					#if true
 					mStd.AssertEq(
 						ELEMENT.Parse("((x) => { (a) = (x .* x) })..."),
 						mParserGen.ResultList(
@@ -324,7 +321,6 @@ public static class  mSPO_Parser {
 							)
 						)
 					);
-					#endif
 					//TODO: parse Module !!!
 					return true;
 				}

@@ -113,7 +113,7 @@ public static class mMap {
 	
 	#region TEST
 	
-	// TODO
+	// TODO: add tests
 	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
