@@ -70,6 +70,7 @@ public static class  mIL_Parser {
 		(+IDENT -TOKEN(":=") -TOKEN("+") +IDENT +IDENT)    .Modify(mIL_AST.AddPrefix) |
 		(+IDENT -TOKEN(":=") -TOKEN("-") +IDENT +IDENT)    .Modify(mIL_AST.SubPrefix) |
 		(+IDENT -TOKEN(":=") +IDENT +IDENT)                .Modify(mIL_AST.Call) |
+		(+IDENT -TOKEN(":=") +IDENT)                       .Modify(mIL_AST.Alias) |
 		(-TOKEN("§PUSH") +IDENT)                           .Modify(mIL_AST.Push) |
 		(-TOKEN("§POP"))                                   .Modify(mIL_AST.Pop) |
 		(-TOKEN("§RETURN") +IDENT -TOKEN("IF") +IDENT)     .Modify(mIL_AST.ReturnIf) |

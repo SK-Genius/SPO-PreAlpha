@@ -69,7 +69,7 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser ELEMENT = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
 	
-	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN("=") +ELEMENT )
+	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN(":=") +ELEMENT )
 		.Modify(mSPO_AST.Assignment);
 	
 	public static tSPO_Parser COMMAND = ASSIGNMENT; // TODO: Macros, VarDef, MethodCall, Streaming, ...
@@ -268,7 +268,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						ELEMENT.Parse("((x) => { (a) = (x .* x) })..."),
+						ELEMENT.Parse("((x) => { (a) := (x .* x) })..."),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(

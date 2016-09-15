@@ -17,6 +17,7 @@ public static class mIL_AST {
 	
 	public enum tCommandNodeType {
 		Int,
+		Alias,
 		Pair,
 		First,
 		Second,
@@ -242,6 +243,14 @@ public static class mIL_AST {
 		tText aId2
 	//================================================================================
 	) => CommandNode(tCommandNodeType.Assert, aId1, aId2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText>
+	Alias = (
+		tText aId1,
+		tText aId2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.Alias, aId1, aId2);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>

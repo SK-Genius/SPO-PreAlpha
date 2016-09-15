@@ -82,6 +82,8 @@ public static class mIL_Interpreter {
 				tText RegId1, RegId2, RegId3, Prefix;
 				if (Command.MATCH(mIL_AST.tCommandNodeType.Call, out RegId1, out RegId2, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Call(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Alias, out RegId1, out RegId2)) {
+					Reg = Reg.Set(RegId1, Reg.Get(RegId2));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Int, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Int(int.Parse(RegId2)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Pair, out RegId1, out RegId2, out RegId3)) {

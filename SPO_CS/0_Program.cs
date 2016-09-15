@@ -14,7 +14,6 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class Program {
-	
 	//================================================================================
 	public static void
 	Main(
@@ -45,10 +44,5 @@ public static class Program {
 			},
 			Args
 		);
-		
-#		if !true
-			System.Console.ReadKey();
-#		endif
 	}
-	
 }

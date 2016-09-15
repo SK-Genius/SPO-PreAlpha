@@ -85,7 +85,15 @@ public static class mTest {
 				mList.tList<tText> aFilters
 			) => {
 				if (aFilters.IsNull()) {
-					return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
+#					if DEBUG
+						return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
+#					else
+						try {
+							return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
+						} catch {
+							return tResult.FAIL;
+						}
+#					endif
 				} else {
 					return tResult.SKIP;
 				}
