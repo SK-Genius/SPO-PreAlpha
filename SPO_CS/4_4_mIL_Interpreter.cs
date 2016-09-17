@@ -100,6 +100,8 @@ public static class mIL_Interpreter {
 					Reg = Reg.Set(RegId1,  NewProc.AddPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.SubPrefix, out RegId1, out Prefix, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.DelPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.HasPrefix, out RegId1, out Prefix, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.HasPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Assert, out RegId1, out RegId2)) {
 					NewProc.Assert(Reg.Get(RegId1), Reg.Get(RegId2));
 				} else {

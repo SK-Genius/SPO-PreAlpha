@@ -73,6 +73,15 @@ public static class mSPO2IL {
 			}
 		}
 		{
+			var PrefixNode = aExpression as mSPO_AST.tPrefixNode;
+			if (!PrefixNode.IsNull()) {
+				var Reg = MapExpresion(PrefixNode._Element, ref aCommands, ref aLastReg);
+				aLastReg += 1;
+				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.AddPrefix("temp"+aLastReg ,PrefixNode._Prefix, Reg)));
+				return "temp"+aLastReg;
+			}
+		}
+		{
 			var TextNode = aExpression is mSPO_AST.tTextNode;
 			if (!TextNode.IsNull()) {
 				// TODO
@@ -98,6 +107,16 @@ public static class mSPO2IL {
 		ref tInt32 aLastReg
 	//================================================================================
 	) {
+		{
+			var PrefixNode = aPattern as mSPO_AST.tMatchPrefixNode;
+			if (!PrefixNode.IsNull()) {
+				aLastReg += 1;
+				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.SubPrefix("temp"+aLastReg, PrefixNode._Prefix, aValue)));
+				mStd.Assert(MapMatch(PrefixNode._Match, "temp"+aLastReg, ref aCommands, ref aLastReg));
+				return true;
+			}
+		}
+		
 		mSPO_AST.tMatchItemNode Item;
 		
 		{
@@ -263,6 +282,83 @@ public static class mSPO2IL {
 							mIL_AST.GetSecond("temp109", "temp107"),
 							mIL_AST.Alias("b", "temp108"),
 							mIL_AST.Alias("c", "temp109")
+						)
+					);
+					
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"MatchTuple",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var LastReg = 100;
+					
+					mSPO_AST.tAssignmantNode z;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, c) := (1, 2, 3)").MATCH(out z));
+					
+					var x = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					
+					mStd.AssertEq(
+						x,
+						mList.List<mIL_AST.tCommandNode>(
+							mIL_AST.CreateInt("temp101", "3"),
+							mIL_AST.CreateInt("temp102", "2"),
+							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
+							mIL_AST.CreateInt("temp104", "1"),
+							mIL_AST.CreatePair("temp105", "temp104", "temp103"),
+							
+							mIL_AST.GetFirst("temp106", "temp105"),
+							mIL_AST.GetSecond("temp107", "temp105"),
+							mIL_AST.Alias("a", "temp106"),
+							mIL_AST.GetFirst("temp108", "temp107"),
+							mIL_AST.GetSecond("temp109", "temp107"),
+							mIL_AST.Alias("b", "temp108"),
+							mIL_AST.Alias("c", "temp109")
+						)
+					);
+					
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"MapMatchPrefix",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var LastReg = 100;
+					
+					mSPO_AST.tAssignmantNode z;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))").MATCH(out z));
+					
+					var x = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					
+					mStd.AssertEq(
+						x,
+						mList.List<mIL_AST.tCommandNode>(
+							mIL_AST.CreateInt("temp101", "4"),
+							mIL_AST.CreateInt("temp102", "3"),
+							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
+							mIL_AST.AddPrefix("temp104", "bla", "temp103"),
+							mIL_AST.CreateInt("temp105", "2"),
+							mIL_AST.CreatePair("temp106", "temp105", "temp104"),
+							mIL_AST.CreateInt("temp107", "1"),
+							mIL_AST.CreatePair("temp108", "temp107", "temp106"),
+							
+							mIL_AST.GetFirst("temp109", "temp108"),
+							mIL_AST.GetSecond("temp110", "temp108"),
+							mIL_AST.Alias("a", "temp109"),
+							mIL_AST.GetFirst("temp111", "temp110"),
+							mIL_AST.GetSecond("temp112", "temp110"),
+							mIL_AST.Alias("b", "temp111"),
+							mIL_AST.SubPrefix("temp113", "bla", "temp112"),
+							mIL_AST.GetFirst("temp114", "temp113"),
+							mIL_AST.GetSecond("temp115", "temp113"),
+							mIL_AST.Alias("c", "temp114"),
+							mIL_AST.Alias("d", "temp115")
 						)
 					);
 					

@@ -69,6 +69,7 @@ public static class  mIL_Parser {
 		(+IDENT -TOKEN(":=") -TOKEN("§2nd") +IDENT)        .Modify(mIL_AST.GetSecond) |
 		(+IDENT -TOKEN(":=") -TOKEN("+") +IDENT +IDENT)    .Modify(mIL_AST.AddPrefix) |
 		(+IDENT -TOKEN(":=") -TOKEN("-") +IDENT +IDENT)    .Modify(mIL_AST.SubPrefix) |
+		(+IDENT -TOKEN(":=") -TOKEN("?") +IDENT +IDENT)    .Modify(mIL_AST.HasPrefix) |
 		(+IDENT -TOKEN(":=") +IDENT +IDENT)                .Modify(mIL_AST.Call) |
 		(+IDENT -TOKEN(":=") +IDENT)                       .Modify(mIL_AST.Alias) |
 		(-TOKEN("§PUSH") +IDENT)                           .Modify(mIL_AST.Push) |

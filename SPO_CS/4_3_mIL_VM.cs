@@ -248,6 +248,7 @@ public static class mIL_VM {
 		SECOND,
 		ADD_PREFIX,
 		DEL_PREFIX,
+		HAS_PREFIX,
 		SET_OBJ,
 		ASSERT,
 		CALL,
@@ -350,6 +351,16 @@ public static class mIL_VM {
 		//================================================================================
 		) {
 			return _AddReg(tOpCode.DEL_PREFIX, a1, a2);
+		}
+		
+		//================================================================================
+		public tInt32
+		HasPrefix(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) {
+			return _AddReg(tOpCode.HAS_PREFIX, a1, a2);
 		}
 		
 		//================================================================================
@@ -508,6 +519,20 @@ public static class mIL_VM {
 						Prefix.Equals(Arg1)
 					) {
 						_Reg = mList.Concat(_Reg, mList.List(Data_));
+					} else {
+						mStd.Assert(false);
+					}
+				} break;
+				
+				case tOpCode.HAS_PREFIX: {
+					mStd.tTuple<tInt32, tData> PrefixData;
+					tData Data_;
+					tInt32 Prefix;
+					if (
+						_Reg.Skip(Arg2)._Head.MATCH(tDataType.PREFIX, out PrefixData) &&
+						PrefixData.MATCH(out Prefix, out Data_)
+					) {
+						_Reg = mList.Concat(_Reg, mList.List(mIL_VM.BOOL(Prefix.Equals(Arg1))));
 					} else {
 						mStd.Assert(false);
 					}

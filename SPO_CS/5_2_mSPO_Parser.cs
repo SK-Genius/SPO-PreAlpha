@@ -116,6 +116,12 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser CALL = CALL1 | CALL2;
 	
+	public static tSPO_Parser PREFIX = C( -TOKEN("#") +IDENT +ELEMENT )
+		.Modify(mSPO_AST.Prefix);
+	
+	public static tSPO_Parser MATCH_PREFIX = C( -TOKEN("#") +IDENT +MATCH )
+		.Modify(mSPO_AST.MatchPrefix);
+	
 	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +BLOCK )
 		.Modify(mSPO_AST.Lambda);
 	
@@ -124,12 +130,12 @@ public static class  mSPO_Parser {
 	
 	static mSPO_Parser() {
 		MATCH.Def(
-			C( +(MATCH|LITERAL|IDENT) +( -TOKEN(",") +(MATCH|LITERAL|IDENT) )[0, null] ) .Modify_(
+			C( +(MATCH|LITERAL|IDENT|MATCH_PREFIX) +( -TOKEN(",") +(MATCH|LITERAL|IDENT|MATCH_PREFIX) )[0, null] ) .Modify_(
 				a => mParserGen.ResultList(mSPO_AST.Match(a._Value.Map(mStd.To<mSPO_AST.tMatchItemNode>)))
 			)
 		);
 		
-		ELEMENT.Def( LITERAL | IDENT | C( +ELEMENT ) | TUPLE | CALL | LAMBDA );
+		ELEMENT.Def( LITERAL | IDENT | C( +ELEMENT ) | TUPLE | CALL | PREFIX | LAMBDA );
 	}
 	
 	#region TEST

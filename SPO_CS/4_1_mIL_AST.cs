@@ -23,6 +23,7 @@ public static class mIL_AST {
 		Second,
 		AddPrefix,
 		SubPrefix,
+		HasPrefix,
 		Call,
 		Push,
 		Pop,
@@ -197,6 +198,15 @@ public static class mIL_AST {
 		tText aId3
 	//================================================================================
 	) => CommandNode(tCommandNodeType.SubPrefix, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	HasPrefix = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => CommandNode(tCommandNodeType.HasPrefix, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>

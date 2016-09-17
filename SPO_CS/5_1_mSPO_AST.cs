@@ -84,6 +84,40 @@ public static class mSPO_AST {
 		public override tText ToString() { return "(Match: "+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")"; }
 	}
 	
+	public class tPrefixNode : tExpressionNode {
+		internal tText _Prefix;
+		internal tExpressionNode _Element;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tPrefixNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Element.Equals(_Element);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tPrefixNode); }
+		public override tText ToString() { return "(#"+_Prefix+" "+_Element+")"; }
+	}
+	
+	public class tMatchPrefixNode : tMatchNode {
+		internal tText _Prefix;
+		internal tMatchNode _Match;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMatchPrefixNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Match.Equals(_Match);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tMatchPrefixNode); }
+		public override tText ToString() { return "(#"+_Prefix+" "+_Match+")"; }
+	}
+	
 	public class tLambdaNode : tExpressionNode {
 		internal tMatchNode _Head;
 		internal mList.tList<tCommandNode> _Body;
@@ -196,6 +230,28 @@ public static class mSPO_AST {
 	) => new tCallNode {
 		_Func = aFunc,
 		_Arg = aArg
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tPrefixNode, tIdentNode, tExpressionNode>
+	Prefix = (
+		aPrefix,
+		aElement
+	//================================================================================
+	) => new tPrefixNode {
+		_Prefix = aPrefix._Name,
+		_Element = aElement
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tMatchPrefixNode, tIdentNode, tMatchNode>
+	MatchPrefix = (
+		aPrefix,
+		aMatch
+	//================================================================================
+	) => new tMatchPrefixNode {
+		_Prefix = aPrefix._Name,
+		_Match = aMatch
 	};
 	
 	//================================================================================

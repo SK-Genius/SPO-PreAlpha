@@ -42,7 +42,7 @@ public static class mParserGen {
 		return aParser.Modify_(
 			a => {
 				t1 A1;
-				a.MATCH(out A1);
+				mStd.Assert(a.MATCH(out A1));
 				return ResultList(aModifyFunc(A1));
 			}
 		);
@@ -59,7 +59,7 @@ public static class mParserGen {
 			a => {
 				t1 A1;
 				t2 A2;
-				a.MATCH(out A1, out A2);
+				mStd.Assert(a.MATCH(out A1, out A2));
 				return ResultList(aModifyFunc(A1, A2));
 			}
 		);
@@ -77,7 +77,7 @@ public static class mParserGen {
 				t1 A1;
 				t2 A2;
 				t3 A3;
-				a.MATCH(out A1, out A2, out A3);
+				mStd.Assert(a.MATCH(out A1, out A2, out A3));
 				return ResultList(aModifyFunc(A1, A2, A3));
 			}
 		);
@@ -96,7 +96,7 @@ public static class mParserGen {
 				t2 A2;
 				t3 A3;
 				t4 A4;
-				a.MATCH(out A1, out A2, out A3, out A4);
+				mStd.Assert(a.MATCH(out A1, out A2, out A3, out A4));
 				return ResultList(aModifyFunc(A1, A2, A3, A4));
 			}
 		);
