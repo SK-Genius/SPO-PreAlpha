@@ -55,6 +55,7 @@ COMMANDS:
 	PREFIX:
 		(#n x) -> x
 		x -> (#n x)
+		(#n ? x) -> x
 	
 	VAR:
 		§VAR T -> x 

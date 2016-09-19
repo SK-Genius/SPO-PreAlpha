@@ -18,6 +18,8 @@ using tResults = mList.tList<mStd.tAny>;
 using tText_Parser = mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>>;
 
 public static class mSPO2IL {
+	private static tText TempReg(tInt32 a) { return "t_" + a; }
+	private static tText Ident(tText a) { return "_" + a; }
 	
 	//================================================================================
 	public static tText
@@ -33,17 +35,15 @@ public static class mSPO2IL {
 				aLastReg += 1;
 				aCommands = mList.Concat(
 					aCommands,
-					mList.List(
-						mIL_AST.CreateInt("temp"+aLastReg, NumberNode._Value.ToString())
-					)
+					mList.List(mIL_AST.CreateInt(TempReg(aLastReg), NumberNode._Value.ToString()))
 				);
-				return "temp"+aLastReg;
+				return TempReg(aLastReg);
 			}
 		}
 		{
 			var IdentNode = aExpression as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
-				return IdentNode._Name;
+				return Ident(IdentNode._Name);
 			}
 		}
 		{
@@ -52,8 +52,11 @@ public static class mSPO2IL {
 				var FuncReg = MapExpresion(CallNode._Func, ref aCommands, ref aLastReg);
 				var ArgReg = MapExpresion(CallNode._Arg, ref aCommands, ref aLastReg);
 				aLastReg += 1;
-				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.Call("temp"+aLastReg, FuncReg, ArgReg)));
-				return "temp"+aLastReg;
+				aCommands = mList.Concat(
+					aCommands,
+					mList.List(mIL_AST.Call(TempReg(aLastReg), FuncReg, ArgReg))
+				);
+				return TempReg(aLastReg);
 			}
 		}
 		{
@@ -66,10 +69,13 @@ public static class mSPO2IL {
 				while (List.MATCH(out Item, out List)) {
 					var ItemReg = MapExpresion(Item, ref aCommands, ref aLastReg);
 					aLastReg += 1;
-					aCommands = mList.Concat(aCommands, mList.List(mIL_AST.CreatePair("temp"+aLastReg, ItemReg, LastTupleReg)));
-					LastTupleReg = "temp"+aLastReg;
+					aCommands = mList.Concat(
+						aCommands,
+						mList.List(mIL_AST.CreatePair(TempReg(aLastReg), ItemReg, LastTupleReg))
+					);
+					LastTupleReg = TempReg(aLastReg);
 				}
-				return "temp"+aLastReg;
+				return TempReg(aLastReg);
 			}
 		}
 		{
@@ -77,8 +83,11 @@ public static class mSPO2IL {
 			if (!PrefixNode.IsNull()) {
 				var Reg = MapExpresion(PrefixNode._Element, ref aCommands, ref aLastReg);
 				aLastReg += 1;
-				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.AddPrefix("temp"+aLastReg ,PrefixNode._Prefix, Reg)));
-				return "temp"+aLastReg;
+				aCommands = mList.Concat(
+					aCommands,
+					mList.List(mIL_AST.AddPrefix(TempReg(aLastReg), PrefixNode._Prefix, Reg))
+				);
+				return TempReg(aLastReg);
 			}
 		}
 		{
@@ -111,8 +120,8 @@ public static class mSPO2IL {
 			var PrefixNode = aPattern as mSPO_AST.tMatchPrefixNode;
 			if (!PrefixNode.IsNull()) {
 				aLastReg += 1;
-				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.SubPrefix("temp"+aLastReg, PrefixNode._Prefix, aValue)));
-				mStd.Assert(MapMatch(PrefixNode._Match, "temp"+aLastReg, ref aCommands, ref aLastReg));
+				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.SubPrefix(TempReg(aLastReg), PrefixNode._Prefix, aValue)));
+				mStd.Assert(MapMatch(PrefixNode._Match, TempReg(aLastReg), ref aCommands, ref aLastReg));
 				return true;
 			}
 		}
@@ -123,7 +132,10 @@ public static class mSPO2IL {
 			mList.tList<mSPO_AST.tMatchItemNode> Rest;
 			mStd.Assert(aPattern._Items.MATCH(out Item, out Rest));
 			if (Rest.IsNull()) {
-				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.Alias((Item as mSPO_AST.tIdentNode)._Name, aValue)));
+				aCommands = mList.Concat(
+					aCommands,
+					mList.List(mIL_AST.Alias(Ident((Item as mSPO_AST.tIdentNode)._Name), aValue))
+				);
 				return true;
 			}
 		}
@@ -136,10 +148,10 @@ public static class mSPO2IL {
 				HeadReg = OldTailReg;
 			} else {
 				aLastReg += 1;
-				HeadReg = "temp" + aLastReg;
+				HeadReg = TempReg(aLastReg);
 				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.GetFirst(HeadReg, OldTailReg)));
 				aLastReg += 1;
-				var NewTailReg = "temp" + aLastReg;
+				var NewTailReg = TempReg(aLastReg);
 				aCommands = mList.Concat(aCommands, mList.List(mIL_AST.GetSecond(NewTailReg, OldTailReg)));
 				OldTailReg = NewTailReg;
 			}
@@ -147,7 +159,7 @@ public static class mSPO2IL {
 			{
 				var IdentNode = Item as mSPO_AST.tIdentNode;
 				if (!IdentNode.IsNull()) {
-					aCommands = mList.Concat(aCommands, mList.List(mIL_AST.Alias(IdentNode._Name, HeadReg)));
+					aCommands = mList.Concat(aCommands, mList.List(mIL_AST.Alias(Ident(IdentNode._Name), HeadReg)));
 					continue;
 				}
 			}
@@ -202,26 +214,26 @@ public static class mSPO2IL {
 			"MapExpresion",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					var LastReg = 100;
+					var LastReg = 0;
 					
-					mSPO_AST.tExpressionNode z;
-					mStd.Assert(mSPO_Parser.ELEMENT.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out z));
+					mSPO_AST.tExpressionNode ExpressionNode;
+					mStd.Assert(mSPO_Parser.ELEMENT.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out ExpressionNode));
 					
-					var x = mList.List<mIL_AST.tCommandNode>();
-					mStd.AssertEq(MapExpresion(z, ref x, ref LastReg), "temp109");
+					var CommandNodes = mList.List<mIL_AST.tCommandNode>();
+					mStd.AssertEq(MapExpresion(ExpressionNode, ref CommandNodes, ref LastReg), TempReg(9));
 					
 					mStd.AssertEq(
-						x,
+						CommandNodes,
 						mList.List<mIL_AST.tCommandNode>(
-							mIL_AST.CreateInt("temp101", "3"),
-							mIL_AST.CreateInt("temp102", "3"),
-							mIL_AST.CreateInt("temp103", "4"),
-							mIL_AST.CreatePair("temp104", "temp103", "temp102"),
-							mIL_AST.Call("temp105", "...+...", "temp104"),
-							mIL_AST.CreatePair("temp106", "temp105", "temp101"),
-							mIL_AST.CreateInt("temp107", "2"),
-							mIL_AST.CreatePair("temp108", "temp107", "temp106"),
-							mIL_AST.Call("temp109", "...<...<...", "temp108")
+							mIL_AST.CreateInt(TempReg(1), "3"),
+							mIL_AST.CreateInt(TempReg(2), "3"),
+							mIL_AST.CreateInt(TempReg(3), "4"),
+							mIL_AST.CreatePair(TempReg(4), TempReg(3), TempReg(2)),
+							mIL_AST.Call(TempReg(5), Ident("...+..."), TempReg(4)),
+							mIL_AST.CreatePair(TempReg(6), TempReg(5), TempReg(1)),
+							mIL_AST.CreateInt(TempReg(7), "2"),
+							mIL_AST.CreatePair(TempReg(8), TempReg(7), TempReg(6)),
+							mIL_AST.Call(TempReg(9), Ident("...<...<..."), TempReg(8))
 						)
 					);
 					
@@ -233,21 +245,22 @@ public static class mSPO2IL {
 			"MapAssignment",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					var LastReg = 100;
+					var LastReg = 0;
 					
-					mSPO_AST.tAssignmantNode z;
-					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a) := (1, 2)").MATCH(out z));
+					mSPO_AST.tAssignmantNode AssignmentNode;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a) := (1, 2)").MATCH(out AssignmentNode));
 					
-					var x = mList.List<mIL_AST.tCommandNode>();
-					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					var CommandNodes = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(AssignmentNode, ref CommandNodes, ref LastReg));
 					
 					mStd.AssertEq(
-						x,
+						CommandNodes,
 						mList.List<mIL_AST.tCommandNode>(
-							mIL_AST.CreateInt("temp101", "2"),
-							mIL_AST.CreateInt("temp102", "1"),
-							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
-							mIL_AST.Alias("a", "temp103")
+							mIL_AST.CreateInt(TempReg(1), "2"),
+							mIL_AST.CreateInt(TempReg(2), "1"),
+							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
+							
+							mIL_AST.Alias(Ident("a"), TempReg(3))
 						)
 					);
 					
@@ -259,29 +272,30 @@ public static class mSPO2IL {
 			"MapAssignmentMatch",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					var LastReg = 100;
+					var LastReg = 0;
 					
-					mSPO_AST.tAssignmantNode z;
-					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, (b, c)) := (1, (2, 3))").MATCH(out z));
+					mSPO_AST.tAssignmantNode AssignmantNode;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, (b, c)) := (1, (2, 3))").MATCH(out AssignmantNode));
 					
-					var x = mList.List<mIL_AST.tCommandNode>();
-					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					var CommandNodes = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(AssignmantNode, ref CommandNodes, ref LastReg));
 					
 					mStd.AssertEq(
-						x,
+						CommandNodes,
 						mList.List<mIL_AST.tCommandNode>(
-							mIL_AST.CreateInt("temp101", "3"),
-							mIL_AST.CreateInt("temp102", "2"),
-							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
-							mIL_AST.CreateInt("temp104", "1"),
-							mIL_AST.CreatePair("temp105", "temp104", "temp103"),
-							mIL_AST.GetFirst("temp106", "temp105"),
-							mIL_AST.GetSecond("temp107", "temp105"),
-							mIL_AST.Alias("a", "temp106"),
-							mIL_AST.GetFirst("temp108", "temp107"),
-							mIL_AST.GetSecond("temp109", "temp107"),
-							mIL_AST.Alias("b", "temp108"),
-							mIL_AST.Alias("c", "temp109")
+							mIL_AST.CreateInt(TempReg(1), "3"),
+							mIL_AST.CreateInt(TempReg(2), "2"),
+							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
+							mIL_AST.CreateInt(TempReg(4), "1"),
+							mIL_AST.CreatePair(TempReg(5), TempReg(4), TempReg(3)),
+							
+							mIL_AST.GetFirst(TempReg(6), TempReg(5)),
+							mIL_AST.GetSecond(TempReg(7), TempReg(5)),
+							mIL_AST.Alias(Ident("a"), TempReg(6)),
+							mIL_AST.GetFirst(TempReg(8), TempReg(7)),
+							mIL_AST.GetSecond(TempReg(9), TempReg(7)),
+							mIL_AST.Alias(Ident("b"), TempReg(8)),
+							mIL_AST.Alias(Ident("c"), TempReg(9))
 						)
 					);
 					
@@ -293,30 +307,30 @@ public static class mSPO2IL {
 			"MatchTuple",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					var LastReg = 100;
+					var LastReg = 0;
 					
-					mSPO_AST.tAssignmantNode z;
-					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, c) := (1, 2, 3)").MATCH(out z));
+					mSPO_AST.tAssignmantNode AssignmantNode;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, c) := (1, 2, 3)").MATCH(out AssignmantNode));
 					
-					var x = mList.List<mIL_AST.tCommandNode>();
-					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					var CommandNodes = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(AssignmantNode, ref CommandNodes, ref LastReg));
 					
 					mStd.AssertEq(
-						x,
+						CommandNodes,
 						mList.List<mIL_AST.tCommandNode>(
-							mIL_AST.CreateInt("temp101", "3"),
-							mIL_AST.CreateInt("temp102", "2"),
-							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
-							mIL_AST.CreateInt("temp104", "1"),
-							mIL_AST.CreatePair("temp105", "temp104", "temp103"),
+							mIL_AST.CreateInt(TempReg(1), "3"),
+							mIL_AST.CreateInt(TempReg(2), "2"),
+							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
+							mIL_AST.CreateInt(TempReg(4), "1"),
+							mIL_AST.CreatePair(TempReg(5), TempReg(4), TempReg(3)),
 							
-							mIL_AST.GetFirst("temp106", "temp105"),
-							mIL_AST.GetSecond("temp107", "temp105"),
-							mIL_AST.Alias("a", "temp106"),
-							mIL_AST.GetFirst("temp108", "temp107"),
-							mIL_AST.GetSecond("temp109", "temp107"),
-							mIL_AST.Alias("b", "temp108"),
-							mIL_AST.Alias("c", "temp109")
+							mIL_AST.GetFirst(TempReg(6), TempReg(5)),
+							mIL_AST.GetSecond(TempReg(7), TempReg(5)),
+							mIL_AST.Alias(Ident("a"), TempReg(6)),
+							mIL_AST.GetFirst(TempReg(8), TempReg(7)),
+							mIL_AST.GetSecond(TempReg(9), TempReg(7)),
+							mIL_AST.Alias(Ident("b"), TempReg(8)),
+							mIL_AST.Alias(Ident("c"), TempReg(9))
 						)
 					);
 					
@@ -328,37 +342,37 @@ public static class mSPO2IL {
 			"MapMatchPrefix",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					var LastReg = 100;
+					var LastReg = 0;
 					
-					mSPO_AST.tAssignmantNode z;
-					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))").MATCH(out z));
+					mSPO_AST.tAssignmantNode AssignmantNode;
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))").MATCH(out AssignmantNode));
 					
-					var x = mList.List<mIL_AST.tCommandNode>();
-					mStd.Assert(MapAssignment(z, ref x, ref LastReg));
+					var CommandNodes = mList.List<mIL_AST.tCommandNode>();
+					mStd.Assert(MapAssignment(AssignmantNode, ref CommandNodes, ref LastReg));
 					
 					mStd.AssertEq(
-						x,
+						CommandNodes,
 						mList.List<mIL_AST.tCommandNode>(
-							mIL_AST.CreateInt("temp101", "4"),
-							mIL_AST.CreateInt("temp102", "3"),
-							mIL_AST.CreatePair("temp103", "temp102", "temp101"),
-							mIL_AST.AddPrefix("temp104", "bla", "temp103"),
-							mIL_AST.CreateInt("temp105", "2"),
-							mIL_AST.CreatePair("temp106", "temp105", "temp104"),
-							mIL_AST.CreateInt("temp107", "1"),
-							mIL_AST.CreatePair("temp108", "temp107", "temp106"),
+							mIL_AST.CreateInt(TempReg(1), "4"),
+							mIL_AST.CreateInt(TempReg(2), "3"),
+							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
+							mIL_AST.AddPrefix(TempReg(4), "bla", TempReg(3)),
+							mIL_AST.CreateInt(TempReg(5), "2"),
+							mIL_AST.CreatePair(TempReg(6), TempReg(5), TempReg(4)),
+							mIL_AST.CreateInt(TempReg(7), "1"),
+							mIL_AST.CreatePair(TempReg(8), TempReg(7), TempReg(6)),
 							
-							mIL_AST.GetFirst("temp109", "temp108"),
-							mIL_AST.GetSecond("temp110", "temp108"),
-							mIL_AST.Alias("a", "temp109"),
-							mIL_AST.GetFirst("temp111", "temp110"),
-							mIL_AST.GetSecond("temp112", "temp110"),
-							mIL_AST.Alias("b", "temp111"),
-							mIL_AST.SubPrefix("temp113", "bla", "temp112"),
-							mIL_AST.GetFirst("temp114", "temp113"),
-							mIL_AST.GetSecond("temp115", "temp113"),
-							mIL_AST.Alias("c", "temp114"),
-							mIL_AST.Alias("d", "temp115")
+							mIL_AST.GetFirst(TempReg(9), TempReg(8)),
+							mIL_AST.GetSecond(TempReg(10), TempReg(8)),
+							mIL_AST.Alias(Ident("a"), TempReg(9)),
+							mIL_AST.GetFirst(TempReg(11), TempReg(10)),
+							mIL_AST.GetSecond(TempReg(12), TempReg(10)),
+							mIL_AST.Alias(Ident("b"), TempReg(11)),
+							mIL_AST.SubPrefix(TempReg(13), "bla", TempReg(12)),
+							mIL_AST.GetFirst(TempReg(14), TempReg(13)),
+							mIL_AST.GetSecond(TempReg(15), TempReg(13)),
+							mIL_AST.Alias(Ident("c"), TempReg(14)),
+							mIL_AST.Alias(Ident("d"), TempReg(15))
 						)
 					);
 					
@@ -366,6 +380,7 @@ public static class mSPO2IL {
 				}
 			)
 		)
+		// TODO NEXT BIG THING: "x := (a => (2 .* a))"
 	);
 	
 	#endregion
