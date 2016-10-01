@@ -81,7 +81,9 @@ public static class mSPO_AST {
 		}
 		
 		public override tBool Equals(object a) { return this.Equals(a as tMatchNode); }
-		public override tText ToString() { return "(Match: "+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")"; }
+		public override tText ToString() {
+			return "(Match: "+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")";
+		}
 	}
 	
 	public class tPrefixNode : tExpressionNode {
@@ -120,7 +122,7 @@ public static class mSPO_AST {
 	
 	public class tLambdaNode : tExpressionNode {
 		internal tMatchNode _Head;
-		internal mList.tList<tCommandNode> _Body;
+		internal tExpressionNode _Body;
 		
 		//================================================================================
 		public tBool
@@ -182,7 +184,9 @@ public static class mSPO_AST {
 		}
 		
 		public override tBool Equals(object a) { return this.Equals(a as tTupleNode); }
-		public override tText ToString() { return "("+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")"; }
+		public override tText ToString() {
+			return "("+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")";
+		}
 	}
 	
 	//================================================================================
@@ -209,7 +213,7 @@ public static class mSPO_AST {
 		aName
 	//================================================================================
 	) => new tIdentNode {
-		_Name = aName
+		_Name = "_" + aName
 	};
 	
 	//================================================================================
@@ -255,7 +259,7 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tLambdaNode, tMatchNode, mList.tList<tCommandNode>>
+	public static mStd.tFunc<tLambdaNode, tMatchNode, tExpressionNode>
 	Lambda = (
 		aMatch,
 		aBody
@@ -293,7 +297,7 @@ public static class mSPO_AST {
 	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
-			"???",
+			"TODO",
 			mTest.Test(
 				(mStd.tAction<tText> DebugStream) => {
 					return true;

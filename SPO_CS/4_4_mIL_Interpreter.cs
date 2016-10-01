@@ -43,7 +43,7 @@ public static class mIL_Interpreter {
 		
 		return ParseModule(Defs);
 	}
-		
+	
 	//================================================================================
 	private static mStd.tTuple<
 		mList.tList<mIL_VM.tProcDef>,
@@ -239,7 +239,12 @@ public static class mIL_Interpreter {
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
 					var Res = mIL_VM.EMPTY();
-					mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)), Res);
+					mIL_VM.Run(
+						mIL_VM.PROC(Proc, Env),
+						mIL_VM.EMPTY(),
+						mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)),
+						Res
+					);
 					mStd.AssertEq(Res, mIL_VM.PREFIX("VECTOR", mIL_VM.INT(13)));
 					
 					return true;
@@ -268,10 +273,17 @@ public static class mIL_Interpreter {
 					var Env = mIL_VM.EXTERN_DEF(Eq);
 					var Res = mIL_VM.EMPTY();
 					
-					var CallStack = new mIL_VM.tCallStack(null, Proc, Env, mIL_VM.EMPTY(), mIL_VM.INT(1), Res);
-						while (CallStack != null) {
-							CallStack = CallStack.Step();
-						}
+					var CallStack = new mIL_VM.tCallStack(
+						null,
+						Proc,
+						Env,
+						mIL_VM.EMPTY(), 
+						mIL_VM.INT(1),
+						Res
+					);
+					while (CallStack != null) {
+						CallStack = CallStack.Step();
+					}
 					mStd.AssertEq(Res, mIL_VM.BOOL(true));
 					
 					var HasThrowException = false;
@@ -410,7 +422,12 @@ public static class mIL_Interpreter {
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc3, Env), mIL_VM.EMPTY(), mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)), Res);
+						mIL_VM.Run(
+							mIL_VM.PROC(Proc3, Env),
+							mIL_VM.EMPTY(),
+							mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)),
+							Res
+						);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					{

@@ -57,8 +57,12 @@ public static class  mIL_Parser {
 	
 	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
-	public static tIL_Parser IDENT = ( ( CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) | Token("...") )[1, null] -__ )
-		.Modify_(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2));
+	public static tIL_Parser IDENT = (
+		(
+			CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) |
+			Token("...")
+		)[1, null] -__
+	).Modify_(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2));
 	
 	public static tIL_Parser LITERAL = (_NUM_ | _STRING_) -__;
 	
@@ -130,6 +134,7 @@ public static class  mIL_Parser {
 					mStd.AssertEq(COMMAND.Parse("a := §2nd b ..."),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second,    "a", "b")));
 					mStd.AssertEq(COMMAND.Parse("a := +b c ..."),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, "a", "b", "c")));
 					mStd.AssertEq(COMMAND.Parse("a := -b c ..."),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, "a", "b", "c")));
+					mStd.AssertEq(COMMAND.Parse("a := ?b c ..."),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, "a", "b", "c")));
 					mStd.AssertEq(COMMAND.Parse("§PUSH a ..."),        mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push,      "a")));
 					mStd.AssertEq(COMMAND.Parse("§POP ..."),           mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop)));
 					mStd.AssertEq(COMMAND.Parse("a := b c ..."),       mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call,      "a", "b", "c")));

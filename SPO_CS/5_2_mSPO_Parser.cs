@@ -87,7 +87,7 @@ public static class  mSPO_Parser {
 				return (
 					mParserGen.ResultList(
 						mSPO_AST.Call(
-							mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name).Join((a1, a2) => a1+"..."+a2)+Last),
+							mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
 							mSPO_AST.Tuple(aList._Value.Skip(1).Every(2).Map(mStd.To<mSPO_AST.tExpressionNode>))
 						)
 					)
@@ -106,7 +106,7 @@ public static class  mSPO_Parser {
 				return (
 					mParserGen.ResultList(
 						mSPO_AST.Call(
-							mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name).Join((a1, a2) => a1+"..."+a2)+Last),
+							mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
 							mSPO_AST.Tuple(aList._Value.Every(2).Map(mStd.To<mSPO_AST.tExpressionNode>))
 						)
 					)
@@ -122,7 +122,7 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser MATCH_PREFIX = C( -TOKEN("#") +IDENT +MATCH )
 		.Modify(mSPO_AST.MatchPrefix);
 	
-	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +BLOCK )
+	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +ELEMENT )
 		.Modify(mSPO_AST.Lambda);
 	
 	public static tSPO_Parser MODUL = (ASSIGNMENT +(-NL +ASSIGNMENT)[0, null])
@@ -270,11 +270,11 @@ public static class  mSPO_Parser {
 			)
 		),
 		mStd.Tuple(
-			"???",
+			"Lambda",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						ELEMENT.Parse("((x) => { (a) := (x .* x) })..."),
+						ELEMENT.Parse("((x) => (x .* x))..."),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(
@@ -282,21 +282,12 @@ public static class  mSPO_Parser {
 										mSPO_AST.Ident("x")
 									)
 								),
-								mList.List<mSPO_AST.tCommandNode>(
-									mSPO_AST.Assignment(
-										mSPO_AST.Match(
-											mList.List<mSPO_AST.tMatchItemNode>(
-												mSPO_AST.Ident("a")
-											)
-										),
-										mSPO_AST.Call(
-											mSPO_AST.Ident("...*..."),
-											mSPO_AST.Tuple(
-												mList.List<mSPO_AST.tExpressionNode>(
-													mSPO_AST.Ident("x"),
-													mSPO_AST.Ident("x")
-												)
-											)
+								mSPO_AST.Call(
+									mSPO_AST.Ident("...*..."),
+									mSPO_AST.Tuple(
+										mList.List<mSPO_AST.tExpressionNode>(
+											mSPO_AST.Ident("x"),
+											mSPO_AST.Ident("x")
 										)
 									)
 								)

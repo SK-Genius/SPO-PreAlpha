@@ -40,7 +40,7 @@ public static class mList {
 		
 		public override tBool Equals(object a) { return this.Equals(a as tList<t>); }
 		public override tText ToString() { return "["+this.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+"]"; }
-		public static tBool operator==(tList<t> a1, tList<t> a2) { return a1.Equals(a2); }
+		public static tBool operator==(tList<t> a1, tList<t> a2) { return a1.IsNull() ? a2.IsNull() : a1.Equals(a2); }
 		public static tBool operator!=(tList<t> a1, tList<t> a2) { return !a1.Equals(a2); }
 	}
 	
@@ -265,6 +265,31 @@ public static class mList {
 	}
 	
 	//================================================================================
+	public static tBool
+	IsEmpty<t>(
+		this tList<t> aList
+	//================================================================================
+	) {
+		return aList == List<t>();
+	}
+	
+	//================================================================================
+	public static tBool
+	Any(
+		this tList<tBool> aList
+	//================================================================================
+	) {
+		var RestList = aList;
+		tBool Head;
+		while (RestList.MATCH(out Head, out RestList)) {
+			if (Head) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//================================================================================
 	public static tList<t>
 	Reverse<t>(
 		this tList<t> aList
@@ -393,6 +418,35 @@ public static class mList {
 					mStd.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
 					mStd.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
 					mStd.AssertEq(List(1, 2, 3).Skip(-1), List(1, 2, 3));
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"IsEmpty()",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					mStd.Assert(List<tInt32>().IsEmpty());
+					mStd.AssertNot(List(1).IsEmpty());
+					mStd.AssertNot(List(1, 2).IsEmpty());
+					
+					mStd.AssertNot(List<tInt32>() == new tList<int>());
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"Any()",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					mStd.AssertNot(List<tBool>().Any());
+					mStd.AssertNot(List(false).Any());
+					mStd.Assert(List(true).Any());
+					mStd.AssertNot(List(false, false, false).Any());
+					mStd.Assert(List(true, true, true).Any());
+					mStd.Assert(List(false, false, true, false).Any());
+					mStd.Assert(List(1, 2, 3, 4).Map(a => a == 2).Any());
+					mStd.AssertNot(List(1, 3, 4).Map(a => a == 2).Any());
 					return true;
 				}
 			)
