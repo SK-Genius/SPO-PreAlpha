@@ -28,6 +28,7 @@ public static class Program {
 			mStd.Tuple("mStd", mStd.Test),
 			mStd.Tuple("mList", mList.Test),
 //			mStd.Tuple("mTest", mTest.Test),
+			mStd.Tuple("mArrayList", mArrayList.Test),
 			mStd.Tuple("mParserGen", mParserGen.Test),
 			mStd.Tuple("mTextParser", mTextParser.Test),
 			mStd.Tuple("mIL_AST", mIL_AST.Test),

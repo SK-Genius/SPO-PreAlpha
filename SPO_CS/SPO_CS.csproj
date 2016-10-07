@@ -61,6 +61,8 @@
   <ItemGroup>
     <Compile Include="1_2_mList.cs" />
     <Compile Include="1_3_mMap.cs" />
+    <Compile Include="1_4_mMath.cs" />
+    <Compile Include="1_5_mArrayList.cs" />
     <Compile Include="5_3_mSPO2IL.cs" />
     <Compile Include="4_4_mIL_Interpreter.cs" />
     <Compile Include="4_3_mIL_VM.cs" />
