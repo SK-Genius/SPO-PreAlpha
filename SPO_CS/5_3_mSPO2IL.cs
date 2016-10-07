@@ -19,12 +19,25 @@ using tText_Parser = mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>>
 
 public static class mSPO2IL {
 	public struct tModuleConstructor {
-		internal mList.tList<mIL_AST.tCommandNode> Commands;
+		internal mArrayList.tArrayList<mIL_AST.tCommandNode> Commands;
 		internal tInt32 LastTempReg;
-		internal mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs;
+		internal mArrayList.tArrayList<mStd.tTuple<tText, mArrayList.tArrayList<mIL_AST.tCommandNode>>> Defs;
 		internal tInt32 LastTempDef;
-		internal mList.tList<tText> UnsolvedSymbols;
+		internal mArrayList.tArrayList<tText> UnsolvedSymbols;
 	}
+	
+	//================================================================================
+	public static tModuleConstructor
+	NewModuleConstructor (
+	//================================================================================
+	) {
+		return new tModuleConstructor {
+			Commands = mArrayList.List<mIL_AST.tCommandNode>(),
+			Defs = mArrayList.List<mStd.tTuple<tText, mArrayList.tArrayList<mIL_AST.tCommandNode>>>(),
+			UnsolvedSymbols = mArrayList.List<tText>()
+		};
+	}
+	
 	
 	private static tText TempReg(tInt32 a) { return "t_" + a; }
 	private static tText TempDef(tInt32 a) { return "d_" + a; }
@@ -43,10 +56,7 @@ public static class mSPO2IL {
 			var IdentNode = aArgs as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
 				aArgumentSymbols = mList.Concat(aArgumentSymbols, mList.List(IdentNode._Name));
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.Alias(IdentNode._Name, aReg))
-				);
+				aModule.Commands.Push(mIL_AST.Alias(IdentNode._Name, aReg));
 				return;
 			}
 		}
@@ -65,19 +75,13 @@ public static class mSPO2IL {
 						
 						aModule.LastTempReg += 1;
 						var ItemReg = TempReg(aModule.LastTempReg);
-						aModule.Commands = mList.Concat(
-							aModule.Commands,
-							mList.List(mIL_AST.GetFirst(ItemReg, aReg))
-						);
+						aModule.Commands.Push(mIL_AST.GetFirst(ItemReg, aReg));
 						
 						MapArgs(ref aModule, ref aArgumentSymbols, Item, ItemReg);
 						
 						aModule.LastTempReg += 1;
 						RestReg = TempReg(aModule.LastTempReg);
-						aModule.Commands = mList.Concat(
-							aModule.Commands,
-							mList.List(mIL_AST.GetSecond(RestReg, aReg))
-						);
+						aModule.Commands.Push(mIL_AST.GetSecond(RestReg, aReg));
 					}
 				}
 				return;
@@ -88,56 +92,49 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
-	public static mStd.tTuple<tText, mList.tList<tText>>
+	public static mStd.tTuple<tText, mArrayList.tArrayList<tText>>
 	MapLambda(
 		ref tModuleConstructor aModule,
 		mSPO_AST.tLambdaNode aLambda
 	//================================================================================
 	) {
-		var LambdaModule = new tModuleConstructor();
+		var LambdaModule = NewModuleConstructor();
 		
 		var ArgumentSymbols = mList.List<tText>();
 		MapArgs(ref LambdaModule, ref ArgumentSymbols, aLambda._Head, "ARG");
 		
 		var ResultReg = MapExpresion(ref LambdaModule, aLambda._Body);
-		LambdaModule.UnsolvedSymbols = LambdaModule.UnsolvedSymbols.Where(S1 => !ArgumentSymbols.Map(S2 => S1 == S2).Any());
-		var Def = mList.Concat(LambdaModule.Commands, mList.List(mIL_AST.ReturnIf(ResultReg, "TRUE")));
+		var NewUnsolvedSymbols = mArrayList.List<tText>();
+		LambdaModule.UnsolvedSymbols
+			.ToLasyList()
+			.Where(S1 => !ArgumentSymbols.Map(S2 => S1 == S2).Any())
+			.Map(S => NewUnsolvedSymbols.Push(S));
+		LambdaModule.UnsolvedSymbols = NewUnsolvedSymbols;
+		var Def = mArrayList.Concat(LambdaModule.Commands, mArrayList.List(mIL_AST.ReturnIf(ResultReg, "TRUE")));
 		
 		if (!LambdaModule.UnsolvedSymbols.IsEmpty()) {
-			var ExtractEnv = mList.List<mIL_AST.tCommandNode>();
+			var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode>();
 			tText Symbol;
-			var Symbols = LambdaModule.UnsolvedSymbols;
+			var Symbols = LambdaModule.UnsolvedSymbols.ToLasyList();
 			var RestEnv = "ENV";
 			while (Symbols.MATCH(out Symbol, out Symbols)) {
 				if (Symbols.IsEmpty()) {
-					ExtractEnv = mList.Concat(
-						ExtractEnv,
-						mList.List(mIL_AST.Alias(Symbol, RestEnv))
-					);
+					ExtractEnv.Push(mIL_AST.Alias(Symbol, RestEnv));
 					break;
 				}
-				ExtractEnv = mList.Concat(
-					ExtractEnv,
-					mList.List(mIL_AST.GetFirst(Symbol, RestEnv))
-				);
+				ExtractEnv.Push(mIL_AST.GetFirst(Symbol, RestEnv));
 				aModule.LastTempReg += 1;
 				var NewRestEnv = TempReg(aModule.LastTempReg);
-				ExtractEnv = mList.Concat(
-					ExtractEnv,
-					mList.List(mIL_AST.GetSecond(NewRestEnv, RestEnv))
-				);
+				ExtractEnv.Push(mIL_AST.GetSecond(NewRestEnv, RestEnv));
 				RestEnv = NewRestEnv;
 			}
 			
-			Def = mList.Concat(ExtractEnv, Def);
+			Def = mArrayList.Concat(ExtractEnv, Def);
 		}
 		
 		aModule.LastTempDef += 1;
 		var NewDef = TempDef(aModule.LastTempDef);
-		aModule.Defs = mList.Concat(
-			aModule.Defs,
-			mList.List(mStd.Tuple(NewDef, Def))
-		);
+		aModule.Defs.Push(mStd.Tuple(NewDef, Def));
 		return mStd.Tuple(NewDef, LambdaModule.UnsolvedSymbols);
 	}
 	
@@ -152,17 +149,14 @@ public static class mSPO2IL {
 			var NumberNode = aExpression as mSPO_AST.tNumberNode;
 			if (!NumberNode.IsNull()) {
 				aModule.LastTempReg += 1;
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.CreateInt(TempReg(aModule.LastTempReg), NumberNode._Value.ToString()))
-				);
+				aModule.Commands.Push(mIL_AST.CreateInt(TempReg(aModule.LastTempReg), NumberNode._Value.ToString()));
 				return TempReg(aModule.LastTempReg);
 			}
 		}
 		{
 			var IdentNode = aExpression as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
-				aModule.UnsolvedSymbols = mList.Concat(aModule.UnsolvedSymbols, mList.List(IdentNode._Name));
+				aModule.UnsolvedSymbols.Push(IdentNode._Name);
 				return IdentNode._Name;
 			}
 		}
@@ -173,10 +167,7 @@ public static class mSPO2IL {
 				tText ArgReg = MapExpresion(ref aModule, CallNode._Arg);
 				
 				aModule.LastTempReg += 1;
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.Call(TempReg(aModule.LastTempReg), FuncReg, ArgReg))
-				);
+				aModule.Commands.Push(mIL_AST.Call(TempReg(aModule.LastTempReg), FuncReg, ArgReg));
 				return TempReg(aModule.LastTempReg);
 			}
 		}
@@ -190,10 +181,7 @@ public static class mSPO2IL {
 				while (List.MATCH(out Item, out List)) {
 					var ItemReg = MapExpresion(ref aModule, Item);
 					aModule.LastTempReg += 1;
-					aModule.Commands = mList.Concat(
-						aModule.Commands,
-						mList.List(mIL_AST.CreatePair(TempReg(aModule.LastTempReg), ItemReg, LastTupleReg))
-					);
+					aModule.Commands.Push(mIL_AST.CreatePair(TempReg(aModule.LastTempReg), ItemReg, LastTupleReg));
 					LastTupleReg = TempReg(aModule.LastTempReg);
 				}
 				return TempReg(aModule.LastTempReg);
@@ -204,14 +192,11 @@ public static class mSPO2IL {
 			if (!PrefixNode.IsNull()) {
 				var Reg = MapExpresion(ref aModule, PrefixNode._Element);
 				aModule.LastTempReg += 1;
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(
-						mIL_AST.AddPrefix(
-							TempReg(aModule.LastTempReg),
-							PrefixNode._Prefix,
-							Reg
-						)
+				aModule.Commands.Push(
+					mIL_AST.AddPrefix(
+						TempReg(aModule.LastTempReg),
+						PrefixNode._Prefix,
+						Reg
 					)
 				);
 				return TempReg(aModule.LastTempReg);
@@ -228,31 +213,32 @@ public static class mSPO2IL {
 			var LambdaNode = aExpression as mSPO_AST.tLambdaNode;
 			if (!LambdaNode.IsNull()) {
 				tText NewDef;
-				mList.tList<tText> UnsolvedSymbols;
+				mArrayList.tArrayList<tText> UnsolvedSymbols;
 				mStd.Assert(MapLambda(ref aModule, LambdaNode).MATCH(out NewDef, out UnsolvedSymbols));
 				tText Symbol;
 				var ArgReg = "_";
 				if (!UnsolvedSymbols.IsEmpty()) {
-					UnsolvedSymbols = UnsolvedSymbols.Reverse();
-					mStd.Assert(UnsolvedSymbols.MATCH(out Symbol, out UnsolvedSymbols));
+					var UnsolvedSymbols_ = UnsolvedSymbols.ToLasyList();
+					while (UnsolvedSymbols_.MATCH(out Symbol, out UnsolvedSymbols_)) {
+						if (aModule.UnsolvedSymbols.ToLasyList().Where(S => S == Symbol).IsEmpty()) {
+							aModule.UnsolvedSymbols.Push(Symbol);
+						}
+					}
+					
+					UnsolvedSymbols_ = UnsolvedSymbols.ToLasyList().Reverse();
+					mStd.Assert(UnsolvedSymbols_.MATCH(out Symbol, out UnsolvedSymbols_));
 					ArgReg = Symbol;
-					while (UnsolvedSymbols.MATCH(out Symbol, out UnsolvedSymbols)) {
+					while (UnsolvedSymbols_.MATCH(out Symbol, out UnsolvedSymbols_)) {
 						aModule.LastTempReg += 1;
 						var NewArgReg = TempReg(aModule.LastTempReg);
-						aModule.Commands = mList.Concat(
-							aModule.Commands,
-							mList.List(mIL_AST.CreatePair(NewArgReg, Symbol, ArgReg))
-						);
+						aModule.Commands.Push(mIL_AST.CreatePair(NewArgReg, Symbol, ArgReg));
 						ArgReg = NewArgReg;
 					}
 				}
 				
 				aModule.LastTempReg += 1;
 				var Lambda = TempReg(aModule.LastTempReg);
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.Call(Lambda, NewDef, ArgReg))
-				);
+				aModule.Commands.Push(mIL_AST.Call(Lambda, NewDef, ArgReg));
 				
 				return Lambda;
 			}
@@ -274,10 +260,7 @@ public static class mSPO2IL {
 			var PrefixNode = aPattern as mSPO_AST.tMatchPrefixNode;
 			if (!PrefixNode.IsNull()) {
 				aModule.LastTempReg += 1;
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.SubPrefix(TempReg(aModule.LastTempReg), PrefixNode._Prefix, aValue))
-				);
+				aModule.Commands.Push(mIL_AST.SubPrefix(TempReg(aModule.LastTempReg), PrefixNode._Prefix, aValue));
 				return MapMatch(ref aModule, PrefixNode._Match, TempReg(aModule.LastTempReg));
 			}
 		}
@@ -288,10 +271,7 @@ public static class mSPO2IL {
 			mList.tList<mSPO_AST.tMatchItemNode> Rest;
 			mStd.Assert(aPattern._Items.MATCH(out Item, out Rest));
 			if (Rest.IsNull()) {
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.Alias((Item as mSPO_AST.tIdentNode)._Name, aValue))
-				);
+				aModule.Commands.Push(mIL_AST.Alias((Item as mSPO_AST.tIdentNode)._Name, aValue));
 				return true;
 			}
 		}
@@ -305,26 +285,17 @@ public static class mSPO2IL {
 			} else {
 				aModule.LastTempReg += 1;
 				HeadReg = TempReg(aModule.LastTempReg);
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.GetFirst(HeadReg, OldTailReg))
-				);
+				aModule.Commands.Push(mIL_AST.GetFirst(HeadReg, OldTailReg));
 				aModule.LastTempReg += 1;
 				var NewTailReg = TempReg(aModule.LastTempReg);
-				aModule.Commands = mList.Concat(
-					aModule.Commands,
-					mList.List(mIL_AST.GetSecond(NewTailReg, OldTailReg))
-				);
+				aModule.Commands.Push(mIL_AST.GetSecond(NewTailReg, OldTailReg));
 				OldTailReg = NewTailReg;
 			}
 			
 			{
 				var IdentNode = Item as mSPO_AST.tIdentNode;
 				if (!IdentNode.IsNull()) {
-					aModule.Commands = mList.Concat(
-						aModule.Commands,
-						mList.List(mIL_AST.Alias(IdentNode._Name, HeadReg))
-					);
+					aModule.Commands.Push(mIL_AST.Alias(IdentNode._Name, HeadReg));
 					continue;
 				}
 			}
@@ -382,12 +353,12 @@ public static class mSPO2IL {
 					mSPO_AST.tExpressionNode ExpressionNode;
 					mStd.Assert(mSPO_Parser.ELEMENT.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out ExpressionNode));
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.AssertEq(MapExpresion(ref Module, ExpressionNode), TempReg(9));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.CreateInt(TempReg(1), "3"),
 							mIL_AST.CreateInt(TempReg(2), "3"),
 							mIL_AST.CreateInt(TempReg(3), "4"),
@@ -411,12 +382,12 @@ public static class mSPO2IL {
 					mSPO_AST.tAssignmantNode AssignmentNode;
 					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("(a) := (1, 2)").MATCH(out AssignmentNode));
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmentNode));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.CreateInt(TempReg(1), "2"),
 							mIL_AST.CreateInt(TempReg(2), "1"),
 							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
@@ -440,12 +411,12 @@ public static class mSPO2IL {
 						).MATCH(out AssignmantNode)
 					);
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmantNode));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.CreateInt(TempReg(1), "3"),
 							mIL_AST.CreateInt(TempReg(2), "2"),
 							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
@@ -479,12 +450,12 @@ public static class mSPO2IL {
 						).MATCH(out AssignmantNode)
 					);
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmantNode));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.CreateInt(TempReg(1), "3"),
 							mIL_AST.CreateInt(TempReg(2), "2"),
 							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
@@ -516,12 +487,12 @@ public static class mSPO2IL {
 						.MATCH(out AssignmantNode)
 					);
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmantNode));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.CreateInt(TempReg(1), "4"),
 							mIL_AST.CreateInt(TempReg(2), "3"),
 							mIL_AST.CreatePair(TempReg(3), TempReg(2), TempReg(1)),
@@ -560,17 +531,15 @@ public static class mSPO2IL {
 						).MATCH(out AssignmantNode)
 					);
 					
-					var Module = new tModuleConstructor();
+					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmantNode));
 					
-					mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>> FirstDef;
-					mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> RestDefs;
-					mStd.Assert(Module.Defs.MATCH(out FirstDef, out RestDefs));
+					mStd.AssertEq(Module.Defs.Size(), 1);
 					mStd.AssertEq(
-						FirstDef,
+						Module.Defs.Get(0),
 						mStd.Tuple(
 							TempDef(1),
-							mList.List<mIL_AST.tCommandNode>(
+							mArrayList.List<mIL_AST.tCommandNode>(
 								mIL_AST.Alias(Ident("...*..."), "ENV"),
 								
 								mIL_AST.Alias(Ident("a"), "ARG"),
@@ -582,17 +551,16 @@ public static class mSPO2IL {
 							)
 						)
 					);
-					mStd.AssertNot(RestDefs.MATCH(out FirstDef, out RestDefs));
 					
 					mStd.AssertEq(
 						Module.Commands,
-						mList.List<mIL_AST.tCommandNode>(
+						mArrayList.List<mIL_AST.tCommandNode>(
 							mIL_AST.Call(TempReg(1), TempDef(1), Ident("...*...")),
 							mIL_AST.Alias(Ident("x"), TempReg(1))
 						)
 					);
 					
-					mStd.AssertEq(Module.UnsolvedSymbols, mList.List(Ident("...*...")));
+					mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...*...")));
 					
 					return true;
 				}
