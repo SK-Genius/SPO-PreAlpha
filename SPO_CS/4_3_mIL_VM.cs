@@ -267,8 +267,8 @@ public static class mIL_VM {
 		public const tInt32 ARG_Reg   = 6;
 		public const tInt32 RES_Reg   = 7;
 		
-		internal mList.tList<mStd.tTuple<tOpCode, tInt32, tInt32>>
-			_Commands = mList.List<mStd.tTuple<tOpCode, tInt32, tInt32>>();
+		internal mArrayList.tArrayList<mStd.tTuple<tOpCode, tInt32, tInt32>>
+			_Commands = mArrayList.List<mStd.tTuple<tOpCode, tInt32, tInt32>>();
 		
 		internal tInt32 _LastReg = 7;
 		
@@ -280,7 +280,7 @@ public static class mIL_VM {
 			tInt32 a2 = -1
 		//================================================================================
 		) {
-			_Commands = mList.Concat(_Commands, mList.List(mStd.Tuple(Command, a1, a2)));
+			_Commands.Push(mStd.Tuple(Command, a1, a2));
 		}
 		
 		//================================================================================
@@ -415,7 +415,7 @@ public static class mIL_VM {
 	
 	public class tCallStack {
 		internal tCallStack _Parent;
-		internal mList.tList<tData> _Reg = mList.List<tData>();
+		internal mArrayList.tArrayList<tData> _Reg = mArrayList.List<tData>();
 		internal tProcDef _ProcDef;
 		internal tInt32 _CodePointer = 0;
 		internal tData _Obj;
@@ -433,9 +433,9 @@ public static class mIL_VM {
 			_Parent = Parent;
 			_ProcDef = ProcDef;
 			
-			_Reg = mList.Concat(
+			_Reg = mArrayList.Concat(
 				_Reg,
-				mList.List(
+				mArrayList.List(
 					EMPTY(),
 					INT(1),
 					BOOL(false),
@@ -453,7 +453,7 @@ public static class mIL_VM {
 		Step(
 		//================================================================================
 		) {
-			var Command = _ProcDef._Commands.Skip(_CodePointer)._Head;
+			var Command = _ProcDef._Commands.Get(_CodePointer);
 			_CodePointer += 1;
 			_Obj = EMPTY();
 			
@@ -464,25 +464,19 @@ public static class mIL_VM {
 			
 			switch (OpCode) {
 				case tOpCode.NEW_INT: {
-					_Reg = mList.Concat(
-						_Reg,
-						mList.List(INT(Arg1))
-					);
+					_Reg.Push(INT(Arg1));
 				} break;
 				
 				case tOpCode.NEW_PAIR: {
-					_Reg = mList.Concat(
-						_Reg,
-						mList.List(PAIR(_Reg.Skip(Arg1)._Head, _Reg.Skip(Arg2)._Head))
-					);
+					_Reg.Push(PAIR(_Reg.Get(Arg1), _Reg.Get(Arg2)));
 				} break;
 				
 				case tOpCode.FIRST: {
 					tData Var1;
 					tData Var2;
-					if (_Reg.Skip(Arg1)._Head.MATCH(tDataType.PAIR, out Var1, out Var2)
+					if (_Reg.Get(Arg1).MATCH(tDataType.PAIR, out Var1, out Var2)
 					) {
-						_Reg = mList.Concat(_Reg, mList.List(Var1));
+						_Reg.Push(Var1);
 					} else {
 						mStd.Assert(false);
 					}
@@ -493,20 +487,17 @@ public static class mIL_VM {
 					tData Var1;
 					tData Var2;
 					if (
-						_Reg.Skip(Arg1)._Head.MATCH(tDataType.PAIR, out Pair) &&
+						_Reg.Get(Arg1).MATCH(tDataType.PAIR, out Pair) &&
 						Pair.MATCH(out Var1, out Var2)
 					) {
-						_Reg = mList.Concat(_Reg, mList.List(Var2));
+						_Reg.Push(Var2);
 					} else {
 						mStd.Assert(false);
 					}
 				} break;
 				
 				case tOpCode.ADD_PREFIX: {
-					_Reg = mList.Concat(
-						_Reg,
-						mList.List((Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Reg.Skip(Arg2)._Head))))
-					);
+					_Reg.Push(Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Reg.Get(Arg2))));
 				} break;
 				
 				case tOpCode.DEL_PREFIX: {
@@ -514,11 +505,11 @@ public static class mIL_VM {
 					tData Data_;
 					tInt32 Prefix;
 					if (
-						_Reg.Skip(Arg2)._Head.MATCH(tDataType.PREFIX, out PrefixData) &&
+						_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out PrefixData) &&
 						PrefixData.MATCH(out Prefix, out Data_) &&
 						Prefix.Equals(Arg1)
 					) {
-						_Reg = mList.Concat(_Reg, mList.List(Data_));
+						_Reg.Push(Data_);
 					} else {
 						mStd.Assert(false);
 					}
@@ -529,10 +520,10 @@ public static class mIL_VM {
 					tData Data_;
 					tInt32 Prefix;
 					if (
-						_Reg.Skip(Arg2)._Head.MATCH(tDataType.PREFIX, out PrefixData) &&
+						_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out PrefixData) &&
 						PrefixData.MATCH(out Prefix, out Data_)
 					) {
-						_Reg = mList.Concat(_Reg, mList.List(mIL_VM.BOOL(Prefix.Equals(Arg1))));
+						_Reg.Push(mIL_VM.BOOL(Prefix.Equals(Arg1)));
 					} else {
 						mStd.Assert(false);
 					}
@@ -540,32 +531,32 @@ public static class mIL_VM {
 				
 				case tOpCode.ASSERT: {
 					tBool Bool;
-					if (_Reg.Skip(Arg1)._Head.MATCH(tDataType.BOOL, out Bool) && Bool) {
-						mStd.Assert(_Reg.Skip(Arg2)._Head.MATCH(tDataType.BOOL, out Bool) && Bool);
+					if (_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Bool) && Bool) {
+						mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.BOOL, out Bool) && Bool);
 					}
 				} break;
 				
 				case tOpCode.SET_OBJ: {
-					_Obj = _Reg.Skip(Arg1)._Head;
+					_Obj = _Reg.Get(Arg1);
 				} break;
 				
 				case tOpCode.CALL: {
-					var Proc = _Reg.Skip(Arg1)._Head;
-					var Arg  = _Reg.Skip(Arg2)._Head;
+					var Proc = _Reg.Get(Arg1);
+					var Arg  = _Reg.Get(Arg2);
 					
 					mStd.tFunc<tData, tData, tData, tData> ExternDef;
 					tProcDef Def;
 					tData Env;
 					
 					if (Proc.MATCH(tDataType.EXTERN_DEF, out ExternDef)) {
-						_Reg = mList.Concat(_Reg, mList.List(EXTERN_PROC(ExternDef, Arg)));
+						_Reg.Push(EXTERN_PROC(ExternDef, Arg));
 					} else if(Proc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out Env)) {
-						_Reg = mList.Concat(_Reg, mList.List(ExternDef(Env, _Obj, Arg)));
+						_Reg.Push(ExternDef(Env, _Obj, Arg));
 					} else if (Proc.MATCH(tDataType.DEF, out Def)) {
-						_Reg = mList.Concat(_Reg, mList.List(PROC(Def, Arg)));
+						_Reg.Push(PROC(Def, Arg));
 					} else if (Proc.MATCH(tDataType.PROC, out Def, out Env)) {
 						var Res = EMPTY();
-						_Reg = mList.Concat(_Reg, mList.List(Res));
+						_Reg.Push(Res);
 						return new tCallStack(this, Def, Env, _Obj, Arg, Res);
 					} else {
 						mStd.Assert(false);
@@ -574,10 +565,10 @@ public static class mIL_VM {
 				
 				case tOpCode.RETURN_IF: {
 					tBool Cond;
-					mStd.Assert(_Reg.Skip(Arg1)._Head.MATCH(tDataType.BOOL, out Cond));
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Cond));
 					if (Cond) {
-						var Src = _Reg.Skip(Arg2)._Head;
-						var Des = _Reg.Skip(tProcDef.RES_Reg)._Head;
+						var Src = _Reg.Get(Arg2);
+						var Des = _Reg.Get(tProcDef.RES_Reg);
 						Des._DataType = Src._DataType;
 						Des._Value = Src._Value;
 						return _Parent;
@@ -586,17 +577,17 @@ public static class mIL_VM {
 				
 				case tOpCode.CONTUNUE_IF: {
 					tBool Cond;
-					mStd.Assert(_Reg.Skip(Arg1)._Head.MATCH(tDataType.BOOL, out Cond));
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Cond));
 					if (Cond) {
-						_Reg = mList.List<tData>(
+						_Reg = mArrayList.List<tData>(
 							EMPTY(),
 							INT(1),
 							BOOL(false),
 							BOOL(true),
-							_Reg.Skip(tProcDef.ENV_Reg)._Head,
-							_Reg.Skip(tProcDef.OBJ_Reg)._Head,
-							_Reg.Skip(Arg2)._Head,
-							_Reg.Skip(tProcDef.RES_Reg)._Head
+							_Reg.Get(tProcDef.ENV_Reg),
+							_Reg.Get(tProcDef.OBJ_Reg),
+							_Reg.Get(Arg2),
+							_Reg.Get(tProcDef.RES_Reg)
 						);
 						_CodePointer = 0;
 					}

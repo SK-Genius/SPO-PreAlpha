@@ -135,8 +135,8 @@ public static class mArrayList {
 	//================================================================================
 	public static t
 	Get<t>(
-		tArrayList<t> aList,
-		tInt32        aIndex
+		this tArrayList<t> aList,
+		tInt32             aIndex
 	//================================================================================
 	) {
 		return aList._Items[aIndex];
@@ -145,9 +145,9 @@ public static class mArrayList {
 	//================================================================================
 	public static void
 	Set<t>(
-		tArrayList<t> aList,
-		tInt32        aIndex,
-		t             aValue
+		this tArrayList<t> aList,
+		tInt32             aIndex,
+		t                  aValue
 	//================================================================================
 	) {
 		aList._Items[aIndex] = aValue;
@@ -245,6 +245,26 @@ public static class mArrayList {
 						mStd.AssertEq(L.Pop(out X), List<tInt32>());
 						mStd.AssertEq(X, 1);
 					}
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"tArrayList.Get(...)",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					mStd.AssertEq(List(10, 11, 12).Get(1), 11);
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"tArrayList.Get(...)",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var L = List(10, 11, 12, 13);
+					L.Set(1, 21);
+					mStd.AssertEq(L, List(10, 21, 12, 13));
 					return true;
 				}
 			)
