@@ -1,4 +1,5 @@
-﻿using tBool = System.Boolean;
+﻿using System.Runtime.Remoting.Messaging;
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -37,7 +38,6 @@ public static class mSPO2IL {
 			UnsolvedSymbols = mArrayList.List<tText>()
 		};
 	}
-	
 	
 	private static tText TempReg(tInt32 a) { return "t_" + a; }
 	private static tText TempDef(tInt32 a) { return "d_" + a; }
@@ -322,7 +322,68 @@ public static class mSPO2IL {
 	) {
 		var ValueReg = MapExpresion(ref aModule, aAssignment._Src);
 		return MapMatch(ref aModule, aAssignment._Des, ValueReg);
-
+	}
+	
+	//================================================================================
+	public static tBool
+	MapCommand(
+		ref tModuleConstructor aModule,
+		mSPO_AST.tCommandNode aCommand
+	//================================================================================
+	) {
+		var Assignment = aCommand as mSPO_AST.tAssignmantNode;
+		if (!Assignment.IsNull()) {
+			return MapAssignment(ref aModule, Assignment);
+		}
+		
+		mStd.Assert(false);
+		return false;
+	}
+	
+	//================================================================================
+	public static mSPO_AST.tMatchNode
+	ImportToMatch(
+		mSPO_AST.tImportNode aImportNode
+	//================================================================================
+	) {
+		mStd.Assert(false);
+		return null;
+	}
+	
+	//================================================================================
+	public static mSPO_AST.tTupleNode
+	ExportToTuple(
+		mSPO_AST.tExportNode aExportNode
+	//================================================================================
+	) {
+		mStd.Assert(false);
+		return null;
+	}
+	
+	//================================================================================
+	public static tBool
+	MapModule(
+		ref tModuleConstructor aModule,
+		mSPO_AST.tModuleNode aModuleNode
+	//================================================================================
+	) {
+		mStd.AssertEq(
+			MapLambda(
+				ref aModule,
+				mSPO_AST.Lambda(
+					ImportToMatch(aModuleNode._Import),
+					mSPO_AST.Block(
+						mList.Concat(
+							aModuleNode._Commands,
+							mList.List<mSPO_AST.tCommandNode>(mSPO_AST.Return(ExportToTuple(aModuleNode._Export)))
+						)
+					)
+				)
+			)._2,
+			mArrayList.List<tText>()
+		);
+		
+		return true;
 	}
 	
 	#region TEST
@@ -351,7 +412,7 @@ public static class mSPO2IL {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tExpressionNode ExpressionNode;
-					mStd.Assert(mSPO_Parser.ELEMENT.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out ExpressionNode));
+					mStd.Assert(mSPO_Parser.EXPRESSION.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out ExpressionNode));
 					
 					var Module = NewModuleConstructor();
 					mStd.AssertEq(MapExpresion(ref Module, ExpressionNode), TempReg(9));
@@ -533,6 +594,53 @@ public static class mSPO2IL {
 					
 					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmantNode));
+					
+					mStd.AssertEq(Module.Defs.Size(), 1);
+					mStd.AssertEq(
+						Module.Defs.Get(0),
+						mStd.Tuple(
+							TempDef(1),
+							mArrayList.List<mIL_AST.tCommandNode>(
+								mIL_AST.Alias(Ident("...*..."), "ENV"),
+								
+								mIL_AST.Alias(Ident("a"), "ARG"),
+								
+								mIL_AST.CreateInt(TempReg(1), "2"),
+								mIL_AST.CreatePair(TempReg(2), TempReg(1), Ident("a")),
+								mIL_AST.Call(TempReg(3), Ident("...*..."), TempReg(2)),
+								mIL_AST.ReturnIf(TempReg(3), "TRUE")
+							)
+						)
+					);
+					
+					mStd.AssertEq(
+						Module.Commands,
+						mArrayList.List<mIL_AST.tCommandNode>(
+							mIL_AST.Call(TempReg(1), TempDef(1), Ident("...*...")),
+							mIL_AST.Alias(Ident("x"), TempReg(1))
+						)
+					);
+					
+					mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...*...")));
+					
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"MapModule",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					mSPO_AST.tModuleNode ModuleNode;
+					mStd.Assert(
+						mSPO_Parser.MODULE.Parse(
+							"(x) := ((a) => (2 .* a))\n" +
+							"(y) := (.x a)"
+						).MATCH(out ModuleNode)
+					);
+					
+					var Module = NewModuleConstructor();
+					mStd.Assert(MapModule(ref Module, ModuleNode));
 					
 					mStd.AssertEq(Module.Defs.Size(), 1);
 					mStd.AssertEq(

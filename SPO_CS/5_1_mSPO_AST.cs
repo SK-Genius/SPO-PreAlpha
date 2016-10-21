@@ -137,6 +137,22 @@ public static class mSPO_AST {
 		public override tText ToString() { return "("+_Head+" => "+_Body+")"; }
 	}
 	
+	public class tBlockNode : tExpressionNode {
+		internal mList.tList<tCommandNode> _Commands;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tBlockNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Commands.Equals(_Commands);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tBlockNode); }
+		public override tText ToString() { return "{"+_Commands+"}"; }
+	}
+	
 	public class tCallNode : tExpressionNode {
 		internal tExpressionNode _Func;
 		internal tExpressionNode _Arg;
@@ -171,6 +187,22 @@ public static class mSPO_AST {
 		public override tText ToString() { return "("+_Des+" := "+_Src+")"; }
 	}
 	
+	public class tReturnNode : tCommandNode {
+		internal tExpressionNode _Result;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tReturnNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Result.Equals(_Result);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tReturnNode); }
+		public override tText ToString() { return "RETURN "+_Result; }
+	}
+	
 	public class tTupleNode : tExpressionNode {
 		internal mList.tList<tExpressionNode> _Items;
 		
@@ -186,6 +218,34 @@ public static class mSPO_AST {
 		public override tBool Equals(object a) { return this.Equals(a as tTupleNode); }
 		public override tText ToString() {
 			return "("+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")";
+		}
+	}
+	
+	public class tImportNode {
+		// TODO: ImportNode
+	}
+	
+	public class tExportNode {
+		// TODO: ExportNode
+	}
+	
+	public class tModuleNode {
+		internal tImportNode _Import;
+		internal tExportNode _Export;
+		internal mList.tList<tCommandNode> _Commands;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tModuleNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Commands.Equals(_Commands);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tModuleNode); }
+		public override tText ToString() {
+			return _Commands.Map(a => a.ToString()).Join((a1, a2) => a1+"\n"+a2)+"\n";
 		}
 	}
 	
@@ -288,6 +348,42 @@ public static class mSPO_AST {
 		return new tAssignmantNode {
 			_Des = aMatch,
 			_Src = aExpression
+		};
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tReturnNode, tExpressionNode>
+	Return = (
+		aResult
+	//================================================================================
+	) => {
+		return new tReturnNode {
+			_Result = aResult
+		};
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tBlockNode, mList.tList<tCommandNode>>
+	Block = (
+		aCommands
+	//================================================================================
+	) => {
+		return new tBlockNode {
+			_Commands = aCommands
+		};
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tModuleNode, mList.tList<tCommandNode>>
+	Module = (
+		aCommands
+	//================================================================================
+	) => {
+		// TODO: Module (Import- & Export- Args)
+		return new tModuleNode {
+			_Import = null,
+			_Export = null,
+			_Commands = aCommands
 		};
 	};
 	

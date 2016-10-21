@@ -67,20 +67,23 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser MATCH = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
 	
-	public static tSPO_Parser ELEMENT = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
+	public static tSPO_Parser EXPRESSION = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
 	
-	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN(":=") +ELEMENT )
+	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN(":=") +EXPRESSION )
 		.Modify(mSPO_AST.Assignment);
 	
-	public static tSPO_Parser COMMAND = ASSIGNMENT; // TODO: Macros, VarDef, MethodCall, Streaming, ...
+	public static tSPO_Parser COMMAND = ASSIGNMENT; // TODO: Macros, VarDef, MethodCall, Streaming, Block, ...
 	
-	public static tSPO_Parser BLOCK = (-TOKEN("{") -(TOKEN(";")|NL)[0, 1] +COMMAND +(-(TOKEN(";")|NL) +COMMAND)[0, null] -(TOKEN(";")|NL)[0, 1] -TOKEN("}"))
-		.Modify_(a => mParserGen.ResultList(a._Value.Map(mStd.To<mSPO_AST.tCommandNode>)));
+	public static tSPO_Parser COMMANDS = (+COMMAND +(-(TOKEN(";")|NL) +COMMAND)[0, null])
+		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)));
 	
-	public static tSPO_Parser TUPLE = C( +ELEMENT +( -(-TOKEN(",")|(-NL -__)) +ELEMENT )[1, null] )
+	public static tSPO_Parser BLOCK = (-TOKEN("{") -(TOKEN(";")|NL)[0, 1] +COMMANDS -(TOKEN(";")|NL)[0, 1] -TOKEN("}"))
+		.Modify(mSPO_AST.Block);
+	
+	public static tSPO_Parser TUPLE = C( +EXPRESSION +( -(-TOKEN(",")|(-NL -__)) +EXPRESSION )[1, null] )
 		.Modify_((mParserGen.tResultList a) => mParserGen.ResultList(mSPO_AST.Tuple(a._Value.Map(mStd.To<mSPO_AST.tExpressionNode>))));
 	
-	public static tSPO_Parser CALL1 = C( -TOKEN(".") +IDENT +( +ELEMENT + IDENT )[0, null] + ELEMENT[0, 1] )
+	public static tSPO_Parser CALL1 = C( -TOKEN(".") +IDENT +( +EXPRESSION + IDENT )[0, null] + EXPRESSION[0, 1] )
 		.Modify_(
 			aList => {
 				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
@@ -99,7 +102,7 @@ public static class  mSPO_Parser {
 	private const tText EmptyText = "...";
 
 
-	public static tSPO_Parser CALL2 = C( +ELEMENT -TOKEN(".") +IDENT +( +ELEMENT +IDENT )[0, null] +ELEMENT[0, 1] )
+	public static tSPO_Parser CALL2 = C( +EXPRESSION -TOKEN(".") +IDENT +( +EXPRESSION +IDENT )[0, null] +EXPRESSION[0, 1] )
 		.Modify_(
 			aList => {
 				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
@@ -116,17 +119,17 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser CALL = CALL1 | CALL2;
 	
-	public static tSPO_Parser PREFIX = C( -TOKEN("#") +IDENT +ELEMENT )
+	public static tSPO_Parser PREFIX = C( -TOKEN("#") +IDENT +EXPRESSION )
 		.Modify(mSPO_AST.Prefix);
 	
 	public static tSPO_Parser MATCH_PREFIX = C( -TOKEN("#") +IDENT +MATCH )
 		.Modify(mSPO_AST.MatchPrefix);
 	
-	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +ELEMENT )
+	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +EXPRESSION )
 		.Modify(mSPO_AST.Lambda);
 	
-	public static tSPO_Parser MODUL = (ASSIGNMENT +(-NL +ASSIGNMENT)[0, null])
-		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tAssignmantNode>)));
+	public static tSPO_Parser MODULE = COMMANDS
+		.Modify(mSPO_AST.Module);
 	
 	static mSPO_Parser() {
 		MATCH.Def(
@@ -135,7 +138,7 @@ public static class  mSPO_Parser {
 			)
 		);
 		
-		ELEMENT.Def( LITERAL | IDENT | C( +ELEMENT ) | TUPLE | CALL | PREFIX | LAMBDA );
+		EXPRESSION.Def( LITERAL | IDENT | C( +EXPRESSION ) | TUPLE | CALL | PREFIX | LAMBDA | BLOCK );
 	}
 	
 	#region TEST
@@ -165,13 +168,13 @@ public static class  mSPO_Parser {
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(  _NUM_.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
 					mStd.AssertEq(LITERAL.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
-					mStd.AssertEq(ELEMENT.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
+					mStd.AssertEq(EXPRESSION.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
 					
 					mStd.AssertEq(_STRING_.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
 					mStd.AssertEq(LITERAL.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
-					mStd.AssertEq(ELEMENT.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
+					mStd.AssertEq(EXPRESSION.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
 					
-					mStd.AssertEq(ELEMENT.Parse("BLA ..."),  mParserGen.ResultList(mSPO_AST.Ident("BLA")));
+					mStd.AssertEq(EXPRESSION.Parse("BLA ..."),  mParserGen.ResultList(mSPO_AST.Ident("BLA")));
 					return true;
 				}
 			)
@@ -181,7 +184,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						ELEMENT.Parse("(+1_234, \"BLA\")..."),
+						EXPRESSION.Parse("(+1_234, \"BLA\")..."),
 						mParserGen.ResultList(
 							mSPO_AST.Tuple(
 								mList.List<mSPO_AST.tExpressionNode>(
@@ -239,7 +242,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						ELEMENT.Parse("(x .* x)"),
+						EXPRESSION.Parse("(x .* x)"),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("...*..."),
@@ -253,7 +256,7 @@ public static class  mSPO_Parser {
 						)
 					);
 					mStd.AssertEq(
-						ELEMENT.Parse("(.sin x)"),
+						EXPRESSION.Parse("(.sin x)"),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("sin..."),
@@ -274,7 +277,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						ELEMENT.Parse("((x) => (x .* x))..."),
+						EXPRESSION.Parse("((x) => (x .* x))..."),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(
@@ -296,7 +299,7 @@ public static class  mSPO_Parser {
 					);
 					
 					mStd.AssertEq(
-						ELEMENT.Parse("(2 .< (4 .+ 3) < 3)..."),
+						EXPRESSION.Parse("(2 .< (4 .+ 3) < 3)..."),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("...<...<..."),
