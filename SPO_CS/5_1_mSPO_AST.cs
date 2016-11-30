@@ -1,4 +1,5 @@
-﻿using tBool = System.Boolean;
+﻿using System.Runtime.InteropServices;
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -68,8 +69,25 @@ public static class mSPO_AST {
 		public override tText ToString() { return "(Ident: "+_Name+")"; }
 	}
 	
+	public class tMatchTupleNode : tMatchItemNode {
+		internal mList.tList<tMatchNode> _Items;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMatchTupleNode a
+		//================================================================================
+		) {
+			return !a.IsNull() && a._Items.Equals(_Items);
+		}
+		
+		public override tBool Equals(object a) { return this.Equals(a as tMatchTupleNode); }
+		public override tText ToString() { return "("+_Items.Map(a => a.ToString()).Join((aAkku, aItem) => aAkku + "," + aItem)+")"; }
+	}
+	
 	public class tMatchNode : tMatchItemNode {
-		internal mList.tList<tMatchItemNode> _Items;
+		internal tMatchItemNode _Pattern;
+		internal tExpressionNode _Type;
 		
 		//================================================================================
 		public tBool
@@ -77,12 +95,12 @@ public static class mSPO_AST {
 			tMatchNode a
 		//================================================================================
 		) {
-			return !a.IsNull() && a._Items.Equals(_Items);
+			return !a.IsNull() && a._Pattern.Equals(_Pattern) && (a._Type.IsNull() ? _Type.IsNull() : a._Type.Equals(_Type));
 		}
 		
 		public override tBool Equals(object a) { return this.Equals(a as tMatchNode); }
 		public override tText ToString() {
-			return "(Match: "+_Items.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+")";
+			return _Pattern.ToString() + (_Type.IsNull() ? "" : " € " + _Type);
 		}
 	}
 	
@@ -103,7 +121,7 @@ public static class mSPO_AST {
 		public override tText ToString() { return "(#"+_Prefix+" "+_Element+")"; }
 	}
 	
-	public class tMatchPrefixNode : tMatchNode {
+	public class tMatchPrefixNode : tMatchItemNode {
 		internal tText _Prefix;
 		internal tMatchNode _Match;
 		
@@ -222,7 +240,7 @@ public static class mSPO_AST {
 	}
 	
 	public class tImportNode {
-		// TODO: ImportNode
+		internal mSPO_AST.tMatchNode _Match;
 	}
 	
 	public class tExportNode {
@@ -330,12 +348,25 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchNode, mList.tList<tMatchItemNode>>
-	Match = (
+	public static mStd.tFunc<tMatchTupleNode, mList.tList<tMatchNode>>
+	MatchTuple = (
 		aItems
 	//================================================================================
-	) => new tMatchNode {
+	) => new tMatchTupleNode {
 		_Items = aItems
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tMatchNode, tMatchItemNode, tExpressionNode>
+	Match = (
+		aMatch,
+		aType
+	//================================================================================
+	) => {
+		return new tMatchNode {
+			_Pattern = aMatch,
+			_Type = aType
+		};
 	};
 	
 	//================================================================================
@@ -374,16 +405,29 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tModuleNode, mList.tList<tCommandNode>>
+	public static mStd.tFunc<tModuleNode, tImportNode, mList.tList<tCommandNode>>
 	Module = (
+		aImport,
 		aCommands
 	//================================================================================
 	) => {
 		// TODO: Module (Import- & Export- Args)
 		return new tModuleNode {
-			_Import = null,
+			_Import = aImport,
 			_Export = null,
 			_Commands = aCommands
+		};
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tImportNode, tMatchNode>
+	Import = (
+		aMatch
+	//================================================================================
+	) => {
+		// TODO: Module (Import- & Export- Args)
+		return new tImportNode {
+			_Match = aMatch 
 		};
 	};
 	

@@ -48,12 +48,15 @@ public static class mSPO2IL {
 	MapArgs(
 		ref tModuleConstructor aModule,
 		ref mList.tList<tText> aArgumentSymbols,
-		mSPO_AST.tMatchItemNode aArgs,
+		mSPO_AST.tMatchNode aArgs,
 		tText aReg
 	//================================================================================
 	) {
+		var Pattern = aArgs._Pattern;
+		var Type = aArgs._Type;
+		
 		{
-			var IdentNode = aArgs as mSPO_AST.tIdentNode;
+			var IdentNode = Pattern as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
 				aArgumentSymbols = mList.Concat(aArgumentSymbols, mList.List(IdentNode._Name));
 				aModule.Commands.Push(mIL_AST.Alias(IdentNode._Name, aReg));
@@ -61,12 +64,13 @@ public static class mSPO2IL {
 			}
 		}
 		{
-			var MatchNode = aArgs as mSPO_AST.tMatchNode;
-			if (!MatchNode.IsNull()) {
+			var TupleNode = Pattern as mSPO_AST.tMatchTupleNode;
+			if (!TupleNode.IsNull())
+			{
 				var RestReg = aReg;
-				var Items = MatchNode._Items;
+				var Items = TupleNode._Items;
 				if (!Items.IsEmpty()) {
-					mSPO_AST.tMatchItemNode Item;
+					mSPO_AST.tMatchNode Item;
 					while (Items.MATCH(out Item, out Items)) {
 						if (Items.IsEmpty()) {
 							MapArgs(ref aModule, ref aArgumentSymbols, Item, RestReg);
@@ -252,12 +256,23 @@ public static class mSPO2IL {
 	public static tBool
 	MapMatch(
 		ref tModuleConstructor aModule,
-		mSPO_AST.tMatchNode aPattern,
+		mSPO_AST.tMatchNode aMatchNode,
 		tText aValue
 	//================================================================================
 	) {
+		var PatternNode = aMatchNode._Pattern;
+		var TypeNode = aMatchNode._Type;
+		
 		{
-			var PrefixNode = aPattern as mSPO_AST.tMatchPrefixNode;
+			var IdentNode = PatternNode as mSPO_AST.tIdentNode;
+			if (!IdentNode.IsNull()) {
+				aModule.Commands.Push(mIL_AST.Alias(IdentNode._Name, aValue));
+				return true;
+			}
+		}
+		
+		{
+			var PrefixNode = PatternNode as mSPO_AST.tMatchPrefixNode;
 			if (!PrefixNode.IsNull()) {
 				aModule.LastTempReg += 1;
 				aModule.Commands.Push(mIL_AST.SubPrefix(TempReg(aModule.LastTempReg), PrefixNode._Prefix, aValue));
@@ -265,51 +280,38 @@ public static class mSPO2IL {
 			}
 		}
 		
-		mSPO_AST.tMatchItemNode Item;
-		
 		{
-			mList.tList<mSPO_AST.tMatchItemNode> Rest;
-			mStd.Assert(aPattern._Items.MATCH(out Item, out Rest));
-			if (Rest.IsNull()) {
-				aModule.Commands.Push(mIL_AST.Alias((Item as mSPO_AST.tIdentNode)._Name, aValue));
-				return true;
+			var TupleNode = PatternNode as mSPO_AST.tMatchTupleNode;
+			if (!TupleNode.IsNull()) {
+				mSPO_AST.tMatchNode Item;
+				mList.tList<mSPO_AST.tMatchNode> Rest;
+				mStd.Assert(TupleNode._Items.MATCH(out Item, out Rest));
+				if (Rest.IsNull()) {
+					mStd.Assert(false);
+					return false;
+				}
+				
+				var OldTailReg = aValue;
+				var List = TupleNode._Items;
+				while (List.MATCH(out Item, out List)) {
+					tText HeadReg;
+					if (List.IsNull()) {
+						HeadReg = OldTailReg;
+					} else {
+						aModule.LastTempReg += 1;
+						HeadReg = TempReg(aModule.LastTempReg);
+						aModule.Commands.Push(mIL_AST.GetFirst(HeadReg, OldTailReg));
+						aModule.LastTempReg += 1;
+						var NewTailReg = TempReg(aModule.LastTempReg);
+						aModule.Commands.Push(mIL_AST.GetSecond(NewTailReg, OldTailReg));
+						OldTailReg = NewTailReg;
+					}
+					
+					MapMatch(ref aModule, Item, HeadReg);
+				}
 			}
 		}
 		
-		var OldTailReg = aValue;
-		var List = aPattern._Items;
-		while (List.MATCH(out Item, out List)) {
-			tText HeadReg;
-			if (List.IsNull()) {
-				HeadReg = OldTailReg;
-			} else {
-				aModule.LastTempReg += 1;
-				HeadReg = TempReg(aModule.LastTempReg);
-				aModule.Commands.Push(mIL_AST.GetFirst(HeadReg, OldTailReg));
-				aModule.LastTempReg += 1;
-				var NewTailReg = TempReg(aModule.LastTempReg);
-				aModule.Commands.Push(mIL_AST.GetSecond(NewTailReg, OldTailReg));
-				OldTailReg = NewTailReg;
-			}
-			
-			{
-				var IdentNode = Item as mSPO_AST.tIdentNode;
-				if (!IdentNode.IsNull()) {
-					aModule.Commands.Push(mIL_AST.Alias(IdentNode._Name, HeadReg));
-					continue;
-				}
-			}
-			{
-				var MatchNode = Item as mSPO_AST.tMatchNode;
-				if (!MatchNode.IsNull()) {
-					MapMatch(ref aModule, MatchNode, HeadReg);
-					continue;
-				}
-			}
-			
-			mStd.Assert(false);
-			return false;
-		}
 		return true;
 	}
 	
@@ -346,6 +348,7 @@ public static class mSPO2IL {
 		mSPO_AST.tImportNode aImportNode
 	//================================================================================
 	) {
+		aImportNode.ToString();
 		mStd.Assert(false);
 		return null;
 	}
@@ -356,6 +359,7 @@ public static class mSPO2IL {
 		mSPO_AST.tExportNode aExportNode
 	//================================================================================
 	) {
+		aExportNode.ToString();
 		mStd.Assert(false);
 		return null;
 	}
@@ -634,8 +638,30 @@ public static class mSPO2IL {
 					mSPO_AST.tModuleNode ModuleNode;
 					mStd.Assert(
 						mSPO_Parser.MODULE.Parse(
-							"(x) := ((a) => (2 .* a))\n" +
-							"(y) := (.x a)"
+							mList.List(
+#if false
+								"§IMPORT (",
+								"	T € [[]]",
+								"	...*... € [[T, T] => T],",
+								"	k € T",
+								")",
+								"",
+								"x := ((a) => (k .* a))",
+								"y := .x a",
+								"",
+								"§EXPORT y"
+#else
+								"§IMPORT (",
+								"	T,",
+								"	...*...,",
+								"	k",
+								")",
+								"",
+								"x := ((a) => (k .* a))",
+								"y := .x a",
+								""
+#endif
+							).Join((a1, a2) => a1 + "\n" + a2)
 						).MATCH(out ModuleNode)
 					);
 					

@@ -378,6 +378,17 @@ public static class mParserGen {
 	
 	public class tParser<t> {
 		internal mStd.tFunc<mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>>, mList.tList<t>> _ParseFunc;
+		public tText _DebugName = "";
+		
+		//================================================================================
+		public tParser<t>
+		SetDebugName(
+			tText aDebugName
+		//================================================================================
+		) {
+			_DebugName = aDebugName;
+			return this;
+		}
 		
 		//================================================================================
 		public static tParser<t>
@@ -400,7 +411,8 @@ public static class mParserGen {
 						Fail<t>()
 					);
 				}
-			};
+			}
+			.SetDebugName("("+aP1._DebugName+") + ("+aP2._DebugName+")");
 		}
 		
 		//================================================================================
@@ -410,7 +422,8 @@ public static class mParserGen {
 			tParser<t> aP2
 		//================================================================================
 		) {
-			return aP1 + -aP2;
+			return (aP1 + -aP2)
+				.SetDebugName("("+aP1._DebugName+") - ("+aP2._DebugName+")");
 		}
 		
 		//================================================================================
@@ -419,7 +432,8 @@ public static class mParserGen {
 			tParser<t> aParser
 		//================================================================================
 		) {
-			return aParser.Modify_(_ => ResultList());
+			return aParser.Modify_(_ => ResultList())
+				.SetDebugName(" - ("+aParser._DebugName+")");
 		}
 		
 		//================================================================================
@@ -452,7 +466,8 @@ public static class mParserGen {
 				(aCount == 0) ? EmptyParser<t>() :
 				(aCount < 0) ? -(-aCount * aParser) :
 				aParser + (aCount-1)*aParser
-			);
+			)
+			.SetDebugName(aCount.ToString()+" * ("+aParser+")");
 		}
 		
 		//================================================================================
@@ -475,7 +490,8 @@ public static class mParserGen {
 						Fail<t>()
 					);
 				}
-			};
+			}
+			.SetDebugName("("+aP1._DebugName+") | ("+aP2._DebugName+")");
 		}
 		
 		//================================================================================
@@ -499,7 +515,8 @@ public static class mParserGen {
 								}
 								return OK(Result, RestStream);
 							}
-						};
+						}
+						.SetDebugName("("+this._DebugName+")["+aMin+".."+aMax+"]");
 					} else {
 						return new tParser<t> {
 							_ParseFunc = aStream => {
@@ -514,11 +531,18 @@ public static class mParserGen {
 								}
 								return OK(Result, RestStream);
 							}
-						};
+						}
+						.SetDebugName("("+this._DebugName+")["+aMin+".."+aMax+"]");
 					}
 				}
-				if (aMax.IsNull()) { return (int)aMin*this + this[0, null]; }
-				if (aMin <= aMax) { return (int)aMin*this + this[0, aMax - aMin]; }
+				if (aMax.IsNull()) {
+					return ((int)aMin*this + this[0, null])
+					.SetDebugName("("+this._DebugName+")["+aMin+".."+aMax+"]");
+				}
+				if (aMin <= aMax) {
+					return (int)aMin*this + this[0, aMax - aMin]
+					.SetDebugName("("+this._DebugName+")["+aMin+".."+aMax+"]");
+				}
 				throw null;
 			}
 		}
@@ -549,7 +573,8 @@ public static class mParserGen {
 					}
 					return OK(Result, RestStream);
 				}
-			};
+			}
+			.SetDebugName("~("+aParser._DebugName+")");
 		}
 	}
 	
@@ -579,7 +604,16 @@ public static class mParserGen {
 		mList.tList<t> aStream
 	//================================================================================
 	) {
-		return aParser._ParseFunc(aStream);
+		if (aParser._DebugName != "") {
+			System.Diagnostics.Debug.WriteLine(aParser._DebugName+" ->");
+		}
+		var Result = aParser._ParseFunc(aStream);
+		if (Result._IsOK) {
+			System.Diagnostics.Debug.WriteLine(" -> OK");
+		} else {
+			System.Diagnostics.Debug.WriteLine(" -> FAIL");
+		}
+		return Result;
 	}
 	
 	//================================================================================

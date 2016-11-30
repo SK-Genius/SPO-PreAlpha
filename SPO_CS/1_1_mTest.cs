@@ -31,35 +31,27 @@ public static class mTest {
 			(mStd.tAction<tText> aWriter, mList.tList<tText> aFilters) => {
 				tBool HasAnyResult = false;
 				foreach (var SubTest in aTests) {
-					var Buffer = mList.List<tText>();
-					var Writer = mStd.Action((tText aText) => { Buffer = mList.Concat(Buffer, mList.List(aText)); });
 					tText Name;
 					mStd.tFunc<tResult, mStd.tAction<tText>, mList.tList<tText>> Test_;
 					SubTest.MATCH(out Name, out Test_);
 					var Filters = Name.Contains(((aFilters.IsNull()) ? "" : aFilters._Head) ?? "") ? aFilters.Skip(1) : aFilters;
-					Writer(Name);
-					switch (Test_(aText => Writer("|\t"+aText), Filters)) {
+					aWriter(Name);
+					switch (Test_(aText => aWriter("|\t"+aText), Filters)) {
 						case tResult.OK: {
 							HasAnyResult = true;
-							tText Head;
-							while (Buffer.MATCH(out Head, out Buffer)) {
-								aWriter(Head);
-							}
 							aWriter("-> OK");
 							aWriter("");
 						} break;
 							
 						case tResult.FAIL: {
 							HasAnyResult = true;
-							tText Head;
-							while (Buffer.MATCH(out Head, out Buffer)) {
-								aWriter(Head);
-							}
 							aWriter("-> FAIL");
 							aWriter("");
 						} return tResult.FAIL;
 							
 						case tResult.SKIP: {
+							aWriter("-> SKIP");
+							aWriter("");
 						} break;
 							
 						default: {

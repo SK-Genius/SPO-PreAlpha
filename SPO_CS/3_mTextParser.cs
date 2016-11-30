@@ -54,6 +54,14 @@ public static class mTextParser {
 					var MaybeCurrChar = aStream();
 					tChar CurrChar;
 					if (MaybeCurrChar.MATCH(out CurrChar)) {
+						tText OutChar;
+						switch (CurrChar) {
+							case '\n': { OutChar = @"\n"; } break;
+							case '\t': { OutChar = @"\t"; } break;
+							default: { OutChar = CurrChar.ToString(); } break;
+						}
+						System.Diagnostics.Debug.WriteLine($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
+						
 						if (CurrChar == '\n') {
 							LineIter += 1;
 							CollIter = 1;
@@ -120,7 +128,9 @@ public static class mTextParser {
 				aSendErrorMessage("char = "+aRefChar);
 				return aChar == aRefChar;
 			}
-		).Modify(Modifyer);
+		)
+		.Modify(Modifyer)
+		.SetDebugName("'"+aRefChar+"'");
 	}
 	
 	//================================================================================
@@ -134,7 +144,9 @@ public static class mTextParser {
 				aSendErrorMessage("char != "+aRefChar);
 				return aChar != aRefChar;
 			}
-		).Modify(Modifyer);
+		)
+		.Modify(Modifyer)
+		.SetDebugName("'^"+aRefChar+"'");
 	}
 	
 	//================================================================================
@@ -153,7 +165,9 @@ public static class mTextParser {
 				}
 				return false;
 			}
-		).Modify(Modifyer);
+		)
+		.Modify(Modifyer)
+		.SetDebugName("["+aRefChars+"]");
 	}
 	
 	//================================================================================
@@ -172,7 +186,9 @@ public static class mTextParser {
 				}
 				return true;
 			}
-		).Modify(Modifyer);
+		)
+		.Modify(Modifyer)
+		.SetDebugName("[^"+aRefChars+"]");
 	}
 	
 	//================================================================================
@@ -187,7 +203,9 @@ public static class mTextParser {
 				aSendErrorMessage("char in "+aMinChar+".."+aMaxChar);
 				return aMinChar <= aChar && aChar <= aMaxChar;
 			}
-		).Modify(Modifyer);
+		)
+		.Modify(Modifyer)
+		.SetDebugName("["+aMinChar+".."+aMaxChar+"]");
 	}
 	
 	//================================================================================
@@ -200,7 +218,9 @@ public static class mTextParser {
 		foreach (var Char in aToken) {
 			Parser += GetChar(Char);
 		}
-		return Parser.Modify_(a => mParserGen.ResultList(aToken));
+		return Parser
+		.Modify_(a => mParserGen.ResultList(aToken))
+		.SetDebugName("\""+aToken+"\"");
 	}
 	
 	#region Test
