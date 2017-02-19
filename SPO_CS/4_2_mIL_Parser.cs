@@ -99,17 +99,11 @@ public static class  mIL_Parser {
 		this tIL_Parser aParser,
 		tText aText
 	) {
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> List;
-		mTextParser.tFailInfo Info;
-		mStd.tTuple<mParserGen.tResultList, mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>>> Result;
-		mParserGen.tResultList ResultList;
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> Rest;
-		
 		var Text1 = mTextParser.TextStream(mTextParser.TextToStream(aText));
-		mStd.Assert(Text1.MATCH(out List, out Info));
+		Text1.MATCH(out var List, out var Info);
 		var MaybeResult1 = aParser.Parse(List);
-		mStd.Assert(MaybeResult1.MATCH(out Result), "("+Info._Line+", "+Info._Coll+"): "+Info._ErrorMessage);
-		mStd.Assert(Result.MATCH(out ResultList, out Rest));
+		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
+		Result.MATCH(out var ResultList, out var Rest);
 		return ResultList;
 	}
 	

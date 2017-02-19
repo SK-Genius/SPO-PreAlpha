@@ -27,12 +27,10 @@ public static class mMap {
 	>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 	//================================================================================
-	){
-		return new tMap<tKey, tValue>{
-			_KeyValuePairs = mList.List<mStd.tTuple<tKey, tValue>>(),
-			_EqualsFunc = aEqualsFunc
-		};
-	}
+	) => new tMap<tKey, tValue>{
+		_KeyValuePairs = mList.List<mStd.tTuple<tKey, tValue>>(),
+		_EqualsFunc = aEqualsFunc
+	};
 	
 	//================================================================================
 	public static tBool
@@ -43,10 +41,8 @@ public static class mMap {
 	//================================================================================
 	) {
 		var RestList = aMap._KeyValuePairs;
-		mStd.tTuple<tKey, tValue> KeyValuePair;
-		while (RestList.MATCH(out KeyValuePair, out RestList)) {
-			tKey Key;
-			mStd.Assert(KeyValuePair.MATCH(out Key, out aValue));
+		while (RestList.MATCH(out var KeyValuePair, out RestList)) {
+			KeyValuePair.MATCH(out var Key, out aValue);
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return true;
 			}
@@ -73,19 +69,15 @@ public static class mMap {
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
 	//================================================================================
-	) {
-		return new tMap<tKey, tValue>{
-			_EqualsFunc = aMap._EqualsFunc,
-			_KeyValuePairs = aMap._KeyValuePairs.Where(
-				aKeyValuePair => {
-					tKey Key;
-					tValue Value;
-					mStd.Assert(aKeyValuePair.MATCH(out Key, out Value));
-					return aMap._EqualsFunc(Key, aKey);
-				}
-			)
-		};
-	}
+	) => new tMap<tKey, tValue>{
+		_EqualsFunc = aMap._EqualsFunc,
+		_KeyValuePairs = aMap._KeyValuePairs.Where(
+			aKeyValuePair => {
+				aKeyValuePair.MATCH(out tKey Key, out tValue Value);
+				return aMap._EqualsFunc(Key, aKey);
+			}
+		)
+	};
 	
 	//================================================================================
 	public static tMap<tKey, tValue>
@@ -94,22 +86,18 @@ public static class mMap {
 		tKey aKey,
 		tValue aValue
 	//================================================================================
-	) {
-		return new tMap<tKey, tValue>{
-			_EqualsFunc = aMap._EqualsFunc,
-			_KeyValuePairs = mList.List(
-				mStd.Tuple(aKey, aValue),
-				aMap._KeyValuePairs.Where(
-					aKeyValuePair => {
-						tKey Key;
-						tValue Value;
-						mStd.Assert(aKeyValuePair.MATCH(out Key, out Value));
-						return !aMap._EqualsFunc(Key, aKey);
-					}
-				)
+	) => new tMap<tKey, tValue>{
+		_EqualsFunc = aMap._EqualsFunc,
+		_KeyValuePairs = mList.List(
+			mStd.Tuple(aKey, aValue),
+			aMap._KeyValuePairs.Where(
+				aKeyValuePair => {
+					aKeyValuePair.MATCH(out tKey Key, out tValue Value);
+					return !aMap._EqualsFunc(Key, aKey);
+				}
 			)
-		};
-	}
+		)
+	};
 	
 	#region TEST
 	
@@ -118,11 +106,7 @@ public static class mMap {
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"tMap.ToString()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					return true;
-				}
-			)
+			mTest.Test((mStd.tAction<tText> aStreamOut) => true)
 		)
 	);
 	

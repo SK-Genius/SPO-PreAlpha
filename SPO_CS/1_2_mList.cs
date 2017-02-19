@@ -24,24 +24,18 @@ public static class mList {
 		public tBool Equals(
 			tList<t> a
 		//================================================================================
-		) {
-			t Head1;
-			t Head2;
-			tList<t> Tail1;
-			tList<t> Tail2;
-			return (
-				!a.IsNull() &&
-				this.MATCH(out Head1, out Tail1) &&
-				a.MATCH(out Head2, out Tail2) &&
-				Head1.Equals(Head2) &&
-				(Tail1.IsNull() ? Tail2.IsNull() : Tail1.Equals(Tail2))
-			);
-		}
+		) => (
+			!a.IsNull() &&
+			this.MATCH(out var Head1, out var Tail1) &&
+			a.MATCH(out var Head2, out var Tail2) &&
+			Head1.Equals(Head2) &&
+			(Tail1.IsNull() ? Tail2.IsNull() : Tail1.Equals(Tail2))
+		);
 		
-		public override tBool Equals(object a) { return this.Equals(a as tList<t>); }
-		public override tText ToString() { return "["+this.Map(a => a.ToString()).Join((a1, a2) => a1+", "+a2)+"]"; }
-		public static tBool operator==(tList<t> a1, tList<t> a2) { return a1.IsNull() ? a2.IsNull() : a1.Equals(a2); }
-		public static tBool operator!=(tList<t> a1, tList<t> a2) { return !a1.Equals(a2); }
+		public override tBool Equals(object a) => this.Equals(a as tList<t>);
+		public override tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
+		public static tBool operator==(tList<t> a1, tList<t> a2) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
+		public static tBool operator!=(tList<t> a1, tList<t> a2) => !a1.Equals(a2);
 	}
 	
 	//================================================================================
@@ -50,9 +44,9 @@ public static class mList {
 		mStd.tFunc<mStd.tMaybe<t>> aTryNextFunc = null
 	//================================================================================
 	) {
-		t Head;
-		if (!aTryNextFunc.IsNull() &&
-			aTryNextFunc().MATCH(out Head) == true
+		if (
+			!aTryNextFunc.IsNull() &&
+			aTryNextFunc().MATCH(out var Head) == true
 		) {
 			return new tList<t>{
 				_Head = Head,
@@ -66,42 +60,22 @@ public static class mList {
 	//================================================================================
 	public static tList<t>
 	List<t>(
-	//================================================================================
-	) {
-		return null;
-	}
-	
-	//================================================================================
-	public static tList<t>
-	List<t>(
-		t a
-	//================================================================================
-	) {
-		return List(a, List<t>());
-	}
-	
-	//================================================================================
-	public static tList<t>
-	List<t>(
 		t aHead,
 		tList<t> aTail
 	//================================================================================
-	) {
-		return new tList<t>{_Head = aHead, _Tail = aTail};
-	}
-	
-	//================================================================================
-	public static tList<t>
-	List<t>(
-		t a,
-		params t[] aList
-	//================================================================================
-	) {
-		var Result = List<t>();
+	) => new tList<t>{_Head = aHead, _Tail = aTail};
+
+    //================================================================================
+    public static tList<t>
+    List<t>(
+        params t[] aList
+    //================================================================================
+    ) {
+        var Result = (tList<t>)null;
 		for (var I = aList.Length; I --> 0;) {
 			Result = List(aList[I], Result);
 		}
-		return List(a, Result);
+		return Result;
 	}
 	
 	//================================================================================
@@ -110,11 +84,7 @@ public static class mList {
 		tList<t> a1,
 		tList<t> a2
 	//================================================================================
-	) {
-		t Head;
-		tList<t> Tail;
-		return a1.MATCH(out Head, out Tail) ? List(Head, Concat(Tail, a2)) : a2;
-	}
+	) => a1.MATCH(out var Head, out var Tail) ? List(Head, Concat(Tail, a2)) : a2;
 	
 	//================================================================================
 	public static tBool
@@ -149,9 +119,8 @@ public static class mList {
 	) {
 		// TODO: make it lasy (use LasyList)
 		var ResultList = List<tRes>();
-		tElem Head;
 		var RestList = aList;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			ResultList = Concat(ResultList, List(aMapFunc(Head)));
 		}
 		return ResultList;
@@ -165,10 +134,9 @@ public static class mList {
 		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
 	//================================================================================
 	) {
-		tElem Head;
 		var Agregate = aInitialAgregate;
 		var RestList = aList;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			Agregate = aAgregatorFunc(Agregate, Head);
 		}
 		return Agregate;
@@ -191,10 +159,11 @@ public static class mList {
 		mStd.tFunc<t, t, t> aAgregatorFunc
 	//================================================================================
 	) {
-		t Head;
-		tList<t> Tail;
-		aList.MATCH(out Head, out Tail);
-		return Tail.Reduce(Head, aAgregatorFunc);
+		if (aList.MATCH(out var Head, out var Tail)) {
+			return Tail.Reduce(Head, aAgregatorFunc);
+		} else {
+			return default(t);
+		}
 	}
 	
 	//================================================================================
@@ -206,8 +175,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		t Head;
-		while (aCount > 0 && RestList.MATCH(out Head, out RestList)) {
+		while (aCount > 0 && RestList.MATCH(out var Head, out RestList)) {
 			Result = Concat(Result, List(Head));
 			aCount -= 1;
 		}
@@ -222,8 +190,7 @@ public static class mList {
 	//================================================================================
 	) {
 		var RestList = aList;
-		t Head;
-		while (aCount > 0 && RestList.MATCH(out Head, out RestList)) {
+		while (aCount > 0 && RestList.MATCH(out var Head, out RestList)) {
 			aCount -= 1;
 		}
 		return RestList;
@@ -238,8 +205,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		t Head;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			Result = Concat(Result, List(Head));
 			RestList = RestList.Skip(aCount - 1);
 		}
@@ -255,8 +221,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		t Head;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			if (aPredicate(Head)) {
 				Result = Concat(Result, List(Head));
 			}
@@ -269,9 +234,7 @@ public static class mList {
 	IsEmpty<t>(
 		this tList<t> aList
 	//================================================================================
-	) {
-		return aList == List<t>();
-	}
+	) => aList == List<t>();
 	
 	//================================================================================
 	public static tBool
@@ -280,8 +243,7 @@ public static class mList {
 	//================================================================================
 	) {
 		var RestList = aList;
-		tBool Head;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			if (Head) {
 				return true;
 			}
@@ -297,8 +259,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		t Head;
-		while (RestList.MATCH(out Head, out RestList)) {
+		while (RestList.MATCH(out var Head, out RestList)) {
 			Result = List(Head, Result);
 		}
 		return Result;
@@ -389,9 +350,9 @@ public static class mList {
 			"Join()",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => a1+","+a2), "a,b,c,d");
-					mStd.AssertEq(List("a").Join((a1, a2) => a1+","+a2), "a");
-					mStd.AssertEq(List<tText>().Join((a1, a2) => a1+","+a2), "");
+					mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
+					mStd.AssertEq(List("a").Join((a1, a2) => $"{a1},{a2}"), "a");
+					mStd.AssertEq(List<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
 					return true;
 				}
 			)

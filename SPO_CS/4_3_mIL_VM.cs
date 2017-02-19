@@ -39,16 +39,14 @@ public static class mIL_VM {
 		public tBool Equals(
 			tData a
 		//================================================================================
-		) {
-			return (
-				!a.IsNull() &&
-				_DataType.Equals(a._DataType) &&
-				_Value.Equals(a._Value)
-			);
-		}
+		) => (
+			!a.IsNull() &&
+			_DataType.Equals(a._DataType) &&
+			_Value.Equals(a._Value)
+		);
 		
-		public override tBool Equals(object a) { return Equals(a as tData); }
-		public override tText ToString() { return "("+_DataType+" "+_Value; }
+		public override tBool Equals(object a) => Equals(a as tData);
+		public override tText ToString() => $"({_DataType} {_Value}";
 	}
 	
 	//================================================================================
@@ -57,9 +55,7 @@ public static class mIL_VM {
 		tDataType aType,
 		t aValue
 	//================================================================================
-	) {
-		return new tData{_DataType = aType, _Value = mStd.Any(aValue)};
-	}
+	) => new tData{_DataType = aType, _Value = mStd.Any(aValue)};
 	
 	//================================================================================
 	public static tData
@@ -68,12 +64,10 @@ public static class mIL_VM {
 		t1 aValue1,
 		t2 aValue2
 	//================================================================================
-	) {
-		return new tData{
-			_DataType = aType,
-			_Value = mStd.Any(mStd.Tuple(aValue1, aValue2))
-		};
-	}
+	) => new tData{
+		_DataType = aType,
+		_Value = mStd.Any(mStd.Tuple(aValue1, aValue2))
+	};
 	
 	//================================================================================
 	public static tData
@@ -83,38 +77,30 @@ public static class mIL_VM {
 		t2 aValue2,
 		t3 aValue3
 	//================================================================================
-	) {
-		return new tData{
-			_DataType = aType,
-			_Value = mStd.Any(mStd.Tuple(aValue1, aValue2, aValue3))
-		};
-	}
+	) => new tData{
+		_DataType = aType,
+		_Value = mStd.Any(mStd.Tuple(aValue1, aValue2, aValue3))
+	};
 	
 	//================================================================================
 	public static tData
 	EMPTY(
 	//================================================================================
-	) {
-		return Data(tDataType.EMPTY, 1);
-	}
+	) => Data(tDataType.EMPTY, 1);
 	
 	//================================================================================
 	public static tData
 	BOOL(
 		tBool a
 	//================================================================================
-	) {
-		return Data(tDataType.BOOL, a);
-	}
+	) => Data(tDataType.BOOL, a);
 	
 	//================================================================================
 	public static tData
 	INT(
 		tInt32 a
 	//================================================================================
-	) {
-		return Data(tDataType.INT, a);
-	}
+	) => Data(tDataType.INT, a);
 	
 	//================================================================================
 	public static tData
@@ -122,9 +108,7 @@ public static class mIL_VM {
 		tData a1,
 		tData a2
 	//================================================================================
-	) {
-		return Data(tDataType.PAIR, a1, a2);
-	}
+	) => Data(tDataType.PAIR, a1, a2);
 	
 	//================================================================================
 	public static tData
@@ -132,9 +116,7 @@ public static class mIL_VM {
 		tText a1,
 		tData a2
 	//================================================================================
-	) {
-		return Data(tDataType.PREFIX, a1.GetHashCode(), a2);
-	}
+	) => Data(tDataType.PREFIX, a1.GetHashCode(), a2);
 	
 	//================================================================================
 	public static tData
@@ -142,10 +124,7 @@ public static class mIL_VM {
 		tProcDef a1,
 		tData a2
 	//================================================================================
-	) {
-		// In the end this is the place where the compiler will called !!!
-		return Data(tDataType.PROC, a1, a2);
-	}
+	) => Data(tDataType.PROC, a1, a2); // In the end this is the place where the compiler will called !!!
 	
 	//================================================================================
 	public static tData
@@ -153,27 +132,21 @@ public static class mIL_VM {
 		mStd.tFunc<tData, tData, tData, tData> a1,
 		tData a2
 	//================================================================================
-	) {
-		return Data(tDataType.EXTERN_PROC, a1, a2);
-	}
+	) => Data(tDataType.EXTERN_PROC, a1, a2);
 	
 	//================================================================================
 	public static tData
 	DEF(
 		tProcDef a
 	//================================================================================
-	) {
-		return Data(tDataType.DEF, a);
-	}
+	) => Data(tDataType.DEF, a);
 	
 	//================================================================================
 	public static tData
 	EXTERN_DEF(
 		mStd.tFunc<tData, tData, tData, tData> a
 	//================================================================================
-	) {
-		return Data(tDataType.EXTERN_DEF, a);
-	}
+	) => Data(tDataType.EXTERN_DEF, a);
 	
 	//================================================================================
 	public static tBool
@@ -208,14 +181,16 @@ public static class mIL_VM {
 		out t2 aValue2
 	//================================================================================
 	) {
-		mStd.tTuple<t1, t2> Tuple;
 		aValue1 = default(t1);
 		aValue2 = default(t2);
-		return (
+		if (
 			aData._DataType.Equals(aType) &&
-			aData._Value.MATCH(out Tuple) &&
-			Tuple.MATCH(out aValue1, out aValue2)
-		);
+			aData._Value.MATCH(out mStd.tTuple<t1, t2> Tuple)
+		) {
+			Tuple.MATCH(out aValue1, out aValue2);
+			return true;
+		}
+		return false;
 	}
 	
 	//================================================================================
@@ -228,15 +203,17 @@ public static class mIL_VM {
 		out t3 aValue3
 	//================================================================================
 	) {
-		mStd.tTuple<t1, t2, t3> Tuple;
 		aValue1 = default(t1);
 		aValue2 = default(t2);
 		aValue3 = default(t3);
-		return (
+		if (
 			aData._DataType.Equals(aType) &&
-			aData._Value.MATCH(out Tuple) &&
-			Tuple.MATCH(out aValue1, out aValue2, out aValue3)
-		);
+			aData._Value.MATCH(out mStd.tTuple<t1, t2, t3> Tuple)
+		) {
+			Tuple.MATCH(out aValue1, out aValue2, out aValue3);
+			return true;
+		}
+		return false;
 	}
 	
 	#endregion
@@ -301,9 +278,7 @@ public static class mIL_VM {
 		Int(
 			tInt32 a1
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.NEW_INT, a1);
-		}
+		) => _AddReg(tOpCode.NEW_INT, a1);
 		
 		//================================================================================
 		public tInt32
@@ -311,27 +286,21 @@ public static class mIL_VM {
 			tInt32 a1,
 			tInt32 a2
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.NEW_PAIR, a1, a2);
-		}
+		) => _AddReg(tOpCode.NEW_PAIR, a1, a2);
 		
 		//================================================================================
 		public tInt32
 		First(
 			tInt32 a
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.FIRST, a);
-		}
+		) => _AddReg(tOpCode.FIRST, a);
 		
 		//================================================================================
 		public tInt32
 		Second(
 			tInt32 a
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.SECOND, a);
-		}
+		) => _AddReg(tOpCode.SECOND, a);
 		
 		//================================================================================
 		public tInt32
@@ -339,9 +308,7 @@ public static class mIL_VM {
 			tInt32 a1,
 			tInt32 a2
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.ADD_PREFIX, a1, a2);
-		}
+		) => _AddReg(tOpCode.ADD_PREFIX, a1, a2);
 		
 		//================================================================================
 		public tInt32
@@ -349,9 +316,7 @@ public static class mIL_VM {
 			tInt32 a1,
 			tInt32 a2
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.DEL_PREFIX, a1, a2);
-		}
+		) => _AddReg(tOpCode.DEL_PREFIX, a1, a2);
 		
 		//================================================================================
 		public tInt32
@@ -359,9 +324,7 @@ public static class mIL_VM {
 			tInt32 a1,
 			tInt32 a2
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.HAS_PREFIX, a1, a2);
-		}
+		) => _AddReg(tOpCode.HAS_PREFIX, a1, a2);
 		
 		//================================================================================
 		public void
@@ -378,9 +341,7 @@ public static class mIL_VM {
 			tInt32 Proc,
 			tInt32 Arg
 		//================================================================================
-		) {
-			return _AddReg(tOpCode.CALL, Proc, Arg);
-		}
+		) => _AddReg(tOpCode.CALL, Proc, Arg);
 		
 		//================================================================================
 		public void
@@ -457,10 +418,7 @@ public static class mIL_VM {
 			_CodePointer += 1;
 			_Obj = EMPTY();
 			
-			tOpCode OpCode;
-			tInt32 Arg1;
-			tInt32 Arg2;
-			Command.MATCH(out OpCode, out Arg1, out Arg2);
+			Command.MATCH(out var OpCode, out var Arg1, out var Arg2);
 			
 			switch (OpCode) {
 				case tOpCode.NEW_INT: {
@@ -472,28 +430,14 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.FIRST: {
-					tData Var1;
-					tData Var2;
-					if (_Reg.Get(Arg1).MATCH(tDataType.PAIR, out Var1, out Var2)
-					) {
-						_Reg.Push(Var1);
-					} else {
-						mStd.Assert(false);
-					}
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.PAIR, out tData Var1, out tData Var2));
+					_Reg.Push(Var1);
 				} break;
 				
 				case tOpCode.SECOND: {
-					mStd.tTuple<tData, tData> Pair;
-					tData Var1;
-					tData Var2;
-					if (
-						_Reg.Get(Arg1).MATCH(tDataType.PAIR, out Pair) &&
-						Pair.MATCH(out Var1, out Var2)
-					) {
-						_Reg.Push(Var2);
-					} else {
-						mStd.Assert(false);
-					}
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.PAIR, out mStd.tTuple<tData, tData> Pair));
+					Pair.MATCH(out var Var1, out var Var2);
+					_Reg.Push(Var2);
 				} break;
 				
 				case tOpCode.ADD_PREFIX: {
@@ -501,37 +445,20 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.DEL_PREFIX: {
-					mStd.tTuple<tInt32, tData> PrefixData;
-					tData Data_;
-					tInt32 Prefix;
-					if (
-						_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out PrefixData) &&
-						PrefixData.MATCH(out Prefix, out Data_) &&
-						Prefix.Equals(Arg1)
-					) {
-						_Reg.Push(Data_);
-					} else {
-						mStd.Assert(false);
-					}
+					mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
+					PrefixData.MATCH(out var Prefix, out var Data_);
+					mStd.Assert(Prefix.Equals(Arg1));
+					_Reg.Push(Data_);
 				} break;
 				
 				case tOpCode.HAS_PREFIX: {
-					mStd.tTuple<tInt32, tData> PrefixData;
-					tData Data_;
-					tInt32 Prefix;
-					if (
-						_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out PrefixData) &&
-						PrefixData.MATCH(out Prefix, out Data_)
-					) {
-						_Reg.Push(mIL_VM.BOOL(Prefix.Equals(Arg1)));
-					} else {
-						mStd.Assert(false);
-					}
+					mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
+					PrefixData.MATCH(out var Prefix, out var Data_);
+					_Reg.Push(mIL_VM.BOOL(Prefix.Equals(Arg1)));
 				} break;
 				
 				case tOpCode.ASSERT: {
-					tBool Bool;
-					if (_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Bool) && Bool) {
+					if (_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Bool) && Bool) {
 						mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.BOOL, out Bool) && Bool);
 					}
 				} break;
@@ -544,28 +471,23 @@ public static class mIL_VM {
 					var Proc = _Reg.Get(Arg1);
 					var Arg  = _Reg.Get(Arg2);
 					
-					mStd.tFunc<tData, tData, tData, tData> ExternDef;
-					tProcDef Def;
-					tData Env;
-					
-					if (Proc.MATCH(tDataType.EXTERN_DEF, out ExternDef)) {
+					if (Proc.MATCH(tDataType.EXTERN_DEF, out mStd.tFunc<tData, tData, tData, tData> ExternDef)) {
 						_Reg.Push(EXTERN_PROC(ExternDef, Arg));
-					} else if(Proc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out Env)) {
+					} else if(Proc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out tData Env)) {
 						_Reg.Push(ExternDef(Env, _Obj, Arg));
-					} else if (Proc.MATCH(tDataType.DEF, out Def)) {
+					} else if (Proc.MATCH(tDataType.DEF, out tProcDef Def)) {
 						_Reg.Push(PROC(Def, Arg));
-					} else if (Proc.MATCH(tDataType.PROC, out Def, out Env)) {
+					} else if (Proc.MATCH(tDataType.PROC, out tProcDef Def_, out Env)) {
 						var Res = EMPTY();
 						_Reg.Push(Res);
-						return new tCallStack(this, Def, Env, _Obj, Arg, Res);
+						return new tCallStack(this, Def_, Env, _Obj, Arg, Res);
 					} else {
 						mStd.Assert(false);
 					}
 				} break;
 				
 				case tOpCode.RETURN_IF: {
-					tBool Cond;
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Cond));
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
 					if (Cond) {
 						var Src = _Reg.Get(Arg2);
 						var Des = _Reg.Get(tProcDef.RES_Reg);
@@ -576,8 +498,7 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.CONTUNUE_IF: {
-					tBool Cond;
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out Cond));
+					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
 					if (Cond) {
 						_Reg = mArrayList.List<tData>(
 							EMPTY(),
@@ -614,10 +535,8 @@ public static class mIL_VM {
 	//================================================================================
 	) {
 		var Env = EMPTY();
-		tProcDef DefTemp;
-		tProcDef LastDef;
-		mStd.Assert(aDefs.MATCH(out LastDef, out aDefs));
-		while (aDefs.MATCH(out DefTemp, out aDefs)) {
+		mStd.Assert(aDefs.MATCH(out var LastDef, out aDefs));
+		while (aDefs.MATCH(out var DefTemp, out aDefs)) {
 			Env = PAIR(Env, DEF(LastDef));
 			LastDef = DefTemp;
 		}
@@ -634,15 +553,12 @@ public static class mIL_VM {
 		tData aRes
 	//================================================================================
 	) {
-		tProcDef Def;
-		mStd.tFunc<tData, tData, tData, tData> ExternDef;
-		tData Env;
-		if(aProc.MATCH(tDataType.PROC, out Def, out Env)) {
+		if(aProc.MATCH(tDataType.PROC, out tProcDef Def, out tData Env)) {
 			var CallStack = new tCallStack(null, Def, Env, aObj, aArg, aRes);
 			while (CallStack != null) {
 				CallStack = CallStack.Step();
 			}
-		} else if (aProc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out Env)) {
+		} else if (aProc.MATCH(tDataType.EXTERN_PROC, out mStd.tFunc<tData, tData, tData, tData> ExternDef, out Env)) {
 			var Res = ExternDef(Env, aObj, aArg);
 			aRes._DataType = Res._DataType;
 			aRes._Value = Res._Value;
@@ -662,10 +578,10 @@ public static class mIL_VM {
 	) => {
 		tData Arg1;
 		tData Arg2;
-		mStd.Assert(Arg.MATCH(tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(tDataType.INT, out Arg1_));
 		tInt32 Arg2_;
+		mStd.Assert(Arg.MATCH(tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(Arg1.MATCH(tDataType.INT, out Arg1_));
 		mStd.Assert(Arg2.MATCH(tDataType.INT, out Arg2_));
 		return INT(Arg1_ + Arg2_);
 	};

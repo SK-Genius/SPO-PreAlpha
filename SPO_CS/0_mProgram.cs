@@ -13,11 +13,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class Program {
+public static class mProgram {
 	//================================================================================
 	public static void
 	Main(
-		tText[] aArgs
+		params tText[] aArgs
 	//================================================================================
 	) {
 		var Args = mList.List<tText>();
@@ -25,19 +25,19 @@ public static class Program {
 			Args = mList.Concat(Args, mList.List(Arg));
 		}
 		mTest.Tests(
-			mStd.Tuple("mStd", mStd.Test),
-			mStd.Tuple("mList", mList.Test),
-//			mStd.Tuple("mTest", mTest.Test),
-			mStd.Tuple("mArrayList", mArrayList.Test),
-			mStd.Tuple("mParserGen", mParserGen.Test),
-			mStd.Tuple("mTextParser", mTextParser.Test),
-			mStd.Tuple("mIL_AST", mIL_AST.Test),
-			mStd.Tuple("mIL_Parser", mIL_Parser.Test),
-			mStd.Tuple("mIL_VM", mIL_VM.Test),
-			mStd.Tuple("mIL_Interpreter", mIL_Interpreter.Test),
-			mStd.Tuple("mSPO_AST", mSPO_AST.Test),
-			mStd.Tuple("mSPO_Parser", mSPO_Parser.Test),
-			mStd.Tuple("mSPO2IL", mSPO2IL.Test)
+			mStd.Tuple(nameof(mStd), mStd.Test),
+			mStd.Tuple(nameof(mList), mList.Test),
+//			mStd.Tuple(nameof(mTest), mTest.Test),
+			mStd.Tuple(nameof(mArrayList), mArrayList.Test),
+			mStd.Tuple(nameof(mParserGen), mParserGen.Test),
+			mStd.Tuple(nameof(mTextParser), mTextParser.Test),
+			mStd.Tuple(nameof(mIL_AST), mIL_AST.Test),
+			mStd.Tuple(nameof(mIL_Parser), mIL_Parser.Test),
+			mStd.Tuple(nameof(mIL_VM), mIL_VM.Test),
+			mStd.Tuple(nameof(mIL_Interpreter), mIL_Interpreter.Test),
+			mStd.Tuple(nameof(mSPO_AST), mSPO_AST.Test),
+			mStd.Tuple(nameof(mSPO_Parser), mSPO_Parser.Test),
+			mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test)
 		)(
 			aLine => {
 				System.Console.WriteLine(aLine);

@@ -113,7 +113,7 @@ public static class  mSPO_Parser {
 				return (
 					mParserGen.ResultList(
 						mSPO_AST.Call(
-							mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
+							mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => $"{a1}...{a2}")+Last),
 							mSPO_AST.Tuple(aList._Value.Skip(1).Every(2).Map(mStd.To<mSPO_AST.tExpressionNode>))
 						)
 					)
@@ -161,11 +161,10 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.Import)
 		.SetDebugName(nameof(IMPORT));
 	
-//	public static tSPO_Parser EXPORT = ( -TOKEN("§EXPORT") +C() )
-//		.Modify(mSPO_AST.Export);
+	public static tSPO_Parser EXPORT = ( -TOKEN("§EXPORT") +EXPRESSION )
+		.Modify(mSPO_AST.Export);
 	
-//	public static tSPO_Parser MODULE = ( +IMPORT +COMMANDS +EXPORT )
-	public static tSPO_Parser MODULE = ( +IMPORT +COMMANDS )
+	public static tSPO_Parser MODULE = ( +IMPORT +COMMANDS +EXPORT )
 		.Modify(mSPO_AST.Module)
 		.SetDebugName(nameof(MODULE));
 	
@@ -194,17 +193,11 @@ public static class  mSPO_Parser {
 		this tSPO_Parser aParser,
 		tText aText
 	) {
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> List;
-		mTextParser.tFailInfo Info;
-		mStd.tTuple<mParserGen.tResultList, mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>>> Result;
-		mParserGen.tResultList ResultList;
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> Rest;
-		
 		var Text1 = mTextParser.TextStream(mTextParser.TextToStream(aText));
-		mStd.Assert(Text1.MATCH(out List, out Info));
+		Text1.MATCH(out var List, out var Info);
 		var MaybeResult1 = aParser.Parse(List);
-		mStd.Assert(MaybeResult1.MATCH(out Result), "("+Info._Line+", "+Info._Coll+"): "+Info._ErrorMessage);
-		mStd.Assert(Result.MATCH(out ResultList, out Rest));
+		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
+		Result.MATCH(out var ResultList, out var Rest);
 		return ResultList;
 	}
 	
@@ -259,7 +252,7 @@ public static class  mSPO_Parser {
 						)
 					);
 					mStd.AssertEq(
-						MATCH.Parse("(x)"),
+						MATCH.Parse("x"),
 						mParserGen.ResultList(
 							mSPO_AST.Match(
 								mSPO_AST.Ident("x"),
@@ -325,7 +318,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						EXPRESSION.Parse("((x) => (x .* x))..."),
+						EXPRESSION.Parse("(x => (x .* x))..."),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(

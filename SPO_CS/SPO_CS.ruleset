@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Regeln für SPO_CS" Description="Codeanalyseregeln für SPO_CS.csproj." ToolsVersion="14.0">
+<RuleSet Name="Regeln für SPO_CS" Description="Codeanalyseregeln für SPO_CS.csproj." ToolsVersion="15.0">
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1001" Action="Warning" />
     <Rule Id="CA1009" Action="Warning" />
@@ -63,6 +63,18 @@
     <Rule Id="CA2240" Action="Warning" />
     <Rule Id="CA2241" Action="Warning" />
     <Rule Id="CA2242" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.EditorFeatures" RuleNamespace="Microsoft.CodeAnalysis.CSharp.EditorFeatures">
+    <Rule Id="UseAutoProperty" Action="Warning" />
+    <Rule Id="UseAutoPropertyFadedToken" Action="Warning" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
+    <Rule Id="IDE0016WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE0017" Action="Warning" />
+    <Rule Id="IDE0017WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE1005" Action="Warning" />
+    <Rule Id="IDE1005WithoutSuggestion" Action="Info" />
+    <Rule Id="IDE1006" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="RefactoringEssentials" RuleNamespace="RefactoringEssentials">
     <Rule Id="RECS0133" Action="None" />

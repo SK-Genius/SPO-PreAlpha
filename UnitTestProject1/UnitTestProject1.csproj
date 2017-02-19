@@ -35,7 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework" />
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -54,6 +53,9 @@
       <Project>{575a2317-3936-4fe3-af38-a51315621f65}</Project>
       <Name>SPO_CS</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

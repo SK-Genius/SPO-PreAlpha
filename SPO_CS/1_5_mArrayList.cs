@@ -40,14 +40,14 @@ public static class mArrayList {
 		override public tText 
 		ToString(
 		//================================================================================
-		) { return this.ToLasyList().ToString(); }
+		) => this.IsEmpty() ? "[]" : this.ToLasyList().ToString();
 		
 		//================================================================================
 		override public tBool 
 		Equals(
 			object a
 		//================================================================================
-		) { return this.Equals((tArrayList<t>)a); }
+		) => this.Equals((tArrayList<t>)a);
 		
 		//================================================================================
 		public static tBool 
@@ -55,7 +55,7 @@ public static class mArrayList {
 			tArrayList<t> a1,
 			tArrayList<t> a2
 		//================================================================================
-		) { return a1.IsNull() ? a2.IsNull() : a1.Equals(a2); }
+		) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
 		
 		//================================================================================
 		public static tBool 
@@ -63,7 +63,7 @@ public static class mArrayList {
 			tArrayList<t> a1,
 			tArrayList<t> a2
 		//================================================================================
-		) { return !(a1 == a2); }
+		) => !(a1 == a2);
 	}
 	
 	//================================================================================
@@ -71,30 +71,24 @@ public static class mArrayList {
 	List<t>(
 		params t[] aArray
 	//================================================================================
-	) {
-		return new tArrayList<t> {
-			_CurrSize = aArray.Length,
-			_Items = (t[])aArray.Clone()
-		};
-	}
+	) => new tArrayList<t> {
+		_CurrSize = aArray.Length,
+		_Items = (t[])aArray.Clone()
+	};
 	
 	//================================================================================
 	public static tInt32
 	Size<t>(
 		this tArrayList<t> aList 
 	//================================================================================
-	) {
-		return aList._CurrSize;
-	}
+	) => aList._CurrSize;
 	
 	//================================================================================
 	public static tBool
 	IsEmpty<t>(
 		this tArrayList<t> aList 
 	//================================================================================
-	) {
-		return aList.Size() == 0;
-	}
+	) => aList.Size() == 0;
 	
 	//================================================================================
 	private static void
@@ -154,6 +148,7 @@ public static class mArrayList {
 		tInt32             aIndex
 	//================================================================================
 	) {
+		mStd.Assert(aIndex < aList._CurrSize);
 		return aList._Items[aIndex];
 	}
 	
@@ -203,6 +198,19 @@ public static class mArrayList {
 				return mStd.OK(Item);
 			}
 		);
+	}
+	
+	//================================================================================
+	public static tArrayList<t>
+	ToArrayList<t>(
+		this mList.tList<t> aList
+	//================================================================================
+	) {
+		var Result = List<t>();
+		while (aList.MATCH(out var Head, out aList)) {
+			Result.Push(Head);
+		}
+		return Result;
 	}
 	
 	#region TEST

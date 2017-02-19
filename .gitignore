@@ -2,7 +2,9 @@
 **/*.exe
 **/*.pdb
 **/*.sdps
-**/.vs/*
+**/*.user
+**/.*/*
+**/packages/*
 **/bin/Debug/*
 **/bin/Release/*
 **/coverage.xml

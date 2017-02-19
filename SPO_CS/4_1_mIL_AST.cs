@@ -45,18 +45,16 @@ public static class mIL_AST {
 		public tBool Equals(
 			tCommandNode a
 		//================================================================================
-		) {
-			return (
-				!a.IsNull() &&
-				_NodeType == a._NodeType &&
-				_1 == a._1 &&
-				_2 == a._2 &&
-				_3 == a._3
-			);
-		}
+		) => (
+			!a.IsNull() &&
+			_NodeType == a._NodeType &&
+			_1 == a._1 &&
+			_2 == a._2 &&
+			_3 == a._3
+		);
 		
-		public override tBool Equals(object a) { return Equals(a as tCommandNode); }
-		public override tText ToString() { return "{"+_NodeType+" "+_1+" "+_2+" "+_3+"}"; }
+		public override tBool Equals(object a) => Equals(a as tCommandNode);
+		public override tText ToString() => $"{{{_NodeType} {_1} {_2} {_3}}}";
 	}
 	
 	//================================================================================
@@ -67,14 +65,12 @@ public static class mIL_AST {
 		tText a2 = null,
 		tText a3 = null
 	//================================================================================
-	) {
-		return new tCommandNode{
-			_NodeType = aNodeType,
-			_1 = a1,
-			_2 = a2,
-			_3 = a3
-		};
-	}
+	) => new tCommandNode{
+		_NodeType = aNodeType,
+		_1 = a1,
+		_2 = a2,
+		_3 = a3
+	};
 	
 	//================================================================================
 	public static tBool
@@ -279,9 +275,7 @@ public static class mIL_AST {
 		mStd.Tuple(
 			"TODO",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					return true;
-				}
+				(mStd.tAction<tText> aStreamOut) => true
 			)
 		)
 	);

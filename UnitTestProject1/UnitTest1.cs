@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools;
 
 namespace UnitTestProject1 {
 	[TestFixture]

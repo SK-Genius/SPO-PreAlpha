@@ -23,11 +23,11 @@ public static class mStd {
 	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
 	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
 	
-	public static tFunc<tRes> Func<tRes>(tFunc<tRes> a) { return a; }
-	public static tFunc<tRes, tArg> Func<tRes, tArg>(tFunc<tRes, tArg> a) { return a; }
-	public static tFunc<tRes, tArg1, tArg2> Func<tRes, tArg1, tArg2>(tFunc<tRes, tArg1, tArg2> a) { return a; }
-	public static tFunc<tRes, tArg1, tArg2, tArg3> Func<tRes, tArg1, tArg2, tArg3>(tFunc<tRes, tArg1, tArg2, tArg3> a) { return a; }
-	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4> Func<tRes, tArg1, tArg2, tArg3, tArg4>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4> a) { return a; }
+	public static tFunc<tRes> Func<tRes>(tFunc<tRes> a) => a;
+	public static tFunc<tRes, tArg> Func<tRes, tArg>(tFunc<tRes, tArg> a) => a;
+	public static tFunc<tRes, tArg1, tArg2> Func<tRes, tArg1, tArg2>(tFunc<tRes, tArg1, tArg2> a) => a;
+	public static tFunc<tRes, tArg1, tArg2, tArg3> Func<tRes, tArg1, tArg2, tArg3>(tFunc<tRes, tArg1, tArg2, tArg3> a) => a;
+	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4> Func<tRes, tArg1, tArg2, tArg3, tArg4>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4> a) => a;
 	
 	#endregion
 	
@@ -39,10 +39,10 @@ public static class mStd {
 	public delegate void tAction<tArg1, tArg2, tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
 	public delegate void tAction<tArg1, tArg2, tArg3, tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
 	
-	public static tAction<tArg> Action<tArg>(tAction<tArg> a) { return a; }
-	public static tAction<tArg1, tArg2> Action<tArg1, tArg2>(tAction<tArg1, tArg2> a) { return a; }
-	public static tAction<tArg1, tArg2, tArg3> Action<tArg1, tArg2, tArg3>(tAction<tArg1, tArg2, tArg3> a) { return a; }
-	public static tAction<tArg1, tArg2, tArg3, tArg4> Action<tArg1, tArg2, tArg3, tArg4>(tAction<tArg1, tArg2, tArg3, tArg4> a) { return a; }
+	public static tAction<tArg> Action<tArg>(tAction<tArg> a) => a;
+	public static tAction<tArg1, tArg2> Action<tArg1, tArg2>(tAction<tArg1, tArg2> a) => a;
+	public static tAction<tArg1, tArg2, tArg3> Action<tArg1, tArg2, tArg3>(tAction<tArg1, tArg2, tArg3> a) => a;
+	public static tAction<tArg1, tArg2, tArg3, tArg4> Action<tArg1, tArg2, tArg3, tArg4>(tAction<tArg1, tArg2, tArg3, tArg4> a) => a;
 	
 	#endregion
 	
@@ -52,7 +52,7 @@ public static class mStd {
 		internal t1 _1;
 		internal t2 _2;
 		
-		public override tText ToString() { return "("+_1+", "+_2+")"; }
+		public override tText ToString() => $"({_1}, {_2})";
 	}
 	
 	//================================================================================
@@ -61,15 +61,13 @@ public static class mStd {
 		t1 a1,
 		t2 a2
 	//================================================================================
-	) {
-		return new tTuple<t1, t2>{
-			_1 = a1,
-			_2 = a2
-		};
-	}
+	) => new tTuple<t1, t2>{
+		_1 = a1,
+		_2 = a2
+	};
 	
 	//================================================================================
-	public static tBool
+	public static void
 	MATCH<t1, t2>(
 		this tTuple<t1, t2> a,
 		out t1 a1,
@@ -78,7 +76,6 @@ public static class mStd {
 	) {
 		a1 = a._1;
 		a2 = a._2;
-		return true;
 	}
 	
 	#endregion
@@ -90,7 +87,7 @@ public static class mStd {
 		internal t2 _2;
 		internal t3 _3;
 		
-		public override tText ToString() { return "("+_1+", "+_2+", "+_3+")"; }
+		public override tText ToString() => $"({_1}, {_2}, {_3})";
     }
 	
 	//================================================================================
@@ -100,16 +97,14 @@ public static class mStd {
 		t2 a2,
 		t3 a3
 	//================================================================================
-	) {
-		return new tTuple<t1, t2, t3>{
-			_1 = a1,
-			_2 = a2,
-			_3 = a3
-		};
-	}
+	) => new tTuple<t1, t2, t3>{
+		_1 = a1,
+		_2 = a2,
+		_3 = a3
+	};
 	
 	//================================================================================
-	public static tBool
+	public static void
 	MATCH<t1, t2, t3>(
 		this tTuple<t1, t2, t3> a,
 		out t1 a1,
@@ -120,7 +115,6 @@ public static class mStd {
 		a1 = a._1;
 		a2 = a._2;
 		a3 = a._3;
-		return true;
 	}
 	
 	#endregion
@@ -131,7 +125,7 @@ public static class mStd {
 		internal tBool _IsOK;
 		internal t _Value;
 		
-		public override tText ToString() { return _IsOK ? _Value.ToString() : "FAIL"; }
+		public override tText ToString() => _IsOK ? _Value.ToString() : "FAIL";
 	}
 	
 	//================================================================================
@@ -139,23 +133,19 @@ public static class mStd {
 	OK<t>(
 		t a
 	//================================================================================
-	) {
-		return new tMaybe<t>{
-			_Value = a,
-			_IsOK = true
-		};
-	}
+	) => new tMaybe<t>{
+		_Value = a,
+		_IsOK = true
+	};
 	
 	//================================================================================
 	public static tMaybe<t>
 	Fail<t>(
 	//================================================================================
-	) {
-		return new tMaybe<t>{
-			_Value = default(t),
-			_IsOK = false
-		};
-	}
+	) => new tMaybe<t>{
+		_Value = default(t),
+		_IsOK = false
+	};
 	
 	//================================================================================
 	public static tBool
@@ -180,17 +170,15 @@ public static class mStd {
 		Equals(
 			tAny a
 		//================================================================================
-		) {
-			return (
-				!_Value.IsNull() &&
-				_Value.Equals(a._Value)
-			);
-		}
+		) => (
+			!_Value.IsNull() &&
+			_Value.Equals(a._Value)
+		);
 		
-		public override tBool Equals(object obj) { return obj is tAny && this.Equals((tAny)obj); }
-		public override tText ToString() { return _Value != null ? _Value.ToString() : "-"; }
-		public static tBool operator==(tAny a1, tAny a2) { return a1.Equals(a2); }
-		public static tBool operator!=(tAny a1, tAny a2) { return !a1.Equals(a2); }
+		public override tBool Equals(object obj) => obj is tAny && this.Equals((tAny)obj);
+		public override tText ToString() => _Value != null ? _Value.ToString() : "-";
+		public static tBool operator==(tAny a1, tAny a2) => a1.Equals(a2);
+		public static tBool operator!=(tAny a1, tAny a2) => !a1.Equals(a2);
 	}
 	
 	//================================================================================
@@ -198,9 +186,7 @@ public static class mStd {
 	Any<t>(
 		t a
 	//================================================================================
-	) {
-		return new tAny{_Value = a};
-	}
+	) => new tAny{_Value = a};
 	
 	//================================================================================
 	public static tBool
@@ -227,9 +213,7 @@ public static class mStd {
 	MATCH(
 		this tAny a
 	//================================================================================
-	) {
-		return a._Value.IsNull();
-	}
+	) => a._Value.IsNull();
 	
 	//================================================================================
 	public static t
@@ -237,8 +221,7 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		t Result;
-		Assert(a.MATCH(out Result));
+		Assert(a.MATCH(out t Result));
 		return Result;
 	}
 	
@@ -249,9 +232,7 @@ public static class mStd {
 	IsNull(
 		this object a
 	//================================================================================
-	) {
-		return object.ReferenceEquals(a, null);
-	}
+	) => object.ReferenceEquals(a, null);
 	
 	#region Assert
 	
@@ -304,7 +285,7 @@ public static class mStd {
 			!a1.IsNull() &&
 		    !a1.Equals(a2)
 		) {
-			System.Console.WriteLine("FAIL: "+a1+" != "+a2);
+			System.Console.WriteLine($"FAIL: {a1} != {a2}");
 			throw null;
 		}
 	}
@@ -317,7 +298,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a1.Equals(a2)) {
-			System.Console.WriteLine("FAIL: "+a1+" == "+a2);
+			System.Console.WriteLine($"FAIL: {a1} == {a2}");
 			throw null;
 		}
 	}
@@ -329,7 +310,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (!a.IsNull()) {
-			System.Console.WriteLine("FAIL: "+a+" != null");
+			System.Console.WriteLine($"FAIL: {a} != null");
 			throw null;
 		}
 	}

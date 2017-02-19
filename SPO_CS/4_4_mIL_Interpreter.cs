@@ -25,9 +25,7 @@ public static class mIL_Interpreter {
 	//================================================================================
 	) {
 		var Text = mTextParser.TextStream(mTextParser.TextToStream(aSourceCode));
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> Stream;
-		mTextParser.tFailInfo Info;
-		mStd.Assert(Text.MATCH(out Stream, out Info));
+		Text.MATCH(out var Stream, out var Info);
 		var ParserResult = mIL_Parser.MODULE.Parse(Stream);
 		
 		mStd.Assert(ParserResult._IsOK);
@@ -56,12 +54,9 @@ public static class mIL_Interpreter {
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
 		var Module = mList.List<mIL_VM.tProcDef>();
 		
-		mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>> Def;
 		var RestDefs = Defs;
-		while (RestDefs.MATCH(out Def, out RestDefs)) {
-			tText DefName;
-			mList.tList<mIL_AST.tCommandNode> Commands;
-			mStd.Assert(Def.MATCH(out DefName, out Commands));
+		while (RestDefs.MATCH(out var Def, out RestDefs)) {
+			Def.MATCH(out var DefName, out var Commands);
 			var NewProc = new mIL_VM.tProcDef();
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
@@ -77,10 +72,8 @@ public static class mIL_Interpreter {
 				.Set("TRUE"  , mIL_VM.tProcDef.TRUE_Reg);
 			
 			var RestCommands = Commands;
-			mIL_AST.tCommandNode Command;
-			while (RestCommands.MATCH(out Command, out RestCommands)) {
-				tText RegId1, RegId2, RegId3, Prefix;
-				if (Command.MATCH(mIL_AST.tCommandNodeType.Call, out RegId1, out RegId2, out RegId3)) {
+			while (RestCommands.MATCH(out var Command, out RestCommands)) {
+				if (Command.MATCH(mIL_AST.tCommandNodeType.Call, out var RegId1, out var RegId2, out var RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Call(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Alias, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, Reg.Get(RegId2));
@@ -96,7 +89,7 @@ public static class mIL_Interpreter {
 					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.RepeatIf, out RegId1, out RegId2)) {
 					NewProc.ContinueIf(Reg.Get(RegId2), Reg.Get(RegId1));
-				} else if (Command.MATCH(mIL_AST.tCommandNodeType.AddPrefix, out RegId1, out Prefix, out RegId3)) {
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.AddPrefix, out RegId1, out var Prefix, out RegId3)) {
 					Reg = Reg.Set(RegId1,  NewProc.AddPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.SubPrefix, out RegId1, out Prefix, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.DelPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
@@ -204,7 +197,7 @@ public static class mIL_Interpreter {
 					
 					mList.tList<mIL_VM.tProcDef> Module;
 					mMap.tMap<tText, tInt32> ModuleMap;
-					mStd.Assert(X.MATCH(out Module, out ModuleMap));
+					X.MATCH(out Module, out ModuleMap);
 					
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
@@ -234,7 +227,7 @@ public static class mIL_Interpreter {
 					
 					mList.tList<mIL_VM.tProcDef> Module;
 					mMap.tMap<tText, tInt32> ModuleMap;
-					mStd.Assert(X.MATCH(out Module, out ModuleMap));
+					X.MATCH(out Module, out ModuleMap);
 					
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
@@ -267,7 +260,7 @@ public static class mIL_Interpreter {
 					
 					mList.tList<mIL_VM.tProcDef> Module;
 					mMap.tMap<tText, tInt32> ModuleMap;
-					mStd.Assert(X.MATCH(out Module, out ModuleMap));
+					X.MATCH(out Module, out ModuleMap);
 					
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Eq);
@@ -387,7 +380,7 @@ public static class mIL_Interpreter {
 					
 					mList.tList<mIL_VM.tProcDef> Module;
 					mMap.tMap<tText, tInt32> ModuleMap;
-					mStd.Assert(X.MATCH(out Module, out ModuleMap));
+					X.MATCH(out Module, out ModuleMap);
 					
 					var Proc1 = Module.Skip(ModuleMap.Get("bla"))._Head;
 					var Proc2 = Module.Skip(ModuleMap.Get("bla2"))._Head;

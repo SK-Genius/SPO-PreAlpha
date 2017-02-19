@@ -52,15 +52,16 @@ public static class mTextParser {
 				() => {
 					// fixiere iterator
 					var MaybeCurrChar = aStream();
-					tChar CurrChar;
-					if (MaybeCurrChar.MATCH(out CurrChar)) {
+					if (MaybeCurrChar.MATCH(out var CurrChar)) {
 						tText OutChar;
 						switch (CurrChar) {
 							case '\n': { OutChar = @"\n"; } break;
 							case '\t': { OutChar = @"\t"; } break;
 							default: { OutChar = CurrChar.ToString(); } break;
 						}
-						System.Diagnostics.Debug.WriteLine($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
+						#if TRACE
+							System.Diagnostics.Debug.WriteLine($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
+						#endif
 						
 						if (CurrChar == '\n') {
 							LineIter += 1;
@@ -122,74 +123,70 @@ public static class mTextParser {
 	GetChar(
 		tChar aRefChar
 	//================================================================================
-	) {
-		return mParserGen.AtomParser(
-			(tChar aChar, mStd.tAction<tText> aSendErrorMessage) => {
-				aSendErrorMessage("char = "+aRefChar);
-				return aChar == aRefChar;
-			}
-		)
-		.Modify(Modifyer)
-		.SetDebugName("'"+aRefChar+"'");
-	}
+	) => mParserGen.AtomParser(
+		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
+			a.MATCH(out var Char, out var SendErrorMessage);
+			SendErrorMessage($"char = {aRefChar}");
+			return Char == aRefChar;
+		}
+	)
+	.Modify(Modifyer)
+	.SetDebugName("'", aRefChar.ToString(), "'");
 	
 	//================================================================================
 	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
 	GetNotChar(
 		tChar aRefChar
 	//================================================================================
-	) {
-		return mParserGen.AtomParser(
-			(tChar aChar, mStd.tAction<tText> aSendErrorMessage) => {
-				aSendErrorMessage("char != "+aRefChar);
-				return aChar != aRefChar;
-			}
-		)
-		.Modify(Modifyer)
-		.SetDebugName("'^"+aRefChar+"'");
-	}
+	) => mParserGen.AtomParser(
+		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
+			a.MATCH(out var Char, out var SendErrorMessage);
+			SendErrorMessage($"char != {aRefChar}");
+			return Char != aRefChar;
+		}
+	)
+	.Modify(Modifyer)
+	.SetDebugName("'^", aRefChar.ToString(), "'");
 	
 	//================================================================================
 	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
 	GetCharIn(
 		tText aRefChars
 	//================================================================================
-	) {
-		return mParserGen.AtomParser(
-			(tChar aChar, mStd.tAction<tText> aSendErrorMessage) => {
-				aSendErrorMessage("char is one of "+aRefChars);
-				foreach (var RefChar in aRefChars) {
-					if (aChar == RefChar) {
-						return true;
-					}
+	) => mParserGen.AtomParser(
+		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
+			a.MATCH(out var Char, out var SendErrorMessage);
+			SendErrorMessage($"char is one of {aRefChars}");
+			foreach (var RefChar in aRefChars) {
+				if (Char == RefChar) {
+					return true;
 				}
-				return false;
 			}
-		)
-		.Modify(Modifyer)
-		.SetDebugName("["+aRefChars+"]");
-	}
+			return false;
+		}
+	)
+	.Modify(Modifyer)
+	.SetDebugName("[", aRefChars, "]");
 	
 	//================================================================================
 	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
 	GetCharNotIn(
 		tText aRefChars
 	//================================================================================
-	) {
-		return mParserGen.AtomParser(
-			(tChar aChar, mStd.tAction<tText> aSendErrorMessage) => {
-				aSendErrorMessage("char is NOT one of "+aRefChars);
-				foreach (var RefChar in aRefChars) {
-					if (aChar == RefChar) {
-						return false;
-					}
+	) => mParserGen.AtomParser(
+		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
+			a.MATCH(out var Char, out var SendErrorMessage);
+			SendErrorMessage($"char is NOT one of {aRefChars}");
+			foreach (var RefChar in aRefChars) {
+				if (Char == RefChar) {
+					return false;
 				}
-				return true;
 			}
-		)
-		.Modify(Modifyer)
-		.SetDebugName("[^"+aRefChars+"]");
-	}
+			return true;
+		}
+	)
+	.Modify(Modifyer)
+	.SetDebugName("[^", aRefChars, "]");
 	
 	//================================================================================
 	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
@@ -197,16 +194,15 @@ public static class mTextParser {
 		tChar aMinChar,
 		tChar aMaxChar
 	//================================================================================
-	) {
-		return mParserGen.AtomParser(
-			(tChar aChar, mStd.tAction<tText> aSendErrorMessage) => {
-				aSendErrorMessage("char in "+aMinChar+".."+aMaxChar);
-				return aMinChar <= aChar && aChar <= aMaxChar;
-			}
-		)
-		.Modify(Modifyer)
-		.SetDebugName("["+aMinChar+".."+aMaxChar+"]");
-	}
+	) => mParserGen.AtomParser(
+		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
+			a.MATCH(out var Char, out var SendErrorMessage);
+			SendErrorMessage($"char in {aMinChar}..{aMaxChar}");
+			return aMinChar <= Char && Char <= aMaxChar;
+		}
+	)
+	.Modify(Modifyer)
+	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
 	//================================================================================
 	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
@@ -220,7 +216,7 @@ public static class mTextParser {
 		}
 		return Parser
 		.Modify_(a => mParserGen.ResultList(aToken))
-		.SetDebugName("\""+aToken+"\"");
+		.SetDebugName("\"", aToken, "\"");
 	}
 	
 	#region Test
@@ -231,9 +227,7 @@ public static class mTextParser {
 		mStd.Tuple(
 			"GetChar",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					return true;
-				}
+				(mStd.tAction<tText> aStreamOut) => true
 			)
 		)
 	);
