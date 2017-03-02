@@ -82,7 +82,6 @@ public static class mIL_AST {
 	) {
 		if (
 			aNode._NodeType != aNodeType ||
-			aNode._1.IsNull() ||
 			!aNode._2.IsNull() ||
 			!aNode._3.IsNull()
 		) {
@@ -104,8 +103,6 @@ public static class mIL_AST {
 	) {
 		if (
 			aNode._NodeType != aNodeType ||
-			aNode._1.IsNull() ||
-			aNode._2.IsNull() ||
 			!aNode._3.IsNull()
 		) {
 			aId1 = null;
@@ -127,12 +124,7 @@ public static class mIL_AST {
 		out tText aId3
 	//================================================================================
 	) {
-		if (
-			aNode._NodeType != aNodeType ||
-			aNode._1.IsNull() ||
-			aNode._2.IsNull() ||
-			aNode._3.IsNull()
-		) {
+		if (aNode._NodeType != aNodeType) {
 			aId1 = null;
 			aId2 = null;
 			aId3 = null;

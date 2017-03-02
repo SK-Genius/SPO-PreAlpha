@@ -96,6 +96,32 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
+	public static mArrayList.tArrayList<mIL_AST.tCommandNode>
+	UnrollList(
+		tText Register,
+		mList.tList<tText> Symbols,
+		ref tInt32 LastTempReg
+	//================================================================================
+	) {
+		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode>();
+		if (!Symbols.IsEmpty()) {
+			var RestEnv = Register;
+			while (Symbols.MATCH(out var Symbol, out Symbols)) {
+				if (Symbols.IsEmpty()) {
+					ExtractEnv.Push(mIL_AST.Alias(Symbol, RestEnv));
+					break;
+				}
+				ExtractEnv.Push(mIL_AST.GetFirst(Symbol, RestEnv));
+				LastTempReg += 1;
+				var NewRestEnv = TempReg(LastTempReg);
+				ExtractEnv.Push(mIL_AST.GetSecond(NewRestEnv, RestEnv));
+				RestEnv = NewRestEnv;
+			}
+		}
+		return ExtractEnv;
+	}
+	
+	//================================================================================
 	public static mStd.tTuple<tText, mArrayList.tArrayList<tText>>
 	MapLambda(
 		ref tModuleConstructor aModule,
@@ -113,26 +139,16 @@ public static class mSPO2IL {
 			.Where(S1 => !ArgumentSymbols.Map(S2 => S1 == S2).Any())
 			.ToArrayList();
 		LambdaModule.UnsolvedSymbols = NewUnsolvedSymbols;
-		var Def = mArrayList.Concat(LambdaModule.Commands, mArrayList.List(mIL_AST.ReturnIf(ResultReg, "TRUE")));
 		
-		if (!LambdaModule.UnsolvedSymbols.IsEmpty()) {
-			var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode>();
-			var Symbols = LambdaModule.UnsolvedSymbols.ToLasyList();
-			var RestEnv = "ENV";
-			while (Symbols.MATCH(out var Symbol, out Symbols)) {
-				if (Symbols.IsEmpty()) {
-					ExtractEnv.Push(mIL_AST.Alias(Symbol, RestEnv));
-					break;
-				}
-				ExtractEnv.Push(mIL_AST.GetFirst(Symbol, RestEnv));
-				LambdaModule.LastTempReg += 1;
-				var NewRestEnv = TempReg(LambdaModule.LastTempReg);
-				ExtractEnv.Push(mIL_AST.GetSecond(NewRestEnv, RestEnv));
-				RestEnv = NewRestEnv;
-			}
-			
-			Def = mArrayList.Concat(ExtractEnv, Def);
-		}
+		var Def = mArrayList.Concat(
+			UnrollList("ENV", LambdaModule.UnsolvedSymbols.ToLasyList(), ref LambdaModule.LastTempReg),
+			mArrayList.Concat(
+				LambdaModule.Commands,
+				mArrayList.List(
+					mIL_AST.ReturnIf(ResultReg, "TRUE")
+				)
+			)
+		);
 		
 		var DefsToCopy = LambdaModule.Defs.ToLasyList(); 
 		while (DefsToCopy.MATCH(out var DefToCopy, out DefsToCopy)) {
@@ -164,7 +180,7 @@ public static class mSPO2IL {
 		{
 			var IdentNode = aExpression as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
-				if (aModule.Defs.ToLasyList().Where(a => a._1 == IdentNode._Name).IsEmpty() &&
+				if (//aModule.Defs.ToLasyList().Where(a => a._1 == IdentNode._Name).IsEmpty() &&
 					aModule.Commands.ToLasyList()
 						.Where(
 							a => {
@@ -263,12 +279,12 @@ public static class mSPO2IL {
 					}
 					
 					UnsolvedSymbols_ = UnsolvedSymbols.ToLasyList().Reverse();
-					mStd.Assert(UnsolvedSymbols_.MATCH(out Symbol, out UnsolvedSymbols_));
-					ArgReg = Symbol;
-					while (UnsolvedSymbols_.MATCH(out Symbol, out UnsolvedSymbols_)) {
+					mStd.Assert(UnsolvedSymbols_.MATCH(out var Symbol_, out UnsolvedSymbols_));
+					ArgReg = Symbol_;
+					while (UnsolvedSymbols_.MATCH(out Symbol_, out UnsolvedSymbols_)) {
 						aModule.LastTempReg += 1;
 						var NewArgReg = TempReg(aModule.LastTempReg);
-						aModule.Commands.Push(mIL_AST.CreatePair(NewArgReg, Symbol, ArgReg));
+						aModule.Commands.Push(mIL_AST.CreatePair(NewArgReg, Symbol_, ArgReg));
 						ArgReg = NewArgReg;
 					}
 				}
@@ -276,6 +292,7 @@ public static class mSPO2IL {
 				aModule.LastTempReg += 1;
 				var Lambda = TempReg(aModule.LastTempReg);
 				aModule.Commands.Push(mIL_AST.Call(Lambda, NewDef, ArgReg));
+				aModule.UnsolvedSymbols.Push(NewDef);
 				
 				return Lambda;
 			}
@@ -395,49 +412,37 @@ public static class mSPO2IL {
 			return MapReturn(ref aModule, ReturnNode);
 		}
 		
-mStd.Assert(false);
+		mStd.Assert(false);
 		return false;
 	}
 	
 	//================================================================================
-	public static tBool
+	public static void
 	MapModule(
 		ref tModuleConstructor aModule,
 		mSPO_AST.tModuleNode aModuleNode
 	//================================================================================
 	) {
-		mStd.AssertEq(
-			MapLambda(
-				ref aModule,
-				mSPO_AST.Lambda(
-					aModuleNode._Import._Match,
-					mSPO_AST.Block(
-						mList.Concat(
-							aModuleNode._Commands,
-							mList.List<mSPO_AST.tCommandNode>(mSPO_AST.Return(aModuleNode._Export._Expression))
-						)
+		MapLambda(
+			ref aModule,
+			mSPO_AST.Lambda(
+				aModuleNode._Import._Match,
+				mSPO_AST.Block(
+					mList.Concat(
+						aModuleNode._Commands,
+						mList.List<mSPO_AST.tCommandNode>(mSPO_AST.Return(aModuleNode._Export._Expression))
 					)
 				)
-			)._2,
-			mArrayList.List<tText>()
+			)
 		);
 		
-		return true;
+		var ReadEnv = UnrollList("ENV", aModule.Defs.ToLasyList().Map(D => D._1), ref aModule.LastTempReg);
+		
+		var Def = aModule.Defs.Get(aModule.Defs._CurrSize - 1);
+		Def._2 = mArrayList.Concat(ReadEnv, Def._2);
 	}
 	
 	#region TEST
-	
-	private static mParserGen.tResultList Parse(
-		this tText_Parser aParser,
-		tText aText
-	) {
-		var Text1 = mTextParser.TextStream(mTextParser.TextToStream(aText));
-		Text1.MATCH(out var List, out var Info);
-		var MaybeResult1 = aParser.Parse(List);
-		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
-		Result.MATCH(out var ResultList, out var Rest);
-		return ResultList;
-	}
 	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
@@ -445,7 +450,7 @@ mStd.Assert(false);
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tExpressionNode ExpressionNode;
-					mStd.Assert(mSPO_Parser.EXPRESSION.Parse("(2 .< (4 .+ 3) < 3)").MATCH(out ExpressionNode));
+					mStd.Assert(mSPO_Parser.EXPRESSION.ParseText("(2 .< (4 .+ 3) < 3)", aStreamOut).MATCH(out ExpressionNode));
 					
 					var Module = NewModuleConstructor();
 					mStd.AssertEq(MapExpresion(ref Module, ExpressionNode), TempReg(9));
@@ -474,7 +479,7 @@ mStd.Assert(false);
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tAssignmantNode AssignmentNode;
-					mStd.Assert(mSPO_Parser.ASSIGNMENT.Parse("a := (1, 2)").MATCH(out AssignmentNode));
+					mStd.Assert(mSPO_Parser.ASSIGNMENT.ParseText("a := (1, 2)", aStreamOut).MATCH(out AssignmentNode));
 					
 					var Module = NewModuleConstructor();
 					mStd.Assert(MapAssignment(ref Module, AssignmentNode));
@@ -500,8 +505,9 @@ mStd.Assert(false);
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
-						mSPO_Parser.ASSIGNMENT.Parse(
-							"(a, (b, c)) := (1, (2, 3))"
+						mSPO_Parser.ASSIGNMENT.ParseText(
+							"(a, (b, c)) := (1, (2, 3))",
+							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
 					
@@ -539,8 +545,9 @@ mStd.Assert(false);
 					
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
-						mSPO_Parser.ASSIGNMENT.Parse(
-							"(a, b, c) := (1, 2, 3)"
+						mSPO_Parser.ASSIGNMENT.ParseText(
+							"(a, b, c) := (1, 2, 3)",
+							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
 					
@@ -577,7 +584,7 @@ mStd.Assert(false);
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
 						mSPO_Parser.ASSIGNMENT
-						.Parse("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))")
+						.ParseText("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))", aStreamOut)
 						.MATCH(out AssignmantNode)
 					);
 					
@@ -620,8 +627,9 @@ mStd.Assert(false);
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
-						mSPO_Parser.ASSIGNMENT.Parse(
-							"x := (a => (2 .* a))"
+						mSPO_Parser.ASSIGNMENT.ParseText(
+							"x := (a => (2 .* a))",
+							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
 					
@@ -654,7 +662,7 @@ mStd.Assert(false);
 						)
 					);
 					
-					mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...*...")));
+					mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...*..."), TempDef(0)));
 					
 					return true;
 				}
@@ -666,8 +674,9 @@ mStd.Assert(false);
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 						mStd.Assert(
-						mSPO_Parser.ASSIGNMENT.Parse(
-							"...*...+... := ((a, b, c) => ((a .* b) .+ c))"
+						mSPO_Parser.ASSIGNMENT.ParseText(
+							"...*...+... := ((a, b, c) => ((a .* b) .+ c))",
+							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
 					
@@ -710,7 +719,7 @@ mStd.Assert(false);
 						)
 					);
 					
-					 mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...+..."), Ident("...*...")));
+					 mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List(Ident("...+..."), Ident("...*..."), TempDef(0)));
 					
 					return true;
 				}
@@ -722,7 +731,7 @@ mStd.Assert(false);
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tModuleNode ModuleNode;
 					mStd.Assert(
-						mSPO_Parser.MODULE.Parse(
+						mSPO_Parser.MODULE.ParseText(
 							mList.List(
 								"§IMPORT (",
 #if !true
@@ -741,12 +750,13 @@ mStd.Assert(false);
 								"",
 								"§EXPORT y",
 								""
-							).Join((a1, a2) => a1 + "\n" + a2)
+							).Join((a1, a2) => a1 + "\n" + a2),
+							aStreamOut
 						).MATCH(out ModuleNode)
 					);
 					
 					var Module = NewModuleConstructor();
-					mStd.Assert(MapModule(ref Module, ModuleNode));
+					MapModule(ref Module, ModuleNode);
 					
 					mStd.AssertEq(Module.Defs.Size(), 2);
 					
@@ -773,6 +783,8 @@ mStd.Assert(false);
 						mStd.Tuple(
 							TempDef(1),
 							mArrayList.List<mIL_AST.tCommandNode>(
+								mIL_AST.Alias(TempDef(0), "ENV"),
+								
 								mIL_AST.GetFirst(TempReg(1), "ARG"),
 								mIL_AST.Alias(Ident("T"), TempReg(1)),
 								mIL_AST.GetSecond(TempReg(2), "ARG"),
@@ -793,11 +805,7 @@ mStd.Assert(false);
 						)
 					);
 					
-					mStd.AssertEq(
-						Module.Commands,
-						mArrayList.List<mIL_AST.tCommandNode>()
-					);
-					
+					mStd.AssertEq(Module.Commands, mArrayList.List<mIL_AST.tCommandNode>());
 					mStd.AssertEq(Module.UnsolvedSymbols, mArrayList.List<tText>());
 					
 					return true;

@@ -40,9 +40,28 @@ public static class mTextParser {
 		internal tText _ErrorMessage;
 	}
 	
+	//================================================================================
+	public static mParserGen.tResultList
+	ParseText(
+		this mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>> aParser,
+		tText aText,
+		mStd.tAction<tText> aDebugStream
+	//================================================================================
+	) {
+		var Text1 = TextStream(mTextParser.TextToStream(aText), aDebugStream);
+		Text1.MATCH(out var List, out var Info);
+		var MaybeResult1 = aParser.StartParse(List, aDebugStream);
+		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
+		Result.MATCH(out var ResultList, out var Rest);
+		return ResultList;
+	}
+	
+	//================================================================================
 	public static mStd.tTuple<mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>>, tFailInfo>
 	TextStream(
-		mStd.tFunc<mStd.tMaybe<tChar>> aStream
+		mStd.tFunc<mStd.tMaybe<tChar>> aStream,
+		mStd.tAction<tText> aDebugStream
+	//================================================================================
 	) {
 		var TextParserInfo = new tFailInfo {_Line = 1, _Coll = 1};
 		var LineIter = (tInt32?)1;
@@ -60,7 +79,7 @@ public static class mTextParser {
 							default: { OutChar = CurrChar.ToString(); } break;
 						}
 						#if TRACE
-							System.Diagnostics.Debug.WriteLine($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
+							aDebugStream($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
 						#endif
 						
 						if (CurrChar == '\n') {

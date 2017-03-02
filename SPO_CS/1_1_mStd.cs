@@ -199,7 +199,7 @@ public static class mStd {
 			mStd.Assert(false);
 		}
 		
-		if (a._Value is t) {
+		if (a._Value.IsNull() || a._Value is t) {
 			aValue = (t)a._Value;
 			return true;
 		} else {

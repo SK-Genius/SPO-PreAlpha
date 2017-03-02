@@ -78,6 +78,7 @@
     <Compile Include="3_mTextParser.cs" />
     <Compile Include="1_1_mTest.cs" />
     <Compile Include="0_mProgram.cs" />
+    <Compile Include="5_4_mSPO_Interpreter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Doc.txt" />

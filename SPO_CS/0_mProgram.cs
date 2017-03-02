@@ -37,7 +37,8 @@ public static class mProgram {
 			mStd.Tuple(nameof(mIL_Interpreter), mIL_Interpreter.Test),
 			mStd.Tuple(nameof(mSPO_AST), mSPO_AST.Test),
 			mStd.Tuple(nameof(mSPO_Parser), mSPO_Parser.Test),
-			mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test)
+			mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test),
+			mStd.Tuple(nameof(mSPO_Interpreter), mSPO_Interpreter.Test)
 		)(
 			aLine => {
 				System.Console.WriteLine(aLine);

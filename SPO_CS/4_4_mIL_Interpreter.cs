@@ -21,29 +21,19 @@ public static class mIL_Interpreter {
 		mMap.tMap<tText, tInt32>
 	>
 	ParseModule(
-		tText aSourceCode
+		tText aSourceCode,
+		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Text = mTextParser.TextStream(mTextParser.TextToStream(aSourceCode));
-		Text.MATCH(out var Stream, out var Info);
-		var ParserResult = mIL_Parser.MODULE.Parse(Stream);
+		var ParserResult = mIL_Parser.MODULE.ParseText(aSourceCode, aDebugStream);
 		
-		mStd.Assert(ParserResult._IsOK);
-		
-		mParserGen.tResultList ResultList;
-		mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>> RestStream;
-		ParserResult.MATCH(out ResultList, out RestStream);
-		
-		mStd.Assert(RestStream.IsNull());
-		
-		mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs;
-		ResultList.MATCH(out Defs);
+		ParserResult.MATCH(out mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs);
 		
 		return ParseModule(Defs);
 	}
 	
 	//================================================================================
-	private static mStd.tTuple<
+	internal static mStd.tTuple<
 		mList.tList<mIL_VM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	>
@@ -86,7 +76,7 @@ public static class mIL_Interpreter {
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Second, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Second(Reg.Get(RegId2)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.ReturnIf, out RegId1, out RegId2)) {
-					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1));
+					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1 ?? "_"));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.RepeatIf, out RegId1, out RegId2)) {
 					NewProc.ContinueIf(Reg.Get(RegId2), Reg.Get(RegId1));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.AddPrefix, out RegId1, out var Prefix, out RegId3)) {
@@ -192,7 +182,8 @@ public static class mIL_Interpreter {
 						
 						"	arg_1 := ARG, 1_\n" +
 						"	res := add arg_1\n" +
-						"	§RETURN res IF TRUE\n"
+						"	§RETURN res IF TRUE\n",
+						aStreamOut
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -222,7 +213,8 @@ public static class mIL_Interpreter {
 						"	arg_1 := arg, 1_\n" +
 						"	inc := add arg_1\n" +
 						"	res := +VECTOR inc\n" +
-						"	§RETURN res IF TRUE\n"
+						"	§RETURN res IF TRUE\n",
+						aStreamOut
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -255,7 +247,8 @@ public static class mIL_Interpreter {
 						"	arg_1 := ARG, 1_\n" +
 						"	arg_eq_1? := ...=...? arg_1\n" +
 						"	§ASSERT TRUE => arg_eq_1?\n" +
-						"	§RETURN arg_eq_1? IF TRUE\n"
+						"	§RETURN arg_eq_1? IF TRUE\n",
+						aStreamOut
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -375,7 +368,8 @@ public static class mIL_Interpreter {
 						
 						"	arg_1 := ARG, _1\n" +
 						"	res   := ...!! arg_1\n" +
-						"	§RETURN res IF TRUE\n"
+						"	§RETURN res IF TRUE\n",
+						aStreamOut
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;

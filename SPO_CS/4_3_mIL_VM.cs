@@ -553,7 +553,7 @@ public static class mIL_VM {
 		tData aRes
 	//================================================================================
 	) {
-		if(aProc.MATCH(tDataType.PROC, out tProcDef Def, out tData Env)) {
+		if (aProc.MATCH(tDataType.PROC, out tProcDef Def, out tData Env)) {
 			var CallStack = new tCallStack(null, Def, Env, aObj, aArg, aRes);
 			while (CallStack != null) {
 				CallStack = CallStack.Step();

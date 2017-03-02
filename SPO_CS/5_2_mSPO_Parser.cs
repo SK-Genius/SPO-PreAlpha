@@ -78,8 +78,7 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser LITERAL = ( (_NUM_ | _STRING_) -__ )
 		.SetDebugName(nameof(LITERAL));
 	
-	public static mStd.tFunc<tSPO_Parser, tSPO_Parser> C = aParser => -TOKEN("(") +aParser -__ -TOKEN(")")
-		.SetDebugName(nameof(C));
+	public static mStd.tFunc<tSPO_Parser, tSPO_Parser> C = aParser => -TOKEN("(") +aParser -__ -TOKEN(")");
 	
 	public static tSPO_Parser MATCH = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>()
 		.SetDebugName(nameof(MATCH));
@@ -94,7 +93,7 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser COMMAND = ASSIGNMENT // TODO: Macros, VarDef, MethodCall, Streaming, Block, ...
 		.SetDebugName(nameof(COMMAND));
 	
-	public static tSPO_Parser COMMANDS = (+COMMAND +(-(TOKEN(";")|NL) +COMMAND)[0, null])
+	public static tSPO_Parser COMMANDS = (+COMMAND +(-(TOKEN(";")|NL) +COMMAND)[0, null])[0, 1]
 		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)))
 		.SetDebugName(nameof(COMMANDS));
 	
@@ -124,8 +123,7 @@ public static class  mSPO_Parser {
 	
 	private const tText DotsText = "...";
 	private const tText EmptyText = "...";
-
-
+	
 	public static tSPO_Parser CALL2 = C( +EXPRESSION -TOKEN(".") +IDENT +( +EXPRESSION +IDENT )[0, null] +EXPRESSION[0, 1] )
 		.Modify_(
 			aList => {
@@ -142,7 +140,11 @@ public static class  mSPO_Parser {
 		)
 		.SetDebugName(nameof(CALL2));
 	
-	public static tSPO_Parser CALL = (CALL1 | CALL2)
+	public static tSPO_Parser CALL3 = C( -TOKEN(".") +EXPRESSION +EXPRESSION )
+		.Modify(mSPO_AST.Call)
+		.SetDebugName(nameof(CALL3));
+
+	public static tSPO_Parser CALL = (CALL1 | CALL2 | CALL3)
 		.SetDebugName(nameof(CALL));
 	
 	public static tSPO_Parser PREFIX = C( -TOKEN("#") +IDENT +EXPRESSION )
@@ -181,7 +183,7 @@ public static class  mSPO_Parser {
 					)
 				)
 			) |
-			(+MATCH -TOKEN("€") +EXPRESSION).Modify(mSPO_AST.Match)
+			C(+MATCH -TOKEN("€") +EXPRESSION).Modify(mSPO_AST.Match) // TODO: infinit recursion
 		);
 		
 		EXPRESSION.Def( LITERAL | IDENT | C( +EXPRESSION ) | TUPLE | CALL | PREFIX | LAMBDA | BLOCK );
@@ -189,32 +191,20 @@ public static class  mSPO_Parser {
 	
 	#region TEST
 	
-	private static mParserGen.tResultList Parse(
-		this tSPO_Parser aParser,
-		tText aText
-	) {
-		var Text1 = mTextParser.TextStream(mTextParser.TextToStream(aText));
-		Text1.MATCH(out var List, out var Info);
-		var MaybeResult1 = aParser.Parse(List);
-		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
-		Result.MATCH(out var ResultList, out var Rest);
-		return ResultList;
-	}
-	
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
 			"Atoms",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(  _NUM_.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
-					mStd.AssertEq(LITERAL.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
-					mStd.AssertEq(EXPRESSION.Parse("+1_234..."), mParserGen.ResultList(mSPO_AST.Number(1234)));
+					mStd.AssertEq(_NUM_.ParseText("+1_234...", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
+					mStd.AssertEq(LITERAL.ParseText("+1_234...", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
+					mStd.AssertEq(EXPRESSION.ParseText("+1_234...", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
 					
-					mStd.AssertEq(_STRING_.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
-					mStd.AssertEq(LITERAL.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
-					mStd.AssertEq(EXPRESSION.Parse("\"BLA\"..."), mParserGen.ResultList(mSPO_AST.Text("BLA")));
+					mStd.AssertEq(_STRING_.ParseText("\"BLA\"...", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
+					mStd.AssertEq(LITERAL.ParseText("\"BLA\"...", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
+					mStd.AssertEq(EXPRESSION.ParseText("\"BLA\"...", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
 					
-					mStd.AssertEq(EXPRESSION.Parse("BLA ..."),  mParserGen.ResultList(mSPO_AST.Ident("BLA")));
+					mStd.AssertEq(EXPRESSION.ParseText("BLA ...", aStreamOut),  mParserGen.ResultList(mSPO_AST.Ident("BLA")));
 					return true;
 				}
 			)
@@ -224,7 +214,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						EXPRESSION.Parse("(+1_234, \"BLA\")..."),
+						EXPRESSION.ParseText("(+1_234, \"BLA\")...", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Tuple(
 								mList.List<mSPO_AST.tExpressionNode>(
@@ -243,7 +233,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						MATCH.Parse("12"),
+						MATCH.ParseText("12", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Match(
 								mSPO_AST.Number(12),
@@ -252,7 +242,7 @@ public static class  mSPO_Parser {
 						)
 					);
 					mStd.AssertEq(
-						MATCH.Parse("x"),
+						MATCH.ParseText("x", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Match(
 								mSPO_AST.Ident("x"),
@@ -261,7 +251,7 @@ public static class  mSPO_Parser {
 						)
 					);
 					mStd.AssertEq(
-						MATCH.Parse("(12, x)..."),
+						MATCH.ParseText("(12, x)...", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Match(
 								mSPO_AST.MatchTuple(
@@ -283,7 +273,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						EXPRESSION.Parse("(x .* x)"),
+						EXPRESSION.ParseText("(x .* x)", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("...*..."),
@@ -297,7 +287,7 @@ public static class  mSPO_Parser {
 						)
 					);
 					mStd.AssertEq(
-						EXPRESSION.Parse("(.sin x)"),
+						EXPRESSION.ParseText("(.sin x)", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("sin..."),
@@ -318,7 +308,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						EXPRESSION.Parse("(x => (x .* x))..."),
+						EXPRESSION.ParseText("(x => (x .* x))...", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(
@@ -339,7 +329,7 @@ public static class  mSPO_Parser {
 					);
 					
 					mStd.AssertEq(
-						EXPRESSION.Parse("(2 .< (4 .+ 3) < 3)..."),
+						EXPRESSION.ParseText("(2 .< (4 .+ 3) < 3)...", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Call(
 								mSPO_AST.Ident("...<...<..."),

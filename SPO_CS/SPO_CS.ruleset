@@ -74,7 +74,8 @@
     <Rule Id="IDE0017WithoutSuggestion" Action="Info" />
     <Rule Id="IDE1005" Action="Warning" />
     <Rule Id="IDE1005WithoutSuggestion" Action="Info" />
-    <Rule Id="IDE1006" Action="Warning" />
+    <Rule Id="IDE1006" Action="None" />
+    <Rule Id="IDE1006WithoutSuggestion" Action="None" />
   </Rules>
   <Rules AnalyzerId="RefactoringEssentials" RuleNamespace="RefactoringEssentials">
     <Rule Id="RECS0133" Action="None" />
