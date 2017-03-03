@@ -17,7 +17,7 @@ using tResults = mList.tList<mStd.tAny>;
 
 using tText_Parser = mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>>;
 
-static class mSPO_Interpreter {
+public static class mSPO_Interpreter {
 
 	//================================================================================
 	public static mIL_VM.tData

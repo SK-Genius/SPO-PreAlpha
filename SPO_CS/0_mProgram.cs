@@ -26,8 +26,10 @@ public static class mProgram {
 		}
 		mTest.Tests(
 			mStd.Tuple(nameof(mStd), mStd.Test),
-			mStd.Tuple(nameof(mList), mList.Test),
 //			mStd.Tuple(nameof(mTest), mTest.Test),
+			mStd.Tuple(nameof(mList), mList.Test),
+			mStd.Tuple(nameof(mMap), mMap.Test),
+//			mStd.Tuple(nameof(mMath), mMath.Test),
 			mStd.Tuple(nameof(mArrayList), mArrayList.Test),
 			mStd.Tuple(nameof(mParserGen), mParserGen.Test),
 			mStd.Tuple(nameof(mTextParser), mTextParser.Test),
