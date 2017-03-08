@@ -26,15 +26,15 @@ public static class  mSPO_Parser {
 	public static mStd.tFunc<tSPO_Parser, tText> Token = mTextParser.GetToken;
 	
 	public static tSPO_Parser _ = CharIn(" \t\n")
-		.SetDebugName("_");
+		.SetDebugName(nameof(_));
 
 	public static tSPO_Parser __ = _[0, null]
-		.SetDebugName("__");
+		.SetDebugName(nameof(__));
 
 	public static tSPO_Parser NL = Char('\n')
-		.SetDebugName("NL");
+		.SetDebugName(nameof(NL));
 	
-	public static mStd.tFunc<tSPO_Parser, tText> TOKEN = a => Token(a) + -__;
+	public static mStd.tFunc<tSPO_Parser, tText> TOKEN = a => (Token(a) + -__).SetDebugName("\"", a, "\"");
 	
 	public static tSPO_Parser _STRING_ = (-Char('"') +NotChar('"')[0, null] -Char('"'))
 		.Modify_(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))

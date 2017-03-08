@@ -428,6 +428,7 @@ public static class mParserGen {
 			tInt32 aCount
 		//================================================================================
 		) => aCount * aParser;
+
 		
 		//================================================================================
 		public static tParser<t>
@@ -557,6 +558,7 @@ public static class mParserGen {
 	) {
 		mStd.Assert(a1._ParseFunc.IsNull());
 		a1._ParseFunc = a2._ParseFunc;
+		a1.SetDebugDef(a2._DebugDef);
 	}
 	
 	//================================================================================
@@ -592,7 +594,7 @@ public static class mParserGen {
 			}else if (aParser._DebugDef != "") {
 				aDebugStream(aParser._DebugDef+" -> {");
 			} else {
-				aDebugStream("() -> {");
+				aDebugStream("??? -> {");
 			}
 		#endif
 		var Result = aParser._ParseFunc(aStream, aDebugStream);
@@ -620,7 +622,7 @@ public static class mParserGen {
 				Fail<t>()
 			);
 		}
-	};
+	}.SetDebugDef("{", aParser?._DebugName ?? aParser._DebugDef, "}");
 	
 	//================================================================================
 	public static tParser<t>
