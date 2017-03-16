@@ -21,6 +21,18 @@ public static class mSPO_AST {
 	public interface tLiteralNode : tExpressionNode, tMatchItemNode {}
 	public interface tCommandNode {}
 	
+	public class tEmptyNode : tLiteralNode {
+		//================================================================================
+		public tBool
+		Equals(
+			tEmptyNode a
+		//================================================================================
+		) => !a.IsNull();
+		
+		public override tBool Equals(object a) => this.Equals(a as tEmptyNode);
+		public override tText ToString() => $"()";
+	}
+	
 	public class tTextNode : tLiteralNode {
 		internal tText _Value;
 		
@@ -29,9 +41,7 @@ public static class mSPO_AST {
 		Equals(
 			tTextNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Value.Equals(_Value);
-		}
+		) => !a.IsNull() && a._Value.Equals(_Value);
 		
 		public override tBool Equals(object a) => this.Equals(a as tTextNode);
 		public override tText ToString() => $"('{_Value}')";
@@ -45,9 +55,7 @@ public static class mSPO_AST {
 		Equals(
 			tNumberNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Value.Equals(_Value);
-		}
+		) => !a.IsNull() && a._Value.Equals(_Value);
 		
 		public override tBool Equals(object a) => this.Equals(a as tNumberNode);
 		public override tText ToString() => $"({_Value})";
@@ -61,9 +69,7 @@ public static class mSPO_AST {
 		Equals(
 			tIdentNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Name.Equals(_Name);
-		}
+		) => !a.IsNull() && a._Name.Equals(_Name);
 		
 		public override tBool Equals(object a) => this.Equals(a as tIdentNode);
 		public override tText ToString() => $"(Ident: {_Name})";
@@ -77,9 +83,7 @@ public static class mSPO_AST {
 		Equals(
 			tMatchTupleNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Items.Equals(_Items);
-		}
+		) => !a.IsNull() && a._Items.Equals(_Items);
 		
 		public override tBool Equals(object a) => this.Equals(a as tMatchTupleNode);
 		public override tText ToString() => $"({_Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
@@ -94,9 +98,7 @@ public static class mSPO_AST {
 		Equals(
 			tMatchNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Pattern.Equals(_Pattern) && (a._Type.IsNull() ? _Type.IsNull() : a._Type.Equals(_Type));
-		}
+		) => !a.IsNull() && a._Pattern.Equals(_Pattern) && (a._Type.IsNull() ? _Type.IsNull() : a._Type.Equals(_Type));
 		
 		public override tBool Equals(object a) => this.Equals(a as tMatchNode);
 		public override tText ToString()=> _Pattern + (_Type.IsNull() ? "" : " € " + _Type);
@@ -111,9 +113,7 @@ public static class mSPO_AST {
 		Equals(
 			tPrefixNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Element.Equals(_Element);
-		}
+		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Element.Equals(_Element);
 		
 		public override tBool Equals(object a) => this.Equals(a as tPrefixNode);
 		public override tText ToString() => $"(#{_Prefix} {_Element})";
@@ -128,9 +128,7 @@ public static class mSPO_AST {
 		Equals(
 			tMatchPrefixNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Match.Equals(_Match);
-		}
+		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Match.Equals(_Match);
 		
 		public override tBool Equals(object a) => this.Equals(a as tMatchPrefixNode);
 		public override tText ToString() => $"(#{_Prefix} {_Match})";
@@ -145,9 +143,7 @@ public static class mSPO_AST {
 		Equals(
 			tLambdaNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Head.Equals(_Head) && a._Body.Equals(_Body);
-		}
+		) => !a.IsNull() && a._Head.Equals(_Head) && a._Body.Equals(_Body);
 		
 		public override tBool Equals(object a) => this.Equals(a as tLambdaNode);
 		public override tText ToString() => $"({_Head} => {_Body})";
@@ -161,9 +157,7 @@ public static class mSPO_AST {
 		Equals(
 			tBlockNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Commands.Equals(_Commands);
-		}
+		) => !a.IsNull() && a._Commands.Equals(_Commands);
 		
 		public override tBool Equals(object a) => this.Equals(a as tBlockNode);
 		public override tText ToString() => $"{{{_Commands}}}";
@@ -178,9 +172,7 @@ public static class mSPO_AST {
 		Equals(
 			tCallNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Func.Equals(_Func) && a._Arg.Equals(_Arg);
-		}
+		) => !a.IsNull() && a._Func.Equals(_Func) && a._Arg.Equals(_Arg);
 		
 		public override tBool Equals(object a) => this.Equals(a as tCallNode);
 		public override tText ToString() => $"(Call: {_Func}, {_Arg})";
@@ -195,12 +187,39 @@ public static class mSPO_AST {
 		Equals(
 			tAssignmantNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Des.Equals(_Des) && a._Src.Equals(_Src);
-		}
+		) => !a.IsNull() && a._Des.Equals(_Des) && a._Src.Equals(_Src);
 		
 		public override tBool Equals(object a) => this.Equals(a as tAssignmantNode);
 		public override tText ToString() => $"({_Des} := {_Src})";
+	}
+	
+	public class tRecLambdaItemNode {
+		internal tIdentNode _Ident;
+		internal tLambdaNode _Lambda;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tRecLambdaItemNode a
+		//================================================================================
+		) => !a.IsNull() && a._Ident.Equals(_Ident) && a._Lambda.Equals(_Lambda);
+		
+		public override tBool Equals(object a) => this.Equals(a as tRecLambdaItemNode);
+		public override tText ToString() => $"({_Ident} := {_Lambda})";
+	}
+	
+	public class tRecLambdasNode : tCommandNode {
+		internal mList.tList<tRecLambdaItemNode> _List;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tRecLambdasNode a
+		//================================================================================
+		) => !a.IsNull() && a._List.Equals(_List);
+		
+		public override tBool Equals(object a) => this.Equals(a as tRecLambdasNode);
+		public override tText ToString() => $"§REC {{{_List}}}";
 	}
 	
 	public class tReturnNode : tCommandNode {
@@ -211,9 +230,7 @@ public static class mSPO_AST {
 		Equals(
 			tReturnNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Result.Equals(_Result);
-		}
+		) => !a.IsNull() && a._Result.Equals(_Result);
 		
 		public override tBool Equals(object a) => this.Equals(a as tReturnNode);
 		public override tText ToString() => $"RETURN {_Result}";
@@ -227,9 +244,7 @@ public static class mSPO_AST {
 		Equals(
 			tTupleNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Items.Equals(_Items);
-		}
+		) => !a.IsNull() && a._Items.Equals(_Items);
 		
 		public override tBool Equals(object a) => this.Equals(a as tTupleNode);
 		public override tText ToString() => $"({_Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
@@ -253,13 +268,21 @@ public static class mSPO_AST {
 		Equals(
 			tModuleNode a
 		//================================================================================
-		) {
-			return !a.IsNull() && a._Commands.Equals(_Commands);
-		}
+		) => !a.IsNull() && a._Commands.Equals(_Commands);
 		
 		public override tBool Equals(object a) => this.Equals(a as tModuleNode);
-		public override tText ToString() => _Commands.Map(a => a.ToString()).Join((a1, a2) => $"{a1}\n{a2}")+"\n";
+		public override tText ToString() => _Commands.Map(
+			a => a.ToString()
+		).Join(
+			(a1, a2) => $"{a1}\n{a2}"
+		) + "\n";
 	}
+	
+	//================================================================================
+	public static mStd.tFunc<tEmptyNode>
+	Empty = (
+	//================================================================================
+	) => new tEmptyNode();
 	
 	//================================================================================
 	public static mStd.tFunc<tNumberNode, tInt32>
@@ -289,12 +312,24 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tTupleNode, mList.tList<tExpressionNode>>
+	public static mStd.tFunc<tExpressionNode, mList.tList<tExpressionNode>>
 	Tuple = (
 		aItems
 	//================================================================================
-	) => new tTupleNode {
-		 _Items = aItems
+	) => {
+		switch (aItems.Take(2).ToArrayList().Size()) {
+			case 0: {
+				return Empty();
+			}
+			case 1: {
+				return aItems._Head;
+			}
+			default: {
+				return new tTupleNode {
+					_Items = aItems
+				};
+			}
+		}
 	};
 	
 	//================================================================================
@@ -342,12 +377,47 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchTupleNode, mList.tList<tMatchNode>>
+	public static mStd.tFunc<tRecLambdaItemNode, tIdentNode, tLambdaNode>
+	RecLambdaItem = (
+		aIdent,
+		aLambda
+	//================================================================================
+	) => new tRecLambdaItemNode {
+		_Ident = aIdent,
+		_Lambda = aLambda
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tRecLambdasNode, mList.tList<tRecLambdaItemNode>>
+	RecLambdas = (
+		aList
+	//================================================================================
+	) => new tRecLambdasNode {
+		_List = aList
+	};
+	
+
+
+	//================================================================================
+	public static mStd.tFunc<tMatchItemNode, mList.tList<tMatchNode>>
 	MatchTuple = (
 		aItems
 	//================================================================================
-	) => new tMatchTupleNode {
-		_Items = aItems
+	) => {
+		switch (aItems.Take(2).ToArrayList().Size()) {
+			case 0: {
+				mStd.Assert(false); // TODO
+				return null;
+			}
+			case 1: {
+				return aItems._Head._Pattern;
+			}
+			default: {
+				return new tMatchTupleNode {
+					_Items = aItems
+				};
+			}
+		}
 	};
 	
 	//================================================================================
@@ -356,12 +426,17 @@ public static class mSPO_AST {
 		aMatch,
 		aType
 	//================================================================================
-	) => {
-		return new tMatchNode {
-			_Pattern = aMatch,
-			_Type = aType
-		};
+	) => new tMatchNode {
+		_Pattern = aMatch,
+		_Type = aType
 	};
+	
+	//================================================================================
+	public static mStd.tFunc<tMatchNode, tMatchItemNode>
+	MatchUntyped = (
+		aMatch
+	//================================================================================
+	) => Match(aMatch, null);
 	
 	//================================================================================
 	public static mStd.tFunc<tAssignmantNode, tMatchNode, tExpressionNode>
@@ -369,11 +444,9 @@ public static class mSPO_AST {
 		aMatch,
 		aExpression
 	//================================================================================
-	) => {
-		return new tAssignmantNode {
-			_Des = aMatch,
-			_Src = aExpression
-		};
+	) => new tAssignmantNode {
+		_Des = aMatch,
+		_Src = aExpression
 	};
 	
 	//================================================================================
@@ -381,10 +454,8 @@ public static class mSPO_AST {
 	Return = (
 		aResult
 	//================================================================================
-	) => {
-		return new tReturnNode {
-			_Result = aResult
-		};
+	) => new tReturnNode {
+		_Result = aResult
 	};
 	
 	//================================================================================
@@ -392,10 +463,8 @@ public static class mSPO_AST {
 	Block = (
 		aCommands
 	//================================================================================
-	) => {
-		return new tBlockNode {
-			_Commands = aCommands
-		};
+	) => new tBlockNode {
+		_Commands = aCommands
 	};
 	
 	//================================================================================
@@ -405,12 +474,10 @@ public static class mSPO_AST {
 		aCommands,
 		aExport
 	//================================================================================
-	) => {
-		return new tModuleNode {
-			_Import = aImport,
-			_Export = aExport,
-			_Commands = aCommands
-		};
+	) => new tModuleNode {
+		_Import = aImport,
+		_Export = aExport,
+		_Commands = aCommands
 	};
 	
 	//================================================================================
@@ -418,10 +485,8 @@ public static class mSPO_AST {
 	Import = (
 		aMatch
 	//================================================================================
-	) => {
-		return new tImportNode {
-			_Match = aMatch 
-		};
+	) => new tImportNode {
+		_Match = aMatch 
 	};
 	
 	//================================================================================
@@ -429,10 +494,8 @@ public static class mSPO_AST {
 	Export = (
 		aExpression
 	//================================================================================
-	) => {
-		return new tExportNode {
-			_Expression = aExpression 
-		};
+	) => new tExportNode {
+		_Expression = aExpression 
 	};
 	
 	#region TEST

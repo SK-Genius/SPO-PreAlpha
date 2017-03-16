@@ -27,25 +27,49 @@ public static class mSPO_Interpreter {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		mStd.Assert(mSPO_Parser.MODULE.ParseText(aCode, aDebugStream).MATCH(out mSPO_AST.tModuleNode ModuleNode));
-		
-		var Module = mSPO2IL.NewModuleConstructor();
-		mSPO2IL.MapModule(ref Module, ModuleNode);
-		
-		var X = mIL_Interpreter.ParseModule( //TODO: rename X
-			Module.Defs.ToLasyList().Map(
-				D => {
-					D.MATCH(out var Name, out var Commands);	
-					return mStd.Tuple(Name, Commands.ToLasyList());
-				}
-			)
+		mStd.Assert(
+			mSPO_Parser.MODULE.ParseText(
+				aCode,
+				aDebugStream
+			).MATCH(out mSPO_AST.tModuleNode ModuleNode)
 		);
 		
-		X.MATCH(out var VMModule, out var ModuleMap);
-		var InitProc = VMModule._Tail._Head; // TODO: get last
+		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode);
+		
+		mIL_Interpreter.ParseModule(
+			ModuleConstructor.Defs.ToLasyList().Map(
+				(aIndex, aCommands) => {
+					return mStd.Tuple(mSPO2IL.TempDef(aIndex), aCommands.ToLasyList());
+				}
+			)
+		).MATCH(out var VMModule, out var ModuleMap);
+		
 		var Res = mIL_VM.EMPTY();
+		
+		// TODO: move to mIL_Interpreter.Run(...) ???
+		var DefTuple = mIL_VM.EMPTY();
+		var Defs = VMModule.Skip(1).Reverse();
+		switch (Defs.Take(2).ToArrayList().Size()) {
+			case 0: {
+				break;
+			}
+			case 1: {
+				DefTuple = mIL_VM.DEF(Defs._Head);
+				break;
+			}
+			default: {
+				while (Defs.MATCH(out var Def, out Defs)) {
+					DefTuple = mIL_VM.PAIR(
+						mIL_VM.DEF(Def),
+						DefTuple
+					);
+				}
+				break;
+			}
+		}
+		var InitProc = VMModule._Head;
 		mIL_VM.Run(
-			mIL_VM.PROC(InitProc, mIL_VM.DEF(VMModule._Head)), // TODO: all defs as list
+			mIL_VM.PROC(InitProc, DefTuple),
 			mIL_VM.EMPTY(),
 			aImport,
 			Res
@@ -69,14 +93,18 @@ public static class mSPO_Interpreter {
 		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out Arg1, out Arg2));
 		tInt32 Arg1_;
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.INT, out Arg1_));
-		tInt32 Arg2_;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.INT, out Arg2_));
-		return mIL_VM.INT(Arg1_ * Arg2_);
+		mIL_VM.tData Arg2_;
+		mIL_VM.tData _;
+		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.PAIR, out Arg2_, out _));
+		tInt32 Arg2__;
+		mStd.Assert(Arg2_.MATCH(mIL_VM.tDataType.INT, out Arg2__));
+		return mIL_VM.INT(Arg1_ * Arg2__);
 	};
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
-			"SPO_Interpreter",
+			"Run1",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -93,7 +121,7 @@ public static class mSPO_Interpreter {
 								"§EXPORT y",
 								""
 							).Join((a1, a2) => a1 + "\n" + a2),
-							mIL_VM.PAIR(
+							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),
 								mIL_VM.INT(2)
 							),
@@ -107,7 +135,7 @@ public static class mSPO_Interpreter {
 			)
 		),
 		mStd.Tuple(
-			"SPO_Interpreter2",
+			"Run2",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -123,7 +151,7 @@ public static class mSPO_Interpreter {
 								"§EXPORT y",
 								""
 							).Join((a1, a2) => a1 + "\n" + a2),
-							mIL_VM.PAIR(
+							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),
 								mIL_VM.INT(2)
 							),
@@ -137,7 +165,7 @@ public static class mSPO_Interpreter {
 			)
 		),
 		mStd.Tuple(
-			"SPO_Interpreter3",
+			"Run3",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -151,7 +179,7 @@ public static class mSPO_Interpreter {
 								"§EXPORT (.(a => (k .* a)) 5)",
 								""
 							).Join((a1, a2) => a1 + "\n" + a2),
-							mIL_VM.PAIR(
+							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),
 								mIL_VM.INT(2)
 							),

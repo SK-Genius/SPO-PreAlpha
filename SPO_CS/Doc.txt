@@ -1,134 +1,139 @@
-﻿TYPES:
-======
-	
-	EMPTY:   []
-	META:    [[]]
-	AMY:     [_]
-	PREFIX:  [#n t]  // public & private variante   
-	PAIR:    [t; t]
-	SET:     [t | t]
-	COND:    [t & x]
-	VAR:     [VAR t]
-	CALL:    [t : t -> t]
-	MSG_OUT: [t >>]
+﻿IL overview
+###########
+	see mIL_Parser
 	
 	
-	SEMANTIC SUCCER:
-	-----------------
+	TYPES:
+	======
 		
-		Tuple:
-			[t, t]  ==  [[[]; t]; t] 
-			[t, t, t]  ==  [[[[]; t]; t]; t]
-			[t, t,  ..., t]  ==  [...[[[]; t]; t]; ...; t]
+		EMPTY:   []
+		META:    [[]]
+		AMY:     [_]
+		PREFIX:  [#n t]  // public & private variante   
+		PAIR:    [t; t]
+		SET:     [t | t]
+		COND:    [t & x]
+		VAR:     [VAR t]
+		CALL:    [t : t -> t]
+		MSG_OUT: [t >>]
+		
+		
+		SEMANTIC SUCCER:
+		-----------------
 			
-			[#n]  ==  [#n []]
-			[#n t, t]  ==  [#n [t, t]]
-			[#n t, t, t]  ==  [#n [t, t, t]]
-			[#n t, t, ... ,t]  ==  [#n [t, t, ... , t]]
-		
-		Set:
-			[t | t | t]  ==  [[ t | t] | t ]  
-			[t | t | ... | t]  ==  [...[ t | t] | ... | t ]  
-		
-		Calls:
-			[T : T] == [T : T -> []]
-			[T : -> T] == [T : [] -> T]
-			[T : ] == [T : [] -> []]
+			Tuple:
+				[t, t]  ==  [[[]; t]; t] 
+				[t, t, t]  ==  [[[[]; t]; t]; t]
+				[t, t,  ..., t]  ==  [...[[[]; t]; t]; ...; t]
+				
+				[#n]  ==  [#n []]
+				[#n t, t]  ==  [#n [t, t]]
+				[#n t, t, t]  ==  [#n [t, t, t]]
+				[#n t, t, ... ,t]  ==  [#n [t, t, ... , t]]
 			
-			[T -> T] == [[] : T -> T]
-			[-> T] == [T] == [[] : [] -> T]
-
-COMMANDS:
-=========
-	SPECIAL ELEMENTS:
-		() :: []
-		TRUE :: [#TRUE]
-		FALSE :: [#FALSE]
-		ARG
-		ENV
+			Set:
+				[t | t | t]  ==  [[ t | t] | t ]  
+				[t | t | ... | t]  ==  [...[ t | t] | ... | t ]  
+			
+			Calls:
+				[T : T] == [T : T -> []]
+				[T : -> T] == [T : [] -> T]
+				[T : ] == [T : [] -> []]
+				
+				[T -> T] == [[] : T -> T]
+				[-> T] == [T] == [[] : [] -> T]
 	
-	PAIR:
-		(x ; x) -> x
-		x -> (_ ; x)
-		x -> (x ; _)
-	
-	PREFIX:
-		(#n x) -> x
-		x -> (#n x)
-		(#n ? x) -> x
-	
-	VAR:
-		§VAR T -> x 
-	
-	SET_OBJ:
-		x :
-	
-	CALL:
-		x x -> x
-		: x x -> x   
-	
-	COND:
-		RETURN x IF x
-		REPEAT WITH x IF x
-	
-	PROCESS:
-		CREATE T x -> x
-		x >> x
-	
-	CHECK:
-		ASSERT x => x
-		x IS T -> x ???
-	
-	TYPES: (Construction & Destruction) ???
-		TYPE_OF x -> T
-		[#n T] -> T
-		[T ; T] -> T
-		[T : T -> T] -> T
-		... see TYPES
-	
-	
-	SEMANTIC SUCCER:
-	----------------
+	COMMANDS:
+	=========
+		SPECIAL ELEMENTS:
+			() :: []
+			TRUE :: [#TRUE]
+			FALSE :: [#FALSE]
+			ARG
+			ENV
 		
 		PAIR:
-			x -> (x ; x)  ==  x -> (x ; _)  &&  x -> (_ ; x)
-			x -> (x ; x) ?  ==  x -> (x ; _) ?  &&  x -> (_ ; x) ?
-		
-		TUPLE:
-			(x , x , ... , x) -> x
-			x -> (x , x , ... , x)
-			x -> (x , x , ... , x) ?
-			n x -> x
-			n x -> x ?
+			(x ; x) -> x
+			x -> (_ ; x)
+			x -> (x ; _)
 		
 		PREFIX:
-			(#n x , x , ... , x ) -> x
-			x -> (#n x , x , ... , x)
+			(#n x) -> x
+			x -> (#n x)
+			(#n ? x) -> x
 		
-		OBJ:
-			x : x x -> x , x x -> x  ==  x :  &&  : x x -> x  &&  : x x -> x
+		VAR:
+			§VAR T -> x 
 		
-		???:
-			RETURN x  ==  RETURN x IF TRUE
-			REPEAT WITH x  == REPEAT WITH x IF TRUE
-			ASSERT x  ==  ASSERT TRUE => x
-
-
-MODUL:
-======
+		SET_OBJ:
+			x :
+		
+		CALL:
+			x x -> x
+			: x x -> x   
+		
+		COND:
+			RETURN x IF x
+			REPEAT WITH x IF x
+		
+		PROCESS:
+			CREATE T x -> x
+			x >> x
+		
+		CHECK:
+			ASSERT x => x
+			x IS T -> x ???
+		
+		TYPES: (Construction & Destruction) ???
+			TYPE_OF x -> T
+			[#n T] -> T
+			[T ; T] -> T
+			[T : T -> T] -> T
+			... see TYPES
+		
+		
+		SEMANTIC SUCCER:
+		----------------
+			
+			PAIR:
+				x -> (x ; x)  ==  x -> (x ; _)  &&  x -> (_ ; x)
+				x -> (x ; x) ?  ==  x -> (x ; _) ?  &&  x -> (_ ; x) ?
+			
+			TUPLE:
+				(x , x , ... , x) -> x
+				x -> (x , x , ... , x)
+				x -> (x , x , ... , x) ?
+				n x -> x
+				n x -> x ?
+			
+			PREFIX:
+				(#n x , x , ... , x ) -> x
+				x -> (#n x , x , ... , x)
+			
+			OBJ:
+				x : x x -> x , x x -> x  ==  x :  &&  : x x -> x  &&  : x x -> x
+			
+			???:
+				RETURN x  ==  RETURN x IF TRUE
+				REPEAT WITH x  == REPEAT WITH x IF TRUE
+				ASSERT x  ==  ASSERT TRUE => x
 	
-	DEF
-		<COMMAND>
-		<COMMAND>
+	
+	MODUL:
+	======
+		
+		DEF
+			<COMMAND>
+			<COMMAND>
+			...
+		
+		DEF
+			<COMMAND>
+			<COMMAND>
+			...
+		
 		...
-	
-	DEF
-		<COMMAND>
-		<COMMAND>
-		...
-	
-	...
-	
-	(.<DefN>(<Def1>, <Def2>, ..., <DefN-1>)) :: [[tA1, tA2, ..., tAM] -> [tR1, tR2, ..., tRL]]
-	((<AName1>, <AName2>, ..., <ANameM>), (<RName1>, <RName2>, ..., <RNameL>)) Seperate Language File
-	
+		
+		(.<DefN>(<Def1>, <Def2>, ..., <DefN-1>)) :: [[tA1, tA2, ..., tAM] -> [tR1, tR2, ..., tRL]]
+		((<AName1>, <AName2>, ..., <ANameM>), (<RName1>, <RName2>, ..., <RNameL>)) Seperate Language File
+		

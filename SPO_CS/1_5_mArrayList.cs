@@ -64,6 +64,8 @@ public static class mArrayList {
 			tArrayList<t> a2
 		//================================================================================
 		) => !(a1 == a2);
+		
+		public override int GetHashCode() => base.GetHashCode();
 	}
 	
 	//================================================================================
@@ -282,7 +284,7 @@ public static class mArrayList {
 			)
 		),
 		mStd.Tuple(
-			"tArrayList.Get(...)",
+			"tArrayList.Set(...)",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					var L = List(10, 11, 12, 13);

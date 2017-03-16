@@ -343,6 +343,26 @@ public static class mParserGen {
 			public tText _DebugDef = "";
 		#endif
 		
+		public tText DebugName {
+			get {
+				#if DEBUG
+					return _DebugName;
+				#else
+					return null;
+				#endif
+			}
+		}
+		
+		public tText DebugDef {
+			get {
+				#if DEBUG
+					return _DebugDef;
+				#else
+					return null;
+				#endif
+			}
+		}
+		
 		//================================================================================
 		public tParser<t>
 		SetDebugDef(
@@ -374,7 +394,7 @@ public static class mParserGen {
 				while (Parts.MATCH(out Part, out Parts)) {
 					Name += Part?.ToString() ?? "";
 				}
-				_DebugName = Name;
+				_DebugName = Name.Replace("\n", @"\n").Replace("\r", @"\r").Replace("\t", @"\t");
 			#endif
 			return this;
 		}
@@ -397,7 +417,7 @@ public static class mParserGen {
 				);
 			}
 		}
-		.SetDebugDef("(", aP1._DebugName??aP1._DebugDef, ") + (", aP2._DebugName??aP2._DebugDef, ")");
+		.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")");
 		
 		//================================================================================
 		public static tParser<t>
@@ -405,14 +425,14 @@ public static class mParserGen {
 			tParser<t> aP1,
 			tParser<t> aP2
 		//================================================================================
-		) => (aP1 + -aP2).SetDebugDef("(", aP1._DebugName??aP1._DebugDef, ") - (", aP2._DebugName??aP2._DebugDef, ")");
+		) => (aP1 + -aP2).SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") - (", aP2.DebugName??aP2.DebugDef, ")");
 		
 		//================================================================================
 		public static tParser<t>
 		operator-(
 			tParser<t> aParser
 		//================================================================================
-		) => aParser.Modify_(_ => ResultList()).SetDebugDef(" - (", aParser._DebugName??aParser._DebugDef, ")");
+		) => aParser.Modify_(_ => ResultList()).SetDebugDef(" - (", aParser.DebugName??aParser.DebugDef, ")");
 		
 		//================================================================================
 		public static tParser<t>
@@ -461,7 +481,7 @@ public static class mParserGen {
 				);
 			}
 		}
-		.SetDebugDef("(", aP1._DebugName??aP1._DebugDef, ") | (", aP2._DebugName??aP2._DebugDef, ")");
+		.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")");
 		
 		//================================================================================
 		public tParser<t>
@@ -484,7 +504,7 @@ public static class mParserGen {
 								return OK(Result, RestStream);
 							}
 						}
-						.SetDebugDef("(", this._DebugName??this._DebugDef, ")[", aMin, "..", aMax, "]");
+						.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 					} else {
 						return new tParser<t> {
 							_ParseFunc = (aStream, aDebugStream) => {
@@ -499,16 +519,16 @@ public static class mParserGen {
 								return OK(Result, RestStream);
 							}
 						}
-						.SetDebugDef("(", this._DebugName??this._DebugDef, ")[", aMin, "..", aMax, "]");
+						.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 					}
 				}
 				if (aMax.IsNull()) {
 					return ((int)aMin*this + this[0, null])
-					.SetDebugDef("(", this._DebugName??this._DebugDef, ")[", aMin, "..", aMax, "]");
+					.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 				}
 				if (aMin <= aMax) {
 					return (int)aMin*this + this[0, aMax - aMin]
-					.SetDebugDef("(", this._DebugName??this._DebugDef, ")[", aMin, "..", aMax, "]");
+					.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 				}
 				throw null;
 			}
@@ -540,7 +560,7 @@ public static class mParserGen {
 				return OK(Result, RestStream);
 			}
 		}
-		.SetDebugDef("~(", aParser._DebugName??aParser._DebugDef, ")");
+		.SetDebugDef("~(", aParser.DebugName??aParser.DebugDef, ")");
 	}
 	
 	//================================================================================
@@ -558,7 +578,7 @@ public static class mParserGen {
 	) {
 		mStd.Assert(a1._ParseFunc.IsNull());
 		a1._ParseFunc = a2._ParseFunc;
-		a1.SetDebugDef(a2._DebugDef);
+		a1.SetDebugDef(a2.DebugDef);
 	}
 	
 	//================================================================================
@@ -622,7 +642,7 @@ public static class mParserGen {
 				Fail<t>()
 			);
 		}
-	}.SetDebugDef("{", aParser?._DebugName ?? aParser._DebugDef, "}");
+	}.SetDebugDef("{", aParser?.DebugName ?? aParser.DebugDef, "}");
 	
 	//================================================================================
 	public static tParser<t>

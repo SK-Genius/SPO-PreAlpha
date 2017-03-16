@@ -48,11 +48,15 @@ public static class mTextParser {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Text1 = TextStream(mTextParser.TextToStream(aText), aDebugStream);
-		Text1.MATCH(out var List, out var Info);
-		var MaybeResult1 = aParser.StartParse(List, aDebugStream);
-		mStd.Assert(MaybeResult1.MATCH(out var Result), $"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}");
+		var Text = TextStream(mTextParser.TextToStream(aText), aDebugStream);
+		Text.MATCH(out var List, out var Info);
+		var MaybeResult = aParser.StartParse(List, aDebugStream);
+		mStd.Assert(
+			MaybeResult.MATCH(out var Result),
+			$"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}"
+		);
 		Result.MATCH(out var ResultList, out var Rest);
+		mStd.AssertEq(Rest, mList.List<mStd.tTuple<tChar, mStd.tAction<tText>>>());
 		return ResultList;
 	}
 	
@@ -242,9 +246,10 @@ public static class mTextParser {
 	
 	// TODO: add tests
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
-			"GetChar",
+			"TODO",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => true
 			)

@@ -36,6 +36,7 @@ public static class mList {
 		public override tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
 		public static tBool operator==(tList<t> a1, tList<t> a2) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
 		public static tBool operator!=(tList<t> a1, tList<t> a2) => !a1.Equals(a2);
+		public override int GetHashCode() => base.GetHashCode();
 	}
 	
 	//================================================================================
@@ -116,16 +117,26 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	//================================================================================
+	) => aList.Map((aIndex, aElem) => aMapFunc(aElem));
+	
+	//================================================================================
+	public static tList<tRes>
+	Map<tRes, tElem>(
+		this tList<tElem> aList,
+		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
+	//================================================================================
 	) {
 		// TODO: make it lasy (use LasyList)
 		var ResultList = List<tRes>();
 		var RestList = aList;
+		var Index = 0;
 		while (RestList.MATCH(out var Head, out RestList)) {
-			ResultList = Concat(ResultList, List(aMapFunc(Head)));
+			ResultList = Concat(ResultList, List(aMapFunc(Index, Head)));
+			Index += 1;
 		}
 		return ResultList;
 	}
-
+	
 	//================================================================================
 	public static tRes
 	Reduce<tRes, tElem>(

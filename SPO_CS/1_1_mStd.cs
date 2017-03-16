@@ -179,6 +179,7 @@ public static class mStd {
 		public override tText ToString() => _Value != null ? _Value.ToString() : "-";
 		public static tBool operator==(tAny a1, tAny a2) => a1.Equals(a2);
 		public static tBool operator!=(tAny a1, tAny a2) => !a1.Equals(a2);
+		public override int GetHashCode() => base.GetHashCode();
 	}
 	
 	//================================================================================
@@ -242,10 +243,7 @@ public static class mStd {
 		tBool a
 	//================================================================================
 	) {
-		if (!a) {
-			System.Console.WriteLine("FAIL");
-			throw null;
-		}
+		AssertEq(a, true);
 	}
 	
 	//================================================================================
@@ -256,8 +254,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (!a) {
-			System.Console.WriteLine(aMsg);
-			throw null;
+			throw new System.Exception($"FAIL: {aMsg}");
 		}
 	}
 	
@@ -267,10 +264,7 @@ public static class mStd {
 		tBool a
 	//================================================================================
 	) {
-		if (a) {
-			System.Console.WriteLine("FAIL");
-			throw null;
-		}
+		AssertEq(a, !true);
 	}
 	
 	//================================================================================
@@ -285,8 +279,7 @@ public static class mStd {
 			!a1.IsNull() &&
 		    !a1.Equals(a2)
 		) {
-			System.Console.WriteLine($"FAIL: {a1} != {a2}");
-			throw null;
+			throw new System.Exception($"FAIL: {a1} != {a2}");
 		}
 	}
 	
@@ -298,8 +291,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a1.Equals(a2)) {
-			System.Console.WriteLine($"FAIL: {a1} == {a2}");
-			throw null;
+			throw new System.Exception($"FAIL: {a1} == {a2}");
 		}
 	}
 	
@@ -310,8 +302,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (!a.IsNull()) {
-			System.Console.WriteLine($"FAIL: {a} != null");
-			throw null;
+			throw new System.Exception($"FAIL: {a} != null");
 		}
 	}
 	
@@ -322,8 +313,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a.IsNull()) {
-			System.Console.WriteLine("FAIL");
-			throw null;
+			throw new System.Exception("FAIL: is NULL");
 		}
 	}
 	

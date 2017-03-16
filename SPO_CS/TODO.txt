@@ -1,0 +1,75 @@
+﻿NEXT:
+=====
+	o self recursion:
+		|	Double := (X => (.If (X .> 0) Then ((.§SELF (X .- 1)) .+ 2) Else 0))
+	
+	o general recursion ???
+		- do not allow recursiv immutable:
+			|	 f := (() => .g)
+			|	 a := .f
+			|	 := (() => a)
+		
+		- mayba use keyword
+			|	 §RECURSIVE (a, b, c)
+			|	 a := ...
+			|	 b := ...
+			|	 c := ...
+			a, b & c must be from type lambda,
+			and there definitions must folow direct after the $RECURSIV statement
+		
+		- the self recursiv example writen as general recursiv
+			|	§RECURSIV Double
+			|	Double := (X => (.If (X .> 0) Then ((.Double (X .- 1)) .+ 2) Else 0))
+	
+	o empty element: ()
+	o ignor match: _
+	o typed expessions / typed match:
+		|	a := 4 € tInt32
+		or
+		|	a € tInt32 := 4
+	
+	o pattern matching:
+		|	( lambda1 | lambda2 | ... | lambdaN )
+		or
+		|	§ANY (lambda1, lambda2, ..., lambdaN)
+
+
+NICE TO HAVE:
+=============
+	o performance: replace LasyList by ArrayList in Set
+
+
+MAYBE:
+======
+	o LET
+		|	let a, b = (2, 3) in a * b          ===  ((a, b) => (a * b))(2, 3)
+		|	(§LET (a, b) = (2, 3) IN (a .* b))  ===  (.((a, b) => (a .* b)) (2, 3))
+		|	(§LET $a = $b IN $c)  ==>  (.($a => $c) $b)
+	
+	o IF
+		|	(§IF $a THEN $b ELSE $c)  ==> (.(.if $a then (() => $b) else (() => $c)))
+	
+	o CASE
+		|	§CASE $a OF (
+		|		$b1 => $c1 |
+		|		$b2 => $c2 |
+		|		...
+		|		$bN => $cN
+		|	)
+		==>
+		|	.(
+		|		$b1 => c1 |
+		|		$b2 => c2 |
+		|		...
+		|		$bN => cN
+		|	) $a
+
+
+ROADMAP:
+========
+	o arrays
+	o runtime type check
+	o var & const
+	o compiletime type check
+	o concurency
+	o self hosted

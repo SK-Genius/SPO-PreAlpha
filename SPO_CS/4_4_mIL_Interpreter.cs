@@ -57,7 +57,7 @@ public static class mIL_Interpreter {
 				.Set("OBJ"   , mIL_VM.tProcDef.OBJ_Reg)
 				.Set("ARG"   , mIL_VM.tProcDef.ARG_Reg)
 				.Set("RES"   , mIL_VM.tProcDef.RES_Reg)
-				.Set("_"     , mIL_VM.tProcDef.EMPTY_Reg)
+				.Set("EMPTY" , mIL_VM.tProcDef.EMPTY_Reg)
 				.Set("FALSE" , mIL_VM.tProcDef.FALSE_Reg)
 				.Set("TRUE"  , mIL_VM.tProcDef.TRUE_Reg);
 			
@@ -76,7 +76,7 @@ public static class mIL_Interpreter {
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Second, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Second(Reg.Get(RegId2)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.ReturnIf, out RegId1, out RegId2)) {
-					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1 ?? "_"));
+					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1 ?? "EMPTY"));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.RepeatIf, out RegId1, out RegId2)) {
 					NewProc.ContinueIf(Reg.Get(RegId2), Reg.Get(RegId1));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.AddPrefix, out RegId1, out var Prefix, out RegId3)) {
@@ -177,7 +177,7 @@ public static class mIL_Interpreter {
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
-						"	add := ENV _\n" +
+						"	add := ENV EMPTY\n" +
 						"	1_ := 1\n" +
 						
 						"	arg_1 := ARG, 1_\n" +
@@ -206,7 +206,7 @@ public static class mIL_Interpreter {
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
-						"	add := ENV _\n" +
+						"	add := ENV EMPTY\n" +
 						"	1_ := 1\n" +
 						
 						"	arg := -VECTOR ARG\n" +
@@ -242,7 +242,7 @@ public static class mIL_Interpreter {
 				(mStd.tAction<tText> aStreamOut) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
-						"	...=...? := ENV _\n" +
+						"	...=...? := ENV EMPTY\n" +
 						"	1_ := 1\n" + 
 						"	arg_1 := ARG, 1_\n" +
 						"	arg_eq_1? := ...=...? arg_1\n" +
@@ -294,7 +294,7 @@ public static class mIL_Interpreter {
 						"	_1 := 1\n" +
 						"	add_ := §1st ENV\n" +
 						
-						"	add := add_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
+						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 						
 						"	p := _1, _1\n" +
 						"	r := add p\n" +
@@ -308,9 +308,9 @@ public static class mIL_Interpreter {
 						"	rest2 := §2nd rest1\n" +
 						"	mul_  := §1st rest2\n" +
 						
-						"	add := add_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
-						"	sub := sub_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
-						"	mul := mul_ _\n" + // mul_ :: _ => (€Int, €Int) => €Int
+						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+						"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+						"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
 						
 						"	_1_1 := _1, _1\n" +
 						"	_2   := add _1_1\n" +
@@ -332,10 +332,10 @@ public static class mIL_Interpreter {
 						"	rest3 := §2nd rest2\n" +
 						"	eq_   := §1st rest3\n" +
 						
-						"	add := add_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
-						"	sub := sub_ _\n" + // add_ :: _ => (€Int, €Int) => €Int
-						"	mul := mul_ _\n" + // mul_ :: _ => (€Int, €Int) => €Int
-						"	eq  := eq_ _\n" + // mul_ :: _ => (€Int, €Int) => €Bool
+						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+						"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+						"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
+						"	eq  := eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
 						
 						"	1_1 := _1, _1\n" +
 						"	0   := sub 1_1\n" +

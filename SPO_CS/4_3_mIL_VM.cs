@@ -46,7 +46,7 @@ public static class mIL_VM {
 		);
 		
 		public override tBool Equals(object a) => Equals(a as tData);
-		public override tText ToString() => $"({_DataType} {_Value}";
+		public override tText ToString() => $"({_DataType} {_Value})";
 	}
 	
 	//================================================================================
@@ -109,6 +109,13 @@ public static class mIL_VM {
 		tData a2
 	//================================================================================
 	) => Data(tDataType.PAIR, a1, a2);
+	
+	//================================================================================
+	public static tData
+	TUPLE(
+		params tData[] a
+	//================================================================================
+	) => mList.List(a).Reverse().Reduce(EMPTY(), (aList, aItem) => PAIR(aItem, aList));
 	
 	//================================================================================
 	public static tData
@@ -383,16 +390,16 @@ public static class mIL_VM {
 		
 		//================================================================================
 		public tCallStack(
-			tCallStack Parent,
-			tProcDef ProcDef,
-			tData Env,
-			tData Obj,
-			tData Arg,
-			tData Res
+			tCallStack aParent,
+			tProcDef aProcDef,
+			tData aEnv,
+			tData aObj,
+			tData aArg,
+			tData aRes
 		//================================================================================
 		) {
-			_Parent = Parent;
-			_ProcDef = ProcDef;
+			_Parent = aParent;
+			_ProcDef = aProcDef;
 			
 			_Reg = mArrayList.Concat(
 				_Reg,
@@ -401,12 +408,21 @@ public static class mIL_VM {
 					INT(1),
 					BOOL(false),
 					BOOL(true),
-					Env,
-					Obj,
-					Arg,
-					Res
+					aEnv,
+					aObj,
+					aArg,
+					aRes
 				)
 			);
+			System.Diagnostics.Debug.WriteLine("    ______________________________________");
+			System.Diagnostics.Debug.WriteLine("     0 := EMPTY");
+			System.Diagnostics.Debug.WriteLine("     1 := 1");
+			System.Diagnostics.Debug.WriteLine("     2 := FALSE");
+			System.Diagnostics.Debug.WriteLine("     3 := TRUE");
+			System.Diagnostics.Debug.WriteLine("     4 := ENV  |  "+aEnv);
+			System.Diagnostics.Debug.WriteLine("     5 := OBJ  |  "+aObj);
+			System.Diagnostics.Debug.WriteLine("     6 := ARG  |  "+aArg);
+			System.Diagnostics.Debug.WriteLine("     7 := RES");
 		}
 		
 		//================================================================================
@@ -419,6 +435,7 @@ public static class mIL_VM {
 			_Obj = EMPTY();
 			
 			Command.MATCH(out var OpCode, out var Arg1, out var Arg2);
+			System.Diagnostics.Debug.Write($"    {_Reg.Size():#0} := {OpCode} {Arg1} {Arg2}");
 			
 			switch (OpCode) {
 				case tOpCode.NEW_INT: {
@@ -480,6 +497,7 @@ public static class mIL_VM {
 					} else if (Proc.MATCH(tDataType.PROC, out tProcDef Def_, out Env)) {
 						var Res = EMPTY();
 						_Reg.Push(Res);
+						System.Diagnostics.Debug.WriteLine("");
 						return new tCallStack(this, Def_, Env, _Obj, Arg, Res);
 					} else {
 						mStd.Assert(false);
@@ -493,6 +511,7 @@ public static class mIL_VM {
 						var Des = _Reg.Get(tProcDef.RES_Reg);
 						Des._DataType = Src._DataType;
 						Des._Value = Src._Value;
+						System.Diagnostics.Debug.WriteLine("");
 						return _Parent;
 					}
 				} break;
@@ -514,7 +533,7 @@ public static class mIL_VM {
 					}
 				} break;
 				
-				// TODO:
+				// TODO: missing IL Command
 				// - Create Process
 				// - Send Message
 				// - Create Var
@@ -524,6 +543,7 @@ public static class mIL_VM {
 					mStd.Assert(false);
 				} break;
 			}
+			System.Diagnostics.Debug.WriteLine($"  |  {_Reg.Size()-1} = {_Reg.Get(_Reg.Size()-1)}");
 			return this;
 		}
 	}

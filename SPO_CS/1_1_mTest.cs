@@ -77,7 +77,8 @@ public static class mTest {
 #				else
 					try {
 						return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
-					} catch {
+					} catch (System.Exception e) {
+						aStreamOut(e.Message); 
 						return tResult.FAIL;
 					}
 #				endif
