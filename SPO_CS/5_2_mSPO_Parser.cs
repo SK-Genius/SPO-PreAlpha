@@ -71,7 +71,7 @@ public static class  mSPO_Parser {
 	
 	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
-	public static tSPO_Parser EMPTY = Token("()")
+	public static tSPO_Parser EMPTY = (-TOKEN("()"))
 		.Modify(mSPO_AST.Empty)
 		.SetDebugName(nameof(EMPTY));
 	

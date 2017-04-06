@@ -323,18 +323,15 @@ public static class mStdLib {
 					mStd.AssertEq(
 						mSPO_Interpreter.Run(
 							mList.List(
-								"§IMPORT (",
-								$"	{cImportTuple},",
-								"	k",
-								")",
+								$"§IMPORT {cImportTuple}",
 								"",
 								"§RECURSIV {",
 								"	Fib... := (",
 								"		a => (",
-								"			.If (a .<= 2) Then (",
-								"				(x) => a", // TODO: replace "(x)" by "()"
+								"			.If (a .< 2) Then (",
+								"				() => a",
 								"			) Else (",
-								"				(x) => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))",
+								"				() => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))",
 								"			)",
 								"		)",
 								"	)",

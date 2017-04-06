@@ -1,37 +1,61 @@
 ﻿NEXT:
 =====
-	o self recursion:
-		|	Double := (X => (.If (X .> 0) Then ((.§SELF (X .- 1)) .+ 2) Else 0))
-	
-	o general recursion ???
-		- do not allow recursiv immutable:
-			|	 f := (() => .g)
-			|	 a := .f
-			|	 := (() => a)
-		
-		- mayba use keyword
-			|	 §RECURSIVE (a, b, c)
-			|	 a := ...
-			|	 b := ...
-			|	 c := ...
-			a, b & c must be from type lambda,
-			and there definitions must folow direct after the $RECURSIV statement
-		
-		- the self recursiv example writen as general recursiv
-			|	§RECURSIV Double
-			|	Double := (X => (.If (X .> 0) Then ((.Double (X .- 1)) .+ 2) Else 0))
-	
-	o empty element: ()
-	o ignor match: _
-	o typed expessions / typed match:
-		|	a := 4 € tInt32
-		or
-		|	a € tInt32 := 4
+
+	o §IF- & §IF...MATCHED-Control
+		+-----------------------------------------------+--------------------------------------------+
+		|                                               |                                            |
+		|   §RECURSIV Fib... := a => §IF (              |   §RECURSIV Fib... := a => §IF (           |
+		|   	(a .== 0) => 0                          |   	(a .< 2) => a                        |
+		|   	(a .== 1) => 1                          |   	§ELSE => .Fib(a .- 2) .+ .Fib(a .- 1)|
+		|   	§ELSE => .Fib(a .- 2) .+ .Fib(a .- 1)   |   )                                        |
+		|   )                                           |                                            |
+		|                                               |                                            |
+		+-----------------------------------------------+--------------------------------------------+
+		|                                               |                                            |
+		|   §RECURSIV Fib... := a => §IF a MATCHED (    |   §RECURSIV Fib... := a => §IF a MATCHED ( |
+		|   	0 => 0                                  |   	(n | n .< 2) => n                    |
+		|   	1 => 1                                  |   	n => .Fib(n .- 2) .+ .Fib(n .- 1)    |
+		|   	n => .Fib(n .- 2) .+ .Fib(n .- 1)       |   )                                        |
+		|   )                                           |                                            |
+		|                                               |                                            |
+		+-----------------------------------------------+--------------------------------------------+
+		|                                               |                                            |
+		|   §RECURSIV Fib... := §IF ... MATCHED (       |   §RECURSIV Fib... := §IF ... MATCHED (    |
+		|   	0 => 0                                  |   	(n | n .< 2) => n                    |
+		|   	1 => 1                                  |   	n => .Fib(a .- 2) .+ .Fib(a .- 1)    |
+		|   	a => .Fib(a .- 2) .+ .Fib(a .- 1)       |   )                                        |
+		|   )                                           |                                            |
+		|                                               |                                            |
+		+-----------------------------------------------+--------------------------------------------+
 	
 	o pattern matching:
 		|	( lambda1 | lambda2 | ... | lambdaN )
 		or
 		|	§ANY (lambda1, lambda2, ..., lambdaN)
+		+-----------------------------------------------+--------------------------------------------+
+		|                                               |                                            |
+		|   §RECURSIV Fib... := (                       |   §RECURSIV Fib... := (                    |
+		|   	(0 => 0) |                              |   	((a | a .< 2) => a) |                |
+		|   	(1 => 1) |                              |   	(a => .Fib(a .- 2) .+ .Fib(a .- 1))  |
+		|   	(a => .Fib(a .- 2) .+ .Fib(a .- 1))     |   )                                        |
+		|   )                                           |                                            |
+		|                                               |                                            |
+		+-----------------------------------------------+--------------------------------------------+
+		|                                               |                                            |
+		|   §RECURSIV Fib... := §ANY (                  |   §RECURSIV Fib... := §ANY (               |
+		|   	0 => 0                                  |   	(a | a .< 2) => a                    |
+		|   	1 => 1                                  |   	a => .Fib(a .- 2) .+ .Fib(a .- 1)    |
+		|   	a => .Fib(a .- 2) .+ .Fib(a .- 1)       |   )                                        |
+		|   )                                           |                                            |
+		|                                               |                                            |
+		+-----------------------------------------------+--------------------------------------------+
+	
+	o ignor match: _
+	
+	o typed expessions / typed match:
+		|	a := 4 € tInt32
+		or
+		|	a € tInt32 := 4
 
 
 NICE TO HAVE:
@@ -41,28 +65,10 @@ NICE TO HAVE:
 
 MAYBE:
 ======
-	o LET
+	o §LET
 		|	let a, b = (2, 3) in a * b          ===  ((a, b) => (a * b))(2, 3)
 		|	(§LET (a, b) = (2, 3) IN (a .* b))  ===  (.((a, b) => (a .* b)) (2, 3))
 		|	(§LET $a = $b IN $c)  ==>  (.($a => $c) $b)
-	
-	o IF
-		|	(§IF $a THEN $b ELSE $c)  ==> (.(.if $a then (() => $b) else (() => $c)))
-	
-	o CASE
-		|	§CASE $a OF (
-		|		$b1 => $c1 |
-		|		$b2 => $c2 |
-		|		...
-		|		$bN => $cN
-		|	)
-		==>
-		|	.(
-		|		$b1 => c1 |
-		|		$b2 => c2 |
-		|		...
-		|		$bN => cN
-		|	) $a
 
 
 ROADMAP:

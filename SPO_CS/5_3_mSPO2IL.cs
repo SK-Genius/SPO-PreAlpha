@@ -102,6 +102,12 @@ public static class mSPO2IL {
 				return;
 			}
 		}
+		{
+			var EmptyNode = Pattern as mSPO_AST.tEmptyNode;
+			if (!EmptyNode.IsNull()) {
+				return;
+			}
+		}
 		
 		mStd.Assert(false);
 	}

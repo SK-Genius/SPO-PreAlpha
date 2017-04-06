@@ -619,11 +619,11 @@ public static class mParserGen {
 		#endif
 		var Result = aParser._ParseFunc(aStream, aDebugStream);
 		#if TRACE
-		if (Result._IsOK) {
-			aDebugStream("} -> OK");
-		} else {
-			aDebugStream("} -> FAIL");
-		}
+			if (Result._IsOK) {
+				aDebugStream("} -> OK");
+			} else {
+				aDebugStream("} -> FAIL");
+			}
 		#endif
 		return Result;
 	}
