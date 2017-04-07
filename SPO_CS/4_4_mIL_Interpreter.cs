@@ -99,11 +99,12 @@ public static class mIL_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
+	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<tText>>
 	Add = (
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
@@ -117,11 +118,12 @@ public static class mIL_Interpreter {
 	};
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
+	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<tText>>
 	Sub = (
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
@@ -135,11 +137,12 @@ public static class mIL_Interpreter {
 	};
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
+	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<tText>>
 	Mul = (
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
@@ -153,11 +156,12 @@ public static class mIL_Interpreter {
 	};
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
+	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<tText>>
 	Eq = (
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;
@@ -174,7 +178,7 @@ public static class mIL_Interpreter {
 		mStd.Tuple(
 			"Call",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
+				(mStd.tAction<tText> aDebugStream) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	add := ENV EMPTY\n" +
@@ -183,17 +187,23 @@ public static class mIL_Interpreter {
 						"	arg_1 := ARG, 1_\n" +
 						"	res := add arg_1\n" +
 						"	§RETURN res IF TRUE\n",
-						aStreamOut
+						aDebugStream
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
 					mMap.tMap<tText, tInt32> ModuleMap;
 					X.MATCH(out Module, out ModuleMap);
 					
+					#if TRACE
+						var TraceOut = aDebugStream;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
+					
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
 					var Res = mIL_VM.EMPTY();
-					mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(5), Res);
+					mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(5), Res, TraceOut);
 					mStd.AssertEq(Res, mIL_VM.INT(6));
 					
 					return true;
@@ -203,7 +213,7 @@ public static class mIL_Interpreter {
 		mStd.Tuple(
 			"Prefix",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
+				(mStd.tAction<tText> aDebugStream) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	add := ENV EMPTY\n" +
@@ -214,7 +224,7 @@ public static class mIL_Interpreter {
 						"	inc := add arg_1\n" +
 						"	res := +VECTOR inc\n" +
 						"	§RETURN res IF TRUE\n",
-						aStreamOut
+						aDebugStream
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -228,7 +238,8 @@ public static class mIL_Interpreter {
 						mIL_VM.PROC(Proc, Env),
 						mIL_VM.EMPTY(),
 						mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)),
-						Res
+						Res,
+						aDebugStream
 					);
 					mStd.AssertEq(Res, mIL_VM.PREFIX("VECTOR", mIL_VM.INT(13)));
 					
@@ -239,7 +250,7 @@ public static class mIL_Interpreter {
 		mStd.Tuple(
 			"Assert",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
+				(mStd.tAction<tText> aDebugStream) => {
 					var X = ParseModule(
 						"DEF ...++\n" +
 						"	...=...? := ENV EMPTY\n" +
@@ -248,7 +259,7 @@ public static class mIL_Interpreter {
 						"	arg_eq_1? := ...=...? arg_1\n" +
 						"	§ASSERT TRUE => arg_eq_1?\n" +
 						"	§RETURN arg_eq_1? IF TRUE\n",
-						aStreamOut
+						aDebugStream
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -265,7 +276,8 @@ public static class mIL_Interpreter {
 						Env,
 						mIL_VM.EMPTY(), 
 						mIL_VM.INT(1),
-						Res
+						Res,
+						aDebugStream
 					);
 					while (CallStack != null) {
 						CallStack = CallStack.Step();
@@ -275,7 +287,7 @@ public static class mIL_Interpreter {
 					var HasThrowException = false;
 					try {
 						Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(2), Res);
+						mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(2), Res, aDebugStream);
 					} catch {
 						HasThrowException = true;
 					}
@@ -288,7 +300,7 @@ public static class mIL_Interpreter {
 		mStd.Tuple(
 			"ParseModule",
 			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
+				(mStd.tAction<tText> aDebugStream) => {
 					var X = ParseModule(
 						"DEF bla\n" +
 						"	_1 := 1\n" +
@@ -369,7 +381,7 @@ public static class mIL_Interpreter {
 						"	arg_1 := ARG, _1\n" +
 						"	res   := ...!! arg_1\n" +
 						"	§RETURN res IF TRUE\n",
-						aStreamOut
+						aDebugStream
 					);
 					
 					mList.tList<mIL_VM.tProcDef> Module;
@@ -399,12 +411,12 @@ public static class mIL_Interpreter {
 					);
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc1, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
+						mIL_VM.Run(mIL_VM.PROC(Proc1, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aDebugStream);
 						mStd.AssertEq(Res, mIL_VM.INT(2));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc2, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
+						mIL_VM.Run(mIL_VM.PROC(Proc2, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aDebugStream);
 						mStd.AssertEq(Res, mIL_VM.INT(12));
 					}
 					{
@@ -413,13 +425,14 @@ public static class mIL_Interpreter {
 							mIL_VM.PROC(Proc3, Env),
 							mIL_VM.EMPTY(),
 							mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)),
-							Res
+							Res,
+							aDebugStream
 						);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc4, Env), mIL_VM.EMPTY(), mIL_VM.INT(3), Res);
+						mIL_VM.Run(mIL_VM.PROC(Proc4, Env), mIL_VM.EMPTY(), mIL_VM.INT(3), Res, aDebugStream);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					return true;

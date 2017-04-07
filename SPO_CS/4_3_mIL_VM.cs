@@ -136,7 +136,7 @@ public static class mIL_VM {
 	//================================================================================
 	public static tData
 	EXTERN_PROC(
-		mStd.tFunc<tData, tData, tData, tData> a1,
+		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>> a1,
 		tData a2
 	//================================================================================
 	) => Data(tDataType.EXTERN_PROC, a1, a2);
@@ -151,7 +151,7 @@ public static class mIL_VM {
 	//================================================================================
 	public static tData
 	EXTERN_DEF(
-		mStd.tFunc<tData, tData, tData, tData> a
+		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>> a
 	//================================================================================
 	) => Data(tDataType.EXTERN_DEF, a);
 	
@@ -387,6 +387,7 @@ public static class mIL_VM {
 		internal tProcDef _ProcDef;
 		internal tInt32 _CodePointer = 0;
 		internal tData _Obj;
+		internal mStd.tAction<tText> _TraceOut;
 		
 		//================================================================================
 		public tCallStack(
@@ -395,9 +396,12 @@ public static class mIL_VM {
 			tData aEnv,
 			tData aObj,
 			tData aArg,
-			tData aRes
+			tData aRes,
+			mStd.tAction<tText> aTraceOut
 		//================================================================================
 		) {
+			_TraceOut = aTraceOut;
+			
 			_Parent = aParent;
 			_ProcDef = aProcDef;
 			
@@ -414,15 +418,15 @@ public static class mIL_VM {
 					aRes
 				)
 			);
-			System.Diagnostics.Debug.WriteLine("    ______________________________________");
-			System.Diagnostics.Debug.WriteLine("     0 := EMPTY");
-			System.Diagnostics.Debug.WriteLine("     1 := 1");
-			System.Diagnostics.Debug.WriteLine("     2 := FALSE");
-			System.Diagnostics.Debug.WriteLine("     3 := TRUE");
-			System.Diagnostics.Debug.WriteLine("     4 := ENV  |  "+aEnv);
-			System.Diagnostics.Debug.WriteLine("     5 := OBJ  |  "+aObj);
-			System.Diagnostics.Debug.WriteLine("     6 := ARG  |  "+aArg);
-			System.Diagnostics.Debug.WriteLine("     7 := RES");
+			aTraceOut("______________________________________");
+			aTraceOut(" 0 := EMPTY");
+			aTraceOut(" 1 := 1");
+			aTraceOut(" 2 := FALSE");
+			aTraceOut(" 3 := TRUE");
+			aTraceOut(" 4 := ENV  |  "+aEnv);
+			aTraceOut(" 5 := OBJ  |  "+aObj);
+			aTraceOut(" 6 := ARG  |  "+aArg);
+			aTraceOut(" 7 := RES");
 		}
 		
 		//================================================================================
@@ -435,7 +439,7 @@ public static class mIL_VM {
 			_Obj = EMPTY();
 			
 			Command.MATCH(out var OpCode, out var Arg1, out var Arg2);
-			System.Diagnostics.Debug.Write($"    {_Reg.Size():#0} := {OpCode} {Arg1} {Arg2}");
+			_TraceOut($"{_Reg.Size():#0} := {OpCode} {Arg1} {Arg2}");
 			
 			switch (OpCode) {
 				case tOpCode.NEW_INT: {
@@ -488,17 +492,16 @@ public static class mIL_VM {
 					var Proc = _Reg.Get(Arg1);
 					var Arg  = _Reg.Get(Arg2);
 					
-					if (Proc.MATCH(tDataType.EXTERN_DEF, out mStd.tFunc<tData, tData, tData, tData> ExternDef)) {
+					if (Proc.MATCH(tDataType.EXTERN_DEF, out mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>> ExternDef)) {
 						_Reg.Push(EXTERN_PROC(ExternDef, Arg));
 					} else if(Proc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out tData Env)) {
-						_Reg.Push(ExternDef(Env, _Obj, Arg));
+						_Reg.Push(ExternDef(Env, _Obj, Arg, aTraceLine => _TraceOut("	"+aTraceLine)));
 					} else if (Proc.MATCH(tDataType.DEF, out tProcDef Def)) {
 						_Reg.Push(PROC(Def, Arg));
 					} else if (Proc.MATCH(tDataType.PROC, out tProcDef Def_, out Env)) {
 						var Res = EMPTY();
 						_Reg.Push(Res);
-						System.Diagnostics.Debug.WriteLine("");
-						return new tCallStack(this, Def_, Env, _Obj, Arg, Res);
+						return new tCallStack(this, Def_, Env, _Obj, Arg, Res, aTraceLine => _TraceOut("	"+aTraceLine));
 					} else {
 						mStd.Assert(false);
 					}
@@ -511,7 +514,7 @@ public static class mIL_VM {
 						var Des = _Reg.Get(tProcDef.RES_Reg);
 						Des._DataType = Src._DataType;
 						Des._Value = Src._Value;
-						System.Diagnostics.Debug.WriteLine("");
+						_TraceOut("====================================");
 						return _Parent;
 					}
 				} break;
@@ -543,7 +546,7 @@ public static class mIL_VM {
 					mStd.Assert(false);
 				} break;
 			}
-			System.Diagnostics.Debug.WriteLine($"  |  {_Reg.Size()-1} = {_Reg.Get(_Reg.Size()-1)}");
+			_TraceOut($@"    \ {_Reg.Size()-1} = {_Reg.Get(_Reg.Size()-1)}");
 			return this;
 		}
 	}
@@ -570,11 +573,12 @@ public static class mIL_VM {
 		tData aProc,
 		tData aObj,
 		tData aArg,
-		tData aRes
+		tData aRes,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) {
 		if (aProc.MATCH(tDataType.PROC, out tProcDef Def, out tData Env)) {
-			var CallStack = new tCallStack(null, Def, Env, aObj, aArg, aRes);
+			var CallStack = new tCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
 			while (CallStack != null) {
 				CallStack = CallStack.Step();
 			}
@@ -589,11 +593,12 @@ public static class mIL_VM {
 	//TODO: add tests (First, Second, AddPrefix, DelPrefix, Assert, ...)
 	
 	//================================================================================
-	private static readonly mStd.tFunc<tData, tData, tData, tData>
+	private static readonly mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>>
 	Add = (
 		tData Env,
 		tData Obj,
-		tData Arg
+		tData Arg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		tData Arg1;
@@ -611,6 +616,12 @@ public static class mIL_VM {
 			"ExternDef",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
+					#if TRACE
+						var TraceOut = aStreamOut;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
+					
 					var Env = EXTERN_DEF(Add);
 					
 					var Proc1 = new tProcDef();
@@ -620,7 +631,7 @@ public static class mIL_VM {
 					Proc1.ReturnIf(tProcDef.TRUE_Reg, r3);
 					
 					var Res = EMPTY();
-					Run(PROC(Proc1, Env), EMPTY(), EMPTY(), Res);
+					Run(PROC(Proc1, Env), EMPTY(), EMPTY(), Res, aStreamOut);
 					mStd.AssertEq(Res, INT(2));
 					
 					return true;
@@ -631,6 +642,12 @@ public static class mIL_VM {
 			"InternDef",
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
+					#if TRACE
+						var TraceOut = aStreamOut;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
+					
 					var Env = EXTERN_DEF(Add);
 					
 					var Proc2 = new tProcDef();
@@ -649,7 +666,7 @@ public static class mIL_VM {
 					);
 					
 					var Res = EMPTY();
-					Run(PROC(Proc2, Env), EMPTY(), EMPTY(), Res);
+					Run(PROC(Proc2, Env), EMPTY(), EMPTY(), Res, TraceOut);
 					mStd.AssertEq(Res, INT(2));
 					
 					return true;

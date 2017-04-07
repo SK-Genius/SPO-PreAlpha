@@ -75,7 +75,8 @@ public static class mStdLib {
 	Not(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.BOOL, out tBool Arg_));
@@ -87,7 +88,8 @@ public static class mStdLib {
 	And(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
@@ -99,7 +101,8 @@ public static class mStdLib {
 	Or(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
@@ -111,7 +114,8 @@ public static class mStdLib {
 	XOr(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
@@ -120,19 +124,21 @@ public static class mStdLib {
 	
 	//================================================================================
 	private static mIL_VM.tData
-	IfElse(
+	IfThenElse(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) {
+		aTraceOut("EXTERN If...Then...Else...");
 		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg1, out mIL_VM.tData Arg23_));
 		mStd.Assert(Arg23_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg2, out mIL_VM.tData Arg3_));
 		mStd.Assert(Arg3_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg3, out mIL_VM.tData Arg_));
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.BOOL, out tBool Arg1_));
 		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.EMPTY);
 		var Res = new mIL_VM.tData();
-		mIL_VM.Run(Arg1_ ? Arg2 : Arg3, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res);
+		mIL_VM.Run(Arg1_ ? Arg2 : Arg3, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aTraceOut);
 		return Res;
 	}
 	
@@ -141,7 +147,8 @@ public static class mStdLib {
 	Neg(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.INT, out tInt32 Arg_));
@@ -153,7 +160,8 @@ public static class mStdLib {
 	Add(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -165,7 +173,8 @@ public static class mStdLib {
 	Sub(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -177,7 +186,8 @@ public static class mStdLib {
 	Mul(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -189,7 +199,8 @@ public static class mStdLib {
 	Div(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -201,7 +212,8 @@ public static class mStdLib {
 	Mod(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -213,7 +225,8 @@ public static class mStdLib {
 	Eq(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -225,7 +238,8 @@ public static class mStdLib {
 	NEq(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -237,7 +251,8 @@ public static class mStdLib {
 	Le(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -249,7 +264,8 @@ public static class mStdLib {
 	LeEq(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -261,7 +277,8 @@ public static class mStdLib {
 	Gr(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -273,7 +290,8 @@ public static class mStdLib {
 	GrEq(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
 		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
@@ -286,7 +304,7 @@ public static class mStdLib {
 			mIL_VM.EXTERN_PROC(And, mIL_VM.EMPTY()),
 			mIL_VM.EXTERN_PROC(Or, mIL_VM.EMPTY()),
 			mIL_VM.EXTERN_PROC(XOr, mIL_VM.EMPTY()),
-			mIL_VM.EXTERN_PROC(IfElse, mIL_VM.EMPTY())
+			mIL_VM.EXTERN_PROC(IfThenElse, mIL_VM.EMPTY())
 		),
 		mIL_VM.TUPLE(
 			mIL_VM.EXTERN_PROC(Neg, mIL_VM.EMPTY()),
@@ -323,7 +341,7 @@ public static class mStdLib {
 					mStd.AssertEq(
 						mSPO_Interpreter.Run(
 							mList.List(
-								$"§IMPORT {cImportTuple}",
+								$"§IMPORT ({cImportTuple}, n)",
 								"",
 								"§RECURSIV {",
 								"	Fib... := (",
@@ -337,16 +355,16 @@ public static class mStdLib {
 								"	)",
 								"}",
 								"",
-								"§EXPORT (.Fib 5)",
+								"§EXPORT (.Fib n)",
 								""
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								ImportData,
-								mIL_VM.INT(6)
+								mIL_VM.INT(8)
 							),
 							aDebugStream
 						),
-						mIL_VM.INT(8)
+						mIL_VM.INT(21)
 					);
 					return true;
 				}

@@ -68,11 +68,19 @@ public static class mSPO_Interpreter {
 			}
 		}
 		var InitProc = VMModule._Head;
+		
+		#if TRACE
+			var TraceOut = aDebugStream;
+		#else
+			var TraceOut = mStd.Action<tText>(_ => {});
+		#endif
+		
 		mIL_VM.Run(
 			mIL_VM.PROC(InitProc, DefTuple),
 			mIL_VM.EMPTY(),
 			aImport,
-			Res
+			Res,
+			TraceOut
 		);
 		
 		return Res;
@@ -81,11 +89,12 @@ public static class mSPO_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData>
+	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<tText>>
 	Mul = (
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
-		mIL_VM.tData aArg
+		mIL_VM.tData aArg,
+		mStd.tAction<tText> aTraceOut
 	//================================================================================
 	) => {
 		mIL_VM.tData Arg1;

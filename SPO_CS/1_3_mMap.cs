@@ -58,8 +58,7 @@ public static class mMap {
 		tKey aKey
 	//================================================================================
 	) {
-		tValue Result;
-		mStd.Assert(aMap.TryGet(aKey, out Result));
+		mStd.Assert(aMap.TryGet(aKey, out var Result));
 		return Result;
 	}
 	

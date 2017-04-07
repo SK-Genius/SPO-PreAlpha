@@ -61,6 +61,7 @@
 NICE TO HAVE:
 =============
 	o performance: replace LasyList by ArrayList in Set
+	o mIL_VM TraceOutput -> debugger infrastructur
 
 
 MAYBE:

@@ -158,10 +158,7 @@ public static class mList {
 	Flat<t>(
 		this tList<tList<t>> aListList
 	//================================================================================
-	) {
-		// TODO: make it lasy
-		return aListList.Reduce(List<t>(), (aSum, a) => Concat(aSum, a));
-	}
+	) => aListList.Reduce(List<t>(), (aSum, a) => Concat(aSum, a)); // TODO: make it lasy
 	
 	//================================================================================
 	public static t
@@ -169,13 +166,7 @@ public static class mList {
 		this tList<t> aList,
 		mStd.tFunc<t, t, t> aAgregatorFunc
 	//================================================================================
-	) {
-		if (aList.MATCH(out var Head, out var Tail)) {
-			return Tail.Reduce(Head, aAgregatorFunc);
-		} else {
-			return default(t);
-		}
-	}
+	) => aList.MATCH(out var Head, out var Tail) ? Tail.Reduce(Head, aAgregatorFunc) : default(t);
 	
 	//================================================================================
 	public static tList<t>
