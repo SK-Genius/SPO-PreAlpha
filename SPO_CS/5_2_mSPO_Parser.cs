@@ -80,7 +80,7 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.Ident)
 		.SetDebugName(nameof(IDENT));
 	
-	public static tSPO_Parser LITERAL = ( (_NUM_ | _STRING_) -__ )
+	public static tSPO_Parser LITERAL = ( (EMPTY | _NUM_ | _STRING_) -__ )
 		.SetDebugName(nameof(LITERAL));
 	
 	public static mStd.tFunc<tSPO_Parser, tSPO_Parser> C = aParser => -TOKEN("(") +aParser -__ -TOKEN(")");
@@ -91,7 +91,10 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser EXPRESSION = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>()
 		.SetDebugName(nameof(EXPRESSION));
 	
-	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN(":=") +EXPRESSION )
+	public static tSPO_Parser INNER_EXPRESSION = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>()
+		.SetDebugName(nameof(INNER_EXPRESSION));
+	
+	public static tSPO_Parser ASSIGNMENT = ( +MATCH -TOKEN(":=") +INNER_EXPRESSION )
 		.Modify(mSPO_AST.Assignment)
 		.SetDebugName(nameof(ASSIGNMENT));
 	
@@ -106,11 +109,11 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.Block)
 		.SetDebugName(nameof(BLOCK));
 	
-	public static tSPO_Parser TUPLE = C( +EXPRESSION +( -(-TOKEN(",")|(-NL -__)) +EXPRESSION )[1, null] )
+	public static tSPO_Parser TUPLE = C( +INNER_EXPRESSION +( -(-TOKEN(",")|(-NL -__)) +INNER_EXPRESSION )[1, null] )
 		.Modify_((mParserGen.tResultList a) => mParserGen.ResultList(mSPO_AST.Tuple(a._Value.Map(mStd.To<mSPO_AST.tExpressionNode>))))
 		.SetDebugName(nameof(TUPLE));
 	
-	public static tSPO_Parser CALL1 = C( -TOKEN(".") +IDENT +( +EXPRESSION + IDENT )[0, null] + EXPRESSION[0, 1] )
+	public static tSPO_Parser CALL1 = (-TOKEN(".") +IDENT +( +EXPRESSION + IDENT )[0, null] + EXPRESSION[0, 1])
 		.Modify_(
 			aList => {
 				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
@@ -126,10 +129,7 @@ public static class  mSPO_Parser {
 		)
 		.SetDebugName(nameof(CALL1));
 	
-	private const tText DotsText = "...";
-	private const tText EmptyText = "...";
-	
-	public static tSPO_Parser CALL2 = C( +EXPRESSION -TOKEN(".") +IDENT +( +EXPRESSION +IDENT )[0, null] +EXPRESSION[0, 1] )
+	public static tSPO_Parser CALL2 = (+EXPRESSION -TOKEN(".") +IDENT +( +EXPRESSION +IDENT )[0, null] +EXPRESSION[0, 1])
 		.Modify_(
 			aList => {
 				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
@@ -145,14 +145,14 @@ public static class  mSPO_Parser {
 		)
 		.SetDebugName(nameof(CALL2));
 	
-	public static tSPO_Parser CALL3 = C( -TOKEN(".") +EXPRESSION +EXPRESSION )
+	public static tSPO_Parser CALL3 = (-TOKEN(".") +EXPRESSION +EXPRESSION)
 		.Modify(mSPO_AST.Call)
 		.SetDebugName(nameof(CALL3));
 	
 	public static tSPO_Parser CALL = (CALL1 | CALL2 | CALL3)
 		.SetDebugName(nameof(CALL));
 	
-	public static tSPO_Parser PREFIX = C( -TOKEN("#") +IDENT +EXPRESSION )
+	public static tSPO_Parser PREFIX = (-TOKEN("#") +IDENT +EXPRESSION)
 		.Modify(mSPO_AST.Prefix)
 		.SetDebugName(nameof(PREFIX));
 	
@@ -160,11 +160,11 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.MatchPrefix)
 		.SetDebugName(nameof(MATCH_PREFIX));
 	
-	public static tSPO_Parser LAMBDA = C( +MATCH -TOKEN("=>") +EXPRESSION )
+	public static tSPO_Parser LAMBDA = (+MATCH -TOKEN("=>") +INNER_EXPRESSION)
 		.Modify(mSPO_AST.Lambda)
 		.SetDebugName(nameof(LAMBDA));
 	
-	public static tSPO_Parser REC_LAMBDAS = (-TOKEN("§RECURSIV {") +(+IDENT -TOKEN(":=") +LAMBDA).Modify(mSPO_AST.RecLambdaItem)[1, null] -TOKEN("}"))
+	public static tSPO_Parser REC_LAMBDAS = (-TOKEN("§RECURSIV {") +(+IDENT -TOKEN(":=") +(LAMBDA | C( LAMBDA ))).Modify(mSPO_AST.RecLambdaItem)[1, null] -TOKEN("}"))
 		.Modify_(
 			aList => mParserGen.ResultList(
 				mSPO_AST.RecLambdas(
@@ -184,7 +184,7 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.Import)
 		.SetDebugName(nameof(IMPORT));
 	
-	public static tSPO_Parser EXPORT = ( -TOKEN("§EXPORT") +EXPRESSION )
+	public static tSPO_Parser EXPORT = ( -TOKEN("§EXPORT") +INNER_EXPRESSION )
 		.Modify(mSPO_AST.Export);
 	
 	public static tSPO_Parser MODULE = ( +IMPORT +COMMANDS +EXPORT )
@@ -193,7 +193,7 @@ public static class  mSPO_Parser {
 	
 	static mSPO_Parser() {
 		MATCH.Def(
-			(EMPTY|LITERAL|IDENT|MATCH_PREFIX).Modify(
+			(LITERAL|IDENT|MATCH_PREFIX).Modify(
 				(mSPO_AST.tMatchItemNode Match) => mSPO_AST.Match(Match, null)
 			) |
 			C(+MATCH +(-TOKEN(",") +MATCH)[0, null]).Modify_(
@@ -209,16 +209,28 @@ public static class  mSPO_Parser {
 			C(+MATCH -TOKEN("€") +EXPRESSION).Modify(mSPO_AST.Match) // TODO: infinit recursion
 		);
 		
-		EXPRESSION.Def(
-			EMPTY |
-			LITERAL |
-			IDENT |
-//			C( EXPRESSION ) |
-			TUPLE |
-			CALL |
-			PREFIX |
+		INNER_EXPRESSION.Def(
+			BLOCK |
 			LAMBDA |
-			BLOCK
+			CALL |
+			TUPLE |
+			PREFIX |
+			C( INNER_EXPRESSION ) |
+			LITERAL |
+			IDENT
+		);
+		
+		EXPRESSION.Def(
+			BLOCK |
+			C( LAMBDA ) |
+			TUPLE |
+			C(
+				CALL |
+				PREFIX  |
+				EXPRESSION
+			) |
+			LITERAL |
+			IDENT
 		);
 		
 		COMMAND.Def(ASSIGNMENT | REC_LAMBDAS);
@@ -396,7 +408,7 @@ public static class  mSPO_Parser {
 			mTest.Test(
 				(mStd.tAction<tText> aStreamOut) => {
 					mStd.AssertEq(
-						EXPRESSION.ParseText("((a, b, (x, y, z)) => (a .* z))", aStreamOut),
+						INNER_EXPRESSION.ParseText("(a, b, (x, y, z)) => a .* z", aStreamOut),
 						mParserGen.ResultList(
 							mSPO_AST.Lambda(
 								mSPO_AST.Match(

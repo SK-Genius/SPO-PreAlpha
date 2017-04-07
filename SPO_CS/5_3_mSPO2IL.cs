@@ -927,7 +927,7 @@ public static class mSPO2IL {
 					mSPO_AST.tLambdaNode LambdaNode;
 					mStd.Assert(
 						mSPO_Parser.LAMBDA.ParseText(
-							"((a, b, (x, y, z)) => (a .* z))",
+							"(a, b, (x, y, z)) => (a .* z)",
 							aStreamOut
 						).MATCH(out LambdaNode)
 					);
