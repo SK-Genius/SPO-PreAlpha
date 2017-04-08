@@ -38,7 +38,7 @@ public static class  mSPO_Parser {
 		.SetDebugName("\"", a, "\"");
 	
 	public static tSPO_Parser _STRING_ = (-Char('"') +NotChar('"')[0, null] -Char('"'))
-		.Modify_(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))
+		.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))
 		.Modify(mSPO_AST.Text)
 		.SetDebugName(nameof(_STRING_));
 	
@@ -47,7 +47,7 @@ public static class  mSPO_Parser {
 		.SetDebugName(nameof(_DIGIT_));
 	
 	public static tSPO_Parser _NAT_ = (_DIGIT_ + (_DIGIT_ | -Char('_'))[0, null])
-		.Modify_(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit))
+		.ModifyList(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit))
 		.SetDebugName(nameof(_NAT_));
 	
 	public static tSPO_Parser _POSITIV_ = Char('+')
@@ -76,7 +76,7 @@ public static class  mSPO_Parser {
 		.SetDebugName(nameof(EMPTY));
 	
 	public static tSPO_Parser IDENT = ( ( CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) | Token("...") )[1, null] -__ )
-		.Modify_(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
+		.ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
 		.Modify(mSPO_AST.Ident)
 		.SetDebugName(nameof(IDENT));
 	
@@ -102,7 +102,7 @@ public static class  mSPO_Parser {
 		.SetDebugName(nameof(COMMAND));
 	
 	public static tSPO_Parser COMMANDS = (+COMMAND +(-(TOKEN(";")|NL) +COMMAND)[0, null])[0, 1]
-		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)))
+		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)))
 		.SetDebugName(nameof(COMMANDS));
 	
 	public static tSPO_Parser BLOCK = (-TOKEN("{") -(TOKEN(";")|NL)[0, 1] +COMMANDS -(TOKEN(";")|NL)[0, 1] -TOKEN("}"))
@@ -110,54 +110,84 @@ public static class  mSPO_Parser {
 		.SetDebugName(nameof(BLOCK));
 	
 	public static tSPO_Parser TUPLE = C( +EXPRESSION +( -(-TOKEN(",")|(-NL -__)) +EXPRESSION )[1, null] )
-		.Modify_((mParserGen.tResultList a) => mParserGen.ResultList(mSPO_AST.Tuple(a._Value.Map(mStd.To<mSPO_AST.tExpressionNode>))))
+		.ModifyList((mParserGen.tResultList a) => mParserGen.ResultList(mSPO_AST.Tuple(a._Value.Map(mStd.To<mSPO_AST.tExpressionNode>))))
 		.SetDebugName(nameof(TUPLE));
 	
-	public static tSPO_Parser CALL1 = (-TOKEN(".") +IDENT +( +EXPRESSION_IN_CALL + IDENT )[0, null] + EXPRESSION_IN_CALL[0, 1])
-		.Modify_(
-			aList => {
-				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
-				return (
-					mParserGen.ResultList(
-						mSPO_AST.Call(
-							mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => $"{a1}...{a2}")+Last),
-							mSPO_AST.Tuple(aList._Value.Skip(1).Every(2).Map(mStd.To<mSPO_AST.tExpressionNode>))
+	public static tSPO_Parser Infix(tText aPrefix, tSPO_Parser aChildParser) {
+		return (
+			(-TOKEN(aPrefix) +IDENT +( +aChildParser + IDENT )[0, null] + aChildParser[0, 1])
+			.ModifyList(
+				aList => {
+					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
+					return (
+						mParserGen.ResultList(
+							mStd.Tuple(
+								mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => $"{a1}...{a2}")+Last),
+								aList._Value.Skip(1).Every(2)
+							)
 						)
-					)
+					);
+				}
+			)
+		) | (
+			(+aChildParser -TOKEN(aPrefix) +IDENT +( +aChildParser +IDENT )[0, null] +aChildParser[0, 1])
+			.ModifyList(
+				aList => {
+					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
+					return (
+						mParserGen.ResultList(
+							mStd.Tuple(
+								mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
+								aList._Value.Every(2)
+							)
+						)
+					);
+				}
+			)
+		);
+	}
+	
+	public static tSPO_Parser CALL = (
+		Infix(".", EXPRESSION_IN_CALL).Modify(
+			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+				mSPO_AST.tIdentNode Ident;
+				mList.tList<mStd.tAny> ChildList;
+				aPair.MATCH(out Ident, out ChildList);
+				return mSPO_AST.Call(
+					Ident,
+					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
+				);
+			}
+		) |
+		(-TOKEN(".") +EXPRESSION_IN_CALL +EXPRESSION_IN_CALL).Modify(mSPO_AST.Call)
+	).SetDebugName(nameof(CALL));
+	
+	public static tSPO_Parser PREFIX = Infix("#", EXPRESSION_IN_CALL)
+		.Modify(
+			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+				mSPO_AST.tIdentNode Ident;
+				mList.tList<mStd.tAny> ChildList;
+				aPair.MATCH(out Ident, out ChildList);
+				return mSPO_AST.Prefix(
+					Ident,
+					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
 				);
 			}
 		)
-		.SetDebugName(nameof(CALL1));
-	
-	public static tSPO_Parser CALL2 = (+EXPRESSION_IN_CALL -TOKEN(".") +IDENT +( +EXPRESSION_IN_CALL +IDENT )[0, null] +EXPRESSION_IN_CALL[0, 1])
-		.Modify_(
-			aList => {
-				var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
-				return (
-					mParserGen.ResultList(
-						mSPO_AST.Call(
-							mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
-							mSPO_AST.Tuple(aList._Value.Every(2).Map(mStd.To<mSPO_AST.tExpressionNode>))
-						)
-					)
-				);
-			}
-		)
-		.SetDebugName(nameof(CALL2));
-	
-	public static tSPO_Parser CALL3 = (-TOKEN(".") +EXPRESSION_IN_CALL +EXPRESSION_IN_CALL)
-		.Modify(mSPO_AST.Call)
-		.SetDebugName(nameof(CALL3));
-	
-	public static tSPO_Parser CALL = (CALL1 | CALL2 | CALL3)
-		.SetDebugName(nameof(CALL));
-	
-	public static tSPO_Parser PREFIX = (-TOKEN("#") +IDENT +EXPRESSION_IN_CALL)
-		.Modify(mSPO_AST.Prefix)
 		.SetDebugName(nameof(PREFIX));
 	
-	public static tSPO_Parser MATCH_PREFIX = C( -TOKEN("#") +IDENT +MATCH )
-		.Modify(mSPO_AST.MatchPrefix)
+	public static tSPO_Parser MATCH_PREFIX = C( Infix("#", MATCH) )
+		.Modify(
+			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+				mSPO_AST.tIdentNode Ident;
+				mList.tList<mStd.tAny> ChildList;
+				aPair.MATCH(out Ident, out ChildList);
+				return mSPO_AST.MatchPrefix(
+					Ident,
+					mSPO_AST.Match(mSPO_AST.MatchTuple(ChildList.Map(mStd.To<mSPO_AST.tMatchNode>)),null)
+				);
+			}
+		)
 		.SetDebugName(nameof(MATCH_PREFIX));
 	
 	public static tSPO_Parser LAMBDA = (+MATCH -TOKEN("=>") +EXPRESSION)
@@ -165,7 +195,7 @@ public static class  mSPO_Parser {
 		.SetDebugName(nameof(LAMBDA));
 	
 	public static tSPO_Parser REC_LAMBDAS = (-TOKEN("§RECURSIV {") +(+IDENT -TOKEN(":=") +(LAMBDA | C( LAMBDA ))).Modify(mSPO_AST.RecLambdaItem)[1, null] -TOKEN("}"))
-		.Modify_(
+		.ModifyList(
 			aList => mParserGen.ResultList(
 				mSPO_AST.RecLambdas(
 					aList._Value.Map(
@@ -196,7 +226,7 @@ public static class  mSPO_Parser {
 			(LITERAL|IDENT|MATCH_PREFIX).Modify(
 				(mSPO_AST.tMatchItemNode Match) => mSPO_AST.Match(Match, null)
 			) |
-			C(+MATCH +(-TOKEN(",") +MATCH)[0, null]).Modify_(
+			C(+MATCH +(-TOKEN(",") +MATCH)[0, null]).ModifyList(
 				(mParserGen.tResultList a) => mParserGen.ResultList(
 					mSPO_AST.Match(
 						mSPO_AST.MatchTuple(
@@ -454,6 +484,43 @@ public static class  mSPO_Parser {
 										)
 									)
 								)
+							)
+						)
+					);
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"PrefixMatch",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					mStd.AssertEq(
+						EXPRESSION.ParseText("(1 #* a) => a", aStreamOut),
+						mParserGen.ResultList(
+							mSPO_AST.Lambda(
+								mSPO_AST.Match(
+									mSPO_AST.MatchPrefix(
+										mSPO_AST.Ident("...*..."),
+										mSPO_AST.Match(
+											mSPO_AST.MatchTuple(
+												mList.List<mSPO_AST.tMatchNode>(
+													mSPO_AST.Match(
+														mSPO_AST.Number(1),
+														null
+													),
+													mSPO_AST.Match(
+														mSPO_AST.Ident("a"),
+														null
+													)
+												)
+											),
+											null
+										)
+									),
+									null
+								),
+								mSPO_AST.Ident("a")
 							)
 						)
 					);

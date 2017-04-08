@@ -32,13 +32,13 @@ public static class  mIL_Parser {
 	public static mStd.tFunc<tIL_Parser, tText> TOKEN = a => Token(a) + -__;
 	
 	public static tIL_Parser _STRING_ = (-Char('"') +NotChar('"')[0, null] -Char('"'))
-		.Modify_(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar)); 
+		.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar)); 
 	
 	public static tIL_Parser _DIGIT_ = CharInRange('0', '9')
 		.Modify((tChar aChar) => (int)aChar - (int)'0');
 	
 	public static tIL_Parser _NAT_ = (_DIGIT_ + (_DIGIT_ | -Char('_'))[0, null])
-		.Modify_(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit));
+		.ModifyList(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit));
 	
 	public static tIL_Parser _POSITIV_ = Char('+')
 		.Modify(() => +1);
@@ -62,7 +62,7 @@ public static class  mIL_Parser {
 			CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) |
 			Token("...")
 		)[1, null] -__
-	).Modify_(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2));
+	).ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2));
 	
 	public static tIL_Parser LITERAL = (_NUM_ | _STRING_) -__;
 	
@@ -85,13 +85,13 @@ public static class  mIL_Parser {
 	);
 	
 	public static tIL_Parser BLOCK = (-_ +COMMAND -NL)[1, null]
-		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)));
+		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)));
 	
 	public static tIL_Parser DEF = (-Token("DEF") -__ +IDENT -NL +BLOCK)
 		.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => mStd.Tuple(aID, aBlock));
 	
 	public static tIL_Parser MODULE = DEF[1, null]
-		.Modify_(a => mParserGen.ResultList(a.Map(mStd.To<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>>)));
+		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>>)));
 	
 	#region TEST
 	

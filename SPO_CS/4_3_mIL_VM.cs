@@ -631,7 +631,7 @@ public static class mIL_VM {
 					Proc1.ReturnIf(tProcDef.TRUE_Reg, r3);
 					
 					var Res = EMPTY();
-					Run(PROC(Proc1, Env), EMPTY(), EMPTY(), Res, aStreamOut);
+					Run(PROC(Proc1, Env), EMPTY(), EMPTY(), Res, TraceOut);
 					mStd.AssertEq(Res, INT(2));
 					
 					return true;

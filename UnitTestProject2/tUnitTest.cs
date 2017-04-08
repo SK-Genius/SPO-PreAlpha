@@ -27,15 +27,21 @@ static class mTestHelper {
 		[CallerMemberName] tText aFilter = ""
 	//================================================================================
 	) {
-		aTest(
-			line => Debug.WriteLine(line),
-			mList.List(aFilter.Replace('_', '.'))
+		mStd.AssertEq(
+			aTest(
+				line => Debug.WriteLine(line),
+				mList.List(aFilter.Replace('_', '.'))
+			),
+			mTest.tResult.OK
 		);
 	}
 }
 
 [TestClass]public class Test_All {
-	[TestMethod] public void All() => mProgram.Main("");
+	[TestMethod] public void All() => mStd.AssertEq(
+		mProgram.SelfTests(mList.List(""), System.Console.WriteLine),
+		mTest.tResult.OK
+	);
 }
 
 [TestClass]public class Test_1_1_mStd {
@@ -102,8 +108,8 @@ static class mTestHelper {
 	[TestMethod] public void _Or_() => mTestHelper.MagicRun(Tests, "...|...");
 	[TestMethod] public void MinMax() => mTestHelper.MagicRun(Tests, "...[m, n]");
 	[TestMethod] public void Min() => mTestHelper.MagicRun(Tests, "...[n, null]");
-	[TestMethod] public void Modify() => mTestHelper.MagicRun(Tests, "....Modify(...=>...)");
-	[TestMethod] public void ModifyReduce() => mTestHelper.MagicRun(Tests, "....Modify(a => a.Reduce(...))");
+	[TestMethod] public void Modify() => mTestHelper.MagicRun(Tests, "....ModifyList(...=>...)");
+	[TestMethod] public void ModifyReduce() => mTestHelper.MagicRun(Tests, "....ModifyList(a => a.Reduce(...))");
 	[TestMethod] public void Not_() => mTestHelper.MagicRun(Tests, "~...");
 	[TestMethod] public void EvalMathExp() => mTestHelper.MagicRun(Tests, "Eval('MathExpr')");
 }
@@ -149,6 +155,7 @@ static class mTestHelper {
 	[TestMethod] public void Call() => mTestHelper.MagicRun(Tests);
 	[TestMethod] public void Lambda() => mTestHelper.MagicRun(Tests);
 	[TestMethod] public void NestedMatch() => mTestHelper.MagicRun(Tests);
+	[TestMethod] public void PrefixMatch() => mTestHelper.MagicRun(Tests);
 }
 
 [TestClass]public class Test_5_3_mSPO2IL {

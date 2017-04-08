@@ -623,7 +623,7 @@ public static class mSPO2IL {
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tExpressionNode ExpressionNode;
 					mStd.Assert(
-						mSPO_Parser.EXPRESSION_IN_CALL.ParseText(
+						mSPO_Parser.EXPRESSION.ParseText(
 							"2 .< (4 .+ 3) < 3",
 							aStreamOut
 						).MATCH(out ExpressionNode)
@@ -767,7 +767,7 @@ public static class mSPO2IL {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
 						mSPO_Parser.ASSIGNMENT
-						.ParseText("(a, b, #bla (c , d)) := (1, 2, #bla (3, 4))", aStreamOut)
+						.ParseText("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))", aStreamOut)
 						.MATCH(out AssignmantNode)
 					);
 					
@@ -781,7 +781,7 @@ public static class mSPO2IL {
 							mIL_AST.CreatePair(TempReg(2), TempReg(1), "EMPTY"),
 							mIL_AST.CreateInt(TempReg(3), "3"),
 							mIL_AST.CreatePair(TempReg(4), TempReg(3), TempReg(2)),
-							mIL_AST.AddPrefix(TempReg(5), Ident("bla"), TempReg(4)),
+							mIL_AST.AddPrefix(TempReg(5), Ident("bla..."), TempReg(4)),
 							mIL_AST.CreatePair(TempReg(6), TempReg(5), "EMPTY"),
 							mIL_AST.CreateInt(TempReg(7), "2"),
 							mIL_AST.CreatePair(TempReg(8), TempReg(7), TempReg(6)),
@@ -794,7 +794,7 @@ public static class mSPO2IL {
 							mIL_AST.GetFirst(TempReg(13), TempReg(12)),
 							mIL_AST.GetSecond(TempReg(14), TempReg(12)),
 							mIL_AST.Alias(Ident("b"), TempReg(13)),
-							mIL_AST.SubPrefix(TempReg(15), Ident("bla"), TempReg(14)),
+							mIL_AST.SubPrefix(TempReg(15), Ident("bla..."), TempReg(14)),
 							mIL_AST.GetFirst(TempReg(16), TempReg(15)),
 							mIL_AST.GetSecond(TempReg(17), TempReg(15)),
 							mIL_AST.Alias(Ident("c"), TempReg(16)),

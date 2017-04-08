@@ -24,7 +24,7 @@ public static class mParserGen {
 		this tParser<t> aParser,
 		mStd.tFunc<tR> aModifyFunc
 	//================================================================================
-	) => aParser.Modify_(
+	) => aParser.ModifyList(
 		a => ResultList(aModifyFunc())
 	);
 	
@@ -34,7 +34,7 @@ public static class mParserGen {
 		this tParser<t> aParser,
 		mStd.tFunc<tR, t1> aModifyFunc
 	//================================================================================
-	) => aParser.Modify_(
+	) => aParser.ModifyList(
 		a => {
 			mStd.Assert(a.MATCH(out t1 A1));
 			return ResultList(aModifyFunc(A1));
@@ -47,7 +47,7 @@ public static class mParserGen {
 		this tParser<t> aParser,
 		mStd.tFunc<tR, t1, t2> aModifyFunc
 	//================================================================================
-	) => aParser.Modify_(
+	) => aParser.ModifyList(
 		a => {
 			mStd.Assert(a.MATCH(out t1 A1, out t2 A2));
 			return ResultList(aModifyFunc(A1, A2));
@@ -60,7 +60,7 @@ public static class mParserGen {
 		this tParser<t> aParser,
 		mStd.tFunc<tR, t1, t2, t3> aModifyFunc
 	//================================================================================
-	) => aParser.Modify_(
+	) => aParser.ModifyList(
 		a => {
 			mStd.Assert(a.MATCH(out t1 A1, out t2 A2, out t3 A3));
 			return ResultList(aModifyFunc(A1, A2, A3));
@@ -73,7 +73,7 @@ public static class mParserGen {
 		this tParser<t> aParser,
 		mStd.tFunc<tR, t1, t2, t3, t4> aModifyFunc
 	//================================================================================
-	) => aParser.Modify_(
+	) => aParser.ModifyList(
 		a => {
 			mStd.Assert(a.MATCH(out t1 A1, out t2 A2, out t3 A3, out t4 A4));
 			return ResultList(aModifyFunc(A1, A2, A3, A4));
@@ -426,7 +426,7 @@ public static class mParserGen {
 			tParser<t> aParser
 		//================================================================================
 		) => aParser
-		.Modify_(_ => ResultList())
+		.ModifyList(_ => ResultList())
 		.SetDebugDef(" - (", aParser.DebugName??aParser.DebugDef, ")");
 		
 		//================================================================================
@@ -620,7 +620,7 @@ public static class mParserGen {
 	
 	//================================================================================
 	public static tParser<t>
-	Modify_<t>(
+	ModifyList<t>(
 		this tParser<t> aParser,
 		mStd.tFunc<tResultList, tResultList> aModifyFunc
 	//================================================================================
@@ -898,11 +898,11 @@ public static class mParserGen {
 			)
 		),
 		mStd.Tuple(
-			"....Modify(...=>...)",
+			"....ModifyList(...=>...)",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					var A2_ = AtomParser((tChar a) => a == 'A')[2, null]
-						.Modify_(
+						.ModifyList(
 							a => {
 								char Head;
 								var Tail = a;
@@ -935,11 +935,11 @@ public static class mParserGen {
 			)
 		),
 		mStd.Tuple(
-			"....Modify(a => a.Reduce(...))",
+			"....ModifyList(a => a.Reduce(...))",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					var A2_ = AtomParser((tChar a) => a == 'A')[2, null]
-						.Modify_(a => a.Reduce(0, (int aCount, tChar aElem) => aCount + 1));
+						.ModifyList(a => a.Reduce(0, (int aCount, tChar aElem) => aCount + 1));
 					
 					tResultList Result;
 					mList.tList<tChar> RestStream;
@@ -967,7 +967,7 @@ public static class mParserGen {
 				(mStd.tAction<tText> aDebugStream) => {
 					var A = AtomParser((tChar a) => a == 'A');
 					var B = AtomParser((tChar a) => a == 'B');
-					var AB = (A + B).Modify_(a => ResultList("AB"));
+					var AB = (A + B).ModifyList(a => ResultList("AB"));
 					var nAB = ~AB;
 					
 					tResultList Result;
@@ -1023,7 +1023,7 @@ public static class mParserGen {
 					var P = mStd.Func((tParser<tChar> aParser) => (-Token("(") -__ +aParser -__ -Token(")")));
 					
 					var DIGIT    = CharIn("0123456789")                  .Modify((tChar a) => (tInt32)a - (tInt32)'0');
-					var NAT      = DIGIT[1, null]                        .Modify_(aDigits => aDigits.Reduce(0, (tInt32 aNat, tInt32 aDigit) => aNat*10 + aDigit));
+					var NAT      = DIGIT[1, null]                        .ModifyList(aDigits => aDigits.Reduce(0, (tInt32 aNat, tInt32 aDigit) => aNat*10 + aDigit));
 					var PLUS     = AtomParser((tChar a) => a == '+')     .Modify((tChar a) => +1);
 					var MINUS    = AtomParser((tChar a) => a == '-')     .Modify((tChar a) => -1);
 					var SIGNUM   = (PLUS | MINUS);

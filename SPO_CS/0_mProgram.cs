@@ -15,6 +15,35 @@ using tText = System.String;
 
 public static class mProgram {
 	//================================================================================
+	public static mTest.tResult
+	SelfTests(
+		mList.tList<tText> aArgs,
+		mStd.tAction<tText> aDebugOut
+	//================================================================================
+	) => mTest.Tests(
+		mStd.Tuple(nameof(mStd), mStd.Test),
+//		mStd.Tuple(nameof(mTest), mTest.Test),
+		mStd.Tuple(nameof(mList), mList.Test),
+		mStd.Tuple(nameof(mMap), mMap.Test),
+//		mStd.Tuple(nameof(mMath), mMath.Test),
+		mStd.Tuple(nameof(mArrayList), mArrayList.Test),
+		mStd.Tuple(nameof(mParserGen), mParserGen.Test),
+		mStd.Tuple(nameof(mTextParser), mTextParser.Test),
+		mStd.Tuple(nameof(mIL_AST), mIL_AST.Test),
+		mStd.Tuple(nameof(mIL_Parser), mIL_Parser.Test),
+		mStd.Tuple(nameof(mIL_VM), mIL_VM.Test),
+		mStd.Tuple(nameof(mIL_Interpreter), mIL_Interpreter.Test),
+		mStd.Tuple(nameof(mSPO_AST), mSPO_AST.Test),
+		mStd.Tuple(nameof(mSPO_Parser), mSPO_Parser.Test),
+		mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test),
+		mStd.Tuple(nameof(mSPO_Interpreter), mSPO_Interpreter.Test),
+		mStd.Tuple(nameof(mStdLib), mStdLib.Test)
+	)(
+		aDebugOut,
+		aArgs
+	);
+	
+	//================================================================================
 	public static void
 	Main(
 		params tText[] aArgs
@@ -24,30 +53,15 @@ public static class mProgram {
 		foreach (var Arg in aArgs) {
 			Args = mList.Concat(Args, mList.List(Arg));
 		}
-		mTest.Tests(
-			mStd.Tuple(nameof(mStd), mStd.Test),
-//			mStd.Tuple(nameof(mTest), mTest.Test),
-			mStd.Tuple(nameof(mList), mList.Test),
-			mStd.Tuple(nameof(mMap), mMap.Test),
-//			mStd.Tuple(nameof(mMath), mMath.Test),
-			mStd.Tuple(nameof(mArrayList), mArrayList.Test),
-			mStd.Tuple(nameof(mParserGen), mParserGen.Test),
-			mStd.Tuple(nameof(mTextParser), mTextParser.Test),
-			mStd.Tuple(nameof(mIL_AST), mIL_AST.Test),
-			mStd.Tuple(nameof(mIL_Parser), mIL_Parser.Test),
-			mStd.Tuple(nameof(mIL_VM), mIL_VM.Test),
-			mStd.Tuple(nameof(mIL_Interpreter), mIL_Interpreter.Test),
-			mStd.Tuple(nameof(mSPO_AST), mSPO_AST.Test),
-			mStd.Tuple(nameof(mSPO_Parser), mSPO_Parser.Test),
-			mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test),
-			mStd.Tuple(nameof(mSPO_Interpreter), mSPO_Interpreter.Test),
-			mStd.Tuple(nameof(mStdLib), mStdLib.Test)
-		)(
-			aLine => {
-				System.Console.WriteLine(aLine);
-				System.Diagnostics.Debug.WriteLine(aLine);
-			},
-			Args
-		);
+		if (
+			SelfTests(
+				Args, aLine => {
+					System.Console.WriteLine(aLine);
+					System.Diagnostics.Debug.WriteLine(aLine);
+				}
+			) == mTest.tResult.FAIL
+		) {
+			System.Environment.Exit(-1);
+		}
 	}
 }

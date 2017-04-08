@@ -231,6 +231,12 @@ public static class mIL_Interpreter {
 					mMap.tMap<tText, tInt32> ModuleMap;
 					X.MATCH(out Module, out ModuleMap);
 					
+					#if TRACE
+						var TraceOut = aDebugStream;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
+					
 					var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 					var Env = mIL_VM.EXTERN_DEF(Add);
 					var Res = mIL_VM.EMPTY();
@@ -239,7 +245,7 @@ public static class mIL_Interpreter {
 						mIL_VM.EMPTY(),
 						mIL_VM.PREFIX("VECTOR", mIL_VM.INT(12)),
 						Res,
-						aDebugStream
+						TraceOut
 					);
 					mStd.AssertEq(Res, mIL_VM.PREFIX("VECTOR", mIL_VM.INT(13)));
 					
@@ -270,6 +276,12 @@ public static class mIL_Interpreter {
 					var Env = mIL_VM.EXTERN_DEF(Eq);
 					var Res = mIL_VM.EMPTY();
 					
+					#if TRACE
+						var TraceOut = aDebugStream;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
+					
 					var CallStack = new mIL_VM.tCallStack(
 						null,
 						Proc,
@@ -277,7 +289,7 @@ public static class mIL_Interpreter {
 						mIL_VM.EMPTY(), 
 						mIL_VM.INT(1),
 						Res,
-						aDebugStream
+						TraceOut
 					);
 					while (CallStack != null) {
 						CallStack = CallStack.Step();
@@ -287,7 +299,7 @@ public static class mIL_Interpreter {
 					var HasThrowException = false;
 					try {
 						Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(2), Res, aDebugStream);
+						mIL_VM.Run(mIL_VM.PROC(Proc, Env), mIL_VM.EMPTY(), mIL_VM.INT(2), Res, TraceOut);
 					} catch {
 						HasThrowException = true;
 					}
@@ -409,14 +421,19 @@ public static class mIL_Interpreter {
 							)
 						)
 					);
+					#if TRACE
+						var TraceOut = aDebugStream;
+					#else
+						var TraceOut = mStd.Action<tText>(_ => {});
+					#endif
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc1, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aDebugStream);
+						mIL_VM.Run(mIL_VM.PROC(Proc1, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, TraceOut);
 						mStd.AssertEq(Res, mIL_VM.INT(2));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc2, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aDebugStream);
+						mIL_VM.Run(mIL_VM.PROC(Proc2, Env), mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, TraceOut);
 						mStd.AssertEq(Res, mIL_VM.INT(12));
 					}
 					{
@@ -426,13 +443,13 @@ public static class mIL_Interpreter {
 							mIL_VM.EMPTY(),
 							mIL_VM.PAIR(mIL_VM.INT(3), mIL_VM.INT(1)),
 							Res,
-							aDebugStream
+							TraceOut
 						);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					{
 						var Res = mIL_VM.EMPTY();
-						mIL_VM.Run(mIL_VM.PROC(Proc4, Env), mIL_VM.EMPTY(), mIL_VM.INT(3), Res, aDebugStream);
+						mIL_VM.Run(mIL_VM.PROC(Proc4, Env), mIL_VM.EMPTY(), mIL_VM.INT(3), Res, TraceOut);
 						mStd.AssertEq(Res, mIL_VM.INT(6));
 					}
 					return true;

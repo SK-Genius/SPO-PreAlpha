@@ -238,7 +238,7 @@ public static class mTextParser {
 			Parser += GetChar(Char);
 		}
 		return Parser
-		.Modify_(a => mParserGen.ResultList(aToken))
+		.ModifyList(a => mParserGen.ResultList(aToken))
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
