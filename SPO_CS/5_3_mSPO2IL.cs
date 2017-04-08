@@ -623,8 +623,8 @@ public static class mSPO2IL {
 				(mStd.tAction<tText> aStreamOut) => {
 					mSPO_AST.tExpressionNode ExpressionNode;
 					mStd.Assert(
-						mSPO_Parser.EXPRESSION.ParseText(
-							"(2 .< (4 .+ 3) < 3)",
+						mSPO_Parser.EXPRESSION_IN_CALL.ParseText(
+							"2 .< (4 .+ 3) < 3",
 							aStreamOut
 						).MATCH(out ExpressionNode)
 					);
@@ -767,7 +767,7 @@ public static class mSPO2IL {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
 						mSPO_Parser.ASSIGNMENT
-						.ParseText("(a, b, (#bla (c , d))) := (1, 2, (#bla (3, 4)))", aStreamOut)
+						.ParseText("(a, b, #bla (c , d)) := (1, 2, #bla (3, 4))", aStreamOut)
 						.MATCH(out AssignmantNode)
 					);
 					
@@ -813,7 +813,7 @@ public static class mSPO2IL {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 					mStd.Assert(
 						mSPO_Parser.ASSIGNMENT.ParseText(
-							"x := (a => (2 .* a))",
+							"x := a => 2 .* a",
 							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
@@ -863,7 +863,7 @@ public static class mSPO2IL {
 					mSPO_AST.tAssignmantNode AssignmantNode;
 						mStd.Assert(
 						mSPO_Parser.ASSIGNMENT.ParseText(
-							"...*...+... := ((a, b, c) => ((a .* b) .+ c))",
+							"...*...+... := (a, b, c) => (a .* b) .+ c",
 							aStreamOut
 						).MATCH(out AssignmantNode)
 					);
@@ -927,7 +927,7 @@ public static class mSPO2IL {
 					mSPO_AST.tLambdaNode LambdaNode;
 					mStd.Assert(
 						mSPO_Parser.LAMBDA.ParseText(
-							"(a, b, (x, y, z)) => (a .* z)",
+							"(a, b, (x, y, z)) => a .* z",
 							aStreamOut
 						).MATCH(out LambdaNode)
 					);
@@ -998,8 +998,8 @@ public static class mSPO2IL {
 #endif
 								")",
 								"",
-								"x... := (a => (k .* a));",
-								"y := (.x 1)",
+								"x... := a => k .* a;",
+								"y := .x 1",
 								"",
 								"§EXPORT y",
 								""
