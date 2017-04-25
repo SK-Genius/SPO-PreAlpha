@@ -41,7 +41,8 @@ public static class mSPO_Interpreter {
 				(aIndex, aCommands) => {
 					return mStd.Tuple(mSPO2IL.TempDef(aIndex), aCommands.ToLasyList());
 				}
-			)
+			),
+			aDebugStream
 		).MATCH(out var VMModule, out var ModuleMap);
 		
 		var Res = mIL_VM.EMPTY();

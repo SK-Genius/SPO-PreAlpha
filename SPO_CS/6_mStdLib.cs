@@ -128,17 +128,17 @@ public static class mStdLib {
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
 		mIL_VM.tData aArg,
-		mStd.tAction<tText> aTraceOut
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
-		aTraceOut("EXTERN If...Then...Else...");
+		aTrace("EXTERN If...Then...Else...");
 		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg1, out mIL_VM.tData Arg23_));
 		mStd.Assert(Arg23_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg2, out mIL_VM.tData Arg3_));
 		mStd.Assert(Arg3_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg3, out mIL_VM.tData Arg_));
 		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.BOOL, out tBool Arg1_));
 		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.EMPTY);
 		var Res = new mIL_VM.tData();
-		mIL_VM.Run(Arg1_ ? Arg2 : Arg3, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aTraceOut);
+		mIL_VM.Run(Arg1_ ? Arg2 : Arg3, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aTrace);
 		return Res;
 	}
 	
@@ -345,6 +345,43 @@ public static class mStdLib {
 								"",
 								"§RECURSIV {",
 								"	Fib... := a => .If (a .< 2) Then (",
+								"		() => a",
+								"	) Else (",
+								"		() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
+								"	)",
+								"}",
+								"",
+								"§EXPORT .Fib n",
+								""
+							).Join((a1, a2) => a1 + "\n" + a2),
+							mIL_VM.TUPLE(
+								ImportData,
+								mIL_VM.INT(8)
+							),
+							aDebugStream
+						),
+						mIL_VM.INT(21)
+					);
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"IfThenElse",
+			mTest.Test(
+				(mStd.tAction<tText> aDebugStream) => {
+					mStd.AssertEq(
+						mSPO_Interpreter.Run(
+							mList.List(
+								$"§IMPORT ({cImportTuple}, n)",
+								"",
+								"If2...Then...Else... := (c, i, e) => {",
+								"	§RETURN (.i) IF c;",
+								"	§RETURN (.e)",
+								"};",
+								"",
+								"§RECURSIV {",
+								"	Fib... := a => .If2 (a .< 2) Then (",
 								"		() => a",
 								"	) Else (",
 								"		() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",

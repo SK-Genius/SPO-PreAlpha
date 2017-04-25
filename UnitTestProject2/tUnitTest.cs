@@ -184,4 +184,5 @@ static class mTestHelper {
 	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mStdLib.Test;
 	
 	[TestMethod] public void Fib() => mTestHelper.MagicRun(Tests);
+	[TestMethod] public void IfThenElse() => mTestHelper.MagicRun(Tests);
 }

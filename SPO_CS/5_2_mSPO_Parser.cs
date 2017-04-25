@@ -98,6 +98,14 @@ public static class  mSPO_Parser {
 		.Modify(mSPO_AST.Assignment)
 		.SetDebugName(nameof(ASSIGNMENT));
 	
+	public static tSPO_Parser RETURN_IF = (-TOKEN("§RETURN") +EXPRESSION -TOKEN("IF") +EXPRESSION)
+		.Modify(mSPO_AST.ReturnIf)
+		.SetDebugName(nameof(RETURN_IF));
+	
+	public static tSPO_Parser RETURN = (-TOKEN("§RETURN") +EXPRESSION)
+		.Modify((mSPO_AST.tExpressionNode a) => mSPO_AST.ReturnIf(a, mSPO_AST.True()))
+		.SetDebugName(nameof(RETURN));
+	
 	public static tSPO_Parser COMMAND = mParserGen.UndefParser<mStd.tTuple<tChar, mStd.tAction<tText>>>()
 		.SetDebugName(nameof(COMMAND));
 	
@@ -263,7 +271,7 @@ public static class  mSPO_Parser {
 			IDENT
 		);
 		
-		COMMAND.Def(ASSIGNMENT | REC_LAMBDAS);
+		COMMAND.Def(ASSIGNMENT | REC_LAMBDAS | RETURN_IF | RETURN );
 		// TODO: Macros, VarDef, MethodCall, Streaming, Block, ...
 	}
 	

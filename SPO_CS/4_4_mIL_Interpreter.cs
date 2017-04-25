@@ -29,7 +29,7 @@ public static class mIL_Interpreter {
 		
 		ParserResult.MATCH(out mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs);
 		
-		return ParseModule(Defs);
+		return ParseModule(Defs, aDebugStream);
 	}
 	
 	//================================================================================
@@ -38,15 +38,22 @@ public static class mIL_Interpreter {
 		mMap.tMap<tText, tInt32>
 	>
 	ParseModule(
-		mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs
+		mList.tList<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>> Defs,
+		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
+		#if TRACE
+			aTrace(nameof(ParseModule));
+		#endif
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
 		var Module = mList.List<mIL_VM.tProcDef>();
 		
 		var RestDefs = Defs;
 		while (RestDefs.MATCH(out var Def, out RestDefs)) {
 			Def.MATCH(out var DefName, out var Commands);
+			#if TRACE
+				aTrace($"    {DefName}:");
+			#endif
 			var NewProc = new mIL_VM.tProcDef();
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
@@ -63,6 +70,9 @@ public static class mIL_Interpreter {
 			
 			var RestCommands = Commands;
 			while (RestCommands.MATCH(out var Command, out RestCommands)) {
+				#if TRACE
+					aTrace($"  {Command._NodeType} {Command._1} {Command._2} {Command._3}:");
+				#endif
 				if (Command.MATCH(mIL_AST.tCommandNodeType.Call, out var RegId1, out var RegId2, out var RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Call(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Alias, out RegId1, out RegId2)) {

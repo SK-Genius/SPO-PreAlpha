@@ -27,6 +27,7 @@ public static class mSPO2IL {
 	public struct tDefConstructor {
 		internal mArrayList.tArrayList<mIL_AST.tCommandNode> Commands;
 		internal tInt32 LastTempReg;
+		internal mArrayList.tArrayList<tText> KnownSymbols;
 		internal mArrayList.tArrayList<tText> UnsolvedSymbols;
 		internal tInt32 Index;
 		internal tModuleConstructor ModuleConstructor;
@@ -51,6 +52,7 @@ public static class mSPO2IL {
 		aModuleConstructor.Defs.Push(Commands);
 		return new tDefConstructor {
 			Commands = Commands,
+			KnownSymbols = mArrayList.List<tText>(),
 			UnsolvedSymbols = mArrayList.List<tText>(),
 			Index = DefIndex,
 			ModuleConstructor = aModuleConstructor
@@ -65,18 +67,18 @@ public static class mSPO2IL {
 	public static void
 	MapArgs(
 		ref tDefConstructor aDefConstructor,
-		ref mList.tList<tText> aArgumentSymbols,
 		mSPO_AST.tMatchNode aArgs,
 		tText aReg
 	//================================================================================
 	) {
 		var Pattern = aArgs._Pattern;
 		var Type = aArgs._Type;
+		var ArgumentSymbols = aDefConstructor.KnownSymbols;
 		
 		{
 			var IdentNode = Pattern as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
-				aArgumentSymbols = mList.Concat(aArgumentSymbols, mList.List(IdentNode._Name));
+				ArgumentSymbols.Push(IdentNode._Name);
 				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode._Name, aReg));
 				return;
 			}
@@ -92,7 +94,7 @@ public static class mSPO2IL {
 					var ItemReg = TempReg(aDefConstructor.LastTempReg);
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(ItemReg, RestReg));
 					
-					MapArgs(ref aDefConstructor, ref aArgumentSymbols, Item, ItemReg);
+					MapArgs(ref aDefConstructor, Item, ItemReg);
 					
 					aDefConstructor.LastTempReg += 1;
 					var NewRestReg = TempReg(aDefConstructor.LastTempReg);
@@ -152,13 +154,14 @@ public static class mSPO2IL {
 	//================================================================================
 	) {
 		var ArgumentSymbols = mList.List<tText>();
-		MapArgs(ref aDefConstructor, ref ArgumentSymbols, aLambda._Head, "ARG");
+		MapArgs(ref aDefConstructor, aLambda._Head, "ARG");
 		
 		var ResultReg = MapExpresion(ref aDefConstructor, aLambda._Body);
 		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(ResultReg, "TRUE"));
+		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols
 			.ToLasyList()
-			.Where(S1 => ArgumentSymbols.Where(S2 => S1 == S2).IsEmpty())
+			.Where(S1 => KnownSymbols.Where(S2 => S1 == S2).IsEmpty())
 			.ToArrayList();
 		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
@@ -209,6 +212,24 @@ public static class mSPO2IL {
 		mSPO_AST.tExpressionNode aExpression
 	//================================================================================
 	) {
+		{
+			var EmptyNode = aExpression as mSPO_AST.tEmptyNode;
+			if (!EmptyNode.IsNull()) {
+				return "EMPTY";
+			}
+		}
+		{
+			var FalseNode = aExpression as mSPO_AST.tFalseNode;
+			if (!FalseNode.IsNull()) {
+				return "FALSE";
+			}
+		}
+		{
+			var TrueNode = aExpression as mSPO_AST.tTrueNode;
+			if (!TrueNode.IsNull()) {
+				return "TRUE";
+			}
+		}
 		{
 			var NumberNode = aExpression as mSPO_AST.tNumberNode;
 			if (!NumberNode.IsNull()) {
@@ -367,6 +388,7 @@ public static class mSPO2IL {
 				while (CommandNodes.MATCH(out var CommandNode, out CommandNodes)) {
 					MapCommand(ref aDefConstructor, CommandNode);
 				}
+				// TODO: remove created symbols from unknown symbols
 				return null;
 			}
 		}
@@ -390,6 +412,7 @@ public static class mSPO2IL {
 			var IdentNode = PatternNode as mSPO_AST.tIdentNode;
 			if (!IdentNode.IsNull()) {
 				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode._Name, aValue));
+				aDefConstructor.KnownSymbols.Push(IdentNode._Name);
 				return true;
 			}
 		}
@@ -399,9 +422,17 @@ public static class mSPO2IL {
 			if (!PrefixNode.IsNull()) {
 				aDefConstructor.LastTempReg += 1;
 				aDefConstructor.Commands.Push(
-					mIL_AST.SubPrefix(TempReg(aDefConstructor.LastTempReg), PrefixNode._Prefix, aValue)
+					mIL_AST.SubPrefix(
+						TempReg(aDefConstructor.LastTempReg),
+						PrefixNode._Prefix,
+						aValue
+					)
 				);
-				return MapMatch(ref aDefConstructor, PrefixNode._Match, TempReg(aDefConstructor.LastTempReg));
+				return MapMatch(
+					ref aDefConstructor,
+					PrefixNode._Match,
+					TempReg(aDefConstructor.LastTempReg)
+				);
 			}
 		}
 		
@@ -451,12 +482,17 @@ public static class mSPO2IL {
 	
 	//================================================================================
 	public static tBool
-	MapReturn(
+	MapReturnIf(
 		ref tDefConstructor aDefConstructor,
-		mSPO_AST.tReturnNode aReturn
+		mSPO_AST.tReturnIfNode aReturn
 	//================================================================================
 	) {
-		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(MapExpresion(ref aDefConstructor, aReturn._Result), "TRUE"));
+		aDefConstructor.Commands.Push(
+			mIL_AST.ReturnIf(
+				MapExpresion(ref aDefConstructor, aReturn._Result),
+				MapExpresion(ref aDefConstructor, aReturn._Condition)
+			)
+		);
 		return true;
 	}
 	
@@ -500,11 +536,17 @@ public static class mSPO2IL {
 			var TempLambdaDef= TempLambdaDefs.Get(I);
 			
 			InitMapLambda(ref TempLambdaDef, RecLambdaItemNode._Lambda);
-			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToLasyList();
+			var KnownSymbols = TempLambdaDef.KnownSymbols.ToLasyList();
+			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToLasyList()
+				.Where(
+					aUnsolved => (
+						KnownSymbols.Where(aKnown => aKnown == aUnsolved).IsEmpty() &&
+						aRecLambdas._List.Where(aRecLambda => aRecLambda._Ident._Name == aUnsolved).IsEmpty()
+					)
+				);
+			
 			while (TempUnsolvedSymbols.MATCH(out var Symbol, out TempUnsolvedSymbols)) {
-				if (aRecLambdas._List.Map(a => a._Ident).Where(a => a._Name == Symbol).IsEmpty()) {
-					AllUnsolvedSymbols.Push(Symbol);
-				}
+				AllUnsolvedSymbols.Push(Symbol);
 			}
 		}
 		
@@ -570,9 +612,9 @@ public static class mSPO2IL {
 			return MapRecursiveLambdas(ref aDefConstructor, RecLambdasNode);
 		}
 		
-		var ReturnNode = aCommand as mSPO_AST.tReturnNode;
+		var ReturnNode = aCommand as mSPO_AST.tReturnIfNode;
 		if (!ReturnNode.IsNull()) {
-			return MapReturn(ref aDefConstructor, ReturnNode);
+			return MapReturnIf(ref aDefConstructor, ReturnNode);
 		}
 		
 		mStd.Assert(false);
@@ -595,7 +637,7 @@ public static class mSPO2IL {
 					mList.Concat(
 						aModuleNode._Commands,
 						mList.List<mSPO_AST.tCommandNode>(
-							mSPO_AST.Return(aModuleNode._Export._Expression)
+							mSPO_AST.ReturnIf(aModuleNode._Export._Expression, mSPO_AST.True())
 						)
 					)
 				)

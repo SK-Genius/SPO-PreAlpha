@@ -33,6 +33,30 @@ public static class mSPO_AST {
 		public override tText ToString() => $"()";
 	}
 	
+	public class tFalseNode : tLiteralNode {
+		//================================================================================
+		public tBool
+		Equals(
+			tFalseNode a
+		//================================================================================
+		) => !a.IsNull();
+		
+		public override tBool Equals(object a) => this.Equals(a as tFalseNode);
+		public override tText ToString() => $"§FALSE";
+	}
+	
+	public class tTrueNode : tLiteralNode {
+		//================================================================================
+		public tBool
+		Equals(
+			tTrueNode a
+		//================================================================================
+		) => !a.IsNull();
+		
+		public override tBool Equals(object a) => this.Equals(a as tTrueNode);
+		public override tText ToString() => $"§TRUE";
+	}
+	
 	public class tTextNode : tLiteralNode {
 		internal tText _Value;
 		
@@ -222,18 +246,19 @@ public static class mSPO_AST {
 		public override tText ToString() => $"§REC {{{_List}}}";
 	}
 	
-	public class tReturnNode : tCommandNode {
+	public class tReturnIfNode : tCommandNode {
 		internal tExpressionNode _Result;
+		internal tExpressionNode _Condition;
 		
 		//================================================================================
 		public tBool
 		Equals(
-			tReturnNode a
+			tReturnIfNode a
 		//================================================================================
-		) => !a.IsNull() && a._Result.Equals(_Result);
+		) => !a.IsNull() && a._Result.Equals(_Result) && a._Condition.Equals(_Condition);
 		
-		public override tBool Equals(object a) => this.Equals(a as tReturnNode);
-		public override tText ToString() => $"RETURN {_Result}";
+		public override tBool Equals(object a) => this.Equals(a as tReturnIfNode);
+		public override tText ToString() => $"RETURN {_Result} IF {_Condition}";
 	}
 	
 	public class tTupleNode : tExpressionNode {
@@ -283,6 +308,18 @@ public static class mSPO_AST {
 	Empty = (
 	//================================================================================
 	) => new tEmptyNode();
+	
+	//================================================================================
+	public static mStd.tFunc<tFalseNode>
+	False = (
+	//================================================================================
+	) => new tFalseNode();
+	
+	//================================================================================
+	public static mStd.tFunc<tTrueNode>
+	True = (
+	//================================================================================
+	) => new tTrueNode();
 	
 	//================================================================================
 	public static mStd.tFunc<tNumberNode, tInt32>
@@ -450,12 +487,14 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tReturnNode, tExpressionNode>
-	Return = (
-		aResult
+	public static mStd.tFunc<tReturnIfNode, tExpressionNode, tExpressionNode>
+	ReturnIf = (
+		aResult,
+		aCondition
 	//================================================================================
-	) => new tReturnNode {
-		_Result = aResult
+	) => new tReturnIfNode {
+		_Result = aResult,
+		_Condition = aCondition
 	};
 	
 	//================================================================================
