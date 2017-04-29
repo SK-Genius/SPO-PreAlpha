@@ -157,9 +157,9 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser CALL = (
 		Infix(".", EXPRESSION_IN_CALL).Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
 				mSPO_AST.tIdentNode Ident;
-				mList.tList<mStd.tAny> ChildList;
+				tResults ChildList;
 				aPair.MATCH(out Ident, out ChildList);
 				return mSPO_AST.Call(
 					Ident,
@@ -172,9 +172,9 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser PREFIX = Infix("#", EXPRESSION_IN_CALL)
 		.Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
 				mSPO_AST.tIdentNode Ident;
-				mList.tList<mStd.tAny> ChildList;
+				tResults ChildList;
 				aPair.MATCH(out Ident, out ChildList);
 				return mSPO_AST.Prefix(
 					Ident,
@@ -186,13 +186,16 @@ public static class  mSPO_Parser {
 	
 	public static tSPO_Parser MATCH_PREFIX = C( Infix("#", MATCH) )
 		.Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, mList.tList<mStd.tAny>> aPair) => {
+			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
 				mSPO_AST.tIdentNode Ident;
-				mList.tList<mStd.tAny> ChildList;
+				tResults ChildList;
 				aPair.MATCH(out Ident, out ChildList);
 				return mSPO_AST.MatchPrefix(
 					Ident,
-					mSPO_AST.Match(mSPO_AST.MatchTuple(ChildList.Map(mStd.To<mSPO_AST.tMatchNode>)),null)
+					mSPO_AST.Match(
+						mSPO_AST.MatchTuple(ChildList.Map(mStd.To<mSPO_AST.tMatchNode>)),
+						null
+					)
 				);
 			}
 		)
@@ -205,18 +208,26 @@ public static class  mSPO_Parser {
 	public static tSPO_Parser REC_LAMBDAS = (-TOKEN("§RECURSIV {") +(+IDENT -TOKEN(":=") +(LAMBDA | C( LAMBDA ))).Modify(mSPO_AST.RecLambdaItem)[1, null] -TOKEN("}"))
 		.ModifyList(
 			aList => mParserGen.ResultList(
-				mSPO_AST.RecLambdas(
-					aList._Value.Map(
-						aItem => {
-							mSPO_AST.tRecLambdaItemNode Item;
-							mStd.Assert(aItem.MATCH(out Item));
-							return Item;
-						}
-					)
-				)
+				mSPO_AST.RecLambdas(aList._Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode>))
 			)
 		)
 		.SetDebugName(nameof(REC_LAMBDAS));
+	
+	public static tSPO_Parser IF_MATCH = (
+		-TOKEN("§IF") -TOKEN("{") +(
+			+EXPRESSION -TOKEN("=>") +EXPRESSION -TOKEN(";")
+		)
+		.Modify((mSPO_AST.tExpressionNode a1, mSPO_AST.tExpressionNode a2) => mStd.Tuple(a1, a2))
+		[0, null] -TOKEN("}")
+	)
+		.ModifyList(
+			aList => mParserGen.ResultList(
+				mSPO_AST.IfMatch(
+					aList.Map(mStd.To<mStd.tTuple<mSPO_AST.tExpressionNode, mSPO_AST.tExpressionNode>>)
+				)
+			)
+		)
+		.SetDebugName(nameof(IF_MATCH));
 	
 	public static tSPO_Parser IMPORT = (-TOKEN("§IMPORT") +MATCH)
 		.Modify(mSPO_AST.Import)
@@ -248,6 +259,7 @@ public static class  mSPO_Parser {
 		);
 		
 		EXPRESSION.Def(
+			IF_MATCH |
 			BLOCK |
 			LAMBDA |
 			CALL |

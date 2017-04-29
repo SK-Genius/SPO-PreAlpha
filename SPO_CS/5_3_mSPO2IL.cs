@@ -392,7 +392,42 @@ public static class mSPO2IL {
 				return null;
 			}
 		}
-		
+		{
+			var IfMatchNode = aExpression as mSPO_AST.tIfMatchNode;
+			if (IfMatchNode != null) {
+				var Ifs = mArrayList.List<mSPO_AST.tCommandNode>();
+				var Pairs = IfMatchNode._Cases;
+				while (Pairs.MATCH(out var Pair, out Pairs)) {
+					Pair.MATCH(out var Test, out var Run);
+					Ifs.Push(mSPO_AST.ReturnIf(Run, Test));
+				}
+				Ifs.Push(mSPO_AST.ReturnIf(mSPO_AST.Empty(), mSPO_AST.True())); // TODO: ASSERT FALSE
+				
+				aDefConstructor.LastTempReg += 1;
+				var Reg = TempReg(aDefConstructor.LastTempReg);
+				
+				MapCommand(
+					ref aDefConstructor,
+					mSPO_AST.Assignment(
+						mSPO_AST.Match(
+							new mSPO_AST.tIdentNode{_Name = Reg},
+							null
+						),
+						mSPO_AST.Call(
+							mSPO_AST.Lambda(
+								mSPO_AST.Match(
+									mSPO_AST.Empty(),
+									null
+								),
+								mSPO_AST.Block(Ifs.ToLasyList())
+							),
+							mSPO_AST.Empty()
+						)
+					)
+				);
+				return Reg; 
+			}
+		}
 		mStd.Assert(false);
 		return null;
 	}

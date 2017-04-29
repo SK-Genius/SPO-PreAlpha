@@ -117,11 +117,11 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	//================================================================================
-	) => aList.Map((aIndex, aElem) => aMapFunc(aElem));
+	) => aList.MapWithIndex((aIndex, aElem) => aMapFunc(aElem));
 	
 	//================================================================================
 	public static tList<tRes>
-	Map<tRes, tElem>(
+	MapWithIndex<tRes, tElem>(
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
@@ -132,6 +132,32 @@ public static class mList {
 		var Index = 0;
 		while (RestList.MATCH(out var Head, out RestList)) {
 			ResultList = Concat(ResultList, List(aMapFunc(Index, Head)));
+			Index += 1;
+		}
+		return ResultList;
+	}
+	
+	//================================================================================
+	public static tList<tRes>
+	Map<tRes, tElem1, tElem2>(
+		this tList<mStd.tTuple<tElem1, tElem2>> aList,
+		mStd.tFunc<tRes, tElem1, tElem2> aMapFunc
+	//================================================================================
+	) => aList.MapWithIndex((aIndex, aElem1, aElem2) => aMapFunc(aElem1, aElem2));
+	
+	//================================================================================
+	public static tList<tRes>
+	MapWithIndex<tRes, tElem1, tElem2>(
+		this tList<mStd.tTuple<tElem1, tElem2>> aList,
+		mStd.tFunc<tRes, tInt32, tElem1, tElem2> aMapFunc
+	//================================================================================
+	) {
+		// TODO: make it lasy (use LasyList)
+		var ResultList = List<tRes>();
+		var RestList = aList;
+		var Index = 0;
+		while (RestList.MATCH(out var Head, out RestList)) {
+			ResultList = Concat(ResultList, List(aMapFunc(Index, Head._1, Head._2)));
 			Index += 1;
 		}
 		return ResultList;

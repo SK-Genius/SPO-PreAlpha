@@ -132,7 +132,7 @@ public static class mTextParser {
 	//================================================================================
 	private static mStd.tFunc<tChar, mStd.tTuple<tChar, mStd.tAction<tText>>>
 	Modifyer = (
-		 a
+		a
 	//================================================================================
 	) => {
 		tChar Char;

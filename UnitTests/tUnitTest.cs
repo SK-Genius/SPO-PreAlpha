@@ -185,4 +185,5 @@ static class mTestHelper {
 	
 	[TestMethod] public void Fib() => mTestHelper.MagicRun(Tests);
 	[TestMethod] public void IfThenElse() => mTestHelper.MagicRun(Tests);
+	[TestMethod] public void IfMatch() => mTestHelper.MagicRun(Tests);
 }

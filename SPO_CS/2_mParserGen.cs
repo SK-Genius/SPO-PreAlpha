@@ -610,7 +610,7 @@ public static class mParserGen {
 		var Result = aParser._ParseFunc(aStream, aDebugStream);
 		#if TRACE
 			if (Result._IsOK) {
-				aDebugStream("} -> OK");
+				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
 			} else {
 				aDebugStream("} -> FAIL");
 			}

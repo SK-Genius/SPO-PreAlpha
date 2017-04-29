@@ -261,6 +261,20 @@ public static class mSPO_AST {
 		public override tText ToString() => $"RETURN {_Result} IF {_Condition}";
 	}
 	
+	public class tIfMatchNode : tExpressionNode {
+		internal mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>> _Cases;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tIfMatchNode a
+		//================================================================================
+		) => !a.IsNull() && a._Cases.Equals(_Cases);
+		
+		public override tBool Equals(object a) => this.Equals(a as tIfMatchNode);
+		public override tText ToString() => $"If {{ {_Cases} }}";
+	}
+	
 	public class tTupleNode : tExpressionNode {
 		internal mList.tList<tExpressionNode> _Items;
 		
@@ -495,6 +509,15 @@ public static class mSPO_AST {
 	) => new tReturnIfNode {
 		_Result = aResult,
 		_Condition = aCondition
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tIfMatchNode, mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>>>
+	IfMatch = (
+		aCases
+	//================================================================================
+	) => new tIfMatchNode {
+		_Cases = aCases
 	};
 	
 	//================================================================================

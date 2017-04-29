@@ -402,6 +402,37 @@ public static class mStdLib {
 					return true;
 				}
 			)
+		),
+		mStd.Tuple(
+			"IfMatch",
+			mTest.Test(
+				(mStd.tAction<tText> aDebugStream) => {
+					mStd.AssertEq(
+						mSPO_Interpreter.Run(
+							mList.List(
+								$"§IMPORT ({cImportTuple}, n)",
+								"",
+								"§RECURSIV {",
+								"	Fib... := a => §IF {",
+								"		(a .< 2) => a;",
+								"		(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1));",
+								"	}",
+								"}",
+								"",
+								"§EXPORT .Fib n",
+								""
+							).Join((a1, a2) => a1 + "\n" + a2),
+							mIL_VM.TUPLE(
+								ImportData,
+								mIL_VM.INT(8)
+							),
+							aDebugStream
+						),
+						mIL_VM.INT(21)
+					);
+					return true;
+				}
+			)
 		)
 	);
 	#endregion
