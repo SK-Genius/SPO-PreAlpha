@@ -158,6 +158,21 @@ public static class mSPO_AST {
 		public override tText ToString() => $"(#{_Prefix} {_Match})";
 	}
 	
+	public class tMatchGuardNode : tMatchItemNode {
+		internal tMatchNode _Match;
+		internal tExpressionNode _Guard;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMatchGuardNode a
+		//================================================================================
+		) => !a.IsNull() && a._Match.Equals(_Match) && a._Guard.Equals(_Guard);
+		
+		public override tBool Equals(object a) => this.Equals(a as tMatchGuardNode);
+		public override tText ToString() => $"({_Match} | {_Guard})";
+	}
+	
 	public class tLambdaNode : tExpressionNode {
 		internal tMatchNode _Head;
 		internal tExpressionNode _Body;
@@ -261,18 +276,33 @@ public static class mSPO_AST {
 		public override tText ToString() => $"RETURN {_Result} IF {_Condition}";
 	}
 	
-	public class tIfMatchNode : tExpressionNode {
+	public class tIfNode : tExpressionNode {
 		internal mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>> _Cases;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tIfNode a
+		//================================================================================
+		) => !a.IsNull() && a._Cases.Equals(_Cases);
+		
+		public override tBool Equals(object a) => this.Equals(a as tIfNode);
+		public override tText ToString() => $"If {{ {_Cases} }}";
+	}
+	
+	public class tIfMatchNode : tExpressionNode {
+		internal tExpressionNode _Expression;
+		internal mList.tList<mStd.tTuple<tMatchNode, tExpressionNode>> _Cases;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tIfMatchNode a
 		//================================================================================
-		) => !a.IsNull() && a._Cases.Equals(_Cases);
+		) => !a.IsNull() && a._Cases.Equals(_Cases) && a._Expression.Equals(_Expression);
 		
 		public override tBool Equals(object a) => this.Equals(a as tIfMatchNode);
-		public override tText ToString() => $"If {{ {_Cases} }}";
+		public override tText ToString() => $"If {_Expression} MATCH {{ {_Cases} }}";
 	}
 	
 	public class tTupleNode : tExpressionNode {
@@ -417,6 +447,17 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
+	public static mStd.tFunc<tMatchGuardNode, tMatchNode, tExpressionNode>
+	MatchGuard = (
+		aMatch,
+		aGuard
+	//================================================================================
+	) => new tMatchGuardNode {
+		_Match = aMatch,
+		_Guard = aGuard
+	};
+	
+	//================================================================================
 	public static mStd.tFunc<tLambdaNode, tMatchNode, tExpressionNode>
 	Lambda = (
 		aMatch,
@@ -447,8 +488,6 @@ public static class mSPO_AST {
 		_List = aList
 	};
 	
-
-
 	//================================================================================
 	public static mStd.tFunc<tMatchItemNode, mList.tList<tMatchNode>>
 	MatchTuple = (
@@ -512,11 +551,22 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIfMatchNode, mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>>>
+	public static mStd.tFunc<tIfNode, mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>>>
+	If = (
+		aCases
+	//================================================================================
+	) => new tIfNode {
+		_Cases = aCases
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<mStd.tTuple<tMatchNode, tExpressionNode>>>
 	IfMatch = (
+		aExpression,
 		aCases
 	//================================================================================
 	) => new tIfMatchNode {
+		_Expression = aExpression,
 		_Cases = aCases
 	};
 	

@@ -227,6 +227,14 @@ public static class mIL_VM {
 	
 	public enum tOpCode {
 		NEW_INT,
+		AND,
+		OR,
+		XOR,
+		INTS_ARE_EQ,
+		INTS_COMP,
+		INTS_ADD,
+		INTS_SUB,
+		INTS_MUL,
 		NEW_PAIR,
 		FIRST,
 		SECOND,
@@ -282,10 +290,74 @@ public static class mIL_VM {
 		
 		//================================================================================
 		public tInt32
+		And(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.AND, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		Or(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.OR, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		XOr(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.XOR, a1, a2);
+		
+		//================================================================================
+		public tInt32
 		Int(
 			tInt32 a1
 		//================================================================================
 		) => _AddReg(tOpCode.NEW_INT, a1);
+		
+		//================================================================================
+		public tInt32
+		IntsAreEq(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.INTS_ARE_EQ, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		IntsComp(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.INTS_COMP, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		IntsAdd(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.INTS_ADD, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		IntsSub(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.INTS_SUB, a1, a2);
+		
+		//================================================================================
+		public tInt32
+		IntsMul(
+			tInt32 a1,
+			tInt32 a2
+		//================================================================================
+		) => _AddReg(tOpCode.INTS_MUL, a1, a2);
 		
 		//================================================================================
 		public tInt32
@@ -383,7 +455,7 @@ public static class mIL_VM {
 	
 	public class tCallStack {
 		internal tCallStack _Parent;
-		internal mArrayList.tArrayList<tData> _Reg = mArrayList.List<tData>();
+		internal mArrayList.tArrayList<tData> _Regs = mArrayList.List<tData>();
 		internal tProcDef _ProcDef;
 		internal tInt32 _CodePointer = 0;
 		internal tData _Obj;
@@ -405,8 +477,8 @@ public static class mIL_VM {
 			_Parent = aParent;
 			_ProcDef = aProcDef;
 			
-			_Reg = mArrayList.Concat(
-				_Reg,
+			_Regs = mArrayList.Concat(
+				_Regs,
 				mArrayList.List(
 					EMPTY(),
 					INT(1),
@@ -439,68 +511,133 @@ public static class mIL_VM {
 			_Obj = EMPTY();
 			
 			Command.MATCH(out var OpCode, out var Arg1, out var Arg2);
-			_TraceOut($"{_Reg.Size():#0} := {OpCode} {Arg1} {Arg2}");
+			_TraceOut($"{_Regs.Size():#0} := {OpCode} {Arg1} {Arg2}");
 			
 			switch (OpCode) {
 				case tOpCode.NEW_INT: {
-					_Reg.Push(INT(Arg1));
+					_Regs.Push(INT(Arg1));
+				} break;
+				
+				case tOpCode.AND: {
+					var BoolData1 = _Regs.Get(Arg1);
+					var BoolData2 = _Regs.Get(Arg2);
+					mStd.Assert(BoolData1.MATCH(tDataType.BOOL, out tBool Bool1));
+					mStd.Assert(BoolData2.MATCH(tDataType.BOOL, out tBool Bool2));
+					_Regs.Push(BOOL(Bool1 & Bool2));
+				} break;
+				
+				case tOpCode.OR: {
+					var BoolData1 = _Regs.Get(Arg1);
+					var BoolData2 = _Regs.Get(Arg2);
+					mStd.Assert(BoolData1.MATCH(tDataType.BOOL, out tBool Bool1));
+					mStd.Assert(BoolData2.MATCH(tDataType.BOOL, out tBool Bool2));
+					_Regs.Push(BOOL(Bool1 | Bool2));
+				} break;
+				
+				case tOpCode.XOR: {
+					var BoolData1 = _Regs.Get(Arg1);
+					var BoolData2 = _Regs.Get(Arg2);
+					mStd.Assert(BoolData1.MATCH(tDataType.BOOL, out tBool Bool1));
+					mStd.Assert(BoolData2.MATCH(tDataType.BOOL, out tBool Bool2));
+					_Regs.Push(BOOL(Bool1 ^ Bool2));
+				} break;
+				
+				case tOpCode.INTS_ARE_EQ: {
+					var IntData1 = _Regs.Get(Arg1);
+					var IntData2 = _Regs.Get(Arg2);
+					mStd.Assert(IntData1.MATCH(tDataType.INT, out tInt32 Int1));
+					mStd.Assert(IntData2.MATCH(tDataType.INT, out tInt32 Int2));
+					_Regs.Push(BOOL(Int1 == Int2));
+				} break;
+				
+				case tOpCode.INTS_COMP: {
+					var IntData1 = _Regs.Get(Arg1);
+					var IntData2 = _Regs.Get(Arg2);
+					mStd.Assert(IntData1.MATCH(tDataType.INT, out tInt32 Int1));
+					mStd.Assert(IntData2.MATCH(tDataType.INT, out tInt32 Int2));
+					var Diff = Int1 - Int2;
+					_Regs.Push(INT(Diff < 0 ? -1 : Diff == 0 ? 0 : 1));
+				} break;
+				
+				case tOpCode.INTS_ADD: {
+					var IntData1 = _Regs.Get(Arg1);
+					var IntData2 = _Regs.Get(Arg2);
+					mStd.Assert(IntData1.MATCH(tDataType.INT, out tInt32 Int1));
+					mStd.Assert(IntData2.MATCH(tDataType.INT, out tInt32 Int2));
+					_Regs.Push(INT(Int1 + Int2));
+				} break;
+				
+				case tOpCode.INTS_SUB: {
+					var IntData1 = _Regs.Get(Arg1);
+					var IntData2 = _Regs.Get(Arg2);
+					mStd.Assert(IntData1.MATCH(tDataType.INT, out tInt32 Int1));
+					mStd.Assert(IntData2.MATCH(tDataType.INT, out tInt32 Int2));
+					_Regs.Push(INT(Int1 - Int2));
+				} break;
+				
+				case tOpCode.INTS_MUL: {
+					var IntData1 = _Regs.Get(Arg1);
+					var IntData2 = _Regs.Get(Arg2);
+					mStd.Assert(IntData1.MATCH(tDataType.INT, out tInt32 Int1));
+					mStd.Assert(IntData2.MATCH(tDataType.INT, out tInt32 Int2));
+					_Regs.Push(INT(Int1 * Int2));
 				} break;
 				
 				case tOpCode.NEW_PAIR: {
-					_Reg.Push(PAIR(_Reg.Get(Arg1), _Reg.Get(Arg2)));
+					_Regs.Push(PAIR(_Regs.Get(Arg1), _Regs.Get(Arg2)));
 				} break;
 				
 				case tOpCode.FIRST: {
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.PAIR, out tData Var1, out tData Var2));
-					_Reg.Push(Var1);
+					mStd.Assert(_Regs.Get(Arg1).MATCH(tDataType.PAIR, out tData Var1, out tData Var2));
+					_Regs.Push(Var1);
 				} break;
 				
 				case tOpCode.SECOND: {
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.PAIR, out mStd.tTuple<tData, tData> Pair));
+					mStd.Assert(_Regs.Get(Arg1).MATCH(tDataType.PAIR, out mStd.tTuple<tData, tData> Pair));
 					Pair.MATCH(out var Var1, out var Var2);
-					_Reg.Push(Var2);
+					_Regs.Push(Var2);
 				} break;
 				
 				case tOpCode.ADD_PREFIX: {
-					_Reg.Push(Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Reg.Get(Arg2))));
+					_Regs.Push(Data(tDataType.PREFIX, mStd.Tuple(Arg1, _Regs.Get(Arg2))));
 				} break;
 				
 				case tOpCode.DEL_PREFIX: {
-					mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
+					mStd.Assert(_Regs.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
 					PrefixData.MATCH(out var Prefix, out var Data_);
 					mStd.Assert(Prefix.Equals(Arg1));
-					_Reg.Push(Data_);
+					_Regs.Push(Data_);
 				} break;
 				
 				case tOpCode.HAS_PREFIX: {
-					mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
+					mStd.Assert(_Regs.Get(Arg2).MATCH(tDataType.PREFIX, out mStd.tTuple<tInt32, tData> PrefixData));
 					PrefixData.MATCH(out var Prefix, out var Data_);
-					_Reg.Push(mIL_VM.BOOL(Prefix.Equals(Arg1)));
+					_Regs.Push(BOOL(Prefix.Equals(Arg1)));
 				} break;
 				
 				case tOpCode.ASSERT: {
-					if (_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Bool) && Bool) {
-						mStd.Assert(_Reg.Get(Arg2).MATCH(tDataType.BOOL, out Bool) && Bool);
+					if (_Regs.Get(Arg1).MATCH(tDataType.BOOL, out tBool Bool) && Bool) {
+						mStd.Assert(_Regs.Get(Arg2).MATCH(tDataType.BOOL, out Bool) && Bool);
 					}
 				} break;
 				
 				case tOpCode.SET_OBJ: {
-					_Obj = _Reg.Get(Arg1);
+					_Obj = _Regs.Get(Arg1);
 				} break;
 				
 				case tOpCode.CALL: {
-					var Proc = _Reg.Get(Arg1);
-					var Arg  = _Reg.Get(Arg2);
+					var Proc = _Regs.Get(Arg1);
+					var Arg  = _Regs.Get(Arg2);
 					
 					if (Proc.MATCH(tDataType.EXTERN_DEF, out mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>> ExternDef)) {
-						_Reg.Push(EXTERN_PROC(ExternDef, Arg));
+						_Regs.Push(EXTERN_PROC(ExternDef, Arg));
 					} else if(Proc.MATCH(tDataType.EXTERN_PROC, out ExternDef, out tData Env)) {
-						_Reg.Push(ExternDef(Env, _Obj, Arg, aTraceLine => _TraceOut("	"+aTraceLine)));
+						_Regs.Push(ExternDef(Env, _Obj, Arg, aTraceLine => _TraceOut("	"+aTraceLine)));
 					} else if (Proc.MATCH(tDataType.DEF, out tProcDef Def)) {
-						_Reg.Push(PROC(Def, Arg));
+						_Regs.Push(PROC(Def, Arg));
 					} else if (Proc.MATCH(tDataType.PROC, out tProcDef Def_, out Env)) {
 						var Res = EMPTY();
-						_Reg.Push(Res);
+						_Regs.Push(Res);
 						return new tCallStack(this, Def_, Env, _Obj, Arg, Res, aTraceLine => _TraceOut("	"+aTraceLine));
 					} else {
 						mStd.Assert(false);
@@ -508,10 +645,10 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.RETURN_IF: {
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
+					mStd.Assert(_Regs.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
 					if (Cond) {
-						var Src = _Reg.Get(Arg2);
-						var Des = _Reg.Get(tProcDef.RES_Reg);
+						var Src = _Regs.Get(Arg2);
+						var Des = _Regs.Get(tProcDef.RES_Reg);
 						Des._DataType = Src._DataType;
 						Des._Value = Src._Value;
 						_TraceOut("====================================");
@@ -520,17 +657,17 @@ public static class mIL_VM {
 				} break;
 				
 				case tOpCode.CONTUNUE_IF: {
-					mStd.Assert(_Reg.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
+					mStd.Assert(_Regs.Get(Arg1).MATCH(tDataType.BOOL, out tBool Cond));
 					if (Cond) {
-						_Reg = mArrayList.List<tData>(
+						_Regs = mArrayList.List<tData>(
 							EMPTY(),
 							INT(1),
 							BOOL(false),
 							BOOL(true),
-							_Reg.Get(tProcDef.ENV_Reg),
-							_Reg.Get(tProcDef.OBJ_Reg),
-							_Reg.Get(Arg2),
-							_Reg.Get(tProcDef.RES_Reg)
+							_Regs.Get(tProcDef.ENV_Reg),
+							_Regs.Get(tProcDef.OBJ_Reg),
+							_Regs.Get(Arg2),
+							_Regs.Get(tProcDef.RES_Reg)
 						);
 						_CodePointer = 0;
 					}
@@ -546,7 +683,7 @@ public static class mIL_VM {
 					mStd.Assert(false);
 				} break;
 			}
-			_TraceOut($@"    \ {_Reg.Size()-1} = {_Reg.Get(_Reg.Size()-1)}");
+			_TraceOut($@"    \ {_Regs.Size()-1} = {_Regs.Get(_Regs.Size()-1)}");
 			return this;
 		}
 	}
@@ -595,17 +732,17 @@ public static class mIL_VM {
 	//================================================================================
 	private static readonly mStd.tFunc<tData, tData, tData, tData, mStd.tAction<tText>>
 	Add = (
-		tData Env,
-		tData Obj,
-		tData Arg,
-		mStd.tAction<tText> aTraceOut
+		aEnv,
+		aObj,
+		aArg,
+		aTraceOut
 	//================================================================================
 	) => {
 		tData Arg1;
 		tData Arg2;
 		tInt32 Arg1_;
 		tInt32 Arg2_;
-		mStd.Assert(Arg.MATCH(tDataType.PAIR, out Arg1, out Arg2));
+		mStd.Assert(aArg.MATCH(tDataType.PAIR, out Arg1, out Arg2));
 		mStd.Assert(Arg1.MATCH(tDataType.INT, out Arg1_));
 		mStd.Assert(Arg2.MATCH(tDataType.INT, out Arg2_));
 		return INT(Arg1_ + Arg2_);

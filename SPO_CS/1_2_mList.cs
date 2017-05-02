@@ -126,15 +126,18 @@ public static class mList {
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
 	) {
-		// TODO: make it lasy (use LasyList)
-		var ResultList = List<tRes>();
 		var RestList = aList;
-		var Index = 0;
-		while (RestList.MATCH(out var Head, out RestList)) {
-			ResultList = Concat(ResultList, List(aMapFunc(Index, Head)));
-			Index += 1;
-		}
-		return ResultList;
+		var Index = (tInt32?)0;
+		return LasyList(
+			() => {
+				if (RestList.MATCH(out var Head, out RestList)) {
+					Index += 1;
+					return mStd.OK(aMapFunc(Index.Value - 1, Head));
+				} else {
+					return mStd.Fail<tRes>();
+				}
+			}
+		);
 	}
 	
 	//================================================================================
@@ -152,15 +155,18 @@ public static class mList {
 		mStd.tFunc<tRes, tInt32, tElem1, tElem2> aMapFunc
 	//================================================================================
 	) {
-		// TODO: make it lasy (use LasyList)
-		var ResultList = List<tRes>();
 		var RestList = aList;
-		var Index = 0;
-		while (RestList.MATCH(out var Head, out RestList)) {
-			ResultList = Concat(ResultList, List(aMapFunc(Index, Head._1, Head._2)));
-			Index += 1;
-		}
-		return ResultList;
+		var Index = (tInt32?)0;
+		return LasyList(
+			() => {
+				if (RestList.MATCH(out var Head, out RestList)) {
+					Index += 1;
+					return mStd.OK(aMapFunc(Index.Value - 1, Head._1, Head._2));
+				} else {
+					return mStd.Fail<tRes>();
+				}
+			}
+		);
 	}
 	
 	//================================================================================

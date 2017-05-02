@@ -201,6 +201,10 @@ public static class  mSPO_Parser {
 		)
 		.SetDebugName(nameof(MATCH_PREFIX));
 	
+	public static tSPO_Parser MATCH_GUARD = C( +MATCH -TOKEN("|") +EXPRESSION )
+		.Modify(mSPO_AST.MatchGuard)
+		.SetDebugName(MATCH_GUARD);
+
 	public static tSPO_Parser LAMBDA = (+MATCH -TOKEN("=>") +EXPRESSION)
 		.Modify(mSPO_AST.Lambda)
 		.SetDebugName(nameof(LAMBDA));
@@ -213,7 +217,7 @@ public static class  mSPO_Parser {
 		)
 		.SetDebugName(nameof(REC_LAMBDAS));
 	
-	public static tSPO_Parser IF_MATCH = (
+	public static tSPO_Parser IF = (
 		-TOKEN("§IF") -TOKEN("{") +(
 			+EXPRESSION -TOKEN("=>") +EXPRESSION -TOKEN(";")
 		)
@@ -222,10 +226,36 @@ public static class  mSPO_Parser {
 	)
 		.ModifyList(
 			aList => mParserGen.ResultList(
-				mSPO_AST.IfMatch(
+				mSPO_AST.If(
 					aList.Map(mStd.To<mStd.tTuple<mSPO_AST.tExpressionNode, mSPO_AST.tExpressionNode>>)
 				)
 			)
+		)
+		.SetDebugName(nameof(IF));
+	
+	public static tSPO_Parser IF_MATCH = (
+		-TOKEN("§IF") +EXPRESSION -TOKEN("MATCH") -TOKEN("{") +(
+			+MATCH -TOKEN("=>") +EXPRESSION -TOKEN(";")
+		)
+		.Modify((mSPO_AST.tMatchNode a1, mSPO_AST.tExpressionNode a2) => mStd.Tuple(a1, a2))
+		[0, null] -TOKEN("}")
+	)
+		.ModifyList(
+			aList => {
+				mStd.tAny Head;
+				mParserGen.tResultList Tail;
+				aList.GetHeadTail(out Head, out Tail);
+				
+				mSPO_AST.tExpressionNode Expression;
+				Head.MATCH(out Expression);
+				
+				return mParserGen.ResultList(
+					mSPO_AST.IfMatch(
+						Expression,
+						Tail.Map(mStd.To<mStd.tTuple<mSPO_AST.tMatchNode, mSPO_AST.tExpressionNode>>)
+					)
+				);
+			}
 		)
 		.SetDebugName(nameof(IF_MATCH));
 	
@@ -242,7 +272,7 @@ public static class  mSPO_Parser {
 	
 	static mSPO_Parser() {
 		MATCH.Def(
-			(LITERAL|IDENT|MATCH_PREFIX).Modify(
+			(LITERAL|IDENT|MATCH_PREFIX|MATCH_GUARD).Modify(
 				(mSPO_AST.tMatchItemNode Match) => mSPO_AST.Match(Match, null)
 			) |
 			C(+MATCH +(-TOKEN(",") +MATCH)[0, null]).ModifyList(
@@ -260,6 +290,7 @@ public static class  mSPO_Parser {
 		
 		EXPRESSION.Def(
 			IF_MATCH |
+			IF |
 			BLOCK |
 			LAMBDA |
 			CALL |

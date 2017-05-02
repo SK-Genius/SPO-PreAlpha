@@ -52,6 +52,19 @@
 			ARG
 			ENV
 		
+		BOOL:
+			BOOL x & x -> x
+			BOOL x | x -> x
+			BOOL x ^ x -> x
+		
+		INT:
+			INT i -> x
+			INT x <=> x -> x
+			INT x == x -> x
+			INT x + x -> x
+			INT x - x -> x
+			INT x * x -> x
+		
 		PAIR:
 			(x ; x) -> x
 			x -> (_ ; x)

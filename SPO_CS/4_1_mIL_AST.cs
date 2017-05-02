@@ -17,6 +17,14 @@ public static class mIL_AST {
 	
 	public enum tCommandNodeType {
 		Int,
+		IntsAreEq,
+		IntsComp,
+		IntsAdd,
+		IntsSub,
+		IntsMul,
+		And,
+		Or,
+		XOr,
 		Alias,
 		Pair,
 		First,
@@ -34,6 +42,15 @@ public static class mIL_AST {
 		Dev,
 		Module
 	}
+	
+	public const tText cEmpty = "EMPTY";
+	public const tText cOne = "ONE";
+	public const tText cTrue = "TRUE";
+	public const tText cFalse = "FALSE";
+	public const tText cEnv = "ENV";
+	public const tText cObj = "OBJ";
+	public const tText cArg = "ARG";
+	public const tText cRes = "RES";
 	
 	public class tCommandNode {
 		internal tCommandNodeType _NodeType;
@@ -137,80 +154,152 @@ public static class mIL_AST {
 	}
 	
 	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	And = (
+		tText aResReg,
+		tText aBoolReg1,
+		tText aBoolReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.And, aResReg, aBoolReg1, aBoolReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	Or = (
+		tText aResReg,
+		tText aBoolReg1,
+		tText aBoolReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.Or, aResReg, aBoolReg1, aBoolReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	XOr = (
+		tText aResReg,
+		tText aBoolReg1,
+		tText aBoolReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.XOr, aResReg, aBoolReg1, aBoolReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	IntsAreEq = (
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.IntsAreEq, aResReg, aIntReg1, aIntReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	IntsComp = (
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.IntsComp, aResReg, aIntReg1, aIntReg2);
+	
+	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	CreateInt = (
-		tText aId1,
-		tText aId2
+		tText aResReg,
+		tText aIntReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Int, aId1, aId2);
+	) => CommandNode(tCommandNodeType.Int, aResReg, aIntReg);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	IntsAdd = (
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.IntsAdd, aResReg, aIntReg1, aIntReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	IntsSub = (
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.IntsSub, aResReg, aIntReg1, aIntReg2);
+	
+	//================================================================================
+	public static mStd.tFunc<tCommandNode, tText, tText, tText>
+	IntsMul = (
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	//================================================================================
+	) => CommandNode(tCommandNodeType.IntsMul, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>
 	CreatePair = (
-		tText aId1,
-		tText aId2,
-		tText aId3
+		tText aResReg,
+		tText aArgReg1,
+		tText aArgReg2
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Pair, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.Pair, aResReg, aArgReg1, aArgReg2);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	GetFirst = (
-		tText aId1,
-		tText aId2
+		tText aResReg,
+		tText aPairReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.First, aId1, aId2);
+	) => CommandNode(tCommandNodeType.First, aResReg, aPairReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	GetSecond = (
-		tText aId1,
-		tText aId2
+		tText aResReg,
+		tText aPairReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Second, aId1, aId2);
+	) => CommandNode(tCommandNodeType.Second, aResReg, aPairReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>
 	AddPrefix = (
-		tText aId1,
-		tText aId2,
-		tText aId3
+		tText aResReg,
+		tText aPrefix,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.AddPrefix, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.AddPrefix, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>
 	SubPrefix = (
-		tText aId1,
-		tText aId2,
-		tText aId3
+		tText aResReg,
+		tText aPrefix,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.SubPrefix, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.SubPrefix, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>
 	HasPrefix = (
-		tText aId1,
-		tText aId2,
-		tText aId3
+		tText aResReg,
+		tText aPrefix,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.HasPrefix, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.HasPrefix, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>
 	Call = (
-		tText aId1,
-		tText aId2,
-		tText aId3
+		tText aResReg,
+		tText aFuncReg,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Call, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.Call, aResReg, aFuncReg, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText>
 	Push = (
-		tText aId
+		tText aObjReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Push, aId);
+	) => CommandNode(tCommandNodeType.Push, aObjReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode>
@@ -221,34 +310,34 @@ public static class mIL_AST {
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	ReturnIf = (
-		tText aId1,
-		tText aId2
+		tText aCondReg,
+		tText aResReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.ReturnIf, aId1, aId2);
+	) => CommandNode(tCommandNodeType.ReturnIf, aCondReg, aResReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	RepeatIf = (
-		tText aId1,
-		tText aId2
+		tText aCondReg,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.RepeatIf, aId1, aId2);
+	) => CommandNode(tCommandNodeType.RepeatIf, aCondReg, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	Assert = (
-		tText aId1,
-		tText aId2
+		tText aPreCondReg,
+		tText aPostCondReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Assert, aId1, aId2);
+	) => CommandNode(tCommandNodeType.Assert, aPreCondReg, aPostCondReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText>
 	Alias = (
-		tText aId1,
-		tText aId2
+		tText aResReg,
+		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Alias, aId1, aId2);
+	) => CommandNode(tCommandNodeType.Alias, aResReg, aArgReg);
 	
 	//================================================================================
 	public static mStd.tFunc<tCommandNode, tText, tText, tText>

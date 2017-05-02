@@ -60,13 +60,13 @@ public static class mIL_Interpreter {
 			Module = mList.Concat(Module, mList.List(NewProc));
 			
 			var Reg = mMap.Map<tText, tInt32>((a, b) => a.Equals(b))
-				.Set("ENV"   , mIL_VM.tProcDef.ENV_Reg)
-				.Set("OBJ"   , mIL_VM.tProcDef.OBJ_Reg)
-				.Set("ARG"   , mIL_VM.tProcDef.ARG_Reg)
-				.Set("RES"   , mIL_VM.tProcDef.RES_Reg)
-				.Set("EMPTY" , mIL_VM.tProcDef.EMPTY_Reg)
-				.Set("FALSE" , mIL_VM.tProcDef.FALSE_Reg)
-				.Set("TRUE"  , mIL_VM.tProcDef.TRUE_Reg);
+				.Set(mIL_AST.cEnv, mIL_VM.tProcDef.ENV_Reg)
+				.Set(mIL_AST.cObj, mIL_VM.tProcDef.OBJ_Reg)
+				.Set(mIL_AST.cArg, mIL_VM.tProcDef.ARG_Reg)
+				.Set(mIL_AST.cRes, mIL_VM.tProcDef.RES_Reg)
+				.Set(mIL_AST.cEmpty, mIL_VM.tProcDef.EMPTY_Reg)
+				.Set(mIL_AST.cFalse, mIL_VM.tProcDef.FALSE_Reg)
+				.Set(mIL_AST.cTrue , mIL_VM.tProcDef.TRUE_Reg);
 			
 			var RestCommands = Commands;
 			while (RestCommands.MATCH(out var Command, out RestCommands)) {
@@ -79,6 +79,22 @@ public static class mIL_Interpreter {
 					Reg = Reg.Set(RegId1, Reg.Get(RegId2));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Int, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Int(int.Parse(RegId2)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.And, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.And(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Or, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.Or(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.XOr, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.XOr(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.IntsAreEq, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.IntsAreEq(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.IntsComp, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.IntsComp(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.IntsAdd, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.IntsAdd(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.IntsSub, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.IntsSub(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.IntsMul, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.IntsMul(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Pair, out RegId1, out RegId2, out RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Pair(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.First, out RegId1, out RegId2)) {
@@ -86,7 +102,7 @@ public static class mIL_Interpreter {
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Second, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Second(Reg.Get(RegId2)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.ReturnIf, out RegId1, out RegId2)) {
-					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1 ?? "EMPTY"));
+					NewProc.ReturnIf(Reg.Get(RegId2), Reg.Get(RegId1 ?? mIL_AST.cEmpty));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.RepeatIf, out RegId1, out RegId2)) {
 					NewProc.ContinueIf(Reg.Get(RegId2), Reg.Get(RegId1));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.AddPrefix, out RegId1, out var Prefix, out RegId3)) {
@@ -326,7 +342,7 @@ public static class mIL_Interpreter {
 					var X = ParseModule(
 						"DEF bla\n" +
 						"	_1 := 1\n" +
-						"	add_ := §1st ENV\n" +
+						"	add_ := §1ST ENV\n" +
 						
 						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 						
@@ -336,11 +352,11 @@ public static class mIL_Interpreter {
 						
 						"DEF bla2\n" +
 						"	_1 := 1\n" +
-						"	add_  := §1st ENV\n" +
-						"	rest1 := §2nd ENV\n" +
-						"	sub_  := §1st rest1\n" +
-						"	rest2 := §2nd rest1\n" +
-						"	mul_  := §1st rest2\n" +
+						"	add_  := §1ST ENV\n" +
+						"	rest1 := §2ND ENV\n" +
+						"	sub_  := §1ST rest1\n" +
+						"	rest2 := §2ND rest1\n" +
+						"	mul_  := §1ST rest2\n" +
 						
 						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 						"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
@@ -358,13 +374,13 @@ public static class mIL_Interpreter {
 						
 						"DEF ...!!\n" +
 						"	_1 := 1\n" +
-						"	add_  := §1st ENV\n" +
-						"	rest1 := §2nd ENV\n" +
-						"	sub_  := §1st rest1\n" +
-						"	rest2 := §2nd rest1\n" +
-						"	mul_  := §1st rest2\n" +
-						"	rest3 := §2nd rest2\n" +
-						"	eq_   := §1st rest3\n" +
+						"	add_  := §1ST ENV\n" +
+						"	rest1 := §2ND ENV\n" +
+						"	sub_  := §1ST rest1\n" +
+						"	rest2 := §2ND rest1\n" +
+						"	mul_  := §1ST rest2\n" +
+						"	rest3 := §2ND rest2\n" +
+						"	eq_   := §1ST rest3\n" +
 						
 						"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 						"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
@@ -374,8 +390,8 @@ public static class mIL_Interpreter {
 						"	1_1 := _1, _1\n" +
 						"	0   := sub 1_1\n" +
 						
-						"	arg    := §1st ARG\n" +
-						"	res    := §2nd ARG\n" +
+						"	arg    := §1ST ARG\n" +
+						"	res    := §2ND ARG\n" +
 						"	arg_0  := arg, 0\n" +
 						"	areEq0 := eq arg_0\n" +
 						"	§RETURN res IF areEq0\n" +
@@ -389,15 +405,15 @@ public static class mIL_Interpreter {
 						
 						"DEF ...!\n" +
 						"	_1 := 1\n" +
-						"	add_  := §1st ENV\n" +
-						"	rest1 := §2nd ENV\n" +
-						"	sub_  := §1st rest1\n" +
-						"	rest2 := §2nd rest1\n" +
-						"	mul_  := §1st rest2\n" +
-						"	rest3 := §2nd rest2\n" +
-						"	eq_   := §1st rest3\n" +
-						"	rest4 := §2nd rest3\n" +
-						"	...!!_ := §1st rest4\n" +
+						"	add_  := §1ST ENV\n" +
+						"	rest1 := §2ND ENV\n" +
+						"	sub_  := §1ST rest1\n" +
+						"	rest2 := §2ND rest1\n" +
+						"	mul_  := §1ST rest2\n" +
+						"	rest3 := §2ND rest2\n" +
+						"	eq_   := §1ST rest3\n" +
+						"	rest4 := §2ND rest3\n" +
+						"	...!!_ := §1ST rest4\n" +
 						"	...!! := ...!!_ ENV\n" +
 						
 						"	arg_1 := ARG, _1\n" +

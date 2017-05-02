@@ -48,7 +48,7 @@ public static class mTextParser {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Text = TextStream(mTextParser.TextToStream(aText), aDebugStream);
+		var Text = TextStream(TextToStream(aText), aDebugStream);
 		Text.MATCH(out var List, out var Info);
 		var MaybeResult = aParser.StartParse(List, aDebugStream);
 		mStd.Assert(

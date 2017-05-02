@@ -124,26 +124,6 @@ public static class mStdLib {
 	
 	//================================================================================
 	private static mIL_VM.tData
-	IfThenElse(
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
-		mStd.tAction<tText> aTrace
-	//================================================================================
-	) {
-		aTrace("EXTERN If...Then...Else...");
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg1, out mIL_VM.tData Arg23_));
-		mStd.Assert(Arg23_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg2, out mIL_VM.tData Arg3_));
-		mStd.Assert(Arg3_.MATCH(mIL_VM.tDataType.PAIR, out mIL_VM.tData Arg3, out mIL_VM.tData Arg_));
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.BOOL, out tBool Arg1_));
-		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.EMPTY);
-		var Res = new mIL_VM.tData();
-		mIL_VM.Run(Arg1_ ? Arg2 : Arg3, mIL_VM.EMPTY(), mIL_VM.EMPTY(), Res, aTrace);
-		return Res;
-	}
-	
-	//================================================================================
-	private static mIL_VM.tData
 	Neg(
 		mIL_VM.tData aEnv,
 		mIL_VM.tData aObj,
@@ -303,8 +283,7 @@ public static class mStdLib {
 			mIL_VM.EXTERN_PROC(Not, mIL_VM.EMPTY()),
 			mIL_VM.EXTERN_PROC(And, mIL_VM.EMPTY()),
 			mIL_VM.EXTERN_PROC(Or, mIL_VM.EMPTY()),
-			mIL_VM.EXTERN_PROC(XOr, mIL_VM.EMPTY()),
-			mIL_VM.EXTERN_PROC(IfThenElse, mIL_VM.EMPTY())
+			mIL_VM.EXTERN_PROC(XOr, mIL_VM.EMPTY())
 		),
 		mIL_VM.TUPLE(
 			mIL_VM.EXTERN_PROC(Neg, mIL_VM.EMPTY()),
@@ -326,7 +305,7 @@ public static class mStdLib {
 	
 	const tText cImportTuple = (
 		"("+
-			"(!..., ...&..., ...|..., ...^..., If...Then...Else...), "+
+			"(!..., ...&..., ...|..., ...^...), "+
 			"(-..., ...+..., ...-..., ...*..., .../..., ...%...), "+
 			"(...==..., ...!=..., ...>..., ...>=..., ...<..., ...<=...)"+
 		")"
@@ -335,13 +314,18 @@ public static class mStdLib {
 	#region Test
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
 		mStd.Tuple(
-			"Fib",
+			"IfThenElse",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
 						mSPO_Interpreter.Run(
 							mList.List(
 								$"§IMPORT ({cImportTuple}, n)",
+								"",
+								"If...Then...Else... := (c, i, e) => {",
+								"	§RETURN (.i) IF c;",
+								"	§RETURN (.e)",
+								"};",
 								"",
 								"§RECURSIV {",
 								"	Fib... := a => .If (a .< 2) Then (",
@@ -367,7 +351,7 @@ public static class mStdLib {
 			)
 		),
 		mStd.Tuple(
-			"IfThenElse",
+			"If2",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -375,17 +359,11 @@ public static class mStdLib {
 							mList.List(
 								$"§IMPORT ({cImportTuple}, n)",
 								"",
-								"If2...Then...Else... := (c, i, e) => {",
-								"	§RETURN (.i) IF c;",
-								"	§RETURN (.e)",
-								"};",
-								"",
 								"§RECURSIV {",
-								"	Fib... := a => .If2 (a .< 2) Then (",
-								"		() => a",
-								"	) Else (",
-								"		() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
-								"	)",
+								"	Fib... := a => §IF {",
+								"		(a .< 2) => a;",
+								"		(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1));",
+								"	}",
 								"}",
 								"",
 								"§EXPORT .Fib n",
@@ -404,7 +382,7 @@ public static class mStdLib {
 			)
 		),
 		mStd.Tuple(
-			"IfMatch",
+			"IfMatch1",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -413,9 +391,41 @@ public static class mStdLib {
 								$"§IMPORT ({cImportTuple}, n)",
 								"",
 								"§RECURSIV {",
-								"	Fib... := a => §IF {",
-								"		(a .< 2) => a;",
-								"		(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1));",
+								"	Fib... := a => §IF a MATCH {",
+								"		(a | a .== 0) => 0;",
+								"		(a | a .== 1) => 1;", // TODO
+								"		(a) => (.Fib(a .- 2)) .+ (.Fib(a .- 1));",
+								"	}",
+								"}",
+								"",
+								"§EXPORT .Fib n",
+								""
+							).Join((a1, a2) => a1 + "\n" + a2),
+							mIL_VM.TUPLE(
+								ImportData,
+								mIL_VM.INT(8)
+							),
+							aDebugStream
+						),
+						mIL_VM.INT(21)
+					);
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"IfMatch2", // TODO: WIP
+			mTest.Test(
+				(mStd.tAction<tText> aDebugStream) => {
+					mStd.AssertEq(
+						mSPO_Interpreter.Run(
+							mList.List(
+								$"§IMPORT ({cImportTuple}, n)",
+								"",
+								"§RECURSIV {",
+								"	Fib... := (x) => §IF x MATCH {",
+								"		(a | a .< 2) => a;",
+								"		(a) => (.Fib(a .- 2)) .+ (.Fib(a .- 1));",
 								"	}",
 								"}",
 								"",

@@ -425,8 +425,9 @@ public static class mParserGen {
 		operator-(
 			tParser<t> aParser
 		//================================================================================
-		) => aParser
-		.ModifyList(_ => ResultList())
+		) => aParser.ModifyList(
+			_ => ResultList()
+		)
 		.SetDebugDef(" - (", aParser.DebugName??aParser.DebugDef, ")");
 		
 		//================================================================================
@@ -443,7 +444,6 @@ public static class mParserGen {
 			tInt32 aCount
 		//================================================================================
 		) => aCount * aParser;
-
 		
 		//================================================================================
 		public static tParser<t>

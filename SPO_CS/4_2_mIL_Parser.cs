@@ -67,21 +67,74 @@ public static class  mIL_Parser {
 	public static tIL_Parser LITERAL = (_NUM_ | _STRING_) -__;
 	
 	public static tIL_Parser COMMAND = (
-		(+IDENT -TOKEN(":=") +NUM)                         .Modify(mIL_AST.CreateInt) |
-		(+IDENT -TOKEN(":=") +IDENT -TOKEN(",") +IDENT)    .Modify(mIL_AST.CreatePair) |
-		(+IDENT -TOKEN(":=") -TOKEN("§1st") +IDENT)        .Modify(mIL_AST.GetFirst) |
-		(+IDENT -TOKEN(":=") -TOKEN("§2nd") +IDENT)        .Modify(mIL_AST.GetSecond) |
-		(+IDENT -TOKEN(":=") -TOKEN("+") +IDENT +IDENT)    .Modify(mIL_AST.AddPrefix) |
-		(+IDENT -TOKEN(":=") -TOKEN("-") +IDENT +IDENT)    .Modify(mIL_AST.SubPrefix) |
-		(+IDENT -TOKEN(":=") -TOKEN("?") +IDENT +IDENT)    .Modify(mIL_AST.HasPrefix) |
-		(+IDENT -TOKEN(":=") +IDENT +IDENT)                .Modify(mIL_AST.Call) |
-		(+IDENT -TOKEN(":=") +IDENT)                       .Modify(mIL_AST.Alias) |
-		(-TOKEN("§PUSH") +IDENT)                           .Modify(mIL_AST.Push) |
-		(-TOKEN("§POP"))                                   .Modify(mIL_AST.Pop) |
-		(-TOKEN("§RETURN") +IDENT -TOKEN("IF") +IDENT)     .Modify(mIL_AST.ReturnIf) |
-		(-TOKEN("§REPEAT") +IDENT -TOKEN("IF") +IDENT)     .Modify(mIL_AST.RepeatIf) |
-		(-TOKEN("§ASSERT") +IDENT -TOKEN("=>") +IDENT)     .Modify(mIL_AST.Assert) |
-		(+IDENT -TOKEN("=>") +IDENT -TOKEN(":") +IDENT)    .Modify(mIL_AST.Proof)
+		(+IDENT -TOKEN(":=") +NUM)
+			.Modify(mIL_AST.CreateInt) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§BOOL") +IDENT -TOKEN("&") +IDENT)
+			.Modify(mIL_AST.And) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§BOOL") +IDENT -TOKEN("|") +IDENT)
+			.Modify(mIL_AST.Or) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§BOOL") +IDENT -TOKEN("^") +IDENT)
+			.Modify(mIL_AST.XOr) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§INT") +IDENT -TOKEN("==") +IDENT)
+			.Modify(mIL_AST.IntsAreEq) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§INT") +IDENT -TOKEN("<=>") +IDENT)
+			.Modify(mIL_AST.IntsComp) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§INT") +IDENT -TOKEN("+") +IDENT)
+			.Modify(mIL_AST.IntsAdd) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§INT") +IDENT -TOKEN("-") +IDENT)
+			.Modify(mIL_AST.IntsSub) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§INT") +IDENT -TOKEN("*") +IDENT)
+			.Modify(mIL_AST.IntsMul) |
+		
+		(+IDENT -TOKEN(":=") +IDENT -TOKEN(",") +IDENT)
+			.Modify(mIL_AST.CreatePair) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§1ST") +IDENT)
+			.Modify(mIL_AST.GetFirst) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("§2ND") +IDENT)
+			.Modify(mIL_AST.GetSecond) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("+") +IDENT +IDENT)
+			.Modify(mIL_AST.AddPrefix) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("-") +IDENT +IDENT)
+			.Modify(mIL_AST.SubPrefix) |
+		
+		(+IDENT -TOKEN(":=") -TOKEN("?") +IDENT +IDENT)
+			.Modify(mIL_AST.HasPrefix) |
+		
+		(+IDENT -TOKEN(":=") +IDENT +IDENT)
+			.Modify(mIL_AST.Call) |
+		
+		(+IDENT -TOKEN(":=") +IDENT)
+			.Modify(mIL_AST.Alias) |
+		
+		(-TOKEN("§PUSH") +IDENT)
+			.Modify(mIL_AST.Push) |
+		
+		(-TOKEN("§POP"))
+			.Modify(mIL_AST.Pop) |
+		
+		(-TOKEN("§RETURN") +IDENT -TOKEN("IF") +IDENT)
+			.Modify(mIL_AST.ReturnIf) |
+		
+		(-TOKEN("§REPEAT") +IDENT -TOKEN("IF") +IDENT)
+			.Modify(mIL_AST.RepeatIf) |
+		
+		(-TOKEN("§ASSERT") +IDENT -TOKEN("=>") +IDENT)
+			.Modify(mIL_AST.Assert) |
+		
+		(+IDENT -TOKEN("=>") +IDENT -TOKEN(":") +IDENT)
+			.Modify(mIL_AST.Proof)
 	);
 	
 	public static tIL_Parser BLOCK = (-_ +COMMAND -NL)[1, null]
@@ -111,18 +164,26 @@ public static class  mIL_Parser {
 			"Commands",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
-					mStd.AssertEq(COMMAND.ParseText("a := b, c", aDebugStream),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair,      "a", "b", "c")));
-					mStd.AssertEq(COMMAND.ParseText("a := §1st b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First,     "a", "b")));
-					mStd.AssertEq(COMMAND.ParseText("a := §2nd b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second,    "a", "b")));
-					mStd.AssertEq(COMMAND.ParseText("a := +b c", aDebugStream),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, "a", "b", "c")));
-					mStd.AssertEq(COMMAND.ParseText("a := -b c", aDebugStream),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, "a", "b", "c")));
-					mStd.AssertEq(COMMAND.ParseText("a := ?b c", aDebugStream),      mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, "a", "b", "c")));
-					mStd.AssertEq(COMMAND.ParseText("§PUSH a", aDebugStream),        mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push,      "a")));
-					mStd.AssertEq(COMMAND.ParseText("§POP", aDebugStream),           mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop)));
-					mStd.AssertEq(COMMAND.ParseText("a := b c", aDebugStream),       mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call,      "a", "b", "c")));
-					mStd.AssertEq(COMMAND.ParseText("§RETURN a IF b", aDebugStream), mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf,  "a", "b")));
-					mStd.AssertEq(COMMAND.ParseText("§REPEAT a IF b", aDebugStream), mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf,  "a", "b")));
-					mStd.AssertEq(COMMAND.ParseText("§ASSERT a => b", aDebugStream), mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert,    "a", "b")));
+					mStd.AssertEq(COMMAND.ParseText("a := b, c", aDebugStream),         mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair,      "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §INT b == c", aDebugStream),  mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAreEq, "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §INT b <=> c", aDebugStream), mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsComp,  "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §INT b + c", aDebugStream),   mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAdd,   "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §INT b - c", aDebugStream),   mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsSub,   "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §INT b * c", aDebugStream),   mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsMul,   "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §BOOL b & c", aDebugStream),  mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.And,       "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §BOOL b | c", aDebugStream),  mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Or,        "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §BOOL b ^ c", aDebugStream),  mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.XOr,       "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := §1ST b", aDebugStream),       mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First,     "a", "b")));
+					mStd.AssertEq(COMMAND.ParseText("a := §2ND b", aDebugStream),       mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second,    "a", "b")));
+					mStd.AssertEq(COMMAND.ParseText("a := +b c", aDebugStream),         mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := -b c", aDebugStream),         mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("a := ?b c", aDebugStream),         mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("§PUSH a", aDebugStream),           mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push,      "a")));
+					mStd.AssertEq(COMMAND.ParseText("§POP", aDebugStream),              mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop)));
+					mStd.AssertEq(COMMAND.ParseText("a := b c", aDebugStream),          mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call,      "a", "b", "c")));
+					mStd.AssertEq(COMMAND.ParseText("§RETURN a IF b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf,  "a", "b")));
+					mStd.AssertEq(COMMAND.ParseText("§REPEAT a IF b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf,  "a", "b")));
+					mStd.AssertEq(COMMAND.ParseText("§ASSERT a => b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert,    "a", "b")));
 					return true;
 				}
 			)
