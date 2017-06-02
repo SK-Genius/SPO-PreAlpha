@@ -748,7 +748,8 @@ public static class mIL_VM {
 		return INT(Arg1_ + Arg2_);
 	};
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
 			"ExternDef",
 			mTest.Test(

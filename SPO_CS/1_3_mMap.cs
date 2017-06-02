@@ -102,7 +102,8 @@ public static class mMap {
 	
 	// TODO: add tests
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
 			"tMap.ToString()",
 			mTest.Test((mStd.tAction<tText> aStreamOut) => true)

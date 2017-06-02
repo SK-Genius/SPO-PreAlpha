@@ -200,7 +200,8 @@ public static class mIL_Interpreter {
 		return mIL_VM.BOOL(Arg1_.Equals(Arg2_));
 	};
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
 			"Call",
 			mTest.Test(

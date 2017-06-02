@@ -352,7 +352,8 @@ public static class mIL_AST {
 	
 	// TODO: add tests
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
 			"TODO",
 			mTest.Test(

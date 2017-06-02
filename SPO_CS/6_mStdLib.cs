@@ -312,7 +312,8 @@ public static class mStdLib {
 	);
 	
 	#region Test
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Test = mTest.Tests(
+	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	Test = mTest.Tests(
 		mStd.Tuple(
 			"IfThenElse",
 			mTest.Test(
