@@ -328,16 +328,13 @@ public static class mStdLib {
 								"	§RETURN (.e)",
 								"}",
 								"",
-								"§RECURSIV {",
-								"	Fib... := a => .If (a .< 2) Then (",
-								"		() => a",
-								"	) Else (",
-								"		() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
-								"	)",
-								"}",
+								"§RECURSIV Fib... := a => .If (a .< 2) Then (",
+								"	() => a",
+								") Else (",
+								"	() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
+								")",
 								"",
-								"§EXPORT .Fib n",
-								""
+								"§EXPORT .Fib n"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								ImportData,
@@ -360,15 +357,12 @@ public static class mStdLib {
 							mList.List(
 								$"§IMPORT ({cImportTuple}, n)",
 								"",
-								"§RECURSIV {",
-								"	Fib... := a => §IF {",
-								"		(a .< 2) => a",
-								"		(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
-								"	}",
+								"§RECURSIV Fib... := a => §IF {",
+								"	(a .< 2) => a",
+								"	(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
 								"}",
 								"",
-								"§EXPORT .Fib n",
-								""
+								"§EXPORT .Fib n"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								ImportData,
@@ -391,16 +385,13 @@ public static class mStdLib {
 							mList.List(
 								$"§IMPORT ({cImportTuple}, n)",
 								"",
-								"§RECURSIV {",
-								"	Fib... := a => §IF a MATCH {",
-								"		(a | a .== 0) => 0",
-								"		(a | a .== 1) => 1", // TODO
-								"		(a) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
-								"	}",
+								"§RECURSIV Fib... := a => §IF a MATCH {",
+								"	(a | a .== 0) => 0",
+								"	(a | a .== 1) => 1",
+								"	a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
 								"}",
 								"",
-								"§EXPORT .Fib n",
-								""
+								"§EXPORT .Fib n"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								ImportData,
@@ -415,7 +406,7 @@ public static class mStdLib {
 			)
 		),
 		mStd.Tuple(
-			"IfMatch2", // TODO: WIP
+			"IfMatch2",
 			mTest.Test(
 				(mStd.tAction<tText> aDebugStream) => {
 					mStd.AssertEq(
@@ -423,13 +414,12 @@ public static class mStdLib {
 							mList.List(
 								$"§IMPORT ({cImportTuple}, n)",
 								"",
-								"§RECURSIV Fib... := (x) => §IF x MATCH {",
+								"§RECURSIV Fib... := x => §IF x MATCH {",
 								"	(a | a .< 2) => a",
-								"	(a) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
+								"	a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
 								"}",
 								"",
-								"§EXPORT .Fib n",
-								""
+								"§EXPORT .Fib n"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								ImportData,

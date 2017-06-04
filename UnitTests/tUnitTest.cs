@@ -89,7 +89,9 @@ static class mTestHelper {
 [xTests] public class Test_1_3_mMap {
 	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mMap.Test;
 	
-	[xTest] public void tMap_ToString() => mTestHelper.MagicRun(Tests);
+	[xTest] public void tMap_Get() => mTestHelper.MagicRun(Tests);
+	[xTest] public void tMap_TryGet() => mTestHelper.MagicRun(Tests);
+	[xTest] public void tMap_Remove() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public class Test_1_4_mMath {

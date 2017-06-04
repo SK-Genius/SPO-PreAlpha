@@ -129,8 +129,7 @@ public static class mSPO_Interpreter {
 								"x... := (a => (k .* a))",
 								"y := (.x 5)",
 								"",
-								"§EXPORT y",
-								""
+								"§EXPORT y"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),
@@ -159,8 +158,7 @@ public static class mSPO_Interpreter {
 								"",
 								"y := (.(a => (k .* a)) 5)",
 								"",
-								"§EXPORT y",
-								""
+								"§EXPORT y"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),
@@ -187,8 +185,7 @@ public static class mSPO_Interpreter {
 								"	k",
 								")",
 								"",
-								"§EXPORT (.(a => (k .* a)) 5)",
-								""
+								"§EXPORT .(a => (k .* a)) 5"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							mIL_VM.TUPLE(
 								mIL_VM.EXTERN_PROC(Mul, mIL_VM.EMPTY()),

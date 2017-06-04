@@ -1252,8 +1252,7 @@ public static class mSPO2IL {
 								"x... := a => k .* a",
 								"y := .x 1",
 								"",
-								"§EXPORT y",
-								""
+								"§EXPORT y"
 							).Join((a1, a2) => a1 + "\n" + a2),
 							aStreamOut
 						).MATCH(out ModuleNode)

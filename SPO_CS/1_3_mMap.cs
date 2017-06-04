@@ -21,10 +21,7 @@ public static class mMap {
 	
 	//================================================================================
 	public static tMap<tKey, tValue>
-	Map<
-		tKey,
-		tValue
-	>(
+	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 	//================================================================================
 	) => new tMap<tKey, tValue>{
@@ -73,7 +70,7 @@ public static class mMap {
 		_KeyValuePairs = aMap._KeyValuePairs.Where(
 			aKeyValuePair => {
 				aKeyValuePair.MATCH(out tKey Key, out tValue Value);
-				return aMap._EqualsFunc(Key, aKey);
+				return !aMap._EqualsFunc(Key, aKey);
 			}
 		)
 	};
@@ -105,8 +102,54 @@ public static class mMap {
 	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
 	Test = mTest.Tests(
 		mStd.Tuple(
-			"tMap.ToString()",
-			mTest.Test((mStd.tAction<tText> aStreamOut) => true)
+			"tMap.Get",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+					.Set("one", 1)
+					.Set("two", 2);
+					mStd.AssertEq(TextToInt.Get("one"), 1);
+					mStd.AssertEq(TextToInt.Get("two"), 2);
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"tMap.TryGet",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+					.Set("one", 1)
+					.Set("two", 2);
+					tInt32 Num;
+					mStd.Assert(TextToInt.TryGet("one", out Num));
+					mStd.AssertEq(Num, 1);
+					mStd.Assert(TextToInt.TryGet("two", out Num));
+					mStd.AssertEq(Num, 2);
+					mStd.AssertNot(TextToInt.TryGet("zero", out Num));
+					return true;
+				}
+			)
+		),
+		mStd.Tuple(
+			"tMap.Remove",
+			mTest.Test(
+				(mStd.tAction<tText> aStreamOut) => {
+					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+					.Set("one", 1)
+					.Set("two", 2);
+					tInt32 Num;
+					mStd.Assert(TextToInt.TryGet("one", out Num));
+					mStd.AssertEq(Num, 1);
+					mStd.Assert(TextToInt.TryGet("two", out Num));
+					mStd.AssertEq(Num, 2);
+					TextToInt = TextToInt.Remove("one");
+					mStd.AssertNot(TextToInt.TryGet("one", out Num));
+					mStd.Assert(TextToInt.TryGet("two", out Num));
+					mStd.AssertEq(Num, 2);
+					return true;
+				}
+			)
 		)
 	);
 	
