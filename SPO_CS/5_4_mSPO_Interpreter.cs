@@ -122,11 +122,11 @@ public static class mSPO_Interpreter {
 						Run(
 							mList.List(
 								"§IMPORT (",
-								"	...*...,",
+								"	...*...",
 								"	k",
 								")",
 								"",
-								"x... := (a => (k .* a));",
+								"x... := (a => (k .* a))",
 								"y := (.x 5)",
 								"",
 								"§EXPORT y",
@@ -153,7 +153,7 @@ public static class mSPO_Interpreter {
 						Run(
 							mList.List(
 								"§IMPORT (",
-								"	...*...,",
+								"	...*...",
 								"	k",
 								")",
 								"",
@@ -183,7 +183,7 @@ public static class mSPO_Interpreter {
 						Run(
 							mList.List(
 								"§IMPORT (",
-								"	...*...,",
+								"	...*...",
 								"	k",
 								")",
 								"",

@@ -1240,16 +1240,16 @@ public static class mSPO2IL {
 								"§IMPORT (",
 #if !true
 								"	T € [[]]",
-								"	...*... € [[T, T] => T],",
+								"	...*... € [[T, T] => T]",
 								"	k € T",
 #else
-								"	T,",
-								"	...*...,",
+								"	T",
+								"	...*...",
 								"	k",
 #endif
 								")",
 								"",
-								"x... := a => k .* a;",
+								"x... := a => k .* a",
 								"y := .x 1",
 								"",
 								"§EXPORT y",

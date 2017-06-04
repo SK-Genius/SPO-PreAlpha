@@ -149,7 +149,14 @@ public static class mTextParser {
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
 			a.MATCH(out var Char, out var SendErrorMessage);
-			SendErrorMessage($"char = {aRefChar}");
+			tText ErrorChar;
+			switch (aRefChar) {
+				case '\\': { ErrorChar = @"\\"; break; }
+				case '\n': { ErrorChar = @"\n"; break; }
+				case '\t': { ErrorChar = @"\t"; break; }
+				default: { ErrorChar = $"{aRefChar}"; break; }
+			}
+			SendErrorMessage($"char = {ErrorChar}");
 			return Char == aRefChar;
 		}
 	)
