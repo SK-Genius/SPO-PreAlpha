@@ -29,8 +29,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		public override tBool Equals(object a) => this.Equals(a as tEmptyNode);
-		public override tText ToString() => $"()";
+		override public tBool Equals(object a) => this.Equals(a as tEmptyNode);
+		override public tText ToString() => $"()";
 	}
 	
 	public class tFalseNode : tLiteralNode {
@@ -41,8 +41,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		public override tBool Equals(object a) => this.Equals(a as tFalseNode);
-		public override tText ToString() => $"§FALSE";
+		override public tBool Equals(object a) => this.Equals(a as tFalseNode);
+		override public tText ToString() => $"§FALSE";
 	}
 	
 	public class tTrueNode : tLiteralNode {
@@ -53,8 +53,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		public override tBool Equals(object a) => this.Equals(a as tTrueNode);
-		public override tText ToString() => $"§TRUE";
+		override public tBool Equals(object a) => this.Equals(a as tTrueNode);
+		override public tText ToString() => $"§TRUE";
 	}
 	
 	public class tTextNode : tLiteralNode {
@@ -67,8 +67,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Value.Equals(_Value);
 		
-		public override tBool Equals(object a) => this.Equals(a as tTextNode);
-		public override tText ToString() => $"('{_Value}')";
+		override public tBool Equals(object a) => this.Equals(a as tTextNode);
+		override public tText ToString() => $"('{_Value}')";
 	}
 	
 	public class tNumberNode : tLiteralNode {
@@ -81,8 +81,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Value.Equals(_Value);
 		
-		public override tBool Equals(object a) => this.Equals(a as tNumberNode);
-		public override tText ToString() => $"({_Value})";
+		override public tBool Equals(object a) => this.Equals(a as tNumberNode);
+		override public tText ToString() => $"({_Value})";
 	}
 	
 	public class tIdentNode : tExpressionNode, tMatchItemNode {
@@ -95,8 +95,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Name.Equals(_Name);
 		
-		public override tBool Equals(object a) => this.Equals(a as tIdentNode);
-		public override tText ToString() => $"(Ident: {_Name})";
+		override public tBool Equals(object a) => this.Equals(a as tIdentNode);
+		override public tText ToString() => $"(Ident: {_Name})";
 	}
 	
 	public class tMatchTupleNode : tMatchItemNode {
@@ -109,8 +109,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Items.Equals(_Items);
 		
-		public override tBool Equals(object a) => this.Equals(a as tMatchTupleNode);
-		public override tText ToString() => $"({_Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
+		override public tBool Equals(object a) => this.Equals(a as tMatchTupleNode);
+		override public tText ToString() => $"({_Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
 	}
 	
 	public class tMatchNode : tMatchItemNode {
@@ -124,8 +124,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Pattern.Equals(_Pattern) && (a._Type.IsNull() ? _Type.IsNull() : a._Type.Equals(_Type));
 		
-		public override tBool Equals(object a) => this.Equals(a as tMatchNode);
-		public override tText ToString()=> _Pattern + (_Type.IsNull() ? "" : " € " + _Type);
+		override public tBool Equals(object a) => this.Equals(a as tMatchNode);
+		override public tText ToString()=> _Pattern + (_Type.IsNull() ? "" : " € " + _Type);
 	}
 	
 	public class tPrefixNode : tExpressionNode {
@@ -139,8 +139,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Element.Equals(_Element);
 		
-		public override tBool Equals(object a) => this.Equals(a as tPrefixNode);
-		public override tText ToString() => $"(#{_Prefix} {_Element})";
+		override public tBool Equals(object a) => this.Equals(a as tPrefixNode);
+		override public tText ToString() => $"(#{_Prefix} {_Element})";
 	}
 	
 	public class tMatchPrefixNode : tMatchItemNode {
@@ -154,8 +154,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Match.Equals(_Match);
 		
-		public override tBool Equals(object a) => this.Equals(a as tMatchPrefixNode);
-		public override tText ToString() => $"(#{_Prefix} {_Match})";
+		override public tBool Equals(object a) => this.Equals(a as tMatchPrefixNode);
+		override public tText ToString() => $"(#{_Prefix} {_Match})";
 	}
 	
 	public class tMatchGuardNode : tMatchItemNode {
@@ -169,8 +169,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Match.Equals(_Match) && a._Guard.Equals(_Guard);
 		
-		public override tBool Equals(object a) => this.Equals(a as tMatchGuardNode);
-		public override tText ToString() => $"({_Match} | {_Guard})";
+		override public tBool Equals(object a) => this.Equals(a as tMatchGuardNode);
+		override public tText ToString() => $"({_Match} | {_Guard})";
 	}
 	
 	public class tLambdaNode : tExpressionNode {
@@ -184,8 +184,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Head.Equals(_Head) && a._Body.Equals(_Body);
 		
-		public override tBool Equals(object a) => this.Equals(a as tLambdaNode);
-		public override tText ToString() => $"({_Head} => {_Body})";
+		override public tBool Equals(object a) => this.Equals(a as tLambdaNode);
+		override public tText ToString() => $"({_Head} => {_Body})";
 	}
 	
 	public class tBlockNode : tExpressionNode {
@@ -198,8 +198,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Commands.Equals(_Commands);
 		
-		public override tBool Equals(object a) => this.Equals(a as tBlockNode);
-		public override tText ToString() => $"{{{_Commands}}}";
+		override public tBool Equals(object a) => this.Equals(a as tBlockNode);
+		override public tText ToString() => $"{{{_Commands}}}";
 	}
 	
 	public class tCallNode : tExpressionNode {
@@ -213,8 +213,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Func.Equals(_Func) && a._Arg.Equals(_Arg);
 		
-		public override tBool Equals(object a) => this.Equals(a as tCallNode);
-		public override tText ToString() => $"(Call: {_Func}, {_Arg})";
+		override public tBool Equals(object a) => this.Equals(a as tCallNode);
+		override public tText ToString() => $"(Call: {_Func}, {_Arg})";
 	}
 	
 	public class tAssignmantNode : tCommandNode {
@@ -228,8 +228,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Des.Equals(_Des) && a._Src.Equals(_Src);
 		
-		public override tBool Equals(object a) => this.Equals(a as tAssignmantNode);
-		public override tText ToString() => $"({_Des} := {_Src})";
+		override public tBool Equals(object a) => this.Equals(a as tAssignmantNode);
+		override public tText ToString() => $"({_Des} := {_Src})";
 	}
 	
 	public class tRecLambdaItemNode {
@@ -243,8 +243,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Ident.Equals(_Ident) && a._Lambda.Equals(_Lambda);
 		
-		public override tBool Equals(object a) => this.Equals(a as tRecLambdaItemNode);
-		public override tText ToString() => $"({_Ident} := {_Lambda})";
+		override public tBool Equals(object a) => this.Equals(a as tRecLambdaItemNode);
+		override public tText ToString() => $"({_Ident} := {_Lambda})";
 	}
 	
 	public class tRecLambdasNode : tCommandNode {
@@ -257,8 +257,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._List.Equals(_List);
 		
-		public override tBool Equals(object a) => this.Equals(a as tRecLambdasNode);
-		public override tText ToString() => $"§REC {{{_List}}}";
+		override public tBool Equals(object a) => this.Equals(a as tRecLambdasNode);
+		override public tText ToString() => $"§REC {{{_List}}}";
 	}
 	
 	public class tReturnIfNode : tCommandNode {
@@ -272,8 +272,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Result.Equals(_Result) && a._Condition.Equals(_Condition);
 		
-		public override tBool Equals(object a) => this.Equals(a as tReturnIfNode);
-		public override tText ToString() => $"RETURN {_Result} IF {_Condition}";
+		override public tBool Equals(object a) => this.Equals(a as tReturnIfNode);
+		override public tText ToString() => $"RETURN {_Result} IF {_Condition}";
 	}
 	
 	public class tIfNode : tExpressionNode {
@@ -286,8 +286,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Cases.Equals(_Cases);
 		
-		public override tBool Equals(object a) => this.Equals(a as tIfNode);
-		public override tText ToString() => $"If {{ {_Cases} }}";
+		override public tBool Equals(object a) => this.Equals(a as tIfNode);
+		override public tText ToString() => $"If {{ {_Cases} }}";
 	}
 	
 	public class tIfMatchNode : tExpressionNode {
@@ -301,8 +301,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Cases.Equals(_Cases) && a._Expression.Equals(_Expression);
 		
-		public override tBool Equals(object a) => this.Equals(a as tIfMatchNode);
-		public override tText ToString() => $"If {_Expression} MATCH {{ {_Cases} }}";
+		override public tBool Equals(object a) => this.Equals(a as tIfMatchNode);
+		override public tText ToString() => $"If {_Expression} MATCH {{ {_Cases} }}";
 	}
 	
 	public class tTupleNode : tExpressionNode {
@@ -315,8 +315,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Items.Equals(_Items);
 		
-		public override tBool Equals(object a) => this.Equals(a as tTupleNode);
-		public override tText ToString() => $"({_Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
+		override public tBool Equals(object a) => this.Equals(a as tTupleNode);
+		override public tText ToString() => $"({_Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
 	}
 	
 	public class tImportNode {
@@ -339,8 +339,8 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull() && a._Commands.Equals(_Commands);
 		
-		public override tBool Equals(object a) => this.Equals(a as tModuleNode);
-		public override tText ToString() => _Commands.Map(
+		override public tBool Equals(object a) => this.Equals(a as tModuleNode);
+		override public tText ToString() => _Commands.Map(
 			a => a.ToString()
 		).Join(
 			(a1, a2) => $"{a1}\n{a2}"
@@ -612,17 +612,13 @@ public static class mSPO_AST {
 	
 	#region TEST
 	
-	// TODO: add tests
-	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		mStd.Tuple(
+		nameof(mSPO_AST),
+		mTest.Test(
 			"TODO",
-			mTest.Test(
-				(mStd.tAction<tText> DebugStream) => {
-					return true;
-				}
-			)
+			DebugStream => {
+			}
 		)
 	);
 	

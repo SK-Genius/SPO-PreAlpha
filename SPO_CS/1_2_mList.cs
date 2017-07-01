@@ -26,17 +26,16 @@ public static class mList {
 		//================================================================================
 		) => (
 			!a.IsNull() &&
-			this.MATCH(out var Head1, out var Tail1) &&
-			a.MATCH(out var Head2, out var Tail2) &&
+			this.Match(out var Head1, out var Tail1) &&
+			a.Match(out var Head2, out var Tail2) &&
 			Head1.Equals(Head2) &&
 			(Tail1.IsNull() ? Tail2.IsNull() : Tail1.Equals(Tail2))
 		);
 		
-		public override tBool Equals(object a) => this.Equals(a as tList<t>);
-		public override tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
+		override public tBool Equals(object a) => Equals(a as tList<t>);
+		override public tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
 		public static tBool operator==(tList<t> a1, tList<t> a2) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
-		public static tBool operator!=(tList<t> a1, tList<t> a2) => !a1.Equals(a2);
-		public override int GetHashCode() => base.GetHashCode();
+		public static tBool operator!=(tList<t> a1, tList<t> a2) => !(a1 == a2);
 	}
 	
 	//================================================================================
@@ -47,7 +46,7 @@ public static class mList {
 	) {
 		if (
 			!aTryNextFunc.IsNull() &&
-			aTryNextFunc().MATCH(out var Head) == true
+			aTryNextFunc().Match(out var Head)
 		) {
 			return new tList<t>{
 				_Head = Head,
@@ -85,11 +84,11 @@ public static class mList {
 		tList<t> a1,
 		tList<t> a2
 	//================================================================================
-	) => a1.MATCH(out var Head, out var Tail) ? List(Head, Concat(Tail, a2)) : a2;
+	) => a1.Match(out var Head, out var Tail) ? List(Head, Concat(Tail, a2)) : a2;
 	
 	//================================================================================
 	public static tBool
-	MATCH<t>(
+	Match<t>(
 		this tList<t> aList,
 		out t aHead,
 		out tList<t> aTail
@@ -130,7 +129,7 @@ public static class mList {
 		var Index = (tInt32?)0;
 		return LasyList(
 			() => {
-				if (RestList.MATCH(out var Head, out RestList)) {
+				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
 					return mStd.OK(aMapFunc(Index.Value - 1, Head));
 				} else {
@@ -159,7 +158,7 @@ public static class mList {
 		var Index = (tInt32?)0;
 		return LasyList(
 			() => {
-				if (RestList.MATCH(out var Head, out RestList)) {
+				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
 					return mStd.OK(aMapFunc(Index.Value - 1, Head._1, Head._2));
 				} else {
@@ -179,7 +178,7 @@ public static class mList {
 	) {
 		var Agregate = aInitialAgregate;
 		var RestList = aList;
-		while (RestList.MATCH(out var Head, out RestList)) {
+		while (RestList.Match(out var Head, out RestList)) {
 			Agregate = aAgregatorFunc(Agregate, Head);
 		}
 		return Agregate;
@@ -190,7 +189,7 @@ public static class mList {
 	Flat<t>(
 		this tList<tList<t>> aListList
 	//================================================================================
-	) => aListList.Reduce(List<t>(), (aSum, a) => Concat(aSum, a)); // TODO: make it lasy
+	) => aListList.Reduce(List<t>(), Concat); // TODO: make it lasy
 	
 	//================================================================================
 	public static t
@@ -198,7 +197,7 @@ public static class mList {
 		this tList<t> aList,
 		mStd.tFunc<t, t, t> aAgregatorFunc
 	//================================================================================
-	) => aList.MATCH(out var Head, out var Tail) ? Tail.Reduce(Head, aAgregatorFunc) : default(t);
+	) => aList.Match(out var Head, out var Tail) ? Tail.Reduce(Head, aAgregatorFunc) : default(t);
 	
 	//================================================================================
 	public static tList<t>
@@ -209,7 +208,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		while (aCount > 0 && RestList.MATCH(out var Head, out RestList)) {
+		while (aCount > 0 && RestList.Match(out var Head, out RestList)) {
 			Result = Concat(Result, List(Head));
 			aCount -= 1;
 		}
@@ -224,7 +223,7 @@ public static class mList {
 	//================================================================================
 	) {
 		var RestList = aList;
-		while (aCount > 0 && RestList.MATCH(out var Head, out RestList)) {
+		while (aCount > 0 && RestList.Match(out var _, out RestList)) {
 			aCount -= 1;
 		}
 		return RestList;
@@ -239,7 +238,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		while (RestList.MATCH(out var Head, out RestList)) {
+		while (RestList.Match(out var Head, out RestList)) {
 			Result = Concat(Result, List(Head));
 			RestList = RestList.Skip(aCount - 1);
 		}
@@ -255,7 +254,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		while (RestList.MATCH(out var Head, out RestList)) {
+		while (RestList.Match(out var Head, out RestList)) {
 			if (aPredicate(Head)) {
 				Result = Concat(Result, List(Head));
 			}
@@ -277,7 +276,7 @@ public static class mList {
 	//================================================================================
 	) {
 		var RestList = aList;
-		while (RestList.MATCH(out var Head, out RestList)) {
+		while (RestList.Match(out var Head, out RestList)) {
 			if (Head) {
 				return true;
 			}
@@ -293,7 +292,7 @@ public static class mList {
 	) {
 		var Result = List<t>();
 		var RestList = aList;
-		while (RestList.MATCH(out var Head, out RestList)) {
+		while (RestList.Match(out var Head, out RestList)) {
 			Result = List(Head, Result);
 		}
 		return Result;
@@ -301,164 +300,132 @@ public static class mList {
 	
 	#region TEST
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		mStd.Tuple(
+		nameof(mList),
+		mTest.Test(
 			"tList.ToString()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					// TODO: AssertEq(List<tInt32>().ToString(), "[]"); ???
-					mStd.AssertEq(List(1).ToString(), "[1]");
-					mStd.AssertEq(List(1, 2).ToString(), "[1, 2]");
-					mStd.AssertEq(List(1, 2, 3).ToString(), "[1, 2, 3]");
-					var LasyListCounter = (tInt32?)0;
-					mStd.AssertEq(
-						LasyList(
-							() => {
-								LasyListCounter += 1;
-								return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
-							}
-						).ToString(),
-						"[1, 2, 3, 4]"
-					);
-					return true;
-				}
-			)
+			aStreamOut => {
+				// TODO: AssertEq(List<tInt32>().ToString(), "[]"); ???
+				mStd.AssertEq(List(1).ToString(), "[1]");
+				mStd.AssertEq(List(1, 2).ToString(), "[1, 2]");
+				mStd.AssertEq(List(1, 2, 3).ToString(), "[1, 2, 3]");
+				var LasyListCounter = (tInt32?)0;
+				mStd.AssertEq(
+					LasyList(
+						() => {
+							LasyListCounter += 1;
+							return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
+						}
+					).ToString(),
+					"[1, 2, 3, 4]"
+				);
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tList.Equals()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List<tInt32>(), List<tInt32>());
-					mStd.AssertEq(List(1), List(1));
-					mStd.AssertNotEq(List(1), List<tInt32>());
-					mStd.AssertNotEq(List(1), List(2));
-					mStd.AssertNotEq(List(1), List(1, 2));
-					var LasyListCounter = (tInt32?)0;
-					mStd.AssertEq(
-						LasyList(
-							() => {
-								LasyListCounter += 1;
-								return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
-							}
-						),
-						List(1, 2, 3, 4)
-					);
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List<tInt32>(), List<tInt32>());
+				mStd.AssertEq(List(1), List(1));
+				mStd.AssertNotEq(List(1), List<tInt32>());
+				mStd.AssertNotEq(List(1), List(2));
+				mStd.AssertNotEq(List(1), List(1, 2));
+				var LasyListCounter = (tInt32?)0;
+				mStd.AssertEq(
+					LasyList(
+						() => {
+							LasyListCounter += 1;
+							return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
+						}
+					),
+					List(1, 2, 3, 4)
+				);
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Concat()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(Concat(List(1, 2), List(3, 4)), List(1, 2, 3, 4));
-					mStd.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
-					mStd.AssertEq(Concat(List<tInt32>(), List(3, 4)), List(3, 4));
-					mStd.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(Concat(List(1, 2), List(3, 4)), List(1, 2, 3, 4));
+				mStd.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
+				mStd.AssertEq(Concat(List<tInt32>(), List(3, 4)), List(3, 4));
+				mStd.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Map()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
-					mStd.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
+				mStd.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Reduce()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
-					mStd.AssertEq(List(1).Reduce(0, (a1, a2) => a1+a2), 1);
-					mStd.AssertEq(List<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
+				mStd.AssertEq(List(1).Reduce(0, (a1, a2) => a1+a2), 1);
+				mStd.AssertEq(List<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Join()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
-					mStd.AssertEq(List("a").Join((a1, a2) => $"{a1},{a2}"), "a");
-					mStd.AssertEq(List<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
+				mStd.AssertEq(List("a").Join((a1, a2) => $"{a1},{a2}"), "a");
+				mStd.AssertEq(List<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Take()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List(1, 2, 3, 4).Take(3), List(1, 2, 3));
-					mStd.AssertEq(List(1, 2, 3).Take(4), List(1, 2, 3));
-					mStd.AssertEq(List<tInt32>().Take(4), List<tInt32>());
-					mStd.AssertEq(List(1, 2, 3).Take(0), List<tInt32>());
-					mStd.AssertEq(List(1, 2, 3).Take(-1), List<tInt32>());
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List(1, 2, 3, 4).Take(3), List(1, 2, 3));
+				mStd.AssertEq(List(1, 2, 3).Take(4), List(1, 2, 3));
+				mStd.AssertEq(List<tInt32>().Take(4), List<tInt32>());
+				mStd.AssertEq(List(1, 2, 3).Take(0), List<tInt32>());
+				mStd.AssertEq(List(1, 2, 3).Take(-1), List<tInt32>());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Skip()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List(1, 2, 3, 4).Skip(3), List(4));
-					mStd.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
-					mStd.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
-					mStd.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
-					mStd.AssertEq(List(1, 2, 3).Skip(-1), List(1, 2, 3));
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List(1, 2, 3, 4).Skip(3), List(4));
+				mStd.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
+				mStd.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
+				mStd.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
+				mStd.AssertEq(List(1, 2, 3).Skip(-1), List(1, 2, 3));
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"IsEmpty()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.Assert(List<tInt32>().IsEmpty());
-					mStd.AssertNot(List(1).IsEmpty());
-					mStd.AssertNot(List(1, 2).IsEmpty());
+			aStreamOut => {
+				mStd.Assert(List<tInt32>().IsEmpty());
+				mStd.AssertNot(List(1).IsEmpty());
+				mStd.AssertNot(List(1, 2).IsEmpty());
 					
-					mStd.AssertNot(List<tInt32>() == new tList<int>());
-					return true;
-				}
-			)
+				mStd.AssertNot(List<tInt32>() == new tList<int>());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Any()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertNot(List<tBool>().Any());
-					mStd.AssertNot(List(false).Any());
-					mStd.Assert(List(true).Any());
-					mStd.AssertNot(List(false, false, false).Any());
-					mStd.Assert(List(true, true, true).Any());
-					mStd.Assert(List(false, false, true, false).Any());
-					mStd.Assert(List(1, 2, 3, 4).Map(a => a == 2).Any());
-					mStd.AssertNot(List(1, 3, 4).Map(a => a == 2).Any());
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertNot(List<tBool>().Any());
+				mStd.AssertNot(List(false).Any());
+				mStd.Assert(List(true).Any());
+				mStd.AssertNot(List(false, false, false).Any());
+				mStd.Assert(List(true, true, true).Any());
+				mStd.Assert(List(false, false, true, false).Any());
+				mStd.Assert(List(1, 2, 3, 4).Map(a => a == 2).Any());
+				mStd.AssertNot(List(1, 3, 4).Map(a => a == 2).Any());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"Every()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					mStd.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
-					mStd.AssertEq(List(1, 2).Every(2), List(1));
-					mStd.AssertEq(List<tInt32>().Every(2), List<tInt32>());
-					mStd.AssertEq(List(1, 2, 3).Every(0), List(1, 2, 3));
-					mStd.AssertEq(List(1, 2, 3).Every(-1), List(1, 2, 3));
-					return true;
-				}
-			)
+			aStreamOut => {
+				mStd.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
+				mStd.AssertEq(List(1, 2).Every(2), List(1));
+				mStd.AssertEq(List<tInt32>().Every(2), List<tInt32>());
+				mStd.AssertEq(List(1, 2, 3).Every(0), List(1, 2, 3));
+				mStd.AssertEq(List(1, 2, 3).Every(-1), List(1, 2, 3));
+			}
 		)
 	);
 	

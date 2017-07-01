@@ -34,10 +34,10 @@ public static class mStd {
 	#region tAction
 	
 	public delegate void tAction();
-	public delegate void tAction<tArg>(tArg a);
-	public delegate void tAction<tArg1, tArg2>(tArg1 a1, tArg2 a2);
-	public delegate void tAction<tArg1, tArg2, tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
-	public delegate void tAction<tArg1, tArg2, tArg3, tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
+	public delegate void tAction<in tArg>(tArg a);
+	public delegate void tAction<in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
+	public delegate void tAction<in tArg1, in tArg2, in tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
+	public delegate void tAction<in tArg1, in tArg2, in tArg3, in tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
 	
 	public static tAction<tArg> Action<tArg>(tAction<tArg> a) => a;
 	public static tAction<tArg1, tArg2> Action<tArg1, tArg2>(tAction<tArg1, tArg2> a) => a;
@@ -52,7 +52,7 @@ public static class mStd {
 		internal t1 _1;
 		internal t2 _2;
 		
-		public override tText ToString() => $"({_1}, {_2})";
+		override public tText ToString() => $"({_1}, {_2})";
 	}
 	
 	//================================================================================
@@ -68,7 +68,7 @@ public static class mStd {
 	
 	//================================================================================
 	public static void
-	MATCH<t1, t2>(
+	Match<t1, t2>(
 		this tTuple<t1, t2> a,
 		out t1 a1,
 		out t2 a2
@@ -87,7 +87,7 @@ public static class mStd {
 		internal t2 _2;
 		internal t3 _3;
 		
-		public override tText ToString() => $"({_1}, {_2}, {_3})";
+		override public tText ToString() => $"({_1}, {_2}, {_3})";
     }
 	
 	//================================================================================
@@ -105,7 +105,7 @@ public static class mStd {
 	
 	//================================================================================
 	public static void
-	MATCH<t1, t2, t3>(
+	Match<t1, t2, t3>(
 		this tTuple<t1, t2, t3> a,
 		out t1 a1,
 		out t2 a2,
@@ -125,7 +125,7 @@ public static class mStd {
 		internal tBool _IsOK;
 		internal t _Value;
 		
-		public override tText ToString() => _IsOK ? _Value.ToString() : "FAIL";
+		override public tText ToString() => _IsOK ? _Value.ToString() : "FAIL";
 	}
 	
 	//================================================================================
@@ -149,7 +149,7 @@ public static class mStd {
 	
 	//================================================================================
 	public static tBool
-	MATCH<t>(
+	Match<t>(
 		this tMaybe<t> a,
 		out t aValue
 	//================================================================================
@@ -175,11 +175,11 @@ public static class mStd {
 			_Value.Equals(a._Value)
 		);
 		
-		public override tBool Equals(object obj) => obj is tAny && this.Equals((tAny)obj);
-		public override tText ToString() => _Value != null ? _Value.ToString() : "-";
+		override public tBool Equals(object aObj) => aObj is tAny && Equals((tAny)aObj);
+		override public tText ToString() => _Value?.ToString() ?? "-";
 		public static tBool operator==(tAny a1, tAny a2) => a1.Equals(a2);
 		public static tBool operator!=(tAny a1, tAny a2) => !a1.Equals(a2);
-		public override int GetHashCode() => base.GetHashCode();
+		override public int GetHashCode() => base.GetHashCode();
 	}
 	
 	//================================================================================
@@ -191,13 +191,13 @@ public static class mStd {
 	
 	//================================================================================
 	public static tBool
-	MATCH<t>(
+	Match<t>(
 		this tAny a,
 		out t aValue
 	//================================================================================
 	) {
 		if (typeof(t) == typeof(tAny)) {
-			mStd.Assert(false);
+			Assert(false);
 		}
 		
 		if (a._Value.IsNull() || a._Value is t) {
@@ -211,7 +211,7 @@ public static class mStd {
 	
 	//================================================================================
 	public static tBool
-	MATCH(
+	Match(
 		this tAny a
 	//================================================================================
 	) => a._Value.IsNull();
@@ -222,7 +222,7 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		Assert(a.MATCH(out t Result));
+		Assert(a.Match(out t Result));
 		return Result;
 	}
 	
@@ -233,7 +233,7 @@ public static class mStd {
 	IsNull(
 		this object a
 	//================================================================================
-	) => object.ReferenceEquals(a, null);
+	) => ReferenceEquals(a, null);
 	
 	#region Assert
 	
@@ -275,7 +275,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (
-			!object.ReferenceEquals(a1, a2) &&
+			!ReferenceEquals(a1, a2) &&
 			!a1.IsNull() &&
 		    !a1.Equals(a2)
 		) {
@@ -321,72 +321,55 @@ public static class mStd {
 	
 	#region TEST
 	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		mStd.Tuple(
+		nameof(mStd),
+		mTest.Test(
 			"tMaybe.ToString()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(OK(1).ToString(), "1");
-					AssertEq(Fail<tText>().ToString(), "FAIL");
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(OK(1).ToString(), "1");
+				AssertEq(Fail<tText>().ToString(), "FAIL");
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tMaybe.Equals()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(OK(1), OK(1));
-					AssertEq(OK("1"), OK("1"));
-					AssertEq(Fail<tText>(), Fail<tText>());
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(OK(1), OK(1));
+				AssertEq(OK("1"), OK("1"));
+				AssertEq(Fail<tText>(), Fail<tText>());
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tVar.ToString()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(Any(1).ToString(), "1");
-					AssertEq(Any("1").ToString(), "1");
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(Any(1).ToString(), "1");
+				AssertEq(Any("1").ToString(), "1");
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tVar.Equals()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(Any(1), Any(1));
-					AssertEq(Any("1"), Any("1"));
-					AssertNotEq(Any(1), Any(2));
-					AssertNotEq(Any(1), Any(false));
-					AssertNotEq(Any("1"), Any("2"));
-					AssertNotEq(Any("1"), Any(1));
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(Any(1), Any(1));
+				AssertEq(Any("1"), Any("1"));
+				AssertNotEq(Any(1), Any(2));
+				AssertNotEq(Any(1), Any(false));
+				AssertNotEq(Any("1"), Any("2"));
+				AssertNotEq(Any("1"), Any(1));
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tTuple.ToString()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(Tuple(1, "2").ToString(), "(1, 2)");
-					AssertEq(Tuple(1, "2", Tuple("A", "B")).ToString(), "(1, 2, (A, B))");
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(Tuple(1, "2").ToString(), "(1, 2)");
+				AssertEq(Tuple(1, "2", Tuple("A", "B")).ToString(), "(1, 2, (A, B))");
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tTuple.Equals()",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					AssertEq(Tuple(1, "2"), Tuple(1, "2"));
-					AssertEq(Tuple(1, "2", Tuple("A", "B")), Tuple(1, "2", Tuple("A", "B")));
-					return true;
-				}
-			)
+			aStreamOut => {
+				AssertEq(Tuple(1, "2"), Tuple(1, "2"));
+				AssertEq(Tuple(1, "2", Tuple("A", "B")), Tuple(1, "2", Tuple("A", "B")));
+			}
 		)
 	);
 	

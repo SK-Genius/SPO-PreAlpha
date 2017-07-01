@@ -24,19 +24,19 @@ using xTest = Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute;
 
 // This file only exist for the codecoverage tools (for example OpenCover / AxoCover)
 
-static class mTestHelper {
+internal static class mTestHelper {
 	//================================================================================
 	internal static void
 	MagicRun(
-		mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> aTest,
+		mTest.tTest aTest,
 		[xCallerName] tText aFilter = ""
 	//================================================================================
 	) {
 		var StopWatch = new tStopWatch();
 		StopWatch.Start();
 		mStd.AssertEq(
-			aTest(
-				line => tConsole.WriteLine(line),
+			aTest.Run(
+				tConsole.WriteLine,
 				mList.List(aFilter.Replace('_', '.'))
 			),
 			mTest.tResult.OK
@@ -44,7 +44,7 @@ static class mTestHelper {
 		StopWatch.Stop();
 		tFile.AppendAllText(
 			@"Performanc.tsv",
-			$"{tDateTime.Now:yyyy-MM-dd HH:mm:ss}\t{aFilter}\t{(StopWatch.ElapsedTicks+5)/10}µs\n"
+			$"{tDateTime.Now:yyyy-MM-dd HH:mm:ss}\t{aFilter}\t{(StopWatch.ElapsedTicks+5)/10}ï¿½s\n"
 		);
 	}
 }
@@ -57,7 +57,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_1_1_mStd {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mStd.Test;
+	private static readonly mTest.tTest Tests = mStd.Test;
 	
 	[xTest] public void tMaybe_ToString() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tMaybe_Equals() => mTestHelper.MagicRun(Tests);
@@ -71,7 +71,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_1_2_mList {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mList.Test;
+	private static readonly mTest.tTest Tests = mList.Test;
 	
 	[xTest] public void tList_ToString() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tList_Equals() => mTestHelper.MagicRun(Tests);
@@ -87,7 +87,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_1_3_mMap {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mMap.Test;
+	private static readonly mTest.tTest Tests = mMap.Test;
 	
 	[xTest] public void tMap_Get() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tMap_TryGet() => mTestHelper.MagicRun(Tests);
@@ -98,9 +98,11 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_1_5_mArrayList {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mArrayList.Test;
+	private static readonly mTest.tTest Tests = mArrayList.Test;
 	
 	[xTest] public void tArrayList_IsEmpty() => mTestHelper.MagicRun(Tests);
+	[xTest] public void tArrayList_Equals() => mTestHelper.MagicRun(Tests);
+	[xTest] public void tArrayList_ToArrayList() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tArrayList_ToLasyList() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tArrayList_Push() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tArrayList_Pop() => mTestHelper.MagicRun(Tests);
@@ -110,7 +112,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_2_mParserGen {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mParserGen.Test;
+	private static readonly mTest.tTest Tests = mParserGen.Test;
 	
 	[xTest] public void AtomParser() => mTestHelper.MagicRun(Tests);
 	[xTest] public void _Plus_() => mTestHelper.MagicRun(Tests, "...+...");
@@ -135,21 +137,21 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_4_2_mIL_Parser {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mIL_Parser.Test;
+	private static readonly mTest.tTest Tests = mIL_Parser.Test;
 	
 	[xTest] public void SubParser() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Commands() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public class Test_4_3_mIL_VM {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mIL_VM.Test;
+	private static readonly mTest.tTest Tests = mIL_VM.Test;
 	
 	[xTest] public void ExternDef() => mTestHelper.MagicRun(Tests);
 	[xTest] public void InternDef() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public class Test_4_3_mIL_Interpreter {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mIL_Interpreter.Test;
+	private static readonly mTest.tTest Tests = mIL_Interpreter.Test;
 	
 	[xTest] public void Call() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Prefix() => mTestHelper.MagicRun(Tests);
@@ -161,7 +163,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_5_2_mSPO_Parser {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mSPO_Parser.Test;
+	private static readonly mTest.tTest Tests = mSPO_Parser.Test;
 	
 	[xTest] public void Atoms() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Tuple() => mTestHelper.MagicRun(Tests);
@@ -173,7 +175,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_5_3_mSPO2IL {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mSPO2IL.Test;
+	private static readonly mTest.tTest Tests = mSPO2IL.Test;
 	
 	[xTest] public void MapExpresion() => mTestHelper.MagicRun(Tests);
 	[xTest] public void MapAssignment1() => mTestHelper.MagicRun(Tests);
@@ -187,7 +189,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_5_4_mSPO_Interpreter {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mSPO_Interpreter.Test;
+	private static readonly mTest.tTest Tests = mSPO_Interpreter.Test;
 	
 	[xTest] public void Run1() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Run2() => mTestHelper.MagicRun(Tests);
@@ -195,7 +197,7 @@ static class mTestHelper {
 }
 
 [xTests] public class Test_6_mStdLib {
-	static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>> Tests = mStdLib.Test;
+	private static readonly mTest.tTest Tests = mStdLib.Test;
 	
 	[xTest] public void IfThenElse() => mTestHelper.MagicRun(Tests);
 	[xTest] public void If2() => mTestHelper.MagicRun(Tests);

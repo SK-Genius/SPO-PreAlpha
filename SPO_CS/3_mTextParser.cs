@@ -49,13 +49,13 @@ public static class mTextParser {
 	//================================================================================
 	) {
 		var Text = TextStream(TextToStream(aText), aDebugStream);
-		Text.MATCH(out var List, out var Info);
+		Text.Match(out var List, out var Info);
 		var MaybeResult = aParser.StartParse(List, aDebugStream);
 		mStd.Assert(
-			MaybeResult.MATCH(out var Result),
+			MaybeResult.Match(out var Result),
 			$"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}"
 		);
-		Result.MATCH(out var ResultList, out var Rest);
+		Result.Match(out var ResultList, out var Rest);
 		mStd.AssertEq(Rest, mList.List<mStd.tTuple<tChar, mStd.tAction<tText>>>());
 		return ResultList;
 	}
@@ -75,14 +75,14 @@ public static class mTextParser {
 				() => {
 					// fixiere iterator
 					var MaybeCurrChar = aStream();
-					if (MaybeCurrChar.MATCH(out var CurrChar)) {
-						tText OutChar;
-						switch (CurrChar) {
-							case '\n': { OutChar = @"\n"; } break;
-							case '\t': { OutChar = @"\t"; } break;
-							default: { OutChar = CurrChar.ToString(); } break;
-						}
+					if (MaybeCurrChar.Match(out var CurrChar)) {
 						#if TRACE
+							tText OutChar;
+							switch (CurrChar) {
+								case '\n': { OutChar = @"\n"; } break;
+								case '\t': { OutChar = @"\t"; } break;
+								default: { OutChar = CurrChar.ToString(); } break;
+							}
 							aDebugStream($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
 						#endif
 						
@@ -130,14 +130,14 @@ public static class mTextParser {
 	}
 	
 	//================================================================================
-	private static mStd.tFunc<tChar, mStd.tTuple<tChar, mStd.tAction<tText>>>
+	private static readonly mStd.tFunc<tChar, mStd.tTuple<tChar, mStd.tAction<tText>>>
 	Modifyer = (
 		a
 	//================================================================================
 	) => {
 		tChar Char;
 		mStd.tAction<tText> _;
-		a.MATCH(out Char, out _);
+		a.Match(out Char, out _);
 		return Char;
 	};
 	
@@ -148,7 +148,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.MATCH(out var Char, out var SendErrorMessage);
+			a.Match(out var Char, out var SendErrorMessage);
 			tText ErrorChar;
 			switch (aRefChar) {
 				case '\\': { ErrorChar = @"\\"; break; }
@@ -170,7 +170,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.MATCH(out var Char, out var SendErrorMessage);
+			a.Match(out var Char, out var SendErrorMessage);
 			SendErrorMessage($"char != {aRefChar}");
 			return Char != aRefChar;
 		}
@@ -185,7 +185,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.MATCH(out var Char, out var SendErrorMessage);
+			a.Match(out var Char, out var SendErrorMessage);
 			SendErrorMessage($"char is one of {aRefChars}");
 			foreach (var RefChar in aRefChars) {
 				if (Char == RefChar) {
@@ -205,7 +205,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.MATCH(out var Char, out var SendErrorMessage);
+			a.Match(out var Char, out var SendErrorMessage);
 			SendErrorMessage($"char is NOT one of {aRefChars}");
 			foreach (var RefChar in aRefChars) {
 				if (Char == RefChar) {
@@ -226,7 +226,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser(
 		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.MATCH(out var Char, out var SendErrorMessage);
+			a.Match(out var Char, out var SendErrorMessage);
 			SendErrorMessage($"char in {aMinChar}..{aMaxChar}");
 			return aMinChar <= Char && Char <= aMaxChar;
 		}
@@ -251,18 +251,15 @@ public static class mTextParser {
 	
 	#region Test
 	
-	// TODO: add tests
-	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		mStd.Tuple(
+		nameof(mTextParser),
+		mTest.Test(
 			"TODO",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => true
-			)
+			aStreamOut => {
+			}
 		)
 	);
 	
 	#endregion
-	
 }

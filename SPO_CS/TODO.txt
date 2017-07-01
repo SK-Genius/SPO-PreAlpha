@@ -1,64 +1,27 @@
 ﻿NEXT:
 =====
-	o §IF- & §IF...MATCHED-Control
-		+-----------------------------------------------+--------------------------------------------+
-		|                                               |                                            |
-		|   §RECURSIV Fib... := a => §IF (              |   §RECURSIV Fib... := a => §IF (           |
-		|       a .== 0 => 0                            |       a .< 2 => a                          |
-		|       a .== 1 => 1                            |       §ELSE => .Fib(a .- 2) .+ .Fib(a .- 1)|
-		|       §ELSE => .Fib(a .- 2) .+ .Fib(a .- 1)   |   )                                        |
-		|   )                                           |                                            |
-		|                                               |                                            |
-		+-----------------------------------------------+--------------------------------------------+
-		|                                               |                                            |
-		|   §RECURSIV Fib... := a => §IF a MATCHED (    |   §RECURSIV Fib... := §IF ... MATCHED (    |
-		|       n | n .= 0 => 0                         |       n | n .< 2 => n                      |
-		|       n | n .= 1 => 1                         |       n => .Fib(n .- 2) .+ .Fib(n .- 1)    |
-		|       n => .Fib(n .- 2) .+ .Fib(n .- 1)       |   )                                        |
-		|   )                                           |                                            |
-		|                                               |                                            |
-		+-----------------------------------------------+--------------------------------------------+
-		|                                               |                                            |
-		|   §RECURSIV Fib... := (=>                     |                                            |
-		|       §IF ... MATCHED (                       |   §RECURSIV Fib... := => §IF ... MATCHED { |
-		|           0 => 0                              |       a | a .< 2 => a                      |
-		|           1 => 1                              |       a => .Fib(a .- 2) .+ .Fib(a .- 1)    |
-		|           a => .Fib(a .- 2) .+ .Fib(a .- 1)   |   }                                        |
-		|       )                                       |                                            |
-		|   )                                           |                                            |
-		|                                               |                                            |
-		+-----------------------------------------------+--------------------------------------------+
-	
 	o ignor match: _
 	
 	o lambdas with "..."
 		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
 	
-	o typed expessions / typed match:
-		|	a := 4 € tInt32
-		or
+	o typed match:
 		|	a € tInt32 := 4
+
+
+ROADMAP:
+========
+	o imperative
+		- var & const
+		- arrays
+		- loops
+	o runtime type check
+	o compiletime type check
+	o concurency
+	o self hosted
 
 
 NICE TO HAVE:
 =============
 	o performance: replace LasyList by ArrayList in Set
 	o mIL_VM TraceOutput -> debugger infrastructur
-
-
-MAYBE:
-======
-	o §LET
-		|	let a, b = (2, 3) in a * b          ===  ((a, b) => (a * b))(2, 3)
-		|	(§LET (a, b) = (2, 3) IN (a .* b))  ===  (.((a, b) => (a .* b)) (2, 3))
-		|	(§LET $a = $b IN $c)  ==>  (.($a => $c) $b)
-
-
-ROADMAP:
-========
-	o arrays
-	o runtime type check
-	o var & const
-	o compiletime type check
-	o concurency
-	o self hosted

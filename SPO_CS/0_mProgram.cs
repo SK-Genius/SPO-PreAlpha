@@ -1,4 +1,4 @@
-﻿using tBool = System.Boolean;
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -17,30 +17,31 @@ public static class mProgram {
 	//================================================================================
 	public static mTest.tResult
 	SelfTests(
-		mList.tList<tText> aArgs,
+		mList.tList<tText> aFilters,
 		mStd.tAction<tText> aDebugOut
 	//================================================================================
 	) => mTest.Tests(
-		mStd.Tuple(nameof(mStd), mStd.Test),
-//		mStd.Tuple(nameof(mTest), mTest.Test),
-		mStd.Tuple(nameof(mList), mList.Test),
-		mStd.Tuple(nameof(mMap), mMap.Test),
-//		mStd.Tuple(nameof(mMath), mMath.Test),
-		mStd.Tuple(nameof(mArrayList), mArrayList.Test),
-		mStd.Tuple(nameof(mParserGen), mParserGen.Test),
-		mStd.Tuple(nameof(mTextParser), mTextParser.Test),
-		mStd.Tuple(nameof(mIL_AST), mIL_AST.Test),
-		mStd.Tuple(nameof(mIL_Parser), mIL_Parser.Test),
-		mStd.Tuple(nameof(mIL_VM), mIL_VM.Test),
-		mStd.Tuple(nameof(mIL_Interpreter), mIL_Interpreter.Test),
-		mStd.Tuple(nameof(mSPO_AST), mSPO_AST.Test),
-		mStd.Tuple(nameof(mSPO_Parser), mSPO_Parser.Test),
-		mStd.Tuple(nameof(mSPO2IL), mSPO2IL.Test),
-		mStd.Tuple(nameof(mSPO_Interpreter), mSPO_Interpreter.Test),
-		mStd.Tuple(nameof(mStdLib), mStdLib.Test)
-	)(
+		"All",
+		mStd.Test,
+//		mTest.Test,
+		mList.Test,
+		mMap.Test,
+//		mMath.Test,
+		mArrayList.Test,
+		mParserGen.Test,
+		mTextParser.Test,
+		mIL_AST.Test,
+		mIL_Parser.Test,
+		mIL_VM.Test,
+		mIL_Interpreter.Test,
+		mSPO_AST.Test,
+		mSPO_Parser.Test,
+		mSPO2IL.Test,
+		mSPO_Interpreter.Test,
+		mStdLib.Test
+	).Run(
 		aDebugOut,
-		aArgs
+		aFilters
 	);
 	
 	//================================================================================
@@ -59,7 +60,7 @@ public static class mProgram {
 					System.Console.WriteLine(aLine);
 					System.Diagnostics.Debug.WriteLine(aLine);
 				}
-			) == mTest.tResult.FAIL
+			) == mTest.tResult.Fail
 		) {
 			System.Environment.Exit(-1);
 		}

@@ -17,74 +17,101 @@ public static class mTest {
 	
 	public enum tResult {
 		OK,
-		FAIL,
-		SKIP
+		Fail,
+		Skip
+	}
+	
+	public interface tTest {
+	}
+	
+	public class tTestRun : tTest {
+		public tText _Name;
+		public mStd.tAction<mStd.tAction<tText>> _TestFunc;
+	}
+	
+	public class tTests : tTest {
+		public tText _Name;
+		public tTest[] _Tests;
 	}
 	
 	//================================================================================
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static tTest
 	Tests(
-		params mStd.tTuple<tText, mStd.tFunc<tResult, mStd.tAction<tText>, mList.tList<tText>>>[] aTests
+		tText aName,
+		params tTest[] aTests
 	//================================================================================
-	) => mStd.Func(
-		(mStd.tAction<tText> aWriter, mList.tList<tText> aFilters) => {
-			tBool HasAnyResult = false;
-			foreach (var SubTest in aTests) {
-				SubTest.MATCH(out var Name, out var Test_);
-				var Filters = Name.Contains(((aFilters.IsNull()) ? "" : aFilters._Head) ?? "") ? aFilters.Skip(1) : aFilters;
-				aWriter(Name);
-				switch (Test_(aText => aWriter($"|\t{aText}"), Filters)) {
-					case tResult.OK: {
-						HasAnyResult = true;
-						aWriter("-> OK");
-						aWriter("");
-					} break;
-							
-					case tResult.FAIL: {
-						HasAnyResult = true;
-						aWriter("-> FAIL");
-						aWriter("");
-					} return tResult.FAIL;
-							
-					case tResult.SKIP: {
-						aWriter("-> SKIP");
-						aWriter("");
-					} break;
-							
-					default: {
-						mStd.Assert(false);
-					} break;
-				}
-			}
-			return HasAnyResult ? tResult.OK : tResult.SKIP;
-		}
-	);
+	) => new tTests { _Name = aName, _Tests = aTests };
 	
 	//================================================================================
-	public static
-	mStd.tFunc<tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static tTest
 	Test(
-		mStd.tFunc<tBool, mStd.tAction<tText>> aTest
+		tText aName,
+		mStd.tAction<mStd.tAction<tText>> aTestFunc
 	//================================================================================
-	) => mStd.Func(
-		(
-			mStd.tAction<tText> aStreamOut,
-			mList.tList<tText> aFilters
-		) => {
-			if (aFilters.IsNull()) {
-#				if DEBUG
-					return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
-#				else
+	) => new tTestRun {
+		_Name = aName,
+		_TestFunc = aTestFunc
+	};
+	
+	//================================================================================
+	public static tResult
+	Run(
+		this tTest aTest,
+		mStd.tAction<tText> aDebugStream,
+		mList.tList<tText> aFilters
+	//================================================================================
+	) {
+		const tText cTab = "|  ";
+		{
+			var TestRun = aTest as tTestRun;
+			if (!TestRun.IsNull()) {
+				aDebugStream(TestRun._Name);
+				if (aFilters.IsNull() || aFilters.Map(aFilter => TestRun._Name.Contains(aFilter)).Any()) {
 					try {
-						return aTest(aStreamOut) ? tResult.OK : tResult.FAIL;
+						TestRun._TestFunc(aText => aDebugStream("| " + aText));
+						aDebugStream("-> OK");
+						aDebugStream("");
+						return tResult.OK;
 					} catch (System.Exception e) {
-						aStreamOut(e.Message); 
-						return tResult.FAIL;
+						aDebugStream(cTab + e.Message);
+						aDebugStream("-> Fail");
+						aDebugStream("");
+						return tResult.Fail;
 					}
-#				endif
-			} else {
-				return tResult.SKIP;
+				} else {
+					aDebugStream("-> Skip");
+					aDebugStream("");
+					return tResult.Skip;
+				}
 			}
 		}
-	);
+		{
+			var Tests = aTest as tTests;
+			if (!Tests.IsNull()) {
+				aDebugStream(Tests._Name);
+				if (aFilters.IsNull() || aFilters.Map(aFilter => Tests._Name.Contains(aFilter)).Any()) {
+					aFilters = null;
+				}
+				var Result = tResult.Skip;
+				foreach (var Test in Tests._Tests) {
+					switch (Test.Run(aText => aDebugStream(cTab + aText), aFilters)) {
+						case tResult.OK: {
+							Result = tResult.OK;
+						} break;
+						case tResult.Fail: {
+							aDebugStream("-> Fail");
+							aDebugStream("");
+						} return tResult.Fail;
+						case tResult.Skip: {
+						} break;
+					}
+				}
+				aDebugStream($"-> {Result}");
+				aDebugStream("");
+				return Result;
+			}
+		}
+		mStd.Assert(false);
+		return tResult.Fail;
+	}
 }

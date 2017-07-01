@@ -38,8 +38,8 @@ public static class mMap {
 	//================================================================================
 	) {
 		var RestList = aMap._KeyValuePairs;
-		while (RestList.MATCH(out var KeyValuePair, out RestList)) {
-			KeyValuePair.MATCH(out var Key, out aValue);
+		while (RestList.Match(out var KeyValuePair, out RestList)) {
+			KeyValuePair.Match(out var Key, out aValue);
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return true;
 			}
@@ -69,7 +69,7 @@ public static class mMap {
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = aMap._KeyValuePairs.Where(
 			aKeyValuePair => {
-				aKeyValuePair.MATCH(out tKey Key, out tValue Value);
+				aKeyValuePair.Match(out tKey Key, out tValue _);
 				return !aMap._EqualsFunc(Key, aKey);
 			}
 		)
@@ -88,7 +88,7 @@ public static class mMap {
 			mStd.Tuple(aKey, aValue),
 			aMap._KeyValuePairs.Where(
 				aKeyValuePair => {
-					aKeyValuePair.MATCH(out tKey Key, out tValue Value);
+					aKeyValuePair.Match(out tKey Key, out tValue _);
 					return !aMap._EqualsFunc(Key, aKey);
 				}
 			)
@@ -97,59 +97,49 @@ public static class mMap {
 	
 	#region TEST
 	
-	// TODO: add tests
-	
-	public static mStd.tFunc<mTest.tResult, mStd.tAction<tText>, mList.tList<tText>>
+	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		mStd.Tuple(
+		nameof(mMap),
+		mTest.Test(
 			"tMap.Get",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
-					.Set("one", 1)
-					.Set("two", 2);
-					mStd.AssertEq(TextToInt.Get("one"), 1);
-					mStd.AssertEq(TextToInt.Get("two"), 2);
-					return true;
-				}
-			)
+			aStreamOut => {
+				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+				.Set("one", 1)
+				.Set("two", 2);
+				mStd.AssertEq(TextToInt.Get("one"), 1);
+				mStd.AssertEq(TextToInt.Get("two"), 2);
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tMap.TryGet",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
-					.Set("one", 1)
-					.Set("two", 2);
-					tInt32 Num;
-					mStd.Assert(TextToInt.TryGet("one", out Num));
-					mStd.AssertEq(Num, 1);
-					mStd.Assert(TextToInt.TryGet("two", out Num));
-					mStd.AssertEq(Num, 2);
-					mStd.AssertNot(TextToInt.TryGet("zero", out Num));
-					return true;
-				}
-			)
+			aStreamOut => {
+				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+				.Set("one", 1)
+				.Set("two", 2);
+				tInt32 Num;
+				mStd.Assert(TextToInt.TryGet("one", out Num));
+				mStd.AssertEq(Num, 1);
+				mStd.Assert(TextToInt.TryGet("two", out Num));
+				mStd.AssertEq(Num, 2);
+				mStd.AssertNot(TextToInt.TryGet("zero", out Num));
+			}
 		),
-		mStd.Tuple(
+		mTest.Test(
 			"tMap.Remove",
-			mTest.Test(
-				(mStd.tAction<tText> aStreamOut) => {
-					var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
-					.Set("one", 1)
-					.Set("two", 2);
-					tInt32 Num;
-					mStd.Assert(TextToInt.TryGet("one", out Num));
-					mStd.AssertEq(Num, 1);
-					mStd.Assert(TextToInt.TryGet("two", out Num));
-					mStd.AssertEq(Num, 2);
-					TextToInt = TextToInt.Remove("one");
-					mStd.AssertNot(TextToInt.TryGet("one", out Num));
-					mStd.Assert(TextToInt.TryGet("two", out Num));
-					mStd.AssertEq(Num, 2);
-					return true;
-				}
-			)
+			aStreamOut => {
+				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
+				.Set("one", 1)
+				.Set("two", 2);
+				tInt32 Num;
+				mStd.Assert(TextToInt.TryGet("one", out Num));
+				mStd.AssertEq(Num, 1);
+				mStd.Assert(TextToInt.TryGet("two", out Num));
+				mStd.AssertEq(Num, 2);
+				TextToInt = TextToInt.Remove("one");
+				mStd.AssertNot(TextToInt.TryGet("one", out Num));
+				mStd.Assert(TextToInt.TryGet("two", out Num));
+				mStd.AssertEq(Num, 2);
+			}
 		)
 	);
 	
