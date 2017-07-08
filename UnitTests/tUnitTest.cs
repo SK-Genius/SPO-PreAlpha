@@ -178,8 +178,8 @@ internal static class mTestHelper {
 	private static readonly mTest.tTest Tests = mSPO2IL.Test;
 	
 	[xTest] public void MapExpresion() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapAssignment1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapAssignmentMatch() => mTestHelper.MagicRun(Tests);
+	[xTest] public void MapDef1() => mTestHelper.MagicRun(Tests);
+	[xTest] public void MapDefMatch() => mTestHelper.MagicRun(Tests);
 	[xTest] public void MatchTuple() => mTestHelper.MagicRun(Tests);
 	[xTest] public void MapMatchPrefix() => mTestHelper.MagicRun(Tests);
 	[xTest] public void MapLambda1() => mTestHelper.MagicRun(Tests);
@@ -203,4 +203,5 @@ internal static class mTestHelper {
 	[xTest] public void If2() => mTestHelper.MagicRun(Tests);
 	[xTest] public void IfMatch1() => mTestHelper.MagicRun(Tests);
 	[xTest] public void IfMatch2() => mTestHelper.MagicRun(Tests);
+	[xTest] public void VAR() => mTestHelper.MagicRun(Tests);
 }

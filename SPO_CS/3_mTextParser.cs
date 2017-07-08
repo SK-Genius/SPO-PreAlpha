@@ -15,239 +15,199 @@ using tText = System.String;
 
 public static class mTextParser {
 	
+	public struct tPos {
+		public tInt32 Row;
+		public tInt32 Col;
+	}
+	
+	public struct tPosChar {
+		public tPos Pos;
+		public tChar Char;
+	}
+	
+	public struct tError {
+		public tPos Pos;
+		public tText Message;
+	}
+	
 	//================================================================================
-	public static mStd.tFunc<mStd.tMaybe<tChar>>
+	public static mList.tList<tPosChar>
 	TextToStream(
 		tText a
 	//================================================================================
 	) {
 		var I = (int?)0;
-		return () => {
-			mStd.tMaybe<tChar> Result;
-			if (I < a.Length) {
-				Result = mStd.OK(a[I.Value]);
-				I += 1;
-			} else {
-				Result = mStd.Fail<tChar>();
+		var Col = (int?)1;
+		var Row = (int?)1;
+		
+		return mList.LasyList(
+			() => {
+				mStd.tMaybe<tPosChar, mStd.tVoid> Result;
+				if (I < a.Length) {
+					var Char = a[I.Value];
+					if (Char == '\r') {
+						I += 1;
+						Char = a[I.Value];
+					}
+					Result = mStd.OK(
+						new tPosChar {
+							Char = Char,
+							Pos = {
+								Col = Col.Value,
+								Row = Row.Value
+							}
+						}
+					);
+					I += 1;
+					Col += 1;
+					if (Char == '\n') {
+						Col = 1;
+						Row += 1;
+					}
+				} else {
+					Result = mStd.Fail();
+				}
+				return Result;
 			}
-			return Result;
-		};
-	}
-	
-	public class tFailInfo {
-		internal tInt32 _Line;
-		internal tInt32 _Coll;
-		internal tText _ErrorMessage;
+		);
 	}
 	
 	//================================================================================
 	public static mParserGen.tResultList
 	ParseText(
-		this mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>> aParser,
+		this mParserGen.tParser<tPosChar, tError> aParser,
 		tText aText,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Text = TextStream(TextToStream(aText), aDebugStream);
-		Text.Match(out var List, out var Info);
-		var MaybeResult = aParser.StartParse(List, aDebugStream);
-		mStd.Assert(
-			MaybeResult.Match(out var Result),
-			$"({Info._Line}, {Info._Coll}): {Info._ErrorMessage}"
-		);
+		var Stream = TextToStream(aText);
+		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
+		if (!MaybeResult.Match(out var Result, out var ErrorList)) {
+			mStd.Assert(
+				false,
+				ErrorList.Map(
+					a => $"({a.Pos.Row}, {a.Pos.Col}): {a.Message}"
+				).Reduce("", (a1, a2) => a1 + "\n" + a2)
+			);
+		}
 		Result.Match(out var ResultList, out var Rest);
-		mStd.AssertEq(Rest, mList.List<mStd.tTuple<tChar, mStd.tAction<tText>>>());
+		mStd.AssertEq(Rest, mList.List<tPosChar>());
 		return ResultList;
 	}
 	
 	//================================================================================
-	public static mStd.tTuple<mList.tList<mStd.tTuple<tChar, mStd.tAction<tText>>>, tFailInfo>
-	TextStream(
-		mStd.tFunc<mStd.tMaybe<tChar>> aStream,
-		mStd.tAction<tText> aDebugStream
-	//================================================================================
-	) {
-		var TextParserInfo = new tFailInfo {_Line = 1, _Coll = 1};
-		var LineIter = (tInt32?)1;
-		var CollIter = (tInt32?)0;
-		return mStd.Tuple(
-			mList.LasyList(
-				() => {
-					// fixiere iterator
-					var MaybeCurrChar = aStream();
-					if (MaybeCurrChar.Match(out var CurrChar)) {
-						#if TRACE
-							tText OutChar;
-							switch (CurrChar) {
-								case '\n': { OutChar = @"\n"; } break;
-								case '\t': { OutChar = @"\t"; } break;
-								default: { OutChar = CurrChar.ToString(); } break;
-							}
-							aDebugStream($"### ({LineIter},{CollIter+1}) -> '{OutChar}'");
-						#endif
-						
-						if (CurrChar == '\n') {
-							LineIter += 1;
-							CollIter = 1;
-						} else if (CurrChar != '\r') {
-							CollIter += 1;
-						}
-						
-						var CurrLine = LineIter.Value;
-						var CurrColl = CollIter.Value;
-						
-						return mStd.OK(
-							mStd.Tuple(
-								CurrChar,
-								mStd.Action(
-									(tText aErrorMessage) => {
-										if (
-											CurrLine > TextParserInfo._Line || (
-												CurrLine == TextParserInfo._Line &&
-												CurrColl > TextParserInfo._Coll
-											)
-										) {
-											TextParserInfo._Line = CurrLine;
-											TextParserInfo._Coll = CurrColl;
-											TextParserInfo._ErrorMessage = aErrorMessage;
-										} else if (
-											CurrLine == TextParserInfo._Line &&
-											CurrColl == TextParserInfo._Coll
-										) {
-											TextParserInfo._ErrorMessage += "\n" + aErrorMessage;
-										}
-									}
-								)
-							)
-						);
-					} else {
-						return mStd.Fail<mStd.tTuple<tChar, mStd.tAction<tText>>>();
-					}
-				}
-			),
-			TextParserInfo
-		);
-	}
-	
-	//================================================================================
-	private static readonly mStd.tFunc<tChar, mStd.tTuple<tChar, mStd.tAction<tText>>>
+	private static readonly mStd.tFunc<tChar, tPosChar>
 	Modifyer = (
 		a
 	//================================================================================
-	) => {
-		tChar Char;
-		mStd.tAction<tText> _;
-		a.Match(out Char, out _);
-		return Char;
-	};
+	) => a.Char;
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetChar(
 		tChar aRefChar
 	//================================================================================
-	) => mParserGen.AtomParser(
-		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.Match(out var Char, out var SendErrorMessage);
-			tText ErrorChar;
-			switch (aRefChar) {
-				case '\\': { ErrorChar = @"\\"; break; }
-				case '\n': { ErrorChar = @"\n"; break; }
-				case '\t': { ErrorChar = @"\t"; break; }
-				default: { ErrorChar = $"{aRefChar}"; break; }
-			}
-			SendErrorMessage($"char = {ErrorChar}");
-			return Char == aRefChar;
-		}
+	) => mParserGen.AtomParser<tPosChar, tError>(
+		a => a.Char == aRefChar,
+		a => new tError{ Pos = a.Pos, Message = $"expect {aRefChar}" }
 	)
 	.Modify(Modifyer)
 	.SetDebugName("'", aRefChar.ToString(), "'");
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetNotChar(
 		tChar aRefChar
 	//================================================================================
-	) => mParserGen.AtomParser(
-		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.Match(out var Char, out var SendErrorMessage);
-			SendErrorMessage($"char != {aRefChar}");
-			return Char != aRefChar;
-		}
+	) => mParserGen.AtomParser<tPosChar, tError>(
+		a => a.Char != aRefChar,
+		a => new tError{ Pos = a.Pos, Message = $"expect not {aRefChar}" }
 	)
 	.Modify(Modifyer)
 	.SetDebugName("'^", aRefChar.ToString(), "'");
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetCharIn(
 		tText aRefChars
 	//================================================================================
-	) => mParserGen.AtomParser(
-		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.Match(out var Char, out var SendErrorMessage);
-			SendErrorMessage($"char is one of {aRefChars}");
+	) => mParserGen.AtomParser<tPosChar, tError>(
+		a => {
 			foreach (var RefChar in aRefChars) {
-				if (Char == RefChar) {
+				if (a.Char == RefChar) {
 					return true;
 				}
 			}
 			return false;
-		}
+		},
+		a => new tError{ Pos = a.Pos, Message = $"expect one of [{aRefChars}]" }
 	)
 	.Modify(Modifyer)
 	.SetDebugName("[", aRefChars, "]");
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetCharNotIn(
 		tText aRefChars
 	//================================================================================
-	) => mParserGen.AtomParser(
-		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.Match(out var Char, out var SendErrorMessage);
-			SendErrorMessage($"char is NOT one of {aRefChars}");
+	) => mParserGen.AtomParser<tPosChar, tError>(
+		a => {
 			foreach (var RefChar in aRefChars) {
-				if (Char == RefChar) {
+				if (a.Char == RefChar) {
 					return false;
 				}
 			}
 			return true;
-		}
+		},
+		a => new tError{ Pos = a.Pos, Message = $"expect non of [{aRefChars}]" }
 	)
 	.Modify(Modifyer)
 	.SetDebugName("[^", aRefChars, "]");
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetCharInRange(
 		tChar aMinChar,
 		tChar aMaxChar
 	//================================================================================
-	) => mParserGen.AtomParser(
-		(mStd.tTuple<tChar, mStd.tAction<tText>> a) => {
-			a.Match(out var Char, out var SendErrorMessage);
-			SendErrorMessage($"char in {aMinChar}..{aMaxChar}");
-			return aMinChar <= Char && Char <= aMaxChar;
-		}
+	) => mParserGen.AtomParser<tPosChar, tError>(
+		a => aMinChar <= a.Char && a.Char <= aMaxChar,
+		a => new tError{ Pos = a.Pos, Message = $"expect one in [{aMinChar}...{aMaxChar}]" }
 	)
 	.Modify(Modifyer)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
 	//================================================================================
-	public static mParserGen.tParser<mStd.tTuple<tChar, mStd.tAction<tText>>>
+	public static mParserGen.tParser<tPosChar, tError>
 	GetToken(
 		tText aToken
 	//================================================================================
 	) {
-		var Parser = mParserGen.EmptyParser<mStd.tTuple<tChar, mStd.tAction<tText>>>();
+		var Parser = mParserGen.EmptyParser<tPosChar, tError>();
 		foreach (var Char in aToken) {
 			Parser += GetChar(Char);
 		}
 		return Parser
 		.ModifyList(a => mParserGen.ResultList(aToken))
+		.AddError(
+			a => new tError {
+				Pos = a.Pos,
+				Message = $"expect '{aToken}'"
+			}
+		)
 		.SetDebugName("\"", aToken, "\"");
 	}
+	
+	public static mParserGen.tParser<tPosChar, tError>
+	SetName(
+		this mParserGen.tParser<tPosChar, tError> aParser,
+		tText aName
+	) => aParser.AddError(
+		a => new tError{
+			Pos = a.Pos,
+			Message = $"invalid {aName}"
+		}
+	).SetDebugName(aName);
 	
 	#region Test
 	

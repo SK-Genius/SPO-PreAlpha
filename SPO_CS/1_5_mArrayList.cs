@@ -187,10 +187,10 @@ public static class mArrayList {
 	//================================================================================
 	) {
 		int? Index = 0;
-		return mList.LasyList(
+		return mList.LasyList<t>(
 			() => {
 				if (Index >= aList._CurrSize) {
-					return mStd.Fail<t>();
+					return mStd.Fail();
 				}
 				
 				var Item = aList._Items[Index.Value];

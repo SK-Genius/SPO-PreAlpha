@@ -13,10 +13,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tResults = mList.tList<mStd.tAny>;
-
-using tText_Parser = mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>>;
-
 public static class mSPO_Interpreter {
 
 	//================================================================================
@@ -103,14 +99,14 @@ public static class mSPO_Interpreter {
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out Arg1_));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
 		mIL_VM.tData Arg2_;
 		mIL_VM.tData _;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Pair, out Arg2_, out _));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Pair, out Arg2_, out _));
 		tInt32 Arg2__;
-		mStd.Assert(Arg2_.MATCH(mIL_VM.tDataType.Int, out Arg2__));
+		mStd.Assert(Arg2_.Match(mIL_VM.tDataType.Int, out Arg2__));
 		return mIL_VM.Int(Arg1_ * Arg2__);
 	};
 	
@@ -128,8 +124,8 @@ public static class mSPO_Interpreter {
 							"	k",
 							")",
 							"",
-							"x... := (a => (k .* a))",
-							"y := (.x 5)",
+							"§DEF x... = (a => (k .* a))",
+							"§DEF y = (.x 5)",
 							"",
 							"§EXPORT y"
 						).Join((a1, a2) => a1 + "\n" + a2),
@@ -154,7 +150,7 @@ public static class mSPO_Interpreter {
 							"	k",
 							")",
 							"",
-							"y := (.(a => (k .* a)) 5)",
+							"§DEF y = (.(a => (k .* a)) 5)",
 							"",
 							"§EXPORT y"
 						).Join((a1, a2) => a1 + "\n" + a2),

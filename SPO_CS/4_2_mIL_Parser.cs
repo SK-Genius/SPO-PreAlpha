@@ -13,9 +13,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tResults = mList.tList<mStd.tAny>;
-
-using tIL_Parser = mParserGen.tParser<mStd.tTuple<char, mStd.tAction<string>>>;
+using tIL_Parser = mParserGen.tParser<mTextParser.tPosChar, mTextParser.tError>;
 
 public static class  mIL_Parser {
 	public static readonly mStd.tFunc<tIL_Parser, tChar> Char = mTextParser.GetChar;
@@ -119,6 +117,9 @@ public static class  mIL_Parser {
 		(+Ident -Token(":=") -Token("§OBJ") +Ident +Ident)
 			.Modify(mIL_AST.Exec) |
 		
+		(+Ident -Token(":=") -Token("§VAR") +Ident)
+			.Modify(mIL_AST.Var) |
+		
 		(+Ident -Token(":=") +Ident)
 			.Modify(mIL_AST.Alias) |
 		
@@ -184,9 +185,10 @@ public static class  mIL_Parser {
 				mStd.AssertEq(Command.ParseText("§RETURN a IF b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf,  "a", "b")));
 				mStd.AssertEq(Command.ParseText("§REPEAT a IF b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf,  "a", "b")));
 				mStd.AssertEq(Command.ParseText("§ASSERT a => b", aDebugStream),    mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert,    "a", "b")));
-					
+				
 				mStd.AssertEq(Command.ParseText("§PUSH a", aDebugStream),           mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push,      "a")));
 				mStd.AssertEq(Command.ParseText("§POP", aDebugStream),              mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop)));
+				mStd.AssertEq(Command.ParseText("a := §VAR b", aDebugStream),       mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Var,       "a", "b")));
 				mStd.AssertEq(Command.ParseText("a := §OBJ b c", aDebugStream),     mParserGen.ResultList(mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec,      "a", "b", "c")));
 			}
 		)

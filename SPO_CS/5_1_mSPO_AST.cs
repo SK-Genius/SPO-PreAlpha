@@ -217,18 +217,18 @@ public static class mSPO_AST {
 		override public tText ToString() => $"(Call: {_Func}, {_Arg})";
 	}
 	
-	public class tAssignmantNode : tCommandNode {
+	public class tDefNode : tCommandNode {
 		internal tMatchNode _Des;
 		internal tExpressionNode _Src;
 		
 		//================================================================================
 		public tBool
 		Equals(
-			tAssignmantNode a
+			tDefNode a
 		//================================================================================
 		) => !a.IsNull() && a._Des.Equals(_Des) && a._Src.Equals(_Src);
 		
-		override public tBool Equals(object a) => this.Equals(a as tAssignmantNode);
+		override public tBool Equals(object a) => this.Equals(a as tDefNode);
 		override public tText ToString() => $"({_Des} := {_Src})";
 	}
 	
@@ -303,6 +303,21 @@ public static class mSPO_AST {
 		
 		override public tBool Equals(object a) => this.Equals(a as tIfMatchNode);
 		override public tText ToString() => $"If {_Expression} MATCH {{ {_Cases} }}";
+	}
+	
+	public class tVarNode : tCommandNode {
+		internal tIdentNode _Ident;
+		internal tExpressionNode _Expression;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tVarNode a
+		//================================================================================
+		) => !a.IsNull() && a._Ident.Equals(_Ident) && a._Expression.Equals(_Expression);
+		
+		override public tBool Equals(object a) => this.Equals(a as tVarNode);
+		override public tText ToString() => $"$VAR {_Ident} € {_Expression}";
 	}
 	
 	public class tTupleNode : tExpressionNode {
@@ -529,12 +544,12 @@ public static class mSPO_AST {
 	) => Match(aMatch, null);
 	
 	//================================================================================
-	public static mStd.tFunc<tAssignmantNode, tMatchNode, tExpressionNode>
-	Assignment = (
+	public static mStd.tFunc<tDefNode, tMatchNode, tExpressionNode>
+	Def = (
 		aMatch,
 		aExpression
 	//================================================================================
-	) => new tAssignmantNode {
+	) => new tDefNode {
 		_Des = aMatch,
 		_Src = aExpression
 	};
@@ -568,6 +583,17 @@ public static class mSPO_AST {
 	) => new tIfMatchNode {
 		_Expression = aExpression,
 		_Cases = aCases
+	};
+	
+	//================================================================================
+	public static mStd.tFunc<tVarNode, tIdentNode, tExpressionNode>
+	Var = (
+		aVar,
+		aExpression
+	//================================================================================
+	) => new tVarNode {
+		_Ident = aVar,
+		_Expression = aExpression
 	};
 	
 	//================================================================================

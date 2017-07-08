@@ -37,6 +37,7 @@ public static class mIL_AST {
 		Exec,                       // X := :X X
 		Push,                       // PUSH X
 		Pop,                        // POP
+		Var,                        // X := VAR X
 		ReturnIf,                   // RETURN X IF X
 		RepeatIf,                   // REPEAT X IF X
 		Assert,                     // ASSERT X
@@ -302,6 +303,14 @@ public static class mIL_AST {
 		tText aArgReg
 	//================================================================================
 	) => CommandNode(tCommandNodeType.Exec, aResReg, aProcReg, aArgReg);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	Var = (
+		tText aResReg,
+		tText aValueReg
+	//================================================================================
+	) => CommandNode(tCommandNodeType.Var, aResReg, aValueReg);
 	
 	//================================================================================
 	public static readonly mStd.tFunc<tCommandNode, tText>

@@ -23,22 +23,22 @@ public static class mStdLib {
 	//================================================================================
 	) {
 		mStd.Assert(
-			aArg.MATCH(
+			aArg.Match(
 				mIL_VM.tDataType.Pair,
 				out mIL_VM.tData Arg1,
 				out mIL_VM.tData Arg2_
 			)
 		);
 		mStd.Assert(
-			Arg2_.MATCH(
+			Arg2_.Match(
 				mIL_VM.tDataType.Pair,
 				out mIL_VM.tData Arg2,
 				out mIL_VM.tData Arg_
 			)
 		);
 		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.Empty);
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Bool, out a1));
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Bool, out a2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Bool, out a1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Bool, out a2));
 		return true;
 }
 	
@@ -51,22 +51,22 @@ public static class mStdLib {
 	//================================================================================
 	) {
 		mStd.Assert(
-			aArg.MATCH(
+			aArg.Match(
 				mIL_VM.tDataType.Pair,
 				out mIL_VM.tData Arg1,
 				out mIL_VM.tData Arg2_
 			)
 		);
 		mStd.Assert(
-			Arg2_.MATCH(
+			Arg2_.Match(
 				mIL_VM.tDataType.Pair,
 				out mIL_VM.tData Arg2,
 				out mIL_VM.tData Arg_
 			)
 		);
 		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.Empty);
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out a1));
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Int, out a2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out a1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out a2));
 		return true;
 	}
 	
@@ -79,7 +79,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Bool, out tBool Arg_));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Bool, out tBool Arg_));
 		return mIL_VM.Bool(!Arg_);
 	}
 	
@@ -131,7 +131,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Int, out tInt32 Arg_));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Int, out tInt32 Arg_));
 		return mIL_VM.Int(-Arg_);
 	}
 	
@@ -324,7 +324,7 @@ public static class mStdLib {
 						mList.List(
 							$"§IMPORT ({cImportTuple}, n)",
 							"",
-							"If...Then...Else... := (c, i, e) => {",
+							"§DEF If...Then...Else... = (c, i, e) => {",
 							"	§RETURN (.i) IF c",
 							"	§RETURN (.e)",
 							"}",
@@ -421,6 +421,31 @@ public static class mStdLib {
 					),
 					mIL_VM.Int(21)
 				);
+			}
+		),
+		mTest.Test(
+			"VAR",
+			aDebugStream => {
+#if !true
+				mStd.AssertEq(
+					mSPO_Interpreter.Run(
+						mList.List(
+							$"§IMPORT ({cImportTuple}, n)",
+							"",
+							"§VAR x := 1",
+							"x :+ 3, * 2",
+							"",
+							"§EXPORT x"
+						).Join((a1, a2) => a1 + "\n" + a2),
+						mIL_VM.Tuple(
+							ImportData,
+							mIL_VM.Int(8)
+						),
+						aDebugStream
+					),
+					mIL_VM.Int(8)
+				);
+#endif
 			}
 		)
 	);

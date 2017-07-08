@@ -46,6 +46,11 @@ public static class mStd {
 	
 	#endregion
 	
+	public struct tVoid { 
+	}
+	
+	public static tVoid cEmpty;
+	
 	#region tTuple2
 	
 	public struct tTuple<t1, t2> {
@@ -121,37 +126,79 @@ public static class mStd {
 	
 	#region tMaybe
 	
-	public struct tMaybe<t> {
-		internal tBool _IsOK;
+	public struct _tFail<t> {
+		internal t _Error;
+	}
+	
+	public struct _tOK<t> {
 		internal t _Value;
+	}
+	
+	public struct tMaybe<tOK, tFail> {
 		
-		override public tText ToString() => _IsOK ? _Value.ToString() : "FAIL";
+		internal tBool _IsOK;
+		internal tOK _Value;
+		internal tFail _Error;
+		
+		override public tText ToString() => _IsOK ? _Value.ToString() : "FAIL: "+_Error;
+		
+		public static implicit operator tMaybe<tOK, tFail>(
+			_tOK<tOK> aOK
+		) => new tMaybe<tOK, tFail> {
+			_IsOK = true,
+			_Value = aOK._Value
+		};
+		
+		public static implicit operator tMaybe<tOK, tFail>(
+			_tFail<tFail> aFail
+		) => new tMaybe<tOK, tFail> {
+			_IsOK = false,
+			_Error = aFail._Error
+		};
 	}
 	
 	//================================================================================
-	public static tMaybe<t>
-	OK<t>(
-		t a
+	public static _tOK<tOK>
+	OK<tOK>(
+		tOK a
 	//================================================================================
-	) => new tMaybe<t>{
-		_Value = a,
-		_IsOK = true
+	) => new _tOK<tOK>{
+		_Value = a
 	};
 	
 	//================================================================================
-	public static tMaybe<t>
-	Fail<t>(
+	public static _tFail<tFail>
+	Fail<tFail>(
+		tFail aError
 	//================================================================================
-	) => new tMaybe<t>{
-		_Value = default(t),
-		_IsOK = false
+	) => new _tFail<tFail>{
+		_Error = aError
 	};
+	
+	//================================================================================
+	public static _tFail<tVoid>
+	Fail(
+	//================================================================================
+	) => new _tFail<tVoid>();
 	
 	//================================================================================
 	public static tBool
-	Match<t>(
-		this tMaybe<t> a,
-		out t aValue
+	Match<tOK, tFail>(
+		this tMaybe<tOK, tFail> a,
+		out tOK aValue,
+		out tFail aError
+	//================================================================================
+	) {
+		aValue = a._Value;
+		aError = a._Error;
+		return a._IsOK;
+	}
+	
+	//================================================================================
+	public static tBool
+	Match<tOK>(
+		this tMaybe<tOK, tVoid> a,
+		out tOK aValue
 	//================================================================================
 	) {
 		aValue = a._Value;
@@ -236,6 +283,10 @@ public static class mStd {
 	) => ReferenceEquals(a, null);
 	
 	#region Assert
+	
+	public class tException<t> : System.Exception {
+		public t Value;
+	}
 	
 	//================================================================================
 	public static void
@@ -327,16 +378,16 @@ public static class mStd {
 		mTest.Test(
 			"tMaybe.ToString()",
 			aStreamOut => {
-				AssertEq(OK(1).ToString(), "1");
-				AssertEq(Fail<tText>().ToString(), "FAIL");
+				AssertEq(((tMaybe<tInt32, tText>)OK(1)).ToString(), "1");
+				AssertEq(((tMaybe<tInt32, tText>)Fail("Bla")).ToString(), "FAIL: Bla");
 			}
 		),
 		mTest.Test(
 			"tMaybe.Equals()",
 			aStreamOut => {
-				AssertEq(OK(1), OK(1));
-				AssertEq(OK("1"), OK("1"));
-				AssertEq(Fail<tText>(), Fail<tText>());
+				AssertEq<tMaybe<tInt32, tText>>(OK(1), OK(1));
+				AssertEq<tMaybe<tText, tText>>(OK("1"), OK("1"));
+				AssertEq<tMaybe<tInt32, tText>>(Fail("Bla"), Fail("Bla"));
 			}
 		),
 		mTest.Test(

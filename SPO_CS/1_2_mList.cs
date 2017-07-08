@@ -18,7 +18,7 @@ public static class mList {
 	public class tList<t> {
 		internal t _Head;
 		internal tList<t> _Tail;
-		internal mStd.tFunc<mStd.tMaybe<t>> _TryNextFunc;
+		internal mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> _TryNextFunc;
 		
 		//================================================================================
 		public tBool Equals(
@@ -41,12 +41,12 @@ public static class mList {
 	//================================================================================
 	public static tList<t>
 	LasyList<t>(
-		mStd.tFunc<mStd.tMaybe<t>> aTryNextFunc = null
+		mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> aTryNextFunc = null
 	//================================================================================
 	) {
 		if (
 			!aTryNextFunc.IsNull() &&
-			aTryNextFunc().Match(out var Head)
+			aTryNextFunc().Match(out t Head)
 		) {
 			return new tList<t>{
 				_Head = Head,
@@ -64,7 +64,7 @@ public static class mList {
 		tList<t> aTail
 	//================================================================================
 	) => new tList<t>{_Head = aHead, _Tail = aTail};
-
+	
     //================================================================================
     public static tList<t>
     List<t>(
@@ -127,13 +127,13 @@ public static class mList {
 	) {
 		var RestList = aList;
 		var Index = (tInt32?)0;
-		return LasyList(
+		return LasyList<tRes>(
 			() => {
 				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
 					return mStd.OK(aMapFunc(Index.Value - 1, Head));
 				} else {
-					return mStd.Fail<tRes>();
+					return mStd.Fail();
 				}
 			}
 		);
@@ -156,13 +156,13 @@ public static class mList {
 	) {
 		var RestList = aList;
 		var Index = (tInt32?)0;
-		return LasyList(
+		return LasyList<tRes>(
 			() => {
 				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
 					return mStd.OK(aMapFunc(Index.Value - 1, Head._1, Head._2));
 				} else {
-					return mStd.Fail<tRes>();
+					return mStd.Fail();
 				}
 			}
 		);
@@ -312,10 +312,14 @@ public static class mList {
 				mStd.AssertEq(List(1, 2, 3).ToString(), "[1, 2, 3]");
 				var LasyListCounter = (tInt32?)0;
 				mStd.AssertEq(
-					LasyList(
+					LasyList<tInt32>(
 						() => {
 							LasyListCounter += 1;
-							return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
+							if (LasyListCounter.Value < 5) {
+								return mStd.OK(LasyListCounter.Value);
+							} else {
+								return mStd.Fail();
+							}
 						}
 					).ToString(),
 					"[1, 2, 3, 4]"
@@ -332,10 +336,14 @@ public static class mList {
 				mStd.AssertNotEq(List(1), List(1, 2));
 				var LasyListCounter = (tInt32?)0;
 				mStd.AssertEq(
-					LasyList(
+					LasyList<tInt32>(
 						() => {
 							LasyListCounter += 1;
-							return (LasyListCounter.Value < 5) ? mStd.OK(LasyListCounter.Value) : mStd.Fail<tInt32>();
+							if (LasyListCounter.Value < 5) {
+								return mStd.OK(LasyListCounter.Value);
+							} else {
+								return mStd.Fail();
+							}
 						}
 					),
 					List(1, 2, 3, 4)
@@ -400,7 +408,7 @@ public static class mList {
 				mStd.Assert(List<tInt32>().IsEmpty());
 				mStd.AssertNot(List(1).IsEmpty());
 				mStd.AssertNot(List(1, 2).IsEmpty());
-					
+				
 				mStd.AssertNot(List<tInt32>() == new tList<int>());
 			}
 		),

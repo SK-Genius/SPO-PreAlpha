@@ -115,6 +115,8 @@ public static class mIL_Interpreter {
 					Reg = Reg.Set(RegId1, NewProc.HasPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
 				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Assert, out RegId1, out RegId2)) {
 					NewProc.Assert(Reg.Get(RegId1), Reg.Get(RegId2));
+				} else if (Command.MATCH(mIL_AST.tCommandNodeType.Var, out RegId1, out RegId2)) {
+					Reg = Reg.Set(RegId1, NewProc.Var(Reg.Get(RegId2)));
 				} else {
 					mStd.Assert(false);
 				}
@@ -137,11 +139,11 @@ public static class mIL_Interpreter {
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out Arg1_));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
 		tInt32 Arg2_;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Int, out Arg2_));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
 		return mIL_VM.Int(Arg1_ + Arg2_);
 	};
 	
@@ -156,11 +158,11 @@ public static class mIL_Interpreter {
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out Arg1_));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
 		tInt32 Arg2_;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Int, out Arg2_));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
 		return mIL_VM.Int(Arg1_ - Arg2_);
 	};
 	
@@ -175,11 +177,11 @@ public static class mIL_Interpreter {
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out Arg1_));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
 		tInt32 Arg2_;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Int, out Arg2_));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
 		return mIL_VM.Int(Arg1_ * Arg2_);
 	};
 	
@@ -194,11 +196,11 @@ public static class mIL_Interpreter {
 	) => {
 		mIL_VM.tData Arg1;
 		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.MATCH(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
 		tInt32 Arg1_;
-		mStd.Assert(Arg1.MATCH(mIL_VM.tDataType.Int, out Arg1_));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
 		tInt32 Arg2_;
-		mStd.Assert(Arg2.MATCH(mIL_VM.tDataType.Int, out Arg2_));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
 		return mIL_VM.Bool(Arg1_.Equals(Arg2_));
 	};
 	
@@ -218,11 +220,11 @@ public static class mIL_Interpreter {
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
-					
+				
 				mList.tList<mIL_VM.tProcDef> Module;
 				mMap.tMap<tText, tInt32> ModuleMap;
 				X.Match(out Module, out ModuleMap);
-					
+				
 				#if TRACE
 					var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
@@ -230,7 +232,7 @@ public static class mIL_Interpreter {
 				#else
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
-					
+				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 				var Env = mIL_VM.ExternDef(Add);
 				var Res = mIL_VM.Empty();
@@ -259,11 +261,11 @@ public static class mIL_Interpreter {
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
-					
+				
 				mList.tList<mIL_VM.tProcDef> Module;
 				mMap.tMap<tText, tInt32> ModuleMap;
 				X.Match(out Module, out ModuleMap);
-					
+				
 				#if TRACE
 					var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
@@ -271,7 +273,7 @@ public static class mIL_Interpreter {
 				#else
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
-					
+				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 				var Env = mIL_VM.ExternDef(Add);
 				var Res = mIL_VM.Empty();
@@ -298,15 +300,15 @@ public static class mIL_Interpreter {
 					"	§RETURN arg_eq_1? IF TRUE\n",
 					aDebugStream
 				);
-					
+				
 				mList.tList<mIL_VM.tProcDef> Module;
 				mMap.tMap<tText, tInt32> ModuleMap;
 				X.Match(out Module, out ModuleMap);
-					
+				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
 				var Env = mIL_VM.ExternDef(Eq);
 				var Res = mIL_VM.Empty();
-					
+				
 				#if TRACE
 					var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
@@ -314,7 +316,7 @@ public static class mIL_Interpreter {
 				#else
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
-					
+				
 				var CallStack = new mIL_VM.tCallStack(
 					null,
 					Proc,
@@ -328,7 +330,7 @@ public static class mIL_Interpreter {
 					CallStack = CallStack.Step();
 				}
 				mStd.AssertEq(Res, mIL_VM.Bool(true));
-					
+				
 				var HasThrowException = false;
 				try {
 					Res = mIL_VM.Empty();
@@ -342,7 +344,7 @@ public static class mIL_Interpreter {
 				} catch {
 					HasThrowException = true;
 				}
-					
+				
 				mStd.Assert(HasThrowException);
 			}
 		),
@@ -353,13 +355,13 @@ public static class mIL_Interpreter {
 					"DEF bla\n" +
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +
-						
+					
 					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-						
+					
 					"	p := _1, _1\n" +
 					"	r := add p\n" +
 					"	§RETURN r IF TRUE\n" +
-						
+					
 					"DEF bla2\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
@@ -367,11 +369,11 @@ public static class mIL_Interpreter {
 					"	sub_  := §1ST rest1\n" +
 					"	rest2 := §2ND rest1\n" +
 					"	mul_  := §1ST rest2\n" +
-						
+					
 					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
-						
+					
 					"	_1_1 := _1, _1\n" +
 					"	_2   := add _1_1\n" +
 					"	_2_1 := _2, _1\n" +
@@ -381,7 +383,7 @@ public static class mIL_Interpreter {
 					"	_3_4 := _3, _4\n" +
 					"	_12  := mul _3_4\n" +
 					"	§RETURN _12 IF TRUE\n" +
-						
+					
 					"DEF ...!!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
@@ -391,28 +393,28 @@ public static class mIL_Interpreter {
 					"	mul_  := §1ST rest2\n" +
 					"	rest3 := §2ND rest2\n" +
 					"	eq_   := §1ST rest3\n" +
-						
+					
 					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
 					"	eq  := eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
-						
+					
 					"	1_1 := _1, _1\n" +
 					"	0   := sub 1_1\n" +
-						
+					
 					"	arg    := §1ST ARG\n" +
 					"	res    := §2ND ARG\n" +
 					"	arg_0  := arg, 0\n" +
 					"	areEq0 := eq arg_0\n" +
 					"	§RETURN res IF areEq0\n" +
-						
+					
 					"	res_arg := res, arg\n" +
 					"	newRes  := mul res_arg\n" +
 					"	arg_1   := arg, _1\n" +
 					"	newArg  := sub arg_1\n" +
 					"	newArg_newRes := newArg, newRes\n" +
 					"	§REPEAT newArg_newRes IF TRUE\n" +
-						
+					
 					"DEF ...!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
@@ -431,16 +433,16 @@ public static class mIL_Interpreter {
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
-					
+				
 				mList.tList<mIL_VM.tProcDef> Module;
 				mMap.tMap<tText, tInt32> ModuleMap;
 				X.Match(out Module, out ModuleMap);
-					
+				
 				var Proc1 = Module.Skip(ModuleMap.Get("bla"))._Head;
 				var Proc2 = Module.Skip(ModuleMap.Get("bla2"))._Head;
 				var Proc3 = Module.Skip(ModuleMap.Get("...!!"))._Head;
 				var Proc4 = Module.Skip(ModuleMap.Get("...!"))._Head;
-					
+				
 				var Env = mIL_VM.Pair(
 					mIL_VM.ExternDef(Add),
 					mIL_VM.Pair(
