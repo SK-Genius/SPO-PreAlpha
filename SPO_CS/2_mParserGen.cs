@@ -172,14 +172,14 @@ public static class mParserGen {
 	
 	//================================================================================
 	public static tBool Match<t, tError>(
-		this mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>, mList.tList<tError>> a,
+		this mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>> a,
 		out tResultList aResultList,
 		out mList.tList<t> aRestStream,
 		out mList.tList<tError> aErrorList
 	//================================================================================
 	) {
 		if (a.Match(out var Temp, out aErrorList)) {
-			Temp.Match(out aResultList, out aRestStream);
+			(aResultList, aRestStream) = Temp;
 			return true;
 		}
 		aResultList = default(tResultList);
@@ -188,12 +188,12 @@ public static class mParserGen {
 	}
 	
 	//================================================================================
-	public static mStd._tOK<mStd.tTuple<tResultList, mList.tList<t>>>
+	public static mStd._tOK<(tResultList, mList.tList<t>)>
 	OK<t>(
 		tResultList aResultList,
 		mList.tList<t> aRestStream
 	//================================================================================
-	) => mStd.OK(mStd.Tuple(aResultList, aRestStream));
+	) => mStd.OK((aResultList, aRestStream));
 	
 	//================================================================================
 	public static mList.tList<t>
@@ -348,7 +348,7 @@ public static class mParserGen {
 	
 	public class tParser<t, tError> {
 		internal mStd.tFunc<
-			mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>, mList.tList<tError>>,
+			mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>>,
 			mList.tList<t>,
 			mStd.tAction<tText>
 		> _ParseFunc;
@@ -626,7 +626,7 @@ public static class mParserGen {
 	}
 	
 	//================================================================================
-	public static mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>, mList.tList<tError>>
+	public static mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>>
 	StartParse<t, tError>(
 		this tParser<t, tError> aParser,
 		mList.tList<t> aStream,
@@ -649,7 +649,7 @@ public static class mParserGen {
 	}
 	
 	//================================================================================
-	private static mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>, mList.tList<tError>>
+	private static mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>>
 	Parse<t, tError>(
 		this tParser<t, tError> aParser,
 		mList.tList<t> aStream,
@@ -666,7 +666,7 @@ public static class mParserGen {
 			}
 		#endif
 		var Head = aStream.IsNull() ? default(t) : aStream._Head;
-		mStd.tMaybe<mStd.tTuple<tResultList, mList.tList<t>>, mList.tList<tError>> Result;
+		mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>> Result;
 		try {
 			Result = aParser._ParseFunc(aStream, aDebugStream);
 		} catch (mStd.tException<mList.tList<tError>> e) {
@@ -1107,7 +1107,7 @@ public static class mParserGen {
 				var Eval = mStd.Func(
 					(tText aExpr) => {
 						var I = (tInt32?)0;
-						mStd.tTuple<tResultList, mList.tList<tChar>> Tuple;
+						(tResultList, mList.tList<tChar>) Tuple;
 						
 						var X = Expression.StartParse(
 							mList.LasyList<tChar>(
@@ -1121,11 +1121,8 @@ public static class mParserGen {
 							),
 							aDebugStream
 						);
-						mStd.Assert(X.Match(out Tuple, out var _));
-						
-						tResultList ResultList;
-						mList.tList<tChar> Rest;
-						Tuple.Match(out ResultList, out Rest);
+						mStd.Assert(X.Match(out Tuple, out var _));						
+						(var ResultList, var Rest) = Tuple;
 						
 						tInt32 Result;
 						mStd.Assert(ResultList.Match(out Result));

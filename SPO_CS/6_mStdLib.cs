@@ -16,7 +16,7 @@ using tText = System.String;
 public static class mStdLib {
 	//================================================================================
 	private static bool
-	MATCH(
+	Match(
 		this mIL_VM.tData aArg,
 		out tBool a1,
 		out tBool a2
@@ -44,7 +44,7 @@ public static class mStdLib {
 	
 	//================================================================================
 	private static bool
-	MATCH(
+	Match(
 		this mIL_VM.tData aArg,
 		out tInt32 a1,
 		out tInt32 a2
@@ -92,7 +92,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
+		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
 		return mIL_VM.Bool(Arg1 & Arg2);
 	}
 	
@@ -105,7 +105,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
+		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
 		return mIL_VM.Bool(Arg1 | Arg2);
 	}
 	
@@ -118,7 +118,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tBool Arg1, out tBool Arg2));
+		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
 		return mIL_VM.Bool(Arg1 ^ Arg2);
 	}
 	
@@ -144,7 +144,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Int(Arg1 + Arg2);
 	}
 	
@@ -157,7 +157,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Int(Arg1 - Arg2);
 	}
 	
@@ -170,7 +170,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Int(Arg1 * Arg2);
 	}
 	
@@ -183,7 +183,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Int(Arg1 / Arg2);
 	}
 	
@@ -196,7 +196,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Int(Arg1 % Arg2);
 	}
 	
@@ -209,7 +209,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 == Arg2);
 	}
 	
@@ -222,7 +222,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 != Arg2);
 	}
 	
@@ -235,7 +235,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 < Arg2);
 	}
 	
@@ -248,7 +248,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 <= Arg2);
 	}
 	
@@ -261,7 +261,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 > Arg2);
 	}
 	
@@ -274,7 +274,7 @@ public static class mStdLib {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MATCH(out tInt32 Arg1, out tInt32 Arg2));
+		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
 		return mIL_VM.Bool(Arg1 >= Arg2);
 	}
 	

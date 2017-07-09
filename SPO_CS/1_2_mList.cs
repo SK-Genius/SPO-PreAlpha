@@ -126,12 +126,12 @@ public static class mList {
 	//================================================================================
 	) {
 		var RestList = aList;
-		var Index = (tInt32?)0;
+		var Index = (tInt32?)-1;
 		return LasyList<tRes>(
 			() => {
 				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
-					return mStd.OK(aMapFunc(Index.Value - 1, Head));
+					return mStd.OK(aMapFunc(Index.Value, Head));
 				} else {
 					return mStd.Fail();
 				}
@@ -142,7 +142,7 @@ public static class mList {
 	//================================================================================
 	public static tList<tRes>
 	Map<tRes, tElem1, tElem2>(
-		this tList<mStd.tTuple<tElem1, tElem2>> aList,
+		this tList<(tElem1, tElem2)> aList,
 		mStd.tFunc<tRes, tElem1, tElem2> aMapFunc
 	//================================================================================
 	) => aList.MapWithIndex((aIndex, aElem1, aElem2) => aMapFunc(aElem1, aElem2));
@@ -150,7 +150,7 @@ public static class mList {
 	//================================================================================
 	public static tList<tRes>
 	MapWithIndex<tRes, tElem1, tElem2>(
-		this tList<mStd.tTuple<tElem1, tElem2>> aList,
+		this tList<(tElem1, tElem2)> aList,
 		mStd.tFunc<tRes, tInt32, tElem1, tElem2> aMapFunc
 	//================================================================================
 	) {
@@ -160,7 +160,7 @@ public static class mList {
 			() => {
 				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
-					return mStd.OK(aMapFunc(Index.Value - 1, Head._1, Head._2));
+					return mStd.OK(aMapFunc(Index.Value - 1, Head.Item1, Head.Item2));
 				} else {
 					return mStd.Fail();
 				}
@@ -360,10 +360,19 @@ public static class mList {
 			}
 		),
 		mTest.Test(
-			"Map()",
+			"Map1()",
 			aStreamOut => {
 				mStd.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
 				mStd.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
+			}
+		),
+		mTest.Test(
+			"MapWithIndex()",
+			aStreamOut => {
+				mStd.AssertEq(
+					List(1, 2, 3, 4).MapWithIndex((i, a) => (i, a*a)),
+					List((0, 1), (1, 4), (2, 9), (3, 16))
+				);
 			}
 		),
 		mTest.Test(

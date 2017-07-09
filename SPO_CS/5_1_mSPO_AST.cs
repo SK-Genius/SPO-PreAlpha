@@ -277,7 +277,7 @@ public static class mSPO_AST {
 	}
 	
 	public class tIfNode : tExpressionNode {
-		internal mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>> _Cases;
+		internal mList.tList<(tExpressionNode, tExpressionNode)> _Cases;
 		
 		//================================================================================
 		public tBool
@@ -292,7 +292,7 @@ public static class mSPO_AST {
 	
 	public class tIfMatchNode : tExpressionNode {
 		internal tExpressionNode _Expression;
-		internal mList.tList<mStd.tTuple<tMatchNode, tExpressionNode>> _Cases;
+		internal mList.tList<(tMatchNode, tExpressionNode)> _Cases;
 		
 		//================================================================================
 		public tBool
@@ -511,8 +511,7 @@ public static class mSPO_AST {
 	) => {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
-				mStd.Assert(false); // TODO
-				return null;
+				throw null; // TODO
 			}
 			case 1: {
 				return aItems._Head._Pattern;
@@ -566,7 +565,7 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIfNode, mList.tList<mStd.tTuple<tExpressionNode, tExpressionNode>>>
+	public static mStd.tFunc<tIfNode, mList.tList<(tExpressionNode, tExpressionNode)>>
 	If = (
 		aCases
 	//================================================================================
@@ -575,7 +574,7 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<mStd.tTuple<tMatchNode, tExpressionNode>>>
+	public static mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<(tMatchNode, tExpressionNode)>>
 	IfMatch = (
 		aExpression,
 		aCases

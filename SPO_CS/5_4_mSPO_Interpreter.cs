@@ -32,15 +32,13 @@ public static class mSPO_Interpreter {
 		
 		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode);
 		
-		mIL_Interpreter.ParseModule(
+		(var VMModule, var ModuleMap) = mIL_Interpreter.ParseModule(
 			ModuleConstructor.Defs.ToLasyList(
 			).MapWithIndex(
-				(aIndex, aCommands) => {
-					return mStd.Tuple(mSPO2IL.TempDef(aIndex), aCommands.ToLasyList());
-				}
+				(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToLasyList())
 			),
 			aDebugStream
-		).Match(out var VMModule, out var ModuleMap);
+		);
 		
 		var Res = mIL_VM.Empty();
 		

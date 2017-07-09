@@ -51,79 +51,6 @@ public static class mStd {
 	
 	public static tVoid cEmpty;
 	
-	#region tTuple2
-	
-	public struct tTuple<t1, t2> {
-		internal t1 _1;
-		internal t2 _2;
-		
-		override public tText ToString() => $"({_1}, {_2})";
-	}
-	
-	//================================================================================
-	public static tTuple<t1, t2>
-	Tuple<t1, t2>(
-		t1 a1,
-		t2 a2
-	//================================================================================
-	) => new tTuple<t1, t2>{
-		_1 = a1,
-		_2 = a2
-	};
-	
-	//================================================================================
-	public static void
-	Match<t1, t2>(
-		this tTuple<t1, t2> a,
-		out t1 a1,
-		out t2 a2
-	//================================================================================
-	) {
-		a1 = a._1;
-		a2 = a._2;
-	}
-	
-	#endregion
-	
-	#region tTuple3
-	
-	public struct tTuple<t1, t2, t3> {
-		internal t1 _1;
-		internal t2 _2;
-		internal t3 _3;
-		
-		override public tText ToString() => $"({_1}, {_2}, {_3})";
-    }
-	
-	//================================================================================
-	public static tTuple<t1, t2, t3>
-	Tuple<t1, t2, t3>(
-		t1 a1,
-		t2 a2,
-		t3 a3
-	//================================================================================
-	) => new tTuple<t1, t2, t3>{
-		_1 = a1,
-		_2 = a2,
-		_3 = a3
-	};
-	
-	//================================================================================
-	public static void
-	Match<t1, t2, t3>(
-		this tTuple<t1, t2, t3> a,
-		out t1 a1,
-		out t2 a2,
-		out t3 a3
-	//================================================================================
-	) {
-		a1 = a._1;
-		a2 = a._2;
-		a3 = a._3;
-	}
-	
-	#endregion
-	
 	#region tMaybe
 	
 	public struct _tFail<t> {
@@ -411,15 +338,15 @@ public static class mStd {
 		mTest.Test(
 			"tTuple.ToString()",
 			aStreamOut => {
-				AssertEq(Tuple(1, "2").ToString(), "(1, 2)");
-				AssertEq(Tuple(1, "2", Tuple("A", "B")).ToString(), "(1, 2, (A, B))");
+				AssertEq((1, "2").ToString(), "(1, 2)");
+				AssertEq((1, "2", ("A", "B")).ToString(), "(1, 2, (A, B))");
 			}
 		),
 		mTest.Test(
 			"tTuple.Equals()",
 			aStreamOut => {
-				AssertEq(Tuple(1, "2"), Tuple(1, "2"));
-				AssertEq(Tuple(1, "2", Tuple("A", "B")), Tuple(1, "2", Tuple("A", "B")));
+				AssertEq((1, "2"), (1, "2"));
+				AssertEq((1, "2", ("A", "B")), (1, "2", ("A", "B")));
 			}
 		)
 	);

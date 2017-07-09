@@ -90,7 +90,7 @@ public static class mTextParser {
 				).Reduce("", (a1, a2) => a1 + "\n" + a2)
 			);
 		}
-		Result.Match(out var ResultList, out var Rest);
+		(var ResultList, var Rest) = Result;
 		mStd.AssertEq(Rest, mList.List<tPosChar>());
 		return ResultList;
 	}

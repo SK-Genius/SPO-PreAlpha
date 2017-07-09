@@ -97,13 +97,16 @@ public static class mTest {
 					switch (Test.Run(aText => aDebugStream(cTab + aText), aFilters)) {
 						case tResult.OK: {
 							Result = tResult.OK;
-						} break;
+							break;
+						}
 						case tResult.Fail: {
 							aDebugStream("-> Fail");
 							aDebugStream("");
-						} return tResult.Fail;
+							return tResult.Fail;
+						}
 						case tResult.Skip: {
-						} break;
+							break;
+						}
 					}
 				}
 				aDebugStream($"-> {Result}");
@@ -111,7 +114,6 @@ public static class mTest {
 				return Result;
 			}
 		}
-		mStd.Assert(false);
-		return tResult.Fail;
+		throw null;
 	}
 }

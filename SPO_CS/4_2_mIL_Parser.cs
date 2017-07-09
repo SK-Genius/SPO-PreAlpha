@@ -146,10 +146,10 @@ public static class  mIL_Parser {
 		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)));
 	
 	public static readonly tIL_Parser Def = (-Text("DEF") -__ +Ident -NL +Block)
-		.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => mStd.Tuple(aID, aBlock));
+		.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => (aID, aBlock));
 	
 	public static readonly tIL_Parser Module = Def[1, null]
-		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mStd.tTuple<tText, mList.tList<mIL_AST.tCommandNode>>>)));
+		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<(tText, mList.tList<mIL_AST.tCommandNode>)>)));
 	
 	#region TEST
 	

@@ -95,6 +95,7 @@ public static class mSPO2IL {
 				}
 				break;
 			}
+			
 			case mSPO_AST.tEmptyNode EmptyNode: {
 				break;
 			}
@@ -104,8 +105,7 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				mStd.Assert(false);
-				break;
+				throw null;
 			}
 		}
 	}
@@ -186,7 +186,7 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
-	public static mStd.tTuple<tInt32, mArrayList.tArrayList<tText>>
+	public static (tInt32, mArrayList.tArrayList<tText>)
 	MapLambda(
 		ref tModuleConstructor aModuleConstructor,
 		mSPO_AST.tLambdaNode aLambdaNode
@@ -198,7 +198,7 @@ public static class mSPO2IL {
 			ref TempLambdaDef,
 			TempLambdaDef.UnsolvedSymbols
 		);
-		return mStd.Tuple(TempLambdaDef.Index, TempLambdaDef.UnsolvedSymbols);
+		return (TempLambdaDef.Index, TempLambdaDef.UnsolvedSymbols);
 	}
 	
 	//================================================================================
@@ -305,8 +305,7 @@ public static class mSPO2IL {
 									return false;
 								}
 								default: {
-									mStd.Assert(false);
-									return false;
+									throw null;
 								}
 							}
 						}
@@ -329,8 +328,7 @@ public static class mSPO2IL {
 			case mSPO_AST.tTupleNode TupleNode: {
 				switch (TupleNode._Items.Take(2).ToArrayList().Size()) {
 					case 0: {
-						mStd.Assert(false);
-						return mIL_AST.cEmpty;
+						throw null;
 					}
 					case 1: {
 						return MapExpresion(ref aDefConstructor, TupleNode._Items._Head);
@@ -367,16 +365,12 @@ public static class mSPO2IL {
 				return TempReg(aDefConstructor.LastTempReg);
 			}
 			case mSPO_AST.tTextNode TextNode: {
-				mStd.Assert(false);
-				return null;
+				throw null;
 			}
 			case mSPO_AST.tLambdaNode LambdaNode: {
-				MapLambda(
+				(var NewDefIndex, var UnsolvedSymbols) = MapLambda(
 					ref aDefConstructor.ModuleConstructor,
 					LambdaNode
-				).Match(
-					out var NewDefIndex,
-					out var UnsolvedSymbols
 				);
 				return InitLambda(
 					ref aDefConstructor,
@@ -396,7 +390,7 @@ public static class mSPO2IL {
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode>();
 				var Pairs = IfNode._Cases;
 				while (Pairs.Match(out var Pair, out Pairs)) {
-					Pair.Match(out var Test, out var Run);
+					(var Test, var Run) = Pair;
 					Ifs.Push(mSPO_AST.ReturnIf(Run, Test));
 				}
 				Ifs.Push(mSPO_AST.ReturnIf(mSPO_AST.Empty(), mSPO_AST.True())); // TODO: ASSERT FALSE
@@ -437,7 +431,7 @@ public static class mSPO2IL {
 				
 				var Rest = IfMatchNode._Cases;
 				while (Rest.Match(out var Case, out Rest)) {
-					Case.Match(out var Match, out var Run);
+					(var Match, var Run) = Case;
 					var TestDef = NewDefConstructor(ModuleConstructor);
 					
 					MapMatchTest(ref TestDef, mIL_AST.cArg, Match);
@@ -492,8 +486,7 @@ public static class mSPO2IL {
 				return ResultReg; 
 			}
 			default: {
-				mStd.Assert(false);
-				return null;
+				throw null;
 			}
 		}
 	}
@@ -533,8 +526,7 @@ public static class mSPO2IL {
 			case mSPO_AST.tMatchTupleNode TupleNode: {
 				mStd.Assert(TupleNode._Items.Match(out var Item, out var Rest));
 				if (Rest.IsNull()) {
-					mStd.Assert(false);
-					return false;
+					throw null;
 				}
 				
 				var OldTailReg = aValue;
@@ -558,8 +550,7 @@ public static class mSPO2IL {
 				return true;
 			}
 			default: {
-				mStd.Assert(false);
-				return true;
+				throw null;
 			}
 		}
 	}
@@ -587,7 +578,7 @@ public static class mSPO2IL {
 						mIL_AST.Alias(IdentNode._Name, aInReg)
 					);
 				} else {
-					mStd.Assert(false);
+					throw null;
 				}
 				break;
 			}
@@ -666,8 +657,7 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				mStd.Assert(false);
-				break;
+				throw null;
 			}
 		}
 	}
@@ -840,8 +830,7 @@ public static class mSPO2IL {
 				return MapVar(ref aDefConstructor, VarNode);
 			}
 			default: {
-				mStd.Assert(false);
-				return false;
+				throw null;
 			}
 		}
 	}
@@ -1178,12 +1167,10 @@ public static class mSPO2IL {
 				);
 				
 				var ModuleConstructor = NewModuleConstructor();
-				tInt32 DefIndex;
-				var UnsolvedSymbols = mArrayList.List<tText>();
-				MapLambda(
+				(var DefIndex, var UnsolvedSymbols) = MapLambda(
 					ref ModuleConstructor,
 					LambdaNode
-				).Match(out DefIndex, out UnsolvedSymbols);
+				);
 				
 				mStd.AssertEq(ModuleConstructor.Defs.Size(), 1);
 				mStd.AssertEq(DefIndex, 0);

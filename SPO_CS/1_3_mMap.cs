@@ -15,7 +15,7 @@ using tText = System.String;
 
 public static class mMap {
 	public struct tMap<tKey, tValue> {
-		internal mList.tList<mStd.tTuple<tKey, tValue>> _KeyValuePairs;
+		internal mList.tList<(tKey, tValue)> _KeyValuePairs;
 		internal mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 	}
 	
@@ -25,7 +25,7 @@ public static class mMap {
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 	//================================================================================
 	) => new tMap<tKey, tValue>{
-		_KeyValuePairs = mList.List<mStd.tTuple<tKey, tValue>>(),
+		_KeyValuePairs = mList.List<(tKey, tValue)>(),
 		_EqualsFunc = aEqualsFunc
 	};
 	
@@ -39,7 +39,8 @@ public static class mMap {
 	) {
 		var RestList = aMap._KeyValuePairs;
 		while (RestList.Match(out var KeyValuePair, out RestList)) {
-			KeyValuePair.Match(out var Key, out aValue);
+			(var Key, var aValue_) = KeyValuePair;
+			aValue = aValue_;
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return true;
 			}
@@ -68,10 +69,7 @@ public static class mMap {
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = aMap._KeyValuePairs.Where(
-			aKeyValuePair => {
-				aKeyValuePair.Match(out tKey Key, out tValue _);
-				return !aMap._EqualsFunc(Key, aKey);
-			}
+			aKeyValuePair => !aMap._EqualsFunc(aKeyValuePair.Item1, aKey)
 		)
 	};
 	
@@ -85,12 +83,9 @@ public static class mMap {
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = mList.List(
-			mStd.Tuple(aKey, aValue),
+			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
-				aKeyValuePair => {
-					aKeyValuePair.Match(out tKey Key, out tValue _);
-					return !aMap._EqualsFunc(Key, aKey);
-				}
+				aKeyValuePair => !aMap._EqualsFunc(aKeyValuePair.Item1, aKey)
 			)
 		)
 	};

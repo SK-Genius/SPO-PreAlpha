@@ -92,7 +92,7 @@ public static class mIL_AST {
 	
 	//================================================================================
 	public static tBool
-	MATCH(
+	Match(
 		this tCommandNode aNode,
 		tCommandNodeType aNodeType,
 		out tText aId
@@ -112,7 +112,7 @@ public static class mIL_AST {
 	
 	//================================================================================
 	public static tBool
-	MATCH(
+	Match(
 		this tCommandNode aNode,
 		tCommandNodeType aNodeType,
 		out tText aId1,
@@ -134,7 +134,7 @@ public static class mIL_AST {
 	
 	//================================================================================
 	public static tBool
-	MATCH(
+	Match(
 		this tCommandNode aNode,
 		tCommandNodeType aNodeType,
 		out tText aId1,

@@ -56,7 +56,8 @@ public static class mProgram {
 		}
 		if (
 			SelfTests(
-				Args, aLine => {
+				Args,
+				aLine => {
 					System.Console.WriteLine(aLine);
 					System.Diagnostics.Debug.WriteLine(aLine);
 				}

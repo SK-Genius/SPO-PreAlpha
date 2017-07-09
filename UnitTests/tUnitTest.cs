@@ -76,7 +76,8 @@ internal static class mTestHelper {
 	[xTest] public void tList_ToString() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tList_Equals() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Concat() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Map() => mTestHelper.MagicRun(Tests);
+	[xTest] public void Map1() => mTestHelper.MagicRun(Tests);
+	[xTest] public void MapWithIndex() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Reduce() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Join() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Take() => mTestHelper.MagicRun(Tests);

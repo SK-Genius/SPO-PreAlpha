@@ -133,7 +133,7 @@ public static class mSPO_Parser {
 					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
 					return (
 						mParserGen.ResultList(
-							mStd.Tuple(
+							(
 								mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => $"{a1}...{a2}")+Last),
 								aList._Value.Skip(1).Every(2)
 							)
@@ -148,7 +148,7 @@ public static class mSPO_Parser {
 					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
 					return (
 						mParserGen.ResultList(
-							mStd.Tuple(
+							(
 								mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
 								aList._Value.Every(2)
 							)
@@ -161,10 +161,8 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser Call = (
 		Infix(".", ExpressionInCall).Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
-				mSPO_AST.tIdentNode Ident;
-				tResults ChildList;
-				aPair.Match(out Ident, out ChildList);
+			((mSPO_AST.tIdentNode, tResults) aPair) => {
+				(var Ident, var ChildList) = aPair;
 				return mSPO_AST.Call(
 					Ident,
 					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
@@ -176,10 +174,8 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser Prefix = Infix("#", ExpressionInCall)
 		.Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
-				mSPO_AST.tIdentNode Ident;
-				tResults ChildList;
-				aPair.Match(out Ident, out ChildList);
+			((mSPO_AST.tIdentNode, tResults) aPair) => {
+				(var Ident, var ChildList) = aPair;
 				return mSPO_AST.Prefix(
 					Ident,
 					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
@@ -190,10 +186,8 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser MatchPrefix = C( Infix("#", Match) )
 		.Modify(
-			(mStd.tTuple<mSPO_AST.tIdentNode, tResults> aPair) => {
-				mSPO_AST.tIdentNode Ident;
-				tResults ChildList;
-				aPair.Match(out Ident, out ChildList);
+			((mSPO_AST.tIdentNode, tResults) aPair) => {
+				(var Ident, var ChildList) = aPair;
 				return mSPO_AST.MatchPrefix(
 					Ident,
 					mSPO_AST.Match(
@@ -233,14 +227,14 @@ public static class mSPO_Parser {
 			(
 				-__ +Expression -Token("=>") +(Expression -NL).OrFail()
 			).Modify(
-				(mSPO_AST.tExpressionNode a1, mSPO_AST.tExpressionNode a2) => mStd.Tuple(a1, a2)
+				(mSPO_AST.tExpressionNode a1, mSPO_AST.tExpressionNode a2) => (a1, a2)
 			)[0, null] -Token("}")
 		).OrFail()
 	)
 		.ModifyList(
 			aList => mParserGen.ResultList(
 				mSPO_AST.If(
-					aList.Map(mStd.To<mStd.tTuple<mSPO_AST.tExpressionNode, mSPO_AST.tExpressionNode>>)
+					aList.Map(mStd.To<(mSPO_AST.tExpressionNode, mSPO_AST.tExpressionNode)>)
 				)
 			)
 		)
@@ -254,7 +248,7 @@ public static class mSPO_Parser {
 				-__ +Match +(-Token("=>") +Expression -NL).OrFail()
 			)
 			.Modify(
-				(mSPO_AST.tMatchNode a1, mSPO_AST.tExpressionNode a2) => mStd.Tuple(a1, a2)
+				(mSPO_AST.tMatchNode a1, mSPO_AST.tExpressionNode a2) => (a1, a2)
 			)[0, null]
 			-Token("}")
 		).OrFail()
@@ -271,7 +265,7 @@ public static class mSPO_Parser {
 				return mParserGen.ResultList(
 					mSPO_AST.IfMatch(
 						Expression,
-						Tail.Map(mStd.To<mStd.tTuple<mSPO_AST.tMatchNode, mSPO_AST.tExpressionNode>>)
+						Tail.Map(mStd.To<(mSPO_AST.tMatchNode, mSPO_AST.tExpressionNode)>)
 					)
 				);
 			}
