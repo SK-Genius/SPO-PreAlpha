@@ -53,7 +53,7 @@ public static class mIL_AST {
 	public const tText cArg = "ARG";
 	public const tText cRes = "RES";
 	
-	public class tCommandNode {
+	public struct tCommandNode {
 		internal tCommandNodeType _NodeType;
 		internal tText _1;
 		internal tText _2;
@@ -71,8 +71,53 @@ public static class mIL_AST {
 			_3 == a._3
 		);
 		
-		override public tBool Equals(object a) => Equals(a as tCommandNode);
 		override public tText ToString() => $"{{{_NodeType} {_1} {_2} {_3}}}";
+	}
+	
+	//================================================================================
+	public static tBool
+	TryGetResultReg(
+		this tCommandNode aNode,
+		out tText aResultReg
+	//================================================================================
+	) {
+		switch (aNode._NodeType) {
+			case mIL_AST.tCommandNodeType.AddPrefix:
+			case mIL_AST.tCommandNodeType.Alias:
+			case mIL_AST.tCommandNodeType.And:
+			case mIL_AST.tCommandNodeType.Call:
+			case mIL_AST.tCommandNodeType.Exec:
+			case mIL_AST.tCommandNodeType.First:
+			case mIL_AST.tCommandNodeType.HasPrefix:
+			case mIL_AST.tCommandNodeType.Int:
+			case mIL_AST.tCommandNodeType.IntsAdd:
+			case mIL_AST.tCommandNodeType.IntsAreEq:
+			case mIL_AST.tCommandNodeType.IntsComp:
+			case mIL_AST.tCommandNodeType.IntsMul:
+			case mIL_AST.tCommandNodeType.IntsSub:
+			case mIL_AST.tCommandNodeType.Not:
+			case mIL_AST.tCommandNodeType.Or:
+			case mIL_AST.tCommandNodeType.Pair:
+			case mIL_AST.tCommandNodeType.Second:
+			case mIL_AST.tCommandNodeType.SubPrefix:
+			case mIL_AST.tCommandNodeType.Var:
+			case mIL_AST.tCommandNodeType.XOr: {
+				aResultReg = aNode._1;
+				return true;
+			}
+			case mIL_AST.tCommandNodeType.Assert:
+			case mIL_AST.tCommandNodeType.Pop:
+			case mIL_AST.tCommandNodeType.Proof:
+			case mIL_AST.tCommandNodeType.Push:
+			case mIL_AST.tCommandNodeType.RepeatIf:
+			case mIL_AST.tCommandNodeType.ReturnIf: {
+				aResultReg = null;
+				return false;
+			}
+			default: {
+				throw null;
+			}
+		}
 	}
 	
 	//================================================================================

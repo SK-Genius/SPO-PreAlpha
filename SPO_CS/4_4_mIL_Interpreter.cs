@@ -16,7 +16,7 @@ using tText = System.String;
 public static class mIL_Interpreter {
 	
 	//================================================================================
-	private static (
+	public static (
 		mList.tList<mIL_VM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
@@ -35,7 +35,7 @@ public static class mIL_Interpreter {
 	}
 	
 	//================================================================================
-	internal static (
+	public static (
 		mList.tList<mIL_VM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
@@ -52,7 +52,7 @@ public static class mIL_Interpreter {
 		
 		var RestDefs = Defs;
 		while (RestDefs.Match(out var Def, out RestDefs)) {
-			(var DefName, var Commands) = Def;
+			var (DefName, Commands) = Def;
 			#if TRACE
 				aTrace($"    {DefName}:");
 			#endif
@@ -129,80 +129,64 @@ public static class mIL_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<mStd.tFunc<tText>>>
-	Add = (
-		aEnv,
-		aObj,
-		aArg,
-		aTraceOut
+	private static mIL_VM.tData
+	Add (
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
-	) => {
-		mIL_VM.tData Arg1;
-		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
-		tInt32 Arg1_;
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
-		tInt32 Arg2_;
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
-		return mIL_VM.Int(Arg1_ + Arg2_);
-	};
+	) {
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
+		return mIL_VM.Int(IntArg1 + IntArg2);
+	}
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<mStd.tFunc<tText>>>
-	Sub = (
-		aEnv,
-		aObj,
-		aArg,
-		aTraceOut
+	private static mIL_VM.tData
+	Sub (
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
-	) => {
-		mIL_VM.tData Arg1;
-		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
-		tInt32 Arg1_;
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
-		tInt32 Arg2_;
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
-		return mIL_VM.Int(Arg1_ - Arg2_);
-	};
+	) {
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
+		return mIL_VM.Int(IntArg1 - IntArg2);
+	}
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<mStd.tFunc<tText>>>
-	Mul = (
-		aEnv,
-		aObj,
-		aArg,
-		aTraceOut
+	private static mIL_VM.tData
+	Mul (
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
-	) => {
-		mIL_VM.tData Arg1;
-		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
-		tInt32 Arg1_;
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
-		tInt32 Arg2_;
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
-		return mIL_VM.Int(Arg1_ * Arg2_);
-	};
+	) {
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
+		return mIL_VM.Int(IntArg1 * IntArg2);
+	}
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<mStd.tFunc<tText>>>
-	Eq = (
-		aEnv,
-		aObj,
-		aArg,
-		aTraceOut
+	private static mIL_VM.tData
+	Eq (
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
-	) => {
-		mIL_VM.tData Arg1;
-		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
-		tInt32 Arg1_;
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
-		tInt32 Arg2_;
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out Arg2_));
-		return mIL_VM.Bool(Arg1_.Equals(Arg2_));
-	};
+	) {
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
+		return mIL_VM.Bool(IntArg1.Equals(IntArg2));
+	}
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
@@ -210,7 +194,7 @@ public static class mIL_Interpreter {
 		mTest.Test(
 			"Call",
 			aDebugStream => {
-				(var Module, var ModuleMap) = ParseModule(
+				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
 					"	add := ENV EMPTY\n" +
 					"	1_ := 1\n" +
@@ -245,7 +229,7 @@ public static class mIL_Interpreter {
 		mTest.Test(
 			"Prefix",
 			aDebugStream => {
-				(var Module, var ModuleMap) = ParseModule(
+				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
 					"	add := ENV EMPTY\n" +
 					"	1_ := 1\n" +
@@ -282,7 +266,7 @@ public static class mIL_Interpreter {
 		mTest.Test(
 			"Assert",
 			aDebugStream => {
-				(var Module, var ModuleMap) = ParseModule(
+				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
 					"	...=...? := ENV EMPTY\n" +
 					"	1_ := 1\n" + 
@@ -305,7 +289,7 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var CallStack = new mIL_VM.tCallStack(
+				var CallStack = mIL_VM.NewCallStack(
 					null,
 					Proc,
 					Env,
@@ -339,7 +323,7 @@ public static class mIL_Interpreter {
 		mTest.Test(
 			"ParseModule",
 			aDebugStream => {
-				(var Module, var ModuleMap) = ParseModule(
+				var (Module, ModuleMap) = ParseModule(
 					"DEF bla\n" +
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +

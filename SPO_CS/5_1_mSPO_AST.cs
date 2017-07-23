@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using tBool = System.Boolean;
+﻿using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -21,7 +20,7 @@ public static class mSPO_AST {
 	public interface tLiteralNode : tExpressionNode, tMatchItemNode {}
 	public interface tCommandNode {}
 	
-	public class tEmptyNode : tLiteralNode {
+	public struct tEmptyNode : tLiteralNode {
 		//================================================================================
 		public tBool
 		Equals(
@@ -29,11 +28,10 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		override public tBool Equals(object a) => this.Equals(a as tEmptyNode);
 		override public tText ToString() => $"()";
 	}
 	
-	public class tFalseNode : tLiteralNode {
+	public struct tFalseNode : tLiteralNode {
 		//================================================================================
 		public tBool
 		Equals(
@@ -41,11 +39,10 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		override public tBool Equals(object a) => this.Equals(a as tFalseNode);
 		override public tText ToString() => $"§FALSE";
 	}
 	
-	public class tTrueNode : tLiteralNode {
+	public struct tTrueNode : tLiteralNode {
 		//================================================================================
 		public tBool
 		Equals(
@@ -53,309 +50,329 @@ public static class mSPO_AST {
 		//================================================================================
 		) => !a.IsNull();
 		
-		override public tBool Equals(object a) => this.Equals(a as tTrueNode);
 		override public tText ToString() => $"§TRUE";
 	}
 	
-	public class tTextNode : tLiteralNode {
-		internal tText _Value;
+	public struct tTextNode : tLiteralNode {
+		public tText Value;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tTextNode a
 		//================================================================================
-		) => !a.IsNull() && a._Value.Equals(_Value);
+		) => !a.IsNull() && a.Value.Equals(Value);
 		
-		override public tBool Equals(object a) => this.Equals(a as tTextNode);
-		override public tText ToString() => $"('{_Value}')";
+		override public tText ToString() => $"('{Value}')";
 	}
 	
-	public class tNumberNode : tLiteralNode {
-		internal tInt32 _Value;
+	public struct tNumberNode : tLiteralNode {
+		public tInt32 Value;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tNumberNode a
 		//================================================================================
-		) => !a.IsNull() && a._Value.Equals(_Value);
+		) => !a.IsNull() && a.Value.Equals(Value);
 		
-		override public tBool Equals(object a) => this.Equals(a as tNumberNode);
-		override public tText ToString() => $"({_Value})";
+		override public tText ToString() => $"({Value})";
 	}
 	
-	public class tIdentNode : tExpressionNode, tMatchItemNode {
-		internal tText _Name;
+	public struct tIdentNode : tExpressionNode, tMatchItemNode {
+		public tText Name;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tIdentNode a
 		//================================================================================
-		) => !a.IsNull() && a._Name.Equals(_Name);
+		) => !a.IsNull() && a.Name.Equals(Name);
 		
-		override public tBool Equals(object a) => this.Equals(a as tIdentNode);
-		override public tText ToString() => $"(Ident: {_Name})";
+		override public tText ToString() => $"(Ident: {Name})";
 	}
 	
-	public class tMatchTupleNode : tMatchItemNode {
-		internal mList.tList<tMatchNode> _Items;
+	public struct tMatchTupleNode : tMatchItemNode {
+		public mList.tList<tMatchNode> Items;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tMatchTupleNode a
 		//================================================================================
-		) => !a.IsNull() && a._Items.Equals(_Items);
+		) => !a.IsNull() && a.Items.Equals(Items);
 		
-		override public tBool Equals(object a) => this.Equals(a as tMatchTupleNode);
-		override public tText ToString() => $"({_Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
+		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
 	}
 	
-	public class tMatchNode : tMatchItemNode {
-		internal tMatchItemNode _Pattern;
-		internal tExpressionNode _Type;
+	public struct tMatchNode : tMatchItemNode {
+		public tMatchItemNode Pattern;
+		public tExpressionNode Type;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tMatchNode a
 		//================================================================================
-		) => !a.IsNull() && a._Pattern.Equals(_Pattern) && (a._Type.IsNull() ? _Type.IsNull() : a._Type.Equals(_Type));
+		) => !a.IsNull() && a.Pattern.Equals(Pattern) && (a.Type.IsNull() ? Type.IsNull() : a.Type.Equals(Type));
 		
-		override public tBool Equals(object a) => this.Equals(a as tMatchNode);
-		override public tText ToString()=> _Pattern + (_Type.IsNull() ? "" : " € " + _Type);
+		override public tText ToString()=> Pattern + (Type.IsNull() ? "" : " € " + Type);
 	}
 	
-	public class tPrefixNode : tExpressionNode {
-		internal tText _Prefix;
-		internal tExpressionNode _Element;
+	public struct tPrefixNode : tExpressionNode {
+		public tText Prefix;
+		public tExpressionNode Element;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tPrefixNode a
 		//================================================================================
-		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Element.Equals(_Element);
+		) => !a.IsNull() && a.Prefix.Equals(Prefix) && a.Element.Equals(Element);
 		
-		override public tBool Equals(object a) => this.Equals(a as tPrefixNode);
-		override public tText ToString() => $"(#{_Prefix} {_Element})";
+		override public tText ToString() => $"(#{Prefix} {Element})";
 	}
 	
-	public class tMatchPrefixNode : tMatchItemNode {
-		internal tText _Prefix;
-		internal tMatchNode _Match;
+	public struct tMatchPrefixNode : tMatchItemNode {
+		public tText Prefix;
+		public tMatchNode Match;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tMatchPrefixNode a
 		//================================================================================
-		) => !a.IsNull() && a._Prefix.Equals(_Prefix) && a._Match.Equals(_Match);
+		) => !a.IsNull() && a.Prefix.Equals(Prefix) && a.Match.Equals(Match);
 		
-		override public tBool Equals(object a) => this.Equals(a as tMatchPrefixNode);
-		override public tText ToString() => $"(#{_Prefix} {_Match})";
+		override public tText ToString() => $"(#{Prefix} {Match})";
 	}
 	
-	public class tMatchGuardNode : tMatchItemNode {
-		internal tMatchNode _Match;
-		internal tExpressionNode _Guard;
+	public struct tMatchGuardNode : tMatchItemNode {
+		public tMatchNode Match;
+		public tExpressionNode Guard;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tMatchGuardNode a
 		//================================================================================
-		) => !a.IsNull() && a._Match.Equals(_Match) && a._Guard.Equals(_Guard);
+		) => !a.IsNull() && a.Match.Equals(Match) && a.Guard.Equals(Guard);
 		
-		override public tBool Equals(object a) => this.Equals(a as tMatchGuardNode);
-		override public tText ToString() => $"({_Match} | {_Guard})";
+		override public tText ToString() => $"({Match} | {Guard})";
 	}
 	
-	public class tLambdaNode : tExpressionNode {
-		internal tMatchNode _Head;
-		internal tExpressionNode _Body;
+	public struct tLambdaNode : tExpressionNode {
+		public tMatchNode Head;
+		public tExpressionNode Body;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tLambdaNode a
 		//================================================================================
-		) => !a.IsNull() && a._Head.Equals(_Head) && a._Body.Equals(_Body);
+		) => !a.IsNull() && a.Head.Equals(Head) && a.Body.Equals(Body);
 		
-		override public tBool Equals(object a) => this.Equals(a as tLambdaNode);
-		override public tText ToString() => $"({_Head} => {_Body})";
+		override public tText ToString() => $"({Head} => {Body})";
 	}
 	
-	public class tBlockNode : tExpressionNode {
-		internal mList.tList<tCommandNode> _Commands;
+	public struct tBlockNode : tExpressionNode {
+		public mList.tList<tCommandNode> Commands;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tBlockNode a
 		//================================================================================
-		) => !a.IsNull() && a._Commands.Equals(_Commands);
+		) => !a.IsNull() && a.Commands.Equals(Commands);
 		
-		override public tBool Equals(object a) => this.Equals(a as tBlockNode);
-		override public tText ToString() => $"{{{_Commands}}}";
+		override public tText ToString() => $"{{{Commands}}}";
 	}
 	
-	public class tCallNode : tExpressionNode {
-		internal tExpressionNode _Func;
-		internal tExpressionNode _Arg;
+	public struct tCallNode : tExpressionNode {
+		public tExpressionNode Func;
+		public tExpressionNode Arg;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tCallNode a
 		//================================================================================
-		) => !a.IsNull() && a._Func.Equals(_Func) && a._Arg.Equals(_Arg);
+		) => !a.IsNull() && a.Func.Equals(Func) && a.Arg.Equals(Arg);
 		
-		override public tBool Equals(object a) => this.Equals(a as tCallNode);
-		override public tText ToString() => $"(Call: {_Func}, {_Arg})";
+		override public tText ToString() => $"(Call: {Func}, {Arg})";
 	}
 	
-	public class tDefNode : tCommandNode {
-		internal tMatchNode _Des;
-		internal tExpressionNode _Src;
+	public struct tDefNode : tCommandNode {
+		public tMatchNode Des;
+		public tExpressionNode Src;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tDefNode a
 		//================================================================================
-		) => !a.IsNull() && a._Des.Equals(_Des) && a._Src.Equals(_Src);
+		) => !a.IsNull() && a.Des.Equals(Des) && a.Src.Equals(Src);
 		
-		override public tBool Equals(object a) => this.Equals(a as tDefNode);
-		override public tText ToString() => $"({_Des} := {_Src})";
+		override public tText ToString() => $"({Des} := {Src})";
 	}
 	
-	public class tRecLambdaItemNode {
-		internal tIdentNode _Ident;
-		internal tLambdaNode _Lambda;
+	public struct tRecLambdaItemNode {
+		public tIdentNode Ident;
+		public tLambdaNode Lambda;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tRecLambdaItemNode a
 		//================================================================================
-		) => !a.IsNull() && a._Ident.Equals(_Ident) && a._Lambda.Equals(_Lambda);
+		) => !a.IsNull() && a.Ident.Equals(Ident) && a.Lambda.Equals(Lambda);
 		
-		override public tBool Equals(object a) => this.Equals(a as tRecLambdaItemNode);
-		override public tText ToString() => $"({_Ident} := {_Lambda})";
+		override public tText ToString() => $"({Ident} := {Lambda})";
 	}
 	
-	public class tRecLambdasNode : tCommandNode {
-		internal mList.tList<tRecLambdaItemNode> _List;
+	public struct tRecLambdasNode : tCommandNode {
+		public mList.tList<tRecLambdaItemNode> List;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tRecLambdasNode a
 		//================================================================================
-		) => !a.IsNull() && a._List.Equals(_List);
+		) => !a.IsNull() && a.List.Equals(List);
 		
-		override public tBool Equals(object a) => this.Equals(a as tRecLambdasNode);
-		override public tText ToString() => $"§REC {{{_List}}}";
+		override public tText ToString() => $"§REC {{{List}}}";
 	}
 	
-	public class tReturnIfNode : tCommandNode {
-		internal tExpressionNode _Result;
-		internal tExpressionNode _Condition;
+	public struct tReturnIfNode : tCommandNode {
+		public tExpressionNode Result;
+		public tExpressionNode Condition;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tReturnIfNode a
 		//================================================================================
-		) => !a.IsNull() && a._Result.Equals(_Result) && a._Condition.Equals(_Condition);
+		) => !a.IsNull() && a.Result.Equals(Result) && a.Condition.Equals(Condition);
 		
-		override public tBool Equals(object a) => this.Equals(a as tReturnIfNode);
-		override public tText ToString() => $"RETURN {_Result} IF {_Condition}";
+		override public tText ToString() => $"RETURN {Result} IF {Condition}";
 	}
 	
-	public class tIfNode : tExpressionNode {
-		internal mList.tList<(tExpressionNode, tExpressionNode)> _Cases;
+	public struct tIfNode : tExpressionNode {
+		public mList.tList<(tExpressionNode, tExpressionNode)> Cases;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tIfNode a
 		//================================================================================
-		) => !a.IsNull() && a._Cases.Equals(_Cases);
+		) => !a.IsNull() && a.Cases.Equals(Cases);
 		
-		override public tBool Equals(object a) => this.Equals(a as tIfNode);
-		override public tText ToString() => $"If {{ {_Cases} }}";
+		override public tText ToString() => $"If {{ {Cases} }}";
 	}
 	
-	public class tIfMatchNode : tExpressionNode {
-		internal tExpressionNode _Expression;
-		internal mList.tList<(tMatchNode, tExpressionNode)> _Cases;
+	public struct tIfMatchNode : tExpressionNode {
+		public tExpressionNode Expression;
+		public mList.tList<(tMatchNode, tExpressionNode)> Cases;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tIfMatchNode a
 		//================================================================================
-		) => !a.IsNull() && a._Cases.Equals(_Cases) && a._Expression.Equals(_Expression);
+		) => !a.IsNull() && a.Cases.Equals(Cases) && a.Expression.Equals(Expression);
 		
-		override public tBool Equals(object a) => this.Equals(a as tIfMatchNode);
-		override public tText ToString() => $"If {_Expression} MATCH {{ {_Cases} }}";
+		override public tText ToString() => $"If {Expression} MATCH {{ {Cases} }}";
 	}
 	
-	public class tVarNode : tCommandNode {
-		internal tIdentNode _Ident;
-		internal tExpressionNode _Expression;
+	public struct tDefVarNode : tCommandNode {
+		public tIdentNode Ident;
+		public tExpressionNode Expression;
 		
 		//================================================================================
 		public tBool
 		Equals(
-			tVarNode a
+			tDefVarNode a
 		//================================================================================
-		) => !a.IsNull() && a._Ident.Equals(_Ident) && a._Expression.Equals(_Expression);
+		) => !a.IsNull() && a.Ident.Equals(Ident) && a.Expression.Equals(Expression);
 		
-		override public tBool Equals(object a) => this.Equals(a as tVarNode);
-		override public tText ToString() => $"$VAR {_Ident} € {_Expression}";
+		override public tText ToString() => $"$VAR {Ident} := {Expression}";
 	}
 	
-	public class tTupleNode : tExpressionNode {
-		internal mList.tList<tExpressionNode> _Items;
+	public struct tSetVarNode : tCommandNode {
+		internal tIdentNode _Ident;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tSetVarNode a
+		//================================================================================
+		) => !a.IsNull() && a._Ident.Equals(_Ident);
+		
+		override public tText ToString() => $"$VAR {_Ident}";
+	}
+	
+	public struct tMethodCallNode {
+		internal tIdentNode _Method;
+		internal tExpressionNode _Argument;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMethodCallNode a
+		//================================================================================
+		) => !a.IsNull() && a._Method.Equals(_Method) && a._Argument.Equals(_Argument);
+		
+		override public tText ToString() => $" {_Method} {_Argument}";
+	}
+	
+	public struct tMethodCallStatmentNode {
+		public tIdentNode Var;
+		public mList.tList<tMethodCallNode> MethodCalls;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMethodCallStatmentNode a
+		//================================================================================
+		) => !a.IsNull() && a.Var.Equals(Var) && a.MethodCalls.Equals(MethodCalls);
+		
+		override public tText ToString() => $" {Var} : {MethodCalls}";
+	}
+	
+	public struct tTupleNode : tExpressionNode {
+		public mList.tList<tExpressionNode> Items;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tTupleNode a
 		//================================================================================
-		) => !a.IsNull() && a._Items.Equals(_Items);
+		) => !a.IsNull() && a.Items.Equals(Items);
 		
-		override public tBool Equals(object a) => this.Equals(a as tTupleNode);
-		override public tText ToString() => $"({_Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
+		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
 	}
 	
-	public class tImportNode {
-		internal mSPO_AST.tMatchNode _Match;
+	public struct tImportNode {
+		public tMatchNode Match;
 	}
 	
-	public class tExportNode {
-		internal mSPO_AST.tExpressionNode _Expression;
+	public struct tExportNode {
+		public tExpressionNode Expression;
 	}
 	
-	public class tModuleNode {
-		internal tImportNode _Import;
-		internal tExportNode _Export;
-		internal mList.tList<tCommandNode> _Commands;
+	public struct tModuleNode {
+		public tImportNode Import;
+		public tExportNode Export;
+		public mList.tList<tCommandNode> Commands;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tModuleNode a
 		//================================================================================
-		) => !a.IsNull() && a._Commands.Equals(_Commands);
+		) => !a.IsNull() && a.Commands.Equals(Commands);
 		
-		override public tBool Equals(object a) => this.Equals(a as tModuleNode);
-		override public tText ToString() => _Commands.Map(
+		override public tText ToString() => Commands.Map(
 			a => a.ToString()
 		).Join(
 			(a1, a2) => $"{a1}\n{a2}"
@@ -363,52 +380,52 @@ public static class mSPO_AST {
 	}
 	
 	//================================================================================
-	public static mStd.tFunc<tEmptyNode>
+	public static readonly mStd.tFunc<tEmptyNode>
 	Empty = (
 	//================================================================================
 	) => new tEmptyNode();
 	
 	//================================================================================
-	public static mStd.tFunc<tFalseNode>
+	public static readonly mStd.tFunc<tFalseNode>
 	False = (
 	//================================================================================
 	) => new tFalseNode();
 	
 	//================================================================================
-	public static mStd.tFunc<tTrueNode>
+	public static readonly mStd.tFunc<tTrueNode>
 	True = (
 	//================================================================================
 	) => new tTrueNode();
 	
 	//================================================================================
-	public static mStd.tFunc<tNumberNode, tInt32>
+	public static readonly mStd.tFunc<tNumberNode, tInt32>
 	Number = (
 		aValue
 	//================================================================================
 	) => new tNumberNode {
-		_Value = aValue
+		Value = aValue
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tTextNode, tText>
+	public static readonly mStd.tFunc<tTextNode, tText>
 	Text = (
 		aValue
 	//================================================================================
 	) => new tTextNode {
-		_Value = aValue
+		Value = aValue
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIdentNode, tText>
+	public static readonly mStd.tFunc<tIdentNode, tText>
 	Ident = (
 		aName
 	//================================================================================
 	) => new tIdentNode {
-		_Name = "_" + aName
+		Name = "_" + aName
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tExpressionNode, mList.tList<tExpressionNode>>
+	public static readonly mStd.tFunc<tExpressionNode, mList.tList<tExpressionNode>>
 	Tuple = (
 		aItems
 	//================================================================================
@@ -418,93 +435,95 @@ public static class mSPO_AST {
 				return Empty();
 			}
 			case 1: {
-				return aItems._Head;
+				tExpressionNode Head;
+				mStd.Assert(aItems.Match(out Head, out var _));
+				return Head;
 			}
 			default: {
 				return new tTupleNode {
-					_Items = aItems
+					Items = aItems
 				};
 			}
 		}
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tCallNode, tExpressionNode, tExpressionNode>
+	public static readonly mStd.tFunc<tCallNode, tExpressionNode, tExpressionNode>
 	Call = (
 		aFunc,
 		aArg
 	//================================================================================
 	) => new tCallNode {
-		_Func = aFunc,
-		_Arg = aArg
+		Func = aFunc,
+		Arg = aArg
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tPrefixNode, tIdentNode, tExpressionNode>
+	public static readonly mStd.tFunc<tPrefixNode, tIdentNode, tExpressionNode>
 	Prefix = (
 		aPrefix,
 		aElement
 	//================================================================================
 	) => new tPrefixNode {
-		_Prefix = aPrefix._Name,
-		_Element = aElement
+		Prefix = aPrefix.Name,
+		Element = aElement
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchPrefixNode, tIdentNode, tMatchNode>
+	public static readonly mStd.tFunc<tMatchPrefixNode, tIdentNode, tMatchNode>
 	MatchPrefix = (
 		aPrefix,
 		aMatch
 	//================================================================================
 	) => new tMatchPrefixNode {
-		_Prefix = aPrefix._Name,
-		_Match = aMatch
+		Prefix = aPrefix.Name,
+		Match = aMatch
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchGuardNode, tMatchNode, tExpressionNode>
+	public static readonly mStd.tFunc<tMatchGuardNode, tMatchNode, tExpressionNode>
 	MatchGuard = (
 		aMatch,
 		aGuard
 	//================================================================================
 	) => new tMatchGuardNode {
-		_Match = aMatch,
-		_Guard = aGuard
+		Match = aMatch,
+		Guard = aGuard
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tLambdaNode, tMatchNode, tExpressionNode>
+	public static readonly mStd.tFunc<tLambdaNode, tMatchNode, tExpressionNode>
 	Lambda = (
 		aMatch,
 		aBody
 	//================================================================================
 	) => new tLambdaNode {
-		_Head = aMatch,
-		_Body = aBody
+		Head = aMatch,
+		Body = aBody
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tRecLambdaItemNode, tIdentNode, tLambdaNode>
+	public static readonly mStd.tFunc<tRecLambdaItemNode, tIdentNode, tLambdaNode>
 	RecLambdaItem = (
 		aIdent,
 		aLambda
 	//================================================================================
 	) => new tRecLambdaItemNode {
-		_Ident = aIdent,
-		_Lambda = aLambda
+		Ident = aIdent,
+		Lambda = aLambda
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tRecLambdasNode, mList.tList<tRecLambdaItemNode>>
+	public static readonly mStd.tFunc<tRecLambdasNode, mList.tList<tRecLambdaItemNode>>
 	RecLambdas = (
 		aList
 	//================================================================================
 	) => new tRecLambdasNode {
-		_List = aList
+		List = aList
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchItemNode, mList.tList<tMatchNode>>
+	public static readonly mStd.tFunc<tMatchItemNode, mList.tList<tMatchNode>>
 	MatchTuple = (
 		aItems
 	//================================================================================
@@ -514,125 +533,158 @@ public static class mSPO_AST {
 				throw null; // TODO
 			}
 			case 1: {
-				return aItems._Head._Pattern;
+				tMatchNode Head;
+				mStd.Assert(aItems.Match(out Head, out var _));
+				return Head.Pattern;
 			}
 			default: {
 				return new tMatchTupleNode {
-					_Items = aItems
+					Items = aItems
 				};
 			}
 		}
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchNode, tMatchItemNode, tExpressionNode>
+	public static readonly mStd.tFunc<tMatchNode, tMatchItemNode, tExpressionNode>
 	Match = (
 		aMatch,
 		aType
 	//================================================================================
 	) => new tMatchNode {
-		_Pattern = aMatch,
-		_Type = aType
+		Pattern = aMatch,
+		Type = aType
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tMatchNode, tMatchItemNode>
+	public static readonly mStd.tFunc<tMatchNode, tMatchItemNode>
 	MatchUntyped = (
 		aMatch
 	//================================================================================
 	) => Match(aMatch, null);
 	
 	//================================================================================
-	public static mStd.tFunc<tDefNode, tMatchNode, tExpressionNode>
+	public static readonly mStd.tFunc<tDefNode, tMatchNode, tExpressionNode>
 	Def = (
 		aMatch,
 		aExpression
 	//================================================================================
 	) => new tDefNode {
-		_Des = aMatch,
-		_Src = aExpression
+		Des = aMatch,
+		Src = aExpression
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tReturnIfNode, tExpressionNode, tExpressionNode>
+	public static readonly mStd.tFunc<tReturnIfNode, tExpressionNode, tExpressionNode>
 	ReturnIf = (
 		aResult,
 		aCondition
 	//================================================================================
 	) => new tReturnIfNode {
-		_Result = aResult,
-		_Condition = aCondition
+		Result = aResult,
+		Condition = aCondition
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIfNode, mList.tList<(tExpressionNode, tExpressionNode)>>
+	public static readonly mStd.tFunc<tIfNode, mList.tList<(tExpressionNode, tExpressionNode)>>
 	If = (
 		aCases
 	//================================================================================
 	) => new tIfNode {
-		_Cases = aCases
+		Cases = aCases
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<(tMatchNode, tExpressionNode)>>
+	public static readonly mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<(tMatchNode, tExpressionNode)>>
 	IfMatch = (
 		aExpression,
 		aCases
 	//================================================================================
 	) => new tIfMatchNode {
-		_Expression = aExpression,
-		_Cases = aCases
+		Expression = aExpression,
+		Cases = aCases
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tVarNode, tIdentNode, tExpressionNode>
-	Var = (
+	public static readonly mStd.tFunc<tDefVarNode, tIdentNode, tExpressionNode>
+	DefVar = (
 		aVar,
 		aExpression
 	//================================================================================
-	) => new tVarNode {
-		_Ident = aVar,
-		_Expression = aExpression
+	) => new tDefVarNode {
+		Ident = aVar,
+		Expression = aExpression
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tBlockNode, mList.tList<tCommandNode>>
+	public static readonly mStd.tFunc<tSetVarNode, tIdentNode>
+	SetVar = (
+		aVar
+	//================================================================================
+	) => new tSetVarNode {
+		_Ident = aVar
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tMethodCallStatmentNode, tIdentNode, mList.tList<tMethodCallNode>>
+	MethodCallStatment = (
+		aVar,
+		aMethodCalls
+	//================================================================================
+	) => new tMethodCallStatmentNode {
+		Var = aVar,
+		MethodCalls = aMethodCalls
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tMethodCallNode, tIdentNode, tExpressionNode>
+	MethodCall = (
+		aMethod,
+		aAgument
+	//================================================================================
+	) => new tMethodCallNode {
+		_Method = aMethod,
+		_Argument = aAgument
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tBlockNode, mList.tList<tCommandNode>>
 	Block = (
 		aCommands
 	//================================================================================
 	) => new tBlockNode {
-		_Commands = aCommands
+		Commands = aCommands
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tModuleNode, tImportNode, mList.tList<tCommandNode>, tExportNode>
+	public static readonly mStd.tFunc<tModuleNode, tImportNode, mList.tList<tCommandNode>, tExportNode>
 	Module = (
 		aImport,
 		aCommands,
 		aExport
 	//================================================================================
 	) => new tModuleNode {
-		_Import = aImport,
-		_Export = aExport,
-		_Commands = aCommands
+		Import = aImport,
+		Export = aExport,
+		Commands = aCommands
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tImportNode, tMatchNode>
+	public static readonly mStd.tFunc<tImportNode, tMatchNode>
 	Import = (
 		aMatch
 	//================================================================================
 	) => new tImportNode {
-		_Match = aMatch 
+		Match = aMatch 
 	};
 	
 	//================================================================================
-	public static mStd.tFunc<tExportNode, tExpressionNode>
+	public static readonly mStd.tFunc<tExportNode, tExpressionNode>
 	Export = (
 		aExpression
 	//================================================================================
 	) => new tExportNode {
-		_Expression = aExpression 
+		Expression = aExpression 
 	};
 	
 	#region TEST

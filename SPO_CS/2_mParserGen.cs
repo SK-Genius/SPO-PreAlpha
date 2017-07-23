@@ -36,7 +36,10 @@ public static class mParserGen {
 	//================================================================================
 	) => aParser.ModifyList(
 		a => {
-			mStd.Assert(a.Match(out t1 A1));
+			mStd.Assert(
+				a.Match(out t1 A1),
+				aParser.DebugName ?? aParser.DebugDef
+			);
 			return ResultList(aModifyFunc(A1));
 		}
 	);
@@ -49,7 +52,10 @@ public static class mParserGen {
 	//================================================================================
 	) => aParser.ModifyList(
 		a => {
-			mStd.Assert(a.Match(out t1 A1, out t2 A2));
+			mStd.Assert(
+				a.Match(out t1 A1, out t2 A2),
+				aParser.DebugName ?? aParser.DebugDef
+			);
 			return ResultList(aModifyFunc(A1, A2));
 		}
 	);
@@ -62,7 +68,10 @@ public static class mParserGen {
 	//================================================================================
 	) => aParser.ModifyList(
 		a => {
-			mStd.Assert(a.Match(out t1 A1, out t2 A2, out t3 A3));
+			mStd.Assert(
+				a.Match(out t1 A1, out t2 A2, out t3 A3),
+				aParser.DebugName ?? aParser.DebugDef
+			);
 			return ResultList(aModifyFunc(A1, A2, A3));
 		}
 	);
@@ -75,7 +84,10 @@ public static class mParserGen {
 	//================================================================================
 	) => aParser.ModifyList(
 		a => {
-			mStd.Assert(a.Match(out t1 A1, out t2 A2, out t3 A3, out t4 A4));
+			mStd.Assert(
+				a.Match(out t1 A1, out t2 A2, out t3 A3, out t4 A4),
+				aParser.DebugName ?? aParser.DebugDef
+			);
 			return ResultList(aModifyFunc(A1, A2, A3, A4));
 		}
 	);
@@ -105,8 +117,8 @@ public static class mParserGen {
 	
 	#region tResult
 	
-	public class tResultList {
-		internal mList.tList<mStd.tAny> _Value;
+	public struct tResultList {
+		public mList.tList<mStd.tAny> Value;
 		
 		//================================================================================
 		public tBool
@@ -115,25 +127,24 @@ public static class mParserGen {
 		//================================================================================
 		) => (
 			!a.IsNull() &&
-			(_Value.IsNull() ? a._Value.IsNull() : _Value.Equals(a._Value))
+			(Value.IsNull() ? a.Value.IsNull() : Value.Equals(a.Value))
 		);
 		
-		override public tBool Equals(object a) => Equals(a as tResultList);
-		override public tText ToString() => _Value?.ToString() ?? "[]";
+		override public tText ToString() => Value?.ToString() ?? "[]";
 	}
 	
 	//================================================================================
 	public static tResultList
 	ResultList(
 	//================================================================================
-	) => new tResultList{_Value = mList.List<mStd.tAny>() };
+	) => new tResultList{Value = mList.List<mStd.tAny>() };
 	
 	//================================================================================
 	public static tResultList
 	ResultList<t>(
 		t a
 	//================================================================================
-	) => new tResultList{_Value = mList.List(mStd.Any(a)) };
+	) => new tResultList{Value = mList.List(mStd.Any(a)) };
 	
 	//================================================================================
 	public static tResultList
@@ -141,7 +152,7 @@ public static class mParserGen {
 		t1 a1,
 		t2 a2
 	//================================================================================
-	) => new tResultList{_Value = mList.List(mStd.Any(a1), mStd.Any(a2)) };
+	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2)) };
 	
 	//================================================================================
 	public static tResultList
@@ -150,7 +161,7 @@ public static class mParserGen {
 		t2 a2,
 		t3 a3
 	//================================================================================
-	) => new tResultList{_Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3)) };
+	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3)) };
 	
 	//================================================================================
 	public static tResultList
@@ -160,7 +171,7 @@ public static class mParserGen {
 		t3 a3,
 		t4 a4
 	//================================================================================
-	) => new tResultList{_Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3), mStd.Any(a4)) };
+	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3), mStd.Any(a4)) };
 	
 	//================================================================================
 	public static tResultList
@@ -168,7 +179,7 @@ public static class mParserGen {
 		tResultList a1,
 		tResultList a2
 	//================================================================================
-	) => new tResultList{_Value = mList.Concat(a1._Value, a2._Value)};
+	) => new tResultList{Value = mList.Concat(a1.Value, a2.Value)};
 	
 	//================================================================================
 	public static tBool Match<t, tError>(
@@ -218,7 +229,7 @@ public static class mParserGen {
 		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
 	//================================================================================
 	) {
-		var RestArgs = aArgs._Value;
+		var RestArgs = aArgs.Value;
 		while (RestArgs.Match(out var Head, out RestArgs)) {
 			aInitialAgregate = aAgregatorFunc(aInitialAgregate, Head.To<tElem>());
 		}
@@ -234,9 +245,9 @@ public static class mParserGen {
 	//================================================================================
 	) {
 		if (
-			aList._Value.Match(out aHead, out var Tail)
+			aList.Value.Match(out aHead, out var Tail)
 		) {
-			aTail = new tResultList{_Value = Tail};
+			aTail = new tResultList{Value = Tail};
 			return true;
 		} else {
 			aTail = default(tResultList);
@@ -253,10 +264,10 @@ public static class mParserGen {
 	//================================================================================
 	) {
 		if (
-			aList._Value.Match(out var Head, out var Tail) &&
+			aList.Value.Match(out var Head, out var Tail) &&
 			Head.Match(out aHead)
 		) {
-			aTail = new tResultList{_Value = Tail};
+			aTail = new tResultList{Value = Tail};
 			return true;
 		} else {
 			aHead = default(t);
@@ -277,7 +288,7 @@ public static class mParserGen {
 		var RestList = aList;
 		return (
 			RestList.GetHeadTail(out a, out RestList) &&
-			RestList._Value.IsNull()
+			RestList.Value.IsNull()
 		);
 	}
 	
@@ -295,7 +306,7 @@ public static class mParserGen {
 		return (
 			RestList.GetHeadTail(out a1, out RestList) &&
 			RestList.GetHeadTail(out a2, out RestList) &&
-			RestList._Value.IsNull()
+			RestList.Value.IsNull()
 		);
 	}
 	
@@ -316,7 +327,7 @@ public static class mParserGen {
 			RestList.GetHeadTail(out a1, out RestList) &&
 			RestList.GetHeadTail(out a2, out RestList) &&
 			RestList.GetHeadTail(out a3, out RestList) &&
-			RestList._Value.IsNull()
+			RestList.Value.IsNull()
 		);
 	}
 	
@@ -340,13 +351,13 @@ public static class mParserGen {
 			RestList.GetHeadTail(out a2, out RestList) &&
 			RestList.GetHeadTail(out a3, out RestList) &&
 			RestList.GetHeadTail(out a4, out RestList) &&
-			RestList._Value.IsNull()
+			RestList.Value.IsNull()
 		);
 	}
 	
 	#endregion
 	
-	public class tParser<t, tError> {
+	public sealed class tParser<t, tError> {
 		internal mStd.tFunc<
 			mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>>,
 			mList.tList<t>,
@@ -602,7 +613,7 @@ public static class mParserGen {
 			) {
 				return OK(Result, TempStream);
 			} else {
-				throw new mStd.tException<mList.tList<tError>>{ Value = ErrorList };
+				throw new mStd.tException<mList.tList<tError>>{ _Value = ErrorList };
 			}
 		}
 	};
@@ -644,7 +655,7 @@ public static class mParserGen {
 				}
 			);
 		} catch (mStd.tException<mList.tList<tError>> e) {
-			return mStd.Fail(e.Value);
+			return mStd.Fail(e._Value);
 		}
 	}
 	
@@ -665,13 +676,13 @@ public static class mParserGen {
 				aDebugStream("??? -> {");
 			}
 		#endif
-		var Head = aStream.IsNull() ? default(t) : aStream._Head;
 		mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>> Result;
+		var Head = aStream.IsNull() ? default(t) : aStream.First();
 		try {
 			Result = aParser._ParseFunc(aStream, aDebugStream);
 		} catch (mStd.tException<mList.tList<tError>> e) {
 			throw new mStd.tException<mList.tList<tError>> {
-				Value = aParser._ModifyErrorsFunc?.Invoke(e.Value, Head) ?? e.Value
+				_Value = aParser._ModifyErrorsFunc?.Invoke(e._Value, Head) ?? e._Value
 			};
 		}
 		if (!Result.Match(out var Value, out var Error) && !aParser._ModifyErrorsFunc.IsNull()) {
@@ -1122,7 +1133,7 @@ public static class mParserGen {
 							aDebugStream
 						);
 						mStd.Assert(X.Match(out Tuple, out var _));						
-						(var ResultList, var Rest) = Tuple;
+						var (ResultList, Rest) = Tuple;
 						
 						tInt32 Result;
 						mStd.Assert(ResultList.Match(out Result));

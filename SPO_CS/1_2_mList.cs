@@ -15,7 +15,7 @@ using tText = System.String;
 
 public static class mList {
 
-	public class tList<t> {
+	public sealed class tList<t> {
 		internal t _Head;
 		internal tList<t> _Tail;
 		internal mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> _TryNextFunc;
@@ -84,7 +84,17 @@ public static class mList {
 		tList<t> a1,
 		tList<t> a2
 	//================================================================================
-	) => a1.Match(out var Head, out var Tail) ? List(Head, Concat(Tail, a2)) : a2;
+	) => LasyList<t>(
+		() => {
+			if (a1.Match(out var Head, out a1)) {
+				return mStd.OK(Head);
+			} else if (a2.Match(out Head, out a2)) {
+				return mStd.OK(Head);
+			} else {
+				return mStd.Fail();
+			}
+		}
+	);
 	
 	//================================================================================
 	public static tBool
@@ -189,7 +199,7 @@ public static class mList {
 	Flat<t>(
 		this tList<tList<t>> aListList
 	//================================================================================
-	) => aListList.Reduce(List<t>(), Concat); // TODO: make it lasy
+	) => aListList.Reduce(List<t>(), Concat);
 	
 	//================================================================================
 	public static t
@@ -268,6 +278,13 @@ public static class mList {
 		this tList<t> aList
 	//================================================================================
 	) => aList == List<t>();
+	
+	//================================================================================
+	public static t
+	First<t>(
+		this tList<t> aList
+	//================================================================================
+	) => aList._Head;
 	
 	//================================================================================
 	public static tBool

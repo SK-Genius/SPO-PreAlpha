@@ -39,7 +39,7 @@ public static class mMap {
 	) {
 		var RestList = aMap._KeyValuePairs;
 		while (RestList.Match(out var KeyValuePair, out RestList)) {
-			(var Key, var aValue_) = KeyValuePair;
+			var (Key, aValue_) = KeyValuePair;
 			aValue = aValue_;
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return true;
@@ -69,7 +69,7 @@ public static class mMap {
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = aMap._KeyValuePairs.Where(
-			aKeyValuePair => !aMap._EqualsFunc(aKeyValuePair.Item1, aKey)
+			((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 		)
 	};
 	
@@ -85,7 +85,7 @@ public static class mMap {
 		_KeyValuePairs = mList.List(
 			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
-				aKeyValuePair => !aMap._EqualsFunc(aKeyValuePair.Item1, aKey)
+				((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 			)
 		)
 	};

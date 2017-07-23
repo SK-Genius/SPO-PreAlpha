@@ -90,15 +90,15 @@ public static class mTextParser {
 				).Reduce("", (a1, a2) => a1 + "\n" + a2)
 			);
 		}
-		(var ResultList, var Rest) = Result;
+		var (ResultList, Rest) = Result;
 		mStd.AssertEq(Rest, mList.List<tPosChar>());
 		return ResultList;
 	}
 	
 	//================================================================================
-	private static readonly mStd.tFunc<tChar, tPosChar>
+	private static mStd.tFunc<tChar, tPosChar>
 	Modifyer = (
-		a
+		tPosChar a
 	//================================================================================
 	) => a.Char;
 	

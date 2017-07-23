@@ -122,7 +122,10 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser Tuple = C( +Expression +( -(-Token(",")|-NL) +Expression )[1, null] )
 		.ModifyList(
-			a => mParserGen.ResultList(mSPO_AST.Tuple(a._Value.Map(mStd.To<mSPO_AST.tExpressionNode>))))
+			a => mParserGen.ResultList(
+				mSPO_AST.Tuple(a.Value.Map(mStd.To<mSPO_AST.tExpressionNode>))
+			)
+		)
 		.SetName(nameof(Tuple));
 	
 	public static tSPO_Parser Infix(tText aPrefix, tSPO_Parser aChildParser) {
@@ -130,12 +133,18 @@ public static class mSPO_Parser {
 			(-Token(aPrefix) +Ident +( +aChildParser + Ident )[0, null] + aChildParser[0, 1])
 			.ModifyList(
 				aList => {
-					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
+					var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
 					return (
 						mParserGen.ResultList(
 							(
-								mSPO_AST.Ident(aList._Value.Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => $"{a1}...{a2}")+Last),
-								aList._Value.Skip(1).Every(2)
+								mSPO_AST.Ident(
+									aList.Value.Every(2).Map(
+										a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
+									).Join(
+										(a1, a2) => $"{a1}...{a2}"
+									)+Last
+								),
+								aList.Value.Skip(1).Every(2)
 							)
 						)
 					);
@@ -145,12 +154,18 @@ public static class mSPO_Parser {
 			(+aChildParser -Token(aPrefix) +Ident +( +aChildParser +Ident )[0, null] +aChildParser[0, 1])
 			.ModifyList(
 				aList => {
-					var Last = (aList._Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
+					var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
 					return (
 						mParserGen.ResultList(
 							(
-								mSPO_AST.Ident("..."+aList._Value.Skip(1).Every(2).Map(a => a.To<mSPO_AST.tIdentNode>()._Name.Substring(1)).Join((a1, a2) => a1+"..."+a2)+Last),
-								aList._Value.Every(2)
+								mSPO_AST.Ident(
+									"..."+aList.Value.Skip(1).Every(2).Map(
+										a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
+									).Join(
+										(a1, a2) => $"{a1}...{a2}"
+									)+Last
+								),
+								aList.Value.Every(2)
 							)
 						)
 					);
@@ -162,7 +177,7 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser Call = (
 		Infix(".", ExpressionInCall).Modify(
 			((mSPO_AST.tIdentNode, tResults) aPair) => {
-				(var Ident, var ChildList) = aPair;
+				var (Ident, ChildList) = aPair;
 				return mSPO_AST.Call(
 					Ident,
 					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
@@ -175,7 +190,7 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser Prefix = Infix("#", ExpressionInCall)
 		.Modify(
 			((mSPO_AST.tIdentNode, tResults) aPair) => {
-				(var Ident, var ChildList) = aPair;
+				var (Ident, ChildList) = aPair;
 				return mSPO_AST.Prefix(
 					Ident,
 					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
@@ -187,7 +202,7 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser MatchPrefix = C( Infix("#", Match) )
 		.Modify(
 			((mSPO_AST.tIdentNode, tResults) aPair) => {
-				(var Ident, var ChildList) = aPair;
+				var (Ident, ChildList) = aPair;
 				return mSPO_AST.MatchPrefix(
 					Ident,
 					mSPO_AST.Match(
@@ -217,7 +232,7 @@ public static class mSPO_Parser {
 	)
 		.ModifyList(
 			aList => mParserGen.ResultList(
-				mSPO_AST.RecLambdas(aList._Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode>))
+				mSPO_AST.RecLambdas(aList.Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode>))
 			)
 		)
 		.SetName(nameof(RecLambda));
@@ -272,9 +287,25 @@ public static class mSPO_Parser {
 		)
 		.SetName(nameof(IfMatch));
 	
-	public static readonly tSPO_Parser Var = (-Token("§VAR") +Ident -Token(":=") +Expression.OrFail())
-		.Modify(mSPO_AST.Var)
-		.SetName(nameof(Var));
+	public static readonly tSPO_Parser MethodCall1 = (+Infix("", Expression)[1, null] +(-NL +Ident)[0, null] -Token("."))
+		.Modify(mSPO_AST.MethodCall)
+		.SetName(nameof(MethodCall1));
+	
+	public static readonly tSPO_Parser MethodCall2 = (+Infix("", Expression)[1, null] +(-Token(",") +Ident)[0, null])
+		.Modify(mSPO_AST.MethodCall)
+		.SetName(nameof(MethodCall2));
+	
+	public static readonly tSPO_Parser Var = (
+		-Token("§VAR") +(Ident -Token(":=") +Expression).OrFail().Modify(mSPO_AST.DefVar).SetName(nameof(Var))
+		+((-NL +MethodCall1)|(-Token(",") +MethodCall2))[0, 1].OrFail()
+	);
+	
+	public static readonly tSPO_Parser MethodCallStatment = (
+		+(Ident -Token(":")).Modify(mSPO_AST.SetVar).SetName(nameof(mSPO_AST.SetVar))
+		+((-NL +MethodCall1)|(-Token(",") +MethodCall2))[0, 1].OrFail()
+	)
+		.Modify(mSPO_AST.MethodCallStatment)
+		.SetName(nameof(MethodCallStatment));
 	
 	public static readonly tSPO_Parser Import = (-Token("§IMPORT") +(Match -NL).OrFail())
 		.Modify(mSPO_AST.Import)
@@ -297,13 +328,13 @@ public static class mSPO_Parser {
 				a => mParserGen.ResultList(
 					mSPO_AST.Match(
 						mSPO_AST.MatchTuple(
-							a._Value.Map(mStd.To<mSPO_AST.tMatchNode>)
+							a.Value.Map(mStd.To<mSPO_AST.tMatchNode>)
 						),
 						null
 					)
 				)
 			) |
-			C(+Match -Token("€") +Expression).Modify(mSPO_AST.Match) // TODO: BUG - infinit recursion
+			C(+Match -Token("€") +Expression).Modify(mSPO_AST.Match) // TODO: BUG - infinit recursion (maybe solved ???)
 		);
 		
 		Expression.Def(
@@ -332,8 +363,15 @@ public static class mSPO_Parser {
 			Ident
 		);
 		
-		Command.Def((Def -NL) | (Var -NL) | (RecLambda -NL) | (ReturnIf -NL) | (Return -NL) );
-		// TODO: Macros, VarDef, MethodCall, Streaming, Block, ...
+		// TODO: Macros, Streaming, Block, ...
+		Command.Def(
+			(Def -NL) |
+			(Var -NL) |
+			(MethodCallStatment -NL) |
+			(RecLambda -NL) |
+			(ReturnIf -NL) |
+			(Return -NL)
+		);
 	}
 	
 	#region TEST
@@ -344,15 +382,36 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Atoms",
 			aStreamOut => {
-				mStd.AssertEq(Num.ParseText("+1_234", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
-				mStd.AssertEq(Literal.ParseText("+1_234", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
-				mStd.AssertEq(ExpressionInCall.ParseText("+1_234", aStreamOut), mParserGen.ResultList(mSPO_AST.Number(1234)));
+				mStd.AssertEq(
+					Num.ParseText("+1_234", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Number(1234))
+				);
+				mStd.AssertEq(
+					Literal.ParseText("+1_234", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Number(1234))
+				);
+				mStd.AssertEq(
+					ExpressionInCall.ParseText("+1_234", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Number(1234))
+				);
 				
-				mStd.AssertEq(String.ParseText("\"BLA\"", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
-				mStd.AssertEq(Literal.ParseText("\"BLA\"", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
-				mStd.AssertEq(ExpressionInCall.ParseText("\"BLA\"", aStreamOut), mParserGen.ResultList(mSPO_AST.Text("BLA")));
+				mStd.AssertEq(
+					String.ParseText("\"BLA\"", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+				);
+				mStd.AssertEq(
+					Literal.ParseText("\"BLA\"", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+				);
+				mStd.AssertEq(
+					ExpressionInCall.ParseText("\"BLA\"", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+				);
 				
-				mStd.AssertEq(ExpressionInCall.ParseText("BLA", aStreamOut),  mParserGen.ResultList(mSPO_AST.Ident("BLA")));
+				mStd.AssertEq(
+					ExpressionInCall.ParseText("BLA", aStreamOut),
+					mParserGen.ResultList(mSPO_AST.Ident("BLA"))
+				);
 			}
 		),
 		mTest.Test(

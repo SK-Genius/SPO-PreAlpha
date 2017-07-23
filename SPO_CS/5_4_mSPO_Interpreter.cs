@@ -32,7 +32,7 @@ public static class mSPO_Interpreter {
 		
 		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode);
 		
-		(var VMModule, var ModuleMap) = mIL_Interpreter.ParseModule(
+		var (VMModule, ModuleMap) = mIL_Interpreter.ParseModule(
 			ModuleConstructor.Defs.ToLasyList(
 			).MapWithIndex(
 				(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToLasyList())
@@ -50,7 +50,7 @@ public static class mSPO_Interpreter {
 				break;
 			}
 			case 1: {
-				DefTuple = mIL_VM.Def(Defs._Head);
+				DefTuple = mIL_VM.Def(Defs.First());
 				break;
 			}
 			default: {
@@ -63,7 +63,7 @@ public static class mSPO_Interpreter {
 				break;
 			}
 		}
-		var InitProc = VMModule._Head;
+		var InitProc = VMModule.First();
 		
 		#if TRACE
 			var TraceOut = mStd.Action(
@@ -87,26 +87,20 @@ public static class mSPO_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static readonly mStd.tFunc<mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mIL_VM.tData, mStd.tAction<mStd.tFunc<tText>>>
-	Mul = (
-		aEnv,
-		aObj,
-		aArg,
-		aTraceOut
+	private static mIL_VM.tData
+	Mul(
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
-	) => {
-		mIL_VM.tData Arg1;
-		mIL_VM.tData Arg2;
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out Arg1, out Arg2));
-		tInt32 Arg1_;
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out Arg1_));
-		mIL_VM.tData Arg2_;
-		mIL_VM.tData _;
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Pair, out Arg2_, out _));
-		tInt32 Arg2__;
-		mStd.Assert(Arg2_.Match(mIL_VM.tDataType.Int, out Arg2__));
-		return mIL_VM.Int(Arg1_ * Arg2__);
-	};
+	) {
+		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
+		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
+		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg2_, out mIL_VM.tData _));
+		mStd.Assert(Arg2_.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
+		return mIL_VM.Int(IntArg1 * IntArg2);
+	}
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(

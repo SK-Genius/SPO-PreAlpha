@@ -196,7 +196,7 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		Assert(a.Match(out t Result));
+		Assert(a.Match(out t Result), typeof(t).FullName);
 		return Result;
 	}
 	
@@ -211,8 +211,8 @@ public static class mStd {
 	
 	#region Assert
 	
-	public class tException<t> : System.Exception {
-		public t Value;
+	public sealed class tException<t> : System.Exception {
+		public t _Value;
 	}
 	
 	//================================================================================

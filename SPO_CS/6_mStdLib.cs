@@ -15,62 +15,6 @@ using tText = System.String;
 
 public static class mStdLib {
 	//================================================================================
-	private static bool
-	Match(
-		this mIL_VM.tData aArg,
-		out tBool a1,
-		out tBool a2
-	//================================================================================
-	) {
-		mStd.Assert(
-			aArg.Match(
-				mIL_VM.tDataType.Pair,
-				out mIL_VM.tData Arg1,
-				out mIL_VM.tData Arg2_
-			)
-		);
-		mStd.Assert(
-			Arg2_.Match(
-				mIL_VM.tDataType.Pair,
-				out mIL_VM.tData Arg2,
-				out mIL_VM.tData Arg_
-			)
-		);
-		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.Empty);
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Bool, out a1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Bool, out a2));
-		return true;
-}
-	
-	//================================================================================
-	private static bool
-	Match(
-		this mIL_VM.tData aArg,
-		out tInt32 a1,
-		out tInt32 a2
-	//================================================================================
-	) {
-		mStd.Assert(
-			aArg.Match(
-				mIL_VM.tDataType.Pair,
-				out mIL_VM.tData Arg1,
-				out mIL_VM.tData Arg2_
-			)
-		);
-		mStd.Assert(
-			Arg2_.Match(
-				mIL_VM.tDataType.Pair,
-				out mIL_VM.tData Arg2,
-				out mIL_VM.tData Arg_
-			)
-		);
-		mStd.AssertEq(Arg_._DataType, mIL_VM.tDataType.Empty);
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out a1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out a2));
-		return true;
-	}
-	
-	//================================================================================
 	private static mIL_VM.tData
 	Not(
 		mIL_VM.tData aEnv,
@@ -303,7 +247,7 @@ public static class mStdLib {
 		)
 	);
 	
-	const tText cImportTuple = (
+	public const tText cImportTuple = (
 		"("+
 			"(!..., ...&..., ...|..., ...^...), "+
 			"(-..., ...+..., ...-..., ...*..., .../..., ...%...), "+
@@ -433,13 +377,16 @@ public static class mStdLib {
 							$"§IMPORT ({cImportTuple}, n)",
 							"",
 							"§VAR x := 1",
-							"x :+ 3, * 2",
-							"",
+							"x :, + 3, * 2",
+							"x :",
+							"  + 3",
+							"  * 2",
+							".",
 							"§EXPORT x"
 						).Join((a1, a2) => a1 + "\n" + a2),
 						mIL_VM.Tuple(
 							ImportData,
-							mIL_VM.Int(8)
+							mIL_VM.Int(22)
 						),
 						aDebugStream
 					),

@@ -24,12 +24,12 @@ public static class mTest {
 	public interface tTest {
 	}
 	
-	public class tTestRun : tTest {
+	public struct tTestRun : tTest {
 		public tText _Name;
 		public mStd.tAction<mStd.tAction<tText>> _TestFunc;
 	}
 	
-	public class tTests : tTest {
+	public struct tTests : tTest {
 		public tText _Name;
 		public tTest[] _Tests;
 	}
@@ -62,9 +62,8 @@ public static class mTest {
 	//================================================================================
 	) {
 		const tText cTab = "|  ";
-		{
-			var TestRun = aTest as tTestRun;
-			if (!TestRun.IsNull()) {
+		switch (aTest) {
+			case tTestRun TestRun: {
 				aDebugStream(TestRun._Name);
 				if (aFilters.IsNull() || aFilters.Map(aFilter => TestRun._Name.Contains(aFilter)).Any()) {
 					try {
@@ -84,10 +83,7 @@ public static class mTest {
 					return tResult.Skip;
 				}
 			}
-		}
-		{
-			var Tests = aTest as tTests;
-			if (!Tests.IsNull()) {
+			case tTests Tests: {
 				aDebugStream(Tests._Name);
 				if (aFilters.IsNull() || aFilters.Map(aFilter => Tests._Name.Contains(aFilter)).Any()) {
 					aFilters = null;
@@ -113,7 +109,9 @@ public static class mTest {
 				aDebugStream("");
 				return Result;
 			}
+			default: {
+				throw null;
+			}
 		}
-		throw null;
 	}
 }

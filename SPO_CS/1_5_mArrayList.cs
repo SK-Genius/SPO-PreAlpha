@@ -15,9 +15,9 @@ using tText = System.String;
 
 public static class mArrayList {
 	
-	public class tArrayList<t> {
+	public sealed class tArrayList<t> {
 		internal tInt32 _CurrSize;
-		internal t[]    _Items;
+		internal t[] _Items;
 		
 		//================================================================================
 		public tBool 

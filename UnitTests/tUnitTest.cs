@@ -49,14 +49,14 @@ internal static class mTestHelper {
 	}
 }
 
-[xTests] public class Test_All {
+[xTests] public sealed class test_All {
 	[xTest] public void All() => mStd.AssertEq(
 		mProgram.SelfTests(mList.List(""), System.Console.WriteLine),
 		mTest.tResult.OK
 	);
 }
 
-[xTests] public class Test_1_1_mStd {
+[xTests] public sealed class test_1_1_mStd {
 	private static readonly mTest.tTest Tests = mStd.Test;
 	
 	[xTest] public void tMaybe_ToString() => mTestHelper.MagicRun(Tests);
@@ -67,10 +67,10 @@ internal static class mTestHelper {
 	[xTest] public void tTuple_Equals() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_1_1_mTest {
+[xTests] public sealed class test_1_1_mTest {
 }
 
-[xTests] public class Test_1_2_mList {
+[xTests] public sealed class test_1_2_mList {
 	private static readonly mTest.tTest Tests = mList.Test;
 	
 	[xTest] public void tList_ToString() => mTestHelper.MagicRun(Tests);
@@ -87,7 +87,7 @@ internal static class mTestHelper {
 	[xTest] public void Every() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_1_3_mMap {
+[xTests] public sealed class test_1_3_mMap {
 	private static readonly mTest.tTest Tests = mMap.Test;
 	
 	[xTest] public void tMap_Get() => mTestHelper.MagicRun(Tests);
@@ -95,10 +95,10 @@ internal static class mTestHelper {
 	[xTest] public void tMap_Remove() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_1_4_mMath {
+[xTests] public sealed class test_1_4_mMath {
 }
 
-[xTests] public class Test_1_5_mArrayList {
+[xTests] public sealed class test_1_5_mArrayList {
 	private static readonly mTest.tTest Tests = mArrayList.Test;
 	
 	[xTest] public void tArrayList_IsEmpty() => mTestHelper.MagicRun(Tests);
@@ -112,7 +112,7 @@ internal static class mTestHelper {
 	[xTest] public void mArrayList_Concat() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_2_mParserGen {
+[xTests] public sealed class test_2_mParserGen {
 	private static readonly mTest.tTest Tests = mParserGen.Test;
 	
 	[xTest] public void AtomParser() => mTestHelper.MagicRun(Tests);
@@ -131,27 +131,27 @@ internal static class mTestHelper {
 	[xTest] public void EvalMathExp() => mTestHelper.MagicRun(Tests, "Eval('MathExpr')");
 }
 
-[xTests] public class Test_3_mTextParser {
+[xTests] public sealed class test_3_mTextParser {
 }
 
-[xTests] public class Test_4_1_mIL_AST {
+[xTests] public sealed class test_4_1_mIL_AST {
 }
 
-[xTests] public class Test_4_2_mIL_Parser {
+[xTests] public sealed class test_4_2_mIL_Parser {
 	private static readonly mTest.tTest Tests = mIL_Parser.Test;
 	
 	[xTest] public void SubParser() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Commands() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_4_3_mIL_VM {
+[xTests] public sealed class test_4_3_mIL_VM {
 	private static readonly mTest.tTest Tests = mIL_VM.Test;
 	
 	[xTest] public void ExternDef() => mTestHelper.MagicRun(Tests);
 	[xTest] public void InternDef() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_4_3_mIL_Interpreter {
+[xTests] public sealed class test_4_3_mIL_Interpreter {
 	private static readonly mTest.tTest Tests = mIL_Interpreter.Test;
 	
 	[xTest] public void Call() => mTestHelper.MagicRun(Tests);
@@ -160,10 +160,10 @@ internal static class mTestHelper {
 	[xTest] public void ParseModule() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_5_1_mSPO_AST {
+[xTests] public sealed class test_5_1_mSPO_AST {
 }
 
-[xTests] public class Test_5_2_mSPO_Parser {
+[xTests] public sealed class test_5_2_mSPO_Parser {
 	private static readonly mTest.tTest Tests = mSPO_Parser.Test;
 	
 	[xTest] public void Atoms() => mTestHelper.MagicRun(Tests);
@@ -175,7 +175,7 @@ internal static class mTestHelper {
 	[xTest] public void PrefixMatch() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_5_3_mSPO2IL {
+[xTests] public sealed class test_5_3_mSPO2IL {
 	private static readonly mTest.tTest Tests = mSPO2IL.Test;
 	
 	[xTest] public void MapExpresion() => mTestHelper.MagicRun(Tests);
@@ -189,7 +189,7 @@ internal static class mTestHelper {
 	[xTest] public void MapModule() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_5_4_mSPO_Interpreter {
+[xTests] public sealed class test_5_4_mSPO_Interpreter {
 	private static readonly mTest.tTest Tests = mSPO_Interpreter.Test;
 	
 	[xTest] public void Run1() => mTestHelper.MagicRun(Tests);
@@ -197,7 +197,7 @@ internal static class mTestHelper {
 	[xTest] public void Run3() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public class Test_6_mStdLib {
+[xTests] public sealed class test_6_mStdLib {
 	private static readonly mTest.tTest Tests = mStdLib.Test;
 	
 	[xTest] public void IfThenElse() => mTestHelper.MagicRun(Tests);
