@@ -127,7 +127,15 @@ public static class mIL_VM {
 			)
 		);
 		mStd.AssertEq(Arg_._DataType, tDataType.Empty);
+		
+		if (Arg1.Match(tDataType.Var, out tData Arg1Var)) {
+			Arg1 = Arg1Var;
+		}
 		mStd.Assert(Arg1.Match(tDataType.Int, out a1));
+		
+		if (Arg2.Match(tDataType.Var, out tData Arg2Var)) {
+			Arg2 = Arg2Var;
+		}
 		mStd.Assert(Arg2.Match(tDataType.Int, out a2));
 		return true;
 	}
@@ -597,7 +605,6 @@ public static class mIL_VM {
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef._Commands.Get(aCallStack._CodePointer);
 		aCallStack._CodePointer += 1;
-		aCallStack._Obj = Empty();
 		
 		aCallStack._TraceOut(() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2}");
 		
@@ -672,16 +679,32 @@ public static class mIL_VM {
 				break;
 			}
 			case tOpCode.NewPair: {
-				aCallStack._Regs.Push(Pair(aCallStack._Regs.Get(Arg1), aCallStack._Regs.Get(Arg2)));
+				aCallStack._Regs.Push(
+					Pair(
+						aCallStack._Regs.Get(Arg1),
+						aCallStack._Regs.Get(Arg2)
+					)
+				);
 				break;
 			}
 			case tOpCode.First: {
-				mStd.Assert(aCallStack._Regs.Get(Arg1).Match(tDataType.Pair, out tData Var1, out tData Var2));
+				mStd.Assert(
+					aCallStack._Regs.Get(Arg1).Match(
+						tDataType.Pair,
+						out tData Var1,
+						out tData Var2
+					)
+				);
 				aCallStack._Regs.Push(Var1);
 				break;
 			}
 			case tOpCode.Second: {
-				mStd.Assert(aCallStack._Regs.Get(Arg1).Match(tDataType.Pair, out (tData, tData) Pair));
+				mStd.Assert(
+					aCallStack._Regs.Get(Arg1).Match(
+						tDataType.Pair,
+						out (tData, tData) Pair
+					)
+				);
 				var (Var1, Var2) = Pair;
 				aCallStack._Regs.Push(Var2);
 				break;
@@ -691,14 +714,24 @@ public static class mIL_VM {
 				break;
 			}
 			case tOpCode.DelPrefix: {
-				mStd.Assert(aCallStack._Regs.Get(Arg2).Match(tDataType.Prefix, out (tInt32, tData) PrefixData));
+				mStd.Assert(
+					aCallStack._Regs.Get(Arg2).Match(
+						tDataType.Prefix,
+						out (tInt32, tData) PrefixData
+					)
+				);
 				var (Prefix, Data_) = PrefixData;
 				mStd.Assert(Prefix.Equals(Arg1));
 				aCallStack._Regs.Push(Data_);
 				break;
 			}
 			case tOpCode.HasPrefix: {
-				mStd.Assert(aCallStack._Regs.Get(Arg2).Match(tDataType.Prefix, out (tInt32, tData) PrefixData));
+				mStd.Assert(
+					aCallStack._Regs.Get(Arg2).Match(
+						tDataType.Prefix,
+						out (tInt32, tData) PrefixData
+					)
+				);
 				var (Prefix, Data_) = PrefixData;
 				aCallStack._Regs.Push(Bool(Prefix.Equals(Arg1)));
 				break;
@@ -730,7 +763,7 @@ public static class mIL_VM {
 				} else if (Proc.Match(tDataType.Proc, out tProcDef Def_, out Env)) {
 					var Res = Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine));
+					return NewCallStack(aCallStack, Def_, Env, Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
 					throw null;
 				}
@@ -749,7 +782,7 @@ public static class mIL_VM {
 				} else if (Proc.Match(tDataType.Proc, out tProcDef Def_, out Env)) {
 					var Res = Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine));
+					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
 					throw null;
 				}

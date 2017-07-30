@@ -14,6 +14,26 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mStdLib {
+	// TODO: use build in functionality (see mIL_VM)
+	
+	//================================================================================
+	private static mIL_VM.tData
+	ObjAssign(
+		mIL_VM.tData aEnv,
+		mIL_VM.tData aObj,
+		mIL_VM.tData aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	//================================================================================
+	) {
+		mStd.Assert(aObj._IsMutable);
+		if (aArg.Match(mIL_VM.tDataType.Var, out mIL_VM.tData Arg)) {
+			aObj._Value = Arg._Value;
+		} else {
+			aObj._Value = mIL_VM.Var(aArg)._Value;
+		}
+		return mIL_VM.Empty();
+	}
+	
 	//================================================================================
 	private static mIL_VM.tData
 	Not(
@@ -223,6 +243,7 @@ public static class mStdLib {
 	}
 	
 	public static readonly mIL_VM.tData ImportData = mIL_VM.Tuple(
+		mIL_VM.ExternProc(ObjAssign, mIL_VM.Empty()),
 		mIL_VM.Tuple(
 			mIL_VM.ExternProc(Not, mIL_VM.Empty()),
 			mIL_VM.ExternProc(And, mIL_VM.Empty()),
@@ -249,6 +270,7 @@ public static class mStdLib {
 	
 	public const tText cImportTuple = (
 		"("+
+			"=..., "+
 			"(!..., ...&..., ...|..., ...^...), "+
 			"(-..., ...+..., ...-..., ...*..., .../..., ...%...), "+
 			"(...==..., ...!=..., ...>..., ...>=..., ...<..., ...<=...)"+
@@ -273,7 +295,7 @@ public static class mStdLib {
 							"	§RETURN (.e)",
 							"}",
 							"",
-							"§RECURSIV Fib... := a => .If (a .< 2) Then (",
+							"§RECURSIV Fib... = a => .If (a .< 2) Then (",
 							"	() => a",
 							") Else (",
 							"	() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
@@ -299,7 +321,7 @@ public static class mStdLib {
 						mList.List(
 							$"§IMPORT ({cImportTuple}, n)",
 							"",
-							"§RECURSIV Fib... := a => §IF {",
+							"§RECURSIV Fib... = a => §IF {",
 							"	(a .< 2) => a",
 							"	(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
 							"}",
@@ -324,7 +346,7 @@ public static class mStdLib {
 						mList.List(
 							$"§IMPORT ({cImportTuple}, n)",
 							"",
-							"§RECURSIV Fib... := a => §IF a MATCH {",
+							"§RECURSIV Fib... = a => §IF a MATCH {",
 							"	(a | a .== 0) => 0",
 							"	(a | a .== 1) => 1",
 							"	a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
@@ -350,7 +372,7 @@ public static class mStdLib {
 						mList.List(
 							$"§IMPORT ({cImportTuple}, n)",
 							"",
-							"§RECURSIV Fib... := x => §IF x MATCH {",
+							"§RECURSIV Fib... = x => §IF x MATCH {",
 							"	(a | a .< 2) => a",
 							"	a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))",
 							"}",
@@ -370,29 +392,35 @@ public static class mStdLib {
 		mTest.Test(
 			"VAR",
 			aDebugStream => {
-#if !true
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						mList.List(
-							$"§IMPORT ({cImportTuple}, n)",
+							$"§IMPORT {cImportTuple}",
 							"",
-							"§VAR x := 1",
-							"x :, + 3, * 2",
+							"§DEF +... = o : i {",
+							"	o :, = (o .+ i) .",
+							"}",
+							"",
+							"§DEF *... = o : i {",
+							"	o :, = (o .* i) .",
+							"}",
+							"",
+							"§VAR x := 1 .",
+							"",
+							"x :, + 3, * 2 .",
+							"",
 							"x :",
 							"  + 3",
 							"  * 2",
 							".",
+							"",
 							"§EXPORT x"
 						).Join((a1, a2) => a1 + "\n" + a2),
-						mIL_VM.Tuple(
-							ImportData,
-							mIL_VM.Int(22)
-						),
+						ImportData,
 						aDebugStream
 					),
-					mIL_VM.Int(8)
+					mIL_VM.Var(mIL_VM.Int(22))
 				);
-#endif
 			}
 		)
 	);

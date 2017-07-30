@@ -175,6 +175,21 @@ public static class mSPO_AST {
 		override public tText ToString() => $"({Head} => {Body})";
 	}
 	
+	public struct tMethodeNode : tExpressionNode {
+		public tMatchNode Obj;
+		public tMatchNode Arg;
+		public tBlockNode Body;
+		
+		//================================================================================
+		public tBool
+		Equals(
+			tMethodeNode a
+		//================================================================================
+		) => !a.IsNull() && a.Obj.Equals(Obj) && a.Arg.Equals(Arg) && a.Body.Equals(Body);
+		
+		override public tText ToString() => $"({Obj} : {Arg} {Body})";
+	}
+	
 	public struct tBlockNode : tExpressionNode {
 		public mList.tList<tCommandNode> Commands;
 		
@@ -287,52 +302,45 @@ public static class mSPO_AST {
 	public struct tDefVarNode : tCommandNode {
 		public tIdentNode Ident;
 		public tExpressionNode Expression;
+		public mList.tList<tMethodCallNode> MethodCalls;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tDefVarNode a
 		//================================================================================
-		) => !a.IsNull() && a.Ident.Equals(Ident) && a.Expression.Equals(Expression);
+		) => (
+			!a.IsNull() &&
+			a.Ident.Equals(Ident) &&
+			a.Expression.Equals(Expression) &&
+			a.MethodCalls.Equals(MethodCalls)
+		);
 		
-		override public tText ToString() => $"$VAR {Ident} := {Expression}";
-	}
-	
-	public struct tSetVarNode : tCommandNode {
-		internal tIdentNode _Ident;
-		
-		//================================================================================
-		public tBool
-		Equals(
-			tSetVarNode a
-		//================================================================================
-		) => !a.IsNull() && a._Ident.Equals(_Ident);
-		
-		override public tText ToString() => $"$VAR {_Ident}";
+		override public tText ToString() => $"$VAR {Ident} := {Expression}, {MethodCalls}";
 	}
 	
 	public struct tMethodCallNode {
-		internal tIdentNode _Method;
-		internal tExpressionNode _Argument;
+		public tIdentNode Method;
+		public tExpressionNode Argument;
 		
 		//================================================================================
 		public tBool
 		Equals(
 			tMethodCallNode a
 		//================================================================================
-		) => !a.IsNull() && a._Method.Equals(_Method) && a._Argument.Equals(_Argument);
+		) => !a.IsNull() && a.Method.Equals(Method) && a.Argument.Equals(Argument);
 		
-		override public tText ToString() => $" {_Method} {_Argument}";
+		override public tText ToString() => $" {Method} {Argument}";
 	}
 	
-	public struct tMethodCallStatmentNode {
+	public struct tMethodCallsNode : tCommandNode {
 		public tIdentNode Var;
 		public mList.tList<tMethodCallNode> MethodCalls;
 		
 		//================================================================================
 		public tBool
 		Equals(
-			tMethodCallStatmentNode a
+			tMethodCallsNode a
 		//================================================================================
 		) => !a.IsNull() && a.Var.Equals(Var) && a.MethodCalls.Equals(MethodCalls);
 		
@@ -435,8 +443,7 @@ public static class mSPO_AST {
 				return Empty();
 			}
 			case 1: {
-				tExpressionNode Head;
-				mStd.Assert(aItems.Match(out Head, out var _));
+				mStd.Assert(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
@@ -503,6 +510,19 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
+	public static readonly mStd.tFunc<tMethodeNode, tMatchNode, tMatchNode, tBlockNode>
+	Methode = (
+		aObjMatch,
+		aArgMatch,
+		aBody
+	//================================================================================
+	) => new tMethodeNode {
+		Obj = aObjMatch,
+		Arg = aArgMatch,
+		Body = aBody
+	};
+	
+	//================================================================================
 	public static readonly mStd.tFunc<tRecLambdaItemNode, tIdentNode, tLambdaNode>
 	RecLambdaItem = (
 		aIdent,
@@ -533,8 +553,7 @@ public static class mSPO_AST {
 				throw null; // TODO
 			}
 			case 1: {
-				tMatchNode Head;
-				mStd.Assert(aItems.Match(out Head, out var _));
+				mStd.Assert(aItems.Match(out var Head, out var _));
 				return Head.Pattern;
 			}
 			default: {
@@ -606,32 +625,25 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tDefVarNode, tIdentNode, tExpressionNode>
+	public static readonly mStd.tFunc<tDefVarNode, tIdentNode, tExpressionNode, mList.tList<tMethodCallNode>>
 	DefVar = (
 		aVar,
-		aExpression
+		aExpression,
+		aMethodCalls
 	//================================================================================
 	) => new tDefVarNode {
 		Ident = aVar,
-		Expression = aExpression
+		Expression = aExpression,
+		MethodCalls = aMethodCalls
 	};
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tSetVarNode, tIdentNode>
-	SetVar = (
-		aVar
-	//================================================================================
-	) => new tSetVarNode {
-		_Ident = aVar
-	};
-	
-	//================================================================================
-	public static readonly mStd.tFunc<tMethodCallStatmentNode, tIdentNode, mList.tList<tMethodCallNode>>
+	public static readonly mStd.tFunc<tMethodCallsNode, tIdentNode, mList.tList<tMethodCallNode>>
 	MethodCallStatment = (
 		aVar,
 		aMethodCalls
 	//================================================================================
-	) => new tMethodCallStatmentNode {
+	) => new tMethodCallsNode {
 		Var = aVar,
 		MethodCalls = aMethodCalls
 	};
@@ -643,8 +655,8 @@ public static class mSPO_AST {
 		aAgument
 	//================================================================================
 	) => new tMethodCallNode {
-		_Method = aMethod,
-		_Argument = aAgument
+		Method = aMethod,
+		Argument = aAgument
 	};
 	
 	//================================================================================

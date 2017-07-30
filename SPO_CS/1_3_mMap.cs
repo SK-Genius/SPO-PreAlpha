@@ -111,8 +111,7 @@ public static class mMap {
 				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				tInt32 Num;
-				mStd.Assert(TextToInt.TryGet("one", out Num));
+				mStd.Assert(TextToInt.TryGet("one", out var Num));
 				mStd.AssertEq(Num, 1);
 				mStd.Assert(TextToInt.TryGet("two", out Num));
 				mStd.AssertEq(Num, 2);
@@ -125,8 +124,7 @@ public static class mMap {
 				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				tInt32 Num;
-				mStd.Assert(TextToInt.TryGet("one", out Num));
+				mStd.Assert(TextToInt.TryGet("one", out var Num));
 				mStd.AssertEq(Num, 1);
 				mStd.Assert(TextToInt.TryGet("two", out Num));
 				mStd.AssertEq(Num, 2);

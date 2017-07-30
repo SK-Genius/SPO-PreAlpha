@@ -105,7 +105,10 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				throw null;
+				throw new System.Exception(
+					$"not implemented: {nameof(mSPO_AST)}.{Pattern.GetType().Name} " +
+					$"in {nameof(mSPO2IL)}.{nameof(MapArgs)}(...)"
+				);
 			}
 		}
 	}
@@ -165,8 +168,29 @@ public static class mSPO2IL {
 	
 	//================================================================================
 	public static void
-	FinishMapLambda(
-		ref tDefConstructor aTempLambdaConstructor,
+	InitMapMethode(
+		ref tDefConstructor aDefConstructor,
+		mSPO_AST.tMethodeNode aMethodeNode
+	//================================================================================
+	) {
+		var ArgumentSymbols = mList.List<tText>();
+		MapArgs(ref aDefConstructor, aMethodeNode.Arg, mIL_AST.cArg);
+		MapArgs(ref aDefConstructor, aMethodeNode.Obj, mIL_AST.cObj);
+		
+		var ResultReg = MapExpresion(ref aDefConstructor, aMethodeNode.Body);
+		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(ResultReg, mIL_AST.cTrue));
+		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
+		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
+		).Where(
+			S1 => KnownSymbols.Where(S2 => S1 == S2).IsEmpty()
+		).ToArrayList();
+		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
+	}
+	
+	//================================================================================
+	public static void
+	FinishMapProc(
+		ref tDefConstructor aTempDefConstructor,
 		mArrayList.tArrayList<tText> aUnsolveSymbols
 	//================================================================================
 	) {
@@ -174,14 +198,14 @@ public static class mSPO2IL {
 			UnrollList(
 				mIL_AST.cEnv,
 				aUnsolveSymbols.ToLasyList(),
-				ref aTempLambdaConstructor.LastTempReg
+				ref aTempDefConstructor.LastTempReg
 			),
-			aTempLambdaConstructor.Commands
+			aTempDefConstructor.Commands
 		);
 		
-		aTempLambdaConstructor.Commands = Def;
-		aTempLambdaConstructor.ModuleConstructor.Defs.Set(
-			aTempLambdaConstructor.Index,
+		aTempDefConstructor.Commands = Def;
+		aTempDefConstructor.ModuleConstructor.Defs.Set(
+			aTempDefConstructor.Index,
 			Def
 		);
 	}
@@ -195,7 +219,7 @@ public static class mSPO2IL {
 	) {
 		var TempLambdaDef = NewDefConstructor(aModuleConstructor);
 		InitMapLambda(ref TempLambdaDef, aLambdaNode);
-		FinishMapLambda(
+		FinishMapProc(
 			ref TempLambdaDef,
 			TempLambdaDef.UnsolvedSymbols
 		);
@@ -203,8 +227,24 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
+	public static (tInt32, mArrayList.tArrayList<tText>)
+	MapMethode(
+		ref tModuleConstructor aModuleConstructor,
+		mSPO_AST.tMethodeNode aMethodeNode
+	//================================================================================
+	) {
+		var TempMethodeDef = NewDefConstructor(aModuleConstructor);
+		InitMapMethode(ref TempMethodeDef, aMethodeNode);
+		FinishMapProc(
+			ref TempMethodeDef,
+			TempMethodeDef.UnsolvedSymbols
+		);
+		return (TempMethodeDef.Index, TempMethodeDef.UnsolvedSymbols);
+	}
+	
+	//================================================================================
 	public static tText
-	InitLambda(
+	InitProc(
 		ref tDefConstructor aDefConstructor,
 		tText aDefName,
 		mArrayList.tArrayList<tText> aEnv
@@ -212,8 +252,8 @@ public static class mSPO2IL {
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
-			var UnsolvedSymbols_ = aEnv.ToLasyList();
-			while (UnsolvedSymbols_.Match(out var Symbol, out UnsolvedSymbols_)) {
+			var UnsolvedSymbols = aEnv.ToLasyList();
+			while (UnsolvedSymbols.Match(out var Symbol, out UnsolvedSymbols)) {
 				if (aDefConstructor.UnsolvedSymbols.ToLasyList().Where(S => S == Symbol).IsEmpty()) {
 					aDefConstructor.UnsolvedSymbols.Push(Symbol);
 				}
@@ -222,8 +262,8 @@ public static class mSPO2IL {
 			if (aEnv.Size() == 1) {
 				ArgReg = aEnv.Get(0);
 			} else {
-				UnsolvedSymbols_ = aEnv.ToLasyList().Reverse();
-				while (UnsolvedSymbols_.Match(out var Symbol_, out UnsolvedSymbols_)) {
+				UnsolvedSymbols = aEnv.ToLasyList().Reverse();
+				while (UnsolvedSymbols.Match(out var Symbol_, out UnsolvedSymbols)) {
 					aDefConstructor.LastTempReg += 1;
 					var NewArgReg = TempReg(aDefConstructor.LastTempReg);
 					aDefConstructor.Commands.Push(mIL_AST.CreatePair(NewArgReg, Symbol_, ArgReg));
@@ -233,10 +273,10 @@ public static class mSPO2IL {
 		}
 		
 		aDefConstructor.LastTempReg += 1;
-		var Lambda = TempReg(aDefConstructor.LastTempReg);
-		aDefConstructor.Commands.Push(mIL_AST.Call(Lambda, aDefName, ArgReg));
+		var Proc = TempReg(aDefConstructor.LastTempReg);
+		aDefConstructor.Commands.Push(mIL_AST.Call(Proc, aDefName, ArgReg));
 		aDefConstructor.UnsolvedSymbols.Push(aDefName);
-		return Lambda;
+		return Proc;
 	}
 	
 	//================================================================================
@@ -338,7 +378,18 @@ public static class mSPO2IL {
 					ref aDefConstructor.ModuleConstructor,
 					LambdaNode
 				);
-				return InitLambda(
+				return InitProc(
+					ref aDefConstructor,
+					TempDef(NewDefIndex),
+					UnsolvedSymbols
+				);
+			}
+			case mSPO_AST.tMethodeNode MethodeNode: {
+				var(NewDefIndex, UnsolvedSymbols) = MapMethode(
+					ref aDefConstructor.ModuleConstructor,
+					MethodeNode
+				);
+				return InitProc(
 					ref aDefConstructor,
 					TempDef(NewDefIndex),
 					UnsolvedSymbols
@@ -401,7 +452,7 @@ public static class mSPO2IL {
 					var TestDef = NewDefConstructor(ModuleConstructor);
 					
 					MapMatchTest(ref TestDef, mIL_AST.cArg, Match);
-					FinishMapLambda(ref TestDef, TestDef.UnsolvedSymbols);
+					FinishMapProc(ref TestDef, TestDef.UnsolvedSymbols);
 					TestDef.Commands.Push(mIL_AST.ReturnIf(mIL_AST.cTrue, mIL_AST.cTrue));
 					
 					Ifs.Push(
@@ -452,7 +503,10 @@ public static class mSPO2IL {
 				return ResultReg; 
 			}
 			default: {
-				throw null;
+				throw new System.Exception(
+					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
+					$"in {nameof(mSPO2IL)}.{nameof(MapExpresion)}(...)"
+				);
 			}
 		}
 	}
@@ -516,7 +570,10 @@ public static class mSPO2IL {
 				return true;
 			}
 			default: {
-				throw null;
+				throw new System.Exception(
+					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
+					$"in {nameof(mSPO2IL)}.{nameof(MapMatch)}(...)"
+				);
 			}
 		}
 	}
@@ -623,7 +680,10 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				throw null;
+				throw new System.Exception(
+					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
+					$"in {nameof(mSPO2IL)}.{nameof(MapMatchTest)}(...)"
+				);
 			}
 		}
 	}
@@ -717,7 +777,7 @@ public static class mSPO2IL {
 			
 			TempDefConstructor.LastTempReg += 1;
 			var Reg = TempReg(TempDefConstructor.LastTempReg);
-			FinishMapLambda(
+			FinishMapProc(
 				ref TempDefConstructor,
 				AllUnsolvedSymbols
 			);
@@ -775,6 +835,31 @@ public static class mSPO2IL {
 		return true;
 	}
 	
+	public static tBool
+	MapMethodCalls(
+		ref tDefConstructor aDefConstructor,
+		mSPO_AST.tMethodCallsNode aMethodCallsNode
+	) {
+		var Rest = aMethodCallsNode.MethodCalls;
+		while (Rest.Match(out var Call, out Rest)) {
+			var Arg = MapExpresion(ref aDefConstructor, Call.Argument);
+			var MethodName = Call.Method.Name;
+			aDefConstructor.Commands.Push(
+				mIL_AST.Push(aMethodCallsNode.Var.Name)
+			).Push(
+				mIL_AST.Exec(null, MethodName, Arg)
+			).Push(
+				mIL_AST.Pop()
+			);
+			
+			var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
+			if (KnownSymbols.Where(a => MethodName == a).IsEmpty()) {
+				aDefConstructor.UnsolvedSymbols.Push(MethodName);
+			}
+		}
+		return true;
+	}
+	
 	//================================================================================
 	public static tBool
 	MapCommand(
@@ -794,6 +879,9 @@ public static class mSPO2IL {
 			}
 			case mSPO_AST.tDefVarNode VarNode: {
 				return MapVar(ref aDefConstructor, VarNode);
+			}
+			case mSPO_AST.tMethodCallsNode MethodCallsNode: {
+				return MapMethodCalls(ref aDefConstructor, MethodCallsNode);
 			}
 			default: {
 				throw null;
@@ -832,7 +920,7 @@ public static class mSPO2IL {
 		for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
 			DefSymbols.Push(TempDef(I));
 		}
-		FinishMapLambda(ref TempLambdaDef, DefSymbols);
+		FinishMapProc(ref TempLambdaDef, DefSymbols);
 		
 		return ModuleConstructor;
 	}
@@ -845,12 +933,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapExpresion",
 			aStreamOut => {
-				mSPO_AST.tExpressionNode ExpressionNode;
 				mStd.Assert(
 					mSPO_Parser.Expression.ParseText(
 						"2 .< (4 .+ 3) < 3",
 						aStreamOut
-					).Match(out ExpressionNode)
+					).Match(out mSPO_AST.tExpressionNode ExpressionNode)
 				);
 				
 				var Def = NewDefConstructor(NewModuleConstructor());
@@ -877,12 +964,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapDef1",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
 				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF a = (1, 2)",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
@@ -904,12 +990,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapDefMatch",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
 				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, (b, c)) = (1, (2, 3))",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
@@ -940,12 +1025,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MatchTuple",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
 				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, b, c) = (1, 2, 3)",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var Module = NewDefConstructor(NewModuleConstructor());
@@ -975,12 +1059,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapMatchPrefix",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
 				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, b, (#bla (c , d))) = (1, 2, (#bla (3, 4)))",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
@@ -1018,12 +1101,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapLambda1",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
 				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF x = a => 2 .* a",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
@@ -1064,12 +1146,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapLambda2",
 			aStreamOut => {
-				mSPO_AST.tDefNode DefNode;
-					mStd.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF ...*...+... = (a, b, c) => (a .* b) .+ c",
 						aStreamOut
-					).Match(out DefNode)
+					).Match(out mSPO_AST.tDefNode DefNode)
 				);
 				
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
@@ -1124,12 +1205,11 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapNestedMatch",
 			aStreamOut => {
-				mSPO_AST.tLambdaNode LambdaNode;
 				mStd.Assert(
 					mSPO_Parser.Lambda.ParseText(
 						"(a, b, (x, y, z)) => a .* z",
 						aStreamOut
-					).Match(out LambdaNode)
+					).Match(out mSPO_AST.tLambdaNode LambdaNode)
 				);
 				
 				var ModuleConstructor = NewModuleConstructor();
@@ -1179,7 +1259,6 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapModule",
 			aStreamOut => {
-				mSPO_AST.tModuleNode ModuleNode;
 				mStd.Assert(
 					mSPO_Parser.Module.ParseText(
 						mList.List(
@@ -1201,7 +1280,7 @@ public static class mSPO2IL {
 							"§EXPORT y"
 						).Join((a1, a2) => a1 + "\n" + a2),
 						aStreamOut
-					).Match(out ModuleNode)
+					).Match(out mSPO_AST.tModuleNode ModuleNode)
 				);
 				
 				var ModuleConstructor = MapModule(ModuleNode);

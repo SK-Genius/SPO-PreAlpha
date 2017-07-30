@@ -139,20 +139,35 @@ public static class mIL_AST {
 	public static tBool
 	Match(
 		this tCommandNode aNode,
+		tCommandNodeType aNodeType
+	//================================================================================
+	) {
+		return (
+			aNode._NodeType == aNodeType &&
+			aNode._1.IsNull() &&
+			aNode._2.IsNull() &&
+			aNode._3.IsNull()
+		);
+	}
+	
+	//================================================================================
+	public static tBool
+	Match(
+		this tCommandNode aNode,
 		tCommandNodeType aNodeType,
 		out tText aId
 	//================================================================================
 	) {
 		if (
-			aNode._NodeType != aNodeType ||
-			!aNode._2.IsNull() ||
-			!aNode._3.IsNull()
+			aNode._NodeType == aNodeType &&
+			aNode._2.IsNull() &&
+			aNode._3.IsNull()
 		) {
-			aId = null;
-			return false;
+			aId = aNode._1;
+			return true;
 		}
-		aId = aNode._1;
-		return true;
+		aId = null;
+		return false;
 	}
 	
 	//================================================================================
@@ -165,16 +180,16 @@ public static class mIL_AST {
 	//================================================================================
 	) {
 		if (
-			aNode._NodeType != aNodeType ||
-			!aNode._3.IsNull()
+			aNode._NodeType == aNodeType &&
+			aNode._3.IsNull()
 		) {
-			aId1 = null;
-			aId2 = null;
-			return false;
+			aId1 = aNode._1;
+			aId2 = aNode._2;
+			return true;
 		}
-		aId1 = aNode._1;
-		aId2 = aNode._2;
-		return true;
+		aId1 = null;
+		aId2 = null;
+		return false;
 	}
 	
 	//================================================================================
@@ -187,16 +202,16 @@ public static class mIL_AST {
 		out tText aId3
 	//================================================================================
 	) {
-		if (aNode._NodeType != aNodeType) {
-			aId1 = null;
-			aId2 = null;
-			aId3 = null;
-			return false;
+		if (aNode._NodeType == aNodeType) {
+			aId1 = aNode._1;
+			aId2 = aNode._2;
+			aId3 = aNode._3;
+			return true;
 		}
-		aId1 = aNode._1;
-		aId2 = aNode._2;
-		aId3 = aNode._3;
-		return true;
+		aId1 = null;
+		aId2 = null;
+		aId3 = null;
+		return false;
 	}
 	
 	//================================================================================

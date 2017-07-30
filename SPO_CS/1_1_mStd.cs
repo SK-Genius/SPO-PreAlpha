@@ -196,7 +196,7 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		Assert(a.Match(out t Result), typeof(t).FullName);
+		Assert(a.Match(out t Result), $"To: {typeof(t).FullName} <- {a}");
 		return Result;
 	}
 	

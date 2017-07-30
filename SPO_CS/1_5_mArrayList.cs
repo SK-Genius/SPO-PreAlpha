@@ -270,9 +270,7 @@ public static class mArrayList {
 				}
 				{
 					var L = List(1, 2, 3);
-					tInt32 X;
-					tInt32 Y;
-					mStd.AssertEq(L.Pop(out X).Pop(out Y), List(1));
+					mStd.AssertEq(L.Pop(out var X).Pop(out var Y), List(1));
 					mStd.AssertEq(X, 3);
 					mStd.AssertEq(Y, 2);
 					mStd.AssertEq(L.Pop(out X), List<tInt32>());

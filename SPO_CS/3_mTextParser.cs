@@ -86,7 +86,24 @@ public static class mTextParser {
 			mStd.Assert(
 				false,
 				ErrorList.Map(
-					a => $"({a.Pos.Row}, {a.Pos.Col}): {a.Message}"
+					a => {
+						var Line = aText.Split('\n')[a.Pos.Row-1];
+						var MarkerLine = TextToStream(
+							Line
+						).Take(
+							a.Pos.Col - 1
+						).Map(
+							aSymbol => aSymbol.Char == '\t' ? '\t' : ' '
+						).Reduce(
+							"",
+							(aString, aChar) => aString + aChar
+						);
+						return (
+							$"({a.Pos.Row}, {a.Pos.Col}): {a.Message}\n" +
+							$"{Line}\n" +
+							$"{MarkerLine}^\n"
+						);
+					}
 				).Reduce("", (a1, a2) => a1 + "\n" + a2)
 			);
 		}
@@ -207,7 +224,8 @@ public static class mTextParser {
 			Pos = a.Pos,
 			Message = $"invalid {aName}"
 		}
-	).SetDebugName(aName);
+	)
+	.SetDebugName(aName);
 	
 	#region Test
 	

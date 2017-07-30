@@ -29,127 +29,150 @@ public static class  mIL_Parser {
 	
 	public static readonly mStd.tFunc<tIL_Parser, tText> Token = a => Text(a) + -__;
 	
-	public static readonly tIL_Parser QuotedString = (-Char('"') +NotChar('"')[0, null] -Char('"'))
-		.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar)); 
+	public static readonly tIL_Parser
+	QuotedString = (-Char('"') +NotChar('"')[0, null] -Char('"'))
+	.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))
+	.SetName(nameof(QuotedString));
 	
-	public static readonly tIL_Parser Digit = CharInRange('0', '9')
-		.Modify((tChar aChar) => (int)aChar - (int)'0');
+	public static readonly tIL_Parser
+	Digit = CharInRange('0', '9')
+	.Modify((tChar aChar) => (int)aChar - (int)'0');
 	
-	public static readonly tIL_Parser Nat = (Digit + (Digit | -Char('_'))[0, null])
-		.ModifyList(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit));
+	public static readonly tIL_Parser
+	Nat = (Digit + (Digit | -Char('_'))[0, null])
+	.ModifyList(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit));
 	
-	public static readonly tIL_Parser PosSignum = Char('+')
-		.Modify(() => +1);
+	public static readonly tIL_Parser
+	PosSignum = Char('+')
+	.Modify(() => +1);
 	
-	public static readonly tIL_Parser NegSignum = Char('-')
-		.Modify(() => -1);
+	public static readonly tIL_Parser
+	NegSignum = Char('-')
+	.Modify(() => -1);
 	
-	public static readonly tIL_Parser Signum = PosSignum | NegSignum;
+	public static readonly tIL_Parser
+	Signum = PosSignum | NegSignum;
 	
- 	public static readonly tIL_Parser Int = (Signum + Nat)
-		.Modify((int Sig, int Abs) => Sig * Abs);
+ 	public static readonly tIL_Parser
+	Int = (Signum + Nat)
+	.Modify((int Sig, int Abs) => Sig * Abs);
 	
-	public static readonly tIL_Parser Number = Int | Nat;
+	public static readonly tIL_Parser
+	Number = (Int | Nat)
+	.SetName(nameof(Number));
 	
-	public static readonly tIL_Parser NumberText = Number
-		.Modify((tInt32 a) => a.ToString());
+	public static readonly tIL_Parser
+	NumberText = Number
+	.Modify((tInt32 a) => a.ToString());
 	
 	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
-	public static readonly tIL_Parser Ident = (
+	public static readonly tIL_Parser
+	Ident = (
 		(
 			CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) |
 			Text("...")
 		)[1, null] -__
-	).ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2));
+	)
+	.ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
+	.SetName(nameof(Ident));
 	
-	public static readonly tIL_Parser Literal = (Number | QuotedString) -__;
+	public static readonly tIL_Parser
+	Literal = (Number | QuotedString) -__;
 	
-	public static readonly tIL_Parser Command = (
+	public static readonly tIL_Parser
+	Command = (
 		(+Ident -Token(":=") +NumberText)
-			.Modify(mIL_AST.CreateInt) |
+		.Modify(mIL_AST.CreateInt) |
 		
 		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("&") +Ident)
-			.Modify(mIL_AST.And) |
+		.Modify(mIL_AST.And) |
 		
 		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("|") +Ident)
-			.Modify(mIL_AST.Or) |
+		.Modify(mIL_AST.Or) |
 		
 		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("^") +Ident)
-			.Modify(mIL_AST.XOr) |
+		.Modify(mIL_AST.XOr) |
 		
 		(+Ident -Token(":=") -Token("§INT") +Ident -Token("==") +Ident)
-			.Modify(mIL_AST.IntsAreEq) |
+		.Modify(mIL_AST.IntsAreEq) |
 		
 		(+Ident -Token(":=") -Token("§INT") +Ident -Token("<=>") +Ident)
-			.Modify(mIL_AST.IntsComp) |
+		.Modify(mIL_AST.IntsComp) |
 		
 		(+Ident -Token(":=") -Token("§INT") +Ident -Token("+") +Ident)
-			.Modify(mIL_AST.IntsAdd) |
+		.Modify(mIL_AST.IntsAdd) |
 		
 		(+Ident -Token(":=") -Token("§INT") +Ident -Token("-") +Ident)
-			.Modify(mIL_AST.IntsSub) |
+		.Modify(mIL_AST.IntsSub) |
 		
 		(+Ident -Token(":=") -Token("§INT") +Ident -Token("*") +Ident)
-			.Modify(mIL_AST.IntsMul) |
+		.Modify(mIL_AST.IntsMul) |
 		
 		(+Ident -Token(":=") +Ident -Token(",") +Ident)
-			.Modify(mIL_AST.CreatePair) |
+		.Modify(mIL_AST.CreatePair) |
 		
 		(+Ident -Token(":=") -Token("§1ST") +Ident)
-			.Modify(mIL_AST.GetFirst) |
+		.Modify(mIL_AST.GetFirst) |
 		
 		(+Ident -Token(":=") -Token("§2ND") +Ident)
-			.Modify(mIL_AST.GetSecond) |
+		.Modify(mIL_AST.GetSecond) |
 		
 		(+Ident -Token(":=") -Token("+") +Ident +Ident)
-			.Modify(mIL_AST.AddPrefix) |
+		.Modify(mIL_AST.AddPrefix) |
 		
 		(+Ident -Token(":=") -Token("-") +Ident +Ident)
-			.Modify(mIL_AST.SubPrefix) |
+		.Modify(mIL_AST.SubPrefix) |
 		
 		(+Ident -Token(":=") -Token("?") +Ident +Ident)
-			.Modify(mIL_AST.HasPrefix) |
+		.Modify(mIL_AST.HasPrefix) |
 		
 		(+Ident -Token(":=") +Ident +Ident)
-			.Modify(mIL_AST.Call) |
+		.Modify(mIL_AST.Call) |
 		
 		(+Ident -Token(":=") -Token("§OBJ") +Ident +Ident)
-			.Modify(mIL_AST.Exec) |
+		.Modify(mIL_AST.Exec) |
 		
 		(+Ident -Token(":=") -Token("§VAR") +Ident)
-			.Modify(mIL_AST.Var) |
+		.Modify(mIL_AST.Var) |
 		
 		(+Ident -Token(":=") +Ident)
-			.Modify(mIL_AST.Alias) |
+		.Modify(mIL_AST.Alias) |
 		
 		(-Token("§PUSH") +Ident)
-			.Modify(mIL_AST.Push) |
+		.Modify(mIL_AST.Push) |
 		
 		(-Token("§POP"))
-			.Modify(mIL_AST.Pop) |
+		.Modify(mIL_AST.Pop) |
 		
 		(-Token("§RETURN") +Ident -Token("IF") +Ident)
-			.Modify(mIL_AST.ReturnIf) |
+		.Modify(mIL_AST.ReturnIf) |
 		
 		(-Token("§REPEAT") +Ident -Token("IF") +Ident)
-			.Modify(mIL_AST.RepeatIf) |
+		.Modify(mIL_AST.RepeatIf) |
 		
 		(-Token("§ASSERT") +Ident -Token("=>") +Ident)
-			.Modify(mIL_AST.Assert) |
+		.Modify(mIL_AST.Assert) |
 		
 		(+Ident -Token("=>") +Ident -Token(":") +Ident)
-			.Modify(mIL_AST.Proof)
-	);
+		.Modify(mIL_AST.Proof)
+	)
+	.SetName(nameof(Command));
 	
-	public static readonly tIL_Parser Block = (-_ +Command -NL)[1, null]
-		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)));
+	public static readonly tIL_Parser
+	Block = (-_ +Command -NL)[1, null]
+	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)))
+	.SetName(nameof(Block));
 	
-	public static readonly tIL_Parser Def = (-Text("DEF") -__ +Ident -NL +Block)
-		.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => (aID, aBlock));
+	public static readonly tIL_Parser
+	Def = (-Text("DEF") -__ +Ident -NL +Block)
+	.Modify((tText aID, mList.tList<mIL_AST.tCommandNode> aBlock) => (aID, aBlock))
+	.SetName(nameof(Def));
 	
-	public static readonly tIL_Parser Module = Def[1, null]
-		.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<(tText, mList.tList<mIL_AST.tCommandNode>)>)));
+	public static readonly tIL_Parser
+	Module = Def[1, null]
+	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<(tText, mList.tList<mIL_AST.tCommandNode>)>)))
+	.SetName(nameof(Module));
 	
 	#region TEST
 	

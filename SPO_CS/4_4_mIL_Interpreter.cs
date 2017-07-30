@@ -27,8 +27,10 @@ public static class mIL_Interpreter {
 	) {
 		var ParserResult = mIL_Parser.Module.ParseText(aSourceCode, aDebugStream);
 		
-		ParserResult.Match(
-			out mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> Defs
+		mStd.Assert(
+			ParserResult.Match(
+				out mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> Defs
+			)
 		);
 		
 		return ParseModule(Defs, aDebugStream);
@@ -61,14 +63,17 @@ public static class mIL_Interpreter {
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			Module = mList.Concat(Module, mList.List(NewProc));
 			
-			var Reg = mMap.Map<tText, tInt32>((a, b) => a.Equals(b))
-				.Set(mIL_AST.cEnv, mIL_VM.tProcDef.cEnvReg)
-				.Set(mIL_AST.cObj, mIL_VM.tProcDef.cObjReg)
-				.Set(mIL_AST.cArg, mIL_VM.tProcDef.cArgReg)
-				.Set(mIL_AST.cRes, mIL_VM.tProcDef.cResReg)
-				.Set(mIL_AST.cEmpty, mIL_VM.tProcDef.cEmptyReg)
-				.Set(mIL_AST.cFalse, mIL_VM.tProcDef.cFalseReg)
-				.Set(mIL_AST.cTrue , mIL_VM.tProcDef.cTrueReg);
+			var Reg = mMap.Map<tText, tInt32>((a, b) => a == b)
+			.Set(mIL_AST.cEnv, mIL_VM.tProcDef.cEnvReg)
+			.Set(mIL_AST.cObj, mIL_VM.tProcDef.cObjReg)
+			.Set(mIL_AST.cArg, mIL_VM.tProcDef.cArgReg)
+			.Set(mIL_AST.cRes, mIL_VM.tProcDef.cResReg)
+			.Set(mIL_AST.cEmpty, mIL_VM.tProcDef.cEmptyReg)
+			.Set(mIL_AST.cFalse, mIL_VM.tProcDef.cFalseReg)
+			.Set(mIL_AST.cTrue , mIL_VM.tProcDef.cTrueReg);
+			
+			var ObjStack = mArrayList.List<tInt32>();
+			var CurrObj = Reg.Get(mIL_AST.cEmpty);
 			
 			var RestCommands = Commands;
 			while (RestCommands.Match(out var Command, out RestCommands)) {
@@ -77,6 +82,8 @@ public static class mIL_Interpreter {
 				#endif
 				if (Command.Match(mIL_AST.tCommandNodeType.Call, out var RegId1, out var RegId2, out var RegId3)) {
 					Reg = Reg.Set(RegId1, NewProc.Call(Reg.Get(RegId2), Reg.Get(RegId3)));
+				} else if (Command.Match(mIL_AST.tCommandNodeType.Exec, out RegId1, out RegId2, out RegId3)) {
+					Reg = Reg.Set(RegId1, NewProc.Exec(Reg.Get(RegId2), Reg.Get(RegId3)));
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Alias, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, Reg.Get(RegId2));
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Int, out RegId1, out RegId2)) {
@@ -117,6 +124,13 @@ public static class mIL_Interpreter {
 					NewProc.Assert(Reg.Get(RegId1), Reg.Get(RegId2));
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Var, out RegId1, out RegId2)) {
 					Reg = Reg.Set(RegId1, NewProc.Var(Reg.Get(RegId2)));
+				} else if (Command.Match(mIL_AST.tCommandNodeType.Push, out RegId1)) {
+					ObjStack.Push(CurrObj);
+					CurrObj = Reg.Get(RegId1);
+					NewProc.SetObj(CurrObj);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.Pop)) {
+					CurrObj = ObjStack.Pop();
+					NewProc.SetObj(CurrObj);
 				} else {
 					throw null;
 				}

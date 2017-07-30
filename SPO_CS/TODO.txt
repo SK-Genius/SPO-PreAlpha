@@ -1,5 +1,16 @@
 ﻿NEXT:
 =====
+	o simplify mIL_VM.Var / mIL_VM.tDataType.Var; see work a rounds in:
+		- mStdLib.ObjAssign(...)
+		- mIL_VM.Match(this tData aArg, out tInt32 a1, out tInt32 a2)
+	
+	o simplify mSPO2IL
+	
+	o imperative
+		- var & const
+		- arrays
+		- loops
+	
 	o ignor match: _
 	
 	o lambdas with "..."
@@ -11,10 +22,6 @@
 
 ROADMAP:
 ========
-	o imperative
-		- var & const
-		- arrays
-		- loops
 	o runtime type check
 	o compiletime type check
 	o concurency
