@@ -17,7 +17,7 @@ public static class mIL_Interpreter {
 	
 	//================================================================================
 	public static (
-		mList.tList<mIL_VM.tProcDef>,
+		mList.tList<mVM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
@@ -38,7 +38,7 @@ public static class mIL_Interpreter {
 	
 	//================================================================================
 	public static (
-		mList.tList<mIL_VM.tProcDef>,
+		mList.tList<mVM.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
@@ -50,7 +50,7 @@ public static class mIL_Interpreter {
 			aTrace(nameof(ParseModule));
 		#endif
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
-		var Module = mList.List<mIL_VM.tProcDef>();
+		var Module = mList.List<mVM.tProcDef>();
 		
 		var RestDefs = Defs;
 		while (RestDefs.Match(out var Def, out RestDefs)) {
@@ -58,19 +58,19 @@ public static class mIL_Interpreter {
 			#if TRACE
 				aTrace($"    {DefName}:");
 			#endif
-			var NewProc = new mIL_VM.tProcDef();
+			var NewProc = new mVM.tProcDef();
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			Module = mList.Concat(Module, mList.List(NewProc));
 			
 			var Reg = mMap.Map<tText, tInt32>((a, b) => a == b)
-			.Set(mIL_AST.cEnv, mIL_VM.tProcDef.cEnvReg)
-			.Set(mIL_AST.cObj, mIL_VM.tProcDef.cObjReg)
-			.Set(mIL_AST.cArg, mIL_VM.tProcDef.cArgReg)
-			.Set(mIL_AST.cRes, mIL_VM.tProcDef.cResReg)
-			.Set(mIL_AST.cEmpty, mIL_VM.tProcDef.cEmptyReg)
-			.Set(mIL_AST.cFalse, mIL_VM.tProcDef.cFalseReg)
-			.Set(mIL_AST.cTrue , mIL_VM.tProcDef.cTrueReg);
+			.Set(mIL_AST.cEnv, mVM.tProcDef.cEnvReg)
+			.Set(mIL_AST.cObj, mVM.tProcDef.cObjReg)
+			.Set(mIL_AST.cArg, mVM.tProcDef.cArgReg)
+			.Set(mIL_AST.cRes, mVM.tProcDef.cResReg)
+			.Set(mIL_AST.cEmpty, mVM.tProcDef.cEmptyReg)
+			.Set(mIL_AST.cFalse, mVM.tProcDef.cFalseReg)
+			.Set(mIL_AST.cTrue , mVM.tProcDef.cTrueReg);
 			
 			var ObjStack = mArrayList.List<tInt32>();
 			var CurrObj = Reg.Get(mIL_AST.cEmpty);
@@ -143,63 +143,63 @@ public static class mIL_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static mIL_VM.tData
+	private static mVM_Data.tData
 	Add (
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
+		mVM_Data.tData aEnv,
+		mVM_Data.tData aObj,
+		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
-		return mIL_VM.Int(IntArg1 + IntArg2);
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
 	//================================================================================
-	private static mIL_VM.tData
+	private static mVM_Data.tData
 	Sub (
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
+		mVM_Data.tData aEnv,
+		mVM_Data.tData aObj,
+		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
-		return mIL_VM.Int(IntArg1 - IntArg2);
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
 	//================================================================================
-	private static mIL_VM.tData
+	private static mVM_Data.tData
 	Mul (
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
+		mVM_Data.tData aEnv,
+		mVM_Data.tData aObj,
+		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
-		return mIL_VM.Int(IntArg1 * IntArg2);
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
 	//================================================================================
-	private static mIL_VM.tData
+	private static mVM_Data.tData
 	Eq (
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
+		mVM_Data.tData aEnv,
+		mVM_Data.tData aObj,
+		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
-		return mIL_VM.Bool(IntArg1.Equals(IntArg2));
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		return mVM_Data.Bool(IntArg1.Equals(IntArg2));
 	}
 	
 	public static readonly mTest.tTest
@@ -212,7 +212,7 @@ public static class mIL_Interpreter {
 					"DEF ...++\n" +
 					"	add := ENV EMPTY\n" +
 					"	1_ := 1\n" +
-						
+					
 					"	arg_1 := ARG, 1_\n" +
 					"	res := add arg_1\n" +
 					"	§RETURN res IF TRUE\n",
@@ -228,16 +228,16 @@ public static class mIL_Interpreter {
 				#endif
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
-				var Env = mIL_VM.ExternDef(Add);
-				var Res = mIL_VM.Empty();
-				mIL_VM.Run(
-					mIL_VM.Proc(Proc, Env),
-					mIL_VM.Empty(),
-					mIL_VM.Int(5),
+				var Env = mVM_Data.ExternDef(Add);
+				var Res = mVM_Data.Empty();
+				mVM.Run(
+					mVM_Data.Proc(Proc, Env),
+					mVM_Data.Empty(),
+					mVM_Data.Int(5),
 					Res,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mIL_VM.Int(6));
+				mStd.AssertEq(Res, mVM_Data.Int(6));
 			}
 		),
 		mTest.Test(
@@ -265,16 +265,16 @@ public static class mIL_Interpreter {
 				#endif
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
-				var Env = mIL_VM.ExternDef(Add);
-				var Res = mIL_VM.Empty();
-				mIL_VM.Run(
-					mIL_VM.Proc(Proc, Env),
-					mIL_VM.Empty(),
-					mIL_VM.Prefix("VECTOR", mIL_VM.Int(12)),
+				var Env = mVM_Data.ExternDef(Add);
+				var Res = mVM_Data.Empty();
+				mVM.Run(
+					mVM_Data.Proc(Proc, Env),
+					mVM_Data.Empty(),
+					mVM_Data.Prefix("VECTOR", mVM_Data.Int(12)),
 					Res,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mIL_VM.Prefix("VECTOR", mIL_VM.Int(13)));
+				mStd.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
 			}
 		),
 		mTest.Test(
@@ -292,8 +292,8 @@ public static class mIL_Interpreter {
 				);
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
-				var Env = mIL_VM.ExternDef(Eq);
-				var Res = mIL_VM.Empty();
+				var Env = mVM_Data.ExternDef(Eq);
+				var Res = mVM_Data.Empty();
 				
 				#if TRACE
 					var TraceOut = mStd.Action(
@@ -303,27 +303,27 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var CallStack = mIL_VM.NewCallStack(
+				var CallStack = mVM.NewCallStack(
 					null,
 					Proc,
 					Env,
-					mIL_VM.Empty(), 
-					mIL_VM.Int(1),
+					mVM_Data.Empty(), 
+					mVM_Data.Int(1),
 					Res,
 					TraceOut
 				);
 				while (CallStack != null) {
 					CallStack = CallStack.Step();
 				}
-				mStd.AssertEq(Res, mIL_VM.Bool(true));
+				mStd.AssertEq(Res, mVM_Data.Bool(true));
 				
 				var HasThrowException = false;
 				try {
-					Res = mIL_VM.Empty();
-					mIL_VM.Run(
-						mIL_VM.Proc(Proc, Env),
-						mIL_VM.Empty(),
-						mIL_VM.Int(2),
+					Res = mVM_Data.Empty();
+					mVM.Run(
+						mVM_Data.Proc(Proc, Env),
+						mVM_Data.Empty(),
+						mVM_Data.Int(2),
 						Res,
 						TraceOut
 					);
@@ -425,17 +425,17 @@ public static class mIL_Interpreter {
 				var Proc3 = Module.Skip(ModuleMap.Get("...!!"))._Head;
 				var Proc4 = Module.Skip(ModuleMap.Get("...!"))._Head;
 				
-				var Env = mIL_VM.Pair(
-					mIL_VM.ExternDef(Add),
-					mIL_VM.Pair(
-						mIL_VM.ExternDef(Sub),
-						mIL_VM.Pair(
-							mIL_VM.ExternDef(Mul),
-							mIL_VM.Pair(
-								mIL_VM.ExternDef(Eq),
-								mIL_VM.Pair(
-									mIL_VM.Def(Proc3),
-									mIL_VM.Empty()
+				var Env = mVM_Data.Pair(
+					mVM_Data.ExternDef(Add),
+					mVM_Data.Pair(
+						mVM_Data.ExternDef(Sub),
+						mVM_Data.Pair(
+							mVM_Data.ExternDef(Mul),
+							mVM_Data.Pair(
+								mVM_Data.ExternDef(Eq),
+								mVM_Data.Pair(
+									mVM_Data.Def(Proc3),
+									mVM_Data.Empty()
 								)
 							)
 						)
@@ -449,48 +449,48 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				{
-					var Res = mIL_VM.Empty();
-					mIL_VM.Run(
-						mIL_VM.Proc(Proc1, Env),
-						mIL_VM.Empty(),
-						mIL_VM.Empty(),
+					var Res = mVM_Data.Empty();
+					mVM.Run(
+						mVM_Data.Proc(Proc1, Env),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mIL_VM.Int(2));
+					mStd.AssertEq(Res, mVM_Data.Int(2));
 				}
 				{
-					var Res = mIL_VM.Empty();
-					mIL_VM.Run(
-						mIL_VM.Proc(Proc2, Env),
-						mIL_VM.Empty(),
-						mIL_VM.Empty(),
+					var Res = mVM_Data.Empty();
+					mVM.Run(
+						mVM_Data.Proc(Proc2, Env),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mIL_VM.Int(12));
+					mStd.AssertEq(Res, mVM_Data.Int(12));
 				}
 				{
-					var Res = mIL_VM.Empty();
-					mIL_VM.Run(
-						mIL_VM.Proc(Proc3, Env),
-						mIL_VM.Empty(),
-						mIL_VM.Pair(mIL_VM.Int(3), mIL_VM.Int(1)),
+					var Res = mVM_Data.Empty();
+					mVM.Run(
+						mVM_Data.Proc(Proc3, Env),
+						mVM_Data.Empty(),
+						mVM_Data.Pair(mVM_Data.Int(3), mVM_Data.Int(1)),
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mIL_VM.Int(6));
+					mStd.AssertEq(Res, mVM_Data.Int(6));
 				}
 				{
-					var Res = mIL_VM.Empty();
-					mIL_VM.Run(
-						mIL_VM.Proc(Proc4, Env),
-						mIL_VM.Empty(),
-						mIL_VM.Int(3),
+					var Res = mVM_Data.Empty();
+					mVM.Run(
+						mVM_Data.Proc(Proc4, Env),
+						mVM_Data.Empty(),
+						mVM_Data.Int(3),
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mIL_VM.Int(6));
+					mStd.AssertEq(Res, mVM_Data.Int(6));
 				}
 			}
 		)

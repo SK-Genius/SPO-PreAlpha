@@ -43,30 +43,34 @@ public static class mTextParser {
 		return mList.LasyList(
 			() => {
 				mStd.tMaybe<tPosChar, mStd.tVoid> Result;
-				if (I < a.Length) {
-					var Char = a[I.Value];
-					if (Char == '\r') {
-						I += 1;
-						Char = a[I.Value];
-					}
-					Result = mStd.OK(
-						new tPosChar {
-							Char = Char,
-							Pos = {
-								Col = Col.Value,
-								Row = Row.Value
-							}
-						}
-					);
-					I += 1;
-					Col += 1;
-					if (Char == '\n') {
-						Col = 1;
-						Row += 1;
-					}
-				} else {
-					Result = mStd.Fail();
+				if (I >= a.Length) {
+					return mStd.Fail();
 				}
+				
+				var Char = a[I.Value];
+				if (Char == '\r') {
+					I += 1;
+					if (I == a.Length) {
+						return mStd.Fail();
+					}
+					Char = a[I.Value];
+				}
+				Result = mStd.OK(
+					new tPosChar {
+						Char = Char,
+						Pos = {
+							Col = Col.Value,
+							Row = Row.Value
+						}
+					}
+				);
+				I += 1;
+				Col += 1;
+				if (Char == '\n') {
+					Col = 1;
+					Row += 1;
+				}
+				
 				return Result;
 			}
 		);
@@ -86,12 +90,12 @@ public static class mTextParser {
 			mStd.Assert(
 				false,
 				ErrorList.Map(
-					a => {
-						var Line = aText.Split('\n')[a.Pos.Row-1];
+					aError => {
+						var Line = aText.Split('\n')[aError.Pos.Row-1];
 						var MarkerLine = TextToStream(
 							Line
 						).Take(
-							a.Pos.Col - 1
+							aError.Pos.Col - 1
 						).Map(
 							aSymbol => aSymbol.Char == '\t' ? '\t' : ' '
 						).Reduce(
@@ -99,7 +103,7 @@ public static class mTextParser {
 							(aString, aChar) => aString + aChar
 						);
 						return (
-							$"({a.Pos.Row}, {a.Pos.Col}): {a.Message}\n" +
+							$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
 							$"{Line}\n" +
 							$"{MarkerLine}^\n"
 						);
@@ -108,7 +112,17 @@ public static class mTextParser {
 			);
 		}
 		var (ResultList, Rest) = Result;
-		mStd.AssertEq(Rest, mList.List<tPosChar>());
+		if (Rest != mList.List<tPosChar>()) {
+			var Line = Rest._Head.Pos.Row;
+			mStd.Assert(
+				false,
+				(
+					$"({Line}, 1): expected end of text\n" +
+					$"{aText.Split('\n')[Line-1]}\n" +
+					$"^"
+				)
+			);
+		}
 		return ResultList;
 	}
 	

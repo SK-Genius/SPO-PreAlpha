@@ -112,7 +112,7 @@ internal static class mTestHelper {
 	[xTest] public void mArrayList_Concat() => mTestHelper.MagicRun(Tests);
 }
 
-[xTests] public sealed class test_2_mParserGen {
+[xTests] public sealed class test_2_1_mParserGen {
 	private static readonly mTest.tTest Tests = mParserGen.Test;
 	
 	[xTest] public void AtomParser() => mTestHelper.MagicRun(Tests);
@@ -131,7 +131,18 @@ internal static class mTestHelper {
 	[xTest] public void EvalMathExp() => mTestHelper.MagicRun(Tests, "Eval('MathExpr')");
 }
 
-[xTests] public sealed class test_3_mTextParser {
+[xTests] public sealed class test_2_2_mTextParser {
+}
+
+[xTests] public sealed class test_3_1_VM {
+	private static readonly mTest.tTest Tests = mVM.Test;
+	
+	[xTest] public void ExternDef() => mTestHelper.MagicRun(Tests);
+	[xTest] public void InternDef() => mTestHelper.MagicRun(Tests);
+}
+
+[xTests] public sealed class test_3_2_VM_Data {
+	private static readonly mTest.tTest Tests = mVM_Data.Test;
 }
 
 [xTests] public sealed class test_4_1_mIL_AST {
@@ -142,13 +153,6 @@ internal static class mTestHelper {
 	
 	[xTest] public void SubParser() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Commands() => mTestHelper.MagicRun(Tests);
-}
-
-[xTests] public sealed class test_4_3_mIL_VM {
-	private static readonly mTest.tTest Tests = mIL_VM.Test;
-	
-	[xTest] public void ExternDef() => mTestHelper.MagicRun(Tests);
-	[xTest] public void InternDef() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public sealed class test_4_3_mIL_Interpreter {
@@ -205,4 +209,5 @@ internal static class mTestHelper {
 	[xTest] public void IfMatch1() => mTestHelper.MagicRun(Tests);
 	[xTest] public void IfMatch2() => mTestHelper.MagicRun(Tests);
 	[xTest] public void VAR() => mTestHelper.MagicRun(Tests);
+	[xTest] public void Echo() => mTestHelper.MagicRun(Tests);
 }

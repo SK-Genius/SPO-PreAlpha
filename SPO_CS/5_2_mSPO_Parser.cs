@@ -349,7 +349,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(MethodCall));
 	
 	public static readonly tSPO_Parser
-	MethodCalls = (+(-(-Token(",") | -NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
+	MethodCalls = (+MethodCall +(-(-Token(",") | -NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
 	.ModifyList(
 		aList => mParserGen.ResultList(
 			aList.Map(mStd.To<mSPO_AST.tMethodCallNode>)
@@ -358,12 +358,19 @@ public static class mSPO_Parser {
 	.SetName(nameof(MethodCalls));
 	
 	public static readonly tSPO_Parser
-	DefVar = (-Token("§VAR") +(Ident -Token(":=") +Expression +MethodCalls).OrFail())
+	DefVar = (
+		-Token("§VAR") +(
+			Ident -Token(":") -NL[0, 1] -Token("=") +Expression +(
+				-(-Token(",") | -NL) +MethodCalls |
+				-Token(".")
+			).Flat()
+		).OrFail()
+	)
 	.Modify(mSPO_AST.DefVar)
 	.SetName(nameof(DefVar));
 	
 	public static readonly tSPO_Parser
-	MethodCallStatment = (+(Ident -Token(":")) +MethodCalls.OrFail())
+	MethodCallStatment = (+(ExpressionInCall -Token(":")) -NL[0, 1] +MethodCalls.OrFail())
 	.Modify(mSPO_AST.MethodCallStatment)
 	.SetName(nameof(MethodCallStatment));
 	
@@ -378,7 +385,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(Export));
 	
 	public static readonly tSPO_Parser
-	Module = ( +Import +Commands +Export -NL[0, 1])
+	Module = ( -NL[0, 1] +Import +Commands +Export -NL[0, 1])
 	.Modify(mSPO_AST.Module)
 	.SetName(nameof(Module));
 	

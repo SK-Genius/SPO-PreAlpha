@@ -21,21 +21,19 @@ public static class mList {
 		internal mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> _TryNextFunc;
 		
 		//================================================================================
-		public tBool Equals(
+		public tBool
+		Equals(
 			tList<t> a
 		//================================================================================
 		) => (
-			!a.IsNull() &&
 			this.Match(out var Head1, out var Tail1) &&
 			a.Match(out var Head2, out var Tail2) &&
 			Head1.Equals(Head2) &&
 			(Tail1.IsNull() ? Tail2.IsNull() : Tail1.Equals(Tail2))
 		);
 		
-		override public tBool Equals(object a) => Equals(a as tList<t>);
+		override public tBool Equals(object a) => Equals((tList<t>)a);
 		override public tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
-		public static tBool operator==(tList<t> a1, tList<t> a2) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
-		public static tBool operator!=(tList<t> a1, tList<t> a2) => !(a1 == a2);
 	}
 	
 	//================================================================================

@@ -1,6 +1,6 @@
 ﻿NEXT:
 =====
-	o simplify mIL_VM.Var / mIL_VM.tDataType.Var; see work a rounds in:
+	o simplify mVM_Data.Var / mVM_Data.tDataType.Var; see work a rounds in:
 		- mStdLib.ObjAssign(...)
 		- mIL_VM.Match(this tData aArg, out tInt32 a1, out tInt32 a2)
 	

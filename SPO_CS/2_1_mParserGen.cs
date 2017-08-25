@@ -126,16 +126,6 @@ public static class mParserGen {
 	public struct tResultList {
 		public mList.tList<mStd.tAny> Value;
 		
-		//================================================================================
-		public tBool
-		Equals(
-			tResultList a
-		//================================================================================
-		) => (
-			!a.IsNull() &&
-			(Value.IsNull() ? a.Value.IsNull() : Value.Equals(a.Value))
-		);
-		
 		override public tText ToString() => Value?.ToString() ?? "[]";
 	}
 	
@@ -143,14 +133,20 @@ public static class mParserGen {
 	public static tResultList
 	ResultList(
 	//================================================================================
-	) => new tResultList{Value = mList.List<mStd.tAny>() };
+	) => new tResultList{
+		Value = mList.List<mStd.tAny>()
+	};
 	
 	//================================================================================
 	public static tResultList
 	ResultList<t>(
 		t a
 	//================================================================================
-	) => new tResultList{Value = mList.List(mStd.Any(a)) };
+	) => new tResultList{
+		Value = mList.List(
+			mStd.Any(a)
+		)
+	};
 	
 	//================================================================================
 	public static tResultList
@@ -158,7 +154,12 @@ public static class mParserGen {
 		t1 a1,
 		t2 a2
 	//================================================================================
-	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2)) };
+	) => new tResultList{
+		Value = mList.List(
+			mStd.Any(a1),
+			mStd.Any(a2)
+		)
+	};
 	
 	//================================================================================
 	public static tResultList
@@ -167,7 +168,13 @@ public static class mParserGen {
 		t2 a2,
 		t3 a3
 	//================================================================================
-	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3)) };
+	) => new tResultList{
+		Value = mList.List(
+			mStd.Any(a1),
+			mStd.Any(a2),
+			mStd.Any(a3)
+		)
+	};
 	
 	//================================================================================
 	public static tResultList
@@ -177,7 +184,14 @@ public static class mParserGen {
 		t3 a3,
 		t4 a4
 	//================================================================================
-	) => new tResultList{Value = mList.List(mStd.Any(a1), mStd.Any(a2), mStd.Any(a3), mStd.Any(a4)) };
+	) => new tResultList{
+		Value = mList.List(
+			mStd.Any(a1),
+			mStd.Any(a2),
+			mStd.Any(a3),
+			mStd.Any(a4)
+		)
+	};
 	
 	//================================================================================
 	public static tResultList
@@ -441,8 +455,18 @@ public static class mParserGen {
 		) => new tParser<t, tError> {
 			_ParseFunc = (aStream, aDebugStream) => {
 				if (
-					aP1.Parse(aStream, aDebugStream).Match(out var Result1, out var TempStream, out var ErrorList) &&
-					aP2.Parse(TempStream, aDebugStream).Match(out var Result2, out TempStream, out ErrorList)
+					aP1.Parse(aStream, aDebugStream)
+					.Match(
+						out var Result1,
+						out var TempStream,
+						out var ErrorList
+					) &&
+					aP2.Parse(TempStream, aDebugStream)
+					.Match(
+						out var Result2,
+						out TempStream,
+						out ErrorList
+					)
 				) {
 					return OK(Concat(Result1, Result2), TempStream);
 				} else {
@@ -508,8 +532,18 @@ public static class mParserGen {
 		) => new tParser<t, tError> {
 			_ParseFunc = (aStream, aDebugStream) => {
 				if (
-					aP1.Parse(aStream, aDebugStream).Match(out var Result, out var TempStream, out var ErrorList1) ||
-					aP2.Parse(aStream, aDebugStream).Match(out Result, out TempStream, out var ErrorList2)
+					aP1.Parse(aStream, aDebugStream)
+					.Match(
+						out var Result,
+						out var TempStream,
+						out var ErrorList1
+					) ||
+					aP2.Parse(aStream, aDebugStream)
+					.Match(
+						out Result,
+						out TempStream,
+						out var ErrorList2
+					)
 				) {
 					return OK(Result, TempStream);
 				} else {
@@ -533,7 +567,14 @@ public static class mParserGen {
 							_ParseFunc = (aStream, aDebugStream) => {
 								var Result = ResultList();
 								var RestStream = aStream;
-								while (this.Parse(aStream, aDebugStream).Match(out var TempResult, out aStream, out var _)) {
+								while (
+									this.Parse(aStream, aDebugStream)
+									.Match(
+										out var TempResult,
+										out aStream,
+										out var _
+									)
+								) {
 									Result = Concat(Result, TempResult);
 									RestStream = aStream;
 								}
@@ -547,7 +588,15 @@ public static class mParserGen {
 								var Result = ResultList();
 								var RestStream = aStream;
 								var Max = aMax.Value;
-								while (Max != 0 && this.Parse(aStream, aDebugStream).Match(out var TempResult, out aStream, out var _)) {
+								while (
+									Max != 0 &&
+									this.Parse(aStream, aDebugStream)
+									.Match(
+										out var TempResult,
+										out aStream,
+										out var _
+									)
+								) {
 									Result = Concat(Result, TempResult);
 									RestStream = aStream;
 									Max -= 1;
@@ -690,7 +739,10 @@ public static class mParserGen {
 				_Value = aParser._ModifyErrorsFunc?.Invoke(e._Value, Head) ?? e._Value
 			};
 		}
-		if (!Result.Match(out var Value, out var Error) && !aParser._ModifyErrorsFunc.IsNull()) {
+		if (
+			!Result.Match(out var Value, out var Error) &&
+			!aParser._ModifyErrorsFunc.IsNull()
+		) {
 			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, Head));
 		}
 		#if TRACE
@@ -712,7 +764,12 @@ public static class mParserGen {
 	) => new tParser<t, tError>{
 		_ParseFunc = (aStream, aDebugStream) => {
 			if (
-				aParser._ParseFunc(aStream, aDebugStream).Match(out var ResultList_, out var RestStream, out var ErrorList)
+				aParser._ParseFunc(aStream, aDebugStream)
+				.Match(
+					out var ResultList_,
+					out var RestStream,
+					out var ErrorList
+				)
 			) {
 				return OK(aModifyFunc(ResultList_), RestStream);
 			} else {
@@ -721,6 +778,26 @@ public static class mParserGen {
 		}
 	}
 	.SetDebugDef("{", aParser?.DebugName ?? aParser.DebugDef, "}");
+	
+	//================================================================================
+	public static tParser<t, tError>
+	Flat<t, tError>(
+		this tParser<t, tError> aParser
+	//================================================================================
+	) => aParser.ModifyList(
+		aResults => ResultList(
+			aResults.Value.Reduce(
+				mList.List<mStd.tAny>(),
+				(a, b) => {
+					if (b.Match(out mList.tList<mStd.tAny> List)) {
+						return mList.Concat(a, List);
+					} else {
+						return mList.Concat(a, mList.List(b));
+					}
+				}
+			)
+		)
+	);
 	
 	//================================================================================
 	public static tParser<t, tError>

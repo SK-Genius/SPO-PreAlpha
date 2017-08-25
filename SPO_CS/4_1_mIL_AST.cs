@@ -59,18 +59,6 @@ public static class mIL_AST {
 		internal tText _2;
 		internal tText _3;
 		
-		//================================================================================
-		public tBool Equals(
-			tCommandNode a
-		//================================================================================
-		) => (
-			!a.IsNull() &&
-			_NodeType == a._NodeType &&
-			_1 == a._1 &&
-			_2 == a._2 &&
-			_3 == a._3
-		);
-		
 		override public tText ToString() => $"{{{_NodeType} {_1} {_2} {_3}}}";
 	}
 	

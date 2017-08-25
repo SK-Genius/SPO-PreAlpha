@@ -151,9 +151,6 @@ public static class mStd {
 		
 		override public tBool Equals(object aObj) => aObj is tAny && Equals((tAny)aObj);
 		override public tText ToString() => _Value?.ToString() ?? "-";
-		public static tBool operator==(tAny a1, tAny a2) => a1.Equals(a2);
-		public static tBool operator!=(tAny a1, tAny a2) => !a1.Equals(a2);
-		override public int GetHashCode() => base.GetHashCode();
 	}
 	
 	//================================================================================

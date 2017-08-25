@@ -28,6 +28,7 @@ public static class mArrayList {
 			if (this._CurrSize != a._CurrSize) {
 				return false;
 			}
+			
 			for (var Index = 0; Index < this._CurrSize; Index += 1) {
 				if (!this._Items[Index].Equals(a._Items[Index])) {
 					return false;
@@ -36,34 +37,8 @@ public static class mArrayList {
 			return true;
 		}
 		
-		//================================================================================
-		override public tText 
-		ToString(
-		//================================================================================
-		) => this.IsEmpty() ? "[]" : this.ToLasyList().ToString();
-		
-		//================================================================================
-		override public tBool 
-		Equals(
-			object a
-		//================================================================================
-		) => this.Equals((tArrayList<t>)a);
-		
-		//================================================================================
-		public static tBool 
-		operator==(
-			tArrayList<t> a1,
-			tArrayList<t> a2
-		//================================================================================
-		) => a1.IsNull() ? a2.IsNull() : a1.Equals(a2);
-		
-		//================================================================================
-		public static tBool 
-		operator!=(
-			tArrayList<t> a1,
-			tArrayList<t> a2
-		//================================================================================
-		) => !(a1 == a2);
+		override public tBool Equals(object a) => this.Equals((tArrayList<t>)a);
+		override public tText ToString() => this.IsEmpty() ? "[]" : this.ToLasyList().ToString();
 	}
 	
 	//================================================================================
@@ -105,7 +80,7 @@ public static class mArrayList {
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
-		t                  aNewItem
+		t aNewItem
 	//================================================================================
 	) {
 		if (aList._CurrSize == aList._Items.Length) {
@@ -145,7 +120,7 @@ public static class mArrayList {
 	public static t
 	Get<t>(
 		this tArrayList<t> aList,
-		tInt32             aIndex
+		tInt32 aIndex
 	//================================================================================
 	) {
 		mStd.Assert(aIndex < aList._CurrSize);
@@ -156,8 +131,8 @@ public static class mArrayList {
 	public static void
 	Set<t>(
 		this tArrayList<t> aList,
-		tInt32             aIndex,
-		t                  aValue
+		tInt32 aIndex,
+		t aValue
 	//================================================================================
 	) {
 		aList._Items[aIndex] = aValue;

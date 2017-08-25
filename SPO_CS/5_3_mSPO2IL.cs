@@ -841,11 +841,12 @@ public static class mSPO2IL {
 		mSPO_AST.tMethodCallsNode aMethodCallsNode
 	) {
 		var Rest = aMethodCallsNode.MethodCalls;
+		var Object = MapExpresion(ref aDefConstructor, aMethodCallsNode.Object);
 		while (Rest.Match(out var Call, out Rest)) {
 			var Arg = MapExpresion(ref aDefConstructor, Call.Argument);
 			var MethodName = Call.Method.Name;
 			aDefConstructor.Commands.Push(
-				mIL_AST.Push(aMethodCallsNode.Var.Name)
+				mIL_AST.Push(Object)
 			).Push(
 				mIL_AST.Exec(null, MethodName, Arg)
 			).Push(

@@ -16,10 +16,10 @@ using tText = System.String;
 public static class mSPO_Interpreter {
 
 	//================================================================================
-	public static mIL_VM.tData
+	public static mVM_Data.tData
 	Run(
 		tText aCode,
-		mIL_VM.tData aImport,
+		mVM_Data.tData aImport,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
@@ -40,23 +40,23 @@ public static class mSPO_Interpreter {
 			aDebugStream
 		);
 		
-		var Res = mIL_VM.Empty();
+		var Res = mVM_Data.Empty();
 		
 		// TODO: move to mIL_Interpreter.Run(...) ???
-		var DefTuple = mIL_VM.Empty();
+		var DefTuple = mVM_Data.Empty();
 		var Defs = VMModule.Skip(1).Reverse();
 		switch (Defs.Take(2).ToArrayList().Size()) {
 			case 0: {
 				break;
 			}
 			case 1: {
-				DefTuple = mIL_VM.Def(Defs.First());
+				DefTuple = mVM_Data.Def(Defs.First());
 				break;
 			}
 			default: {
 				while (Defs.Match(out var Def, out Defs)) {
-					DefTuple = mIL_VM.Pair(
-						mIL_VM.Def(Def),
+					DefTuple = mVM_Data.Pair(
+						mVM_Data.Def(Def),
 						DefTuple
 					);
 				}
@@ -73,9 +73,9 @@ public static class mSPO_Interpreter {
 			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 		#endif
 		
-		mIL_VM.Run(
-			mIL_VM.Proc(InitProc, DefTuple),
-			mIL_VM.Empty(),
+		mVM.Run(
+			mVM_Data.Proc(InitProc, DefTuple),
+			mVM_Data.Empty(),
 			aImport,
 			Res,
 			TraceOut
@@ -87,19 +87,19 @@ public static class mSPO_Interpreter {
 	#region TEST
 	
 	//================================================================================
-	private static mIL_VM.tData
+	private static mVM_Data.tData
 	Mul(
-		mIL_VM.tData aEnv,
-		mIL_VM.tData aObj,
-		mIL_VM.tData aArg,
+		mVM_Data.tData aEnv,
+		mVM_Data.tData aObj,
+		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg1, out mIL_VM.tData Arg2));
-		mStd.Assert(Arg1.Match(mIL_VM.tDataType.Int, out tInt32 IntArg1));
-		mStd.Assert(Arg2.Match(mIL_VM.tDataType.Pair, out mIL_VM.tData Arg2_, out mIL_VM.tData _));
-		mStd.Assert(Arg2_.Match(mIL_VM.tDataType.Int, out tInt32 IntArg2));
-		return mIL_VM.Int(IntArg1 * IntArg2);
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchPair(out var Arg2_, out var _));
+		mStd.Assert(Arg2_.MatchInt(out var IntArg2));
+		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
 	public static readonly mTest.tTest
@@ -110,24 +110,24 @@ public static class mSPO_Interpreter {
 			aDebugStream => {
 				mStd.AssertEq(
 					Run(
-						mList.List(
-							"§IMPORT (",
-							"	...*...",
-							"	k",
-							")",
-							"",
-							"§DEF x... = (a => (k .* a))",
-							"§DEF y = (.x 5)",
-							"",
-							"§EXPORT y"
-						).Join((a1, a2) => a1 + "\n" + a2),
-						mIL_VM.Tuple(
-							mIL_VM.ExternProc(Mul, mIL_VM.Empty()),
-							mIL_VM.Int(2)
+						@"
+							§IMPORT (
+								...*...
+								k
+							)
+							
+							§DEF x... = (a => (k .* a))
+							§DEF y = (.x 5)
+							
+							§EXPORT y
+						",
+						mVM_Data.Tuple(
+							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+							mVM_Data.Int(2)
 						),
 						aDebugStream
 					),
-					mIL_VM.Int(10)
+					mVM_Data.Int(10)
 				);
 			}
 		),
@@ -136,23 +136,23 @@ public static class mSPO_Interpreter {
 			aDebugStream => {
 				mStd.AssertEq(
 					Run(
-						mList.List(
-							"§IMPORT (",
-							"	...*...",
-							"	k",
-							")",
-							"",
-							"§DEF y = (.(a => (k .* a)) 5)",
-							"",
-							"§EXPORT y"
-						).Join((a1, a2) => a1 + "\n" + a2),
-						mIL_VM.Tuple(
-							mIL_VM.ExternProc(Mul, mIL_VM.Empty()),
-							mIL_VM.Int(2)
+						@"
+							§IMPORT (
+								...*...
+								k
+							)
+							
+							§DEF y = (.(a => (k .* a)) 5)
+							
+							§EXPORT y
+						",
+						mVM_Data.Tuple(
+							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+							mVM_Data.Int(2)
 						),
 						aDebugStream
 					),
-					mIL_VM.Int(10)
+					mVM_Data.Int(10)
 				);
 			}
 		),
@@ -161,21 +161,21 @@ public static class mSPO_Interpreter {
 			aDebugStream => {
 				mStd.AssertEq(
 					Run(
-						mList.List(
-							"§IMPORT (",
-							"	...*...",
-							"	k",
-							")",
-							"",
-							"§EXPORT .(a => (k .* a)) 5"
-						).Join((a1, a2) => a1 + "\n" + a2),
-						mIL_VM.Tuple(
-							mIL_VM.ExternProc(Mul, mIL_VM.Empty()),
-							mIL_VM.Int(2)
+						@"
+							§IMPORT (
+								...*...
+								k
+							)
+							
+							§EXPORT .(a => (k .* a)) 5
+						",
+						mVM_Data.Tuple(
+							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+							mVM_Data.Int(2)
 						),
 						aDebugStream
 					),
-					mIL_VM.Int(10)
+					mVM_Data.Int(10)
 				);
 			}
 		)
