@@ -311,7 +311,7 @@ public static class mVM {
 	//================================================================================
 	public static tCallStack
 	Step(
-		 this tCallStack aCallStack
+		this tCallStack aCallStack
 	//================================================================================
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef._Commands.Get(aCallStack._CodePointer);

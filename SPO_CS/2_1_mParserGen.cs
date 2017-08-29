@@ -46,6 +46,34 @@ public static class mParserGen {
 	
 	//================================================================================
 	public static tParser<t, tError>
+	Assert<t, t1, tError>(
+		this tParser<t, tError> aParser,
+		mStd.tFunc<tBool, t1> aIsValid
+	//================================================================================
+	) => new tParser<t, tError>{
+		_ParseFunc = (aStream, aDebugStream) => {
+			if (
+				aParser._ParseFunc(aStream, aDebugStream)
+				.Match(
+					out var ResultList_,
+					out var RestStream,
+					out var ErrorList
+				)
+			) {
+				mStd.Assert(ResultList_.Match(out t1 Item));
+				if (aIsValid(Item)) {
+					return mStd.OK((ResultList_, RestStream));
+				} else {
+					return mStd.Fail(mList.List<tError>());
+				}
+			} else {
+				return mStd.Fail(ErrorList);
+			}
+		}
+	};
+	
+	//================================================================================
+	public static tParser<t, tError>
 	Modify<t, tR, t1, t2, tError>(
 		this tParser<t, tError> aParser,
 		mStd.tFunc<tR, t1, t2> aModifyFunc

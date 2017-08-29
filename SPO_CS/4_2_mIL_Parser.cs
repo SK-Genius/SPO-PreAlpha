@@ -53,7 +53,7 @@ public static class  mIL_Parser {
 	public static readonly tIL_Parser
 	Signum = PosSignum | NegSignum;
 	
- 	public static readonly tIL_Parser
+	public static readonly tIL_Parser
 	Int = (Signum + Nat)
 	.Modify((int Sig, int Abs) => Sig * Abs);
 	

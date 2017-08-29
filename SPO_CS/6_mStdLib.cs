@@ -410,8 +410,8 @@ public static class mStdLib {
 							x : + 3, * 2 .
 							
 							x :
-							  + 3
-							  * 2
+								+ 3
+								* 2
 							.
 							
 							§EXPORT x
@@ -426,7 +426,7 @@ public static class mStdLib {
 		mTest.Test(
 			"Echo",
 			aDebugStream => {
-#if !true
+#if true
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
 						mStd.Assert(aObj._IsMutable);
@@ -441,7 +441,9 @@ public static class mStdLib {
 						mStd.Assert(aObj._IsMutable);
 						mStd.Assert(aObj.MatchVar(out var Stream));
 						mStd.Assert(aArg.MatchPrefix("Text", out var Line));
-						(Stream._Value._Value as System.IO.TextWriter).WriteLine((tText)Line._Value._Value);
+						var Writer = (Stream._Value._Value as System.IO.TextWriter);
+						Writer.WriteLine((tText)Line._Value._Value);
+						Writer.Flush();
 						return mVM_Data.Empty();
 					},
 					mVM_Data.Empty()
@@ -449,20 +451,21 @@ public static class mStdLib {
 				var Main = mSPO_Interpreter.Run(
 					$@"
 						§IMPORT (
-							ReadLine...
+							ReadLine
 							WriteLine...
 						)
-							
+						
 						§EXPORT (StdIn, StdOut) : Args {{
 							StdIn : ReadLine => §DEF Line .
 							StdOut : WriteLine Line .
+							§RETURN 0
 						}}
 					",
 					mVM_Data.Tuple(ReadLine, WriteLine),
 					aDebugStream
 				);
 				
-				var Reference = new byte[]{ 44, 55, 66 };
+				var Reference = new byte[]{ 44, 55, 66, (int)'\n' };
 				var StreamIn = mVM_Data.Var(
 					new mVM_Data.tData{
 						_Value = mStd.Any(
@@ -492,7 +495,12 @@ public static class mStdLib {
 					a => aDebugStream(a())
 				);
 				
-				mStd.AssertEq(Result.GetBuffer(), Reference);
+				mStd.AssertEq(Res, mVM_Data.Int(0));
+
+				var ResArray = Result.GetBuffer();
+				for (var I = 0; I < Reference.Length - 1; I += 1) {
+					mStd.AssertEq(ResArray[I], Reference[I]);
+				}
 #endif
 			}
 		)

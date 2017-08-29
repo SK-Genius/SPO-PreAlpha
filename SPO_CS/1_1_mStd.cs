@@ -46,7 +46,7 @@ public static class mStd {
 	
 	#endregion
 	
-	public struct tVoid { 
+	public struct tVoid {
 	}
 	
 	public static tVoid cEmpty;
@@ -252,7 +252,7 @@ public static class mStd {
 		if (
 			!ReferenceEquals(a1, a2) &&
 			!a1.IsNull() &&
-		    !a1.Equals(a2)
+			!a1.Equals(a2)
 		) {
 			throw new System.Exception($"FAIL: {a1} != {a2}");
 		}
@@ -330,20 +330,6 @@ public static class mStd {
 				AssertNotEq(Any(1), Any(false));
 				AssertNotEq(Any("1"), Any("2"));
 				AssertNotEq(Any("1"), Any(1));
-			}
-		),
-		mTest.Test(
-			"tTuple.ToString()",
-			aStreamOut => {
-				AssertEq((1, "2").ToString(), "(1, 2)");
-				AssertEq((1, "2", ("A", "B")).ToString(), "(1, 2, (A, B))");
-			}
-		),
-		mTest.Test(
-			"tTuple.Equals()",
-			aStreamOut => {
-				AssertEq((1, "2"), (1, "2"));
-				AssertEq((1, "2", ("A", "B")), (1, "2", ("A", "B")));
 			}
 		)
 	);

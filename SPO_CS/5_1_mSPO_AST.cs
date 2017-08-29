@@ -91,7 +91,7 @@ public static class mSPO_AST {
 		override public tText ToString() => $"({Head} => {Body})";
 	}
 	
-	public struct tMethodeNode : tExpressionNode {
+	public struct tMethodNode : tExpressionNode {
 		public tMatchNode Obj;
 		public tMatchNode Arg;
 		public tBlockNode Body;
@@ -163,8 +163,9 @@ public static class mSPO_AST {
 	public struct tMethodCallNode {
 		public tIdentNode Method;
 		public tExpressionNode Argument;
+		public tMatchNode? Result;
 		
-		override public tText ToString() => $" {Method} {Argument}";
+		override public tText ToString() => $" {Method} {Argument} => {Result}";
 	}
 	
 	public struct tMethodCallsNode : tCommandNode {
@@ -323,13 +324,13 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tMethodeNode, tMatchNode, tMatchNode, tBlockNode>
-	Methode = (
+	public static readonly mStd.tFunc<tMethodNode, tMatchNode, tMatchNode, tBlockNode>
+	Method = (
 		aObjMatch,
 		aArgMatch,
 		aBody
 	//================================================================================
-	) => new tMethodeNode {
+	) => new tMethodNode {
 		Obj = aObjMatch,
 		Arg = aArgMatch,
 		Body = aBody
@@ -462,14 +463,16 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tMethodCallNode, tIdentNode, tExpressionNode>
+	public static readonly mStd.tFunc<tMethodCallNode, tIdentNode, tExpressionNode, tMatchNode?>
 	MethodCall = (
 		aMethod,
-		aAgument
+		aAgument,
+		aResult
 	//================================================================================
 	) => new tMethodCallNode {
 		Method = aMethod,
-		Argument = aAgument
+		Argument = aAgument,
+		Result = aResult
 	};
 	
 	//================================================================================

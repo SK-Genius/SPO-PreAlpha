@@ -63,8 +63,6 @@ internal static class mTestHelper {
 	[xTest] public void tMaybe_Equals() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tVar_ToString() => mTestHelper.MagicRun(Tests);
 	[xTest] public void tVar_Equals() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tTuple_ToString() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tTuple_Equals() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public sealed class test_1_1_mTest {
@@ -142,7 +140,6 @@ internal static class mTestHelper {
 }
 
 [xTests] public sealed class test_3_2_VM_Data {
-	private static readonly mTest.tTest Tests = mVM_Data.Test;
 }
 
 [xTests] public sealed class test_4_1_mIL_AST {

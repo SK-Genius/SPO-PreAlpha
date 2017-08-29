@@ -91,6 +91,7 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser
 	Ident = ( ( CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) | Text("...") )[1, null] -__ )
 	.ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
+	.Assert((tText aText) => aText != "=>")
 	.Modify(mSPO_AST.Ident)
 	.SetName(nameof(Ident));
 	
@@ -265,9 +266,9 @@ public static class mSPO_Parser {
 	.SetName(nameof(Lambda));
 	
 	public static readonly tSPO_Parser
-	Methode = (+Match -Token(":") +Match +Block)
-	.Modify(mSPO_AST.Methode)
-	.SetName(nameof(Methode));
+	Method = (+Match -Token(":") +Match +Block)
+	.Modify(mSPO_AST.Method)
+	.SetName(nameof(Method));
 	
 	public static readonly tSPO_Parser
 	RecLambdaItem = (-__ +Ident -Token("=") +(Lambda | C( Lambda )) -NL)
@@ -336,13 +337,23 @@ public static class mSPO_Parser {
 	.SetName(nameof(IfMatch));
 	
 	public static readonly tSPO_Parser
-	MethodCall = Infix("", Expression)
+	MethodCall = (
+		+Infix("", Expression)
+		+(-Token("=>") -Token("§DEF") +Match)[0, 1].ModifyList(
+			a => mParserGen.ResultList(
+				a.Value.IsEmpty()
+				? null
+				: (mSPO_AST.tMatchNode?)mStd.To<mSPO_AST.tMatchNode>(a.Value.First())
+			)
+		)
+	)
 	.Modify(
-		((mSPO_AST.tIdentNode, tResults) aPair) => {
+		((mSPO_AST.tIdentNode, tResults) aPair, mSPO_AST.tMatchNode? aMaybeOut) => {
 			var (Ident, ChildList) = aPair;
 			return mSPO_AST.MethodCall(
 				Ident,
-				mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
+				mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>)),
+				aMaybeOut
 			);
 		}
 	)
@@ -412,7 +423,7 @@ public static class mSPO_Parser {
 			IfMatch |
 			Block |
 			Lambda |
-			Methode |
+			Method |
 			Call |
 			Tuple |
 			Prefix |

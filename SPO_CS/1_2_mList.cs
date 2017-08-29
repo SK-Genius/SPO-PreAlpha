@@ -63,13 +63,13 @@ public static class mList {
 	//================================================================================
 	) => new tList<t>{_Head = aHead, _Tail = aTail};
 	
-    //================================================================================
-    public static tList<t>
-    List<t>(
-        params t[] aList
-    //================================================================================
-    ) {
-        var Result = (tList<t>)null;
+	//================================================================================
+	public static tList<t>
+	List<t>(
+		params t[] aList
+	//================================================================================
+	) {
+		var Result = (tList<t>)null;
 		for (var I = aList.Length; I --> 0;) {
 			Result = List(aList[I], Result);
 		}
@@ -140,35 +140,6 @@ public static class mList {
 				if (RestList.Match(out var Head, out RestList)) {
 					Index += 1;
 					return mStd.OK(aMapFunc(Index.Value, Head));
-				} else {
-					return mStd.Fail();
-				}
-			}
-		);
-	}
-	
-	//================================================================================
-	public static tList<tRes>
-	Map<tRes, tElem1, tElem2>(
-		this tList<(tElem1, tElem2)> aList,
-		mStd.tFunc<tRes, tElem1, tElem2> aMapFunc
-	//================================================================================
-	) => aList.MapWithIndex((aIndex, aElem1, aElem2) => aMapFunc(aElem1, aElem2));
-	
-	//================================================================================
-	public static tList<tRes>
-	MapWithIndex<tRes, tElem1, tElem2>(
-		this tList<(tElem1, tElem2)> aList,
-		mStd.tFunc<tRes, tInt32, tElem1, tElem2> aMapFunc
-	//================================================================================
-	) {
-		var RestList = aList;
-		var Index = (tInt32?)0;
-		return LasyList<tRes>(
-			() => {
-				if (RestList.Match(out var Head, out RestList)) {
-					Index += 1;
-					return mStd.OK(aMapFunc(Index.Value - 1, Head.Item1, Head.Item2));
 				} else {
 					return mStd.Fail();
 				}

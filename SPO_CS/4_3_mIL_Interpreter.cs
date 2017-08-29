@@ -247,7 +247,7 @@ public static class mIL_Interpreter {
 					"DEF ...++\n" +
 					"	add := ENV EMPTY\n" +
 					"	1_ := 1\n" +
-						
+					
 					"	arg := -VECTOR ARG\n" +
 					"	arg_1 := arg, 1_\n" +
 					"	inc := add arg_1\n" +

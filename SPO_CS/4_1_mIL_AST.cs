@@ -16,32 +16,32 @@ using tText = System.String;
 public static class mIL_AST {
 	
 	public enum tCommandNodeType {
-		Int,                        // X := INT I
-		IntsAreEq,                  // X := INT X == X
-		IntsComp,                   // X := INT X <=> X
-		IntsAdd,                    // X := INT X + X
-		IntsSub,                    // X := INT X - X
-		IntsMul,                    // X := INT X * X
-		Not,                        // X := BOOL ! X
-		And,                        // X := BOOL X & X
-		Or,                         // X := BOOL X | X
-		XOr,                        // X := BOOL X ^ X
-		Alias,                      // X := X
-		Pair,                       // X := (X, X)
-		First,                      // X := FIRST X
-		Second,                     // X := SECOND X
-		AddPrefix,                  // X := +N X
-		SubPrefix,                  // X := -N X
-		HasPrefix,                  // X := ?N X
-		Call,                       // X := .X X
-		Exec,                       // X := :X X
-		Push,                       // PUSH X
-		Pop,                        // POP
-		Var,                        // X := VAR X
-		ReturnIf,                   // RETURN X IF X
-		RepeatIf,                   // REPEAT X IF X
-		Assert,                     // ASSERT X
-		Proof,                      // ASSERT X => X
+		Int,       // X := INT I
+		IntsAreEq, // X := INT X == X
+		IntsComp,  // X := INT X <=> X
+		IntsAdd,   // X := INT X + X
+		IntsSub,   // X := INT X - X
+		IntsMul,   // X := INT X * X
+		Not,       // X := BOOL ! X
+		And,       // X := BOOL X & X
+		Or,        // X := BOOL X | X
+		XOr,       // X := BOOL X ^ X
+		Alias,     // X := X
+		Pair,      // X := (X, X)
+		First,     // X := FIRST X
+		Second,    // X := SECOND X
+		AddPrefix, // X := +N X
+		SubPrefix, // X := -N X
+		HasPrefix, // X := ?N X
+		Call,      // X := .X X
+		Exec,      // X := :X X
+		Push,      // PUSH X
+		Pop,       // POP
+		Var,       // X := VAR X
+		ReturnIf,  // RETURN X IF X
+		RepeatIf,  // REPEAT X IF X
+		Assert,    // ASSERT X
+		Proof,     // ASSERT X => X
 	}
 	
 	public const tText cEmpty = "EMPTY";
