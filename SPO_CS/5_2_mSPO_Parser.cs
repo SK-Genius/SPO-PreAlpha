@@ -34,7 +34,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(__));
 	
 	public static readonly tSPO_Parser
-	NL = (Char('\n') -__)[0, null]
+	NL = (-__ +Char('\n') -__)[1, null]
 	.SetName(nameof(NL));
 	
 	public static readonly mStd.tFunc<tSPO_Parser, tText>
@@ -151,7 +151,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(Block));
 	
 	public static readonly tSPO_Parser
-	Tuple = C( +Expression +( -(-Token(",")|-NL) +Expression)[1, null] )
+	Tuple = C( +Expression +( -(Token(",")|NL) +Expression)[1, null] )
 	.ModifyList(
 		a => mParserGen.ResultList(
 			mSPO_AST.Tuple(a.Value.Map(mStd.To<mSPO_AST.tExpressionNode>))
@@ -165,51 +165,49 @@ public static class mSPO_Parser {
 		tText aPrefix,
 		tSPO_Parser aChildParser
 	//================================================================================
-	) {
-		return (
-			(-Token(aPrefix) +Ident +( +aChildParser + Ident )[0, null] + aChildParser[0, 1])
-			.ModifyList(
-				aList => {
-					var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
-					return (
-						mParserGen.ResultList(
-							(
-								mSPO_AST.Ident(
-									aList.Value.Every(2).Map(
-										a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
-									).Join(
-										(a1, a2) => $"{a1}...{a2}"
-									)+Last
-								),
-								aList.Value.Skip(1).Every(2)
-							)
+	) => (
+		(-Token(aPrefix) +Ident +(( +aChildParser + Ident )[0, null] + aChildParser[0, 1]).OrFail())
+		.ModifyList(
+			aList => {
+				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
+				return (
+					mParserGen.ResultList(
+						(
+							mSPO_AST.Ident(
+								aList.Value.Every(2).Map(
+									a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
+								).Join(
+									(a1, a2) => $"{a1}...{a2}"
+								)+Last
+							),
+							aList.Value.Skip(1).Every(2)
 						)
-					);
-				}
-			)
-		) | (
-			(+aChildParser -Token(aPrefix) +Ident +( +aChildParser +Ident )[0, null] +aChildParser[0, 1])
-			.ModifyList(
-				aList => {
-					var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
-					return (
-						mParserGen.ResultList(
-							(
-								mSPO_AST.Ident(
-									"..."+aList.Value.Skip(1).Every(2).Map(
-										a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
-									).Join(
-										(a1, a2) => $"{a1}...{a2}"
-									)+Last
-								),
-								aList.Value.Every(2)
-							)
+					)
+				);
+			}
+		)
+	) | (
+		(+aChildParser -Token(aPrefix) +Ident +(( +aChildParser +Ident )[0, null] +aChildParser[0, 1]).OrFail())
+		.ModifyList(
+			aList => {
+				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
+				return (
+					mParserGen.ResultList(
+						(
+							mSPO_AST.Ident(
+								"..."+aList.Value.Skip(1).Every(2).Map(
+									a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
+								).Join(
+									(a1, a2) => $"{a1}...{a2}"
+								)+Last
+							),
+							aList.Value.Every(2)
 						)
-					);
-				}
-			)
-		);
-	}
+					)
+				);
+			}
+		)
+	);
 	
 	public static readonly tSPO_Parser
 	Call = (
@@ -271,13 +269,13 @@ public static class mSPO_Parser {
 	.SetName(nameof(Method));
 	
 	public static readonly tSPO_Parser
-	RecLambdaItem = (-__ +Ident -Token("=") +(Lambda | C( Lambda )) -NL)
+	RecLambdaItem = (-__ +Ident -Token("=") +(Lambda | C( Lambda )))
 	.Modify(mSPO_AST.RecLambdaItem)
 	.SetName(nameof(RecLambdaItem));
 	
 	public static readonly tSPO_Parser
 	RecLambda = (
-		(-Token("§RECURSIV") -Token("{") -NL +(RecLambdaItem[1, null] -Token("}")).OrFail()) |
+		(-Token("§RECURSIV") -Token("{") -NL +((+RecLambdaItem -NL)[1, null] -Token("}")).OrFail()) |
 		(-Token("§RECURSIV") +RecLambdaItem.OrFail())
 	)
 	.ModifyList(
@@ -308,9 +306,9 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	IfMatch = (
-		-Token("§IF") +Expression -Token("MATCH")
+		-Token("§IF")
 		+(
-			-Token("{") -NL
+			+Expression -Token("MATCH") -Token("{") -NL
 			+(
 				-__ +Match +(-Token("=>") +Expression -NL).OrFail()
 			)
@@ -360,7 +358,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(MethodCall));
 	
 	public static readonly tSPO_Parser
-	MethodCalls = (+MethodCall +(-(-Token(",") | -NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
+	MethodCalls = (+MethodCall +(-(Token(",")|NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
 	.ModifyList(
 		aList => mParserGen.ResultList(
 			aList.Map(mStd.To<mSPO_AST.tMethodCallNode>)
@@ -379,6 +377,11 @@ public static class mSPO_Parser {
 	)
 	.Modify(mSPO_AST.DefVar)
 	.SetName(nameof(DefVar));
+	
+	public static readonly tSPO_Parser
+	VarToVal = (+Ident -Token(":") -Token("=>"))
+	.Modify(mSPO_AST.VarToVal)
+	.SetName(nameof(VarToVal));
 	
 	public static readonly tSPO_Parser
 	MethodCallStatment = (+(ExpressionInCall -Token(":")) -NL[0, 1] +MethodCalls.OrFail())
@@ -427,6 +430,7 @@ public static class mSPO_Parser {
 			Call |
 			Tuple |
 			Prefix |
+			VarToVal |
 			C( Expression ) |
 			Literal |
 			Ident
@@ -434,25 +438,22 @@ public static class mSPO_Parser {
 		
 		ExpressionInCall.Def(
 			Block |
-			C( Lambda ) |
-			Tuple |
-			C(
-				Call |
-				Prefix  |
-				ExpressionInCall
-			) |
 			Literal |
-			Ident
+			Ident |
+			Tuple |
+			C( Expression )
 		);
 		
 		// TODO: Macros, Streaming, Block, ...
 		Command.Def(
-			(Def -NL) |
-			(DefVar -NL) |
-			(MethodCallStatment -NL) |
-			(RecLambda -NL) |
-			(ReturnIf -NL) |
-			(Return -NL)
+			(
+				Def |
+				DefVar |
+				MethodCallStatment |
+				RecLambda |
+				ReturnIf |
+				Return
+			) -NL.OrFail()
 		);
 	}
 	
@@ -550,7 +551,7 @@ public static class mSPO_Parser {
 			}
 		),
 		mTest.Test(
-			"Call",
+			"FunctionCall",
 			aStreamOut => {
 				mStd.AssertEq(
 					Expression.ParseText("x .* x", aStreamOut),
@@ -714,6 +715,36 @@ public static class mSPO_Parser {
 								null
 							),
 							mSPO_AST.Ident("a")
+						)
+					)
+				);
+			}
+		),
+		mTest.Test(
+			"MethodCall",
+			aStreamOut => {
+				mStd.AssertEq(
+					Command.ParseText("o := ((o :=>) .+ i) .\n", aStreamOut),
+					mParserGen.ResultList(
+						mSPO_AST.MethodCallStatment(
+							mSPO_AST.Ident("o"),
+							mList.List(
+								mSPO_AST.MethodCall(
+									mSPO_AST.Ident("=..."),
+									mSPO_AST.Call(
+										mSPO_AST.Ident("...+..."),
+										mSPO_AST.Tuple(
+											mList.List<mSPO_AST.tExpressionNode>(
+												mSPO_AST.VarToVal(
+													mSPO_AST.Ident("o")
+												),
+												mSPO_AST.Ident("i")
+											)
+										)
+									),
+									null
+								)
+							)
 						)
 					)
 				);

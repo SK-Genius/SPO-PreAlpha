@@ -160,6 +160,12 @@ public static class mSPO_AST {
 		override public tText ToString() => $"$VAR {Ident} := {Expression}, {MethodCalls}";
 	}
 	
+	public struct tVarToValNode : tExpressionNode {
+		public tExpressionNode Obj;
+		
+		override public tText ToString() => $"{Obj}:=>";
+	}
+	
 	public struct tMethodCallNode {
 		public tIdentNode Method;
 		public tExpressionNode Argument;
@@ -449,6 +455,15 @@ public static class mSPO_AST {
 		Ident = aVar,
 		Expression = aExpression,
 		MethodCalls = aMethodCalls
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tVarToValNode, tExpressionNode>
+	VarToVal = (
+		aObj
+	//================================================================================
+	) => new tVarToValNode {
+		Obj = aObj,
 	};
 	
 	//================================================================================

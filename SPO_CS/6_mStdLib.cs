@@ -14,266 +14,198 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mStdLib {
-	// TODO: use build in functionality (see mIL_VM)
-	
 	//================================================================================
-	private static mVM_Data.tData
-	ObjAssign(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aObj._IsMutable);
-		if (aArg.MatchVar(out var Arg)) {
-			aObj._Value = Arg._Value;
-		} else {
-			aObj._Value = mVM_Data.Var(aArg)._Value;
-		}
-		return mVM_Data.Empty();
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Not(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.MatchBool(out var Arg_));
-		return mVM_Data.Bool(!Arg_);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	And(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
-		return mVM_Data.Bool(Arg1 & Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Or(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
-		return mVM_Data.Bool(Arg1 | Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	XOr(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tBool Arg1, out tBool Arg2));
-		return mVM_Data.Bool(Arg1 ^ Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Neg(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.MatchInt(out var Arg_));
-		return mVM_Data.Int(-Arg_);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Add(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Int(Arg1 + Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Sub(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Int(Arg1 - Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Mul(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Int(Arg1 * Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Div(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Int(Arg1 / Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Mod(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Int(Arg1 % Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Eq(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 == Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	NEq(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 != Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Le(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 < Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	LeEq(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 <= Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	Gr(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 > Arg2);
-	}
-	
-	//================================================================================
-	private static mVM_Data.tData
-	GrEq(
-		mVM_Data.tData aEnv,
-		mVM_Data.tData aObj,
-		mVM_Data.tData aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
-	) {
-		mStd.Assert(aArg.Match(out tInt32 Arg1, out tInt32 Arg2));
-		return mVM_Data.Bool(Arg1 >= Arg2);
-	}
-	
-	public static readonly mVM_Data.tData ImportData = mVM_Data.Tuple(
-		mVM_Data.ExternProc(ObjAssign, mVM_Data.Empty()),
-		mVM_Data.Tuple(
-			mVM_Data.ExternProc(Not, mVM_Data.Empty()),
-			mVM_Data.ExternProc(And, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Or, mVM_Data.Empty()),
-			mVM_Data.ExternProc(XOr, mVM_Data.Empty())
-		),
-		mVM_Data.Tuple(
-			mVM_Data.ExternProc(Neg, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Add, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Sub, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Div, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Mod, mVM_Data.Empty())
-		),
-		mVM_Data.Tuple(
-			mVM_Data.ExternProc(Eq, mVM_Data.Empty()),
-			mVM_Data.ExternProc(NEq, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Gr, mVM_Data.Empty()),
-			mVM_Data.ExternProc(GrEq, mVM_Data.Empty()),
-			mVM_Data.ExternProc(Le, mVM_Data.Empty()),
-			mVM_Data.ExternProc(LeEq, mVM_Data.Empty())
-		)
+	private static readonly mVM_Data.tData
+	ImportData = mIL_Interpreter.Run(
+@"DEF Init
+	_01 := ENV
+	!... := §1ST _01
+	_02 := §2ND _01
+	...&... := §1ST _02
+	_03 := §2ND _02
+	...|... := §1ST _03
+	_04 := §2ND _03
+	...^... := §1ST _04
+	_05 := §2ND _04
+	-... := §1ST _05
+	_06 := §2ND _05
+	...+... := §1ST _06
+	_07 := §2ND _06
+	...-... := §1ST _07
+	_08 := §2ND _07
+	...*... := §1ST _08
+	_09 := §2ND _08
+	.../... := §1ST _09
+	_10 := §2ND _09
+	...%... := §1ST _10
+	_11 := §2ND _10
+	...==... := §1ST _11
+	_12 := §2ND _11
+	...!=... := §1ST _12
+	_13 := §2ND _12
+	...>... := §1ST _13
+	_14 := §2ND _13
+	...>=... := §1ST _14
+	_15 := §2ND _14
+	...<... := §1ST _15
+	_16 := §2ND _15
+	...<=... := §1ST _16
+	_50 := . ...<=... EMPTY
+	_51 := _50, EMPTY
+	_52 := . ...<... EMPTY
+	_53 := _52, _51
+	_54 := . ...>=... EMPTY
+	_55 := _54, _53
+	_56 := . ...>... EMPTY
+	_57 := _56, _55
+	_58 := . ...!=... EMPTY
+	_59 := _58, _57
+	_60 := . ...==... EMPTY
+	_61 := _60, _59
+	_62 := . ...%... EMPTY
+	_63 := _62, _61
+	_64 := . .../... EMPTY
+	_65 := _64, _63
+	_66 := . ...*... EMPTY
+	_67 := _66, _65
+	_68 := . ...-... EMPTY
+	_69 := _68, _67
+	_70 := . ...+... EMPTY
+	_71 := _70, _69
+	_72 := . -... EMPTY
+	_73 := _72, _71
+	_74 := . ...^... EMPTY
+	_75 := _74, _73
+	_76 := . ...|... EMPTY
+	_77 := _76, _75
+	_78 := . ...&... EMPTY
+	_79 := _78, _77
+	_80 := . !... EMPTY
+	_81 := _80, _79
+	§RETURN _81 IF TRUE
+DEF !...
+	Res := §BOOL ARG ^ TRUE
+	§RETURN Res IF TRUE
+DEF ...&...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §BOOL A & B
+	§RETURN Res IF TRUE
+DEF ...|...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §BOOL A | B
+	§RETURN Res IF TRUE
+DEF ...^...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §BOOL A ^ B
+	§RETURN Res IF TRUE
+DEF -...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	1 := ONE
+	0 := §INT 1 - 1
+	Res := §INT 0 - B
+	§RETURN Res IF TRUE
+DEF ...+...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A + B
+	§RETURN Res IF TRUE
+DEF ...-...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A - B
+	§RETURN Res IF TRUE
+DEF ...*...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A * B
+	§RETURN Res IF TRUE
+DEF .../...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A * B
+	§RETURN Res IF TRUE
+DEF ...%...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A * B
+	§RETURN Res IF TRUE
+DEF ...==...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Res := §INT A == B
+	§RETURN Res IF TRUE
+DEF ...!=...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	Comp := §INT A == B
+	Res := §BOOL Comp ^ TRUE
+	§RETURN Res IF TRUE
+DEF ...>...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	1 := ONE
+	Comp := §INT A <=> B
+	Res := §INT Comp == 1
+	§RETURN Res IF TRUE
+DEF ...>=...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	1 := ONE
+	0 := §INT 1 - 1
+	Comp := §INT A <=> B
+	>? := §INT Comp == 1
+	=? := §INT Comp == 0
+	Res := §BOOL >? | =?
+	§RETURN Res IF TRUE
+DEF ...<...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	1 := ONE
+	0 := §INT 1 - 1
+	-1 := §INT 0 - 1
+	Comp := §INT A <=> B
+	Res := §INT Comp == -1
+	§RETURN Res IF TRUE
+DEF ...<=...
+	A := §1ST ARG
+	_ := §2ND ARG
+	B := §1ST _
+	1 := ONE
+	0 := §INT 1 - 1
+	-1 := §INT 0 - 1
+	Comp := §INT A <=> B
+	<? := §INT Comp == -1
+	=? := §INT Comp == 0
+	Res := §BOOL <? | =?
+	§RETURN Res IF TRUE
+",
+		mVM_Data.Empty(),
+		aLine => { }
 	);
 	
 	public const tText cImportTuple = (
 		@"("+
-			"=..., "+
-			"(!..., ...&..., ...|..., ...^...), "+
-			"(-..., ...+..., ...-..., ...*..., .../..., ...%...), "+
-			"(...==..., ...!=..., ...>..., ...>=..., ...<..., ...<=...)"+
+			"!..., ...&..., ...|..., ...^..., "+
+			"-..., ...+..., ...-..., ...*..., .../..., ...%..., "+
+			"...==..., ...!=..., ...>..., ...>=..., ...<..., ...<=..."+
 		")"
 	);
 	
@@ -398,11 +330,11 @@ public static class mStdLib {
 							§IMPORT {cImportTuple}
 							
 							§DEF +... = o : i {{
-								o : = (o .+ i) .
+								o := ((o :=>) .+ i) .
 							}}
 							
 							§DEF *... = o : i {{
-								o : = (o .* i) .
+								o := ((o :=>) .* i) .
 							}}
 							
 							§VAR x := 1 .
@@ -426,7 +358,6 @@ public static class mStdLib {
 		mTest.Test(
 			"Echo",
 			aDebugStream => {
-#if true
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
 						mStd.Assert(aObj._IsMutable);
@@ -496,12 +427,11 @@ public static class mStdLib {
 				);
 				
 				mStd.AssertEq(Res, mVM_Data.Int(0));
-
+				
 				var ResArray = Result.GetBuffer();
 				for (var I = 0; I < Reference.Length - 1; I += 1) {
 					mStd.AssertEq(ResArray[I], Reference[I]);
 				}
-#endif
 			}
 		)
 	);

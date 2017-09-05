@@ -16,32 +16,34 @@ using tText = System.String;
 public static class mIL_AST {
 	
 	public enum tCommandNodeType {
-		Int,       // X := INT I
-		IntsAreEq, // X := INT X == X
-		IntsComp,  // X := INT X <=> X
-		IntsAdd,   // X := INT X + X
-		IntsSub,   // X := INT X - X
-		IntsMul,   // X := INT X * X
-		Not,       // X := BOOL ! X
-		And,       // X := BOOL X & X
-		Or,        // X := BOOL X | X
-		XOr,       // X := BOOL X ^ X
+		Int,       // X := §INT I
+		IntsAreEq, // X := §INT X == X
+		IntsComp,  // X := §INT X <=> X
+		IntsAdd,   // X := §INT X + X
+		IntsSub,   // X := §INT X - X
+		IntsMul,   // X := §INT X * X
+		Not,       // X := §BOOL ! X
+		And,       // X := §BOOL X & X
+		Or,        // X := §BOOL X | X
+		XOr,       // X := §BOOL X ^ X
 		Alias,     // X := X
-		Pair,      // X := (X, X)
-		First,     // X := FIRST X
-		Second,    // X := SECOND X
+		Pair,      // X := X, X
+		First,     // X := §FIRST X
+		Second,    // X := §SECOND X
 		AddPrefix, // X := +N X
 		SubPrefix, // X := -N X
 		HasPrefix, // X := ?N X
 		Call,      // X := .X X
 		Exec,      // X := :X X
-		Push,      // PUSH X
-		Pop,       // POP
-		Var,       // X := VAR X
-		ReturnIf,  // RETURN X IF X
-		RepeatIf,  // REPEAT X IF X
-		Assert,    // ASSERT X
-		Proof,     // ASSERT X => X
+		Push,      // §PUSH X
+		Pop,       // §POP
+		VarDef,    // X := §VAR X
+		VarSet,    // §VAR X <- X
+		VarGet,    // X := §VAR X ->
+		ReturnIf,  // §RETURN X IF X
+		RepeatIf,  // §REPEAT X IF X
+		Assert,    // §ASSERT X
+		Proof,     // §ASSERT X => X
 	}
 	
 	public const tText cEmpty = "EMPTY";
@@ -88,7 +90,7 @@ public static class mIL_AST {
 			case mIL_AST.tCommandNodeType.Pair:
 			case mIL_AST.tCommandNodeType.Second:
 			case mIL_AST.tCommandNodeType.SubPrefix:
-			case mIL_AST.tCommandNodeType.Var:
+			case mIL_AST.tCommandNodeType.VarDef:
 			case mIL_AST.tCommandNodeType.XOr: {
 				aResultReg = aNode._1;
 				return true;
@@ -353,14 +355,6 @@ public static class mIL_AST {
 	) => CommandNode(tCommandNodeType.Exec, aResReg, aProcReg, aArgReg);
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tCommandNode, tText, tText>
-	Var = (
-		tText aResReg,
-		tText aValueReg
-	//================================================================================
-	) => CommandNode(tCommandNodeType.Var, aResReg, aValueReg);
-	
-	//================================================================================
 	public static readonly mStd.tFunc<tCommandNode, tText>
 	Push = (
 		tText aObjReg
@@ -372,6 +366,30 @@ public static class mIL_AST {
 	Pop = (
 	//================================================================================
 	) => CommandNode(tCommandNodeType.Pop);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	VarDef = (
+		tText aResReg,
+		tText aValueReg
+	//================================================================================
+	) => CommandNode(tCommandNodeType.VarDef, aResReg, aValueReg);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	VarSet = (
+		tText aVarReg,
+		tText aValueReg
+	//================================================================================
+	) => CommandNode(tCommandNodeType.VarSet, aVarReg, aValueReg);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	VarGet = (
+		tText aValueReg,
+		tText aVarReg
+	//================================================================================
+	) => CommandNode(tCommandNodeType.VarGet, aValueReg, aVarReg);
 	
 	//================================================================================
 	public static readonly mStd.tFunc<tCommandNode, tText, tText>

@@ -42,7 +42,7 @@ public static class mIL_Interpreter {
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
-		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> Defs,
+		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> aDefs,
 		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
@@ -52,7 +52,7 @@ public static class mIL_Interpreter {
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
 		var Module = mList.List<mVM.tProcDef>();
 		
-		var RestDefs = Defs;
+		var RestDefs = aDefs;
 		while (RestDefs.Match(out var Def, out RestDefs)) {
 			var (DefName, Commands) = Def;
 			#if TRACE
@@ -69,6 +69,7 @@ public static class mIL_Interpreter {
 			.Set(mIL_AST.cArg, mVM.tProcDef.cArgReg)
 			.Set(mIL_AST.cRes, mVM.tProcDef.cResReg)
 			.Set(mIL_AST.cEmpty, mVM.tProcDef.cEmptyReg)
+			.Set(mIL_AST.cOne, mVM.tProcDef.cOneReg)
 			.Set(mIL_AST.cFalse, mVM.tProcDef.cFalseReg)
 			.Set(mIL_AST.cTrue , mVM.tProcDef.cTrueReg);
 			
@@ -122,8 +123,12 @@ public static class mIL_Interpreter {
 					Reg = Reg.Set(RegId1, NewProc.HasPrefix(Prefix.GetHashCode(), Reg.Get(RegId3)));
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Assert, out RegId1, out RegId2)) {
 					NewProc.Assert(Reg.Get(RegId1), Reg.Get(RegId2));
-				} else if (Command.Match(mIL_AST.tCommandNodeType.Var, out RegId1, out RegId2)) {
-					Reg = Reg.Set(RegId1, NewProc.Var(Reg.Get(RegId2)));
+				} else if (Command.Match(mIL_AST.tCommandNodeType.VarDef, out RegId1, out RegId2)) {
+					Reg = Reg.Set(RegId1, NewProc.VarDef(Reg.Get(RegId2)));
+				} else if (Command.Match(mIL_AST.tCommandNodeType.VarSet, out RegId1, out RegId2)) {
+					NewProc.VarSet(Reg.Get(RegId1), Reg.Get(RegId2));
+				} else if (Command.Match(mIL_AST.tCommandNodeType.VarGet, out RegId1, out RegId2)) {
+					Reg = Reg.Set(RegId1, NewProc.VarGet(Reg.Get(RegId2)));
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Push, out RegId1)) {
 					ObjStack.Push(CurrObj);
 					CurrObj = Reg.Get(RegId1);
@@ -138,6 +143,78 @@ public static class mIL_Interpreter {
 		}
 		
 		return (Module, ModuleMap);
+	}
+	
+	//================================================================================
+	public static mVM_Data.tData
+	Run(
+		tText aSourceCode,
+		mVM_Data.tData aImport,
+		mStd.tAction<tText> aTrace
+	//================================================================================
+	) => Run(ParseModule(aSourceCode, aTrace), aImport, aTrace);
+	
+	//================================================================================
+	public static mVM_Data.tData
+	Run(
+		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> aDefs,
+		mVM_Data.tData aImport,
+		mStd.tAction<tText> aTrace
+	//================================================================================
+	) => Run(ParseModule(aDefs, aTrace), aImport, aTrace);
+	
+	//================================================================================
+	public static mVM_Data.tData
+	Run(
+		(mList.tList<mVM.tProcDef>, mMap.tMap<tText, tInt32>) aModule,
+		mVM_Data.tData aImport,
+		mStd.tAction<tText> aDebugStream
+	//================================================================================
+	) {
+		var (VMModule, ModuleMap) = aModule;
+		
+		var Res = mVM_Data.Empty();
+		
+		// TODO: move to mIL_Interpreter.Run(...) ???
+		var DefTuple = mVM_Data.Empty();
+		var Defs = VMModule.Skip(1).Reverse();
+		switch (Defs.Take(2).ToArrayList().Size()) {
+			case 0: {
+				break;
+			}
+			case 1: {
+				DefTuple = mVM_Data.Def(Defs.First());
+				break;
+			}
+			default: {
+				while (Defs.Match(out var Def, out Defs)) {
+					DefTuple = mVM_Data.Pair(
+						mVM_Data.Def(Def),
+						DefTuple
+					);
+				}
+				break;
+			}
+		}
+		var InitProc = VMModule.First();
+		
+		#if TRACE
+			var TraceOut = mStd.Action(
+				(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+			);
+		#else
+			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
+		#endif
+		
+		mVM.Run(
+			mVM_Data.Proc(InitProc, DefTuple),
+			mVM_Data.Empty(),
+			aImport,
+			Res,
+			TraceOut
+		);
+		
+		return Res;
 	}
 	
 	#region TEST
@@ -210,11 +287,8 @@ public static class mIL_Interpreter {
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
-					"	add := ENV EMPTY\n" +
 					"	1_ := 1\n" +
-					
-					"	arg_1 := ARG, 1_\n" +
-					"	res := add arg_1\n" +
+					"	res := §INT ARG + 1_\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
@@ -228,10 +302,9 @@ public static class mIL_Interpreter {
 				#endif
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
-				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
 				mVM.Run(
-					mVM_Data.Proc(Proc, Env),
+					mVM_Data.Proc(Proc, mVM_Data.Empty()),
 					mVM_Data.Empty(),
 					mVM_Data.Int(5),
 					Res,
@@ -245,12 +318,12 @@ public static class mIL_Interpreter {
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
-					"	add := ENV EMPTY\n" +
+					"	add := .ENV EMPTY\n" +
 					"	1_ := 1\n" +
 					
 					"	arg := -VECTOR ARG\n" +
 					"	arg_1 := arg, 1_\n" +
-					"	inc := add arg_1\n" +
+					"	inc := .add arg_1\n" +
 					"	res := +VECTOR inc\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
@@ -282,10 +355,10 @@ public static class mIL_Interpreter {
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
 					"DEF ...++\n" +
-					"	...=...? := ENV EMPTY\n" +
+					"	...=...? := . ENV EMPTY\n" +
 					"	1_ := 1\n" + 
 					"	arg_1 := ARG, 1_\n" +
-					"	arg_eq_1? := ...=...? arg_1\n" +
+					"	arg_eq_1? := . ...=...? arg_1\n" +
 					"	§ASSERT TRUE => arg_eq_1?\n" +
 					"	§RETURN arg_eq_1? IF TRUE\n",
 					aDebugStream
@@ -342,10 +415,10 @@ public static class mIL_Interpreter {
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +
 					
-					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					
 					"	p := _1, _1\n" +
-					"	r := add p\n" +
+					"	r := .add p\n" +
 					"	§RETURN r IF TRUE\n" +
 					
 					"DEF bla2\n" +
@@ -356,18 +429,18 @@ public static class mIL_Interpreter {
 					"	rest2 := §2ND rest1\n" +
 					"	mul_  := §1ST rest2\n" +
 					
-					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
+					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	sub := .sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
 					
 					"	_1_1 := _1, _1\n" +
-					"	_2   := add _1_1\n" +
+					"	_2   := .add _1_1\n" +
 					"	_2_1 := _2, _1\n" +
-					"	_3   := add _2_1\n" +
+					"	_3   := .add _2_1\n" +
 					"	_2_2 := _2, _2\n" +
-					"	_4   := add _2_2\n" +
+					"	_4   := .add _2_2\n" +
 					"	_3_4 := _3, _4\n" +
-					"	_12  := mul _3_4\n" +
+					"	_12  := .mul _3_4\n" +
 					"	§RETURN _12 IF TRUE\n" +
 					
 					"DEF ...!!\n" +
@@ -380,24 +453,24 @@ public static class mIL_Interpreter {
 					"	rest3 := §2ND rest2\n" +
 					"	eq_   := §1ST rest3\n" +
 					
-					"	add := add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	mul := mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
-					"	eq  := eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
+					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	sub := .sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
+					"	eq  := .eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
 					
 					"	1_1 := _1, _1\n" +
-					"	0   := sub 1_1\n" +
+					"	0   := .sub 1_1\n" +
 					
 					"	arg    := §1ST ARG\n" +
 					"	res    := §2ND ARG\n" +
 					"	arg_0  := arg, 0\n" +
-					"	areEq0 := eq arg_0\n" +
+					"	areEq0 := .eq arg_0\n" +
 					"	§RETURN res IF areEq0\n" +
 					
 					"	res_arg := res, arg\n" +
-					"	newRes  := mul res_arg\n" +
+					"	newRes  := .mul res_arg\n" +
 					"	arg_1   := arg, _1\n" +
-					"	newArg  := sub arg_1\n" +
+					"	newArg  := .sub arg_1\n" +
 					"	newArg_newRes := newArg, newRes\n" +
 					"	§REPEAT newArg_newRes IF TRUE\n" +
 					
@@ -412,10 +485,10 @@ public static class mIL_Interpreter {
 					"	eq_   := §1ST rest3\n" +
 					"	rest4 := §2ND rest3\n" +
 					"	...!!_ := §1ST rest4\n" +
-					"	...!! := ...!!_ ENV\n" +
+					"	...!! := . ...!!_ ENV\n" +
 						
 					"	arg_1 := ARG, _1\n" +
-					"	res   := ...!! arg_1\n" +
+					"	res   := . ...!! arg_1\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
@@ -425,21 +498,12 @@ public static class mIL_Interpreter {
 				var Proc3 = Module.Skip(ModuleMap.Get("...!!"))._Head;
 				var Proc4 = Module.Skip(ModuleMap.Get("...!"))._Head;
 				
-				var Env = mVM_Data.Pair(
+				var Env = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),
-					mVM_Data.Pair(
-						mVM_Data.ExternDef(Sub),
-						mVM_Data.Pair(
-							mVM_Data.ExternDef(Mul),
-							mVM_Data.Pair(
-								mVM_Data.ExternDef(Eq),
-								mVM_Data.Pair(
-									mVM_Data.Def(Proc3),
-									mVM_Data.Empty()
-								)
-							)
-						)
-					)
+					mVM_Data.ExternDef(Sub),
+					mVM_Data.ExternDef(Mul),
+					mVM_Data.ExternDef(Eq),
+					mVM_Data.Def(Proc3)
 				);
 				#if TRACE
 					var TraceOut = mStd.Action(

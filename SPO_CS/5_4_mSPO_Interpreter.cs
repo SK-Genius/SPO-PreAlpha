@@ -14,7 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mSPO_Interpreter {
-
+	
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
@@ -29,59 +29,13 @@ public static class mSPO_Interpreter {
 				aDebugStream
 			).Match(out mSPO_AST.tModuleNode ModuleNode)
 		);
-		
-		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode);
-		
-		var (VMModule, ModuleMap) = mIL_Interpreter.ParseModule(
-			ModuleConstructor.Defs.ToLasyList(
-			).MapWithIndex(
+		return mIL_Interpreter.Run(
+			mSPO2IL.MapModule(ModuleNode).Defs.ToLasyList().MapWithIndex(
 				(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToLasyList())
 			),
+			aImport,
 			aDebugStream
 		);
-		
-		var Res = mVM_Data.Empty();
-		
-		// TODO: move to mIL_Interpreter.Run(...) ???
-		var DefTuple = mVM_Data.Empty();
-		var Defs = VMModule.Skip(1).Reverse();
-		switch (Defs.Take(2).ToArrayList().Size()) {
-			case 0: {
-				break;
-			}
-			case 1: {
-				DefTuple = mVM_Data.Def(Defs.First());
-				break;
-			}
-			default: {
-				while (Defs.Match(out var Def, out Defs)) {
-					DefTuple = mVM_Data.Pair(
-						mVM_Data.Def(Def),
-						DefTuple
-					);
-				}
-				break;
-			}
-		}
-		var InitProc = VMModule.First();
-		
-		#if TRACE
-			var TraceOut = mStd.Action(
-				(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
-			);
-		#else
-			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
-		#endif
-		
-		mVM.Run(
-			mVM_Data.Proc(InitProc, DefTuple),
-			mVM_Data.Empty(),
-			aImport,
-			Res,
-			TraceOut
-		);
-		
-		return Res;
 	}
 	
 	#region TEST

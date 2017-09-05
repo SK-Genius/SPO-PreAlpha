@@ -170,10 +170,11 @@ internal static class mTestHelper {
 	[xTest] public void Atoms() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Tuple() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Match() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Call() => mTestHelper.MagicRun(Tests);
+	[xTest] public void FunctionCall() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Lambda() => mTestHelper.MagicRun(Tests);
 	[xTest] public void NestedMatch() => mTestHelper.MagicRun(Tests);
 	[xTest] public void PrefixMatch() => mTestHelper.MagicRun(Tests);
+	[xTest] public void MethodCall() => mTestHelper.MagicRun(Tests);
 }
 
 [xTests] public sealed class test_5_3_mSPO2IL {

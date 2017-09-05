@@ -32,7 +32,9 @@ public static class mVM {
 		DelPrefix,
 		HasPrefix,
 		SetObj,
-		Var,
+		VarDef,
+		VarSet,
+		VarGet,
 		Assert,
 		Call,
 		Exec,
@@ -208,10 +210,27 @@ public static class mVM {
 		
 		//================================================================================
 		public tInt32
-		Var(
+		VarDef(
 			tInt32 aValueReg
 		//================================================================================
-		) => _AddReg(tOpCode.Var, aValueReg);
+		) => _AddReg(tOpCode.VarDef, aValueReg);
+		
+		//================================================================================
+		public void
+		VarSet(
+			tInt32 aVarReg,
+			tInt32 aValueReg
+		//================================================================================
+		) {
+			_AddCommand(tOpCode.VarSet, aVarReg, aValueReg);
+		}
+		
+		//================================================================================
+		public tInt32
+		VarGet(
+			tInt32 aVarReg
+		//================================================================================
+		) => _AddReg(tOpCode.VarGet, aVarReg);
 		
 		//================================================================================
 		public tInt32
@@ -446,8 +465,16 @@ public static class mVM {
 				aCallStack._Obj = aCallStack._Regs.Get(Arg1);
 				break;
 			}
-			case tOpCode.Var: {
+			case tOpCode.VarDef: {
 				aCallStack._Regs.Push(mVM_Data.Var(aCallStack._Regs.Get(Arg1)));
+				break;
+			}
+			case tOpCode.VarSet: {
+				aCallStack._Regs.Get(Arg1)._Value._Value = aCallStack._Regs.Get(Arg2);
+				break;
+			}
+			case tOpCode.VarGet: {
+				aCallStack._Regs.Push((mVM_Data.tData)aCallStack._Regs.Get(Arg1)._Value._Value);
 				break;
 			}
 			case tOpCode.Call: {
@@ -565,6 +592,8 @@ public static class mVM {
 			var Res = ExternDef(Env, aObj, aArg, aTraceOut);
 			aRes._DataType = Res._DataType;
 			aRes._Value = Res._Value;
+		} else {
+			mStd.Assert(false);
 		}
 	}
 	

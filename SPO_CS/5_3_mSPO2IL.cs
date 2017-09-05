@@ -502,6 +502,13 @@ public static class mSPO2IL {
 				);
 				return ResultReg; 
 			}
+			case mSPO_AST.tVarToValNode VarToValNode: {
+				var ObjReg = MapExpresion(ref aDefConstructor, VarToValNode.Obj);
+				aDefConstructor.LastTempReg += 1;
+				var ResultReg = TempReg(aDefConstructor.LastTempReg);
+				aDefConstructor.Commands.Push(mIL_AST.VarGet(ResultReg, ObjReg));
+				return ResultReg;
+			}
 			default: {
 				throw new System.Exception(
 					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
@@ -827,7 +834,7 @@ public static class mSPO2IL {
 	//================================================================================
 	) {
 		aDefConstructor.Commands.Push(
-			mIL_AST.Var(
+			mIL_AST.VarDef(
 				aVarNode.Ident.Name,
 				MapExpresion(ref aDefConstructor, aVarNode.Expression)
 			)
@@ -835,16 +842,22 @@ public static class mSPO2IL {
 		return true;
 	}
 	
+	//================================================================================
 	public static tBool
 	MapMethodCalls(
 		ref tDefConstructor aDefConstructor,
 		mSPO_AST.tMethodCallsNode aMethodCallsNode
+	//================================================================================
 	) {
 		var Rest = aMethodCallsNode.MethodCalls;
 		var Object = MapExpresion(ref aDefConstructor, aMethodCallsNode.Object);
 		while (Rest.Match(out var Call, out Rest)) {
 			var Arg = MapExpresion(ref aDefConstructor, Call.Argument);
 			var MethodName = Call.Method.Name;
+			if (MethodName == "_=...") {
+				aDefConstructor.Commands.Push(mIL_AST.VarSet(Object, Arg));
+				continue;
+			}
 			tText Result;
 			if (Call.Result == null) {
 				Result = mIL_AST.cEmpty;

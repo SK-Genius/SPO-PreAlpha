@@ -521,7 +521,7 @@ public static class mParserGen {
 		) => aParser.ModifyList(
 			_ => ResultList()
 		)
-		.SetDebugDef(" - (", aParser.DebugName??aParser.DebugDef, ")");
+		.SetDebugDef("-(", aParser.DebugName??aParser.DebugDef, ")");
 		
 		//================================================================================
 		public static tParser<t, tError>

@@ -85,77 +85,83 @@ public static class  mIL_Parser {
 		(+Ident -Token(":=") +NumberText)
 		.Modify(mIL_AST.CreateInt) |
 		
-		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("&") +Ident)
+		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("&") +Ident.OrFail())
 		.Modify(mIL_AST.And) |
 		
-		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("|") +Ident)
+		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("|") +Ident.OrFail())
 		.Modify(mIL_AST.Or) |
 		
-		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("^") +Ident)
+		(+Ident -Token(":=") -Token("§BOOL") +Ident -Token("^") +Ident.OrFail())
 		.Modify(mIL_AST.XOr) |
 		
-		(+Ident -Token(":=") -Token("§INT") +Ident -Token("==") +Ident)
+		(+Ident -Token(":=") -Token("§INT") +Ident -Token("==") +Ident.OrFail())
 		.Modify(mIL_AST.IntsAreEq) |
 		
-		(+Ident -Token(":=") -Token("§INT") +Ident -Token("<=>") +Ident)
+		(+Ident -Token(":=") -Token("§INT") +Ident -Token("<=>") +Ident.OrFail())
 		.Modify(mIL_AST.IntsComp) |
 		
-		(+Ident -Token(":=") -Token("§INT") +Ident -Token("+") +Ident)
+		(+Ident -Token(":=") -Token("§INT") +Ident -Token("+") +Ident.OrFail())
 		.Modify(mIL_AST.IntsAdd) |
 		
-		(+Ident -Token(":=") -Token("§INT") +Ident -Token("-") +Ident)
+		(+Ident -Token(":=") -Token("§INT") +Ident -Token("-") +Ident.OrFail())
 		.Modify(mIL_AST.IntsSub) |
 		
-		(+Ident -Token(":=") -Token("§INT") +Ident -Token("*") +Ident)
+		(+Ident -Token(":=") -Token("§INT") +Ident -Token("*") +Ident.OrFail())
 		.Modify(mIL_AST.IntsMul) |
 		
-		(+Ident -Token(":=") +Ident -Token(",") +Ident)
+		(+Ident -Token(":=") +Ident -Token(",") +Ident.OrFail())
 		.Modify(mIL_AST.CreatePair) |
 		
-		(+Ident -Token(":=") -Token("§1ST") +Ident)
+		(+Ident -Token(":=") -Token("§1ST") +Ident.OrFail())
 		.Modify(mIL_AST.GetFirst) |
 		
-		(+Ident -Token(":=") -Token("§2ND") +Ident)
+		(+Ident -Token(":=") -Token("§2ND") +Ident.OrFail())
 		.Modify(mIL_AST.GetSecond) |
 		
-		(+Ident -Token(":=") -Token("+") +Ident +Ident)
+		(+Ident -Token(":=") -Token("+") +(+Ident +Ident).OrFail())
 		.Modify(mIL_AST.AddPrefix) |
 		
-		(+Ident -Token(":=") -Token("-") +Ident +Ident)
+		(+Ident -Token(":=") -Token("-") +(+Ident +Ident).OrFail())
 		.Modify(mIL_AST.SubPrefix) |
 		
-		(+Ident -Token(":=") -Token("?") +Ident +Ident)
+		(+Ident -Token(":=") -Token("?") +(+Ident +Ident).OrFail())
 		.Modify(mIL_AST.HasPrefix) |
 		
-		(+Ident -Token(":=") +Ident +Ident)
+		(+Ident -Token(":=") -Token(".") +Ident +Ident)
 		.Modify(mIL_AST.Call) |
 		
-		(+Ident -Token(":=") -Token("§OBJ") +Ident +Ident)
+		(+Ident -Token(":=") -Token("§OBJ") -Token(":") +(+Ident +Ident).OrFail())
 		.Modify(mIL_AST.Exec) |
 		
-		(+Ident -Token(":=") -Token("§VAR") +Ident)
-		.Modify(mIL_AST.Var) |
-		
-		(+Ident -Token(":=") +Ident)
-		.Modify(mIL_AST.Alias) |
-		
-		(-Token("§PUSH") +Ident)
+		(-Token("§PUSH") +Ident.OrFail())
 		.Modify(mIL_AST.Push) |
 		
 		(-Token("§POP"))
 		.Modify(mIL_AST.Pop) |
 		
-		(-Token("§RETURN") +Ident -Token("IF") +Ident)
+		(-Token("§VAR") +(+Ident -Token("<-") +Ident).OrFail())
+		.Modify(mIL_AST.VarSet) |
+		
+		(+Ident -Token(":=") -Token("§VAR") +Ident -Token("->"))
+		.Modify(mIL_AST.VarGet) |
+		
+		(+Ident -Token(":=") -Token("§VAR") +Ident.OrFail())
+		.Modify(mIL_AST.VarDef) |
+		
+		(-Token("§RETURN") +(+Ident -Token("IF") +Ident).OrFail())
 		.Modify(mIL_AST.ReturnIf) |
 		
-		(-Token("§REPEAT") +Ident -Token("IF") +Ident)
+		(-Token("§REPEAT") +(Ident -Token("IF") +Ident).OrFail())
 		.Modify(mIL_AST.RepeatIf) |
 		
-		(-Token("§ASSERT") +Ident -Token("=>") +Ident)
+		(-Token("§ASSERT") +(+Ident -Token("=>") +Ident).OrFail())
 		.Modify(mIL_AST.Assert) |
 		
-		(+Ident -Token("=>") +Ident -Token(":") +Ident)
-		.Modify(mIL_AST.Proof)
+		(+Ident -Token("=>") +(+Ident -Token(":") +Ident).OrFail())
+		.Modify(mIL_AST.Proof) |
+		
+		(+Ident -Token(":=") +Ident.OrFail())
+		.Modify(mIL_AST.Alias)
 	)
 	.SetName(nameof(Command));
 	
@@ -273,7 +279,7 @@ public static class  mIL_Parser {
 					aDebugStream
 				);
 				AssertParsedCommand(
-					"a := b c",
+					"a := .b c",
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, "a", "b", "c"),
 					aDebugStream
 				);
@@ -305,11 +311,21 @@ public static class  mIL_Parser {
 				);
 				AssertParsedCommand(
 					"a := §VAR b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Var, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarDef, "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
-					"a := §OBJ b c",
+					"§VAR a <- b",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, "a", "b"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := §VAR b ->",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarGet, "a", "b"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := §OBJ:b c",
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, "a", "b", "c"),
 					aDebugStream
 				);

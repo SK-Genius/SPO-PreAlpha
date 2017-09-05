@@ -123,15 +123,7 @@ public static class mVM_Data {
 			)
 		);
 		mStd.Assert(Arg_.MatchEmpty());
-		
-		if (Arg1.MatchVar(out var Arg1Var)) {
-			Arg1 = Arg1Var;
-		}
 		mStd.Assert(Arg1.MatchInt(out a1));
-		
-		if (Arg2.MatchVar(out var Arg2Var)) {
-			Arg2 = Arg2Var;
-		}
 		mStd.Assert(Arg2.MatchInt(out a2));
 		return true;
 	}
