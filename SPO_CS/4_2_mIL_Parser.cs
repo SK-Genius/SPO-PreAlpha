@@ -65,7 +65,7 @@ public static class  mIL_Parser {
 	NumberText = Number
 	.Modify((tInt32 a) => a.ToString());
 	
-	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
+	public static readonly tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
 	public static readonly tIL_Parser
 	Ident = (

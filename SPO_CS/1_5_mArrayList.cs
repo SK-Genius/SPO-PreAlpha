@@ -92,6 +92,19 @@ public static class mArrayList {
 	}
 	
 	//================================================================================
+	public static tArrayList<t>
+	Push<t>(
+		this tArrayList<t> aList,
+		params t[] aNewItems
+	//================================================================================
+	) {
+		foreach (var NewItem in aNewItems) {
+			aList = aList.Push(NewItem);
+		}
+		return aList;
+	}
+	
+	//================================================================================
 	public static t
 	Pop<t>(
 		this tArrayList<t> aList 

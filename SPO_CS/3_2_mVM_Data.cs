@@ -15,8 +15,6 @@ using tText = System.String;
 
 public static class mVM_Data {
 	
-	#region tData
-	
 	internal enum tDataType {
 		Empty,
 		Bool,
@@ -368,8 +366,6 @@ public static class mVM_Data {
 		out mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> a
 	//================================================================================
 	) => aData.Match(tDataType.ExternDef, out a);
-	
-	#endregion
 	
 	#region TEST
 	

@@ -81,7 +81,7 @@ public static class mSPO_Parser {
 	.Modify(mSPO_AST.Number)
 	.SetName(nameof(Num));
 	
-	public static tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
+	public static readonly tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
 	public static readonly tSPO_Parser
 	Empty = (-Token("()"))

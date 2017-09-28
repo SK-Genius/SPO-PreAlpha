@@ -44,14 +44,14 @@ public static class mVM {
 	
 	public sealed class tProcDef {
 		// standard stack indexes
-		public const tInt32 cEmptyReg = 0;
-		public const tInt32 cOneReg   = 1;
-		public const tInt32 cFalseReg = 2;
-		public const tInt32 cTrueReg  = 3;
-		public const tInt32 cEnvReg   = 4;
-		public const tInt32 cObjReg   = 5;
-		public const tInt32 cArgReg   = 6;
-		public const tInt32 cResReg   = 7;
+		public static readonly tInt32 cEmptyReg = 0;
+		public static readonly tInt32 cOneReg   = 1;
+		public static readonly tInt32 cFalseReg = 2;
+		public static readonly tInt32 cTrueReg  = 3;
+		public static readonly tInt32 cEnvReg   = 4;
+		public static readonly tInt32 cObjReg   = 5;
+		public static readonly tInt32 cArgReg   = 6;
+		public static readonly tInt32 cResReg   = 7;
 		
 		internal readonly mArrayList.tArrayList<(tOpCode, tInt32, tInt32)>
 			_Commands = mArrayList.List<(tOpCode, tInt32, tInt32)>();
@@ -62,8 +62,18 @@ public static class mVM {
 		internal void
 		_AddCommand(
 			tOpCode aCommand,
+			tInt32 aReg1
+		//================================================================================
+		) {
+			_AddCommand(aCommand, aReg1, -1);
+		}
+		
+		//================================================================================
+		internal void
+		_AddCommand(
+			tOpCode aCommand,
 			tInt32 aReg1,
-			tInt32 aReg2 = -1
+			tInt32 aReg2
 		//================================================================================
 		) {
 			_Commands.Push((aCommand, aReg1, aReg2));
@@ -73,8 +83,16 @@ public static class mVM {
 		internal tInt32
 		_AddReg(
 			tOpCode aCommand,
+			tInt32 aReg1
+		//================================================================================
+		) => _AddReg(aCommand, aReg1, -1);
+		
+		//================================================================================
+		internal tInt32
+		_AddReg(
+			tOpCode aCommand,
 			tInt32 aReg1,
-			tInt32 aReg2 = -1
+			tInt32 aReg2
 		//================================================================================
 		) {
 			_AddCommand(aCommand, aReg1, aReg2);
@@ -551,7 +569,7 @@ public static class mVM {
 			
 			default: {
 				throw null;
-			};
+			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1)}");
 		return aCallStack;

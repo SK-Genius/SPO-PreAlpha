@@ -1,13 +1,6 @@
 ﻿NEXT:
 =====
-	o simplify mVM_Data.Var / mVM_Data.tDataType.Var; see work a rounds in:
-		- mStdLib.ObjAssign(...)
-		- mIL_VM.Match(this tData aArg, out tInt32 a1, out tInt32 a2)
-	
-	o simplify mSPO2IL
-	
 	o imperative
-		- var & const
 		- arrays
 		- loops
 	
@@ -30,5 +23,5 @@ ROADMAP:
 
 NICE TO HAVE:
 =============
-	o performance: replace LasyList by ArrayList in Set
+	o performance
 	o mIL_VM TraceOutput -> debugger infrastructur

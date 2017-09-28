@@ -171,14 +171,14 @@ public static class mSPO_AST {
 		public tExpressionNode Argument;
 		public tMatchNode? Result;
 		
-		override public tText ToString() => $" {Method} {Argument} => {Result}";
+		override public tText ToString() => $"{Method} {Argument} => {Result}";
 	}
 	
 	public struct tMethodCallsNode : tCommandNode {
 		public tExpressionNode Object;
 		public mList.tList<tMethodCallNode> MethodCalls;
 		
-		override public tText ToString() => $" {Object} : {MethodCalls}";
+		override public tText ToString() => $"{Object} : {MethodCalls}";
 	}
 	
 	public struct tTupleNode : tExpressionNode {
@@ -189,10 +189,14 @@ public static class mSPO_AST {
 	
 	public struct tImportNode {
 		public tMatchNode Match;
+		
+		override public tText ToString() => $" §IMPORT {Match}";
 	}
 	
 	public struct tExportNode {
 		public tExpressionNode Expression;
+		
+		override public tText ToString() => $" §EXPORT {Expression}";
 	}
 	
 	public struct tModuleNode {

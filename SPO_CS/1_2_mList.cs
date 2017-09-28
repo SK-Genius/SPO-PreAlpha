@@ -39,7 +39,7 @@ public static class mList {
 	//================================================================================
 	public static tList<t>
 	LasyList<t>(
-		mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> aTryNextFunc = null
+		mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> aTryNextFunc
 	//================================================================================
 	) {
 		if (

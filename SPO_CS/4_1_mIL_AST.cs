@@ -46,14 +46,14 @@ public static class mIL_AST {
 		Proof,     // §ASSERT X => X
 	}
 	
-	public const tText cEmpty = "EMPTY";
-	public const tText cOne = "ONE";
-	public const tText cTrue = "TRUE";
-	public const tText cFalse = "FALSE";
-	public const tText cEnv = "ENV";
-	public const tText cObj = "OBJ";
-	public const tText cArg = "ARG";
-	public const tText cRes = "RES";
+	public static readonly tText cEmpty = "EMPTY";
+	public static readonly tText cOne = "ONE";
+	public static readonly tText cTrue = "TRUE";
+	public static readonly tText cFalse = "FALSE";
+	public static readonly tText cEnv = "ENV";
+	public static readonly tText cObj = "OBJ";
+	public static readonly tText cArg = "ARG";
+	public static readonly tText cRes = "RES";
 	
 	public struct tCommandNode {
 		internal tCommandNodeType _NodeType;
@@ -113,10 +113,34 @@ public static class mIL_AST {
 	//================================================================================
 	public static tCommandNode
 	CommandNode(
+		tCommandNodeType aNodeType
+	//================================================================================
+	) => CommandNode(aNodeType, null, null, null);
+	
+	//================================================================================
+	public static tCommandNode
+	CommandNode(
 		tCommandNodeType aNodeType,
-		tText a1 = null,
-		tText a2 = null,
-		tText a3 = null
+		tText a1
+	//================================================================================
+	) => CommandNode(aNodeType, a1, null, null);
+	
+	//================================================================================
+	public static tCommandNode
+	CommandNode(
+		tCommandNodeType aNodeType,
+		tText a1,
+		tText a2
+	//================================================================================
+	) => CommandNode(aNodeType, a1, a2, null);
+	
+	//================================================================================
+	public static tCommandNode
+	CommandNode(
+		tCommandNodeType aNodeType,
+		tText a1,
+		tText a2,
+		tText a3
 	//================================================================================
 	) => new tCommandNode{
 		_NodeType = aNodeType,

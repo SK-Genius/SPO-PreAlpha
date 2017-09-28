@@ -49,7 +49,7 @@ public static class mStd {
 	public struct tVoid {
 	}
 	
-	public static tVoid cEmpty;
+	public static readonly tVoid cEmpty = new tVoid();
 	
 	#region tMaybe
 	

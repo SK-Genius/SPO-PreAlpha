@@ -201,7 +201,7 @@ DEF ...<=...
 		aLine => { }
 	);
 	
-	public const tText cImportTuple = (
+	public static readonly tText cImportTuple = (
 		@"("+
 			"!..., ...&..., ...|..., ...^..., "+
 			"-..., ...+..., ...-..., ...*..., .../..., ...%..., "+
