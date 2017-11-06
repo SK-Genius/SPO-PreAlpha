@@ -479,6 +479,9 @@ public static class mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tIdentNode IdentNode: {
+				if (IdentNode.Name == Ident("_")) {
+					break;
+				}
 				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode.Name, aReg));
 				aDefConstructor.KnownSymbols.Push(IdentNode.Name);
 				break;
@@ -542,6 +545,9 @@ public static class mSPO2IL {
 		
 		switch (PatternNode) {
 			case mSPO_AST.tIdentNode IdentNode: {
+				if (IdentNode.Name == Ident("_")) {
+					break;
+				}
 				if (
 					aDefConstructor.KnownSymbols.ToLasyList(
 					).Where(
@@ -589,14 +595,7 @@ public static class mSPO2IL {
 			case mSPO_AST.tMatchTupleNode TupleNode: {
 				var Items = TupleNode.Items;
 				while (Items.Match(out var Item, out Items)) {
-					var Reg = CreateTempReg(ref aDefConstructor);
-					var NotReg = CreateTempReg(ref aDefConstructor);
-					
 					MapMatchTest(ref aDefConstructor, aInReg, Item);
-					aDefConstructor.Commands.Push(
-						mIL_AST.XOr(NotReg, Reg, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(mIL_AST.cFalse, NotReg)
-					);
 				}
 				break;
 			}

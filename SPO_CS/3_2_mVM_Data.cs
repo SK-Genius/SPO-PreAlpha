@@ -75,58 +75,6 @@ public static class mVM_Data {
 	};
 	
 	//================================================================================
-	public static bool
-	Match(
-		this tData aArg,
-		out tBool a1,
-		out tBool a2
-	//================================================================================
-	) {
-		mStd.Assert(
-			aArg.MatchPair(
-				out var Arg1,
-				out var Arg2_
-			)
-		);
-		mStd.Assert(
-			Arg2_.MatchPair(
-				out var Arg2,
-				out var Arg_
-			)
-		);
-		mStd.Assert(Arg_.MatchEmpty());
-		mStd.Assert(Arg1.MatchBool(out a1));
-		mStd.Assert(Arg2.MatchBool(out a2));
-		return true;
-	}
-	
-	//================================================================================
-	public static bool
-	Match(
-		this tData aArg,
-		out tInt32 a1,
-		out tInt32 a2
-	//================================================================================
-	) {
-		mStd.Assert(
-			aArg.MatchPair(
-				out var Arg1,
-				out var Arg2_
-			)
-		);
-		mStd.Assert(
-			Arg2_.MatchPair(
-				out var Arg2,
-				out var Arg_
-			)
-		);
-		mStd.Assert(Arg_.MatchEmpty());
-		mStd.Assert(Arg1.MatchInt(out a1));
-		mStd.Assert(Arg2.MatchInt(out a2));
-		return true;
-	}
-	
-	//================================================================================
 	private static tBool
 	Match(
 		this tData aData,

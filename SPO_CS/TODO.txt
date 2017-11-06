@@ -1,13 +1,11 @@
 ﻿NEXT:
 =====
+	o lambdas with "..."
+		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
+	
 	o imperative
 		- arrays
 		- loops
-	
-	o ignor match: _
-	
-	o lambdas with "..."
-		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
 	
 	o typed match:
 		|	a € tInt32 := 4
@@ -15,10 +13,10 @@
 
 ROADMAP:
 ========
+	o self hosted
 	o runtime type check
 	o compiletime type check
 	o concurency
-	o self hosted
 
 
 NICE TO HAVE:

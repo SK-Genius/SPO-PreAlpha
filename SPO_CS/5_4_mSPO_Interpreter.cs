@@ -132,6 +132,49 @@ public static class mSPO_Interpreter {
 					mVM_Data.Int(10)
 				);
 			}
+		),
+		mTest.Test(
+			"Run4",
+			aDebugStream => {
+				mStd.AssertEq(
+					Run(
+						@"
+							§IMPORT (
+								...*...
+							)
+							
+							§EXPORT .((a, _, _) => (2 .* a)) (3, 5, 7)
+						",
+						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+						aDebugStream
+					),
+					mVM_Data.Int(6)
+				);
+			}
+		),
+		mTest.Test(
+			"Run5",
+			aDebugStream => {
+				mStd.AssertEq(
+					Run(
+						@"
+							§IMPORT (
+								...*...
+							)
+							
+							§EXPORT .(
+								a => §IF a MATCH {
+									(_, a, _) => (a .* a)
+									_ => 0
+								}
+							) (1, 2, 3)
+						",
+						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+						aDebugStream
+					),
+					mVM_Data.Int(4)
+				);
+			}
 		)
 	);
 	

@@ -191,6 +191,8 @@ public sealed class test_5_4_mSPO_Interpreter {
 	[xTest] public void Run1() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Run2() => mTestHelper.MagicRun(Tests);
 	[xTest] public void Run3() => mTestHelper.MagicRun(Tests);
+	[xTest] public void Run4() => mTestHelper.MagicRun(Tests);
+	[xTest] public void Run5() => mTestHelper.MagicRun(Tests);
 }
 
 public sealed class test_6_mStdLib {
