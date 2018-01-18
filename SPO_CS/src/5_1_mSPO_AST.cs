@@ -374,7 +374,8 @@ public static class mSPO_AST {
 	) => {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
-				throw null; // TODO
+				mStd.Assert(false);
+				return null;
 			}
 			case 1: {
 				mStd.Assert(aItems.Match(out var Head, out var _));
@@ -541,7 +542,7 @@ public static class mSPO_AST {
 		nameof(mSPO_AST),
 		mTest.Test(
 			"TODO",
-			DebugStream => {
+			aDebugStream => {
 			}
 		)
 	);

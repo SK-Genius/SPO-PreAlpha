@@ -65,7 +65,7 @@ public static class mTest {
 		switch (aTest) {
 			case tTestRun TestRun: {
 				aDebugStream(TestRun._Name);
-				if (aFilters.IsNull() || aFilters.Map(aFilter => TestRun._Name.Contains(aFilter)).Any()) {
+				if (aFilters.IsNull() || aFilters.Map(TestRun._Name.Contains).Any()) {
 					try {
 						TestRun._TestFunc(aText => aDebugStream("| " + aText));
 						aDebugStream("-> OK");
@@ -85,7 +85,7 @@ public static class mTest {
 			}
 			case tTests Tests: {
 				aDebugStream(Tests._Name);
-				if (aFilters.IsNull() || aFilters.Map(aFilter => Tests._Name.Contains(aFilter)).Any()) {
+				if (aFilters.IsNull() || aFilters.Map(Tests._Name.Contains).Any()) {
 					aFilters = null;
 				}
 				var Result = tResult.Skip;
@@ -110,7 +110,7 @@ public static class mTest {
 				return Result;
 			}
 			default: {
-				throw null;
+				throw new System.Exception();
 			}
 		}
 	}

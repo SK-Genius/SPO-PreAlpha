@@ -35,7 +35,9 @@ internal static class mTestHelper {
 	) {
 		mStd.AssertEq(
 			aTest.Run(
-				tConsole.WriteLine,
+				a => {
+					tConsole.WriteLine();
+				},
 				mList.List(aFilter.Replace('_', '.'))
 			),
 			mTest.tResult.OK
@@ -134,6 +136,13 @@ public sealed class test_3_1_VM {
 }
 
 public sealed class test_3_2_VM_Data {
+}
+
+public sealed class test_4_0_mIL_Type {
+	private static readonly mTest.tTest Tests = mVM_Type.Test;
+	
+	[xTest] public void BoolBool() => mTestHelper.MagicRun(Tests);
+	[xTest] public void BoolInt() => mTestHelper.MagicRun(Tests);
 }
 
 public sealed class test_4_1_mIL_AST {

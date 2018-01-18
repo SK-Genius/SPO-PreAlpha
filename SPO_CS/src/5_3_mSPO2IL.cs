@@ -13,6 +13,8 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+// TODO: maybe use nested functions to cleanup ???
+
 public static class mSPO2IL {
 	public struct tModuleConstructor {
 		public mArrayList.tArrayList<mArrayList.tArrayList<mIL_AST.tCommandNode>> Defs;
@@ -281,7 +283,8 @@ public static class mSPO2IL {
 			case mSPO_AST.tTupleNode TupleNode: {
 				switch (TupleNode.Items.Take(2).ToArrayList().Size()) {
 					case 0: {
-						throw null;
+						mStd.Assert(false);
+						return default;
 					}
 					case 1: {
 						mStd.Assert(TupleNode.Items.Match(out var Head, out var _));
@@ -319,7 +322,8 @@ public static class mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tTextNode TextNode: {
-				throw null;
+				mStd.Assert(false);
+				return default;
 			}
 			case mSPO_AST.tLambdaNode LambdaNode: {
 				var(NewDefIndex, UnsolvedSymbols) = MapLambda(
@@ -349,7 +353,7 @@ public static class mSPO2IL {
 					MapCommand(ref aDefConstructor, CommandNode);
 				}
 				// TODO: remove created symbols from unknown symbols
-				return null;
+				return mIL_AST.cEmpty;
 			}
 			case mSPO_AST.tIfNode IfNode: {
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode>();
@@ -558,7 +562,7 @@ public static class mSPO2IL {
 						mIL_AST.Alias(IdentNode.Name, aInReg)
 					);
 				} else {
-					throw null;
+					mStd.Assert(false);
 				}
 				break;
 			}
@@ -828,7 +832,8 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				throw null;
+				mStd.Assert(false);
+				break;
 			}
 		}
 	}
@@ -1219,7 +1224,7 @@ public static class mSPO2IL {
 					mSPO_Parser.Module.ParseText(
 						mList.List(
 							"§IMPORT (",
-#if !true
+#if !true // TODO: type infos
 							"	T € [[]]",
 							"	...*... € [[T, T] => T]",
 							"	k € T",
@@ -1266,7 +1271,7 @@ public static class mSPO2IL {
 						mIL_AST.Call(TempReg(11), Ident("x..."), TempReg(10)),
 						mIL_AST.Alias(Ident("y"), TempReg(11)),
 						mIL_AST.ReturnIf(Ident("y"), mIL_AST.cTrue),
-						mIL_AST.ReturnIf(null, mIL_AST.cTrue) // TODO: remove this line
+						mIL_AST.ReturnIf(mIL_AST.cEmpty, mIL_AST.cTrue) // TODO: remove this line
 					)
 				);
 				

@@ -56,6 +56,19 @@ public static class mVM {
 		internal readonly mArrayList.tArrayList<(tOpCode, tInt32, tInt32)>
 			_Commands = mArrayList.List<(tOpCode, tInt32, tInt32)>();
 		
+		internal readonly mVM_Type.tType _DefType = mVM_Type.Proc(
+			mVM_Type.Empty(),
+			mVM_Type.Unknown(),
+			mVM_Type.Proc(
+				mVM_Type.Unknown(),
+				mVM_Type.Unknown(),
+				mVM_Type.Unknown()
+			)
+		);
+		
+		internal readonly mArrayList.tArrayList<mVM_Type.tType>
+			_Types = mArrayList.List<mVM_Type.tType>();
+		
 		private tInt32 _LastReg = 7;
 		
 		//================================================================================
@@ -64,9 +77,7 @@ public static class mVM {
 			tOpCode aCommand,
 			tInt32 aReg1
 		//================================================================================
-		) {
-			_AddCommand(aCommand, aReg1, -1);
-		}
+		) => _AddCommand(aCommand, aReg1, -1);
 		
 		//================================================================================
 		internal void
@@ -75,9 +86,7 @@ public static class mVM {
 			tInt32 aReg1,
 			tInt32 aReg2
 		//================================================================================
-		) {
-			_Commands.Push((aCommand, aReg1, aReg2));
-		}
+		) => _Commands.Push((aCommand, aReg1, aReg2));
 		
 		//================================================================================
 		internal tInt32
@@ -510,7 +519,7 @@ public static class mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
-					throw null;
+					mStd.Assert(false);
 				}
 				break;
 			}
@@ -529,7 +538,7 @@ public static class mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
-					throw null;
+					mStd.Assert(false);
 				}
 				break;
 			}
@@ -568,7 +577,8 @@ public static class mVM {
 			// - Send Message
 			
 			default: {
-				throw null;
+				mStd.Assert(false);
+				return default;
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1)}");

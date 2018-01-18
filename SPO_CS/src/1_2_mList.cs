@@ -17,8 +17,7 @@ public static class mList {
 
 	public sealed class tList<t> {
 		internal t _Head;
-		internal tList<t> _Tail;
-		internal mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> _TryNextFunc;
+		internal mStd.tLazy<tList<t>> _Tail;
 		
 		//================================================================================
 		public tBool
@@ -38,21 +37,16 @@ public static class mList {
 	
 	//================================================================================
 	public static tList<t>
-	LasyList<t>(
-		mStd.tFunc<mStd.tMaybe<t, mStd.tVoid>> aTryNextFunc
+	List<t>(
+		t aHead,
+		mStd.tFunc<tList<t>> aTailFunc
 	//================================================================================
 	) {
-		if (
-			!aTryNextFunc.IsNull() &&
-			aTryNextFunc().Match(out t Head)
-		) {
-			return new tList<t>{
-				_Head = Head,
-				_TryNextFunc = aTryNextFunc
-			};
-		}
-		
-		return null;
+		var Result = new tList<t> {
+			_Head = aHead
+		};
+		Result._Tail.Func = aTailFunc;
+		return Result;
 	}
 	
 	//================================================================================
@@ -61,7 +55,13 @@ public static class mList {
 		t aHead,
 		tList<t> aTail
 	//================================================================================
-	) => new tList<t>{_Head = aHead, _Tail = aTail};
+	) {
+		var Result = new tList<t> {
+			_Head = aHead
+		};
+		Result._Tail.Value = aTail;
+		return Result;
+	}
 	
 	//================================================================================
 	public static tList<t>
@@ -77,22 +77,11 @@ public static class mList {
 	}
 	
 	//================================================================================
-	public static tList<t>
-	Concat<t>(
-		tList<t> a1,
-		tList<t> a2
+	public static tList<tInt32>
+	Nat(
+		int aStart = 0
 	//================================================================================
-	) => LasyList<t>(
-		() => {
-			if (a1.Match(out var Head, out a1)) {
-				return mStd.OK(Head);
-			} else if (a2.Match(out Head, out a2)) {
-				return mStd.OK(Head);
-			} else {
-				return mStd.Fail();
-			}
-		}
-	);
+	) => List(aStart, () => Nat(aStart+1));
 	
 	//================================================================================
 	public static tBool
@@ -102,21 +91,27 @@ public static class mList {
 		out tList<t> aTail
 	//================================================================================
 	) {
-		if (aList.IsNull()) {
-			aHead = default(t);
-			aTail = null;
+		if (aList.IsEmpty()) {
+			aHead = default;
+			aTail = default;
 			return false;
 		}
-		
-		if (!aList._TryNextFunc.IsNull()) {
-			aList._Tail = LasyList(aList._TryNextFunc);
-			aList._TryNextFunc = null;
-		}
-		
 		aHead = aList._Head;
-		aTail = aList._Tail;
+		aTail = aList._Tail.Value;
 		return true;
 	}
+	
+	//================================================================================
+	public static tList<t>
+	Concat<t>(
+		tList<t> a1,
+		tList<t> a2
+	//================================================================================
+	) => (
+		a1.Match(out var Head, out  var Tail)
+		? List(Head, () => Concat(Tail, a2))
+		: a2
+	);
 	
 	//================================================================================
 	public static tList<tRes>
@@ -124,7 +119,11 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	//================================================================================
-	) => aList.MapWithIndex((aIndex, aElem) => aMapFunc(aElem));
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? List(aMapFunc(Head), () => Tail.Map(aMapFunc))
+		: List<tRes>()
+	);
 	
 	//================================================================================
 	public static tList<tRes>
@@ -132,20 +131,7 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
-	) {
-		var RestList = aList;
-		var Index = (tInt32?)-1;
-		return LasyList<tRes>(
-			() => {
-				if (RestList.Match(out var Head, out RestList)) {
-					Index += 1;
-					return mStd.OK(aMapFunc(Index.Value, Head));
-				} else {
-					return mStd.Fail();
-				}
-			}
-		);
-	}
+	) => Zip(Nat(), aList).Map(_ => aMapFunc(_.Item1, _.Item2));
 	
 	//================================================================================
 	public static tRes
@@ -154,14 +140,11 @@ public static class mList {
 		tRes aInitialAgregate,
 		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
 	//================================================================================
-	) {
-		var Agregate = aInitialAgregate;
-		var RestList = aList;
-		while (RestList.Match(out var Head, out RestList)) {
-			Agregate = aAgregatorFunc(Agregate, Head);
-		}
-		return Agregate;
-	}
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? Tail.Reduce(aAgregatorFunc(aInitialAgregate, Head), aAgregatorFunc)
+		: aInitialAgregate
+	);
 	
 	//================================================================================
 	public static tList<t>
@@ -176,7 +159,11 @@ public static class mList {
 		this tList<t> aList,
 		mStd.tFunc<t, t, t> aAgregatorFunc
 	//================================================================================
-	) => aList.Match(out var Head, out var Tail) ? Tail.Reduce(Head, aAgregatorFunc) : default(t);
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? Tail.Reduce(Head, aAgregatorFunc)
+		: default
+	);
 	
 	//================================================================================
 	public static tList<t>
@@ -184,15 +171,11 @@ public static class mList {
 		this tList<t> aList,
 		tInt32 aCount
 	//================================================================================
-	) {
-		var Result = List<t>();
-		var RestList = aList;
-		while (aCount > 0 && RestList.Match(out var Head, out RestList)) {
-			Result = Concat(Result, List(Head));
-			aCount -= 1;
-		}
-		return Result;
-	}
+	) => (
+		(aCount > 0 && aList.Match(out var Head, out var Tail))
+		? List(Head, () => Tail.Take(aCount-1))
+		: List<t>()
+	);
 	
 	//================================================================================
 	public static tList<t>
@@ -201,11 +184,12 @@ public static class mList {
 		tInt32 aCount
 	//================================================================================
 	) {
-		var RestList = aList;
-		while (aCount > 0 && RestList.Match(out var _, out RestList)) {
-			aCount -= 1;
-		}
-		return RestList;
+		mStd.Assert(aCount >= 0);
+		return (
+			(aCount > 0 && aList.Match(out var Head, out var Tail))
+			? Tail.Skip(aCount - 1)
+			: aList
+		);
 	}
 	
 	//================================================================================
@@ -214,15 +198,11 @@ public static class mList {
 		this tList<t> aList,
 		tInt32 aCount
 	//================================================================================
-	) {
-		var Result = List<t>();
-		var RestList = aList;
-		while (RestList.Match(out var Head, out RestList)) {
-			Result = Concat(Result, List(Head));
-			RestList = RestList.Skip(aCount - 1);
-		}
-		return Result;
-	}
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? List(Head, () => Tail.Skip(aCount - 1).Every(aCount))
+		: List<t>()
+	);
 	
 	//================================================================================
 	public static tList<t>
@@ -230,16 +210,11 @@ public static class mList {
 		this tList<t> aList,
 		mStd.tFunc<tBool, t> aPredicate
 	//================================================================================
-	) {
-		var Result = List<t>();
-		var RestList = aList;
-		while (RestList.Match(out var Head, out RestList)) {
-			if (aPredicate(Head)) {
-				Result = Concat(Result, List(Head));
-			}
-		}
-		return Result;
-	}
+	) => (
+		!aList.Match(out var Head, out var Tail) ? List<t>() :
+		aPredicate(Head) ? List(Head, () => Tail.Where(aPredicate)) :
+		Tail.Where(aPredicate)
+	);
 	
 	//================================================================================
 	public static tBool
@@ -260,15 +235,22 @@ public static class mList {
 	Any(
 		this tList<tBool> aList
 	//================================================================================
-	) {
-		var RestList = aList;
-		while (RestList.Match(out var Head, out RestList)) {
-			if (Head) {
-				return true;
-			}
-		}
-		return false;
-	}
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? (Head || Tail.Any())
+		: false
+	);
+	
+	//================================================================================
+	public static tBool
+	All(
+		this tList<tBool> aList
+	//================================================================================
+	) => (
+		aList.Match(out var Head, out var Tail)
+		? (Head && Tail.Any())
+		: true
+	);
 	
 	//================================================================================
 	public static tList<t>
@@ -277,12 +259,27 @@ public static class mList {
 	//================================================================================
 	) {
 		var Result = List<t>();
-		var RestList = aList;
-		while (RestList.Match(out var Head, out RestList)) {
+		var Tail = aList;
+		while (Tail.Match(out var Head, out Tail)) {
 			Result = List(Head, Result);
 		}
 		return Result;
 	}
+	
+	//================================================================================
+	public static tList<(t1, t2)>
+	Zip<t1, t2>(
+		tList<t1> a1,
+		tList<t2> a2
+	//================================================================================
+	) => (
+		(
+			a1.Match(out var Head1, out var Tail1) &&
+			a2.Match(out var Head2, out var Tail2)
+		)
+		? List((Head1, Head2), () => Zip(Tail1, Tail2))
+		: List<(t1, t2)>()
+	);
 	
 	#region TEST
 	
@@ -292,22 +289,12 @@ public static class mList {
 		mTest.Test(
 			"tList.ToString()",
 			aStreamOut => {
-				// TODO: mStd.AssertEq(List<tInt32>().ToString(), "[]"); ???
+				// TODO: mStd.AssertEq(List<tInt32>().ToString(), "[]"); ??? Maybe support static extension ToText() ?
 				mStd.AssertEq(List(1).ToString(), "[1]");
 				mStd.AssertEq(List(1, 2).ToString(), "[1, 2]");
 				mStd.AssertEq(List(1, 2, 3).ToString(), "[1, 2, 3]");
-				var LasyListCounter = (tInt32?)0;
 				mStd.AssertEq(
-					LasyList<tInt32>(
-						() => {
-							LasyListCounter += 1;
-							if (LasyListCounter.Value < 5) {
-								return mStd.OK(LasyListCounter.Value);
-							} else {
-								return mStd.Fail();
-							}
-						}
-					).ToString(),
+					Nat(1).Take(4).ToString(),
 					"[1, 2, 3, 4]"
 				);
 			}
@@ -320,18 +307,8 @@ public static class mList {
 				mStd.AssertNotEq(List(1), List<tInt32>());
 				mStd.AssertNotEq(List(1), List(2));
 				mStd.AssertNotEq(List(1), List(1, 2));
-				var LasyListCounter = (tInt32?)0;
 				mStd.AssertEq(
-					LasyList<tInt32>(
-						() => {
-							LasyListCounter += 1;
-							if (LasyListCounter.Value < 5) {
-								return mStd.OK(LasyListCounter.Value);
-							} else {
-								return mStd.Fail();
-							}
-						}
-					),
+					Nat(1).Take(4),
 					List(1, 2, 3, 4)
 				);
 			}
@@ -394,7 +371,6 @@ public static class mList {
 				mStd.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
 				mStd.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
 				mStd.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
-				mStd.AssertEq(List(1, 2, 3).Skip(-1), List(1, 2, 3));
 			}
 		),
 		mTest.Test(
@@ -426,8 +402,7 @@ public static class mList {
 				mStd.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
 				mStd.AssertEq(List(1, 2).Every(2), List(1));
 				mStd.AssertEq(List<tInt32>().Every(2), List<tInt32>());
-				mStd.AssertEq(List(1, 2, 3).Every(0), List(1, 2, 3));
-				mStd.AssertEq(List(1, 2, 3).Every(-1), List(1, 2, 3));
+				mStd.AssertEq(List(1, 2, 3).Every(1), List(1, 2, 3));
 			}
 		)
 	);

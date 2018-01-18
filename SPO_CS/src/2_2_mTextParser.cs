@@ -36,44 +36,34 @@ public static class mTextParser {
 		tText a
 	//================================================================================
 	) {
-		var I = (int?)0;
 		var Col = (int?)1;
 		var Row = (int?)1;
 		
-		return mList.LasyList(
-			() => {
-				mStd.tMaybe<tPosChar, mStd.tVoid> Result;
-				if (I >= a.Length) {
-					return mStd.Fail();
-				}
-				
-				var Char = a[I.Value];
-				if (Char == '\r') {
-					I += 1;
-					if (I == a.Length) {
-						return mStd.Fail();
-					}
-					Char = a[I.Value];
-				}
-				Result = mStd.OK(
-					new tPosChar {
-						Char = Char,
+		return mList.List(a.ToCharArray())
+			.Where(_ => _ != '\r')
+			.Map(
+				_ => {
+					var Result = new tPosChar {
+						Char = _,
 						Pos = {
 							Col = Col.Value,
 							Row = Row.Value
 						}
+					};
+					switch (_) {
+						case '\n': {
+							Col = 1;
+							Row += 1;
+							break;
+						}
+						default: {
+							Col += 1;
+							break;
+						}
 					}
-				);
-				I += 1;
-				Col += 1;
-				if (Char == '\n') {
-					Col = 1;
-					Row += 1;
+					return Result;
 				}
-				
-				return Result;
-			}
-		);
+			);
 	}
 	
 	//================================================================================

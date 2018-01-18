@@ -94,7 +94,7 @@ public static class mVM_Data {
 		out t aValue
 	//================================================================================
 	) {
-		aValue = default(t);
+		aValue = default;
 		return aData._DataType.Equals(aType) && aData._Value.Match(out aValue);
 	}
 	
@@ -107,8 +107,8 @@ public static class mVM_Data {
 		out t2 aValue2
 	//================================================================================
 	) {
-		aValue1 = default(t1);
-		aValue2 = default(t2);
+		aValue1 = default;
+		aValue2 = default;
 		if (
 			aData._DataType.Equals(aType) &&
 			aData._Value.Match(out (t1, t2) Tuple)
@@ -323,7 +323,7 @@ public static class mVM_Data {
 		mTest.Test(
 			"ExternDef",
 			aDebugStream => {
-				// TODO
+				// TODO: Tests
 			}
 		)
 	);

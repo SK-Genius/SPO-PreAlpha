@@ -45,7 +45,7 @@ public static class mMap {
 				return true;
 			}
 		}
-		aValue = default(tValue);
+		aValue = default;
 		return false;
 	}
 	

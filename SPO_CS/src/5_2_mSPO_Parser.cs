@@ -141,7 +141,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(Command));
 	
 	public static readonly tSPO_Parser
-	Commands = (+Command +Command[0, null])[0, 1]
+	Commands = Command[0, null]
 	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)))
 	.SetName(nameof(Commands));
 	

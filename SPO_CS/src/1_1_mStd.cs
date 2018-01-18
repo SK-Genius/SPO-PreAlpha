@@ -51,6 +51,37 @@ public static class mStd {
 	
 	public static readonly tVoid cEmpty = new tVoid();
 	
+	//================================================================================
+	public static tRes
+	Switch<tArg, tRes>(
+		this tArg a,
+		params (tArg, tFunc<tRes, tArg>)[] aCases
+	//================================================================================
+	) => a.Switch(
+		_ => {
+			Assert(false);
+			return default;
+		},
+		aCases
+	);
+	
+	//================================================================================
+	public static tRes
+	Switch<tArg, tRes>(
+		this tArg a,
+		tFunc<tRes, tArg> aDefaultFunc,
+		params (tArg, tFunc<tRes, tArg>)[] aCases
+	//================================================================================
+	) {
+		foreach (var Case in aCases) {
+			var (Match, Func) = Case;
+			if (Match.Equals(a)) {
+				return Func(a);
+			}
+		}
+		return aDefaultFunc(a);
+	}
+	
 	#region tMaybe
 	
 	public struct _tFail<t> {
@@ -175,7 +206,7 @@ public static class mStd {
 			aValue = (t)a._Value;
 			return true;
 		} else {
-			aValue = default(t);
+			aValue = default;
 			return false;
 		}
 	}
@@ -204,7 +235,7 @@ public static class mStd {
 	IsNull(
 		this object a
 	//================================================================================
-	) => ReferenceEquals(a, null);
+	) => a is null;
 	
 	#region Assert
 	
@@ -239,7 +270,7 @@ public static class mStd {
 		tBool a
 	//================================================================================
 	) {
-		AssertEq(a, !true);
+		AssertEq(a, false);
 	}
 	
 	//================================================================================
@@ -271,24 +302,44 @@ public static class mStd {
 	}
 	
 	//================================================================================
-	public static void
+	public static t
 	AssertNull<t>(
-		t a
+		this t a
 	//================================================================================
 	) {
 		if (!a.IsNull()) {
 			throw new System.Exception($"FAIL: {a} != null");
 		}
+		return a;
 	}
 	
 	//================================================================================
-	public static void
+	public static t
 	AssertNotNull<t>(
-		t a
+		this t a
 	//================================================================================
 	) {
 		if (a.IsNull()) {
 			throw new System.Exception("FAIL: is NULL");
+		}
+		return a;
+	}
+	
+	public struct tLazy<t> {
+		private t _Value;
+		public tFunc<t> Func { private get; set; }
+		public t Value {
+			get {
+				if (this.Func is null) {
+					return _Value;
+				}
+				this.Value = this.Func();
+				return this.Value;
+			}
+			set {
+				_Value = value;
+				Func = null;
+			}
 		}
 	}
 	

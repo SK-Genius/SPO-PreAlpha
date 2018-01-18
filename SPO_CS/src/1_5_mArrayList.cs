@@ -171,36 +171,39 @@ public static class mArrayList {
 	//================================================================================
 	public static mList.tList<t>
 	ToLasyList<t>(
-		this tArrayList<t> aList
+		this tArrayList<t> aList,
+		tInt32 aStatrIndex = 0
 	//================================================================================
-	) {
-		int? Index = 0;
-		return mList.LasyList<t>(
-			() => {
-				if (Index >= aList._CurrSize) {
-					return mStd.Fail();
-				}
-				
-				var Item = aList._Items[Index.Value];
-				Index += 1;
-				return mStd.OK(Item);
-			}
-		);
-	}
+	) => (
+		(aStatrIndex >= aList._CurrSize)
+		? mList.List<t>()
+		: mList.List(
+			aList._Items[aStatrIndex],
+			() => aList.ToLasyList(aStatrIndex + 1)
+		)
+	);
 	
 	//================================================================================
 	public static tArrayList<t>
 	ToArrayList<t>(
 		this mList.tList<t> aList
 	//================================================================================
-	) {
-		var Result = List<t>();
-		while (aList.Match(out var Head, out aList)) {
-			Result.Push(Head);
-		}
-		return Result;
-	}
+	) => aList.Reduce(List<t>(), Push);
 	
+	//================================================================================
+	public static t[]
+	ToArray<t>(
+		this tArrayList<t> a
+	//================================================================================
+	) {
+		var Count = a._CurrSize;
+		var Res = new t[Count];
+		while (Count --> 0) {
+			Res[Count] = a._Items[Count];
+		}
+		return Res;
+	}
+
 	#region TEST
 	
 	public static readonly mTest.tTest

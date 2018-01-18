@@ -242,8 +242,8 @@ public static class mParserGen {
 			(aResultList, aRestStream) = Temp;
 			return true;
 		}
-		aResultList = default(tResultList);
-		aRestStream = default(mList.tList<t>);
+		aResultList = default;
+		aRestStream = default;
 		return false;
 	}
 	
@@ -299,7 +299,7 @@ public static class mParserGen {
 			aTail = new tResultList{Value = Tail};
 			return true;
 		} else {
-			aTail = default(tResultList);
+			aTail = default;
 			return false;
 		}
 	}
@@ -319,8 +319,8 @@ public static class mParserGen {
 			aTail = new tResultList{Value = Tail};
 			return true;
 		} else {
-			aHead = default(t);
-			aTail = default(tResultList);
+			aHead = default;
+			aTail = default;
 			return false;
 		}
 	}
@@ -333,7 +333,7 @@ public static class mParserGen {
 	//================================================================================
 	) {
 		mStd.AssertNotEq(typeof(t), typeof(mStd.tAny));
-		a = default(t);
+		a = default;
 		var RestList = aList;
 		return (
 			RestList.GetHeadTail(out a, out RestList) &&
@@ -349,8 +349,8 @@ public static class mParserGen {
 		out t2 a2
 	//================================================================================
 	) {
-		a1 = default(t1);
-		a2 = default(t2);
+		a1 = default;
+		a2 = default;
 		var RestList = aList;
 		return (
 			RestList.GetHeadTail(out a1, out RestList) &&
@@ -368,9 +368,9 @@ public static class mParserGen {
 		out t3 a3
 	//================================================================================
 	) {
-		a1 = default(t1);
-		a2 = default(t2);
-		a3 = default(t3);
+		a1 = default;
+		a2 = default;
+		a3 = default;
 		var RestList = aList;
 		return (
 			RestList.GetHeadTail(out a1, out RestList) &&
@@ -390,10 +390,10 @@ public static class mParserGen {
 		out t4 a4
 	//================================================================================
 	) {
-		a1 = default(t1);
-		a2 = default(t2);
-		a3 = default(t3);
-		a4 = default(t4);
+		a1 = default;
+		a2 = default;
+		a3 = default;
+		a4 = default;
 		var RestList = aList;
 		return (
 			RestList.GetHeadTail(out a1, out RestList) &&
@@ -643,7 +643,8 @@ public static class mParserGen {
 					return (int)aMin*this + this[0, aMax - aMin]
 					.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 				}
-				throw null;
+				mStd.Assert(false);
+				return default;
 			}
 		}
 		
@@ -759,7 +760,7 @@ public static class mParserGen {
 			}
 		#endif
 		mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>> Result;
-		var Head = aStream.IsNull() ? default(t) : aStream.First();
+		var Head = aStream.IsNull() ? default : aStream.First();
 		try {
 			Result = aParser._ParseFunc(aStream, aDebugStream);
 		} catch (mStd.tException<mList.tList<tError>> e) {
@@ -1174,17 +1175,8 @@ public static class mParserGen {
 				
 				var Eval = mStd.Func(
 					(tText aExpr) => {
-						var I = (tInt32?)0;
 						var X = Expression.StartParse(
-							mList.LasyList<tChar>(
-								() => {
-									if (I.Value < aExpr.Length) {
-										I += 1;
-										return mStd.OK(aExpr[I.Value - 1]);
-									}
-									return mStd.Fail();
-								}
-							),
+							mList.List(aExpr.ToCharArray()),
 							aDebugStream
 						);
 						mStd.Assert(X.Match(out var Tuple, out var _));

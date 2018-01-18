@@ -197,11 +197,10 @@ public static class  mIL_Parser {
 			"Commands",
 			aDebugStream => {
 				//================================================================================
-				mStd.tAction<tText, mIL_AST.tCommandNode, mStd.tAction<tText>>
-				AssertParsedCommand = (
-					aText,
-					aCommandNode,
-					aDebugStream_
+				void AssertParsedCommand(
+					string aText,
+					mIL_AST.tCommandNode aCommandNode,
+					mStd.tAction<string> aDebugStream_
 				//================================================================================
 				) => mStd.AssertEq(
 					Command.ParseText(aText, aDebugStream_),
@@ -240,17 +239,17 @@ public static class  mIL_Parser {
 				);
 				AssertParsedCommand(
 					"a := §BOOL b & c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.And, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolAnd, "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §BOOL b | c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Or, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolOr, "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §BOOL b ^ c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.XOr, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolXOr, "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(

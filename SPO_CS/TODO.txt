@@ -1,5 +1,8 @@
 ﻿NEXT:
 =====
+	o type system
+		- unification
+	
 	o lambdas with "..."
 		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
 	
