@@ -28,7 +28,7 @@ public static class mList {
 			this.Match(out var Head1, out var Tail1) &&
 			a.Match(out var Head2, out var Tail2) &&
 			Head1.Equals(Head2) &&
-			(Tail1.IsNull() ? Tail2.IsNull() : Tail1.Equals(Tail2))
+			(Tail1 is null ? Tail2 is null : Tail1.Equals(Tail2))
 		);
 		
 		override public tBool Equals(object a) => Equals((tList<t>)a);
@@ -79,7 +79,7 @@ public static class mList {
 	//================================================================================
 	public static tList<tInt32>
 	Nat(
-		int aStart = 0
+		int aStart
 	//================================================================================
 	) => List(aStart, () => Nat(aStart+1));
 	
@@ -131,7 +131,7 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
-	) => Zip(Nat(), aList).Map(_ => aMapFunc(_.Item1, _.Item2));
+	) => Zip(Nat(0), aList).Map(_ => aMapFunc(_.Item1, _.Item2));
 	
 	//================================================================================
 	public static tRes

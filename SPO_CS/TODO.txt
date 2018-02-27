@@ -1,7 +1,11 @@
 ﻿NEXT:
 =====
+	o remove x.ToString() ???
+	
 	o type system
-		- unification
+		- opcodes for types
+		- bind types to elements (mybe with an assert opcode)
+			|	a € tInt32 := 4
 	
 	o lambdas with "..."
 		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
@@ -9,9 +13,6 @@
 	o imperative
 		- arrays
 		- loops
-	
-	o typed match:
-		|	a € tInt32 := 4
 
 
 ROADMAP:

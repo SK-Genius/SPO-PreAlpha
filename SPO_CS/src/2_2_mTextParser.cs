@@ -42,24 +42,19 @@ public static class mTextParser {
 		return mList.List(a.ToCharArray())
 			.Where(_ => _ != '\r')
 			.Map(
-				_ => {
+				aChar => {
 					var Result = new tPosChar {
-						Char = _,
+						Char = aChar,
 						Pos = {
 							Col = Col.Value,
 							Row = Row.Value
 						}
 					};
-					switch (_) {
-						case '\n': {
-							Col = 1;
-							Row += 1;
-							break;
-						}
-						default: {
-							Col += 1;
-							break;
-						}
+					if (aChar == '\n') {
+						Col = 1;
+						Row += 1;
+					} else {
+						Col += 1;
 					}
 					return Result;
 				}

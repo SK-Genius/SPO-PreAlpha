@@ -60,7 +60,7 @@ public static class mSPO_AST {
 		public tMatchItemNode Pattern;
 		public tExpressionNode Type;
 		
-		override public tText ToString()=> Pattern + (Type.IsNull() ? "" : " € " + Type);
+		override public tText ToString()=> Pattern + (Type is null ? "" : " € " + Type);
 	}
 	
 	public struct tPrefixNode : tExpressionNode {
@@ -374,8 +374,7 @@ public static class mSPO_AST {
 	) => {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
-				mStd.Assert(false);
-				return null;
+				throw mStd.Error("impossible");
 			}
 			case 1: {
 				mStd.Assert(aItems.Match(out var Head, out var _));

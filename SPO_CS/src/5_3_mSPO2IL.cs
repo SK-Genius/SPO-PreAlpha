@@ -283,8 +283,7 @@ public static class mSPO2IL {
 			case mSPO_AST.tTupleNode TupleNode: {
 				switch (TupleNode.Items.Take(2).ToArrayList().Size()) {
 					case 0: {
-						mStd.Assert(false);
-						return default;
+						throw mStd.Error("impossible");
 					}
 					case 1: {
 						mStd.Assert(TupleNode.Items.Match(out var Head, out var _));
@@ -322,8 +321,7 @@ public static class mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tTextNode TextNode: {
-				mStd.Assert(false);
-				return default;
+				throw mStd.Error("impossible");
 			}
 			case mSPO_AST.tLambdaNode LambdaNode: {
 				var(NewDefIndex, UnsolvedSymbols) = MapLambda(
@@ -393,11 +391,9 @@ public static class mSPO2IL {
 				};
 				
 				var ModuleConstructor = aDefConstructor.ModuleConstructor;
-				var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
-				
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode>();
-				
 				var Rest = IfMatchNode.Cases;
+				
 				while (Rest.Match(out var Case, out Rest)) {
 					var (Match, Run) = Case;
 					var TestDef = NewDefConstructor(ModuleConstructor);
@@ -459,7 +455,7 @@ public static class mSPO2IL {
 				return ResultReg;
 			}
 			default: {
-				throw new System.Exception(
+				throw mStd.Error(
 					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapExpresion)}(...)"
 				);
@@ -528,7 +524,7 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				throw new System.Exception(
+				throw mStd.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapMatch)}(...)"
 				);
@@ -552,18 +548,15 @@ public static class mSPO2IL {
 				if (IdentNode.Name == Ident("_")) {
 					break;
 				}
-				if (
+				mStd.Assert(
 					aDefConstructor.KnownSymbols.ToLasyList(
 					).Where(
 						Symbol => Symbol == IdentNode.Name
 					).IsEmpty()
-				) {
-					aDefConstructor.Commands.Push(
-						mIL_AST.Alias(IdentNode.Name, aInReg)
-					);
-				} else {
-					mStd.Assert(false);
-				}
+				);
+				aDefConstructor.Commands.Push(
+					mIL_AST.Alias(IdentNode.Name, aInReg)
+				);
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode PrefixNode: {
@@ -616,7 +609,7 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				throw new System.Exception(
+				throw mStd.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapMatchTest)}(...)"
 				);
@@ -832,8 +825,7 @@ public static class mSPO2IL {
 				break;
 			}
 			default: {
-				mStd.Assert(false);
-				break;
+				throw mStd.Error("impossible");
 			}
 		}
 	}

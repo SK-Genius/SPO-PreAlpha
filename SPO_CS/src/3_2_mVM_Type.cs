@@ -187,7 +187,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) {
-		mStd.Assert(false);
+		mStd.Assert(false); // TODO
 		return new tType {
 			Type = tTypeType.Cond,
 			Refs = new [] { aType },
@@ -223,6 +223,7 @@ public static class mVM_Type {
 		}
 		
 		if (a1.Type == tTypeType.Unknown) {
+			// TODO: check aginst cycles (a1 in a2)
 			var Aliases = mList.List(a1.Refs);
 			while (Aliases.Match(out var Alias, out Aliases)) {
 				Alias.Type = a2.Type;

@@ -172,16 +172,23 @@ public static class mArrayList {
 	public static mList.tList<t>
 	ToLasyList<t>(
 		this tArrayList<t> aList,
-		tInt32 aStatrIndex = 0
+		tInt32 aStartIndex
 	//================================================================================
 	) => (
-		(aStatrIndex >= aList._CurrSize)
+		(aStartIndex >= aList._CurrSize)
 		? mList.List<t>()
 		: mList.List(
-			aList._Items[aStatrIndex],
-			() => aList.ToLasyList(aStatrIndex + 1)
+			aList._Items[aStartIndex],
+			() => aList.ToLasyList(aStartIndex + 1)
 		)
 	);
+	
+	//================================================================================
+	public static mList.tList<t>
+	ToLasyList<t>(
+		this tArrayList<t> aList
+	//================================================================================
+	) => aList.ToLasyList(0);
 	
 	//================================================================================
 	public static tArrayList<t>

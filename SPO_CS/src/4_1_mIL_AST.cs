@@ -105,9 +105,7 @@ public static class mIL_AST {
 				return false;
 			}
 			default: {
-				mStd.Assert(false);
-				aResultReg = default;
-				return default;
+				throw mStd.Error("impossible");
 			}
 		}
 	}
@@ -185,9 +183,9 @@ public static class mIL_AST {
 	) {
 		return (
 			aNode._NodeType == aNodeType &&
-			aNode._1.IsNull() &&
-			aNode._2.IsNull() &&
-			aNode._3.IsNull()
+			aNode._1 is null &&
+			aNode._2 is null &&
+			aNode._3 is null
 		);
 	}
 	
@@ -201,8 +199,8 @@ public static class mIL_AST {
 	) {
 		if (
 			aNode._NodeType == aNodeType &&
-			aNode._2.IsNull() &&
-			aNode._3.IsNull()
+			aNode._2 is null &&
+			aNode._3 is null
 		) {
 			aId = aNode._1;
 			return true;
@@ -222,7 +220,7 @@ public static class mIL_AST {
 	) {
 		if (
 			aNode._NodeType == aNodeType &&
-			aNode._3.IsNull()
+			aNode._3 is null
 		) {
 			aId1 = aNode._1;
 			aId2 = aNode._2;

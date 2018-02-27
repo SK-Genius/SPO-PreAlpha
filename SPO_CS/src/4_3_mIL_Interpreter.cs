@@ -59,6 +59,7 @@ public static class mIL_Interpreter {
 				aTrace($"    {DefName}:");
 			#endif
 			var NewProc = new mVM.tProcDef();
+			// TODO: set type if it known
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			
@@ -271,12 +272,9 @@ public static class mIL_Interpreter {
 					CurrObj = ObjStack.Pop();
 					NewProc.SetObj(CurrObj);
 				} else {
-					mStd.Assert(false);
+					throw mStd.Error("impossible");
 				}
-				//mStd.AssertEq(Types._CurrSize, Regs._KeyValuePairs.Reduce(0, (aSum, _) => aSum + 1));
-				//aTrace($@"* {DefName} @ {NewProc._DefType}");
 			}
-			//aTrace($@"=== {DefName} @ {NewProc._DefType}");
 		}
 		
 		{
@@ -318,12 +316,10 @@ public static class mIL_Interpreter {
 	//================================================================================
 	) {
 		var (VMModule, ModuleMap) = aModule;
-		
 		var Res = mVM_Data.Empty();
-		
-		// TODO: move to mIL_Interpreter.Run(...) ???
-		var DefTuple = mVM_Data.Empty();
 		var Defs = VMModule.Skip(1).Reverse();
+		
+		var DefTuple = mVM_Data.Empty();
 		switch (Defs.Take(2).ToArrayList().Size()) {
 			case 0: {
 				break;

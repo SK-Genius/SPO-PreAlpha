@@ -519,7 +519,7 @@ public static class mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
-					mStd.Assert(false);
+					throw mStd.Error("impossible");
 				}
 				break;
 			}
@@ -538,7 +538,7 @@ public static class mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
 				} else {
-					mStd.Assert(false);
+					throw mStd.Error("impossible");
 				}
 				break;
 			}
@@ -577,8 +577,7 @@ public static class mVM {
 			// - Send Message
 			
 			default: {
-				mStd.Assert(false);
-				return default;
+				throw mStd.Error("TODO");
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1)}");
@@ -621,7 +620,7 @@ public static class mVM {
 			aRes._DataType = Res._DataType;
 			aRes._Value = Res._Value;
 		} else {
-			mStd.Assert(false);
+			throw mStd.Error("impossible");
 		}
 	}
 	

@@ -39,6 +39,7 @@ public static class mStd {
 	public delegate void tAction<in tArg1, in tArg2, in tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
 	public delegate void tAction<in tArg1, in tArg2, in tArg3, in tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
 	
+	public static tAction Action(tAction a) => a;
 	public static tAction<tArg> Action<tArg>(tAction<tArg> a) => a;
 	public static tAction<tArg1, tArg2> Action<tArg1, tArg2>(tAction<tArg1, tArg2> a) => a;
 	public static tAction<tArg1, tArg2, tArg3> Action<tArg1, tArg2, tArg3>(tAction<tArg1, tArg2, tArg3> a) => a;
@@ -59,8 +60,7 @@ public static class mStd {
 	//================================================================================
 	) => a.Switch(
 		_ => {
-			Assert(false);
-			return default;
+			throw Error($@"unknown case {_}");
 		},
 		aCases
 	);
@@ -176,7 +176,7 @@ public static class mStd {
 			tAny a
 		//================================================================================
 		) => (
-			!_Value.IsNull() &&
+			!(_Value is null) &&
 			_Value.Equals(a._Value)
 		);
 		
@@ -198,11 +198,9 @@ public static class mStd {
 		out t aValue
 	//================================================================================
 	) {
-		if (typeof(t) == typeof(tAny)) {
-			Assert(false);
-		}
+		AssertNotEq(typeof(t), typeof(tAny));
 		
-		if (a._Value.IsNull() || a._Value is t) {
+		if (a._Value is null || a._Value is t) {
 			aValue = (t)a._Value;
 			return true;
 		} else {
@@ -216,7 +214,7 @@ public static class mStd {
 	Match(
 		this tAny a
 	//================================================================================
-	) => a._Value.IsNull();
+	) => a._Value is null;
 	
 	//================================================================================
 	public static t
@@ -239,9 +237,17 @@ public static class mStd {
 	
 	#region Assert
 	
-	public sealed class tException<t> : System.Exception {
-		public t _Value;
+	public sealed class tError<t> : System.Exception {
+		public tError(tText a) : base(a) {}
+		public t Value;
 	}
+	
+	//================================================================================
+	public static tError<t>
+	Error<t>(
+		t a
+	//================================================================================
+	) => new tError<t> (a.ToString()) { Value = a };
 	
 	//================================================================================
 	public static void
@@ -260,7 +266,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (!a) {
-			throw new System.Exception($"FAIL: {aMsg}");
+			throw Error($"FAIL: {aMsg}");
 		}
 	}
 	
@@ -285,7 +291,7 @@ public static class mStd {
 			!a1.IsNull() &&
 			!a1.Equals(a2)
 		) {
-			throw new System.Exception($"FAIL: {a1} != {a2}");
+			throw Error($"FAIL: {a1} != {a2}");
 		}
 	}
 	
@@ -297,7 +303,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a1.Equals(a2)) {
-			throw new System.Exception($"FAIL: {a1} == {a2}");
+			throw Error($"FAIL: {a1} == {a2}");
 		}
 	}
 	
@@ -308,7 +314,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (!a.IsNull()) {
-			throw new System.Exception($"FAIL: {a} != null");
+			throw Error($"FAIL: {a} != null");
 		}
 		return a;
 	}
@@ -320,7 +326,7 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a.IsNull()) {
-			throw new System.Exception("FAIL: is NULL");
+			throw Error("FAIL: is NULL");
 		}
 		return a;
 	}
@@ -338,7 +344,7 @@ public static class mStd {
 			}
 			set {
 				_Value = value;
-				Func = null;
+				this.Func = null;
 			}
 		}
 	}
