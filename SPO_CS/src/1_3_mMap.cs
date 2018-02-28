@@ -56,7 +56,7 @@ public static class mMap {
 		tKey aKey
 	//================================================================================
 	) {
-		mStd.Assert(aMap.TryGet(aKey, out var Result));
+		mDebug.Assert(aMap.TryGet(aKey, out var Result));
 		return Result;
 	}
 	
@@ -101,8 +101,8 @@ public static class mMap {
 				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mStd.AssertEq(TextToInt.Get("one"), 1);
-				mStd.AssertEq(TextToInt.Get("two"), 2);
+				mTest.AssertEq(TextToInt.Get("one"), 1);
+				mTest.AssertEq(TextToInt.Get("two"), 2);
 			}
 		),
 		mTest.Test(
@@ -111,11 +111,11 @@ public static class mMap {
 				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mStd.Assert(TextToInt.TryGet("one", out var Num));
-				mStd.AssertEq(Num, 1);
-				mStd.Assert(TextToInt.TryGet("two", out Num));
-				mStd.AssertEq(Num, 2);
-				mStd.AssertNot(TextToInt.TryGet("zero", out Num));
+				mTest.Assert(TextToInt.TryGet("one", out var Num));
+				mTest.AssertEq(Num, 1);
+				mTest.Assert(TextToInt.TryGet("two", out Num));
+				mTest.AssertEq(Num, 2);
+				mTest.AssertNot(TextToInt.TryGet("zero", out Num));
 			}
 		),
 		mTest.Test(
@@ -124,14 +124,14 @@ public static class mMap {
 				var TextToInt = Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mStd.Assert(TextToInt.TryGet("one", out var Num));
-				mStd.AssertEq(Num, 1);
-				mStd.Assert(TextToInt.TryGet("two", out Num));
-				mStd.AssertEq(Num, 2);
+				mTest.Assert(TextToInt.TryGet("one", out var Num));
+				mTest.AssertEq(Num, 1);
+				mTest.Assert(TextToInt.TryGet("two", out Num));
+				mTest.AssertEq(Num, 2);
 				TextToInt = TextToInt.Remove("one");
-				mStd.AssertNot(TextToInt.TryGet("one", out Num));
-				mStd.Assert(TextToInt.TryGet("two", out Num));
-				mStd.AssertEq(Num, 2);
+				mTest.AssertNot(TextToInt.TryGet("one", out Num));
+				mTest.Assert(TextToInt.TryGet("two", out Num));
+				mTest.AssertEq(Num, 2);
 			}
 		)
 	);

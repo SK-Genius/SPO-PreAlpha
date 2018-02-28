@@ -32,7 +32,7 @@ public static class mList {
 		);
 		
 		override public tBool Equals(object a) => Equals((tList<t>)a);
-		override public tText ToString() => $"[{this.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")}]";
+		override public tText ToString() => this.Map(a => a.ToString()).Join((a1, a2) => $"{a1} \n{a2}");
 	}
 	
 	//================================================================================
@@ -184,7 +184,7 @@ public static class mList {
 		tInt32 aCount
 	//================================================================================
 	) {
-		mStd.Assert(aCount >= 0);
+		mDebug.Assert(aCount >= 0);
 		return (
 			(aCount > 0 && aList.Match(out var Head, out var Tail))
 			? Tail.Skip(aCount - 1)
@@ -235,22 +235,14 @@ public static class mList {
 	Any(
 		this tList<tBool> aList
 	//================================================================================
-	) => (
-		aList.Match(out var Head, out var Tail)
-		? (Head || Tail.Any())
-		: false
-	);
+	) => aList.Match(out var Head, out var Tail) && (Head || Tail.Any());
 	
 	//================================================================================
 	public static tBool
 	All(
 		this tList<tBool> aList
 	//================================================================================
-	) => (
-		aList.Match(out var Head, out var Tail)
-		? (Head && Tail.Any())
-		: true
-	);
+	) => !aList.Match(out var Head, out var Tail) || (Head && Tail.Any());
 	
 	//================================================================================
 	public static tList<t>
@@ -290,24 +282,24 @@ public static class mList {
 			"tList.ToString()",
 			aStreamOut => {
 				// TODO: mStd.AssertEq(List<tInt32>().ToString(), "[]"); ??? Maybe support static extension ToText() ?
-				mStd.AssertEq(List(1).ToString(), "[1]");
-				mStd.AssertEq(List(1, 2).ToString(), "[1, 2]");
-				mStd.AssertEq(List(1, 2, 3).ToString(), "[1, 2, 3]");
-				mStd.AssertEq(
+				mTest.AssertEq(List(1).ToString(), "1");
+				mTest.AssertEq(List(1, 2).ToString(), "1 \n2");
+				mTest.AssertEq(List(1, 2, 3).ToString(), "1 \n2 \n3");
+				mTest.AssertEq(
 					Nat(1).Take(4).ToString(),
-					"[1, 2, 3, 4]"
+					"1 \n2 \n3 \n4"
 				);
 			}
 		),
 		mTest.Test(
 			"tList.Equals()",
 			aStreamOut => {
-				mStd.AssertEq(List<tInt32>(), List<tInt32>());
-				mStd.AssertEq(List(1), List(1));
-				mStd.AssertNotEq(List(1), List<tInt32>());
-				mStd.AssertNotEq(List(1), List(2));
-				mStd.AssertNotEq(List(1), List(1, 2));
-				mStd.AssertEq(
+				mTest.AssertEq(List<tInt32>(), List<tInt32>());
+				mTest.AssertEq(List(1), List(1));
+				mTest.AssertNotEq(List(1), List<tInt32>());
+				mTest.AssertNotEq(List(1), List(2));
+				mTest.AssertNotEq(List(1), List(1, 2));
+				mTest.AssertEq(
 					Nat(1).Take(4),
 					List(1, 2, 3, 4)
 				);
@@ -316,23 +308,23 @@ public static class mList {
 		mTest.Test(
 			"Concat()",
 			aStreamOut => {
-				mStd.AssertEq(Concat(List(1, 2), List(3, 4)), List(1, 2, 3, 4));
-				mStd.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
-				mStd.AssertEq(Concat(List<tInt32>(), List(3, 4)), List(3, 4));
-				mStd.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
+				mTest.AssertEq(Concat(List(1, 2), List(3, 4)), List(1, 2, 3, 4));
+				mTest.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
+				mTest.AssertEq(Concat(List<tInt32>(), List(3, 4)), List(3, 4));
+				mTest.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
 			}
 		),
 		mTest.Test(
-			"Map1()",
+			"Map()",
 			aStreamOut => {
-				mStd.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
-				mStd.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3, 4).Map(a => a*a), List(1, 4, 9, 16));
+				mTest.AssertEq(List<tInt32>().Map(a => a*a), List<tInt32>());
 			}
 		),
 		mTest.Test(
 			"MapWithIndex()",
 			aStreamOut => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					List(1, 2, 3, 4).MapWithIndex((i, a) => (i, a*a)),
 					List((0, 1), (1, 4), (2, 9), (3, 16))
 				);
@@ -341,68 +333,68 @@ public static class mList {
 		mTest.Test(
 			"Reduce()",
 			aStreamOut => {
-				mStd.AssertEq(List(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
-				mStd.AssertEq(List(1).Reduce(0, (a1, a2) => a1+a2), 1);
-				mStd.AssertEq(List<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
+				mTest.AssertEq(List(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
+				mTest.AssertEq(List(1).Reduce(0, (a1, a2) => a1+a2), 1);
+				mTest.AssertEq(List<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
 			}
 		),
 		mTest.Test(
 			"Join()",
 			aStreamOut => {
-				mStd.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
-				mStd.AssertEq(List("a").Join((a1, a2) => $"{a1},{a2}"), "a");
-				mStd.AssertEq(List<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
+				mTest.AssertEq(List("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
+				mTest.AssertEq(List("a").Join((a1, a2) => $"{a1},{a2}"), "a");
+				mTest.AssertEq(List<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
 			}
 		),
 		mTest.Test(
 			"Take()",
 			aStreamOut => {
-				mStd.AssertEq(List(1, 2, 3, 4).Take(3), List(1, 2, 3));
-				mStd.AssertEq(List(1, 2, 3).Take(4), List(1, 2, 3));
-				mStd.AssertEq(List<tInt32>().Take(4), List<tInt32>());
-				mStd.AssertEq(List(1, 2, 3).Take(0), List<tInt32>());
-				mStd.AssertEq(List(1, 2, 3).Take(-1), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3, 4).Take(3), List(1, 2, 3));
+				mTest.AssertEq(List(1, 2, 3).Take(4), List(1, 2, 3));
+				mTest.AssertEq(List<tInt32>().Take(4), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3).Take(0), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3).Take(-1), List<tInt32>());
 			}
 		),
 		mTest.Test(
 			"Skip()",
 			aStreamOut => {
-				mStd.AssertEq(List(1, 2, 3, 4).Skip(3), List(4));
-				mStd.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
-				mStd.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
-				mStd.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
+				mTest.AssertEq(List(1, 2, 3, 4).Skip(3), List(4));
+				mTest.AssertEq(List(1, 2, 3).Skip(4), List<tInt32>());
+				mTest.AssertEq(List<tInt32>().Skip(4), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3).Skip(0), List(1, 2, 3));
 			}
 		),
 		mTest.Test(
 			"IsEmpty()",
 			aStreamOut => {
-				mStd.Assert(List<tInt32>().IsEmpty());
-				mStd.AssertNot(List(1).IsEmpty());
-				mStd.AssertNot(List(1, 2).IsEmpty());
+				mTest.Assert(List<tInt32>().IsEmpty());
+				mTest.AssertNot(List(1).IsEmpty());
+				mTest.AssertNot(List(1, 2).IsEmpty());
 				
-				mStd.AssertNot(List<tInt32>() == new tList<int>());
+				mTest.AssertNot(List<tInt32>() == new tList<int>());
 			}
 		),
 		mTest.Test(
 			"Any()",
 			aStreamOut => {
-				mStd.AssertNot(List<tBool>().Any());
-				mStd.AssertNot(List(false).Any());
-				mStd.Assert(List(true).Any());
-				mStd.AssertNot(List(false, false, false).Any());
-				mStd.Assert(List(true, true, true).Any());
-				mStd.Assert(List(false, false, true, false).Any());
-				mStd.Assert(List(1, 2, 3, 4).Map(a => a == 2).Any());
-				mStd.AssertNot(List(1, 3, 4).Map(a => a == 2).Any());
+				mTest.AssertNot(List<tBool>().Any());
+				mTest.AssertNot(List(false).Any());
+				mTest.Assert(List(true).Any());
+				mTest.AssertNot(List(false, false, false).Any());
+				mTest.Assert(List(true, true, true).Any());
+				mTest.Assert(List(false, false, true, false).Any());
+				mTest.Assert(List(1, 2, 3, 4).Map(a => a == 2).Any());
+				mTest.AssertNot(List(1, 3, 4).Map(a => a == 2).Any());
 			}
 		),
 		mTest.Test(
 			"Every()",
 			aStreamOut => {
-				mStd.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
-				mStd.AssertEq(List(1, 2).Every(2), List(1));
-				mStd.AssertEq(List<tInt32>().Every(2), List<tInt32>());
-				mStd.AssertEq(List(1, 2, 3).Every(1), List(1, 2, 3));
+				mTest.AssertEq(List(1, 2, 3, 4, 5).Every(2), List(1, 3, 5));
+				mTest.AssertEq(List(1, 2).Every(2), List(1));
+				mTest.AssertEq(List<tInt32>().Every(2), List<tInt32>());
+				mTest.AssertEq(List(1, 2, 3).Every(1), List(1, 2, 3));
 			}
 		)
 	);

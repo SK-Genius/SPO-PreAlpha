@@ -23,7 +23,7 @@ public static class mSPO_Interpreter {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		mStd.Assert(
+		mDebug.Assert(
 			mSPO_Parser.Module.ParseText(
 				aCode,
 				aDebugStream
@@ -49,10 +49,10 @@ public static class mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchPair(out var Arg2_, out var _));
-		mStd.Assert(Arg2_.MatchInt(out var IntArg2));
+		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mTest.Assert(Arg1.MatchInt(out var IntArg1));
+		mTest.Assert(Arg2.MatchPair(out var Arg2_, out var _));
+		mTest.Assert(Arg2_.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -62,7 +62,7 @@ public static class mSPO_Interpreter {
 		mTest.Test(
 			"Run1",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					Run(
 						@"
 							§IMPORT (
@@ -88,7 +88,7 @@ public static class mSPO_Interpreter {
 		mTest.Test(
 			"Run2",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					Run(
 						@"
 							§IMPORT (
@@ -113,7 +113,7 @@ public static class mSPO_Interpreter {
 		mTest.Test(
 			"Run3",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					Run(
 						@"
 							§IMPORT (
@@ -136,7 +136,7 @@ public static class mSPO_Interpreter {
 		mTest.Test(
 			"Run4",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					Run(
 						@"
 							§IMPORT (
@@ -155,7 +155,7 @@ public static class mSPO_Interpreter {
 		mTest.Test(
 			"Run5",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					Run(
 						@"
 							§IMPORT (

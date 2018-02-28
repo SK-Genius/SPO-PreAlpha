@@ -217,7 +217,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfThenElse",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -248,14 +248,14 @@ DEF ...<=...
 		mTest.Test(
 			"If2",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
 							
 							§RECURSIV Fib... = a => §IF {{
 								(a .< 2) => a
-								(1 .== 1) => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+								(1 .== 1) => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
 							}}
 							
 							§EXPORT .Fib n
@@ -273,7 +273,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfMatch1",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -299,7 +299,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfMatch2",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -324,7 +324,7 @@ DEF ...<=...
 		mTest.Test(
 			"VAR",
 			aDebugStream => {
-				mStd.AssertEq(
+				mTest.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT {cImportTuple}
@@ -360,8 +360,8 @@ DEF ...<=...
 			aDebugStream => {
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mStd.Assert(aObj._IsMutable);
-						mStd.Assert(aObj.MatchVar(out var Stream));
+						mTest.Assert(aObj._IsMutable);
+						mTest.Assert(aObj.MatchVar(out var Stream));
 						var Line = ((System.IO.TextReader)Stream._Value._Value).ReadLine();
 						return mVM_Data.Prefix("Text", new mVM_Data.tData{ _Value = mStd.Any(Line) });
 					},
@@ -369,9 +369,9 @@ DEF ...<=...
 				);
 				var WriteLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mStd.Assert(aObj._IsMutable);
-						mStd.Assert(aObj.MatchVar(out var Stream));
-						mStd.Assert(aArg.MatchPrefix("Text", out var Line));
+						mTest.Assert(aObj._IsMutable);
+						mTest.Assert(aObj.MatchVar(out var Stream));
+						mTest.Assert(aArg.MatchPrefix("Text", out var Line));
 						var Writer = (Stream._Value._Value as System.IO.TextWriter);
 						Writer.WriteLine((tText)Line._Value._Value);
 						Writer.Flush();
@@ -426,11 +426,11 @@ DEF ...<=...
 					a => aDebugStream(a())
 				);
 				
-				mStd.AssertEq(Res, mVM_Data.Int(0));
+				mTest.AssertEq(Res, mVM_Data.Int(0));
 				
 				var ResArray = Result.GetBuffer();
 				for (var I = 0; I < Reference.Length - 1; I += 1) {
-					mStd.AssertEq(ResArray[I], Reference[I]);
+					mTest.AssertEq(ResArray[I], Reference[I]);
 				}
 			}
 		)

@@ -198,7 +198,7 @@ public static class mStd {
 		out t aValue
 	//================================================================================
 	) {
-		AssertNotEq(typeof(t), typeof(tAny));
+		mDebug.AssertNotEq(typeof(t), typeof(tAny));
 		
 		if (a._Value is null || a._Value is t) {
 			aValue = (t)a._Value;
@@ -222,7 +222,7 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		Assert(a.Match(out t Result), $"To: {typeof(t).FullName} <- {a}");
+		mDebug.Assert(a.Match(out t Result), $"To: {typeof(t).FullName} <- {a}");
 		return Result;
 	}
 	
@@ -248,88 +248,6 @@ public static class mStd {
 		t a
 	//================================================================================
 	) => new tError<t> (a.ToString()) { Value = a };
-	
-	//================================================================================
-	public static void
-	Assert(
-		tBool a
-	//================================================================================
-	) {
-		AssertEq(a, true);
-	}
-	
-	//================================================================================
-	public static void
-	Assert(
-		tBool a,
-		tText aMsg
-	//================================================================================
-	) {
-		if (!a) {
-			throw Error($"FAIL: {aMsg}");
-		}
-	}
-	
-	//================================================================================
-	public static void
-	AssertNot(
-		tBool a
-	//================================================================================
-	) {
-		AssertEq(a, false);
-	}
-	
-	//================================================================================
-	public static void
-	AssertEq<t>(
-		t a1,
-		t a2
-	//================================================================================
-	) {
-		if (
-			!ReferenceEquals(a1, a2) &&
-			!a1.IsNull() &&
-			!a1.Equals(a2)
-		) {
-			throw Error($"FAIL: {a1} != {a2}");
-		}
-	}
-	
-	//================================================================================
-	public static void
-	AssertNotEq<t>(
-		t a1,
-		t a2
-	//================================================================================
-	) {
-		if (a1.Equals(a2)) {
-			throw Error($"FAIL: {a1} == {a2}");
-		}
-	}
-	
-	//================================================================================
-	public static t
-	AssertNull<t>(
-		this t a
-	//================================================================================
-	) {
-		if (!a.IsNull()) {
-			throw Error($"FAIL: {a} != null");
-		}
-		return a;
-	}
-	
-	//================================================================================
-	public static t
-	AssertNotNull<t>(
-		this t a
-	//================================================================================
-	) {
-		if (a.IsNull()) {
-			throw Error("FAIL: is NULL");
-		}
-		return a;
-	}
 	
 	public struct tLazy<t> {
 		private t _Value;
@@ -359,34 +277,34 @@ public static class mStd {
 		mTest.Test(
 			"tMaybe.ToString()",
 			aStreamOut => {
-				AssertEq(((tMaybe<tInt32, tText>)OK(1)).ToString(), "1");
-				AssertEq(((tMaybe<tInt32, tText>)Fail("Bla")).ToString(), "FAIL: Bla");
+				mTest.AssertEq(((tMaybe<tInt32, tText>)OK(1)).ToString(), "1");
+				mTest.AssertEq(((tMaybe<tInt32, tText>)Fail("Bla")).ToString(), "FAIL: Bla");
 			}
 		),
 		mTest.Test(
 			"tMaybe.Equals()",
 			aStreamOut => {
-				AssertEq<tMaybe<tInt32, tText>>(OK(1), OK(1));
-				AssertEq<tMaybe<tText, tText>>(OK("1"), OK("1"));
-				AssertEq<tMaybe<tInt32, tText>>(Fail("Bla"), Fail("Bla"));
+				mTest.AssertEq<tMaybe<tInt32, tText>>(OK(1), OK(1));
+				mTest.AssertEq<tMaybe<tText, tText>>(OK("1"), OK("1"));
+				mTest.AssertEq<tMaybe<tInt32, tText>>(Fail("Bla"), Fail("Bla"));
 			}
 		),
 		mTest.Test(
 			"tVar.ToString()",
 			aStreamOut => {
-				AssertEq(Any(1).ToString(), "1");
-				AssertEq(Any("1").ToString(), "1");
+				mTest.AssertEq(Any(1).ToString(), "1");
+				mTest.AssertEq(Any("1").ToString(), "1");
 			}
 		),
 		mTest.Test(
 			"tVar.Equals()",
 			aStreamOut => {
-				AssertEq(Any(1), Any(1));
-				AssertEq(Any("1"), Any("1"));
-				AssertNotEq(Any(1), Any(2));
-				AssertNotEq(Any(1), Any(false));
-				AssertNotEq(Any("1"), Any("2"));
-				AssertNotEq(Any("1"), Any(1));
+				mTest.AssertEq(Any(1), Any(1));
+				mTest.AssertEq(Any("1"), Any("1"));
+				mTest.AssertNotEq(Any(1), Any(2));
+				mTest.AssertNotEq(Any(1), Any(false));
+				mTest.AssertNotEq(Any("1"), Any("2"));
+				mTest.AssertNotEq(Any("1"), Any(1));
 			}
 		)
 	);

@@ -61,7 +61,7 @@ public static class mIL_AST {
 		internal tText _2;
 		internal tText _3;
 		
-		override public tText ToString() => $"{{{_NodeType} {_1} {_2} {_3}}}";
+		override public tText ToString() => $"{_NodeType} {_1} {_2} {_3}";
 	}
 	
 	//================================================================================
@@ -181,12 +181,13 @@ public static class mIL_AST {
 		tCommandNodeType aNodeType
 	//================================================================================
 	) {
-		return (
-			aNode._NodeType == aNodeType &&
-			aNode._1 is null &&
-			aNode._2 is null &&
-			aNode._3 is null
-		);
+		if (aNode.Match(aNodeType, out var Id1, out var Id2, out var Id3)) {
+			mDebug.AssertNull(Id1);
+			mDebug.AssertNull(Id2);
+			mDebug.AssertNull(Id3);
+			return true;
+		}
+		return false;
 	}
 	
 	//================================================================================
@@ -197,15 +198,11 @@ public static class mIL_AST {
 		out tText aId
 	//================================================================================
 	) {
-		if (
-			aNode._NodeType == aNodeType &&
-			aNode._2 is null &&
-			aNode._3 is null
-		) {
-			aId = aNode._1;
+		if (aNode.Match(aNodeType, out aId, out var Id2, out var Id3)) {
+			mDebug.AssertNull(Id2);
+			mDebug.AssertNull(Id3);
 			return true;
 		}
-		aId = null;
 		return false;
 	}
 	
@@ -218,16 +215,10 @@ public static class mIL_AST {
 		out tText aId2
 	//================================================================================
 	) {
-		if (
-			aNode._NodeType == aNodeType &&
-			aNode._3 is null
-		) {
-			aId1 = aNode._1;
-			aId2 = aNode._2;
+		if (aNode.Match(aNodeType, out aId1, out aId2, out var Id3)) {
+			mDebug.AssertNull(Id3);
 			return true;
 		}
-		aId1 = null;
-		aId2 = null;
 		return false;
 	}
 	

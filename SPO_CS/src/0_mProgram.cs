@@ -30,10 +30,11 @@ public static class mProgram {
 		mArrayList.Test,
 		mParserGen.Test,
 		mTextParser.Test,
+		mVM.Test,
+		mVM_Type.Test,
+		mVM_Data.Test,
 		mIL_AST.Test,
 		mIL_Parser.Test,
-		mVM.Test,
-		mVM_Data.Test,
 		mIL_Interpreter.Test,
 		mSPO_AST.Test,
 		mSPO_Parser.Test,
@@ -51,17 +52,10 @@ public static class mProgram {
 		params tText[] aArgs
 	//================================================================================
 	) {
-		var Args = mList.List<tText>();
-		foreach (var Arg in aArgs) {
-			Args = mList.Concat(Args, mList.List(Arg));
-		}
 		if (
 			SelfTests(
-				Args,
-				aLine => {
-					System.Console.WriteLine(aLine);
-					System.Diagnostics.Debug.WriteLine(aLine);
-				}
+				mList.List(aArgs),
+				System.Console.WriteLine
 			) == mTest.tResult.Fail
 		) {
 			System.Environment.Exit(-1);

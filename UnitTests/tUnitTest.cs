@@ -1,3 +1,5 @@
+// This file only exist for the codecoverage tools (for example OpenCover / AxoCover)
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -14,203 +16,150 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tConsole = System.Console;
-using tDateTime = System.DateTime;
-using tFile = System.IO.File;
-using tStopWatch = System.Diagnostics.Stopwatch;
 
-using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
-using xTest = Xunit.FactAttribute;
+using xTest = Xunit.TheoryAttribute;
+using xArg = Xunit.InlineDataAttribute;
 
 [assembly: Xunit.CollectionBehavior(DisableTestParallelization = true)]
 
-// This file only exist for the codecoverage tools (for example OpenCover / AxoCover)
-
-internal static class mTestHelper {
+public static class tTests {
 	//================================================================================
 	internal static void
-	MagicRun(
-		mTest.tTest aTest,
-		[xCallerName] tText aFilter = ""
+	Run(
+		this mTest.tTest aTest,
+		tText aFilter
 	//================================================================================
 	) {
-		mStd.AssertEq(
-			aTest.Run(
-				a => {
-					tConsole.WriteLine();
-				},
-				mList.List(aFilter.Replace('_', '.'))
-			),
+		mTest.AssertEq(
+			aTest.Run(tConsole.WriteLine, mList.List(aFilter)),
 			mTest.tResult.OK
 		);
 	}
-}
-
-public sealed class test_All {
-	[xTest] public void All() => mStd.AssertEq(
-		mProgram.SelfTests(mList.List(""), System.Console.WriteLine),
-		mTest.tResult.OK
-	);
-}
-
-public sealed class test_1_1_mStd {
-	private static readonly mTest.tTest Tests = mStd.Test;
 	
-	[xTest] public void tMaybe_ToString() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tMaybe_Equals() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tVar_ToString() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tVar_Equals() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_1_1_mTest {
-}
-
-public sealed class test_1_2_mList {
-	private static readonly mTest.tTest Tests = mList.Test;
+	[xArg("")]
+	[xTest] public static void _0_All(tText a) {
+		mTest.AssertEq(
+			mProgram.SelfTests(mList.List(a), tConsole.WriteLine),
+			mTest.tResult.OK
+		);
+	}
 	
-	[xTest] public void tList_ToString() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tList_Equals() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Concat() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Map1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapWithIndex() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Reduce() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Join() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Take() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Skip() => mTestHelper.MagicRun(Tests);
-	[xTest] public void IsEmpty() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Any() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Every() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_1_3_mMap {
-	private static readonly mTest.tTest Tests = mMap.Test;
+	[xArg("tMaybe.ToString()")]
+	[xArg("tMaybe.Equals()")]
+	[xArg("tVar.ToString()")]
+	[xArg("tVar.Equals()")]
+	[xTest] public static void _1_1_Std(tText a) => mStd.Test.Run(a);
 	
-	[xTest] public void tMap_Get() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tMap_TryGet() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tMap_Remove() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_1_4_mMath {
-}
-
-public sealed class test_1_5_mArrayList {
-	private static readonly mTest.tTest Tests = mArrayList.Test;
+	[xArg("tList.ToString()")]
+	[xArg("tList.Equals()")]
+	[xArg("Concat()")]
+	[xArg("Map()")]
+	[xArg("MapWithIndex()")]
+	[xArg("Reduce()")]
+	[xArg("Join()")]
+	[xArg("Take()")]
+	[xArg("Skip()")]
+	[xArg("IsEmpty()")]
+	[xArg("Any()")]
+	[xArg("Every()")]
+	[xTest] public static void _1_2_List(tText a) => mList.Test.Run(a);
 	
-	[xTest] public void tArrayList_IsEmpty() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_Equals() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_ToArrayList() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_ToLasyList() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_Push() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_Pop() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_Get() => mTestHelper.MagicRun(Tests);
-	[xTest] public void tArrayList_Set() => mTestHelper.MagicRun(Tests);
-	[xTest] public void mArrayList_Concat() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_2_1_mParserGen {
-	private static readonly mTest.tTest Tests = mParserGen.Test;
+	[xArg("tMap.Get")]
+	[xArg("tMap.TryGet")]
+	[xArg("tMap.Remove")]
+	[xTest] public static void _1_3_Map(tText a) => mMap.Test.Run(a);
 	
-	[xTest] public void AtomParser() => mTestHelper.MagicRun(Tests);
-	[xTest] public void _Plus_() => mTestHelper.MagicRun(Tests, "...+...");
-	[xTest] public void _Minus_() => mTestHelper.MagicRun(Tests, "...-...");
-	[xTest] public void Minus_() => mTestHelper.MagicRun(Tests, "-...");
-	[xTest] public void NStar_() => mTestHelper.MagicRun(Tests, "n*...");
-	[xTest] public void MinusNStar() => mTestHelper.MagicRun(Tests, "-n*...");
-	[xTest] public void _StarN() => mTestHelper.MagicRun(Tests, "...*n");
-	[xTest] public void _Or_() => mTestHelper.MagicRun(Tests, "...|...");
-	[xTest] public void MinMax() => mTestHelper.MagicRun(Tests, "...[m, n]");
-	[xTest] public void Min() => mTestHelper.MagicRun(Tests, "...[n, null]");
-	[xTest] public void Modify() => mTestHelper.MagicRun(Tests, "....ModifyList(...=>...)");
-	[xTest] public void ModifyReduce() => mTestHelper.MagicRun(Tests, "....ModifyList(a => a.Reduce(...))");
-	[xTest] public void Not_() => mTestHelper.MagicRun(Tests, "~...");
-	[xTest] public void EvalMathExp() => mTestHelper.MagicRun(Tests, "Eval('MathExpr')");
-}
-
-public sealed class test_2_2_mTextParser {
-}
-
-public sealed class test_3_1_VM {
-	private static readonly mTest.tTest Tests = mVM.Test;
+	[xArg("tArrayList.IsEmpty(...)")]
+	[xArg("tArrayList.Equals(...)")]
+	[xArg("tArrayList.ToArrayList()")]
+	[xArg("tArrayList.ToLasyList()")]
+	[xArg("tArrayList.Push(...)")]
+	[xArg("tArrayList.Pop()")]
+	[xArg("tArrayList.Resize(...)")]
+	[xArg("tArrayList.Get(...)")]
+	[xArg("tArrayList.Set(...)")]
+	[xArg("mArrayList.Concat(...)")]
+	[xTest] public static void _1_5_ArrayList(tText a) => mArrayList.Test.Run(a);
 	
-	[xTest] public void ExternDef() => mTestHelper.MagicRun(Tests);
-	[xTest] public void InternDef() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_3_2_VM_Data {
-}
-
-public sealed class test_4_0_mIL_Type {
-	private static readonly mTest.tTest Tests = mVM_Type.Test;
+	[xArg("AtomParser")]
+	[xArg("...+...")]
+	[xArg("...-...")]
+	[xArg("-...")]
+	[xArg("n*...")]
+	[xArg("-n*...")]
+	[xArg("...*n")]
+	[xArg("...|...")]
+	[xArg("...[m, n]")]
+	[xArg("...[n, null]")]
+	[xArg("....ModifyList(...=>...)")]
+	[xArg("....ModifyList(a => a.Reduce(...))")]
+	[xArg("~...")]
+	[xArg("Eval('MathExpr')")]
+	[xTest] public static void _2_1_ParserGen(tText a) => mParserGen.Test.Run(a);
 	
-	[xTest] public void BoolBool() => mTestHelper.MagicRun(Tests);
-	[xTest] public void BoolInt() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_4_1_mIL_AST {
-}
-
-public sealed class test_4_2_mIL_Parser {
-	private static readonly mTest.tTest Tests = mIL_Parser.Test;
+	[xArg("TODO")]
+	[xTest] public static void _2_2_TextParser(tText a) => mTextParser.Test.Run(a);
 	
-	[xTest] public void SubParser() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Commands() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_4_3_mIL_Interpreter {
-	private static readonly mTest.tTest Tests = mIL_Interpreter.Test;
+	[xArg("ExternDef")]
+	[xArg("InternDef")]
+	[xTest] public static void _3_1_VM(tText a) => mVM.Test.Run(a);
 	
-	[xTest] public void Call() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Prefix() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Assert() => mTestHelper.MagicRun(Tests);
-	[xTest] public void ParseModule() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_5_1_mSPO_AST {
-}
-
-public sealed class test_5_2_mSPO_Parser {
-	private static readonly mTest.tTest Tests = mSPO_Parser.Test;
+	[xArg("BoolBool")]
+	[xArg("BoolInt")]
+	[xTest] public static void _3_2_VM_Type(tText a) => mVM_Type.Test.Run(a);
 	
-	[xTest] public void Atoms() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Tuple() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Match() => mTestHelper.MagicRun(Tests);
-	[xTest] public void FunctionCall() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Lambda() => mTestHelper.MagicRun(Tests);
-	[xTest] public void NestedMatch() => mTestHelper.MagicRun(Tests);
-	[xTest] public void PrefixMatch() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MethodCall() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_5_3_mSPO2IL {
-	private static readonly mTest.tTest Tests = mSPO2IL.Test;
+	[xArg("TODO: ExternDef")]
+	[xTest] public static void _3_3_VM_Data(tText a) => mVM_Data.Test.Run(a);
 	
-	[xTest] public void MapExpresion() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapDef1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapDefMatch() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MatchTuple() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapMatchPrefix() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapLambda1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapLambda2() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapNestedMatch() => mTestHelper.MagicRun(Tests);
-	[xTest] public void MapModule() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_5_4_mSPO_Interpreter {
-	private static readonly mTest.tTest Tests = mSPO_Interpreter.Test;
+	[xArg("TODO")]
+	[xTest] public static void _4_1_IL_AST(tText a) => mIL_AST.Test.Run(a);
 	
-	[xTest] public void Run1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Run2() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Run3() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Run4() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Run5() => mTestHelper.MagicRun(Tests);
-}
-
-public sealed class test_6_mStdLib {
-	private static readonly mTest.tTest Tests = mStdLib.Test;
+	[xArg("SubParser")]
+	[xArg("Commands")]
+	[xTest] public static void _4_2_IL_Parser(tText a) => mIL_Parser.Test.Run(a);
 	
-	[xTest] public void IfThenElse() => mTestHelper.MagicRun(Tests);
-	[xTest] public void If2() => mTestHelper.MagicRun(Tests);
-	[xTest] public void IfMatch1() => mTestHelper.MagicRun(Tests);
-	[xTest] public void IfMatch2() => mTestHelper.MagicRun(Tests);
-	[xTest] public void VAR() => mTestHelper.MagicRun(Tests);
-	[xTest] public void Echo() => mTestHelper.MagicRun(Tests);
+	[xArg("Call")]
+	[xArg("Prefix")]
+	[xArg("Assert")]
+	[xArg("ParseModule")]
+	[xTest] public static void _4_3_IL_Interpreter(tText a) => mIL_Interpreter.Test.Run(a);
+	
+	[xArg("TODO")]
+	[xTest] public static void _5_1_SPO_AST(tText a) => mSPO_AST.Test.Run(a);
+	
+	[xArg("Atoms")]
+	[xArg("Tuple")]
+	[xArg("Match")]
+	[xArg("FunctionCall")]
+	[xArg("Lambda")]
+	[xArg("NestedMatch")]
+	[xArg("PrefixMatch")]
+	[xArg("MethodCall")]
+	[xTest] public static void _5_2_SPO_Parser(tText a) => mSPO_Parser.Test.Run(a);
+	
+	[xArg("MapExpresion")]
+	[xArg("MapDef1")]
+	[xArg("MapDefMatch")]
+	[xArg("MatchTuple")]
+	[xArg("MapMatchPrefix")]
+	[xArg("MapLambda1")]
+	[xArg("MapLambda2")]
+	[xArg("MapNestedMatch")]
+	[xArg("MapModule")]
+	[xTest] public static void _5_3_SPO2IL(tText a) => mSPO2IL.Test.Run(a);
+	
+	[xArg("Run1")]
+	[xArg("Run2")]
+	[xArg("Run3")]
+	[xArg("Run4")]
+	[xArg("Run5")]
+	[xTest] public static void _5_4_SPO_Interpreter(tText a) => mSPO_Interpreter.Test.Run(a);
+	
+	[xArg("IfThenElse")]
+	[xArg("If2")]
+	[xArg("IfMatch1")]
+	[xArg("IfMatch2")]
+	[xArg("VAR")]
+	[xArg("Echo")]
+	[xTest] public static void _6_StdLib(tText a) => mStdLib.Test.Run(a);
 }

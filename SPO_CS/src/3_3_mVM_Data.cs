@@ -25,7 +25,8 @@ public static class mVM_Data {
 		ExternProc,
 		Def,
 		ExternDef,
-		Var
+		Var,
+		Type
 	}
 	
 	public sealed class tData {
@@ -168,7 +169,7 @@ public static class mVM_Data {
 		tData aFirst,
 		tData aSecond
 	//================================================================================
-	) => Data(tDataType.Pair, aFirst._IsMutable | aSecond._IsMutable, aFirst, aSecond);
+	) => Data(tDataType.Pair, aFirst._IsMutable || aSecond._IsMutable, aFirst, aSecond);
 	
 	//================================================================================
 	public static tBool
@@ -236,7 +237,7 @@ public static class mVM_Data {
 		tData aEnv
 	//================================================================================
 	) {
-		mStd.AssertNot(aEnv._IsMutable);
+		mDebug.AssertNot(aEnv._IsMutable);
 		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
@@ -257,7 +258,7 @@ public static class mVM_Data {
 		tData aEnv
 	//================================================================================
 	) {
-		mStd.AssertNot(aEnv._IsMutable);
+		mDebug.AssertNot(aEnv._IsMutable);
 		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
 	}
 	
@@ -315,13 +316,45 @@ public static class mVM_Data {
 	//================================================================================
 	) => aData.Match(tDataType.ExternDef, out a);
 	
+	//================================================================================
+	public static tData
+	TypeType(
+	//================================================================================
+	) => Data(tDataType.Type, false, mVM_Type.Type());
+	
+	//================================================================================
+	public static tData
+	TypeEmpty(
+	//================================================================================
+	) => Data(tDataType.Type, false, mVM_Type.Empty());
+	
+	//================================================================================
+	public static tData
+	TypeBool(
+	//================================================================================
+	) => Data(tDataType.Type, false, mVM_Type.Bool());
+	
+	//================================================================================
+	public static tData
+	TypeInt(
+	//================================================================================
+	) => Data(tDataType.Type, false, mVM_Type.Int());
+	
+	//================================================================================
+	public static tData
+	TypePair(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	//================================================================================
+	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
+	
 	#region TEST
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mVM_Data),
 		mTest.Test(
-			"ExternDef",
+			"TODO: ExternDef",
 			aDebugStream => {
 				// TODO: Tests
 			}

@@ -187,7 +187,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) {
-		mStd.Assert(false); // TODO
+		mDebug.Assert(false); // TODO
 		return new tType {
 			Type = tTypeType.Cond,
 			Refs = new [] { aType },
@@ -247,11 +247,11 @@ public static class mVM_Type {
 		
 		#else
 		
-		mStd.AssertEq(a1.Type, a2.Type);
-		mStd.AssertEq(a1.Id, a2.Id);
-		mStd.AssertEq(a1.Prefix, a2.Prefix);
+		mDebug.AssertEq(a1.Type, a2.Type);
+		mDebug.AssertEq(a1.Id, a2.Id);
+		mDebug.AssertEq(a1.Prefix, a2.Prefix);
 		var RefCount = a1.Refs.Length;
-		mStd.AssertEq(a2.Refs.Length, RefCount);
+		mDebug.AssertEq(a2.Refs.Length, RefCount);
 		while (RefCount --> 0) {
 			Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace);
 		}
@@ -273,12 +273,7 @@ public static class mVM_Type {
 		mTest.Test(
 			"BoolInt",
 			aDebugStream => {
-				try {
-					Unify(Bool(), Int(), aDebugStream);
-				} catch {
-					return;
-				}
-				mStd.Assert(false);
+				mTest.AssertError(() => Unify(Bool(), Int(), aDebugStream));
 			}
 		)
 	);

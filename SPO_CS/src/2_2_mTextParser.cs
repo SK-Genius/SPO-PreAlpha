@@ -71,41 +71,37 @@ public static class mTextParser {
 	) {
 		var Stream = TextToStream(aText);
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		if (!MaybeResult.Match(out var Result, out var ErrorList)) {
-			mStd.Assert(
-				false,
-				ErrorList.Map(
-					aError => {
-						var Line = aText.Split('\n')[aError.Pos.Row-1];
-						var MarkerLine = TextToStream(
-							Line
-						).Take(
-							aError.Pos.Col - 1
-						).Map(
-							aSymbol => aSymbol.Char == '\t' ? '\t' : ' '
-						).Reduce(
-							"",
-							(aString, aChar) => aString + aChar
-						);
-						return (
-							$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
-							$"{Line}\n" +
-							$"{MarkerLine}^\n"
-						);
-					}
-				).Reduce("", (a1, a2) => a1 + "\n" + a2)
-			);
-		}
+		mDebug.Assert(
+			MaybeResult.Match(out var Result, out var ErrorList),
+			ErrorList.Map(
+				aError => {
+					var Line = aText.Split('\n')[aError.Pos.Row-1];
+					var MarkerLine = TextToStream(
+						Line
+					).Take(
+						aError.Pos.Col - 1
+					).Map(
+						aSymbol => aSymbol.Char == '\t' ? '\t' : ' '
+					).Reduce(
+						"",
+						(aString, aChar) => aString + aChar
+					);
+					return (
+						$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
+						$"{Line}\n" +
+						$"{MarkerLine}^\n"
+					);
+				}
+			).Reduce("", (a1, a2) => a1 + "\n" + a2)
+		);
+		
 		var (ResultList, Rest) = Result;
-		if (Rest != mList.List<tPosChar>()) {
-			var Line = Rest._Head.Pos.Row;
-			mStd.Assert(
-				false,
-				(
-					$"({Line}, 1): expected end of text\n" +
-					$"{aText.Split('\n')[Line-1]}\n" +
-					$"^"
-				)
+		if (!Rest.IsEmpty()) {
+			var Line = Rest.First().Pos.Row;
+			throw mStd.Error(
+				$"({Line}, 1): expected end of text\n" +
+				$"{aText.Split('\n')[Line-1]}\n" +
+				$"^"
 			);
 		}
 		return ResultList;

@@ -27,7 +27,7 @@ public static class mIL_Interpreter {
 	) {
 		var ParserResult = mIL_Parser.Module.ParseText(aSourceCode, aDebugStream);
 		
-		mStd.Assert(
+		mDebug.Assert(
 			ParserResult.Match(
 				out mList.tList<(tText, mList.tList<mIL_AST.tCommandNode>)> Defs
 			)
@@ -277,14 +277,16 @@ public static class mIL_Interpreter {
 			}
 		}
 		
+		#if !true
 		{
 			var Rest = ModuleMap._KeyValuePairs;
 			var Module_ = Module.ToArrayList();
 			while (Rest.Match(out var KeyValue, out Rest)) {
 				var (Name, Index) = KeyValue;
-				//aTrace($@"{Name} @ {Module_.Get(Index)._DefType}");
+				aTrace($@"{Name} @ {Module_.Get(Index)._DefType}");
 			}
 		}
+		#endif
 		
 		return (Module, ModuleMap);
 	}
@@ -370,9 +372,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mTest.Assert(Arg1.MatchInt(out var IntArg1));
+		mTest.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
@@ -385,9 +387,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mTest.Assert(Arg1.MatchInt(out var IntArg1));
+		mTest.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
@@ -400,9 +402,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mTest.Assert(Arg1.MatchInt(out var IntArg1));
+		mTest.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -415,9 +417,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mTest.Assert(Arg1.MatchInt(out var IntArg1));
+		mTest.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Bool(IntArg1.Equals(IntArg2));
 	}
 	
@@ -443,7 +445,7 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
+				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
 				var Res = mVM_Data.Empty();
 				mVM.Run(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -452,7 +454,7 @@ public static class mIL_Interpreter {
 					Res,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mVM_Data.Int(6));
+				mTest.AssertEq(Res, mVM_Data.Int(6));
 			}
 		),
 		mTest.Test(
@@ -479,7 +481,7 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
+				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
 				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
 				mVM.Run(
@@ -489,7 +491,7 @@ public static class mIL_Interpreter {
 					Res,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
+				mTest.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
 			}
 		),
 		mTest.Test(
@@ -506,7 +508,7 @@ public static class mIL_Interpreter {
 					aDebugStream
 				);
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++"))._Head;
+				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
 				var Env = mVM_Data.ExternDef(Eq);
 				var Res = mVM_Data.Empty();
 				
@@ -530,22 +532,19 @@ public static class mIL_Interpreter {
 				while (CallStack != null) {
 					CallStack = CallStack.Step();
 				}
-				mStd.AssertEq(Res, mVM_Data.Bool(true));
-				
-				var HasThrowException = false;
-				try {
-					Res = mVM_Data.Empty();
-					mVM.Run(
-						mVM_Data.Proc(Proc, Env),
-						mVM_Data.Empty(),
-						mVM_Data.Int(2),
-						Res,
-						TraceOut
-					);
-				} catch {
-					HasThrowException = true;
-				}
-				mStd.Assert(HasThrowException);
+				mTest.AssertEq(Res, mVM_Data.Bool(true));
+				mTest.AssertError(
+					() => {
+						Res = mVM_Data.Empty();
+						mVM.Run(
+							mVM_Data.Proc(Proc, Env),
+							mVM_Data.Empty(),
+							mVM_Data.Int(2),
+							Res,
+							TraceOut
+						);
+					}
+				);
 			}
 		),
 		mTest.Test(
@@ -627,17 +626,17 @@ public static class mIL_Interpreter {
 					"	rest4 := §2ND rest3\n" +
 					"	...!!_ := §1ST rest4\n" +
 					"	...!! := . ...!!_ ENV\n" +
-						
+					
 					"	arg_1 := ARG, _1\n" +
 					"	res   := . ...!! arg_1\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
 				
-				var Proc1 = Module.Skip(ModuleMap.Get("bla"))._Head;
-				var Proc2 = Module.Skip(ModuleMap.Get("bla2"))._Head;
-				var Proc3 = Module.Skip(ModuleMap.Get("...!!"))._Head;
-				var Proc4 = Module.Skip(ModuleMap.Get("...!"))._Head;
+				var Proc1 = Module.Skip(ModuleMap.Get("bla")).First();
+				var Proc2 = Module.Skip(ModuleMap.Get("bla2")).First();
+				var Proc3 = Module.Skip(ModuleMap.Get("...!!")).First();
+				var Proc4 = Module.Skip(ModuleMap.Get("...!")).First();
 				
 				var Env = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),
@@ -662,7 +661,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(2));
+					mTest.AssertEq(Res, mVM_Data.Int(2));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -673,7 +672,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(12));
+					mTest.AssertEq(Res, mVM_Data.Int(12));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -684,7 +683,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(6));
+					mTest.AssertEq(Res, mVM_Data.Int(6));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -695,7 +694,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(6));
+					mTest.AssertEq(Res, mVM_Data.Int(6));
 				}
 			}
 		)

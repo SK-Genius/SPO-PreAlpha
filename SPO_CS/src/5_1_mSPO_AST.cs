@@ -35,19 +35,19 @@ public static class mSPO_AST {
 	public struct tTextNode : tLiteralNode {
 		public tText Value;
 		
-		override public tText ToString() => $"('{Value}')";
+		override public tText ToString() => $"'{Value}'";
 	}
 	
 	public struct tNumberNode : tLiteralNode {
 		public tInt32 Value;
 		
-		override public tText ToString() => $"({Value})";
+		override public tText ToString() => $"{Value}";
 	}
 	
 	public struct tIdentNode : tExpressionNode, tMatchItemNode {
 		public tText Name;
 		
-		override public tText ToString() => $"(Ident: {Name})";
+		override public tText ToString() => $"{Name}";
 	}
 	
 	public struct tMatchTupleNode : tMatchItemNode {
@@ -102,34 +102,34 @@ public static class mSPO_AST {
 	public struct tBlockNode : tExpressionNode {
 		public mList.tList<tCommandNode> Commands;
 		
-		override public tText ToString() => $"{{{Commands}}}";
+		override public tText ToString() => $"{{ \n{Commands} \n}}";
 	}
 	
 	public struct tCallNode : tExpressionNode {
 		public tExpressionNode Func;
 		public tExpressionNode Arg;
 		
-		override public tText ToString() => $"(Call: {Func}, {Arg})";
+		override public tText ToString() => $"(.{Func} {Arg})";
 	}
 	
 	public struct tDefNode : tCommandNode {
 		public tMatchNode Des;
 		public tExpressionNode Src;
 		
-		override public tText ToString() => $"({Des} := {Src})";
+		override public tText ToString() => $"{Des} := {Src}";
 	}
 	
 	public struct tRecLambdaItemNode {
 		public tIdentNode Ident;
 		public tLambdaNode Lambda;
 		
-		override public tText ToString() => $"({Ident} := {Lambda})";
+		override public tText ToString() => $"{Ident} := {Lambda}";
 	}
 	
 	public struct tRecLambdasNode : tCommandNode {
 		public mList.tList<tRecLambdaItemNode> List;
 		
-		override public tText ToString() => $"§REC {{{List}}}";
+		override public tText ToString() => $"§REC {{ \n{List} \n}}";
 	}
 	
 	public struct tReturnIfNode : tCommandNode {
@@ -163,7 +163,7 @@ public static class mSPO_AST {
 	public struct tVarToValNode : tExpressionNode {
 		public tExpressionNode Obj;
 		
-		override public tText ToString() => $"{Obj}:=>";
+		override public tText ToString() => $"({Obj} :=>)";
 	}
 	
 	public struct tMethodCallNode {
@@ -178,7 +178,7 @@ public static class mSPO_AST {
 		public tExpressionNode Object;
 		public mList.tList<tMethodCallNode> MethodCalls;
 		
-		override public tText ToString() => $"{Object} : {MethodCalls}";
+		override public tText ToString() => $"{Object}: \n{MethodCalls} \n.";
 	}
 	
 	public struct tTupleNode : tExpressionNode {
@@ -190,13 +190,13 @@ public static class mSPO_AST {
 	public struct tImportNode {
 		public tMatchNode Match;
 		
-		override public tText ToString() => $" §IMPORT {Match}";
+		override public tText ToString() => $"§IMPORT {Match}";
 	}
 	
 	public struct tExportNode {
 		public tExpressionNode Expression;
 		
-		override public tText ToString() => $" §EXPORT {Expression}";
+		override public tText ToString() => $"§EXPORT {Expression}";
 	}
 	
 	public struct tModuleNode {
@@ -204,11 +204,7 @@ public static class mSPO_AST {
 		public tExportNode Export;
 		public mList.tList<tCommandNode> Commands;
 		
-		override public tText ToString() => Commands.Map(
-			a => a.ToString()
-		).Join(
-			(a1, a2) => $"{a1}\n{a2}"
-		) + "\n";
+		override public tText ToString() => $"{Import} \n\n{Commands} \n\n{Export}";
 	}
 	
 	//================================================================================
@@ -267,7 +263,7 @@ public static class mSPO_AST {
 				return Empty();
 			}
 			case 1: {
-				mStd.Assert(aItems.Match(out var Head, out var _));
+				mDebug.Assert(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
@@ -377,7 +373,7 @@ public static class mSPO_AST {
 				throw mStd.Error("impossible");
 			}
 			case 1: {
-				mStd.Assert(aItems.Match(out var Head, out var _));
+				mDebug.Assert(aItems.Match(out var Head, out var _));
 				return Head.Pattern;
 			}
 			default: {
