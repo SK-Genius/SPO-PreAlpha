@@ -50,10 +50,11 @@ public static class mParserGen {
 		this tParser<t, tError> aParser,
 		mStd.tFunc<tBool, t1> aIsValid
 	//================================================================================
-	) => new tParser<t, tError>{
-		_ParseFunc = (aStream, aDebugStream) => {
+	) {
+		var Parser = new tParser<t, tError>();
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
-				aParser._ParseFunc(aStream, aDebugStream)
+				aParser._ParseFunc(aStream, aDebugStream, mList.List(Parser, aPath))
 				.Match(
 					out var ResultList_,
 					out var RestStream,
@@ -69,8 +70,9 @@ public static class mParserGen {
 			} else {
 				return mStd.Fail(ErrorList);
 			}
-		}
-	};
+		};
+		return Parser;
+	}
 	
 	//================================================================================
 	public static tParser<t, tError>
@@ -356,7 +358,8 @@ public static class mParserGen {
 		internal mStd.tFunc<
 			mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>>,
 			mList.tList<t>,
-			mStd.tAction<tText>
+			mStd.tAction<tText>,
+			mList.tList<tParser<t, tError>>
 		> _ParseFunc;
 		
 		internal mStd.tFunc<mList.tList<tError>, mList.tList<tError>, t> _ModifyErrorsFunc;
@@ -426,16 +429,17 @@ public static class mParserGen {
 			tParser<t, tError> aP1,
 			tParser<t, tError> aP2
 		//================================================================================
-		) => new tParser<t, tError> {
-			_ParseFunc = (aStream, aDebugStream) => {
+		) {
+			var Parser = new tParser<t, tError>();
+			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 				if (
-					aP1.Parse(aStream, aDebugStream)
+					aP1.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
 					.Match(
 						out var Result1,
 						out var TempStream,
 						out var ErrorList
 					) &&
-					aP2.Parse(TempStream, aDebugStream)
+					aP2.Parse(TempStream, aDebugStream, ReferenceEquals(aStream, TempStream) ? mList.List(Parser, aPath) : null)
 					.Match(
 						out var Result2,
 						out TempStream,
@@ -446,9 +450,9 @@ public static class mParserGen {
 				} else {
 					return mStd.Fail(ErrorList);
 				}
-			}
+			};
+			return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")");
 		}
-		.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")");
 		
 		//================================================================================
 		public static tParser<t, tError>
@@ -503,16 +507,17 @@ public static class mParserGen {
 			tParser<t, tError> aP1,
 			tParser<t, tError> aP2
 		//================================================================================
-		) => new tParser<t, tError> {
-			_ParseFunc = (aStream, aDebugStream) => {
+		) {
+			var Parser = new tParser<t, tError>();
+			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 				if (
-					aP1.Parse(aStream, aDebugStream)
+					aP1.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
 					.Match(
 						out var Result,
 						out var TempStream,
 						out var ErrorList1
 					) ||
-					aP2.Parse(aStream, aDebugStream)
+					aP2.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
 					.Match(
 						out Result,
 						out TempStream,
@@ -523,9 +528,9 @@ public static class mParserGen {
 				} else {
 					return mStd.Fail(mList.Concat(ErrorList1, ErrorList2));
 				}
-			}
+			};
+			return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")");
 		}
-		.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")");
 		
 		//================================================================================
 		public tParser<t, tError>
@@ -537,48 +542,46 @@ public static class mParserGen {
 			get {
 				if (aMin == 0) {
 					if (aMax is null) {
-						return new tParser<t, tError> {
-							_ParseFunc = (aStream, aDebugStream) => {
-								var Result = ResultList();
-								var RestStream = aStream;
-								while (
-									this.Parse(aStream, aDebugStream)
-									.Match(
-										out var TempResult,
-										out aStream,
-										out var _
-									)
-								) {
-									Result = Concat(Result, TempResult);
-									RestStream = aStream;
-								}
-								return OK(Result, RestStream);
+						var Parser = new tParser<t, tError>();
+						Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
+							var Result = ResultList();
+							var RestStream = aStream;
+							while (
+								this.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
+								.Match(
+									out var TempResult,
+									out aStream,
+									out var _
+								)
+							) {
+								Result = Concat(Result, TempResult);
+								RestStream = aStream;
 							}
-						}
-						.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
+							return OK(Result, RestStream);
+						};
+						return Parser.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 					} else {
-						return new tParser<t, tError> {
-							_ParseFunc = (aStream, aDebugStream) => {
-								var Result = ResultList();
-								var RestStream = aStream;
-								var Max = aMax.Value;
-								while (
-									Max != 0 &&
-									this.Parse(aStream, aDebugStream)
-									.Match(
-										out var TempResult,
-										out aStream,
-										out var _
-									)
-								) {
-									Result = Concat(Result, TempResult);
-									RestStream = aStream;
-									Max -= 1;
-								}
-								return OK(Result, RestStream);
+						var Parser = new tParser<t, tError>();
+						Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
+							var Result = ResultList();
+							var RestStream = aStream;
+							var Max = aMax.Value;
+							while (
+								Max != 0 &&
+								this.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
+								.Match(
+									out var TempResult,
+									out aStream,
+									out var _
+								)
+							) {
+								Result = Concat(Result, TempResult);
+								RestStream = aStream;
+								Max -= 1;
 							}
-						}
-						.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
+							return OK(Result, RestStream);
+						};
+						return Parser.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
 					}
 				}
 				if (aMax is null) {
@@ -598,15 +601,17 @@ public static class mParserGen {
 		operator ~(
 			tParser<t, tError> aParser
 		//================================================================================
-		) => new tParser<t, tError> {
-			_ParseFunc = (aStream, aDebugStream) => {
+		) {
+			var Parser = new tParser<t, tError>();
+			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 				var Result = ResultList();
 				var RestStream = aStream;
 				while (true) {
 					if (
 						aParser.Parse(
 							RestStream,
-							aDebugStream
+							aDebugStream,
+							mList.List(Parser, aPath)
 						).Match(
 							out var TempResult,
 							out var NewRestStream,
@@ -623,9 +628,9 @@ public static class mParserGen {
 					Result = Concat(Result, ResultList(Head));
 				}
 				return OK(Result, RestStream);
-			}
+			};
+			return Parser.SetDebugDef("~(", aParser.DebugName??aParser.DebugDef, ")");
 		}
-		.SetDebugDef("~(", aParser.DebugName??aParser.DebugDef, ")");
 	}
 	
 	//================================================================================
@@ -633,18 +638,20 @@ public static class mParserGen {
 	OrFail<t, tError>(
 		this tParser<t, tError> aParser
 	//================================================================================
-	) => new tParser<t, tError> {
-		_ParseFunc = (aStream, aDebugStream) => {
+	) {
+		var Parser = new tParser<t, tError>();
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
-				aParser.Parse(aStream, aDebugStream)
+				aParser.Parse(aStream, aDebugStream, mList.List(Parser, aPath))
 				.Match(out var Result, out var TempStream, out var ErrorList)
 			) {
 				return OK(Result, TempStream);
 			} else {
 				throw mStd.Error(ErrorList);
 			}
-		}
-	};
+		};
+		return Parser;
+	}
 	
 	//================================================================================
 	public static tParser<t, tError>
@@ -680,7 +687,8 @@ public static class mParserGen {
 					if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
 					aDebugStream(new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
 					if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
-				}
+				},
+				mList.List<tParser<t, tError>>()
 			);
 		} catch (mStd.tError<mList.tList<tError>> e) {
 			return mStd.Fail(e.Value);
@@ -692,9 +700,17 @@ public static class mParserGen {
 	Parse<t, tError>(
 		this tParser<t, tError> aParser,
 		mList.tList<t> aStream,
-		mStd.tAction<tText> aDebugStream
+		mStd.tAction<tText> aDebugStream,
+		mList.tList<tParser<t, tError>> aInfinitLoopDetectionSet
 	//================================================================================
 	) {
+		if (!aInfinitLoopDetectionSet.Where(_ => ReferenceEquals(_, aParser)).IsEmpty()) {
+			#if TRACE
+				aDebugStream($"!!! INFINIT LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
+			#endif
+			return mStd.Fail(mList.List<tError>());
+		}
+		
 		#if TRACE
 			if (aParser._DebugName != null) {
 				aDebugStream(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
@@ -707,7 +723,7 @@ public static class mParserGen {
 		mStd.tMaybe<(tResultList, mList.tList<t>), mList.tList<tError>> Result;
 		var Head = aStream is null ? default : aStream.First();
 		try {
-			Result = aParser._ParseFunc(aStream, aDebugStream);
+			Result = aParser._ParseFunc(aStream, aDebugStream, aInfinitLoopDetectionSet);
 		} catch (mStd.tError<mList.tList<tError>> e) {
 			throw mStd.Error(
 				aParser._ModifyErrorsFunc?.Invoke(e.Value, Head) ?? e.Value
@@ -735,10 +751,11 @@ public static class mParserGen {
 		this tParser<t, tError> aParser,
 		mStd.tFunc<tResultList, tResultList> aModifyFunc
 	//================================================================================
-	) => new tParser<t, tError>{
-		_ParseFunc = (aStream, aDebugStream) => {
+	) {
+		var Parser = new tParser<t, tError>();
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
-				aParser._ParseFunc(aStream, aDebugStream)
+				aParser._ParseFunc(aStream, aDebugStream, mList.List(Parser, aPath))
 				.Match(
 					out var ResultList_,
 					out var RestStream,
@@ -749,9 +766,9 @@ public static class mParserGen {
 			} else {
 				return mStd.Fail(ErrorList);
 			}
-		}
+		};
+		return Parser.SetDebugDef("{", aParser?.DebugName ?? aParser.DebugDef, "}");
 	}
-	.SetDebugDef("{", aParser?.DebugName ?? aParser.DebugDef, "}");
 	
 	//================================================================================
 	public static tParser<t, tError>
@@ -780,7 +797,7 @@ public static class mParserGen {
 		mStd.tFunc<tError, t> aCreateErrorFunc
 	//================================================================================
 	) => new tParser<t, tError>{
-		_ParseFunc = (aStream, aDebugStream) => {
+		_ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (aStream.Match(out var Head, out var Tail) && aTest(Head)) {
 				return OK(ResultList(Head), Tail);
 			} else {
@@ -795,7 +812,7 @@ public static class mParserGen {
 	EmptyParser<t, tError>(
 	//================================================================================
 	) => new tParser<t, tError>{
-		_ParseFunc = (aStream, aDebugStream) => OK(ResultList(), aStream)
+		_ParseFunc = (aStream, aDebugStream, aPath) => OK(ResultList(), aStream)
 	};
 	
 	#region Test
@@ -826,7 +843,7 @@ public static class mParserGen {
 				mTest.AssertEq(Result, ResultList('A', 'B'));
 				mTest.AssertEq(RestStream, mList.List('_'));
 				
-				mTest.AssertNot(AB.Parse (mList.List<tChar>(), aDebugStream).Match(out Result, out RestStream, out ErrorList));
+				mTest.AssertNot(AB.Parse(mList.List<tChar>(), aDebugStream, null).Match(out Result, out RestStream, out ErrorList));
 				mTest.AssertNot(AB.StartParse(mList.List('_'), aDebugStream).Match(out Result, out RestStream, out ErrorList));
 				mTest.AssertNot(AB.StartParse(mList.List('A', '_'), aDebugStream).Match(out Result, out RestStream, out ErrorList));
 			}

@@ -61,6 +61,29 @@ public static class mVM_Type {
 			(tTypeType.Set, _ => $@"[{Refs[0]} | {Refs[1]}]"),
 			(tTypeType.Cond, _ => $@"[{Refs[0]} & ...]")
 		);
+		
+		public override bool Equals(
+			object a
+		) {
+			var Other = (tType)a;
+			
+			if (
+				this.Type != Other.Type ||
+				this.Id != Other.Id ||
+				this.Prefix != Other.Prefix ||
+				this.Refs.Length != Other.Refs.Length
+			) {
+				return false;
+			}
+			
+			for (var I = this.Refs.Length; I --> 0;) {
+				if (!this.Refs[I].Equals(Other.Refs[I])) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
 	}
 	
 	public static readonly tText cUnknownPrefix = null; // TODO
@@ -104,6 +127,26 @@ public static class mVM_Type {
 	Type(
 	//================================================================================
 	) => new tType { Type = tTypeType.Type };
+	
+	//================================================================================
+	public static tType
+	Type(
+		tType aType
+	//================================================================================
+	) => new tType {
+		Type = tTypeType.Type,
+		Refs = new []{ aType }
+	};
+	
+	//================================================================================
+	public static tType
+	Value(
+		this tType aType
+	//================================================================================
+	) {
+		mDebug.AssertEq(aType.Type, tTypeType.Type);
+		return aType.Refs[0];
+	}
 	
 	//================================================================================
 	public static tType

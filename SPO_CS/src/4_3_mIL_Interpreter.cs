@@ -87,6 +87,9 @@ public static class mIL_Interpreter {
 			.Set(mIL_AST.cOne, mVM.tProcDef.cOneReg)
 			.Set(mIL_AST.cFalse, mVM.tProcDef.cFalseReg)
 			.Set(mIL_AST.cTrue, mVM.tProcDef.cTrueReg)
+			.Set(mIL_AST.cEmptyType, mVM.tProcDef.cEmptyTypeReg)
+			.Set(mIL_AST.cBoolType, mVM.tProcDef.cBoolTypeReg)
+			.Set(mIL_AST.cIntType, mVM.tProcDef.cIntTypeReg)
 			.Set(mIL_AST.cEnv, mVM.tProcDef.cEnvReg)
 			.Set(mIL_AST.cObj, mVM.tProcDef.cObjReg)
 			.Set(mIL_AST.cArg, mVM.tProcDef.cArgReg)
@@ -98,6 +101,10 @@ public static class mIL_Interpreter {
 			.Push(mVM_Type.Int())
 			.Push(mVM_Type.Bool())
 			.Push(mVM_Type.Bool())
+			.Push(mVM_Type.Type(mVM_Type.Empty()))
+			.Push(mVM_Type.Type(mVM_Type.Bool()))
+			.Push(mVM_Type.Type(mVM_Type.Int()))
+			.Push(mVM_Type.Type(mVM_Type.Type()))
 			.Push(DefEnvType)
 			.Push(DefObjType)
 			.Push(DefArgType)
@@ -271,8 +278,83 @@ public static class mIL_Interpreter {
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Pop)) {
 					CurrObj = ObjStack.Pop();
 					NewProc.SetObj(CurrObj);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeCond, out RegId1, out RegId2, out RegId3)) {
+					throw mStd.Error("TODO");
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeFunc, out RegId1, out RegId2, out RegId3)) {
+					var ArgTypeReg = Regs.Get(RegId2);
+					var ResTypeReg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypeFunc(ArgTypeReg, ResTypeReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								Types.Get(ArgTypeReg).Value(),
+								Types.Get(ResTypeReg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeMethod, out RegId1, out RegId2, out RegId3)) {
+					var ObjTypeReg = Regs.Get(RegId2);
+					var FuncTypeReg = Regs.Get(RegId3);
+					var ArgType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Unknown();
+					Regs = Regs.Set(RegId1, NewProc.TypeMeth(ObjTypeReg, FuncTypeReg));
+					mVM_Type.Unify(
+						Types.Get(FuncTypeReg),
+						mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType),
+						aTrace
+					);
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Proc(
+								Types.Get(ObjTypeReg).Value(),
+								ArgType,
+								ResType
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypePair, out RegId1, out RegId2, out RegId3)) {
+					var Type1Reg = Regs.Get(RegId2);
+					var Type2Reg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypePair(Type1Reg, Type2Reg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Pair(
+								Types.Get(Type1Reg).Value(),
+								Types.Get(Type2Reg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypePrefix, out RegId1, out RegId2, out RegId3)) {
+					throw mStd.Error("TODO");
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeSet, out RegId1, out RegId2, out RegId3)) {
+					var Type1Reg = Regs.Get(RegId2);
+					var Type2Reg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypePair(Type1Reg, Type2Reg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Set(
+								Types.Get(Type1Reg).Value(),
+								Types.Get(Type2Reg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeVar, out RegId1, out RegId2)) {
+					var TypeReg = Regs.Get(RegId2);
+					Regs = Regs.Set(RegId1, NewProc.TypeVar(TypeReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Var(
+								Types.Get(TypeReg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeIs, out RegId1, out RegId2)) {
+					var VarReg = Regs.Get(RegId1);
+					var TypeReg = Regs.Get(RegId2);
+					mVM_Type.Unify(Types.Get(VarReg), Types.Get(TypeReg).Value(), aTrace);
 				} else {
-					throw mStd.Error("impossible");
+					throw mStd.Error($"impossible  (missing: {Command._NodeType})");
 				}
 			}
 		}
@@ -495,6 +577,40 @@ public static class mIL_Interpreter {
 			}
 		),
 		mTest.Test(
+			"§TYPE_OF...IS...",
+			aDebugStream => {
+				var (Module, ModuleMap) = ParseModule(
+					"DEF AssertInt...\n" +
+					"	§TYPE_OF ENV IS EMPTY_TYPE\n" +
+					"	§TYPE_OF OBJ IS EMPTY_TYPE\n" +
+					"	§TYPE_OF ARG IS INT_TYPE\n" +
+					"	§RETURN ONE IF TRUE\n",
+					aDebugStream
+				);
+				
+				#if TRACE
+					var TraceOut = mStd.Action(
+						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+					);
+				#else
+					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
+				#endif
+				
+				mTest.AssertEq(
+					Module.Skip(ModuleMap.Get("AssertInt...")).First()._DefType,
+					mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Empty(),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Int(),
+							mVM_Type.Int()
+						)
+					)
+				);
+			}
+		),
+		mTest.Test(
 			"Assert",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
@@ -524,7 +640,7 @@ public static class mIL_Interpreter {
 					null,
 					Proc,
 					Env,
-					mVM_Data.Empty(), 
+					mVM_Data.Empty(),
 					mVM_Data.Int(1),
 					Res,
 					TraceOut

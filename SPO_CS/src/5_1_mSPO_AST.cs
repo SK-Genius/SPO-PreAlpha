@@ -152,6 +152,20 @@ public static class mSPO_AST {
 		override public tText ToString() => $"If {Expression} MATCH {{ {Cases} }}";
 	}
 	
+	public struct tPairTypeNode : tExpressionNode {
+		public tExpressionNode Expression1;
+		public tExpressionNode Expression2;
+		
+		override public tText ToString() => $"[{Expression1}, {Expression2}]";
+	}
+	
+	public struct tLambdaTypeNode : tExpressionNode {
+		public tExpressionNode ArgType;
+		public tExpressionNode ResType;
+		
+		override public tText ToString() => $"[{ArgType} => {ResType}]";
+	}
+	
 	public struct tDefVarNode : tCommandNode {
 		public tIdentNode Ident;
 		public tExpressionNode Expression;
@@ -275,6 +289,60 @@ public static class mSPO_AST {
 	};
 	
 	//================================================================================
+	public static readonly mStd.tFunc<tIdentNode>
+	EmptyType = (
+	//================================================================================
+	) => new tIdentNode {
+		Name = mIL_AST.cEmptyType
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tIdentNode>
+	BoolType = (
+	//================================================================================
+	) => new tIdentNode {
+		Name = mIL_AST.cBoolType
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tIdentNode>
+	IntType = (
+	//================================================================================
+	) => new tIdentNode {
+		Name = mIL_AST.cIntType
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tIdentNode>
+	TypeType = (
+	//================================================================================
+	) => new tIdentNode {
+		Name = mIL_AST.cTypeType
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tPairTypeNode, tExpressionNode , tExpressionNode>
+	PairType = (
+		tExpressionNode aType1,
+		tExpressionNode aType2
+	//================================================================================
+	) => new tPairTypeNode {
+		Expression1 = aType1,
+		Expression2 = aType2
+	};
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tLambdaTypeNode, tExpressionNode , tExpressionNode>
+	LambdaType = (
+		tExpressionNode aArgType,
+		tExpressionNode aResType
+	//================================================================================
+	) => new tLambdaTypeNode {
+		ArgType = aArgType,
+		ResType = aResType
+	};
+	
+	//================================================================================
 	public static readonly mStd.tFunc<tCallNode, tExpressionNode, tExpressionNode>
 	Call = (
 		aFunc,
@@ -374,7 +442,7 @@ public static class mSPO_AST {
 			}
 			case 1: {
 				mDebug.Assert(aItems.Match(out var Head, out var _));
-				return Head.Pattern;
+				return Head;
 			}
 			default: {
 				return new tMatchTupleNode {
@@ -397,7 +465,7 @@ public static class mSPO_AST {
 	
 	//================================================================================
 	public static readonly mStd.tFunc<tMatchNode, tMatchItemNode>
-	MatchUntyped = (
+	UnTypedMatch = (
 		aMatch
 	//================================================================================
 	) => Match(aMatch, null);

@@ -165,7 +165,6 @@ public static class mArrayList {
 			_CurrSize = Array.Length,
 			_Items = Array
 		};
-		
 	}
 	
 	//================================================================================

@@ -3,7 +3,7 @@
 	o remove x.ToString() ???
 	
 	o type system
-		- opcodes for types
+		- opcodes for types ([[]]; []; §BOOL; §INT; [t1, t2]; [#i t]; [t1 | t2]; [t1 => t2]; [t1 : [t2 => t3]]; [t & p]; [§ANY i [...]]; [§ALL i [...]]; ...)
 		- bind types to elements (mybe with an assert opcode)
 			|	a € tInt32 := 4
 	
@@ -17,9 +17,8 @@
 
 ROADMAP:
 ========
-	o self hosted
-	o runtime type check
 	o compiletime type check
+	o self hosted
 	o concurency
 
 

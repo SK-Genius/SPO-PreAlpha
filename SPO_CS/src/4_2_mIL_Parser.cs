@@ -160,8 +160,32 @@ public static class  mIL_Parser {
 		(+Ident -Token("=>") +(+Ident -Token(":") +Ident).OrFail())
 		.Modify(mIL_AST.Proof) |
 		
-		(+Ident -Token(":=") +Ident.OrFail())
-		.Modify(mIL_AST.Alias)
+		(+Ident -Token(":=") +Ident)
+		.Modify(mIL_AST.Alias) |
+		
+		(+Ident -Token(":=") -Token("[") +Ident -Token("&") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypeCond) |
+		
+		(+Ident -Token(":=") -Token("[") +Ident -Token("=>") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypeFunc) |
+		
+		(+Ident -Token(":=") -Token("[") +Ident -Token(":") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypeMethod) |
+		
+		(+Ident -Token(":=") -Token("[") +Ident -Token(",") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypePair) |
+		
+		(+Ident -Token(":=") -Token("[") -Token("#") +(+Ident +Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypePrefix) |
+		
+		(+Ident -Token(":=") -Token("[") +Ident -Token("|") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypeSet) |
+		
+		(+Ident -Token(":=") -Token("[") -Token("§VAR") +(+Ident -Token("]")).OrFail())
+		.Modify(mIL_AST.TypeVar) |
+		
+		(-Token("§TYPE_OF") +(+Ident -Token("IS") +Ident).OrFail())
+		.Modify(mIL_AST.TypeIs)
 	)
 	.SetName(nameof(Command));
 	
@@ -326,6 +350,46 @@ public static class  mIL_Parser {
 				AssertParsedCommand(
 					"a := §OBJ:b c",
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [b & c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeCond, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [b => c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeFunc, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [b : c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeMethod, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [b, c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePair, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [#b c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [b | c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeSet, "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [§VAR b]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, "a", "b"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"§TYPE_OF a IS b",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, "a", "b"),
 					aDebugStream
 				);
 			}

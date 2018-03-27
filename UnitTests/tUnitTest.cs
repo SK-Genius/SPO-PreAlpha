@@ -19,6 +19,7 @@ using tConsole = System.Console;
 
 using xTest = Xunit.TheoryAttribute;
 using xArg = Xunit.InlineDataAttribute;
+using xTrait = Xunit.TraitAttribute;
 
 [assembly: Xunit.CollectionBehavior(DisableTestParallelization = true)]
 
@@ -36,6 +37,7 @@ public static class tTests {
 		);
 	}
 	
+	[xTrait("all", "true")]
 	[xArg("")]
 	[xTest] public static void _0_All(tText a) {
 		mTest.AssertEq(
@@ -121,6 +123,7 @@ public static class tTests {
 	[xArg("Call")]
 	[xArg("Prefix")]
 	[xArg("Assert")]
+	[xArg("§TYPE_OF...IS...")]
 	[xArg("ParseModule")]
 	[xTest] public static void _4_3_IL_Interpreter(tText a) => mIL_Interpreter.Test.Run(a);
 	
@@ -129,9 +132,11 @@ public static class tTests {
 	
 	[xArg("Atoms")]
 	[xArg("Tuple")]
-	[xArg("Match")]
+	[xArg("Match1")]
 	[xArg("FunctionCall")]
 	[xArg("Lambda")]
+	[xArg("Expression")]
+	[xArg("TypedMatch")]
 	[xArg("NestedMatch")]
 	[xArg("PrefixMatch")]
 	[xArg("MethodCall")]

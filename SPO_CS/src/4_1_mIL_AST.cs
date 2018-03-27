@@ -44,6 +44,16 @@ public static class mIL_AST {
 		RepeatIf,  // §REPEAT X IF X
 		Assert,    // §ASSERT X
 		Proof,     // §ASSERT X => X
+		
+		TypePair, // T := [T, T]
+		TypePrefix, // T := [+N T]
+		TypeFunc, // T := [T -> T]
+		TypeMethod, // T := [T : T]
+		TypeSet, // T := [T | T]
+		TypeCond, // T := [T & P]
+		TypeVar, // T := [§VAR T]
+		
+		TypeIs, // §TYPE_OF X IS T
 	}
 	
 	public static readonly tText cEmpty = "EMPTY";
@@ -54,6 +64,10 @@ public static class mIL_AST {
 	public static readonly tText cObj = "OBJ";
 	public static readonly tText cArg = "ARG";
 	public static readonly tText cRes = "RES";
+	public static readonly tText cEmptyType = "EMPTY_TYPE";
+	public static readonly tText cBoolType = "BOOL_TYPE";
+	public static readonly tText cIntType = "INT_TYPE";
+	public static readonly tText cTypeType = "Type_TYPE";
 	
 	public struct tCommandNode {
 		internal tCommandNodeType _NodeType;
@@ -91,7 +105,14 @@ public static class mIL_AST {
 			case tCommandNodeType.Second:
 			case tCommandNodeType.SubPrefix:
 			case tCommandNodeType.VarDef:
-			case tCommandNodeType.BoolXOr: {
+			case tCommandNodeType.BoolXOr:
+			case tCommandNodeType.TypePrefix:
+			case tCommandNodeType.TypeCond:
+			case tCommandNodeType.TypeFunc:
+			case tCommandNodeType.TypeMethod:
+			case tCommandNodeType.TypePair:
+			case tCommandNodeType.TypeSet:
+			case tCommandNodeType.TypeVar: {
 				aResultReg = aNode._1;
 				return true;
 			}
@@ -100,12 +121,13 @@ public static class mIL_AST {
 			case tCommandNodeType.Proof:
 			case tCommandNodeType.Push:
 			case tCommandNodeType.RepeatIf:
-			case tCommandNodeType.ReturnIf: {
+			case tCommandNodeType.ReturnIf:
+			case tCommandNodeType.TypeIs: {
 				aResultReg = null;
 				return false;
 			}
 			default: {
-				throw mStd.Error("impossible");
+				throw mStd.Error($"impossible (Missing: {aNode._NodeType})");
 			}
 		}
 	}
@@ -471,6 +493,76 @@ public static class mIL_AST {
 		tText aId3
 	//================================================================================
 	) => _CommandNode(tCommandNodeType.Proof, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypeCond = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeCond, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypeFunc = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeFunc, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypeMethod = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeMethod, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypePair = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypePair, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypePrefix = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypePrefix, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText, tText>
+	TypeSet = (
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeSet, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	TypeVar = (
+		tText aId1,
+		tText aId2
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeVar, aId1, aId2, null);
+	
+	//================================================================================
+	public static readonly mStd.tFunc<tCommandNode, tText, tText>
+	TypeIs = (
+		tText aId1,
+		tText aId2
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeIs, aId1, aId2, null);
 	
 	#region Test
 	

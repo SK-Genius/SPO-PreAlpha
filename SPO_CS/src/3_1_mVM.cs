@@ -67,13 +67,17 @@ public static class mVM {
 	public sealed class tProcDef {
 		// standard stack indexes
 		public static readonly tInt32 cEmptyReg = 0;
-		public static readonly tInt32 cOneReg   = 1;
+		public static readonly tInt32 cOneReg = 1;
 		public static readonly tInt32 cFalseReg = 2;
-		public static readonly tInt32 cTrueReg  = 3;
-		public static readonly tInt32 cEnvReg   = 4;
-		public static readonly tInt32 cObjReg   = 5;
-		public static readonly tInt32 cArgReg   = 6;
-		public static readonly tInt32 cResReg   = 7;
+		public static readonly tInt32 cTrueReg = 3;
+		public static readonly tInt32 cEmptyTypeReg = 4;
+		public static readonly tInt32 cBoolTypeReg = 5;
+		public static readonly tInt32 cIntTypeReg = 6;
+		public static readonly tInt32 cTypeTypeReg = 7;
+		public static readonly tInt32 cEnvReg = 8;
+		public static readonly tInt32 cObjReg = 9;
+		public static readonly tInt32 cArgReg = 10;
+		public static readonly tInt32 cResReg = 11;
 		
 		internal readonly mArrayList.tArrayList<(tOpCode, tInt32, tInt32)>
 			_Commands = mArrayList.List<(tOpCode, tInt32, tInt32)>();
@@ -91,7 +95,7 @@ public static class mVM {
 		internal readonly mArrayList.tArrayList<mVM_Type.tType>
 			_Types = mArrayList.List<mVM_Type.tType>();
 		
-		internal tInt32 _LastReg = 7;
+		internal tInt32 _LastReg = cResReg;
 	}
 	
 	//================================================================================
@@ -440,6 +444,10 @@ public static class mVM {
 				mVM_Data.Int(1),
 				mVM_Data.Bool(false),
 				mVM_Data.Bool(true),
+				mVM_Data.TypeEmpty(),
+				mVM_Data.TypeBool(),
+				mVM_Data.TypeInt(),
+				mVM_Data.TypeType(),
 				aEnv,
 				aObj,
 				aArg,
@@ -451,10 +459,14 @@ public static class mVM {
 		aTraceOut(() => " 1 := 1");
 		aTraceOut(() => " 2 := FALSE");
 		aTraceOut(() => " 3 := TRUE");
-		aTraceOut(() => " 4 := ENV  |  "+aEnv);
-		aTraceOut(() => " 5 := OBJ  |  "+aObj);
-		aTraceOut(() => " 6 := ARG  |  "+aArg);
-		aTraceOut(() => " 7 := RES");
+		aTraceOut(() => " 4 := EMPTY_TYPE");
+		aTraceOut(() => " 5 := BOOL_TYPE");
+		aTraceOut(() => " 6 := INT_TYPE");
+		aTraceOut(() => " 7 := TYPE_TYPE");
+		aTraceOut(() => " 8 := ENV  |  "+aEnv);
+		aTraceOut(() => " 9 := OBJ  |  "+aObj);
+		aTraceOut(() => " 10 := ARG  |  "+aArg);
+		aTraceOut(() => " 11 := RES");
 		
 		return Result;
 	}
@@ -667,6 +679,10 @@ public static class mVM {
 						mVM_Data.Int(1),
 						mVM_Data.Bool(false),
 						mVM_Data.Bool(true),
+						mVM_Data.TypeEmpty(),
+						mVM_Data.TypeBool(),
+						mVM_Data.TypeInt(),
+						mVM_Data.TypeType(),
 						aCallStack._Regs.Get(tProcDef.cEnvReg),
 						aCallStack._Regs.Get(tProcDef.cObjReg),
 						aCallStack._Regs.Get(Arg2),

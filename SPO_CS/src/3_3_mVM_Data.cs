@@ -320,7 +320,7 @@ public static class mVM_Data {
 	public static tData
 	TypeType(
 	//================================================================================
-	) => Data(tDataType.Type, false, mVM_Type.Type());
+	) => Data(tDataType.Type, false, mVM_Type.Type(null));
 	
 	//================================================================================
 	public static tData

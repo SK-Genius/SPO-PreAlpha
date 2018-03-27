@@ -522,6 +522,20 @@ public static class mSPO2IL {
 				MapMatch(ref aDefConstructor, GuardNode.Match, aReg);
 				break;
 			}
+			case mSPO_AST.tMatchNode MatchNode: {
+				if (TypeNode is null) {
+					MapMatch(ref aDefConstructor, MatchNode, aReg);
+				} else if (MatchNode.Type is null) {
+					MapMatch(
+						ref aDefConstructor,
+						mSPO_AST.Match(MatchNode.Pattern, TypeNode),
+						aReg
+					);
+				} else {
+					throw mStd.Error("not implemented"); //TODO: Unify MatchNode.Type & TypeNode
+				}
+				break;
+			}
 			default: {
 				throw mStd.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
@@ -1213,15 +1227,9 @@ public static class mSPO2IL {
 					mSPO_Parser.Module.ParseText(
 						mList.List(
 							"§IMPORT (",
-#if !true // TODO: type infos
 							"	T € [[]]",
 							"	...*... € [[T, T] => T]",
 							"	k € T",
-#else
-							"	T",
-							"	...*...",
-							"	k",
-#endif
 							")",
 							"",
 							"§DEF x... = a => k .* a",

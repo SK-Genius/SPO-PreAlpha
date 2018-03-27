@@ -6,17 +6,21 @@
 	TYPES:
 	======
 		
-		EMPTY:   []
-		META:    [[]]
-		AMY:     [_]
-		PREFIX:  [#n t]  // public & private variante   
-		PAIR:    [t; t]
-		SET:     [t | t]
-		COND:    [t & x]
-		VAR:     [VAR t]
-		CALL:    [t : t -> t]
+		META: [[]]
+		EMPTY: []
+		BOOL: §BOOL // == [[#FALSE []] | [#TRUE []]] == [#FALSE | #TRUE] ???
+		INT: §INT
+		ANY: [_]
+		PREFIX: [#n t]  // public & private variante
+		PAIR: [t; t]
+		SET: [t | t]
+		COND: [t & p]
+		VAR: [VAR t]
+		FUNC: [t -> t]
+		PROC: [t : [t -> t]]
 		MSG_OUT: [t >>]
-		
+		INTERFACE: [§ANY i [...]]
+		GENERIC: [§ALL i [...]]
 		
 		SEMANTIC SUCCER:
 		-----------------
@@ -101,7 +105,6 @@
 			TYPE_OF x -> T
 			[#n T] -> T
 			[T ; T] -> T
-			[T : T -> T] -> T
 			... see TYPES
 		
 		

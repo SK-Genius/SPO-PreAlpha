@@ -71,9 +71,24 @@ public static class mTextParser {
 	) {
 		var Stream = TextToStream(aText);
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		mDebug.Assert(
+		mTest.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),
+			#if true
+			ErrorList.Reduce(
+				mList.List<tError>(),
+				(aOldList, aNew) => mList.List(
+					aNew,
+					aOldList.Where(
+						aOld => (
+							aOld.Pos.Row > aNew.Pos.Row ||
+							(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
+						)
+					)
+				)
+			).Map(
+			#else
 			ErrorList.Map(
+			#endif
 				aError => {
 					var Line = aText.Split('\n')[aError.Pos.Row-1];
 					var MarkerLine = TextToStream(
@@ -210,10 +225,12 @@ public static class mTextParser {
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
+	//================================================================================
 	public static mParserGen.tParser<tPosChar, tError>
 	SetName(
 		this mParserGen.tParser<tPosChar, tError> aParser,
 		tText aName
+	//================================================================================
 	) => aParser.AddError(
 		a => new tError{
 			Pos = a.Pos,

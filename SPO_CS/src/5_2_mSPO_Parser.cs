@@ -110,16 +110,25 @@ public static class mSPO_Parser {
 	);
 	
 	public static readonly tSPO_Parser
-	Match = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
-	.SetName(nameof(Match));
-	
-	public static readonly tSPO_Parser
 	ExpressionInCall = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
 	.SetName(nameof(ExpressionInCall));
 	
 	public static readonly tSPO_Parser
 	Expression = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
 	.SetName(nameof(Expression));
+	
+	public static readonly tSPO_Parser
+	UnTypedMatch = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
+	.SetName(nameof(UnTypedMatch));
+	
+	public static readonly tSPO_Parser
+	TypedMatch = (+UnTypedMatch -Token("€") +Expression.OrFail())
+	.Modify(mSPO_AST.Match)
+	.SetName(nameof(TypedMatch));
+	
+	public static readonly tSPO_Parser
+	Match = (+TypedMatch | +UnTypedMatch)
+	.SetName(nameof(Match));
 	
 	public static readonly tSPO_Parser
 	Def = (-Token("§DEF") +(+Match -Token("=") +Expression).OrFail())
@@ -238,7 +247,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(Prefix));
 	
 	public static readonly tSPO_Parser
-	MatchPrefix = C( Infix("#", Match) )
+	MatchPrefix = C( Infix("#", UnTypedMatch) )
 	.Modify(
 		((mSPO_AST.tIdentNode, tResults) aPair) => {
 			var (Ident, ChildList) = aPair;
@@ -254,9 +263,43 @@ public static class mSPO_Parser {
 	.SetName(nameof(MatchPrefix));
 	
 	public static readonly tSPO_Parser
-	MatchGuard = C( +Match -Token("|") +Expression.OrFail() )
+	MatchGuard = C( +UnTypedMatch -Token("|") +Expression.OrFail() )
 	.Modify(mSPO_AST.MatchGuard)
 	.SetName(nameof(MatchGuard));
+	
+	public static readonly tSPO_Parser
+	EmptyType = Token("[]")
+	.Modify((tText _) => mSPO_AST.EmptyType())
+	.SetName(nameof(EmptyType));
+	
+	public static readonly tSPO_Parser
+	BoolType = Token("§BOOL")
+	.Modify((tText _) => mSPO_AST.BoolType())
+	.SetName(nameof(BoolType));
+	
+	public static readonly tSPO_Parser
+	IntType = Token("§INT")
+	.Modify((tText _) => mSPO_AST.IntType())
+	.SetName(nameof(IntType));
+	
+	public static readonly tSPO_Parser
+	TypeType = Token("[[]]")
+	.Modify((tText _) => mSPO_AST.TypeType())
+	.SetName(nameof(TypeType));
+	
+	public static readonly tSPO_Parser
+	PairType = (-Token("[") +Expression -Token(",") +Expression -Token("]"))
+	.Modify(mSPO_AST.PairType)
+	.SetName(nameof(PairType));
+	
+	public static readonly tSPO_Parser
+	LambdaType = (-Token("[") +Expression -Token("=>") +Expression -Token("]"))
+	.Modify(mSPO_AST.LambdaType)
+	.SetName(nameof(LambdaType));
+	
+	public static readonly tSPO_Parser
+	Type = (EmptyType | BoolType | IntType | TypeType | PairType | LambdaType)
+	.SetName(nameof(Type));
 	
 	public static readonly tSPO_Parser
 	Lambda = (+Match -Token("=>") +Expression.OrFail())
@@ -402,9 +445,9 @@ public static class mSPO_Parser {
 	.SetName(nameof(Module));
 	
 	static mSPO_Parser() {
-		Match.Def(
+		UnTypedMatch.Def(
 			(Literal|Ident|MatchPrefix|MatchGuard).Modify(
-				(mSPO_AST.tMatchItemNode aMatch) => mSPO_AST.Match(aMatch, null)
+				mSPO_AST.UnTypedMatch
 			) |
 			C(+Match +(-(-Token(",") | -NL) +Match)[0, null]).ModifyList(
 				a => mParserGen.ResultList(
@@ -415,8 +458,7 @@ public static class mSPO_Parser {
 						null
 					)
 				)
-			) |
-			C(+Match -Token("€") +Expression).Modify(mSPO_AST.Match) // TODO: BUG - infinit recursion (maybe solved ???)
+			)
 		);
 		
 		Expression.Def(
@@ -431,7 +473,8 @@ public static class mSPO_Parser {
 			VarToVal |
 			C( Expression ) |
 			Literal |
-			Ident
+			Ident |
+			Type
 		);
 		
 		ExpressionInCall.Def(
@@ -512,7 +555,7 @@ public static class mSPO_Parser {
 			}
 		),
 		mTest.Test(
-			"Match",
+			"Match1",
 			aStreamOut => {
 				mTest.AssertEq(
 					Match.ParseText("12", aStreamOut),
@@ -603,7 +646,42 @@ public static class mSPO_Parser {
 						)
 					)
 				);
-					
+			}
+		),
+		mTest.Test(
+			"TypedMatch",
+			aStreamOut => {
+				mTest.AssertEq(
+					Expression.ParseText("(x € MyType) => x .* x", aStreamOut),
+					mParserGen.ResultList(
+						mSPO_AST.Lambda(
+							mSPO_AST.Match(
+								mSPO_AST.Match(
+									mSPO_AST.Match(
+										mSPO_AST.Ident("x"),
+										null
+									),
+									mSPO_AST.Ident("MyType")
+								),
+								null
+							),
+							mSPO_AST.Call(
+								mSPO_AST.Ident("...*..."),
+								mSPO_AST.Tuple(
+									mList.List<mSPO_AST.tExpressionNode>(
+										mSPO_AST.Ident("x"),
+										mSPO_AST.Ident("x")
+									)
+								)
+							)
+						)
+					)
+				);
+			}
+		),
+		mTest.Test(
+			"Expression",
+			aStreamOut => {
 				mTest.AssertEq(
 					Expression.ParseText("2 .< (4 .+ 3) < 3", aStreamOut),
 					mParserGen.ResultList(
