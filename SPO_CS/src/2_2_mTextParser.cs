@@ -71,7 +71,7 @@ public static class mTextParser {
 	) {
 		var Stream = TextToStream(aText);
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		mTest.Assert(
+		mStd.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),
 			#if true
 			ErrorList.Reduce(

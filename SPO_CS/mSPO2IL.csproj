@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>m</RootNamespace>
+    <AssemblyName>mSPO2IL</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectGuid>{9D12AE34-5293-40F0-944C-58C170971F7A}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="mArrayList.csproj">
+      <Project>{dd3fdc30-c146-42a2-a79c-bc8ff5c430c9}</Project>
+      <Name>mArrayList</Name>
+    </ProjectReference>
+    <ProjectReference Include="mDebug.csproj">
+      <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
+      <Name>mDebug</Name>
+    </ProjectReference>
+    <ProjectReference Include="mIL_AST.csproj">
+      <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
+      <Name>mIL_AST</Name>
+    </ProjectReference>
+    <ProjectReference Include="mList.csproj">
+      <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
+      <Name>mList</Name>
+    </ProjectReference>
+    <ProjectReference Include="mParserGen.csproj">
+      <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
+      <Name>mParserGen</Name>
+    </ProjectReference>
+    <ProjectReference Include="mSPO_AST.csproj">
+      <Project>{d0a5c13a-cd05-4bb7-ba16-835285cd4af8}</Project>
+      <Name>mSPO_AST</Name>
+    </ProjectReference>
+    <ProjectReference Include="mSPO_Parser.csproj">
+      <Project>{62d49e37-cc1a-4f34-bbe8-dd4294ff01b3}</Project>
+      <Name>mSPO_Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="mStd.csproj">
+      <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
+      <Name>mStd</Name>
+    </ProjectReference>
+    <ProjectReference Include="mTest.csproj">
+      <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
+      <Name>mTest</Name>
+    </ProjectReference>
+    <ProjectReference Include="mTextParser.csproj">
+      <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
+      <Name>mTextParser</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\5_3_mSPO2IL.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

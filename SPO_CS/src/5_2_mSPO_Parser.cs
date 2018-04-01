@@ -506,33 +506,33 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Atoms",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Num.ParseText("+1_234", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Number(1234))
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Literal.ParseText("+1_234", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Number(1234))
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ExpressionInCall.ParseText("+1_234", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Number(1234))
 				);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					String.ParseText("\"BLA\"", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Text("BLA"))
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Literal.ParseText("\"BLA\"", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Text("BLA"))
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ExpressionInCall.ParseText("\"BLA\"", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Text("BLA"))
 				);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ExpressionInCall.ParseText("BLA", aStreamOut),
 					mParserGen.ResultList(mSPO_AST.Ident("BLA"))
 				);
@@ -541,7 +541,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Tuple",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ExpressionInCall.ParseText("(+1_234, \"BLA\")", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Tuple(
@@ -557,7 +557,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Match1",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Match.ParseText("12", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Match(
@@ -566,7 +566,7 @@ public static class mSPO_Parser {
 						)
 					)
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Match.ParseText("x", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Match(
@@ -575,7 +575,7 @@ public static class mSPO_Parser {
 						)
 					)
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Match.ParseText("(12, x)", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Match(
@@ -594,7 +594,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"FunctionCall",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("x .* x", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Call(
@@ -608,7 +608,7 @@ public static class mSPO_Parser {
 						)
 					)
 				);
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText(".sin x", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Call(
@@ -626,7 +626,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Lambda",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("x => x .* x", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Lambda(
@@ -651,7 +651,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"TypedMatch",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("(x € MyType) => x .* x", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Lambda(
@@ -682,7 +682,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"Expression",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("2 .< (4 .+ 3) < 3", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Call(
@@ -710,7 +710,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"NestedMatch",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("(a, b, (x, y, z)) => a .* z", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Lambda(
@@ -765,7 +765,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"PrefixMatch",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Expression.ParseText("(1 #* a) => a", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.Lambda(
@@ -799,7 +799,7 @@ public static class mSPO_Parser {
 		mTest.Test(
 			"MethodCall",
 			aStreamOut => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Command.ParseText("o := ((o :=>) .+ i) .\n", aStreamOut),
 					mParserGen.ResultList(
 						mSPO_AST.MethodCallStatment(

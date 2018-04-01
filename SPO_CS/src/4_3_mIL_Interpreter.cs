@@ -17,7 +17,7 @@ public static class mIL_Interpreter {
 	
 	//================================================================================
 	public static (
-		mList.tList<mVM.tProcDef>,
+		mList.tList<mVM_Data.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
@@ -38,7 +38,7 @@ public static class mIL_Interpreter {
 	
 	//================================================================================
 	public static (
-		mList.tList<mVM.tProcDef>,
+		mList.tList<mVM_Data.tProcDef>,
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
@@ -50,7 +50,7 @@ public static class mIL_Interpreter {
 			aTrace(nameof(ParseModule));
 		#endif
 		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
-		var Module = mList.List<mVM.tProcDef>();
+		var Module = mList.List<mVM_Data.tProcDef>();
 		
 		var RestDefs = aDefs;
 		while (RestDefs.Match(out var Def, out RestDefs)) {
@@ -58,7 +58,7 @@ public static class mIL_Interpreter {
 			#if TRACE
 				aTrace($"    {DefName}:");
 			#endif
-			var NewProc = new mVM.tProcDef();
+			var NewProc = new mVM_Data.tProcDef();
 			// TODO: set type if it known
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
@@ -68,7 +68,7 @@ public static class mIL_Interpreter {
 			var DefArgType = mVM_Type.Unknown();
 			var DefResType = mVM_Type.Unknown();
 			mVM_Type.Unify(
-				NewProc._DefType,
+				NewProc.DefType,
 				mVM_Type.Proc(
 					mVM_Type.Empty(),
 					DefEnvType,
@@ -83,19 +83,19 @@ public static class mIL_Interpreter {
 			Module = mList.Concat(Module, mList.List(NewProc));
 			
 			var Regs = mMap.Map<tText, tInt32>((a, b) => a == b)
-			.Set(mIL_AST.cEmpty, mVM.tProcDef.cEmptyReg)
-			.Set(mIL_AST.cOne, mVM.tProcDef.cOneReg)
-			.Set(mIL_AST.cFalse, mVM.tProcDef.cFalseReg)
-			.Set(mIL_AST.cTrue, mVM.tProcDef.cTrueReg)
-			.Set(mIL_AST.cEmptyType, mVM.tProcDef.cEmptyTypeReg)
-			.Set(mIL_AST.cBoolType, mVM.tProcDef.cBoolTypeReg)
-			.Set(mIL_AST.cIntType, mVM.tProcDef.cIntTypeReg)
-			.Set(mIL_AST.cEnv, mVM.tProcDef.cEnvReg)
-			.Set(mIL_AST.cObj, mVM.tProcDef.cObjReg)
-			.Set(mIL_AST.cArg, mVM.tProcDef.cArgReg)
-			.Set(mIL_AST.cRes, mVM.tProcDef.cResReg);
+			.Set(mIL_AST.cEmpty, mVM_Data.tProcDef.cEmptyReg)
+			.Set(mIL_AST.cOne, mVM_Data.tProcDef.cOneReg)
+			.Set(mIL_AST.cFalse, mVM_Data.tProcDef.cFalseReg)
+			.Set(mIL_AST.cTrue, mVM_Data.tProcDef.cTrueReg)
+			.Set(mIL_AST.cEmptyType, mVM_Data.tProcDef.cEmptyTypeReg)
+			.Set(mIL_AST.cBoolType, mVM_Data.tProcDef.cBoolTypeReg)
+			.Set(mIL_AST.cIntType, mVM_Data.tProcDef.cIntTypeReg)
+			.Set(mIL_AST.cEnv, mVM_Data.tProcDef.cEnvReg)
+			.Set(mIL_AST.cObj, mVM_Data.tProcDef.cObjReg)
+			.Set(mIL_AST.cArg, mVM_Data.tProcDef.cArgReg)
+			.Set(mIL_AST.cRes, mVM_Data.tProcDef.cResReg);
 			
-			var Types = NewProc._Types;
+			var Types = NewProc.Types;
 			Types
 			.Push(mVM_Type.Empty())
 			.Push(mVM_Type.Int())
@@ -354,7 +354,7 @@ public static class mIL_Interpreter {
 					var TypeReg = Regs.Get(RegId2);
 					mVM_Type.Unify(Types.Get(VarReg), Types.Get(TypeReg).Value(), aTrace);
 				} else {
-					throw mStd.Error($"impossible  (missing: {Command._NodeType})");
+					throw mStd.Error($"impossible  (missing: {Command.NodeType})");
 				}
 			}
 		}
@@ -394,7 +394,7 @@ public static class mIL_Interpreter {
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
-		(mList.tList<mVM.tProcDef>, mMap.tMap<tText, tInt32>) aModule,
+		(mList.tList<mVM_Data.tProcDef>, mMap.tMap<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
@@ -454,9 +454,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mTest.Assert(Arg1.MatchInt(out var IntArg1));
-		mTest.Assert(Arg2.MatchInt(out var IntArg2));
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
@@ -469,9 +469,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mTest.Assert(Arg1.MatchInt(out var IntArg1));
-		mTest.Assert(Arg2.MatchInt(out var IntArg2));
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
@@ -484,9 +484,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mTest.Assert(Arg1.MatchInt(out var IntArg1));
-		mTest.Assert(Arg2.MatchInt(out var IntArg2));
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -499,9 +499,9 @@ public static class mIL_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		mTest.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mTest.Assert(Arg1.MatchInt(out var IntArg1));
-		mTest.Assert(Arg2.MatchInt(out var IntArg2));
+		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mStd.Assert(Arg1.MatchInt(out var IntArg1));
+		mStd.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Bool(IntArg1.Equals(IntArg2));
 	}
 	
@@ -536,7 +536,7 @@ public static class mIL_Interpreter {
 					Res,
 					TraceOut
 				);
-				mTest.AssertEq(Res, mVM_Data.Int(6));
+				mStd.AssertEq(Res, mVM_Data.Int(6));
 			}
 		),
 		mTest.Test(
@@ -573,7 +573,7 @@ public static class mIL_Interpreter {
 					Res,
 					TraceOut
 				);
-				mTest.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
+				mStd.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
 			}
 		),
 		mTest.Test(
@@ -596,8 +596,8 @@ public static class mIL_Interpreter {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				mTest.AssertEq(
-					Module.Skip(ModuleMap.Get("AssertInt...")).First()._DefType,
+				mStd.AssertEq(
+					Module.Skip(ModuleMap.Get("AssertInt...")).First().DefType,
 					mVM_Type.Proc(
 						mVM_Type.Empty(),
 						mVM_Type.Empty(),
@@ -648,8 +648,8 @@ public static class mIL_Interpreter {
 				while (CallStack != null) {
 					CallStack = CallStack.Step();
 				}
-				mTest.AssertEq(Res, mVM_Data.Bool(true));
-				mTest.AssertError(
+				mStd.AssertEq(Res, mVM_Data.Bool(true));
+				mStd.AssertError(
 					() => {
 						Res = mVM_Data.Empty();
 						mVM.Run(
@@ -777,7 +777,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mTest.AssertEq(Res, mVM_Data.Int(2));
+					mStd.AssertEq(Res, mVM_Data.Int(2));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -788,7 +788,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mTest.AssertEq(Res, mVM_Data.Int(12));
+					mStd.AssertEq(Res, mVM_Data.Int(12));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -799,7 +799,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mTest.AssertEq(Res, mVM_Data.Int(6));
+					mStd.AssertEq(Res, mVM_Data.Int(6));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -810,7 +810,7 @@ public static class mIL_Interpreter {
 						Res,
 						TraceOut
 					);
-					mTest.AssertEq(Res, mVM_Data.Int(6));
+					mStd.AssertEq(Res, mVM_Data.Int(6));
 				}
 			}
 		)

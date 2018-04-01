@@ -14,9 +14,16 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mStdLib {
+	private static mVM_Data.tData _ImportData;
+	
 	//================================================================================
-	private static readonly mVM_Data.tData
-	ImportData = mIL_Interpreter.Run(
+	public static mVM_Data.tData
+	GetImportData(
+	) {
+		if (!(_ImportData is null)) {
+			return _ImportData;
+		}
+		_ImportData = mIL_Interpreter.Run(
 @"DEF Init
 	_01 := ENV
 	!... := §1ST _01
@@ -197,9 +204,11 @@ DEF ...<=...
 	Res := §BOOL <? | =?
 	§RETURN Res IF TRUE
 ",
-		mVM_Data.Empty(),
-		aLine => { }
-	);
+			mVM_Data.Empty(),
+			aLine => { }
+		);
+		return _ImportData;
+	}
 	
 	public static readonly tText cImportTuple = (
 		@"("+
@@ -217,7 +226,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfThenElse",
 			aDebugStream => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -236,7 +245,7 @@ DEF ...<=...
 							§EXPORT .Fib n
 						",
 						mVM_Data.Tuple(
-							ImportData,
+							GetImportData(),
 							mVM_Data.Int(8)
 						),
 						aDebugStream
@@ -248,7 +257,7 @@ DEF ...<=...
 		mTest.Test(
 			"If2",
 			aDebugStream => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -261,7 +270,7 @@ DEF ...<=...
 							§EXPORT .Fib n
 						",
 						mVM_Data.Tuple(
-							ImportData,
+							GetImportData(),
 							mVM_Data.Int(8)
 						),
 						aDebugStream
@@ -273,7 +282,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfMatch1",
 			aDebugStream => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -287,7 +296,7 @@ DEF ...<=...
 							§EXPORT .Fib n
 						",
 						mVM_Data.Tuple(
-							ImportData,
+							GetImportData(),
 							mVM_Data.Int(8)
 						),
 						aDebugStream
@@ -299,7 +308,7 @@ DEF ...<=...
 		mTest.Test(
 			"IfMatch2",
 			aDebugStream => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT ({cImportTuple}, n)
@@ -312,7 +321,7 @@ DEF ...<=...
 							§EXPORT .Fib n
 						",
 						mVM_Data.Tuple(
-							ImportData,
+							GetImportData(),
 							mVM_Data.Int(8)
 						),
 						aDebugStream
@@ -324,7 +333,7 @@ DEF ...<=...
 		mTest.Test(
 			"VAR",
 			aDebugStream => {
-				mTest.AssertEq(
+				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
 							§IMPORT {cImportTuple}
@@ -348,7 +357,7 @@ DEF ...<=...
 							
 							§EXPORT x
 						",
-						ImportData,
+						GetImportData(),
 						aDebugStream
 					),
 					mVM_Data.Var(mVM_Data.Int(22))
@@ -360,20 +369,22 @@ DEF ...<=...
 			aDebugStream => {
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mTest.Assert(aObj._IsMutable);
-						mTest.Assert(aObj.MatchVar(out var Stream));
-						var Line = ((System.IO.TextReader)Stream._Value._Value).ReadLine();
+						mStd.Assert(aObj._IsMutable);
+						mStd.Assert(aObj.MatchVar(out var Stream));
+						mStd.Assert(Stream._Value.Match(out System.IO.TextReader Reader));
+						var Line = Reader.ReadLine();
 						return mVM_Data.Prefix("Text", new mVM_Data.tData{ _Value = mStd.Any(Line) });
 					},
 					mVM_Data.Empty()
 				);
 				var WriteLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mTest.Assert(aObj._IsMutable);
-						mTest.Assert(aObj.MatchVar(out var Stream));
-						mTest.Assert(aArg.MatchPrefix("Text", out var Line));
-						var Writer = (Stream._Value._Value as System.IO.TextWriter);
-						Writer.WriteLine((tText)Line._Value._Value);
+						mStd.Assert(aObj._IsMutable);
+						mStd.Assert(aObj.MatchVar(out var Stream));
+						mStd.Assert(aArg.MatchPrefix("Text", out var Line));
+						mStd.Assert(Stream._Value.Match(out  System.IO.TextWriter Writer));
+						mStd.Assert(Line._Value.Match(out tText Text));
+						Writer.WriteLine(Text);
 						Writer.Flush();
 						return mVM_Data.Empty();
 					},
@@ -426,11 +437,11 @@ DEF ...<=...
 					a => aDebugStream(a())
 				);
 				
-				mTest.AssertEq(Res, mVM_Data.Int(0));
+				mStd.AssertEq(Res, mVM_Data.Int(0));
 				
 				var ResArray = Result.GetBuffer();
 				for (var I = 0; I < Reference.Length - 1; I += 1) {
-					mTest.AssertEq(ResArray[I], Reference[I]);
+					mStd.AssertEq(ResArray[I], Reference[I]);
 				}
 			}
 		)

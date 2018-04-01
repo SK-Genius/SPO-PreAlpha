@@ -70,12 +70,12 @@ public static class mIL_AST {
 	public static readonly tText cTypeType = "Type_TYPE";
 	
 	public struct tCommandNode {
-		internal tCommandNodeType _NodeType;
+		public tCommandNodeType NodeType;
 		internal tText _1;
 		internal tText _2;
 		internal tText _3;
 		
-		override public tText ToString() => $"{_NodeType} {_1} {_2} {_3}";
+		override public tText ToString() => $"{NodeType} {_1} {_2} {_3}";
 	}
 	
 	//================================================================================
@@ -85,7 +85,7 @@ public static class mIL_AST {
 		out tText aResultReg
 	//================================================================================
 	) {
-		switch (aNode._NodeType) {
+		switch (aNode.NodeType) {
 			case tCommandNodeType.AddPrefix:
 			case tCommandNodeType.Alias:
 			case tCommandNodeType.BoolAnd:
@@ -127,7 +127,7 @@ public static class mIL_AST {
 				return false;
 			}
 			default: {
-				throw mStd.Error($"impossible (Missing: {aNode._NodeType})");
+				throw mStd.Error($"impossible (Missing: {aNode.NodeType})");
 			}
 		}
 	}
@@ -190,7 +190,7 @@ public static class mIL_AST {
 		tText a3
 	//================================================================================
 	) => new tCommandNode{
-		_NodeType = aNodeType,
+		NodeType = aNodeType,
 		_1 = a1,
 		_2 = a2,
 		_3 = a3
@@ -254,7 +254,7 @@ public static class mIL_AST {
 		out tText aId3
 	//================================================================================
 	) {
-		if (aNode._NodeType == aNodeType) {
+		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
 			aId2 = aNode._2;
 			aId3 = aNode._3;

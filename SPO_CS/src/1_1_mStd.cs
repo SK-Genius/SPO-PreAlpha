@@ -180,7 +180,7 @@ public static class mStd {
 			_Value.Equals(a._Value)
 		);
 		
-		override public tBool Equals(object aObj) => aObj is tAny && Equals((tAny)aObj);
+		override public tBool Equals(object a) => a is tAny && Equals((tAny)a);
 		override public tText ToString() => _Value?.ToString() ?? "-";
 	}
 	
@@ -198,7 +198,11 @@ public static class mStd {
 		out t aValue
 	//================================================================================
 	) {
-		mDebug.AssertNotEq(typeof(t), typeof(tAny));
+		#if DEBUG
+			if (typeof(t) == typeof(tAny)) {
+				throw Error("");
+			}
+		#endif
 		
 		if (a._Value is null || a._Value is t) {
 			aValue = (t)a._Value;
@@ -222,7 +226,9 @@ public static class mStd {
 		this tAny a
 	//================================================================================
 	) {
-		mDebug.Assert(a.Match(out t Result), $"To: {typeof(t).FullName} <- {a}");
+		if (!a.Match(out t Result)) {
+			throw Error($"To: {typeof(t).FullName} <- {a}");
+		}
 		return Result;
 	}
 	
@@ -234,8 +240,6 @@ public static class mStd {
 		this object a
 	//================================================================================
 	) => a is null;
-	
-	#region Assert
 	
 	public sealed class tError<t> : System.Exception {
 		public tError(tText a) : base(a) {}
@@ -267,47 +271,87 @@ public static class mStd {
 		}
 	}
 	
-	#endregion
+	//================================================================================
+	public static void
+	Assert(
+		tBool a
+	//================================================================================
+	) {
+		AssertEq(a, true);
+	}
 	
-	#region TEST
+	//================================================================================
+	public static void
+	Assert(
+		tBool a,
+		tText aMsg
+	//================================================================================
+	) {
+		if (!a) {
+			throw mStd.Error($"FAIL: {aMsg}");
+		}
+	}
 	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mStd),
-		mTest.Test(
-			"tMaybe.ToString()",
-			aStreamOut => {
-				mTest.AssertEq(((tMaybe<tInt32, tText>)OK(1)).ToString(), "1");
-				mTest.AssertEq(((tMaybe<tInt32, tText>)Fail("Bla")).ToString(), "FAIL: Bla");
-			}
-		),
-		mTest.Test(
-			"tMaybe.Equals()",
-			aStreamOut => {
-				mTest.AssertEq<tMaybe<tInt32, tText>>(OK(1), OK(1));
-				mTest.AssertEq<tMaybe<tText, tText>>(OK("1"), OK("1"));
-				mTest.AssertEq<tMaybe<tInt32, tText>>(Fail("Bla"), Fail("Bla"));
-			}
-		),
-		mTest.Test(
-			"tVar.ToString()",
-			aStreamOut => {
-				mTest.AssertEq(Any(1).ToString(), "1");
-				mTest.AssertEq(Any("1").ToString(), "1");
-			}
-		),
-		mTest.Test(
-			"tVar.Equals()",
-			aStreamOut => {
-				mTest.AssertEq(Any(1), Any(1));
-				mTest.AssertEq(Any("1"), Any("1"));
-				mTest.AssertNotEq(Any(1), Any(2));
-				mTest.AssertNotEq(Any(1), Any(false));
-				mTest.AssertNotEq(Any("1"), Any("2"));
-				mTest.AssertNotEq(Any("1"), Any(1));
-			}
-		)
-	);
+	//================================================================================
+	public static void
+	Assert(
+		tBool a,
+		mStd.tFunc<tText> aMsg
+	//================================================================================
+	) {
+		if (!a) {
+			throw mStd.Error($"FAIL: {aMsg()}");
+		}
+	}
 	
-	#endregion
+	//================================================================================
+	public static void
+	AssertNot(
+		tBool a
+	//================================================================================
+	) {
+		AssertEq(a, false);
+	}
+	
+	//================================================================================
+	public static void
+	AssertEq<t>(
+		t a1,
+		t a2
+	//================================================================================
+	) {
+		if (
+			!ReferenceEquals(a1, a2) &&
+			!a1.IsNull() &&
+			!a1.Equals(a2)
+		) {
+			throw mStd.Error($"FAIL: {a1} != {a2}");
+		}
+	}
+	
+	//================================================================================
+	public static void
+	AssertNotEq<t>(
+		t a1,
+		t a2
+	//================================================================================
+	) {
+		if (a1.Equals(a2)) {
+			throw mStd.Error($"FAIL: {a1} == {a2}");
+		}
+	}
+	
+	//================================================================================
+	public static void
+	AssertError(
+		mStd.tAction a
+	//================================================================================
+	) {
+		try {
+			a();
+			throw mStd.Error("FAIL: Error expected");
+		} catch {
+			return;
+		}
+	}
 }

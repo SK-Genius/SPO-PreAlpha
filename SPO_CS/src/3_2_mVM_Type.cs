@@ -316,7 +316,7 @@ public static class mVM_Type {
 		mTest.Test(
 			"BoolInt",
 			aDebugStream => {
-				mTest.AssertError(() => Unify(Bool(), Int(), aDebugStream));
+				mStd.AssertError(() => Unify(Bool(), Int(), aDebugStream));
 			}
 		)
 	);

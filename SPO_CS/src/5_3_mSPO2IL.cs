@@ -885,7 +885,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapExpresion",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Expression.ParseText(
 						"2 .< (4 .+ 3) < 3",
 						aStreamOut
@@ -893,9 +893,9 @@ public static class mSPO2IL {
 				);
 				
 				var Def = NewDefConstructor(NewModuleConstructor());
-				mTest.AssertEq(MapExpresion(ref Def, ExpressionNode), TempReg(11));
+				mStd.AssertEq(MapExpresion(ref Def, ExpressionNode), TempReg(11));
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Def.Commands,
 					mArrayList.List(
 						mIL_AST.CreateInt(TempReg(1), "3"),
@@ -916,7 +916,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapDef1",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF a = (1, 2)",
 						aStreamOut
@@ -926,7 +926,7 @@ public static class mSPO2IL {
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref DefConstructor, DefNode);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
 						mIL_AST.CreateInt(TempReg(1), "2"),
@@ -942,7 +942,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapDefMatch",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, (b, c)) = (1, (2, 3))",
 						aStreamOut
@@ -952,7 +952,7 @@ public static class mSPO2IL {
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref DefConstructor, DefNode);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
 						mIL_AST.CreateInt(TempReg(1), "3"),
@@ -982,7 +982,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MatchTuple",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, b, c) = (1, 2, 3)",
 						aStreamOut
@@ -992,7 +992,7 @@ public static class mSPO2IL {
 				var Module = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref Module, DefNode);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					Module.Commands,
 					mArrayList.List(
 						mIL_AST.CreateInt(TempReg(1), "3"),
@@ -1018,7 +1018,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapMatchPrefix",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF (a, b, (#bla (c , d))) = (1, 2, (#bla (3, 4)))",
 						aStreamOut
@@ -1028,7 +1028,7 @@ public static class mSPO2IL {
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref DefConstructor, DefNode);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
 						mIL_AST.CreateInt(TempReg(1), "4"),
@@ -1065,7 +1065,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapLambda1",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF x = a => 2 .* a",
 						aStreamOut
@@ -1075,8 +1075,8 @@ public static class mSPO2IL {
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref DefConstructor, DefNode);
 				
-				mTest.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
-				mTest.AssertEq(
+				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mStd.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
 						mIL_AST.Alias(Ident("...*..."), mIL_AST.cEnv),
@@ -1091,9 +1091,9 @@ public static class mSPO2IL {
 					)
 				);
 				
-				mTest.AssertEq(DefConstructor.Index, 0);
+				mStd.AssertEq(DefConstructor.Index, 0);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
 						mIL_AST.Call(TempReg(1), TempDef(1), Ident("...*...")),
@@ -1101,7 +1101,7 @@ public static class mSPO2IL {
 					)
 				);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.UnsolvedSymbols,
 					mArrayList.List(Ident("...*..."), TempDef(1))
 				);
@@ -1110,7 +1110,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapLambda2",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Def.ParseText(
 						"§DEF ...*...+... = (a, b, c) => (a .* b) .+ c",
 						aStreamOut
@@ -1120,8 +1120,8 @@ public static class mSPO2IL {
 				var DefConstructor = NewDefConstructor(NewModuleConstructor());
 				MapDef(ref DefConstructor, DefNode);
 				
-				mTest.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
-				mTest.AssertEq(
+				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mStd.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
 						mIL_AST.GetFirst(Ident("...+..."), mIL_AST.cEnv),
@@ -1149,8 +1149,8 @@ public static class mSPO2IL {
 					)
 				);
 				
-				mTest.AssertEq(DefConstructor.Index, 0);
-				mTest.AssertEq(
+				mStd.AssertEq(DefConstructor.Index, 0);
+				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
 						mIL_AST.CreatePair(TempReg(1), Ident("...*..."), mIL_AST.cEmpty),
@@ -1160,7 +1160,7 @@ public static class mSPO2IL {
 					)
 				);
 				
-					mTest.AssertEq(
+					mStd.AssertEq(
 					DefConstructor.UnsolvedSymbols,
 					mArrayList.List(Ident("...+..."), Ident("...*..."), TempDef(1))
 				);
@@ -1169,7 +1169,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapNestedMatch",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Lambda.ParseText(
 						"(a, b, (x, y, z)) => a .* z",
 						aStreamOut
@@ -1182,9 +1182,9 @@ public static class mSPO2IL {
 					LambdaNode
 				);
 				
-				mTest.AssertEq(ModuleConstructor.Defs.Size(), 1);
-				mTest.AssertEq(DefIndex, 0);
-				mTest.AssertEq(
+				mStd.AssertEq(ModuleConstructor.Defs.Size(), 1);
+				mStd.AssertEq(DefIndex, 0);
+				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(DefIndex),
 					mArrayList.List(
 						mIL_AST.Alias(Ident("...*..."), mIL_AST.cEnv),
@@ -1214,7 +1214,7 @@ public static class mSPO2IL {
 					)
 				);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					UnsolvedSymbols,
 					mArrayList.List(Ident("...*..."))
 				);
@@ -1223,7 +1223,7 @@ public static class mSPO2IL {
 		mTest.Test(
 			"MapModule",
 			aStreamOut => {
-				mTest.Assert(
+				mStd.Assert(
 					mSPO_Parser.Module.ParseText(
 						mList.List(
 							"§IMPORT (",
@@ -1243,9 +1243,9 @@ public static class mSPO2IL {
 				
 				var ModuleConstructor = MapModule(ModuleNode);
 				
-				mTest.AssertEq(ModuleConstructor.Defs.Size(), 2);
+				mStd.AssertEq(ModuleConstructor.Defs.Size(), 2);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(0),
 					mArrayList.List(
 						mIL_AST.Alias(TempDef(1), mIL_AST.cEnv),
@@ -1272,7 +1272,7 @@ public static class mSPO2IL {
 					)
 				);
 				
-				mTest.AssertEq(
+				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
 						mIL_AST.GetFirst(Ident("...*..."), mIL_AST.cEnv),

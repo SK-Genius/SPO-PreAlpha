@@ -21,7 +21,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.Assert(a);
+		mStd.Assert(a);
 		#endif
 	}
 	
@@ -33,7 +33,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.Assert(a, aMsg);
+		mStd.Assert(a, aMsg);
 		#endif
 	}
 	
@@ -45,7 +45,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.Assert(a, aMsg);
+		mStd.Assert(a, aMsg);
 		#endif
 	}
 	
@@ -56,7 +56,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.AssertNot(a);
+		mStd.AssertNot(a);
 		#endif
 	}
 	
@@ -68,7 +68,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.AssertEq(a1, a2);
+		mStd.AssertEq(a1, a2);
 		#endif
 	}
 	
@@ -80,7 +80,7 @@ public static class mDebug {
 	//================================================================================
 	) {
 		#if DEBUG
-		mTest.AssertNotEq(a1, a2);
+		mStd.AssertNotEq(a1, a2);
 		#endif
 	}
 	

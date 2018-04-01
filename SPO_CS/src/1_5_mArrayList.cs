@@ -218,42 +218,42 @@ public static class mArrayList {
 		mTest.Test(
 			"tArrayList.IsEmpty(...)",
 			aStreamOut => {
-				mTest.Assert(List<tInt32>().IsEmpty());
-				mTest.AssertNot(List(1).IsEmpty());
+				mStd.Assert(List<tInt32>().IsEmpty());
+				mStd.AssertNot(List(1).IsEmpty());
 			}
 		),
 		mTest.Test(
 			"tArrayList.Equals(...)",
 			aStreamOut => {
-				mTest.AssertEq(List<tInt32>(), List<tInt32>());
-				mTest.AssertNotEq(List<tInt32>(), List(1));
-				mTest.AssertEq(List(1), List(1));
-				mTest.AssertNotEq(List(1), List(2));
-				mTest.AssertNotEq(List(1), List(1, 2));
-				mTest.AssertEq(List(3, 32, 5), List(3, 32, 5));
+				mStd.AssertEq(List<tInt32>(), List<tInt32>());
+				mStd.AssertNotEq(List<tInt32>(), List(1));
+				mStd.AssertEq(List(1), List(1));
+				mStd.AssertNotEq(List(1), List(2));
+				mStd.AssertNotEq(List(1), List(1, 2));
+				mStd.AssertEq(List(3, 32, 5), List(3, 32, 5));
 			}
 		),
 		mTest.Test(
 			"tArrayList.ToArrayList()",
 			aStreamOut => {
-				mTest.AssertEq(mList.List(1, 2, 3).ToArrayList(), List(1, 2, 3));
-				mTest.AssertEq(mList.List<tInt32>().ToArrayList(), List<tInt32>());
+				mStd.AssertEq(mList.List(1, 2, 3).ToArrayList(), List(1, 2, 3));
+				mStd.AssertEq(mList.List<tInt32>().ToArrayList(), List<tInt32>());
 			}
 		),
 		mTest.Test(
 			"tArrayList.ToLasyList()",
 			aStreamOut => {
-				mTest.AssertEq(List<tInt32>().ToLasyList(), mList.List<tInt32>());
-				mTest.AssertEq(List(1).ToLasyList(), mList.List(1));
-				mTest.AssertEq(List(1, 2, 3).ToLasyList(), mList.List(1, 2, 3));
+				mStd.AssertEq(List<tInt32>().ToLasyList(), mList.List<tInt32>());
+				mStd.AssertEq(List(1).ToLasyList(), mList.List(1));
+				mStd.AssertEq(List(1, 2, 3).ToLasyList(), mList.List(1, 2, 3));
 			}
 		),
 		mTest.Test(
 			"tArrayList.Push(...)",
 			aStreamOut => {
-				mTest.AssertEq(List<tInt32>().Push(1).Push(2), List(1, 2));
-				mTest.AssertEq(List(1, 2).Push(3).Push(4), List(1, 2, 3, 4));
-				mTest.AssertEq(List(1, 2, 3, 4, 5, 6, 7, 8).Push(9), List(1, 2, 3, 4, 5, 6, 7, 8, 9));
+				mStd.AssertEq(List<tInt32>().Push(1).Push(2), List(1, 2));
+				mStd.AssertEq(List(1, 2).Push(3).Push(4), List(1, 2, 3, 4));
+				mStd.AssertEq(List(1, 2, 3, 4, 5, 6, 7, 8).Push(9), List(1, 2, 3, 4, 5, 6, 7, 8, 9));
 			}
 		),
 		mTest.Test(
@@ -261,17 +261,17 @@ public static class mArrayList {
 			aStreamOut => {
 				{
 					var L = List(1, 2, 3);
-					mTest.AssertEq(L.Pop(), 3);
-					mTest.AssertEq(L.Pop(), 2);
-					mTest.AssertEq(L, List(1));
+					mStd.AssertEq(L.Pop(), 3);
+					mStd.AssertEq(L.Pop(), 2);
+					mStd.AssertEq(L, List(1));
 				}
 				{
 					var L = List(1, 2, 3);
-					mTest.AssertEq(L.Pop(out var X).Pop(out var Y), List(1));
-					mTest.AssertEq(X, 3);
-					mTest.AssertEq(Y, 2);
-					mTest.AssertEq(L.Pop(out X), List<tInt32>());
-					mTest.AssertEq(X, 1);
+					mStd.AssertEq(L.Pop(out var X).Pop(out var Y), List(1));
+					mStd.AssertEq(X, 3);
+					mStd.AssertEq(Y, 2);
+					mStd.AssertEq(L.Pop(out X), List<tInt32>());
+					mStd.AssertEq(X, 1);
 				}
 			}
 		),
@@ -280,27 +280,27 @@ public static class mArrayList {
 			aStreamOut => {
 				var L = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 				var Slots = (tInt32)12;
-				mTest.AssertEq(L._Items.Length, Slots);
+				mStd.AssertEq(L._Items.Length, Slots);
 				
 				L.Push(13);
 				Slots += Slots / 2;
-				mTest.AssertEq(L._Items.Length, Slots);
+				mStd.AssertEq(L._Items.Length, Slots);
 				
 				tInt32 _;
 				while (L.Size() > Slots/2) {
 					L.Pop(out _);
 				}
-				mTest.AssertEq(L._Items.Length, Slots);
+				mStd.AssertEq(L._Items.Length, Slots);
 				
 				L.Pop(out _);
 				Slots = L.Size() * 3 / 2;
-				mTest.AssertEq(L._Items.Length, Slots);
+				mStd.AssertEq(L._Items.Length, Slots);
 			}
 		),
 		mTest.Test(
 			"tArrayList.Get(...)",
 			aStreamOut => {
-				mTest.AssertEq(List(10, 11, 12).Get(1), 11);
+				mStd.AssertEq(List(10, 11, 12).Get(1), 11);
 			}
 		),
 		mTest.Test(
@@ -308,16 +308,16 @@ public static class mArrayList {
 			aStreamOut => {
 				var L = List(10, 11, 12, 13);
 				L.Set(1, 21);
-				mTest.AssertEq(L, List(10, 21, 12, 13));
+				mStd.AssertEq(L, List(10, 21, 12, 13));
 			}
 		),
 		mTest.Test(
 			"mArrayList.Concat(...)",
 			aStreamOut => {
-				mTest.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
-				mTest.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
-				mTest.AssertEq(Concat(List<tInt32>(), List(1, 2)), List(1, 2));
-				mTest.AssertEq(Concat(List(1, 2), List(3, 4, 5)), List(1, 2, 3, 4, 5));
+				mStd.AssertEq(Concat(List<tInt32>(), List<tInt32>()), List<tInt32>());
+				mStd.AssertEq(Concat(List(1, 2), List<tInt32>()), List(1, 2));
+				mStd.AssertEq(Concat(List<tInt32>(), List(1, 2)), List(1, 2));
+				mStd.AssertEq(Concat(List(1, 2), List(3, 4, 5)), List(1, 2, 3, 4, 5));
 			}
 		)
 	);

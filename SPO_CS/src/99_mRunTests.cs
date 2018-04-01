@@ -13,7 +13,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mProgram {
+public static class mRunTests {
 	//================================================================================
 	public static mTest.tResult
 	SelfTests(
@@ -22,9 +22,7 @@ public static class mProgram {
 	//================================================================================
 	) => mTest.Tests(
 		"All",
-		mStd.Test,
-//		mTest.Test,
-		mList.Test,
+		mTest.Test_,
 		mMap.Test,
 //		mMath.Test,
 		mArrayList.Test,
@@ -55,7 +53,7 @@ public static class mProgram {
 		if (
 			SelfTests(
 				mList.List(aArgs),
-				System.Console.WriteLine
+				_ => { System.Console.WriteLine(_); System.Console.Out.Flush(); }
 			) == mTest.tResult.Fail
 		) {
 			System.Environment.Exit(-1);

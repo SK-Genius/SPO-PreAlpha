@@ -212,9 +212,9 @@ public static class  mIL_Parser {
 		mTest.Test(
 			"SubParser",
 			aDebugStream => {
-				mTest.AssertEq(Int.ParseText("+1_234", aDebugStream), mParserGen.ResultList(1234));
-				mTest.AssertEq(QuotedString.ParseText("\"BLA\"", aDebugStream), mParserGen.ResultList("BLA"));
-				mTest.AssertEq(Ident.ParseText("BLA...", aDebugStream), mParserGen.ResultList("BLA..."));
+				mStd.AssertEq(Int.ParseText("+1_234", aDebugStream), mParserGen.ResultList(1234));
+				mStd.AssertEq(QuotedString.ParseText("\"BLA\"", aDebugStream), mParserGen.ResultList("BLA"));
+				mStd.AssertEq(Ident.ParseText("BLA...", aDebugStream), mParserGen.ResultList("BLA..."));
 			}
 		),
 		mTest.Test(
@@ -226,7 +226,7 @@ public static class  mIL_Parser {
 					mIL_AST.tCommandNode aCommandNode,
 					mStd.tAction<string> aDebugStream_
 				//================================================================================
-				) => mTest.AssertEq(
+				) => mStd.AssertEq(
 					Command.ParseText(aText, aDebugStream_),
 					mParserGen.ResultList(aCommandNode)
 				);

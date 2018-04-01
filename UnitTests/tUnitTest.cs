@@ -31,7 +31,7 @@ public static class tTests {
 		tText aFilter
 	//================================================================================
 	) {
-		mTest.AssertEq(
+		mStd.AssertEq(
 			aTest.Run(tConsole.WriteLine, mList.List(aFilter)),
 			mTest.tResult.OK
 		);
@@ -39,9 +39,9 @@ public static class tTests {
 	
 	[xTrait("all", "true")]
 	[xArg("")]
-	[xTest] public static void _0_All(tText a) {
-		mTest.AssertEq(
-			mProgram.SelfTests(mList.List(a), tConsole.WriteLine),
+	[xTest] public static void _99_RunTests(tText a) {
+		mStd.AssertEq(
+			mRunTests.SelfTests(mList.List(a), tConsole.WriteLine),
 			mTest.tResult.OK
 		);
 	}
@@ -50,8 +50,6 @@ public static class tTests {
 	[xArg("tMaybe.Equals()")]
 	[xArg("tVar.ToString()")]
 	[xArg("tVar.Equals()")]
-	[xTest] public static void _1_1_Std(tText a) => mStd.Test.Run(a);
-	
 	[xArg("tList.ToString()")]
 	[xArg("tList.Equals()")]
 	[xArg("Concat()")]
@@ -64,8 +62,8 @@ public static class tTests {
 	[xArg("IsEmpty()")]
 	[xArg("Any()")]
 	[xArg("Every()")]
-	[xTest] public static void _1_2_List(tText a) => mList.Test.Run(a);
-	
+	[xTest] public static void _1_1_Test(tText a) => mTest.Test_.Run(a);
+
 	[xArg("tMap.Get")]
 	[xArg("tMap.TryGet")]
 	[xArg("tMap.Remove")]

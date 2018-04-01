@@ -1,22 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5A378134-7447-4749-A3BA-39EB040C9952}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnitTests</RootNamespace>
-    <AssemblyName>UnitTests</AssemblyName>
+    <RootNamespace>m</RootNamespace>
+    <AssemblyName>mRunTests</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
+    <ProjectGuid>{5483855E-53E3-4907-83CB-F5CA2BC889A0}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,8 +20,8 @@
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>latest</LangVersion>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,110 +31,99 @@
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <LangVersion>latest</LangVersion>
-    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="tUnitTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="xunit">
-      <Version>2.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="xunit.runner.visualstudio">
-      <Version>2.2.0</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SPO_CS\mArrayList.csproj">
+    <ProjectReference Include="mArrayList.csproj">
       <Project>{dd3fdc30-c146-42a2-a79c-bc8ff5c430c9}</Project>
       <Name>mArrayList</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mDebug.csproj">
+    <ProjectReference Include="mDebug.csproj">
       <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
       <Name>mDebug</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mIL_AST.csproj">
+    <ProjectReference Include="mIL_AST.csproj">
       <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
       <Name>mIL_AST</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mIL_Interpreter.csproj">
+    <ProjectReference Include="mIL_Interpreter.csproj">
       <Project>{e94ac322-93d6-4f9a-87df-e78c5a6966bc}</Project>
       <Name>mIL_Interpreter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mIL_Parser.csproj">
+    <ProjectReference Include="mIL_Parser.csproj">
       <Project>{f4c65a3d-186f-4c69-a294-f9e8aa3f63c0}</Project>
       <Name>mIL_Parser</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mList.csproj">
+    <ProjectReference Include="mList.csproj">
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mMap.csproj">
+    <ProjectReference Include="mMap.csproj">
       <Project>{7b0031ff-2277-44cb-916a-0f41f71d8963}</Project>
       <Name>mMap</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mMath.csproj">
+    <ProjectReference Include="mMath.csproj">
       <Project>{aa06d4f4-790d-43d8-a90e-bc5ab801044d}</Project>
       <Name>mMath</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mParserGen.csproj">
+    <ProjectReference Include="mParserGen.csproj">
       <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
       <Name>mParserGen</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mRunTests.csproj">
-      <Project>{5483855e-53e3-4907-83cb-f5ca2bc889a0}</Project>
-      <Name>mRunTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mSPO2IL.csproj">
+    <ProjectReference Include="mSPO2IL.csproj">
       <Project>{9d12ae34-5293-40f0-944c-58c170971f7a}</Project>
       <Name>mSPO2IL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mSPO_AST.csproj">
+    <ProjectReference Include="mSPO_AST.csproj">
       <Project>{d0a5c13a-cd05-4bb7-ba16-835285cd4af8}</Project>
       <Name>mSPO_AST</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mSPO_Interpreter.csproj">
+    <ProjectReference Include="mSPO_Interpreter.csproj">
       <Project>{fd08d8a0-c590-4088-8a10-ea8123f77f21}</Project>
       <Name>mSPO_Interpreter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mSPO_Parser.csproj">
+    <ProjectReference Include="mSPO_Parser.csproj">
       <Project>{62d49e37-cc1a-4f34-bbe8-dd4294ff01b3}</Project>
       <Name>mSPO_Parser</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mStd.csproj">
+    <ProjectReference Include="mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mStdLib.csproj">
+    <ProjectReference Include="mStdLib.csproj">
       <Project>{6001d64b-e2c9-4afe-a655-a35828838e5d}</Project>
       <Name>mStdLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mTest.csproj">
+    <ProjectReference Include="mTest.csproj">
       <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
       <Name>mTest</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mTextParser.csproj">
+    <ProjectReference Include="mTextParser.csproj">
       <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
       <Name>mTextParser</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mVM.csproj">
+    <ProjectReference Include="mVM.csproj">
       <Project>{16f316ab-cda2-444e-9d43-9765a678073e}</Project>
       <Name>mVM</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mVM_Data.csproj">
+    <ProjectReference Include="mVM_Data.csproj">
       <Project>{7da28646-f50f-4bbd-aad5-d624a9501864}</Project>
       <Name>mVM_Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SPO_CS\mVM_Type.csproj">
+    <ProjectReference Include="mVM_Type.csproj">
       <Project>{818d6bb0-ce33-4c42-8ac5-d2c07de8b975}</Project>
       <Name>mVM_Type</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\99_mRunTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
