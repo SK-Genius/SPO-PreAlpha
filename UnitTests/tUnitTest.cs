@@ -62,12 +62,12 @@ public static class tTests {
 	[xArg("IsEmpty()")]
 	[xArg("Any()")]
 	[xArg("Every()")]
-	[xTest] public static void _1_1_Test(tText a) => mTest.Test_.Run(a);
+	[xTest] public static void Test(tText a) => mTest.Test_.Run(a);
 
 	[xArg("tMap.Get")]
 	[xArg("tMap.TryGet")]
 	[xArg("tMap.Remove")]
-	[xTest] public static void _1_3_Map(tText a) => mMap.Test.Run(a);
+	[xTest] public static void Map(tText a) => mMap.Test.Run(a);
 	
 	[xArg("tArrayList.IsEmpty(...)")]
 	[xArg("tArrayList.Equals(...)")]
@@ -79,7 +79,7 @@ public static class tTests {
 	[xArg("tArrayList.Get(...)")]
 	[xArg("tArrayList.Set(...)")]
 	[xArg("mArrayList.Concat(...)")]
-	[xTest] public static void _1_5_ArrayList(tText a) => mArrayList.Test.Run(a);
+	[xTest] public static void ArrayList(tText a) => mArrayList.Test.Run(a);
 	
 	[xArg("AtomParser")]
 	[xArg("...+...")]
@@ -95,38 +95,38 @@ public static class tTests {
 	[xArg("....ModifyList(a => a.Reduce(...))")]
 	[xArg("~...")]
 	[xArg("Eval('MathExpr')")]
-	[xTest] public static void _2_1_ParserGen(tText a) => mParserGen.Test.Run(a);
+	[xTest] public static void ParserGen(tText a) => mParserGen.Test.Run(a);
 	
 	[xArg("TODO")]
-	[xTest] public static void _2_2_TextParser(tText a) => mTextParser.Test.Run(a);
+	[xTest] public static void TextParser(tText a) => mTextParser.Test.Run(a);
 	
 	[xArg("ExternDef")]
 	[xArg("InternDef")]
-	[xTest] public static void _3_1_VM(tText a) => mVM.Test.Run(a);
+	[xTest] public static void VM(tText a) => mVM.Test.Run(a);
 	
 	[xArg("BoolBool")]
 	[xArg("BoolInt")]
-	[xTest] public static void _3_2_VM_Type(tText a) => mVM_Type.Test.Run(a);
+	[xTest] public static void VM_Type(tText a) => mVM_Type.Test.Run(a);
 	
 	[xArg("TODO: ExternDef")]
-	[xTest] public static void _3_3_VM_Data(tText a) => mVM_Data.Test.Run(a);
+	[xTest] public static void VM_Data(tText a) => mVM_Data.Test.Run(a);
 	
 	[xArg("TODO")]
-	[xTest] public static void _4_1_IL_AST(tText a) => mIL_AST.Test.Run(a);
+	[xTest] public static void IL_AST(tText a) => mIL_AST.Test.Run(a);
 	
 	[xArg("SubParser")]
 	[xArg("Commands")]
-	[xTest] public static void _4_2_IL_Parser(tText a) => mIL_Parser.Test.Run(a);
+	[xTest] public static void IL_Parser(tText a) => mIL_Parser.Test.Run(a);
 	
 	[xArg("Call")]
 	[xArg("Prefix")]
 	[xArg("Assert")]
 	[xArg("§TYPE_OF...IS...")]
 	[xArg("ParseModule")]
-	[xTest] public static void _4_3_IL_Interpreter(tText a) => mIL_Interpreter.Test.Run(a);
+	[xTest] public static void IL_Interpreter(tText a) => mIL_Interpreter.Test.Run(a);
 	
 	[xArg("TODO")]
-	[xTest] public static void _5_1_SPO_AST(tText a) => mSPO_AST.Test.Run(a);
+	[xTest] public static void SPO_AST(tText a) => mSPO_AST.Test.Run(a);
 	
 	[xArg("Atoms")]
 	[xArg("Tuple")]
@@ -138,7 +138,7 @@ public static class tTests {
 	[xArg("NestedMatch")]
 	[xArg("PrefixMatch")]
 	[xArg("MethodCall")]
-	[xTest] public static void _5_2_SPO_Parser(tText a) => mSPO_Parser.Test.Run(a);
+	[xTest] public static void SPO_Parser(tText a) => mSPO_Parser.Test.Run(a);
 	
 	[xArg("MapExpresion")]
 	[xArg("MapDef1")]
@@ -149,14 +149,14 @@ public static class tTests {
 	[xArg("MapLambda2")]
 	[xArg("MapNestedMatch")]
 	[xArg("MapModule")]
-	[xTest] public static void _5_3_SPO2IL(tText a) => mSPO2IL.Test.Run(a);
+	[xTest] public static void SPO2IL(tText a) => mSPO2IL.Test.Run(a);
 	
 	[xArg("Run1")]
 	[xArg("Run2")]
 	[xArg("Run3")]
 	[xArg("Run4")]
 	[xArg("Run5")]
-	[xTest] public static void _5_4_SPO_Interpreter(tText a) => mSPO_Interpreter.Test.Run(a);
+	[xTest] public static void SPO_Interpreter(tText a) => mSPO_Interpreter.Test.Run(a);
 	
 	[xArg("IfThenElse")]
 	[xArg("If2")]
@@ -164,5 +164,5 @@ public static class tTests {
 	[xArg("IfMatch2")]
 	[xArg("VAR")]
 	[xArg("Echo")]
-	[xTest] public static void _6_StdLib(tText a) => mStdLib.Test.Run(a);
+	[xTest] public static void StdLib(tText a) => mStdLib.Test.Run(a);
 }

@@ -64,7 +64,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\4_2_mIL_Parser.cs" />
+    <Compile Include="src\mIL_Parser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -38,7 +38,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\1_1_mTest.cs" />
+    <Compile Include="src\mTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="mList.csproj">

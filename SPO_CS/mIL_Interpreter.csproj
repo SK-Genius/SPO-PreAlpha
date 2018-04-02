@@ -92,7 +92,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\4_3_mIL_Interpreter.cs" />
+    <Compile Include="src\mIL_Interpreter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -52,7 +52,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\4_1_mIL_AST.cs" />
+    <Compile Include="src\mIL_AST.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

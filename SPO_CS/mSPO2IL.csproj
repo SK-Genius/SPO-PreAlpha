@@ -80,7 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\5_3_mSPO2IL.cs" />
+    <Compile Include="src\mSPO2IL.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

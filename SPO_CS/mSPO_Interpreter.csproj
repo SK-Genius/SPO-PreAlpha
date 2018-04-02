@@ -96,7 +96,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\5_4_mSPO_Interpreter.cs" />
+    <Compile Include="src\mSPO_Interpreter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
