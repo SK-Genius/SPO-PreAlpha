@@ -113,7 +113,7 @@ public static class mSPO2IL {
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
 		).Where(
-			S1 => KnownSymbols.Where(S2 => S1 == S2).IsEmpty()
+			S1 => KnownSymbols.All(S2 => S1 != S2)
 		).ToArrayList();
 		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
@@ -134,7 +134,7 @@ public static class mSPO2IL {
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
 		).Where(
-			S1 => KnownSymbols.Where(S2 => S1 == S2).IsEmpty()
+			S1 => KnownSymbols.All(S2 => S1 != S2)
 		).ToArrayList();
 		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
@@ -206,7 +206,7 @@ public static class mSPO2IL {
 		if (!aEnv.IsEmpty()) {
 			var UnsolvedSymbols = aEnv.ToLasyList();
 			while (UnsolvedSymbols.Match(out var Symbol, out UnsolvedSymbols)) {
-				if (aDefConstructor.UnsolvedSymbols.ToLasyList().Where(S => S == Symbol).IsEmpty()) {
+				if (aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != Symbol)) {
 					aDefConstructor.UnsolvedSymbols.Push(Symbol);
 				}
 			}
@@ -257,14 +257,11 @@ public static class mSPO2IL {
 			}
 			case mSPO_AST.tIdentNode IdentNode: {
 				if (
-					aDefConstructor.UnsolvedSymbols.ToLasyList(
-					).Where(
-						a => a == IdentNode.Name
-					).IsEmpty() &&
+					aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != IdentNode.Name) &&
 					aDefConstructor.Commands.ToLasyList(
-					).Where(
-						a => a.TryGetResultReg(out var Name) && Name == IdentNode.Name
-					).IsEmpty()
+					).All(
+						_ => !_.TryGetResultReg(out var Name) || Name != IdentNode.Name
+					)
 				) {
 					aDefConstructor.UnsolvedSymbols.Push(IdentNode.Name);
 				}
@@ -562,10 +559,7 @@ public static class mSPO2IL {
 					break;
 				}
 				mDebug.Assert(
-					aDefConstructor.KnownSymbols.ToLasyList(
-					).Where(
-						Symbol => Symbol == IdentNode.Name
-					).IsEmpty()
+					aDefConstructor.KnownSymbols.ToLasyList().All(_ => _ != IdentNode.Name)
 				);
 				aDefConstructor.Commands.Push(
 					mIL_AST.Alias(IdentNode.Name, aInReg)
@@ -699,10 +693,8 @@ public static class mSPO2IL {
 			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToLasyList(
 			).Where(
 				aUnsolved => (
-					KnownSymbols.Where(aKnown => aKnown == aUnsolved).IsEmpty() &&
-					aRecLambdasNode.List.Where(
-						aRecLambda => aRecLambda.Ident.Name == aUnsolved
-					).IsEmpty()
+					KnownSymbols.All(_ => _ != aUnsolved) &&
+					aRecLambdasNode.List.All(_ => _.Ident.Name != aUnsolved)
 				)
 			);
 			
@@ -732,12 +724,7 @@ public static class mSPO2IL {
 			if (!AllUnsolvedSymbols.IsEmpty()) {
 				var Iterator = AllUnsolvedSymbols.ToLasyList();
 				while (Iterator.Match(out tText UnsolvedSymbol, out Iterator)) {
-					if (
-						aDefConstructor.UnsolvedSymbols.ToLasyList(
-						).Where(
-							a => a == UnsolvedSymbol
-						).IsEmpty()
-					) {
+					if (aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != UnsolvedSymbol)) {
 						aDefConstructor.UnsolvedSymbols.Push(UnsolvedSymbol);
 					}
 				}
@@ -801,7 +788,7 @@ public static class mSPO2IL {
 			}
 			
 			var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
-			if (KnownSymbols.Where(a => MethodName == a).IsEmpty()) {
+			if (KnownSymbols.All(_ => _ != MethodName)) {
 				aDefConstructor.UnsolvedSymbols.Push(MethodName);
 			}
 		}

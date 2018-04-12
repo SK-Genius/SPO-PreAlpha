@@ -704,7 +704,7 @@ public static class mParserGen {
 		mList.tList<tParser<t, tError>> aInfinitLoopDetectionSet
 	//================================================================================
 	) {
-		if (!aInfinitLoopDetectionSet.Where(_ => ReferenceEquals(_, aParser)).IsEmpty()) {
+		if (!aInfinitLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 			#if TRACE
 				aDebugStream($"!!! INFINIT LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
 			#endif
