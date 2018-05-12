@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mVM_Data", "SPO_CS\mVM_Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mVM_Type", "SPO_CS\mVM_Type.csproj", "{818D6BB0-CE33-4C42-8AC5-D2C07DE8B975}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mIL_Tokenizer", "SPO_CS\mIL_Tokenizer.csproj", "{EABC4852-8577-43EF-B3AC-5D75015EDC9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,10 @@ Global
 		{818D6BB0-CE33-4C42-8AC5-D2C07DE8B975}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{818D6BB0-CE33-4C42-8AC5-D2C07DE8B975}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{818D6BB0-CE33-4C42-8AC5-D2C07DE8B975}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EABC4852-8577-43EF-B3AC-5D75015EDC9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EABC4852-8577-43EF-B3AC-5D75015EDC9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EABC4852-8577-43EF-B3AC-5D75015EDC9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EABC4852-8577-43EF-B3AC-5D75015EDC9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

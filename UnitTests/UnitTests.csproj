@@ -77,6 +77,10 @@
       <Project>{f4c65a3d-186f-4c69-a294-f9e8aa3f63c0}</Project>
       <Name>mIL_Parser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SPO_CS\mIL_Tokenizer.csproj">
+      <Project>{eabc4852-8577-43ef-b3ac-5d75015edc9b}</Project>
+      <Name>mIL_Tokenizer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SPO_CS\mList.csproj">
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>

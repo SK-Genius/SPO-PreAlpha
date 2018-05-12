@@ -24,7 +24,7 @@ public static class mStdLib {
 			return _ImportData;
 		}
 		_ImportData = mIL_Interpreter.Run(
-@"DEF Init
+@"§DEF Init
 	_01 := ENV
 	!... := §1ST _01
 	_02 := §2ND _01
@@ -90,117 +90,117 @@ public static class mStdLib {
 	_80 := . !... EMPTY
 	_81 := _80, _79
 	§RETURN _81 IF TRUE
-DEF !...
+§DEF !...
 	Res := §BOOL ARG ^ TRUE
 	§RETURN Res IF TRUE
-DEF ...&...
+§DEF ...&...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §BOOL A & B
 	§RETURN Res IF TRUE
-DEF ...|...
+§DEF ...|...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §BOOL A | B
 	§RETURN Res IF TRUE
-DEF ...^...
+§DEF ...^...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §BOOL A ^ B
 	§RETURN Res IF TRUE
-DEF -...
+§DEF -...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
-	1 := ONE
-	0 := §INT 1 - 1
-	Res := §INT 0 - B
+	_1 := ONE
+	_0 := §INT _1 - _1
+	Res := §INT _0 - B
 	§RETURN Res IF TRUE
-DEF ...+...
+§DEF ...+...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A + B
 	§RETURN Res IF TRUE
-DEF ...-...
+§DEF ...-...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A - B
 	§RETURN Res IF TRUE
-DEF ...*...
+§DEF ...*...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A * B
 	§RETURN Res IF TRUE
-DEF .../...
+§DEF .../...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A * B
 	§RETURN Res IF TRUE
-DEF ...%...
+§DEF ...%...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A * B
 	§RETURN Res IF TRUE
-DEF ...==...
+§DEF ...==...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Res := §INT A == B
 	§RETURN Res IF TRUE
-DEF ...!=...
+§DEF ...!=...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
 	Comp := §INT A == B
 	Res := §BOOL Comp ^ TRUE
 	§RETURN Res IF TRUE
-DEF ...>...
+§DEF ...>...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
-	1 := ONE
+	_1 := ONE
 	Comp := §INT A <=> B
-	Res := §INT Comp == 1
+	Res := §INT Comp == _1
 	§RETURN Res IF TRUE
-DEF ...>=...
+§DEF ...>=...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
-	1 := ONE
-	0 := §INT 1 - 1
+	_1 := ONE
+	_0 := §INT _1 - _1
 	Comp := §INT A <=> B
-	>? := §INT Comp == 1
-	=? := §INT Comp == 0
+	>? := §INT Comp == _1
+	=? := §INT Comp == _0
 	Res := §BOOL >? | =?
 	§RETURN Res IF TRUE
-DEF ...<...
+§DEF ...<...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
-	1 := ONE
-	0 := §INT 1 - 1
-	-1 := §INT 0 - 1
+	_1 := ONE
+	_0 := §INT _1 - _1
+	_-1 := §INT _0 - _1
 	Comp := §INT A <=> B
-	Res := §INT Comp == -1
+	Res := §INT Comp == _-1
 	§RETURN Res IF TRUE
-DEF ...<=...
+§DEF ...<=...
 	A := §1ST ARG
 	_ := §2ND ARG
 	B := §1ST _
-	1 := ONE
-	0 := §INT 1 - 1
-	-1 := §INT 0 - 1
+	_1 := ONE
+	_0 := §INT _1 - _1
+	_-1 := §INT _0 - _1
 	Comp := §INT A <=> B
-	<? := §INT Comp == -1
-	=? := §INT Comp == 0
+	<? := §INT Comp == _-1
+	=? := §INT Comp == _0
 	Res := §BOOL <? | =?
 	§RETURN Res IF TRUE
 ",

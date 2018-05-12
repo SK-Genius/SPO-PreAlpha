@@ -258,6 +258,17 @@ public static class mParserGen {
 	}
 	
 	//================================================================================
+	public static tResultList
+	Reduce<t>(
+		this tResultList aArgs,
+		mStd.tFunc<t, t, t> aAgregatorFunc
+	//================================================================================
+	) {
+		mDebug.Assert(aArgs.Value.Match(out var Head, out var Tail));
+		return ResultList(Tail.Map(mStd.To<t>).Reduce(Head.To<t>(), aAgregatorFunc));
+	}
+	
+	//================================================================================
 	public static tBool
 	GetHeadTail(
 		this tResultList aList,
@@ -736,7 +747,7 @@ public static class mParserGen {
 			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, Head));
 		}
 		#if TRACE
-			if (Result._IsOK) {
+			if (Result.Match(out var Results, out var _)) {
 				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
 			} else {
 				aDebugStream("} -> FAIL");

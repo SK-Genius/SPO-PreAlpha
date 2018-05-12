@@ -114,7 +114,9 @@ public static class tTests {
 	[xArg("TODO")]
 	[xTest] public static void IL_AST(tText a) => mIL_AST.Test.Run(a);
 	
-	[xArg("SubParser")]
+	[xArg("TODO")]
+	[xTest] public static void IL_Tokenizer(tText a) => mIL_Tokenizer.Test.Run(a);
+	
 	[xArg("Commands")]
 	[xTest] public static void IL_Parser(tText a) => mIL_Parser.Test.Run(a);
 	

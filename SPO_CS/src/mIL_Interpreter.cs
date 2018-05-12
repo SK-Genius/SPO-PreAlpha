@@ -512,9 +512,9 @@ public static class mIL_Interpreter {
 			"Call",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
-					"DEF ...++\n" +
-					"	1_ := 1\n" +
-					"	res := §INT ARG + 1_\n" +
+					"§DEF ...++\n" +
+					"	_1 := 1\n" +
+					"	res := §INT ARG + _1\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
@@ -543,14 +543,14 @@ public static class mIL_Interpreter {
 			"Prefix",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
-					"DEF ...++\n" +
+					"§DEF ...++\n" +
 					"	add := .ENV EMPTY\n" +
-					"	1_ := 1\n" +
+					"	_1 := 1\n" +
 					
-					"	arg := -VECTOR ARG\n" +
-					"	arg_1 := arg, 1_\n" +
+					"	arg := -#VECTOR ARG\n" +
+					"	arg_1 := arg, _1\n" +
 					"	inc := .add arg_1\n" +
-					"	res := +VECTOR inc\n" +
+					"	res := +#VECTOR inc\n" +
 					"	§RETURN res IF TRUE\n",
 					aDebugStream
 				);
@@ -580,7 +580,7 @@ public static class mIL_Interpreter {
 			"§TYPE_OF...IS...",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
-					"DEF AssertInt...\n" +
+					"§DEF AssertInt...\n" +
 					"	§TYPE_OF ENV IS EMPTY_TYPE\n" +
 					"	§TYPE_OF OBJ IS EMPTY_TYPE\n" +
 					"	§TYPE_OF ARG IS INT_TYPE\n" +
@@ -614,10 +614,10 @@ public static class mIL_Interpreter {
 			"Assert",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
-					"DEF ...++\n" +
+					"§DEF ...++\n" +
 					"	...=...? := . ENV EMPTY\n" +
-					"	1_ := 1\n" + 
-					"	arg_1 := ARG, 1_\n" +
+					"	_1 := 1\n" + 
+					"	arg_1 := ARG, _1\n" +
 					"	arg_eq_1? := . ...=...? arg_1\n" +
 					"	§ASSERT TRUE => arg_eq_1?\n" +
 					"	§RETURN arg_eq_1? IF TRUE\n",
@@ -667,7 +667,7 @@ public static class mIL_Interpreter {
 			"ParseModule",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
-					"DEF bla\n" +
+					"§DEF bla\n" +
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +
 					
@@ -677,7 +677,7 @@ public static class mIL_Interpreter {
 					"	r := .add p\n" +
 					"	§RETURN r IF TRUE\n" +
 					
-					"DEF bla2\n" +
+					"§DEF bla2\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +
@@ -699,7 +699,7 @@ public static class mIL_Interpreter {
 					"	_12  := .mul _3_4\n" +
 					"	§RETURN _12 IF TRUE\n" +
 					
-					"DEF ...!!\n" +
+					"§DEF ...!!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +
@@ -714,12 +714,12 @@ public static class mIL_Interpreter {
 					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
 					"	eq  := .eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
 					
-					"	1_1 := _1, _1\n" +
-					"	0   := .sub 1_1\n" +
+					"	_1_1 := _1, _1\n" +
+					"	_0   := .sub _1_1\n" +
 					
 					"	arg    := §1ST ARG\n" +
 					"	res    := §2ND ARG\n" +
-					"	arg_0  := arg, 0\n" +
+					"	arg_0  := arg, _0\n" +
 					"	areEq0 := .eq arg_0\n" +
 					"	§RETURN res IF areEq0\n" +
 					
@@ -730,7 +730,7 @@ public static class mIL_Interpreter {
 					"	newArg_newRes := newArg, newRes\n" +
 					"	§REPEAT newArg_newRes IF TRUE\n" +
 					
-					"DEF ...!\n" +
+					"§DEF ...!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +

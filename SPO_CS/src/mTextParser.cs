@@ -25,6 +25,16 @@ public static class mTextParser {
 		public tChar Char;
 	}
 	
+	public struct tPosText {
+		public tPos Pos;
+		public tText Text;
+	}
+	
+	public struct tPosInt {
+		public tPos Pos;
+		public tInt32 Int;
+	}
+	
 	public struct tError {
 		public tPos Pos;
 		public tText Message;
@@ -123,13 +133,6 @@ public static class mTextParser {
 	}
 	
 	//================================================================================
-	private static mStd.tFunc<tChar, tPosChar>
-	Modifyer = (
-		tPosChar a
-	//================================================================================
-	) => a.Char;
-	
-	//================================================================================
 	public static mParserGen.tParser<tPosChar, tError>
 	GetChar(
 		tChar aRefChar
@@ -138,7 +141,6 @@ public static class mTextParser {
 		a => a.Char == aRefChar,
 		a => new tError{ Pos = a.Pos, Message = $"expect {aRefChar}" }
 	)
-	.Modify(Modifyer)
 	.SetDebugName("'", aRefChar.ToString(), "'");
 	
 	//================================================================================
@@ -150,7 +152,6 @@ public static class mTextParser {
 		a => a.Char != aRefChar,
 		a => new tError{ Pos = a.Pos, Message = $"expect not {aRefChar}" }
 	)
-	.Modify(Modifyer)
 	.SetDebugName("'^", aRefChar.ToString(), "'");
 	
 	//================================================================================
@@ -169,7 +170,6 @@ public static class mTextParser {
 		},
 		a => new tError{ Pos = a.Pos, Message = $"expect one of [{aRefChars}]" }
 	)
-	.Modify(Modifyer)
 	.SetDebugName("[", aRefChars, "]");
 	
 	//================================================================================
@@ -188,7 +188,6 @@ public static class mTextParser {
 		},
 		a => new tError{ Pos = a.Pos, Message = $"expect non of [{aRefChars}]" }
 	)
-	.Modify(Modifyer)
 	.SetDebugName("[^", aRefChars, "]");
 	
 	//================================================================================
@@ -201,7 +200,6 @@ public static class mTextParser {
 		a => aMinChar <= a.Char && a.Char <= aMaxChar,
 		a => new tError{ Pos = a.Pos, Message = $"expect one in [{aMinChar}...{aMaxChar}]" }
 	)
-	.Modify(Modifyer)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
 	//================================================================================
@@ -210,12 +208,21 @@ public static class mTextParser {
 		tText aToken
 	//================================================================================
 	) {
+		mStd.AssertNotEq(aToken.Length, 0);
+		
 		var Parser = mParserGen.EmptyParser<tPosChar, tError>();
 		foreach (var Char in aToken) {
 			Parser += GetChar(Char);
 		}
 		return Parser
-		.ModifyList(a => mParserGen.ResultList(aToken))
+		.ModifyList(
+			a => mParserGen.ResultList(
+				new tPosText {
+					Pos = a.Value.First().To<tPosChar>().Pos,
+					Text = aToken
+				}
+			)
+		)
 		.AddError(
 			a => new tError {
 				Pos = a.Pos,

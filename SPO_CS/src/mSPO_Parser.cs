@@ -18,12 +18,15 @@ using tResults = mList.tList<mStd.tAny>;
 using tSPO_Parser = mParserGen.tParser<mTextParser.tPosChar, mTextParser.tError>;
 
 public static class mSPO_Parser {
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> Char = mTextParser.GetChar;
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> NotChar = mTextParser.GetNotChar;
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharIn = mTextParser.GetCharIn;
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharNotIn = mTextParser.GetCharNotIn;
-	public static readonly mStd.tFunc<tSPO_Parser, tChar, tChar> CharInRange = mTextParser.GetCharInRange;
-	public static readonly mStd.tFunc<tSPO_Parser, tText> Text = mTextParser.GetToken;
+	private static readonly mStd.tFunc<tChar, mTextParser.tPosChar> SelectChar = a => a.Char;
+	private static readonly mStd.tFunc<tText, mTextParser.tPosText> SelectText = a => a.Text;
+	
+	public static readonly mStd.tFunc<tSPO_Parser, tChar> Char = a => mTextParser.GetChar(a).Modify(SelectChar);
+	public static readonly mStd.tFunc<tSPO_Parser, tChar> NotChar = a => mTextParser.GetNotChar(a).Modify(SelectChar);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> CharIn = a => mTextParser.GetCharIn(a).Modify(SelectChar);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> CharNotIn = a => mTextParser.GetCharNotIn(a).Modify(SelectChar);
+	public static readonly mStd.tFunc<tSPO_Parser, tChar, tChar> CharInRange = (a1, a2) => mTextParser.GetCharInRange(a1, a2).Modify(SelectChar);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> Text = a => mTextParser.GetToken(a).Modify(SelectText);
 	
 	public static readonly tSPO_Parser
 	_ = CharIn(" \t")
@@ -171,11 +174,10 @@ public static class mSPO_Parser {
 	//================================================================================
 	public static tSPO_Parser
 	Infix(
-		tText aPrefix,
 		tSPO_Parser aChildParser
 	//================================================================================
 	) => (
-		(-Token(aPrefix) +Ident +(( +aChildParser + Ident )[0, null] + aChildParser[0, 1]).OrFail())
+		(+Ident +(( +aChildParser + Ident )[0, null] + aChildParser[0, 1]).OrFail())
 		.ModifyList(
 			aList => {
 				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
@@ -195,23 +197,26 @@ public static class mSPO_Parser {
 				);
 			}
 		)
+	);
+	
+	//================================================================================
+	public static tSPO_Parser
+	Infix(
+		tText aPrefix,
+		tSPO_Parser aChildParser
+	//================================================================================
+	) => (
+		-Token(aPrefix) +Infix(aChildParser)
 	) | (
-		(+aChildParser -Token(aPrefix) +Ident +(( +aChildParser +Ident )[0, null] +aChildParser[0, 1]).OrFail())
+		(+aChildParser -Token(aPrefix) +Infix(aChildParser))
 		.ModifyList(
-			aList => {
-				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "" : "...";
-				return (
-					mParserGen.ResultList(
-						(
-							mSPO_AST.Ident(
-								"..."+aList.Value.Skip(1).Every(2).Map(
-									a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
-								).Join(
-									(a1, a2) => $"{a1}...{a2}"
-								)+Last
-							),
-							aList.Value.Every(2)
-						)
+			a => {
+				a.GetHeadTail(out var FirstChild, out var Rest);
+				mStd.Assert(Rest.Value.First().Match(out (mSPO_AST.tIdentNode Ident, tResults ChildList) Infix));
+				return mParserGen.ResultList(
+					(
+						new mSPO_AST.tIdentNode { Name = "_..." + Infix.Ident.Name.Substring(1) },
+						mList.Concat(mList.List(FirstChild), Infix.ChildList)
 					)
 				);
 			}
@@ -221,13 +226,10 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser
 	Call = (
 		Infix(".", ExpressionInCall).Modify(
-			((mSPO_AST.tIdentNode, tResults) aPair) => {
-				var (Ident, ChildList) = aPair;
-				return mSPO_AST.Call(
-					Ident,
-					mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
-				);
-			}
+			((mSPO_AST.tIdentNode Ident, tResults Childs) a) =>  mSPO_AST.Call(
+				a.Ident,
+				mSPO_AST.Tuple(a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode>))
+			)
 		) |
 		(-Token(".") +ExpressionInCall +ExpressionInCall).Modify(mSPO_AST.Call)
 	)
@@ -379,7 +381,7 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	MethodCall = (
-		+Infix("", Expression)
+		+Infix(Expression)
 		+(-Token("=>") -Token("§DEF") +Match)[0, 1].ModifyList(
 			a => mParserGen.ResultList(
 				a.Value?.First().To<mSPO_AST.tMatchNode?>()
