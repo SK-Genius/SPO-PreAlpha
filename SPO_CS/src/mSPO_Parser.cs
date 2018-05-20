@@ -15,18 +15,17 @@ using tText = System.String;
 
 using tResults = mList.tList<mStd.tAny>;
 
-using tSPO_Parser = mParserGen.tParser<mTextParser.tPosChar, mTextParser.tError>;
+using tPos = mTextParser.tPos;
+using tSpan = mStd.tSpan<mTextParser.tPos>;
+using tSPO_Parser = mParserGen.tParser<mTextParser.tPos, System.Char, mTextParser.tError>;
 
 public static class mSPO_Parser {
-	private static readonly mStd.tFunc<tChar, mTextParser.tPosChar> SelectChar = a => a.Char;
-	private static readonly mStd.tFunc<tText, mTextParser.tPosText> SelectText = a => a.Text;
-	
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> Char = a => mTextParser.GetChar(a).Modify(SelectChar);
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> NotChar = a => mTextParser.GetNotChar(a).Modify(SelectChar);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharIn = a => mTextParser.GetCharIn(a).Modify(SelectChar);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharNotIn = a => mTextParser.GetCharNotIn(a).Modify(SelectChar);
-	public static readonly mStd.tFunc<tSPO_Parser, tChar, tChar> CharInRange = (a1, a2) => mTextParser.GetCharInRange(a1, a2).Modify(SelectChar);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> Text = a => mTextParser.GetToken(a).Modify(SelectText);
+	public static readonly mStd.tFunc<tSPO_Parser, tChar> Char = a => mTextParser.GetChar(a);
+	public static readonly mStd.tFunc<tSPO_Parser, tChar> NotChar = a => mTextParser.GetNotChar(a);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> CharIn = a => mTextParser.GetCharIn(a);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> CharNotIn = a => mTextParser.GetCharNotIn(a);
+	public static readonly mStd.tFunc<tSPO_Parser, tChar, tChar> CharInRange = (a1, a2) => mTextParser.GetCharInRange(a1, a2);
+	public static readonly mStd.tFunc<tSPO_Parser, tText> Text = a => mTextParser.GetToken(a);
 	
 	public static readonly tSPO_Parser
 	_ = CharIn(" \t")
@@ -47,12 +46,12 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser
 	String = (-Char('"') +NotChar('"')[0, null] -Char('"'))
 	.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))
-	.Modify(mSPO_AST.Text)
+	.Modify((mStd.tFunc<mSPO_AST.tTextNode<tPos>, tSpan, tText>)mSPO_AST.Text<tPos>)
 	.SetName(nameof(String));
 	
 	public static readonly tSPO_Parser
 	Digit = CharInRange('0', '9')
-	.Modify((tChar aChar) => (int)aChar - (int)'0')
+	.Modify((tSpan aSpan, tChar aChar) => (int)aChar - (int)'0')
 	.SetName(nameof(Digit));
 	
 	public static readonly tSPO_Parser
@@ -62,12 +61,12 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	PosSignum = Char('+')
-	.Modify(() => +1)
+	.Modify((tSpan aSpan) => +1)
 	.SetName(nameof(PosSignum));
 	
 	public static readonly tSPO_Parser
 	NegSignum = Char('-')
-	.Modify(() => -1)
+	.Modify((tSpan aSpan) => -1)
 	.SetName(nameof(NegSignum));
 	
 	public static readonly tSPO_Parser
@@ -76,12 +75,12 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	Int = (Signum + Nat)
-	.Modify((int aSig, int aAbs) => aSig * aAbs)
+	.Modify((tSpan aSpan, int aSig, int aAbs) => aSig * aAbs)
 	.SetName(nameof(Int));
 	
 	public static readonly tSPO_Parser
-	Num = ( Int | Nat )
-	.Modify(mSPO_AST.Number)
+	Num = (Int | Nat)
+	.Modify((tSpan aSpan, tInt32 a) => mSPO_AST.Number(aSpan, a))
 	.SetName(nameof(Num));
 	
 	public static readonly tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
@@ -92,10 +91,10 @@ public static class mSPO_Parser {
 	.SetName(nameof(Empty));
 	
 	public static readonly tSPO_Parser
-	Ident = ( ( CharNotIn(SpazialChars).Modify((tChar aChar) => aChar.ToString()) | Text("...") )[1, null] -__ )
+	Ident = ( ( CharNotIn(SpazialChars).Modify((tSpan aSpan, tChar aChar) => aChar.ToString()) | Text("...") )[1, null] -__ )
 	.ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
 	.Assert((tText aText) => aText != "=>")
-	.Modify(mSPO_AST.Ident)
+	.Modify((tSpan aSpan, tText a) => mSPO_AST.Ident(aSpan, a))
 	.SetName(nameof(Ident));
 	
 	public static readonly tSPO_Parser
@@ -113,20 +112,20 @@ public static class mSPO_Parser {
 	);
 	
 	public static readonly tSPO_Parser
-	ExpressionInCall = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
+	ExpressionInCall = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
 	.SetName(nameof(ExpressionInCall));
 	
 	public static readonly tSPO_Parser
-	Expression = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
+	Expression = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
 	.SetName(nameof(Expression));
 	
 	public static readonly tSPO_Parser
-	UnTypedMatch = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
+	UnTypedMatch = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
 	.SetName(nameof(UnTypedMatch));
 	
 	public static readonly tSPO_Parser
 	TypedMatch = (+UnTypedMatch -Token("€") +Expression.OrFail())
-	.Modify(mSPO_AST.Match)
+	.Modify((tSpan aSpan, mSPO_AST.tMatchNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => mSPO_AST.Match(aSpan, a1, a2))
 	.SetName(nameof(TypedMatch));
 	
 	public static readonly tSPO_Parser
@@ -135,38 +134,39 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	Def = (-Token("§DEF") +(+Match -Token("=") +Expression).OrFail())
-	.Modify(mSPO_AST.Def)
+	.Modify(mSPO_AST.Def_<tPos>())
 	.SetName(nameof(Def));
 	
 	public static readonly tSPO_Parser
 	ReturnIf = (-Token("§RETURN") +Expression.OrFail() -Token("IF") +Expression.OrFail())
-	.Modify(mSPO_AST.ReturnIf)
+	.Modify(mSPO_AST.ReturnIf_<tPos>())
 	.SetName(nameof(ReturnIf));
 	
 	public static readonly tSPO_Parser
 	Return = (-Token("§RETURN") +Expression.OrFail())
-	.Modify((mSPO_AST.tExpressionNode a) => mSPO_AST.ReturnIf(a, mSPO_AST.True()))
+	.Modify((tSpan aSpan, mSPO_AST.tExpressionNode<tPos> a) => mSPO_AST.ReturnIf(aSpan, a, mSPO_AST.True(aSpan)))
 	.SetName(nameof(Return));
 	
 	public static readonly tSPO_Parser
-	Command = mParserGen.UndefParser<mTextParser.tPosChar, mTextParser.tError>()
+	Command = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
 	.SetName(nameof(Command));
 	
 	public static readonly tSPO_Parser
 	Commands = Command[0, null]
-	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mSPO_AST.tCommandNode>)))
+	.ModifyList(a => mParserGen.ResultList(a.Span, a.Map(mStd.To<mSPO_AST.tCommandNode<tPos>>)))
 	.SetName(nameof(Commands));
 	
 	public static readonly tSPO_Parser
 	Block = (-Token("{") +(-NL +Commands -Token("}")).OrFail())
-	.Modify(mSPO_AST.Block)
+	.Modify(mSPO_AST.Block_<tPos>())
 	.SetName(nameof(Block));
 	
 	public static readonly tSPO_Parser
 	Tuple = C( +Expression +( -(Token(",")|NL) +Expression)[1, null] )
 	.ModifyList(
 		a => mParserGen.ResultList(
-			mSPO_AST.Tuple(a.Value.Map(mStd.To<mSPO_AST.tExpressionNode>))
+			a.Span,
+			mSPO_AST.Tuple(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
 		)
 	)
 	.SetName(nameof(Tuple));
@@ -183,10 +183,12 @@ public static class mSPO_Parser {
 				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
 				return (
 					mParserGen.ResultList(
+						aList.Span,
 						(
 							mSPO_AST.Ident(
+								aList.Span,
 								aList.Value.Every(2).Map(
-									a => a.To<mSPO_AST.tIdentNode>().Name.Substring(1)
+									a => a.To<mSPO_AST.tIdentNode<tPos>>().Name.Substring(1)
 								).Join(
 									(a1, a2) => $"{a1}...{a2}"
 								)+Last
@@ -212,10 +214,11 @@ public static class mSPO_Parser {
 		.ModifyList(
 			a => {
 				a.GetHeadTail(out var FirstChild, out var Rest);
-				mStd.Assert(Rest.Value.First().Match(out (mSPO_AST.tIdentNode Ident, tResults ChildList) Infix));
+				mStd.Assert(Rest.Value.First().Match(out (mSPO_AST.tIdentNode<tPos> Ident, tResults ChildList) Infix));
 				return mParserGen.ResultList(
+					a.Span,
 					(
-						new mSPO_AST.tIdentNode { Name = "_..." + Infix.Ident.Name.Substring(1) },
+						mSPO_AST.Ident(a.Span, "..." + Infix.Ident.Name.Substring(1)),
 						mList.Concat(mList.List(FirstChild), Infix.ChildList)
 					)
 				);
@@ -226,23 +229,24 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser
 	Call = (
 		Infix(".", ExpressionInCall).Modify(
-			((mSPO_AST.tIdentNode Ident, tResults Childs) a) =>  mSPO_AST.Call(
+			(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) =>  mSPO_AST.Call(
+				aSpan,
 				a.Ident,
-				mSPO_AST.Tuple(a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode>))
+				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
 			)
 		) |
-		(-Token(".") +ExpressionInCall +ExpressionInCall).Modify(mSPO_AST.Call)
+		(-Token(".") +ExpressionInCall +ExpressionInCall).Modify(mSPO_AST.Call_<tPos>())
 	)
 	.SetName(nameof(Call));
 	
 	public static readonly tSPO_Parser
 	Prefix = Infix("#", ExpressionInCall)
 	.Modify(
-		((mSPO_AST.tIdentNode, tResults) aPair) => {
-			var (Ident, ChildList) = aPair;
+		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
 			return mSPO_AST.Prefix(
-				Ident,
-				mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>))
+				aSpan,
+				a.Ident,
+				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
 			);
 		}
 	)
@@ -251,12 +255,13 @@ public static class mSPO_Parser {
 	public static readonly tSPO_Parser
 	MatchPrefix = C( Infix("#", UnTypedMatch) )
 	.Modify(
-		((mSPO_AST.tIdentNode, tResults) aPair) => {
-			var (Ident, ChildList) = aPair;
+		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
 			return mSPO_AST.MatchPrefix(
-				Ident,
+				aSpan,
+				a.Ident,
 				mSPO_AST.Match(
-					mSPO_AST.MatchTuple(ChildList.Map(mStd.To<mSPO_AST.tMatchNode>)),
+					aSpan,
+					mSPO_AST.MatchTuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tMatchNode<tPos>>)),
 					null
 				)
 			);
@@ -266,56 +271,56 @@ public static class mSPO_Parser {
 	
 	public static readonly tSPO_Parser
 	MatchGuard = C( +UnTypedMatch -Token("|") +Expression.OrFail() )
-	.Modify(mSPO_AST.MatchGuard)
+	.Modify(mSPO_AST.MatchGuard_<tPos>())
 	.SetName(nameof(MatchGuard));
 	
 	public static readonly tSPO_Parser
-	EmptyType = Token("[]")
-	.Modify((tText _) => mSPO_AST.EmptyType())
+	EmptyType = (-Token("[]"))
+	.Modify(mSPO_AST.EmptyType_<tPos>())
 	.SetName(nameof(EmptyType));
 	
 	public static readonly tSPO_Parser
-	BoolType = Token("§BOOL")
-	.Modify((tText _) => mSPO_AST.BoolType())
+	BoolType = (-Token("§BOOL"))
+	.Modify(mSPO_AST.BoolType_<tPos>())
 	.SetName(nameof(BoolType));
 	
 	public static readonly tSPO_Parser
-	IntType = Token("§INT")
-	.Modify((tText _) => mSPO_AST.IntType())
+	IntType = (-Token("§INT"))
+	.Modify(mSPO_AST.IntType_<tPos>())
 	.SetName(nameof(IntType));
 	
 	public static readonly tSPO_Parser
-	TypeType = Token("[[]]")
-	.Modify((tText _) => mSPO_AST.TypeType())
+	TypeType = (-Token("[[]]"))
+	.Modify(mSPO_AST.TypeType_<tPos>())
 	.SetName(nameof(TypeType));
 	
 	public static readonly tSPO_Parser
 	PairType = (-Token("[") +Expression -Token(",") +Expression -Token("]"))
-	.Modify(mSPO_AST.PairType)
+	.Modify(mSPO_AST.PairType_<tPos>())
 	.SetName(nameof(PairType));
 	
 	public static readonly tSPO_Parser
 	LambdaType = (-Token("[") +Expression -Token("=>") +Expression -Token("]"))
-	.Modify(mSPO_AST.LambdaType)
+	.Modify(mSPO_AST.LambdaType_<tPos>())
 	.SetName(nameof(LambdaType));
 	
 	public static readonly tSPO_Parser
 	Type = (EmptyType | BoolType | IntType | TypeType | PairType | LambdaType)
-	.SetName(nameof(Type));
+	.SetName(nameof(Type) );
 	
 	public static readonly tSPO_Parser
 	Lambda = (+Match -Token("=>") +Expression.OrFail())
-	.Modify(mSPO_AST.Lambda)
+	.Modify(mSPO_AST.Lambda_<tPos>())
 	.SetName(nameof(Lambda));
 	
 	public static readonly tSPO_Parser
 	Method = (+Match -Token(":") +Match +Block)
-	.Modify(mSPO_AST.Method)
+	.Modify(mSPO_AST.Method_<tPos>())
 	.SetName(nameof(Method));
 	
 	public static readonly tSPO_Parser
 	RecLambdaItem = (-__ +Ident -Token("=") +(Lambda | C( Lambda )))
-	.Modify(mSPO_AST.RecLambdaItem)
+	.Modify(mSPO_AST.RecLambdaItem_<tPos>())
 	.SetName(nameof(RecLambdaItem));
 	
 	public static readonly tSPO_Parser
@@ -325,7 +330,8 @@ public static class mSPO_Parser {
 	)
 	.ModifyList(
 		aList => mParserGen.ResultList(
-			mSPO_AST.RecLambdas(aList.Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode>))
+			aList.Span,
+			mSPO_AST.RecLambdas(aList.Span, aList.Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode<tPos>>))
 		)
 	)
 	.SetName(nameof(RecLambda));
@@ -336,14 +342,16 @@ public static class mSPO_Parser {
 			(
 				-__ +Expression -Token("=>") +(Expression -NL).OrFail()
 			).Modify(
-				(mSPO_AST.tExpressionNode a1, mSPO_AST.tExpressionNode a2) => (a1, a2)
+				(tSpan aSpan, mSPO_AST.tExpressionNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => (a1, a2)
 			)[0, null] -Token("}")
 		).OrFail()
 	)
 	.ModifyList(
 		aList => mParserGen.ResultList(
+			aList.Span,
 			mSPO_AST.If(
-				aList.Map(mStd.To<(mSPO_AST.tExpressionNode, mSPO_AST.tExpressionNode)>)
+				aList.Span,
+				aList.Map(mStd.To<(mSPO_AST.tExpressionNode<tPos>, mSPO_AST.tExpressionNode<tPos>)>)
 			)
 		)
 	)
@@ -358,7 +366,7 @@ public static class mSPO_Parser {
 				-__ +Match +(-Token("=>") +Expression -NL).OrFail()
 			)
 			.Modify(
-				(mSPO_AST.tMatchNode a1, mSPO_AST.tExpressionNode a2) => (a1, a2)
+				(tSpan aSpan, mSPO_AST.tMatchNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => (a1, a2)
 			)[0, null]
 			-Token("}")
 		).OrFail()
@@ -367,12 +375,14 @@ public static class mSPO_Parser {
 		aList => {
 			aList.GetHeadTail(out var Head, out var Tail);
 			
-			mDebug.Assert(Head.Match(out mSPO_AST.tExpressionNode Expression));
+			mDebug.Assert(Head.Match(out mSPO_AST.tExpressionNode<tPos> Expression));
 			
 			return mParserGen.ResultList(
+				aList.Span,
 				mSPO_AST.IfMatch(
+					aList.Span,
 					Expression,
-					Tail.Map(mStd.To<(mSPO_AST.tMatchNode, mSPO_AST.tExpressionNode)>)
+					Tail.Map(mStd.To<(mSPO_AST.tMatchNode<tPos>, mSPO_AST.tExpressionNode<tPos>)>)
 				)
 			);
 		}
@@ -384,16 +394,17 @@ public static class mSPO_Parser {
 		+Infix(Expression)
 		+(-Token("=>") -Token("§DEF") +Match)[0, 1].ModifyList(
 			a => mParserGen.ResultList(
-				a.Value?.First().To<mSPO_AST.tMatchNode?>()
+				a.Span,
+				a.Value?.First().To<mSPO_AST.tMatchNode<tPos>?>()
 			)
 		)
 	)
 	.Modify(
-		((mSPO_AST.tIdentNode, tResults) aPair, mSPO_AST.tMatchNode? aMaybeOut) => {
-			var (Ident, ChildList) = aPair;
+		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a, mSPO_AST.tMatchNode<tPos>? aMaybeOut) => {
 			return mSPO_AST.MethodCall(
-				Ident,
-				mSPO_AST.Tuple(ChildList.Map(mStd.To<mSPO_AST.tExpressionNode>)),
+				aSpan,
+				a.Ident,
+				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>)),
 				aMaybeOut
 			);
 		}
@@ -404,7 +415,8 @@ public static class mSPO_Parser {
 	MethodCalls = (+MethodCall +(-(Token(",")|NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
 	.ModifyList(
 		aList => mParserGen.ResultList(
-			aList.Map(mStd.To<mSPO_AST.tMethodCallNode>)
+			aList.Span,
+			aList.Map(mStd.To<mSPO_AST.tMethodCallNode<tPos>>)
 		)
 	)
 	.SetName(nameof(MethodCalls));
@@ -418,44 +430,47 @@ public static class mSPO_Parser {
 			).Flat()
 		).OrFail()
 	)
-	.Modify(mSPO_AST.DefVar)
+	.Modify(mSPO_AST.DefVar_<tPos>())
 	.SetName(nameof(DefVar));
 	
 	public static readonly tSPO_Parser
 	VarToVal = (+Ident -Token(":") -Token("=>"))
-	.Modify(mSPO_AST.VarToVal)
+	.Modify(mSPO_AST.VarToVal_<tPos>())
 	.SetName(nameof(VarToVal));
 	
 	public static readonly tSPO_Parser
 	MethodCallStatment = (+(ExpressionInCall -Token(":")) -NL[0, 1] +MethodCalls.OrFail())
-	.Modify(mSPO_AST.MethodCallStatment)
+	.Modify(mSPO_AST.MethodCallStatment_<tPos>())
 	.SetName(nameof(MethodCallStatment));
 	
 	public static readonly tSPO_Parser
 	Import = (-Token("§IMPORT") +(Match -NL).OrFail())
-	.Modify(mSPO_AST.Import)
+	.Modify(mSPO_AST.Import_<tPos>())
 	.SetName(nameof(Import));
 	
 	public static readonly tSPO_Parser
 	Export = ( -Token("§EXPORT") +Expression.OrFail())
-	.Modify(mSPO_AST.Export)
+	.Modify(mSPO_AST.Export_<tPos>())
 	.SetName(nameof(Export));
 	
 	public static readonly tSPO_Parser
 	Module = ( -NL[0, 1] +Import +Commands +Export -NL[0, 1])
-	.Modify(mSPO_AST.Module)
+	.Modify(mSPO_AST.Module_<tPos>())
 	.SetName(nameof(Module));
 	
 	static mSPO_Parser() {
 		UnTypedMatch.Def(
 			(Literal|Ident|MatchPrefix|MatchGuard).Modify(
-				mSPO_AST.UnTypedMatch
+				mSPO_AST.UnTypedMatch_<tPos>()
 			) |
 			C(+Match +(-(-Token(",") | -NL) +Match)[0, null]).ModifyList(
 				a => mParserGen.ResultList(
+					a.Span,
 					mSPO_AST.Match(
+						a.Span,
 						mSPO_AST.MatchTuple(
-							a.Value.Map(mStd.To<mSPO_AST.tMatchNode>)
+							a.Span,
+							a.Value.Map(mStd.To<mSPO_AST.tMatchNode<tPos>>)
 						),
 						null
 					)
@@ -502,6 +517,22 @@ public static class mSPO_Parser {
 	
 	#region TEST
 	
+	//================================================================================
+	private static tSpan Span(
+		(tInt32 Row, tInt32 Col) aStart,
+		(tInt32 Row, tInt32 Col) aEnd
+	//================================================================================
+	) => new tSpan {
+		Start = {
+			Row = aStart.Row,
+			Col = aStart.Col
+		},
+		End = {
+			Row = aEnd.Row,
+			Col = aEnd.Col
+		}
+	};
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mSPO_Parser),
@@ -510,33 +541,33 @@ public static class mSPO_Parser {
 			aStreamOut => {
 				mStd.AssertEq(
 					Num.ParseText("+1_234", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Number(1234))
+					mParserGen.ResultList(Span((1, 1), (1, 6)), mSPO_AST.Number(Span((1, 1), (1, 6)), 1234))
 				);
 				mStd.AssertEq(
 					Literal.ParseText("+1_234", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Number(1234))
+					mParserGen.ResultList(Span((1, 1), (1, 6)), mSPO_AST.Number(Span((1, 1), (1, 6)), 1234))
 				);
 				mStd.AssertEq(
 					ExpressionInCall.ParseText("+1_234", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Number(1234))
+					mParserGen.ResultList(Span((1, 1), (1, 6)), mSPO_AST.Number(Span((1, 1), (1, 6)), 1234))
 				);
 				
 				mStd.AssertEq(
 					String.ParseText("\"BLA\"", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+					mParserGen.ResultList(Span((1, 1), (1, 5)), mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"))
 				);
 				mStd.AssertEq(
 					Literal.ParseText("\"BLA\"", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+					mParserGen.ResultList(Span((1, 1), (1, 5)), mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"))
 				);
 				mStd.AssertEq(
 					ExpressionInCall.ParseText("\"BLA\"", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Text("BLA"))
+					mParserGen.ResultList(Span((1, 1), (1, 5)), mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"))
 				);
 				
 				mStd.AssertEq(
 					ExpressionInCall.ParseText("BLA", aStreamOut),
-					mParserGen.ResultList(mSPO_AST.Ident("BLA"))
+					mParserGen.ResultList(Span((1, 1), (1, 3)), mSPO_AST.Ident(Span((1, 1), (1, 3)), "BLA"))
 				);
 			}
 		),
@@ -546,10 +577,12 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					ExpressionInCall.ParseText("(+1_234, \"BLA\")", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 15)),
 						mSPO_AST.Tuple(
-							mList.List<mSPO_AST.tExpressionNode>(
-								mSPO_AST.Number(1234),
-								mSPO_AST.Text("BLA")
+							Span((1, 1), (1, 15)),
+							mList.List<mSPO_AST.tExpressionNode<tPos>>(
+								mSPO_AST.Number(Span((1, 2), (1, 7)), 1234),
+								mSPO_AST.Text(Span((1, 10), (1, 14)), "BLA")
 							)
 						)
 					)
@@ -562,8 +595,10 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Match.ParseText("12", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 2)),
 						mSPO_AST.Match(
-							mSPO_AST.Number(12),
+							Span((1, 1), (1, 2)),
+							mSPO_AST.Number(Span((1, 1), (1, 2)), 12),
 							null
 						)
 					)
@@ -571,8 +606,10 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Match.ParseText("x", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 1)),
 						mSPO_AST.Match(
-							mSPO_AST.Ident("x"),
+							Span((1, 1), (1, 1)),
+							mSPO_AST.Ident(Span((1, 1), (1, 1)), "x"),
 							null
 						)
 					)
@@ -580,11 +617,14 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Match.ParseText("(12, x)", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 7)), 
 						mSPO_AST.Match(
+							Span((1, 1), (1, 7)), 
 							mSPO_AST.MatchTuple(
+								Span((1, 1), (1, 7)), 
 								mList.List(
-									mSPO_AST.Match(mSPO_AST.Number(12), null),
-									mSPO_AST.Match(mSPO_AST.Ident("x"), null)
+									mSPO_AST.Match(Span((1, 2), (1, 3)), mSPO_AST.Number(Span((1, 2), (1, 3)), 12), null),
+									mSPO_AST.Match(Span((1, 6), (1, 6)), mSPO_AST.Ident(Span((1, 6), (1, 6)), "x"), null)
 								)
 							),
 							null
@@ -599,12 +639,15 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("x .* x", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 6)),
 						mSPO_AST.Call(
-							mSPO_AST.Ident("...*..."),
+							Span((1, 1), (1, 6)),
+							mSPO_AST.Ident(Span((1, 1), (1, 6)), "...*..."),
 							mSPO_AST.Tuple(
-								mList.List<mSPO_AST.tExpressionNode>(
-									mSPO_AST.Ident("x"),
-									mSPO_AST.Ident("x")
+								Span((1, 1), (1, 6)),
+								mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mSPO_AST.Ident(Span((1, 1), (1, 2)), "x"), // TODO: Span isn't correct ((1, 1), (1, 1))
+									mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 								)
 							)
 						)
@@ -613,11 +656,14 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText(".sin x", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 6)),
 						mSPO_AST.Call(
-							mSPO_AST.Ident("sin..."),
+							Span((1, 1), (1, 6)),
+							mSPO_AST.Ident(Span((1, 2), (1, 6)), "sin..."),
 							mSPO_AST.Tuple(
-								mList.List<mSPO_AST.tExpressionNode>(
-									mSPO_AST.Ident("x")
+								Span((1, 1), (1, 6)),
+								mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 								)
 							)
 						)
@@ -631,17 +677,22 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("x => x .* x", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 11)),
 						mSPO_AST.Lambda(
+							Span((1, 1), (1, 11)),
 							mSPO_AST.Match(
-								mSPO_AST.Ident("x"),
+								Span((1, 1), (1, 2)),
+								mSPO_AST.Ident(Span((1, 1), (1, 2)), "x"),
 								null
 							),
 							mSPO_AST.Call(
-								mSPO_AST.Ident("...*..."),
+								Span((1, 6), (1, 11)), 
+								mSPO_AST.Ident(Span((1, 6), (1, 11)), "...*..."),
 								mSPO_AST.Tuple(
-									mList.List<mSPO_AST.tExpressionNode>(
-										mSPO_AST.Ident("x"),
-										mSPO_AST.Ident("x")
+									Span((1, 6), (1, 11)), 
+									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+										mSPO_AST.Ident(Span((1, 6), (1, 7)), "x"),
+										mSPO_AST.Ident(Span((1, 11), (1, 11)), "x")
 									)
 								)
 							)
@@ -656,23 +707,30 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("(x € MyType) => x .* x", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 22)),
 						mSPO_AST.Lambda(
+							Span((1, 1), (1, 22)),
 							mSPO_AST.Match(
+								Span((1, 1), (1, 13)),
 								mSPO_AST.Match(
+									Span((1, 2), (1, 11)),
 									mSPO_AST.Match(
-										mSPO_AST.Ident("x"),
+										Span((1, 2), (1, 3)),
+										mSPO_AST.Ident(Span((1, 2), (1, 3)), "x"),
 										null
 									),
-									mSPO_AST.Ident("MyType")
+									mSPO_AST.Ident(Span((1, 6), (1, 11)), "MyType")
 								),
 								null
 							),
 							mSPO_AST.Call(
-								mSPO_AST.Ident("...*..."),
+								Span((1, 17), (1, 22)),
+								mSPO_AST.Ident(Span((1, 17), (1, 22)), "...*..."),
 								mSPO_AST.Tuple(
-									mList.List<mSPO_AST.tExpressionNode>(
-										mSPO_AST.Ident("x"),
-										mSPO_AST.Ident("x")
+									Span((1, 17), (1, 22)),
+									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+										mSPO_AST.Ident(Span((1, 17), (1, 18)), "x"),
+										mSPO_AST.Ident(Span((1, 22), (1, 22)), "x")
 									)
 								)
 							)
@@ -687,21 +745,26 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("2 .< (4 .+ 3) < 3", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 17)),
 						mSPO_AST.Call(
-							mSPO_AST.Ident("...<...<..."),
+							Span((1, 1), (1, 17)),
+							mSPO_AST.Ident(Span((1, 1), (1, 17)), "...<...<..."),
 							mSPO_AST.Tuple(
-								mList.List<mSPO_AST.tExpressionNode>(
-									mSPO_AST.Number(2),
+								Span((1, 1), (1, 17)),
+								mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mSPO_AST.Number(Span((1, 1), (1, 1)), 2),
 									mSPO_AST.Call(
-										mSPO_AST.Ident("...+..."),
+										Span((1, 7), (1, 12)),
+										mSPO_AST.Ident(Span((1, 7), (1, 12)), "...+..."),
 										mSPO_AST.Tuple(
-											mList.List<mSPO_AST.tExpressionNode>(
-												mSPO_AST.Number(4),
-												mSPO_AST.Number(3)
+											Span((1, 7), (1, 12)),
+											mList.List<mSPO_AST.tExpressionNode<tPos>>(
+												mSPO_AST.Number(Span((1, 7), (1, 7)), 4),
+												mSPO_AST.Number(Span((1, 12), (1, 12)), 3)
 											)
 										)
 									),
-									mSPO_AST.Number(3)
+									mSPO_AST.Number(Span((1, 17), (1, 17)), 3)
 								)
 							)
 						)
@@ -715,31 +778,42 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("(a, b, (x, y, z)) => a .* z", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 27)),
 						mSPO_AST.Lambda(
+							Span((1, 1), (1, 27)),
 							mSPO_AST.Match(
+								Span((1, 1), (1, 18)),
 								mSPO_AST.MatchTuple(
+									Span((1, 1), (1, 18)),
 									mList.List(
 										mSPO_AST.Match(
-											mSPO_AST.Ident("a"),
+											Span((1, 2), (1, 2)),
+											mSPO_AST.Ident(Span((1, 2), (1, 2)), "a"),
 											null
 										),
 										mSPO_AST.Match(
-											mSPO_AST.Ident("b"),
+											Span((1, 5), (1, 5)),
+											mSPO_AST.Ident(Span((1, 5), (1, 5)), "b"),
 											null
 										),
 										mSPO_AST.Match(
+											Span((1, 8), (1, 16)),
 											mSPO_AST.MatchTuple(
+												Span((1, 8), (1, 16)),
 												mList.List(
 													mSPO_AST.Match(
-														mSPO_AST.Ident("x"),
+														Span((1, 9), (1, 9)),
+														mSPO_AST.Ident(Span((1, 9), (1, 9)), "x"),
 														null
 													),
 													mSPO_AST.Match(
-														mSPO_AST.Ident("y"),
+														Span((1, 12), (1, 12)),
+														mSPO_AST.Ident(Span((1, 12), (1, 12)), "y"),
 														null
 													),
 													mSPO_AST.Match(
-														mSPO_AST.Ident("z"),
+														Span((1, 15), (1, 15)),
+														mSPO_AST.Ident(Span((1, 15), (1, 15)), "z"),
 														null
 													)
 												)
@@ -751,11 +825,13 @@ public static class mSPO_Parser {
 								null
 							),
 							mSPO_AST.Call(
-								mSPO_AST.Ident("...*..."),
+								Span((1, 22), (1, 27)),
+								mSPO_AST.Ident(Span((1, 22), (1, 27)), "...*..."),
 								mSPO_AST.Tuple(
-									mList.List<mSPO_AST.tExpressionNode>(
-										mSPO_AST.Ident("a"),
-										mSPO_AST.Ident("z")
+									Span((1, 22), (1, 27)),
+									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+										mSPO_AST.Ident(Span((1, 22), (1, 23)), "a"),
+										mSPO_AST.Ident(Span((1, 27), (1, 27)), "z")
 									)
 								)
 							)
@@ -770,19 +846,27 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Expression.ParseText("(1 #* a) => a", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 13)),
 						mSPO_AST.Lambda(
+							Span((1, 1), (1, 13)),
 							mSPO_AST.Match(
+								Span((1, 1), (1, 9)),
 								mSPO_AST.MatchPrefix(
-									mSPO_AST.Ident("...*..."),
+									Span((1, 1), (1, 9)),
+									mSPO_AST.Ident(Span((1, 2), (1, 7)), "...*..."),
 									mSPO_AST.Match(
+										Span((1, 1), (1, 9)), 
 										mSPO_AST.MatchTuple(
+											Span((1, 1), (1, 9)),
 											mList.List(
 												mSPO_AST.Match(
-													mSPO_AST.Number(1),
+													Span((1, 2), (1, 3)),
+													mSPO_AST.Number(Span((1, 2), (1, 2)), 1),
 													null
 												),
 												mSPO_AST.Match(
-													mSPO_AST.Ident("a"),
+													Span((1, 7), (1, 7)),
+													mSPO_AST.Ident(Span((1, 7), (1, 7)), "a"),
 													null
 												)
 											)
@@ -792,7 +876,7 @@ public static class mSPO_Parser {
 								),
 								null
 							),
-							mSPO_AST.Ident("a")
+							mSPO_AST.Ident(Span((1, 13), (1, 13)), "a")
 						)
 					)
 				);
@@ -804,19 +888,25 @@ public static class mSPO_Parser {
 				mStd.AssertEq(
 					Command.ParseText("o := ((o :=>) .+ i) .\n", aStreamOut),
 					mParserGen.ResultList(
+						Span((1, 1), (1, 22)),
 						mSPO_AST.MethodCallStatment(
-							mSPO_AST.Ident("o"),
+							Span((1, 1), (1, 21)),
+							mSPO_AST.Ident(Span((1, 1), (1, 2)), "o"),
 							mList.List(
 								mSPO_AST.MethodCall(
-									mSPO_AST.Ident("=..."),
+									Span((1, 4), (1, 20)),
+									mSPO_AST.Ident(Span((1, 4), (1, 20)), "=..."),
 									mSPO_AST.Call(
-										mSPO_AST.Ident("...+..."),
+										Span((1, 7), (1, 18)),
+										mSPO_AST.Ident(Span((1, 7), (1, 18)), "...+..."),
 										mSPO_AST.Tuple(
-											mList.List<mSPO_AST.tExpressionNode>(
+											Span((1, 7), (1, 18)), 
+											mList.List<mSPO_AST.tExpressionNode<tPos>>(
 												mSPO_AST.VarToVal(
-													mSPO_AST.Ident("o")
+													Span((1, 8), (1, 12)),
+													mSPO_AST.Ident(Span((1, 8), (1, 9)), "o")
 												),
-												mSPO_AST.Ident("i")
+												mSPO_AST.Ident(Span((1, 18), (1, 18)), "i")
 											)
 										)
 									),

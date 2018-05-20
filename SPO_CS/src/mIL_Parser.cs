@@ -13,51 +13,52 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tIL_Parser = mParserGen.tParser<mIL_Tokenizer.tToken, mTextParser.tError>;
+using tIL_Parser = mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mTextParser.tError>;
+using tPos = mTextParser.tPos;
 
 public static class  mIL_Parser {
 	public static readonly tIL_Parser
-	NL = mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	NL = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.SpecialToken && a.Text == "\n",
 		a => new mTextParser.tError {
 			Message = "expect end of line",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName(nameof(NL));
 	
 	public static readonly tIL_Parser
-	QuotedString  = mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	QuotedString  = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.Text,
 		a => new mTextParser.tError {
 			Message = "expect '\"'",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName(nameof(QuotedString));
 	
 	public static readonly tIL_Parser
-	Number = mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	Number = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.Number,
 		a => new mTextParser.tError {
 			Message = "expect number",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName(nameof(Number));
 	
 	public static readonly tIL_Parser
-	Ident = mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	Ident = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.Ident,
 		a => new mTextParser.tError {
 			Message = "expect identifier",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName(nameof(Ident));
 	
 	public static readonly tIL_Parser
-	Prefix = mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	Prefix = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.Prefix,
 		a => new mTextParser.tError {
 			Message = "expect identifier",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName(nameof(Prefix));
 	
@@ -66,11 +67,11 @@ public static class  mIL_Parser {
 	Token(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.Ident && a.Text == aText,
 		a => new mTextParser.tError {
 			Message = "expect identifier",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName($"{nameof(Token)}('{aText}')");
 	
@@ -79,11 +80,11 @@ public static class  mIL_Parser {
 	SpecialToken(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.SpecialToken && a.Text == aText,
 		a => new mTextParser.tError {
 			Message = "expect identifier",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName($"{nameof(SpecialToken)}('{aText}')");
 	
@@ -92,51 +93,55 @@ public static class  mIL_Parser {
 	KeyWord(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<mIL_Tokenizer.tToken, mTextParser.tError>(
+	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.KeyWord && a.Text == aText,
 		a => new mTextParser.tError {
 			Message = "expect identifier",
-			Pos = a.Pos
+			Pos = a.Item1.Start
 		}
 	).SetDebugName($"{nameof(KeyWord)}('{aText}')");
 	
 	//================================================================================
-	private static mStd.tFunc<tRes>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>>
 	X<tRes>(
-		mStd.tFunc<tRes> aFunc
+		mStd.tFunc<tRes, mStd.tSpan<tPos>> aFunc
 	//================================================================================
 	) => (
-	) => aFunc();
+		mStd.tSpan<tPos> aSpan
+	) => aFunc(aSpan);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken>
 	X<tRes>(
-		mStd.tFunc<tRes, tText> aFunc
+		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText> aFunc
 	//================================================================================
 	) => (
+		mStd.tSpan<tPos> aSpan,
 		mIL_Tokenizer.tToken a1
-	) => aFunc(a1.Text);
+	) => aFunc(aSpan, a1.Text);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
 	X<tRes>(
-		mStd.tFunc<tRes, tText, tText> aFunc
+		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText> aFunc
 	//================================================================================
 	) => (
+		mStd.tSpan<tPos> aSpan,
 		mIL_Tokenizer.tToken a1,
 		mIL_Tokenizer.tToken a2
-	) => aFunc(a1.Text, a2.Text);
+	) => aFunc(aSpan, a1.Text, a2.Text);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
 	X<tRes>(
-		mStd.tFunc<tRes, tText, tText, tText> aFunc
+		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText, tText> aFunc
 	//================================================================================
 	) => (
+		mStd.tSpan<tPos> aSpan,
 		mIL_Tokenizer.tToken a1,
 		mIL_Tokenizer.tToken a2,
 		mIL_Tokenizer.tToken a3
-	) => aFunc(a1.Text, a2.Text, a3.Text);
+	) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
 	
 	public static readonly tIL_Parser
 	Command = (
@@ -284,21 +289,21 @@ public static class  mIL_Parser {
 	
 	public static readonly tIL_Parser
 	Block = (+Command -NL)[1, null]
-	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<mIL_AST.tCommandNode>)))
+	.ModifyList(a => mParserGen.ResultList(a.Span, a.Map(mStd.To<mIL_AST.tCommandNode<tPos>>)))
 	.SetDebugName(nameof(Block));
 	
 	public static readonly tIL_Parser
 	Def = (-KeyWord("DEF") +Ident -NL +Block)
-	.Modify((mIL_Tokenizer.tToken aID, mList.tList<mIL_AST.tCommandNode> aBlock) => (aID.Text, aBlock))
+	.Modify((mStd.tSpan<tPos> aSpan, mIL_Tokenizer.tToken aID, mList.tList<mIL_AST.tCommandNode<tPos>> aBlock) => (aID.Text, aBlock))
 	.SetDebugName(nameof(Def));
 	
 	public static readonly tIL_Parser
 	Module = Def[1, null]
-	.ModifyList(a => mParserGen.ResultList(a.Map(mStd.To<(tText, mList.tList<mIL_AST.tCommandNode>)>)))
+	.ModifyList(a => mParserGen.ResultList(a.Span, a.Map(mStd.To<(tText, mList.tList<mIL_AST.tCommandNode<tPos>>)>)))
 	.SetDebugName(nameof(Module));
 	
 	//================================================================================
-	public static mParserGen.tResultList
+	public static mParserGen.tResultList<mTextParser.tPos>
 	ParseText(
 		this tIL_Parser aParser,
 		tText aText,
@@ -306,7 +311,7 @@ public static class  mIL_Parser {
 	//================================================================================
 	) {
 		var Tokens = mIL_Tokenizer.Tokenizer.ParseText(aText, aDebugStream).Value.Map(mStd.To<mIL_Tokenizer.tToken>);
-		var MaybeResult = aParser.StartParse(Tokens, aDebugStream);
+		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
 		mStd.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),
 			#if true
@@ -332,7 +337,7 @@ public static class  mIL_Parser {
 					).Take(
 						aError.Pos.Col - 1
 					).Map(
-						aSymbol => aSymbol.Char == '\t' ? '\t' : ' '
+						aSymbol => aSymbol.Item2 == '\t' ? '\t' : ' '
 					).Reduce(
 						"",
 						(aString, aChar) => aString + aChar
@@ -348,7 +353,7 @@ public static class  mIL_Parser {
 		
 		var (ResultList, Rest) = Result;
 		if (!Rest.IsEmpty()) {
-			var Line = Rest.First().Pos.Row;
+			var Line = Rest.First().Item1.Start.Row;
 			throw mStd.Error(
 				$"({Line}, 1): expected end of text\n" +
 				$"{aText.Split('\n')[Line-1]}\n" +
@@ -360,6 +365,22 @@ public static class  mIL_Parser {
 	
 	#region TEST
 	
+	//================================================================================
+	private static mStd.tSpan<tPos> Span(
+		(tInt32 Row, tInt32 Col) aStart,
+		(tInt32 Row, tInt32 Col) aEnd
+	//================================================================================
+	) => new mStd.tSpan<tPos> {
+		Start = {
+			Row = aStart.Row,
+			Col = aStart.Col
+		},
+		End = {
+			Row = aEnd.Row,
+			Col = aEnd.Col
+		}
+	};
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mIL_Parser),
@@ -369,173 +390,173 @@ public static class  mIL_Parser {
 				//================================================================================
 				void AssertParsedCommand(
 					string aText,
-					mIL_AST.tCommandNode aCommandNode,
+					mIL_AST.tCommandNode<tPos> aCommandNode,
 					mStd.tAction<string> aDebugStream_
 				//================================================================================
 				) => mStd.AssertEq(
 					Command.ParseText(aText, aDebugStream_),
-					mParserGen.ResultList(aCommandNode)
+					mParserGen.ResultList(aCommandNode.Span, aCommandNode)
 				);
 				
 				AssertParsedCommand(
 					"a := b, c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair, Span((1, 1), (1, 9)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §INT b == c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAreEq, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAreEq, Span((1, 1), (1, 16)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §INT b <=> c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsComp, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsComp, Span((1, 1), (1, 17)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §INT b + c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAdd, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAdd, Span((1, 1), (1, 15)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §INT b - c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsSub, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsSub, Span((1, 1), (1, 15)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §INT b * c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsMul, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsMul, Span((1, 1), (1, 15)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §BOOL b & c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolAnd, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolAnd, Span((1, 1), (1, 16)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §BOOL b | c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolOr, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolOr, Span((1, 1), (1, 16)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §BOOL b ^ c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolXOr, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolXOr, Span((1, 1), (1, 16)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §1ST b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First, Span((1, 1), (1, 11)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §2ND b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second, Span((1, 1), (1, 11)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := +#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := -#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := ?#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := .b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, Span((1, 1), (1, 9)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§RETURN a IF b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf, Span((1, 1), (1, 14)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§REPEAT a IF b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf, Span((1, 1), (1, 14)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§ASSERT a => b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, Span((1, 1), (1, 14)), "a", "b"),
 					aDebugStream
 				);
 				
 				AssertParsedCommand(
 					"§PUSH a",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, "a"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, Span((1, 1), (1, 7)), "a"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§POP",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop, Span((1, 1), (1, 4))),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §VAR b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarDef, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarDef, Span((1, 1), (1, 11)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§VAR a <- b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, Span((1, 1), (1, 11)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §VAR b ->",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarGet, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarGet, Span((1, 1), (1, 14)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := §OBJ:b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, Span((1, 1), (1, 13)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [b & c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeCond, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeCond, Span((1, 1), (1, 12)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [b => c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeFunc, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeFunc, Span((1, 1), (1, 13)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [b : c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeMethod, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeMethod, Span((1, 1), (1, 12)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [b, c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePair, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePair, Span((1, 1), (1, 11)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [#b c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, Span((1, 1), (1, 11)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [b | c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeSet, "a", "b", "c"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeSet, Span((1, 1), (1, 12)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"a := [§VAR b]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, Span((1, 1), (1, 13)), "a", "b"),
 					aDebugStream
 				);
 				AssertParsedCommand(
 					"§TYPE_OF a IS b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, "a", "b"),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, Span((1, 1), (1, 15)), "a", "b"),
 					aDebugStream
 				);
 			}

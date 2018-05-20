@@ -47,10 +47,38 @@ public static class mStd {
 	
 	#endregion
 	
-	public struct tVoid {
+	#region tSpan
+	
+	public struct tSpan<tPos> {
+		public tPos Start;
+		public tPos End;
+		
+		override public tText ToString() => $"{Start}..{End}";
 	}
 	
-	public static readonly tVoid cEmpty = new tVoid();
+	public static tSpan<tPos>
+	Merge<tPos>(
+		tSpan<tPos> a1,
+		tSpan<tPos> a2
+	) {
+		if (a1.Equals(default(tSpan<tPos>))) {
+			return a2;
+		}
+		if (a2.Equals(default(tSpan<tPos>))) {
+			return a1;
+		}
+		return new tSpan<tPos> {
+			Start = a1.Start,
+			End = a2.End
+		};
+	}
+	
+	#endregion
+	
+	public struct tEmpty {
+	}
+	
+	public static readonly tEmpty cEmpty = new tEmpty();
 	
 	//================================================================================
 	public static tRes
@@ -134,10 +162,10 @@ public static class mStd {
 	};
 	
 	//================================================================================
-	public static _tFail<tVoid>
+	public static _tFail<tEmpty>
 	Fail(
 	//================================================================================
-	) => new _tFail<tVoid>();
+	) => new _tFail<tEmpty>();
 	
 	//================================================================================
 	public static tBool
@@ -155,7 +183,7 @@ public static class mStd {
 	//================================================================================
 	public static tBool
 	Match<tOK>(
-		this tMaybe<tOK, tVoid> a,
+		this tMaybe<tOK, tEmpty> a,
 		out tOK aValue
 	//================================================================================
 	) {

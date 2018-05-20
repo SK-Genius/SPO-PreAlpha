@@ -15,427 +15,570 @@ using tText = System.String;
 
 public static class mSPO_AST {
 	
-	public interface tExpressionNode {}
-	public interface tMatchItemNode {}
-	public interface tLiteralNode : tExpressionNode, tMatchItemNode {}
-	public interface tCommandNode {}
+	public interface tNode<tPos> {
+		mStd.tSpan<tPos> Span { get; set; }
+	}
 	
-	public struct tEmptyNode : tLiteralNode {
+	public interface tExpressionNode<tPos> : tNode<tPos> {}
+	public interface tMatchItemNode<tPos> : tNode<tPos> {}
+	public interface tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {}
+	public interface tCommandNode<tPos> : tNode<tPos> {}
+	
+	public struct tEmptyNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		override public tText ToString() => $"()";
 	}
 	
-	public struct tFalseNode : tLiteralNode {
+	public struct tFalseNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		override public tText ToString() => $"§FALSE";
 	}
 	
-	public struct tTrueNode : tLiteralNode {
+	public struct tTrueNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		override public tText ToString() => $"§TRUE";
 	}
 	
-	public struct tTextNode : tLiteralNode {
+	public struct tTextNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Value;
 		
 		override public tText ToString() => $"'{Value}'";
 	}
 	
-	public struct tNumberNode : tLiteralNode {
+	public struct tNumberNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		public tInt32 Value;
 		
 		override public tText ToString() => $"{Value}";
 	}
 	
-	public struct tIdentNode : tExpressionNode, tMatchItemNode {
+	public struct tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Name;
 		
 		override public tText ToString() => $"{Name}";
 	}
 	
-	public struct tMatchTupleNode : tMatchItemNode {
-		public mList.tList<tMatchNode> Items;
+	public struct tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tMatchNode<tPos>> Items;
 		
 		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
 	}
 	
-	public struct tMatchNode : tMatchItemNode {
-		public tMatchItemNode Pattern;
-		public tExpressionNode Type;
+	public struct tMatchNode<tPos> : tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchItemNode<tPos> Pattern;
+		public tExpressionNode<tPos> Type;
 		
 		override public tText ToString()=> Pattern + (Type is null ? "" : " € " + Type);
 	}
 	
-	public struct tPrefixNode : tExpressionNode {
+	public struct tPrefixNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Prefix;
-		public tExpressionNode Element;
+		public tExpressionNode<tPos> Element;
 		
 		override public tText ToString() => $"(#{Prefix} {Element})";
 	}
 	
-	public struct tMatchPrefixNode : tMatchItemNode {
+	public struct tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Prefix;
-		public tMatchNode Match;
+		public tMatchNode<tPos> Match;
 		
 		override public tText ToString() => $"(#{Prefix} {Match})";
 	}
 	
-	public struct tMatchGuardNode : tMatchItemNode {
-		public tMatchNode Match;
-		public tExpressionNode Guard;
+	public struct tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchNode<tPos> Match;
+		public tExpressionNode<tPos> Guard;
 		
 		override public tText ToString() => $"({Match} | {Guard})";
 	}
 	
-	public struct tLambdaNode : tExpressionNode {
-		public tMatchNode Head;
-		public tExpressionNode Body;
+	public struct tLambdaNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchNode<tPos> Head;
+		public tExpressionNode<tPos> Body;
 		
 		override public tText ToString() => $"({Head} => {Body})";
 	}
 	
-	public struct tMethodNode : tExpressionNode {
-		public tMatchNode Obj;
-		public tMatchNode Arg;
-		public tBlockNode Body;
+	public struct tMethodNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchNode<tPos> Obj;
+		public tMatchNode<tPos> Arg;
+		public tBlockNode<tPos> Body;
 		
 		override public tText ToString() => $"({Obj} : {Arg} {Body})";
 	}
 	
-	public struct tBlockNode : tExpressionNode {
-		public mList.tList<tCommandNode> Commands;
+	public struct tBlockNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tCommandNode<tPos>> Commands;
 		
 		override public tText ToString() => $"{{ \n{Commands} \n}}";
 	}
 	
-	public struct tCallNode : tExpressionNode {
-		public tExpressionNode Func;
-		public tExpressionNode Arg;
+	public struct tCallNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Func;
+		public tExpressionNode<tPos> Arg;
 		
 		override public tText ToString() => $"(.{Func} {Arg})";
 	}
 	
-	public struct tDefNode : tCommandNode {
-		public tMatchNode Des;
-		public tExpressionNode Src;
+	public struct tDefNode<tPos> : tCommandNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchNode<tPos> Des;
+		public tExpressionNode<tPos> Src;
 		
 		override public tText ToString() => $"{Des} := {Src}";
 	}
 	
-	public struct tRecLambdaItemNode {
-		public tIdentNode Ident;
-		public tLambdaNode Lambda;
+	public struct tRecLambdaItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tIdentNode<tPos> Ident;
+		public tLambdaNode<tPos> Lambda;
 		
 		override public tText ToString() => $"{Ident} := {Lambda}";
 	}
 	
-	public struct tRecLambdasNode : tCommandNode {
-		public mList.tList<tRecLambdaItemNode> List;
+	public struct tRecLambdasNode<tPos> : tCommandNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tRecLambdaItemNode<tPos>> List;
 		
 		override public tText ToString() => $"§REC {{ \n{List} \n}}";
 	}
 	
-	public struct tReturnIfNode : tCommandNode {
-		public tExpressionNode Result;
-		public tExpressionNode Condition;
+	public struct tReturnIfNode<tPos> : tCommandNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Result;
+		public tExpressionNode<tPos> Condition;
 		
 		override public tText ToString() => $"RETURN {Result} IF {Condition}";
 	}
 	
-	public struct tIfNode : tExpressionNode {
-		public mList.tList<(tExpressionNode, tExpressionNode)> Cases;
+	public struct tIfNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)> Cases;
 		
 		override public tText ToString() => $"If {{ {Cases} }}";
 	}
 	
-	public struct tIfMatchNode : tExpressionNode {
-		public tExpressionNode Expression;
-		public mList.tList<(tMatchNode, tExpressionNode)> Cases;
+	public struct tIfMatchNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Expression;
+		public mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)> Cases;
 		
 		override public tText ToString() => $"If {Expression} MATCH {{ {Cases} }}";
 	}
 	
-	public struct tPairTypeNode : tExpressionNode {
-		public tExpressionNode Expression1;
-		public tExpressionNode Expression2;
+	public struct tPairTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Expression1;
+		public tExpressionNode<tPos> Expression2;
 		
 		override public tText ToString() => $"[{Expression1}, {Expression2}]";
 	}
 	
-	public struct tLambdaTypeNode : tExpressionNode {
-		public tExpressionNode ArgType;
-		public tExpressionNode ResType;
+	public struct tLambdaTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> ArgType;
+		public tExpressionNode<tPos> ResType;
 		
 		override public tText ToString() => $"[{ArgType} => {ResType}]";
 	}
 	
-	public struct tDefVarNode : tCommandNode {
-		public tIdentNode Ident;
-		public tExpressionNode Expression;
-		public mList.tList<tMethodCallNode> MethodCalls;
+	public struct tDefVarNode<tPos> : tCommandNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tIdentNode<tPos> Ident;
+		public tExpressionNode<tPos> Expression;
+		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
 		
 		override public tText ToString() => $"$VAR {Ident} := {Expression}, {MethodCalls}";
 	}
 	
-	public struct tVarToValNode : tExpressionNode {
-		public tExpressionNode Obj;
+	public struct tVarToValNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Obj;
 		
 		override public tText ToString() => $"({Obj} :=>)";
 	}
 	
-	public struct tMethodCallNode {
-		public tIdentNode Method;
-		public tExpressionNode Argument;
-		public tMatchNode? Result;
+	public struct tMethodCallNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tIdentNode<tPos> Method;
+		public tExpressionNode<tPos> Argument;
+		public tMatchNode<tPos>? Result;
 		
 		override public tText ToString() => $"{Method} {Argument} => {Result}";
 	}
 	
-	public struct tMethodCallsNode : tCommandNode {
-		public tExpressionNode Object;
-		public mList.tList<tMethodCallNode> MethodCalls;
+	public struct tMethodCallsNode<tPos> : tCommandNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Object;
+		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
 		
 		override public tText ToString() => $"{Object}: \n{MethodCalls} \n.";
 	}
 	
-	public struct tTupleNode : tExpressionNode {
-		public mList.tList<tExpressionNode> Items;
+	public struct tTupleNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tExpressionNode<tPos>> Items;
 		
 		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
 	}
 	
-	public struct tImportNode {
-		public tMatchNode Match;
+	public struct tImportNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tMatchNode<tPos> Match;
 		
 		override public tText ToString() => $"§IMPORT {Match}";
 	}
 	
-	public struct tExportNode {
-		public tExpressionNode Expression;
+	public struct tExportNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> Expression;
 		
 		override public tText ToString() => $"§EXPORT {Expression}";
 	}
 	
-	public struct tModuleNode {
-		public tImportNode Import;
-		public tExportNode Export;
-		public mList.tList<tCommandNode> Commands;
+	public struct tModuleNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tImportNode<tPos> Import;
+		public tExportNode<tPos> Export;
+		public mList.tList<tCommandNode<tPos>> Commands;
 		
 		override public tText ToString() => $"{Import} \n\n{Commands} \n\n{Export}";
 	}
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tEmptyNode>
-	Empty = (
+	public static tEmptyNode<tPos>
+	Empty<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tEmptyNode();
+	) => new tEmptyNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tEmptyNode<tPos>, mStd.tSpan<tPos>>
+	Empty_<tPos>() => Empty;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tFalseNode>
-	False = (
+	public static tFalseNode<tPos>
+	False<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tFalseNode();
+	) => new tFalseNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tFalseNode<tPos>, mStd.tSpan<tPos>>
+	False_<tPos>() => False;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tTrueNode>
-	True = (
+	public static tTrueNode<tPos>
+	True<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tTrueNode();
+	) => new tTrueNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tTrueNode<tPos>, mStd.tSpan<tPos>>
+	True_<tPos>() => True;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tNumberNode, tInt32>
-	Number = (
-		aValue
+	public static tNumberNode<tPos>
+	Number<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tInt32 aValue
 	//================================================================================
-	) => new tNumberNode {
+	) => new tNumberNode<tPos> {
+		Span = aSpan,
 		Value = aValue
 	};
 	
+	public static mStd.tFunc<tNumberNode<tPos>, mStd.tSpan<tPos>, tInt32>
+	Number_<tPos>() => Number;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tTextNode, tText>
-	Text = (
-		aValue
+	public static tTextNode<tPos>
+	Text<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tText aValue
 	//================================================================================
-	) => new tTextNode {
+	) => new tTextNode<tPos> {
+		Span = aSpan,
 		Value = aValue
 	};
 	
+	public static mStd.tFunc<tTextNode<tPos>, mStd.tSpan<tPos>, tText>
+	Text_<tPos>() => Text;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIdentNode, tText>
-	Ident = (
-		aName
+	public static tIdentNode<tPos>
+	Ident<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tText aName
 	//================================================================================
-	) => new tIdentNode {
+	) => new tIdentNode<tPos> {
+		Span = aSpan,
 		Name = "_" + aName
 	};
 	
+	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>, tText>
+	Ident_<tPos>() => Ident;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tExpressionNode, mList.tList<tExpressionNode>>
-	Tuple = (
-		aItems
+	public static tExpressionNode<tPos>
+	Tuple<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tExpressionNode<tPos>> aItems
 	//================================================================================
-	) => {
+	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
-				return Empty();
+				return Empty(aSpan);
 			}
 			case 1: {
 				mDebug.Assert(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
-				return new tTupleNode {
+				return new tTupleNode<tPos> {
 					Items = aItems
 				};
 			}
 		}
-	};
+	}
+	
+	public static mStd.tFunc<tExpressionNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
+	Tuple_<tPos>() => Tuple;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tIdentNode>
-	EmptyType = (
+	public static tIdentNode<tPos>
+	EmptyType<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tIdentNode {
+	) => new tIdentNode<tPos> {
+		Span = aSpan,
 		Name = mIL_AST.cEmptyType
 	};
 	
+	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
+	EmptyType_<tPos>() => EmptyType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIdentNode>
-	BoolType = (
+	public static tIdentNode<tPos>
+	BoolType<tPos> (
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tIdentNode {
+	) => new tIdentNode<tPos> {
+		Span = aSpan,
 		Name = mIL_AST.cBoolType
 	};
 	
+	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
+	BoolType_<tPos>() => BoolType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIdentNode>
-	IntType = (
+	public static tIdentNode<tPos>
+	IntType<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tIdentNode {
+	) => new tIdentNode<tPos> {
+		Span = aSpan,
 		Name = mIL_AST.cIntType
 	};
 	
+	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
+	IntType_<tPos>() => IntType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIdentNode>
-	TypeType = (
+	public static tIdentNode<tPos>
+	TypeType<tPos>(
+		mStd.tSpan<tPos> aSpan
 	//================================================================================
-	) => new tIdentNode {
+	) => new tIdentNode<tPos> {
+		Span = aSpan,
 		Name = mIL_AST.cTypeType
 	};
 	
+	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
+	TypeType_<tPos>() => TypeType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tPairTypeNode, tExpressionNode , tExpressionNode>
-	PairType = (
-		tExpressionNode aType1,
-		tExpressionNode aType2
+	public static tPairTypeNode<tPos>
+	PairType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aType1,
+		tExpressionNode<tPos> aType2
 	//================================================================================
-	) => new tPairTypeNode {
+	) => new tPairTypeNode<tPos> {
+		Span = aSpan,
 		Expression1 = aType1,
 		Expression2 = aType2
 	};
 	
+	public static mStd.tFunc<tPairTypeNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
+	PairType_<tPos>() => PairType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tLambdaTypeNode, tExpressionNode , tExpressionNode>
-	LambdaType = (
-		tExpressionNode aArgType,
-		tExpressionNode aResType
+	public static tLambdaTypeNode<tPos>
+	LambdaType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aArgType,
+		tExpressionNode<tPos> aResType
 	//================================================================================
-	) => new tLambdaTypeNode {
+	) => new tLambdaTypeNode<tPos> {
+		Span = aSpan,
 		ArgType = aArgType,
 		ResType = aResType
 	};
 	
+	public static mStd.tFunc<tLambdaTypeNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
+	LambdaType_<tPos>() => LambdaType;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tCallNode, tExpressionNode, tExpressionNode>
-	Call = (
-		aFunc,
-		aArg
+	public static tCallNode<tPos>
+	Call<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aFunc,
+		tExpressionNode<tPos> aArg
 	//================================================================================
-	) => new tCallNode {
+	) => new tCallNode<tPos> {
+		Span = aSpan,
 		Func = aFunc,
 		Arg = aArg
 	};
 	
+	public static mStd.tFunc<tCallNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
+	Call_<tPos>() => Call;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tPrefixNode, tIdentNode, tExpressionNode>
-	Prefix = (
-		aPrefix,
-		aElement
+	public static tPrefixNode<tPos>
+	Prefix<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aPrefix,
+		tExpressionNode<tPos> aElement
 	//================================================================================
-	) => new tPrefixNode {
+	) => new tPrefixNode<tPos> {
+		Span = aSpan,
 		Prefix = aPrefix.Name,
 		Element = aElement
 	};
 	
+	public static mStd.tFunc<tPrefixNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
+	Prefix_<tPos>() => Prefix;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMatchPrefixNode, tIdentNode, tMatchNode>
-	MatchPrefix = (
-		aPrefix,
-		aMatch
+	public static tMatchPrefixNode<tPos>
+	MatchPrefix<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos>aPrefix,
+		tMatchNode<tPos> aMatch
 	//================================================================================
-	) => new tMatchPrefixNode {
+	) => new tMatchPrefixNode<tPos> {
+		Span = aSpan,
 		Prefix = aPrefix.Name,
 		Match = aMatch
 	};
 	
+	public static mStd.tFunc<tMatchPrefixNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tMatchNode<tPos>>
+	MatchPrefix_<tPos>() => MatchPrefix;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMatchGuardNode, tMatchNode, tExpressionNode>
-	MatchGuard = (
-		aMatch,
-		aGuard
+	public static tMatchGuardNode<tPos>
+	MatchGuard<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchNode<tPos> aMatch,
+		tExpressionNode<tPos> aGuard
 	//================================================================================
-	) => new tMatchGuardNode {
+	) => new tMatchGuardNode<tPos> {
+		Span = aSpan,
 		Match = aMatch,
 		Guard = aGuard
 	};
 	
+	public static mStd.tFunc<tMatchGuardNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
+	MatchGuard_<tPos>() => MatchGuard;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tLambdaNode, tMatchNode, tExpressionNode>
-	Lambda = (
-		aMatch,
-		aBody
+	public static tLambdaNode<tPos>
+	Lambda<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchNode<tPos> aMatch,
+		tExpressionNode<tPos> aBody
 	//================================================================================
-	) => new tLambdaNode {
+	) => new tLambdaNode<tPos> {
+		Span = aSpan,
 		Head = aMatch,
 		Body = aBody
 	};
 	
+	public static mStd.tFunc<tLambdaNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
+	Lambda_<tPos>() => Lambda;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMethodNode, tMatchNode, tMatchNode, tBlockNode>
-	Method = (
-		aObjMatch,
-		aArgMatch,
-		aBody
+	public static tMethodNode<tPos>
+	Method<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchNode<tPos> aObjMatch,
+		tMatchNode<tPos> aArgMatch,
+		tBlockNode<tPos> aBody
 	//================================================================================
-	) => new tMethodNode {
+	) => new tMethodNode<tPos> {
+		Span = aSpan,
 		Obj = aObjMatch,
 		Arg = aArgMatch,
 		Body = aBody
 	};
 	
+	public static mStd.tFunc<tMethodNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tMatchNode<tPos>, tBlockNode<tPos>>
+	Method_<tPos>() => Method;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tRecLambdaItemNode, tIdentNode, tLambdaNode>
-	RecLambdaItem = (
-		aIdent,
-		aLambda
+	public static tRecLambdaItemNode<tPos>
+	RecLambdaItem<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aIdent,
+		tLambdaNode<tPos> aLambda
 	//================================================================================
-	) => new tRecLambdaItemNode {
+	) => new tRecLambdaItemNode<tPos> {
+		Span = aSpan,
 		Ident = aIdent,
 		Lambda = aLambda
 	};
 	
+	public static mStd.tFunc<tRecLambdaItemNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tLambdaNode<tPos>>
+	RecLambdaItem_<tPos>() => RecLambdaItem;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tRecLambdasNode, mList.tList<tRecLambdaItemNode>>
-	RecLambdas = (
-		aList
+	public static tRecLambdasNode<tPos>
+	RecLambdas<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tRecLambdaItemNode<tPos>> aList
 	//================================================================================
-	) => new tRecLambdasNode {
+	) => new tRecLambdasNode<tPos> {
+		Span = aSpan,
 		List = aList
 	};
 	
+	public static mStd.tFunc<tRecLambdasNode<tPos>, mStd.tSpan<tPos>, mList.tList<tRecLambdaItemNode<tPos>>>
+	RecLambdas_<tPos>() => RecLambdas;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMatchItemNode, mList.tList<tMatchNode>>
-	MatchTuple = (
-		aItems
+	public static tMatchItemNode<tPos>
+	MatchTuple<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tMatchNode<tPos>> aItems
 	//================================================================================
-	) => {
+	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
 				throw mStd.Error("impossible");
@@ -445,158 +588,231 @@ public static class mSPO_AST {
 				return Head;
 			}
 			default: {
-				return new tMatchTupleNode {
+				return new tMatchTupleNode<tPos> {
+					Span = aSpan,
 					Items = aItems
 				};
 			}
 		}
-	};
+	}
+	
+	public static mStd.tFunc<tMatchItemNode<tPos>, mStd.tSpan<tPos>, mList.tList<tMatchNode<tPos>>>
+	MatchTuple_<tPos>() => MatchTuple;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tMatchNode, tMatchItemNode, tExpressionNode>
-	Match = (
-		aMatch,
-		aType
+	public static tMatchNode<tPos>
+	Match<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchItemNode<tPos> aMatch,
+		tExpressionNode<tPos> aType
 	//================================================================================
-	) => new tMatchNode {
+	) => new tMatchNode<tPos> {
+		Span = aSpan,
 		Pattern = aMatch,
 		Type = aType
 	};
 	
-	//================================================================================
-	public static readonly mStd.tFunc<tMatchNode, tMatchItemNode>
-	UnTypedMatch = (
-		aMatch
-	//================================================================================
-	) => Match(aMatch, null);
+	public static mStd.tFunc<tMatchNode<tPos>, mStd.tSpan<tPos>, tMatchItemNode<tPos>, tExpressionNode<tPos>>
+	Match_<tPos>() => Match;
 	
 	//================================================================================
-	public static readonly mStd.tFunc<tDefNode, tMatchNode, tExpressionNode>
-	Def = (
-		aMatch,
-		aExpression
+	public static tMatchNode<tPos>
+	UnTypedMatch<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchItemNode<tPos> aMatch
 	//================================================================================
-	) => new tDefNode {
+	) => Match(aSpan, aMatch, null);
+	
+	public static mStd.tFunc<tMatchNode<tPos>, mStd.tSpan<tPos>, tMatchItemNode<tPos>>
+	UnTypedMatch_<tPos>() => UnTypedMatch;
+	
+	//================================================================================
+	public static tDefNode<tPos>
+	Def<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchNode<tPos> aMatch,
+		tExpressionNode<tPos> aExpression
+	//================================================================================
+	) => new tDefNode<tPos> {
+		Span = aSpan,
 		Des = aMatch,
 		Src = aExpression
 	};
 	
+	public static mStd.tFunc<tDefNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
+	Def_<tPos>() => Def;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tReturnIfNode, tExpressionNode, tExpressionNode>
-	ReturnIf = (
-		aResult,
-		aCondition
+	public static tReturnIfNode<tPos>
+	ReturnIf<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aResult,
+		tExpressionNode<tPos> aCondition
 	//================================================================================
-	) => new tReturnIfNode {
+	) => new tReturnIfNode<tPos> {
+		Span = aSpan,
 		Result = aResult,
 		Condition = aCondition
 	};
 	
+	public static mStd.tFunc<tReturnIfNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
+	ReturnIf_<tPos>() => ReturnIf;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIfNode, mList.tList<(tExpressionNode, tExpressionNode)>>
-	If = (
-		aCases
+	public static tIfNode<tPos>
+	If<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
 	//================================================================================
-	) => new tIfNode {
+	) => new tIfNode<tPos> {
+		Span = aSpan,
 		Cases = aCases
 	};
 	
+	public static mStd.tFunc<tIfNode<tPos>, mStd.tSpan<tPos>, mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)>>
+	If_<tPos>() => If;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tIfMatchNode, tExpressionNode, mList.tList<(tMatchNode, tExpressionNode)>>
-	IfMatch = (
-		aExpression,
-		aCases
+	public static tIfMatchNode<tPos>
+	IfMatch<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aExpression,
+		mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
 	//================================================================================
-	) => new tIfMatchNode {
+	) => new tIfMatchNode<tPos> {
+		Span = aSpan,
 		Expression = aExpression,
 		Cases = aCases
 	};
 	
+	public static mStd.tFunc<tIfMatchNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)>>
+	IfMatch_<tPos>() => IfMatch;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tDefVarNode, tIdentNode, tExpressionNode, mList.tList<tMethodCallNode>>
-	DefVar = (
-		aVar,
-		aExpression,
-		aMethodCalls
+	public static tDefVarNode<tPos>
+	DefVar<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aVar,
+		tExpressionNode<tPos> aExpression,
+		mList.tList<tMethodCallNode<tPos>> aMethodCalls
 	//================================================================================
-	) => new tDefVarNode {
+	) => new tDefVarNode<tPos> {
+		Span = aSpan,
 		Ident = aVar,
 		Expression = aExpression,
 		MethodCalls = aMethodCalls
 	};
 	
+	public static mStd.tFunc<tDefVarNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>, mList.tList<tMethodCallNode<tPos>>>
+	DefVar_<tPos>() => DefVar;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tVarToValNode, tExpressionNode>
-	VarToVal = (
-		aObj
+	public static tVarToValNode<tPos>
+	VarToVal<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aObj
 	//================================================================================
-	) => new tVarToValNode {
+	) => new tVarToValNode<tPos> {
+		Span = aSpan,
 		Obj = aObj,
 	};
 	
+	public static mStd.tFunc<tVarToValNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>>
+	VarToVal_<tPos>() => VarToVal;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMethodCallsNode, tExpressionNode, mList.tList<tMethodCallNode>>
-	MethodCallStatment = (
-		aObject,
-		aMethodCalls
+	public static tMethodCallsNode<tPos>
+	MethodCallStatment<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aObject,
+		mList.tList<tMethodCallNode<tPos>> aMethodCalls
 	//================================================================================
-	) => new tMethodCallsNode {
+	) => new tMethodCallsNode<tPos> {
+		Span = aSpan,
 		Object = aObject,
 		MethodCalls = aMethodCalls
 	};
 	
+	public static mStd.tFunc<tMethodCallsNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, mList.tList<tMethodCallNode<tPos>>>
+	MethodCallStatment_<tPos>() => MethodCallStatment;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tMethodCallNode, tIdentNode, tExpressionNode, tMatchNode?>
-	MethodCall = (
-		aMethod,
-		aAgument,
-		aResult
+	public static tMethodCallNode<tPos>
+	MethodCall<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aMethod,
+		tExpressionNode<tPos> aAgument,
+		tMatchNode<tPos>? aResult
 	//================================================================================
-	) => new tMethodCallNode {
+	) => new tMethodCallNode<tPos> {
+		Span = aSpan,
 		Method = aMethod,
 		Argument = aAgument,
 		Result = aResult
 	};
 	
+	public static mStd.tFunc<tMethodCallNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>, tMatchNode<tPos>?>
+	MethodCall_<tPos>() => MethodCall;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tBlockNode, mList.tList<tCommandNode>>
-	Block = (
-		aCommands
+	public static tBlockNode<tPos>
+	Block<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tCommandNode<tPos>> aCommands
 	//================================================================================
-	) => new tBlockNode {
+	) => new tBlockNode<tPos> {
+		Span = aSpan,
 		Commands = aCommands
 	};
 	
+	public static mStd.tFunc<tBlockNode<tPos>, mStd.tSpan<tPos>, mList.tList<tCommandNode<tPos>>>
+	Block_<tPos>() => Block;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tModuleNode, tImportNode, mList.tList<tCommandNode>, tExportNode>
-	Module = (
-		aImport,
-		aCommands,
-		aExport
+	public static tModuleNode<tPos>
+	Module<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tImportNode<tPos> aImport,
+		mList.tList<tCommandNode<tPos>> aCommands,
+		tExportNode<tPos> aExport
 	//================================================================================
-	) => new tModuleNode {
+	) => new tModuleNode<tPos> {
+		Span = aSpan,
 		Import = aImport,
 		Export = aExport,
 		Commands = aCommands
 	};
 	
+	public static mStd.tFunc<tModuleNode<tPos>, mStd.tSpan<tPos>, tImportNode<tPos>, mList.tList<tCommandNode<tPos>>, tExportNode<tPos>>
+	Module_<tPos>() => Module;
+	
 	//================================================================================
-	public static readonly mStd.tFunc<tImportNode, tMatchNode>
-	Import = (
-		aMatch
+	public static tImportNode<tPos>
+	Import<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tMatchNode<tPos> aMatch
 	//================================================================================
-	) => new tImportNode {
+	) => new tImportNode<tPos> {
+		Span = aSpan,
 		Match = aMatch 
 	};
 	
+	public static mStd.tFunc<tImportNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>>
+	Import_<tPos>() => Import;
+	
+//================================================================================
+	public static tExportNode<tPos>
+	Export<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tExpressionNode<tPos> aExpression
 	//================================================================================
-	public static readonly mStd.tFunc<tExportNode, tExpressionNode>
-	Export = (
-		aExpression
-	//================================================================================
-	) => new tExportNode {
+	) => new tExportNode<tPos> {
+		Span = aSpan,
 		Expression = aExpression 
 	};
+	
+	public static mStd.tFunc<tExportNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>>
+	Export_<tPos>() => Export;
 	
 	#region TEST
 	

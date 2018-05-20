@@ -13,11 +13,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tPosChar = mTextParser.tPosChar;
-using tPosText = mTextParser.tPosText;
-using tPosInt = mTextParser.tPosInt;
-
-using tIL_Tokenizer = mParserGen.tParser<mTextParser.tPosChar, mTextParser.tError>;
+using tIL_Tokenizer = mParserGen.tParser<mTextParser.tPos, System.Char, mTextParser.tError>;
 
 public static class  mIL_Tokenizer {
 	public static readonly mStd.tFunc<tIL_Tokenizer, tChar> Char = mTextParser.GetChar;
@@ -34,22 +30,22 @@ public static class  mIL_Tokenizer {
 	
 	public static readonly tIL_Tokenizer
 	Digit = CharInRange('0', '9')
-	.Modify((tPosChar aChar) => new tPosInt{ Pos = aChar.Pos, Int = (int)aChar.Char - (int)'0' })
+	.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tChar aChar) => aChar - (int)'0')
 	.SetName(nameof(Digit));
 	
 	public static readonly tIL_Tokenizer
 	Nat = (Digit + (Digit | -Char('_'))[0, null])
-	.ModifyList(a => a.Reduce((tPosInt aNumber, tPosInt aDigit) => new tPosInt{ Pos = aNumber.Pos, Int = 10*aNumber.Int+aDigit.Int }))
+	.ModifyList(a => a.Reduce((tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit))
 	.SetName(nameof(Nat));
 	
 	public static readonly tIL_Tokenizer
-	PosSignum = Char('+')
-	.Modify((tPosChar a) => new tPosInt{ Pos = a.Pos, Int = +1 })
+	PosSignum = (-Char('+'))
+	.Modify((mStd.tSpan<mTextParser.tPos> aSpan) => +1)
 	.SetName(nameof(PosSignum));
 	
 	public static readonly tIL_Tokenizer
-	NegSignum = Char('-')
-	.Modify((tPosChar a) => new tPosInt{ Pos = a.Pos, Int = -1 })
+	NegSignum = (-Char('-'))
+	.Modify((mStd.tSpan<mTextParser.tPos> aSpan) => -1)
 	.SetName(nameof(NegSignum));
 	
 	public static readonly tIL_Tokenizer
@@ -58,16 +54,16 @@ public static class  mIL_Tokenizer {
 	
 	public static readonly tIL_Tokenizer
 	Int = (Signum + Nat)
-	.Modify((tPosInt aSig, tPosInt aAbs) => new tPosInt{ Pos = aSig.Pos, Int = aSig.Int * aAbs.Int })
+	.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tInt32 aSig, tInt32 aAbs) => aSig * aAbs)
 	.SetName(nameof(Int));
 	
 	public static readonly tIL_Tokenizer
-	Number = ( Int | Nat )
+	Number = (Int | Nat)
 	.SetName(nameof(Number));
 
 	public static readonly tIL_Tokenizer
-	Ident = (CharNotIn(SpazialChars).Modify((tPosChar a) => new tPosText { Text = a.Char.ToString(), Pos = a.Pos }) | Text("..."))[1, null]
-	.ModifyList(aTextList => aTextList.Reduce((tPosText a1, tPosText a2) => new tPosText{ Text = a1.Text + a2.Text, Pos = a1.Pos }));
+	Ident = (CharNotIn(SpazialChars).Modify((mStd.tSpan<mTextParser.tPos> aSpan, tChar aChar) => aChar.ToString()) | Text("..."))[1, null]
+	.ModifyList(aTextList => aTextList.Reduce((tText a1, tText a2) => a1 + a2));
 	
 	public enum tTokenType {
 		Number,
@@ -81,44 +77,60 @@ public static class  mIL_Tokenizer {
 	public struct tToken {
 		public tTokenType Type;
 		public tText Text;
-		public mTextParser.tPos Pos;
+		public mStd.tSpan<mTextParser.tPos> Span;
 		
-		override public tText ToString() => $"'{Text}'::{Type}@({Pos.Row}, {Pos.Col})";
+		override public tText ToString() => $"'{Text}'::{Type}@({Span.Start.Row}:{Span.Start.Col}..{Span.End.Row}:{Span.End.Col})";
 	}
 	
 	public static readonly tIL_Tokenizer
 	Token = (
 		(-Char('"') + CharNotIn("\"") -Char('"'))
-		.Modify((tPosText a) => new tToken { Type = tTokenType.Text, Text = a.Text, Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tText aText) => new tToken { Type = tTokenType.Text, Text = aText, Span = aSpan })
 		.SetName(nameof(tTokenType.Text)) |
 		
 		Number
-		.Modify((tPosInt a) => new tToken { Type = tTokenType.Number, Text = a.Int.ToString(), Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tInt32 aInt) => new tToken { Type = tTokenType.Number, Text = aInt.ToString(), Span = aSpan })
 		.SetName(nameof(tTokenType.Number)) |
 		
 		Ident
-		.Modify((tPosText a) => new tToken { Type = tTokenType.Ident, Text = a.Text, Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tText aText) => new tToken { Type = tTokenType.Ident, Text = aText, Span = aSpan })
 		.SetName(nameof(tTokenType.Ident)) |
 		
 		(-Char('§') + Ident)
-		.Modify((tPosText a) => new tToken { Type = tTokenType.KeyWord, Text = a.Text, Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tText aText) => new tToken { Type = tTokenType.KeyWord, Text = aText, Span = aSpan })
 		.SetName(nameof(tTokenType.KeyWord)) |
 		
 		(-Char('#') + Ident)
-		.Modify((tPosText a) => new tToken { Type = tTokenType.Prefix, Text = a.Text, Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tText aText) => new tToken { Type = tTokenType.Prefix, Text = aText, Span = aSpan })
 		.SetName(nameof(tTokenType.Prefix)) |
 		
 		(
 			Text(":=") |
-			CharIn(".,:;()[]{}€\n").Modify((tPosChar a) => new tPosText { Text = a.Char.ToString(), Pos = a.Pos })
+			CharIn(".,:;()[]{}€\n").Modify((mStd.tSpan<mTextParser.tPos> aSpan, tChar aChar) => aChar.ToString())
 		)
-		.Modify((tPosText a) => new tToken { Type = tTokenType.SpecialToken, Text = a.Text, Pos = a.Pos })
+		.Modify((mStd.tSpan<mTextParser.tPos> aSpan, tText aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 	);
 	
 	public static readonly tIL_Tokenizer
 	Tokenizer = (Token -__)[0, null];
 	
 	#region TEST
+	
+	//================================================================================
+	private static mStd.tSpan<mTextParser.tPos> Span(
+		(tInt32 Row, tInt32 Col) aStart,
+		(tInt32 Row, tInt32 Col) aEnd
+	//================================================================================
+	) => new mStd.tSpan<mTextParser.tPos> {
+		Start = {
+			Row = aStart.Row,
+			Col = aStart.Col
+		},
+		End = {
+			Row = aEnd.Row,
+			Col = aEnd.Col
+		}
+	};
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
@@ -133,20 +145,19 @@ public static class  mIL_Tokenizer {
 				mStd.AssertEq(
 					TokenList,
 					mList.List(
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 1 }, Text = "a", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 3 }, Text = ":=", Type = tTokenType.SpecialToken },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 7 }, Text = "INT", Type = tTokenType.KeyWord },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 11 }, Text = "b", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 13 }, Text = "<=>", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 17 }, Text = "c", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 1, Col = 19 }, Text = "\n", Type = tTokenType.SpecialToken },
-						
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 2 }, Text = "a", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 4 }, Text = ":=", Type = tTokenType.SpecialToken },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 7 }, Text = "[", Type = tTokenType.SpecialToken },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 9 }, Text = "b", Type = tTokenType.Prefix },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 11 }, Text = "c", Type = tTokenType.Ident },
-						new tToken{ Pos = new mTextParser.tPos{ Row = 2, Col = 12 }, Text = "]", Type = tTokenType.SpecialToken }
+						new tToken{ Span = Span((1, 1), (1, 1)), Text = "a", Type = tTokenType.Ident },
+						new tToken{ Span = Span((1, 3), (1, 4)), Text = ":=", Type = tTokenType.SpecialToken },
+						new tToken{ Span = Span((1, 6), (1, 9)), Text = "INT", Type = tTokenType.KeyWord },
+						new tToken{ Span = Span((1, 11), (1, 11)), Text = "b", Type = tTokenType.Ident },
+						new tToken{ Span = Span((1, 13), (1, 15)), Text = "<=>", Type = tTokenType.Ident },
+						new tToken{ Span = Span((1, 17), (1, 17)), Text = "c", Type = tTokenType.Ident },
+						new tToken{ Span = Span((1, 19), (1, 19)), Text = "\n", Type = tTokenType.SpecialToken },
+						new tToken{ Span = Span((2, 2), (2, 2)), Text = "a", Type = tTokenType.Ident },
+						new tToken{ Span = Span((2, 4), (2, 5)), Text = ":=", Type = tTokenType.SpecialToken },
+						new tToken{ Span = Span((2, 7), (2, 7)), Text = "[", Type = tTokenType.SpecialToken },
+						new tToken{ Span = Span((2, 8), (2, 9)), Text = "b", Type = tTokenType.Prefix },
+						new tToken{ Span = Span((2, 11), (2, 11)), Text = "c", Type = tTokenType.Ident },
+						new tToken{ Span = Span((2, 12), (2, 12)), Text = "]", Type = tTokenType.SpecialToken }
 					)
 				);
 			}

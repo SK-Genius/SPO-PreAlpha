@@ -27,7 +27,7 @@ public static class mSPO_Interpreter {
 			mSPO_Parser.Module.ParseText(
 				aCode,
 				aDebugStream
-			).Match(out mSPO_AST.tModuleNode ModuleNode)
+			).Match(out mSPO_AST.tModuleNode<mTextParser.tPos> ModuleNode)
 		);
 		return mIL_Interpreter.Run(
 			mSPO2IL.MapModule(ModuleNode).Defs.ToLasyList().MapWithIndex(
