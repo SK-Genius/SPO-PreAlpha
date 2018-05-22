@@ -193,6 +193,30 @@ public static class mSPO_AST {
 		override public tText ToString() => $"[{ArgType} => {ResType}]";
 	}
 	
+	public struct tRecursiveTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> HeadType;
+		public tExpressionNode<tPos> BodyType;
+		
+		override public tText ToString() => $"[§RECURSIVE {HeadType} {BodyType}]";
+	}
+	
+	public struct tInterfaceTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> HeadType;
+		public tExpressionNode<tPos> BodyType;
+		
+		override public tText ToString() => $"[§INTERFACE {HeadType} {BodyType}]";
+	}
+	
+	public struct tGenericTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public tExpressionNode<tPos> HeadType;
+		public tExpressionNode<tPos> BodyType;
+		
+		override public tText ToString() => $"[§GENERIC {HeadType} {BodyType}]";
+	}
+	
 	public struct tDefVarNode<tPos> : tCommandNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tIdentNode<tPos> Ident;
@@ -443,6 +467,54 @@ public static class mSPO_AST {
 	
 	public static mStd.tFunc<tLambdaTypeNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
 	LambdaType_<tPos>() => LambdaType;
+	
+	//================================================================================
+	public static tRecursiveTypeNode<tPos>
+	RecursiveType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aHeadType,
+		tExpressionNode<tPos> aBodyType
+	//================================================================================
+	) => new tRecursiveTypeNode<tPos> {
+		Span = aSpan,
+		HeadType = aHeadType,
+		BodyType = aBodyType
+	};
+	
+	public static mStd.tFunc<tRecursiveTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
+	RecursiveType_<tPos>() => RecursiveType;
+	
+	//================================================================================
+	public static tInterfaceTypeNode<tPos>
+	InterfaceType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aHeadType,
+		tExpressionNode<tPos> aBodyType
+	//================================================================================
+	) => new tInterfaceTypeNode<tPos> {
+		Span = aSpan,
+		HeadType = aHeadType,
+		BodyType = aBodyType
+	};
+	
+	public static mStd.tFunc<tInterfaceTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
+	InterfaceType_<tPos>() => InterfaceType;
+	
+	//================================================================================
+	public static tGenericTypeNode<tPos>
+	GenericType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tIdentNode<tPos> aHeadType,
+		tExpressionNode<tPos> aBodyType
+	//================================================================================
+	) => new tGenericTypeNode<tPos> {
+		Span = aSpan,
+		HeadType = aHeadType,
+		BodyType = aBodyType
+	};
+	
+	public static mStd.tFunc<tGenericTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
+	GenericType_<tPos>() => GenericType;
 	
 	//================================================================================
 	public static tCallNode<tPos>

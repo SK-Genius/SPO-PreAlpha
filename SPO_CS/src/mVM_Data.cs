@@ -62,6 +62,9 @@ public static class mVM_Data {
 		TypeCond,
 		TypeFunc,
 		TypeMeth,
+		TypeRecursiv,
+		TypeInterface,
+		TypeGeneric,
 	}
 	
 	public sealed class tProcDef {
@@ -84,11 +87,11 @@ public static class mVM_Data {
 		
 		public readonly mVM_Type.tType DefType = mVM_Type.Proc(
 			mVM_Type.Empty(),
-			mVM_Type.Unknown(),
+			mVM_Type.Free(),
 			mVM_Type.Proc(
-				mVM_Type.Unknown(),
-				mVM_Type.Unknown(),
-				mVM_Type.Unknown()
+				mVM_Type.Free(),
+				mVM_Type.Free(),
+				mVM_Type.Free()
 			)
 		);
 		
@@ -412,6 +415,33 @@ public static class mVM_Data {
 		tInt32 aFuncTypeReg
 	//================================================================================
 	) => aDef._AddReg(tOpCode.TypeFunc, aObjTypeReg, aFuncTypeReg);
+	
+	//================================================================================
+	public static tInt32
+	TypeRecursive(
+		this tProcDef aDef,
+		tInt32 aHeadTypeReg,
+		tInt32 aBodyTypeReg
+	//================================================================================
+	) => aDef._AddReg(tOpCode.TypeRecursiv, aHeadTypeReg, aBodyTypeReg);
+	
+	//================================================================================
+	public static tInt32
+	TypeInterface(
+		this tProcDef aDef,
+		tInt32 aHeadTypeReg,
+		tInt32 aBodyTypeReg
+	//================================================================================
+	) => aDef._AddReg(tOpCode.TypeInterface, aHeadTypeReg, aBodyTypeReg);
+	
+	//================================================================================
+	public static tInt32
+	TypeGeneric(
+		this tProcDef aDef,
+		tInt32 aHeadTypeReg,
+		tInt32 aBodyTypeReg
+	//================================================================================
+	) => aDef._AddReg(tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
 	
 	// TODO: Match Types
 	

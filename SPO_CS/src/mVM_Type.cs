@@ -16,8 +16,8 @@ using tText = System.String;
 public static class mVM_Type {
 	
 	public enum
-	tTypeType {
-		Unknown,
+	tKind {
+		Free,
 		Empty,
 		Bool,
 		Int,
@@ -29,37 +29,43 @@ public static class mVM_Type {
 		Ref,
 		Set,
 		Cond,
+		Recursiv,
+		Interface,
+		Generic
 	}
 	
 	public class
 	tType {
-		public tTypeType Type;
+		public tKind Kind;
 		public tText Id;
 		public tText Prefix;
 		public tType[] Refs = new tType[0];
 		
 		public override tText ToString(
-		) => Type.Switch(
+		) => Kind.Switch(
 			_ => _.ToString(),
-			(tTypeType.Unknown, _ => $@"[?{Id}]"),
-			(tTypeType.Empty,  _ => $@"[]"),
-			(tTypeType.Bool,  _ => $@"[{_}]"),
-			(tTypeType.Int,  _ => $@"[{_}]"),
-			(tTypeType.Type,  _ => $@"[§]"),
-			(tTypeType.Pair, _ => $@"[{Refs[0]}, {Refs[1]}]"),
-			(tTypeType.Prefix, _ => $@"[#{Prefix}:{Refs[0]}]"),
+			(tKind.Free, _ => $@"[?{Id}]"),
+			(tKind.Empty, _ => $@"[]"),
+			(tKind.Bool, _ => $@"[{_}]"),
+			(tKind.Int, _ => $@"[{_}]"),
+			(tKind.Type, _ => $@"[§]"),
+			(tKind.Pair, _ => $@"[{Refs[0]}, {Refs[1]}]"),
+			(tKind.Prefix, _ => $@"[#{Prefix}:{Refs[0]}]"),
 			(
-				tTypeType.Proc,
+				tKind.Proc,
 				_ => (
-					Refs[0].Type == tTypeType.Empty
+					Refs[0].Kind == tKind.Empty
 					? $@"[{Refs[1]}=>{Refs[2]}]"
 					: $@"[{Refs[0]}:{Refs[1]}=>{Refs[2]}]"
 				)
 			),
-			(tTypeType.Var, _ => $@"[§VAR {Refs[0]}]"),
-			(tTypeType.Ref, _ => $@"[§REF {Refs[0]}]"),
-			(tTypeType.Set, _ => $@"[{Refs[0]} | {Refs[1]}]"),
-			(tTypeType.Cond, _ => $@"[{Refs[0]} & ...]")
+			(tKind.Var, _ => $@"[§VAR {Refs[0]}]"),
+			(tKind.Ref, _ => $@"[§REF {Refs[0]}]"),
+			(tKind.Set, _ => $@"[{Refs[0]} | {Refs[1]}]"),
+			(tKind.Cond, _ => $@"[{Refs[0]} & ...]"),
+			(tKind.Recursiv, _ => $@"[§REC {Refs[0]} {Refs[1]}]"),
+			(tKind.Interface, _ => $@"[§ANY {Refs[0]} {Refs[1]}]"),
+			(tKind.Generic, _ => $@"[§ALL {Refs[0]} {Refs[1]}]")
 		);
 		
 		public override bool Equals(
@@ -68,7 +74,7 @@ public static class mVM_Type {
 			var Other = (tType)a;
 			
 			if (
-				this.Type != Other.Type ||
+				this.Kind != Other.Kind ||
 				this.Id != Other.Id ||
 				this.Prefix != Other.Prefix ||
 				this.Refs.Length != Other.Refs.Length
@@ -88,16 +94,16 @@ public static class mVM_Type {
 	
 	public static readonly tText cUnknownPrefix = null; // TODO
 	
-	private static int NextPlaceholderId = 1;
+	private static int NextPlaceholderId = 1; // TODO: remove static var
 	//================================================================================
 	public static tType
-	Unknown(
+	Free(
 	//================================================================================
 	) {
 		var Id = ""+NextPlaceholderId;
 		NextPlaceholderId += 1;
 		var Res = new tType {
-			Type = tTypeType.Unknown,
+			Kind = tKind.Free,
 			Id = Id
 		};
 		Res.Refs = new [] { Res };
@@ -108,25 +114,25 @@ public static class mVM_Type {
 	public static tType
 	Empty(
 	//================================================================================
-	) => new tType { Type = tTypeType.Empty };
+	) => new tType { Kind = tKind.Empty };
 	
 	//================================================================================
 	public static tType
 	Bool(
 	//================================================================================
-	) => new tType { Type = tTypeType.Bool };
+	) => new tType { Kind = tKind.Bool };
 	
 	//================================================================================
 	public static tType
 	Int(
 	//================================================================================
-	) => new tType { Type = tTypeType.Int };
+	) => new tType { Kind = tKind.Int };
 	
 	//================================================================================
 	public static tType
 	Type(
 	//================================================================================
-	) => new tType { Type = tTypeType.Type };
+	) => new tType { Kind = tKind.Type };
 	
 	//================================================================================
 	public static tType
@@ -134,7 +140,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Type,
+		Kind = tKind.Type,
 		Refs = new []{ aType }
 	};
 	
@@ -144,7 +150,7 @@ public static class mVM_Type {
 		this tType aType
 	//================================================================================
 	) {
-		mDebug.AssertEq(aType.Type, tTypeType.Type);
+		mDebug.AssertEq(aType.Kind, tKind.Type);
 		return aType.Refs[0];
 	}
 	
@@ -155,7 +161,7 @@ public static class mVM_Type {
 		tType aType2
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Pair,
+		Kind = tKind.Pair,
 		Refs = new []{ aType1, aType2 }
 	};
 	
@@ -166,7 +172,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Prefix,
+		Kind = tKind.Prefix,
 		Prefix = aPrefix,
 		Refs = new []{ aType }
 	};
@@ -179,7 +185,7 @@ public static class mVM_Type {
 		tType aResType
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Proc,
+		Kind = tKind.Proc,
 		Refs = new []{ aObjType, aArgType, aResType }
 	};
 	
@@ -189,7 +195,7 @@ public static class mVM_Type {
 		tText aId
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Var,
+		Kind = tKind.Var,
 		Id = aId
 	};
 	
@@ -199,7 +205,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Ref,
+		Kind = tKind.Ref,
 		Refs = new []{ aType }
 	};
 	
@@ -209,7 +215,7 @@ public static class mVM_Type {
 		tType aType
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Var,
+		Kind = tKind.Var,
 		Refs = new []{ aType }
 	};
 	
@@ -220,7 +226,7 @@ public static class mVM_Type {
 		tType aType2
 	//================================================================================
 	) => new tType {
-		Type = tTypeType.Set,
+		Kind = tKind.Set,
 		Refs = new []{ aType1, aType2 }
 	};
 	
@@ -232,10 +238,43 @@ public static class mVM_Type {
 	) {
 		mDebug.Assert(false); // TODO
 		return new tType {
-			Type = tTypeType.Cond,
+			Kind = tKind.Cond,
 			Refs = new [] { aType },
 		};
 	}
+	
+	//================================================================================
+	public static tType
+	Recursive(
+		tType aTypeHead,
+		tType aTypeBody
+	//================================================================================
+	) => new tType {
+		Kind = tKind.Recursiv,
+		Refs = new [] { aTypeHead, aTypeBody },
+	};
+	
+	//================================================================================
+	public static tType
+	Interface(
+		tType aTypeHead,
+		tType aTypeBody
+	//================================================================================
+	) => new tType {
+		Kind = tKind.Interface,
+		Refs = new [] { aTypeHead, aTypeBody },
+	};
+	
+	//================================================================================
+	public static tType
+	Generic(
+		tType aTypeHead,
+		tType aTypeBody
+	//================================================================================
+	) => new tType {
+		Kind = tKind.Generic,
+		Refs = new [] { aTypeHead, aTypeBody },
+	};
 	
 	//================================================================================
 	public static void
@@ -250,8 +289,8 @@ public static class mVM_Type {
 		}
 		
 		if (
-			a1.Type== tTypeType.Unknown &&
-			a2.Type== tTypeType.Unknown
+			a1.Kind== tKind.Free &&
+			a2.Kind== tKind.Free
 		) {
 			if (ReferenceEquals(a1.Refs, a2.Refs)) {
 				return;
@@ -265,11 +304,11 @@ public static class mVM_Type {
 			return;
 		}
 		
-		if (a1.Type == tTypeType.Unknown) {
+		if (a1.Kind == tKind.Free) {
 			// TODO: check aginst cycles (a1 in a2)
 			var Aliases = mList.List(a1.Refs);
 			while (Aliases.Match(out var Alias, out Aliases)) {
-				Alias.Type = a2.Type;
+				Alias.Kind = a2.Kind;
 				Alias.Id = a2.Id;
 				Alias.Prefix = a2.Prefix;
 				Alias.Refs = a2.Refs;
@@ -277,7 +316,7 @@ public static class mVM_Type {
 			return;
 		}
 		
-		if (a2.Type == tTypeType.Unknown) {
+		if (a2.Kind == tKind.Free) {
 			Unify(a2, a1, aTrace);
 			return;
 		}
@@ -290,7 +329,7 @@ public static class mVM_Type {
 		
 		#else
 		
-		mDebug.AssertEq(a1.Type, a2.Type);
+		mDebug.AssertEq(a1.Kind, a2.Kind);
 		mDebug.AssertEq(a1.Id, a2.Id);
 		mDebug.AssertEq(a1.Prefix, a2.Prefix);
 		var RefCount = a1.Refs.Length;

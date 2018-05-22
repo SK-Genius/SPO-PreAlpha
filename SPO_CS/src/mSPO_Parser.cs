@@ -305,8 +305,33 @@ public static class mSPO_Parser {
 	.SetName(nameof(LambdaType));
 	
 	public static readonly tSPO_Parser
-	Type = (EmptyType | BoolType | IntType | TypeType | PairType | LambdaType)
-	.SetName(nameof(Type) );
+	RecursiveType = (-Token("[") -Token("§RECURSIV") +Ident  +Expression -Token("]"))
+	.Modify(mSPO_AST.RecursiveType_<tPos>())
+	.SetName(nameof(RecursiveType));
+	
+	public static readonly tSPO_Parser
+	InterfaceType = (-Token("[") -Token("§INTERFACE") +Ident  +Expression -Token("]"))
+	.Modify(mSPO_AST.InterfaceType_<tPos>())
+	.SetName(nameof(InterfaceType));
+	
+	public static readonly tSPO_Parser
+	GenericType = (-Token("[") -Token("§GENERIC") +Ident  +Expression -Token("]"))
+	.Modify(mSPO_AST.GenericType_<tPos>())
+	.SetName(nameof(GenericType));
+	
+	public static readonly tSPO_Parser
+	Type = (
+		EmptyType |
+		BoolType |
+		IntType |
+		TypeType |
+		PairType |
+		LambdaType |
+		RecursiveType |
+		InterfaceType |
+		GenericType
+	)
+	.SetName(nameof(Type));
 	
 	public static readonly tSPO_Parser
 	Lambda = (+Match -Token("=>") +Expression.OrFail())
@@ -496,10 +521,11 @@ public static class mSPO_Parser {
 		
 		ExpressionInCall.Def(
 			Block |
+			Tuple |
+			C( Expression ) |
 			Literal |
 			Ident |
-			Tuple |
-			C( Expression )
+			Type
 		);
 		
 		// TODO: Macros, Streaming, Block, ...

@@ -19,8 +19,9 @@
 		FUNC: [t -> t]
 		PROC: [t : [t -> t]]
 		MSG_OUT: [t >>]
-		INTERFACE: [§ANY i [...]]
-		GENERIC: [§ALL i [...]]
+		INTERFACE: [§ANY t [...]]
+		GENERIC: [§ALL t [...]]
+		RECURSIVE: [§REC t [...]]
 		
 		SEMANTIC SUCCER:
 		-----------------
@@ -33,7 +34,7 @@
 				[#n]  ==  [#n []]
 				[#n t, t]  ==  [#n [t, t]]
 				[#n t, t, t]  ==  [#n [t, t, t]]
-				[#n t, t, ... ,t]  ==  [#n [t, t, ... , t]]
+				[#n t, t, ... ,t]  ==  [#n [t, t, ..., t]]
 			
 			Set:
 				[t | t | t]  ==  [[ t | t] | t ]  

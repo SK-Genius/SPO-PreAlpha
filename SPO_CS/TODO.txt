@@ -13,7 +13,8 @@
 	o imperative
 		- arrays
 		- loops
-
+	
+	o reduce dependencies for tests
 
 ROADMAP:
 ========

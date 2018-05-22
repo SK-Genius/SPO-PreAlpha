@@ -281,6 +281,18 @@ public static class  mIL_Parser {
 		.Modify(X(mIL_AST.TypeVar))
 		.SetDebugName(nameof(mIL_AST.TypeVar)) |
 		
+		(+Ident -SpecialToken(":=") -SpecialToken("[") -KeyWord("REC") +(+Ident -Token("=>") +Ident -SpecialToken("]")).OrFail())
+		.Modify(X(mIL_AST.TypeRecursive))
+		.SetDebugName(nameof(mIL_AST.TypeRecursive)) |
+		
+		(+Ident -SpecialToken(":=") -SpecialToken("[") -KeyWord("ANY") +(+Ident -Token("=>") +Ident -SpecialToken("]")).OrFail())
+		.Modify(X(mIL_AST.TypeInterface))
+		.SetDebugName(nameof(mIL_AST.TypeInterface)) |
+		
+		(+Ident -SpecialToken(":=") -SpecialToken("[") -KeyWord("ALL") +(+Ident -Token("=>") +Ident -SpecialToken("]")).OrFail())
+		.Modify(X(mIL_AST.TypeGeneric))
+		.SetDebugName(nameof(mIL_AST.TypeGeneric)) |
+		
 		(-KeyWord("TYPE_OF") +(+Ident -Token("IS") +Ident).OrFail())
 		.Modify(X(mIL_AST.TypeIs))
 		.SetDebugName(nameof(mIL_AST.TypeIs))
@@ -552,6 +564,21 @@ public static class  mIL_Parser {
 				AssertParsedCommand(
 					"a := [§VAR b]",
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, Span((1, 1), (1, 13)), "a", "b"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [§REC b => c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeRecursive, Span((1, 1), (1, 18)), "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [§ANY b => c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeInterface, Span((1, 1), (1, 18)), "a", "b", "c"),
+					aDebugStream
+				);
+				AssertParsedCommand(
+					"a := [§ALL b => c]",
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeGeneric, Span((1, 1), (1, 18)), "a", "b", "c"),
 					aDebugStream
 				);
 				AssertParsedCommand(

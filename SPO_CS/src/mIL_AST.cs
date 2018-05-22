@@ -52,6 +52,9 @@ public static class mIL_AST {
 		TypeSet, // T := [T | T]
 		TypeCond, // T := [T & P]
 		TypeVar, // T := [§VAR T]
+		TypeRecursive, // T := [§RECURSIVE t T]
+		TypeInterface, // T := [§INTERFACE t T]
+		TypeGeneric, // T := [§GENERIC t T]
 		
 		TypeIs, // §TYPE_OF X IS T
 	}
@@ -113,7 +116,10 @@ public static class mIL_AST {
 			case tCommandNodeType.TypeMethod:
 			case tCommandNodeType.TypePair:
 			case tCommandNodeType.TypeSet:
-			case tCommandNodeType.TypeVar: {
+			case tCommandNodeType.TypeVar:
+			case tCommandNodeType.TypeRecursive:
+			case tCommandNodeType.TypeInterface:
+			case tCommandNodeType.TypeGeneric: {
 				aResultReg = aNode._1;
 				return true;
 			}
@@ -604,6 +610,36 @@ public static class mIL_AST {
 		tText aId2
 	//================================================================================
 	) => _CommandNode(tCommandNodeType.TypeVar, aSpan, aId1, aId2, null);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
+	TypeRecursive<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeRecursive, aSpan, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
+	TypeInterface<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeInterface, aSpan, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
+	TypeGeneric<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => _CommandNode(tCommandNodeType.TypeGeneric, aSpan, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>

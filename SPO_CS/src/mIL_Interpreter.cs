@@ -63,10 +63,10 @@ public static class mIL_Interpreter {
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			
-			var DefEnvType = mVM_Type.Unknown();
-			var DefObjType = mVM_Type.Unknown();
-			var DefArgType = mVM_Type.Unknown();
-			var DefResType = mVM_Type.Unknown();
+			var DefEnvType = mVM_Type.Free();
+			var DefObjType = mVM_Type.Free();
+			var DefArgType = mVM_Type.Free();
+			var DefResType = mVM_Type.Free();
 			mVM_Type.Unify(
 				NewProc.DefType,
 				mVM_Type.Proc(
@@ -120,14 +120,14 @@ public static class mIL_Interpreter {
 					aTrace($"  {Command._NodeType} {Command._1} {Command._2} {Command._3}:");
 				#endif
 				if (Command.Match(mIL_AST.tCommandNodeType.Call, out var Pos, out var RegId1, out var RegId2, out var RegId3)) {
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					var ProcReg = Regs.Get(RegId2);
 					var ArgReg = Regs.Get(RegId3);
 					mVM_Type.Unify(Types.Get(ProcReg), mVM_Type.Proc(mVM_Type.Empty(), Types.Get(ArgReg), ResType), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.Call(ProcReg, ArgReg));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Exec, out Pos, out RegId1, out RegId2, out RegId3)) {
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					var ProcReg = Regs.Get(RegId2);
 					var ArgReg = Regs.Get(RegId3);
 					mVM_Type.Unify(Types.Get(ProcReg), mVM_Type.Proc(CurrObjType, Types.Get(ArgReg), ResType), aTrace);
@@ -210,15 +210,15 @@ public static class mIL_Interpreter {
 					Regs = Regs.Set(RegId1, NewProc.Pair(Reg1, Reg2));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.First, out Pos, out RegId1, out RegId2)) {
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					var ArgReg = Regs.Get(RegId2);
-					mVM_Type.Unify(Types.Get(ArgReg), mVM_Type.Pair(ResType, mVM_Type.Unknown()), aTrace);
+					mVM_Type.Unify(Types.Get(ArgReg), mVM_Type.Pair(ResType, mVM_Type.Free()), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.First(ArgReg));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Second, out Pos, out RegId1, out RegId2)) {
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					var ArgReg = Regs.Get(RegId2);
-					mVM_Type.Unify(Types.Get(ArgReg), mVM_Type.Pair(mVM_Type.Unknown(), ResType), aTrace);
+					mVM_Type.Unify(Types.Get(ArgReg), mVM_Type.Pair(mVM_Type.Free(), ResType), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.Second(ArgReg));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.ReturnIf, out Pos, out RegId1, out RegId2)) {
@@ -240,14 +240,14 @@ public static class mIL_Interpreter {
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.SubPrefix, out Pos, out RegId1, out Prefix, out RegId3)) {
 					var Reg = Regs.Get(RegId3);
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					mVM_Type.Unify(Types.Get(Reg), mVM_Type.Prefix(Prefix, ResType), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.DelPrefix(Prefix.GetHashCode(), Reg));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.HasPrefix, out Pos, out RegId1, out Prefix, out RegId3)) {
 					var ResType = mVM_Type.Bool();
 					var Reg = Regs.Get(RegId3);
-					mVM_Type.Unify(Types.Get(Reg), mVM_Type.Prefix(mVM_Type.cUnknownPrefix, mVM_Type.Unknown()), aTrace);
+					mVM_Type.Unify(Types.Get(Reg), mVM_Type.Prefix(mVM_Type.cUnknownPrefix, mVM_Type.Free()), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.HasPrefix(Prefix.GetHashCode(), Reg));
 					Types.Push(ResType);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Assert, out Pos, out RegId1, out RegId2)) {
@@ -266,7 +266,7 @@ public static class mIL_Interpreter {
 					mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(Types.Get(ValReg)), aTrace);
 					NewProc.VarSet(VarReg, ValReg);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.VarGet, out Pos, out RegId1, out RegId2)) {
-					var ResType = mVM_Type.Unknown();
+					var ResType = mVM_Type.Free();
 					var VarReg = Regs.Get(RegId2);
 					mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(ResType), aTrace);
 					Regs = Regs.Set(RegId1, NewProc.VarGet(VarReg));
@@ -279,7 +279,7 @@ public static class mIL_Interpreter {
 					CurrObj = ObjStack.Pop();
 					NewProc.SetObj(CurrObj);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeCond, out Pos, out RegId1, out RegId2, out RegId3)) {
-					throw mStd.Error("TODO");
+					throw mStd.Error("TODO"); // TODO
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeFunc, out Pos, out RegId1, out RegId2, out RegId3)) {
 					var ArgTypeReg = Regs.Get(RegId2);
 					var ResTypeReg = Regs.Get(RegId3);
@@ -296,8 +296,8 @@ public static class mIL_Interpreter {
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeMethod, out Pos, out RegId1, out RegId2, out RegId3)) {
 					var ObjTypeReg = Regs.Get(RegId2);
 					var FuncTypeReg = Regs.Get(RegId3);
-					var ArgType = mVM_Type.Unknown();
-					var ResType = mVM_Type.Unknown();
+					var ArgType = mVM_Type.Free();
+					var ResType = mVM_Type.Free();
 					Regs = Regs.Set(RegId1, NewProc.TypeMeth(ObjTypeReg, FuncTypeReg));
 					mVM_Type.Unify(
 						Types.Get(FuncTypeReg),
@@ -326,7 +326,7 @@ public static class mIL_Interpreter {
 						)
 					);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypePrefix, out Pos, out RegId1, out RegId2, out RegId3)) {
-					throw mStd.Error("TODO");
+					throw mStd.Error("TODO"); // TODO
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeSet, out Pos, out RegId1, out RegId2, out RegId3)) {
 					var Type1Reg = Regs.Get(RegId2);
 					var Type2Reg = Regs.Get(RegId3);
@@ -346,6 +346,42 @@ public static class mIL_Interpreter {
 						mVM_Type.Type(
 							mVM_Type.Var(
 								Types.Get(TypeReg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeRecursive, out Pos, out RegId1, out RegId2, out RegId3)) {
+					var FreeTypeReg = Regs.Get(RegId2);
+					var TypeBodyReg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypeRecursive(FreeTypeReg, TypeBodyReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Recursive(
+								Types.Get(TypeBodyReg).Value(),
+								Types.Get(FreeTypeReg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeInterface, out Pos, out RegId1, out RegId2, out RegId3)) {
+					var FreeTypeReg = Regs.Get(RegId2);
+					var TypeBodyReg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypeInterface(FreeTypeReg, TypeBodyReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Interface(
+								Types.Get(TypeBodyReg).Value(),
+								Types.Get(FreeTypeReg).Value()
+							)
+						)
+					);
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeGeneric, out Pos, out RegId1, out RegId2, out RegId3)) {
+					var FreeTypeReg = Regs.Get(RegId2);
+					var TypeBodyReg = Regs.Get(RegId3);
+					Regs = Regs.Set(RegId1, NewProc.TypeGeneric(FreeTypeReg, TypeBodyReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Generic(
+								Types.Get(TypeBodyReg).Value(),
+								Types.Get(FreeTypeReg).Value()
 							)
 						)
 					);
