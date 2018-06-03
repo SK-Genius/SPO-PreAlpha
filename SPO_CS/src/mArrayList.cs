@@ -38,7 +38,6 @@ public static class mArrayList {
 		}
 		
 		override public tBool Equals(object a) => this.Equals((tArrayList<t>)a);
-		override public tText ToString() => this.ToLasyList().ToString() ?? "";
 	}
 	
 	//================================================================================

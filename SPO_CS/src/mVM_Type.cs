@@ -41,33 +41,6 @@ public static class mVM_Type {
 		public tText Prefix;
 		public tType[] Refs = new tType[0];
 		
-		public override tText ToString(
-		) => Kind.Switch(
-			_ => _.ToString(),
-			(tKind.Free, _ => $@"[?{Id}]"),
-			(tKind.Empty, _ => $@"[]"),
-			(tKind.Bool, _ => $@"[{_}]"),
-			(tKind.Int, _ => $@"[{_}]"),
-			(tKind.Type, _ => $@"[§]"),
-			(tKind.Pair, _ => $@"[{Refs[0]}, {Refs[1]}]"),
-			(tKind.Prefix, _ => $@"[#{Prefix}:{Refs[0]}]"),
-			(
-				tKind.Proc,
-				_ => (
-					Refs[0].Kind == tKind.Empty
-					? $@"[{Refs[1]}=>{Refs[2]}]"
-					: $@"[{Refs[0]}:{Refs[1]}=>{Refs[2]}]"
-				)
-			),
-			(tKind.Var, _ => $@"[§VAR {Refs[0]}]"),
-			(tKind.Ref, _ => $@"[§REF {Refs[0]}]"),
-			(tKind.Set, _ => $@"[{Refs[0]} | {Refs[1]}]"),
-			(tKind.Cond, _ => $@"[{Refs[0]} & ...]"),
-			(tKind.Recursiv, _ => $@"[§REC {Refs[0]} {Refs[1]}]"),
-			(tKind.Interface, _ => $@"[§ANY {Refs[0]} {Refs[1]}]"),
-			(tKind.Generic, _ => $@"[§ALL {Refs[0]} {Refs[1]}]")
-		);
-		
 		public override bool Equals(
 			object a
 		) {
@@ -92,9 +65,41 @@ public static class mVM_Type {
 		}
 	}
 	
+	//================================================================================
+	public static tText
+	AsText(
+		this tType aType
+	//================================================================================
+	) => aType.Kind.Switch(
+		aKind => aKind.ToString(),
+		(tKind.Free, _ => $@"[?{aType.Id}]"),
+		(tKind.Empty, _ => $@"[]"),
+		(tKind.Bool, _ => $@"[{_}]"),
+		(tKind.Int, _ => $@"[{_}]"),
+		(tKind.Type, _ => $@"[§]"),
+		(tKind.Pair, _ => $@"[{aType.Refs[0]}, {aType.Refs[1]}]"),
+		(tKind.Prefix, _ => $@"[#{aType.Prefix}:{aType.Refs[0]}]"),
+		(
+			tKind.Proc,
+			_ => (
+				aType.Refs[0].Kind == tKind.Empty
+				? $@"[{aType.Refs[1]}=>{aType.Refs[2]}]"
+				: $@"[{aType.Refs[0]}:{aType.Refs[1]}=>{aType.Refs[2]}]"
+			)
+		),
+		(tKind.Var, _ => $@"[§VAR {aType.Refs[0]}]"),
+		(tKind.Ref, _ => $@"[§REF {aType.Refs[0]}]"),
+		(tKind.Set, _ => $@"[{aType.Refs[0]} | {aType.Refs[1]}]"),
+		(tKind.Cond, _ => $@"[{aType.Refs[0]} & ...]"),
+		(tKind.Recursiv, _ => $@"[§REC {aType.Refs[0]} {aType.Refs[1]}]"),
+		(tKind.Interface, _ => $@"[§ANY {aType.Refs[0]} {aType.Refs[1]}]"),
+		(tKind.Generic, _ => $@"[§ALL {aType.Refs[0]} {aType.Refs[1]}]")
+	);
+		
 	public static readonly tText cUnknownPrefix = null; // TODO
 	
 	private static int NextPlaceholderId = 1; // TODO: remove static var
+	
 	//================================================================================
 	public static tType
 	Free(

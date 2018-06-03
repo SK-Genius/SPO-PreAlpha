@@ -38,6 +38,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="mDebug.csproj">
+      <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
+      <Name>mDebug</Name>
+    </ProjectReference>
     <ProjectReference Include="mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>

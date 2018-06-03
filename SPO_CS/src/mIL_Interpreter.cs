@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿//#define TRACE
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -117,7 +119,7 @@ public static class mIL_Interpreter {
 			var RestCommands = Commands;
 			while (RestCommands.Match(out var Command, out RestCommands)) {
 				#if TRACE
-					aTrace($"  {Command._NodeType} {Command._1} {Command._2} {Command._3}:");
+					aTrace($"  {Command.NodeType} {Command._1} {Command._2} {Command._3}:");
 				#endif
 				if (Command.Match(mIL_AST.tCommandNodeType.Call, out var Pos, out var RegId1, out var RegId2, out var RegId3)) {
 					var ResType = mVM_Type.Free();
@@ -325,12 +327,21 @@ public static class mIL_Interpreter {
 							)
 						)
 					);
-				} else if (Command.Match(mIL_AST.tCommandNodeType.TypePrefix, out Pos, out RegId1, out RegId2, out RegId3)) {
-					throw mStd.Error("TODO"); // TODO
+				} else if (Command.Match(mIL_AST.tCommandNodeType.TypePrefix, out Pos, out RegId1, out Prefix, out RegId2)) {
+					var TypeReg = Regs.Get(RegId2);
+					Regs = Regs.Set(RegId1, NewProc.TypePrefix(Prefix.GetHashCode(), TypeReg));
+					Types.Push(
+						mVM_Type.Type(
+							mVM_Type.Prefix(
+								Prefix,
+								Types.Get(TypeReg).Value()
+							)
+						)
+					);
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeSet, out Pos, out RegId1, out RegId2, out RegId3)) {
 					var Type1Reg = Regs.Get(RegId2);
 					var Type2Reg = Regs.Get(RegId3);
-					Regs = Regs.Set(RegId1, NewProc.TypePair(Type1Reg, Type2Reg));
+					Regs = Regs.Set(RegId1, NewProc.TypeSet(Type1Reg, Type2Reg));
 					Types.Push(
 						mVM_Type.Type(
 							mVM_Type.Set(

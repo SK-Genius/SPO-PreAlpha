@@ -475,7 +475,6 @@ public static class mVM_Data {
 		);
 		
 		override public tBool Equals(object a) => this.Equals((tData)a);
-		override public tText ToString() => $"({_DataType} {_Value})";
 	}
 	
 	//================================================================================

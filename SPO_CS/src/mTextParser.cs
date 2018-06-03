@@ -18,8 +18,6 @@ public static class mTextParser {
 	public struct tPos {
 		public tInt32 Row;
 		public tInt32 Col;
-		
-		override public tText ToString() => $"{Row}:{Col}";
 	}
 	
 	#if !true
@@ -94,6 +92,7 @@ public static class mTextParser {
 		mStd.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),
 			#if true
+			#if true
 			ErrorList.Reduce(
 				mList.List<tError>(),
 				(aOldList, aNew) => mList.List(
@@ -128,6 +127,9 @@ public static class mTextParser {
 					);
 				}
 			).Reduce("", (a1, a2) => a1 + "\n" + a2)
+			#else
+			""
+			#endif
 		);
 		
 		var (ResultList, Rest) = Result;

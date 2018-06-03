@@ -15,8 +15,6 @@ using tText = System.String;
 
 // TODO: maybe use nested functions to cleanup ???
 
-// TODO: replace default span by somthing meaning full
-
 public static class mSPO2IL {
 	public struct tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>> Defs;
@@ -75,6 +73,7 @@ public static class mSPO2IL {
 	public static mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>
 	UnrollList<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
+		mStd.tSpan<tPos> aSpan,
 		tText aReg,
 		mList.tList<tText> aSymbols
 	//================================================================================
@@ -86,15 +85,15 @@ public static class mSPO2IL {
 			}
 			case 1: {
 				mDebug.Assert(aSymbols.Match(out var Head, out var _));
-				ExtractEnv.Push(mIL_AST.Alias<tPos>(default, Head, aReg));
+				ExtractEnv.Push(mIL_AST.Alias(aSpan, Head, aReg));
 				break;
 			}
 			default: {
 				var RestEnv = aReg;
 				while (aSymbols.Match(out var Symbol, out aSymbols)) {
-					ExtractEnv.Push(mIL_AST.GetFirst<tPos>(default, Symbol, RestEnv));
+					ExtractEnv.Push(mIL_AST.GetFirst(aSpan, Symbol, RestEnv));
 					var NewRestEnv = aDefConstructor.CreateTempReg();
-					ExtractEnv.Push(mIL_AST.GetSecond<tPos>(default, NewRestEnv, RestEnv));
+					ExtractEnv.Push(mIL_AST.GetSecond(aSpan, NewRestEnv, RestEnv));
 					RestEnv = NewRestEnv;
 				}
 				break;
@@ -111,9 +110,12 @@ public static class mSPO2IL {
 	//================================================================================
 	) {
 		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg);
-		
 		var ResultReg = aDefConstructor.MapExpresion(aLambdaNode.Body);
-		aDefConstructor.Commands.Push(mIL_AST.ReturnIf<tPos>(default, ResultReg, mIL_AST.cTrue));
+		if (!(aLambdaNode.Body is mSPO_AST.tBlockNode<tPos>)) {
+			aDefConstructor.Commands.Push(
+				mIL_AST.ReturnIf(aLambdaNode.Body.Span, ResultReg, mIL_AST.cTrue)
+			);
+		}
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
 		).Where(
@@ -134,7 +136,7 @@ public static class mSPO2IL {
 		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj);
 		
 		var ResultReg = aDefConstructor.MapExpresion(aMethodNode.Body);
-		aDefConstructor.Commands.Push(mIL_AST.ReturnIf<tPos>(default, ResultReg, mIL_AST.cTrue));
+		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aMethodNode.Span, ResultReg, mIL_AST.cTrue));
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
 		).Where(
@@ -147,11 +149,13 @@ public static class mSPO2IL {
 	public static void
 	FinishMapProc<tPos>(
 		this ref tDefConstructor<tPos> aTempDefConstructor,
+		mStd.tSpan<tPos> aSpan,
 		mArrayList.tArrayList<tText> aUnsolveSymbols
 	//================================================================================
 	) {
 		var Def = mArrayList.Concat(
 			aTempDefConstructor.UnrollList(
+				aSpan,
 				mIL_AST.cEnv,
 				aUnsolveSymbols.ToLasyList()
 			),
@@ -175,6 +179,7 @@ public static class mSPO2IL {
 		var TempLambdaDef = NewDefConstructor(aModuleConstructor);
 		TempLambdaDef.InitMapLambda(aLambdaNode);
 		TempLambdaDef.FinishMapProc(
+			aLambdaNode.Span,
 			TempLambdaDef.UnsolvedSymbols
 		);
 		return (TempLambdaDef.Index, TempLambdaDef.UnsolvedSymbols);
@@ -190,6 +195,7 @@ public static class mSPO2IL {
 		var TempMethodDef = NewDefConstructor(aModuleConstructor);
 		TempMethodDef.InitMapMethod(aMethodNode);
 		TempMethodDef.FinishMapProc(
+			aMethodNode.Span,
 			TempMethodDef.UnsolvedSymbols
 		);
 		return (TempMethodDef.Index, TempMethodDef.UnsolvedSymbols);
@@ -199,6 +205,7 @@ public static class mSPO2IL {
 	public static tText
 	InitProc<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
+		mStd.tSpan<tPos> aSpan,
 		tText aDefName,
 		mArrayList.tArrayList<tText> aEnv
 	//================================================================================
@@ -218,14 +225,14 @@ public static class mSPO2IL {
 				UnsolvedSymbols = aEnv.ToLasyList().Reverse();
 				while (UnsolvedSymbols.Match(out var Symbol_, out UnsolvedSymbols)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.CreatePair<tPos>(default, NewArgReg, Symbol_, ArgReg));
+					aDefConstructor.Commands.Push(mIL_AST.CreatePair(aSpan, NewArgReg, Symbol_, ArgReg));
 					ArgReg = NewArgReg;
 				}
 			}
 		}
 		
 		var Proc = aDefConstructor.CreateTempReg();
-		aDefConstructor.Commands.Push(mIL_AST.Call<tPos>(default, Proc, aDefName, ArgReg));
+		aDefConstructor.Commands.Push(mIL_AST.Call<tPos>(aSpan, Proc, aDefName, ArgReg));
 		aDefConstructor.UnsolvedSymbols.Push(aDefName);
 		return Proc;
 	}
@@ -247,11 +254,23 @@ public static class mSPO2IL {
 			case mSPO_AST.tTrueNode<tPos> TrueNode: {
 				return mIL_AST.cTrue;
 			}
+			case mSPO_AST.tEmptyTypeNode<tPos> EmptyTypeNode: {
+				return mIL_AST.cEmptyType;
+			}
+			case mSPO_AST.tBoolTypeNode<tPos> BoolTypeNode: {
+				return mIL_AST.cBoolType;
+			}
+			case mSPO_AST.tIntTypeNode<tPos> IntTypeNode: {
+				return mIL_AST.cIntType;
+			}
+			case mSPO_AST.tTypeTypeNode<tPos> TypeTypeNode: {
+				return mIL_AST.cTypeType;
+			}
 			case mSPO_AST.tNumberNode<tPos> NumberNode: {
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.CreateInt<tPos>(
-						default,
+					mIL_AST.CreateInt(
+						NumberNode.Span,
 						ResultReg,
 						NumberNode.Value.ToString()
 					)
@@ -275,7 +294,7 @@ public static class mSPO2IL {
 				var ArgReg = aDefConstructor.MapExpresion(CallNode.Arg);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.Call<tPos>(default, ResultReg, FuncReg, ArgReg)
+					mIL_AST.Call(CallNode.Span, ResultReg, FuncReg, ArgReg)
 				);
 				return ResultReg;
 			}
@@ -295,8 +314,8 @@ public static class mSPO2IL {
 							var ItemReg = aDefConstructor.MapExpresion(Item);
 							var TupleReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(
-								mIL_AST.CreatePair<tPos>(
-									default,
+								mIL_AST.CreatePair(
+									Item.Span,
 									TupleReg,
 									ItemReg,
 									ResultReg
@@ -312,8 +331,8 @@ public static class mSPO2IL {
 				var ExpresionReg = aDefConstructor.MapExpresion(PrefixNode.Element);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.AddPrefix<tPos>(
-						default,
+					mIL_AST.AddPrefix(
+						PrefixNode.Span,
 						ResultReg,
 						PrefixNode.Prefix,
 						ExpresionReg
@@ -329,6 +348,7 @@ public static class mSPO2IL {
 					LambdaNode
 				);
 				return aDefConstructor.InitProc(
+					LambdaNode.Span,
 					TempDef(NewDefIndex),
 					UnsolvedSymbols
 				);
@@ -338,6 +358,7 @@ public static class mSPO2IL {
 					MethodNode
 				);
 				return aDefConstructor.InitProc(
+					MethodNode.Span,
 					TempDef(NewDefIndex),
 					UnsolvedSymbols
 				);
@@ -355,38 +376,38 @@ public static class mSPO2IL {
 				var Pairs = IfNode.Cases;
 				while (Pairs.Match(out var Pair, out Pairs)) {
 					var (Test, Run) = Pair;
-					Ifs.Push(mSPO_AST.ReturnIf<tPos>(default, Run, Test));
+					Ifs.Push(mSPO_AST.ReturnIf(mStd.Merge(Test.Span, Run.Span), Run, Test));
 				}
 				Ifs.Push(
-					mSPO_AST.ReturnIf<tPos>(
-						default,
-						mSPO_AST.Empty<tPos>(default),
-						mSPO_AST.True<tPos>(default)
+					mSPO_AST.ReturnIf(
+						IfNode.Span,
+						mSPO_AST.Empty(IfNode.Span),
+						mSPO_AST.True(IfNode.Span)
 					)
 				); // TODO: ASSERT FALSE
 				
 				var ResultReg = aDefConstructor.CreateTempReg();
 				
 				aDefConstructor.MapCommand(
-					mSPO_AST.Def<tPos>(
-						default,
-						mSPO_AST.Match<tPos>(
-							default,
+					mSPO_AST.Def(
+						IfNode.Span,
+						mSPO_AST.Match(
+							IfNode.Span,
 							new mSPO_AST.tIdentNode<tPos>{Name = ResultReg},
 							null
 						),
-						mSPO_AST.Call<tPos>(
-							default,
-							mSPO_AST.Lambda<tPos>(
-								default,
-								mSPO_AST.Match<tPos>(
-									default,
-									mSPO_AST.Empty<tPos>(default),
+						mSPO_AST.Call(
+							IfNode.Span,
+							mSPO_AST.Lambda(
+								IfNode.Span,
+								mSPO_AST.Match(
+									IfNode.Span,
+									mSPO_AST.Empty(IfNode.Span),
 									null
 								),
-								mSPO_AST.Block<tPos>(default, Ifs.ToLasyList())
+								mSPO_AST.Block(IfNode.Span, Ifs.ToLasyList())
 							),
-							mSPO_AST.Empty<tPos>(default)
+							mSPO_AST.Empty(IfNode.Span)
 						)
 					)
 				);
@@ -403,27 +424,28 @@ public static class mSPO2IL {
 				
 				while (Rest.Match(out var Case, out Rest)) {
 					var (Match, Run) = Case;
+					var CaseSpan = mStd.Merge(Match.Span, Run.Span);
 					var TestDef = NewDefConstructor(ModuleConstructor);
 					
 					TestDef.MapMatchTest(mIL_AST.cArg, Match);
-					TestDef.FinishMapProc(TestDef.UnsolvedSymbols);
-					TestDef.Commands.Push(mIL_AST.ReturnIf<tPos>(default, mIL_AST.cTrue, mIL_AST.cTrue));
+					TestDef.FinishMapProc(CaseSpan, TestDef.UnsolvedSymbols);
+					TestDef.Commands.Push(mIL_AST.ReturnIf(CaseSpan, mIL_AST.cTrue, mIL_AST.cTrue));
 					
 					Ifs.Push(
-						mSPO_AST.ReturnIf<tPos>(
-							default,
-							mSPO_AST.Call<tPos>(
-								default,
-								mSPO_AST.Lambda<tPos>(default, Match, Run),
+						mSPO_AST.ReturnIf(
+							CaseSpan,
+							mSPO_AST.Call(
+								CaseSpan,
+								mSPO_AST.Lambda(CaseSpan, Match, Run),
 								Imput
 							),
-							mSPO_AST.Call<tPos>(
-								default,
-								mSPO_AST.Call<tPos>(
-									default,
+							mSPO_AST.Call(
+								CaseSpan,
+								mSPO_AST.Call(
+									CaseSpan,
 									new mSPO_AST.tIdentNode<tPos>{ Name = TempDef(TestDef.Index) },
-									mSPO_AST.Tuple<tPos>(
-										default,
+									mSPO_AST.Tuple(
+										CaseSpan,
 										TestDef.UnsolvedSymbols.ToLasyList(
 										).Map(
 											Symbol => (mSPO_AST.tExpressionNode<tPos>)new mSPO_AST.tIdentNode<tPos>{ Name = Symbol }
@@ -436,35 +458,35 @@ public static class mSPO2IL {
 					);
 				}
 				Ifs.Push(
-					mSPO_AST.ReturnIf<tPos>(
-						default,
-						mSPO_AST.Empty<tPos>(default),
-						mSPO_AST.True<tPos>(default)
+					mSPO_AST.ReturnIf(
+						IfMatchNode.Span,
+						mSPO_AST.Empty(IfMatchNode.Span),
+						mSPO_AST.True(IfMatchNode.Span)
 					)
 				); // TODO: ASSERT FALSE
 				
 				var ResultReg = aDefConstructor.CreateTempReg();
 				
 				aDefConstructor.MapCommand(
-					mSPO_AST.Def<tPos>(
-						default,
-						mSPO_AST.Match<tPos>(
-							default,
+					mSPO_AST.Def(
+						IfMatchNode.Span,
+						mSPO_AST.Match(
+							IfMatchNode.Span,
 							new mSPO_AST.tIdentNode<tPos>{Name = ResultReg},
 							null
 						),
-						mSPO_AST.Call<tPos>(
-							default,
-							mSPO_AST.Lambda<tPos>(
-								default,
-								mSPO_AST.Match<tPos>(
-									default,
-									mSPO_AST.Empty<tPos>(default),
+						mSPO_AST.Call(
+							IfMatchNode.Span,
+							mSPO_AST.Lambda(
+								IfMatchNode.Span,
+								mSPO_AST.Match(
+									IfMatchNode.Span,
+									mSPO_AST.Empty(IfMatchNode.Span),
 									null
 								),
-								mSPO_AST.Block<tPos>(default, Ifs.ToLasyList())
+								mSPO_AST.Block(IfMatchNode.Span, Ifs.ToLasyList())
 							),
-							mSPO_AST.Empty<tPos>(default)
+							mSPO_AST.Empty(IfMatchNode.Span)
 						)
 					)
 				);
@@ -473,7 +495,62 @@ public static class mSPO2IL {
 			case mSPO_AST.tVarToValNode<tPos> VarToValNode: {
 				var ObjReg = aDefConstructor.MapExpresion(VarToValNode.Obj);
 				var ResultReg = aDefConstructor.CreateTempReg();
-				aDefConstructor.Commands.Push(mIL_AST.VarGet<tPos>(default, ResultReg, ObjReg));
+				aDefConstructor.Commands.Push(mIL_AST.VarGet(VarToValNode.Span, ResultReg, ObjReg));
+				return ResultReg;
+			}
+			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
+				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToLasyList().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mStd.AssertNot(aDefConstructor.KnownSymbols.ToLasyList().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				var BodyTypeReg = aDefConstructor.MapExpresion(RecursiveTypeNode.BodyType);
+				aDefConstructor.UnsolvedSymbols = aDefConstructor.UnsolvedSymbols
+					.ToLasyList()
+					.Where(a => a != RecursiveTypeNode.HeadType.Name)
+					.ToArrayList();
+				
+				var ResultReg = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(
+					mIL_AST.TypeRecursive(
+						RecursiveTypeNode.Span,
+						ResultReg,
+						RecursiveTypeNode.HeadType.Name,
+						BodyTypeReg
+					)
+				);
+				return ResultReg;
+			}
+			case mSPO_AST.tSetTypeNode<tPos> SetTypeNode: {
+				SetTypeNode.Expressions.Match(out var First, out var Rest);
+				var ResultReg = aDefConstructor.MapExpresion(First);
+				while (Rest.Match(out var Head, out Rest)) {
+					var ExprReg = aDefConstructor.MapExpresion(Head);
+					var SetTypeReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.TypeSet(Head.Span, SetTypeReg, ExprReg, ResultReg));
+					ResultReg = SetTypeReg;
+				}
+				return ResultReg;
+			}
+			case mSPO_AST.tTupleTypeNode<tPos> TupleTypeNode: {
+				if (!TupleTypeNode.Expressions.Match(out var First, out var Rest)) {
+					return mIL_AST.cEmptyType;
+				} else {
+					var ResultReg = aDefConstructor.MapExpresion(First);
+					while (Rest.Match(out var Head, out Rest)) {
+						var PairTypeReg = aDefConstructor.CreateTempReg();
+						var ExprReg = aDefConstructor.MapExpresion(Head);
+						aDefConstructor.Commands.Push(mIL_AST.TypePair(Head.Span, PairTypeReg, ExprReg, ResultReg));
+						ResultReg = PairTypeReg;
+					}
+					return ResultReg;
+				}
+			}
+			case mSPO_AST.tPrefixTypeNode<tPos> PrefixTypeNode: {
+				var InnerType = aDefConstructor.MapExpresion(
+					mSPO_AST.TupleType(PrefixTypeNode.Span, PrefixTypeNode.Expressions)
+				);
+				var ResultReg = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(
+					mIL_AST.TypePrefix(PrefixTypeNode.Span, ResultReg, PrefixTypeNode.Prefix.Name, InnerType)
+				);
 				return ResultReg;
 			}
 			default: {
@@ -504,15 +581,15 @@ public static class mSPO2IL {
 				if (IdentNode.Name == Ident("_")) {
 					break;
 				}
-				aDefConstructor.Commands.Push(mIL_AST.Alias<tPos>(default, IdentNode.Name, aReg));
+				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode.Span, IdentNode.Name, aReg));
 				aDefConstructor.KnownSymbols.Push(IdentNode.Name);
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> PrefixNode: {
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.SubPrefix<tPos>(
-						default,
+					mIL_AST.SubPrefix(
+						PrefixNode.Span,
 						ResultReg,
 						PrefixNode.Prefix,
 						aReg
@@ -530,12 +607,12 @@ public static class mSPO2IL {
 				mDebug.AssertEq(Items.Take(2).ToArrayList().Size(), 2);
 				while (Items.Match(out var Item, out Items)) {
 					var ItemReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.GetFirst<tPos>(default, ItemReg, RestReg));
+					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Item.Span, ItemReg, RestReg));
 					
 					aDefConstructor.MapMatch(Item, ItemReg);
 					
 					var NewRestReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.GetSecond<tPos>(default, NewRestReg, RestReg));
+					aDefConstructor.Commands.Push(mIL_AST.GetSecond(Item.Span, NewRestReg, RestReg));
 					RestReg = NewRestReg;
 				}
 				break;
@@ -550,7 +627,7 @@ public static class mSPO2IL {
 					aDefConstructor.MapMatch(MatchNode, aReg);
 				} else if (MatchNode.Type is null) {
 					aDefConstructor.MapMatch(
-						mSPO_AST.Match(default, MatchNode.Pattern, TypeNode),
+						mSPO_AST.Match(MatchNode.Span, MatchNode.Pattern, TypeNode),
 						aReg
 					);
 				} else {
@@ -587,7 +664,7 @@ public static class mSPO2IL {
 					aDefConstructor.KnownSymbols.ToLasyList().All(_ => _ != IdentNode.Name)
 				);
 				aDefConstructor.Commands.Push(
-					mIL_AST.Alias<tPos>(default, IdentNode.Name, aInReg)
+					mIL_AST.Alias(IdentNode.Span, IdentNode.Name, aInReg)
 				);
 				break;
 			}
@@ -598,10 +675,10 @@ public static class mSPO2IL {
 				var InvReg = aDefConstructor.CreateTempReg();
 				var SubValue = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.HasPrefix<tPos>(default, Reg, Prefix, aInReg),
-					mIL_AST.XOr<tPos>(default, InvReg, Reg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf<tPos>(default, mIL_AST.cFalse, InvReg),
-					mIL_AST.SubPrefix<tPos>(default, SubValue, Prefix, aInReg)
+					mIL_AST.HasPrefix(PrefixNode.Span, Reg, Prefix, aInReg),
+					mIL_AST.XOr(PrefixNode.Span, InvReg, Reg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(PrefixNode.Span, mIL_AST.cFalse, InvReg),
+					mIL_AST.SubPrefix(PrefixNode.Span, SubValue, Prefix, aInReg)
 				);
 				aDefConstructor.MapMatchTest(SubValue, SubMatch);
 				break;
@@ -616,8 +693,8 @@ public static class mSPO2IL {
 				
 				var TestReg = aDefConstructor.MapExpresion(Guard);
 				aDefConstructor.Commands.Push(
-					mIL_AST.XOr<tPos>(default, InvReg, TestReg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf<tPos>(default, mIL_AST.cFalse, InvReg)
+					mIL_AST.XOr(GuardNode.Span, InvReg, TestReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(GuardNode.Span, mIL_AST.cFalse, InvReg)
 				);
 				break;
 			}
@@ -633,11 +710,15 @@ public static class mSPO2IL {
 				var CondReg = aDefConstructor.CreateTempReg();
 				var InvCondReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.CreateInt<tPos>(default, IntReg, $"{NumberNode.Value}"),
-					mIL_AST.IntsAreEq<tPos>(default, CondReg, aInReg, IntReg),
-					mIL_AST.XOr<tPos>(default, InvCondReg, CondReg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf<tPos>(default, mIL_AST.cFalse, InvCondReg)
+					mIL_AST.CreateInt(NumberNode.Span, IntReg, $"{NumberNode.Value}"),
+					mIL_AST.IntsAreEq(NumberNode.Span, CondReg, aInReg, IntReg),
+					mIL_AST.XOr(NumberNode.Span, InvCondReg, CondReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(NumberNode.Span, mIL_AST.cFalse, InvCondReg)
 				);
+				break;
+			}
+			case mSPO_AST.tMatchNode<tPos> MatchNode: {
+				aDefConstructor.MapMatch(MatchNode, aInReg);
 				break;
 			}
 			default: {
@@ -668,8 +749,8 @@ public static class mSPO2IL {
 	//================================================================================
 	) {
 		aDefConstructor.Commands.Push(
-			mIL_AST.ReturnIf<tPos>(
-				default,
+			mIL_AST.ReturnIf(
+				aReturnNode.Span,
 				aDefConstructor.MapExpresion(aReturnNode.Result),
 				aDefConstructor.MapExpresion(aReturnNode.Condition)
 			)
@@ -705,7 +786,7 @@ public static class mSPO2IL {
 			var TempLambdaDef = TempLambdaDefs.Get(I);
 			for (var J = 0; J < Max; J += 1) {
 				TempLambdaDef.Commands.Push(
-					mIL_AST.Call<tPos>(default, FuncNames.Get(J), AllUnsolvedSymbols.Get(J), mIL_AST.cEnv)
+					mIL_AST.Call(aRecLambdasNode.Span, FuncNames.Get(J), AllUnsolvedSymbols.Get(J), mIL_AST.cEnv)
 				);
 			}
 		}
@@ -734,6 +815,7 @@ public static class mSPO2IL {
 			var TempDefConstructor = TempLambdaDefs.Get(I);
 			
 			TempDefConstructor.FinishMapProc(
+				RecLambdaItemNode.Span,
 				AllUnsolvedSymbols
 			);
 			var DefIndex = TempDefConstructor.Index;
@@ -757,12 +839,16 @@ public static class mSPO2IL {
 				Iterator = AllUnsolvedSymbols.ToLasyList().Reverse();
 				while (Iterator.Match(out var Symbol_, out Iterator)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.CreatePair<tPos>(default, NewArgReg, Symbol_, ArgReg));
+					aDefConstructor.Commands.Push(
+						mIL_AST.CreatePair<tPos>(RecLambdaItemNode.Span, NewArgReg, Symbol_, ArgReg)
+					);
 					ArgReg = NewArgReg;
 				}
 			}
 			
-			aDefConstructor.Commands.Push(mIL_AST.Call<tPos>(default, FuncName, TempDef(DefIndex), ArgReg));
+			aDefConstructor.Commands.Push(
+				mIL_AST.Call(RecLambdaItemNode.Span, FuncName, TempDef(DefIndex), ArgReg)
+			);
 		}
 	}
 	
@@ -774,8 +860,8 @@ public static class mSPO2IL {
 	//================================================================================
 	) {
 		aDefConstructor.Commands.Push(
-			mIL_AST.VarDef<tPos>(
-				default,
+			mIL_AST.VarDef(
+				aVarNode.Span,
 				aVarNode.Ident.Name,
 				aDefConstructor.MapExpresion(aVarNode.Expression)
 			)
@@ -795,7 +881,7 @@ public static class mSPO2IL {
 			var Arg = aDefConstructor.MapExpresion(Call.Argument);
 			var MethodName = Call.Method.Name;
 			if (MethodName == "_=...") {
-				aDefConstructor.Commands.Push(mIL_AST.VarSet<tPos>(default, Object, Arg));
+				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Span, Object, Arg));
 				continue;
 			}
 			tText Result;
@@ -805,9 +891,9 @@ public static class mSPO2IL {
 				Result = aDefConstructor.CreateTempReg();
 			}
 			aDefConstructor.Commands.Push(
-				mIL_AST.Push<tPos>(default, Object),
-				mIL_AST.Exec<tPos>(default, Result, MethodName, Arg),
-				mIL_AST.Pop<tPos>(default)
+				mIL_AST.Push(aMethodCallsNode.Object.Span, Object),
+				mIL_AST.Exec(aMethodCallsNode.Span, Result, MethodName, Arg),
+				mIL_AST.Pop(mStd.Merge(aMethodCallsNode.Object.Span, aMethodCallsNode.Span))
 			);
 			if (Call.Result != null) {
 				aDefConstructor.MapMatch(Call.Result.Value, Result);
@@ -863,15 +949,22 @@ public static class mSPO2IL {
 		var ModuleConstructor = NewModuleConstructor<tPos>();
 		var TempLambdaDef = NewDefConstructor(ModuleConstructor);
 		TempLambdaDef.InitMapLambda(
-			mSPO_AST.Lambda<tPos>(
-				default,
+			mSPO_AST.Lambda(
+				aModuleNode.Span,
 				aModuleNode.Import.Match,
-				mSPO_AST.Block<tPos>(
-					default,
+				mSPO_AST.Block(
+					mStd.Merge(
+						aModuleNode.Commands?.First().Span ?? default,
+						aModuleNode.Export.Span
+					),
 					mList.Concat(
 						aModuleNode.Commands,
 						mList.List<mSPO_AST.tCommandNode<tPos>>(
-							mSPO_AST.ReturnIf<tPos>(default, aModuleNode.Export.Expression, mSPO_AST.True<tPos>(default))
+							mSPO_AST.ReturnIf(
+								aModuleNode.Export.Span,
+								aModuleNode.Export.Expression,
+								mSPO_AST.True(aModuleNode.Export.Span)
+							)
 						)
 					)
 				)
@@ -886,7 +979,7 @@ public static class mSPO2IL {
 		for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
 			DefSymbols.Push(TempDef(I));
 		}
-		TempLambdaDef.FinishMapProc(DefSymbols);
+		TempLambdaDef.FinishMapProc(aModuleNode.Span, DefSymbols);
 		
 		return ModuleConstructor;
 	}
@@ -928,17 +1021,17 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					Def.Commands,
 					mArrayList.List(
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(1), "3"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(3), "3"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(4), TempReg(3), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(5), "4"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(6), TempReg(5), TempReg(4)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(7), Ident("...+..."), TempReg(6)),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(8), TempReg(7), TempReg(2)),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(9), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(10), TempReg(9), TempReg(8)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(11), Ident("...<...<..."), TempReg(10))
+						mIL_AST.CreateInt(Span((1, 17), (1, 17)), TempReg(1), "3"),
+						mIL_AST.CreatePair(Span((1, 17), (1, 17)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 12), (1, 12)), TempReg(3), "3"),
+						mIL_AST.CreatePair(Span((1, 12), (1, 12)), TempReg(4), TempReg(3), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 7), (1, 7)), TempReg(5), "4"),
+						mIL_AST.CreatePair(Span((1, 7), (1, 7)), TempReg(6), TempReg(5), TempReg(4)),
+						mIL_AST.Call(Span((1, 7), (1, 12)), TempReg(7), Ident("...+..."), TempReg(6)),
+						mIL_AST.CreatePair(Span((1, 7), (1, 12)), TempReg(8), TempReg(7), TempReg(2)),
+						mIL_AST.CreateInt(Span((1, 1), (1, 1)), TempReg(9), "2"),
+						mIL_AST.CreatePair(Span((1, 1), (1, 1)), TempReg(10), TempReg(9), TempReg(8)),
+						mIL_AST.Call(Span((1, 1), (1, 17)), TempReg(11), Ident("...<...<..."), TempReg(10))
 					)
 				);
 			}
@@ -959,12 +1052,12 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(1), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(3), "1"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(4), TempReg(3), TempReg(2)),
+						mIL_AST.CreateInt(Span((1, 14), (1, 14)), TempReg(1), "2"),
+						mIL_AST.CreatePair(Span((1, 14), (1, 14)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 11), (1, 11)), TempReg(3), "1"),
+						mIL_AST.CreatePair(Span((1, 11), (1, 11)), TempReg(4), TempReg(3), TempReg(2)),
 						
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(4))
+						mIL_AST.Alias(Span((1, 6), (1, 7)), Ident("a"), TempReg(4)) // TODO
 					)
 				);
 			}
@@ -985,26 +1078,26 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(1), "3"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(3), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(4), TempReg(3), TempReg(2)),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(5), TempReg(4), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(6), "1"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(7), TempReg(6), TempReg(5)),
+						mIL_AST.CreateInt(Span((1, 28), (1, 28)), TempReg(1), "3"),
+						mIL_AST.CreatePair(Span((1, 28), (1, 28)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 25), (1, 25)), TempReg(3), "2"),
+						mIL_AST.CreatePair(Span((1, 25), (1, 25)), TempReg(4), TempReg(3), TempReg(2)),
+						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(5), TempReg(4), mIL_AST.cEmpty), // TODO
+						mIL_AST.CreateInt(Span((1, 21), (1, 21)), TempReg(6), "1"),
+						mIL_AST.CreatePair(Span((1, 21), (1, 21)), TempReg(7), TempReg(6), TempReg(5)),
 						
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(8), TempReg(7)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(8)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(9), TempReg(7)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(10), TempReg(9)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(11), TempReg(10)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("b"), TempReg(11)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(12), TempReg(10)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(13), TempReg(12)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("c"), TempReg(13)),
+						mIL_AST.GetFirst(Span((1, 7), (1, 7)), TempReg(8), TempReg(7)),
+						mIL_AST.Alias(Span((1, 7), (1, 7)), Ident("a"), TempReg(8)),
+						mIL_AST.GetSecond(Span((1, 7), (1, 7)), TempReg(9), TempReg(7)),
+						mIL_AST.GetFirst(Span((1, 10), (1, 15)), TempReg(10), TempReg(9)),
+						mIL_AST.GetFirst(Span((1, 11), (1, 11)), TempReg(11), TempReg(10)),
+						mIL_AST.Alias(Span((1, 11), (1, 11)), Ident("b"), TempReg(11)),
+						mIL_AST.GetSecond(Span((1, 11), (1, 11)), TempReg(12), TempReg(10)),
+						mIL_AST.GetFirst(Span((1, 14), (1, 14)), TempReg(13), TempReg(12)),
+						mIL_AST.Alias(Span((1, 14), (1, 14)), Ident("c"), TempReg(13)),
 						
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(14), TempReg(12)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(15), TempReg(9))
+						mIL_AST.GetSecond(Span((1, 14), (1, 14)), TempReg(14), TempReg(12)),
+						mIL_AST.GetSecond(Span((1, 10), (1, 15)), TempReg(15), TempReg(9))
 					)
 				);
 			}
@@ -1025,22 +1118,22 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					Module.Commands,
 					mArrayList.List(
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(1), "3"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(3), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(4), TempReg(3), TempReg(2)),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(5), "1"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(6), TempReg(5), TempReg(4)),
+						mIL_AST.CreateInt(Span((1, 25), (1, 25)), TempReg(1), "3"),
+						mIL_AST.CreatePair(Span((1, 25), (1, 25)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 22), (1, 22)), TempReg(3), "2"),
+						mIL_AST.CreatePair(Span((1, 22), (1, 22)), TempReg(4), TempReg(3), TempReg(2)),
+						mIL_AST.CreateInt(Span((1, 19), (1, 19)), TempReg(5), "1"),
+						mIL_AST.CreatePair(Span((1, 19), (1, 19)), TempReg(6), TempReg(5), TempReg(4)),
 						
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(7), TempReg(6)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(7)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(8), TempReg(6)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(9), TempReg(8)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("b"), TempReg(9)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(10), TempReg(8)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(11), TempReg(10)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("c"), TempReg(11)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(12), TempReg(10))
+						mIL_AST.GetFirst(Span((1, 7), (1, 7)), TempReg(7), TempReg(6)),
+						mIL_AST.Alias(Span((1, 7), (1, 7)), Ident("a"), TempReg(7)),
+						mIL_AST.GetSecond(Span((1, 7), (1, 7)), TempReg(8), TempReg(6)),
+						mIL_AST.GetFirst(Span((1, 10), (1, 10)), TempReg(9), TempReg(8)),
+						mIL_AST.Alias(Span((1, 10), (1, 10)), Ident("b"), TempReg(9)),
+						mIL_AST.GetSecond(Span((1, 10), (1, 10)), TempReg(10), TempReg(8)),
+						mIL_AST.GetFirst(Span((1, 13), (1, 13)), TempReg(11), TempReg(10)),
+						mIL_AST.Alias(Span((1, 13), (1, 13)), Ident("c"), TempReg(11)),
+						mIL_AST.GetSecond(Span((1, 13), (1, 13)), TempReg(12), TempReg(10))
 					)
 				);
 			}
@@ -1061,33 +1154,33 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(1), "4"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(3), "3"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(4), TempReg(3), TempReg(2)),
-						mIL_AST.AddPrefix(Span((0, 0), (0, 0)), TempReg(5), Ident("bla..."), TempReg(4)),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(6), TempReg(5), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(7), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(8), TempReg(7), TempReg(6)),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(9), "1"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(10), TempReg(9), TempReg(8)),
+						mIL_AST.CreateInt(Span((1, 48), (1, 48)), TempReg(1), "4"),
+						mIL_AST.CreatePair(Span((1, 48), (1, 48)), TempReg(2), TempReg(1), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 45), (1, 45)), TempReg(3), "3"),
+						mIL_AST.CreatePair(Span((1, 45), (1, 45)), TempReg(4), TempReg(3), TempReg(2)),
+						mIL_AST.AddPrefix(Span((1, 39), (1, 49)), TempReg(5), Ident("bla..."), TempReg(4)),
+						mIL_AST.CreatePair(Span((1, 39), (1, 49)), TempReg(6), TempReg(5), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 35), (1, 35)), TempReg(7), "2"),
+						mIL_AST.CreatePair(Span((1, 35), (1, 35)), TempReg(8), TempReg(7), TempReg(6)),
+						mIL_AST.CreateInt(Span((1, 32), (1, 32)), TempReg(9), "1"),
+						mIL_AST.CreatePair(Span((1, 32), (1, 32)), TempReg(10), TempReg(9), TempReg(8)),
 						
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(11), TempReg(10)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(11)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(12), TempReg(10)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(13), TempReg(12)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("b"), TempReg(13)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(14), TempReg(12)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(15), TempReg(14)),
-						mIL_AST.SubPrefix(Span((0, 0), (0, 0)), TempReg(16), Ident("bla..."), TempReg(15)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(17), TempReg(16)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("c"), TempReg(17)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(18), TempReg(16)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(19), TempReg(18)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("d"), TempReg(19)),
+						mIL_AST.GetFirst(Span((1, 7), (1, 7)), TempReg(11), TempReg(10)),
+						mIL_AST.Alias(Span((1, 7), (1, 7)), Ident("a"), TempReg(11)),
+						mIL_AST.GetSecond(Span((1, 7), (1, 7)), TempReg(12), TempReg(10)),
+						mIL_AST.GetFirst(Span((1, 10), (1, 10)), TempReg(13), TempReg(12)),
+						mIL_AST.Alias(Span((1, 10), (1, 10)), Ident("b"), TempReg(13)),
+						mIL_AST.GetSecond(Span((1, 10), (1, 10)), TempReg(14), TempReg(12)),
+						mIL_AST.GetFirst(Span((1, 13), (1, 26)), TempReg(15), TempReg(14)),
+						mIL_AST.SubPrefix(Span((1, 13), (1, 26)), TempReg(16), Ident("bla..."), TempReg(15)),
+						mIL_AST.GetFirst(Span((1, 20), (1, 21)), TempReg(17), TempReg(16)),
+						mIL_AST.Alias(Span((1, 20), (1, 21)), Ident("c"), TempReg(17)),
+						mIL_AST.GetSecond(Span((1, 20), (1, 21)), TempReg(18), TempReg(16)),
+						mIL_AST.GetFirst(Span((1, 24), (1, 24)), TempReg(19), TempReg(18)),
+						mIL_AST.Alias(Span((1, 24), (1, 24)), Ident("d"), TempReg(19)),
 						
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(20), TempReg(18)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(21), TempReg(14))
+						mIL_AST.GetSecond(Span((1, 24), (1, 24)), TempReg(20), TempReg(18)),
+						mIL_AST.GetSecond(Span((1, 13), (1, 26)), TempReg(21), TempReg(14))
 					)
 				);
 			}
@@ -1109,15 +1202,15 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("...*..."), mIL_AST.cEnv),
+						mIL_AST.Alias(Span((1, 10), (1, 20)), Ident("...*..."), mIL_AST.cEnv),
 						
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), mIL_AST.cArg),
+						mIL_AST.Alias(Span((1, 10), (1, 11)), Ident("a"), mIL_AST.cArg),
 						
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(1), Ident("a"), mIL_AST.cEmpty),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(2), "2"),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(3), TempReg(2), TempReg(1)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(4), Ident("...*..."), TempReg(3)),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), TempReg(4), mIL_AST.cTrue)
+						mIL_AST.CreatePair(Span((1, 20), (1, 20)), TempReg(1), Ident("a"), mIL_AST.cEmpty),
+						mIL_AST.CreateInt(Span((1, 15), (1, 15)), TempReg(2), "2"),
+						mIL_AST.CreatePair(Span((1, 15), (1, 15)), TempReg(3), TempReg(2), TempReg(1)),
+						mIL_AST.Call(Span((1, 15), (1, 20)), TempReg(4), Ident("...*..."), TempReg(3)),
+						mIL_AST.ReturnIf(Span((1, 15), (1, 20)), TempReg(4), mIL_AST.cTrue)
 					)
 				);
 				
@@ -1126,8 +1219,8 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(1), TempDef(1), Ident("...*...")),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("x"), TempReg(1))
+						mIL_AST.Call(Span((1, 10), (1, 20)), TempReg(1), TempDef(1), Ident("...*...")),
+						mIL_AST.Alias(Span((1, 6), (1, 7)), Ident("x"), TempReg(1))
 					)
 				);
 				
@@ -1154,28 +1247,28 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), Ident("...+..."), mIL_AST.cEnv),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(13), mIL_AST.cEnv),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), Ident("...*..."), TempReg(13)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(14), TempReg(13)),
+						mIL_AST.GetFirst(Span((1, 20), (1, 45)), Ident("...+..."), mIL_AST.cEnv),
+						mIL_AST.GetSecond(Span((1, 20), (1, 45)), TempReg(13), mIL_AST.cEnv),
+						mIL_AST.GetFirst(Span((1, 20), (1, 45)), Ident("...*..."), TempReg(13)), // TODO
+						mIL_AST.GetSecond(Span((1, 20), (1, 45)), TempReg(14), TempReg(13)),
 						
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(1), mIL_AST.cArg),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(1)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(2), mIL_AST.cArg),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(3), TempReg(2)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("b"), TempReg(3)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(4), TempReg(2)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(5), TempReg(4)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("c"), TempReg(5)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(6), TempReg(4)),
+						mIL_AST.GetFirst(Span((1, 21), (1, 21)), TempReg(1), mIL_AST.cArg),
+						mIL_AST.Alias(Span((1, 21), (1, 21)), Ident("a"), TempReg(1)),
+						mIL_AST.GetSecond(Span((1, 21), (1, 21)), TempReg(2), mIL_AST.cArg),
+						mIL_AST.GetFirst(Span((1, 24), (1, 24)), TempReg(3), TempReg(2)),
+						mIL_AST.Alias(Span((1, 24), (1, 24)), Ident("b"), TempReg(3)),
+						mIL_AST.GetSecond(Span((1, 24), (1, 24)), TempReg(4), TempReg(2)),
+						mIL_AST.GetFirst(Span((1, 27), (1, 27)), TempReg(5), TempReg(4)),
+						mIL_AST.Alias(Span((1, 27), (1, 27)), Ident("c"), TempReg(5)),
+						mIL_AST.GetSecond(Span((1, 27), (1, 27)), TempReg(6), TempReg(4)),
 						
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(7), Ident("c"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(8), Ident("b"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(9), Ident("a"), TempReg(8)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(10), Ident("...*..."), TempReg(9)),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(11), TempReg(10), TempReg(7)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(12), Ident("...+..."), TempReg(11)),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), TempReg(12), mIL_AST.cTrue)
+						mIL_AST.CreatePair(Span((1, 45), (1, 45)), TempReg(7), Ident("c"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((1, 39), (1, 39)), TempReg(8), Ident("b"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((1, 34), (1, 35)), TempReg(9), Ident("a"), TempReg(8)),
+						mIL_AST.Call(Span((1, 34), (1, 39)), TempReg(10), Ident("...*..."), TempReg(9)),
+						mIL_AST.CreatePair(Span((1, 34), (1, 39)), TempReg(11), TempReg(10), TempReg(7)),
+						mIL_AST.Call(Span((1, 33), (1, 45)), TempReg(12), Ident("...+..."), TempReg(11)),
+						mIL_AST.ReturnIf(Span((1, 33), (1, 45)), TempReg(12), mIL_AST.cTrue)
 					)
 				);
 				
@@ -1183,10 +1276,10 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					DefConstructor.Commands,
 					mArrayList.List(
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(1), Ident("...*..."), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), Ident("...+..."), TempReg(1)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(3), TempDef(1), TempReg(2)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("...*...+..."), TempReg(3))
+						mIL_AST.CreatePair(Span((1, 20), (1, 45)), TempReg(1), Ident("...*..."), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((1, 20), (1, 45)), TempReg(2), Ident("...+..."), TempReg(1)),
+						mIL_AST.Call(Span((1, 20), (1, 45)), TempReg(3), TempDef(1), TempReg(2)),
+						mIL_AST.Alias(Span((1, 6), (1, 17)), Ident("...*...+..."), TempReg(3))
 					)
 				);
 				
@@ -1216,30 +1309,30 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(DefIndex),
 					mArrayList.List(
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("...*..."), mIL_AST.cEnv),
+						mIL_AST.Alias(Span((1, 1), (1, 27)), Ident("...*..."), mIL_AST.cEnv),
 							
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(1), mIL_AST.cArg),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), TempReg(1)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(2), mIL_AST.cArg),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(3), TempReg(2)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("b"), TempReg(3)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(4), TempReg(2)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(5), TempReg(4)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(6), TempReg(5)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("x"), TempReg(6)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(7), TempReg(5)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(8), TempReg(7)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("y"), TempReg(8)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(9), TempReg(7)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(10), TempReg(9)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("z"), TempReg(10)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(11), TempReg(9)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(12), TempReg(4)),
+						mIL_AST.GetFirst(Span((1, 2), (1, 2)), TempReg(1), mIL_AST.cArg),
+						mIL_AST.Alias(Span((1, 2), (1, 2)), Ident("a"), TempReg(1)),
+						mIL_AST.GetSecond(Span((1, 2), (1, 2)), TempReg(2), mIL_AST.cArg),
+						mIL_AST.GetFirst(Span((1, 5), (1, 5)), TempReg(3), TempReg(2)),
+						mIL_AST.Alias(Span((1, 5), (1, 5)), Ident("b"), TempReg(3)),
+						mIL_AST.GetSecond(Span((1, 5), (1, 5)), TempReg(4), TempReg(2)),
+						mIL_AST.GetFirst(Span((1, 8), (1, 16)), TempReg(5), TempReg(4)),
+						mIL_AST.GetFirst(Span((1, 9), (1, 9)), TempReg(6), TempReg(5)),
+						mIL_AST.Alias(Span((1, 9), (1, 9)), Ident("x"), TempReg(6)),
+						mIL_AST.GetSecond(Span((1, 9), (1, 9)), TempReg(7), TempReg(5)),
+						mIL_AST.GetFirst(Span((1, 12), (1, 12)), TempReg(8), TempReg(7)),
+						mIL_AST.Alias(Span((1, 12), (1, 12)), Ident("y"), TempReg(8)),
+						mIL_AST.GetSecond(Span((1, 12), (1, 12)), TempReg(9), TempReg(7)),
+						mIL_AST.GetFirst(Span((1, 15), (1, 15)), TempReg(10), TempReg(9)),
+						mIL_AST.Alias(Span((1, 15), (1, 15)), Ident("z"), TempReg(10)),
+						mIL_AST.GetSecond(Span((1, 15), (1, 15)), TempReg(11), TempReg(9)),
+						mIL_AST.GetSecond(Span((1, 8), (1, 16)), TempReg(12), TempReg(4)),
 						
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(13), Ident("z"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(14), Ident("a"), TempReg(13)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(15), Ident("...*..."), TempReg(14)),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), TempReg(15), mIL_AST.cTrue)
+						mIL_AST.CreatePair(Span((1, 27), (1, 27)), TempReg(13), Ident("z"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((1, 22), (1, 23)), TempReg(14), Ident("a"), TempReg(13)),
+						mIL_AST.Call(Span((1, 22), (1, 27)), TempReg(15), Ident("...*..."), TempReg(14)),
+						mIL_AST.ReturnIf(Span((1, 22), (1, 27)), TempReg(15), mIL_AST.cTrue)
 					)
 				);
 				
@@ -1277,44 +1370,43 @@ public static class mSPO2IL {
 				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(0),
 					mArrayList.List(
-						mIL_AST.Alias(Span((0, 0), (0, 0)), TempDef(1), mIL_AST.cEnv),
+						mIL_AST.Alias(Span((1, 1), (10, 9)), TempDef(1), mIL_AST.cEnv),
 						
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(1), mIL_AST.cArg),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("T"), TempReg(1)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(2), mIL_AST.cArg),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(3), TempReg(2)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("...*..."), TempReg(3)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(4), TempReg(2)),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), TempReg(5), TempReg(4)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("k"), TempReg(5)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(6), TempReg(4)),
+						mIL_AST.GetFirst(Span((2, 2), (2, 9)), TempReg(1), mIL_AST.cArg),
+						mIL_AST.Alias(Span((2, 2), (2, 3)), Ident("T"), TempReg(1)),
+						mIL_AST.GetSecond(Span((2, 2), (2, 9)), TempReg(2), mIL_AST.cArg),
+						mIL_AST.GetFirst(Span((3, 2), (3, 24)), TempReg(3), TempReg(2)),
+						mIL_AST.Alias(Span((3, 2), (3, 9)), Ident("...*..."), TempReg(3)),
+						mIL_AST.GetSecond(Span((3, 2), (3, 24)), TempReg(4), TempReg(2)),
+						mIL_AST.GetFirst(Span((4, 2), (4, 6)), TempReg(5), TempReg(4)),
+						mIL_AST.Alias(Span((4, 2), (4, 3)), Ident("k"), TempReg(5)),
+						mIL_AST.GetSecond(Span((4, 2), (4, 6)), TempReg(6), TempReg(4)),
 						
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(7), Ident("k"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(8), Ident("...*..."), TempReg(7)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(9), TempDef(1), TempReg(8)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("x..."), TempReg(9)),
-						mIL_AST.CreateInt(Span((0, 0), (0, 0)), TempReg(10), "1"),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(11), Ident("x..."), TempReg(10)),
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("y"), TempReg(11)),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), Ident("y"), mIL_AST.cTrue),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), mIL_AST.cEmpty, mIL_AST.cTrue) // TODO: remove this line
+						mIL_AST.CreatePair(Span((7, 13), (7, 23)), TempReg(7), Ident("k"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((7, 13), (7, 23)), TempReg(8), Ident("...*..."), TempReg(7)),
+						mIL_AST.Call(Span((7, 13), (7, 23)), TempReg(9), TempDef(1), TempReg(8)),
+						mIL_AST.Alias(Span((7, 6), (7, 10)), Ident("x..."), TempReg(9)),
+						mIL_AST.CreateInt(Span((8, 13), (8, 13)), TempReg(10), "1"),
+						mIL_AST.Call(Span((8, 10), (8, 13)), TempReg(11), Ident("x..."), TempReg(10)),
+						mIL_AST.Alias(Span((8, 6), (8, 7)), Ident("y"), TempReg(11)),
+						mIL_AST.ReturnIf(Span((10, 1), (10, 9)), Ident("y"), mIL_AST.cTrue)
 					)
 				);
 				
 				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(1),
 					mArrayList.List(
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), Ident("...*..."), mIL_AST.cEnv),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(4), mIL_AST.cEnv),
-						mIL_AST.GetFirst(Span((0, 0), (0, 0)), Ident("k"), TempReg(4)),
-						mIL_AST.GetSecond(Span((0, 0), (0, 0)), TempReg(5), TempReg(4)),
+						mIL_AST.GetFirst(Span((7, 13), (7, 23)), Ident("...*..."), mIL_AST.cEnv),
+						mIL_AST.GetSecond(Span((7, 13), (7, 23)), TempReg(4), mIL_AST.cEnv),
+						mIL_AST.GetFirst(Span((7, 13), (7, 23)), Ident("k"), TempReg(4)),
+						mIL_AST.GetSecond(Span((7, 13), (7, 23)), TempReg(5), TempReg(4)),
 						
-						mIL_AST.Alias(Span((0, 0), (0, 0)), Ident("a"), mIL_AST.cArg),
+						mIL_AST.Alias(Span((7, 13), (7, 14)), Ident("a"), mIL_AST.cArg),
 						
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(1), Ident("a"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), TempReg(2), Ident("k"), TempReg(1)),
-						mIL_AST.Call(Span((0, 0), (0, 0)), TempReg(3), Ident("...*..."), TempReg(2)),
-						mIL_AST.ReturnIf(Span((0, 0), (0, 0)), TempReg(3), mIL_AST.cTrue)
+						mIL_AST.CreatePair(Span((7, 23), (7, 23)), TempReg(1), Ident("a"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((7, 18), (7, 19)), TempReg(2), Ident("k"), TempReg(1)),
+						mIL_AST.Call(Span((7, 18), (7, 23)), TempReg(3), Ident("...*..."), TempReg(2)),
+						mIL_AST.ReturnIf(Span((7, 18), (7, 23)), TempReg(3), mIL_AST.cTrue)
 					)
 				);
 			}

@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿//#define TRACE
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -75,11 +77,9 @@ public static class mIL_AST {
 	public struct tCommandNode<tPos> {
 		public tCommandNodeType NodeType;
 		public mStd.tSpan<tPos> Span;
-		internal tText _1;
-		internal tText _2;
-		internal tText _3;
-		
-		override public tText ToString() => $"{NodeType} {_1} {_2} {_3}";
+		public tText _1;
+		public tText _2;
+		public tText _3;
 	}
 	
 	//================================================================================

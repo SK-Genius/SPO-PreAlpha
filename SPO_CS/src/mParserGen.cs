@@ -142,8 +142,6 @@ public static class mParserGen {
 	public struct tResultList<tPos> {
 		public mStd.tSpan<tPos> Span;
 		public mList.tList<mStd.tAny> Value;
-		
-		override public tText ToString() => Value?.ToString() ?? "";
 	}
 	
 	//================================================================================
@@ -679,7 +677,7 @@ public static class mParserGen {
 			) {
 				return OK(Result, TempStream);
 			} else {
-				throw mStd.Error(ErrorList);
+				throw mStd.Error("", ErrorList);
 			}
 		};
 		return Parser;
@@ -758,6 +756,7 @@ public static class mParserGen {
 			Result = aParser._ParseFunc(aStream, aDebugStream, aInfinitLoopDetectionSet);
 		} catch (mStd.tError<mList.tList<tError>> e) {
 			throw mStd.Error(
+				"",
 				aParser._ModifyErrorsFunc?.Invoke(e.Value, Head) ?? e.Value
 			);
 		}

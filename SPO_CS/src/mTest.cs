@@ -166,25 +166,11 @@ public static class mTest {
 		mTest.Tests(
 			nameof(mStd),
 			mTest.Test(
-				"tMaybe.ToString()",
-				aStreamOut => {
-					mStd.AssertEq(((mStd.tMaybe<tInt32, tText>)mStd.OK(1)).ToString(), "1");
-					mStd.AssertEq(((mStd.tMaybe<tInt32, tText>)mStd.Fail("Bla")).ToString(), "FAIL: Bla");
-				}
-			),
-			mTest.Test(
 				"tMaybe.Equals()",
 				aStreamOut => {
 					mStd.AssertEq<mStd.tMaybe<tInt32, tText>>(mStd.OK(1), mStd.OK(1));
 					mStd.AssertEq<mStd.tMaybe<tText, tText>>(mStd.OK("1"), mStd.OK("1"));
 					mStd.AssertEq<mStd.tMaybe<tInt32, tText>>(mStd.Fail("Bla"), mStd.Fail("Bla"));
-				}
-			),
-			mTest.Test(
-				"tVar.ToString()",
-				aStreamOut => {
-					mStd.AssertEq(mStd.Any(1).ToString(), "1");
-					mStd.AssertEq(mStd.Any("1").ToString(), "1");
 				}
 			),
 			mTest.Test(
@@ -201,19 +187,6 @@ public static class mTest {
 		),
 		mTest.Tests(
 			nameof(mList),
-			mTest.Test(
-				"tList.ToString()",
-				aStreamOut => {
-					// TODO: mStd.AssertEq(List<tInt32>().ToString(), "[]"); ??? Maybe support static extension ToText() ?
-					mStd.AssertEq(mList.List(1).ToString(), "1");
-					mStd.AssertEq(mList.List(1, 2).ToString(), "1 \n2");
-					mStd.AssertEq(mList.List(1, 2, 3).ToString(), "1 \n2 \n3");
-					mStd.AssertEq(
-						mList.Nat(1).Take(4).ToString(),
-						"1 \n2 \n3 \n4"
-					);
-				}
-			),
 			mTest.Test(
 				"tList.Equals()",
 				aStreamOut => {

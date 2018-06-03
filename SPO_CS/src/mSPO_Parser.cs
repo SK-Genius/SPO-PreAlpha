@@ -295,9 +295,37 @@ public static class mSPO_Parser {
 	.SetName(nameof(TypeType));
 	
 	public static readonly tSPO_Parser
-	PairType = (-Token("[") +Expression -Token(",") +Expression -Token("]"))
-	.Modify(mSPO_AST.PairType_<tPos>())
-	.SetName(nameof(PairType));
+	PrefixType = (-Token("[") +Infix("#", Expression) -Token("]"))
+	.Modify(
+		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
+			return mSPO_AST.PrefixType(
+				aSpan,
+				a.Ident,
+				a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>)
+			);
+		}
+	)
+	.SetName(nameof(PrefixType));
+	
+	public static readonly tSPO_Parser
+	TupleType = (-Token("[") -NL[0, 1] +Expression +((-Token(",") | -NL) +Expression)[1, null] -NL[0, 1] -Token("]"))
+	.ModifyList(
+		a => mParserGen.ResultList(
+			a.Span,
+			mSPO_AST.TupleType(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
+		)
+	)
+	.SetName(nameof(TupleType));
+	
+	public static readonly tSPO_Parser
+	SetType = (-Token("[") -NL[0, 1] +Expression +(-Token("|") -NL[0, 1] +Expression)[1, null] -Token("|")[0, 1] -NL[0, 1] -Token("]"))
+	.ModifyList(
+		a => mParserGen.ResultList(
+			a.Span,
+			mSPO_AST.SetType(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
+		)
+	)
+	.SetName(nameof(SetType));
 	
 	public static readonly tSPO_Parser
 	LambdaType = (-Token("[") +Expression -Token("=>") +Expression -Token("]"))
@@ -305,17 +333,17 @@ public static class mSPO_Parser {
 	.SetName(nameof(LambdaType));
 	
 	public static readonly tSPO_Parser
-	RecursiveType = (-Token("[") -Token("§RECURSIV") +Ident  +Expression -Token("]"))
+	RecursiveType = (-Token("[") -Token("§RECURSIV") +Ident +Expression -Token("]"))
 	.Modify(mSPO_AST.RecursiveType_<tPos>())
 	.SetName(nameof(RecursiveType));
 	
 	public static readonly tSPO_Parser
-	InterfaceType = (-Token("[") -Token("§INTERFACE") +Ident  +Expression -Token("]"))
+	InterfaceType = (-Token("[") -Token("§INTERFACE") +Ident +Expression -Token("]"))
 	.Modify(mSPO_AST.InterfaceType_<tPos>())
 	.SetName(nameof(InterfaceType));
 	
 	public static readonly tSPO_Parser
-	GenericType = (-Token("[") -Token("§GENERIC") +Ident  +Expression -Token("]"))
+	GenericType = (-Token("[") -Token("§GENERIC") +Ident +Expression -Token("]"))
 	.Modify(mSPO_AST.GenericType_<tPos>())
 	.SetName(nameof(GenericType));
 	
@@ -325,7 +353,9 @@ public static class mSPO_Parser {
 		BoolType |
 		IntType |
 		TypeType |
-		PairType |
+		PrefixType |
+		TupleType |
+		SetType |
 		LambdaType |
 		RecursiveType |
 		InterfaceType |
@@ -485,9 +515,6 @@ public static class mSPO_Parser {
 	
 	static mSPO_Parser() {
 		UnTypedMatch.Def(
-			(Literal|Ident|MatchPrefix|MatchGuard).Modify(
-				mSPO_AST.UnTypedMatch_<tPos>()
-			) |
 			C(+Match +(-(-Token(",") | -NL) +Match)[0, null]).ModifyList(
 				a => mParserGen.ResultList(
 					a.Span,
@@ -500,6 +527,9 @@ public static class mSPO_Parser {
 						null
 					)
 				)
+			) |
+			(Literal|Ident|MatchPrefix|MatchGuard).Modify(
+				mSPO_AST.UnTypedMatch_<tPos>()
 			)
 		);
 		

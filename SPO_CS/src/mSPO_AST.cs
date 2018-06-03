@@ -26,85 +26,80 @@ public static class mSPO_AST {
 	
 	public struct tEmptyNode<tPos> : tLiteralNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
-		override public tText ToString() => $"()";
 	}
 	
 	public struct tFalseNode<tPos> : tLiteralNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
-		override public tText ToString() => $"§FALSE";
 	}
 	
 	public struct tTrueNode<tPos> : tLiteralNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
-		override public tText ToString() => $"§TRUE";
+	}
+	
+	public struct tEmptyTypeNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+	}
+	
+	public struct tBoolTypeNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+	}
+	
+	public struct tIntTypeNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+	}
+	
+	public struct tTypeTypeNode<tPos> : tLiteralNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
 	}
 	
 	public struct tTextNode<tPos> : tLiteralNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Value;
-		
-		override public tText ToString() => $"'{Value}'";
 	}
 	
 	public struct tNumberNode<tPos> : tLiteralNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tInt32 Value;
-		
-		override public tText ToString() => $"{Value}";
 	}
 	
 	public struct tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Name;
-		
-		override public tText ToString() => $"{Name}";
 	}
 	
 	public struct tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public mList.tList<tMatchNode<tPos>> Items;
-		
-		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((aAkku, aItem) => $"{aAkku},{aItem}")})";
 	}
 	
 	public struct tMatchNode<tPos> : tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tMatchItemNode<tPos> Pattern;
 		public tExpressionNode<tPos> Type;
-		
-		override public tText ToString()=> Pattern + (Type is null ? "" : " € " + Type);
 	}
 	
 	public struct tPrefixNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Prefix;
 		public tExpressionNode<tPos> Element;
-		
-		override public tText ToString() => $"(#{Prefix} {Element})";
 	}
 	
 	public struct tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Prefix;
 		public tMatchNode<tPos> Match;
-		
-		override public tText ToString() => $"(#{Prefix} {Match})";
 	}
 	
 	public struct tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tMatchNode<tPos> Match;
 		public tExpressionNode<tPos> Guard;
-		
-		override public tText ToString() => $"({Match} | {Guard})";
 	}
 	
 	public struct tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tMatchNode<tPos> Head;
 		public tExpressionNode<tPos> Body;
-		
-		override public tText ToString() => $"({Head} => {Body})";
 	}
 	
 	public struct tMethodNode<tPos> : tExpressionNode<tPos> {
@@ -112,109 +107,91 @@ public static class mSPO_AST {
 		public tMatchNode<tPos> Obj;
 		public tMatchNode<tPos> Arg;
 		public tBlockNode<tPos> Body;
-		
-		override public tText ToString() => $"({Obj} : {Arg} {Body})";
 	}
 	
 	public struct tBlockNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public mList.tList<tCommandNode<tPos>> Commands;
-		
-		override public tText ToString() => $"{{ \n{Commands} \n}}";
 	}
 	
 	public struct tCallNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Func;
 		public tExpressionNode<tPos> Arg;
-		
-		override public tText ToString() => $"(.{Func} {Arg})";
 	}
 	
 	public struct tDefNode<tPos> : tCommandNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tMatchNode<tPos> Des;
 		public tExpressionNode<tPos> Src;
-		
-		override public tText ToString() => $"{Des} := {Src}";
 	}
 	
 	public struct tRecLambdaItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tIdentNode<tPos> Ident;
 		public tLambdaNode<tPos> Lambda;
-		
-		override public tText ToString() => $"{Ident} := {Lambda}";
 	}
 	
 	public struct tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public mList.tList<tRecLambdaItemNode<tPos>> List;
-		
-		override public tText ToString() => $"§REC {{ \n{List} \n}}";
 	}
 	
 	public struct tReturnIfNode<tPos> : tCommandNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Result;
 		public tExpressionNode<tPos> Condition;
-		
-		override public tText ToString() => $"RETURN {Result} IF {Condition}";
 	}
 	
 	public struct tIfNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)> Cases;
-		
-		override public tText ToString() => $"If {{ {Cases} }}";
 	}
 	
 	public struct tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Expression;
 		public mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)> Cases;
-		
-		override public tText ToString() => $"If {Expression} MATCH {{ {Cases} }}";
 	}
 	
-	public struct tPairTypeNode<tPos> : tExpressionNode<tPos> {
+	public struct tPrefixTypeNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
-		public tExpressionNode<tPos> Expression1;
-		public tExpressionNode<tPos> Expression2;
-		
-		override public tText ToString() => $"[{Expression1}, {Expression2}]";
+		public tIdentNode<tPos> Prefix;
+		public mList.tList<tExpressionNode<tPos>> Expressions;
+	}
+	
+	public struct tTupleTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tExpressionNode<tPos>> Expressions;
+	}
+	
+	public struct tSetTypeNode<tPos> : tExpressionNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+		public mList.tList<tExpressionNode<tPos>> Expressions;
 	}
 	
 	public struct tLambdaTypeNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> ArgType;
 		public tExpressionNode<tPos> ResType;
-		
-		override public tText ToString() => $"[{ArgType} => {ResType}]";
 	}
 	
 	public struct tRecursiveTypeNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
-		public tExpressionNode<tPos> HeadType;
+		public tIdentNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
-		
-		override public tText ToString() => $"[§RECURSIVE {HeadType} {BodyType}]";
 	}
 	
 	public struct tInterfaceTypeNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
-		
-		override public tText ToString() => $"[§INTERFACE {HeadType} {BodyType}]";
 	}
 	
 	public struct tGenericTypeNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
-		
-		override public tText ToString() => $"[§GENERIC {HeadType} {BodyType}]";
 	}
 	
 	public struct tDefVarNode<tPos> : tCommandNode<tPos> {
@@ -222,15 +199,11 @@ public static class mSPO_AST {
 		public tIdentNode<tPos> Ident;
 		public tExpressionNode<tPos> Expression;
 		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
-		
-		override public tText ToString() => $"$VAR {Ident} := {Expression}, {MethodCalls}";
 	}
 	
 	public struct tVarToValNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Obj;
-		
-		override public tText ToString() => $"({Obj} :=>)";
 	}
 	
 	public struct tMethodCallNode<tPos> {
@@ -238,37 +211,27 @@ public static class mSPO_AST {
 		public tIdentNode<tPos> Method;
 		public tExpressionNode<tPos> Argument;
 		public tMatchNode<tPos>? Result;
-		
-		override public tText ToString() => $"{Method} {Argument} => {Result}";
 	}
 	
 	public struct tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Object;
 		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
-		
-		override public tText ToString() => $"{Object}: \n{MethodCalls} \n.";
 	}
 	
 	public struct tTupleNode<tPos> : tExpressionNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public mList.tList<tExpressionNode<tPos>> Items;
-		
-		override public tText ToString() => $"({Items.Map(a => a.ToString()).Join((a1, a2) => $"{a1}, {a2}")})";
 	}
 	
 	public struct tImportNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tMatchNode<tPos> Match;
-		
-		override public tText ToString() => $"§IMPORT {Match}";
 	}
 	
 	public struct tExportNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tExpressionNode<tPos> Expression;
-		
-		override public tText ToString() => $"§EXPORT {Expression}";
 	}
 	
 	public struct tModuleNode<tPos> {
@@ -276,8 +239,6 @@ public static class mSPO_AST {
 		public tImportNode<tPos> Import;
 		public tExportNode<tPos> Export;
 		public mList.tList<tCommandNode<tPos>> Commands;
-		
-		override public tText ToString() => $"{Import} \n\n{Commands} \n\n{Export}";
 	}
 	
 	//================================================================================
@@ -315,6 +276,54 @@ public static class mSPO_AST {
 	
 	public static mStd.tFunc<tTrueNode<tPos>, mStd.tSpan<tPos>>
 	True_<tPos>() => True;
+	
+	//================================================================================
+	public static tEmptyTypeNode<tPos>
+	EmptyType<tPos>(
+		mStd.tSpan<tPos> aSpan
+	//================================================================================
+	) => new tEmptyTypeNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tEmptyTypeNode<tPos>, mStd.tSpan<tPos>>
+	EmptyType_<tPos>() => EmptyType;
+	
+	//================================================================================
+	public static tBoolTypeNode<tPos>
+	BoolType<tPos>(
+		mStd.tSpan<tPos> aSpan
+	//================================================================================
+	) => new tBoolTypeNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tBoolTypeNode<tPos>, mStd.tSpan<tPos>>
+	BoolType_<tPos>() => BoolType;
+	
+	//================================================================================
+	public static tIntTypeNode<tPos>
+	IntType<tPos>(
+		mStd.tSpan<tPos> aSpan
+	//================================================================================
+	) => new tIntTypeNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tIntTypeNode<tPos>, mStd.tSpan<tPos>>
+	IntType_<tPos>() => IntType;
+	
+	//================================================================================
+	public static tTypeTypeNode<tPos>
+	TypeType<tPos>(
+		mStd.tSpan<tPos> aSpan
+	//================================================================================
+	) => new tTypeTypeNode<tPos> {
+		Span = aSpan
+	};
+	
+	public static mStd.tFunc<tTypeTypeNode<tPos>, mStd.tSpan<tPos>>
+	TypeType_<tPos>() => TypeType;
 	
 	//================================================================================
 	public static tNumberNode<tPos>
@@ -385,72 +394,48 @@ public static class mSPO_AST {
 	Tuple_<tPos>() => Tuple;
 	
 	//================================================================================
-	public static tIdentNode<tPos>
-	EmptyType<tPos>(
-		mStd.tSpan<tPos> aSpan
-	//================================================================================
-	) => new tIdentNode<tPos> {
-		Span = aSpan,
-		Name = mIL_AST.cEmptyType
-	};
-	
-	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
-	EmptyType_<tPos>() => EmptyType;
-	
-	//================================================================================
-	public static tIdentNode<tPos>
-	BoolType<tPos> (
-		mStd.tSpan<tPos> aSpan
-	//================================================================================
-	) => new tIdentNode<tPos> {
-		Span = aSpan,
-		Name = mIL_AST.cBoolType
-	};
-	
-	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
-	BoolType_<tPos>() => BoolType;
-	
-	//================================================================================
-	public static tIdentNode<tPos>
-	IntType<tPos>(
-		mStd.tSpan<tPos> aSpan
-	//================================================================================
-	) => new tIdentNode<tPos> {
-		Span = aSpan,
-		Name = mIL_AST.cIntType
-	};
-	
-	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
-	IntType_<tPos>() => IntType;
-	
-	//================================================================================
-	public static tIdentNode<tPos>
-	TypeType<tPos>(
-		mStd.tSpan<tPos> aSpan
-	//================================================================================
-	) => new tIdentNode<tPos> {
-		Span = aSpan,
-		Name = mIL_AST.cTypeType
-	};
-	
-	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>>
-	TypeType_<tPos>() => TypeType;
-	
-	//================================================================================
-	public static tPairTypeNode<tPos>
-	PairType<tPos>(
+	public static tPrefixTypeNode<tPos>
+	PrefixType<tPos>(
 		mStd.tSpan<tPos> aSpan,
-		tExpressionNode<tPos> aType1,
-		tExpressionNode<tPos> aType2
+		tIdentNode<tPos> aPrefix,
+		mList.tList<tExpressionNode<tPos>> aTypes
 	//================================================================================
-	) => new tPairTypeNode<tPos> {
+	) => new tPrefixTypeNode<tPos> {
 		Span = aSpan,
-		Expression1 = aType1,
-		Expression2 = aType2
+		Prefix = aPrefix,
+		Expressions = aTypes,
 	};
 	
-	public static mStd.tFunc<tPairTypeNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
-	PairType_<tPos>() => PairType;
+	public static mStd.tFunc<tPrefixTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, mList.tList<tExpressionNode<tPos>>>
+	PrefixType_<tPos>() => PrefixType;
+	
+	//================================================================================
+	public static tTupleTypeNode<tPos>
+	TupleType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tExpressionNode<tPos>> aTypes
+	//================================================================================
+	) => new tTupleTypeNode<tPos> {
+		Span = aSpan,
+		Expressions = aTypes,
+	};
+	
+	public static mStd.tFunc<tTupleTypeNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
+	TupleType_<tPos>() => TupleType;
+	
+	//================================================================================
+	public static tSetTypeNode<tPos>
+	SetType<tPos>(
+		mStd.tSpan<tPos> aSpan,
+		mList.tList<tExpressionNode<tPos>> aTypes
+	//================================================================================
+	) => new tSetTypeNode<tPos> {
+		Span = aSpan,
+		Expressions = aTypes
+	};
+	
+	public static mStd.tFunc<tSetTypeNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
+	SetType_<tPos>() => SetType;
 	
 	//================================================================================
 	public static tLambdaTypeNode<tPos>

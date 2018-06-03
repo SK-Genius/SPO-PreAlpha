@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿//#TAIL_RECURSIVE
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -32,7 +34,6 @@ public static class mList {
 		);
 		
 		override public tBool Equals(object a) => Equals((tList<t>)a);
-		override public tText ToString() => this.Map(a => a.ToString()).Join((a1, a2) => $"{a1} \n{a2}");
 	}
 	
 	//================================================================================
@@ -108,7 +109,7 @@ public static class mList {
 		tList<t> a2
 	//================================================================================
 	) => (
-		a1.Match(out var Head, out  var Tail)
+		a1.Match(out var Head, out var Tail)
 		? List(Head, () => Concat(Tail, a2))
 		: a2
 	);
@@ -140,11 +141,21 @@ public static class mList {
 		tRes aInitialAgregate,
 		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
 	//================================================================================
+	#if TAIL_RECURSIVE
 	) => (
 		aList.Match(out var Head, out var Tail)
 		? Tail.Reduce(aAgregatorFunc(aInitialAgregate, Head), aAgregatorFunc)
 		: aInitialAgregate
 	);
+	#else
+	){
+		var Result = aInitialAgregate;
+		while (aList.Match(out var Head, out aList)) {
+			Result = aAgregatorFunc(Result, Head);
+		}
+		return Result;
+	}
+	#endif
 	
 	//================================================================================
 	public static tList<t>
@@ -184,14 +195,17 @@ public static class mList {
 		tInt32 aCount
 	//================================================================================
 	) {
-		#if DEBUG
-			mStd.Assert(aCount >= 0);
-		#endif
+		#if TAIL_RECURSIVE
+		mDebug.Assert(aCount >= 0);
 		return (
 			(aCount > 0 && aList.Match(out var Head, out var Tail))
 			? Tail.Skip(aCount - 1)
 			: aList
 		);
+		#else
+		while (aCount --> 0 && aList.Match(out var _, out aList)) { }
+		return aList;
+		#endif
 	}
 	
 	//================================================================================
@@ -231,6 +245,19 @@ public static class mList {
 		this tList<t> aList
 	//================================================================================
 	) => aList._Head;
+	
+	//================================================================================
+	public static t
+	Last<t>(
+		this tList<t> aList
+	//================================================================================
+	) {
+		var Result = aList.First();
+		while (aList.Match(out var Head, out aList)) {
+			Result = Head;
+		}
+		return Result;
+	}
 	
 	//================================================================================
 	public static tBool

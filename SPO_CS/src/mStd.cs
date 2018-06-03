@@ -52,8 +52,6 @@ public static class mStd {
 	public struct tSpan<tPos> {
 		public tPos Start;
 		public tPos End;
-		
-		override public tText ToString() => $"{Start}..{End}";
 	}
 	
 	public static tSpan<tPos>
@@ -125,8 +123,6 @@ public static class mStd {
 		internal tBool _IsOK;
 		internal tOK _Value;
 		internal tFail _Error;
-		
-		override public tText ToString() => _IsOK ? _Value.ToString() : "FAIL: "+_Error;
 		
 		public static implicit operator tMaybe<tOK, tFail>(
 			_tOK<tOK> aOK
@@ -209,7 +205,6 @@ public static class mStd {
 		);
 		
 		override public tBool Equals(object a) => a is tAny && Equals((tAny)a);
-		override public tText ToString() => _Value?.ToString() ?? "-";
 	}
 	
 	//================================================================================
@@ -277,9 +272,17 @@ public static class mStd {
 	//================================================================================
 	public static tError<t>
 	Error<t>(
-		t a
+		tText aMsg,
+		t aData
 	//================================================================================
-	) => new tError<t> (a.ToString()) { Value = a };
+	) => new tError<t> (aMsg) { Value = aData };
+	
+	//================================================================================
+	public static tError<tEmpty>
+	Error(
+		tText aMsg
+	//================================================================================
+	) => Error(aMsg, cEmpty);
 	
 	public struct tLazy<t> {
 		private t _Value;

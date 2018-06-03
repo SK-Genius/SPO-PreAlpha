@@ -46,11 +46,8 @@ public static class tTests {
 		);
 	}
 	
-	[xArg("tMaybe.ToString()")]
 	[xArg("tMaybe.Equals()")]
-	[xArg("tVar.ToString()")]
 	[xArg("tVar.Equals()")]
-	[xArg("tList.ToString()")]
 	[xArg("tList.Equals()")]
 	[xArg("Concat()")]
 	[xArg("Map()")]
