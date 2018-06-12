@@ -38,6 +38,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\mSPO_AST.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="mArrayList.csproj">
       <Project>{dd3fdc30-c146-42a2-a79c-bc8ff5c430c9}</Project>
       <Name>mArrayList</Name>
@@ -45,10 +48,6 @@
     <ProjectReference Include="mDebug.csproj">
       <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
       <Name>mDebug</Name>
-    </ProjectReference>
-    <ProjectReference Include="mIL_AST.csproj">
-      <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
-      <Name>mIL_AST</Name>
     </ProjectReference>
     <ProjectReference Include="mList.csproj">
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
@@ -58,13 +57,6 @@
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
-    <ProjectReference Include="mTest.csproj">
-      <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
-      <Name>mTest</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\mSPO_AST.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

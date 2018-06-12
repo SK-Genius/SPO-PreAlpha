@@ -38,6 +38,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\mStdLib.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="mIL_AST.csproj">
       <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
       <Name>mIL_AST</Name>
@@ -54,29 +57,14 @@
       <Project>{7b0031ff-2277-44cb-916a-0f41f71d8963}</Project>
       <Name>mMap</Name>
     </ProjectReference>
-    <ProjectReference Include="mSPO_Interpreter.csproj">
-      <Project>{fd08d8a0-c590-4088-8a10-ea8123f77f21}</Project>
-      <Name>mSPO_Interpreter</Name>
-    </ProjectReference>
     <ProjectReference Include="mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
-    </ProjectReference>
-    <ProjectReference Include="mTest.csproj">
-      <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
-      <Name>mTest</Name>
-    </ProjectReference>
-    <ProjectReference Include="mVM.csproj">
-      <Project>{16f316ab-cda2-444e-9d43-9765a678073e}</Project>
-      <Name>mVM</Name>
     </ProjectReference>
     <ProjectReference Include="mVM_Data.csproj">
       <Project>{7da28646-f50f-4bbd-aad5-d624a9501864}</Project>
       <Name>mVM_Data</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\mStdLib.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

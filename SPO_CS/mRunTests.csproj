@@ -41,93 +41,89 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="mArrayList.csproj">
-      <Project>{dd3fdc30-c146-42a2-a79c-bc8ff5c430c9}</Project>
-      <Name>mArrayList</Name>
+    <Compile Include="src\mRunTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="mArrayList_Test.csproj">
+      <Project>{26f6be07-845b-40b1-8bd0-eaa61a888313}</Project>
+      <Name>mArrayList_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mDebug.csproj">
-      <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
-      <Name>mDebug</Name>
+    <ProjectReference Include="mIL_AST_Test.csproj">
+      <Project>{4ca0496a-d323-4a4c-a681-57529e2feb14}</Project>
+      <Name>mIL_AST_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mIL_AST.csproj">
-      <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
-      <Name>mIL_AST</Name>
+    <ProjectReference Include="mIL_Interpreter_Test.csproj">
+      <Project>{6e078e57-f948-41d1-a28e-c60b834ce333}</Project>
+      <Name>mIL_Interpreter_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mIL_Interpreter.csproj">
-      <Project>{e94ac322-93d6-4f9a-87df-e78c5a6966bc}</Project>
-      <Name>mIL_Interpreter</Name>
+    <ProjectReference Include="mIL_Parser_Test.csproj">
+      <Project>{9f2918c7-f8fb-41e8-b4e6-096bdc85fcb2}</Project>
+      <Name>mIL_Parser_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mIL_Parser.csproj">
-      <Project>{f4c65a3d-186f-4c69-a294-f9e8aa3f63c0}</Project>
-      <Name>mIL_Parser</Name>
-    </ProjectReference>
-    <ProjectReference Include="mIL_Tokenizer.csproj">
-      <Project>{eabc4852-8577-43ef-b3ac-5d75015edc9b}</Project>
-      <Name>mIL_Tokenizer</Name>
+    <ProjectReference Include="mIL_Tokenizer_Test.csproj">
+      <Project>{3e1b00ec-17c9-40eb-9872-50d2fef1ef31}</Project>
+      <Name>mIL_Tokenizer_Test</Name>
     </ProjectReference>
     <ProjectReference Include="mList.csproj">
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>
     </ProjectReference>
-    <ProjectReference Include="mMap.csproj">
-      <Project>{7b0031ff-2277-44cb-916a-0f41f71d8963}</Project>
-      <Name>mMap</Name>
+    <ProjectReference Include="mMap_Test.csproj">
+      <Project>{edb0ca11-5272-4c9f-8d68-e46cd9771027}</Project>
+      <Name>mMap_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mMath.csproj">
-      <Project>{aa06d4f4-790d-43d8-a90e-bc5ab801044d}</Project>
-      <Name>mMath</Name>
+    <ProjectReference Include="mParserGen_Test.csproj">
+      <Project>{5057a22f-ca45-4a30-a5e7-45dbb924bb3e}</Project>
+      <Name>mParserGen_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mParserGen.csproj">
-      <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
-      <Name>mParserGen</Name>
+    <ProjectReference Include="mSPO2IL_Test.csproj">
+      <Project>{b6ac6856-98bf-462b-9880-7ae3d4b9a911}</Project>
+      <Name>mSPO2IL_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mSPO2IL.csproj">
-      <Project>{9d12ae34-5293-40f0-944c-58c170971f7a}</Project>
-      <Name>mSPO2IL</Name>
+    <ProjectReference Include="mSPO_AST_Test.csproj">
+      <Project>{6cb06e3b-8c84-47c1-abfc-7ed14678e4bd}</Project>
+      <Name>mSPO_AST_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mSPO_AST.csproj">
-      <Project>{d0a5c13a-cd05-4bb7-ba16-835285cd4af8}</Project>
-      <Name>mSPO_AST</Name>
+    <ProjectReference Include="mSPO_Interpreter_Test.csproj">
+      <Project>{e0e1a0d1-b175-4a10-8817-bf3c6e0fae36}</Project>
+      <Name>mSPO_Interpreter_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mSPO_Interpreter.csproj">
-      <Project>{fd08d8a0-c590-4088-8a10-ea8123f77f21}</Project>
-      <Name>mSPO_Interpreter</Name>
-    </ProjectReference>
-    <ProjectReference Include="mSPO_Parser.csproj">
-      <Project>{62d49e37-cc1a-4f34-bbe8-dd4294ff01b3}</Project>
-      <Name>mSPO_Parser</Name>
+    <ProjectReference Include="mSPO_Parser_Test.csproj">
+      <Project>{ee11f911-dff4-4ccc-8cb1-5864c939a48c}</Project>
+      <Name>mSPO_Parser_Test</Name>
     </ProjectReference>
     <ProjectReference Include="mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
-    <ProjectReference Include="mStdLib.csproj">
-      <Project>{6001d64b-e2c9-4afe-a655-a35828838e5d}</Project>
-      <Name>mStdLib</Name>
+    <ProjectReference Include="mStdLib_Test.csproj">
+      <Project>{a151bb41-b133-4a52-8777-2c58e82a1848}</Project>
+      <Name>mStdLib_Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="mStd_Test.csproj">
+      <Project>{e6c6e8b0-e883-4f8b-9f98-447f845b605e}</Project>
+      <Name>mStd_Test</Name>
     </ProjectReference>
     <ProjectReference Include="mTest.csproj">
       <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
       <Name>mTest</Name>
     </ProjectReference>
-    <ProjectReference Include="mTextParser.csproj">
-      <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
-      <Name>mTextParser</Name>
+    <ProjectReference Include="mTextParser_Test.csproj">
+      <Project>{256f7383-cac0-4914-bcdf-180c678cb614}</Project>
+      <Name>mTextParser_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mVM.csproj">
-      <Project>{16f316ab-cda2-444e-9d43-9765a678073e}</Project>
-      <Name>mVM</Name>
+    <ProjectReference Include="mVM_Data_Test.csproj">
+      <Project>{be240a7d-c1ff-4f30-863f-4ae0c3585bdb}</Project>
+      <Name>mVM_Data_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mVM_Data.csproj">
-      <Project>{7da28646-f50f-4bbd-aad5-d624a9501864}</Project>
-      <Name>mVM_Data</Name>
+    <ProjectReference Include="mVM_Test.csproj">
+      <Project>{98f1b184-70f0-4366-a45d-da91de7f3c4a}</Project>
+      <Name>mVM_Test</Name>
     </ProjectReference>
-    <ProjectReference Include="mVM_Type.csproj">
-      <Project>{818d6bb0-ce33-4c42-8ac5-d2c07de8b975}</Project>
-      <Name>mVM_Type</Name>
+    <ProjectReference Include="mVM_Type_Test.csproj">
+      <Project>{197bc753-fe87-4814-ad1a-bb88e22bd020}</Project>
+      <Name>mVM_Type_Test</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\mRunTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

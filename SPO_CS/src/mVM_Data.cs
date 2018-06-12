@@ -776,19 +776,4 @@ public static class mVM_Data {
 		mVM_Type.tType aType2
 	//================================================================================
 	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
-	
-	#region TEST
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mVM_Data),
-		mTest.Test(
-			"TODO: ExternDef",
-			aDebugStream => {
-				// TODO: Tests
-			}
-		)
-	);
-	
-	#endregion
 }

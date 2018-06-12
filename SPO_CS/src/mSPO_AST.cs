@@ -870,18 +870,4 @@ public static class mSPO_AST {
 	
 	public static mStd.tFunc<tExportNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>>
 	Export_<tPos>() => Export;
-	
-	#region TEST
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mSPO_AST),
-		mTest.Test(
-			"TODO",
-			aDebugStream => {
-			}
-		)
-	);
-	
-	#endregion
 }

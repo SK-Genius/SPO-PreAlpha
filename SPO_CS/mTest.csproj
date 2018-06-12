@@ -46,6 +46,7 @@
       <Name>mList</Name>
     </ProjectReference>
     <ProjectReference Include="mStd.csproj">
+      <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
   </ItemGroup>

@@ -345,25 +345,4 @@ public static class mVM_Type {
 		
 		#endif
 	}
-	
-	#region TEST
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mVM_Type),
-		mTest.Test(
-			"BoolBool",
-			aDebugStream => {
-				Unify(Bool(), Bool(), aDebugStream);
-			}
-		),
-		mTest.Test(
-			"BoolInt",
-			aDebugStream => {
-				mStd.AssertError(() => Unify(Bool(), Int(), aDebugStream));
-			}
-		)
-	);
-	
-	#endregion
 }

@@ -38,17 +38,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="mDebug.csproj">
-      <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
-      <Name>mDebug</Name>
-    </ProjectReference>
+    <Compile Include="src\mTextParser.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="mList.csproj">
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>
-    </ProjectReference>
-    <ProjectReference Include="mMath.csproj">
-      <Project>{aa06d4f4-790d-43d8-a90e-bc5ab801044d}</Project>
-      <Name>mMath</Name>
     </ProjectReference>
     <ProjectReference Include="mParserGen.csproj">
       <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
@@ -58,13 +53,6 @@
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
-    <ProjectReference Include="mTest.csproj">
-      <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
-      <Name>mTest</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\mTextParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -649,18 +649,4 @@ public static class mIL_AST {
 		tText aId2
 	//================================================================================
 	) => _CommandNode(tCommandNodeType.TypeIs, aSpan, aId1, aId2, null);
-	
-	#region Test
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mIL_AST),
-		mTest.Test(
-			"TODO",
-			aStreamOut => {
-			}
-		)
-	);
-	
-	#endregion
 }

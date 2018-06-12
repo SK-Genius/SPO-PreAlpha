@@ -38,6 +38,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\mIL_Parser.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="mIL_AST.csproj">
       <Project>{acf94876-dec8-4af6-9710-e8d6b72e8ac6}</Project>
       <Name>mIL_AST</Name>
@@ -58,17 +61,10 @@
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
     </ProjectReference>
-    <ProjectReference Include="mTest.csproj">
-      <Project>{9781885a-e193-40d8-aea0-1174d6a0c807}</Project>
-      <Name>mTest</Name>
-    </ProjectReference>
     <ProjectReference Include="mTextParser.csproj">
       <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
       <Name>mTextParser</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\mIL_Parser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

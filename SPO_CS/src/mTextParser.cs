@@ -255,18 +255,4 @@ public static class mTextParser {
 		}
 	)
 	.SetDebugName(aName);
-	
-	#region Test
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mTextParser),
-		mTest.Test(
-			"TODO",
-			aStreamOut => {
-			}
-		)
-	);
-	
-	#endregion
 }
