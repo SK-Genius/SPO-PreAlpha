@@ -13,7 +13,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tIL_Parser = mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mTextParser.tError>;
 using tPos = mTextParser.tPos;
 
 using xTest = Xunit.TheoryAttribute;
@@ -43,192 +42,146 @@ public static class  mIL_Parser_Test {
 		mTest.Test(
 			"Commands",
 			aDebugStream => {
-				//================================================================================
-				void AssertParsedCommand(
-					string aText,
-					mIL_AST.tCommandNode<tPos> aCommandNode,
-					mStd.tAction<string> aDebugStream_
-				//================================================================================
-				) => mStd.AssertEq(
-					mIL_Parser.Command.ParseText(aText, aDebugStream_),
-					mParserGen.ResultList(aCommandNode.Span, aCommandNode)
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := b, c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair, Span((1, 1), (1, 9)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §INT b == c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAreEq, Span((1, 1), (1, 16)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §INT b <=> c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsComp, Span((1, 1), (1, 17)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §INT b + c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAdd, Span((1, 1), (1, 15)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §INT b - c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsSub, Span((1, 1), (1, 15)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §INT b * c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsMul, Span((1, 1), (1, 15)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §BOOL b & c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolAnd, Span((1, 1), (1, 16)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §BOOL b | c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolOr, Span((1, 1), (1, 16)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §BOOL b ^ c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolXOr, Span((1, 1), (1, 16)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §1ST b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First, Span((1, 1), (1, 11)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §2ND b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second, Span((1, 1), (1, 11)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := +#b c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, Span((1, 1), (1, 10)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := -#b c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, Span((1, 1), (1, 10)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := ?#b c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, Span((1, 1), (1, 10)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := .b c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, Span((1, 1), (1, 9)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§RETURN a IF b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf, Span((1, 1), (1, 14)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§REPEAT a IF b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf, Span((1, 1), (1, 14)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§ASSERT a => b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, Span((1, 1), (1, 14)), "a", "b")
 				);
 				
-				AssertParsedCommand(
-					"a := b, c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair, Span((1, 1), (1, 9)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§PUSH a", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, Span((1, 1), (1, 7)), "a")
 				);
-				AssertParsedCommand(
-					"a := §INT b == c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAreEq, Span((1, 1), (1, 16)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§POP", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop, Span((1, 1), (1, 4)))
 				);
-				AssertParsedCommand(
-					"a := §INT b <=> c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsComp, Span((1, 1), (1, 17)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §VAR b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarDef, Span((1, 1), (1, 11)), "a", "b")
 				);
-				AssertParsedCommand(
-					"a := §INT b + c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsAdd, Span((1, 1), (1, 15)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§VAR a <- b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, Span((1, 1), (1, 11)), "a", "b")
 				);
-				AssertParsedCommand(
-					"a := §INT b - c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsSub, Span((1, 1), (1, 15)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §VAR b ->", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarGet, Span((1, 1), (1, 14)), "a", "b")
 				);
-				AssertParsedCommand(
-					"a := §INT b * c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IntsMul, Span((1, 1), (1, 15)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §OBJ:b c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, Span((1, 1), (1, 13)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := §BOOL b & c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolAnd, Span((1, 1), (1, 16)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [b & c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeCond, Span((1, 1), (1, 12)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := §BOOL b | c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolOr, Span((1, 1), (1, 16)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [b => c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeFunc, Span((1, 1), (1, 13)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := §BOOL b ^ c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.BoolXOr, Span((1, 1), (1, 16)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [b : c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeMethod, Span((1, 1), (1, 12)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := §1ST b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.First, Span((1, 1), (1, 11)), "a", "b"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [b, c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePair, Span((1, 1), (1, 11)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := §2ND b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Second, Span((1, 1), (1, 11)), "a", "b"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [#b c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, Span((1, 1), (1, 11)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := +#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.AddPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [b | c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeSet, Span((1, 1), (1, 12)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := -#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.SubPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [§VAR b]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, Span((1, 1), (1, 13)), "a", "b")
 				);
-				AssertParsedCommand(
-					"a := ?#b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, Span((1, 1), (1, 10)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [§REC b => c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeRecursive, Span((1, 1), (1, 18)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"a := .b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, Span((1, 1), (1, 9)), "a", "b", "c"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [§ANY b => c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeInterface, Span((1, 1), (1, 18)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"§RETURN a IF b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf, Span((1, 1), (1, 14)), "a", "b"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [§ALL b => c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeGeneric, Span((1, 1), (1, 18)), "a", "b", "c")
 				);
-				AssertParsedCommand(
-					"§REPEAT a IF b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.RepeatIf, Span((1, 1), (1, 14)), "a", "b"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"§ASSERT a => b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, Span((1, 1), (1, 14)), "a", "b"),
-					aDebugStream
-				);
-				
-				AssertParsedCommand(
-					"§PUSH a",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, Span((1, 1), (1, 7)), "a"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"§POP",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop, Span((1, 1), (1, 4))),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := §VAR b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarDef, Span((1, 1), (1, 11)), "a", "b"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"§VAR a <- b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, Span((1, 1), (1, 11)), "a", "b"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := §VAR b ->",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarGet, Span((1, 1), (1, 14)), "a", "b"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := §OBJ:b c",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, Span((1, 1), (1, 13)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [b & c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeCond, Span((1, 1), (1, 12)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [b => c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeFunc, Span((1, 1), (1, 13)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [b : c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeMethod, Span((1, 1), (1, 12)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [b, c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePair, Span((1, 1), (1, 11)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [#b c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, Span((1, 1), (1, 11)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [b | c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeSet, Span((1, 1), (1, 12)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [§VAR b]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeVar, Span((1, 1), (1, 13)), "a", "b"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [§REC b => c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeRecursive, Span((1, 1), (1, 18)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [§ANY b => c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeInterface, Span((1, 1), (1, 18)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"a := [§ALL b => c]",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeGeneric, Span((1, 1), (1, 18)), "a", "b", "c"),
-					aDebugStream
-				);
-				AssertParsedCommand(
-					"§TYPE_OF a IS b",
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, Span((1, 1), (1, 15)), "a", "b"),
-					aDebugStream
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("§TYPE_OF a IS b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, Span((1, 1), (1, 15)), "a", "b")
 				);
 			}
 		)

@@ -356,8 +356,16 @@ public static class mStd {
 			!a1.IsNull() &&
 			!a1.Equals(a2)
 		) {
-			throw mStd.Error($"FAIL: {a1} != {a2}");
+			var x1 = AsJSON(a1);
+			var x2 = AsJSON(a2);
+			throw mStd.Error($"FAIL:\n{x1}\n!=\n{x2}");
 		}
+		string AsJSON(
+			object o
+		) => Newtonsoft.Json.JsonConvert.SerializeObject(
+			o,
+			Newtonsoft.Json.Formatting.Indented
+		);
 	}
 	
 	//================================================================================
@@ -382,7 +390,7 @@ public static class mStd {
 			a();
 			throw mStd.Error("FAIL: Error expected");
 		} catch {
-			return;
+			// do nothing
 		}
 	}
 }

@@ -137,11 +137,11 @@ public static class mStdLib_Test {
 							§IMPORT {mStdLib.cImportTuple}
 							
 							§DEF +... = o : i {{
-								o := ((o :=>) .+ i) .
+								o := ((§TO_VAL o) .+ i) .
 							}}
 							
 							§DEF *... = o : i {{
-								o := ((o :=>) .* i) .
+								o := ((§TO_VAL o) .* i) .
 							}}
 							
 							§VAR x := 1 .

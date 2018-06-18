@@ -40,15 +40,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapExpresion",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Expression.ParseText(
-						"2 .< (4 .+ 3) < 3",
-						aStreamOut
-					).Match(out mSPO_AST.tExpressionNode<mTextParser.tPos> ExpressionNode)
+				var ExpressionNode = mSPO_Parser.Expression.ParseText(
+					"2 .< (4 .+ 3) < 3",
+					aStreamOut
 				);
 				
 				var Def = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				mStd.AssertEq(Def.MapExpresion(ExpressionNode),mSPO2IL.TempReg(11));
+				mStd.AssertEq(Def.MapExpresion(ExpressionNode.Result),mSPO2IL.TempReg(11));
 				
 				mStd.AssertEq(
 					Def.Commands,
@@ -71,15 +69,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapDef1",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF a = (1, 2)",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF a = (1, 2)",
+					aStreamOut
 				);
 				
 				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				DefConstructor.MapDef(DefNode);
+				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
 					DefConstructor.Commands,
@@ -97,15 +93,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapDefMatch",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF (a, (b, c)) = (1, (2, 3))",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF (a, (b, c)) = (1, (2, 3))",
+					aStreamOut
 				);
 				
 				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				DefConstructor.MapDef(DefNode);
+				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
 					DefConstructor.Commands,
@@ -137,15 +131,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MatchTuple",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF (a, b, c) = (1, 2, 3)",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF (a, b, c) = (1, 2, 3)",
+					aStreamOut
 				);
 				
 				var Module = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				Module.MapDef(DefNode);
+				Module.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
 					Module.Commands,
@@ -173,15 +165,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapMatchPrefix",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF (a, b, (#bla (c , d))) = (1, 2, (#bla (3, 4)))",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF (a, b, (#bla (c , d))) = (1, 2, (#bla (3, 4)))",
+					aStreamOut
 				);
 				
 				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				DefConstructor.MapDef(DefNode);
+				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
 					DefConstructor.Commands,
@@ -220,15 +210,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapLambda1",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF x = a => 2 .* a",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF x = a => 2 .* a",
+					aStreamOut
 				);
 				
 				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				DefConstructor.MapDef(DefNode);
+				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
 				mStd.AssertEq(
@@ -265,15 +253,13 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapLambda2",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Def.ParseText(
-						"§DEF ...*...+... = (a, b, c) => (a .* b) .+ c",
-						aStreamOut
-					).Match(out mSPO_AST.tDefNode<mTextParser.tPos> DefNode)
+				var DefNode = mSPO_Parser.Def.ParseText(
+					"§DEF ...*...+... = (a, b, c) => (a .* b) .+ c",
+					aStreamOut
 				);
 				
 				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				DefConstructor.MapDef(DefNode);
+				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
 				mStd.AssertEq(
@@ -324,16 +310,14 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapNestedMatch",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Lambda.ParseText(
-						"(a, b, (x, y, z)) => a .* z",
-						aStreamOut
-					).Match(out mSPO_AST.tLambdaNode<mTextParser.tPos> LambdaNode)
+				var LambdaNode = mSPO_Parser.Lambda.ParseText(
+					"(a, b, (x, y, z)) => a .* z",
+					aStreamOut
 				);
 				
 				var ModuleConstructor = mSPO2IL.NewModuleConstructor<mTextParser.tPos>();
 				var (DefIndex, UnsolvedSymbols) = ModuleConstructor.MapLambda(
-					LambdaNode
+					LambdaNode.Result
 				);
 				
 				mStd.AssertEq(ModuleConstructor.Defs.Size(), 1);
@@ -377,25 +361,23 @@ public static class mSPO2IL_Test {
 		mTest.Test(
 			"MapModule",
 			aStreamOut => {
-				mStd.Assert(
-					mSPO_Parser.Module.ParseText(
-						mList.List(
-							"§IMPORT (",
-							"	T € [[]]",
-							"	...*... € [[T, T] => T]",
-							"	k € T",
-							")",
-							"",
-							"§DEF x... = a => k .* a",
-							"§DEF y = .x 1",
-							"",
-							"§EXPORT y"
-						).Join((a1, a2) => a1 + "\n" + a2),
-						aStreamOut
-					).Match(out mSPO_AST.tModuleNode<mTextParser.tPos> ModuleNode)
+				var ModuleNode = mSPO_Parser.Module.ParseText(
+					mList.List(
+						"§IMPORT (",
+						"	T € [[]]",
+						"	...*... € [[T, T] => T]",
+						"	k € T",
+						")",
+						"",
+						"§DEF x... = a => k .* a",
+						"§DEF y = .x 1",
+						"",
+						"§EXPORT y"
+					).Join((a1, a2) => a1 + "\n" + a2),
+					aStreamOut
 				);
 				
-				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode);
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode.Result);
 				
 				mStd.AssertEq(ModuleConstructor.Defs.Size(), 2);
 				

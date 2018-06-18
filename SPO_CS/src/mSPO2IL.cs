@@ -131,7 +131,6 @@ public static class mSPO2IL {
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	//================================================================================
 	) {
-		var ArgumentSymbols = mList.List<tText>();
 		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg);
 		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj);
 		

@@ -326,14 +326,6 @@ public static class mVM_Type {
 			return;
 		}
 		
-		#if !true
-		
-		if (!MyUnificator.Unify(a1, a2, out var Error)) {
-			aTrace($"TypeError: '{Error.Item1}' dosn't match '{Error.Item2}'");
-		}
-		
-		#else
-		
 		mDebug.AssertEq(a1.Kind, a2.Kind);
 		mDebug.AssertEq(a1.Id, a2.Id);
 		mDebug.AssertEq(a1.Prefix, a2.Prefix);
@@ -342,7 +334,5 @@ public static class mVM_Type {
 		while (RefCount --> 0) {
 			Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace);
 		}
-		
-		#endif
 	}
 }

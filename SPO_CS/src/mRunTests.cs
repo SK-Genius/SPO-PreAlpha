@@ -21,6 +21,7 @@ public static class mRunTests {
 	static mTest.tTest Test = mTest.Tests(
 		"All",
 		mStd_Test.Test,
+		mList_Test.Test,
 		mMap_Test.Test,
 //		mMath_Test.Test,
 		mArrayList_Test.Test,

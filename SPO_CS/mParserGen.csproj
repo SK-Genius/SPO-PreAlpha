@@ -41,6 +41,10 @@
     <Compile Include="src\mParserGen.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="mArrayList.csproj">
+      <Project>{dd3fdc30-c146-42a2-a79c-bc8ff5c430c9}</Project>
+      <Name>mArrayList</Name>
+    </ProjectReference>
     <ProjectReference Include="mDebug.csproj">
       <Project>{ed729fec-2c11-447d-bdb0-e9140f4cca81}</Project>
       <Name>mDebug</Name>

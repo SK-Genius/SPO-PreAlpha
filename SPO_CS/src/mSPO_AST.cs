@@ -250,9 +250,6 @@ public static class mSPO_AST {
 		Span = aSpan
 	};
 	
-	public static mStd.tFunc<tEmptyNode<tPos>, mStd.tSpan<tPos>>
-	Empty_<tPos>() => Empty;
-	
 	//================================================================================
 	public static tFalseNode<tPos>
 	False<tPos>(
@@ -261,9 +258,6 @@ public static class mSPO_AST {
 	) => new tFalseNode<tPos> {
 		Span = aSpan
 	};
-	
-	public static mStd.tFunc<tFalseNode<tPos>, mStd.tSpan<tPos>>
-	False_<tPos>() => False;
 	
 	//================================================================================
 	public static tTrueNode<tPos>
@@ -274,9 +268,6 @@ public static class mSPO_AST {
 		Span = aSpan
 	};
 	
-	public static mStd.tFunc<tTrueNode<tPos>, mStd.tSpan<tPos>>
-	True_<tPos>() => True;
-	
 	//================================================================================
 	public static tEmptyTypeNode<tPos>
 	EmptyType<tPos>(
@@ -285,9 +276,6 @@ public static class mSPO_AST {
 	) => new tEmptyTypeNode<tPos> {
 		Span = aSpan
 	};
-	
-	public static mStd.tFunc<tEmptyTypeNode<tPos>, mStd.tSpan<tPos>>
-	EmptyType_<tPos>() => EmptyType;
 	
 	//================================================================================
 	public static tBoolTypeNode<tPos>
@@ -298,9 +286,6 @@ public static class mSPO_AST {
 		Span = aSpan
 	};
 	
-	public static mStd.tFunc<tBoolTypeNode<tPos>, mStd.tSpan<tPos>>
-	BoolType_<tPos>() => BoolType;
-	
 	//================================================================================
 	public static tIntTypeNode<tPos>
 	IntType<tPos>(
@@ -310,9 +295,6 @@ public static class mSPO_AST {
 		Span = aSpan
 	};
 	
-	public static mStd.tFunc<tIntTypeNode<tPos>, mStd.tSpan<tPos>>
-	IntType_<tPos>() => IntType;
-	
 	//================================================================================
 	public static tTypeTypeNode<tPos>
 	TypeType<tPos>(
@@ -321,9 +303,6 @@ public static class mSPO_AST {
 	) => new tTypeTypeNode<tPos> {
 		Span = aSpan
 	};
-	
-	public static mStd.tFunc<tTypeTypeNode<tPos>, mStd.tSpan<tPos>>
-	TypeType_<tPos>() => TypeType;
 	
 	//================================================================================
 	public static tNumberNode<tPos>
@@ -336,9 +315,6 @@ public static class mSPO_AST {
 		Value = aValue
 	};
 	
-	public static mStd.tFunc<tNumberNode<tPos>, mStd.tSpan<tPos>, tInt32>
-	Number_<tPos>() => Number;
-	
 	//================================================================================
 	public static tTextNode<tPos>
 	Text<tPos>(
@@ -350,9 +326,6 @@ public static class mSPO_AST {
 		Value = aValue
 	};
 	
-	public static mStd.tFunc<tTextNode<tPos>, mStd.tSpan<tPos>, tText>
-	Text_<tPos>() => Text;
-	
 	//================================================================================
 	public static tIdentNode<tPos>
 	Ident<tPos>(
@@ -363,9 +336,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Name = "_" + aName
 	};
-	
-	public static mStd.tFunc<tIdentNode<tPos>, mStd.tSpan<tPos>, tText>
-	Ident_<tPos>() => Ident;
 	
 	//================================================================================
 	public static tExpressionNode<tPos>
@@ -390,9 +360,6 @@ public static class mSPO_AST {
 		}
 	}
 	
-	public static mStd.tFunc<tExpressionNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
-	Tuple_<tPos>() => Tuple;
-	
 	//================================================================================
 	public static tPrefixTypeNode<tPos>
 	PrefixType<tPos>(
@@ -406,9 +373,6 @@ public static class mSPO_AST {
 		Expressions = aTypes,
 	};
 	
-	public static mStd.tFunc<tPrefixTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, mList.tList<tExpressionNode<tPos>>>
-	PrefixType_<tPos>() => PrefixType;
-	
 	//================================================================================
 	public static tTupleTypeNode<tPos>
 	TupleType<tPos>(
@@ -420,9 +384,6 @@ public static class mSPO_AST {
 		Expressions = aTypes,
 	};
 	
-	public static mStd.tFunc<tTupleTypeNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
-	TupleType_<tPos>() => TupleType;
-	
 	//================================================================================
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
@@ -433,9 +394,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Expressions = aTypes
 	};
-	
-	public static mStd.tFunc<tSetTypeNode<tPos>, mStd.tSpan<tPos>, mList.tList<tExpressionNode<tPos>>>
-	SetType_<tPos>() => SetType;
 	
 	//================================================================================
 	public static tLambdaTypeNode<tPos>
@@ -450,9 +408,6 @@ public static class mSPO_AST {
 		ResType = aResType
 	};
 	
-	public static mStd.tFunc<tLambdaTypeNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
-	LambdaType_<tPos>() => LambdaType;
-	
 	//================================================================================
 	public static tRecursiveTypeNode<tPos>
 	RecursiveType<tPos>(
@@ -465,9 +420,6 @@ public static class mSPO_AST {
 		HeadType = aHeadType,
 		BodyType = aBodyType
 	};
-	
-	public static mStd.tFunc<tRecursiveTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
-	RecursiveType_<tPos>() => RecursiveType;
 	
 	//================================================================================
 	public static tInterfaceTypeNode<tPos>
@@ -482,9 +434,6 @@ public static class mSPO_AST {
 		BodyType = aBodyType
 	};
 	
-	public static mStd.tFunc<tInterfaceTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
-	InterfaceType_<tPos>() => InterfaceType;
-	
 	//================================================================================
 	public static tGenericTypeNode<tPos>
 	GenericType<tPos>(
@@ -497,9 +446,6 @@ public static class mSPO_AST {
 		HeadType = aHeadType,
 		BodyType = aBodyType
 	};
-	
-	public static mStd.tFunc<tGenericTypeNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
-	GenericType_<tPos>() => GenericType;
 	
 	//================================================================================
 	public static tCallNode<tPos>
@@ -514,9 +460,6 @@ public static class mSPO_AST {
 		Arg = aArg
 	};
 	
-	public static mStd.tFunc<tCallNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
-	Call_<tPos>() => Call;
-	
 	//================================================================================
 	public static tPrefixNode<tPos>
 	Prefix<tPos>(
@@ -529,9 +472,6 @@ public static class mSPO_AST {
 		Prefix = aPrefix.Name,
 		Element = aElement
 	};
-	
-	public static mStd.tFunc<tPrefixNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>>
-	Prefix_<tPos>() => Prefix;
 	
 	//================================================================================
 	public static tMatchPrefixNode<tPos>
@@ -546,9 +486,6 @@ public static class mSPO_AST {
 		Match = aMatch
 	};
 	
-	public static mStd.tFunc<tMatchPrefixNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tMatchNode<tPos>>
-	MatchPrefix_<tPos>() => MatchPrefix;
-	
 	//================================================================================
 	public static tMatchGuardNode<tPos>
 	MatchGuard<tPos>(
@@ -562,9 +499,6 @@ public static class mSPO_AST {
 		Guard = aGuard
 	};
 	
-	public static mStd.tFunc<tMatchGuardNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
-	MatchGuard_<tPos>() => MatchGuard;
-	
 	//================================================================================
 	public static tLambdaNode<tPos>
 	Lambda<tPos>(
@@ -577,9 +511,6 @@ public static class mSPO_AST {
 		Head = aMatch,
 		Body = aBody
 	};
-	
-	public static mStd.tFunc<tLambdaNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
-	Lambda_<tPos>() => Lambda;
 	
 	//================================================================================
 	public static tMethodNode<tPos>
@@ -596,9 +527,6 @@ public static class mSPO_AST {
 		Body = aBody
 	};
 	
-	public static mStd.tFunc<tMethodNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tMatchNode<tPos>, tBlockNode<tPos>>
-	Method_<tPos>() => Method;
-	
 	//================================================================================
 	public static tRecLambdaItemNode<tPos>
 	RecLambdaItem<tPos>(
@@ -612,9 +540,6 @@ public static class mSPO_AST {
 		Lambda = aLambda
 	};
 	
-	public static mStd.tFunc<tRecLambdaItemNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tLambdaNode<tPos>>
-	RecLambdaItem_<tPos>() => RecLambdaItem;
-	
 	//================================================================================
 	public static tRecLambdasNode<tPos>
 	RecLambdas<tPos>(
@@ -625,9 +550,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		List = aList
 	};
-	
-	public static mStd.tFunc<tRecLambdasNode<tPos>, mStd.tSpan<tPos>, mList.tList<tRecLambdaItemNode<tPos>>>
-	RecLambdas_<tPos>() => RecLambdas;
 	
 	//================================================================================
 	public static tMatchItemNode<tPos>
@@ -653,9 +575,6 @@ public static class mSPO_AST {
 		}
 	}
 	
-	public static mStd.tFunc<tMatchItemNode<tPos>, mStd.tSpan<tPos>, mList.tList<tMatchNode<tPos>>>
-	MatchTuple_<tPos>() => MatchTuple;
-	
 	//================================================================================
 	public static tMatchNode<tPos>
 	Match<tPos>(
@@ -669,9 +588,6 @@ public static class mSPO_AST {
 		Type = aType
 	};
 	
-	public static mStd.tFunc<tMatchNode<tPos>, mStd.tSpan<tPos>, tMatchItemNode<tPos>, tExpressionNode<tPos>>
-	Match_<tPos>() => Match;
-	
 	//================================================================================
 	public static tMatchNode<tPos>
 	UnTypedMatch<tPos>(
@@ -679,9 +595,6 @@ public static class mSPO_AST {
 		tMatchItemNode<tPos> aMatch
 	//================================================================================
 	) => Match(aSpan, aMatch, null);
-	
-	public static mStd.tFunc<tMatchNode<tPos>, mStd.tSpan<tPos>, tMatchItemNode<tPos>>
-	UnTypedMatch_<tPos>() => UnTypedMatch;
 	
 	//================================================================================
 	public static tDefNode<tPos>
@@ -696,9 +609,6 @@ public static class mSPO_AST {
 		Src = aExpression
 	};
 	
-	public static mStd.tFunc<tDefNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>, tExpressionNode<tPos>>
-	Def_<tPos>() => Def;
-	
 	//================================================================================
 	public static tReturnIfNode<tPos>
 	ReturnIf<tPos>(
@@ -712,9 +622,6 @@ public static class mSPO_AST {
 		Condition = aCondition
 	};
 	
-	public static mStd.tFunc<tReturnIfNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, tExpressionNode<tPos>>
-	ReturnIf_<tPos>() => ReturnIf;
-	
 	//================================================================================
 	public static tIfNode<tPos>
 	If<tPos>(
@@ -725,9 +632,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Cases = aCases
 	};
-	
-	public static mStd.tFunc<tIfNode<tPos>, mStd.tSpan<tPos>, mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)>>
-	If_<tPos>() => If;
 	
 	//================================================================================
 	public static tIfMatchNode<tPos>
@@ -741,9 +645,6 @@ public static class mSPO_AST {
 		Expression = aExpression,
 		Cases = aCases
 	};
-	
-	public static mStd.tFunc<tIfMatchNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)>>
-	IfMatch_<tPos>() => IfMatch;
 	
 	//================================================================================
 	public static tDefVarNode<tPos>
@@ -760,9 +661,6 @@ public static class mSPO_AST {
 		MethodCalls = aMethodCalls
 	};
 	
-	public static mStd.tFunc<tDefVarNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>, mList.tList<tMethodCallNode<tPos>>>
-	DefVar_<tPos>() => DefVar;
-	
 	//================================================================================
 	public static tVarToValNode<tPos>
 	VarToVal<tPos>(
@@ -773,9 +671,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Obj = aObj,
 	};
-	
-	public static mStd.tFunc<tVarToValNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>>
-	VarToVal_<tPos>() => VarToVal;
 	
 	//================================================================================
 	public static tMethodCallsNode<tPos>
@@ -789,9 +684,6 @@ public static class mSPO_AST {
 		Object = aObject,
 		MethodCalls = aMethodCalls
 	};
-	
-	public static mStd.tFunc<tMethodCallsNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>, mList.tList<tMethodCallNode<tPos>>>
-	MethodCallStatment_<tPos>() => MethodCallStatment;
 	
 	//================================================================================
 	public static tMethodCallNode<tPos>
@@ -808,9 +700,6 @@ public static class mSPO_AST {
 		Result = aResult
 	};
 	
-	public static mStd.tFunc<tMethodCallNode<tPos>, mStd.tSpan<tPos>, tIdentNode<tPos>, tExpressionNode<tPos>, tMatchNode<tPos>?>
-	MethodCall_<tPos>() => MethodCall;
-	
 	//================================================================================
 	public static tBlockNode<tPos>
 	Block<tPos>(
@@ -821,9 +710,6 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Commands = aCommands
 	};
-	
-	public static mStd.tFunc<tBlockNode<tPos>, mStd.tSpan<tPos>, mList.tList<tCommandNode<tPos>>>
-	Block_<tPos>() => Block;
 	
 	//================================================================================
 	public static tModuleNode<tPos>
@@ -840,9 +726,6 @@ public static class mSPO_AST {
 		Commands = aCommands
 	};
 	
-	public static mStd.tFunc<tModuleNode<tPos>, mStd.tSpan<tPos>, tImportNode<tPos>, mList.tList<tCommandNode<tPos>>, tExportNode<tPos>>
-	Module_<tPos>() => Module;
-	
 	//================================================================================
 	public static tImportNode<tPos>
 	Import<tPos>(
@@ -854,10 +737,7 @@ public static class mSPO_AST {
 		Match = aMatch 
 	};
 	
-	public static mStd.tFunc<tImportNode<tPos>, mStd.tSpan<tPos>, tMatchNode<tPos>>
-	Import_<tPos>() => Import;
-	
-//================================================================================
+	//================================================================================
 	public static tExportNode<tPos>
 	Export<tPos>(
 		mStd.tSpan<tPos> aSpan,
@@ -867,7 +747,4 @@ public static class mSPO_AST {
 		Span = aSpan,
 		Expression = aExpression 
 	};
-	
-	public static mStd.tFunc<tExportNode<tPos>, mStd.tSpan<tPos>, tExpressionNode<tPos>>
-	Export_<tPos>() => Export;
 }

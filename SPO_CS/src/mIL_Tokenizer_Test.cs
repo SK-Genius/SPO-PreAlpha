@@ -17,8 +17,6 @@ using xTest = Xunit.TheoryAttribute;
 using xArg = Xunit.InlineDataAttribute;
 using xTrait = Xunit.TraitAttribute;
 
-using tIL_Tokenizer = mParserGen.tParser<mTextParser.tPos, System.Char, mTextParser.tError>;
-
 public static class  mIL_Tokenizer_Test {
 	//================================================================================
 	private static mStd.tSpan<mTextParser.tPos> Span(
@@ -45,7 +43,7 @@ public static class  mIL_Tokenizer_Test {
 				var TokenList = mIL_Tokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",
 					aDebugStream
-				).Value.Map(mStd.To<mIL_Tokenizer.tToken>);
+				).Result;
 				mStd.AssertEq(
 					TokenList,
 					mList.List(

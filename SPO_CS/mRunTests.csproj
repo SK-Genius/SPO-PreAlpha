@@ -68,6 +68,10 @@
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>
     </ProjectReference>
+    <ProjectReference Include="mList_Test.csproj">
+      <Project>{78543a96-1732-49c3-932b-3183dd426b00}</Project>
+      <Name>mList_Test</Name>
+    </ProjectReference>
     <ProjectReference Include="mMap_Test.csproj">
       <Project>{edb0ca11-5272-4c9f-8d68-e46cd9771027}</Project>
       <Name>mMap_Test</Name>

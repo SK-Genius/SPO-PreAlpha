@@ -85,7 +85,7 @@ public static class mArrayList_Test {
 			"tArrayList.Resize(...)",
 			aStreamOut => {
 				var L = mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-				var Slots = (tInt32)12;
+				var Slots = 12;
 				mStd.AssertEq(L._Items.Length, Slots);
 				
 				L.Push(13);

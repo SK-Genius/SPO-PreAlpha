@@ -41,6 +41,10 @@
     <Compile Include="src\mIL_Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="mList.csproj">
+      <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
+      <Name>mList</Name>
+    </ProjectReference>
     <ProjectReference Include="mParserGen.csproj">
       <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
       <Name>mParserGen</Name>

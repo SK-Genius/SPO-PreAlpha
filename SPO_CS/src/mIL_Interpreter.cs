@@ -26,17 +26,7 @@ public static class mIL_Interpreter {
 		tText aSourceCode,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
-	) {
-		var ParserResult = mIL_Parser.Module.ParseText(aSourceCode, aDebugStream);
-		
-		mDebug.Assert(
-			ParserResult.Match(
-				out mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<mTextParser.tPos>>)> Defs
-			)
-		);
-		
-		return ParseModule(Defs, aDebugStream);
-	}
+	) => ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aDebugStream), aDebugStream);
 	
 	//================================================================================
 	public static (

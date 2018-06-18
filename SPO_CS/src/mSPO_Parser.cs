@@ -17,557 +17,454 @@ using tResults = mList.tList<mStd.tAny>;
 
 using tPos = mTextParser.tPos;
 using tSpan = mStd.tSpan<mTextParser.tPos>;
-using tSPO_Parser = mParserGen.tParser<mTextParser.tPos, System.Char, mTextParser.tError>;
 
 public static class mSPO_Parser {
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> Char = a => mTextParser.GetChar(a);
-	public static readonly mStd.tFunc<tSPO_Parser, tChar> NotChar = a => mTextParser.GetNotChar(a);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharIn = a => mTextParser.GetCharIn(a);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> CharNotIn = a => mTextParser.GetCharNotIn(a);
-	public static readonly mStd.tFunc<tSPO_Parser, tChar, tChar> CharInRange = (a1, a2) => mTextParser.GetCharInRange(a1, a2);
-	public static readonly mStd.tFunc<tSPO_Parser, tText> Text = a => mTextParser.GetToken(a);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tChar> Char = a => mTextParser.GetChar(a);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tChar> NotChar = a => mTextParser.GetNotChar(a);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tText> CharIn = a => mTextParser.GetCharIn(a);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tText> CharNotIn = a => mTextParser.GetCharNotIn(a);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tChar, tChar> CharInRange = (a1, a2) => mTextParser.GetCharInRange(a1, a2);
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, mTextParser.tError>, tText> Text = a => mTextParser.GetToken(a);
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>
 	_ = CharIn(" \t")
 	.SetName(nameof(_));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mList.tList<tChar>, mTextParser.tError>
 	__ = _[0, null]
 	.SetName(nameof(__));
 	
-	public static readonly tSPO_Parser
-	NL = (-__ +Char('\n') -__)[1, null]
+	public static readonly mParserGen.tParser<tPos, tChar, mList.tList<tChar>, mTextParser.tError>
+	NL = (-__)._(Char('\n'))._(-__)[1, null]
 	.SetName(nameof(NL));
 	
-	public static readonly mStd.tFunc<tSPO_Parser, tText>
-	Token = a => (Text(a) + -__)
+	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, mTextParser.tError>, tText>
+	Token = a => (Text(a))._(-__)
 	.SetName("\"" + a + "\"");
 	
-	public static readonly tSPO_Parser
-	String = (-Char('"') +NotChar('"')[0, null] -Char('"'))
-	.ModifyList(aChars => aChars.Reduce("", (tText aText, tChar aChar) => aText + aChar))
-	.Modify((mStd.tFunc<mSPO_AST.tTextNode<tPos>, tSpan, tText>)mSPO_AST.Text<tPos>)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tTextNode<tPos>, mTextParser.tError>
+	String = (-Char('"'))._(NotChar('"')[0, null])._(-Char('"'))
+	.Modify(aChars => aChars.Reduce("", (aText, aChar) => aText + aChar))
+	.ModifyS(mSPO_AST.Text)
 	.SetName(nameof(String));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
 	Digit = CharInRange('0', '9')
-	.Modify((tSpan aSpan, tChar aChar) => (int)aChar - (int)'0')
+	.Modify(aChar => (int)aChar - (int)'0')
 	.SetName(nameof(Digit));
 	
-	public static readonly tSPO_Parser
-	Nat = (Digit + (Digit | -Char('_'))[0, null])
-	.ModifyList(a => a.Reduce(0, (tInt32 aNumber, tInt32 aDigit) => 10*aNumber+aDigit))
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
+	Nat = (Digit)._((-Char('_')[0, null])._(Digit)[0, null])
+	.Modify((aFirst, aRest) => aRest.Reduce(aFirst, (aNumber, aDigit) => 10*aNumber+aDigit))
 	.SetName(nameof(Nat));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
 	PosSignum = Char('+')
-	.Modify((tSpan aSpan) => +1)
+	.Modify(_ => +1)
 	.SetName(nameof(PosSignum));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
 	NegSignum = Char('-')
-	.Modify((tSpan aSpan) => -1)
+	.Modify(_ => -1)
 	.SetName(nameof(NegSignum));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
 	Signum = (PosSignum | NegSignum)
 	.SetName(nameof(Signum));
 	
-	public static readonly tSPO_Parser
-	Int = (Signum + Nat)
-	.Modify((tSpan aSpan, int aSig, int aAbs) => aSig * aAbs)
+	public static readonly mParserGen.tParser<tPos, tChar, tInt32, mTextParser.tError>
+	Int = (Signum)._(Nat)
+	.Modify((aSig, aAbs) => aSig * aAbs)
 	.SetName(nameof(Int));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tNumberNode<tPos>, mTextParser.tError>
 	Num = (Int | Nat)
-	.Modify((tSpan aSpan, tInt32 a) => mSPO_AST.Number(aSpan, a))
+	.ModifyS(mSPO_AST.Number)
 	.SetName(nameof(Num));
 	
 	public static readonly tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tEmptyNode<tPos>, mTextParser.tError>
 	Empty = (-Token("()"))
-	.Modify(mSPO_AST.Empty)
+	.ModifyS(mSPO_AST.Empty)
 	.SetName(nameof(Empty));
 	
-	public static readonly tSPO_Parser
-	Ident = ( ( CharNotIn(SpazialChars).Modify((tSpan aSpan, tChar aChar) => aChar.ToString()) | Text("...") )[1, null] -__ )
-	.ModifyList(aChars => aChars.Reduce("", (tText a1, tText a2) => a1 + a2))
-	.Assert((tText aText) => aText != "=>")
-	.Modify((tSpan aSpan, tText a) => mSPO_AST.Ident(aSpan, a))
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIdentNode<tPos>, mTextParser.tError>
+	Ident = ( ( CharNotIn(SpazialChars).ModifyS((aSpan, aChar) => aChar.ToString()) | Text("...") )[1, null] )._( -__ )
+	.Modify(aChars => aChars.Join((a1, a2) => a1 + a2))
+	.Assert(aText => aText != "=>")
+	.ModifyS(mSPO_AST.Ident)
 	.SetName(nameof(Ident));
 	
-	public static readonly tSPO_Parser
-	Literal = ( (Empty | Num | String) -__ )
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tLiteralNode<tPos>, mTextParser.tError>
+	Literal = (
+		Empty.Modify(a => (mSPO_AST.tLiteralNode<tPos>)a)
+		.Or(Num)
+		.Or(String)
+	)._(
+		-__
+	)
 	.SetName(nameof(Literal));
 	
 	//================================================================================
-	public static tSPO_Parser
-	C(
-		tSPO_Parser aParser
+	public static mParserGen.tParser<tPos, tChar, tOut, mTextParser.tError>
+	C<tOut>(
+		mParserGen.tParser<tPos, tChar, tOut, mTextParser.tError> aParser
 	//================================================================================
 	) => (
-		(-Token("(") -NL +aParser -NL -Token(")")) |
-		(-Token("(") +aParser -Token(")"))
+		(-Token("("))._(-NL)._(aParser)._(-NL)._(-Token(")")) |
+		(-Token("("))._(aParser)._(-Token(")"))
 	);
 	
-	public static readonly tSPO_Parser
-	ExpressionInCall = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>
+	ExpressionInCall = mParserGen.UndefParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>()
 	.SetName(nameof(ExpressionInCall));
 	
-	public static readonly tSPO_Parser
-	Expression = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>
+	Expression = mParserGen.UndefParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>()
 	.SetName(nameof(Expression));
 	
-	public static readonly tSPO_Parser
-	UnTypedMatch = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMatchNode<tPos>, mTextParser.tError>
+	UnTypedMatch = mParserGen.UndefParser<tPos, tChar, mSPO_AST.tMatchNode<tPos>, mTextParser.tError>()
 	.SetName(nameof(UnTypedMatch));
 	
-	public static readonly tSPO_Parser
-	TypedMatch = (+UnTypedMatch -Token("€") +Expression.OrFail())
-	.Modify((tSpan aSpan, mSPO_AST.tMatchNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => mSPO_AST.Match(aSpan, a1, a2))
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMatchNode<tPos>, mTextParser.tError>
+	TypedMatch = (UnTypedMatch.ModifyS((_, a) => (mSPO_AST.tMatchItemNode<tPos>)a))._(-Token("€"))._(Expression.OrFail())
+	.ModifyS(mSPO_AST.Match)
 	.SetName(nameof(TypedMatch));
 	
-	public static readonly tSPO_Parser
-	Match = (+TypedMatch | +UnTypedMatch)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMatchNode<tPos>, mTextParser.tError>
+	Match = (TypedMatch | UnTypedMatch)
 	.SetName(nameof(Match));
 	
-	public static readonly tSPO_Parser
-	Def = (-Token("§DEF") +(+Match -Token("=") +Expression).OrFail())
-	.Modify(mSPO_AST.Def_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tDefNode<tPos>, mTextParser.tError>
+	Def = (-Token("§DEF"))._((Match)._(-Token("="))._(Expression).OrFail())
+	.ModifyS(mSPO_AST.Def)
 	.SetName(nameof(Def));
 	
-	public static readonly tSPO_Parser
-	ReturnIf = (-Token("§RETURN") +Expression.OrFail() -Token("IF") +Expression.OrFail())
-	.Modify(mSPO_AST.ReturnIf_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tReturnIfNode<tPos>, mTextParser.tError>
+	ReturnIf = (-Token("§RETURN"))._(Expression.OrFail())._(-Token("IF"))._(Expression.OrFail())
+	.ModifyS(mSPO_AST.ReturnIf)
 	.SetName(nameof(ReturnIf));
 	
-	public static readonly tSPO_Parser
-	Return = (-Token("§RETURN") +Expression.OrFail())
-	.Modify((tSpan aSpan, mSPO_AST.tExpressionNode<tPos> a) => mSPO_AST.ReturnIf(aSpan, a, mSPO_AST.True(aSpan)))
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tReturnIfNode<tPos>, mTextParser.tError>
+	Return = (-Token("§RETURN"))._(Expression.OrFail())
+	.ModifyS((aSpan, a) => mSPO_AST.ReturnIf(aSpan, a, mSPO_AST.True(aSpan)))
 	.SetName(nameof(Return));
 	
-	public static readonly tSPO_Parser
-	Command = mParserGen.UndefParser<tPos, tChar, mTextParser.tError>()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tCommandNode<tPos>, mTextParser.tError>
+	Command = mParserGen.UndefParser<tPos, tChar, mSPO_AST.tCommandNode<tPos>, mTextParser.tError>()
 	.SetName(nameof(Command));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mList.tList<mSPO_AST.tCommandNode<tPos>>, mTextParser.tError>
 	Commands = Command[0, null]
-	.ModifyList(a => mParserGen.ResultList(a.Span, a.Map(mStd.To<mSPO_AST.tCommandNode<tPos>>)))
 	.SetName(nameof(Commands));
 	
-	public static readonly tSPO_Parser
-	Block = (-Token("{") +(-NL +Commands -Token("}")).OrFail())
-	.Modify(mSPO_AST.Block_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tBlockNode<tPos>, mTextParser.tError>
+	Block = (-Token("{"))._((-NL)._(Commands)._(-Token("}")).OrFail())
+	.ModifyS(mSPO_AST.Block)
 	.SetName(nameof(Block));
 	
-	public static readonly tSPO_Parser
-	Tuple = C( +Expression +( -(Token(",")|NL) +Expression)[1, null] )
-	.ModifyList(
-		a => mParserGen.ResultList(
-			a.Span,
-			mSPO_AST.Tuple(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
-		)
-	)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>
+	Tuple = C( (ExpressionInCall)._((-Token(",") | -NL)._(ExpressionInCall)[1, null]) )
+	.Modify(mList.List)
+	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
 	//================================================================================
-	public static tSPO_Parser
-	Infix(
-		tSPO_Parser aChildParser
+	public static mParserGen.tParser<tPos, tChar, (mSPO_AST.tIdentNode<tPos> Ident, mList.tList<tChild> Childs), mTextParser.tError>
+	Infix<tChild>(
+		mParserGen.tParser<tPos, tChar, tChild, mTextParser.tError> aChildParser
 	//================================================================================
 	) => (
-		(+Ident +(( +aChildParser + Ident )[0, null] + aChildParser[0, 1]).OrFail())
-		.ModifyList(
-			aList => {
-				var Last = (aList.Value.Reduce(0, (a, a_) => a + 1) % 2 == 0) ? "..." : "";
-				return (
-					mParserGen.ResultList(
-						aList.Span,
-						(
-							mSPO_AST.Ident(
-								aList.Span,
-								aList.Value.Every(2).Map(
-									a => a.To<mSPO_AST.tIdentNode<tPos>>().Name.Substring(1)
-								).Join(
-									(a1, a2) => $"{a1}...{a2}"
-								)+Last
-							),
-							aList.Value.Skip(1).Every(2)
-						)
-					)
-				);
-			}
-		)
-	);
-	
-	//================================================================================
-	public static tSPO_Parser
-	Infix(
-		tText aPrefix,
-		tSPO_Parser aChildParser
-	//================================================================================
-	) => (
-		-Token(aPrefix) +Infix(aChildParser)
-	) | (
-		(+aChildParser -Token(aPrefix) +Infix(aChildParser))
-		.ModifyList(
-			a => {
-				a.GetHeadTail(out var FirstChild, out var Rest);
-				mStd.Assert(Rest.Value.First().Match(out (mSPO_AST.tIdentNode<tPos> Ident, tResults ChildList) Infix));
-				return mParserGen.ResultList(
-					a.Span,
-					(
-						mSPO_AST.Ident(a.Span, "..." + Infix.Ident.Name.Substring(1)),
-						mList.Concat(mList.List(FirstChild), Infix.ChildList)
-					)
-				);
-			}
-		)
-	);
-	
-	public static readonly tSPO_Parser
-	Call = (
-		Infix(".", ExpressionInCall).Modify(
-			(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) =>  mSPO_AST.Call(
-				aSpan,
-				a.Ident,
-				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
+		(Ident)._(((aChildParser)._(Ident)[0, null])._(aChildParser[0, 1]).OrFail())
+		.ModifyS(
+			(aSpan, aFirstIdent, aList, aLastChild) => (
+				mSPO_AST.Ident(
+					aSpan,
+					aList.Map(
+						a => a.Item2.Name.Substring(1)
+					).Reduce(
+						aFirstIdent.Name.Substring(1),
+						(a1, a2) => $"{a1}...{a2}"
+					) + (aLastChild.IsEmpty() ? "" : "...")
+				),
+				mList.Concat(aList.Map(a => a.Item1), aLastChild)
 			)
+		)
+	);
+	
+	//================================================================================
+	public static mParserGen.tParser<tPos, tChar, (mSPO_AST.tIdentNode<tPos> Ident, mList.tList<tChild> Childs), mTextParser.tError>
+	Infix<tChild>(
+		tText aPrefix,
+		mParserGen.tParser<tPos, tChar, tChild, mTextParser.tError> aChildParser
+	//================================================================================
+	) => (
+		(-Token(aPrefix))._(Infix(aChildParser))
+	) | (
+		(aChildParser)._(-Token(aPrefix))._(Infix(aChildParser))
+		.ModifyS(
+			(aSpan, aFirstChild, aIdent, aLastChilds) => (
+				mSPO_AST.Ident(aSpan, "..." + aIdent.Name.Substring(1)),
+				mList.List(aFirstChild, aLastChilds)
+			)
+		)
+	);
+	
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tCallNode<tPos>, mTextParser.tError>
+	Call = (
+		Infix(".", ExpressionInCall).ModifyS(
+			(aSpan, a) => mSPO_AST.Call(aSpan, a.Ident, mSPO_AST.Tuple(aSpan, a.Childs))
 		) |
-		(-Token(".") +ExpressionInCall +ExpressionInCall).Modify(mSPO_AST.Call_<tPos>())
+		(-Token("."))._(ExpressionInCall)._(ExpressionInCall).ModifyS(mSPO_AST.Call)
 	)
 	.SetName(nameof(Call));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tPrefixNode<tPos>, mTextParser.tError>
 	Prefix = Infix("#", ExpressionInCall)
-	.Modify(
-		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
-			return mSPO_AST.Prefix(
-				aSpan,
-				a.Ident,
-				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
-			);
-		}
-	)
+	.ModifyS((aSpan, aIdent, aChilds) => mSPO_AST.Prefix(aSpan, aIdent, mSPO_AST.Tuple(aSpan, aChilds)))
 	.SetName(nameof(Prefix));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMatchPrefixNode<tPos>, mTextParser.tError>
 	MatchPrefix = C( Infix("#", UnTypedMatch) )
-	.Modify(
-		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
-			return mSPO_AST.MatchPrefix(
-				aSpan,
-				a.Ident,
-				mSPO_AST.Match(
-					aSpan,
-					mSPO_AST.MatchTuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tMatchNode<tPos>>)),
-					null
-				)
-			);
-		}
+	.ModifyS(
+		(aSpan, aIdent, aChilds) => mSPO_AST.MatchPrefix(
+			aSpan,
+			aIdent,
+			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChilds), null)
+		)
 	)
 	.SetName(nameof(MatchPrefix));
 	
-	public static readonly tSPO_Parser
-	MatchGuard = C( +UnTypedMatch -Token("|") +Expression.OrFail() )
-	.Modify(mSPO_AST.MatchGuard_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMatchGuardNode<tPos>, mTextParser.tError>
+	MatchGuard = C( (UnTypedMatch)._(-Token("|"))._(Expression.OrFail()) )
+	.ModifyS(mSPO_AST.MatchGuard)
 	.SetName(nameof(MatchGuard));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tEmptyTypeNode<tPos>, mTextParser.tError>
 	EmptyType = (-Token("[]"))
-	.Modify(mSPO_AST.EmptyType_<tPos>())
+	.ModifyS(mSPO_AST.EmptyType)
 	.SetName(nameof(EmptyType));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tBoolTypeNode<tPos>, mTextParser.tError>
 	BoolType = (-Token("§BOOL"))
-	.Modify(mSPO_AST.BoolType_<tPos>())
+	.ModifyS(mSPO_AST.BoolType)
 	.SetName(nameof(BoolType));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIntTypeNode<tPos>, mTextParser.tError>
 	IntType = (-Token("§INT"))
-	.Modify(mSPO_AST.IntType_<tPos>())
+	.ModifyS(mSPO_AST.IntType)
 	.SetName(nameof(IntType));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tTypeTypeNode<tPos>, mTextParser.tError>
 	TypeType = (-Token("[[]]"))
-	.Modify(mSPO_AST.TypeType_<tPos>())
+	.ModifyS(mSPO_AST.TypeType)
 	.SetName(nameof(TypeType));
 	
-	public static readonly tSPO_Parser
-	PrefixType = (-Token("[") +Infix("#", Expression) -Token("]"))
-	.Modify(
-		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a) => {
-			return mSPO_AST.PrefixType(
-				aSpan,
-				a.Ident,
-				a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>)
-			);
-		}
-	)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tPrefixTypeNode<tPos>, mTextParser.tError>
+	PrefixType = (-Token("["))._(Infix("#", Expression))._(-Token("]"))
+	.ModifyS(mSPO_AST.PrefixType)
 	.SetName(nameof(PrefixType));
 	
-	public static readonly tSPO_Parser
-	TupleType = (-Token("[") -NL[0, 1] +Expression +((-Token(",") | -NL) +Expression)[1, null] -NL[0, 1] -Token("]"))
-	.ModifyList(
-		a => mParserGen.ResultList(
-			a.Span,
-			mSPO_AST.TupleType(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
-		)
-	)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tTupleTypeNode<tPos>, mTextParser.tError>
+	TupleType = (-Token("["))._(-NL[0, 1])._(Expression)._(
+		(-Token(",") | -NL)._(Expression)[1, null]
+	)._(-NL[0, 1])._(-Token("]"))
+	.Modify(mList.List)
+	.ModifyS(mSPO_AST.TupleType)
 	.SetName(nameof(TupleType));
 	
-	public static readonly tSPO_Parser
-	SetType = (-Token("[") -NL[0, 1] +Expression +(-Token("|") -NL[0, 1] +Expression)[1, null] -Token("|")[0, 1] -NL[0, 1] -Token("]"))
-	.ModifyList(
-		a => mParserGen.ResultList(
-			a.Span,
-			mSPO_AST.SetType(a.Span, a.Value.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>))
-		)
-	)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tSetTypeNode<tPos>, mTextParser.tError>
+	SetType = (-Token("["))._(-NL[0, 1])._(Expression)._(
+		(-Token("|"))._(-NL[0, 1])._(Expression)[1, null]
+	)._(-Token("|")[0, 1])._(-NL[0, 1])._(-Token("]"))
+	.Modify(mList.List)
+	.ModifyS(mSPO_AST.SetType)
 	.SetName(nameof(SetType));
 	
-	public static readonly tSPO_Parser
-	LambdaType = (-Token("[") +Expression -Token("=>") +Expression -Token("]"))
-	.Modify(mSPO_AST.LambdaType_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tLambdaTypeNode<tPos>, mTextParser.tError>
+	LambdaType = (-Token("["))._(Expression)._(-Token("=>"))._(Expression)._(-Token("]"))
+	.ModifyS(mSPO_AST.LambdaType)
 	.SetName(nameof(LambdaType));
 	
-	public static readonly tSPO_Parser
-	RecursiveType = (-Token("[") -Token("§RECURSIV") +Ident +Expression -Token("]"))
-	.Modify(mSPO_AST.RecursiveType_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tRecursiveTypeNode<tPos>, mTextParser.tError>
+	RecursiveType = (-Token("["))._(-Token("§RECURSIV"))._(Ident)._(Expression)._(-Token("]"))
+	.ModifyS(mSPO_AST.RecursiveType)
 	.SetName(nameof(RecursiveType));
 	
-	public static readonly tSPO_Parser
-	InterfaceType = (-Token("[") -Token("§INTERFACE") +Ident +Expression -Token("]"))
-	.Modify(mSPO_AST.InterfaceType_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tInterfaceTypeNode<tPos>, mTextParser.tError>
+	InterfaceType = (-Token("["))._(-Token("§INTERFACE"))._(Ident)._(Expression)._(-Token("]"))
+	.ModifyS(mSPO_AST.InterfaceType)
 	.SetName(nameof(InterfaceType));
 	
-	public static readonly tSPO_Parser
-	GenericType = (-Token("[") -Token("§GENERIC") +Ident +Expression -Token("]"))
-	.Modify(mSPO_AST.GenericType_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tGenericTypeNode<tPos>, mTextParser.tError>
+	GenericType = (-Token("["))._(-Token("§GENERIC"))._(Ident)._(Expression)._(-Token("]"))
+	.ModifyS(mSPO_AST.GenericType)
 	.SetName(nameof(GenericType));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tExpressionNode<tPos>, mTextParser.tError>
 	Type = (
-		EmptyType |
-		BoolType |
-		IntType |
-		TypeType |
-		PrefixType |
-		TupleType |
-		SetType |
-		LambdaType |
-		RecursiveType |
-		InterfaceType |
-		GenericType
+		EmptyType.Modify(a => (mSPO_AST.tExpressionNode<tPos>)a)
+		.Or(BoolType)
+		.Or(IntType)
+		.Or(TypeType)
+		.Or(PrefixType)
+		.Or(TupleType)
+		.Or(SetType)
+		.Or(LambdaType)
+		.Or(RecursiveType)
+		.Or(InterfaceType)
+		.Or(GenericType)
 	)
 	.SetName(nameof(Type));
 	
-	public static readonly tSPO_Parser
-	Lambda = (+Match -Token("=>") +Expression.OrFail())
-	.Modify(mSPO_AST.Lambda_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tLambdaNode<tPos>, mTextParser.tError>
+	Lambda = (Match)._(-Token("=>"))._(Expression.OrFail())
+	.ModifyS(mSPO_AST.Lambda)
 	.SetName(nameof(Lambda));
 	
-	public static readonly tSPO_Parser
-	Method = (+Match -Token(":") +Match +Block)
-	.Modify(mSPO_AST.Method_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMethodNode<tPos>, mTextParser.tError>
+	Method = (Match)._(-Token(":"))._(Match)._(Block)
+	.ModifyS(mSPO_AST.Method)
 	.SetName(nameof(Method));
 	
-	public static readonly tSPO_Parser
-	RecLambdaItem = (-__ +Ident -Token("=") +(Lambda | C( Lambda )))
-	.Modify(mSPO_AST.RecLambdaItem_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tRecLambdaItemNode<tPos>, mTextParser.tError>
+	RecLambdaItem = (-__)._(Ident)._(-Token("="))._((Lambda | C( Lambda )))
+	.ModifyS(mSPO_AST.RecLambdaItem)
 	.SetName(nameof(RecLambdaItem));
 	
-	public static readonly tSPO_Parser
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tRecLambdasNode<tPos>, mTextParser.tError>
 	RecLambda = (
-		(-Token("§RECURSIV") -Token("{") -NL +((+RecLambdaItem -NL)[1, null] -Token("}")).OrFail()) |
-		(-Token("§RECURSIV") +RecLambdaItem.OrFail())
+		(-Token("§RECURSIV"))._(-Token("{"))._(-NL)._(((RecLambdaItem)._(-NL)[1, null])._(-Token("}")).OrFail()) |
+		(-Token("§RECURSIV"))._(RecLambdaItem[1, 1].OrFail())
 	)
-	.ModifyList(
-		aList => mParserGen.ResultList(
-			aList.Span,
-			mSPO_AST.RecLambdas(aList.Span, aList.Value.Map(mStd.To<mSPO_AST.tRecLambdaItemNode<tPos>>))
-		)
-	)
+	.ModifyS(mSPO_AST.RecLambdas)
 	.SetName(nameof(RecLambda));
 	
-	public static readonly tSPO_Parser
-	If = (
-		-Token("§IF") -Token("{") -NL +(
-			(
-				-__ +Expression -Token("=>") +(Expression -NL).OrFail()
-			).Modify(
-				(tSpan aSpan, mSPO_AST.tExpressionNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => (a1, a2)
-			)[0, null] -Token("}")
-		).OrFail()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIfNode<tPos>, mTextParser.tError>
+	If = (-Token("§IF"))._(-Token("{"))._(-NL)._(
+		(
+			(-__)._(Expression)._(-Token("=>"))._((Expression)._(-NL).OrFail())[0, null]
+		)._(-Token("}")).OrFail()
 	)
-	.ModifyList(
-		aList => mParserGen.ResultList(
-			aList.Span,
-			mSPO_AST.If(
-				aList.Span,
-				aList.Map(mStd.To<(mSPO_AST.tExpressionNode<tPos>, mSPO_AST.tExpressionNode<tPos>)>)
-			)
-		)
-	)
+	.ModifyS(mSPO_AST.If)
 	.SetName(nameof(If));
 	
-	public static readonly tSPO_Parser
-	IfMatch = (
-		-Token("§IF")
-		+(
-			+Expression -Token("MATCH") -Token("{") -NL
-			+(
-				-__ +Match +(-Token("=>") +Expression -NL).OrFail()
-			)
-			.Modify(
-				(tSpan aSpan, mSPO_AST.tMatchNode<tPos> a1, mSPO_AST.tExpressionNode<tPos> a2) => (a1, a2)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIfMatchNode<tPos>, mTextParser.tError>
+	IfMatch = (-Token("§IF"))._(
+		(Expression)._(-Token("MATCH"))._(-Token("{"))._(-NL)._(
+			(-__)._(Match)._(
+				(-Token("=>"))._(Expression)._(-NL).OrFail()
 			)[0, null]
-			-Token("}")
-		).OrFail()
+		)._(-Token("}")).OrFail()
 	)
-	.ModifyList(
-		aList => {
-			aList.GetHeadTail(out var Head, out var Tail);
-			
-			mDebug.Assert(Head.Match(out mSPO_AST.tExpressionNode<tPos> Expression));
-			
-			return mParserGen.ResultList(
-				aList.Span,
-				mSPO_AST.IfMatch(
-					aList.Span,
-					Expression,
-					Tail.Map(mStd.To<(mSPO_AST.tMatchNode<tPos>, mSPO_AST.tExpressionNode<tPos>)>)
-				)
-			);
-		}
-	)
+	.ModifyS(mSPO_AST.IfMatch)
 	.SetName(nameof(IfMatch));
 	
-	public static readonly tSPO_Parser
-	MethodCall = (
-		+Infix(Expression)
-		+(-Token("=>") -Token("§DEF") +Match)[0, 1].ModifyList(
-			a => mParserGen.ResultList(
-				a.Span,
-				a.Value?.First().To<mSPO_AST.tMatchNode<tPos>?>()
-			)
-		)
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMethodCallNode<tPos>, mTextParser.tError>
+	MethodCall = (Infix(ExpressionInCall))._(
+		(-Token("=>"))._(-Token("§DEF"))._(Match)[0, 1]
+		.Modify(aMatches => aMatches?.First())
 	)
-	.Modify(
-		(tSpan aSpan, (mSPO_AST.tIdentNode<tPos> Ident, tResults Childs) a, mSPO_AST.tMatchNode<tPos>? aMaybeOut) => {
-			return mSPO_AST.MethodCall(
-				aSpan,
-				a.Ident,
-				mSPO_AST.Tuple(aSpan, a.Childs.Map(mStd.To<mSPO_AST.tExpressionNode<tPos>>)),
-				aMaybeOut
-			);
-		}
+	.ModifyS(
+		(aSpan, aIdent, aChilds, aMaybeOut) => mSPO_AST.MethodCall(
+			aSpan,
+			aIdent,
+			mSPO_AST.Tuple(aSpan, aChilds),
+			aMaybeOut
+		)
 	)
 	.SetName(nameof(MethodCall));
 	
-	public static readonly tSPO_Parser
-	MethodCalls = (+MethodCall +(-(Token(",")|NL) +MethodCall)[0, null] -NL[0, 1] -Token("."))
-	.ModifyList(
-		aList => mParserGen.ResultList(
-			aList.Span,
-			aList.Map(mStd.To<mSPO_AST.tMethodCallNode<tPos>>)
-		)
-	)
+	public static readonly mParserGen.tParser<tPos, tChar, mList.tList<mSPO_AST.tMethodCallNode<tPos>>, mTextParser.tError>
+	MethodCalls = (MethodCall)._((-Token(",")|-NL)._(MethodCall)[0, null])._(-NL[0, 1])._(-Token("."))
+	.Modify(mList.List)
 	.SetName(nameof(MethodCalls));
 	
-	public static readonly tSPO_Parser
-	DefVar = (
-		-Token("§VAR") +(
-			Ident -Token(":") -NL[0, 1] -Token("=") +Expression +(
-				-(-Token(",") | -NL) +MethodCalls |
-				-Token(".")
-			).Flat()
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tDefVarNode<tPos>, mTextParser.tError>
+	DefVar = (-Token("§VAR"))._(
+		(Ident)._(-Token(":"))._(-NL[0, 1])._(-Token("="))._(Expression)._(
+			(-Token(",") | -NL)._(MethodCalls) |
+			Token(".").Modify(a => mList.List<mSPO_AST.tMethodCallNode<tPos>>())
 		).OrFail()
 	)
-	.Modify(mSPO_AST.DefVar_<tPos>())
+	.ModifyS(mSPO_AST.DefVar)
 	.SetName(nameof(DefVar));
 	
-	public static readonly tSPO_Parser
-	VarToVal = (+Ident -Token(":") -Token("=>"))
-	.Modify(mSPO_AST.VarToVal_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tVarToValNode<tPos>, mTextParser.tError>
+	VarToVal = (-Token("§TO_VAL"))._(Expression)
+	.ModifyS(mSPO_AST.VarToVal)
 	.SetName(nameof(VarToVal));
 	
-	public static readonly tSPO_Parser
-	MethodCallStatment = (+(ExpressionInCall -Token(":")) -NL[0, 1] +MethodCalls.OrFail())
-	.Modify(mSPO_AST.MethodCallStatment_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tMethodCallsNode<tPos>, mTextParser.tError>
+	MethodCallStatment = (ExpressionInCall)._(-Token(":"))._(-NL[0, 1])._(MethodCalls.OrFail())
+	.ModifyS(mSPO_AST.MethodCallStatment)
 	.SetName(nameof(MethodCallStatment));
 	
-	public static readonly tSPO_Parser
-	Import = (-Token("§IMPORT") +(Match -NL).OrFail())
-	.Modify(mSPO_AST.Import_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tImportNode<tPos>, mTextParser.tError>
+	Import = (-Token("§IMPORT"))._((Match)._(-NL).OrFail())
+	.ModifyS(mSPO_AST.Import)
 	.SetName(nameof(Import));
 	
-	public static readonly tSPO_Parser
-	Export = ( -Token("§EXPORT") +Expression.OrFail())
-	.Modify(mSPO_AST.Export_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tExportNode<tPos>, mTextParser.tError>
+	Export = (-Token("§EXPORT"))._(Expression.OrFail())
+	.ModifyS(mSPO_AST.Export)
 	.SetName(nameof(Export));
 	
-	public static readonly tSPO_Parser
-	Module = ( -NL[0, 1] +Import +Commands +Export -NL[0, 1])
-	.Modify(mSPO_AST.Module_<tPos>())
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tModuleNode<tPos>, mTextParser.tError>
+	Module = (-NL[0, 1])._(Import)._(Commands)._(Export)._(-NL[0, 1])
+	.ModifyS(mSPO_AST.Module)
 	.SetName(nameof(Module));
 	
 	static mSPO_Parser() {
 		UnTypedMatch.Def(
-			C(+Match +(-(-Token(",") | -NL) +Match)[0, null]).ModifyList(
-				a => mParserGen.ResultList(
-					a.Span,
-					mSPO_AST.Match(
-						a.Span,
-						mSPO_AST.MatchTuple(
-							a.Span,
-							a.Value.Map(mStd.To<mSPO_AST.tMatchNode<tPos>>)
-						),
-						null
-					)
-				)
-			) |
-			(Literal|Ident|MatchPrefix|MatchGuard).Modify(
-				mSPO_AST.UnTypedMatch_<tPos>()
-			)
+			(
+				C( (Match)._(((-Token(",")).Or(-NL))._(Match)[0, null]) )
+				.Modify(mList.List)
+				.ModifyS(mSPO_AST.MatchTuple)
+			).Or(
+				Literal.Modify(a => (mSPO_AST.tMatchItemNode<tPos>)a)
+				.Or(Ident)
+				.Or(MatchPrefix)
+				.Or(MatchGuard)
+			).ModifyS(mSPO_AST.UnTypedMatch)
 		);
 		
 		Expression.Def(
-			If |
-			IfMatch |
-			Block |
-			Lambda |
-			Method |
-			Call |
-			Tuple |
-			Prefix |
-			VarToVal |
-			C( Expression ) |
-			Literal |
-			Ident |
-			Type
+			If.Modify(a => (mSPO_AST.tExpressionNode<tPos>)a)
+			.Or(IfMatch)
+			.Or(Block)
+			.Or(Lambda)
+			.Or(Method)
+			.Or(Call)
+			.Or(Tuple)
+			.Or(Prefix)
+			.Or(VarToVal)
+			.Or(C( Expression ))
+			.Or(Literal)
+			.Or(Ident)
+			.Or(Type)
 		);
 		
 		ExpressionInCall.Def(
-			Block |
-			Tuple |
-			C( Expression ) |
-			Literal |
-			Ident |
-			Type
+			Block.Modify(a => (mSPO_AST.tExpressionNode<tPos>)a)
+			.Or(Tuple)
+			.Or(C( Expression ))
+			.Or(Literal)
+			.Or(Ident)
+			.Or(Type)
 		);
 		
 		// TODO: Macros, Streaming, Block, ...
 		Command.Def(
-			(
-				Def |
-				DefVar |
-				MethodCallStatment |
-				RecLambda |
-				ReturnIf |
-				Return
-			) -NL.OrFail()
+			Def.Modify(a => (mSPO_AST.tCommandNode<tPos>)a)
+			.Or(DefVar)
+			.Or(MethodCallStatment)
+			.Or(RecLambda)
+			.Or(ReturnIf)
+			.Or(Return)
+			._(-NL.OrFail())
 		);
 	}
 }

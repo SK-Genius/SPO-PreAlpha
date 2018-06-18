@@ -21,6 +21,9 @@ public static class mList {
 		internal t _Head;
 		internal mStd.tLazy<tList<t>> _Tail;
 		
+		public t Head => this.First();
+		public tList<t> Tail => this.Skip(1);
+		
 		//================================================================================
 		public tBool
 		Equals(
@@ -33,7 +36,7 @@ public static class mList {
 			(Tail1 is null ? Tail2 is null : Tail1.Equals(Tail2))
 		);
 		
-		override public tBool Equals(object a) => Equals((tList<t>)a);
+		override public tBool Equals(object a) => Equals(a as tList<t>);
 	}
 	
 	//================================================================================
@@ -132,7 +135,7 @@ public static class mList {
 		this tList<tElem> aList,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
-	) => Zip(Nat(0), aList).Map(_ => aMapFunc(_.Item1, _.Item2));
+	) => Zip(Nat(0), aList).Map(a => aMapFunc(a._1, a._2));
 	
 	//================================================================================
 	public static tRes
@@ -304,7 +307,7 @@ public static class mList {
 	}
 	
 	//================================================================================
-	public static tList<(t1, t2)>
+	public static tList<(t1 _1, t2 _2)>
 	Zip<t1, t2>(
 		tList<t1> a1,
 		tList<t2> a2
