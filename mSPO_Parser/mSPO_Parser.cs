@@ -89,10 +89,18 @@ public static class mSPO_Parser {
 	.ModifyS(mSPO_AST.Empty)
 	.SetName(nameof(Empty));
 	
+	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIgnoreMatchNode<tPos>, mTextParser.tError>
+	IgnoreMatch = (-Token("_"))
+	.ModifyS(mSPO_AST.IgnoreMatch)
+	.SetName(nameof(IgnoreMatch));
+	
 	public static readonly mParserGen.tParser<tPos, tChar, mSPO_AST.tIdentNode<tPos>, mTextParser.tError>
-	Ident = ( ( CharNotIn(SpazialChars).ModifyS((aSpan, aChar) => aChar.ToString()) | Text("...") )[1, null] )._( -__ )
+	Ident = ( ( CharNotIn(SpazialChars).ModifyS((aSpan, aChar) => "" + aChar) | Text("...") )[1, null] )._( -__ )
 	.Modify(aChars => aChars.Join((a1, a2) => a1 + a2))
-	.Assert(aText => aText != "=>")
+	.Assert(
+		aText => aText != "=>" && aText != "_",
+		a => new mTextParser.tError { Pos = a.Span.Start, Message = $"invalid identifyer '{a.Value}'" }
+	)
 	.ModifyS(mSPO_AST.Ident)
 	.SetName(nameof(Ident));
 	
@@ -424,7 +432,8 @@ public static class mSPO_Parser {
 				.Modify(mList.List)
 				.ModifyS(mSPO_AST.MatchTuple)
 			).Or(
-				Literal.Modify(a => (mSPO_AST.tMatchItemNode<tPos>)a)
+				IgnoreMatch.Modify(a => (mSPO_AST.tMatchItemNode<tPos>)a)
+				.Or(Literal)
 				.Or(Ident)
 				.Or(MatchPrefix)
 				.Or(MatchGuard)

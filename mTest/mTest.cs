@@ -95,7 +95,7 @@ public static class mTest {
 						if (Value < 10) {
 							SubValue += Value_00 % 10;
 						}
-						aDebugStream($"-> OK ({Value}{SubValue}{E} Clocks)");
+						aDebugStream($"-> OK ({Value}{SubValue} {E}Clocks)");
 						aDebugStream("");
 						return tResult.OK;
 					} catch (System.Exception e) {

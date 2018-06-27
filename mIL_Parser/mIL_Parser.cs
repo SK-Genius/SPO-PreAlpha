@@ -105,42 +105,28 @@ public static class  mIL_Parser {
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>> aFunc
 	//================================================================================
-	) => (
-		mStd.tSpan<tPos> aSpan
-	) => aFunc(aSpan);
+	) => aSpan => aFunc(aSpan);
 	
 	//================================================================================
 	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText> aFunc
 	//================================================================================
-	) => (
-		mStd.tSpan<tPos> aSpan,
-		mIL_Tokenizer.tToken a1
-	) => aFunc(aSpan, a1.Text);
+	) => (aSpan, a1) => aFunc(aSpan, a1.Text);
 	
 	//================================================================================
 	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText> aFunc
 	//================================================================================
-	) => (
-		mStd.tSpan<tPos> aSpan,
-		mIL_Tokenizer.tToken a1,
-		mIL_Tokenizer.tToken a2
-	) => aFunc(aSpan, a1.Text, a2.Text);
+	) => (aSpan, a1, a2) => aFunc(aSpan, a1.Text, a2.Text);
 	
 	//================================================================================
 	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText, tText> aFunc
 	//================================================================================
-	) => (
-		mStd.tSpan<tPos> aSpan,
-		mIL_Tokenizer.tToken a1,
-		mIL_Tokenizer.tToken a2,
-		mIL_Tokenizer.tToken a3
-	) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
+	) => (aSpan, a1, a2, a3) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
 	
 	public static readonly mParserGen.tParser<tPos, mIL_Tokenizer.tToken, mIL_AST.tCommandNode<tPos>, mTextParser.tError>
 	Command = (

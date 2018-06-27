@@ -271,7 +271,7 @@ public static class mSPO2IL {
 					mIL_AST.CreateInt(
 						NumberNode.Span,
 						ResultReg,
-						NumberNode.Value.ToString()
+						"" + NumberNode.Value
 					)
 				);
 				return ResultReg;
@@ -577,11 +577,12 @@ public static class mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tIdentNode<tPos> IdentNode: {
-				if (IdentNode.Name == Ident("_")) {
-					break;
-				}
+				mDebug.AssertNotEq(IdentNode.Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode.Span, IdentNode.Name, aReg));
 				aDefConstructor.KnownSymbols.Push(IdentNode.Name);
+				break;
+			}
+			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatchNode: {
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> PrefixNode: {
@@ -656,15 +657,16 @@ public static class mSPO2IL {
 		
 		switch (PatternNode) {
 			case mSPO_AST.tIdentNode<tPos> IdentNode: {
-				if (IdentNode.Name == Ident("_")) {
-					break;
-				}
+				mDebug.AssertNotEq(IdentNode.Name, "_");
 				mDebug.Assert(
 					aDefConstructor.KnownSymbols.ToLasyList().All(_ => _ != IdentNode.Name)
 				);
 				aDefConstructor.Commands.Push(
 					mIL_AST.Alias(IdentNode.Span, IdentNode.Name, aInReg)
 				);
+				break;
+			}
+			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatchNode: {
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> PrefixNode: {
@@ -883,12 +885,7 @@ public static class mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Span, Object, Arg));
 				continue;
 			}
-			tText Result;
-			if (Call.Result == null) {
-				Result = mIL_AST.cEmpty;
-			} else {
-				Result = aDefConstructor.CreateTempReg();
-			}
+			var Result = (Call.Result is null) ? mIL_AST.cEmpty : aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
 				mIL_AST.Push(aMethodCallsNode.Object.Span, Object),
 				mIL_AST.Exec(aMethodCallsNode.Span, Result, MethodName, Arg),

@@ -11,7 +11,7 @@
 		BOOL: §BOOL // == [[#FALSE []] | [#TRUE []]] == [#FALSE | #TRUE] ???
 		INT: §INT
 		ANY: [_]
-		PREFIX: [#n t]  // public & private variante
+		PREFIX: [#n t]  // public & private variant
 		PAIR: [t; t]
 		SET: [t | t]
 		COND: [t & p]
@@ -19,8 +19,8 @@
 		FUNC: [t -> t]
 		PROC: [t : [t -> t]]
 		MSG_OUT: [t >>]
+		GENERIC: [§ALL t [...]]  // or ( (t € [[]]) => [...] ) ???
 		INTERFACE: [§ANY t [...]]
-		GENERIC: [§ALL t [...]]
 		RECURSIVE: [§REC t [...]]
 		
 		SEMANTIC SUCCER:
@@ -110,8 +110,8 @@
 			... see TYPES
 		
 		
-		SEMANTIC SUCCER:
-		----------------
+		SEMANTIC SUGER:
+		---------------
 			
 			PAIR:
 				x -> (x ; x)  ==  x -> (x ; _)  &&  x -> (_ ; x)
@@ -153,5 +153,5 @@
 		...
 		
 		(.<DefN>(<Def1>, <Def2>, ..., <DefN-1>)) :: [[tA1, tA2, ..., tAM] -> [tR1, tR2, ..., tRL]]
-		((<AName1>, <AName2>, ..., <ANameM>), (<RName1>, <RName2>, ..., <RNameL>)) Seperate Language File
+		((<AName1>, <AName2>, ..., <ANameM>), (<RName1>, <RName2>, ..., <RNameL>)) Separate Language File
 		

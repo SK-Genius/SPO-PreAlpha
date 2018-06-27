@@ -41,7 +41,7 @@ public static class mIL_Interpreter {
 		#if TRACE
 			aTrace(nameof(ParseModule));
 		#endif
-		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => a1.Equals(a2));
+		var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2) == 0);
 		var Module = mList.List<mVM_Data.tProcDef>();
 		
 		var RestDefs = aDefs;

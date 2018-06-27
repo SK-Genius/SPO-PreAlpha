@@ -92,7 +92,7 @@ public static class  mIL_Tokenizer {
 		.SetName(nameof(tTokenType.Text)) |
 		
 		Number
-		.ModifyS((aSpan, aInt) => new tToken { Type = tTokenType.Number, Text = aInt.ToString(), Span = aSpan })
+		.ModifyS((aSpan, aInt) => new tToken { Type = tTokenType.Number, Text = "" + aInt, Span = aSpan })
 		.SetName(nameof(tTokenType.Number)) |
 		
 		Ident
@@ -109,7 +109,7 @@ public static class  mIL_Tokenizer {
 		
 		(
 			Text(":=") |
-			CharIn(".,:;()[]{}€\n").ModifyS((aSpan, aChar) => aChar.ToString())
+			CharIn(".,:;()[]{}€\n").ModifyS((aSpan, aChar) => "" + aChar)
 		)
 		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 	);

@@ -1,29 +1,22 @@
 ﻿NEXT:
 =====
-	o remove x.ToString() ???
-	
-	o type system
-		- opcodes for types ([[]]; []; §BOOL; §INT; [t1, t2]; [#i t]; [t1 | t2]; [t1 => t2]; [t1 : [t2 => t3]]; [t & p]; [§ANY i [...]]; [§ALL i [...]]; ...)
-		- bind types to elements (mybe with an assert opcode)
-			|	a € tInt32 := 4
-	
+	o compile time type check
+
 	o lambdas with "..."
 		|	(=> ... .+ ...)  ==  ((a, b) => a .+ b)
 	
 	o imperative
 		- arrays
 		- loops
-	
-	o reduce dependencies for tests
 
+		
 ROADMAP:
 ========
-	o compiletime type check
 	o self hosted
-	o concurency
+	o concurrency
 
 
 NICE TO HAVE:
 =============
 	o performance
-	o mIL_VM TraceOutput -> debugger infrastructur
+	o mIL_VM TraceOutput -> debugger infrastructure

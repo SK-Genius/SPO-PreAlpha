@@ -62,6 +62,10 @@ public static class mSPO_AST {
 		public tInt32 Value;
 	}
 	
+	public struct tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
+		public mStd.tSpan<tPos> Span { get; set; }
+	}
+	
 	public struct tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public mStd.tSpan<tPos> Span { get; set; }
 		public tText Name;
@@ -324,6 +328,15 @@ public static class mSPO_AST {
 	) => new tTextNode<tPos> {
 		Span = aSpan,
 		Value = aValue
+	};
+	
+	//================================================================================
+	public static tIgnoreMatchNode<tPos>
+	IgnoreMatch<tPos>(
+		mStd.tSpan<tPos> aSpan
+	//================================================================================
+	) => new tIgnoreMatchNode<tPos> {
+		Span = aSpan
 	};
 	
 	//================================================================================

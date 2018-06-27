@@ -71,7 +71,7 @@ public static class mVM_Type {
 		this tType aType
 	//================================================================================
 	) => aType.Kind.Switch(
-		aKind => aKind.ToString(),
+		aKind => "" + aKind,
 		(tKind.Free, _ => $@"[?{aType.Id}]"),
 		(tKind.Empty, _ => $@"[]"),
 		(tKind.Bool, _ => $@"[{_}]"),

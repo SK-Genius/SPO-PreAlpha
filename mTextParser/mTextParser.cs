@@ -135,7 +135,7 @@ public static class mTextParser {
 		a => a == aRefChar,
 		a => new tError{ Pos = a.Span.Start, Message = $"expect {aRefChar}" }
 	)
-	.SetDebugName("'", aRefChar.ToString(), "'");
+	.SetDebugName("'", aRefChar, "'");
 	
 	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
@@ -146,7 +146,7 @@ public static class mTextParser {
 		a => a != aRefChar,
 		a => new tError{ Pos = a.Span.Start, Message = $"expect not {aRefChar}" }
 	)
-	.SetDebugName("'^", aRefChar.ToString(), "'");
+	.SetDebugName("'^", aRefChar, "'");
 	
 	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
