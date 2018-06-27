@@ -13,12 +13,10 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tResults = mList.tList<mStd.tAny>;
-
 using tPos = mTextParser.tPos;
-using tSpan = mStd.tSpan<mTextParser.tPos>;
 
 public static class mSPO_Parser {
+	
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tChar> Char = a => mTextParser.GetChar(a);
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tChar> NotChar = a => mTextParser.GetNotChar(a);
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, mTextParser.tError>, tText> CharIn = a => mTextParser.GetCharIn(a);

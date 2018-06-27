@@ -16,6 +16,7 @@ using tText = System.String;
 [assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mArrayList)+"_Test")]
 
 public static class mArrayList {
+	
 	public sealed class tArrayList<t> {
 		internal tInt32 _CurrSize;
 		internal t[] _Items;

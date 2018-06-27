@@ -14,6 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class  mIL_Tokenizer {
+	
 	public static readonly mStd.tFunc<mParserGen.tParser<mTextParser.tPos, tChar, tChar, mTextParser.tError>, tChar> Char = mTextParser.GetChar;
 	public static readonly mStd.tFunc<mParserGen.tParser<mTextParser.tPos, tChar, tChar, mTextParser.tError>, tChar> NotChar = mTextParser.GetNotChar;
 	public static readonly mStd.tFunc<mParserGen.tParser<mTextParser.tPos, tChar, tChar, mTextParser.tError>, tText> CharIn = mTextParser.GetCharIn;

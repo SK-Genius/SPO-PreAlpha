@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mMap_Test {
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mMap),
@@ -62,10 +63,10 @@ public static class mMap_Test {
 		)
 	);
 	
-	[xArg("tMap.Get")]
-	[xArg("tMap.TryGet")]
-	[xArg("tMap.Remove")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("tMap.Get")]
+	[xTestCase("tMap.TryGet")]
+	[xTestCase("tMap.Remove")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

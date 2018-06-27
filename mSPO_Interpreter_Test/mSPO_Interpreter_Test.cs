@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mSPO_Interpreter_Test {
+	
 	//================================================================================
 	private static mVM_Data.tData
 	Mul(
@@ -156,12 +157,12 @@ public static class mSPO_Interpreter_Test {
 		)
 	);
 	
-	[xArg("Run1")]
-	[xArg("Run2")]
-	[xArg("Run3")]
-	[xArg("Run4")]
-	[xArg("Run5")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("Run1")]
+	[xTestCase("Run2")]
+	[xTestCase("Run3")]
+	[xTestCase("Run4")]
+	[xTestCase("Run5")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

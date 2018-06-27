@@ -13,12 +13,14 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mParserGen_Test {
-	private static readonly mStd.tSpan<mStd.tEmpty> cTestSpan = default(mStd.tSpan<mStd.tEmpty>);
+	
+	private static readonly mStd.tSpan<mStd.tEmpty> cTestSpan = default;
+	
 	//================================================================================
 	private static mList.tList<(mStd.tSpan<mStd.tEmpty>, t)>
 	TestStream<t>(
@@ -281,17 +283,17 @@ public static class mParserGen_Test {
 		)
 	);
 	
-	[xArg("AtomParser")]
-	[xArg("...+...")]
-	[xArg("...-...")]
-	[xArg("-...")]
-	[xArg("...|...")]
-	[xArg("...[m, n]")]
-	[xArg("...[n, null]")]
-	[xArg("....Modify(...=>...)")]
-	[xArg("~...")]
-	[xArg("Eval('MathExpr')")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("AtomParser")]
+	[xTestCase("...+...")]
+	[xTestCase("...-...")]
+	[xTestCase("-...")]
+	[xTestCase("...|...")]
+	[xTestCase("...[m, n]")]
+	[xTestCase("...[n, null]")]
+	[xTestCase("....Modify(...=>...)")]
+	[xTestCase("~...")]
+	[xTestCase("Eval('MathExpr')")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

@@ -16,6 +16,7 @@ using tText = System.String;
 // TODO: maybe use nested functions to cleanup ???
 
 public static class mSPO2IL {
+	
 	public struct tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>> Defs;
 	}

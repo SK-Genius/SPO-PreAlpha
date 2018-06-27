@@ -1,4 +1,6 @@
-﻿//#TAIL_RECURSIVE
+﻿#if !true
+	#define TAIL_RECURSIVE
+#endif
 
 using tBool = System.Boolean;
 

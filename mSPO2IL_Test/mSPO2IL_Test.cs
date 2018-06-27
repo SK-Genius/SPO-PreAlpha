@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mSPO2IL_Test {
+	
 	//================================================================================
 	private static mStd.tSpan<mTextParser.tPos> Span(
 		(tInt32 Row, tInt32 Col) aStart,
@@ -427,16 +428,16 @@ public static class mSPO2IL_Test {
 		)
 	);
 	
-	[xArg("MapExpresion")]
-	[xArg("MapDef1")]
-	[xArg("MapDefMatch")]
-	[xArg("MatchTuple")]
-	[xArg("MapMatchPrefix")]
-	[xArg("MapLambda1")]
-	[xArg("MapLambda2")]
-	[xArg("MapNestedMatch")]
-	[xArg("MapModule")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("MapExpresion")]
+	[xTestCase("MapDef1")]
+	[xTestCase("MapDefMatch")]
+	[xTestCase("MatchTuple")]
+	[xTestCase("MapMatchPrefix")]
+	[xTestCase("MapLambda1")]
+	[xTestCase("MapLambda2")]
+	[xTestCase("MapNestedMatch")]
+	[xTestCase("MapModule")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

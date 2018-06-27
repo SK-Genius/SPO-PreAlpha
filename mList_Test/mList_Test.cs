@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mList_Test {
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mList),
@@ -129,18 +130,18 @@ public static class mList_Test {
 		)
 	);
 	
-	[xArg("tList.Equals()")]
-	[xArg("Concat()")]
-	[xArg("Map()")]
-	[xArg("MapWithIndex()")]
-	[xArg("Reduce()")]
-	[xArg("Join()")]
-	[xArg("Take()")]
-	[xArg("Skip()")]
-	[xArg("IsEmpty()")]
-	[xArg("Any()")]
-	[xArg("Every()")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("tList.Equals()")]
+	[xTestCase("Concat()")]
+	[xTestCase("Map()")]
+	[xTestCase("MapWithIndex()")]
+	[xTestCase("Reduce()")]
+	[xTestCase("Join()")]
+	[xTestCase("Take()")]
+	[xTestCase("Skip()")]
+	[xTestCase("IsEmpty()")]
+	[xTestCase("Any()")]
+	[xTestCase("Every()")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

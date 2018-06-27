@@ -14,6 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mSPO_Interpreter {
+	
 	//================================================================================
 	public static mVM_Data.tData
 	Run(

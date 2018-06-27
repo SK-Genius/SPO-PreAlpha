@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mVM_Test {
+	
 	//================================================================================
 	private static mVM_Data.tData
 	Add (
@@ -95,9 +96,9 @@ public static class mVM_Test {
 		)
 	);
 	
-	[xArg("ExternDef")]
-	[xArg("InternDef")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("ExternDef")]
+	[xTestCase("InternDef")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

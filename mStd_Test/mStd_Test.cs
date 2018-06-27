@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mStd_Test {
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mStd),
@@ -42,9 +43,9 @@ public static class mStd_Test {
 		)
 	);
 	
-	[xArg("tMaybe.Equals()")]
-	[xArg("tVar.Equals()")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("tMaybe.Equals()")]
+	[xTestCase("tVar.Equals()")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mStdLib_Test {
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mStdLib),
@@ -245,13 +246,13 @@ public static class mStdLib_Test {
 		)
 	);
 	
-	[xArg("IfThenElse")]
-	[xArg("If2")]
-	[xArg("IfMatch1")]
-	[xArg("IfMatch2")]
-	[xArg("VAR")]
-	[xArg("Echo")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("IfThenElse")]
+	[xTestCase("If2")]
+	[xTestCase("IfMatch1")]
+	[xTestCase("IfMatch2")]
+	[xTestCase("VAR")]
+	[xTestCase("Echo")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

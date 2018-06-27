@@ -14,6 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mMap {
+	
 	public struct tMap<tKey, tValue> {
 		internal mList.tList<(tKey, tValue)> _KeyValuePairs;
 		internal mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;

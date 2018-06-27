@@ -14,6 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mStdLib {
+	
 	private static mVM_Data.tData _ImportData;
 	
 	//================================================================================

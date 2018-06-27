@@ -15,7 +15,8 @@ using tText = System.String;
 
 using tPos = mTextParser.tPos;
 
-public static class  mIL_Parser {
+public static class mIL_Parser {
+	
 	public static readonly mParserGen.tParser<tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
 	NL = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
 		a => a.Type == mIL_Tokenizer.tTokenType.SpecialToken && a.Text == "\n",

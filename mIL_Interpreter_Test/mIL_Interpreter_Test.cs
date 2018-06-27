@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mIL_Interpreter_Test {
+	
 	//================================================================================
 	private static mVM_Data.tData
 	Add (
@@ -389,12 +390,12 @@ public static class mIL_Interpreter_Test {
 		)
 	);
 	
-	[xArg("Call")]
-	[xArg("Prefix")]
-	[xArg("Assert")]
-	[xArg("§TYPE_OF...IS...")]
-	[xArg("ParseModule")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("Call")]
+	[xTestCase("Prefix")]
+	[xTestCase("Assert")]
+	[xTestCase("§TYPE_OF...IS...")]
+	[xTestCase("ParseModule")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

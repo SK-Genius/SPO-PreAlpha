@@ -1,4 +1,7 @@
-﻿//#define TRACE
+﻿
+#if !true
+	#define TRACE
+#endif
 
 using tBool = System.Boolean;
 

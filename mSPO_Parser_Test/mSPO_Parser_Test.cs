@@ -13,16 +13,15 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tResults = mList.tList<mStd.tAny>;
-
 using tPos = mTextParser.tPos;
 using tSpan = mStd.tSpan<mTextParser.tPos>;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mSPO_Parser_Test {
+	
 	//================================================================================
 	private static tSpan Span(
 		(tInt32 Row, tInt32 Col) aStart,
@@ -426,17 +425,17 @@ public static class mSPO_Parser_Test {
 		)
 	);
 	
-	[xArg("Atoms")]
-	[xArg("Tuple")]
-	[xArg("Match1")]
-	[xArg("FunctionCall")]
-	[xArg("Lambda")]
-	[xArg("Expression")]
-	[xArg("TypedMatch")]
-	[xArg("NestedMatch")]
-	[xArg("PrefixMatch")]
-	[xArg("MethodCall")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("Atoms")]
+	[xTestCase("Tuple")]
+	[xTestCase("Match1")]
+	[xTestCase("FunctionCall")]
+	[xTestCase("Lambda")]
+	[xTestCase("Expression")]
+	[xTestCase("TypedMatch")]
+	[xTestCase("NestedMatch")]
+	[xTestCase("PrefixMatch")]
+	[xTestCase("MethodCall")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

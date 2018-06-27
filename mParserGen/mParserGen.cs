@@ -17,8 +17,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tType = System.Type;
-
 [assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mParserGen) + "_Test")]
 
 public static class mParserGen {

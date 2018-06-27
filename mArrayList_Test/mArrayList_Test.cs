@@ -13,11 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class mArrayList_Test {
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mArrayList),
@@ -128,17 +129,17 @@ public static class mArrayList_Test {
 		)
 	);
 	
-	[xArg("tArrayList.IsEmpty(...)")]
-	[xArg("tArrayList.Equals(...)")]
-	[xArg("tArrayList.ToArrayList()")]
-	[xArg("tArrayList.ToLasyList()")]
-	[xArg("tArrayList.Push(...)")]
-	[xArg("tArrayList.Pop()")]
-	[xArg("tArrayList.Resize(...)")]
-	[xArg("tArrayList.Get(...)")]
-	[xArg("tArrayList.Set(...)")]
-	[xArg("mArrayList.Concat(...)")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("tArrayList.IsEmpty(...)")]
+	[xTestCase("tArrayList.Equals(...)")]
+	[xTestCase("tArrayList.ToArrayList()")]
+	[xTestCase("tArrayList.ToLasyList()")]
+	[xTestCase("tArrayList.Push(...)")]
+	[xTestCase("tArrayList.Pop()")]
+	[xTestCase("tArrayList.Resize(...)")]
+	[xTestCase("tArrayList.Get(...)")]
+	[xTestCase("tArrayList.Set(...)")]
+	[xTestCase("mArrayList.Concat(...)")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

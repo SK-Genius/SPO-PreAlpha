@@ -15,11 +15,12 @@ using tText = System.String;
 
 using tPos = mTextParser.tPos;
 
-using xTest = Xunit.TheoryAttribute;
-using xArg = Xunit.InlineDataAttribute;
-using xTrait = Xunit.TraitAttribute;
+using xTestClass = NUnit.Framework.TestFixtureAttribute;
+using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+[xTestClass]
 public static class  mIL_Parser_Test {
+	
 	//================================================================================
 	private static mStd.tSpan<tPos> Span(
 		(tInt32 Row, tInt32 Col) aStart,
@@ -187,8 +188,8 @@ public static class  mIL_Parser_Test {
 		)
 	);
 	
-	[xArg("Commands")]
-	[xTest] public static void _(tText a) {
+	[xTestCase("Commands")]
+	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),
 			mTest.tResult.OK

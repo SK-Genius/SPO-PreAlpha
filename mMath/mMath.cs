@@ -14,6 +14,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class mMath {
+	
 	//================================================================================
 	public static tInt32
 	Max(
