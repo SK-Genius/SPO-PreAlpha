@@ -13,89 +13,94 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tToken = mIL_Tokenizer.tToken;
+using tTokenType = mIL_Tokenizer.tTokenType;
+
 using tPos = mTextParser.tPos;
+using tSpan =mStd.tSpan<mTextParser.tPos>;
+using tError = mTextParser.tError;
 
 public static class mIL_Parser {
 	
-	public static readonly mParserGen.tParser<tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
-	NL = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.SpecialToken && a.Text == "\n",
-		a => new mTextParser.tError {
+	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	NL = mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.SpecialToken && a.Text == "\n",
+		a => new tError {
 			Message = "expect end of line",
 			Pos = a.Span.Start
 		}
 	).SetDebugName(nameof(NL));
 	
-	public static readonly mParserGen.tParser<tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
-	QuotedString  = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.Text,
-		a => new mTextParser.tError {
+	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	QuotedString  = mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.Text,
+		a => new tError {
 			Message = "expect '\"'",
 			Pos = a.Span.Start
 		}
 	).SetDebugName(nameof(QuotedString));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
-	Number = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.Number,
-		a => new mTextParser.tError {
+	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	Number = mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.Number,
+		a => new tError {
 			Message = "expect number",
 			Pos = a.Span.Start
 		}
 	).SetDebugName(nameof(Number));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
-	Ident = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.Ident,
-		a => new mTextParser.tError {
+	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	Ident = mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.Ident,
+		a => new tError {
 			Message = "expect identifier",
 			Pos = a.Span.Start
 		}
 	).SetDebugName(nameof(Ident));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
-	Prefix = mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.Prefix,
-		a => new mTextParser.tError {
+	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	Prefix = mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.Prefix,
+		a => new tError {
 			Message = "expect identifier",
 			Pos = a.Span.Start
 		}
 	).SetDebugName(nameof(Prefix));
 	
 	//================================================================================
-	public static mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
+	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	Token(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.Ident && a.Text == aText,
-		a => new mTextParser.tError {
+	) => mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.Ident && a.Text == aText,
+		a => new tError {
 			Message = "expect identifier",
 			Pos = a.Span.Start
 		}
 	).SetDebugName($"{nameof(Token)}('{aText}')");
 	
 	//================================================================================
-	public static mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
+	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpecialToken(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.SpecialToken && a.Text == aText,
-		a => new mTextParser.tError {
+	) => mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.SpecialToken && a.Text == aText,
+		a => new tError {
 			Message = "expect identifier",
 			Pos = a.Span.Start
 		}
 	).SetDebugName($"{nameof(SpecialToken)}('{aText}')");
 	
 	//================================================================================
-	public static mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mTextParser.tError>
+	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	KeyWord(
 		tText aText
 	//================================================================================
-	) => mParserGen.AtomParser<tPos, mIL_Tokenizer.tToken, mTextParser.tError>(
-		a => a.Type == mIL_Tokenizer.tTokenType.KeyWord && a.Text == aText,
-		a => new mTextParser.tError {
+	) => mParserGen.AtomParser<tPos, tToken, tError>(
+		a => a.Type == tTokenType.KeyWord && a.Text == aText,
+		a => new tError {
 			Message = "expect identifier",
 			Pos = a.Span.Start
 		}
@@ -109,27 +114,27 @@ public static class mIL_Parser {
 	) => aSpan => aFunc(aSpan);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText> aFunc
 	//================================================================================
 	) => (aSpan, a1) => aFunc(aSpan, a1.Text);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText> aFunc
 	//================================================================================
 	) => (aSpan, a1, a2) => aFunc(aSpan, a1.Text, a2.Text);
 	
 	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken, mIL_Tokenizer.tToken>
+	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken, tToken, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText, tText> aFunc
 	//================================================================================
 	) => (aSpan, a1, a2, a3) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
 	
-	public static readonly mParserGen.tParser<tPos, mIL_Tokenizer.tToken, mIL_AST.tCommandNode<tPos>, mTextParser.tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>
 	Command = (
 		(Ident)._( -SpecialToken(":="))._(Number)
 		.ModifyS(X(mIL_AST.CreateInt))
@@ -285,23 +290,23 @@ public static class mIL_Parser {
 	)
 	.SetDebugName(nameof(Command));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mList.tList<mIL_AST.tCommandNode<tPos>>, mTextParser.tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mList.tList<mIL_AST.tCommandNode<tSpan>>, tError>
 	Block = (Command)._(-NL)[1, null]
 	.SetDebugName(nameof(Block));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, (tText, mList.tList<mIL_AST.tCommandNode<tPos>>), mTextParser.tError>
+	public static readonly mParserGen.tParser<tPos, tToken, (tText, mList.tList<mIL_AST.tCommandNode<tSpan>>), tError>
 	Def = (-KeyWord("DEF"))._(Ident)._(-NL)._(Block)
 	.ModifyS((aSpan, aID, aBlock) => (aID.Text, aBlock))
 	.SetDebugName(nameof(Def));
 	
-	public static readonly mParserGen.tParser<mTextParser.tPos, mIL_Tokenizer.tToken, mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<tPos>>)>, mTextParser.tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<tSpan>>)>, tError>
 	Module = Def[1, null]
 	.SetDebugName(nameof(Module));
 	
 	//================================================================================
 	public static tOut
 	ParseText<tOut>(
-		this mParserGen.tParser<tPos, mIL_Tokenizer.tToken, tOut, mTextParser.tError> aParser,
+		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
@@ -312,7 +317,7 @@ public static class mIL_Parser {
 			MaybeResult.Match(out var Result, out var ErrorList),
 			#if true
 			ErrorList.Reduce(
-				mList.List<mTextParser.tError>(),
+				mList.List<tError>(),
 				(aOldList, aNew) => mList.List(
 					aNew,
 					aOldList.Where(

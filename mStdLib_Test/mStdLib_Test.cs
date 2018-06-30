@@ -228,7 +228,7 @@ public static class mStdLib_Test {
 				);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run(
+				mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 					Main,
 					mVM_Data.Tuple(StreamIn, StreamOut),
 					mVM_Data.Empty(),

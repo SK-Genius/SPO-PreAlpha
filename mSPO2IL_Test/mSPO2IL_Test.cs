@@ -16,15 +16,18 @@ using tText = System.String;
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
+using tPos = mTextParser.tPos;
+using tSpan =mStd.tSpan<mTextParser.tPos>;
+
 [xTestClass]
 public static class mSPO2IL_Test {
 	
 	//================================================================================
-	private static mStd.tSpan<mTextParser.tPos> Span(
+	private static tSpan Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
 	//================================================================================
-	) => new mStd.tSpan<mTextParser.tPos> {
+	) => new tSpan {
 		Start = {
 			Row = aStart.Row,
 			Col = aStart.Col
@@ -46,8 +49,8 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var Def = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
-				mStd.AssertEq(Def.MapExpresion(ExpressionNode.Result),mSPO2IL.TempReg(11));
+				var Def = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
+				mStd.AssertEq(Def.MapExpresion<tSpan>(ExpressionNode.Result), mSPO2IL.TempReg(11));
 				
 				mStd.AssertEq(
 					Def.Commands,
@@ -75,7 +78,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
@@ -99,7 +102,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
@@ -137,7 +140,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var Module = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var Module = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				Module.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
@@ -171,7 +174,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(
@@ -216,7 +219,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
@@ -259,7 +262,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<mTextParser.tPos>());
+				var DefConstructor = mSPO2IL.NewDefConstructor(mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge));
 				DefConstructor.MapDef(DefNode.Result);
 				
 				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
@@ -316,7 +319,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var ModuleConstructor = mSPO2IL.NewModuleConstructor<mTextParser.tPos>();
+				var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge);
 				var (DefIndex, UnsolvedSymbols) = ModuleConstructor.MapLambda(
 					LambdaNode.Result
 				);
@@ -378,7 +381,7 @@ public static class mSPO2IL_Test {
 					aStreamOut
 				);
 				
-				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode.Result);
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode.Result, mStd.Merge);
 				
 				mStd.AssertEq(ModuleConstructor.Defs.Size(), 2);
 				

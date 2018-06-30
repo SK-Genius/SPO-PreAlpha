@@ -85,7 +85,7 @@ public static class mSPO_Parser_Test {
 						Span((1, 1), (1, 15)),
 						mSPO_AST.Tuple(
 							Span((1, 1), (1, 15)),
-							mList.List<mSPO_AST.tExpressionNode<tPos>>(
+							mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 								mSPO_AST.Number(Span((1, 2), (1, 7)), 1234),
 								mSPO_AST.Text(Span((1, 10), (1, 14)), "BLA")
 							)
@@ -150,8 +150,8 @@ public static class mSPO_Parser_Test {
 							mSPO_AST.Ident(Span((1, 1), (1, 6)), "...*..."),
 							mSPO_AST.Tuple(
 								Span((1, 1), (1, 6)),
-								mList.List<mSPO_AST.tExpressionNode<tPos>>(
-									mSPO_AST.Ident(Span((1, 1), (1, 2)), "x"), // TODO: Span isn't correct ((1, 1), (1, 1))
+								mList.List<mSPO_AST.tExpressionNode<tSpan>>(
+									mSPO_AST.Ident(Span((1, 1), (1, 2)), "x"), // TODO: Span isn't correct ((1, 1), (1, 1)) // will be solved with the tokkenizer for SPO
 									mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 								)
 							)
@@ -167,7 +167,7 @@ public static class mSPO_Parser_Test {
 							mSPO_AST.Ident(Span((1, 2), (1, 6)), "sin..."),
 							mSPO_AST.Tuple(
 								Span((1, 1), (1, 6)),
-								mList.List<mSPO_AST.tExpressionNode<tPos>>(
+								mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 									mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 								)
 							)
@@ -195,7 +195,7 @@ public static class mSPO_Parser_Test {
 								mSPO_AST.Ident(Span((1, 6), (1, 11)), "...*..."),
 								mSPO_AST.Tuple(
 									Span((1, 6), (1, 11)), 
-									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 										mSPO_AST.Ident(Span((1, 6), (1, 7)), "x"),
 										mSPO_AST.Ident(Span((1, 11), (1, 11)), "x")
 									)
@@ -233,7 +233,7 @@ public static class mSPO_Parser_Test {
 								mSPO_AST.Ident(Span((1, 17), (1, 22)), "...*..."),
 								mSPO_AST.Tuple(
 									Span((1, 17), (1, 22)),
-									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 										mSPO_AST.Ident(Span((1, 17), (1, 18)), "x"),
 										mSPO_AST.Ident(Span((1, 22), (1, 22)), "x")
 									)
@@ -256,14 +256,14 @@ public static class mSPO_Parser_Test {
 							mSPO_AST.Ident(Span((1, 1), (1, 17)), "...<...<..."),
 							mSPO_AST.Tuple(
 								Span((1, 1), (1, 17)),
-								mList.List<mSPO_AST.tExpressionNode<tPos>>(
+								mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 									mSPO_AST.Number(Span((1, 1), (1, 1)), 2),
 									mSPO_AST.Call(
 										Span((1, 7), (1, 12)),
 										mSPO_AST.Ident(Span((1, 7), (1, 12)), "...+..."),
 										mSPO_AST.Tuple(
 											Span((1, 7), (1, 12)),
-											mList.List<mSPO_AST.tExpressionNode<tPos>>(
+											mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 												mSPO_AST.Number(Span((1, 7), (1, 7)), 4),
 												mSPO_AST.Number(Span((1, 12), (1, 12)), 3)
 											)
@@ -334,7 +334,7 @@ public static class mSPO_Parser_Test {
 								mSPO_AST.Ident(Span((1, 22), (1, 27)), "...*..."),
 								mSPO_AST.Tuple(
 									Span((1, 22), (1, 27)),
-									mList.List<mSPO_AST.tExpressionNode<tPos>>(
+									mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 										mSPO_AST.Ident(Span((1, 22), (1, 23)), "a"),
 										mSPO_AST.Ident(Span((1, 27), (1, 27)), "z")
 									)
@@ -406,7 +406,7 @@ public static class mSPO_Parser_Test {
 										mSPO_AST.Ident(Span((1, 7), (1, 22)), "...+..."),
 										mSPO_AST.Tuple(
 											Span((1, 7), (1, 22)), 
-											mList.List<mSPO_AST.tExpressionNode<tPos>>(
+											mList.List<mSPO_AST.tExpressionNode<tSpan>>(
 												mSPO_AST.VarToVal(
 													Span((1, 8), (1, 16)),
 													mSPO_AST.Ident(Span((1, 16), (1, 16)), "o")

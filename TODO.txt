@@ -1,5 +1,7 @@
 ﻿NEXT:
 =====
+	o mSPO_Tokenizer
+	
 	o compile time type check
 
 	o lambdas with "..."

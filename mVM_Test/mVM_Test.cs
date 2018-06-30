@@ -50,14 +50,14 @@ public static class mVM_Test {
 				
 				var Env = mVM_Data.ExternDef(Add);
 				
-				var Proc1 = new mVM_Data.tProcDef();
-				var r1 = Proc1.Pair(mVM_Data.tProcDef.cOneReg, mVM_Data.tProcDef.cOneReg);
-				var r2 = Proc1.Call(mVM_Data.tProcDef.cEnvReg, mVM_Data.tProcDef.cEmptyReg);
-				var r3 = Proc1.Call(r2, r1);
-				Proc1.ReturnIf(mVM_Data.tProcDef.cTrueReg, r3);
+				var Proc1 = new mVM_Data.tProcDef<mStd.tEmpty>();
+				var r1 = Proc1.Pair(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg);
+				var r2 = Proc1.Call(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cEnvReg, mVM_Data.tProcDef<mStd.tEmpty>.cEmptyReg);
+				var r3 = Proc1.Call(mStd.cEmpty, r2, r1);
+				Proc1.ReturnIf(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cTrueReg, r3);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
+				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
 				mStd.AssertEq(Res, mVM_Data.Int(2));
 			}
 		),
@@ -74,23 +74,27 @@ public static class mVM_Test {
 				
 				var Env = mVM_Data.ExternDef(Add);
 				
-				var Proc2 = new mVM_Data.tProcDef();
+				var Proc2 = new mVM_Data.tProcDef<mStd.tEmpty>();
 				Proc2.ReturnIf(
-					mVM_Data.tProcDef.cTrueReg,
+					mStd.cEmpty,
+					mVM_Data.tProcDef<mStd.tEmpty>.cTrueReg,
 					Proc2.Call(
+						mStd.cEmpty,
 						Proc2.Call(
-							mVM_Data.tProcDef.cEnvReg,
-							mVM_Data.tProcDef.cEmptyReg
+							mStd.cEmpty,
+							mVM_Data.tProcDef<mStd.tEmpty>.cEnvReg,
+							mVM_Data.tProcDef<mStd.tEmpty>.cEmptyReg
 						),
 						Proc2.Pair(
-							mVM_Data.tProcDef.cOneReg,
-							mVM_Data.tProcDef.cOneReg
+							mStd.cEmpty,
+							mVM_Data.tProcDef<mStd.tEmpty>.cOneReg,
+							mVM_Data.tProcDef<mStd.tEmpty>.cOneReg
 						)
 					)
 				);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run(mVM_Data.Proc(Proc2, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
+				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc2, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
 				mStd.AssertEq(Res, mVM_Data.Int(2));
 			}
 		)

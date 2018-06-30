@@ -1,4 +1,7 @@
-﻿using tBool = System.Boolean;
+﻿// TODO: add filename to the position
+// TODO: create a function how generate a call stack output
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -116,11 +119,13 @@ public static class mTextParser {
 		);
 		
 		if (!Result.RestStream.IsEmpty()) {
-			var Line = Result.RestStream.First().Span.Start.Row;
+			var Pos = Result.RestStream.First().Span.Start;
+			var Line = aText.Split('\n')[Pos.Row-1];
+			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mStd.Error(
-				$"({Line}, 1): expected end of text\n" +
-				$"{aText.Split('\n')[Line-1]}\n" +
-				$"^"
+				$"({Pos.Row}, {Pos.Col}): expected end of text\n" +
+				$"{Line}\n" +
+				$"{Line.Substring(0, StartSpacesCount) + new string(' ', Pos.Col - StartSpacesCount - 1)}^"
 			);
 		}
 		return Result.Result;

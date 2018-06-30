@@ -15,19 +15,19 @@ using tText = System.String;
 
 public static class mVM {
 	
-	public sealed class tCallStack {
-		internal tCallStack _Parent;
+	public sealed class tCallStack<tPos> {
+		internal tCallStack<tPos> _Parent;
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs;
-		internal mVM_Data.tProcDef _ProcDef;
+		internal mVM_Data.tProcDef<tPos> _ProcDef;
 		internal tInt32 _CodePointer = 0;
 		internal mVM_Data.tData _Obj;
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut;
 	}
 	
 	//================================================================================
-	public static tCallStack NewCallStack(
-		tCallStack aParent,
-		mVM_Data.tProcDef aProcDef,
+	public static tCallStack<tPos> NewCallStack<tPos>(
+		tCallStack<tPos> aParent,
+		mVM_Data.tProcDef<tPos> aProcDef,
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
@@ -35,7 +35,7 @@ public static class mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		var Result = new tCallStack {
+		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
 			_Parent = aParent,
 			_ProcDef = aProcDef,
@@ -63,18 +63,18 @@ public static class mVM {
 		aTraceOut(() => " 5 := BOOL_TYPE");
 		aTraceOut(() => " 6 := INT_TYPE");
 		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  "+aEnv);
-		aTraceOut(() => " 9 := OBJ  |  "+aObj);
-		aTraceOut(() => " 10 := ARG  |  "+aArg);
-		aTraceOut(() => " 11 := RES");
+		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText());
+		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText());
+		aTraceOut(() => "10 := ARG  |  "+aArg.ToText());
+		aTraceOut(() => "11 := RES");
 		
 		return Result;
 	}
 	
 	//================================================================================
-	public static tCallStack
-	Step(
-		this tCallStack aCallStack
+	public static tCallStack<tPos>
+	Step<tPos>(
+		this tCallStack<tPos> aCallStack
 	//================================================================================
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
@@ -83,11 +83,15 @@ public static class mVM {
 		aCallStack._TraceOut(() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2}");
 		
 		switch (OpCode) {
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewInt: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Int(Arg1));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.And: {
+			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
@@ -95,7 +99,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 && Bool2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Or: {
+			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
@@ -103,7 +109,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 || Bool2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.XOr: {
+			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
@@ -111,7 +119,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsAreEq: {
+			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(IntData1.MatchInt(out var Int1));
@@ -119,7 +129,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Int1 == Int2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsComp: {
+			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(IntData1.MatchInt(out var Int1));
@@ -128,7 +140,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Diff.Sign()));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsAdd: {
+			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(IntData1.MatchInt(out var Int1));
@@ -136,7 +150,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 + Int2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsSub: {
+			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(IntData1.MatchInt(out var Int1));
@@ -144,7 +160,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 - Int2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsMul: {
+			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mDebug.Assert(IntData1.MatchInt(out var Int1));
@@ -152,7 +170,9 @@ public static class mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 * Int2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewPair: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(
 					mVM_Data.Pair(
 						aCallStack._Regs.Get(Arg1),
@@ -161,7 +181,9 @@ public static class mVM {
 				);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.First: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(
 					aCallStack._Regs.Get(Arg1).MatchPair(
 						out var Var1,
@@ -171,7 +193,9 @@ public static class mVM {
 				aCallStack._Regs.Push(Var1);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Second: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(
 					aCallStack._Regs.Get(Arg1).MatchPair(
 						out var Var1,
@@ -181,90 +205,112 @@ public static class mVM {
 				aCallStack._Regs.Push(Var2);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.AddPrefix: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Prefix(Arg1, aCallStack._Regs.Get(Arg2)));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.DelPrefix: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(
 					aCallStack._Regs.Get(Arg2).MatchPrefix(Arg1, out var Data_)
 				);
 				aCallStack._Regs.Push(Data_);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.HasPrefix: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(
 					aCallStack._Regs.Get(Arg2).MatchPrefix(out var PrefixId, out var Data)
 				);
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Assert: {
+			//--------------------------------------------------------------------------------
 				if (aCallStack._Regs.Get(Arg1).MatchBool(out var Bool) && Bool) {
-					mDebug.Assert(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
+					mStd.Assert(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
 				}
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.SetObj: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Obj = aCallStack._Regs.Get(Arg1);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarDef: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Var(aCallStack._Regs.Get(Arg1)));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarSet: {
+			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Get(Arg1)._Value = mStd.Any(aCallStack._Regs.Get(Arg2));
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarGet: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(aCallStack._Regs.Get(Arg1)._Value.Match(out mVM_Data.tData x));
 				aCallStack._Regs.Push(x);
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Call: {
+			//--------------------------------------------------------------------------------
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine)));
-				} else if (Proc.MatchDef(out var Def)) {
+					aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
+				} else if (Proc.MatchDef<tPos>(out var Def)) {
 					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
-				} else if (Proc.MatchProc(out var Def_, out Env)) {
+				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
+					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
 					throw mStd.Error("impossible");
 				}
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Exec: {
+			//--------------------------------------------------------------------------------
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, aCallStack._Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine)));
-				} else if (Proc.MatchDef(out var Def)) {
+					aCallStack._Regs.Push(ExternDef(Env, aCallStack._Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
+				} else if (Proc.MatchDef<tPos>(out var Def)) {
 					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
-				} else if (Proc.MatchProc(out var Def_, out Env)) {
+				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "	"+aTraceLine()));
+					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
 					throw mStd.Error("impossible");
 				}
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ReturnIf: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					var Src = aCallStack._Regs.Get(Arg2);
-					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef.cResReg);
+					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
 					Des._DataType = Src._DataType;
 					Des._Value = Src._Value;
 					aCallStack._TraceOut(() => "====================================");
@@ -272,7 +318,9 @@ public static class mVM {
 				}
 				break;
 			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ContinueIf: {
+			//--------------------------------------------------------------------------------
 				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					aCallStack._Regs = mArrayList.List(
@@ -284,12 +332,47 @@ public static class mVM {
 						mVM_Data.TypeBool(),
 						mVM_Data.TypeInt(),
 						mVM_Data.TypeType(),
-						aCallStack._Regs.Get(mVM_Data.tProcDef.cEnvReg),
-						aCallStack._Regs.Get(mVM_Data.tProcDef.cObjReg),
+						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cEnvReg),
+						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cObjReg),
 						aCallStack._Regs.Get(Arg2),
-						aCallStack._Regs.Get(mVM_Data.tProcDef.cResReg)
+						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg)
 					);
 					aCallStack._CodePointer = 0;
+				}
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.TailCallIf: {
+			//--------------------------------------------------------------------------------
+				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
+				if (Cond) {
+					var CallerArgPair = aCallStack._Regs.Get(Arg2);
+					mStd.Assert(CallerArgPair.MatchPair(out var Proc, out var Arg));
+					mVM_Data.tData Res;
+					if (Proc.MatchExternDef(out var ExternDef)) {
+						Res = mVM_Data.ExternProc(ExternDef, Arg);
+					} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
+						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine));
+					} else if (Proc.MatchDef<tPos>(out var Def)) {
+						Res = mVM_Data.Proc(Def, Arg);
+					} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
+						return NewCallStack(
+							aCallStack._Parent,
+							Def_,
+							Env,
+							mVM_Data.Empty(),
+							Arg,
+							aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg),
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
+					} else {
+						throw mStd.Error("impossible");
+					}
+					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
+					Des._DataType = Res._DataType;
+					Des._Value = Res._Value;
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
 				}
 				break;
 			}
@@ -298,18 +381,20 @@ public static class mVM {
 			// - Create Process
 			// - Send Message
 			
+			//--------------------------------------------------------------------------------
 			default: {
+			//--------------------------------------------------------------------------------
 				throw mStd.Error("TODO");
 			}
 		}
-		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1)}");
+		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText()}");
 		return aCallStack;
 	}
 	
 	//================================================================================
 	public static mVM_Data.tData
-	GetModuleFactory(
-		mList.tList<mVM_Data.tProcDef> aDefs
+	GetModuleFactory<tPos>(
+		mList.tList<mVM_Data.tProcDef<tPos>> aDefs
 	//================================================================================
 	) {
 		var Env = mVM_Data.Empty();
@@ -324,7 +409,7 @@ public static class mVM {
 	
 	//================================================================================
 	public static void
-	Run(
+	Run<tPos>(
 		mVM_Data.tData aProc,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
@@ -332,7 +417,7 @@ public static class mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		if (aProc.MatchProc(out var Def, out var Env)) {
+		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
 			var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
 			while (CallStack != null) {
 				CallStack = CallStack.Step();
@@ -342,7 +427,7 @@ public static class mVM {
 			aRes._DataType = Res._DataType;
 			aRes._Value = Res._Value;
 		} else {
-			throw mStd.Error("impossible");
+			throw mStd.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
 		}
 	}
 }

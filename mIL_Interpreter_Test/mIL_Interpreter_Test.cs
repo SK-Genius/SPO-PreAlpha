@@ -103,7 +103,7 @@ public static class mIL_Interpreter_Test {
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
 				var Res = mVM_Data.Empty();
-				mVM.Run(
+				mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
 					mVM_Data.Empty(),
 					mVM_Data.Int(5),
@@ -140,7 +140,7 @@ public static class mIL_Interpreter_Test {
 				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
 				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
-				mVM.Run(
+				mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 					mVM_Data.Proc(Proc, Env),
 					mVM_Data.Empty(),
 					mVM_Data.Prefix("VECTOR", mVM_Data.Int(12)),
@@ -226,7 +226,7 @@ public static class mIL_Interpreter_Test {
 				mStd.AssertError(
 					() => {
 						Res = mVM_Data.Empty();
-						mVM.Run(
+						mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 							mVM_Data.Proc(Proc, Env),
 							mVM_Data.Empty(),
 							mVM_Data.Int(2),
@@ -344,7 +344,7 @@ public static class mIL_Interpreter_Test {
 				#endif
 				{
 					var Res = mVM_Data.Empty();
-					mVM.Run(
+					mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 						mVM_Data.Proc(Proc1, Env),
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
@@ -355,7 +355,7 @@ public static class mIL_Interpreter_Test {
 				}
 				{
 					var Res = mVM_Data.Empty();
-					mVM.Run(
+					mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 						mVM_Data.Proc(Proc2, Env),
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
@@ -366,7 +366,7 @@ public static class mIL_Interpreter_Test {
 				}
 				{
 					var Res = mVM_Data.Empty();
-					mVM.Run(
+					mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 						mVM_Data.Proc(Proc3, Env),
 						mVM_Data.Empty(),
 						mVM_Data.Pair(mVM_Data.Int(3), mVM_Data.Int(1)),
@@ -377,7 +377,7 @@ public static class mIL_Interpreter_Test {
 				}
 				{
 					var Res = mVM_Data.Empty();
-					mVM.Run(
+					mVM.Run<mStd.tSpan<mTextParser.tPos>>(
 						mVM_Data.Proc(Proc4, Env),
 						mVM_Data.Empty(),
 						mVM_Data.Int(3),

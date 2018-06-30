@@ -24,7 +24,8 @@ public static class mSPO_Interpreter {
 	//================================================================================
 	) => mIL_Interpreter.Run(
 		mSPO2IL.MapModule(
-			mSPO_Parser.Module.ParseText(aCode, aDebugStream).Result
+			mSPO_Parser.Module.ParseText(aCode, aDebugStream).Result,
+			mStd.Merge
 		).Defs.ToLasyList(
 		).MapWithIndex(
 			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToLasyList())

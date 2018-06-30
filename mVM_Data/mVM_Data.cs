@@ -50,11 +50,13 @@ public static class mVM_Data {
 		Exec,
 		ReturnIf,
 		ContinueIf,
+		TailCallIf,
 		
 		// ASSERT
 		Assert,
 		
 		// TYPE
+		TypeFree,
 		TypePair,
 		TypePrefix,
 		TypeVar,
@@ -67,7 +69,7 @@ public static class mVM_Data {
 		TypeGeneric,
 	}
 	
-	public sealed class tProcDef {
+	public sealed class tProcDef<tPos> {
 		// standard stack indexes
 		public static readonly tInt32 cEmptyReg = 0;
 		public static readonly tInt32 cOneReg = 1;
@@ -85,13 +87,16 @@ public static class mVM_Data {
 		public readonly mArrayList.tArrayList<(tOpCode, tInt32, tInt32)>
 			Commands = mArrayList.List<(tOpCode, tInt32, tInt32)>();
 		
+		public readonly mArrayList.tArrayList<tPos>
+			PosList = mArrayList.List<tPos>();
+		
 		public readonly mVM_Type.tType DefType = mVM_Type.Proc(
 			mVM_Type.Empty(),
-			mVM_Type.Free(),
+			mVM_Type.Free("§ENV"),
 			mVM_Type.Proc(
-				mVM_Type.Free(),
-				mVM_Type.Free(),
-				mVM_Type.Free()
+				mVM_Type.Free("§OBJ"),
+				mVM_Type.Free("§ARG"),
+				mVM_Type.Free("§RES")
 			)
 		);
 		
@@ -103,345 +108,415 @@ public static class mVM_Data {
 	
 	//================================================================================
 	internal static void
-	_AddCommand(
-		this tProcDef aDef,
+	_AddCommand<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tOpCode aCommand,
 		tInt32 aReg1
 	//================================================================================
-	) => aDef._AddCommand(aCommand, aReg1, -1);
+	) => aDef._AddCommand(aPos, aCommand, aReg1, -1);
 	
 	//================================================================================
 	internal static void
-	_AddCommand(
-		this tProcDef aDef,
-		tOpCode aCommand,
-		tInt32 aReg1,
-		tInt32 aReg2
-	//================================================================================
-	) => aDef.Commands.Push((aCommand, aReg1, aReg2));
-	
-	//================================================================================
-	internal static tInt32
-	_AddReg(
-		this tProcDef aDef,
-		tOpCode aCommand,
-		tInt32 aReg1
-	//================================================================================
-	) => aDef._AddReg(aCommand, aReg1, -1);
-	
-	//================================================================================
-	internal static tInt32
-	_AddReg(
-		this tProcDef aDef,
+	_AddCommand<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tOpCode aCommand,
 		tInt32 aReg1,
 		tInt32 aReg2
 	//================================================================================
 	) {
-		aDef._AddCommand(aCommand, aReg1, aReg2);
+		aDef.PosList.Push(aPos);
+		aDef.Commands.Push((aCommand, aReg1, aReg2));
+	}
+	
+	//================================================================================
+	internal static tInt32
+	_AddReg<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tOpCode aCommand
+	//================================================================================
+	) => aDef._AddReg(aPos, aCommand, -1, -1);
+	
+	//================================================================================
+	internal static tInt32
+	_AddReg<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tOpCode aCommand,
+		tInt32 aReg1
+	//================================================================================
+	) => aDef._AddReg(aPos, aCommand, aReg1, -1);
+	
+	//================================================================================
+	internal static tInt32
+	_AddReg<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tOpCode aCommand,
+		tInt32 aReg1,
+		tInt32 aReg2
+	//================================================================================
+	) {
+		aDef.PosList.Push(aPos);
+		aDef._AddCommand(aPos, aCommand, aReg1, aReg2);
 		aDef._LastReg += 1;
 		return aDef._LastReg;
 	}
 	
 	//================================================================================
 	public static tInt32
-	And(
-		this tProcDef aDef,
+	And<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aBoolReg1,
 		tInt32 aBoolReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.And, aBoolReg1, aBoolReg2);
+	) => aDef._AddReg(aPos, tOpCode.And, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tInt32
-	Or(
-		this tProcDef aDef,
+	Or<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aBoolReg1,
 		tInt32 aBoolReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.Or, aBoolReg1, aBoolReg2);
+	) => aDef._AddReg(aPos, tOpCode.Or, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tInt32
-	XOr(
-		this tProcDef aDef,
+	XOr<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aBoolReg1,
 		tInt32 aBoolReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.XOr, aBoolReg1, aBoolReg2);
+	) => aDef._AddReg(aPos, tOpCode.XOr, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tInt32
-	Int(
-		this tProcDef aDef,
+	Int<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntValue
 	//================================================================================
-	) => aDef._AddReg(tOpCode.NewInt, aIntValue);
+	) => aDef._AddReg(aPos, tOpCode.NewInt, aIntValue);
 	
 	//================================================================================
 	public static  tInt32
-	IntsAreEq(
-		this tProcDef aDef,
+	IntsAreEq<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.IntsAreEq, aIntReg1, aIntReg2);
+	) => aDef._AddReg(aPos, tOpCode.IntsAreEq, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tInt32
-	IntsComp(
-		this tProcDef aDef,
+	IntsComp<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.IntsComp, aIntReg1, aIntReg2);
+	) => aDef._AddReg(aPos, tOpCode.IntsComp, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tInt32
-	IntsAdd(
-		this tProcDef aDef,
+	IntsAdd<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.IntsAdd, aIntReg1, aIntReg2);
+	) => aDef._AddReg(aPos, tOpCode.IntsAdd, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tInt32
-	IntsSub(
-		this tProcDef aDef,
+	IntsSub<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.IntsSub, aIntReg1, aIntReg2);
+	) => aDef._AddReg(aPos, tOpCode.IntsSub, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tInt32
-	IntsMul(
-		this tProcDef aDef,
+	IntsMul<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.IntsMul, aIntReg1, aIntReg2);
+	) => aDef._AddReg(aPos, tOpCode.IntsMul, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tInt32
-	Pair(
-		this tProcDef aDef,
+	Pair<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aDataReg1,
 		tInt32 aDataReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.NewPair, aDataReg1, aDataReg2);
+	) => aDef._AddReg(aPos, tOpCode.NewPair, aDataReg1, aDataReg2);
 	
 	//================================================================================
 	public static tInt32
-	First(
-		this tProcDef aDef,
+	First<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPairReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.First, aPairReg);
+	) => aDef._AddReg(aPos, tOpCode.First, aPairReg);
 	
 	//================================================================================
 	public static tInt32
-	Second(
-		this tProcDef aDef,
+	Second<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPairReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.Second, aPairReg);
+	) => aDef._AddReg(aPos, tOpCode.Second, aPairReg);
 	
 	//================================================================================
 	public static tInt32
-	AddPrefix(
-		this tProcDef aDef,
+	AddPrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPrefixId,
 		tInt32 aDataReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.AddPrefix, aPrefixId, aDataReg);
+	) => aDef._AddReg(aPos, tOpCode.AddPrefix, aPrefixId, aDataReg);
 	
 	//================================================================================
 	public static tInt32
-	DelPrefix(
-		this tProcDef aDef,
+	DelPrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPrefixId,
 		tInt32 aReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.DelPrefix, aPrefixId, aReg);
+	) => aDef._AddReg(aPos, tOpCode.DelPrefix, aPrefixId, aReg);
 	
 	//================================================================================
 	public static tInt32
-	HasPrefix(
-		this tProcDef aDef,
+	HasPrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPrefixId,
 		tInt32 aDataReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.HasPrefix, aPrefixId, aDataReg);
+	) => aDef._AddReg(aPos, tOpCode.HasPrefix, aPrefixId, aDataReg);
 	
 	//================================================================================
 	public static void
-	SetObj(
-		this tProcDef aDef,
+	SetObj<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aObjReg
 	//================================================================================
 	) {
-		aDef._AddCommand(tOpCode.SetObj, aObjReg);
+		aDef._AddCommand(aPos, tOpCode.SetObj, aObjReg);
 	}
 	
 	//================================================================================
 	public static tInt32
-	VarDef(
-		this tProcDef aDef,
+	VarDef<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aValueReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.VarDef, aValueReg);
+	) => aDef._AddReg(aPos, tOpCode.VarDef, aValueReg);
 	
 	//================================================================================
 	public static void
-	VarSet(
-		this tProcDef aDef,
+	VarSet<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aVarReg,
 		tInt32 aValueReg
 	//================================================================================
 	) {
-		aDef._AddCommand(tOpCode.VarSet, aVarReg, aValueReg);
+		aDef._AddCommand(aPos, tOpCode.VarSet, aVarReg, aValueReg);
 	}
 	
 	//================================================================================
 	public static tInt32
-	VarGet(
-		this tProcDef aDef,
+	VarGet<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aVarReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.VarGet, aVarReg);
+	) => aDef._AddReg(aPos, tOpCode.VarGet, aVarReg);
 	
 	//================================================================================
 	public static tInt32
-	Call(
-		this tProcDef aDef,
+	Call<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aProcReg,
 		tInt32 aArgReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.Call, aProcReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.Call, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static tInt32
-	Exec(
-		this tProcDef aDef,
+	Exec<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aProcReg,
 		tInt32 aArgReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.Exec, aProcReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.Exec, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static void
-	ReturnIf(
-		this tProcDef aDef,
+	ReturnIf<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aCondReg,
 		tInt32 aResReg
 	//================================================================================
 	) {
-		aDef._AddCommand(tOpCode.ReturnIf, aCondReg, aResReg);
+		aDef._AddCommand(aPos, tOpCode.ReturnIf, aCondReg, aResReg);
 	}
 	
 	//================================================================================
 	public static void
-	ContinueIf(
-		this tProcDef aDef,
+	ContinueIf<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aCondReg,
 		tInt32 aArgReg
 	//================================================================================
 	) {
-		aDef._AddCommand(tOpCode.ContinueIf, aCondReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.ContinueIf, aCondReg, aArgReg);
 	}
 	
 	//================================================================================
 	public static void
-	Assert(
-		this tProcDef aDef,
+	TailCallIf<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aCondReg,
+		tInt32 aCallerArgReg
+	//================================================================================
+	) {
+		aDef._AddCommand(aPos, tOpCode.TailCallIf, aCondReg, aCallerArgReg);
+	}
+	
+	//================================================================================
+	public static void
+	Assert<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPreCondReg,
 		tInt32 aPostCondReg
 	//================================================================================
 	) {
-		aDef._AddCommand(tOpCode.Assert, aPreCondReg, aPostCondReg);
+		aDef._AddCommand(aPos, tOpCode.Assert, aPreCondReg, aPostCondReg);
 	}
 	
 	//================================================================================
 	public static tInt32
-	TypePair(
-		this tProcDef aDef,
+	TypePair<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aTypeReg1,
 		tInt32 aTypeReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypePair, aTypeReg1, aTypeReg2);
+	) => aDef._AddReg(aPos, tOpCode.TypePair, aTypeReg1, aTypeReg2);
 	
 	//================================================================================
 	public static tInt32
-	TypePrefix(
-		this tProcDef aDef,
+	TypePrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aPrefix,
 		tInt32 aTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypePrefix, aPrefix, aTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypePrefix, aPrefix, aTypeReg);
 	
 	//================================================================================
 	public static tInt32
-	TypeVar(
-		this tProcDef aDef,
+	TypeVar<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeVar, aTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeVar, aTypeReg);
 	
 	//================================================================================
 	public static tInt32
-	TypeSet(
-		this tProcDef aDef,
+	TypeSet<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aTypeReg1,
 		tInt32 aTypeReg2
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeSet, aTypeReg1, aTypeReg2);
+	) => aDef._AddReg(aPos, tOpCode.TypeSet, aTypeReg1, aTypeReg2);
 	
 	//================================================================================
 	public static tInt32
-	TypeFunc(
-		this tProcDef aDef,
+	TypeFunc<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aArgTypeReg,
 		tInt32 aResTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeFunc, aArgTypeReg, aResTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeFunc, aArgTypeReg, aResTypeReg);
 	
 	//================================================================================
 	public static tInt32
-	TypeMeth(
-		this tProcDef aDef,
+	TypeMeth<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aObjTypeReg,
 		tInt32 aFuncTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeFunc, aObjTypeReg, aFuncTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeFunc, aObjTypeReg, aFuncTypeReg);
 	
 	//================================================================================
 	public static tInt32
-	TypeRecursive(
-		this tProcDef aDef,
-		tInt32 aHeadTypeReg,
-		tInt32 aBodyTypeReg
+	TypeFree<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeRecursiv, aHeadTypeReg, aBodyTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeRecursiv);
 	
 	//================================================================================
 	public static tInt32
-	TypeInterface(
-		this tProcDef aDef,
+	TypeRecursive<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aHeadTypeReg,
 		tInt32 aBodyTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeInterface, aHeadTypeReg, aBodyTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeRecursiv, aHeadTypeReg, aBodyTypeReg);
 	
 	//================================================================================
 	public static tInt32
-	TypeGeneric(
-		this tProcDef aDef,
+	TypeInterface<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
 		tInt32 aHeadTypeReg,
 		tInt32 aBodyTypeReg
 	//================================================================================
-	) => aDef._AddReg(tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeInterface, aHeadTypeReg, aBodyTypeReg);
+	
+	//================================================================================
+	public static tInt32
+	TypeGeneric<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aHeadTypeReg,
+		tInt32 aBodyTypeReg
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
 	
 	// TODO: Match Types
 	
@@ -661,8 +736,8 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tData
-	Proc(
-		tProcDef aDef,
+	Proc<tPos>(
+		tProcDef<tPos> aDef,
 		tData aEnv
 	//================================================================================
 	) {
@@ -673,9 +748,9 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tBool
-	MatchProc(
+	MatchProc<tPos>(
 		this tData aData,
-		out tProcDef aDef,
+		out tProcDef<tPos> aDef,
 		out tData aEnv
 	//================================================================================
 	) => aData.Match(tDataType.Proc, out aDef, out aEnv);
@@ -702,16 +777,16 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tData
-	Def(
-		tProcDef aDef
+	Def<tPos>(
+		tProcDef<tPos> aDef
 	//================================================================================
 	) => Data(tDataType.Def, false, aDef);
 	
 	//================================================================================
 	public static tBool
-	MatchDef(
+	MatchDef<tPos>(
 		this tData aData,
-		out tProcDef aDef
+		out tProcDef<tPos> aDef
 	//================================================================================
 	) => aData.Match(tDataType.Def, out aDef);
 	
@@ -751,6 +826,8 @@ public static class mVM_Data {
 	//================================================================================
 	) => Data(tDataType.Type, false, mVM_Type.Type(null));
 	
+	// TODO: Matches for Types ???
+	
 	//================================================================================
 	public static tData
 	TypeEmpty(
@@ -776,4 +853,31 @@ public static class mVM_Data {
 		mVM_Type.tType aType2
 	//================================================================================
 	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
+	
+	//================================================================================
+	public static tText
+	ToText(
+		this tData a
+	//================================================================================
+	) {
+		if (a.MatchEmpty()) {
+			return "§EMPTY";
+		}
+		if (a.MatchBool(out var Bool)) {
+			return Bool ? "§TRUE" : "§FALSE";
+		}
+		if (a.MatchInt(out var Int)) {
+			return $"{Int}";
+		}
+		if (a.MatchPrefix(out var Prefix, out var Value)) {
+			return $"(#{Prefix} {ToText(Value)})";
+		}
+		if (a.MatchVar(out Value)) {
+			return $"(§VAR ...)";
+		}
+		if (a.MatchPair(out var _1, out var _2)) {
+			return $"({ToText(_1)}; {ToText(_2)})";
+		}
+		return $"(?{a._DataType}?)";
+	}
 }

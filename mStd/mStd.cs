@@ -54,10 +54,23 @@ public static class mStd {
 		public tPos End;
 	}
 	
+	//================================================================================
+	public static tSpan<tPos>
+	Span<tPos>(
+		tPos aStart,
+		tPos aEnd
+	//================================================================================
+	) => new tSpan<tPos> {
+		Start = aStart,
+		End = aEnd
+	};
+	
+	//================================================================================
 	public static tSpan<tPos>
 	Merge<tPos>(
 		tSpan<tPos> a1,
 		tSpan<tPos> a2
+	//================================================================================
 	) {
 		if (a1.Equals(default(tSpan<tPos>))) {
 			return a2;

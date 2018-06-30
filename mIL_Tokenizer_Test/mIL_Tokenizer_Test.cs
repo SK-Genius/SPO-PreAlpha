@@ -39,7 +39,7 @@ public static class mIL_Tokenizer_Test {
 	Test = mTest.Tests(
 		nameof(mIL_Tokenizer),
 		mTest.Test(
-			"TODO",
+			"TwoLines",
 			aDebugStream => {
 				var TokenList = mIL_Tokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",
@@ -67,7 +67,7 @@ public static class mIL_Tokenizer_Test {
 		)
 	);
 	
-	[xTestCase("TODO")]
+	[xTestCase("TwoLines")]
 	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mList.List(a)),

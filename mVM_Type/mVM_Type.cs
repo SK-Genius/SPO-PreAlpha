@@ -55,6 +55,10 @@ public static class mVM_Type {
 				return false;
 			}
 			
+			if (this.Kind == tKind.Free) {
+				return true;
+			}
+			
 			for (var I = this.Refs.Length; I --> 0;) {
 				if (!this.Refs[I].Equals(Other.Refs[I])) {
 					return false;
@@ -103,16 +107,25 @@ public static class mVM_Type {
 	//================================================================================
 	public static tType
 	Free(
+		tText aId
+	//================================================================================
+	) {
+		var Type = new tType {
+			Kind = tKind.Free,
+			Id = aId
+		};
+		Type.Refs = new[]{ Type }; // needed for unification
+		return Type;
+	}
+	
+	//================================================================================
+	public static tType
+	Free(
 	//================================================================================
 	) {
 		var Id = ""+NextPlaceholderId;
 		NextPlaceholderId += 1;
-		var Res = new tType {
-			Kind = tKind.Free,
-			Id = Id
-		};
-		Res.Refs = new [] { Res };
-		return Res;
+		return Free(Id);
 	}
 	
 	//================================================================================
@@ -155,7 +168,7 @@ public static class mVM_Type {
 		this tType aType
 	//================================================================================
 	) {
-		mDebug.AssertEq(aType.Kind, tKind.Type);
+		mDebug.Assert(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
 		return aType.Refs[0];
 	}
 	
@@ -251,12 +264,11 @@ public static class mVM_Type {
 	//================================================================================
 	public static tType
 	Recursive(
-		tType aTypeHead,
 		tType aTypeBody
 	//================================================================================
 	) => new tType {
 		Kind = tKind.Recursiv,
-		Refs = new [] { aTypeHead, aTypeBody },
+		Refs = new [] { aTypeBody },
 	};
 	
 	//================================================================================
