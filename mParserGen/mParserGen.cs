@@ -1,4 +1,5 @@
 ﻿//#define TRACE
+//#defind INF_LOOP_DETECTIOM
 
 using tBool = System.Boolean;
 
@@ -303,7 +304,7 @@ public static class mParserGen {
 					var LastError = mList.List<tError>();
 					while (
 						I < Max &&
-						this.Parse(RestStream, aDebugStream, mList.List<object>(Parser, aPath))
+						this.Parse(RestStream, aDebugStream, mList.List(Parser, aPath))
 						.Match(
 							out var TempResult,
 							out LastError
@@ -609,12 +610,14 @@ public static class mParserGen {
 		mList.tList<object> aInfinitLoopDetectionSet
 	//================================================================================
 	) {
+		#if INF_LOOP_DETECTIOM
 		if (!aInfinitLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 			#if TRACE
 				aDebugStream($"!!! INFINIT LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
 			#endif
 			return mStd.Fail(mList.List<tError>());
 		}
+		#endif
 		
 		#if TRACE
 			if (aParser._DebugName != null) {
