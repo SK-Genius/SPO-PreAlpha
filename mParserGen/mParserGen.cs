@@ -253,25 +253,19 @@ public static class mParserGen {
 			public tText _DebugDef = "";
 		#endif
 		
-		public tText DebugName {
-			get {
-				#if DEBUG || TRACE
-					return _DebugName;
-				#else
-					return null;
-				#endif
-			}
-		}
+		public tText DebugName
+		#if DEBUG || TRACE
+			=> this._DebugName;
+		#else
+			=> null;
+		#endif
 		
-		public tText DebugDef {
-			get {
-				#if DEBUG || TRACE
-					return _DebugDef;
-				#else
-					return null;
-				#endif
-			}
-		}
+		public tText DebugDef
+		#if DEBUG || TRACE
+			=> this._DebugDef;
+		#else
+			=> null;
+		#endif
 		
 		//================================================================================
 		public static tParser<tPos, tIn, mStd.tEmpty, tError>
@@ -396,7 +390,7 @@ public static class mParserGen {
 		#if DEBUG || TRACE
 			var Name = "";
 			var Parts = mList.List(aDebugNameParts);
-			while (Parts.Match(out object Part, out Parts)) {
+			while (Parts.Match(out var Part, out Parts)) {
 				Name += Part?.ToString() ?? "";
 			}
 			aParser._DebugName = Name.Replace("\n", @"\n").Replace("\r", @"\r").Replace("\t", @"\t");

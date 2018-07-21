@@ -52,6 +52,10 @@
       <Project>{e94ac322-93d6-4f9a-87df-e78c5a6966bc}</Project>
       <Name>mIL_Interpreter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mIL_Parser\mIL_Parser.csproj">
+      <Project>{f4c65a3d-186f-4c69-a294-f9e8aa3f63c0}</Project>
+      <Name>mIL_Parser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mIL_Tokenizer\mIL_Tokenizer.csproj">
       <Project>{eabc4852-8577-43ef-b3ac-5d75015edc9b}</Project>
       <Name>mIL_Tokenizer</Name>

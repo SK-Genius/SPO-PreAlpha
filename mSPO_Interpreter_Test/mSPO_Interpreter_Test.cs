@@ -161,7 +161,7 @@ public static class mSPO_Interpreter_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
-							§IMPORT ...*...
+							§IMPORT (...*... € [[§INT, §INT] => §INT])
 							
 							§DEF EmptyStack = #Empty ()
 							

@@ -22,7 +22,7 @@ public static class mSPO_Interpreter {
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
-	) => mIL_Interpreter.Run(
+	) => mIL_Interpreter<mStd.tSpan<mTextParser.tPos>>.Run(
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aDebugStream).Result,
 			mStd.Merge

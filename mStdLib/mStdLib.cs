@@ -24,7 +24,8 @@ public static class mStdLib {
 		if (!(_ImportData is null)) {
 			return _ImportData;
 		}
-		_ImportData = mIL_Interpreter.Run(
+		_ImportData = mIL_Interpreter<mStd.tSpan<mTextParser.tPos>>.Run(
+			mIL_Parser.Module.ParseText(
 @"§DEF Init
 	_01 := ENV
 	!... := §1ST _01
@@ -205,6 +206,8 @@ public static class mStdLib {
 	Res := §BOOL <? | =?
 	§RETURN Res IF TRUE
 ",
+				aLine => { }
+			),
 			mVM_Data.Empty(),
 			aLine => { }
 		);
@@ -213,9 +216,24 @@ public static class mStdLib {
 	
 	public static readonly tText cImportTuple = (
 		@"("+
-			"!..., ...&..., ...|..., ...^..., "+
-			"-..., ...+..., ...-..., ...*..., .../..., ...%..., "+
-			"...==..., ...!=..., ...>..., ...>=..., ...<..., ...<=..."+
+			"!... € [§BOOL => §BOOL], " +
+			"...&... € [[§BOOL, §BOOL] => §BOOL], " +
+			"...|... € [[§BOOL, §BOOL] => §BOOL], " +
+			"...^... € [[§BOOL, §BOOL] => §BOOL], "+
+			
+			"-... € [§INT => §INT], " +
+			"...+... € [[§INT, §INT] => §INT], " +
+			"...-... € [[§INT, §INT] => §INT], " +
+			"...*... € [[§INT, §INT] => §INT], " +
+			".../... € [[§INT, §INT] => §INT], " +
+			"...%... € [[§INT, §INT] => §INT], "+
+			
+			"...==... € [[§INT, §INT] => §BOOL], " +
+			"...!=... € [[§INT, §INT] => §BOOL], " +
+			"...>... € [[§INT, §INT] => §BOOL], " +
+			"...>=... € [[§INT, §INT] => §BOOL], " +
+			"...<... € [[§INT, §INT] => §BOOL], " +
+			"...<=... € [[§INT, §INT] => §BOOL]"+
 		")"
 	);
 }

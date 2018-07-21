@@ -213,8 +213,8 @@ public static class mStd {
 			tAny a
 		//================================================================================
 		) => (
-			!(_Value is null) &&
-			_Value.Equals(a._Value)
+			!(this._Value is null) &&
+			this._Value.Equals(a._Value)
 		);
 		
 		override public tBool Equals(object a) => a is tAny && Equals((tAny)a);
@@ -303,13 +303,13 @@ public static class mStd {
 		public t Value {
 			get {
 				if (this.Func is null) {
-					return _Value;
+					return this._Value;
 				}
 				this.Value = this.Func();
 				return this.Value;
 			}
 			set {
-				_Value = value;
+				this._Value = value;
 				this.Func = null;
 			}
 		}

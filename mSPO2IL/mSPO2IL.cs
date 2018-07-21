@@ -874,7 +874,7 @@ public static class mSPO2IL {
 			var ArgReg = mIL_AST.cEmpty;
 			if (!AllUnsolvedSymbols.IsEmpty()) {
 				var Iterator = AllUnsolvedSymbols.ToLasyList();
-				while (Iterator.Match(out tText UnsolvedSymbol, out Iterator)) {
+				while (Iterator.Match(out var UnsolvedSymbol, out Iterator)) {
 					if (aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != UnsolvedSymbol)) {
 						aDefConstructor.UnsolvedSymbols.Push(UnsolvedSymbol);
 					}

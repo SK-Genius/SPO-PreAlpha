@@ -1,0 +1,46 @@
+[*.cs]
+indent_style = tab
+indent_size = 2
+tab_width = 2
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = false
+charset = utf-8-bom
+
+# 'this.' everywhere
+dotnet_style_qualification_for_field = true:Error
+dotnet_style_qualification_for_property = true:Error
+dotnet_style_qualification_for_method = true:Error
+dotnet_style_qualification_for_event = true:Error
+
+# don't use any of this (int or System.Int32)!!! use tInt32
+dotnet_style_predefined_type_for_locals_parameters_members = false:Error
+dotnet_style_predefined_type_for_member_access = false:Error
+
+dotnet_style_object_initializer = true:Error
+dotnet_style_collection_initializer = true:Error
+dotnet_style_coalesce_expression = true:Error
+dotnet_style_null_propagation = true:Error
+
+# 'var' everywhere
+csharp_style_var_for_locals = true:Error
+csharp_style_var_for_built_in_types = true:Error
+csharp_style_var_when_type_is_apparent = true:Error
+csharp_style_var_elsewhere = true:Error
+csharp_style_inlined_variable_declaration = true:Error
+
+# only if return type != void
+csharp_style_expression_bodied_operators = true:Error
+csharp_style_expression_bodied_properties = true:Error
+csharp_style_expression_bodied_indexers = true:Error
+csharp_style_throw_expression = true:Error
+csharp_style_conditional_delegate_call = true:Error
+
+csharp_style_expression_bodied_constructors = false:Error
+csharp_style_expression_bodied_accessors = false:Error
+
+csharp_style_expression_bodied_methods = true:none
+
+# other new features
+csharp_style_pattern_matching_over_is_with_cast_check = true:Error
+csharp_style_pattern_matching_over_as_with_null_check = true:Error

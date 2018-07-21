@@ -83,7 +83,7 @@ public static class  mIL_Tokenizer {
 		public tText Text;
 		public mStd.tSpan<mTextParser.tPos> Span;
 		
-		override public tText ToString() => $"'{Text}'::{Type}@({Span.Start.Row}:{Span.Start.Col}..{Span.End.Row}:{Span.End.Col})";
+		override public tText ToString() => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
 	}
 	
 	public static readonly mParserGen.tParser<mTextParser.tPos, tChar, tToken, mTextParser.tError>

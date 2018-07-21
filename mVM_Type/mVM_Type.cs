@@ -347,4 +347,62 @@ public static class mVM_Type {
 			Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace);
 		}
 	}
+	
+	public static tText
+	ToText(
+		this tType aType,
+		tInt32 aLimit
+	) {
+		if (aLimit <= 0) {
+			return "...";
+		}
+		switch (aType.Kind) {
+			case tKind.Empty: {
+				return "[]";
+			}
+			case tKind.Bool: {
+				return "§BOOL";
+			}
+			case tKind.Int: {
+				return "§INT";
+			}
+			case tKind.Type: {
+				return $"[[]]";
+			}
+			case tKind.Free: {
+				return "?"+aType.Id;
+			}
+			case tKind.Prefix: {
+				return $"[#{aType.Prefix} {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Pair: {
+				return $"[{aType.Refs[0].ToText(aLimit - 1)}, {aType.Refs[1].ToText(aLimit - 1)}]";
+			}
+			case tKind.Proc: {
+				return $"[{aType.Refs[0].ToText(aLimit - 1)} : {aType.Refs[1].ToText(aLimit - 1)} -> {aType.Refs[2].ToText(aLimit - 1)}]";
+			}
+			case tKind.Ref: {
+				return $"[§REF {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Set: {
+				return $"[{aType.Refs[0].ToText(aLimit - 1)} | {aType.Refs[1].ToText(aLimit - 1)}]";
+			}
+			case tKind.Var: {
+				return $"[§VAR {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Recursiv: {
+				return $"[§RECURSIVE {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Interface: {
+				return $"[§INTERFACE {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Generic: {
+				return $"[§ALL {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
+			}
+			case tKind.Cond: {
+				return $"[{aType.Refs[0].ToText(aLimit - 1)} ? ...]"; // TODO
+			}
+		}
+		throw mStd.Error("");
+	}
 }

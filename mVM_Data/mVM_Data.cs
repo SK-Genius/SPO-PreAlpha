@@ -103,7 +103,7 @@ public static class mVM_Data {
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 			Types = mArrayList.List<mVM_Type.tType>();
 		
-		internal tInt32 _LastReg = cResReg;
+		public tInt32 _LastReg = cResReg;
 	}
 	
 	//================================================================================
@@ -545,8 +545,8 @@ public static class mVM_Data {
 			tData a
 		//================================================================================
 		) => (
-			_DataType.Equals(a._DataType) &&
-			_Value.Equals(a._Value)
+			this._DataType.Equals(a._DataType) &&
+			this._Value.Equals(a._Value)
 		);
 		
 		override public tBool Equals(object a) => this.Equals((tData)a);
