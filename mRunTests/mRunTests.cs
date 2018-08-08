@@ -1,4 +1,4 @@
-using tBool = System.Boolean;
+﻿using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -13,11 +13,13 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCategory = NUnit.Framework.CategoryAttribute;
 
 [xTestClass]
+#endif
 public static class mRunTests {
 	
 	static mTest.tTest Test = mTest.Tests(
@@ -28,7 +30,7 @@ public static class mRunTests {
 //		mMath_Test.Test,
 		mArrayList_Test.Test,
 		mParserGen_Test.Test,
-		mTextParser.Test,
+		mTextParser_Test.Test,
 		mVM_Test.Test,
 		mVM_Type_Test.Test,
 		mVM_Data_Test.Test,
@@ -67,6 +69,7 @@ public static class mRunTests {
 		}
 	}
 	
+	#if NUNIT
 	[xTestCategory("all")]
 	[xTestCase("")]
 	public static void _(tText a) {
@@ -75,4 +78,5 @@ public static class mRunTests {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

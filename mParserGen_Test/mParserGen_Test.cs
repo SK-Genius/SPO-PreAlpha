@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mParserGen_Test {
 	
 	private static readonly mStd.tSpan<mStd.tEmpty> cTestSpan = default;
@@ -48,7 +50,7 @@ public static class mParserGen_Test {
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A");
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', _ => "miss B");
-				var AB = A._(B);
+				var AB = mParserGen.Seq(A, B);
 				mStd.Assert(AB.StartParse(TestStream('A', 'B', '_'), aDebugStream).Match(out var Result, out var ErrorList));
 				mStd.AssertEq(Result, ((cTestSpan, ('A', 'B')), TestStream('_')));
 				
@@ -62,7 +64,7 @@ public static class mParserGen_Test {
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A");
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', _ => "miss B");
-				var AB = A._(-B);
+				var AB = A +-B;
 				mStd.Assert(AB.StartParse(TestStream('A', 'B', '_'), aDebugStream).Match(out var Result, out var ErrorList));
 				mStd.AssertEq(Result, ((cTestSpan, 'A'), TestStream('_')));
 				
@@ -162,7 +164,7 @@ public static class mParserGen_Test {
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>((tChar a) => a == 'A', _ => "miss A");
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>((tChar a) => a == 'B', _ => "miss B");
-				var AB = A._(B).Modify(a => "AB");
+				var AB = mParserGen.Seq(A, B).Modify(a => "AB");
 				var nAB = ~AB;
 				mStd.Assert(nAB.StartParse(TestStream('A', 'B', '_'), aDebugStream).Match(out var Result, out var ErrorList));
 				mStd.AssertEq(Result, ((cTestSpan, (mList.List<tChar>(), "AB")), TestStream('_')));
@@ -197,7 +199,7 @@ public static class mParserGen_Test {
 				
 				var Signum = (PosSignum | NegSignum);
 				
-				var Int = (Signum)._(Nat)
+				var Int = mParserGen.Seq(Signum, Nat)
 				.Modify((aSignum, aNat) => aSignum * aNat);
 				
 				var Number = Nat | Int;
@@ -220,8 +222,8 @@ public static class mParserGen_Test {
 				
 				Expression.Def(
 					Number |
-					P(Expression._(-__)._(Op)._(-__)._(Expression))
-					.Modify((a1, aOp, a2) => aOp(a1, a2))
+					P(mParserGen.Seq(Expression, __, Op, __, Expression))
+					.Modify((a1, ___, aOp, ____, a2) => aOp(a1, a2))
 				);
 				
 				var Eval = mStd.Func(
@@ -265,12 +267,13 @@ public static class mParserGen_Test {
 						a => ""
 					).Modify(aChar => "" + aChar);
 					foreach (var Char in aTocken.Substring(1)) {
-						Parser = Parser._(
+						Parser = mParserGen.Seq(
+							Parser,
 							mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
 								aChar => aChar == Char,
 								a => $"miss {Char}"
 							)
-						).ModifyS((aSpan, a) => a.Item1 + a.Item2);
+						).Modify(a => a.Item1 + a.Item2);
 					}
 					return Parser;
 				}
@@ -278,11 +281,12 @@ public static class mParserGen_Test {
 				mParserGen.tParser<mStd.tEmpty, tChar, tOut, tText>
 				P<tOut>(
 					mParserGen.tParser<mStd.tEmpty, tChar, tOut, tText> aParser
-				) => (-Token("("))._(-__)._(aParser)._(-__)._(-Token(")"));
+				) => mParserGen.Seq(Token("("), __, aParser, __, Token(")")).Modify(a => a.Item3);
 			}
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("AtomParser")]
 	[xTestCase("...+...")]
 	[xTestCase("...-...")]
@@ -299,4 +303,5 @@ public static class mParserGen_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

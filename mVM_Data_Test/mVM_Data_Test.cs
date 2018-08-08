@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mVM_Data_Test {
 	
 	public static readonly mTest.tTest
@@ -30,6 +32,7 @@ public static class mVM_Data_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("TODO: ExternDef")]
 	public static void _(tText a) {
 		mStd.AssertEq(
@@ -37,4 +40,5 @@ public static class mVM_Data_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

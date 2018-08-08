@@ -13,13 +13,15 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tPos = mTextParser.tPos;
-using tSpan = mStd.tSpan<mTextParser.tPos>;
+using tPos = mTextStream.tPos;
+using tSpan = mStd.tSpan<mTextStream.tPos>;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mSPO_Parser_Test {
 	
 	//================================================================================
@@ -425,6 +427,7 @@ public static class mSPO_Parser_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("Atoms")]
 	[xTestCase("Tuple")]
 	[xTestCase("Match1")]
@@ -441,4 +444,5 @@ public static class mSPO_Parser_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

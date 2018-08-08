@@ -13,13 +13,15 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tPos = mTextStream.tPos;
+using tSpan =mStd.tSpan<mTextStream.tPos>;
+
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
-using tPos = mTextParser.tPos;
-using tSpan =mStd.tSpan<mTextParser.tPos>;
-
 [xTestClass]
+#endif
 public static class mSPO2IL_Test {
 	
 	//================================================================================
@@ -431,6 +433,7 @@ public static class mSPO2IL_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("MapExpresion")]
 	[xTestCase("MapDef1")]
 	[xTestCase("MapDefMatch")]
@@ -446,4 +449,5 @@ public static class mSPO2IL_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

@@ -13,18 +13,22 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tPos = mTextStream.tPos;
+
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mIL_Tokenizer_Test {
 	
 	//================================================================================
-	private static mStd.tSpan<mTextParser.tPos> Span(
+	private static mStd.tSpan<tPos> Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
 	//================================================================================
-	) => new mStd.tSpan<mTextParser.tPos> {
+	) => new mStd.tSpan<tPos> {
 		Start = {
 			Row = aStart.Row,
 			Col = aStart.Col
@@ -67,6 +71,7 @@ public static class mIL_Tokenizer_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("TwoLines")]
 	public static void _(tText a) {
 		mStd.AssertEq(
@@ -74,4 +79,5 @@ public static class mIL_Tokenizer_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

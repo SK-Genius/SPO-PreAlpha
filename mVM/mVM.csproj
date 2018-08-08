@@ -54,6 +54,10 @@
       <Project>{aa06d4f4-790d-43d8-a90e-bc5ab801044d}</Project>
       <Name>mMath</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mPerf\mPerf.csproj">
+      <Project>{a26d0dc5-3522-4ee1-960a-1baa8be3fe5a}</Project>
+      <Name>mPerf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mStd\mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>

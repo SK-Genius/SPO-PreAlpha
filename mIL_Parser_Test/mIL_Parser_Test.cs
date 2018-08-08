@@ -13,20 +13,23 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tPos = mTextParser.tPos;
+using tPos = mTextStream.tPos;
+using tSpan = mStd.tSpan<mTextStream.tPos>;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class  mIL_Parser_Test {
 	
 	//================================================================================
-	private static mStd.tSpan<tPos> Span(
+	private static tSpan Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
 	//================================================================================
-	) => new mStd.tSpan<tPos> {
+	) => new tSpan {
 		Start = {
 			Row = aStart.Row,
 			Col = aStart.Col
@@ -188,6 +191,7 @@ public static class  mIL_Parser_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("Commands")]
 	public static void _(tText a) {
 		mStd.AssertEq(
@@ -195,4 +199,5 @@ public static class  mIL_Parser_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

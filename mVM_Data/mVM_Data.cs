@@ -857,9 +857,13 @@ public static class mVM_Data {
 	//================================================================================
 	public static tText
 	ToText(
-		this tData a
+		this tData a,
+		tInt32 aLimit
 	//================================================================================
 	) {
+		if (aLimit == 0) {
+			return "...";
+		}
 		if (a.MatchEmpty()) {
 			return "§EMPTY";
 		}
@@ -870,13 +874,13 @@ public static class mVM_Data {
 			return $"{Int}";
 		}
 		if (a.MatchPrefix(out var Prefix, out var Value)) {
-			return $"(#{Prefix} {ToText(Value)})";
+			return $"(#{Prefix} {ToText(Value, aLimit - 1)})";
 		}
 		if (a.MatchVar(out Value)) {
-			return $"(§VAR ...)";
+			return $"(§VAR {ToText(Value, aLimit - 1)})";
 		}
 		if (a.MatchPair(out var _1, out var _2)) {
-			return $"({ToText(_1)}; {ToText(_2)})";
+			return $"({ToText(_1, aLimit -1)}; {ToText(_2, aLimit - 1)})";
 		}
 		return $"(?{a._DataType}?)";
 	}

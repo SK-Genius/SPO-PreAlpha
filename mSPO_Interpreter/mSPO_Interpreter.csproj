@@ -86,6 +86,10 @@
       <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
       <Name>mTextParser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mTextStream\mTextStream.csproj">
+      <Project>{ff617802-e8c2-4aca-b1d7-b5522546c944}</Project>
+      <Name>mTextStream</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mVM_Data\mVM_Data.csproj">
       <Project>{7da28646-f50f-4bbd-aad5-d624a9501864}</Project>
       <Name>mVM_Data</Name>

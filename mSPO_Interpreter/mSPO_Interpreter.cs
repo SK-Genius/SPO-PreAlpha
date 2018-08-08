@@ -13,6 +13,9 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tPos = mTextStream.tPos;
+using tSpan = mStd.tSpan<mTextStream.tPos>;
+
 public static class mSPO_Interpreter {
 	
 	//================================================================================
@@ -22,7 +25,7 @@ public static class mSPO_Interpreter {
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
-	) => mIL_Interpreter<mStd.tSpan<mTextParser.tPos>>.Run(
+	) => mIL_Interpreter<tSpan>.Run(
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aDebugStream).Result,
 			mStd.Merge

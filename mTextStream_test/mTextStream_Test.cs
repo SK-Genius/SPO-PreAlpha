@@ -19,25 +19,14 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mTextParser_Test {
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mTextParser),
-		mTest.Test(
-			"TODO",
-			aStreamOut => {
-			}
-		)
-	);
+public static class mTextStream_Test {
 	
 	#if NUNIT
 	[xTestCase("TODO")]
-	public static void _(tText a) {
-		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
-			mTest.tResult.OK
-		);
+	public static void
+	_(
+		tText aFilter
+	) {
 	}
 	#endif
 }

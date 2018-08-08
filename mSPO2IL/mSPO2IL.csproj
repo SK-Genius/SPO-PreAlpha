@@ -54,6 +54,10 @@
       <Project>{8b49080b-b746-4493-922b-86e28dc61890}</Project>
       <Name>mList</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mPerf\mPerf.csproj">
+      <Project>{a26d0dc5-3522-4ee1-960a-1baa8be3fe5a}</Project>
+      <Name>mPerf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mSPO_AST\mSPO_AST.csproj">
       <Project>{d0a5c13a-cd05-4bb7-ba16-835285cd4af8}</Project>
       <Name>mSPO_AST</Name>

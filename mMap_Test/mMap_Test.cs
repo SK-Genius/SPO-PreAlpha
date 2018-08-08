@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mMap_Test {
 	
 	public static readonly mTest.tTest
@@ -63,6 +65,7 @@ public static class mMap_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("tMap.Get")]
 	[xTestCase("tMap.TryGet")]
 	[xTestCase("tMap.Remove")]
@@ -72,4 +75,5 @@ public static class mMap_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

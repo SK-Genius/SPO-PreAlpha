@@ -63,9 +63,9 @@ public static class mVM {
 		aTraceOut(() => " 5 := BOOL_TYPE");
 		aTraceOut(() => " 6 := INT_TYPE");
 		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText());
-		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText());
-		aTraceOut(() => "10 := ARG  |  "+aArg.ToText());
+		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText(20));
+		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText(20));
+		aTraceOut(() => "10 := ARG  |  "+aArg.ToText(20));
 		aTraceOut(() => "11 := RES");
 		
 		return Result;
@@ -387,7 +387,7 @@ public static class mVM {
 				throw mStd.Error("TODO");
 			}
 		}
-		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText()}");
+		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
 		return aCallStack;
 	}
 	
@@ -417,17 +417,19 @@ public static class mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
-		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
-			var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
-			while (CallStack != null) {
-				CallStack = CallStack.Step();
+		using (mPerf.Measure()) {
+			if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
+				var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
+				while (CallStack != null) {
+					CallStack = CallStack.Step();
+				}
+			} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
+				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
+				aRes._DataType = Res._DataType;
+				aRes._Value = Res._Value;
+			} else {
+				throw mStd.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
 			}
-		} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
-			var Res = ExternDef(Env, aObj, aArg, aTraceOut);
-			aRes._DataType = Res._DataType;
-			aRes._Value = Res._Value;
-		} else {
-			throw mStd.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
 		}
 	}
 }

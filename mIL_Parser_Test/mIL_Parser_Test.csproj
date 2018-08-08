@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;NUNIT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -28,8 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>NUNIT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -75,6 +74,10 @@
     <ProjectReference Include="..\mTextParser\mTextParser.csproj">
       <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
       <Name>mTextParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\mTextStream\mTextStream.csproj">
+      <Project>{ff617802-e8c2-4aca-b1d7-b5522546c944}</Project>
+      <Name>mTextStream</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

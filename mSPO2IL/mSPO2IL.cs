@@ -986,41 +986,43 @@ public static class mSPO2IL {
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
 	//================================================================================
 	) {
-		var ModuleConstructor = NewModuleConstructor(aMergePos);
-		var TempLambdaDef = NewDefConstructor(ModuleConstructor);
-		TempLambdaDef.InitMapLambda(
-			mSPO_AST.Lambda(
-				aModuleNode.Pos,
-				aModuleNode.Import.Match,
-				mSPO_AST.Block(
-					aMergePos(
-						aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.First().Pos,
-						aModuleNode.Export.Pos
-					),
-					mList.Concat(
-						aModuleNode.Commands,
-						mList.List<mSPO_AST.tCommandNode<tPos>>(
-							mSPO_AST.ReturnIf(
-								aModuleNode.Export.Pos,
-								aModuleNode.Export.Expression,
-								mSPO_AST.True(aModuleNode.Export.Pos)
+		using (mPerf.Measure()) {
+			var ModuleConstructor = NewModuleConstructor(aMergePos);
+			var TempLambdaDef = NewDefConstructor(ModuleConstructor);
+			TempLambdaDef.InitMapLambda(
+				mSPO_AST.Lambda(
+					aModuleNode.Pos,
+					aModuleNode.Import.Match,
+					mSPO_AST.Block(
+						aMergePos(
+							aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.First().Pos,
+							aModuleNode.Export.Pos
+						),
+						mList.Concat(
+							aModuleNode.Commands,
+							mList.List<mSPO_AST.tCommandNode<tPos>>(
+								mSPO_AST.ReturnIf(
+									aModuleNode.Export.Pos,
+									aModuleNode.Export.Expression,
+									mSPO_AST.True(aModuleNode.Export.Pos)
+								)
 							)
 						)
 					)
 				)
-			)
-		);
-		mDebug.AssertEq(
-			TempLambdaDef.UnsolvedSymbols.Size(),
-			ModuleConstructor.Defs.Size() - 1
-		);
+			);
+			mDebug.AssertEq(
+				TempLambdaDef.UnsolvedSymbols.Size(),
+				ModuleConstructor.Defs.Size() - 1
+			);
 		
-		var DefSymbols = mArrayList.List<tText>();
-		for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
-			DefSymbols.Push(TempDef(I));
+			var DefSymbols = mArrayList.List<tText>();
+			for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
+				DefSymbols.Push(TempDef(I));
+			}
+			TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
+		
+			return ModuleConstructor;
 		}
-		TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
-		
-		return ModuleConstructor;
 	}
 }

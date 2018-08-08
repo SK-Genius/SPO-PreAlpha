@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mSPO_AST_Test {
 	
 	public static readonly mTest.tTest
@@ -29,6 +31,7 @@ public static class mSPO_AST_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("TODO")]
 	public static void _(tText a) {
 		mStd.AssertEq(
@@ -36,4 +39,5 @@ public static class mSPO_AST_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

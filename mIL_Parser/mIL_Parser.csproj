@@ -62,6 +62,10 @@
       <Project>{536578c5-9327-407f-9f65-3144a6b3d41a}</Project>
       <Name>mTextParser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mTextStream\mTextStream.csproj">
+      <Project>{ff617802-e8c2-4aca-b1d7-b5522546c944}</Project>
+      <Name>mTextStream</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="mIL_Parser.cs" />

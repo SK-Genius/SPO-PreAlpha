@@ -13,13 +13,15 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tPos = mTextParser.tPos;
-using tSpan = mStd.tSpan<mTextParser.tPos>;
+using tPos = mTextStream.tPos;
+using tSpan = mStd.tSpan<mTextStream.tPos>;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mIL_Interpreter_Test {
 	
 	//================================================================================
@@ -410,6 +412,7 @@ public static class mIL_Interpreter_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("Call")]
 	[xTestCase("Prefix")]
 	[xTestCase("Assert")]
@@ -421,4 +424,5 @@ public static class mIL_Interpreter_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

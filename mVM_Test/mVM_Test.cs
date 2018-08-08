@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mVM_Test {
 	
 	//================================================================================
@@ -100,6 +102,7 @@ public static class mVM_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("ExternDef")]
 	[xTestCase("InternDef")]
 	public static void _(tText a) {
@@ -108,4 +111,5 @@ public static class mVM_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

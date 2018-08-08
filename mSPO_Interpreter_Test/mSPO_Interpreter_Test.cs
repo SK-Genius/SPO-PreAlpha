@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mSPO_Interpreter_Test {
 	
 	//================================================================================
@@ -227,6 +229,7 @@ public static class mSPO_Interpreter_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("Run1")]
 	[xTestCase("Run2")]
 	[xTestCase("Run3")]
@@ -240,4 +243,5 @@ public static class mSPO_Interpreter_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }

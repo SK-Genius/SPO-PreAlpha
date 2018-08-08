@@ -46,9 +46,17 @@
       <Project>{4eb10985-99ba-4672-a522-7167425fdf24}</Project>
       <Name>mParserGen</Name>
     </ProjectReference>
+    <ProjectReference Include="..\mPerf\mPerf.csproj">
+      <Project>{a26d0dc5-3522-4ee1-960a-1baa8be3fe5a}</Project>
+      <Name>mPerf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\mStd\mStd.csproj">
       <Project>{e78aed28-fa01-418a-8fc2-82d736914d9b}</Project>
       <Name>mStd</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\mTextStream\mTextStream.csproj">
+      <Project>{ff617802-e8c2-4aca-b1d7-b5522546c944}</Project>
+      <Name>mTextStream</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

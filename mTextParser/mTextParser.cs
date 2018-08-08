@@ -16,119 +16,80 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tPos = mTextStream.tPos;
+using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tError = mTextStream.tError;
+
 public static class mTextParser {
 	
-	public struct tPos {
-		public tInt32 Row;
-		public tInt32 Col;
-	}
-	
-	public struct tError {
-		public tPos Pos;
-		public tText Message;
-	}
-	
 	//================================================================================
-	public static mList.tList<(mStd.tSpan<tPos> Span, tChar Char)>
-	TextToStream(
-		tText a
-	//================================================================================
-	) {
-		var Col = (int?)1;
-		var Row = (int?)1;
-		
-		return mList.List(a.ToCharArray())
-			.Where(_ => _ != '\r')
-			.Map(
-				aChar => {
-					var Result = (
-						new mStd.tSpan<tPos> {
-							Start = {
-								Col = Col.Value,
-								Row = Row.Value
-							},
-							End = {
-								Col = Col.Value,
-								Row = Row.Value
-							}
-						},
-						aChar
-					);
-					if (aChar == '\n') {
-						Col = 1;
-						Row += 1;
-					} else {
-						Col += 1;
-					}
-					return Result;
-				}
-			);
-	}
-	
-	//================================================================================
-	public static (mStd.tSpan<tPos> Span, tOut Result)
+	public static (tSpan Span, tOut Result)
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aText,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Stream = TextToStream(aText);
-		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		mStd.Assert(
-			MaybeResult.Match(out var Result, out var ErrorList),
-			#if true
-			#if true
-			ErrorList.Reduce(
-				mList.List<tError>(),
-				(aOldList, aNew) => mList.List(
-					aNew,
-					aOldList.Where(
-						aOld => (
-							aOld.Pos.Row > aNew.Pos.Row ||
-							(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
+		using (mPerf.Measure()) {
+			var Stream = mTextStream.TextToStream(aText).Map(_ => (mStd.Span(_.Pos), _.Char));
+			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
+			mStd.Assert(
+				MaybeResult.Match(out var Result, out var ErrorList),
+				#if true
+				#if true
+				ErrorList.Reduce(
+					mList.List<tError>(),
+					(aOldList, aNew) => mList.List(
+						aNew,
+						aOldList.Where(
+							aOld => (
+								aOld.Pos.Row > aNew.Pos.Row ||
+								(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
+							)
 						)
 					)
-				)
-			).Map(
-			#else
-			ErrorList.Map(
-			#endif
-				aError => {
-					var Line = aText.Split('\n')[aError.Pos.Row-1];
-					var MarkerLine = TextToStream(
-						Line
-					).Take(
-						aError.Pos.Col - 1
-					).Map(
-						a => a.Char == '\t' ? '\t' : ' '
-					).Reduce(
-						"",
-						(aString, aChar) => aString + aChar
-					);
-					return (
-						$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
-						$"{Line}\n" +
-						$"{MarkerLine}^\n"
-					);
-				}
-			).Reduce("", (a1, a2) => a1 + "\n" + a2)
-			#else
-			""
-			#endif
-		);
-		
-		if (!Result.RestStream.IsEmpty()) {
-			var Pos = Result.RestStream.First().Span.Start;
-			var Line = aText.Split('\n')[Pos.Row-1];
-			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
-			throw mStd.Error(
-				$"({Pos.Row}, {Pos.Col}): expected end of text\n" +
-				$"{Line}\n" +
-				$"{Line.Substring(0, StartSpacesCount) + new string(' ', Pos.Col - StartSpacesCount - 1)}^"
+				).Map(
+				#else
+				ErrorList.Map(
+				#endif
+					aError => {
+						var Line = aText.Split('\n')[aError.Pos.Row-1];
+						var MarkerLine = mTextStream.TextToStream(
+							Line
+						).Map(
+							_ => (mStd.Span(_.Pos), _.Char)
+						).Take(
+							aError.Pos.Col - 1
+						).Map(
+							a => a.Char == '\t' ? '\t' : ' '
+						).Reduce(
+							"",
+							(aString, aChar) => aString + aChar
+						);
+						return (
+							$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
+							$"{Line}\n" +
+							$"{MarkerLine}^\n"
+						);
+					}
+				).Reduce("", (a1, a2) => a1 + "\n" + a2)
+				#else
+				""
+				#endif
 			);
+			
+			if (!Result.RestStream.IsEmpty()) {
+				var Pos = Result.RestStream.First().Span.Start;
+				var Line = aText.Split('\n')[Pos.Row-1];
+				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
+				throw mStd.Error(
+					$"({Pos.Row}, {Pos.Col}): expected end of text\n" +
+					$"{Line}\n" +
+					$"{Line.Substring(0, StartSpacesCount) + new string(' ', Pos.Col - StartSpacesCount - 1)}^"
+				);
+			}
+			return Result.Result;
 		}
-		return Result.Result;
 	}
 	
 	//================================================================================
@@ -138,7 +99,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a == aRefChar,
-		a => new tError{ Pos = a.Span.Start, Message = $"expect {aRefChar}" }
+		a => mTextStream.Error(a.Span.Start, $"expect {aRefChar}")
 	)
 	.SetDebugName("'", aRefChar, "'");
 	
@@ -149,7 +110,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a != aRefChar,
-		a => new tError{ Pos = a.Span.Start, Message = $"expect not {aRefChar}" }
+		a => mTextStream.Error(a.Span.Start, $"expect not {aRefChar}")
 	)
 	.SetDebugName("'^", aRefChar, "'");
 	
@@ -167,7 +128,7 @@ public static class mTextParser {
 			}
 			return false;
 		},
-		a => new tError{ Pos = a.Span.Start, Message = $"expect one of [{aRefChars}]" }
+		a => mTextStream.Error(a.Span.Start, $"expect one of [{aRefChars}]")
 	)
 	.SetDebugName("[", aRefChars, "]");
 	
@@ -185,7 +146,7 @@ public static class mTextParser {
 			}
 			return true;
 		},
-		a => new tError{ Pos = a.Span.Start, Message = $"expect non of [{aRefChars}]" }
+		a => mTextStream.Error(a.Span.Start, $"expect non of [{aRefChars}]")
 	)
 	.SetDebugName("[^", aRefChars, "]");
 	
@@ -197,7 +158,7 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => aMinChar <= a && a <= aMaxChar,
-		a => new tError{ Pos = a.Span.Start, Message = $"expect one in [{aMinChar}...{aMaxChar}]" }
+		a => mTextStream.Error(a.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]")
 	)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
@@ -208,19 +169,15 @@ public static class mTextParser {
 	//================================================================================
 	) {
 		mStd.AssertNotEq(aToken.Length, 0);
-		
-		var Parser = -GetChar(aToken[0]);
-		foreach (var Char in aToken.Substring(1)) {
-			Parser = -Parser._(GetChar(Char));
+		var I = aToken.Length - 1;
+		var Parser = -GetChar(aToken[I]);
+		while (I --> 0) {
+			var Char = aToken[I];
+			Parser = -GetChar(Char) -Parser;
 		}
 		return Parser
 		.Modify(aSpan => aToken)
-		.AddError(
-			a => new tError {
-				Pos = a.Span.Start,
-				Message = $"expect '{aToken}'"
-			}
-		)
+		.ModifyErrors((_, a) => mList.List(mTextStream.Error(a.Span.Start, $"expect '{aToken}'")))
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
@@ -231,10 +188,7 @@ public static class mTextParser {
 		tText aName
 	//================================================================================
 	) => aParser.AddError(
-		a => new tError{
-			Pos = a.Span.Start,
-			Message = $"invalid {aName}"
-		}
+		a => mTextStream.Error(a.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName(aName);
 }

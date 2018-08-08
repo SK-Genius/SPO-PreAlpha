@@ -22,12 +22,16 @@ public static class mStd {
 	public delegate tRes tFunc<out tRes, in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
 	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
 	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
+	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4, in tArg5>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5);
+	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4, in tArg5, in tArg6>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5, tArg6 a6);
 	
 	public static tFunc<tRes> Func<tRes>(tFunc<tRes> a) => a;
 	public static tFunc<tRes, tArg> Func<tRes, tArg>(tFunc<tRes, tArg> a) => a;
 	public static tFunc<tRes, tArg1, tArg2> Func<tRes, tArg1, tArg2>(tFunc<tRes, tArg1, tArg2> a) => a;
 	public static tFunc<tRes, tArg1, tArg2, tArg3> Func<tRes, tArg1, tArg2, tArg3>(tFunc<tRes, tArg1, tArg2, tArg3> a) => a;
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4> Func<tRes, tArg1, tArg2, tArg3, tArg4>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4> a) => a;
+	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> a) => a;
+	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> a) => a;
 	
 	#endregion
 	
@@ -64,6 +68,13 @@ public static class mStd {
 		Start = aStart,
 		End = aEnd
 	};
+	
+	//================================================================================
+	public static tSpan<tPos>
+	Span<tPos>(
+		tPos aPos
+	//================================================================================
+	) => Span(aPos, aPos);
 	
 	//================================================================================
 	public static tSpan<tPos>
@@ -369,16 +380,23 @@ public static class mStd {
 			!a1.IsNull() &&
 			!a1.Equals(a2)
 		) {
+			#if JSON
 			var x1 = AsJSON(a1);
 			var x2 = AsJSON(a2);
-			throw mStd.Error($"FAIL:\n{x1}\n!=\n{x2}");
+			#else
+			var x1 = a1.ToString();
+			var x2 = a2.ToString();
+			#endif
+			throw Error($"FAIL:\n{x1}\n!=\n{x2}");
 		}
+		#if JSON
 		string AsJSON(
 			object o
 		) => Newtonsoft.Json.JsonConvert.SerializeObject(
 			o,
 			Newtonsoft.Json.Formatting.Indented
 		);
+		#endif
 	}
 	
 	//================================================================================
@@ -389,19 +407,19 @@ public static class mStd {
 	//================================================================================
 	) {
 		if (a1.Equals(a2)) {
-			throw mStd.Error($"FAIL: {a1} == {a2}");
+			throw Error($"FAIL: {a1} == {a2}");
 		}
 	}
 	
 	//================================================================================
 	public static void
 	AssertError(
-		mStd.tAction a
+		tAction a
 	//================================================================================
 	) {
 		try {
 			a();
-			throw mStd.Error("FAIL: Error expected");
+			throw Error("FAIL: Error expected");
 		} catch {
 			// do nothing
 		}

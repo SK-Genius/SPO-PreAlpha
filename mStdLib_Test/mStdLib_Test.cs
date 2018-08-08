@@ -13,10 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+#if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
 using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
+#endif
 public static class mStdLib_Test {
 	
 	public static readonly mTest.tTest
@@ -228,7 +230,7 @@ public static class mStdLib_Test {
 				);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run<mStd.tSpan<mTextParser.tPos>>(
+				mVM.Run<mStd.tSpan<mTextStream.tPos>>(
 					Main,
 					mVM_Data.Tuple(StreamIn, StreamOut),
 					mVM_Data.Empty(),
@@ -246,6 +248,7 @@ public static class mStdLib_Test {
 		)
 	);
 	
+	#if NUNIT
 	[xTestCase("IfThenElse")]
 	[xTestCase("If2")]
 	[xTestCase("IfMatch1")]
@@ -258,4 +261,5 @@ public static class mStdLib_Test {
 			mTest.tResult.OK
 		);
 	}
+	#endif
 }
