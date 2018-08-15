@@ -1,4 +1,4 @@
-﻿//IMPORT mIL_Tokenizer.cs
+﻿//IMPORT mTokenizer.cs
 //IMPORT mIL_AST.cs
 
 using tBool = System.Boolean;
@@ -16,8 +16,8 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-using tToken = mIL_Tokenizer.tToken;
-using tTokenType = mIL_Tokenizer.tTokenType;
+using tToken = mTokenizer.tToken;
+using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
 using tSpan =mStd.tSpan<mTextStream.tPos>;
@@ -62,13 +62,7 @@ public static class mIL_Parser {
 	).SetDebugName(nameof(Ident));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	Prefix = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Prefix,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(Prefix));
+	Prefix = (-SpecialToken("#") +Ident).SetDebugName(nameof(Prefix));
 	
 	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
@@ -139,87 +133,87 @@ public static class mIL_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>
 	Command = (
-		mParserGen.Seq(Ident, SpecialToken(":="), Number)
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Number)
 		.Modify((aIdent, _, aNumber) => (aIdent, aNumber))
 		.ModifyS(X(mIL_AST.CreateInt))
 		.SetDebugName(nameof(mIL_AST.CreateInt)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("BOOL"), Ident, -Token("&") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Ident, -Token("&") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.And))
 		.SetDebugName(nameof(mIL_AST.And)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("BOOL"), Ident, -Token("|") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Ident, -Token("|") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.Or))
 		.SetDebugName(nameof(mIL_AST.Or)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("BOOL"), Ident, -Token("^") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Ident, -Token("^") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.XOr))
 		.SetDebugName(nameof(mIL_AST.XOr)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("INT"), Ident, -Token("==") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("==") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.IntsAreEq))
 		.SetDebugName(nameof(mIL_AST.IntsAreEq)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("INT"), Ident, -Token("<=>") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("<=>") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.IntsComp))
 		.SetDebugName(nameof(mIL_AST.IntsComp)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("INT"), Ident, -Token("+") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("+") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.IntsAdd))
 		.SetDebugName(nameof(mIL_AST.IntsAdd)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("INT"), Ident, -Token("-") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("-") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.IntsSub))
 		.SetDebugName(nameof(mIL_AST.IntsSub)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("INT"), Ident, -Token("*") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("*") +Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.IntsMul))
 		.SetDebugName(nameof(mIL_AST.IntsMul)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), Ident, -SpecialToken(",") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Ident, -SpecialToken(",") +Ident.OrFail())
 		.Modify((a1, _, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.CreatePair))
 		.SetDebugName(nameof(mIL_AST.CreatePair)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -KeyWord("1ST") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -KeyWord("1ST") +Ident.OrFail())
 		.Modify((a1, _, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.GetFirst))
 		.SetDebugName(nameof(mIL_AST.GetFirst)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -KeyWord("2ND") +Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -KeyWord("2ND") +Ident.OrFail())
 		.Modify((a1, _, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.GetSecond))
 		.SetDebugName(nameof(mIL_AST.GetSecond)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), Token("+"), Prefix.OrFail(), Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Token("+"), Prefix.OrFail(), Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.AddPrefix))
 		.SetDebugName(nameof(mIL_AST.AddPrefix)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), Token("-"), Prefix.OrFail(), Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Token("-"), Prefix.OrFail(), Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.SubPrefix))
 		.SetDebugName(nameof(mIL_AST.SubPrefix)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), Token("?"), Prefix.OrFail(), Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Token("?"), Prefix.OrFail(), Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.HasPrefix))
 		.SetDebugName(nameof(mIL_AST.HasPrefix)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("."), Ident, Ident)
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("."), Ident, Ident)
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.Call))
 		.SetDebugName(nameof(mIL_AST.Call)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -KeyWord("OBJ") -SpecialToken(":").OrFail(), Ident.OrFail(), Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -KeyWord("OBJ") -SpecialToken(":").OrFail(), Ident.OrFail(), Ident.OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.Exec))
 		.SetDebugName(nameof(mIL_AST.Exec)) |
@@ -237,12 +231,12 @@ public static class mIL_Parser {
 		.ModifyS(X(mIL_AST.VarSet))
 		.SetDebugName(nameof(mIL_AST.VarSet)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("VAR"), Ident, Token("->"))
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("VAR"), Ident, Token("->"))
 		.Modify((a1, _, __, a2, ___) => (a1, a2))
 		.ModifyS(X(mIL_AST.VarGet))
 		.SetDebugName(nameof(mIL_AST.VarGet)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), KeyWord("VAR"), Ident.OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("VAR"), Ident.OrFail())
 		.Modify((a1, _, __, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.VarDef))
 		.SetDebugName(nameof(mIL_AST.VarDef)) |
@@ -257,67 +251,67 @@ public static class mIL_Parser {
 		.ModifyS(X(mIL_AST.RepeatIf))
 		.SetDebugName(nameof(mIL_AST.RepeatIf)) |
 		
-		mParserGen.Seq(KeyWord("ASSERT"), Ident.OrFail(), Token("=>").OrFail(), Ident.OrFail())
+		mParserGen.Seq(KeyWord("ASSERT"), Ident.OrFail(), SpecialToken("=>").OrFail(), Ident.OrFail())
 		.Modify((_, a1, __, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.Assert))
 		.SetDebugName(nameof(mIL_AST.Assert)) |
 		
-		mParserGen.Seq(Ident, Token("=>"), Ident, SpecialToken(":"), Ident.OrFail())
+		mParserGen.Seq(Ident, SpecialToken("=>"), Ident, SpecialToken(":"), Ident.OrFail())
 		.Modify((a1, _, a2, __, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.Proof))
 		.SetDebugName(nameof(mIL_AST.Proof)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), Ident)
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Ident)
 		.Modify((a1, _, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.Alias))
 		.SetDebugName(nameof(mIL_AST.Alias)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Ident, -Token("&") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -Token("&") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeCond))
 		.SetDebugName(nameof(mIL_AST.TypeCond)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Ident, -Token("=>") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -SpecialToken("=>") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeFunc))
 		.SetDebugName(nameof(mIL_AST.TypeFunc)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Ident, -SpecialToken(":") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -SpecialToken(":") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeMethod))
 		.SetDebugName(nameof(mIL_AST.TypeMethod)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Ident, -SpecialToken(",") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -SpecialToken(",") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypePair))
 		.SetDebugName(nameof(mIL_AST.TypePair)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Prefix, (Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Prefix, (Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypePrefix))
 		.SetDebugName(nameof(mIL_AST.TypePrefix)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), Ident, -Token("|") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -Token("|") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeSet))
 		.SetDebugName(nameof(mIL_AST.TypeSet)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), SpecialToken("["), -KeyWord("VAR") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), -KeyWord("VAR") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2) => (a1, a2))
 		.ModifyS(X(mIL_AST.TypeVar))
 		.SetDebugName(nameof(mIL_AST.TypeVar)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -SpecialToken("[") -KeyWord("REC"), Ident, -Token("=>") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -SpecialToken("[") -KeyWord("REC"), Ident, -SpecialToken("=>") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeRecursive))
 		.SetDebugName(nameof(mIL_AST.TypeRecursive)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -SpecialToken("[") -KeyWord("ANY"), Ident, -Token("=>") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -SpecialToken("[") -KeyWord("ANY"), Ident, -SpecialToken("=>") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeInterface))
 		.SetDebugName(nameof(mIL_AST.TypeInterface)) |
 		
-		mParserGen.Seq(Ident, SpecialToken(":="), -SpecialToken("[") -KeyWord("ALL"), Ident, -Token("=>") +(Ident +-SpecialToken("]")).OrFail())
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -SpecialToken("[") -KeyWord("ALL"), Ident, -SpecialToken("=>") +(Ident +-SpecialToken("]")).OrFail())
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(X(mIL_AST.TypeGeneric))
 		.SetDebugName(nameof(mIL_AST.TypeGeneric)) |
@@ -350,7 +344,7 @@ public static class mIL_Parser {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Tokens = mIL_Tokenizer.Tokenizer.ParseText(aText, aDebugStream).Result;
+		var Tokens = mTokenizer.Tokenizer.ParseText(aText, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
 		mStd.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),

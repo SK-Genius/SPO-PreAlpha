@@ -55,7 +55,7 @@ public static class mRunTests {
 		mVM_Type_Test.Test,
 		mVM_Data_Test.Test,
 		mIL_AST_Test.Test,
-		mIL_Tokenizer_Test.Test,
+		mTokenizer_Test.Test,
 		mIL_Parser_Test.Test,
 		mIL_Interpreter_Test.Test,
 		mSPO_AST_Test.Test,

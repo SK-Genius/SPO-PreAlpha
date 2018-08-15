@@ -31,7 +31,7 @@ public static class mSPO_Interpreter {
 	//================================================================================
 	) => mIL_Interpreter<tSpan>.Run(
 		mSPO2IL.MapModule(
-			mSPO_Parser.Module.ParseText(aCode, aDebugStream).Result,
+			mSPO_Parser.Module.ParseText(aCode, aDebugStream),
 			mStd.Merge
 		).Defs.ToLasyList(
 		).MapWithIndex(

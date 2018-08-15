@@ -15,7 +15,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class  mIL_Tokenizer {
+public static class mTokenizer {
 	
 	public static readonly mStd.tFunc<mParserGen.tParser<mTextStream.tPos, tChar, tChar, mTextStream.tError>, tChar> Char = mTextParser.GetChar;
 	public static readonly mStd.tFunc<mParserGen.tParser<mTextStream.tPos, tChar, tChar, mTextStream.tError>, tChar> NotChar = mTextParser.GetNotChar;
@@ -27,7 +27,7 @@ public static class  mIL_Tokenizer {
 	public static readonly mParserGen.tParser<mTextStream.tPos, tChar, tChar, mTextStream.tError> _ = CharIn(" \t\r");
 	public static readonly mParserGen.tParser<mTextStream.tPos, tChar, mList.tList<tChar>, mTextStream.tError> __ = _[0, null];
 	
-	public static readonly tText SpazialChars = "#$§\".:,;()[]{} \t\n\r";
+	public static readonly tText SpazialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
 	public static readonly mParserGen.tParser<mTextStream.tPos, tChar, tInt32, mTextStream.tError>
 	Digit = CharInRange('0', '9')
@@ -90,32 +90,34 @@ public static class  mIL_Tokenizer {
 	}
 	
 	public static readonly mParserGen.tParser<mTextStream.tPos, tChar, tToken, mTextStream.tError>
-	Token = (
+	Token = mParserGen.OneOf(
 		mParserGen.Seq(Char('"'), CharNotIn("\"")[0, null], Char('"'))
 		.ModifyS((aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan })
-		.SetName(nameof(tTokenType.Text)) |
+		.SetName(nameof(tTokenType.Text)),
+		
+		Text("=>")
+		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
+		.SetName(nameof(tTokenType.SpecialToken)),
 		
 		Number
 		.ModifyS((aSpan, aInt) => new tToken { Type = tTokenType.Number, Text = "" + aInt, Span = aSpan })
-		.SetName(nameof(tTokenType.Number)) |
+		.SetName(nameof(tTokenType.Number)),
 		
 		Ident
 		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.Ident, Text = aText, Span = aSpan })
-		.SetName(nameof(tTokenType.Ident)) |
+		.SetName(nameof(tTokenType.Ident)),
+		
+		Text("..")
+		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
+		.SetName(nameof(tTokenType.SpecialToken)),
 		
 		(-Char('§') +Ident)
 		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.KeyWord, Text = aText, Span = aSpan })
-		.SetName(nameof(tTokenType.KeyWord)) |
+		.SetName(nameof(tTokenType.KeyWord)),
 		
-		(-Char('#') +Ident)
-		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.Prefix, Text = aText, Span = aSpan })
-		.SetName(nameof(tTokenType.Prefix)) |
-		
-		(
-			Text(":=") |
-			CharIn(".,:;()[]{}€\n").Modify(aChar => "" + aChar)
-		)
+		CharIn(".,:;()[]{}€#\n").Modify(aChar => "" + aChar)
 		.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
+		.SetName(nameof(tTokenType.SpecialToken))
 	);
 	
 	public static readonly mParserGen.tParser<mTextStream.tPos, tChar, mList.tList<tToken>, mTextStream.tError>
