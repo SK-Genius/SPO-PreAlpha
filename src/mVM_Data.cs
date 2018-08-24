@@ -694,6 +694,66 @@ public static class mVM_Data {
 	) => mList.List(a).Reverse().Reduce(Empty(), (aList, aItem) => Pair(aItem, aList));
 	
 	//================================================================================
+	public static tBool
+	MatchTuple(
+		this tData aData,
+		out tData a1,
+		out tData a2
+	//================================================================================
+	) {
+		a1 = default;
+		a2 = default;
+		return (
+			aData.MatchPair(out a1, out var a2_) &&
+			a2_.MatchPair(out a2, out var a_) &&
+			a_.MatchEmpty()
+		);
+	}
+	
+	//================================================================================
+	public static tBool
+	MatchTuple(
+		this tData aData,
+		out tData a1,
+		out tData a2,
+		out tData a3
+	//================================================================================
+	) {
+		a1 = default;
+		a2 = default;
+		a3 = default;
+		return (
+			aData.MatchPair(out a1, out var a23_) &&
+			a23_.MatchPair(out a2, out var a3_) &&
+			a3_.MatchPair(out a3, out var a_) &&
+			a_.MatchEmpty()
+		);
+	}
+	
+	//================================================================================
+	public static tBool
+	MatchTuple(
+		this tData aData,
+		out tData a1,
+		out tData a2,
+		out tData a3,
+		out tData a4
+	//================================================================================
+	) {
+		a1 = default;
+		a2 = default;
+		a3 = default;
+		a4 = default;
+		return (
+			aData.MatchPair(out a1, out var a234_) &&
+			a234_.MatchPair(out a2, out var a34_) &&
+			a34_.MatchPair(out a3, out var a4_) &&
+			a4_.MatchPair(out a4, out var a_) &&
+			a_.MatchEmpty()
+		);
+	}
+	
+	//================================================================================
 	public static tData
 	Prefix(
 		tInt32 aPrefixId,

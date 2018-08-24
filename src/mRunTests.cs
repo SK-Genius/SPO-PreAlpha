@@ -2,7 +2,6 @@
 //IMPORT mIL_AST_Test.cs
 //IMPORT mIL_Interpreter_Test.cs
 //IMPORT mIL_Parser_Test.cs
-//IMPORT mIL_Tokenizer_Test.cs
 //IMPORT mList_Test.cs
 //IMPORT mMap_Test.cs
 //IMPORT mParserGen_Test.cs
@@ -14,6 +13,7 @@
 //IMPORT mStdLib_Test.cs
 //IMPORT mTextParser_Test.cs
 //IMPORT mTextStream_Test.cs
+//IMPORT mTokenizer_Test.cs
 //IMPORT mVM_Test.cs
 //IMPORT mVM_Data_Test.cs
 //IMPORT mVM_Type_Test.cs

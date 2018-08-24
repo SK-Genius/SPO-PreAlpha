@@ -14,6 +14,8 @@
 		PREFIX: [#n t]  // public & private variant
 		PAIR: [t; t]
 		SET: [t | t]
+		REC: [{t; t}]  // t € [[{t; t}] | [#n t] | []]
+		ARRAY [n * t]
 		COND: [t & p]
 		VAR: [VAR t]
 		FUNC: [t -> t]
@@ -31,6 +33,11 @@
 				[t, t, t]  ==  [[[[]; t]; t]; t]
 				[t, t,  ..., t]  ==  [...[[[]; t]; t]; ...; t]
 				
+			Rec:
+				[{#n t, #n t}]  ==  [{[{[]; [#n t]}]; [#n t]}] 
+				[{#n t, #n t, #n t}]  ==  [{[{[{[]; [#n t]}]; [#n t]}]; [#n t]}]
+				[{#n t, #n t,  ..., #n t]  ==  [{...[{[{[]; [#n t]}]; [#n t]}]; ...; [#n t]}]
+				
 			Prefix:
 				[#n]  ==  [#n []]
 				[#n t, t]  ==  [#n [t, t]]
@@ -38,8 +45,8 @@
 				[#n t, t, ... ,t]  ==  [#n [t, t, ..., t]]
 			
 			Set:
-				[t | t | t]  ==  [[ t | t] | t ]  
-				[t | t | ... | t]  ==  [...[ t | t] | ... | t ]  
+				[t | t | t]  ==  [[t | t] | t]  
+				[t | t | ... | t]  ==  [...[t | t] | ... | t]  
 			
 			Calls:
 				[T : T] == [T : T -> []]
@@ -75,6 +82,15 @@
 			(x ; x) -> x
 			x -> (_ ; x)
 			x -> (x ; _)
+		
+		REC:
+			{x ; x} -> x
+			x -> {x ; _}
+			x -> {_ ; x}
+		
+		ARRAY:
+			n §* x -> x
+			x[x] -> x
 		
 		PREFIX:
 			(#n x) -> x
