@@ -38,47 +38,7 @@ public static class mTextParser {
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
 			mStd.Assert(
 				MaybeResult.Match(out var Result, out var ErrorList),
-				#if true
-				#if true
-				ErrorList.Reduce(
-					mList.List<tError>(),
-					(aOldList, aNew) => mList.List(
-						aNew,
-						aOldList.Where(
-							aOld => (
-								aOld.Pos.Row > aNew.Pos.Row ||
-								(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
-							)
-						)
-					)
-				).Map(
-				#else
-				ErrorList.Map(
-				#endif
-					aError => {
-						var Line = aText.Split('\n')[aError.Pos.Row-1];
-						var MarkerLine = mTextStream.TextToStream(
-							Line
-						).Map(
-							_ => (mStd.Span(_.Pos), _.Char)
-						).Take(
-							aError.Pos.Col - 1
-						).Map(
-							a => a.Char == '\t' ? '\t' : ' '
-						).Reduce(
-							"",
-							(aString, aChar) => aString + aChar
-						);
-						return (
-							$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
-							$"{Line}\n" +
-							$"{MarkerLine}^\n"
-						);
-					}
-				).Reduce("", (a1, a2) => a1 + "\n" + a2)
-				#else
-				""
-				#endif
+				ErrorList.ToText(aText.Split('\n'))
 			);
 			
 			if (!Result.RestStream.IsEmpty()) {

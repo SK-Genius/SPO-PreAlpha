@@ -603,30 +603,6 @@ public static class mParserGen {
 	//================================================================================
 	) => aP1.__(aP2.__(aP3.__(aP4.__(aP5)))).Modify((a1, a2) => (a1, a2.Item1, a2.Item2.Item1, a2.Item2.Item2.Item1, a2.Item2.Item2.Item2));
 	
-	////================================================================================
-	//public static tParser<tPos, tIn, (tOut1, tOut2, tOut3), tError>
-	//_<tPos, tIn, tOut1, tOut2, tOut3, tError>(
-	//	this tParser<tPos, tIn, tOut1, tError> aP1,
-	//	tParser<tPos, tIn, (tOut2 _1, tOut3 _2), tError> aP2
-	////================================================================================
-	//) => aP1.__(aP2).Modify((a1, a2) => (a1, a2._1, a2._2));
-	
-	////================================================================================
-	//public static tParser<tPos, tIn, (tOut1, tOut2), tError>
-	//_<tPos, tIn, tOut1, tOut2, tError>(
-	//	this tParser<tPos, tIn, (tOut1, tOut2), tError> aP1,
-	//	tParser<tPos, tIn, mStd.tEmpty, tError> aP2
-	////================================================================================
-	//) => aP1.__(aP2).Modify((a1, a2) => a1);
-	
-	////================================================================================
-	//public static tParser<tPos, tIn, (tOut1, tOut2, tOut3), tError>
-	//_<tPos, tIn, tOut1, tOut2, tOut3, tError>(
-	//	this tParser<tPos, tIn, (tOut1 _1, tOut2 _2), tError> aP1,
-	//	tParser<tPos, tIn, tOut3, tError> aP2
-	////================================================================================
-	//) => aP1.__(aP2).Modify((a1, a2) => (a1._1, a1._2, a2));
-	
 	//================================================================================
 	internal static tParser<tPos, tIn, (tOut1, tOut2), tError>
 	__<tPos, tIn, tOut1, tOut2, tError>(

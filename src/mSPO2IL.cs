@@ -461,7 +461,6 @@ public static class mSPO2IL {
 				var Input = aDefConstructor.MapExpresion(IfMatchNode.Expression);
 				
 				var ModuleConstructor = aDefConstructor.ModuleConstructor;
-				var Ifs = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
 				var Rest = IfMatchNode.Cases;
 				
 				var SwitchDef = NewDefConstructor(ModuleConstructor);

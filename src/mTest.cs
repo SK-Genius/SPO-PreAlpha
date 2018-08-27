@@ -123,7 +123,9 @@ public static class mTest {
 				foreach (var Test in Tests._Tests) {
 					switch (Test.Run(aText => aDebugStream(cTab + aText), aFilters)) {
 						case tResult.OK: {
-							Result = tResult.OK;
+							if (Result != tResult.Fail) {
+								Result = tResult.OK;
+							}
 							break;
 						}
 						case tResult.Fail: {

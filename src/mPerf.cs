@@ -23,7 +23,7 @@ public static class mPerf {
 	private static tInt32 gStackIndex = 0;
 	
 	private static tInt32 gNextLogIndex = 0;
-	private static (tNat64 Time, tText File, tText Name)[] gLog = new (tNat64, tText, tText)[cMaxLogCount];
+	private static readonly (tNat64 Time, tText File, tText Name)[] gLog = new (tNat64, tText, tText)[cMaxLogCount];
 	
 	public sealed class tDisposer : System.IDisposable {
 		public void Dispose() { ExitScope(); }
@@ -54,7 +54,7 @@ public static class mPerf {
 		gStackIndex += 1;
 	}
 	
-	private static tText[] cUnits = {"", "K", "M", "G", "T", "P"};
+	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
 	
 	//================================================================================
 	public static void

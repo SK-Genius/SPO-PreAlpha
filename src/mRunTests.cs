@@ -82,7 +82,10 @@ public static class mRunTests {
 		if (
 			SelfTests(
 				mList.List(aArgs),
-				_ => { System.Console.WriteLine(_); System.Console.Out.Flush(); }
+				_ => {
+					System.Console.WriteLine(_);
+					System.Console.Out.Flush();
+				}
 			) == mTest.tResult.Fail
 		) {
 			System.Environment.Exit(-1);

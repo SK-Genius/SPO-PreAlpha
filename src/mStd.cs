@@ -228,7 +228,7 @@ public static class mStd {
 			this._Value.Equals(a._Value)
 		);
 		
-		override public tBool Equals(object a) => a is tAny && Equals((tAny)a);
+		override public tBool Equals(object a) => a is tAny && this.Equals((tAny)a);
 	}
 	
 	//================================================================================

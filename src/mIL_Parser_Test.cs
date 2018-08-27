@@ -121,7 +121,6 @@ public static class  mIL_Parser_Test {
 					mIL_Parser.Command.ParseText("§ASSERT a => b", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, Span((1, 1), (1, 14)), "a", "b")
 				);
-				
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("§PUSH a", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, Span((1, 1), (1, 7)), "a")

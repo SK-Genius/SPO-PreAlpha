@@ -50,6 +50,62 @@ public static class mTextStream {
 	};
 	
 	//================================================================================
+	public static mList.tList<tError>
+	Reduce(
+		this mList.tList<tError> aErrors
+	//================================================================================
+	) => aErrors.Reduce(
+		mList.List<tError>(),
+		(aOldList, aNew) => mList.List(
+			aNew,
+			aOldList.Where(
+				aOld => (
+					aOld.Pos.Row > aNew.Pos.Row ||
+					(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
+				)
+			)
+		)
+	);
+	
+	//================================================================================
+	public static tText
+	ToText(
+		this tError aError,
+		tText[] aSrcLines
+	//================================================================================
+	) {
+		var Line = aSrcLines[aError.Pos.Row-1];
+		var MarkerLine = TextToStream(
+			Line
+		).Map(
+			_ => (mStd.Span(_.Pos), _.Char)
+		).Take(
+			aError.Pos.Col - 1
+		).Map(
+			a => a.Char == '\t' ? '\t' : ' '
+		).Reduce(
+			"",
+			(aString, aChar) => aString + aChar
+		);
+		return (
+			$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
+			$"{Line}\n" +
+			$"{MarkerLine}^\n"
+		);
+	}
+	
+	//================================================================================
+	public static tText
+	ToText(
+		this mList.tList<tError> aErrors,
+		tText[] aSrcLines
+	//================================================================================
+	) => aErrors
+		.Reduce()
+		.Map(_ => _.ToText(aSrcLines))
+		.Reduce("", (a1, a2) => a1 + "\n" + a2);
+	
+	//================================================================================
 	public static mList.tList<(tPos Pos, tChar Char)>
 	TextToStream(
 		tText a

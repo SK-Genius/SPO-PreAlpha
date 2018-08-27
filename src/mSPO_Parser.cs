@@ -25,132 +25,34 @@ using tSpan =mStd.tSpan<mTextStream.tPos>;
 using tError = mTextStream.tError;
 
 public static class mSPO_Parser {
+	private static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
+	NLs_Token = mTokenizer.NLs_Token;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	SpaceToken = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.SpecialToken && (a.Text == " " || a.Text == "\t"),
-		a => new tError {
-			Message = "expect space",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(SpaceToken));
+	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	TextToken = mTokenizer.TextToken;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	NL_Token = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.SpecialToken && a.Text == "\n",
-		a => new tError {
-			Message = "expect line break",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(NL_Token));
+	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	NumberToken = mTokenizer.NumberToken;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
-	NLs_Token = -(NL_Token | SpaceToken)[1, null]
-	.SetDebugName(nameof(NLs_Token));
+	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	IdentToken = mTokenizer.IdentToken;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	TextToken  = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Text,
-		a => new tError {
-			Message = "expect '\"'",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(TextToken));
+	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	SpecialToken = mTokenizer.SpecialToken;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	NumberToken = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Number,
-		a => new tError {
-			Message = "expect number",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(NumberToken));
+	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tChar>
+	SpecialIdent = mTokenizer.SpecialIdent;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	IdentToken = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Ident,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(IdentToken));
+	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tChar, tText>
+	SpecialIdent_ = mTokenizer.SpecialIdent;
 	
-	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	PrefixToken = mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Prefix,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName(nameof(PrefixToken));
+	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	Token = mTokenizer.Token_;
 	
-	//================================================================================
-	public static mParserGen.tParser<tPos, tToken, tToken, tError>
-	Token(
-		tText aText
-	//================================================================================
-	) => mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.Ident && a.Text == aText,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName($"{nameof(Token)}('{aText}')");
-	
-	//================================================================================
-	public static mParserGen.tParser<tPos, tToken, tToken, tError>
-	SpecialToken(
-		tText aText
-	//================================================================================
-	) => mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.SpecialToken && a.Text == aText,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName($"{nameof(SpecialToken)}('{aText}')");
-	
-	//================================================================================
-	public static mParserGen.tParser<tPos, tToken, tToken, tError>
+	private static mParserGen.tParser<tPos, tToken, tToken, tError>
 	KeyWord(
-		tText aText
-	//================================================================================
-	) => mParserGen.AtomParser<tPos, tToken, tError>(
-		a => a.Type == tTokenType.KeyWord && a.Text == aText,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
-	).SetDebugName($"{nameof(KeyWord)}('{aText}')");
-	
-	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>>
-	X<tRes>(
-		mStd.tFunc<tRes, mStd.tSpan<tPos>> aFunc
-	//================================================================================
-	) => aSpan => aFunc(aSpan);
-	
-	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken>
-	X<tRes>(
-		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText> aFunc
-	//================================================================================
-	) => (aSpan, a1) => aFunc(aSpan, a1.Text);
-	
-	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken, tToken>
-	X<tRes>(
-		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText> aFunc
-	//================================================================================
-	) => (aSpan, a1, a2) => aFunc(aSpan, a1.Text, a2.Text);
-	
-	//================================================================================
-	private static mStd.tFunc<tRes, mStd.tSpan<tPos>, tToken, tToken, tToken>
-	X<tRes>(
-		mStd.tFunc<tRes, mStd.tSpan<tPos>, tText, tText, tText> aFunc
-	//================================================================================
-	) => (aSpan, a1, a2, a3) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
-	
+		tText aIdent
+	) => SpecialIdent_('§', aIdent);
 	
 	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tOut, tError>
@@ -176,7 +78,7 @@ public static class mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIdentNode<tSpan>, tError>
 	Ident = IdentToken
-	.ModifyS(X(mSPO_AST.Ident))
+	.ModifyS(mTokenizer.X(mSPO_AST.Ident))
 	.SetName(nameof(Ident));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tNumberNode<tSpan>, tError>
@@ -187,7 +89,7 @@ public static class mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTextNode<tSpan>, tError>
 	Text = TextToken
-	.ModifyS(X(mSPO_AST.Text))
+	.ModifyS(mTokenizer.X(mSPO_AST.Text))
 	.SetName(nameof(Text));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLiteralNode<tSpan>, tError>
@@ -274,15 +176,15 @@ public static class mSPO_Parser {
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	//================================================================================
 	) => (
-		mParserGen.Seq(Ident, mParserGen.Seq(aChildParser, Ident)[0, null], aChildParser[0, 1])
+		mParserGen.Seq(mParserGen.Seq(aChildParser, Ident)[0, null], aChildParser[0, 1])
 		.ModifyS(
-			(aSpan, aFirstIdent, aList, aLastChild) => (
+			(aSpan, aList, aLastChild) => (
 				mSPO_AST.Ident(
 					aSpan,
 					aList.Map(
 						a => a.Item2.Name.Substring(1)
 					).Reduce(
-						aFirstIdent.Name.Substring(1),
+						"",
 						(a1, a2) => $"{a1}...{a2}"
 					) + (aLastChild.IsEmpty() ? "" : "...")
 				),
@@ -293,17 +195,22 @@ public static class mSPO_Parser {
 	
 	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mList.tList<tChild> Childs), tError>
-	Infix<tChild>(
-		tText aPrefix,
+	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	//================================================================================
 	) => (
-		(-SpecialToken(aPrefix) +Infix(aChildParser))
-	) | (
-		mParserGen.Seq(aChildParser, SpecialToken(aPrefix), Infix(aChildParser))
+		mParserGen.Seq(SpecialIdent('#'), Infix(aChildParser))
 		.ModifyS(
-			(aSpan, aFirstChild, _, aInfix) => (
-				Ident: mSPO_AST.Ident(aSpan, "..." + aInfix.Ident.Name.Substring(1)),
+			(aSpan, aFirstIdent, aInfix) => (
+				Ident: mSPO_AST.Ident(aSpan, aFirstIdent.Text.Substring(1) + aInfix.Ident.Name.Substring(1)),
+				Childs: aInfix.Childs
+			)
+		)
+	) | (
+		mParserGen.Seq(aChildParser, SpecialIdent('#'), Infix(aChildParser))
+		.ModifyS(
+			(aSpan, aFirstChild, aFirstIdent, aInfix) => (
+				Ident: mSPO_AST.Ident(aSpan, "..." + aFirstIdent.Text.Substring(1) + aInfix.Ident.Name.Substring(1)),
 				Childs: mList.List(aFirstChild, aInfix.Childs)
 			)
 		)
@@ -311,7 +218,32 @@ public static class mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCallNode<tSpan>, tError>
 	Call = (
-		Infix(".", ExpressionInCall).ModifyS(
+		(
+			(
+				mParserGen.Seq(
+					SpecialToken("."), Ident, Infix(ExpressionInCall)
+				).ModifyS(
+					(aSpan, _, aFirst, aInfix) => (
+						Ident: mSPO_AST.Ident(
+							mStd.Span(
+								mTextStream.Pos(aSpan.Start.Row, aSpan.Start.Col + 1),
+								aSpan.End
+							),
+							aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)
+						),
+						Childs: aInfix.Childs
+					)
+				)
+			) | (
+				mParserGen.Seq(ExpressionInCall, SpecialToken("."), Ident, Infix(ExpressionInCall))
+				.ModifyS(
+					(aSpan, aFirstChild, _, aFirst, aInfix) => (
+						Ident: mSPO_AST.Ident(aSpan, "..." + aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)),
+						Childs: mList.List(aFirstChild, aInfix.Childs)
+					)
+				)
+			)
+		).ModifyS(
 			(aSpan, a) => mSPO_AST.Call(aSpan, a.Ident, mSPO_AST.Tuple(aSpan, a.Childs))
 		) | (
 			-SpecialToken(".") +(ExpressionInCall +ExpressionInCall).ModifyS(mSPO_AST.Call)
@@ -320,12 +252,12 @@ public static class mSPO_Parser {
 	.SetName(nameof(Call));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixNode<tSpan>, tError>
-	Prefix = Infix("#", ExpressionInCall)
+	Prefix = InfixPrefix(ExpressionInCall)
 	.ModifyS((aSpan, aIdent, aChilds) => mSPO_AST.Prefix(aSpan, aIdent, mSPO_AST.Tuple(aSpan, aChilds)))
 	.SetName(nameof(Prefix));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchPrefixNode<tSpan>, tError>
-	MatchPrefix = C( Infix("#", UnTypedMatch) )
+	MatchPrefix = C( InfixPrefix(UnTypedMatch) )
 	.ModifyS(
 		(aSpan, aIdent, aChilds) => mSPO_AST.MatchPrefix(
 			aSpan,
@@ -362,7 +294,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(TypeType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixTypeNode<tSpan>, tError>
-	PrefixType = mParserGen.Seq(SpecialToken("["), Infix("#", Expression), SpecialToken("]").OrFail())
+	PrefixType = mParserGen.Seq(SpecialToken("["), InfixPrefix(Expression), SpecialToken("]").OrFail())
 	.Modify((_, aInfix, __) => aInfix)
 	.ModifyS(mSPO_AST.PrefixType)
 	.SetName(nameof(PrefixType));
@@ -523,13 +455,14 @@ public static class mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallNode<tSpan>, tError>
 	MethodCall = mParserGen.Seq(
+		Ident,
 		Infix(ExpressionInCall),
 		(-SpecialToken("=>") +(-KeyWord("DEF") +Match))[0, 1].Modify(aMatches => aMatches?.First())
 	)
 	.ModifyS(
-		(aSpan, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
+		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
 			aSpan,
-			aInfix.Ident,
+			mSPO_AST.Ident(aSpan, aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)),
 			mSPO_AST.Tuple(aSpan, aInfix.Childs),
 			aMaybeOut
 		)
