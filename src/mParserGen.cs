@@ -25,6 +25,8 @@ using tText = System.String;
 [assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mParserGen) + "_Test")]
 
 public static class mParserGen {
+	internal static readonly System.Collections.Generic.Dictionary<object, object> gCache
+	= new System.Collections.Generic.Dictionary<object, object>();
 	
 	#region Helper
 	// TODO: seperate file ???
@@ -763,6 +765,7 @@ public static class mParserGen {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
+		gCache.Clear();
 		using (mPerf.Measure()) {
 			try {
 				var Level = (tInt32?)0;
@@ -785,11 +788,15 @@ public static class mParserGen {
 	internal static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mList.tList<(mStd.tSpan<tPos>, tIn)> RestStream), mList.tList<tError>>
 	Parse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
-		mList.tList<(mStd.tSpan<tPos>, tIn)> aStream,
+		mList.tList<(mStd.tSpan<tPos> Span, tIn Value)> aStream,
 		mStd.tAction<tText> aDebugStream,
 		mList.tList<object> aInfinitLoopDetectionSet
 	//================================================================================
 	) {
+		var UseCache = typeof(tPos) != typeof(mStd.tEmpty) && !aStream.IsEmpty();
+		if (UseCache && gCache.TryGetValue((aParser, ""+aStream.Head.Span.Start), out var Result_)) {
+			return (mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mList.tList<(mStd.tSpan<tPos>, tIn)>), mList.tList<tError>>)Result_;
+		}
 		#if INF_LOOP_DETECTIOM
 		if (!aInfinitLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 			#if TRACE
@@ -831,6 +838,9 @@ public static class mParserGen {
 				aDebugStream("} -> FAIL");
 			}
 		#endif
+		if (UseCache) {
+			gCache.Add((aParser, ""+aStream.Head.Span.Start), Result);
+		}
 		return Result;
 	}
 	
