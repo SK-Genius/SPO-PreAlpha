@@ -20,8 +20,6 @@ public static class mTextStream {
 	public struct tPos {
 		public tInt32 Row;
 		public tInt32 Col;
-		
-		public override tText ToString() => $"({this.Row}:{this.Col})";
 	}
 	
 	//================================================================================
