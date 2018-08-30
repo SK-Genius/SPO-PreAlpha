@@ -25,9 +25,6 @@ using tText = System.String;
 [assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mParserGen) + "_Test")]
 
 public static class mParserGen {
-	internal static readonly System.Collections.Generic.Dictionary<object, object> gCache
-	= new System.Collections.Generic.Dictionary<object, object>();
-	
 	#region Helper
 	// TODO: seperate file ???
 	
@@ -374,6 +371,12 @@ public static class mParserGen {
 	#endregion
 	
 	public sealed class tParser<tPos, tIn, tOut, tError> {
+		internal int _CachCount = 0;
+		internal mList.tList<(mList.tList<(mStd.tSpan<tPos> Span, tIn Value)>, mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mList.tList<(mStd.tSpan<tPos>, tIn)>), mList.tList<tError>>)>
+		_Cache = null;
+		internal mList.tList<(mList.tList<(mStd.tSpan<tPos> Span, tIn Value)>, mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mList.tList<(mStd.tSpan<tPos>, tIn)>), mList.tList<tError>>)>
+		_Cache2 = null;
+		
 		internal mStd.tFunc<
 			mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mList.tList<(mStd.tSpan<tPos> Span, tIn Value)> RestStream), mList.tList<tError>>,
 			mList.tList<(mStd.tSpan<tPos> Span, tIn Value)>,
@@ -765,7 +768,6 @@ public static class mParserGen {
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		gCache.Clear();
 		using (mPerf.Measure()) {
 			try {
 				var Level = (tInt32?)0;
@@ -793,10 +795,6 @@ public static class mParserGen {
 		mList.tList<object> aInfinitLoopDetectionSet
 	//================================================================================
 	) {
-		var UseCache = typeof(tPos) != typeof(mStd.tEmpty) && !aStream.IsEmpty();
-		if (UseCache && gCache.TryGetValue((aParser, ""+aStream.Head.Span.Start), out var Result_)) {
-			return (mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mList.tList<(mStd.tSpan<tPos>, tIn)>), mList.tList<tError>>)Result_;
-		}
 		#if INF_LOOP_DETECTIOM
 		if (!aInfinitLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 			#if TRACE
@@ -805,6 +803,16 @@ public static class mParserGen {
 			return mStd.Fail(mList.List<tError>());
 		}
 		#endif
+		
+		var Temp = aParser._Cache.Where(_ => ReferenceEquals(_.Item1, aStream));
+		if (Temp.IsEmpty()) {
+			Temp = aParser._Cache2.Where(_ => ReferenceEquals(_.Item1, aStream));
+			if (!Temp.IsEmpty()) {
+				return Temp.Head.Item2;
+			}
+		} else {
+			return Temp.Head.Item2;
+		}
 		
 		#if TRACE
 			if (aParser._DebugName != null) {
@@ -815,6 +823,7 @@ public static class mParserGen {
 				aDebugStream("??? -> {");
 			}
 		#endif
+		
 		mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mList.tList<(mStd.tSpan<tPos>, tIn)>), mList.tList<tError>> Result;
 		var Head = aStream is null ? default : aStream.First();
 		try {
@@ -831,6 +840,7 @@ public static class mParserGen {
 		) {
 			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, Head));
 		}
+		
 		#if TRACE
 			if (Result.Match(out var Results, out var _)) {
 				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
@@ -838,9 +848,15 @@ public static class mParserGen {
 				aDebugStream("} -> FAIL");
 			}
 		#endif
-		if (UseCache) {
-			gCache.Add((aParser, ""+aStream.Head.Span.Start), Result);
+		
+		if (aParser._CachCount > 10) {
+			aParser._Cache2 = aParser._Cache;
+			aParser._Cache = null;
+			aParser._CachCount = 0;
 		}
+		aParser._Cache = mList.List((aStream, Result));
+		aParser._CachCount += 1;
+		
 		return Result;
 	}
 	
