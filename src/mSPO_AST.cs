@@ -75,7 +75,7 @@ public static class mSPO_AST {
 	
 	public struct tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tMatchNode<tPos>> Items;
+		public mStream.tStream<tMatchNode<tPos>> Items;
 	}
 	
 	public struct tMatchNode<tPos> : tMatchItemNode<tPos> {
@@ -117,7 +117,7 @@ public static class mSPO_AST {
 	
 	public struct tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tCommandNode<tPos>> Commands;
+		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
 	public struct tCallNode<tPos> : tExpressionNode<tPos> {
@@ -140,7 +140,7 @@ public static class mSPO_AST {
 	
 	public struct tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tRecLambdaItemNode<tPos>> List;
+		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
 	}
 	
 	public struct tReturnIfNode<tPos> : tCommandNode<tPos> {
@@ -151,29 +151,29 @@ public static class mSPO_AST {
 	
 	public struct tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)> Cases;
+		public mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> Cases;
 	}
 	
 	public struct tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Expression;
-		public mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)> Cases;
+		public mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> Cases;
 	}
 	
 	public struct tPrefixTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public tIdentNode<tPos> Prefix;
-		public mList.tList<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
 	public struct tTupleTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
 	public struct tSetTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
 	public struct tLambdaTypeNode<tPos> : tExpressionNode<tPos> {
@@ -204,7 +204,7 @@ public static class mSPO_AST {
 		public tPos Pos { get; set; }
 		public tIdentNode<tPos> Ident;
 		public tExpressionNode<tPos> Expression;
-		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
+		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
 	public struct tVarToValNode<tPos> : tExpressionNode<tPos> {
@@ -222,12 +222,12 @@ public static class mSPO_AST {
 	public struct tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Object;
-		public mList.tList<tMethodCallNode<tPos>> MethodCalls;
+		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
 	public struct tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mList.tList<tExpressionNode<tPos>> Items;
+		public mStream.tStream<tExpressionNode<tPos>> Items;
 	}
 	
 	public struct tImportNode<tPos> {
@@ -244,7 +244,7 @@ public static class mSPO_AST {
 		public tPos Pos { get; set; }
 		public tImportNode<tPos> Import;
 		public tExportNode<tPos> Export;
-		public mList.tList<tCommandNode<tPos>> Commands;
+		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
 	//================================================================================
@@ -356,7 +356,7 @@ public static class mSPO_AST {
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
-		mList.tList<tExpressionNode<tPos>> aItems
+		mStream.tStream<tExpressionNode<tPos>> aItems
 	//================================================================================
 	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
@@ -380,7 +380,7 @@ public static class mSPO_AST {
 	PrefixType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aPrefix,
-		mList.tList<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tExpressionNode<tPos>> aTypes
 	//================================================================================
 	) => new tPrefixTypeNode<tPos> {
 		Pos = aPos,
@@ -392,7 +392,7 @@ public static class mSPO_AST {
 	public static tTupleTypeNode<tPos>
 	TupleType<tPos>(
 		tPos aPos,
-		mList.tList<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tExpressionNode<tPos>> aTypes
 	//================================================================================
 	) => new tTupleTypeNode<tPos> {
 		Pos = aPos,
@@ -403,7 +403,7 @@ public static class mSPO_AST {
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
 		tPos aPos,
-		mList.tList<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tExpressionNode<tPos>> aTypes
 	//================================================================================
 	) => new tSetTypeNode<tPos> {
 		Pos = aPos,
@@ -559,7 +559,7 @@ public static class mSPO_AST {
 	public static tRecLambdasNode<tPos>
 	RecLambdas<tPos>(
 		tPos aPos,
-		mList.tList<tRecLambdaItemNode<tPos>> aList
+		mStream.tStream<tRecLambdaItemNode<tPos>> aList
 	//================================================================================
 	) => new tRecLambdasNode<tPos> {
 		Pos = aPos,
@@ -570,7 +570,7 @@ public static class mSPO_AST {
 	public static tMatchItemNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
-		mList.tList<tMatchNode<tPos>> aItems
+		mStream.tStream<tMatchNode<tPos>> aItems
 	//================================================================================
 	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
@@ -641,7 +641,7 @@ public static class mSPO_AST {
 	public static tIfNode<tPos>
 	If<tPos>(
 		tPos aPos,
-		mList.tList<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
+		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
 	//================================================================================
 	) => new tIfNode<tPos> {
 		Pos = aPos,
@@ -653,7 +653,7 @@ public static class mSPO_AST {
 	IfMatch<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aExpression,
-		mList.tList<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
+		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
 	//================================================================================
 	) => new tIfMatchNode<tPos> {
 		Pos = aPos,
@@ -667,7 +667,7 @@ public static class mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aVar,
 		tExpressionNode<tPos> aExpression,
-		mList.tList<tMethodCallNode<tPos>> aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
 	//================================================================================
 	) => new tDefVarNode<tPos> {
 		Pos = aPos,
@@ -692,7 +692,7 @@ public static class mSPO_AST {
 	MethodCallStatment<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aObject,
-		mList.tList<tMethodCallNode<tPos>> aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
 	//================================================================================
 	) => new tMethodCallsNode<tPos> {
 		Pos = aPos,
@@ -719,7 +719,7 @@ public static class mSPO_AST {
 	public static tBlockNode<tPos>
 	Block<tPos>(
 		tPos aPos,
-		mList.tList<tCommandNode<tPos>> aCommands
+		mStream.tStream<tCommandNode<tPos>> aCommands
 	//================================================================================
 	) => new tBlockNode<tPos> {
 		Pos = aPos,
@@ -731,7 +731,7 @@ public static class mSPO_AST {
 	Module<tPos>(
 		tPos aPos,
 		tImportNode<tPos> aImport,
-		mList.tList<tCommandNode<tPos>> aCommands,
+		mStream.tStream<tCommandNode<tPos>> aCommands,
 		tExportNode<tPos> aExport
 	//================================================================================
 	) => new tModuleNode<tPos> {

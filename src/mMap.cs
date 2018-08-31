@@ -1,4 +1,4 @@
-﻿//IMPORT mList.cs
+﻿//IMPORT mStream.cs
 //IMPORT mDebug.cs
 
 using tBool = System.Boolean;
@@ -19,7 +19,7 @@ using tText = System.String;
 public static class mMap {
 	
 	public struct tMap<tKey, tValue> {
-		internal mList.tList<(tKey, tValue)> _KeyValuePairs;
+		internal mStream.tStream<(tKey, tValue)> _KeyValuePairs;
 		internal mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 	}
 	
@@ -29,7 +29,7 @@ public static class mMap {
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 	//================================================================================
 	) => new tMap<tKey, tValue>{
-		_KeyValuePairs = mList.List<(tKey, tValue)>(),
+		_KeyValuePairs = mStream.Stream<(tKey, tValue)>(),
 		_EqualsFunc = aEqualsFunc
 	};
 	
@@ -86,7 +86,7 @@ public static class mMap {
 	//================================================================================
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
-		_KeyValuePairs = mList.List(
+		_KeyValuePairs = mStream.Stream(
 			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
 				((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)

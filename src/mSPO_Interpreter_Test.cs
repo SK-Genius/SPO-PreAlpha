@@ -242,7 +242,7 @@ public static class mSPO_Interpreter_Test {
 	[xTestCase("Run7")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

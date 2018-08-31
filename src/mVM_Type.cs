@@ -316,7 +316,7 @@ public static class mVM_Type {
 			if (ReferenceEquals(a1.Refs, a2.Refs)) {
 				return;
 			}
-			var Aliases = mList.Concat(mList.List(a1.Refs), mList.List(a2.Refs));
+			var Aliases = mStream.Concat(mStream.Stream(a1.Refs), mStream.Stream(a2.Refs));
 			var NewRefs = Aliases.ToArrayList().ToArray();
 			while (Aliases.Match(out var Alias, out Aliases)) {
 				Alias.Id = a1.Id;
@@ -327,7 +327,7 @@ public static class mVM_Type {
 		
 		if (a1.Kind == tKind.Free) {
 			// TODO: check aginst cycles (a1 in a2)
-			var Aliases = mList.List(a1.Refs);
+			var Aliases = mStream.Stream(a1.Refs);
 			while (Aliases.Match(out var Alias, out Aliases)) {
 				Alias.Kind = a2.Kind;
 				Alias.Id = a2.Id;

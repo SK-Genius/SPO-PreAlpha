@@ -84,7 +84,7 @@ public static class mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aReg,
-		mList.tList<tText> aSymbols
+		mStream.tStream<tText> aSymbols
 	//================================================================================
 	) {
 		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
@@ -1002,9 +1002,9 @@ public static class mSPO2IL {
 							aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.First().Pos,
 							aModuleNode.Export.Pos
 						),
-						mList.Concat(
+						mStream.Concat(
 							aModuleNode.Commands,
-							mList.List<mSPO_AST.tCommandNode<tPos>>(
+							mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
 								mSPO_AST.ReturnIf(
 									aModuleNode.Export.Pos,
 									aModuleNode.Export.Expression,

@@ -1,4 +1,4 @@
-﻿//IMPORT mList.cs
+﻿//IMPORT mStream.cs
 //IMPORT mMath.cs
 //IMPORT mDebug.cs
 
@@ -173,22 +173,22 @@ public static class mArrayList {
 	}
 	
 	//================================================================================
-	public static mList.tList<t>
+	public static mStream.tStream<t>
 	ToLasyList<t>(
 		this tArrayList<t> aList,
 		tInt32 aStartIndex
 	//================================================================================
 	) => (
 		(aStartIndex >= aList._CurrSize)
-		? mList.List<t>()
-		: mList.List(
+		? mStream.Stream<t>()
+		: mStream.Stream(
 			aList._Items[aStartIndex],
 			() => aList.ToLasyList(aStartIndex + 1)
 		)
 	);
 	
 	//================================================================================
-	public static mList.tList<t>
+	public static mStream.tStream<t>
 	ToLasyList<t>(
 		this tArrayList<t> aList
 	//================================================================================
@@ -197,7 +197,7 @@ public static class mArrayList {
 	//================================================================================
 	public static tArrayList<t>
 	ToArrayList<t>(
-		this mList.tList<t> aList
+		this mStream.tStream<t> aList
 	//================================================================================
 	) => aList.Reduce(List<t>(), Push);
 	

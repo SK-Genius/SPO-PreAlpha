@@ -54,7 +54,7 @@ public static class mTokenizer_Test {
 				).Result;
 				mStd.AssertEq(
 					TokenList,
-					mList.List(
+					mStream.Stream(
 						new mTokenizer.tToken{ Span = Span((1, 1), (1, 1)), Text = "a", Type = mTokenizer.tTokenType.Ident },
 						new mTokenizer.tToken{ Span = Span((1, 3), (1, 3)), Text = ":", Type = mTokenizer.tTokenType.SpecialToken },
 						new mTokenizer.tToken{ Span = Span((1, 4), (1, 4)), Text = "=", Type = mTokenizer.tTokenType.Ident },
@@ -80,7 +80,7 @@ public static class mTokenizer_Test {
 	[xTestCase("TwoLines")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

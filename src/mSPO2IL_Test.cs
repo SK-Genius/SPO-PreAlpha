@@ -185,7 +185,7 @@ public static class mSPO2IL_Test {
 				
 				mStd.AssertEq(
 					DefConstructor.Commands.ToLasyList(),
-					mList.List(
+					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 48), (1, 48)),mSPO2IL.TempReg(1), "4"),
 						mIL_AST.CreatePair(Span((1, 48), (1, 48)),mSPO2IL.TempReg(2),mSPO2IL.TempReg(1), mIL_AST.cEmpty),
 						mIL_AST.CreateInt(Span((1, 45), (1, 45)),mSPO2IL.TempReg(3), "3"),
@@ -370,7 +370,7 @@ public static class mSPO2IL_Test {
 			"MapModule",
 			aStreamOut => {
 				var ModuleNode = mSPO_Parser.Module.ParseText(
-					mList.List(
+					mStream.Stream(
 						"§IMPORT (",
 						"	T € [[]]",
 						"	...*... € [[T, T] => T]",
@@ -447,7 +447,7 @@ public static class mSPO2IL_Test {
 	[xTestCase("MapModule")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

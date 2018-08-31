@@ -27,11 +27,11 @@ public static class mParserGen_Test {
 	private static readonly mStd.tSpan<mStd.tEmpty> cTestSpan = default;
 	
 	//================================================================================
-	private static mList.tList<(mStd.tSpan<mStd.tEmpty>, t)>
+	private static mStream.tStream<(mStd.tSpan<mStd.tEmpty>, t)>
 	TestStream<t>(
 		params t[] a 
 	//================================================================================
-	) => mList.List(a).Map(_ => (cTestSpan, _));
+	) => mStream.Stream(a).Map(_ => (cTestSpan, _));
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
@@ -109,16 +109,16 @@ public static class mParserGen_Test {
 			aDebugStream => {
 				var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A")[2, 3];
 				mStd.Assert(A2_3.StartParse(TestStream('A', 'A', '_'), aDebugStream).Match(out var Result, out var ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A')), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A')), TestStream('_')));
 				
 				mStd.Assert(A2_3.StartParse(TestStream('A', 'A', 'A', '_'), aDebugStream).Match(out Result, out ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A', 'A')), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('_')));
 				
 				mStd.Assert(A2_3.StartParse(TestStream('A', 'A', 'A', '_'), aDebugStream).Match(out Result, out ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A', 'A')), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('_')));
 				
 				mStd.Assert(A2_3.StartParse(TestStream('A', 'A', 'A', 'A', '_'), aDebugStream).Match(out Result, out ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A', 'A')), TestStream('A', '_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('A', '_')));
 				
 				mStd.AssertNot(A2_3.StartParse(TestStream<tChar>(), aDebugStream).Match(out Result, out ErrorList));
 				mStd.AssertNot(A2_3.StartParse(TestStream('_'), aDebugStream).Match(out Result, out ErrorList));
@@ -132,10 +132,10 @@ public static class mParserGen_Test {
 			aDebugStream => {
 				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A")[2, null];
 				mStd.Assert(A2_.StartParse(TestStream('A', 'A', '_'), aDebugStream).Match(out var Result, out var ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A')), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A')), TestStream('_')));
 				
 				mStd.Assert(A2_.StartParse(TestStream('A', 'A', 'A', '_'), aDebugStream).Match(out Result, out ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, mList.List('A', 'A', 'A')), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('_')));
 				
 				mStd.AssertNot(A2_.StartParse(TestStream<tChar>(), aDebugStream).Match(out Result, out ErrorList));
 				mStd.AssertNot(A2_.StartParse(TestStream('_'), aDebugStream).Match(out Result, out ErrorList));
@@ -170,10 +170,10 @@ public static class mParserGen_Test {
 				var AB = mParserGen.Seq(A, B).Modify(a => "AB");
 				var nAB = ~AB;
 				mStd.Assert(nAB.StartParse(TestStream('A', 'B', '_'), aDebugStream).Match(out var Result, out var ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, (mList.List<tChar>(), "AB")), TestStream('_')));
+				mStd.AssertEq(Result, ((cTestSpan, (mStream.Stream<tChar>(), "AB")), TestStream('_')));
 				
 				mStd.Assert(nAB.StartParse(TestStream('B', 'A', 'A', 'B', 'A', '_'), aDebugStream).Match(out Result, out ErrorList));
-				mStd.AssertEq(Result, ((cTestSpan, (mList.List('B', 'A'), "AB")), TestStream('A', '_')));
+				mStd.AssertEq(Result, ((cTestSpan, (mStream.Stream('B', 'A'), "AB")), TestStream('A', '_')));
 				
 				mStd.AssertNot(nAB.StartParse(TestStream<tChar>(), aDebugStream).Match(out Result, out ErrorList));
 				mStd.AssertNot(nAB.StartParse(TestStream('_'), aDebugStream).Match(out Result, out ErrorList));
@@ -302,7 +302,7 @@ public static class mParserGen_Test {
 	[xTestCase("Eval('MathExpr')")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

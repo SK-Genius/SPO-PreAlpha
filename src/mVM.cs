@@ -398,7 +398,7 @@ public static class mVM {
 	//================================================================================
 	public static mVM_Data.tData
 	GetModuleFactory<tPos>(
-		mList.tList<mVM_Data.tProcDef<tPos>> aDefs
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aDefs
 	//================================================================================
 	) {
 		var Env = mVM_Data.Empty();

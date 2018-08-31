@@ -2,7 +2,7 @@
 //IMPORT mIL_AST_Test.cs
 //IMPORT mIL_Interpreter_Test.cs
 //IMPORT mIL_Parser_Test.cs
-//IMPORT mList_Test.cs
+//IMPORT mStream_Test.cs
 //IMPORT mMap_Test.cs
 //IMPORT mParserGen_Test.cs
 //IMPORT mSPO_AST_Test.cs
@@ -45,7 +45,7 @@ public static class mRunTests {
 	static mTest.tTest Test = mTest.Tests(
 		"All",
 		mStd_Test.Test,
-		mList_Test.Test,
+		mStream_Test.Test,
 		mMap_Test.Test,
 //		mMath_Test.Test,
 		mArrayList_Test.Test,
@@ -68,7 +68,7 @@ public static class mRunTests {
 	//================================================================================
 	public static mTest.tResult
 	SelfTests(
-		mList.tList<tText> aFilters,
+		mStream.tStream<tText> aFilters,
 		mStd.tAction<tText> aDebugOut
 	//================================================================================
 	) => Test.Run(aDebugOut, aFilters);
@@ -81,7 +81,7 @@ public static class mRunTests {
 	) {
 		if (
 			SelfTests(
-				mList.List(aArgs),
+				mStream.Stream(aArgs),
 				_ => {
 					System.Console.WriteLine(_);
 					System.Console.Out.Flush();
@@ -97,7 +97,7 @@ public static class mRunTests {
 	[xTestCase("")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

@@ -1,4 +1,4 @@
-﻿//IMPORT mList.cs
+﻿//IMPORT mStream.cs
 
 using tBool = System.Boolean;
 
@@ -50,13 +50,13 @@ public static class mTextStream {
 	};
 	
 	//================================================================================
-	public static mList.tList<tError>
+	public static mStream.tStream<tError>
 	Reduce(
-		this mList.tList<tError> aErrors
+		this mStream.tStream<tError> aErrors
 	//================================================================================
 	) => aErrors.Reduce(
-		mList.List<tError>(),
-		(aOldList, aNew) => mList.List(
+		mStream.Stream<tError>(),
+		(aOldList, aNew) => mStream.Stream(
 			aNew,
 			aOldList.Where(
 				aOld => (
@@ -97,7 +97,7 @@ public static class mTextStream {
 	//================================================================================
 	public static tText
 	ToText(
-		this mList.tList<tError> aErrors,
+		this mStream.tStream<tError> aErrors,
 		tText[] aSrcLines
 	//================================================================================
 	) => aErrors
@@ -106,7 +106,7 @@ public static class mTextStream {
 		.Reduce("", (a1, a2) => a1 + "\n" + a2);
 	
 	//================================================================================
-	public static mList.tList<(tPos Pos, tChar Char)>
+	public static mStream.tStream<(tPos Pos, tChar Char)>
 	TextToStream(
 		tText a
 	//================================================================================
@@ -114,7 +114,7 @@ public static class mTextStream {
 		var Col = (int?)1;
 		var Row = (int?)1;
 		
-		return mList.List(a.ToCharArray())
+		return mStream.Stream(a.ToCharArray())
 			.Where(_ => _ != '\r')
 			.Map(
 				aChar => {

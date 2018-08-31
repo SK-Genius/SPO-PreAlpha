@@ -1,4 +1,4 @@
-﻿//IMPORT mList.cs
+﻿//IMPORT mStream.cs
 
 using tBool = System.Boolean;
 
@@ -64,7 +64,7 @@ public static class mTest {
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
-		mList.tList<tText> aFilters
+		mStream.tStream<tText> aFilters
 	//================================================================================
 	) {
 		const tText cTab = "|  ";

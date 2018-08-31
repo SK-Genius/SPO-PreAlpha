@@ -16,19 +16,19 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mList {
+public static class mStream {
 	
-	public sealed class tList<t> {
+	public sealed class tStream<t> {
 		internal t _Head;
-		internal mStd.tLazy<tList<t>> _Tail;
+		internal mStd.tLazy<tStream<t>> _Tail;
 		
 		public t Head => this.First();
-		public tList<t> Tail => this.Skip(1);
+		public tStream<t> Tail => this.Skip(1);
 		
 		//================================================================================
 		public tBool
 		Equals(
-			tList<t> a
+			tStream<t> a
 		//================================================================================
 		) => (
 			this.Match(out var Head1, out var Tail1) &&
@@ -37,17 +37,17 @@ public static class mList {
 			(Tail1 is null ? Tail2 is null : Tail1.Equals(Tail2))
 		);
 		
-		override public tBool Equals(object a) => Equals(a as tList<t>);
+		override public tBool Equals(object a) => this.Equals(a as tStream<t>);
 	}
 	
 	//================================================================================
-	public static tList<t>
-	List<t>(
+	public static tStream<t>
+	Stream<t>(
 		t aHead,
-		mStd.tFunc<tList<t>> aTailFunc
+		mStd.tFunc<tStream<t>> aTailFunc
 	//================================================================================
 	) {
-		var Result = new tList<t> {
+		var Result = new tStream<t> {
 			_Head = aHead
 		};
 		Result._Tail.Func = aTailFunc;
@@ -55,13 +55,13 @@ public static class mList {
 	}
 	
 	//================================================================================
-	public static tList<t>
-	List<t>(
+	public static tStream<t>
+	Stream<t>(
 		t aHead,
-		tList<t> aTail
+		tStream<t> aTail
 	//================================================================================
 	) {
-		var Result = new tList<t> {
+		var Result = new tStream<t> {
 			_Head = aHead
 		};
 		Result._Tail.Value = aTail;
@@ -69,92 +69,92 @@ public static class mList {
 	}
 	
 	//================================================================================
-	public static tList<t>
-	List<t>(
-		params t[] aList
+	public static tStream<t>
+	Stream<t>(
+		params t[] aStream
 	//================================================================================
 	) {
-		var Result = (tList<t>)null;
-		for (var I = aList.Length; I --> 0;) {
-			Result = List(aList[I], Result);
+		var Result = (tStream<t>)null;
+		for (var I = aStream.Length; I --> 0;) {
+			Result = Stream(aStream[I], Result);
 		}
 		return Result;
 	}
 	
 	//================================================================================
-	public static tList<tInt32>
+	public static tStream<tInt32>
 	Nat(
 		int aStart
 	//================================================================================
-	) => List(aStart, () => Nat(aStart+1));
+	) => Stream(aStart, () => Nat(aStart+1));
 	
 	//================================================================================
 	public static tBool
 	Match<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		out t aHead,
-		out tList<t> aTail
+		out tStream<t> aTail
 	//================================================================================
 	) {
-		if (aList.IsEmpty()) {
+		if (aStream.IsEmpty()) {
 			aHead = default;
 			aTail = default;
 			return false;
 		}
-		aHead = aList._Head;
-		aTail = aList._Tail.Value;
+		aHead = aStream._Head;
+		aTail = aStream._Tail.Value;
 		return true;
 	}
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Concat<t>(
-		tList<t> a1,
-		tList<t> a2
+		tStream<t> a1,
+		tStream<t> a2
 	//================================================================================
 	) => (
 		a1.Match(out var Head, out var Tail)
-		? List(Head, () => Concat(Tail, a2))
+		? Stream(Head, () => Concat(Tail, a2))
 		: a2
 	);
 	
 	//================================================================================
-	public static tList<tRes>
+	public static tStream<tRes>
 	Map<tRes, tElem>(
-		this tList<tElem> aList,
+		this tStream<tElem> aStream,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	//================================================================================
 	) => (
-		aList.Match(out var Head, out var Tail)
-		? List(aMapFunc(Head), () => Tail.Map(aMapFunc))
-		: List<tRes>()
+		aStream.Match(out var Head, out var Tail)
+		? Stream(aMapFunc(Head), () => Tail.Map(aMapFunc))
+		: Stream<tRes>()
 	);
 	
 	//================================================================================
-	public static tList<tRes>
+	public static tStream<tRes>
 	MapWithIndex<tRes, tElem>(
-		this tList<tElem> aList,
+		this tStream<tElem> aStream,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
 	//================================================================================
-	) => Zip(Nat(0), aList).Map(a => aMapFunc(a._1, a._2));
+	) => Zip(Nat(0), aStream).Map(a => aMapFunc(a._1, a._2));
 	
 	//================================================================================
 	public static tRes
 	Reduce<tRes, tElem>(
-		this tList<tElem> aList,
+		this tStream<tElem> aStream,
 		tRes aInitialAgregate,
 		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
 	//================================================================================
 	#if TAIL_RECURSIVE
 	) => (
-		aList.Match(out var Head, out var Tail)
+		aStream.Match(out var Head, out var Tail)
 		? Tail.Reduce(aAgregatorFunc(aInitialAgregate, Head), aAgregatorFunc)
 		: aInitialAgregate
 	);
 	#else
 	){
 		var Result = aInitialAgregate;
-		while (aList.Match(out var Head, out aList)) {
+		while (aStream.Match(out var Head, out aStream)) {
 			Result = aAgregatorFunc(Result, Head);
 		}
 		return Result;
@@ -162,102 +162,102 @@ public static class mList {
 	#endif
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Flat<t>(
-		this tList<tList<t>> aListList
+		this tStream<tStream<t>> aStreamStream
 	//================================================================================
-	) => aListList.Reduce(List<t>(), Concat);
+	) => aStreamStream.Reduce(Stream<t>(), Concat);
 	
 	//================================================================================
 	public static t
 	Join<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		mStd.tFunc<t, t, t> aAgregatorFunc
 	//================================================================================
 	) => (
-		aList.Match(out var Head, out var Tail)
+		aStream.Match(out var Head, out var Tail)
 		? Tail.Reduce(Head, aAgregatorFunc)
 		: default
 	);
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Take<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		tInt32 aCount
 	//================================================================================
 	) => (
-		(aCount > 0 && aList.Match(out var Head, out var Tail))
-		? List(Head, () => Tail.Take(aCount-1))
-		: List<t>()
+		(aCount > 0 && aStream.Match(out var Head, out var Tail))
+		? Stream(Head, () => Tail.Take(aCount-1))
+		: Stream<t>()
 	);
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Skip<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		tInt32 aCount
 	//================================================================================
 	) {
 		#if TAIL_RECURSIVE
 		mDebug.Assert(aCount >= 0);
 		return (
-			(aCount > 0 && aList.Match(out var Head, out var Tail))
+			(aCount > 0 && aStream.Match(out var Head, out var Tail))
 			? Tail.Skip(aCount - 1)
-			: aList
+			: aStream
 		);
 		#else
-		while (aCount --> 0 && aList.Match(out var _, out aList)) { }
-		return aList;
+		while (aCount --> 0 && aStream.Match(out var _, out aStream)) { }
+		return aStream;
 		#endif
 	}
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Every<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		tInt32 aCount
 	//================================================================================
 	) => (
-		aList.Match(out var Head, out var Tail)
-		? List(Head, () => Tail.Skip(aCount - 1).Every(aCount))
-		: List<t>()
+		aStream.Match(out var Head, out var Tail)
+		? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))
+		: Stream<t>()
 	);
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Where<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		mStd.tFunc<tBool, t> aPredicate
 	//================================================================================
 	) => (
-		!aList.Match(out var Head, out var Tail) ? List<t>() :
-		aPredicate(Head) ? List(Head, () => Tail.Where(aPredicate)) :
+		!aStream.Match(out var Head, out var Tail) ? Stream<t>() :
+		aPredicate(Head) ? Stream(Head, () => Tail.Where(aPredicate)) :
 		Tail.Where(aPredicate)
 	);
 	
 	//================================================================================
 	public static tBool
 	IsEmpty<t>(
-		this tList<t> aList
+		this tStream<t> aStream
 	//================================================================================
-	) => aList is null;
+	) => aStream is null;
 	
 	//================================================================================
 	public static t
 	First<t>(
-		this tList<t> aList
+		this tStream<t> aStream
 	//================================================================================
-	) => aList._Head;
+	) => aStream._Head;
 	
 	//================================================================================
 	public static t
 	Last<t>(
-		this tList<t> aList
+		this tStream<t> aStream
 	//================================================================================
 	) {
-		var Result = aList.First();
-		while (aList.Match(out var Head, out aList)) {
+		var Result = aStream.First();
+		while (aStream.Match(out var Head, out aStream)) {
 			Result = Head;
 		}
 		return Result;
@@ -266,59 +266,59 @@ public static class mList {
 	//================================================================================
 	public static tBool
 	Any(
-		this tList<tBool> aList
+		this tStream<tBool> aStream
 	//================================================================================
-	) => aList.Match(out var Head, out var Tail) && (Head || Tail.Any());
+	) => aStream.Match(out var Head, out var Tail) && (Head || Tail.Any());
 	
 	//================================================================================
 	public static tBool
 	Any<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		mStd.tFunc<tBool, t> aPrefix
 	//================================================================================
-	) => aList.Map(aPrefix).Any();
+	) => aStream.Map(aPrefix).Any();
 	
 	//================================================================================
 	public static tBool
 	All(
-		this tList<tBool> aList
+		this tStream<tBool> aStream
 	//================================================================================
-	) => !aList.Map(_ => !_).Any();
+	) => !aStream.Map(_ => !_).Any();
 	
 	//================================================================================
 	public static tBool
 	All<t>(
-		this tList<t> aList,
+		this tStream<t> aStream,
 		mStd.tFunc<tBool, t> aPrefix
 	//================================================================================
-	) => aList.Map(aPrefix).All();
+	) => aStream.Map(aPrefix).All();
 	
 	//================================================================================
-	public static tList<t>
+	public static tStream<t>
 	Reverse<t>(
-		this tList<t> aList
+		this tStream<t> aStream
 	//================================================================================
 	) {
-		var Result = List<t>();
-		var Tail = aList;
+		var Result = Stream<t>();
+		var Tail = aStream;
 		while (Tail.Match(out var Head, out Tail)) {
-			Result = List(Head, Result);
+			Result = Stream(Head, Result);
 		}
 		return Result;
 	}
 	
 	//================================================================================
-	public static tList<(t1 _1, t2 _2)>
+	public static tStream<(t1 _1, t2 _2)>
 	Zip<t1, t2>(
-		tList<t1> a1,
-		tList<t2> a2
+		tStream<t1> a1,
+		tStream<t2> a2
 	//================================================================================
 	) => (
 		(
 			a1.Match(out var Head1, out var Tail1) &&
 			a2.Match(out var Head2, out var Tail2)
 		)
-		? List((Head1, Head2), () => Zip(Tail1, Tail2))
-		: List<(t1, t2)>()
+		? Stream((Head1, Head2), () => Zip(Tail1, Tail2))
+		: Stream<(t1, t2)>()
 	);
 }

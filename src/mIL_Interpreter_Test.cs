@@ -30,7 +30,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 public static class mIL_Interpreter_Test {
 	
 	//================================================================================
-	public static (mList.tList<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		mStd.tAction<tText> aTrace
@@ -425,7 +425,7 @@ public static class mIL_Interpreter_Test {
 	[xTestCase("ParseModule")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

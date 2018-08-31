@@ -140,7 +140,7 @@ public static class mTextParser {
 		}
 		return Parser
 		.Modify(aSpan => aToken)
-		.ModifyErrors((_, a) => mList.List(mTextStream.Error(a.Span.Start, $"expect '{aToken}'")))
+		.ModifyErrors((_, a) => mStream.Stream(mTextStream.Error(a.Span.Start, $"expect '{aToken}'")))
 		.SetDebugName("\"", aToken, "\"");
 	}
 	

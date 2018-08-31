@@ -48,16 +48,16 @@ public static class mArrayList_Test {
 		mTest.Test(
 			"tArrayList.ToArrayList()",
 			aStreamOut => {
-				mStd.AssertEq(mList.List(1, 2, 3).ToArrayList(), mArrayList.List(1, 2, 3));
-				mStd.AssertEq(mList.List<tInt32>().ToArrayList(), mArrayList.List<tInt32>());
+				mStd.AssertEq(mStream.Stream(1, 2, 3).ToArrayList(), mArrayList.List(1, 2, 3));
+				mStd.AssertEq(mStream.Stream<tInt32>().ToArrayList(), mArrayList.List<tInt32>());
 			}
 		),
 		mTest.Test(
 			"tArrayList.ToLasyList()",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List<tInt32>().ToLasyList(), mList.List<tInt32>());
-				mStd.AssertEq(mArrayList.List(1).ToLasyList(), mList.List(1));
-				mStd.AssertEq(mArrayList.List(1, 2, 3).ToLasyList(), mList.List(1, 2, 3));
+				mStd.AssertEq(mArrayList.List<tInt32>().ToLasyList(), mStream.Stream<tInt32>());
+				mStd.AssertEq(mArrayList.List(1).ToLasyList(), mStream.Stream(1));
+				mStd.AssertEq(mArrayList.List(1, 2, 3).ToLasyList(), mStream.Stream(1, 2, 3));
 			}
 		),
 		mTest.Test(
@@ -147,7 +147,7 @@ public static class mArrayList_Test {
 	[xTestCase("mArrayList.Concat(...)")]
 	public static void _(tText a) {
 		mStd.AssertEq(
-			Test.Run(System.Console.WriteLine, mList.List(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

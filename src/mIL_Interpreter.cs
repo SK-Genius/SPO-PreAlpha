@@ -25,11 +25,11 @@ public static class mIL_Interpreter<tPos> {
 	
 	//================================================================================
 	public static (
-		mList.tList<mVM_Data.tProcDef<tPos>>,
+		mStream.tStream<mVM_Data.tProcDef<tPos>>,
 		mMap.tMap<tText, tInt32>
 	)
 	ParseModule(
-		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
@@ -38,7 +38,7 @@ public static class mIL_Interpreter<tPos> {
 				aTrace(nameof(ParseModule));
 			#endif
 			var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2) == 0);
-			var Module = mList.List<mVM_Data.tProcDef<tPos>>();
+			var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
 			
 			var RestDefs = aDefs;
 			while (RestDefs.Match(out var Def, out RestDefs)) {
@@ -65,7 +65,7 @@ public static class mIL_Interpreter<tPos> {
 					),
 					aTrace
 				);
-				Module = mList.Concat(Module, mList.List(NewProc));
+				Module = mStream.Concat(Module, mStream.Stream(NewProc));
 				
 				var Regs = mMap.Map<tText, tInt32>((a, b) => a == b)
 				.Set(mIL_AST.cEmpty, mVM_Data.tProcDef<tPos>.cEmptyReg)
@@ -505,12 +505,12 @@ public static class mIL_Interpreter<tPos> {
 	//================================================================================
 	public static void
 	PrintILModule(
-		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<tPos>>)> aDefs,
-		mList.tList<mVM_Data.tProcDef<tPos>> aModule,
+		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
 		mStd.tAction<tText> aTrace
 	//================================================================================
 	) {
-		var RestDefsModules = mList.Zip(aDefs, aModule);
+		var RestDefsModules = mStream.Zip(aDefs, aModule);
 		while (RestDefsModules.Match(out var Def, out RestDefsModules)) {
 			var RegIndex = mVM_Data.tProcDef<mStd.tEmpty>.cResReg;
 			var (IL_Def, VM_Def) = Def; 
@@ -537,7 +537,7 @@ public static class mIL_Interpreter<tPos> {
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
-		mList.tList<(tText, mList.tList<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aTrace
 	//================================================================================
@@ -546,7 +546,7 @@ public static class mIL_Interpreter<tPos> {
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
-		(mList.tList<mVM_Data.tProcDef<tPos>>, mMap.tMap<tText, tInt32>) aModule,
+		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mMap.tMap<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================

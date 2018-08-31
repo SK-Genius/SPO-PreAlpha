@@ -1,7 +1,5 @@
 ﻿NEXT:
 =====
-	o speed up infix operators like ...=>..., ...€...
-	
 	o operators to reduce the number of parentheses ???
 		- ...§>... ...  and  ...$<... ...
 			- 2 §>* 3 §>+ 4  ==  (2 .* 3) .+ 4  ==  10

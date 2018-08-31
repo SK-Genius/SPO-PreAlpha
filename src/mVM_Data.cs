@@ -691,7 +691,7 @@ public static class mVM_Data {
 	Tuple(
 		params tData[] a
 	//================================================================================
-	) => mList.List(a).Reverse().Reduce(Empty(), (aList, aItem) => Pair(aItem, aList));
+	) => mStream.Stream(a).Reverse().Reduce(Empty(), (aList, aItem) => Pair(aItem, aList));
 	
 	//================================================================================
 	public static tBool
