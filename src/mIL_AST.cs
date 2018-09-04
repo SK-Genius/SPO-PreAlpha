@@ -304,7 +304,7 @@ public static class mIL_AST {
 		tText aBoolReg1,
 		tText aBoolReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.BoolAnd, aPos, aResReg, aBoolReg1, aBoolReg2);
+	) => CommandNode(tCommandNodeType.BoolAnd, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -314,7 +314,7 @@ public static class mIL_AST {
 		tText aBoolReg1,
 		tText aBoolReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.BoolOr, aPos, aResReg, aBoolReg1, aBoolReg2);
+	) => CommandNode(tCommandNodeType.BoolOr, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -324,7 +324,7 @@ public static class mIL_AST {
 		tText aBoolReg1,
 		tText aBoolReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.BoolXOr, aPos, aResReg, aBoolReg1, aBoolReg2);
+	) => CommandNode(tCommandNodeType.BoolXOr, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -334,7 +334,7 @@ public static class mIL_AST {
 		tText aIntReg1,
 		tText aIntReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.IntsAreEq, aPos, aResReg, aIntReg1, aIntReg2);
+	) => CommandNode(tCommandNodeType.IntsAreEq, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -344,7 +344,7 @@ public static class mIL_AST {
 		tText aIntReg1,
 		tText aIntReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.IntsComp, aPos, aResReg, aIntReg1, aIntReg2);
+	) => CommandNode(tCommandNodeType.IntsComp, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -363,7 +363,7 @@ public static class mIL_AST {
 		tText aIntReg1,
 		tText aIntReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.IntsAdd, aPos, aResReg, aIntReg1, aIntReg2);
+	) => CommandNode(tCommandNodeType.IntsAdd, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -373,7 +373,7 @@ public static class mIL_AST {
 		tText aIntReg1,
 		tText aIntReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.IntsSub, aPos, aResReg, aIntReg1, aIntReg2);
+	) => CommandNode(tCommandNodeType.IntsSub, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -383,7 +383,7 @@ public static class mIL_AST {
 		tText aIntReg1,
 		tText aIntReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.IntsMul, aPos, aResReg, aIntReg1, aIntReg2);
+	) => CommandNode(tCommandNodeType.IntsMul, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -393,7 +393,7 @@ public static class mIL_AST {
 		tText aArgReg1,
 		tText aArgReg2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.Pair, aPos, aResReg, aArgReg1, aArgReg2);
+	) => CommandNode(tCommandNodeType.Pair, aPos, aResReg, aArgReg1, aArgReg2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -421,7 +421,7 @@ public static class mIL_AST {
 		tText aPrefix,
 		tText aArgReg
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.AddPrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.AddPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -431,7 +431,7 @@ public static class mIL_AST {
 		tText aPrefix,
 		tText aArgReg
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.SubPrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.SubPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -441,7 +441,7 @@ public static class mIL_AST {
 		tText aPrefix,
 		tText aArgReg
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.HasPrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.HasPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -451,7 +451,7 @@ public static class mIL_AST {
 		tText aFuncReg,
 		tText aArgReg
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.Call, aPos, aResReg, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.Call, aPos, aResReg, aFuncReg, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -461,7 +461,7 @@ public static class mIL_AST {
 		tText aProcReg,
 		tText aArgReg
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.Exec, aPos, aResReg, aProcReg, aArgReg);
+	) => CommandNode(tCommandNodeType.Exec, aPos, aResReg, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -558,7 +558,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -568,7 +568,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeCond, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeCond, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -578,7 +578,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeFunc, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeFunc, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -588,7 +588,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeMethod, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeMethod, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -598,7 +598,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypePair, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypePair, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -608,7 +608,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypePrefix, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypePrefix, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -618,7 +618,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeSet, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeSet, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -627,7 +627,7 @@ public static class mIL_AST {
 		tText aId1,
 		tText aId2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeVar, aPos, aId1, aId2, null);
+	) => CommandNode(tCommandNodeType.TypeVar, aPos, aId1, aId2);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -635,7 +635,7 @@ public static class mIL_AST {
 		tPos aPos,
 		tText aId
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeFree, aPos, aId, null, null);
+	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -645,7 +645,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeRecursive, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeRecursive, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -655,7 +655,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeInterface, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeInterface, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -665,7 +665,7 @@ public static class mIL_AST {
 		tText aId2,
 		tText aId3
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeGeneric, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeGeneric, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
@@ -674,5 +674,5 @@ public static class mIL_AST {
 		tText aId1,
 		tText aId2
 	//================================================================================
-	) => _CommandNode(tCommandNodeType.TypeIs, aPos, aId1, aId2, null);
+	) => CommandNode(tCommandNodeType.TypeIs, aPos, aId1, aId2);
 }

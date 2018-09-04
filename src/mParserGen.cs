@@ -4,7 +4,7 @@
 //IMPORT mMath.cs
 
 
-//#define TRACE
+#define TRACE
 //#defind INF_LOOP_DETECTIOM
 
 using tBool = System.Boolean;
@@ -338,11 +338,8 @@ public static class mParserGen {
 	#endregion
 	
 	public sealed class tParser<tPos, tIn, tOut, tError> {
-		internal int _CachCount = 0;
-		internal mStream.tStream<(mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)>, mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>), mStream.tStream<tError>>)>
-		_Cache = null;
-		internal mStream.tStream<(mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)>, mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>), mStream.tStream<tError>>)>
-		_Cache2 = null;
+		internal mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> _LastInput;
+		internal mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>), mStream.tStream<tError>> _LastOutput;
 		
 		internal mStd.tFunc<
 			mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream), mStream.tStream<tError>>,
@@ -472,7 +469,7 @@ public static class mParserGen {
 							out LastError
 						)
 					) {
-						Result = mStream.Concat(Result, mStream.Stream(TempResult.Result.Value));
+						Result = mStream.Stream(TempResult.Result.Value, Result);
 						if (Span.Equals(default(mStd.tSpan<tPos>))) {
 							Span = TempResult.Result.Span;
 						}
@@ -483,7 +480,7 @@ public static class mParserGen {
 					if (I < aMin) {
 						return mStd.Fail(LastError);
 					} else {
-						return mStd.OK(((Span, Result), RestStream));
+						return mStd.OK(((Span, Result.Reverse()), RestStream));
 					}
 				};
 				return Parser.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
@@ -657,26 +654,6 @@ public static class mParserGen {
 	
 	//================================================================================
 	public static tParser<tPos, tIn, tOut, tError>
-	OrFail<tPos, tIn, tOut, tError>(
-		this tParser<tPos, tIn, tOut, tError> aParser
-	//================================================================================
-	) {
-		var Parser = new tParser<tPos, tIn, tOut, tError>();
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser.Parse(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(out var Result, out var ErrorList)
-			) {
-				return mStd.OK(Result);
-			} else {
-				throw mStd.Error("", ErrorList);
-			}
-		};
-		return Parser;
-	}
-	
-	//================================================================================
-	public static tParser<tPos, tIn, tOut, tError>
 	UndefParser<tPos, tIn, tOut, tError>(
 	//================================================================================
 	) => new tParser<tPos, tIn, tOut, tError>{
@@ -739,25 +716,27 @@ public static class mParserGen {
 		}
 		#endif
 		
-		var Temp = aParser._Cache.Where(_ => ReferenceEquals(_.Item1, aStream));
-		if (Temp.IsEmpty()) {
-			Temp = aParser._Cache2.Where(_ => ReferenceEquals(_.Item1, aStream));
-			if (!Temp.IsEmpty()) {
-				return Temp.Head.Item2;
-			}
-		} else {
-			return Temp.Head.Item2;
-		}
-		
 		#if TRACE
 			if (aParser._DebugName != null) {
 				aDebugStream(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
-			}else if (aParser._DebugDef != "") {
+			} else if (aParser._DebugDef != "") {
 				aDebugStream(aParser._DebugDef+" -> {");
 			} else {
 				aDebugStream("??? -> {");
 			}
 		#endif
+		
+		if (ReferenceEquals(aParser._LastInput, aStream) && !(aStream is null)) {
+			var Result_ = aParser._LastOutput;
+			#if TRACE
+				if (Result_.Match(out var _, out var __)) {
+					aDebugStream($"}} -> Cached OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
+				} else {
+					aDebugStream("} -> Cached FAIL");
+				}
+			#endif
+			return Result_;
+		}
 		
 		mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>), mStream.tStream<tError>> Result;
 		var Head = aStream is null ? default : aStream.First();
@@ -777,20 +756,15 @@ public static class mParserGen {
 		}
 		
 		#if TRACE
-			if (Result.Match(out var Results, out var _)) {
+			if (Result.Match(out var _, out var ___)) {
 				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
 			} else {
 				aDebugStream("} -> FAIL");
 			}
 		#endif
 		
-		if (aParser._CachCount > 10) {
-			aParser._Cache2 = aParser._Cache;
-			aParser._Cache = null;
-			aParser._CachCount = 0;
-		}
-		aParser._Cache = mStream.Stream((aStream, Result));
-		aParser._CachCount += 1;
+		aParser._LastInput = aStream;
+		aParser._LastOutput = Result;
 		
 		return Result;
 	}
