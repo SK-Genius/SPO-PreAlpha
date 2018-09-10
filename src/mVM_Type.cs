@@ -28,6 +28,7 @@ public static class mVM_Type {
 		Type,
 		Pair,
 		Prefix,
+		Record,
 		Proc,
 		Var,
 		Ref,
@@ -72,37 +73,6 @@ public static class mVM_Type {
 			return true;
 		}
 	}
-	
-	//================================================================================
-	public static tText
-	AsText(
-		this tType aType
-	//================================================================================
-	) => aType.Kind.Switch(
-		aKind => "" + aKind,
-		(tKind.Free, _ => $@"[?{aType.Id}]"),
-		(tKind.Empty, _ => $@"[]"),
-		(tKind.Bool, _ => $@"[{_}]"),
-		(tKind.Int, _ => $@"[{_}]"),
-		(tKind.Type, _ => $@"[§]"),
-		(tKind.Pair, _ => $@"[{aType.Refs[0]}, {aType.Refs[1]}]"),
-		(tKind.Prefix, _ => $@"[#{aType.Prefix}:{aType.Refs[0]}]"),
-		(
-			tKind.Proc,
-			_ => (
-				aType.Refs[0].Kind == tKind.Empty
-				? $@"[{aType.Refs[1]}=>{aType.Refs[2]}]"
-				: $@"[{aType.Refs[0]}:{aType.Refs[1]}=>{aType.Refs[2]}]"
-			)
-		),
-		(tKind.Var, _ => $@"[§VAR {aType.Refs[0]}]"),
-		(tKind.Ref, _ => $@"[§REF {aType.Refs[0]}]"),
-		(tKind.Set, _ => $@"[{aType.Refs[0]} | {aType.Refs[1]}]"),
-		(tKind.Cond, _ => $@"[{aType.Refs[0]} & ...]"),
-		(tKind.Recursiv, _ => $@"[§REC {aType.Refs[0]} {aType.Refs[1]}]"),
-		(tKind.Interface, _ => $@"[§ANY {aType.Refs[0]} {aType.Refs[1]}]"),
-		(tKind.Generic, _ => $@"[§ALL {aType.Refs[0]} {aType.Refs[1]}]")
-	);
 		
 	public static readonly tText cUnknownPrefix = null; // TODO
 	
@@ -198,6 +168,31 @@ public static class mVM_Type {
 		Prefix = aPrefix,
 		Refs = new []{ aType }
 	};
+	
+	//================================================================================
+	public static tType
+	Record(
+		tType aOldRecordType,
+		tType aNewElementType
+	//================================================================================
+	) {
+		mStd.AssertIsIn(aOldRecordType.Kind, tKind.Record, tKind.Empty);
+		mStd.AssertEq(aNewElementType.Kind, tKind.Prefix);
+		AssertNotIn(aNewElementType.Prefix, aOldRecordType);
+		
+		return new tType {
+			Kind = tKind.Record,
+			Refs = new[]{aOldRecordType, aNewElementType}
+		};
+		
+		void AssertNotIn(tText aPrefix, tType aRecord) {
+			if (aRecord.Kind == tKind.Empty) {
+				return;
+			}
+			mStd.AssertNotEq(aPrefix, aRecord.Prefix);
+			AssertNotIn(aPrefix, aRecord.Refs[0]);
+		}
+	}
 	
 	//================================================================================
 	public static tType
@@ -360,53 +355,24 @@ public static class mVM_Type {
 		if (aLimit <= 0) {
 			return "...";
 		}
-		switch (aType.Kind) {
-			case tKind.Empty: {
-				return "[]";
-			}
-			case tKind.Bool: {
-				return "§BOOL";
-			}
-			case tKind.Int: {
-				return "§INT";
-			}
-			case tKind.Type: {
-				return $"[[]]";
-			}
-			case tKind.Free: {
-				return "?"+aType.Id;
-			}
-			case tKind.Prefix: {
-				return $"[#{aType.Prefix} {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Pair: {
-				return $"[{aType.Refs[0].ToText(aLimit - 1)}, {aType.Refs[1].ToText(aLimit - 1)}]";
-			}
-			case tKind.Proc: {
-				return $"[{aType.Refs[0].ToText(aLimit - 1)} : {aType.Refs[1].ToText(aLimit - 1)} -> {aType.Refs[2].ToText(aLimit - 1)}]";
-			}
-			case tKind.Ref: {
-				return $"[§REF {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Set: {
-				return $"[{aType.Refs[0].ToText(aLimit - 1)} | {aType.Refs[1].ToText(aLimit - 1)}]";
-			}
-			case tKind.Var: {
-				return $"[§VAR {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Recursiv: {
-				return $"[§RECURSIVE {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Interface: {
-				return $"[§INTERFACE {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Generic: {
-				return $"[§ALL {aType.Id} -> {aType.Refs[0].ToText(aLimit - 1)}]";
-			}
-			case tKind.Cond: {
-				return $"[{aType.Refs[0].ToText(aLimit - 1)} ? ...]"; // TODO
-			}
-		}
-		throw mStd.Error("");
+		var NextLimit = aLimit - 1;
+		return aType.Kind.Switch(
+			(tKind.Empty, _ => "[]"),
+			(tKind.Bool, _ => "§BOOL"),
+			(tKind.Int, _ => "§INT"),
+			(tKind.Type, _ => $"[[]]"),
+			(tKind.Free, _ => "?"+aType.Id),
+			(tKind.Prefix, _ => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Record, _ => $"[{{{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}}}]"),
+			(tKind.Pair, _ => $"[{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}]"),
+			(tKind.Proc, _ => $"[{aType.Refs[0].ToText(NextLimit)} : {aType.Refs[1].ToText(NextLimit)} -> {aType.Refs[2].ToText(NextLimit)}]"),
+			(tKind.Ref, _ => $"[§REF {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Set, _ => $"[{aType.Refs[0].ToText(NextLimit)} | {aType.Refs[1].ToText(NextLimit)}]"),
+			(tKind.Var, _ => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Recursiv, _ => $"[§RECURSIVE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Interface, _ => $"[§INTERFACE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Generic, _ => $"[§ALL {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
+			(tKind.Cond, _ => $"[{aType.Refs[0].ToText(NextLimit)} ? ...]") // TODO
+		);
 	}
 }

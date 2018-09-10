@@ -267,6 +267,46 @@ public static class mSPO_Parser {
 	)
 	.SetName(nameof(MatchPrefix));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordNode<tSpan>, tError>
+	Record = mParserGen.Seq(
+		SpecialToken("{"),
+		mParserGen.Seq(
+			Ident,
+			SpecialToken(":"),
+			Expression
+		).Modify((aIdent, _, aExpression) => (Key: aIdent, Value: aExpression)),
+		mParserGen.Seq(
+			-SpecialToken(",") | -NLs_Token,
+			Ident,
+			SpecialToken(":"),
+			Expression
+		).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Value: aExpression))[0, null],
+		SpecialToken("}")
+	)
+	.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
+	.ModifyS(mSPO_AST.Record)
+	.SetName(nameof(Record));
+	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchRecordNode<tSpan>, tError>
+	MatchRecord = mParserGen.Seq(
+		SpecialToken("{"),
+		mParserGen.Seq(
+			Ident,
+			SpecialToken(":"),
+			Match
+		).Modify((aIdent, _, aExpression) => (Key: aIdent, Match: aExpression)),
+		mParserGen.Seq(
+			-SpecialToken(",") | -NLs_Token,
+			Ident,
+			SpecialToken(":"),
+			Match
+		).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Match: aExpression))[0, null],
+		SpecialToken("}")
+	)
+	.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
+	.ModifyS(mSPO_AST.MatchRecord)
+	.SetName(nameof(Record));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchGuardNode<tSpan>, tError>
 	MatchGuard = C( mParserGen.Seq(UnTypedMatch, Token("|"), Expression) )
 	.Modify((a1, _ , a2) => (a1, a2))
@@ -543,6 +583,7 @@ public static class mSPO_Parser {
 				Literal.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				Ident.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				MatchPrefix.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+				MatchRecord.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				MatchGuard.Cast<mSPO_AST.tMatchItemNode<tSpan>>()
 			).ModifyS(mSPO_AST.UnTypedMatch)
 		);
@@ -557,6 +598,7 @@ public static class mSPO_Parser {
 				Call.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Prefix.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+				Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				VarToVal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				C( Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
@@ -569,6 +611,7 @@ public static class mSPO_Parser {
 			mParserGen.OneOf(
 				Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+				Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				C( Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				Ident.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

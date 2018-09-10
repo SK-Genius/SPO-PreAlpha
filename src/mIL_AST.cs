@@ -37,33 +37,36 @@ public static class mIL_AST {
 		AddPrefix, // X := +N X
 		SubPrefix, // X := -N X
 		HasPrefix, // X := ?N X
+		ExtendRec, // X := {X} +X
+		DivideRec, // X := {X} /
 		Call,      // X := .X X
 		Exec,      // X := :X X
 		VarDef,    // X := §VAR X
 		VarGet,    // X := §VAR X ->
 		
-		TypePair, // T := [T, T]
-		TypePrefix, // T := [+N T]
-		TypeFunc, // T := [T -> T]
-		TypeMethod, // T := [T : T]
-		TypeSet, // T := [T | T]
-		TypeCond, // T := [T & P]
-		TypeVar, // T := [§VAR T]
-		TypeFree, // T := t in T (see type definitions below)
+		TypePair,      // T := [T, T]
+		TypePrefix,    // T := [+N T]
+		TypeRec,       // T := [{T} +T]
+		TypeFunc,      // T := [T -> T]
+		TypeMethod,    // T := [T : T]
+		TypeSet,       // T := [T | T]
+		TypeCond,      // T := [T & P]
+		TypeVar,       // T := [§VAR T]
+		TypeFree,      // T := t in T (see type definitions below)
 		TypeRecursive, // T := [§RECURSIVE t T]
 		TypeInterface, // T := [§INTERFACE t T]
-		TypeGeneric, // T := [§GENERIC t T]
+		TypeGeneric,   // T := [§GENERIC t T]
 		
 		_Commands_,
-		Push = _Commands_,      // §PUSH X
-		Pop,       // §POP
-		VarSet,    // §VAR X <- X
-		ReturnIf,  // §RETURN X IF X
-		RepeatIf,  // §REPEAT X IF X
-		TailCallIf,// §TAIL_CALL X IF X
-		Assert,    // §ASSERT X
-		Proof,     // §ASSERT X => X
-		TypeIs, // §TYPE_OF X IS T
+		Push = _Commands_, // §PUSH X
+		Pop,               // §POP
+		VarSet,            // §VAR X <- X
+		ReturnIf,          // §RETURN X IF X
+		RepeatIf,          // §REPEAT X IF X
+		TailCallIf,        // §TAIL_CALL X IF X
+		Assert,            // §ASSERT X
+		Proof,             // §ASSERT X => X
+		TypeIs,            // §TYPE_OF X IS T
 	}
 	
 	public static readonly tText cEmpty = "EMPTY";
@@ -94,57 +97,12 @@ public static class mIL_AST {
 		out tText aResultReg
 	//================================================================================
 	) {
-		switch (aNode.NodeType) {
-			// Expressions
-			case tCommandNodeType.AddPrefix:
-			case tCommandNodeType.Alias:
-			case tCommandNodeType.BoolAnd:
-			case tCommandNodeType.Call:
-			case tCommandNodeType.Exec:
-			case tCommandNodeType.First:
-			case tCommandNodeType.HasPrefix:
-			case tCommandNodeType.Int:
-			case tCommandNodeType.IntsAdd:
-			case tCommandNodeType.IntsAreEq:
-			case tCommandNodeType.IntsComp:
-			case tCommandNodeType.IntsMul:
-			case tCommandNodeType.IntsSub:
-			case tCommandNodeType.BoolNot:
-			case tCommandNodeType.BoolOr:
-			case tCommandNodeType.Pair:
-			case tCommandNodeType.Second:
-			case tCommandNodeType.SubPrefix:
-			case tCommandNodeType.VarDef:
-			case tCommandNodeType.BoolXOr:
-			case tCommandNodeType.TypePrefix:
-			case tCommandNodeType.TypeCond:
-			case tCommandNodeType.TypeFunc:
-			case tCommandNodeType.TypeMethod:
-			case tCommandNodeType.TypePair:
-			case tCommandNodeType.TypeSet:
-			case tCommandNodeType.TypeVar:
-			case tCommandNodeType.TypeFree:
-			case tCommandNodeType.TypeRecursive:
-			case tCommandNodeType.TypeInterface:
-			case tCommandNodeType.TypeGeneric: {
-				aResultReg = aNode._1;
-				return true;
-			}
-			// Commands
-			case tCommandNodeType.Assert:
-			case tCommandNodeType.Pop:
-			case tCommandNodeType.Proof:
-			case tCommandNodeType.Push:
-			case tCommandNodeType.RepeatIf:
-			case tCommandNodeType.ReturnIf:
-			case tCommandNodeType.TailCallIf:
-			case tCommandNodeType.TypeIs: {
-				aResultReg = null;
-				return false;
-			}
-			default: {
-				throw mStd.Error($"impossible (Missing: {aNode.NodeType})");
-			}
+		if (aNode.NodeType >= tCommandNodeType._Commands_) {
+			aResultReg = null;
+			return false;
+		} else {
+			aResultReg = aNode._1;
+			return true;
 		}
 	}
 	
@@ -445,6 +403,25 @@ public static class mIL_AST {
 	
 	//================================================================================
 	public static tCommandNode<tPos>
+	ExtendRec<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aRecord,
+		tText aPrefix
+	//================================================================================
+	) => CommandNode(tCommandNodeType.ExtendRec, aPos, aResReg, aRecord, aPrefix);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
+	DivideRec<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aRecord
+	//================================================================================
+	) => CommandNode(tCommandNodeType.DivideRec, aPos, aResReg, aRecord);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
 	Call<tPos>(
 		tPos aPos,
 		tText aResReg,
@@ -609,6 +586,16 @@ public static class mIL_AST {
 		tText aId3
 	//================================================================================
 	) => CommandNode(tCommandNodeType.TypePrefix, aPos, aId1, aId2, aId3);
+	
+	//================================================================================
+	public static tCommandNode<tPos>
+	TypeRecord<tPos>(
+		tPos aPos,
+		tText aId1,
+		tText aId2,
+		tText aId3
+	//================================================================================
+	) => CommandNode(tCommandNodeType.TypeRec, aPos, aId1, aId2, aId3);
 	
 	//================================================================================
 	public static tCommandNode<tPos>

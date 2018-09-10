@@ -391,6 +391,40 @@ public static class mSPO_Parser_Test {
 					)
 				);
 			}
+		),
+		mTest.Test(
+			"Record",
+			aStreamOut => {
+				mStd.AssertEq(
+					mSPO_Parser.Command.ParseText("§DEF {a: x, b: y} = {a: 1, b: 2}\n", aStreamOut),
+					mSPO_AST.Def(
+						Span((1, 1), (1, 32)),
+						mSPO_AST.Match(
+							Span((1, 6), (1, 17)),
+							mSPO_AST.MatchRecord(
+								Span((1, 6), (1, 17)),
+								mStream.Stream<(mSPO_AST.tIdentNode<tSpan> Key, mSPO_AST.tMatchNode<tSpan> Value)>(
+									(
+										mSPO_AST.Ident(Span((1, 7), (1, 7)), "a"),
+										mSPO_AST.Match(Span((1, 10), (1, 10)), mSPO_AST.Ident(Span((1, 10), (1, 10)), "x"), null)
+									), (
+										mSPO_AST.Ident(Span((1, 13), (1, 13)), "b"),
+										mSPO_AST.Match(Span((1, 16), (1, 16)), mSPO_AST.Ident(Span((1, 16), (1, 16)), "y"), null)
+									)
+								)
+							),
+							null
+						),
+						mSPO_AST.Record(
+							Span((1, 21), (1, 32)),
+							mStream.Stream<(mSPO_AST.tIdentNode<tSpan> Key, mSPO_AST.tExpressionNode<tSpan> Value)>(
+								(mSPO_AST.Ident(Span((1, 22), (1, 22)), "a"), mSPO_AST.Number(Span((1, 25), (1, 25)), 1)),
+								(mSPO_AST.Ident(Span((1, 28), (1, 28)), "b"), mSPO_AST.Number(Span((1, 31), (1, 31)), 2))
+							)
+						)
+					)
+				);
+			}
 		)
 	);
 	
@@ -405,6 +439,7 @@ public static class mSPO_Parser_Test {
 	[xTestCase("NestedMatch")]
 	[xTestCase("PrefixMatch")]
 	[xTestCase("MethodCall")]
+	[xTestCase("Record")]
 	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),

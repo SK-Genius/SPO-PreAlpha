@@ -142,11 +142,23 @@ public static class mTokenizer {
 		);
 		
 		if (!Result.RestStream.IsEmpty()) {
-			var Line = Result.RestStream.First().Span.Start.Row;
+			var Row = Result.RestStream.First().Span.Start.Row;
+			var Col = Result.RestStream.First().Span.Start.Col;
+			var Line = aText.Split('\n')[Row];
+			var MarkerLine = mStream.Stream(
+				Line.ToCharArray()
+			).Take(
+				Col - 1
+			).Map(
+				aChar => aChar == '\t' ? '\t' : ' '
+			).Reduce(
+				"",
+				(aString, aChar) => aString + aChar
+			);
 			throw mStd.Error(
-				$"({Line}, 1): expected end of text\n" +
-				$"{aText.Split('\n')[Line-1]}\n" +
-				$"^"
+				$"({Row}, {Col}): expected end of text\n" +
+				$"{Line}\n" +
+				$"{MarkerLine}^\n"
 			);
 		}
 		return Result.Result.Value;

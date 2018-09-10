@@ -229,6 +229,25 @@ public static class mSPO_Interpreter_Test {
 					mVM_Data.Int(2)
 				);
 			}
+		),
+		mTest.Test(
+			"Run8",
+			aDebugStream => {
+				mStd.AssertEq(
+					mSPO_Interpreter.Run(
+						@"
+							§IMPORT ()
+							
+							§DEF {C: X, A: Y} = {A: 1, B: 2, C: 3}
+							
+							§EXPORT (X, Y)
+						",
+						mVM_Data.Empty(),
+						aDebugStream
+					),
+					mVM_Data.Tuple(mVM_Data.Int(3), mVM_Data.Int(1))
+				);
+			}
 		)
 	);
 	
@@ -240,6 +259,7 @@ public static class mSPO_Interpreter_Test {
 	[xTestCase("Run5")]
 	[xTestCase("Run6")]
 	[xTestCase("Run7")]
+	[xTestCase("Run8")]
 	public static void _(tText a) {
 		mStd.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),

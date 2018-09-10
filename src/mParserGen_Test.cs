@@ -128,6 +128,17 @@ public static class mParserGen_Test {
 			}
 		),
 		mTest.Test(
+			"...[0, null]",
+			aDebugStream => {
+				var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A")[0, null];
+				mStd.Assert(A0_.StartParse(TestStream('A', 'A', '_'), aDebugStream).Match(out var Result, out var ErrorList));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream('A', 'A')), TestStream('_')));
+				
+				mStd.Assert(A0_.StartParse(TestStream('_'), aDebugStream).Match(out Result, out ErrorList));
+				mStd.AssertEq(Result, ((cTestSpan, mStream.Stream<tChar>()), TestStream('_')));
+			}
+		),
+		mTest.Test(
 			"...[n, null]",
 			aDebugStream => {
 				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => "miss A")[2, null];
@@ -296,6 +307,7 @@ public static class mParserGen_Test {
 	[xTestCase("-...")]
 	[xTestCase("...|...")]
 	[xTestCase("...[m, n]")]
+	[xTestCase("...[0, null]")]
 	[xTestCase("...[n, null]")]
 	[xTestCase("....Modify(...=>...)")]
 	[xTestCase("~...")]

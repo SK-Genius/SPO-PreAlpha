@@ -234,6 +234,30 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.ExtendRec: {
+			//--------------------------------------------------------------------------------
+				aCallStack._Regs.Push(
+					mVM_Data.Record(
+						aCallStack._Regs.Get(Arg1),
+						aCallStack._Regs.Get(Arg2)
+					)
+				);
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.DivideRec: {
+			//--------------------------------------------------------------------------------
+				var Arg = aCallStack._Regs.Get(Arg1);
+				mStd.Assert(Arg.MatchRecord(out var Record, out var Prefix));
+				aCallStack._Regs.Push(
+					mVM_Data.Pair(
+						Record,
+						Prefix
+					)
+				);
+				break;
+			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Assert: {
 			//--------------------------------------------------------------------------------
 				if (aCallStack._Regs.Get(Arg1).MatchBool(out var Bool) && Bool) {

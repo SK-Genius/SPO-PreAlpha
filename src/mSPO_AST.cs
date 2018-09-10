@@ -90,6 +90,16 @@ public static class mSPO_AST {
 		public tExpressionNode<tPos> Element;
 	}
 	
+	public struct tRecordNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; set; }
+		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
+	}
+	
+	public struct tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
+		public tPos Pos { get; set; }
+		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> Elements;
+	}
+	
 	public struct tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public tText Prefix;
@@ -499,6 +509,28 @@ public static class mSPO_AST {
 		Pos = aPos,
 		Prefix = aPrefix.Name,
 		Match = aMatch
+	};
+	
+	//================================================================================
+	public static tRecordNode<tPos>
+	Record<tPos>(
+		tPos aPos,
+		mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems
+	//================================================================================
+	) => new tRecordNode<tPos> {
+		Pos = aPos,
+		Elements = aRecordItems
+	};
+	
+	//================================================================================
+	public static tMatchRecordNode<tPos>
+	MatchRecord<tPos>(
+		tPos aPos,
+		mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> aRecordItems
+	//================================================================================
+	) => new tMatchRecordNode<tPos> {
+		Pos = aPos,
+		Elements = aRecordItems
 	};
 	
 	//================================================================================

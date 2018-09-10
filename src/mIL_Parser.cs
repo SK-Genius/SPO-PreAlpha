@@ -134,6 +134,16 @@ public static class mIL_Parser {
 		.ModifyS(mTokenizer.X(mIL_AST.HasPrefix))
 		.SetDebugName(nameof(mIL_AST.HasPrefix)) |
 		
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("=") -SpecialToken("{"), Ident, -SpecialToken("}") -Token("+"), Ident)
+		.Modify((a1, _, a2, __, a3) => (a1, a2, a3))
+		.ModifyS(mTokenizer.X(mIL_AST.ExtendRec))
+		.SetDebugName(nameof(mIL_AST.ExtendRec)) |
+		
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("=") -SpecialToken("{"), Ident, (-SpecialToken("}") -Token("/")))
+		.Modify((a1, _, a2, __) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.DivideRec))
+		.SetDebugName(nameof(mIL_AST.DivideRec)) |
+		
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("."), Ident, Ident)
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(mTokenizer.X(mIL_AST.Call))
@@ -216,6 +226,11 @@ public static class mIL_Parser {
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(mTokenizer.X(mIL_AST.TypePrefix))
 		.SetDebugName(nameof(mIL_AST.TypePrefix)) |
+		
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("=") -SpecialToken("[") -SpecialToken("{"), Ident +-SpecialToken("}"), -Token("+") +Ident +-SpecialToken("]"))
+		.Modify((a1, _, a2, a3) => (a1, a2, a3))
+		.ModifyS(mTokenizer.X(mIL_AST.TypeRecord))
+		.SetDebugName(nameof(mIL_AST.TypeRecord)) |
 		
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("["), Ident, -Token("|") +Ident +-SpecialToken("]"))
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))

@@ -75,14 +75,12 @@ public static class mTextStream {
 	//================================================================================
 	) {
 		var Line = aSrcLines[aError.Pos.Row-1];
-		var MarkerLine = TextToStream(
-			Line
-		).Map(
-			_ => (mStd.Span(_.Pos), _.Char)
+		var MarkerLine = mStream.Stream(
+			Line.ToCharArray()
 		).Take(
 			aError.Pos.Col - 1
 		).Map(
-			a => a.Char == '\t' ? '\t' : ' '
+			aChar => aChar == '\t' ? '\t' : ' '
 		).Reduce(
 			"",
 			(aString, aChar) => aString + aChar

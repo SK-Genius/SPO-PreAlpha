@@ -106,6 +106,14 @@ public static class  mIL_Parser_Test {
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.HasPrefix, Span((1, 1), (1, 10)), "a", "b", "c")
 				);
 				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := {b} + c", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ExtendRec, Span((1, 1), (1, 12)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := {b} /", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.DivideRec, Span((1, 1), (1, 10)), "a", "b")
+				);
+				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := .b c", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, Span((1, 1), (1, 9)), "a", "b", "c")
 				);
@@ -164,6 +172,10 @@ public static class  mIL_Parser_Test {
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := [#b c]", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypePrefix, Span((1, 1), (1, 11)), "a", "b", "c")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := [{b} + c]", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeRec, Span((1, 1), (1, 14)), "a", "b", "c")
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := [b | c]", aDebugStream),

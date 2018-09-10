@@ -288,6 +288,21 @@ public static class mIL_Interpreter<tPos> {
 						Regs = Regs.Set(RegId1, NewProc.HasPrefix(Span, Prefix.GetHashCode(), Reg));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.ExtendRec, out Span, out RegId1, out RegId2, out RegId3)) {
+					//--------------------------------------------------------------------------------
+						var OldRecordReg = Regs.Get(RegId2);
+						var NewElementReg = Regs.Get(RegId3);
+						Regs = Regs.Set(RegId1, NewProc.ExtendRec(Span, OldRecordReg, NewElementReg));
+						Types.Push(mVM_Type.Record(Types.Get(OldRecordReg), Types.Get(NewElementReg)));
+					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.DivideRec, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var RecordReg = Regs.Get(RegId2);
+						var RecordType = Types.Get(RecordReg);
+						mStd.AssertNotEq(RecordType.Kind, mVM_Type.tKind.Empty);
+						Regs = Regs.Set(RegId1, NewProc.DivideRec(Span, RecordReg));
+						Types.Push(mVM_Type.Pair(RecordType.Refs[0], RecordType.Refs[1]));
+					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.Assert, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.Get(RegId1);

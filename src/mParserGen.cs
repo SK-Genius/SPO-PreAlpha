@@ -4,7 +4,7 @@
 //IMPORT mMath.cs
 
 
-#define TRACE
+//#define TRACE
 //#defind INF_LOOP_DETECTIOM
 
 using tBool = System.Boolean;

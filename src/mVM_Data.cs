@@ -41,6 +41,10 @@ public static class mVM_Data {
 		DelPrefix,
 		HasPrefix,
 		
+		// RECORD
+		ExtendRec,
+		DivideRec,
+
 		// VAR
 		VarDef,
 		VarSet,
@@ -61,6 +65,7 @@ public static class mVM_Data {
 		TypeFree,
 		TypePair,
 		TypePrefix,
+		TypeRecord,
 		TypeVar,
 		TypeSet,
 		TypeCond,
@@ -315,6 +320,34 @@ public static class mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.HasPrefix, aPrefixId, aDataReg);
 	
 	//================================================================================
+	public static tInt32
+	ExtendRec<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aRecReg,
+		tInt32 aPrefixReg
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.ExtendRec, aRecReg, aPrefixReg);
+	
+	//================================================================================
+	public static tInt32
+	DivideRec<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aRecReg
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
+	
+	//================================================================================
+	public static tInt32
+	ExtendRec<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aRecReg
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
+	
+	//================================================================================
 	public static void
 	SetObj<tPos>(
 		this tProcDef<tPos> aDef,
@@ -445,6 +478,16 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tInt32
+	TypeRecord<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aRecordTypeReg,
+		tInt32 aPrefixTypeReg
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.TypeRecord, aRecordTypeReg, aPrefixTypeReg);
+	
+	//================================================================================
+	public static tInt32
 	TypeVar<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -528,6 +571,7 @@ public static class mVM_Data {
 		Int,
 		Pair,
 		Prefix,
+		Record,
 		Proc,
 		ExternProc,
 		Def,
@@ -795,6 +839,32 @@ public static class mVM_Data {
 		out tData aValue
 	//================================================================================
 	) => aData.MatchPrefix(aPrefix.GetHashCode(), out aValue);
+	
+	//================================================================================
+	public static tData
+	Record(
+		tData aRecord,
+		tData aPrefix
+	//================================================================================
+	) {
+		mStd.Assert(aPrefix.MatchPrefix(out var PrefixHash, out _));
+		var Record = aRecord;
+		while (!Record.MatchEmpty()) {
+			mStd.Assert(Record.MatchRecord(out Record, out var Prefix));
+			mStd.Assert(Prefix.MatchPrefix(out var PrefixHash_, out _));
+			mStd.AssertNotEq(PrefixHash, PrefixHash_);
+		}
+		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
+	}
+	
+	//================================================================================
+	public static tBool
+	MatchRecord(
+		this tData aData,
+		out tData aRecord,
+		out tData aPrefix
+	//================================================================================
+	) => aData.Match(tDataType.Record, out aRecord, out aPrefix);
 	
 	//================================================================================
 	public static tData

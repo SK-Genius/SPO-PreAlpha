@@ -49,7 +49,7 @@ public static class mSPO2IL {
 	//================================================================================
 	public static tDefConstructor<tPos>
 	NewDefConstructor<tPos>(
-		tModuleConstructor<tPos> aModuleConstructor
+		this tModuleConstructor<tPos> aModuleConstructor
 	//================================================================================
 	) {
 		var DefIndex = aModuleConstructor.Defs.Size();
@@ -184,7 +184,7 @@ public static class mSPO2IL {
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
 	//================================================================================
 	) {
-		var TempLambdaDef = NewDefConstructor(aModuleConstructor);
+		var TempLambdaDef = aModuleConstructor.NewDefConstructor();
 		TempLambdaDef.InitMapLambda(aLambdaNode);
 		TempLambdaDef.FinishMapProc(
 			aLambdaNode.Pos,
@@ -200,7 +200,7 @@ public static class mSPO2IL {
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	//================================================================================
 	) {
-		var TempMethodDef = NewDefConstructor(aModuleConstructor);
+		var TempMethodDef = aModuleConstructor.NewDefConstructor();
 		TempMethodDef.InitMapMethod(aMethodNode);
 		TempMethodDef.FinishMapProc(
 			aMethodNode.Pos,
@@ -373,6 +373,21 @@ public static class mSPO2IL {
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
+			case mSPO_AST.tRecordNode<tPos> RecordNode: {
+			//--------------------------------------------------------------------------------
+				var Elements = RecordNode.Elements;
+				var ResultReg = mIL_AST.cEmpty;
+				while (Elements.Match(out var Element, out Elements)) {
+					var Expression = aDefConstructor.MapExpresion(Element.Value);
+					var PrefixReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.AddPrefix(Element.Key.Pos, PrefixReg, Element.Key.Name, Expression));
+					var NewResultReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.ExtendRec(Element.Key.Pos, NewResultReg, ResultReg, PrefixReg));
+					ResultReg = NewResultReg;
+				}
+				return ResultReg;
+			}
+			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTextNode<tPos> TextNode: {
 			//--------------------------------------------------------------------------------
 				throw mStd.Error("impossible");
@@ -463,13 +478,13 @@ public static class mSPO2IL {
 				var ModuleConstructor = aDefConstructor.ModuleConstructor;
 				var Rest = IfMatchNode.Cases;
 				
-				var SwitchDef = NewDefConstructor(ModuleConstructor);
+				var SwitchDef = ModuleConstructor.NewDefConstructor();
 				
 				while (Rest.Match(out var Case, out Rest)) {
 					var (Match, Run) = Case;
 					var CasePos = ModuleConstructor.MergePos(Match.Pos, Run.Pos);
 					
-					var TestDef = NewDefConstructor(ModuleConstructor);
+					var TestDef = ModuleConstructor.NewDefConstructor();
 					TestDef.MapMatchTest(mIL_AST.cArg, Match);
 					TestDef.Commands.Push(mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, mIL_AST.cTrue));
 					TestDef.FinishMapProc(CasePos, TestDef.UnsolvedSymbols);
@@ -477,7 +492,7 @@ public static class mSPO2IL {
 					var TestResut = SwitchDef.CreateTempReg();
 					SwitchDef.Commands.Push(mIL_AST.Call(CasePos, TestResut, TestProc, mIL_AST.cArg));
 					
-					var RunDef = NewDefConstructor(ModuleConstructor);
+					var RunDef = ModuleConstructor.NewDefConstructor();
 					RunDef.MapMatch(Match, mIL_AST.cArg);
 					var Result = RunDef.MapExpresion(Run);
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, Result, mIL_AST.cTrue));
@@ -622,6 +637,35 @@ public static class mSPO2IL {
 					PrefixNode.Match,
 					ResultReg
 				);
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mSPO_AST.tMatchRecordNode<tPos> RecordNode: {
+			//--------------------------------------------------------------------------------
+				var Elements = RecordNode.Elements;
+				while (Elements.Match(out var Element, out Elements)) {
+					var Pos = Element.Key.Pos;
+					var TempFuncDef = aDefConstructor.ModuleConstructor.NewDefConstructor();
+					var HeadTailReg = TempFuncDef.CreateTempReg();
+					TempFuncDef.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, mIL_AST.cArg));
+					var LastReg = TempFuncDef.CreateTempReg();
+					TempFuncDef.Commands.Push(mIL_AST.GetSecond(Pos, LastReg, HeadTailReg));
+					var HasFoundReg = TempFuncDef.CreateTempReg();
+					TempFuncDef.Commands.Push(mIL_AST.HasPrefix(Pos, HasFoundReg, Element.Key.Name, LastReg));
+					TempFuncDef.Commands.Push(mIL_AST.ReturnIf(Pos, LastReg, HasFoundReg));
+					var RestReg = TempFuncDef.CreateTempReg();
+					TempFuncDef.Commands.Push(mIL_AST.GetFirst(Pos, RestReg, HeadTailReg));
+					TempFuncDef.Commands.Push(mIL_AST.RepeatIf(Pos, RestReg, mIL_AST.cTrue));
+					
+					var TempFuncReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.UnsolvedSymbols.Push(TempDef(TempFuncDef.Index));
+					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
+					var TempValueReg_ = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempValueReg_, TempFuncReg, aReg));
+					var TempValueReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Element.Key.Name, TempValueReg_));
+					aDefConstructor.MapMatch(Element.Match, TempValueReg);
+				}
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -822,7 +866,7 @@ public static class mSPO2IL {
 			var NewDefIndex = aDefConstructor.ModuleConstructor.Defs.Size();
 			NewDefIndices.Push(NewDefIndex);
 			AllUnsolvedSymbols.Push(TempDef(NewDefIndex));
-			var TempLambdaDef = NewDefConstructor(aDefConstructor.ModuleConstructor);
+			var TempLambdaDef = aDefConstructor.ModuleConstructor.NewDefConstructor();
 			TempLambdaDefs.Push(TempLambdaDef);
 			SPODefNodes.Push(RecLambdaItemNode);
 		}
@@ -888,7 +932,7 @@ public static class mSPO2IL {
 				while (Iterator.Match(out var Symbol_, out Iterator)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
-						mIL_AST.CreatePair<tPos>(RecLambdaItemNode.Pos, NewArgReg, Symbol_, ArgReg)
+						mIL_AST.CreatePair(RecLambdaItemNode.Pos, NewArgReg, Symbol_, ArgReg)
 					);
 					ArgReg = NewArgReg;
 				}
@@ -992,7 +1036,7 @@ public static class mSPO2IL {
 	) {
 		using (mPerf.Measure()) {
 			var ModuleConstructor = NewModuleConstructor(aMergePos);
-			var TempLambdaDef = NewDefConstructor(ModuleConstructor);
+			var TempLambdaDef = ModuleConstructor.NewDefConstructor();
 			TempLambdaDef.InitMapLambda(
 				mSPO_AST.Lambda(
 					aModuleNode.Pos,
