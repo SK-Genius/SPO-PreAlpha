@@ -268,28 +268,36 @@ public static class mSPO_Parser {
 	.SetName(nameof(MatchPrefix));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordNode<tSpan>, tError>
-	Record = mParserGen.Seq(
-		SpecialToken("{"),
+	Record = (
 		mParserGen.Seq(
-			Ident,
-			SpecialToken(":"),
-			Expression
-		).Modify((aIdent, _, aExpression) => (Key: aIdent, Value: aExpression)),
+			SpecialToken("{") +-NLs_Token[0, 1],
+			mParserGen.Seq(
+				Ident,
+				SpecialToken(":"),
+				Expression
+			).Modify((aIdent, _, aExpression) => (Key: aIdent, Value: aExpression)),
+			mParserGen.Seq(
+				-SpecialToken(",") | -NLs_Token,
+				Ident,
+				SpecialToken(":"),
+				Expression
+			).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Value: aExpression))[0, null],
+			-NLs_Token[0, 1] +SpecialToken("}")
+		)
+		.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
+		.ModifyS(mSPO_AST.Record) |
 		mParserGen.Seq(
-			-SpecialToken(",") | -NLs_Token,
-			Ident,
-			SpecialToken(":"),
-			Expression
-		).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Value: aExpression))[0, null],
-		SpecialToken("}")
+			SpecialToken("{"),
+			NLs_Token[0, 1],
+			SpecialToken("}")
+		)
+		.ModifyS((aSpan, _) => mSPO_AST.Record(aSpan, null))
 	)
-	.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
-	.ModifyS(mSPO_AST.Record)
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchRecordNode<tSpan>, tError>
 	MatchRecord = mParserGen.Seq(
-		SpecialToken("{"),
+		SpecialToken("{") +-NLs_Token[0, 1],
 		mParserGen.Seq(
 			Ident,
 			SpecialToken(":"),
@@ -301,7 +309,7 @@ public static class mSPO_Parser {
 			SpecialToken(":"),
 			Match
 		).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Match: aExpression))[0, null],
-		SpecialToken("}")
+		-NLs_Token[0, 1] +SpecialToken("}")
 	)
 	.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
 	.ModifyS(mSPO_AST.MatchRecord)

@@ -34,7 +34,14 @@ public static class mStdLib_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
-							§IMPORT ({mStdLib.cImportTuple}, n)
+							§IMPORT (
+								{{
+									...<...: ...<...
+									...+...: ...+...
+									...-...: ...-...
+								}}
+								n
+							)
 							
 							§DEF If...Then...Else... = (c, i, e) => {{
 								§RETURN (.i) IF c
@@ -65,7 +72,15 @@ public static class mStdLib_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
-							§IMPORT ({mStdLib.cImportTuple}, n)
+							§IMPORT (
+								{{
+									...<...: ...<...
+									...==...: ...==...
+									...+...: ...+...
+									...-...: ...-...
+								}}
+								n
+							)
 							
 							§RECURSIV Fib... = a => §IF {{
 								(a .< 2) => a
@@ -90,7 +105,14 @@ public static class mStdLib_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
-							§IMPORT ({mStdLib.cImportTuple}, n)
+							§IMPORT (
+								{{
+									...==...: ...==...
+									...+...: ...+...
+									...-...: ...-...
+								}}
+								n
+							)
 							
 							§RECURSIV Fib... = a => §IF a MATCH {{
 								(a | a .== 0) => 0
@@ -116,7 +138,14 @@ public static class mStdLib_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
-							§IMPORT ({mStdLib.cImportTuple}, n)
+							§IMPORT (
+								{{
+									...<...: ...<...
+									...+...: ...+...
+									...-...: ...-...
+								}}
+								n
+							)
 							
 							§RECURSIV Fib... = x => §IF x MATCH {{
 								(a | a .< 2) => a
@@ -141,7 +170,10 @@ public static class mStdLib_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						$@"
-							§IMPORT {mStdLib.cImportTuple}
+							§IMPORT {{
+								...+...: ...+...
+								...*...: ...*...
+							}}
 							
 							§DEF +... = o : i {{
 								o := ((§TO_VAL o) .+ i) .

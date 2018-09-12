@@ -21,7 +21,7 @@ static class mProgram {
 		
 		var StackModule = mSPO_Interpreter.Run(
 			$@"
-				§IMPORT {mStdLib.cImportTuple}
+				§IMPORT ()
 				
 				§DEF EmptyStack = #Empty ()
 				
@@ -40,17 +40,17 @@ static class mProgram {
 					(EmptyStack) => EmptyStack
 				}}
 				
-				§EXPORT (EmptyStack, Push...To..., Map...With...)
+				§EXPORT {{Empty: EmptyStack, PushTo: Push...To..., Map: Map...With...}}
 			",
-			StdLib,
+			mVM_Data.Empty(),
 			DebugOut
 		);
 		
 		var Test = mSPO_Interpreter.Run(
 			$@"
 				§IMPORT (
-					{mStdLib.cImportTuple}
-					(EmptyStack, Push...To..., Map...With...)
+					{{...*...: ...*...}}
+					{{Empty: EmptyStack, PushTo: Push...To..., Map: Map...With...}}
 				)
 				
 				§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (x => x .* x)
