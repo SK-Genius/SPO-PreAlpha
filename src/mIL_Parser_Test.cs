@@ -50,6 +50,30 @@ public static class  mIL_Parser_Test {
 			"Commands",
 			aDebugStream => {
 				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_BOOL b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsBool, Span((1, 1), (1, 15)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_INT b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsInt, Span((1, 1), (1, 14)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_PREFIX b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsPrefix, Span((1, 1), (1, 17)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_PAIR b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsPair, Span((1, 1), (1, 15)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_RECORD b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsRecord, Span((1, 1), (1, 17)), "a", "b")
+				);
+				mStd.AssertEq(
+					mIL_Parser.Command.ParseText("a := §IS_TYPE b", aDebugStream),
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.IsType, Span((1, 1), (1, 15)), "a", "b")
+				);
+				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := b, c", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pair, Span((1, 1), (1, 9)), "a", "b", "c")
 				);
@@ -196,10 +220,6 @@ public static class  mIL_Parser_Test {
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := [§ALL b => c]", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeGeneric, Span((1, 1), (1, 18)), "a", "b", "c")
-				);
-				mStd.AssertEq(
-					mIL_Parser.Command.ParseText("§TYPE_OF a IS b", aDebugStream),
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeIs, Span((1, 1), (1, 15)), "a", "b")
 				);
 			}
 		)

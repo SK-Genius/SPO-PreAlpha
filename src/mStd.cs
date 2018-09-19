@@ -110,7 +110,7 @@ public static class mStd {
 	//================================================================================
 	) => a.Switch(
 		_ => {
-			throw Error($@"unknown case {_}");
+			throw Error("unknown case "+_);
 		},
 		aCases
 	);
@@ -381,13 +381,13 @@ public static class mStd {
 			!a1.Equals(a2)
 		) {
 			#if JSON
-			var x1 = AsJSON(a1);
-			var x2 = AsJSON(a2);
+			var Text1 = AsJSON(a1);
+			var Text2 = AsJSON(a2);
 			#else
-			var x1 = a1.ToString();
-			var x2 = a2.ToString();
+			var Text1 = a1.ToString();
+			var Text2 = a2.ToString();
 			#endif
-			throw Error($"FAIL:\n{x1}\n!=\n{x2}");
+			throw Error($"FAIL:\n{Text1}\n!=\n{Text2}");
 		}
 		#if JSON
 		string AsJSON(

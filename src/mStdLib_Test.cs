@@ -33,26 +33,28 @@ public static class mStdLib_Test {
 			aDebugStream => {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
-						$@"
+						@"
 							§IMPORT (
-								{{
-									...<...: ...<...
-									...+...: ...+...
-									...-...: ...-...
-								}}
-								n
+								{
+									...<...: §DEF ...<...
+									...+...: §DEF ...+...
+									...-...: §DEF ...-...
+								}
+								§DEF n
 							)
 							
-							§DEF If...Then...Else... = (c, i, e) => {{
+							§DEF If...Then...Else... = (§DEF c, §DEF i, §DEF e) => {
 								§RETURN (.i) IF c
 								§RETURN (.e)
-							}}
+							}
 							
-							§RECURSIV Fib... = a => .If (a .< 2) Then (
-								() => a
-							) Else (
-								() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-							)
+							§RECURSIV {
+								§DEF Fib... = §DEF a => .If (a .< 2) Then (
+									() => a
+								) Else (
+									() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+								)
+							}
 							
 							§EXPORT .Fib n
 						",
@@ -71,21 +73,23 @@ public static class mStdLib_Test {
 			aDebugStream => {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
-						$@"
+						@"
 							§IMPORT (
-								{{
-									...<...: ...<...
-									...==...: ...==...
-									...+...: ...+...
-									...-...: ...-...
-								}}
-								n
+								{
+									...<...: §DEF ...<...
+									...==...: §DEF ...==...
+									...+...: §DEF ...+...
+									...-...: §DEF ...-...
+								}
+								§DEF n
 							)
 							
-							§RECURSIV Fib... = a => §IF {{
-								(a .< 2) => a
-								(1 .== 1) => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
-							}}
+							§RECURSIV {
+								§DEF Fib... = §DEF a => §IF {
+									a .< 2 => a
+									1 .== 1 => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
+								}
+							}
 							
 							§EXPORT .Fib n
 						",
@@ -104,21 +108,23 @@ public static class mStdLib_Test {
 			aDebugStream => {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
-						$@"
+						@"
 							§IMPORT (
-								{{
-									...==...: ...==...
-									...+...: ...+...
-									...-...: ...-...
-								}}
-								n
+								{
+									...==...: §DEF ...==...
+									...+...: §DEF ...+...
+									...-...: §DEF ...-...
+								}
+								§DEF n
 							)
 							
-							§RECURSIV Fib... = a => §IF a MATCH {{
-								(a | a .== 0) => 0
-								(a | a .== 1) => 1
-								a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-							}}
+							§RECURSIV {
+								§DEF Fib... = §DEF a => §IF a MATCH {
+									(§DEF a | a .== 0) => 0
+									(§DEF a | a .== 1) => 1
+									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+								}
+							}
 							
 							§EXPORT .Fib n
 						",
@@ -137,20 +143,22 @@ public static class mStdLib_Test {
 			aDebugStream => {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
-						$@"
+						@"
 							§IMPORT (
-								{{
-									...<...: ...<...
-									...+...: ...+...
-									...-...: ...-...
-								}}
-								n
+								{
+									...<...: §DEF ...<...
+									...+...: §DEF ...+...
+									...-...: §DEF ...-...
+								}
+								§DEF n
 							)
 							
-							§RECURSIV Fib... = x => §IF x MATCH {{
-								(a | a .< 2) => a
-								a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-							}}
+							§RECURSIV {
+								§DEF Fib... = §DEF x => §IF x MATCH {
+									(§DEF a | a .< 2) => a
+									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+								}
+							}
 							
 							§EXPORT .Fib n
 						",
@@ -169,19 +177,19 @@ public static class mStdLib_Test {
 			aDebugStream => {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
-						$@"
-							§IMPORT {{
-								...+...: ...+...
-								...*...: ...*...
-							}}
+						@"
+							§IMPORT {
+								...+...: §DEF ...+...
+								...*...: §DEF ...*...
+							}
 							
-							§DEF +... = o : i {{
+							§DEF +... = §DEF o : §DEF i {
 								o := ((§TO_VAL o) .+ i) .
-							}}
+							}
 							
-							§DEF *... = o : i {{
+							§DEF *... = §DEF o : §DEF i {
 								o := ((§TO_VAL o) .* i) .
-							}}
+							}
 							
 							§VAR x := 1 .
 							
@@ -228,17 +236,17 @@ public static class mStdLib_Test {
 					mVM_Data.Empty()
 				);
 				var Main = mSPO_Interpreter.Run(
-					$@"
+					@"
 						§IMPORT (
-							ReadLine
-							WriteLine...
+							§DEF ReadLine
+							§DEF WriteLine...
 						)
 						
-						§EXPORT (StdIn, StdOut) : Args {{
+						§EXPORT (§DEF StdIn, §DEF StdOut) : §DEF Args {
 							StdIn : ReadLine => §DEF Line .
 							StdOut : WriteLine Line .
 							§RETURN 0
-						}}
+						}
 					",
 					mVM_Data.Tuple(ReadLine, WriteLine),
 					aDebugStream

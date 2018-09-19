@@ -123,10 +123,22 @@ public static class mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						Regs = Regs.Set(RegId1, Regs.Get(RegId2));
 					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsInt, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsInt(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
+					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.Int, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Int();
 						Regs = Regs.Set(RegId1, NewProc.Int(Span, int.Parse(RegId2)));
+						Types.Push(ResType);
+					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsBool, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsBool(Span, Regs.Get(RegId2)));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.BoolAnd, out Span, out RegId1, out RegId2, out RegId3)) {
@@ -209,6 +221,12 @@ public static class mIL_Interpreter<tPos> {
 						Regs = Regs.Set(RegId1, NewProc.IntsMul(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsPair, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsPair(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
+					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.Pair, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.Get(RegId2);
@@ -265,6 +283,12 @@ public static class mIL_Interpreter<tPos> {
 						);
 						NewProc.TailCallIf(Span, CondReg, ResReg);
 					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsPrefix, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsPrefix(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
+					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.AddPrefix, out Span, out RegId1, out var Prefix, out RegId3)) {
 					//--------------------------------------------------------------------------------
 						var Reg = Regs.Get(RegId3);
@@ -288,6 +312,12 @@ public static class mIL_Interpreter<tPos> {
 						Regs = Regs.Set(RegId1, NewProc.HasPrefix(Span, Prefix.GetHashCode(), Reg));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsRecord, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsRecord(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
+					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.ExtendRec, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
 						var OldRecordReg = Regs.Get(RegId2);
@@ -309,6 +339,12 @@ public static class mIL_Interpreter<tPos> {
 						var Reg2 = Regs.Get(RegId2);
 						// TODO
 						NewProc.Assert(Span, Reg1, Reg2);
+					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsVar, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsVar(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.VarDef, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------
@@ -342,6 +378,12 @@ public static class mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						CurrObj = ObjStack.Pop();
 						NewProc.SetObj(Span, CurrObj);
+					//--------------------------------------------------------------------------------
+					} else if (Command.Match(mIL_AST.tCommandNodeType.IsType, out Span, out RegId1, out RegId2)) {
+					//--------------------------------------------------------------------------------
+						var ResType = mVM_Type.Bool();
+						Regs = Regs.Set(RegId1, NewProc.IsType(Span, Regs.Get(RegId2)));
+						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.TypeCond, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
@@ -483,12 +525,6 @@ public static class mIL_Interpreter<tPos> {
 								)
 							)
 						);
-					//--------------------------------------------------------------------------------
-					} else if (Command.Match(mIL_AST.tCommandNodeType.TypeIs, out Span, out RegId1, out RegId2)) {
-					//--------------------------------------------------------------------------------
-						var VarReg = Regs.Get(RegId1);
-						var TypeReg = Regs.Get(RegId2);
-						mVM_Type.Unify(Types.Get(VarReg), Types.Get(TypeReg).Value(), aTrace);
 					//--------------------------------------------------------------------------------
 					} else {
 					//--------------------------------------------------------------------------------

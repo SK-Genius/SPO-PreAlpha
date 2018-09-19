@@ -1,0 +1,36 @@
+﻿§IMPORT (
+	{
+		...*...: §DEF ...*...
+		...==...: §DEF ...==...
+		!...: §DEF !...
+		...&...: §DEF ...&...
+	}
+	{
+		EmptyStack: §DEF EmptyStack
+		Push...To...: §DEF Push...To...
+		Map...With...: §DEF Map...With...
+	}
+)
+
+§DEF True = 1 .== 1
+§DEF False = .! True
+
+§RECURSIV {
+	§DEF ...=... = (§DEF a1, §DEF a2) => §IF (a1, a2) MATCH {
+		(
+			(#Stack (§DEF Head1, §DEF Tail1))
+			(#Stack (§DEF Head2, §DEF Tail2))
+		) => (Head1 .== Head2) .& (Tail1 .= Tail2)
+		(
+			(#Empty ())
+			(#Empty ())
+		) => True
+		_ => False
+	}
+}
+
+§EXPORT (
+	.Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
+) .= (
+	.Push 9 To (.Push 4 To (.Push 1 To EmptyStack))
+)

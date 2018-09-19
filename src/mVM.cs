@@ -94,6 +94,13 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsBool: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Bool));
+				break;
+			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.And: {
 			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
@@ -121,6 +128,13 @@ public static class mVM {
 				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
 				mDebug.Assert(BoolData2.MatchBool(out var Bool2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsInt: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Int));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -175,6 +189,13 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsPair: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Pair));
+				break;
+			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewPair: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(
@@ -210,6 +231,13 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsPrefix: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Prefix));
+				break;
+			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.AddPrefix: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Prefix(Arg1, aCallStack._Regs.Get(Arg2)));
@@ -231,6 +259,13 @@ public static class mVM {
 					aCallStack._Regs.Get(Arg2).MatchPrefix(out var PrefixId, out var Data)
 				);
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsRecord: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Record));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -269,6 +304,13 @@ public static class mVM {
 			case mVM_Data.tOpCode.SetObj: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Obj = aCallStack._Regs.Get(Arg1);
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsVar: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Var));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -402,6 +444,13 @@ public static class mVM {
 					aCallStack._TraceOut(() => "====================================");
 					return aCallStack._Parent;
 				}
+				break;
+			}
+			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IsType: {
+			//--------------------------------------------------------------------------------
+				var Data = aCallStack._Regs.Get(Arg1);
+				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Type));
 				break;
 			}
 			

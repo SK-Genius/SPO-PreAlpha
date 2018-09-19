@@ -55,9 +55,9 @@ public static class mArrayList_Test {
 		mTest.Test(
 			"tArrayList.ToLasyList()",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List<tInt32>().ToLasyList(), mStream.Stream<tInt32>());
-				mStd.AssertEq(mArrayList.List(1).ToLasyList(), mStream.Stream(1));
-				mStd.AssertEq(mArrayList.List(1, 2, 3).ToLasyList(), mStream.Stream(1, 2, 3));
+				mStd.AssertEq(mArrayList.List<tInt32>().ToStream(), mStream.Stream<tInt32>());
+				mStd.AssertEq(mArrayList.List(1).ToStream(), mStream.Stream(1));
+				mStd.AssertEq(mArrayList.List(1, 2, 3).ToStream(), mStream.Stream(1, 2, 3));
 			}
 		),
 		mTest.Test(

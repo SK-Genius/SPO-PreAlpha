@@ -189,7 +189,7 @@ public static class mArrayList {
 	
 	//================================================================================
 	public static mStream.tStream<t>
-	ToLasyList<t>(
+	ToStream<t>(
 		this tArrayList<t> aList
 	//================================================================================
 	) => aList.ToLasyList(0);

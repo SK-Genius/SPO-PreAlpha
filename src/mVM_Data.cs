@@ -19,11 +19,13 @@ public static class mVM_Data {
 	
 	public enum tOpCode {
 		// BOOL
+		IsBool,
 		And,
 		Or,
 		XOr,
 		
 		// INT
+		IsInt,
 		NewInt,
 		IntsAreEq,
 		IntsComp,
@@ -32,20 +34,24 @@ public static class mVM_Data {
 		IntsMul,
 		
 		// PAIR
+		IsPair,
 		NewPair,
 		First,
 		Second,
 		
 		// PREFIX
+		IsPrefix,
 		AddPrefix,
 		DelPrefix,
 		HasPrefix,
 		
 		// RECORD
+		IsRecord,
 		ExtendRec,
 		DivideRec,
-
+		
 		// VAR
+		IsVar,
 		VarDef,
 		VarSet,
 		VarGet,
@@ -62,6 +68,7 @@ public static class mVM_Data {
 		Assert,
 		
 		// TYPE
+		IsType,
 		TypeFree,
 		TypePair,
 		TypePrefix,
@@ -174,6 +181,15 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tInt32
+	IsBool<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsBool, aValue);
+	
+	//================================================================================
+	public static tInt32
 	And<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -201,6 +217,15 @@ public static class mVM_Data {
 		tInt32 aBoolReg2
 	//================================================================================
 	) => aDef._AddReg(aPos, tOpCode.XOr, aBoolReg1, aBoolReg2);
+	
+	//================================================================================
+	public static tInt32
+	IsInt<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsInt, aValue);
 	
 	//================================================================================
 	public static tInt32
@@ -263,6 +288,15 @@ public static class mVM_Data {
 	
 	//================================================================================
 	public static tInt32
+	IsPair<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsPair, aValue);
+	
+	//================================================================================
+	public static tInt32
 	Pair<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -288,6 +322,15 @@ public static class mVM_Data {
 		tInt32 aPairReg
 	//================================================================================
 	) => aDef._AddReg(aPos, tOpCode.Second, aPairReg);
+	
+	//================================================================================
+	public static tInt32
+	IsPrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsPrefix, aValue);
 	
 	//================================================================================
 	public static tInt32
@@ -318,6 +361,15 @@ public static class mVM_Data {
 		tInt32 aDataReg
 	//================================================================================
 	) => aDef._AddReg(aPos, tOpCode.HasPrefix, aPrefixId, aDataReg);
+	
+	//================================================================================
+	public static tInt32
+	IsRecord<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsRecord, aValue);
 	
 	//================================================================================
 	public static tInt32
@@ -357,6 +409,15 @@ public static class mVM_Data {
 	) {
 		aDef._AddCommand(aPos, tOpCode.SetObj, aObjReg);
 	}
+	
+	//================================================================================
+	public static tInt32
+	IsVar<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsVar, aValue);
 	
 	//================================================================================
 	public static tInt32
@@ -455,6 +516,15 @@ public static class mVM_Data {
 	) {
 		aDef._AddCommand(aPos, tOpCode.Assert, aPreCondReg, aPostCondReg);
 	}
+	
+	//================================================================================
+	public static tInt32
+	IsType<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aValue
+	//================================================================================
+	) => aDef._AddReg(aPos, tOpCode.IsType, aValue);
 	
 	//================================================================================
 	public static tInt32

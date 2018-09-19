@@ -125,8 +125,8 @@ public static class mSPO2IL {
 				mIL_AST.ReturnIf(aLambdaNode.Body.Pos, ResultReg, mIL_AST.cTrue)
 			);
 		}
-		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
-		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
+		var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
+		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToStream(
 		).Where(
 			S1 => KnownSymbols.All(S2 => S1 != S2)
 		).ToArrayList();
@@ -145,8 +145,8 @@ public static class mSPO2IL {
 		
 		var ResultReg = aDefConstructor.MapExpresion(aMethodNode.Body);
 		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aMethodNode.Pos, ResultReg, mIL_AST.cTrue));
-		var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
-		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToLasyList(
+		var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
+		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToStream(
 		).Where(
 			S1 => KnownSymbols.All(S2 => S1 != S2)
 		).ToArrayList();
@@ -165,7 +165,7 @@ public static class mSPO2IL {
 			aTempDefConstructor.UnrollList(
 				aPos,
 				mIL_AST.cEnv,
-				aUnsolveSymbols.ToLasyList()
+				aUnsolveSymbols.ToStream()
 			),
 			aTempDefConstructor.Commands
 		);
@@ -220,9 +220,9 @@ public static class mSPO2IL {
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
-			var UnsolvedSymbols = aEnv.ToLasyList();
+			var UnsolvedSymbols = aEnv.ToStream();
 			while (UnsolvedSymbols.Match(out var Symbol, out UnsolvedSymbols)) {
-				if (aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != Symbol)) {
+				if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != Symbol)) {
 					aDefConstructor.UnsolvedSymbols.Push(Symbol);
 				}
 			}
@@ -230,7 +230,7 @@ public static class mSPO2IL {
 			if (aEnv.Size() == 1) {
 				ArgReg = aEnv.Get(0);
 			} else {
-				UnsolvedSymbols = aEnv.ToLasyList().Reverse();
+				UnsolvedSymbols = aEnv.ToStream().Reverse();
 				while (UnsolvedSymbols.Match(out var Symbol_, out UnsolvedSymbols)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, Symbol_, ArgReg));
@@ -305,8 +305,8 @@ public static class mSPO2IL {
 			case mSPO_AST.tIdentNode<tPos> IdentNode: {
 			//--------------------------------------------------------------------------------
 				if (
-					aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != IdentNode.Name) &&
-					aDefConstructor.Commands.ToLasyList(
+					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != IdentNode.Name) &&
+					aDefConstructor.Commands.ToStream(
 					).All(
 						_ => !_.TryGetResultReg(out var Name) || Name != IdentNode.Name
 					)
@@ -450,7 +450,7 @@ public static class mSPO2IL {
 						IfNode.Pos,
 						mSPO_AST.Match(
 							IfNode.Pos,
-							new mSPO_AST.tIdentNode<tPos>{Name = ResultReg},
+							new mSPO_AST.tMatchFreeIdentNode<tPos>{Name = ResultReg},
 							null
 						),
 						mSPO_AST.Call(
@@ -462,7 +462,7 @@ public static class mSPO2IL {
 									mSPO_AST.Empty(IfNode.Pos),
 									null
 								),
-								mSPO_AST.Block(IfNode.Pos, Ifs.ToLasyList())
+								mSPO_AST.Block(IfNode.Pos, Ifs.ToStream())
 							),
 							mSPO_AST.Empty(IfNode.Pos)
 						)
@@ -522,8 +522,8 @@ public static class mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
 			//--------------------------------------------------------------------------------
-				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToLasyList().Any(a => a == RecursiveTypeNode.HeadType.Name));
-				mStd.AssertNot(aDefConstructor.KnownSymbols.ToLasyList().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mStd.AssertNot(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(RecursiveTypeNode.HeadType.Pos, RecursiveTypeNode.HeadType.Name)
 				);
@@ -609,11 +609,11 @@ public static class mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIdentNode<tPos> IdentNode: {
+			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
 			//--------------------------------------------------------------------------------
-				mDebug.AssertNotEq(IdentNode.Name, "_");
-				aDefConstructor.Commands.Push(mIL_AST.Alias(IdentNode.Pos, IdentNode.Name, aReg));
-				aDefConstructor.KnownSymbols.Push(IdentNode.Name);
+				mDebug.AssertNotEq(FreeIdentNode.Name, "_");
+				aDefConstructor.Commands.Push(mIL_AST.Alias(FreeIdentNode.Pos, FreeIdentNode.Name, aReg));
+				aDefConstructor.KnownSymbols.Push(FreeIdentNode.Name);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -732,14 +732,14 @@ public static class mSPO2IL {
 		
 		switch (PatternNode) {
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIdentNode<tPos> IdentNode: {
+			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
 			//--------------------------------------------------------------------------------
-				mDebug.AssertNotEq(IdentNode.Name, "_");
+				mDebug.AssertNotEq(FreeIdentNode.Name, "_");
 				mDebug.Assert(
-					aDefConstructor.KnownSymbols.ToLasyList().All(_ => _ != IdentNode.Name)
+					aDefConstructor.KnownSymbols.ToStream().All(_ => _ != FreeIdentNode.Name)
 				);
 				aDefConstructor.Commands.Push(
-					mIL_AST.Alias(IdentNode.Pos, IdentNode.Name, aInReg)
+					mIL_AST.Alias(FreeIdentNode.Pos, FreeIdentNode.Name, aInReg)
 				);
 				break;
 			}
@@ -753,10 +753,15 @@ public static class mSPO2IL {
 			//--------------------------------------------------------------------------------
 				var Prefix = PrefixNode.Prefix;
 				var SubMatch = PrefixNode.Match;
+				var IsPrefix = aDefConstructor.CreateTempReg();
+				var IsNotPrefix = aDefConstructor.CreateTempReg();
 				var Reg = aDefConstructor.CreateTempReg();
 				var InvReg = aDefConstructor.CreateTempReg();
 				var SubValue = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
+					mIL_AST.IsPrefix(PrefixNode.Pos, IsPrefix, aInReg),
+					mIL_AST.XOr(PrefixNode.Pos, IsNotPrefix, IsPrefix, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(PrefixNode.Pos, mIL_AST.cFalse, IsNotPrefix),
 					mIL_AST.HasPrefix(PrefixNode.Pos, Reg, Prefix, aInReg),
 					mIL_AST.XOr(PrefixNode.Pos, InvReg, Reg, mIL_AST.cTrue),
 					mIL_AST.ReturnIf(PrefixNode.Pos, mIL_AST.cFalse, InvReg),
@@ -777,6 +782,7 @@ public static class mSPO2IL {
 				
 				var TestReg = aDefConstructor.MapExpresion(Guard);
 				aDefConstructor.Commands.Push(
+					// TODO: check type
 					mIL_AST.XOr(GuardNode.Pos, InvReg, TestReg, mIL_AST.cTrue),
 					mIL_AST.ReturnIf(GuardNode.Pos, mIL_AST.cFalse, InvReg)
 				);
@@ -786,18 +792,36 @@ public static class mSPO2IL {
 			case mSPO_AST.tMatchTupleNode<tPos> TupleNode: {
 			//--------------------------------------------------------------------------------
 				var Items = TupleNode.Items;
+				var RestReg = aInReg;
 				while (Items.Match(out var Item, out Items)) {
-					aDefConstructor.MapMatchTest(aInReg, Item);
+					var IsPairReg = aDefConstructor.CreateTempReg();
+					var IsNotPairReg = aDefConstructor.CreateTempReg();
+					var TempReg = aDefConstructor.CreateTempReg();
+					var RestReg_ = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(
+						mIL_AST.IsPair(TupleNode.Pos, IsPairReg, aInReg),
+						mIL_AST.XOr(TupleNode.Pos, IsNotPairReg, IsPairReg, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(TupleNode.Pos, mIL_AST.cFalse, IsNotPairReg),
+						mIL_AST.GetFirst(Item.Pos, TempReg, RestReg),
+						mIL_AST.GetSecond(Item.Pos, RestReg_, RestReg)
+					);
+					aDefConstructor.MapMatchTest(TempReg, Item);
+					RestReg = RestReg_;
 				}
 				break;
 			}
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tNumberNode<tPos> NumberNode: {
 			//--------------------------------------------------------------------------------
+				var IsIntReg = aDefConstructor.CreateTempReg();
+				var IsNotIntReg = aDefConstructor.CreateTempReg();
 				var IntReg = aDefConstructor.CreateTempReg();
 				var CondReg = aDefConstructor.CreateTempReg();
 				var InvCondReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
+					mIL_AST.IsPair(NumberNode.Pos, IsIntReg, aInReg),
+					mIL_AST.XOr(NumberNode.Pos, IsNotIntReg, IsIntReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(NumberNode.Pos, mIL_AST.cFalse, IsNotIntReg),
 					mIL_AST.CreateInt(NumberNode.Pos, IntReg, $"{NumberNode.Value}"),
 					mIL_AST.IntsAreEq(NumberNode.Pos, CondReg, aInReg, IntReg),
 					mIL_AST.XOr(NumberNode.Pos, InvCondReg, CondReg, mIL_AST.cTrue),
@@ -888,8 +912,8 @@ public static class mSPO2IL {
 			var TempLambdaDef= TempLambdaDefs.Get(I);
 			
 			TempLambdaDef.InitMapLambda(RecLambdaItemNode.Lambda);
-			var KnownSymbols = TempLambdaDef.KnownSymbols.ToLasyList();
-			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToLasyList(
+			var KnownSymbols = TempLambdaDef.KnownSymbols.ToStream();
+			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToStream(
 			).Where(
 				aUnsolved => (
 					KnownSymbols.All(_ => _ != aUnsolved) &&
@@ -921,14 +945,14 @@ public static class mSPO2IL {
 			
 			var ArgReg = mIL_AST.cEmpty;
 			if (!AllUnsolvedSymbols.IsEmpty()) {
-				var Iterator = AllUnsolvedSymbols.ToLasyList();
+				var Iterator = AllUnsolvedSymbols.ToStream();
 				while (Iterator.Match(out var UnsolvedSymbol, out Iterator)) {
-					if (aDefConstructor.UnsolvedSymbols.ToLasyList().All(_ => _ != UnsolvedSymbol)) {
+					if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != UnsolvedSymbol)) {
 						aDefConstructor.UnsolvedSymbols.Push(UnsolvedSymbol);
 					}
 				}
 				
-				Iterator = AllUnsolvedSymbols.ToLasyList().Reverse();
+				Iterator = AllUnsolvedSymbols.ToStream().Reverse();
 				while (Iterator.Match(out var Symbol_, out Iterator)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
@@ -986,7 +1010,7 @@ public static class mSPO2IL {
 				aDefConstructor.MapMatch(Call.Result.Value, Result);
 			}
 			
-			var KnownSymbols = aDefConstructor.KnownSymbols.ToLasyList();
+			var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
 			if (KnownSymbols.All(_ => _ != MethodName)) {
 				aDefConstructor.UnsolvedSymbols.Push(MethodName);
 			}

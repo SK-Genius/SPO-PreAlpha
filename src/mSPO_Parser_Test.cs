@@ -396,30 +396,35 @@ public static class mSPO_Parser_Test {
 			"Record",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Command.ParseText("§DEF {a: x, b: y} = {a: 1, b: 2}\n", aStreamOut),
+					mSPO_Parser.Command.ParseText(
+						//        1         2         3         4         5        6          7         8
+						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						"{a: §DEF x, b: §DEF y} = {a: 1, b: 2}\n",
+						aStreamOut
+					),
 					mSPO_AST.Def(
-						Span((1, 1), (1, 32)),
+						Span((1, 1), (1, 37)),
 						mSPO_AST.Match(
-							Span((1, 6), (1, 17)),
+							Span((1, 1), (1, 22)),
 							mSPO_AST.MatchRecord(
-								Span((1, 6), (1, 17)),
+								Span((1, 1), (1, 22)),
 								mStream.Stream<(mSPO_AST.tIdentNode<tSpan> Key, mSPO_AST.tMatchNode<tSpan> Value)>(
 									(
-										mSPO_AST.Ident(Span((1, 7), (1, 7)), "a"),
-										mSPO_AST.Match(Span((1, 10), (1, 10)), mSPO_AST.Ident(Span((1, 10), (1, 10)), "x"), null)
+										mSPO_AST.Ident(Span((1, 2), (1, 2)), "a"),
+										mSPO_AST.Match(Span((1, 5), (1, 10)), mSPO_AST.MatchFreeIdent(Span((1, 5), (1, 10)), "x"), null)
 									), (
 										mSPO_AST.Ident(Span((1, 13), (1, 13)), "b"),
-										mSPO_AST.Match(Span((1, 16), (1, 16)), mSPO_AST.Ident(Span((1, 16), (1, 16)), "y"), null)
+										mSPO_AST.Match(Span((1, 16), (1, 21)), mSPO_AST.MatchFreeIdent(Span((1, 16), (1, 21)), "y"), null)
 									)
 								)
 							),
 							null
 						),
 						mSPO_AST.Record(
-							Span((1, 21), (1, 32)),
+							Span((1, 26), (1, 37)),
 							mStream.Stream<(mSPO_AST.tIdentNode<tSpan> Key, mSPO_AST.tExpressionNode<tSpan> Value)>(
-								(mSPO_AST.Ident(Span((1, 22), (1, 22)), "a"), mSPO_AST.Number(Span((1, 25), (1, 25)), 1)),
-								(mSPO_AST.Ident(Span((1, 28), (1, 28)), "b"), mSPO_AST.Number(Span((1, 31), (1, 31)), 2))
+								(mSPO_AST.Ident(Span((1, 27), (1, 27)), "a"), mSPO_AST.Number(Span((1, 30), (1, 30)), 1)),
+								(mSPO_AST.Ident(Span((1, 33), (1, 33)), "b"), mSPO_AST.Number(Span((1, 36), (1, 36)), 2))
 							)
 						)
 					)

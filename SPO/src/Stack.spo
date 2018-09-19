@@ -1,0 +1,26 @@
+﻿§IMPORT ()
+
+§DEF EmptyStack = #Empty ()
+
+§DEF tStack... = §DEF t => [§RECURSIV tStack_ [[#Empty] | [#Stack [t, tStack_]]]]
+
+§DEF Push...To... = (
+	§DEF aHead € t
+	§DEF aTail € (.tStack t)
+) => #Stack (aHead, aTail)
+
+§RECURSIV {
+	§DEF Map...With... = (
+		§DEF aStack € (.tStack t)
+		§DEF aFunc...
+	) => §IF aStack MATCH {
+		(#Stack (§DEF Head, §DEF Tail)) => .Push (.aFunc Head) To (.Map Tail With aFunc...)
+		(_) => EmptyStack
+	}
+}
+
+§EXPORT {
+	EmptyStack: EmptyStack
+	Push...To...: Push...To...
+	Map...With...: Map...With...
+}

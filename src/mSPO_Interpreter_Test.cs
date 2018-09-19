@@ -50,11 +50,11 @@ public static class mSPO_Interpreter_Test {
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
-								...*...
-								k
+								§DEF ...*...
+								§DEF k
 							)
 							
-							§DEF x... = (a => (k .* a))
+							§DEF x... = (§DEF a => (k .* a))
 							§DEF y = (.x 5)
 							
 							§EXPORT y
@@ -76,11 +76,11 @@ public static class mSPO_Interpreter_Test {
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
-								...*...
-								k
+								§DEF ...*...
+								§DEF k
 							)
 							
-							§DEF y = (.(a => (k .* a)) 5)
+							§DEF y = (.(§DEF a => (k .* a)) 5)
 							
 							§EXPORT y
 						",
@@ -101,11 +101,11 @@ public static class mSPO_Interpreter_Test {
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
-								...*...
-								k
+								§DEF ...*...
+								§DEF k
 							)
 							
-							§EXPORT .(a => (k .* a)) 5
+							§EXPORT .(§DEF a => (k .* a)) 5
 						",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
@@ -124,10 +124,10 @@ public static class mSPO_Interpreter_Test {
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
-								...*...
+								§DEF ...*...
 							)
 							
-							§EXPORT .((a, _, _) => (2 .* a)) (3, 5, 7)
+							§EXPORT .((§DEF a, _, _) => (2 .* a)) (3, 5, 7)
 						",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						aDebugStream
@@ -143,12 +143,12 @@ public static class mSPO_Interpreter_Test {
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
-								...*...
+								§DEF ...*...
 							)
 							
 							§EXPORT .(
-								a => §IF a MATCH {
-									(_, a, _) => (a .* a)
+								§DEF a => §IF a MATCH {
+									(_, §DEF a, _) => (a .* a)
 									_ => 0
 								}
 							) (1, 2, 3)
@@ -166,23 +166,25 @@ public static class mSPO_Interpreter_Test {
 				mStd.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
-							§IMPORT (...*... € [[§INT, §INT] => §INT])
+							§IMPORT (§DEF ...*... € [[§INT, §INT] => §INT])
 							
 							§DEF EmptyStack = #Empty ()
 							
-							§DEF tStack... = t => [§RECURSIV tStack_ [[#Empty []] | [#Stack [t, tStack_]]]]
+							§DEF tStack... = (§DEF t) => [§RECURSIV tStack_ [[#Empty []] | [#Stack [t, tStack_]]]]
 							
 							§DEF Push...To... = (
-								Head € t
-								Tail € (.tStack t)
+								§DEF Head € t
+								§DEF Tail € (.tStack t)
 							) => #Stack (Head, Tail)
 							
-							§RECURSIV Map...With... = (Stack, Func...) => §IF Stack MATCH {
-								(#Stack (Head, Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
-								(#Empty ()) => EmptyStack
+							§RECURSIV {
+								§DEF Map...With... = (§DEF Stack, §DEF Func...) => §IF Stack MATCH {
+									(#Stack (§DEF Head, §DEF Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
+									(#Empty ()) => EmptyStack
+								}
 							}
 							
-							§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (x => x .* x)
+							§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
 						",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						aDebugStream
@@ -238,7 +240,7 @@ public static class mSPO_Interpreter_Test {
 						@"
 							§IMPORT ()
 							
-							§DEF {C: X, A: Y} = {A: 1, B: 2, C: 3}
+							{C: §DEF X, A: §DEF Y} = {A: 1, B: 2, C: 3}
 							
 							§EXPORT (X, Y)
 						",

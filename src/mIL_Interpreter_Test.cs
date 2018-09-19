@@ -178,40 +178,6 @@ public static class mIL_Interpreter_Test {
 			}
 		),
 		mTest.Test(
-			"§TYPE_OF...IS...",
-			aDebugStream => {
-				var (Module, ModuleMap) = ParseModule(
-					"§DEF AssertInt...\n" +
-					"	§TYPE_OF ENV IS EMPTY_TYPE\n" +
-					"	§TYPE_OF OBJ IS EMPTY_TYPE\n" +
-					"	§TYPE_OF ARG IS INT_TYPE\n" +
-					"	§RETURN ONE IF TRUE\n",
-					aDebugStream
-				);
-				
-				#if TRACE
-					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
-					);
-				#else
-					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
-				#endif
-				
-				mStd.AssertEq(
-					Module.Skip(ModuleMap.Get("AssertInt...")).First().DefType,
-					mVM_Type.Proc(
-						mVM_Type.Empty(),
-						mVM_Type.Empty(),
-						mVM_Type.Proc(
-							mVM_Type.Empty(),
-							mVM_Type.Int(),
-							mVM_Type.Int()
-						)
-					)
-				);
-			}
-		),
-		mTest.Test(
 			"Assert",
 			aDebugStream => {
 				var (Module, ModuleMap) = ParseModule(
@@ -421,7 +387,6 @@ public static class mIL_Interpreter_Test {
 	[xTestCase("Call")]
 	[xTestCase("Prefix")]
 	[xTestCase("Assert")]
-	[xTestCase("§TYPE_OF...IS...")]
 	[xTestCase("ParseModule")]
 	public static void _(tText a) {
 		mStd.AssertEq(

@@ -134,8 +134,8 @@ public static class mSPO_Parser {
 	.SetName(nameof(Match));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefNode<tSpan>, tError>
-	Def = mParserGen.Seq(KeyWord("DEF"), Match, Token("="), Expression)
-	.Modify((_, aMatch, __, aExpression) => (aMatch, aExpression))
+	Def = mParserGen.Seq(Match, Token("="), Expression)
+	.Modify((aMatch, __, aExpression) => (aMatch, aExpression))
 	.ModifyS(mSPO_AST.Def)
 	.SetName(nameof(Def));
 	
@@ -255,6 +255,12 @@ public static class mSPO_Parser {
 	Prefix = InfixPrefix(ExpressionInCall)
 	.ModifyS((aSpan, aIdent, aChilds) => mSPO_AST.Prefix(aSpan, aIdent, mSPO_AST.Tuple(aSpan, aChilds)))
 	.SetName(nameof(Prefix));
+	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchFreeIdentNode<tSpan>, tError>
+	MatchFreeIdent = (-KeyWord("DEF") +Ident)
+	.Modify(a => a.Name.Substring(1))
+	.ModifyS(mSPO_AST.MatchFreeIdent)
+	.SetName(nameof(MatchFreeIdent));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchPrefixNode<tSpan>, tError>
 	MatchPrefix = C( InfixPrefix(UnTypedMatch) )
@@ -448,22 +454,19 @@ public static class mSPO_Parser {
 	.SetName(nameof(Method));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecLambdaItemNode<tSpan>, tError>
-	RecLambdaItem = mParserGen.Seq(Ident, Token("="), Lambda | C( Lambda ))
+	RecLambdaItem = mParserGen.Seq(MatchFreeIdent, Token("="), Lambda | C( Lambda ))
 	.Modify((aIdent, _, aLambda) => (aIdent, aLambda))
 	.ModifyS(mSPO_AST.RecLambdaItem)
 	.SetName(nameof(RecLambdaItem));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecLambdasNode<tSpan>, tError>
-	RecLambda = (
-		mParserGen.Seq(
-			KeyWord("RECURSIV"),
-			SpecialToken("{"),
-			NLs_Token,
-			(RecLambdaItem +-NLs_Token)[1, null],
-			SpecialToken("}")
-		).Modify((_, __, ___, a, ____) => a) |
-		(-KeyWord("RECURSIV") +RecLambdaItem[1, 1])
-	)
+	RecLambda = mParserGen.Seq(
+		KeyWord("RECURSIV"),
+		SpecialToken("{"),
+		NLs_Token,
+		(RecLambdaItem +-NLs_Token)[1, null],
+		SpecialToken("}")
+	).Modify((_, __, ___, a, ____) => a)
 	.ModifyS(mSPO_AST.RecLambdas)
 	.SetName(nameof(RecLambda));
 	
@@ -505,7 +508,7 @@ public static class mSPO_Parser {
 	MethodCall = mParserGen.Seq(
 		Ident,
 		Infix(ExpressionInCall),
-		(-SpecialToken("=>") +(-KeyWord("DEF") +Match))[0, 1].Modify(aMatches => aMatches?.First())
+		(-SpecialToken("=>") +Match)[0, 1].Modify(aMatches => aMatches?.First())
 	)
 	.ModifyS(
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
@@ -583,16 +586,17 @@ public static class mSPO_Parser {
 	static mSPO_Parser() {
 		UnTypedMatch.Def(
 			mParserGen.OneOf(
+				MatchFreeIdent.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				C( mParserGen.Seq(Match, ((-SpecialToken(",") | (-NLs_Token)) +Match)[0, null]) )
 					.Modify(mStream.Stream)
 					.ModifyS(mSPO_AST.MatchTuple)
 					.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				IgnoreMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-				Literal.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-				Ident.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				MatchPrefix.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				MatchRecord.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-				MatchGuard.Cast<mSPO_AST.tMatchItemNode<tSpan>>()
+				MatchGuard.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+				Literal.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+				Ident.Cast<mSPO_AST.tMatchItemNode<tSpan>>()
 			).ModifyS(mSPO_AST.UnTypedMatch)
 		);
 		

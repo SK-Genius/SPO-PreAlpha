@@ -33,9 +33,9 @@ public static class mSPO_Interpreter {
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aDebugStream),
 			mStd.Merge
-		).Defs.ToLasyList(
+		).Defs.ToStream(
 		).MapWithIndex(
-			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToLasyList())
+			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToStream())
 		),
 		aImport,
 		aDebugStream

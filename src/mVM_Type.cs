@@ -305,8 +305,8 @@ public static class mVM_Type {
 		}
 		
 		if (
-			a1.Kind== tKind.Free &&
-			a2.Kind== tKind.Free
+			a1.Kind == tKind.Free &&
+			a2.Kind == tKind.Free
 		) {
 			if (ReferenceEquals(a1.Refs, a2.Refs)) {
 				return;
@@ -337,7 +337,39 @@ public static class mVM_Type {
 			return;
 		}
 		
-		mDebug.AssertEq(a1.Kind, a2.Kind);
+		if (a1.Kind != a2.Kind) {
+			var Type1 = new tType {
+				Id = a1.Id,
+				Kind = a1.Kind,
+				Prefix = a1.Prefix,
+				Refs = a1.Refs,
+			};
+			var Type2 = new tType {
+				Id = a2.Id,
+				Kind = a2.Kind,
+				Prefix = a2.Prefix,
+				Refs = a2.Refs,
+			};
+			
+			a1.Kind = tKind.Set;
+			a1.Id = ""+NextPlaceholderId;
+			NextPlaceholderId += 1;
+			a1.Prefix = null;
+			
+			if (a1.Kind == tKind.Set) {
+				a1.Refs = mStream.Stream(Type2, mStream.Stream(a1.Refs)).ToArrayList().ToArray();
+			} else if (a2.Kind == tKind.Set) {
+				a1.Refs = mStream.Stream(Type1, mStream.Stream(a2.Refs)).ToArrayList().ToArray();
+			} else {
+				a1.Refs = new[]{Type1, Type2};
+			}
+			
+			a2.Kind = a1.Kind;
+			a2.Id = a1.Id;
+			a2.Prefix = a1.Prefix;
+			a2.Refs = a1.Refs;
+			return;
+		}
 		mDebug.AssertEq(a1.Id, a2.Id);
 		mDebug.AssertEq(a1.Prefix, a2.Prefix);
 		var RefCount = a1.Refs.Length;

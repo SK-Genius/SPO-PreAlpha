@@ -49,5 +49,13 @@
   <ItemGroup>
     <Compile Include="src\Program.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="src\Stack.spo">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="src\StackTest.spo">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -21,8 +21,8 @@ public static class mSPO_AST {
 		tPos Pos { get; set; }
 	}
 	
-	public interface tExpressionNode<tPos> : tNode<tPos> {}
 	public interface tMatchItemNode<tPos> : tNode<tPos> {}
+	public interface tExpressionNode<tPos> : tNode<tPos> {}
 	public interface tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {}
 	public interface tCommandNode<tPos> : tNode<tPos> {}
 	
@@ -69,6 +69,11 @@ public static class mSPO_AST {
 	}
 	
 	public struct tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
+		public tPos Pos { get; set; }
+		public tText Name;
+	}
+	
+	public struct tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public tText Name;
 	}
@@ -144,7 +149,7 @@ public static class mSPO_AST {
 	
 	public struct tRecLambdaItemNode<tPos> {
 		public tPos Pos { get; set; }
-		public tIdentNode<tPos> Ident;
+		public tMatchFreeIdentNode<tPos> Ident;
 		public tLambdaNode<tPos> Lambda;
 	}
 	
@@ -358,6 +363,17 @@ public static class mSPO_AST {
 		tText aName
 	//================================================================================
 	) => new tIdentNode<tPos> {
+		Pos = aPos,
+		Name = "_" + aName
+	};
+	
+	//================================================================================
+	public static tMatchFreeIdentNode<tPos>
+	MatchFreeIdent<tPos>(
+		tPos aPos,
+		tText aName
+	//================================================================================
+	) => new tMatchFreeIdentNode<tPos> {
 		Pos = aPos,
 		Name = "_" + aName
 	};
@@ -578,7 +594,7 @@ public static class mSPO_AST {
 	public static tRecLambdaItemNode<tPos>
 	RecLambdaItem<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aIdent,
+		tMatchFreeIdentNode<tPos> aIdent,
 		tLambdaNode<tPos> aLambda
 	//================================================================================
 	) => new tRecLambdaItemNode<tPos> {
