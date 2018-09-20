@@ -1,0 +1,9 @@
+﻿§IMPORT {
+	StdLib: §DEF StdLib
+	LoadModule...: §DEF LoadModule...
+}
+
+§DEF Stack = .(.LoadModule "Stack.spo") StdLib
+§DEF StackTest = .(.LoadModule "StackTest.spo") (StdLib, Stack)
+
+§EXPORT StackTest

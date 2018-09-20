@@ -390,7 +390,22 @@ public static class mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTextNode<tPos> TextNode: {
 			//--------------------------------------------------------------------------------
-				throw mStd.Error("impossible");
+				var Pos = TextNode.Pos;
+				var TextReg = mIL_AST.cEmpty;
+				var Index = TextNode.Value.Length;
+				while (Index --> 0) {
+					var Char = TextNode.Value[Index];
+					var CharOrdReg = aDefConstructor.CreateTempReg();
+					var CharReg = aDefConstructor.CreateTempReg();
+					var TextReg_ = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(
+						mIL_AST.CreateInt(Pos, CharOrdReg, ((int)Char).ToString()),
+						mIL_AST.AddPrefix(Pos, CharReg, "Char", CharOrdReg),
+						mIL_AST.CreatePair(Pos, TextReg_, CharReg, TextReg)
+					);
+					TextReg = TextReg_;
+				}
+				return TextReg;
 			}
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
@@ -656,7 +671,7 @@ public static class mSPO2IL {
 					var RestReg = TempFuncDef.CreateTempReg();
 					TempFuncDef.Commands.Push(mIL_AST.GetFirst(Pos, RestReg, HeadTailReg));
 					TempFuncDef.Commands.Push(mIL_AST.RepeatIf(Pos, RestReg, mIL_AST.cTrue));
-					
+
 					var TempFuncReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.UnsolvedSymbols.Push(TempDef(TempFuncDef.Index));
 					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
@@ -1087,13 +1102,14 @@ public static class mSPO2IL {
 				TempLambdaDef.UnsolvedSymbols.Size(),
 				ModuleConstructor.Defs.Size() - 1
 			);
-		
+			// TODO: return unknown symbol and position as error message
+			
 			var DefSymbols = mArrayList.List<tText>();
 			for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
 				DefSymbols.Push(TempDef(I));
 			}
 			TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
-		
+			
 			return ModuleConstructor;
 		}
 	}

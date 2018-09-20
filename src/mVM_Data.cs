@@ -928,6 +928,19 @@ public static class mVM_Data {
 	}
 	
 	//================================================================================
+	public static tData
+	Record(
+		params (tText, tData)[] aFields
+	//================================================================================
+	) {
+		var Result = Empty();
+		foreach (var (Key, Value) in aFields) {
+			Result = Record(Result, Prefix(Key, Value));
+		}
+		return Result;
+	}
+	
+	//================================================================================
 	public static tBool
 	MatchRecord(
 		this tData aData,
@@ -1066,6 +1079,8 @@ public static class mVM_Data {
 		if (aLimit == 0) {
 			return "...";
 		}
+		var NextLimit = aLimit - 1;
+		
 		if (a.MatchEmpty()) {
 			return "§EMPTY";
 		}
@@ -1076,13 +1091,17 @@ public static class mVM_Data {
 			return $"{Int}";
 		}
 		if (a.MatchPrefix(out var Prefix, out var Value)) {
-			return $"(#{Prefix} {ToText(Value, aLimit - 1)})";
+			return $"(#{Prefix} {ToText(Value, NextLimit)})";
+		}
+		if (a.MatchRecord(out var SubRecord, out var KeyValue)) {
+			KeyValue.MatchPrefix(out var Key, out Value);
+			return $"{{{SubRecord.ToText(NextLimit)}, {Key}: {Value.ToText(NextLimit)}}}";
 		}
 		if (a.MatchVar(out Value)) {
-			return $"(§VAR {ToText(Value, aLimit - 1)})";
+			return $"(§VAR {ToText(Value, NextLimit)})";
 		}
 		if (a.MatchPair(out var _1, out var _2)) {
-			return $"({ToText(_1, aLimit -1)}; {ToText(_2, aLimit - 1)})";
+			return $"({ToText(_1, NextLimit)}; {ToText(_2,  NextLimit)})";
 		}
 		return $"(?{a._DataType}?)";
 	}

@@ -82,9 +82,8 @@ public static class mVM {
 	//================================================================================
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
+		aCallStack._TraceOut(() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer)}");
 		aCallStack._CodePointer += 1;
-		
-		aCallStack._TraceOut(() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2}");
 		
 		switch (OpCode) {
 			//--------------------------------------------------------------------------------

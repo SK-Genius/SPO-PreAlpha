@@ -14,30 +14,46 @@ using tChar = System.Char;
 using tText = System.String;
 
 static class mProgram {
-	static void Main() {
+	static void Main(tText[] aArgs) {
+		var ProjectFile = new System.IO.FileInfo(aArgs.Length > 0 ? aArgs[0] : "src/_.spo");
+		var Folder = ProjectFile.Directory.FullName;
+		var DebugOut = mStd.Action((tText a) => System.Console.Error.WriteLine(a));
 		try {
-			var DebugOut = mStd.Action((tText a) => System.Console.WriteLine(a));
-			
 			var StdLib = mStdLib.GetImportData();
 			
-			var StackModule = mSPO_Interpreter.Run(
-				System.IO.File.ReadAllText(@"src\Stack.spo"),
-				mVM_Data.Empty(),
+			var Result = mSPO_Interpreter.Run(
+				System.IO.File.ReadAllText(ProjectFile.FullName),
+				mVM_Data.Record(
+					("_StdLib", StdLib),
+					(
+						"_LoadModule...",
+						mVM_Data.ExternDef(
+							(aDef, aObj, aArg, _) => {
+								var File = "";
+								var RestText = aDef;
+								while (RestText.MatchPair(out var Char, out RestText)) {
+									mStd.Assert(Char.MatchPrefix("Char", out var Int));
+									mStd.Assert(Int.MatchInt(out var Ord));
+									File += (char)Ord;
+								}
+								return mSPO_Interpreter.Run(
+									System.IO.File.ReadAllText(
+										System.IO.Path.Combine(Folder, File)
+									),
+									aArg,
+									DebugOut
+								);
+							}
+						)
+					)
+				),
 				DebugOut
 			);
-			
-			var StackTestModule = mSPO_Interpreter.Run(
-				System.IO.File.ReadAllText(@"src\StackTest.spo"),
-				mVM_Data.Tuple(StdLib, StackModule),
-				DebugOut
-			);
-			
-			mStd.Assert(StackTestModule.MatchBool(out var IsOK));
+			mStd.Assert(Result.MatchBool(out var IsOK));
 			mStd.Assert(IsOK);
-			
 			DebugOut("OK");
 		} catch (mStd.tError<mStd.tEmpty> Error) {
-			System.Console.WriteLine(Error.Message);
+			DebugOut(Error.Message);
 			System.Environment.Exit(-1);
 		}
 	}

@@ -56,6 +56,8 @@ public static class mStd {
 	public struct tSpan<tPos> {
 		public tPos Start;
 		public tPos End;
+		
+		public override tText ToString() => $"{this.Start}..{this.End}";
 	}
 	
 	//================================================================================

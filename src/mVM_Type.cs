@@ -399,7 +399,7 @@ public static class mVM_Type {
 			(tKind.Pair, _ => $"[{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}]"),
 			(tKind.Proc, _ => $"[{aType.Refs[0].ToText(NextLimit)} : {aType.Refs[1].ToText(NextLimit)} -> {aType.Refs[2].ToText(NextLimit)}]"),
 			(tKind.Ref, _ => $"[§REF {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Set, _ => $"[{aType.Refs[0].ToText(NextLimit)} | {aType.Refs[1].ToText(NextLimit)}]"),
+			(tKind.Set, _ => $"[{mStream.Stream(aType.Refs).Map(a => a.ToText(NextLimit)).Join((a1, a2) => a1 + " | " + a2)}]"),
 			(tKind.Var, _ => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]"),
 			(tKind.Recursiv, _ => $"[§RECURSIVE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
 			(tKind.Interface, _ => $"[§INTERFACE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
