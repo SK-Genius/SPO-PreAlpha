@@ -31,7 +31,7 @@ public static class mSPO2IL {
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands;
 		public tInt32 LastTempReg;
 		public mArrayList.tArrayList<tText> KnownSymbols;
-		public mArrayList.tArrayList<tText> UnsolvedSymbols;
+		public mArrayList.tArrayList<(tText Ident, tPos Pos)> UnsolvedSymbols;
 		public tInt32 Index;
 		public tModuleConstructor<tPos> ModuleConstructor;
 	}
@@ -58,7 +58,7 @@ public static class mSPO2IL {
 		return new tDefConstructor<tPos> {
 			Commands = Commands,
 			KnownSymbols = mArrayList.List<tText>(),
-			UnsolvedSymbols = mArrayList.List<tText>(),
+			UnsolvedSymbols = mArrayList.List<(tText Ident, tPos Pos)>(),
 			Index = DefIndex,
 			ModuleConstructor = aModuleConstructor
 		};
@@ -84,7 +84,7 @@ public static class mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aReg,
-		mStream.tStream<tText> aSymbols
+		mStream.tStream<(tText Ident, tPos Pos)> aSymbols
 	//================================================================================
 	) {
 		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
@@ -94,13 +94,13 @@ public static class mSPO2IL {
 			}
 			case 1: {
 				mDebug.Assert(aSymbols.Match(out var Head, out var _));
-				ExtractEnv.Push(mIL_AST.Alias(aPos, Head, aReg));
+				ExtractEnv.Push(mIL_AST.Alias(aPos, Head.Ident, aReg));
 				break;
 			}
 			default: {
 				var RestEnv = aReg;
 				while (aSymbols.Match(out var Symbol, out aSymbols)) {
-					ExtractEnv.Push(mIL_AST.GetFirst(aPos, Symbol, RestEnv));
+					ExtractEnv.Push(mIL_AST.GetFirst(aPos, Symbol.Ident, RestEnv));
 					var NewRestEnv = aDefConstructor.CreateTempReg();
 					ExtractEnv.Push(mIL_AST.GetSecond(aPos, NewRestEnv, RestEnv));
 					RestEnv = NewRestEnv;
@@ -126,11 +126,10 @@ public static class mSPO2IL {
 			);
 		}
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
-		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToStream(
+		aDefConstructor.UnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToStream(
 		).Where(
-			S1 => KnownSymbols.All(S2 => S1 != S2)
+			S1 => KnownSymbols.All(S2 => S1.Ident != S2)
 		).ToArrayList();
-		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
 	
 	//================================================================================
@@ -148,7 +147,7 @@ public static class mSPO2IL {
 		var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
 		var NewUnsolvedSymbols = aDefConstructor.UnsolvedSymbols.ToStream(
 		).Where(
-			S1 => KnownSymbols.All(S2 => S1 != S2)
+			S1 => KnownSymbols.All(S2 => S1.Ident != S2)
 		).ToArrayList();
 		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
@@ -158,7 +157,7 @@ public static class mSPO2IL {
 	FinishMapProc<tPos>(
 		this ref tDefConstructor<tPos> aTempDefConstructor,
 		tPos aPos,
-		mArrayList.tArrayList<tText> aUnsolveSymbols
+		mArrayList.tArrayList<(tText Ident, tPos Pos)> aUnsolveSymbols
 	//================================================================================
 	) {
 		var Def = mArrayList.Concat(
@@ -178,7 +177,7 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
-	public static (tInt32, mArrayList.tArrayList<tText>)
+	public static (tInt32, mArrayList.tArrayList<(tText Ident, tPos Pos)>)
 	MapLambda<tPos>(
 		this ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
@@ -194,7 +193,7 @@ public static class mSPO2IL {
 	}
 	
 	//================================================================================
-	public static (tInt32, mArrayList.tArrayList<tText>)
+	public static (tInt32, mArrayList.tArrayList<(tText Ident, tPos Pos)>)
 	MapMethod<tPos>(
 		this ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
@@ -215,25 +214,25 @@ public static class mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aDefName,
-		mArrayList.tArrayList<tText> aEnv
+		mArrayList.tArrayList<(tText Ident, tPos Pos)> aEnv
 	//================================================================================
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
 			var UnsolvedSymbols = aEnv.ToStream();
 			while (UnsolvedSymbols.Match(out var Symbol, out UnsolvedSymbols)) {
-				if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != Symbol)) {
+				if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != Symbol.Ident)) {
 					aDefConstructor.UnsolvedSymbols.Push(Symbol);
 				}
 			}
 			
 			if (aEnv.Size() == 1) {
-				ArgReg = aEnv.Get(0);
+				ArgReg = aEnv.Get(0).Ident;
 			} else {
 				UnsolvedSymbols = aEnv.ToStream().Reverse();
 				while (UnsolvedSymbols.Match(out var Symbol_, out UnsolvedSymbols)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, Symbol_, ArgReg));
+					aDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, Symbol_.Ident, ArgReg));
 					ArgReg = NewArgReg;
 				}
 			}
@@ -241,7 +240,7 @@ public static class mSPO2IL {
 		
 		var Proc = aDefConstructor.CreateTempReg();
 		aDefConstructor.Commands.Push(mIL_AST.Call(aPos, Proc, aDefName, ArgReg));
-		aDefConstructor.UnsolvedSymbols.Push(aDefName);
+		aDefConstructor.UnsolvedSymbols.Push((aDefName, aPos));
 		return Proc;
 	}
 	
@@ -305,13 +304,13 @@ public static class mSPO2IL {
 			case mSPO_AST.tIdentNode<tPos> IdentNode: {
 			//--------------------------------------------------------------------------------
 				if (
-					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != IdentNode.Name) &&
+					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != IdentNode.Name) &&
 					aDefConstructor.Commands.ToStream(
 					).All(
 						_ => !_.TryGetResultReg(out var Name) || Name != IdentNode.Name
 					)
 				) {
-					aDefConstructor.UnsolvedSymbols.Push(IdentNode.Name);
+					aDefConstructor.UnsolvedSymbols.Push((IdentNode.Name, IdentNode.Pos));
 				}
 				return IdentNode.Name;
 			}
@@ -537,7 +536,7 @@ public static class mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
 			//--------------------------------------------------------------------------------
-				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
 				mStd.AssertNot(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(RecursiveTypeNode.HeadType.Pos, RecursiveTypeNode.HeadType.Name)
@@ -673,7 +672,7 @@ public static class mSPO2IL {
 					TempFuncDef.Commands.Push(mIL_AST.RepeatIf(Pos, RestReg, mIL_AST.cTrue));
 
 					var TempFuncReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.UnsolvedSymbols.Push(TempDef(TempFuncDef.Index));
+					aDefConstructor.UnsolvedSymbols.Push((TempDef(TempFuncDef.Index), Element.Key.Pos));
 					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
 					var TempValueReg_ = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempValueReg_, TempFuncReg, aReg));
@@ -898,41 +897,42 @@ public static class mSPO2IL {
 		var NewDefIndices = mArrayList.List<tInt32>();
 		var SPODefNodes = mArrayList.List<mSPO_AST.tRecLambdaItemNode<tPos>>();
 		var TempLambdaDefs = mArrayList.List<tDefConstructor<tPos>>();
-		var AllUnsolvedSymbols = mArrayList.List<tText>();
+		var AllUnsolvedSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
 		
 		var List = aRecLambdasNode.List;
 		while (List.Match(out var RecLambdaItemNode, out List)) {
 			var NewDefIndex = aDefConstructor.ModuleConstructor.Defs.Size();
 			NewDefIndices.Push(NewDefIndex);
-			AllUnsolvedSymbols.Push(TempDef(NewDefIndex));
-			var TempLambdaDef = aDefConstructor.ModuleConstructor.NewDefConstructor();
-			TempLambdaDefs.Push(TempLambdaDef);
+			AllUnsolvedSymbols.Push((TempDef(NewDefIndex), RecLambdaItemNode.Pos));
+			TempLambdaDefs.Push(aDefConstructor.ModuleConstructor.NewDefConstructor());
 			SPODefNodes.Push(RecLambdaItemNode);
 		}
 		
 		var Max = NewDefIndices.Size();
 		
+		// create all rec. func. in each rec. func.
 		var FuncNames = aRecLambdasNode.List.Map(a => a.Ident.Name).ToArrayList();
-		for (var I = 0; I < Max; I += 1) {
-			var TempLambdaDef = TempLambdaDefs.Get(I);
+		foreach (var TempLambdaDef in TempLambdaDefs.ToArray()) {
 			for (var J = 0; J < Max; J += 1) {
+				var Definition = AllUnsolvedSymbols.Get(J);
 				TempLambdaDef.Commands.Push(
-					mIL_AST.Call(aRecLambdasNode.Pos, FuncNames.Get(J), AllUnsolvedSymbols.Get(J), mIL_AST.cEnv)
+					mIL_AST.Call(Definition.Pos, FuncNames.Get(J), Definition.Ident, mIL_AST.cEnv)
 				);
 			}
 		}
 		
+		// InitMapLambda(...) for all rec. func.
 		for (var I = 0; I < Max; I += 1) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
-			var TempLambdaDef= TempLambdaDefs.Get(I);
+			var TempLambdaDef = TempLambdaDefs.Get(I);
 			
 			TempLambdaDef.InitMapLambda(RecLambdaItemNode.Lambda);
 			var KnownSymbols = TempLambdaDef.KnownSymbols.ToStream();
 			var TempUnsolvedSymbols = TempLambdaDef.UnsolvedSymbols.ToStream(
 			).Where(
 				aUnsolved => (
-					KnownSymbols.All(_ => _ != aUnsolved) &&
-					aRecLambdasNode.List.All(_ => _.Ident.Name != aUnsolved)
+					KnownSymbols.All(_ => _ != aUnsolved.Ident) &&
+					aRecLambdasNode.List.All(_ => _.Ident.Name != aUnsolved.Ident)
 				)
 			);
 			
@@ -941,6 +941,7 @@ public static class mSPO2IL {
 			}
 		}
 		
+		// FinishMapProc(...) for all rec. func.
 		for (var I = 0; I < Max; I += 1) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempDefConstructor = TempLambdaDefs.Get(I);
@@ -949,20 +950,12 @@ public static class mSPO2IL {
 				RecLambdaItemNode.Pos,
 				AllUnsolvedSymbols
 			);
-			var DefIndex = TempDefConstructor.Index;
-			
-			aDefConstructor.ModuleConstructor.Defs.Set(
-				DefIndex,
-				aDefConstructor.ModuleConstructor.Defs.Get(DefIndex)
-			);
-			
-			var FuncName = RecLambdaItemNode.Ident.Name;
 			
 			var ArgReg = mIL_AST.cEmpty;
 			if (!AllUnsolvedSymbols.IsEmpty()) {
 				var Iterator = AllUnsolvedSymbols.ToStream();
 				while (Iterator.Match(out var UnsolvedSymbol, out Iterator)) {
-					if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _ != UnsolvedSymbol)) {
+					if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != UnsolvedSymbol.Ident)) {
 						aDefConstructor.UnsolvedSymbols.Push(UnsolvedSymbol);
 					}
 				}
@@ -971,15 +964,17 @@ public static class mSPO2IL {
 				while (Iterator.Match(out var Symbol_, out Iterator)) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
-						mIL_AST.CreatePair(RecLambdaItemNode.Pos, NewArgReg, Symbol_, ArgReg)
+						mIL_AST.CreatePair(RecLambdaItemNode.Pos, NewArgReg, Symbol_.Ident, ArgReg)
 					);
 					ArgReg = NewArgReg;
 				}
 			}
 			
 			aDefConstructor.Commands.Push(
-				mIL_AST.Call(RecLambdaItemNode.Pos, FuncName, TempDef(DefIndex), ArgReg)
+				mIL_AST.Call(RecLambdaItemNode.Pos, RecLambdaItemNode.Ident.Name, TempDef(TempDefConstructor.Index), ArgReg)
 			);
+			
+			aDefConstructor.KnownSymbols.Push(RecLambdaItemNode.Ident.Name);
 		}
 	}
 	
@@ -1027,7 +1022,7 @@ public static class mSPO2IL {
 			
 			var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
 			if (KnownSymbols.All(_ => _ != MethodName)) {
-				aDefConstructor.UnsolvedSymbols.Push(MethodName);
+				aDefConstructor.UnsolvedSymbols.Push((MethodName, Call.Method.Pos));
 			}
 		}
 	}
@@ -1098,15 +1093,14 @@ public static class mSPO2IL {
 					)
 				)
 			);
-			mDebug.AssertEq(
-				TempLambdaDef.UnsolvedSymbols.Size(),
-				ModuleConstructor.Defs.Size() - 1
-			);
-			// TODO: return unknown symbol and position as error message
+			if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
+				var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).First();
+				throw mStd.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
+			}
 			
-			var DefSymbols = mArrayList.List<tText>();
+			var DefSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
 			for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
-				DefSymbols.Push(TempDef(I));
+				DefSymbols.Push((TempDef(I), default));
 			}
 			TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
 			

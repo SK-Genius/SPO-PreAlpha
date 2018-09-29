@@ -268,7 +268,7 @@ public static class mSPO2IL_Test {
 				
 				mStd.AssertEq(
 					DefConstructor.UnsolvedSymbols.ToStream(),
-					mStream.Stream(mSPO2IL.Ident("...*..."), mSPO2IL.TempDef(1))
+					mStream.Stream((mSPO2IL.Ident("...*..."), Span((1, 20), (1, 25))), (mSPO2IL.TempDef(1), Span((1, 10), (1, 25))))
 				);
 			}
 		),
@@ -325,9 +325,13 @@ public static class mSPO2IL_Test {
 					)
 				);
 				
-					mStd.AssertEq(
+				mStd.AssertEq(
 					DefConstructor.UnsolvedSymbols.ToStream(),
-					mStream.Stream(mSPO2IL.Ident("...+..."), mSPO2IL.Ident("...*..."), mSPO2IL.TempDef(1))
+					mStream.Stream(
+						(mSPO2IL.Ident("...+..."), Span((1, 48), (1, 60))),
+						(mSPO2IL.Ident("...*..."), Span((1, 49), (1, 54))),
+						(mSPO2IL.TempDef(1), Span((1, 20), (1, 60)))
+					)
 				);
 			}
 		),
@@ -377,8 +381,8 @@ public static class mSPO2IL_Test {
 				);
 				
 				mStd.AssertEq(
-					UnsolvedSymbols,
-					mArrayList.List(mSPO2IL.Ident("...*..."))
+					UnsolvedSymbols.ToStream(),
+					mStream.Stream((mSPO2IL.Ident("...*..."), Span((1, 47), (1, 52))))
 				);
 			}
 		),

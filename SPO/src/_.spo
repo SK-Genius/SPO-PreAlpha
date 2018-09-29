@@ -3,7 +3,14 @@
 	LoadModule...: §DEF LoadModule...
 }
 
-§DEF Stack = .(.LoadModule "Stack.spo") StdLib
-§DEF StackTest = .(.LoadModule "StackTest.spo") (StdLib, Stack)
-
-§EXPORT StackTest
+§EXPORT (§DEF aIO) : () {
+	aIO :
+		LoadModule "Stack.spo" => §DEF StackModule...
+		LoadModule "StackTest.spo" => §DEF StackTestModule...
+	.
+	
+	§DEF StackModule = .StackModule StdLib
+	{ RunTest: §DEF RunTest } = .StackTestModule (StdLib, StackModule)
+	
+	§RETURN .RunTest
+}

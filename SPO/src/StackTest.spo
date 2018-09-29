@@ -29,8 +29,10 @@
 	}
 }
 
-§EXPORT (
+§DEF RunTest = () => (
 	.Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
 ) .= (
 	.Push 9 To (.Push 4 To (.Push 1 To EmptyStack))
 )
+
+§EXPORT { RunTest : RunTest }

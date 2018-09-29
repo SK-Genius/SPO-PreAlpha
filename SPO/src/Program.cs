@@ -21,34 +21,54 @@ static class mProgram {
 		try {
 			var StdLib = mStdLib.GetImportData();
 			
-			var Result = mSPO_Interpreter.Run(
+			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),
 				mVM_Data.Record(
 					("_StdLib", StdLib),
 					(
 						"_LoadModule...",
-						mVM_Data.ExternDef(
+						mVM_Data.ExternProc(
 							(aDef, aObj, aArg, _) => {
+								mStd.Assert(aObj.MatchPrefix("IO", out var X));
+								mStd.Assert(X.MatchEmpty());
+								
 								var File = "";
-								var RestText = aDef;
+								var RestText = aArg;
 								while (RestText.MatchPair(out var Char, out RestText)) {
 									mStd.Assert(Char.MatchPrefix("Char", out var Int));
 									mStd.Assert(Int.MatchInt(out var Ord));
 									File += (char)Ord;
 								}
-								return mSPO_Interpreter.Run(
-									System.IO.File.ReadAllText(
-										System.IO.Path.Combine(Folder, File)
+								
+								return mVM_Data.ExternProc(
+									(aDef2, aObj2, aArg2, _2) => mSPO_Interpreter.Run(
+										System.IO.File.ReadAllText(
+											System.IO.Path.Combine(Folder, File)
+										),
+										aArg2,
+										DebugOut
 									),
-									aArg,
-									DebugOut
+									mVM_Data.Empty()
 								);
-							}
+							},
+							mVM_Data.Empty()
 						)
 					)
 				),
 				DebugOut
 			);
+			
+			var Result = mVM_Data.Empty();
+			mVM.Run<mStd.tSpan<mTextStream.tPos>>(
+				Method,
+				mVM_Data.Prefix("IO", mVM_Data.Empty()),
+				mVM_Data.Empty(),
+				Result,
+				aLazyOutput => {
+					// DebugOut(aLazyOutput());
+				}
+			);
+			
 			mStd.Assert(Result.MatchBool(out var IsOK));
 			mStd.Assert(IsOK);
 			DebugOut("OK");
