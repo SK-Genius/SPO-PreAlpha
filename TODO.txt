@@ -6,7 +6,6 @@
 			- 2 §<* 3 §<+ 4  ==  2 .* (3 .+ 4)  ==  14
 	
 	o types
-		- records  ??? {k1: v1, k2: v2, ...}
 		- arrays  ??? [v1, v2, ...]
 		- strings & chars
 	
@@ -24,7 +23,7 @@
 			- #BREAK...
 			- #CONTINUE...
 	
-	o compile time type check
+	o more compile time type checks
 
 ROADMAP:
 ========

@@ -127,12 +127,12 @@ public static class CheckDep {
 			return;
 		}
 		if(aModulePath.Any(_ => _ == aNewModule)) {
-			System.Console.WriteLine(aModulePath.Reduce(aNewModule + " in path:", (aAll, aNew) => aAll + "\n  " + aNew));
-			System.Environment.Exit(-1);
+			Console.WriteLine(aModulePath.Reduce(aNewModule + " in path:", (aAll, aNew) => aAll + "\n  " + aNew));
+			Environment.Exit(-1);
 		}
 		var ModuleFile = new FileInfo(aNewModule);
 		if (!ModuleFile.Exists) {
-			throw new Exception();
+			throw new Exception($"File '{ModuleFile}' not found.");
 		}
 		var ModuleFolder = ModuleFile.Directory.FullName;
 		var SubModules = List(
