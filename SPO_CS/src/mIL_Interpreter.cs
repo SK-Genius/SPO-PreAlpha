@@ -94,14 +94,10 @@ public static class mIL_Interpreter<tPos> {
 				.Push(DefArgType)
 				.Push(DefResType);
 				
-				var ObjStack = mArrayList.List<tInt32>();
-				var CurrObj = Regs.Get(mIL_AST.cEmpty);
-				var CurrObjType = Types.Get(CurrObj);
-				
 				var RestCommands = Commands;
 				while (RestCommands.Match(out var Command, out RestCommands)) {
 					//--------------------------------------------------------------------------------
-					if (Command.Match(mIL_AST.tCommandNodeType.Call, out var Span, out var RegId1, out var RegId2, out var RegId3)) {
+					if (Command.Match(mIL_AST.tCommandNodeType.CallFunc, out var Span, out var RegId1, out var RegId2, out var RegId3)) {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Free();
 						var ProcReg = Regs.Get(RegId2);
@@ -110,12 +106,13 @@ public static class mIL_Interpreter<tPos> {
 						Regs = Regs.Set(RegId1, NewProc.Call(Span, ProcReg, ArgReg));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
-					} else if (Command.Match(mIL_AST.tCommandNodeType.Exec, out Span, out RegId1, out RegId2, out RegId3)) {
+					} else if (Command.Match(mIL_AST.tCommandNodeType.CallProc, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Free();
 						var ProcReg = Regs.Get(RegId2);
 						var ArgReg = Regs.Get(RegId3);
-						mVM_Type.Unify(Types.Get(ProcReg), mVM_Type.Proc(CurrObjType, Types.Get(ArgReg), ResType), aTrace);
+						var ObjType = mVM_Type.Free();
+						mVM_Type.Unify(Types.Get(ProcReg), mVM_Type.Pair(ObjType, mVM_Type.Proc(ObjType, Types.Get(ArgReg), ResType)), aTrace);
 						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ProcReg, ArgReg));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -367,17 +364,6 @@ public static class mIL_Interpreter<tPos> {
 						mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(ResType), aTrace);
 						Regs = Regs.Set(RegId1, NewProc.VarGet(Span, VarReg));
 						Types.Push(ResType);
-					//--------------------------------------------------------------------------------
-					} else if (Command.Match(mIL_AST.tCommandNodeType.Push, out Span, out RegId1)) {
-					//--------------------------------------------------------------------------------
-						ObjStack.Push(CurrObj);
-						CurrObj = Regs.Get(RegId1);
-						NewProc.SetObj(Span, CurrObj);
-					//--------------------------------------------------------------------------------
-					} else if (Command.Match(mIL_AST.tCommandNodeType.Pop, out Span)) {
-					//--------------------------------------------------------------------------------
-						CurrObj = ObjStack.Pop();
-						NewProc.SetObj(Span, CurrObj);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.IsType, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------

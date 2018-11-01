@@ -171,21 +171,13 @@ public static class mIL_Parser {
 		
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), SpecialToken("."), Ident, Ident)
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
-		.ModifyS(mTokenizer.X(mIL_AST.Call))
-		.SetDebugName(nameof(mIL_AST.Call)) |
+		.ModifyS(mTokenizer.X(mIL_AST.CallFunc))
+		.SetDebugName(nameof(mIL_AST.CallFunc)) |
 		
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), -KeyWord("OBJ") -SpecialToken(":"), Ident, Ident)
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
-		.ModifyS(mTokenizer.X(mIL_AST.Exec))
-		.SetDebugName(nameof(mIL_AST.Exec)) |
-		
-		(-KeyWord("PUSH") +Ident)
-		.ModifyS(mTokenizer.X(mIL_AST.Push))
-		.SetDebugName(nameof(mIL_AST.Push)) |
-		
-		(-KeyWord("POP"))
-		.ModifyS(mTokenizer.X(mIL_AST.Pop))
-		.SetDebugName(nameof(mIL_AST.Pop)) |
+		.ModifyS(mTokenizer.X(mIL_AST.CallProc))
+		.SetDebugName(nameof(mIL_AST.CallProc)) |
 		
 		mParserGen.Seq(-KeyWord("VAR"), Ident, Token("<-"), Ident)
 		.Modify((_, a1, __, a2) => (a1, a2))

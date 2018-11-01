@@ -57,9 +57,8 @@ public static class mVM_Data {
 		VarGet,
 		
 		// JUMP
-		SetObj,
-		Call,
-		Exec,
+		CallFunc,
+		CallProc,
 		ReturnIf,
 		ContinueIf,
 		TailCallIf,
@@ -400,17 +399,6 @@ public static class mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
 	
 	//================================================================================
-	public static void
-	SetObj<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tInt32 aObjReg
-	//================================================================================
-	) {
-		aDef._AddCommand(aPos, tOpCode.SetObj, aObjReg);
-	}
-	
-	//================================================================================
 	public static tInt32
 	IsVar<tPos>(
 		this tProcDef<tPos> aDef,
@@ -457,7 +445,7 @@ public static class mVM_Data {
 		tInt32 aProcReg,
 		tInt32 aArgReg
 	//================================================================================
-	) => aDef._AddReg(aPos, tOpCode.Call, aProcReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.CallFunc, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static tInt32
@@ -467,7 +455,7 @@ public static class mVM_Data {
 		tInt32 aProcReg,
 		tInt32 aArgReg
 	//================================================================================
-	) => aDef._AddReg(aPos, tOpCode.Exec, aProcReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.CallProc, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static void

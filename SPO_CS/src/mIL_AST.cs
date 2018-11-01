@@ -44,8 +44,8 @@ public static class mIL_AST {
 		IsRecord,  // X := §IS_RECORD X
 		ExtendRec, // X := {X} +X
 		DivideRec, // X := {X} /
-		Call,      // X := .X X
-		Exec,      // X := :X X
+		CallFunc,  // X := .X X
+		CallProc,  // X := :X X
 		IsVar,     // X := §IS_VAR X
 		VarDef,    // X := §VAR X
 		VarGet,    // X := §VAR X ->
@@ -65,14 +65,12 @@ public static class mIL_AST {
 		TypeGeneric,   // T := [§GENERIC t T]
 		
 		_Commands_,
-		Push = _Commands_, // §PUSH X
-		Pop,               // §POP
-		VarSet,            // §VAR X <- X
-		ReturnIf,          // §RETURN X IF X
-		RepeatIf,          // §REPEAT X IF X
-		TailCallIf,        // §TAIL_CALL X IF X
-		Assert,            // §ASSERT X
-		Proof,             // §ASSERT X => X
+		VarSet = _Commands_, // §VAR X <- X
+		ReturnIf,            // §RETURN X IF X
+		RepeatIf,            // §REPEAT X IF X
+		TailCallIf,          // §TAIL_CALL X IF X
+		Assert,              // §ASSERT X
+		Proof,               // §ASSERT X => X
 	}
 	
 	public static readonly tText cEmpty = "EMPTY";
@@ -473,38 +471,23 @@ public static class mIL_AST {
 	
 	//================================================================================
 	public static tCommandNode<tPos>
-	Call<tPos>(
+	CallFunc<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aFuncReg,
 		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Call, aPos, aResReg, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.CallFunc, aPos, aResReg, aFuncReg, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>
-	Exec<tPos>(
+	CallProc<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aProcReg,
 		tText aArgReg
 	//================================================================================
-	) => CommandNode(tCommandNodeType.Exec, aPos, aResReg, aProcReg, aArgReg);
-	
-	//================================================================================
-	public static tCommandNode<tPos>
-	Push<tPos>(
-		tPos aPos,
-		tText aObjReg
-	//================================================================================
-	) => CommandNode(tCommandNodeType.Push, aPos, aObjReg);
-	
-	//================================================================================
-	public static tCommandNode<tPos>
-	Pop<tPos>(
-		tPos aPos
-	//================================================================================
-	) => CommandNode(tCommandNodeType.Pop, aPos);
+	) => CommandNode(tCommandNodeType.CallProc, aPos, aResReg, aProcReg, aArgReg);
 	
 	//================================================================================
 	public static tCommandNode<tPos>

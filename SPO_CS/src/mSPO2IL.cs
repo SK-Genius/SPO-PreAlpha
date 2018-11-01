@@ -239,7 +239,7 @@ public static class mSPO2IL {
 		}
 		
 		var Proc = aDefConstructor.CreateTempReg();
-		aDefConstructor.Commands.Push(mIL_AST.Call(aPos, Proc, aDefName, ArgReg));
+		aDefConstructor.Commands.Push(mIL_AST.CallFunc(aPos, Proc, aDefName, ArgReg));
 		aDefConstructor.UnsolvedSymbols.Push((aDefName, aPos));
 		return Proc;
 	}
@@ -321,7 +321,7 @@ public static class mSPO2IL {
 				var ArgReg = aDefConstructor.MapExpresion(CallNode.Arg);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.Call(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+					mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
 				);
 				return ResultReg;
 			}
@@ -504,7 +504,7 @@ public static class mSPO2IL {
 					TestDef.FinishMapProc(CasePos, TestDef.UnsolvedSymbols);
 					var TestProc = SwitchDef.InitProc(CasePos, TempDef(TestDef.Index), TestDef.UnsolvedSymbols);
 					var TestResut = SwitchDef.CreateTempReg();
-					SwitchDef.Commands.Push(mIL_AST.Call(CasePos, TestResut, TestProc, mIL_AST.cArg));
+					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResut, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
 					RunDef.MapMatch(Match, mIL_AST.cArg);
@@ -521,7 +521,7 @@ public static class mSPO2IL {
 				SwitchDef.FinishMapProc(aExpressionNode.Pos, SwitchDef.UnsolvedSymbols);
 				var SwitchProc = aDefConstructor.InitProc(aExpressionNode.Pos, TempDef(SwitchDef.Index), SwitchDef.UnsolvedSymbols);
 				var ResultReg = aDefConstructor.CreateTempReg();
-				aDefConstructor.Commands.Push(mIL_AST.Call(IfMatchNode.Pos, ResultReg, SwitchProc, Input));
+				aDefConstructor.Commands.Push(mIL_AST.CallFunc(IfMatchNode.Pos, ResultReg, SwitchProc, Input));
 				
 				return ResultReg; 
 			}
@@ -673,9 +673,9 @@ public static class mSPO2IL {
 
 					var TempFuncReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.UnsolvedSymbols.Push((TempDef(TempFuncDef.Index), Element.Key.Pos));
-					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
+					aDefConstructor.Commands.Push(mIL_AST.CallFunc(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
 					var TempValueReg_ = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.Call(Pos, TempValueReg_, TempFuncReg, aReg));
+					aDefConstructor.Commands.Push(mIL_AST.CallFunc(Pos, TempValueReg_, TempFuncReg, aReg));
 					var TempValueReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Element.Key.Name, TempValueReg_));
 					aDefConstructor.MapMatch(Element.Match, TempValueReg);
@@ -916,7 +916,7 @@ public static class mSPO2IL {
 			for (var J = 0; J < Max; J += 1) {
 				var Definition = AllUnsolvedSymbols.Get(J);
 				TempLambdaDef.Commands.Push(
-					mIL_AST.Call(Definition.Pos, FuncNames.Get(J), Definition.Ident, mIL_AST.cEnv)
+					mIL_AST.CallFunc(Definition.Pos, FuncNames.Get(J), Definition.Ident, mIL_AST.cEnv)
 				);
 			}
 		}
@@ -971,7 +971,7 @@ public static class mSPO2IL {
 			}
 			
 			aDefConstructor.Commands.Push(
-				mIL_AST.Call(RecLambdaItemNode.Pos, RecLambdaItemNode.Ident.Name, TempDef(TempDefConstructor.Index), ArgReg)
+				mIL_AST.CallFunc(RecLambdaItemNode.Pos, RecLambdaItemNode.Ident.Name, TempDef(TempDefConstructor.Index), ArgReg)
 			);
 			
 			aDefConstructor.KnownSymbols.Push(RecLambdaItemNode.Ident.Name);
@@ -1011,10 +1011,10 @@ public static class mSPO2IL {
 				continue;
 			}
 			var Result = (Call.Result is null) ? mIL_AST.cEmpty : aDefConstructor.CreateTempReg();
+			var MethodReg = aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
-				mIL_AST.Push(aMethodCallsNode.Object.Pos, Object),
-				mIL_AST.Exec(aMethodCallsNode.Pos, Result, MethodName, Arg),
-				mIL_AST.Pop(aDefConstructor.ModuleConstructor.MergePos(aMethodCallsNode.Object.Pos, aMethodCallsNode.Pos))
+				mIL_AST.CreatePair(aMethodCallsNode.Object.Pos, MethodReg, Object, MethodName),
+				mIL_AST.CallProc(aMethodCallsNode.Pos, Result, MethodReg, Arg)
 			);
 			if (Call.Result != null) {
 				aDefConstructor.MapMatch(Call.Result.Value, Result);

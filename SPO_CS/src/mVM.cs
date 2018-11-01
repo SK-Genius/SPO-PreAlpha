@@ -24,7 +24,6 @@ public static class mVM {
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs;
 		internal mVM_Data.tProcDef<tPos> _ProcDef;
 		internal tInt32 _CodePointer = 0;
-		internal mVM_Data.tData _Obj;
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut;
 	}
 	
@@ -300,12 +299,6 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.SetObj: {
-			//--------------------------------------------------------------------------------
-				aCallStack._Obj = aCallStack._Regs.Get(Arg1);
-				break;
-			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IsVar: {
 			//--------------------------------------------------------------------------------
 				var Data = aCallStack._Regs.Get(Arg1);
@@ -332,7 +325,7 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.Call: {
+			case mVM_Data.tOpCode.CallFunc: {
 			//--------------------------------------------------------------------------------
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
@@ -353,21 +346,23 @@ public static class mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.Exec: {
+			case mVM_Data.tOpCode.CallProc: {
 			//--------------------------------------------------------------------------------
-				var Proc = aCallStack._Regs.Get(Arg1);
+				var Proc_ = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
+				
+				mStd.Assert(Proc_.MatchPair(out var Obj, out var Proc));
 				
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, aCallStack._Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
+					aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
 				} else if (Proc.MatchDef<tPos>(out var Def)) {
 					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
 				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, aCallStack._Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+					return NewCallStack(aCallStack, Def_, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
 					throw mStd.Error("impossible");
 				}

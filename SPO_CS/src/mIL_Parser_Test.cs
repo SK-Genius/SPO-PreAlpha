@@ -139,7 +139,7 @@ public static class  mIL_Parser_Test {
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := .b c", aDebugStream),
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Call, Span((1, 1), (1, 9)), "a", "b", "c")
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.CallFunc, Span((1, 1), (1, 9)), "a", "b", "c")
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("§RETURN a IF b", aDebugStream),
@@ -152,14 +152,6 @@ public static class  mIL_Parser_Test {
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("§ASSERT a => b", aDebugStream),
 					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Assert, Span((1, 1), (1, 14)), "a", "b")
-				);
-				mStd.AssertEq(
-					mIL_Parser.Command.ParseText("§PUSH a", aDebugStream),
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Push, Span((1, 1), (1, 7)), "a")
-				);
-				mStd.AssertEq(
-					mIL_Parser.Command.ParseText("§POP", aDebugStream),
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Pop, Span((1, 1), (1, 4)))
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := §VAR b", aDebugStream),
@@ -175,7 +167,7 @@ public static class  mIL_Parser_Test {
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := §OBJ:b c", aDebugStream),
-					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.Exec, Span((1, 1), (1, 13)), "a", "b", "c")
+					mIL_AST.CommandNode(mIL_AST.tCommandNodeType.CallProc, Span((1, 1), (1, 13)), "a", "b", "c")
 				);
 				mStd.AssertEq(
 					mIL_Parser.Command.ParseText("a := [b & c]", aDebugStream),
