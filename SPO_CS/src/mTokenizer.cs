@@ -131,10 +131,11 @@ public static class mTokenizer {
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
+		tText aIdent,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
-		var Tokens = Tokenizer.ParseText(aText, aDebugStream).Result;
+		var Tokens = Tokenizer.ParseText(aText, aIdent, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
 		mStd.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),

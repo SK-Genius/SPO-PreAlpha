@@ -23,6 +23,7 @@ static class mProgram {
 			
 			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),
+				ProjectFile.FullName,
 				mVM_Data.Record(
 					("_StdLib", StdLib),
 					(
@@ -40,11 +41,13 @@ static class mProgram {
 									File += (char)Ord;
 								}
 								
+								var Path = System.IO.Path.Combine(Folder, File);
 								return mVM_Data.ExternProc(
 									(aDef2, aObj2, aArg2, _2) => mSPO_Interpreter.Run(
 										System.IO.File.ReadAllText(
-											System.IO.Path.Combine(Folder, File)
+											Path
 										),
+										Path,
 										aArg2,
 										DebugOut
 									),

@@ -395,6 +395,7 @@ public static class mSPO_AST {
 			}
 			default: {
 				return new tTupleNode<tPos> {
+					Pos = aPos,
 					Items = aItems
 				};
 			}

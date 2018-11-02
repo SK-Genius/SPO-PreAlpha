@@ -35,10 +35,12 @@ public static class mSPO2IL_Test {
 	//================================================================================
 	) => new tSpan {
 		Start = {
+			Ident = "",
 			Row = aStart.Row,
 			Col = aStart.Col
 		},
 		End = {
+			Ident = "",
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
@@ -54,6 +56,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"2 .< (4 .+ 3) < 3",
+					"",
 					aStreamOut
 				);
 				
@@ -85,6 +88,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF a = (1, 2)",
+					"",
 					aStreamOut
 				);
 				
@@ -111,6 +115,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
+					"",
 					aStreamOut
 				);
 				
@@ -124,7 +129,7 @@ public static class mSPO2IL_Test {
 						mIL_AST.CreatePair(Span((1, 38), (1, 38)), mSPO2IL.TempReg(2), mSPO2IL.TempReg(1), mIL_AST.cEmpty),
 						mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.TempReg(3), "2"),
 						mIL_AST.CreatePair(Span((1, 35), (1, 35)), mSPO2IL.TempReg(4), mSPO2IL.TempReg(3), mSPO2IL.TempReg(2)),
-						mIL_AST.CreatePair(Span((0, 0), (0, 0)), mSPO2IL.TempReg(5), mSPO2IL.TempReg(4), mIL_AST.cEmpty), // TODO
+						mIL_AST.CreatePair(Span((1, 34), (1, 39)), mSPO2IL.TempReg(5), mSPO2IL.TempReg(4), mIL_AST.cEmpty),
 						mIL_AST.CreateInt(Span((1, 31), (1, 31)), mSPO2IL.TempReg(6), "1"),
 						mIL_AST.CreatePair(Span((1, 31), (1, 31)), mSPO2IL.TempReg(7), mSPO2IL.TempReg(6), mSPO2IL.TempReg(5)),
 						
@@ -151,6 +156,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
+					"",
 					aStreamOut
 				);
 				
@@ -187,6 +193,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
+					"",
 					aStreamOut
 				);
 				
@@ -234,6 +241,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF x = §DEF a => 2 .* a",
+					"",
 					aStreamOut
 				);
 				
@@ -279,6 +287,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF ...*...+... = (§DEF a, §DEF b, §DEF c) => (a .* b) .+ c",
+					"",
 					aStreamOut
 				);
 				
@@ -342,6 +351,7 @@ public static class mSPO2IL_Test {
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (§DEF x, §DEF y, §DEF z)) => a .* z",
+					"",
 					aStreamOut
 				);
 				
@@ -404,6 +414,7 @@ public static class mSPO2IL_Test {
 						"",
 						"§EXPORT y"
 					).Join((a1, a2) => a1 + "\n" + a2),
+					"",
 					aStreamOut
 				);
 				

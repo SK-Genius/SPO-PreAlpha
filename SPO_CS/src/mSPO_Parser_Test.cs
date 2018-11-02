@@ -34,10 +34,12 @@ public static class mSPO_Parser_Test {
 	//================================================================================
 	) => new tSpan {
 		Start = {
+			Ident = "",
 			Row = aStart.Row,
 			Col = aStart.Col
 		},
 		End = {
+			Ident = "",
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
@@ -50,33 +52,33 @@ public static class mSPO_Parser_Test {
 			"Atoms",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Number.ParseText("+1_234", aStreamOut),
+					mSPO_Parser.Number.ParseText("+1_234", "", aStreamOut),
 					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
 				);
 				mStd.AssertEq(
-					mSPO_Parser.Literal.ParseText("+1_234", aStreamOut),
+					mSPO_Parser.Literal.ParseText("+1_234", "", aStreamOut),
 					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
 				);
 				mStd.AssertEq(
-					mSPO_Parser.ExpressionInCall.ParseText("+1_234", aStreamOut),
+					mSPO_Parser.ExpressionInCall.ParseText("+1_234", "", aStreamOut),
 					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
 				);
 				
 				mStd.AssertEq(
-					mSPO_Parser.Text.ParseText("\"BLA\"", aStreamOut),
+					mSPO_Parser.Text.ParseText("\"BLA\"", "", aStreamOut),
 					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
 				);
 				mStd.AssertEq(
-					mSPO_Parser.Literal.ParseText("\"BLA\"", aStreamOut),
+					mSPO_Parser.Literal.ParseText("\"BLA\"", "", aStreamOut),
 					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
 				);
 				mStd.AssertEq(
-					mSPO_Parser.ExpressionInCall.ParseText("\"BLA\"", aStreamOut),
+					mSPO_Parser.ExpressionInCall.ParseText("\"BLA\"", "", aStreamOut),
 					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
 				);
 				
 				mStd.AssertEq(
-					mSPO_Parser.ExpressionInCall.ParseText("BLA", aStreamOut),
+					mSPO_Parser.ExpressionInCall.ParseText("BLA", "", aStreamOut),
 					mSPO_AST.Ident(Span((1, 1), (1, 3)), "BLA")
 				);
 			}
@@ -85,7 +87,7 @@ public static class mSPO_Parser_Test {
 			"Tuple",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.ExpressionInCall.ParseText("(+1_234, \"BLA\")", aStreamOut),
+					mSPO_Parser.ExpressionInCall.ParseText("(+1_234, \"BLA\")", "", aStreamOut),
 					mSPO_AST.Tuple(
 						Span((1, 1), (1, 15)),
 						mStream.Stream<mSPO_AST.tExpressionNode<tSpan>>(
@@ -100,7 +102,7 @@ public static class mSPO_Parser_Test {
 			"Match1",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Match.ParseText("12", aStreamOut),
+					mSPO_Parser.Match.ParseText("12", "", aStreamOut),
 					mSPO_AST.Match(
 						Span((1, 1), (1, 2)),
 						mSPO_AST.Number(Span((1, 1), (1, 2)), 12),
@@ -108,7 +110,7 @@ public static class mSPO_Parser_Test {
 					)
 				);
 				mStd.AssertEq(
-					mSPO_Parser.Match.ParseText("x", aStreamOut),
+					mSPO_Parser.Match.ParseText("x", "", aStreamOut),
 					mSPO_AST.Match(
 						Span((1, 1), (1, 1)),
 						mSPO_AST.Ident(Span((1, 1), (1, 1)), "x"),
@@ -116,7 +118,7 @@ public static class mSPO_Parser_Test {
 					)
 				);
 				mStd.AssertEq(
-					mSPO_Parser.Match.ParseText("(12, x)", aStreamOut),
+					mSPO_Parser.Match.ParseText("(12, x)", "", aStreamOut),
 					mSPO_AST.Match(
 						Span((1, 1), (1, 7)), 
 						mSPO_AST.MatchTuple(
@@ -135,7 +137,7 @@ public static class mSPO_Parser_Test {
 			"FunctionCall",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("x .* x", aStreamOut),
+					mSPO_Parser.Expression.ParseText("x .* x", "", aStreamOut),
 					mSPO_AST.Call(
 						Span((1, 1), (1, 6)),
 						mSPO_AST.Ident(Span((1, 1), (1, 6)), "...*..."),
@@ -149,7 +151,7 @@ public static class mSPO_Parser_Test {
 					)
 				);
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText(".sin x", aStreamOut),
+					mSPO_Parser.Expression.ParseText(".sin x", "", aStreamOut),
 					mSPO_AST.Call(
 						Span((1, 1), (1, 6)),
 						mSPO_AST.Ident(Span((1, 2), (1, 6)), "sin..."),
@@ -167,7 +169,7 @@ public static class mSPO_Parser_Test {
 			"Lambda",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("x => x .* x", aStreamOut),
+					mSPO_Parser.Expression.ParseText("x => x .* x", "", aStreamOut),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 11)),
 						mSPO_AST.Match(
@@ -194,7 +196,7 @@ public static class mSPO_Parser_Test {
 			"TypedMatch",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("(x € MyType) => x .* x", aStreamOut),
+					mSPO_Parser.Expression.ParseText("(x € MyType) => x .* x", "", aStreamOut),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 22)),
 						mSPO_AST.Match(
@@ -229,7 +231,7 @@ public static class mSPO_Parser_Test {
 			"Expression",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("2 .< (4 .+ 3) < 3", aStreamOut),
+					mSPO_Parser.Expression.ParseText("2 .< (4 .+ 3) < 3", "", aStreamOut),
 					mSPO_AST.Call(
 						Span((1, 1), (1, 17)),
 						mSPO_AST.Ident(Span((1, 1), (1, 17)), "...<...<..."),
@@ -259,7 +261,7 @@ public static class mSPO_Parser_Test {
 			"NestedMatch",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("(a, b, (x, y, z)) => a .* z", aStreamOut),
+					mSPO_Parser.Expression.ParseText("(a, b, (x, y, z)) => a .* z", "", aStreamOut),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 27)),
 						mSPO_AST.Match(
@@ -324,7 +326,7 @@ public static class mSPO_Parser_Test {
 			"PrefixMatch",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Expression.ParseText("(1 #* a) => a", aStreamOut),
+					mSPO_Parser.Expression.ParseText("(1 #* a) => a", "", aStreamOut),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 13)),
 						mSPO_AST.Match(
@@ -363,7 +365,7 @@ public static class mSPO_Parser_Test {
 			"MethodCall",
 			aStreamOut => {
 				mStd.AssertEq(
-					mSPO_Parser.Command.ParseText("o := ((§TO_VAL o) .+ i) .\n", aStreamOut),
+					mSPO_Parser.Command.ParseText("o := ((§TO_VAL o) .+ i) .\n", "", aStreamOut),
 					mSPO_AST.MethodCallStatment(
 						Span((1, 1), (1, 25)),
 						mSPO_AST.Ident(Span((1, 1), (1, 1)), "o"),
@@ -400,6 +402,7 @@ public static class mSPO_Parser_Test {
 						//        1         2         3         4         5        6          7         8
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"{a: §DEF x, b: §DEF y} = {a: 1, b: 2}\n",
+						"",
 						aStreamOut
 					),
 					mSPO_AST.Def(

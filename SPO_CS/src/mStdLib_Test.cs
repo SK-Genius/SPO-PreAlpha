@@ -58,6 +58,7 @@ public static class mStdLib_Test {
 							
 							§EXPORT .Fib n
 						",
+						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
@@ -93,6 +94,7 @@ public static class mStdLib_Test {
 							
 							§EXPORT .Fib n
 						",
+						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
@@ -128,6 +130,7 @@ public static class mStdLib_Test {
 							
 							§EXPORT .Fib n
 						",
+						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
@@ -162,6 +165,7 @@ public static class mStdLib_Test {
 							
 							§EXPORT .Fib n
 						",
+						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
@@ -202,6 +206,7 @@ public static class mStdLib_Test {
 							
 							§EXPORT x
 						",
+						"",
 						mStdLib.GetImportData(),
 						aDebugStream
 					),
@@ -248,6 +253,7 @@ public static class mStdLib_Test {
 							§RETURN 0
 						}
 					",
+					"",
 					mVM_Data.Tuple(ReadLine, WriteLine),
 					aDebugStream
 				);

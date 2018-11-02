@@ -33,10 +33,12 @@ public static class mTokenizer_Test {
 	//================================================================================
 	) => new mStd.tSpan<tPos> {
 		Start = {
+			Ident = "",
 			Row = aStart.Row,
 			Col = aStart.Col
 		},
 		End = {
+			Ident = "",
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
@@ -50,6 +52,7 @@ public static class mTokenizer_Test {
 			aDebugStream => {
 				var TokenList = mTokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",
+					"",
 					aDebugStream
 				).Result;
 				mStd.AssertEq(

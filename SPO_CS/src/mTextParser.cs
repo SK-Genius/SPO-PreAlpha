@@ -1,7 +1,6 @@
 ﻿//IMPORT mParserGen.cs
 //IMPORT mTextStream.cs
 
-// TODO: add filename to the position
 // TODO: create a function how generate a call stack output
 
 using tBool = System.Boolean;
@@ -30,11 +29,12 @@ public static class mTextParser {
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aText,
+		tText aIdent,
 		mStd.tAction<tText> aDebugStream
 	//================================================================================
 	) {
 		using (mPerf.Measure()) {
-			var Stream = mTextStream.TextToStream(aText).Map(_ => (mStd.Span(_.Pos), _.Char));
+			var Stream = aText.ToStream(aIdent).Map(_ => (mStd.Span(_.Pos), _.Char));
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
 			mStd.Assert(
 				MaybeResult.Match(out var Result, out var ErrorList),

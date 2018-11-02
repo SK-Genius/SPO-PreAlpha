@@ -59,6 +59,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT y
 						",
+						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							mVM_Data.Int(2)
@@ -84,6 +85,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT y
 						",
+						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							mVM_Data.Int(2)
@@ -107,6 +109,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT .(§DEF a => (k .* a)) 5
 						",
+						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							mVM_Data.Int(2)
@@ -129,6 +132,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT .((§DEF a, _, _) => (2 .* a)) (3, 5, 7)
 						",
+						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						aDebugStream
 					),
@@ -153,6 +157,7 @@ public static class mSPO_Interpreter_Test {
 								}
 							) (1, 2, 3)
 						",
+						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						aDebugStream
 					),
@@ -186,6 +191,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
 						",
+						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						aDebugStream
 					),
@@ -225,6 +231,7 @@ public static class mSPO_Interpreter_Test {
 								(_) => 3
 							}
 						",
+						"",
 						mVM_Data.Empty(),
 						aDebugStream
 					),
@@ -244,6 +251,7 @@ public static class mSPO_Interpreter_Test {
 							
 							§EXPORT (X, Y)
 						",
+						"",
 						mVM_Data.Empty(),
 						aDebugStream
 					),

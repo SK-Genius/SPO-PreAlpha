@@ -33,18 +33,20 @@ public static class mIL_Interpreter_Test {
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
+		tText aIdent,
 		mStd.tAction<tText> aTrace
 	//================================================================================
-	) => mIL_Interpreter<tSpan>.ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aTrace), aTrace);
+	) => mIL_Interpreter<tSpan>.ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aTrace);
 	
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		tText aSourceCode,
+		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<tText> aTrace
 	//================================================================================
-	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aTrace), aImport, aTrace);
+	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aImport, aTrace);
 	
 	//================================================================================
 	private static mVM_Data.tData
@@ -117,6 +119,7 @@ public static class mIL_Interpreter_Test {
 					"	_1 := 1\n" +
 					"	res := §INT ARG + _1\n" +
 					"	§RETURN res IF TRUE\n",
+					"",
 					aDebugStream
 				);
 				
@@ -153,6 +156,7 @@ public static class mIL_Interpreter_Test {
 					"	inc := .add arg_1\n" +
 					"	res := +#VECTOR inc\n" +
 					"	§RETURN res IF TRUE\n",
+					"",
 					aDebugStream
 				);
 				
@@ -188,6 +192,7 @@ public static class mIL_Interpreter_Test {
 					"	arg_eq_1? := . ...=...? arg_1\n" +
 					"	§ASSERT TRUE => arg_eq_1?\n" +
 					"	§RETURN arg_eq_1? IF TRUE\n",
+					"",
 					aDebugStream
 				);
 				
@@ -313,6 +318,7 @@ public static class mIL_Interpreter_Test {
 					"	arg_1 := ARG, _1\n" +
 					"	res   := . ...!! arg_1\n" +
 					"	§RETURN res IF TRUE\n",
+					"",
 					aDebugStream
 				);
 				

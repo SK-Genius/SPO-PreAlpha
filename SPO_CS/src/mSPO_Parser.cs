@@ -226,7 +226,7 @@ public static class mSPO_Parser {
 					(aSpan, _, aFirst, aInfix) => (
 						Ident: mSPO_AST.Ident(
 							mStd.Span(
-								mTextStream.Pos(aSpan.Start.Row, aSpan.Start.Col + 1),
+								mTextStream.Pos(aSpan.Start.Ident, aSpan.Start.Row, aSpan.Start.Col + 1),
 								aSpan.End
 							),
 							aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)

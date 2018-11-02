@@ -227,6 +227,7 @@ public static class mStdLib {
 	Res := §BOOL <? | =?
 	§RETURN Res IF TRUE
 ",
+				"mStdLib.cs",
 				aLine => { }
 			),
 			mVM_Data.Empty(),
