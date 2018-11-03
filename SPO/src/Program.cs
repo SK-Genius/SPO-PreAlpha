@@ -17,7 +17,7 @@ static class mProgram {
 	static void Main(tText[] aArgs) {
 		var ProjectFile = new System.IO.FileInfo(aArgs.Length > 0 ? aArgs[0] : "src/_.spo");
 		var Folder = ProjectFile.Directory.FullName;
-		var DebugOut = mStd.Action((tText a) => System.Console.Error.WriteLine(a));
+		var DebugOut = mStd.Action((mStd.tFunc<tText> a) => System.Console.Error.WriteLine(a()));
 		try {
 			var StdLib = mStdLib.GetImportData();
 			
@@ -43,13 +43,11 @@ static class mProgram {
 								
 								var Path = System.IO.Path.Combine(Folder, File);
 								return mVM_Data.ExternProc(
-									(aDef2, aObj2, aArg2, _2) => mSPO_Interpreter.Run(
-										System.IO.File.ReadAllText(
-											Path
-										),
+									(aDef2, aObj2, aArg2, aDebugOut) => mSPO_Interpreter.Run(
+										System.IO.File.ReadAllText(Path),
 										Path,
 										aArg2,
-										DebugOut
+										aDebugOut
 									),
 									mVM_Data.Empty()
 								);
@@ -67,16 +65,15 @@ static class mProgram {
 				mVM_Data.Prefix("IO", mVM_Data.Empty()),
 				mVM_Data.Empty(),
 				Result,
-				aLazyOutput => {
-					// DebugOut(aLazyOutput());
-				}
+				a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
+				a => {} //DebugOut
 			);
 			
 			mStd.Assert(Result.MatchBool(out var IsOK));
 			mStd.Assert(IsOK);
-			DebugOut("OK");
+			DebugOut(() => "OK");
 		} catch (mStd.tError<mStd.tEmpty> Error) {
-			DebugOut(Error.Message);
+			DebugOut(() => Error.Message);
 			System.Environment.Exit(-1);
 		}
 	}

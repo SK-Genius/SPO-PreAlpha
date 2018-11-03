@@ -30,11 +30,19 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 public static class mIL_Interpreter_Test {
 	
 	//================================================================================
+	private static tText SpanToText(
+		tSpan a
+	//================================================================================
+	) {
+		return $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
+	}
+	
+	//================================================================================
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,
-		mStd.tAction<tText> aTrace
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) => mIL_Interpreter<tSpan>.ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aTrace);
 	
@@ -44,9 +52,9 @@ public static class mIL_Interpreter_Test {
 		tText aSourceCode,
 		tText aIdent,
 		mVM_Data.tData aImport,
-		mStd.tAction<tText> aTrace
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
-	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aImport, aTrace);
+	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aImport, SpanToText, aTrace);
 	
 	//================================================================================
 	private static mVM_Data.tData
@@ -120,7 +128,7 @@ public static class mIL_Interpreter_Test {
 					"	res := §INT ARG + _1\n" +
 					"	§RETURN res IF TRUE\n",
 					"",
-					aDebugStream
+					a => aDebugStream(a())
 				);
 				
 				#if MY_TRACE
@@ -138,6 +146,7 @@ public static class mIL_Interpreter_Test {
 					mVM_Data.Empty(),
 					mVM_Data.Int(5),
 					Res,
+					SpanToText,
 					TraceOut
 				);
 				mStd.AssertEq(Res, mVM_Data.Int(6));
@@ -157,7 +166,7 @@ public static class mIL_Interpreter_Test {
 					"	res := +#VECTOR inc\n" +
 					"	§RETURN res IF TRUE\n",
 					"",
-					aDebugStream
+					a => aDebugStream(a())
 				);
 				
 				#if MY_TRACE
@@ -176,6 +185,7 @@ public static class mIL_Interpreter_Test {
 					mVM_Data.Empty(),
 					mVM_Data.Prefix("VECTOR", mVM_Data.Int(12)),
 					Res,
+					SpanToText,
 					TraceOut
 				);
 				mStd.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
@@ -193,7 +203,7 @@ public static class mIL_Interpreter_Test {
 					"	§ASSERT TRUE => arg_eq_1?\n" +
 					"	§RETURN arg_eq_1? IF TRUE\n",
 					"",
-					aDebugStream
+					a => aDebugStream(a())
 				);
 				
 				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
@@ -218,7 +228,7 @@ public static class mIL_Interpreter_Test {
 					TraceOut
 				);
 				while (CallStack != null) {
-					CallStack = CallStack.Step();
+					CallStack = CallStack.Step(a => ""+a);
 				}
 				mStd.AssertEq(Res, mVM_Data.Bool(true));
 				mStd.AssertError(
@@ -229,6 +239,7 @@ public static class mIL_Interpreter_Test {
 							mVM_Data.Empty(),
 							mVM_Data.Int(2),
 							Res,
+							SpanToText,
 							TraceOut
 						);
 					}
@@ -319,7 +330,7 @@ public static class mIL_Interpreter_Test {
 					"	res   := . ...!! arg_1\n" +
 					"	§RETURN res IF TRUE\n",
 					"",
-					aDebugStream
+					a => aDebugStream(a())
 				);
 				
 				var Proc1 = Module.Skip(ModuleMap.Get("bla")).First();
@@ -348,6 +359,7 @@ public static class mIL_Interpreter_Test {
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
 						Res,
+						SpanToText,
 						TraceOut
 					);
 					mStd.AssertEq(Res, mVM_Data.Int(2));
@@ -359,6 +371,7 @@ public static class mIL_Interpreter_Test {
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
 						Res,
+						SpanToText,
 						TraceOut
 					);
 					mStd.AssertEq(Res, mVM_Data.Int(12));
@@ -370,6 +383,7 @@ public static class mIL_Interpreter_Test {
 						mVM_Data.Empty(),
 						mVM_Data.Pair(mVM_Data.Int(3), mVM_Data.Int(1)),
 						Res,
+						SpanToText,
 						TraceOut
 					);
 					mStd.AssertEq(Res, mVM_Data.Int(6));
@@ -381,6 +395,7 @@ public static class mIL_Interpreter_Test {
 						mVM_Data.Empty(),
 						mVM_Data.Int(3),
 						Res,
+						SpanToText,
 						TraceOut
 					);
 					mStd.AssertEq(Res, mVM_Data.Int(6));

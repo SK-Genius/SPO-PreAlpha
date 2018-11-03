@@ -28,7 +28,7 @@ public static class mSPO_Interpreter {
 		tText aCode,
 		tText aIdent,
 		mVM_Data.tData aImport,
-		mStd.tAction<tText> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	//================================================================================
 	) => mIL_Interpreter<tSpan>.Run(
 		mSPO2IL.MapModule(
@@ -39,6 +39,7 @@ public static class mSPO_Interpreter {
 			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToStream())
 		),
 		aImport,
+		a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
 		aDebugStream
 	);
 }

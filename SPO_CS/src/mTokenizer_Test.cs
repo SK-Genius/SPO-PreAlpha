@@ -53,7 +53,7 @@ public static class mTokenizer_Test {
 				var TokenList = mTokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",
 					"",
-					aDebugStream
+					a => aDebugStream(a())
 				).Result;
 				mStd.AssertEq(
 					TokenList,

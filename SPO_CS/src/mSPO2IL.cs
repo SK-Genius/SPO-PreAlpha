@@ -595,6 +595,103 @@ public static class mSPO2IL {
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
+			case mSPO_AST.tPipeToRightNode<tPos> PipeToRightNode: {
+			//--------------------------------------------------------------------------------
+					switch (PipeToRightNode.Right) {
+						case mSPO_AST.tPipeToRightNode<tPos> PipeToRightNode_: {
+							return aDefConstructor.MapExpresion(
+								mSPO_AST.PipeToRight(
+									PipeToRightNode.Pos,
+									mSPO_AST.PipeToRight(
+										PipeToRightNode.Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
+										PipeToRightNode.Left,
+										PipeToRightNode_.Left
+									),
+									PipeToRightNode_.Right
+								)
+							);
+						}
+						case mSPO_AST.tCallNode<tPos> CallNode: {
+							mSPO_AST.tExpressionNode<tPos> Func;
+							if (CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode) {
+								Func = mSPO_AST.Ident(IdentNode.Pos, "..." + IdentNode.Name.Substring(1));
+							} else {
+								Func = CallNode.Func;
+							}
+							var FuncReg = aDefConstructor.MapExpresion(Func);
+							mSPO_AST.tExpressionNode<tPos> Arg;
+							if (CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple) {
+								Arg = mSPO_AST.Tuple(
+									Tuple.Pos,
+									mStream.Stream(PipeToRightNode.Right, Tuple.Items)
+								);
+							} else {
+								Arg = mSPO_AST.Tuple(
+									CallNode.Arg.Pos,
+									mStream.Stream(PipeToRightNode.Right, mStream.Stream(CallNode.Arg))
+								);
+							}
+							var ArgReg = aDefConstructor.MapExpresion(Arg);
+							var ResultReg = aDefConstructor.CreateTempReg();
+							aDefConstructor.Commands.Push(
+								mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+							);
+							return ResultReg;
+						}
+						default: {
+							var FirstArgReg = aDefConstructor.MapExpresion(PipeToRightNode.Left);
+							var FuncReg = aDefConstructor.MapExpresion(PipeToRightNode.Right);
+							var ResultReg = aDefConstructor.CreateTempReg();
+							aDefConstructor.Commands.Push(
+								mIL_AST.CallFunc(PipeToRightNode.Pos, ResultReg, FuncReg, FirstArgReg)
+							);
+							return ResultReg;
+						}
+					}
+				}
+			//--------------------------------------------------------------------------------
+			case mSPO_AST.tPipeToLeftNode<tPos> PipeToLeftNode: {
+			//--------------------------------------------------------------------------------
+					switch (PipeToLeftNode.Left) {
+						case mSPO_AST.tCallNode<tPos> CallNode: {
+							mSPO_AST.tExpressionNode<tPos> Func;
+							if (CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode) {
+								Func = mSPO_AST.Ident(IdentNode.Pos, IdentNode.Name.Substring(1) + "...");
+							} else {
+								Func = CallNode.Func;
+							}
+							var FuncReg = aDefConstructor.MapExpresion(Func);
+							mSPO_AST.tExpressionNode<tPos> Arg;
+							if (CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple) {
+								Arg = mSPO_AST.Tuple(
+									Tuple.Pos,
+									mStream.Concat(Tuple.Items, mStream.Stream(PipeToLeftNode.Right))
+								);
+							} else {
+								Arg = mSPO_AST.Tuple(
+									CallNode.Arg.Pos,
+									mStream.Stream(CallNode.Arg, mStream.Stream(PipeToLeftNode.Right))
+								);
+							}
+							var ArgReg = aDefConstructor.MapExpresion(Arg);
+							var ResultReg = aDefConstructor.CreateTempReg();
+							aDefConstructor.Commands.Push(
+								mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+							);
+							return ResultReg;
+						}
+						default: {
+							var FirstArgReg = aDefConstructor.MapExpresion(PipeToLeftNode.Right);
+							var FuncReg = aDefConstructor.MapExpresion(PipeToLeftNode.Left);
+							var ResultReg = aDefConstructor.CreateTempReg();
+							aDefConstructor.Commands.Push(
+								mIL_AST.CallFunc(PipeToLeftNode.Pos, ResultReg, FuncReg, FirstArgReg)
+							);
+							return ResultReg;
+						}
+					}
+				}
+			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
 				throw mStd.Error(

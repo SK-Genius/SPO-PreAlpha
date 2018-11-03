@@ -30,12 +30,12 @@ public static class mIL_Interpreter<tPos> {
 	)
 	ParseModule(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
-		mStd.tAction<tText> aTrace
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
 		using (mPerf.Measure()) {
 			#if MY_TRACE
-				aTrace(nameof(ParseModule));
+				aTrace(() => nameof(ParseModule));
 			#endif
 			var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2) == 0);
 			var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
@@ -521,7 +521,7 @@ public static class mIL_Interpreter<tPos> {
 				}
 			}
 			#if MY_TRACE
-			PrintILModule(aDefs, Module, aTrace);
+			PrintILModule(aDefs, Module, a => { aTrace(() => a); });
 			#endif
 			
 			#if !true
@@ -576,16 +576,18 @@ public static class mIL_Interpreter<tPos> {
 	Run(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mVM_Data.tData aImport,
-		mStd.tAction<tText> aTrace
+		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
-	) => Run(ParseModule(aDefs, aTrace), aImport, aTrace);
+	) => Run(ParseModule(aDefs, aTrace), aImport, aPosToText, aTrace);
 	
 	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mMap.tMap<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
-		mStd.tAction<tText> aDebugStream
+		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	//================================================================================
 	) {
 		var (VMModule, ModuleMap) = aModule;
@@ -614,18 +616,17 @@ public static class mIL_Interpreter<tPos> {
 		var InitProc = VMModule.First();
 		
 		#if MY_TRACE
-			var TraceOut = mStd.Action(
-				(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
-			);
+			var TraceOut = aDebugStream;
 		#else
 			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 		#endif
 		
-		mVM.Run<tPos>(
+		mVM.Run(
 			mVM_Data.Proc(InitProc, DefTuple),
 			mVM_Data.Empty(),
 			aImport,
 			Res,
+			aPosToText,
 			TraceOut
 		);
 		

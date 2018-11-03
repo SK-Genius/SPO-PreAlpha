@@ -63,7 +63,7 @@ public static class mStdLib_Test {
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
 						),
-						aDebugStream
+						a => aDebugStream(a())
 					),
 					mVM_Data.Int(21)
 				);
@@ -99,7 +99,7 @@ public static class mStdLib_Test {
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
 						),
-						aDebugStream
+						a => aDebugStream(a())
 					),
 					mVM_Data.Int(21)
 				);
@@ -135,7 +135,7 @@ public static class mStdLib_Test {
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
 						),
-						aDebugStream
+						a => aDebugStream(a())
 					),
 					mVM_Data.Int(21)
 				);
@@ -170,7 +170,7 @@ public static class mStdLib_Test {
 							mStdLib.GetImportData(),
 							mVM_Data.Int(8)
 						),
-						aDebugStream
+						a => aDebugStream(a())
 					),
 					mVM_Data.Int(21)
 				);
@@ -208,7 +208,7 @@ public static class mStdLib_Test {
 						",
 						"",
 						mStdLib.GetImportData(),
-						aDebugStream
+						a => aDebugStream(a())
 					),
 					mVM_Data.Var(mVM_Data.Int(22))
 				);
@@ -255,7 +255,7 @@ public static class mStdLib_Test {
 					",
 					"",
 					mVM_Data.Tuple(ReadLine, WriteLine),
-					aDebugStream
+					a => aDebugStream(a())
 				);
 				
 				var Reference = new byte[]{ 44, 55, 66, (int)'\n' };
@@ -285,6 +285,7 @@ public static class mStdLib_Test {
 					mVM_Data.Tuple(StreamIn, StreamOut),
 					mVM_Data.Empty(),
 					Res,
+					a => "" + a,
 					a => aDebugStream(a())
 				);
 				

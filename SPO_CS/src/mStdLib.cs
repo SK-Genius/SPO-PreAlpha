@@ -231,6 +231,7 @@ public static class mStdLib {
 				aLine => { }
 			),
 			mVM_Data.Empty(),
+			a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
 			aLine => { }
 		);
 		return _ImportData;

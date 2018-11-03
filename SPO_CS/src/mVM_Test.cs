@@ -62,7 +62,7 @@ public static class mVM_Test {
 				Proc1.ReturnIf(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cTrueReg, r3);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
+				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);
 				mStd.AssertEq(Res, mVM_Data.Int(2));
 			}
 		),
@@ -99,7 +99,7 @@ public static class mVM_Test {
 				);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc2, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, TraceOut);
+				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc2, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);
 				mStd.AssertEq(Res, mVM_Data.Int(2));
 			}
 		)

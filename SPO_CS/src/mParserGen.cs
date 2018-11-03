@@ -714,7 +714,7 @@ public static class mParserGen {
 	StartParse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> aStream,
-		mStd.tAction<tText> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	//================================================================================
 	) {
 		using (mPerf.Measure()) {
@@ -724,7 +724,7 @@ public static class mParserGen {
 					aStream,
 					aDebugText => {
 						if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
-						aDebugStream(new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
+						aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
 						if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
 					},
 					mStream.Stream<object>()

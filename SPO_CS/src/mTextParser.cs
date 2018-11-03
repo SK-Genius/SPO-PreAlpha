@@ -30,7 +30,7 @@ public static class mTextParser {
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aText,
 		tText aIdent,
-		mStd.tAction<tText> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	//================================================================================
 	) {
 		using (mPerf.Measure()) {

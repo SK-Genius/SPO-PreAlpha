@@ -214,6 +214,31 @@ public static class mStream {
 	
 	//================================================================================
 	public static tStream<t>
+	SkipUntil<t>(
+		this tStream<t> aStream,
+		mStd.tFunc<tBool, t> aCond
+	//================================================================================
+	) {
+		while (aStream.Match(out var Head, out aStream)) {
+			if (aCond(Head)) {
+				return Stream(Head, aStream);
+			}
+		}
+		return default;
+	}
+	
+	//================================================================================
+	public static tStream<t>
+	SkipWhile<t>(
+		this tStream<t> aStream,
+		mStd.tFunc<tBool, t> aCond
+	//================================================================================
+	) {
+		return aStream.SkipUntil(_ => !aCond(_));
+	}
+	
+	//================================================================================
+	public static tStream<t>
 	Every<t>(
 		this tStream<t> aStream,
 		tInt32 aCount
@@ -224,17 +249,36 @@ public static class mStream {
 		: Stream<t>()
 	);
 	
+	static int Count = 100_000; 
+	
 	//================================================================================
 	public static tStream<t>
 	Where<t>(
 		this tStream<t> aStream,
 		mStd.tFunc<tBool, t> aPredicate
 	//================================================================================
-	) => (
-		!aStream.Match(out var Head, out var Tail) ? Stream<t>() :
-		aPredicate(Head) ? Stream(Head, () => Tail.Where(aPredicate)) :
-		Tail.Where(aPredicate)
-	);
+	) {
+		#if TAIL_RECURSIVE
+		return (
+			!aStream.Match(out var Head, out var Tail) ? Stream<t>() :
+			aPredicate(Head) ? Stream(Head, () => Tail.Where(aPredicate)) :
+			Tail.Where(aPredicate)
+		);
+		#else
+		if (Count == 0) {
+			Count.ToString();
+		} else {
+			Count -= 1;
+		}
+
+		while (aStream.Match(out var Head, out aStream)) {
+			if (aPredicate(Head)) {
+				return Stream(Head, () => aStream.Where(aPredicate));
+			}
+		}
+		return Stream<t>();
+		#endif
+	}
 	
 	//================================================================================
 	public static tBool

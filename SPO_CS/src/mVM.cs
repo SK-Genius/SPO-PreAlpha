@@ -77,11 +77,13 @@ public static class mVM {
 	//================================================================================
 	public static tCallStack<tPos>
 	Step<tPos>(
-		this tCallStack<tPos> aCallStack
+		this tCallStack<tPos> aCallStack,
+		mStd.tFunc<tText, tPos> aPosToText
 	//================================================================================
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		aCallStack._TraceOut(() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer)}");
+		aCallStack._TraceOut(
+			() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}");
 		aCallStack._CodePointer += 1;
 		
 		switch (OpCode) {
@@ -333,7 +335,7 @@ public static class mVM {
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
+					aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
 				} else if (Proc.MatchDef<tPos>(out var Def)) {
 					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
 				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
@@ -356,7 +358,7 @@ public static class mVM {
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine)));
+					aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
 				} else if (Proc.MatchDef<tPos>(out var Def)) {
 					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
 				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
@@ -416,7 +418,7 @@ public static class mVM {
 					if (Proc.MatchExternDef(out var ExternDef)) {
 						Res = mVM_Data.ExternProc(ExternDef, Arg);
 					} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine));
+						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 					} else if (Proc.MatchDef<tPos>(out var Def)) {
 						Res = mVM_Data.Proc(Def, Arg);
 					} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
@@ -485,6 +487,7 @@ public static class mVM {
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mVM_Data.tData aRes,
+		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	//================================================================================
 	) {
@@ -492,7 +495,7 @@ public static class mVM {
 			if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
 				var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
 				while (CallStack != null) {
-					CallStack = CallStack.Step();
+					CallStack = CallStack.Step(aPosToText);
 				}
 			} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
 				var Res = ExternDef(Env, aObj, aArg, aTraceOut);

@@ -297,7 +297,7 @@ public static class mVM_Type {
 	Unify(
 		tType a1,
 		tType a2,
-		mStd.tAction<tText> aTrace
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	//================================================================================
 	) {
 		if (a1 == a2) {

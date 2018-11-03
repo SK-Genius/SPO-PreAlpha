@@ -30,13 +30,13 @@ public static class mVM_Type_Test {
 		mTest.Test(
 			"BoolBool",
 			aDebugStream => {
-				mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), aDebugStream);
+				mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), a => aDebugStream(a()));
 			}
 		),
 		mTest.Test(
 			"BoolInt",
 			aDebugStream => {
-				mStd.AssertError(() => mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), aDebugStream));
+				mStd.AssertError(() => mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), a => aDebugStream(a())));
 			}
 		)
 	);

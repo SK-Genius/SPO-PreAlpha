@@ -240,6 +240,18 @@ public static class mSPO_AST {
 		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
+	public struct tPipeToRightNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; set; }
+		public tExpressionNode<tPos> Left;
+		public tExpressionNode<tPos> Right;
+	}
+	
+	public struct tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; set; }
+		public tExpressionNode<tPos> Left;
+		public tExpressionNode<tPos> Right;
+	}
+	
 	public struct tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Items;
@@ -747,6 +759,32 @@ public static class mSPO_AST {
 		Pos = aPos,
 		Object = aObject,
 		MethodCalls = aMethodCalls
+	};
+	
+	//================================================================================
+	public static tExpressionNode<tPos>
+	PipeToRight<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aLeft,
+		tExpressionNode<tPos> aRight
+	//================================================================================
+	) => new tPipeToRightNode<tPos> {
+		Pos = aPos,
+		Left = aLeft,
+		Right = aRight
+	};
+	
+	//================================================================================
+	public static tExpressionNode<tPos>
+	PipeToLeft<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aLeft,
+		tExpressionNode<tPos> aRight
+	//================================================================================
+	) => new tPipeToLeftNode<tPos> {
+		Pos = aPos,
+		Left = aLeft,
+		Right = aRight
 	};
 	
 	//================================================================================

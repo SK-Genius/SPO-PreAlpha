@@ -132,7 +132,7 @@ public static class mTokenizer {
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
 		tText aIdent,
-		mStd.tAction<tText> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	//================================================================================
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aIdent, aDebugStream).Result;

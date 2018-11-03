@@ -63,10 +63,10 @@ public static class mTextStream {
 		mStream.Stream<tError>(),
 		(aOldList, aNew) => mStream.Stream(
 			aNew,
-			aOldList.Where(
+			aOldList.SkipUntil(
 				aOld => (
 					aOld.Pos.Row > aNew.Pos.Row ||
-					(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col >= aNew.Pos.Col)
+					(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col > aNew.Pos.Col)
 				)
 			)
 		)

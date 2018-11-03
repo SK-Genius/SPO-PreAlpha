@@ -57,7 +57,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"2 .< (4 .+ 3) < 3",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var Def = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -89,7 +89,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF a = (1, 2)",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -116,7 +116,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -157,7 +157,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -194,7 +194,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -242,7 +242,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF x = §DEF a => 2 .* a",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -288,7 +288,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF ...*...+... = (§DEF a, §DEF b, §DEF c) => (a .* b) .+ c",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
@@ -352,7 +352,7 @@ public static class mSPO2IL_Test {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (§DEF x, §DEF y, §DEF z)) => a .* z",
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge);
@@ -415,7 +415,7 @@ public static class mSPO2IL_Test {
 						"§EXPORT y"
 					).Join((a1, a2) => a1 + "\n" + a2),
 					"",
-					aStreamOut
+					a => aStreamOut(a())
 				);
 				
 				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mStd.Merge);
