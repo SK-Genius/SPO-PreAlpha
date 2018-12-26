@@ -33,10 +33,10 @@ public static class mParserGen {
 	Assert<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStd.tFunc<tBool, tOut> aIsValid,
-		mStd.tFunc<tError, (mStd.tSpan<tPos> Span, tOut Value)> aErrorMessage
+		mStd.tFunc<(tPos Pos, tError Massage), (mStd.tSpan<tPos> Span, tOut Value)> aErrorMessage
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tOut, tError>();
+		var Parser = new tParser<tPos, tIn, tOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -64,7 +64,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -80,7 +80,7 @@ public static class mParserGen {
 							aModifyFunc(Result.Result.Span)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -97,7 +97,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>, tOut> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -116,7 +116,7 @@ public static class mParserGen {
 							)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -133,7 +133,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>, t1, t2> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -153,7 +153,7 @@ public static class mParserGen {
 							)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -170,7 +170,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>, t1, t2, t3> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -191,7 +191,7 @@ public static class mParserGen {
 							)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -208,7 +208,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>, t1, t2, t3, t4> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -230,7 +230,7 @@ public static class mParserGen {
 							)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -247,7 +247,7 @@ public static class mParserGen {
 		mStd.tFunc<tNewOut, mStd.tSpan<tPos>, t1, t2, t3, t4, t5> aModifyFunc
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, tNewOut, tError>();
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
 				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -270,7 +270,7 @@ public static class mParserGen {
 							)
 						),
 						Result.RestStream,
-						mStream.Stream<tError>()
+						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
 			} else {
@@ -332,7 +332,7 @@ public static class mParserGen {
 	public static tParser<tPos, tIn, tOut, tError>
 	ModifyErrors<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
-		mStd.tFunc<mStream.tStream<tError>, mStream.tStream<tError>, (mStd.tSpan<tPos> Span, tIn Input)> aModifyFunc
+		mStd.tFunc<mStream.tStream<(tPos Pos, tError Massage)>, mStream.tStream<(tPos Pos, tError Massage)>, (mStd.tSpan<tPos> Span, tIn Input)> aModifyFunc
 	//================================================================================
 	) {
 		aParser._ModifyErrorsFunc = aModifyFunc;
@@ -343,7 +343,7 @@ public static class mParserGen {
 	public static tParser<tPos, tIn, tOut, tError>
 	AddError<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
-		mStd.tFunc<tError, (mStd.tSpan<tPos> Span, tIn Value)> aCreateError
+		mStd.tFunc<(tPos Pos, tError Massage), (mStd.tSpan<tPos> Span, tIn Value)> aCreateError
 	//================================================================================
 	) => aParser.ModifyErrors(
 		(aErrors, a) => mStream.Concat(aErrors, mStream.Stream(aCreateError(a)))
@@ -353,16 +353,17 @@ public static class mParserGen {
 	
 	public sealed class tParser<tPos, tIn, tOut, tError> {
 		internal mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> _LastInput;
-		internal mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>, mStream.tStream<tError>), mStream.tStream<tError>> _LastOutput;
+		internal mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>, mStream.tStream<(tPos Pos, tError Massage)>), mStream.tStream<(tPos Pos, tError Massage)>> _LastOutput;
 		
 		internal mStd.tFunc<
-			mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<tError> MaybeError), mStream.tStream<tError>>,
+			mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>,
 			mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)>,
 			mStd.tAction<tText>,
 			mStream.tStream<object> 
 		> _ParseFunc;
 		
-		internal mStd.tFunc<mStream.tStream<tError>, mStream.tStream<tError>, (mStd.tSpan<tPos>, tIn)> _ModifyErrorsFunc;
+		internal mStd.tFunc<mStream.tStream<(tPos Pos, tError Massage)>, mStream.tStream<(tPos Pos, tError Massage)>, (mStd.tSpan<tPos>, tIn)> _ModifyErrorsFunc;
+		internal readonly mStd.tFunc<tInt32, tPos, tPos> _ComparePos;
 		
 		#if DEBUG || MY_TRACE
 			public tText _DebugName = null;
@@ -382,6 +383,15 @@ public static class mParserGen {
 		#else
 			=> null;
 		#endif
+		
+		//================================================================================
+		internal
+		tParser(
+			mStd.tFunc<tInt32, tPos, tPos> aComparePos
+		//================================================================================
+		) {
+			this._ComparePos = aComparePos;
+		}
 		
 		//================================================================================
 		public static tParser<tPos, tIn, mStd.tEmpty, tError>
@@ -431,7 +441,7 @@ public static class mParserGen {
 			tParser<tPos, tIn, tOut, tError> aP2
 		//================================================================================
 		) {
-			var Parser = new tParser<tPos, tIn, tOut, tError>();
+			var Parser = new tParser<tPos, tIn, tOut, tError>(aP1._ComparePos);
 			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 				if (
 					aP1.Parse(aStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -450,10 +460,9 @@ public static class mParserGen {
 						out var ErrorList2
 					)
 				) {
-					return mStd.OK(Result);
+					return mStd.OK((Result.Result, Result.RestStream, Merge(ErrorList1, ErrorList2, aP1._ComparePos)));
 				}
-				
-				return mStd.Fail(mStream.Concat(ErrorList1, ErrorList2));
+				return mStd.Fail(Merge(ErrorList1, ErrorList2, aP1._ComparePos));
 			};
 			return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")");
 		}
@@ -466,7 +475,7 @@ public static class mParserGen {
 		//================================================================================
 		] {
 			get {
-				var Parser = new tParser<tPos, tIn, mStream.tStream<tOut>, tError>();
+				var Parser = new tParser<tPos, tIn, mStream.tStream<tOut>, tError>(this._ComparePos);
 				Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 					var Result = mStream.Stream<tOut>();
 					var RestStream = aStream;
@@ -474,7 +483,7 @@ public static class mParserGen {
 					var Span = default(mStd.tSpan<tPos>);
 					var I = 0;
 					
-					var LastError = mStream.Stream<tError>();
+					var LastError = mStream.Stream<(tPos Pos, tError Massage)>();
 					while (
 						I < Max &&
 						this.Parse(RestStream, aDebugStream, mStream.Stream(Parser, aPath))
@@ -507,7 +516,7 @@ public static class mParserGen {
 			tParser<tPos, tIn, tOut, tError> aParser
 		//================================================================================
 		) {
-			var Parser = new tParser<tPos, tIn, (mStream.tStream<tIn>, tOut),tError>();
+			var Parser = new tParser<tPos, tIn, (mStream.tStream<tIn>, tOut),tError>(aParser._ComparePos);
 			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 				var List = mStream.Stream<tIn>();
 				var RestStream = aStream;
@@ -530,12 +539,12 @@ public static class mParserGen {
 									(List, TempResult.Result.Value)
 								),
 								TempResult.RestStream,
-								mStream.Stream<tError>()
+								mStream.Stream<(tPos Pos, tError Massage)>()
 							)
 						);
 					}
 					if (!RestStream.Match(out var Head, out RestStream)) {
-						return mStd.Fail(mStream.Stream<tError>()); // TODO
+						return mStd.Fail(mStream.Stream<(tPos Pos, tError Massage)>()); // TODO
 					}
 					Span = mStd.Merge(Span, Head.Span);
 					List = mStream.Concat(List, mStream.Stream(Head.Value));
@@ -635,7 +644,7 @@ public static class mParserGen {
 		tParser<tPos, tIn, tOut2, tError> aP2
 	//================================================================================
 	) {
-		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>();
+		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>(aP1._ComparePos);
 		
 		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (
@@ -661,17 +670,38 @@ public static class mParserGen {
 								(Value1, Value2)
 							),
 							RestStream2,
-							MaybeError2
+							Merge(Result1.MaybeError, MaybeError2, aP1._ComparePos)
 						)
 					);
 				} else {
-					return mStd.Fail(mStream.Concat(MaybeError1, ErrorList));
+					return mStd.Fail(Merge(Merge(MaybeError1, Result2.MaybeError, aP1._ComparePos), ErrorList, aP1._ComparePos));
 				}
 			} else {
 				return mStd.Fail(ErrorList);
 			}
 		};
 		return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")");
+	}
+	
+	//================================================================================
+	public static mStream.tStream<(tPos Pos, tError Message)>
+	Merge<tPos, tError>(
+		mStream.tStream<(tPos Pos, tError Message)> a1,
+		mStream.tStream<(tPos Pos, tError Message)> a2,
+		mStd.tFunc<tInt32, tPos, tPos> aComparePos
+	//================================================================================
+	) {
+		if (a1 is null) { return a2; }
+		if (a2 is null) { return a1; }
+		
+		var Comp = aComparePos(a1.First().Pos, a2.First().Pos);
+		if (Comp > 0) {
+			return a1;
+		} else if (Comp < 0) {
+			return a2;
+		} else {
+			return mStream.Stream(a1.Last(), a2);
+		}
 	}
 	
 	//================================================================================
@@ -692,8 +722,9 @@ public static class mParserGen {
 	//================================================================================
 	public static tParser<tPos, tIn, tOut, tError>
 	UndefParser<tPos, tIn, tOut, tError>(
+		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	//================================================================================
-	) => new tParser<tPos, tIn, tOut, tError>{
+	) => new tParser<tPos, tIn, tOut, tError>(aComparePos){
 		_ParseFunc = null,
 	};
 	
@@ -710,7 +741,7 @@ public static class mParserGen {
 	}
 	
 	//================================================================================
-	public static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<tError> MaybeError), mStream.tStream<tError>>
+	public static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
 	StartParse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> aStream,
@@ -718,25 +749,21 @@ public static class mParserGen {
 	//================================================================================
 	) {
 		using (mPerf.Measure()) {
-			try {
-				var Level = (tInt32?)0;
-				return aParser.Parse(
-					aStream,
-					aDebugText => {
-						if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
-						aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
-						if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
-					},
-					mStream.Stream<object>()
-				);
-			} catch (mStd.tError<mStream.tStream<tError>> e) {
-				return mStd.Fail(e.Value);
-			}
+			var Level = (tInt32?)0;
+			return aParser.Parse(
+				aStream,
+				aDebugText => {
+					if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
+					aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
+					if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
+				},
+				mStream.Stream<object>()
+			);
 		}
 	}
 	
 	//================================================================================
-	internal static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos>, tIn)> RestStream, mStream.tStream<tError> MaybeError), mStream.tStream<tError>>
+	internal static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos>, tIn)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
 	Parse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mStd.tSpan<tPos>, tIn)> aStream,
@@ -775,21 +802,12 @@ public static class mParserGen {
 			return Result_;
 		}
 		
-		mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>, mStream.tStream<tError>), mStream.tStream<tError>> Result;
-		var Head = aStream is null ? default : aStream.First();
-		try {
-			Result = aParser._ParseFunc(aStream, aDebugStream, aInfinitLoopDetectionSet);
-		} catch (mStd.tError<mStream.tStream<tError>> e) {
-			throw mStd.Error(
-				"",
-				aParser._ModifyErrorsFunc?.Invoke(e.Value, Head) ?? e.Value
-			);
-		}
+		var Result = aParser._ParseFunc(aStream, aDebugStream, aInfinitLoopDetectionSet);
 		if (
 			!Result.Match(out var Value, out var Error) &&
 			!(aParser._ModifyErrorsFunc is null)
 		) {
-			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, Head));
+			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, aStream is null ? default : aStream.First()));
 		}
 		
 		#if MY_TRACE
@@ -810,12 +828,13 @@ public static class mParserGen {
 	public static tParser<tPos, t, t, tError>
 	AtomParser<tPos, t, tError>(
 		mStd.tFunc<tBool, t> aTest,
-		mStd.tFunc<tError, (mStd.tSpan<tPos> Span, t Value)> aCreateErrorFunc
+		mStd.tFunc<(tPos Pos, tError Massage), (mStd.tSpan<tPos> Span, t Value)> aCreateErrorFunc,
+		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	//================================================================================
-	) => new tParser<tPos, t, t, tError>{
+	) => new tParser<tPos, t, t, tError>(aComparePos){
 		_ParseFunc = (aStream, aDebugStream, aPath) => {
 			if (aStream.Match(out var Head, out var Tail) && aTest(Head.Value)) {
-				return mStd.OK((Head, Tail, mStream.Stream<tError>()));
+				return mStd.OK((Head, Tail, mStream.Stream<(tPos Pos, tError Massage)>()));
 			} else {
 				return mStd.Fail(mStream.Stream(aCreateErrorFunc(Head)));
 			}
@@ -826,8 +845,9 @@ public static class mParserGen {
 	//================================================================================
 	public static tParser<tPos, tIn, mStd.tEmpty, tError>
 	EmptyParser<tPos, tIn, tError>(
+		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	//================================================================================
-	) => new tParser<tPos, tIn, mStd.tEmpty, tError>{
+	) => new tParser<tPos, tIn, mStd.tEmpty, tError>(aComparePos){
 		_ParseFunc = (aStream, aDebugStream, aPath) => mStd.OK(
 			(
 				(
@@ -835,7 +855,7 @@ public static class mParserGen {
 					mStd.cEmpty
 				),
 				aStream,
-				mStream.Stream<tError>()
+				mStream.Stream<(tPos Pos, tError Massage)>()
 			)
 		),
 	};

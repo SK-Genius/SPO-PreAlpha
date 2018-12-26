@@ -338,6 +338,7 @@ public static class mVM_Type {
 		}
 		
 		if (a1.Kind != a2.Kind) {
+			mStd.Assert(false);
 			var Type1 = new tType {
 				Id = a1.Id,
 				Kind = a1.Kind,
@@ -370,10 +371,10 @@ public static class mVM_Type {
 			a2.Refs = a1.Refs;
 			return;
 		}
-		mDebug.AssertEq(a1.Id, a2.Id);
-		mDebug.AssertEq(a1.Prefix, a2.Prefix);
+		mStd.AssertEq(a1.Id, a2.Id);
+		mStd.AssertEq(a1.Prefix, a2.Prefix);
 		var RefCount = a1.Refs.Length;
-		mDebug.AssertEq(a2.Refs.Length, RefCount);
+		mStd.AssertEq(a2.Refs.Length, RefCount);
 		while (RefCount --> 0) {
 			Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace);
 		}

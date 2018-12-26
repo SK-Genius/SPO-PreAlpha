@@ -15,6 +15,8 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+using tError = System.String;
+
 public static class mTextStream {
 	
 	public struct tPos {
@@ -38,44 +40,10 @@ public static class mTextStream {
 		Col = aCol
 	};
 	
-	public struct tError {
-		public tPos Pos;
-		public tText Message;
-	}
-	
-	//================================================================================
-	public static tError
-	Error(
-		tPos aPos,
-		tText aMessage
-	//================================================================================
-	) => new tError {
-		Pos = aPos,
-		Message = aMessage
-	};
-	
-	//================================================================================
-	public static mStream.tStream<tError>
-	Reduce(
-		this mStream.tStream<tError> aErrors
-	//================================================================================
-	) => aErrors.Reduce(
-		mStream.Stream<tError>(),
-		(aOldList, aNew) => mStream.Stream(
-			aNew,
-			aOldList.SkipUntil(
-				aOld => (
-					aOld.Pos.Row > aNew.Pos.Row ||
-					(aOld.Pos.Row == aNew.Pos.Row && aOld.Pos.Col > aNew.Pos.Col)
-				)
-			)
-		)
-	);
-	
 	//================================================================================
 	public static tText
 	ToText(
-		this tError aError,
+		this (tPos Pos, tError Message) aError,
 		tText[] aSrcLines
 	//================================================================================
 	) {
@@ -91,7 +59,7 @@ public static class mTextStream {
 			(aString, aChar) => aString + aChar
 		);
 		return (
-			$"({aError.Pos.Row}, {aError.Pos.Col}): {aError.Message}\n" +
+			$"{aError.Pos.Ident}({aError.Pos.Row}, {aError.Pos.Col}) ERROR: {aError.Message}\n" +
 			$"{Line}\n" +
 			$"{MarkerLine}^\n"
 		);
@@ -100,11 +68,11 @@ public static class mTextStream {
 	//================================================================================
 	public static tText
 	ToText(
-		this mStream.tStream<tError> aErrors,
+		this mStream.tStream<(tPos Pos, tError Massage)> aErrors,
 		tText[] aSrcLines
 	//================================================================================
 	) => aErrors
-		.Reduce()
+		.Reverse()
 		.Map(_ => _.ToText(aSrcLines))
 		.Reduce("", (a1, a2) => a1 + "\n" + a2);
 	

@@ -22,7 +22,8 @@ using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
 using tSpan =mStd.tSpan<mTextStream.tPos>;
-using tError = mTextStream.tError;
+
+using tError = System.String;
 
 public static class mSPO_Parser {
 	private static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
@@ -61,7 +62,7 @@ public static class mSPO_Parser {
 		tText aName
 	//================================================================================
 	) => aParser.AddError(
-		a => mTextStream.Error(a.Span.Start, $"invalid {aName}")
+		a => (a.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName(aName);
 	
@@ -72,7 +73,7 @@ public static class mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIgnoreMatchNode<tSpan>, tError>
 	IgnoreMatch = IdentToken
-	.Assert(a => a.Type == tTokenType.Ident && a.Text == "_", a => mTextStream.Error(a.Span.Start, "expected _"))
+	.Assert(a => a.Type == tTokenType.Ident && a.Text == "_", a => (a.Span.Start, "expected _"))
 	.ModifyS(mSPO_AST.IgnoreMatch)
 	.SetName(nameof(IgnoreMatch));
 	
@@ -123,15 +124,15 @@ public static class mSPO_Parser {
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	ExpressionInCall = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>()
+	ExpressionInCall = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(ExpressionInCall));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	Expression = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>()
+	Expression = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(Expression));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
-	UnTypedMatch = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>()
+	UnTypedMatch = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(UnTypedMatch));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
@@ -144,11 +145,11 @@ public static class mSPO_Parser {
 	.SetName(nameof(Match));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>()
+	PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(PipeToRight));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	PipeToLeft = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>()
+	PipeToLeft = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(PipeToLeft));
 
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
@@ -172,7 +173,7 @@ public static class mSPO_Parser {
 	.SetName(nameof(Return));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>
-	Command = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>()
+	Command = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(Command));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tCommandNode<tSpan>>, tError>

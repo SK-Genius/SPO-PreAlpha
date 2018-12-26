@@ -20,9 +20,20 @@ using tText = System.String;
 
 using tPos = mTextStream.tPos;
 using tSpan = mStd.tSpan<mTextStream.tPos>;
-using tError = mTextStream.tError;
+
+using tError = System.String;
 
 public static class mTextParser {
+	
+	//================================================================================
+	public static tInt32
+	ComparePos(
+		tPos a1,
+		tPos a2
+	//================================================================================
+	) {
+		return mMath.Sign((a1.Row != a2.Row) ? (a1.Row - a2.Row) : (a1.Col - a2.Col));
+	}
 	
 	//================================================================================
 	public static (tSpan Span, tOut Result)
@@ -46,7 +57,7 @@ public static class mTextParser {
 				var Line = aText.Split('\n')[Pos.Row-1];
 				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 				throw mStd.Error(
-					$"({Pos.Row}, {Pos.Col}): expected end of text\n" +
+					$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 					$"{Line}\n" +
 					$"{Line.Substring(0, StartSpacesCount) + new string(' ', Pos.Col - StartSpacesCount - 1)}^"
 				);
@@ -62,7 +73,8 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a == aRefChar,
-		a => mTextStream.Error(a.Span.Start, $"expect {aRefChar}")
+		a => (a.Span.Start, $"expect {aRefChar}"),
+		ComparePos
 	)
 	.SetDebugName("'", aRefChar, "'");
 	
@@ -73,7 +85,8 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a != aRefChar,
-		a => mTextStream.Error(a.Span.Start, $"expect not {aRefChar}")
+		a => (a.Span.Start, $"expect not {aRefChar}"),
+		ComparePos
 	)
 	.SetDebugName("'^", aRefChar, "'");
 	
@@ -91,7 +104,8 @@ public static class mTextParser {
 			}
 			return false;
 		},
-		a => mTextStream.Error(a.Span.Start, $"expect one of [{aRefChars}]")
+		a => (a.Span.Start, $"expect one of [{aRefChars}]"),
+		ComparePos
 	)
 	.SetDebugName("[", aRefChars, "]");
 	
@@ -109,7 +123,8 @@ public static class mTextParser {
 			}
 			return true;
 		},
-		a => mTextStream.Error(a.Span.Start, $"expect non of [{aRefChars}]")
+		a => (a.Span.Start, $"expect non of [{aRefChars}]"),
+		ComparePos
 	)
 	.SetDebugName("[^", aRefChars, "]");
 	
@@ -121,7 +136,8 @@ public static class mTextParser {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => aMinChar <= a && a <= aMaxChar,
-		a => mTextStream.Error(a.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]")
+		a => (a.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
+		ComparePos
 	)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
@@ -140,7 +156,7 @@ public static class mTextParser {
 		}
 		return Parser
 		.Modify(aSpan => aToken)
-		.ModifyErrors((_, a) => mStream.Stream(mTextStream.Error(a.Span.Start, $"expect '{aToken}'")))
+		.ModifyErrors((_, a) => mStream.Stream((a.Span.Start, $"expect '{aToken}'")))
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
@@ -151,7 +167,7 @@ public static class mTextParser {
 		tText aName
 	//================================================================================
 	) => aParser.AddError(
-		a => mTextStream.Error(a.Span.Start, $"invalid {aName}")
+		a => (a.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName(aName);
 }

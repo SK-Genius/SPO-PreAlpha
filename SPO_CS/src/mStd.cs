@@ -450,9 +450,9 @@ public static class mStd {
 	) {
 		try {
 			a();
-			throw Error("FAIL: Error expected");
 		} catch {
-			// do nothing
+			return;
 		}
+		throw Error("FAIL: Error expected");
 	}
 }

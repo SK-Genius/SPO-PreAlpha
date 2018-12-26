@@ -312,7 +312,19 @@ public static class mStream {
 	Any(
 		this tStream<tBool> aStream
 	//================================================================================
-	) => aStream.Match(out var Head, out var Tail) && (Head || Tail.Any());
+	) {
+		#if TAIL_RECURSIVE
+		return aStream.Match(out var Head, out var Tail) && (Head || Tail.Any());
+		#else
+		var Tail = aStream;
+		while (Tail.Match(out var Head, out Tail)) {
+			if (Head) {
+				return true;
+			}
+		}
+		return false;
+		#endif
+	}
 	
 	//================================================================================
 	public static tBool

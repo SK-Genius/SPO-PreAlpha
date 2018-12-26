@@ -17,7 +17,8 @@ using tText = System.String;
 
 using tPos = mTextStream.tPos;
 using tSpan = mStd.tSpan<mTextStream.tPos>;
-using tError = mTextStream.tError;
+
+using tError = System.String;
 
 public static class mTokenizer {
 	
@@ -168,19 +169,15 @@ public static class mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpaceToken = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialToken && (a.Text == " " || a.Text == "\t"),
-		a => new tError {
-			Message = "expect space",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, "expect space"),
+		mTextParser.ComparePos
 	).SetDebugName(nameof(SpaceToken));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	NL_Token = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialToken && a.Text == "\n",
-		a => new tError {
-			Message = "expect line break",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, "expect line break"),
+		mTextParser.ComparePos
 	).SetDebugName(nameof(NL_Token));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
@@ -190,28 +187,22 @@ public static class mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	TextToken = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Text,
-		a => new tError {
-			Message = "expect '\"'",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, "expect '\"'"),
+		mTextParser.ComparePos
 	).SetDebugName(nameof(TextToken));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	NumberToken = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Number,
-		a => new tError {
-			Message = "expect number",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, "expect number"),
+		mTextParser.ComparePos
 	).SetDebugName(nameof(NumberToken));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	IdentToken = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Ident,
-		a => new tError {
-			Message = "expect identifier",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, "expect identifier"),
+		mTextParser.ComparePos
 	).SetDebugName(nameof(IdentToken));
 	
 	//================================================================================
@@ -221,10 +212,8 @@ public static class mTokenizer {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Ident && a.Text == aText,
-		a => new tError {
-			Message = $"expect '{aText}'",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, $"expect '{aText}'"),
+		mTextParser.ComparePos
 	).SetDebugName($"{nameof(Token)}('{aText}')");
 	
 	//================================================================================
@@ -234,10 +223,8 @@ public static class mTokenizer {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialToken && a.Text == aText,
-		a => new tError {
-			Message = $"expect '{aText}'",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, $"expect '{aText}'"),
+		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aText}')");
 	
 	//================================================================================
@@ -247,10 +234,8 @@ public static class mTokenizer {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialIdent && a.Text.StartsWith("" + aPrefix),
-		a => new tError {
-			Message = $"expect '{aPrefix}...'",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, $"expect '{aPrefix}...'"),
+		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aPrefix}...')");
 	
 	//================================================================================
@@ -261,10 +246,8 @@ public static class mTokenizer {
 	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialIdent && a.Text == "" + aPrefix + aIdent,
-		a => new tError {
-			Message = $"expect '{aPrefix}{aIdent}'",
-			Pos = a.Span.Start
-		}
+		a => (a.Span.Start, $"expect '{aPrefix}{aIdent}'"),
+		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aPrefix}{aIdent}')");
 	
 	//================================================================================
