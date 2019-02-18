@@ -22,16 +22,15 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mSPO_Interpreter_Test {
+public static class
+mSPO_Interpreter_Test {
 	
-	//================================================================================
 	private static mVM_Data.tData
 	Mul(
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));

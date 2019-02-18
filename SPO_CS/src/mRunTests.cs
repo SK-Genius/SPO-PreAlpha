@@ -40,7 +40,8 @@ using xTestCategory = NUnit.Framework.CategoryAttribute;
 
 [xTestClass]
 #endif
-public static class mRunTests {
+public static class
+mRunTests {
 	
 	static mTest.tTest Test = mTest.Tests(
 		"All",
@@ -65,19 +66,15 @@ public static class mRunTests {
 		mStdLib_Test.Test
 	);
 	
-	//================================================================================
 	public static mTest.tResult
 	SelfTests(
 		mStream.tStream<tText> aFilters,
 		mStd.tAction<tText> aDebugOut
-	//================================================================================
 	) => Test.Run(aDebugOut, aFilters);
 	
-	//================================================================================
 	public static void
 	Main(
 		params tText[] aArgs
-	//================================================================================
 	) {
 		if (
 			SelfTests(

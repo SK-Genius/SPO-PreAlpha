@@ -21,9 +21,9 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mIL_Interpreter<tPos> {
+public static class
+mIL_Interpreter<tPos> {
 	
-	//================================================================================
 	public static (
 		mStream.tStream<mVM_Data.tProcDef<tPos>>,
 		mMap.tMap<tText, tInt32>
@@ -31,7 +31,6 @@ public static class mIL_Interpreter<tPos> {
 	ParseModule(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
 	) {
 		using (mPerf.Measure()) {
 			#if MY_TRACE
@@ -539,13 +538,11 @@ public static class mIL_Interpreter<tPos> {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	PrintILModule(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
 		mStd.tAction<tText> aTrace
-	//================================================================================
 	) {
 		var RestDefsModules = mStream.Zip(aDefs, aModule);
 		while (RestDefsModules.Match(out var Def, out RestDefsModules)) {
@@ -571,24 +568,20 @@ public static class mIL_Interpreter<tPos> {
 		}
 	}
 	
-	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
 	) => Run(ParseModule(aDefs, aTrace), aImport, aPosToText, aTrace);
 	
-	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mMap.tMap<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	//================================================================================
 	) {
 		var (VMModule, ModuleMap) = aModule;
 		var Res = mVM_Data.Empty();

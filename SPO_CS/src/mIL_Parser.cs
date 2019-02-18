@@ -23,7 +23,8 @@ using tSpan = mStd.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
-public static class mIL_Parser {
+public static class
+mIL_Parser {
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	NL = mTokenizer.NL_Token;

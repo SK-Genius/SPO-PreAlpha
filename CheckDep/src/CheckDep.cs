@@ -6,15 +6,15 @@ using tBool = System.Boolean;
 using tText = System.String;
 
 
-public static class CheckDep {
+public static class mCheckDep {
 	#region tList
 	
 	internal delegate tRes tFunc<out tRes, in tArg>(tArg a);
 	internal delegate tRes tFunc<out tRes, in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
 	
-	internal class tList<T> {
-		public T Head;
-		public tList<T> Tail;
+	internal class tList<t> {
+		public t Head;
+		public tList<t> Tail;
 	}
 	
 	internal static tList<t>
@@ -111,9 +111,9 @@ public static class CheckDep {
 	Main(
 		string[] aFiles
 	) {
-		var modules = default(tList<(tText Module, tList<tText> SubModules)>);
-		foreach (var file in aFiles) {
-			AddTo(ref modules, new FileInfo(file).FullName, null);
+		var Modules = default(tList<(tText Module, tList<tText> SubModules)>);
+		foreach (var File in aFiles) {
+			AddTo(ref Modules, new FileInfo(File).FullName, null);
 		}
 	}
 	
@@ -190,21 +190,21 @@ public static class CheckDep {
 	) {
 		var ModulesToCompile = default(tList<tText>);
 		aModules.AddSubmodulesFrom(aModule, ref ModulesToCompile);
-		var assemblyFolder = new FileInfo(typeof(CheckDep).Assembly.Location).Directory.FullName;
-		var srcFolder = Path.Combine(assemblyFolder , "roslyn");
-		if (Directory.Exists(srcFolder)) {
-			var desFolder = Path.Combine(assemblyFolder, "bin\\roslyn");
-			if (Directory.Exists(desFolder)) {
-				Directory.Delete(srcFolder, true);
+		var AssemblyFolder = new FileInfo(typeof(mCheckDep).Assembly.Location).Directory.FullName;
+		var SrcFolder = Path.Combine(AssemblyFolder , "roslyn");
+		if (Directory.Exists(SrcFolder)) {
+			var DesFolder = Path.Combine(AssemblyFolder, "bin\\roslyn");
+			if (Directory.Exists(DesFolder)) {
+				Directory.Delete(SrcFolder, true);
 			} else {
-				Directory.CreateDirectory(Path.Combine(assemblyFolder, "bin"));
-				Directory.Move(srcFolder, desFolder);
+				Directory.CreateDirectory(Path.Combine(AssemblyFolder, "bin"));
+				Directory.Move(SrcFolder, DesFolder);
 			}
 		}
 		using (
-			var provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider()
+			var Provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider()
 		) {
-			return provider
+			return Provider
 				.CompileAssemblyFromFile(
 					new System.CodeDom.Compiler.CompilerParameters{
 						GenerateInMemory = true,

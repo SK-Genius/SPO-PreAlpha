@@ -20,16 +20,15 @@ using tText = System.String;
 using tPos = mTextStream.tPos;
 using tSpan = mStd.tSpan<mTextStream.tPos>;
 
-public static class mSPO_Interpreter {
+public static class
+mSPO_Interpreter {
 	
-	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		tText aCode,
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	//================================================================================
 	) => mIL_Interpreter<tSpan>.Run(
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),

@@ -18,11 +18,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mStdLib {
+public static class
+mStdLib {
 	
 	private static mVM_Data.tData _ImportData;
 	
-	//================================================================================
 	public static mVM_Data.tData
 	GetImportData(
 	) {

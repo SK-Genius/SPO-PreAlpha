@@ -18,36 +18,38 @@ using tText = System.String;
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
-public static class mPerf {
+public static class
+mPerf {
 	private const tInt32 cMaxLogCount = 1<<16;
 	private static tInt32 gStackIndex = 0;
 	
 	private static tInt32 gNextLogIndex = 0;
 	private static readonly (tNat64 Time, tText File, tText Name)[] gLog = new (tNat64, tText, tText)[cMaxLogCount];
 	
-	public sealed class tDisposer : System.IDisposable {
-		public void Dispose() { ExitScope(); }
+	public sealed class
+	tDisposer : System.IDisposable {
+		public void
+		Dispose(
+		) {
+			ExitScope();
+		}
 	}
 	
 	private static readonly tDisposer gDisposer = new tDisposer();
 	
-	//================================================================================
 	public static tDisposer
 	Measure(
 		[xCallerName] tText aCallerName = "",
 		[xCallerFile] tText aCallerFile = ""
-	//================================================================================
 	) {
 		EnterScope(aCallerName, aCallerFile);
 		return gDisposer;
 	}
 	
-	//================================================================================
 	public static void
 	EnterScope(
 		tText aCallerName,
 		tText aCallerFile
-	//================================================================================
 	) {
 		gLog[gNextLogIndex] = (ThreadCycles(), aCallerFile, aCallerName);
 		gNextLogIndex += 1;
@@ -56,10 +58,8 @@ public static class mPerf {
 	
 	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
 	
-	//================================================================================
 	public static void
 	ExitScope(
-	//================================================================================
 	) {
 		gStackIndex -= 1;
 		gLog[gNextLogIndex] = (ThreadCycles(), null, null);
@@ -92,14 +92,16 @@ public static class mPerf {
 	}
 	
 	[System.Runtime.InteropServices.DllImport("kernel32.dll")]
-	private static extern bool QueryThreadCycleTime(System.IntPtr aThreadHandle, out tNat64 aCycles);
+	private static extern bool
+	QueryThreadCycleTime(
+		System.IntPtr aThreadHandle,
+		out tNat64 aCycles
+	);
 	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
 	
-	//================================================================================
 	private static tNat64
 	ThreadCycles(
 	) {
-	//================================================================================
 		QueryThreadCycleTime(PseudoHandle, out var Cycles);
 		return Cycles;
 	}

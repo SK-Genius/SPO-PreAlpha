@@ -22,7 +22,8 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mIL_AST_Test {
+public static class
+mIL_AST_Test {
 	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(

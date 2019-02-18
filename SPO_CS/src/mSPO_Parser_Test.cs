@@ -25,13 +25,13 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mSPO_Parser_Test {
+public static class
+mSPO_Parser_Test {
 	
-	//================================================================================
-	private static tSpan Span(
+	private static tSpan
+	Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
-	//================================================================================
 	) => new tSpan {
 		Start = {
 			Ident = "",

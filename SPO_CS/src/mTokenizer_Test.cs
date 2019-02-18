@@ -24,13 +24,13 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mTokenizer_Test {
+public static class
+mTokenizer_Test {
 	
-	//================================================================================
-	private static mStd.tSpan<tPos> Span(
+	private static mStd.tSpan<tPos>
+	Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
-	//================================================================================
 	) => new mStd.tSpan<tPos> {
 		Start = {
 			Ident = "",

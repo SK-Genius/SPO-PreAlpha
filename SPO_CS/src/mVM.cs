@@ -17,9 +17,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mVM {
+public static class
+mVM {
 	
-	public sealed class tCallStack<tPos> {
+	public sealed class
+	tCallStack<tPos> {
 		internal tCallStack<tPos> _Parent;
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs;
 		internal mVM_Data.tProcDef<tPos> _ProcDef;
@@ -27,8 +29,8 @@ public static class mVM {
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut;
 	}
 	
-	//================================================================================
-	public static tCallStack<tPos> NewCallStack<tPos>(
+	public static tCallStack<tPos>
+	NewCallStack<tPos>(
 		tCallStack<tPos> aParent,
 		mVM_Data.tProcDef<tPos> aProcDef,
 		mVM_Data.tData aEnv,
@@ -36,7 +38,6 @@ public static class mVM {
 		mVM_Data.tData aArg,
 		mVM_Data.tData aRes,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
@@ -74,12 +75,10 @@ public static class mVM {
 		return Result;
 	}
 	
-	//================================================================================
 	public static tCallStack<tPos>
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tText, tPos> aPosToText
-	//================================================================================
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
 		aCallStack._TraceOut(
@@ -322,8 +321,8 @@ public static class mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarGet: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(aCallStack._Regs.Get(Arg1)._Value.Match(out mVM_Data.tData x));
-				aCallStack._Regs.Push(x);
+				mDebug.Assert(aCallStack._Regs.Get(Arg1)._Value.Match(out mVM_Data.tData X));
+				aCallStack._Regs.Push(X);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -464,11 +463,9 @@ public static class mVM {
 		return aCallStack;
 	}
 	
-	//================================================================================
 	public static mVM_Data.tData
 	GetModuleFactory<tPos>(
 		mStream.tStream<mVM_Data.tProcDef<tPos>> aDefs
-	//================================================================================
 	) {
 		var Env = mVM_Data.Empty();
 		mDebug.Assert(aDefs.Match(out var LastDef, out aDefs));
@@ -480,7 +477,6 @@ public static class mVM {
 		return mVM_Data.Proc(LastDef, Env);
 	}
 	
-	//================================================================================
 	public static void
 	Run<tPos>(
 		mVM_Data.tData aProc,
@@ -489,7 +485,6 @@ public static class mVM {
 		mVM_Data.tData aRes,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		using (mPerf.Measure()) {
 			if (aProc.MatchProc<tPos>(out var Def, out var Env)) {

@@ -16,35 +16,33 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mMap {
+public static class
+mMap {
 	
-	public struct tMap<tKey, tValue> {
+	public struct
+	tMap<tKey, tValue> {
 		internal mStream.tStream<(tKey, tValue)> _KeyValuePairs;
 		internal mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 	}
 	
-	//================================================================================
 	public static tMap<tKey, tValue>
 	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
-	//================================================================================
 	) => new tMap<tKey, tValue>{
 		_KeyValuePairs = mStream.Stream<(tKey, tValue)>(),
 		_EqualsFunc = aEqualsFunc
 	};
 	
-	//================================================================================
 	public static tBool
 	TryGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey,
 		out tValue aValue
-	//================================================================================
 	) {
 		var RestList = aMap._KeyValuePairs;
 		while (RestList.Match(out var KeyValuePair, out RestList)) {
-			var (Key, aValue_) = KeyValuePair;
-			aValue = aValue_;
+			var (Key, Value) = KeyValuePair;
+			aValue = Value;
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return true;
 			}
@@ -53,23 +51,19 @@ public static class mMap {
 		return false;
 	}
 	
-	//================================================================================
 	public static tValue
 	Get<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	//================================================================================
 	) {
 		mDebug.Assert(aMap.TryGet(aKey, out var Result));
 		return Result;
 	}
 	
-	//================================================================================
 	public static tMap<tKey, tValue>
 	Remove<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	//================================================================================
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = aMap._KeyValuePairs.Where(
@@ -77,13 +71,11 @@ public static class mMap {
 		)
 	};
 	
-	//================================================================================
 	public static tMap<tKey, tValue>
 	Set<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey,
 		tValue aValue
-	//================================================================================
 	) => new tMap<tKey, tValue>{
 		_EqualsFunc = aMap._EqualsFunc,
 		_KeyValuePairs = mStream.Stream(

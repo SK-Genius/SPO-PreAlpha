@@ -19,7 +19,8 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mTextStream_Test {
+public static class
+mTextStream_Test {
 	
 	#if NUNIT
 	[xTestCase("TODO")]

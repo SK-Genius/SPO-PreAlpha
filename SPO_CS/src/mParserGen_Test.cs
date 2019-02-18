@@ -22,23 +22,20 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mParserGen_Test {
+public static class
+mParserGen_Test {
 	
 	private static readonly mStd.tSpan<mStd.tEmpty> cTestSpan = default;
 	
-	//================================================================================
 	private static mStream.tStream<(mStd.tSpan<mStd.tEmpty>, t)>
 	TestStream<t>(
 		params t[] a 
-	//================================================================================
 	) => mStream.Stream(a).Map(_ => (cTestSpan, _));
 	
-	//================================================================================
 	private static tInt32
 	ComparePos(
 		mStd.tEmpty a1,
 		mStd.tEmpty a2
-	//================================================================================
 	) {
 		return 0;
 	}
@@ -189,18 +186,18 @@ public static class mParserGen_Test {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
 				var AB = mParserGen.Seq(A, B).Modify(a => "AB");
-				var nAB = ~AB;
-				mStd.Assert(nAB.StartParse(TestStream('A', 'B', '_'), a => aDebugStream(a())).Match(out var Result, out var ErrorList));
+				var NotAB = ~AB;
+				mStd.Assert(NotAB.StartParse(TestStream('A', 'B', '_'), a => aDebugStream(a())).Match(out var Result, out var ErrorList));
 				mStd.AssertEq(Result, ((cTestSpan, (mStream.Stream<tChar>(), "AB")), TestStream('_'), null));
 				
-				mStd.Assert(nAB.StartParse(TestStream('B', 'A', 'A', 'B', 'A', '_'), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.Assert(NotAB.StartParse(TestStream('B', 'A', 'A', 'B', 'A', '_'), a => aDebugStream(a())).Match(out Result, out ErrorList));
 				mStd.AssertEq(Result, ((cTestSpan, (mStream.Stream('B', 'A'), "AB")), TestStream('A', '_'), null));
 				
-				mStd.AssertNot(nAB.StartParse(TestStream<tChar>(), a => aDebugStream(a())).Match(out Result, out ErrorList));
-				mStd.AssertNot(nAB.StartParse(TestStream('_'), a => aDebugStream(a())).Match(out Result, out ErrorList));
-				mStd.AssertNot(nAB.StartParse(TestStream('_', 'A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
-				mStd.AssertNot(nAB.StartParse(TestStream('A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
-				mStd.AssertNot(nAB.StartParse(TestStream('A', '_', 'B', 'A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.AssertNot(NotAB.StartParse(TestStream<tChar>(), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.AssertNot(NotAB.StartParse(TestStream('_'), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.AssertNot(NotAB.StartParse(TestStream('_', 'A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.AssertNot(NotAB.StartParse(TestStream('A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
+				mStd.AssertNot(NotAB.StartParse(TestStream('A', '_', 'B', 'A'), a => aDebugStream(a())).Match(out Result, out ErrorList));
 			}
 		),
 		mTest.Test(

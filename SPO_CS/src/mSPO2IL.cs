@@ -20,14 +20,17 @@ using tText = System.String;
 
 // TODO: maybe use nested functions to cleanup ???
 
-public static class mSPO2IL {
+public static class
+mSPO2IL {
 	
-	public struct tModuleConstructor<tPos> {
+	public struct
+	tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>> Defs;
 		internal mStd.tFunc<tPos, tPos, tPos> MergePos;
 	}
 	
-	public struct tDefConstructor<tPos> {
+	public struct
+	tDefConstructor<tPos> {
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands;
 		public tInt32 LastTempReg;
 		public mArrayList.tArrayList<tText> KnownSymbols;
@@ -36,21 +39,17 @@ public static class mSPO2IL {
 		public tModuleConstructor<tPos> ModuleConstructor;
 	}
 	
-	//================================================================================
 	public static tModuleConstructor<tPos>
 	NewModuleConstructor<tPos>(
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
-	//================================================================================
 	) => new tModuleConstructor<tPos> {
 		Defs = mArrayList.List<mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>>(),
 		MergePos = aMergePos
 	};
 	
-	//================================================================================
 	public static tDefConstructor<tPos>
 	NewDefConstructor<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor
-	//================================================================================
 	) {
 		var DefIndex = aModuleConstructor.Defs.Size();
 		var Commands = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
@@ -68,24 +67,20 @@ public static class mSPO2IL {
 	public static tText TempDef(tInt32 a) => "d_" + a;
 	public static tText Ident(tText a) => "_" + a;
 	
-	//================================================================================
 	public static tText
 	CreateTempReg<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor
-	//================================================================================
 	) {
 		aDefConstructor.LastTempReg += 1;
 		return TempReg(aDefConstructor.LastTempReg);
 	}
 	
-	//================================================================================
 	public static mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>
 	UnrollList<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aReg,
 		mStream.tStream<(tText Ident, tPos Pos)> aSymbols
-	//================================================================================
 	) {
 		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
 		switch (aSymbols.Take(2).ToArrayList().Size()) {
@@ -111,12 +106,10 @@ public static class mSPO2IL {
 		return ExtractEnv;
 	}
 	
-	//================================================================================
 	public static void
 	InitMapLambda<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
-	//================================================================================
 	) {
 		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg);
 		var ResultReg = aDefConstructor.MapExpresion(aLambdaNode.Body);
@@ -132,12 +125,10 @@ public static class mSPO2IL {
 		).ToArrayList();
 	}
 	
-	//================================================================================
 	public static void
 	InitMapMethod<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
-	//================================================================================
 	) {
 		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg);
 		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj);
@@ -152,13 +143,11 @@ public static class mSPO2IL {
 		aDefConstructor.UnsolvedSymbols = NewUnsolvedSymbols;
 	}
 	
-	//================================================================================
 	public static void
 	FinishMapProc<tPos>(
 		this ref tDefConstructor<tPos> aTempDefConstructor,
 		tPos aPos,
 		mArrayList.tArrayList<(tText Ident, tPos Pos)> aUnsolveSymbols
-	//================================================================================
 	) {
 		var Def = mArrayList.Concat(
 			aTempDefConstructor.UnrollList(
@@ -176,12 +165,10 @@ public static class mSPO2IL {
 		);
 	}
 	
-	//================================================================================
 	public static (tInt32, mArrayList.tArrayList<(tText Ident, tPos Pos)>)
 	MapLambda<tPos>(
 		this ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
-	//================================================================================
 	) {
 		var TempLambdaDef = aModuleConstructor.NewDefConstructor();
 		TempLambdaDef.InitMapLambda(aLambdaNode);
@@ -192,12 +179,10 @@ public static class mSPO2IL {
 		return (TempLambdaDef.Index, TempLambdaDef.UnsolvedSymbols);
 	}
 	
-	//================================================================================
 	public static (tInt32, mArrayList.tArrayList<(tText Ident, tPos Pos)>)
 	MapMethod<tPos>(
 		this ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
-	//================================================================================
 	) {
 		var TempMethodDef = aModuleConstructor.NewDefConstructor();
 		TempMethodDef.InitMapMethod(aMethodNode);
@@ -208,14 +193,12 @@ public static class mSPO2IL {
 		return (TempMethodDef.Index, TempMethodDef.UnsolvedSymbols);
 	}
 	
-	//================================================================================
 	public static tText
 	InitProc<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aDefName,
 		mArrayList.tArrayList<(tText Ident, tPos Pos)> aEnv
-	//================================================================================
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
@@ -244,12 +227,10 @@ public static class mSPO2IL {
 		return Proc;
 	}
 	
-	//================================================================================
 	public static tText
 	MapExpresion<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tExpressionNode<tPos> aExpressionNode
-	//================================================================================
 	) {
 		switch (aExpressionNode) {
 			//--------------------------------------------------------------------------------
@@ -702,13 +683,11 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	MapMatch<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMatchNode<tPos> aMatchNode,
 		tText aReg
-	//================================================================================
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.Type;
@@ -830,13 +809,11 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	MapMatchTest<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tText aInReg,
 		mSPO_AST.tMatchNode<tPos> aMatchNode
-	//================================================================================
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.Type;
@@ -957,23 +934,19 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	MapDef<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tDefNode<tPos> aDefNode
-	//================================================================================
 	) {
 		var ValueReg = aDefConstructor.MapExpresion(aDefNode.Src);
 		aDefConstructor.MapMatch(aDefNode.Des, ValueReg);
 	}
 	
-	//================================================================================
 	public static void
 	MapReturnIf<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tReturnIfNode<tPos> aReturnNode
-	//================================================================================
 	) {
 		aDefConstructor.Commands.Push(
 			mIL_AST.ReturnIf(
@@ -984,12 +957,10 @@ public static class mSPO2IL {
 		);
 	}
 	
-	//================================================================================
 	public static void
 	MapRecursiveLambdas<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode
-	//================================================================================
 	) {
 		var NewDefIndices = mArrayList.List<tInt32>();
 		var SPODefNodes = mArrayList.List<mSPO_AST.tRecLambdaItemNode<tPos>>();
@@ -1075,12 +1046,10 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	MapVar<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tDefVarNode<tPos> aVarNode
-	//================================================================================
 	) {
 		aDefConstructor.Commands.Push(
 			mIL_AST.VarDef(
@@ -1091,12 +1060,10 @@ public static class mSPO2IL {
 		);
 	}
 	
-	//================================================================================
 	public static void
 	MapMethodCalls<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMethodCallsNode<tPos> aMethodCallsNode
-	//================================================================================
 	) {
 		var Rest = aMethodCallsNode.MethodCalls;
 		var Object = aDefConstructor.MapExpresion(aMethodCallsNode.Object);
@@ -1124,12 +1091,10 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	MapCommand<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tCommandNode<tPos> aCommandNode
-	//================================================================================
 	) {
 		switch (aCommandNode) {
 			case mSPO_AST.tDefNode<tPos> DefNode: {
@@ -1158,12 +1123,10 @@ public static class mSPO2IL {
 		}
 	}
 	
-	//================================================================================
 	public static tModuleConstructor<tPos>
 	MapModule<tPos>(
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
-	//================================================================================
 	) {
 		using (mPerf.Measure()) {
 			var ModuleConstructor = NewModuleConstructor(aMergePos);

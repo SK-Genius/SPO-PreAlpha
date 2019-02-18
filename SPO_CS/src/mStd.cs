@@ -15,7 +15,7 @@ using tText = System.String;
 
 public static class mStd {
 	
-	#region tFunc
+	#region tFunc & tAction
 	
 	public delegate tRes tFunc<out tRes>();
 	public delegate tRes tFunc<out tRes, in tArg>(tArg a);
@@ -33,10 +33,6 @@ public static class mStd {
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> a) => a;
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> a) => a;
 	
-	#endregion
-	
-	#region tAction
-	
 	public delegate void tAction();
 	public delegate void tAction<in tArg>(tArg a);
 	public delegate void tAction<in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
@@ -53,37 +49,34 @@ public static class mStd {
 	
 	#region tSpan
 	
-	public struct tSpan<tPos> {
+	public struct
+	tSpan<tPos> {
 		public tPos Start;
 		public tPos End;
 		
-		public override tText ToString() => $"{this.Start}..{this.End}";
+		public override tText
+		ToString(
+		) => $"{this.Start}..{this.End}";
 	}
 	
-	//================================================================================
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aStart,
 		tPos aEnd
-	//================================================================================
 	) => new tSpan<tPos> {
 		Start = aStart,
 		End = aEnd
 	};
 	
-	//================================================================================
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aPos
-	//================================================================================
 	) => Span(aPos, aPos);
 	
-	//================================================================================
 	public static tSpan<tPos>
 	Merge<tPos>(
 		tSpan<tPos> a1,
 		tSpan<tPos> a2
-	//================================================================================
 	) {
 		if (a1.Equals(default(tSpan<tPos>))) {
 			return a2;
@@ -99,17 +92,16 @@ public static class mStd {
 	
 	#endregion
 	
-	public struct tEmpty {
+	public struct
+	tEmpty {
 	}
 	
 	public static readonly tEmpty cEmpty = new tEmpty();
 	
-	//================================================================================
 	public static tRes
 	Switch<tArg, tRes>(
 		this tArg a,
 		params (tArg, tFunc<tRes, tArg>)[] aCases
-	//================================================================================
 	) => a.Switch(
 		_ => {
 			throw Error("unknown case "+_);
@@ -117,13 +109,11 @@ public static class mStd {
 		aCases
 	);
 	
-	//================================================================================
 	public static tRes
 	Switch<tArg, tRes>(
 		this tArg a,
 		tFunc<tRes, tArg> aDefaultFunc,
 		params (tArg, tFunc<tRes, tArg>)[] aCases
-	//================================================================================
 	) {
 		foreach (var Case in aCases) {
 			var (Match, Func) = Case;
@@ -136,15 +126,18 @@ public static class mStd {
 	
 	#region tMaybe
 	
-	public struct _tFail<t> {
+	public struct
+	_tFail<t> {
 		internal t _Error;
 	}
 	
-	public struct _tOK<t> {
+	public struct
+	_tOK<t> {
 		internal t _Value;
 	}
 	
-	public struct tMaybe<tOK, tFail> {
+	public struct
+	tMaybe<tOK, tFail> {
 		
 		internal tBool _IsOK;
 		internal tOK _Value;
@@ -165,49 +158,39 @@ public static class mStd {
 		};
 	}
 	
-	//================================================================================
 	public static _tOK<tOK>
 	OK<tOK>(
 		tOK a
-	//================================================================================
 	) => new _tOK<tOK>{
 		_Value = a
 	};
 	
-	//================================================================================
 	public static _tFail<tFail>
 	Fail<tFail>(
 		tFail aError
-	//================================================================================
 	) => new _tFail<tFail>{
 		_Error = aError
 	};
 	
-	//================================================================================
 	public static _tFail<tEmpty>
 	Fail(
-	//================================================================================
 	) => new _tFail<tEmpty>();
 	
-	//================================================================================
 	public static tBool
 	Match<tOK, tFail>(
 		this tMaybe<tOK, tFail> a,
 		out tOK aValue,
 		out tFail aError
-	//================================================================================
 	) {
 		aValue = a._Value;
 		aError = a._Error;
 		return a._IsOK;
 	}
 	
-	//================================================================================
 	public static tBool
 	Match<tOK>(
 		this tMaybe<tOK, tEmpty> a,
 		out tOK aValue
-	//================================================================================
 	) {
 		aValue = a._Value;
 		return a._IsOK;
@@ -217,35 +200,33 @@ public static class mStd {
 	
 	#region tVar
 	
-	public struct tAny {
+	public struct
+	tAny {
 		internal object _Value;
 		
-		//================================================================================
 		public tBool
 		Equals(
 			tAny a
-		//================================================================================
 		) => (
 			!(this._Value is null) &&
 			this._Value.Equals(a._Value)
 		);
 		
-		override public tBool Equals(object a) => a is tAny && this.Equals((tAny)a);
+		override public tBool
+		Equals(
+			object a
+		) => a is tAny && this.Equals((tAny)a);
 	}
 	
-	//================================================================================
 	public static tAny
 	Any<t>(
 		t a
-	//================================================================================
 	) => new tAny{_Value = a};
 	
-	//================================================================================
 	public static tBool
 	Match<t>(
 		this tAny a,
 		out t aValue
-	//================================================================================
 	) {
 		#if DEBUG
 			if (typeof(t) == typeof(tAny)) {
@@ -262,18 +243,14 @@ public static class mStd {
 		}
 	}
 	
-	//================================================================================
 	public static tBool
 	Match(
 		this tAny a
-	//================================================================================
 	) => a._Value is null;
 	
-	//================================================================================
 	public static t
 	To<t>(
 		this tAny a
-	//================================================================================
 	) {
 		if (!a.Match(out t Result)) {
 			throw Error($"To: {typeof(t).FullName} <- {a}");
@@ -283,31 +260,27 @@ public static class mStd {
 	
 	#endregion
 	
-	//================================================================================
 	public static tBool
 	IsNull(
 		this object a
-	//================================================================================
 	) => a is null;
+	
+	#region tError
 	
 	public sealed class tError<t> : System.Exception {
 		public tError(tText a) : base(a) {}
 		public t Value;
 	}
 	
-	//================================================================================
 	public static tError<t>
 	Error<t>(
 		tText aMsg,
 		t aData
-	//================================================================================
 	) => new tError<t> (aMsg) { Value = aData };
 	
-	//================================================================================
 	public static tError<tEmpty>
 	Error(
 		tText aMsg
-	//================================================================================
 	) => Error(aMsg, cEmpty);
 	
 	public struct tLazy<t> {
@@ -328,54 +301,48 @@ public static class mStd {
 		}
 	}
 	
-	//================================================================================
+	#endregion
+	
+	#region Asserts
+	
 	public static void
 	Assert(
 		tBool a
-	//================================================================================
 	) {
 		AssertEq(a, true);
 	}
 	
-	//================================================================================
 	public static void
 	Assert(
 		tBool a,
 		tText aMsg
-	//================================================================================
 	) {
 		if (!a) {
 			throw mStd.Error($"FAIL: {aMsg}");
 		}
 	}
 	
-	//================================================================================
 	public static void
 	Assert(
 		tBool a,
 		mStd.tFunc<tText> aMsg
-	//================================================================================
 	) {
 		if (!a) {
 			throw mStd.Error($"FAIL: {aMsg()}");
 		}
 	}
 	
-	//================================================================================
 	public static void
 	AssertNot(
 		tBool a
-	//================================================================================
 	) {
 		AssertEq(a, false);
 	}
 	
-	//================================================================================
 	public static void
 	AssertEq<t>(
 		t a1,
 		t a2
-	//================================================================================
 	) {
 		if (
 			!ReferenceEquals(a1, a2) &&
@@ -392,7 +359,8 @@ public static class mStd {
 			throw Error($"FAIL:\n{Text1}\n!=\n{Text2}");
 		}
 		#if JSON
-		string AsJSON(
+		string
+		AsJSON(
 			object o
 		) => Newtonsoft.Json.JsonConvert.SerializeObject(
 			o,
@@ -401,24 +369,20 @@ public static class mStd {
 		#endif
 	}
 	
-	//================================================================================
 	public static void
 	AssertNotEq<t>(
 		t a1,
 		t a2
-	//================================================================================
 	) {
 		if (a1.Equals(a2)) {
 			throw Error($"FAIL: {a1} == {a2}");
 		}
 	}
 	
-	//================================================================================
 	public static void
 	AssertIsIn<t>(
 		t a1,
 		params t[] a2
-	//================================================================================
 	) {
 		foreach (var Element in a2) {
 			if (a1.Equals(Element)) {
@@ -428,12 +392,10 @@ public static class mStd {
 		throw Error($"FAIL: {a1} in {a2}");
 	}
 	
-	//================================================================================
 	public static void
 	AssertIsNotIn<t>(
 		t a1,
 		params t[] a2
-	//================================================================================
 	) {
 		foreach (var Element in a2) {
 			if (a1.Equals(Element)) {
@@ -442,11 +404,9 @@ public static class mStd {
 		}
 	}
 	
-	//================================================================================
 	public static void
 	AssertError(
 		tAction a
-	//================================================================================
 	) {
 		try {
 			a();
@@ -455,4 +415,6 @@ public static class mStd {
 		}
 		throw Error("FAIL: Error expected");
 	}
+	
+	#endregion
 }

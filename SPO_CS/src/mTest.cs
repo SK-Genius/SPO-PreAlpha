@@ -15,27 +15,36 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mTest {
+public static class
+mTest {
 	
 	[System.Runtime.InteropServices.DllImport("kernel32.dll")]
-	private static extern bool QueryThreadCycleTime(System.IntPtr aThreadHandle, out tNat64 aCycles);
+	private static extern bool
+	QueryThreadCycleTime(
+		System.IntPtr aThreadHandle,
+		out tNat64 aCycles
+	);
 	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
 	
-	public enum tResult {
+	public enum
+	tResult {
 		OK,
 		Fail,
 		Skip
 	}
 	
-	public interface tTest {
+	public interface
+	tTest {
 	}
 	
-	public struct tTestRun : tTest {
+	public struct
+	tTestRun : tTest {
 		public tText _Name;
 		public mStd.tAction<mStd.tAction<tText>> _TestFunc;
 	}
 	
-	public struct tTests : tTest {
+	public struct
+	tTests : tTest {
 		public tText _Name;
 		public tTest[] _Tests;
 	}

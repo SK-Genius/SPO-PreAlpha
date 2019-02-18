@@ -23,26 +23,23 @@ using tSpan = mStd.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
-public static class mTextParser {
+public static class
+mTextParser {
 	
-	//================================================================================
 	public static tInt32
 	ComparePos(
 		tPos a1,
 		tPos a2
-	//================================================================================
 	) {
 		return mMath.Sign((a1.Row != a2.Row) ? (a1.Row - a2.Row) : (a1.Col - a2.Col));
 	}
 	
-	//================================================================================
 	public static (tSpan Span, tOut Result)
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aText,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	//================================================================================
 	) {
 		using (mPerf.Measure()) {
 			var Stream = aText.ToStream(aIdent).Map(_ => (mStd.Span(_.Pos), _.Char));
@@ -66,11 +63,9 @@ public static class mTextParser {
 		}
 	}
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetChar(
 		tChar aRefChar
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a == aRefChar,
 		a => (a.Span.Start, $"expect {aRefChar}"),
@@ -78,11 +73,9 @@ public static class mTextParser {
 	)
 	.SetDebugName("'", aRefChar, "'");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetNotChar(
 		tChar aRefChar
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => a != aRefChar,
 		a => (a.Span.Start, $"expect not {aRefChar}"),
@@ -90,11 +83,9 @@ public static class mTextParser {
 	)
 	.SetDebugName("'^", aRefChar, "'");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharIn(
 		tText aRefChars
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => {
 			foreach (var RefChar in aRefChars) {
@@ -109,11 +100,9 @@ public static class mTextParser {
 	)
 	.SetDebugName("[", aRefChars, "]");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharNotIn(
 		tText aRefChars
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => {
 			foreach (var RefChar in aRefChars) {
@@ -128,12 +117,10 @@ public static class mTextParser {
 	)
 	.SetDebugName("[^", aRefChars, "]");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharInRange(
 		tChar aMinChar,
 		tChar aMaxChar
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		a => aMinChar <= a && a <= aMaxChar,
 		a => (a.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
@@ -141,11 +128,9 @@ public static class mTextParser {
 	)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tText, tError>
 	GetToken(
 		tText aToken
-	//================================================================================
 	) {
 		mStd.AssertNotEq(aToken.Length, 0);
 		var I = aToken.Length - 1;
@@ -160,12 +145,10 @@ public static class mTextParser {
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tChar, tOut, tError>
 	SetName<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aName
-	//================================================================================
 	) => aParser.AddError(
 		a => (a.Span.Start, $"invalid {aName}")
 	)

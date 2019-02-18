@@ -17,35 +17,35 @@ using tText = System.String;
 
 using tError = System.String;
 
-public static class mTextStream {
+public static class
+mTextStream {
 	
-	public struct tPos {
+	public struct
+	tPos {
 		public tText Ident;
 		public tInt32 Row;
 		public tInt32 Col;
 		
-		public override tText ToString() => $"{this.Ident} ({this.Row}:{this.Col})";
+		public override tText
+		ToString(
+		) => $"{this.Ident} ({this.Row}:{this.Col})";
 	}
 	
-	//================================================================================
 	public static tPos
 	Pos(
 		tText aIdent,
 		tInt32 aRow,
 		tInt32 aCol
-	//================================================================================
 	) => new tPos {
 		Ident = aIdent,
 		Row = aRow,
 		Col = aCol
 	};
 	
-	//================================================================================
 	public static tText
 	ToText(
 		this (tPos Pos, tError Message) aError,
 		tText[] aSrcLines
-	//================================================================================
 	) {
 		var Line = aSrcLines[aError.Pos.Row-1];
 		var MarkerLine = mStream.Stream(
@@ -65,23 +65,19 @@ public static class mTextStream {
 		);
 	}
 	
-	//================================================================================
 	public static tText
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Massage)> aErrors,
 		tText[] aSrcLines
-	//================================================================================
 	) => aErrors
 		.Reverse()
 		.Map(_ => _.ToText(aSrcLines))
 		.Reduce("", (a1, a2) => a1 + "\n" + a2);
 	
-	//================================================================================
 	public static mStream.tStream<(tPos Pos, tChar Char)>
 	ToStream(
 		this tText aText,
 		tText aIdent
-	//================================================================================
 	) {
 		var Col = (int?)1;
 		var Row = (int?)1;

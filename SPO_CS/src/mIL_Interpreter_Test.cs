@@ -27,43 +27,37 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mIL_Interpreter_Test {
+public static class
+mIL_Interpreter_Test {
 	
-	//================================================================================
-	private static tText SpanToText(
+	private static tText
+	SpanToText(
 		tSpan a
-	//================================================================================
 	) {
 		return $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	}
 	
-	//================================================================================
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
 	) => mIL_Interpreter<tSpan>.ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aTrace);
 	
-	//================================================================================
 	public static mVM_Data.tData
 	Run(
 		tText aSourceCode,
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
 	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aImport, SpanToText, aTrace);
 	
-	//================================================================================
 	private static mVM_Data.tData
 	Add (
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));
@@ -71,14 +65,12 @@ public static class mIL_Interpreter_Test {
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
-	//================================================================================
 	private static mVM_Data.tData
 	Sub (
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));
@@ -86,14 +78,12 @@ public static class mIL_Interpreter_Test {
 		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
-	//================================================================================
 	private static mVM_Data.tData
 	Mul (
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));
@@ -101,14 +91,12 @@ public static class mIL_Interpreter_Test {
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
-	//================================================================================
 	private static mVM_Data.tData
 	Eq(
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));

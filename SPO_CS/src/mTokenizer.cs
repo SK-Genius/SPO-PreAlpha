@@ -20,7 +20,8 @@ using tSpan = mStd.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
-public static class mTokenizer {
+public static class
+mTokenizer {
 	
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tChar> Char = mTextParser.GetChar;
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tChar> NotChar = mTextParser.GetNotChar;
@@ -77,7 +78,8 @@ public static class mTokenizer {
 	Ident = (CharNotIn(SpazialChars).Modify(aChar => "" + aChar) | Text("..."))[1, null]
 	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2));
 	
-	public enum tTokenType {
+	public enum
+	tTokenType {
 		Number,
 		Text,
 		Ident,
@@ -85,12 +87,15 @@ public static class mTokenizer {
 		SpecialToken,
 	}
 	
-	public struct tToken {
+	public struct
+	tToken {
 		public tTokenType Type;
 		public tText Text;
 		public tSpan Span;
 		
-		override public tText ToString() => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
+		override public tText
+		ToString(
+		) => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
 	}
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
@@ -127,14 +132,12 @@ public static class mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>, tError>
 	Tokenizer = (Token +-__)[0, null];
 	
-	//================================================================================
 	public static tOut
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	//================================================================================
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aIdent, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
@@ -205,83 +208,65 @@ public static class mTokenizer {
 		mTextParser.ComparePos
 	).SetDebugName(nameof(IdentToken));
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	Token_(
 		tText aText
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Ident && a.Text == aText,
 		a => (a.Span.Start, $"expect '{aText}'"),
 		mTextParser.ComparePos
 	).SetDebugName($"{nameof(Token)}('{aText}')");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpecialToken(
 		tText aText
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialToken && a.Text == aText,
 		a => (a.Span.Start, $"expect '{aText}'"),
 		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aText}')");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpecialIdent(
 		tChar aPrefix
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialIdent && a.Text.StartsWith("" + aPrefix),
 		a => (a.Span.Start, $"expect '{aPrefix}...'"),
 		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aPrefix}...')");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpecialIdent(
 		tChar aPrefix,
 		tText aIdent
-	//================================================================================
 	) => mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.SpecialIdent && a.Text == "" + aPrefix + aIdent,
 		a => (a.Span.Start, $"expect '{aPrefix}{aIdent}'"),
 		mTextParser.ComparePos
 	).SetDebugName($"{nameof(SpecialToken)}('{aPrefix}{aIdent}')");
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	KeyWord(
 		tText aIdent
-	//================================================================================
 	) => SpecialIdent('§', aIdent);
 	
-	//================================================================================
 	public static mStd.tFunc<tRes, tSpan>
 	X<tRes>(
 		mStd.tFunc<tRes, tSpan>aFunc
-	//================================================================================
 	) => aSpan => aFunc(aSpan);
 	
-	//================================================================================
 	public static mStd.tFunc<tRes, tSpan, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, tSpan, tText> aFunc
-	//================================================================================
 	) => (aSpan, a1) => aFunc(aSpan, a1.Text);
 	
-	//================================================================================
 	public static mStd.tFunc<tRes, tSpan, tToken, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, tSpan, tText, tText> aFunc
-	//================================================================================
 	) => (aSpan, a1, a2) => aFunc(aSpan, a1.Text, a2.Text);
 	
-	//================================================================================
 	public static mStd.tFunc<tRes, tSpan, tToken, tToken, tToken>
 	X<tRes>(
 		mStd.tFunc<tRes, tSpan, tText, tText, tText> aFunc
-	//================================================================================
 	) => (aSpan, a1, a2, a3) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
 }

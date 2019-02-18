@@ -17,7 +17,8 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mVM_Type {
+public static class
+mVM_Type {
 	
 	public enum
 	tKind {
@@ -46,7 +47,8 @@ public static class mVM_Type {
 		public tText Prefix;
 		public tType[] Refs = new tType[0];
 		
-		public override bool Equals(
+		public override bool
+		Equals(
 			object a
 		) {
 			var Other = (tType)a;
@@ -78,11 +80,9 @@ public static class mVM_Type {
 	
 	private static int NextPlaceholderId = 1; // TODO: remove static var
 	
-	//================================================================================
 	public static tType
 	Free(
 		tText aId
-	//================================================================================
 	) {
 		var Type = new tType {
 			Kind = tKind.Free,
@@ -92,89 +92,69 @@ public static class mVM_Type {
 		return Type;
 	}
 	
-	//================================================================================
 	public static tType
 	Free(
-	//================================================================================
 	) {
 		var Id = ""+NextPlaceholderId;
 		NextPlaceholderId += 1;
 		return Free(Id);
 	}
 	
-	//================================================================================
 	public static tType
 	Empty(
-	//================================================================================
 	) => new tType { Kind = tKind.Empty };
 	
-	//================================================================================
 	public static tType
 	Bool(
-	//================================================================================
 	) => new tType { Kind = tKind.Bool };
 	
-	//================================================================================
 	public static tType
 	Int(
-	//================================================================================
 	) => new tType { Kind = tKind.Int };
 	
-	//================================================================================
 	public static tType
 	Type(
-	//================================================================================
 	) => new tType { Kind = tKind.Type };
 	
-	//================================================================================
 	public static tType
 	Type(
 		tType aType
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Type,
 		Refs = new []{ aType }
 	};
 	
-	//================================================================================
 	public static tType
 	Value(
 		this tType aType
-	//================================================================================
 	) {
 		mDebug.Assert(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
 		return aType.Refs[0];
 	}
 	
-	//================================================================================
 	public static tType
 	Pair(
 		tType aType1,
 		tType aType2
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Pair,
 		Refs = new []{ aType1, aType2 }
 	};
 	
-	//================================================================================
 	public static tType
 	Prefix(
 		tText aPrefix,
 		tType aType
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Prefix,
 		Prefix = aPrefix,
 		Refs = new []{ aType }
 	};
 	
-	//================================================================================
 	public static tType
 	Record(
 		tType aOldRecordType,
 		tType aNewElementType
-	//================================================================================
 	) {
 		mStd.AssertIsIn(aOldRecordType.Kind, tKind.Record, tKind.Empty);
 		mStd.AssertEq(aNewElementType.Kind, tKind.Prefix);
@@ -185,7 +165,8 @@ public static class mVM_Type {
 			Refs = new[]{aOldRecordType, aNewElementType}
 		};
 		
-		void AssertNotIn(tText aPrefix, tType aRecord) {
+		void
+		AssertNotIn(tText aPrefix, tType aRecord) {
 			if (aRecord.Kind == tKind.Empty) {
 				return;
 			}
@@ -194,64 +175,52 @@ public static class mVM_Type {
 		}
 	}
 	
-	//================================================================================
 	public static tType
 	Proc(
 		tType aObjType,
 		tType aArgType,
 		tType aResType
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Proc,
 		Refs = new []{ aObjType, aArgType, aResType }
 	};
 	
-	//================================================================================
 	public static tType
 	Prefix(
 		tText aId
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Var,
 		Id = aId
 	};
 	
-	//================================================================================
 	public static tType
 	Ref(
 		tType aType
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Ref,
 		Refs = new []{ aType }
 	};
 	
-	//================================================================================
 	public static tType
 	Var(
 		tType aType
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Var,
 		Refs = new []{ aType }
 	};
 	
-	//================================================================================
 	public static tType
 	Set(
 		tType aType1,
 		tType aType2
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Set,
 		Refs = new []{ aType1, aType2 }
 	};
 	
-	//================================================================================
 	public static tType
 	Cond(
 		tType aType
-	//================================================================================
 	) {
 		mDebug.Assert(false); // TODO
 		return new tType {
@@ -260,45 +229,37 @@ public static class mVM_Type {
 		};
 	}
 	
-	//================================================================================
 	public static tType
 	Recursive(
 		tType aTypeBody
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Recursiv,
 		Refs = new [] { aTypeBody },
 	};
 	
-	//================================================================================
 	public static tType
 	Interface(
 		tType aTypeHead,
 		tType aTypeBody
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Interface,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
 	
-	//================================================================================
 	public static tType
 	Generic(
 		tType aTypeHead,
 		tType aTypeBody
-	//================================================================================
 	) => new tType {
 		Kind = tKind.Generic,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
 	
-	//================================================================================
 	public static void
 	Unify(
 		tType a1,
 		tType a2,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	//================================================================================
 	) {
 		if (a1 == a2) {
 			return;

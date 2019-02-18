@@ -25,7 +25,8 @@ using tSpan =mStd.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
-public static class mSPO_Parser {
+public static class
+mSPO_Parser {
 	private static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
 	NLs_Token = mTokenizer.NLs_Token;
 	
@@ -55,12 +56,10 @@ public static class mSPO_Parser {
 		tText aIdent
 	) => SpecialIdent_('§', aIdent);
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tOut, tError>
 	SetName<tOut>(
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aName
-	//================================================================================
 	) => aParser.AddError(
 		a => (a.Span.Start, $"invalid {aName}")
 	)
@@ -103,21 +102,17 @@ public static class mSPO_Parser {
 	)
 	.SetName(nameof(Literal));
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tOut, tError>
 	C<tOut>(
 		mParserGen.tParser<tPos, tToken, tOut, tError> aParser
-	//================================================================================
 	) => (
 		(-SpecialToken("(") + (-NLs_Token + (aParser + (-NLs_Token -SpecialToken(")"))))) |
 		(-SpecialToken("(") +(aParser + -SpecialToken(")")))
 	);
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, tOut, tError>
 	E<tOut>(
 		mParserGen.tParser<tPos, tToken, tOut, tError> aParser
-	//================================================================================
 	) => (
 		(-SpecialToken("[") + (-NLs_Token + (aParser + (-NLs_Token -SpecialToken("]"))))) |
 		(-SpecialToken("[") +(aParser + -SpecialToken("]")))
@@ -192,11 +187,9 @@ public static class mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild> Childs), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
-	//================================================================================
 	) => (
 		mParserGen.Seq(mParserGen.Seq(aChildParser, Ident)[0, null], aChildParser[0, 1])
 		.ModifyS(
@@ -215,11 +208,9 @@ public static class mSPO_Parser {
 		)
 	);
 	
-	//================================================================================
 	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild> Childs), tError>
 	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
-	//================================================================================
 	) => (
 		mParserGen.Seq(SpecialIdent('#'), Infix(aChildParser))
 		.ModifyS(

@@ -22,16 +22,16 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 
 [xTestClass]
 #endif
-public static class mVM_Test {
+public static class
+mVM_Test {
 	
-	//================================================================================
-	private static mVM_Data.tData
+	private static
+	mVM_Data.tData
 	Add (
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
-	//================================================================================
 	) {
 		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
 		mStd.Assert(Arg1.MatchInt(out var IntArg1));
@@ -56,10 +56,10 @@ public static class mVM_Test {
 				var Env = mVM_Data.ExternDef(Add);
 				
 				var Proc1 = new mVM_Data.tProcDef<mStd.tEmpty>();
-				var r1 = Proc1.Pair(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg);
-				var r2 = Proc1.Call(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cEnvReg, mVM_Data.tProcDef<mStd.tEmpty>.cEmptyReg);
-				var r3 = Proc1.Call(mStd.cEmpty, r2, r1);
-				Proc1.ReturnIf(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cTrueReg, r3);
+				var Reg1 = Proc1.Pair(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg, mVM_Data.tProcDef<mStd.tEmpty>.cOneReg);
+				var Reg2 = Proc1.Call(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cEnvReg, mVM_Data.tProcDef<mStd.tEmpty>.cEmptyReg);
+				var Reg3 = Proc1.Call(mStd.cEmpty, Reg2, Reg1);
+				Proc1.ReturnIf(mStd.cEmpty, mVM_Data.tProcDef<mStd.tEmpty>.cTrueReg, Reg3);
 				
 				var Res = mVM_Data.Empty();
 				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);

@@ -17,9 +17,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class mIL_AST {
+public static class
+mIL_AST {
 	
-	public enum tCommandNodeType {
+	public enum
+	tCommandNodeType {
 		IsInt,     // X := §IS_INT X
 		Int,       // X := §INT I
 		IntsAreEq, // X := §INT X == X
@@ -86,7 +88,8 @@ public static class mIL_AST {
 	public static readonly tText cIntType = "INT_TYPE";
 	public static readonly tText cTypeType = "Type_TYPE";
 	
-	public struct tCommandNode<tPos> {
+	public struct
+	tCommandNode<tPos> {
 		public tCommandNodeType NodeType;
 		public tPos Pos;
 		public tText _1;
@@ -94,12 +97,10 @@ public static class mIL_AST {
 		public tText _3;
 	}
 	
-	//================================================================================
 	public static tBool
 	TryGetResultReg<tPos>(
 		this tCommandNode<tPos> aNode,
 		out tText aResultReg
-	//================================================================================
 	) {
 		if (aNode.NodeType >= tCommandNodeType._Commands_) {
 			aResultReg = null;
@@ -110,21 +111,17 @@ public static class mIL_AST {
 		}
 	}
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
 		tCommandNodeType aNodeType,
 		tPos aPos
-	//================================================================================
 	) => _CommandNode(aNodeType, aPos, null, null, null);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
 		tCommandNodeType aNodeType,
 		tPos aPos,
 		tText a1
-	//================================================================================
 	) => _CommandNode(
 		aNodeType,
 		aPos,
@@ -133,14 +130,12 @@ public static class mIL_AST {
 		null
 	);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
 		tCommandNodeType aNodeType,
 		tPos aPos,
 		tText a1,
 		tText a2
-	//================================================================================
 	) => _CommandNode(
 		aNodeType,
 		aPos,
@@ -149,7 +144,6 @@ public static class mIL_AST {
 		null
 	);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
 		tCommandNodeType aNodeType,
@@ -157,7 +151,6 @@ public static class mIL_AST {
 		tText a1,
 		tText a2,
 		tText a3
-	//================================================================================
 	) => _CommandNode(
 		aNodeType,
 		aPos,
@@ -166,7 +159,6 @@ public static class mIL_AST {
 		a3.AssertNotNull()
 	);
 	
-	//================================================================================
 	private static tCommandNode<tPos>
 	_CommandNode<tPos>(
 		tCommandNodeType aNodeType,
@@ -174,7 +166,6 @@ public static class mIL_AST {
 		tText a1,
 		tText a2,
 		tText a3
-	//================================================================================
 	) => new tCommandNode<tPos>{
 		NodeType = aNodeType,
 		Pos = aPos,
@@ -183,13 +174,11 @@ public static class mIL_AST {
 		_3 = a3
 	};
 	
-	//================================================================================
 	public static tBool
 	Match<tPos>(
 		this tCommandNode<tPos> aNode,
 		tCommandNodeType aNodeType,
 		out tPos aPos
-	//================================================================================
 	) {
 		if (aNode.Match(aNodeType, out aPos, out var Id1, out var Id2, out var Id3)) {
 			mDebug.AssertNull(Id1);
@@ -200,14 +189,12 @@ public static class mIL_AST {
 		return false;
 	}
 	
-	//================================================================================
 	public static tBool
 	Match<tPos>(
 		this tCommandNode<tPos> aNode,
 		tCommandNodeType aNodeType,
 		out tPos aPos,
 		out tText aId
-	//================================================================================
 	) {
 		if (aNode.Match(aNodeType, out aPos, out aId, out var Id2, out var Id3)) {
 			mDebug.AssertNull(Id2);
@@ -217,7 +204,6 @@ public static class mIL_AST {
 		return false;
 	}
 	
-	//================================================================================
 	public static tBool
 	Match<tPos>(
 		this tCommandNode<tPos> aNode,
@@ -225,7 +211,6 @@ public static class mIL_AST {
 		out tPos aPos,
 		out tText aId1,
 		out tText aId2
-	//================================================================================
 	) {
 		if (aNode.Match(aNodeType, out aPos, out aId1, out aId2, out var Id3)) {
 			mDebug.AssertNull(Id3);
@@ -234,7 +219,6 @@ public static class mIL_AST {
 		return false;
 	}
 	
-	//================================================================================
 	public static tBool
 	Match<tPos>(
 		this tCommandNode<tPos> aNode,
@@ -243,7 +227,6 @@ public static class mIL_AST {
 		out tText aId1,
 		out tText aId2,
 		out tText aId3
-	//================================================================================
 	) {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
@@ -258,451 +241,357 @@ public static class mIL_AST {
 		return false;
 	}
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsBool<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsBool, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	And<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1,
 		tText aBoolReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.BoolAnd, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	Or<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1,
 		tText aBoolReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.BoolOr, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	XOr<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1,
 		tText aBoolReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.BoolXOr, aPos, aResReg, aBoolReg1, aBoolReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsInt<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsInt, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IntsAreEq<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg1,
 		tText aIntReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IntsAreEq, aPos, aResReg, aIntReg1, aIntReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IntsComp<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg1,
 		tText aIntReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IntsComp, aPos, aResReg, aIntReg1, aIntReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CreateInt<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Int, aPos, aResReg, aIntReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IntsAdd<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg1,
 		tText aIntReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IntsAdd, aPos, aResReg, aIntReg1, aIntReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IntsSub<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg1,
 		tText aIntReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IntsSub, aPos, aResReg, aIntReg1, aIntReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IntsMul<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aIntReg1,
 		tText aIntReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IntsMul, aPos, aResReg, aIntReg1, aIntReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsPair<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsPair, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CreatePair<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aArgReg1,
 		tText aArgReg2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Pair, aPos, aResReg, aArgReg1, aArgReg2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	GetFirst<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPairReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.First, aPos, aResReg, aPairReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	GetSecond<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPairReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Second, aPos, aResReg, aPairReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsPrefix<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsPrefix, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	AddPrefix<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.AddPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	SubPrefix<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.SubPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	HasPrefix<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.HasPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsRecord<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsRecord, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	ExtendRec<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aRecord,
 		tText aPrefix
-	//================================================================================
 	) => CommandNode(tCommandNodeType.ExtendRec, aPos, aResReg, aRecord, aPrefix);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	DivideRec<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aRecord
-	//================================================================================
 	) => CommandNode(tCommandNodeType.DivideRec, aPos, aResReg, aRecord);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CallFunc<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aFuncReg,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.CallFunc, aPos, aResReg, aFuncReg, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	CallProc<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aProcReg,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.CallProc, aPos, aResReg, aProcReg, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsVar<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsVar, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	VarDef<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aValueReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.VarDef, aPos, aResReg, aValueReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	VarSet<tPos>(
 		tPos aPos,
 		tText aVarReg,
 		tText aValueReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.VarSet, aPos, aVarReg, aValueReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	VarGet<tPos>(
 		tPos aPos,
 		tText aValueReg,
 		tText aVarReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.VarGet, aPos, aValueReg, aVarReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	ReturnIf<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aCondReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.ReturnIf, aPos, aResReg, aCondReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	RepeatIf<tPos>(
 		tPos aPos,
 		tText aArgReg,
 		tText aCondReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.RepeatIf, aPos, aArgReg, aCondReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TailCallIf<tPos>(
 		tPos aPos,
 		tText aCallerArgReg,
 		tText aCondReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TailCallIf, aPos, aCallerArgReg, aCondReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	Assert<tPos>(
 		tPos aPos,
 		tText aPreCondReg,
 		tText aPostCondReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Assert, aPos, aPreCondReg, aPostCondReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	Alias<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aArgReg
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Alias, aPos, aResReg, aArgReg);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	Proof<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	IsType<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	//================================================================================
 	) => CommandNode(tCommandNodeType.IsType, aPos, aResReg, aBoolReg1);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeCond<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeCond, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeFunc<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeFunc, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeMethod<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeMethod, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypePair<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypePair, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypePrefix<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypePrefix, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeRecord<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeRec, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeSet<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeSet, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeVar<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeVar, aPos, aId1, aId2);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeFree<tPos>(
 		tPos aPos,
 		tText aId
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeRecursive<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeRecursive, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeInterface<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeInterface, aPos, aId1, aId2, aId3);
 	
-	//================================================================================
 	public static tCommandNode<tPos>
 	TypeGeneric<tPos>(
 		tPos aPos,
 		tText aId1,
 		tText aId2,
 		tText aId3
-	//================================================================================
 	) => CommandNode(tCommandNodeType.TypeGeneric, aPos, aId1, aId2, aId3);
 }
