@@ -33,32 +33,26 @@ mMap {
 		_EqualsFunc = aEqualsFunc
 	};
 	
-	public static tBool
-	TryGet<tKey, tValue>(
-		this tMap<tKey, tValue> aMap,
-		tKey aKey,
-		out tValue aValue
-	) {
-		var RestList = aMap._KeyValuePairs;
-		while (RestList.Match(out var KeyValuePair, out RestList)) {
-			var (Key, Value) = KeyValuePair;
-			aValue = Value;
-			if (aMap._EqualsFunc(Key, aKey)) {
-				return true;
-			}
-		}
-		aValue = default;
-		return false;
-	}
-	
-	public static tValue
+	public static mStd.tMaybe<tValue>
 	Get<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
 	) {
-		mDebug.Assert(aMap.TryGet(aKey, out var Result));
-		return Result;
+		var RestList = aMap._KeyValuePairs;
+		while (RestList.Match(out var KeyValuePair, out RestList)) {
+			var (Key, Value) = KeyValuePair;
+			if (aMap._EqualsFunc(Key, aKey)) {
+				return Value;
+			}
+		}
+		return mStd.cEmpty;
 	}
+
+	public static tValue
+	ForceGet<tKey, tValue>(
+		this tMap<tKey, tValue> aMap,
+		tKey aKey
+	) => aMap.Get(aKey).ElseThrow("imposible");
 	
 	public static tMap<tKey, tValue>
 	Remove<tKey, tValue>(

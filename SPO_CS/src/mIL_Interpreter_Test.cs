@@ -127,7 +127,7 @@ mIL_Interpreter_Test {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
+				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -165,7 +165,7 @@ mIL_Interpreter_Test {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
+				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
 				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
@@ -194,7 +194,7 @@ mIL_Interpreter_Test {
 					a => aDebugStream(a())
 				);
 				
-				var Proc = Module.Skip(ModuleMap.Get("...++")).First();
+				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
 				var Env = mVM_Data.ExternDef(Eq);
 				var Res = mVM_Data.Empty();
 				
@@ -321,10 +321,10 @@ mIL_Interpreter_Test {
 					a => aDebugStream(a())
 				);
 				
-				var Proc1 = Module.Skip(ModuleMap.Get("bla")).First();
-				var Proc2 = Module.Skip(ModuleMap.Get("bla2")).First();
-				var Proc3 = Module.Skip(ModuleMap.Get("...!!")).First();
-				var Proc4 = Module.Skip(ModuleMap.Get("...!")).First();
+				var Proc1 = Module.Skip(ModuleMap.ForceGet("bla")).ForceFirst();
+				var Proc2 = Module.Skip(ModuleMap.ForceGet("bla2")).ForceFirst();
+				var Proc3 = Module.Skip(ModuleMap.ForceGet("...!!")).ForceFirst();
+				var Proc4 = Module.Skip(ModuleMap.ForceGet("...!")).ForceFirst();
 				
 				var Env = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),

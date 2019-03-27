@@ -13,6 +13,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+//TODO: split in multible mudules
 public static class mStd {
 	
 	#region tFunc & tAction
@@ -127,58 +128,173 @@ public static class mStd {
 	#region tMaybe
 	
 	public struct
-	_tFail<t> {
+	tMaybe<t> {
+		internal tBool _HasValue;
+		internal t _Value;
+		
+		public static
+		implicit operator tMaybe<t>(
+			tEmpty _
+		) {
+			return new tMaybe<t> {
+				_HasValue = false,
+				_Value = default,
+			};
+		}
+		
+		public static
+		implicit operator tMaybe<t>(
+			t aValue
+		) {
+			return new tMaybe<t> {
+				_HasValue = true,
+				_Value = aValue,
+			};
+		}
+	}
+	
+	public static tMaybe<t>
+	Some<t>(
+		t a
+	) => a;
+	
+	public static tBool
+	Match<t>(
+		this tMaybe<t> a,
+		out t aValue
+	) {
+		if (a._HasValue) {
+			aValue = a._Value;
+			return true;
+		} else {
+			aValue = default;
+			return false;
+		}
+	}
+	
+	public static tMaybe<tOut>
+	Then<tIn, tOut>(
+		this tMaybe<tIn> a,
+		tFunc<tMaybe<tOut>, tIn> aMap
+	) {
+		if (a.Match(out var Value)) {
+			return aMap(Value);
+		} else {
+			return cEmpty;
+		}
+	}
+	
+	public static t
+	Else<t>(
+		this tMaybe<t> a,
+		t aDefault
+	) {
+		if (a.Match(out var Value)) {
+			return Value;
+		} else {
+			return aDefault;
+		}
+	}
+	
+	public static t
+	ElseThrow<t>(
+		this tMaybe<t> a,
+		tText aError
+	) {
+		if (a.Match(out var Value)) {
+			return Value;
+		} else {
+			throw mStd.Error(aError);
+		}
+	}
+	
+	public static t
+	Else<t>(
+		this tMaybe<t> a,
+		tLazy<t> aDefault
+	) {
+		if (a.Match(out var Value)) {
+			return Value;
+		} else {
+			return aDefault.Value;
+		}
+	}
+	
+	public static tMaybe<t>
+	Assert<t>(
+		this tMaybe<t> a,
+		tFunc<tBool, t> aCond
+	) {
+		return a.Then<t, t>(
+			_ => {
+				if (aCond(_)) {
+					return _;
+				} else {
+					return cEmpty;
+				}
+			}
+		);
+	}
+	
+	#endregion
+
+	#region tResult
+
+	public struct
+	tResultFail<t> {
 		internal t _Error;
 	}
 	
 	public struct
-	_tOK<t> {
+	tResultOK<t> {
 		internal t _Value;
 	}
 	
 	public struct
-	tMaybe<tOK, tFail> {
+	tResult<tOK, tFail> {
 		
 		internal tBool _IsOK;
 		internal tOK _Value;
 		internal tFail _Error;
 		
-		public static implicit operator tMaybe<tOK, tFail>(
-			_tOK<tOK> aOK
-		) => new tMaybe<tOK, tFail> {
+		public static
+		implicit operator tResult<tOK, tFail>(
+			tResultOK<tOK> aOK
+		) => new tResult<tOK, tFail> {
 			_IsOK = true,
 			_Value = aOK._Value
 		};
 		
-		public static implicit operator tMaybe<tOK, tFail>(
-			_tFail<tFail> aFail
-		) => new tMaybe<tOK, tFail> {
+		public static
+		implicit operator tResult<tOK, tFail>(
+			tResultFail<tFail> aFail
+		) => new tResult<tOK, tFail> {
 			_IsOK = false,
 			_Error = aFail._Error
 		};
 	}
 	
-	public static _tOK<tOK>
+	public static tResultOK<tOK>
 	OK<tOK>(
 		tOK a
-	) => new _tOK<tOK>{
+	) => new tResultOK<tOK>{
 		_Value = a
 	};
 	
-	public static _tFail<tFail>
+	public static tResultFail<tFail>
 	Fail<tFail>(
 		tFail aError
-	) => new _tFail<tFail>{
+	) => new tResultFail<tFail>{
 		_Error = aError
 	};
 	
-	public static _tFail<tEmpty>
+	public static tResultFail<tEmpty>
 	Fail(
-	) => new _tFail<tEmpty>();
+	) => new tResultFail<tEmpty>();
 	
 	public static tBool
 	Match<tOK, tFail>(
-		this tMaybe<tOK, tFail> a,
+		this tResult<tOK, tFail> a,
 		out tOK aValue,
 		out tFail aError
 	) {
@@ -189,11 +305,86 @@ public static class mStd {
 	
 	public static tBool
 	Match<tOK>(
-		this tMaybe<tOK, tEmpty> a,
+		this tResult<tOK, tEmpty> a,
 		out tOK aValue
 	) {
 		aValue = a._Value;
 		return a._IsOK;
+	}
+	
+	public static tResult<tOK_Out, tError>
+	Then<tOK_In, tOK_Out, tError>(
+		this tResult<tOK_In, tError> a,
+		mStd.tFunc<tResult<tOK_Out, tError>, tOK_In> aMod
+	) {
+		if (a.Match(out var Value, out var Error)) {
+			return aMod(Value);
+		} else {
+			return Fail(Error);
+		}
+	}
+	
+	public static tResult<tOK_Out, tError>
+	Then<tOK_In, tOK_Out, tError>(
+		this tResult<tOK_In, tError> a,
+		mStd.tFunc<tResultOK<tOK_Out>, tOK_In> aMod
+	) {
+		if (a.Match(out var Value, out var Error)) {
+			return aMod(Value);
+		} else {
+			return Fail(Error);
+		}
+	}
+	
+	public static tResult<tOK_Out, tError>
+	Then<tOK_In, tOK_Out, tError>(
+		this tResult<tOK_In, tError> a,
+		mStd.tFunc<tResultFail<tError>, tOK_In> aMod
+	) {
+		if (a.Match(out var Value, out var Error)) {
+			return aMod(Value);
+		} else {
+			return Fail(Error);
+		}
+	}
+	
+	public static tOK
+	Else<tOK, tError>(
+		this tResult<tOK, tError> a,
+		mStd.tFunc<tOK, tError> aOnError
+	) {
+		return a.Match(out var Value, out var Error)
+			? Value
+			: aOnError(Error);
+	}
+	
+	public static tOK
+	ElseThrow<tOK, tError>(
+		this tResult<tOK, tError> a,
+		mStd.tFunc<tText, tError> aModifyError
+	) {
+		if (a.Match(out var Value, out var Error)) {
+			return Value;
+		} else {
+			throw mStd.Error(aModifyError(Error));
+		}
+	}
+	
+	public static tResult<tOK, tError>
+	Assert<tOK, tError>(
+		this tResult<tOK, tError> a,
+		tFunc<tBool, tOK> aCond,
+		tError aError
+	) {
+		return a.Then<tOK, tOK, tError>(
+			_ => {
+				if (aCond(_)) {
+					return OK(_);
+				} else {
+					return Fail(aError);
+				}
+			}
+		);
 	}
 	
 	#endregion
@@ -342,22 +533,38 @@ public static class mStd {
 	public static void
 	AssertEq<t>(
 		t a1,
-		t a2
+		t a2,
+		tFunc<tBool, t, t> aAreEqual = null,
+		tFunc<tText, t> aToText = null
 	) {
 		if (
-			!ReferenceEquals(a1, a2) &&
-			!a1.IsNull() &&
-			!a1.Equals(a2)
+			ReferenceEquals(a1, a2) ||
+			(aAreEqual?.Invoke(a1, a2) ?? a1?.Equals(a2) ?? false)
 		) {
-			#if JSON
-			var Text1 = AsJSON(a1);
-			var Text2 = AsJSON(a2);
-			#else
-			var Text1 = a1.ToString();
-			var Text2 = a2.ToString();
-			#endif
-			throw Error($"FAIL:\n{Text1}\n!=\n{Text2}");
+			return;
 		}
+
+		tText Text1;
+		tText Text2;
+		if (aToText is null) {
+			#if JSON
+			try {
+				Text1 = AsJSON(a1);
+				Text2 = AsJSON(a2);
+			} catch {
+				Text1 = a1.ToString();
+				Text2 = a2.ToString();
+			}
+			#else
+			Text1 = a1.ToString();
+			Text2 = a2.ToString();
+			#endif
+		} else {
+			Text1 = aToText(a1);
+			Text2 = aToText(a2);
+		}
+		throw Error($"FAIL:\n{Text1}\n!=\n{Text2}");
+		
 		#if JSON
 		string
 		AsJSON(

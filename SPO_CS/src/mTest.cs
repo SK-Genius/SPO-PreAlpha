@@ -24,6 +24,7 @@ mTest {
 		System.IntPtr aThreadHandle,
 		out tNat64 aCycles
 	);
+	
 	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
 	
 	public enum
@@ -68,6 +69,8 @@ mTest {
 		_TestFunc = aTestFunc
 	};
 	
+	private static readonly System.Globalization.CultureInfo cCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+
 	//================================================================================
 	public static tResult
 	Run(
@@ -76,11 +79,12 @@ mTest {
 		mStream.tStream<tText> aFilters
 	//================================================================================
 	) {
+		System.Globalization.CultureInfo.CurrentCulture = cCulture;
 		const tText cTab = "|  ";
 		switch (aTest) {
 			case tTestRun TestRun: {
 				aDebugStream(TestRun._Name);
-				if (aFilters is null || aFilters.Any(TestRun._Name.Contains)) {
+				if (aFilters.IsEmpty() || aFilters.Any(TestRun._Name.Contains)) {
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
 						TestRun._TestFunc(aText => aDebugStream("| " + aText));
@@ -109,8 +113,11 @@ mTest {
 						aDebugStream($"-> OK ({Value}{SubValue} {E}Clocks)");
 						aDebugStream("");
 						return tResult.OK;
-					} catch (System.Exception e) {
-						aDebugStream(cTab + e.Message);
+					} catch (System.Exception Exception) {
+						aDebugStream(cTab + Exception.Message);
+						foreach (var Line in Exception.StackTrace.Split('\n')) {
+							aDebugStream(cTab + cTab + Line.Trim());
+						}
 						aDebugStream("-> Fail");
 						aDebugStream("");
 						return tResult.Fail;
@@ -123,7 +130,7 @@ mTest {
 			}
 			case tTests Tests: {
 				aDebugStream(Tests._Name);
-				if (aFilters is null || aFilters.Any(Tests._Name.Contains)) {
+				if (aFilters.IsEmpty() || aFilters.Any(Tests._Name.Contains)) {
 					aFilters = null;
 				}
 				var Result = tResult.Skip;

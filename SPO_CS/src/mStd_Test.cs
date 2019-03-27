@@ -31,9 +31,9 @@ mStd_Test {
 		mTest.Test(
 			"tMaybe.Equals()",
 			aStreamOut => {
-				mStd.AssertEq<mStd.tMaybe<tInt32, tText>>(mStd.OK(1), mStd.OK(1));
-				mStd.AssertEq<mStd.tMaybe<tText, tText>>(mStd.OK("1"), mStd.OK("1"));
-				mStd.AssertEq<mStd.tMaybe<tInt32, tText>>(mStd.Fail("Bla"), mStd.Fail("Bla"));
+				mStd.AssertEq<mStd.tResult<tInt32, tText>>(mStd.OK(1), mStd.OK(1));
+				mStd.AssertEq<mStd.tResult<tText, tText>>(mStd.OK("1"), mStd.OK("1"));
+				mStd.AssertEq<mStd.tResult<tInt32, tText>>(mStd.Fail("Bla"), mStd.Fail("Bla"));
 			}
 		),
 		mTest.Test(

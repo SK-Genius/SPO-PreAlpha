@@ -325,10 +325,10 @@ mParserGen {
 	public sealed class
 	tParser<tPos, tIn, tOut, tError> {
 		internal mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> _LastInput;
-		internal mStd.tMaybe<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>, mStream.tStream<(tPos Pos, tError Massage)>), mStream.tStream<(tPos Pos, tError Massage)>> _LastOutput;
+		internal mStd.tResult<((mStd.tSpan<tPos>, tOut), mStream.tStream<(mStd.tSpan<tPos>, tIn)>, mStream.tStream<(tPos Pos, tError Massage)>), mStream.tStream<(tPos Pos, tError Massage)>> _LastOutput;
 		
 		internal mStd.tFunc<
-			mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>,
+			mStd.tResult<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>,
 			mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)>,
 			mStd.tAction<tText>,
 			mStream.tStream<object> 
@@ -630,13 +630,13 @@ mParserGen {
 		if (a1 is null) { return a2; }
 		if (a2 is null) { return a1; }
 		
-		var Comp = aComparePos(a1.First().Pos, a2.First().Pos);
+		var Comp = aComparePos(a1.ForceFirst().Pos, a2.ForceFirst().Pos);
 		if (Comp > 0) {
 			return a1;
 		} else if (Comp < 0) {
 			return a2;
 		} else {
-			return mStream.Stream(a1.Last(), a2);
+			return mStream.Stream(a1.ForceLast(), a2);
 		}
 	}
 	
@@ -670,7 +670,7 @@ mParserGen {
 		a1.SetDebugDef(a2.DebugDef);
 	}
 	
-	public static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
+	public static mStd.tResult<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
 	StartParse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mStd.tSpan<tPos> Span, tIn Value)> aStream,
@@ -690,7 +690,7 @@ mParserGen {
 		}
 	}
 	
-	internal static mStd.tMaybe<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos>, tIn)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
+	internal static mStd.tResult<((mStd.tSpan<tPos> Span, tOut Value) Result, mStream.tStream<(mStd.tSpan<tPos>, tIn)> RestStream, mStream.tStream<(tPos Pos, tError Massage)> MaybeError), mStream.tStream<(tPos Pos, tError Massage)>>
 	Parse<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mStd.tSpan<tPos>, tIn)> aStream,
@@ -733,7 +733,7 @@ mParserGen {
 			!Result.Match(out var Value, out var Error) &&
 			!(aParser._ModifyErrorsFunc is null)
 		) {
-			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, aStream is null ? default : aStream.First()));
+			Result = mStd.Fail(aParser._ModifyErrorsFunc(Error, aStream is null ? default : aStream.ForceFirst()));
 		}
 		
 		#if MY_TRACE

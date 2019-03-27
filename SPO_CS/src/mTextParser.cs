@@ -50,13 +50,13 @@ mTextParser {
 			);
 			
 			if (!Result.RestStream.IsEmpty()) {
-				var Pos = Result.RestStream.First().Span.Start;
+				var Pos = Result.RestStream.ForceFirst().Span.Start;
 				var Line = aText.Split('\n')[Pos.Row-1];
 				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 				throw mStd.Error(
 					$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 					$"{Line}\n" +
-					$"{Line.Substring(0, StartSpacesCount) + new string(' ', Pos.Col - StartSpacesCount - 1)}^"
+					$"{Line.Substring(0, StartSpacesCount) + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
 				);
 			}
 			return Result.Result;

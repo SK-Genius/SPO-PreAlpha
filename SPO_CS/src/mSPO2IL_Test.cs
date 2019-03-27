@@ -409,11 +409,11 @@ mSPO2IL_Test {
 						"	§DEF k € T",
 						")",
 						"",
-						"§DEF x... = §DEF a => k .* a",
-						"§DEF y = .x 1",
+						"§DEF x... = (§DEF a € T) => k .* a",
+						"§DEF y = .x k",
 						"",
 						"§EXPORT y"
-					).Join((a1, a2) => a1 + "\n" + a2),
+					).Join((a1, a2) => a1 + "\n" + a2, ""),
 					"",
 					a => aStreamOut(a())
 				);
@@ -437,13 +437,12 @@ mSPO2IL_Test {
 						mIL_AST.Alias(Span((4, 2), (4, 7)), mSPO2IL.Ident("k"), mSPO2IL.TempReg(5)),
 						mIL_AST.GetSecond(Span((4, 2), (4, 11)), mSPO2IL.TempReg(6), mSPO2IL.TempReg(4)),
 						
-						mIL_AST.CreatePair(Span((7, 13), (7, 28)), mSPO2IL.TempReg(7), mSPO2IL.Ident("k"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((7, 13), (7, 28)), mSPO2IL.TempReg(8), mSPO2IL.Ident("...*..."), mSPO2IL.TempReg(7)),
-						mIL_AST.CallFunc(Span((7, 13), (7, 28)), mSPO2IL.TempReg(9), mSPO2IL.TempDef(1), mSPO2IL.TempReg(8)),
+						mIL_AST.CreatePair(Span((7, 13), (7, 34)), mSPO2IL.TempReg(7), mSPO2IL.Ident("k"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((7, 13), (7, 34)), mSPO2IL.TempReg(8), mSPO2IL.Ident("...*..."), mSPO2IL.TempReg(7)),
+						mIL_AST.CallFunc(Span((7, 13), (7, 34)), mSPO2IL.TempReg(9), mSPO2IL.TempDef(1), mSPO2IL.TempReg(8)),
 						mIL_AST.Alias(Span((7, 1), (7, 9)), mSPO2IL.Ident("x..."), mSPO2IL.TempReg(9)),
-						mIL_AST.CreateInt(Span((8, 13), (8, 13)), mSPO2IL.TempReg(10), "1"),
-						mIL_AST.CallFunc(Span((8, 10), (8, 13)), mSPO2IL.TempReg(11), mSPO2IL.Ident("x..."), mSPO2IL.TempReg(10)),
-						mIL_AST.Alias(Span((8, 1), (8, 6)), mSPO2IL.Ident("y"), mSPO2IL.TempReg(11)),
+						mIL_AST.CallFunc(Span((8, 10), (8, 13)), mSPO2IL.TempReg(10), mSPO2IL.Ident("x..."), mSPO2IL.Ident("k")),
+						mIL_AST.Alias(Span((8, 1), (8, 6)), mSPO2IL.Ident("y"), mSPO2IL.TempReg(10)),
 						mIL_AST.ReturnIf(Span((10, 1), (10, 9)), mSPO2IL.Ident("y"), mIL_AST.cTrue)
 					)
 				);
@@ -451,17 +450,17 @@ mSPO2IL_Test {
 				mStd.AssertEq(
 					ModuleConstructor.Defs.Get(1).ToStream(),
 					mStream.Stream(
-						mIL_AST.GetFirst(Span((7, 13), (7, 28)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
-						mIL_AST.GetSecond(Span((7, 13), (7, 28)), mSPO2IL.TempReg(4), mIL_AST.cEnv),
-						mIL_AST.GetFirst(Span((7, 13), (7, 28)), mSPO2IL.Ident("k"), mSPO2IL.TempReg(4)),
-						mIL_AST.GetSecond(Span((7, 13), (7, 28)), mSPO2IL.TempReg(5), mSPO2IL.TempReg(4)),
+						mIL_AST.GetFirst(Span((7, 13), (7, 34)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
+						mIL_AST.GetSecond(Span((7, 13), (7, 34)), mSPO2IL.TempReg(4), mIL_AST.cEnv),
+						mIL_AST.GetFirst(Span((7, 13), (7, 34)), mSPO2IL.Ident("k"), mSPO2IL.TempReg(4)),
+						mIL_AST.GetSecond(Span((7, 13), (7, 34)), mSPO2IL.TempReg(5), mSPO2IL.TempReg(4)),
 						
-						mIL_AST.Alias(Span((7, 13), (7, 18)), mSPO2IL.Ident("a"), mIL_AST.cArg),
+						mIL_AST.Alias(Span((7, 14), (7, 19)), mSPO2IL.Ident("a"), mIL_AST.cArg),
 						
-						mIL_AST.CreatePair(Span((7, 28), (7, 28)), mSPO2IL.TempReg(1), mSPO2IL.Ident("a"), mIL_AST.cEmpty),
-						mIL_AST.CreatePair(Span((7, 23), (7, 23)), mSPO2IL.TempReg(2), mSPO2IL.Ident("k"), mSPO2IL.TempReg(1)),
-						mIL_AST.CallFunc(Span((7, 23), (7, 28)), mSPO2IL.TempReg(3), mSPO2IL.Ident("...*..."), mSPO2IL.TempReg(2)),
-						mIL_AST.ReturnIf(Span((7, 23), (7, 28)), mSPO2IL.TempReg(3), mIL_AST.cTrue)
+						mIL_AST.CreatePair(Span((7, 34), (7, 34)), mSPO2IL.TempReg(1), mSPO2IL.Ident("a"), mIL_AST.cEmpty),
+						mIL_AST.CreatePair(Span((7, 29), (7, 29)), mSPO2IL.TempReg(2), mSPO2IL.Ident("k"), mSPO2IL.TempReg(1)),
+						mIL_AST.CallFunc(Span((7, 29), (7, 34)), mSPO2IL.TempReg(3), mSPO2IL.Ident("...*..."), mSPO2IL.TempReg(2)),
+						mIL_AST.ReturnIf(Span((7, 29), (7, 34)), mSPO2IL.TempReg(3), mIL_AST.cTrue)
 					)
 				);
 			}

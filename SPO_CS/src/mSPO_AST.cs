@@ -1,4 +1,5 @@
 ﻿//IMPORT mArrayList.cs
+//IMPORT mVM_Type.cs
 
 using tBool = System.Boolean;
 
@@ -24,10 +25,14 @@ mSPO_AST {
 	}
 	
 	public interface
-	tMatchItemNode<tPos> : tNode<tPos> {}
+	tMatchItemNode<tPos> : tNode<tPos> {
+		mVM_Type.tType TypeAnnotation { get; set; }
+	}
 	
 	public interface
-	tExpressionNode<tPos> : tNode<tPos> {}
+	tExpressionNode<tPos> : tNode<tPos> {
+		mVM_Type.tType TypeAnnotation { get; set; }
+	}
 	
 	public interface
 	tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {}
@@ -35,294 +40,334 @@ mSPO_AST {
 	public interface
 	tCommandNode<tPos> : tNode<tPos> {}
 	
-	public struct
+	public class
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tFalseNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tTrueNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tEmptyTypeNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tBoolTypeNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tIntTypeNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tTypeTypeNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-	
-	public struct
+
+	public class
 	tTextNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Value;
 	}
 	
-	public struct
-	tNumberNode<tPos> : tLiteralNode<tPos> {
+	public class
+	tIntNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tInt32 Value;
 	}
 	
-	public struct
+	public class
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
 	
-	public struct
+	public class
 	tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Name;
 	}
 	
-	public struct
+	public class
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Name;
 	}
 	
-	public struct
+	public class
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>> Items;
 	}
 	
-	public struct
+	public class
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchItemNode<tPos> Pattern;
 		public tExpressionNode<tPos> Type;
 	}
 	
-	public struct
+	public class
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Prefix;
 		public tExpressionNode<tPos> Element;
 	}
 	
-	public struct
+	public class
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
 	}
 	
-	public struct
+	public class
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> Elements;
 	}
 	
-	public struct
+	public class
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Prefix;
 		public tMatchNode<tPos> Match;
 	}
 	
-	public struct
+	public class
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Match;
 		public tExpressionNode<tPos> Guard;
 	}
 	
-	public struct
+	public class
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Head;
 		public tExpressionNode<tPos> Body;
 	}
 	
-	public struct
+	public class
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Obj;
 		public tMatchNode<tPos> Arg;
 		public tBlockNode<tPos> Body;
 	}
 	
-	public struct
+	public class
 	tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
-	public struct
+	public class
 	tCallNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Func;
 		public tExpressionNode<tPos> Arg;
 	}
 	
-	public struct
+	public class
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Des;
 		public tExpressionNode<tPos> Src;
 	}
 	
-	public struct
-	tRecLambdaItemNode<tPos> {
+	public class
+	tRecLambdaItemNode<tPos> : tNode<tPos>{
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tMatchFreeIdentNode<tPos> Ident;
 		public tLambdaNode<tPos> Lambda;
 	}
 	
-	public struct
+	public class
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
 	}
 	
-	public struct
+	public class
 	tReturnIfNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Result;
 		public tExpressionNode<tPos> Condition;
 	}
 	
-	public struct
+	public class
 	tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
-		public mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> Cases;
+		public mVM_Type.tType TypeAnnotation { get; set; }
+		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)> Cases;
 	}
 	
-	public struct
+	public class
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression;
-		public mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> Cases;
+		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)> Cases;
 	}
 	
-	public struct
+	public class
 	tPrefixTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Prefix;
 		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
-	public struct
+	public class
 	tTupleTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
-	public struct
+	public class
 	tSetTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Expressions;
 	}
 	
-	public struct
+	public class
 	tLambdaTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> ArgType;
 		public tExpressionNode<tPos> ResType;
 	}
 	
-	public struct
+	public class
 	tRecursiveTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
 	}
 	
-	public struct
+	public class
 	tInterfaceTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
 	}
 	
-	public struct
+	public class
 	tGenericTypeNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> HeadType;
 		public tExpressionNode<tPos> BodyType;
 	}
 	
-	public struct
+	public class
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Ident;
 		public tExpressionNode<tPos> Expression;
 		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
-	public struct
+	public class
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Obj;
 	}
 	
-	public struct
-	tMethodCallNode<tPos> {
+	public class
+	tMethodCallNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tIdentNode<tPos> Method;
 		public tExpressionNode<tPos> Argument;
-		public tMatchNode<tPos>? Result;
+		public tMatchNode<tPos> Result;
 	}
 	
-	public struct
+	public class
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Object;
 		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
-	public struct
+	public class
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left;
 		public tExpressionNode<tPos> Right;
 	}
 	
-	public struct
+	public class
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left;
 		public tExpressionNode<tPos> Right;
 	}
 	
-	public struct
+	public class
 	tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
+		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Items;
 	}
 	
-	public struct
-	tImportNode<tPos> {
+	public class
+	tImportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tMatchNode<tPos> Match;
 	}
 	
-	public struct
-	tExportNode<tPos> {
+	public class
+	tExportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Expression;
 	}
 	
-	public struct
-	tModuleNode<tPos> {
+	public class
+	tModuleNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tImportNode<tPos> Import;
 		public tExportNode<tPos> Export;
@@ -378,11 +423,11 @@ mSPO_AST {
 		Pos = aPos
 	};
 	
-	public static tNumberNode<tPos>
-	Number<tPos>(
+	public static tIntNode<tPos>
+	Int<tPos>(
 		tPos aPos,
 		tInt32 aValue
-	) => new tNumberNode<tPos> {
+	) => new tIntNode<tPos> {
 		Pos = aPos,
 		Value = aValue
 	};
@@ -763,7 +808,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aMethod,
 		tExpressionNode<tPos> aAgument,
-		tMatchNode<tPos>? aResult
+		tMatchNode<tPos> aResult
 	) => new tMethodCallNode<tPos> {
 		Pos = aPos,
 		Method = aMethod,
@@ -810,4 +855,230 @@ mSPO_AST {
 		Pos = aPos,
 		Expression = aExpression 
 	};
+
+	public static tBool
+	AreEqual<tPos>(
+		tNode<tPos> a1,
+		tNode<tPos> a2
+	) {
+		if (ReferenceEquals(a1, a2)) {
+			return true;
+		}
+		if (a1 is null || a2 is null || !a1.Pos.Equals(a2.Pos)) {
+			return false;
+		}
+		
+		switch (a1) {
+			case tEmptyNode<tPos> _: {
+				return a2 is tEmptyNode<tPos>;
+			}
+			case tTrueNode<tPos> _: {
+				return a2 is tTrueNode<tPos>;
+			}
+			case tFalseNode<tPos> _: {
+				return a2 is tFalseNode<tPos>;
+			}
+			case tIntNode<tPos> _1: {
+				return a2 is tIntNode<tPos> _2 && _1.Value == _2.Value;
+			}
+			case tEmptyTypeNode<tPos> _: {
+				return a2 is tEmptyTypeNode<tPos>;
+			}
+			case tBoolTypeNode<tPos> _: {
+				return a2 is tBoolTypeNode<tPos>;
+			}
+			case tIntTypeNode<tPos> _: {
+				return a2 is tIntTypeNode<tPos>;
+			}
+			case tTypeTypeNode<tPos> _: {
+				return a2 is tTypeTypeNode<tPos>;
+			}
+			case tTextNode<tPos> _1: {
+				return a2 is tTextNode<tPos> _2 && _1.Value == _2.Value;
+			}
+			case tIgnoreMatchNode<tPos> _: {
+				return a2 is tIgnoreMatchNode<tPos>;
+			}
+			case tIdentNode<tPos> _1: {
+				return a2 is tIdentNode<tPos> _2 && _1.Name == _2.Name;
+			}
+			case tMatchFreeIdentNode<tPos> _1: {
+				return a2 is tMatchFreeIdentNode<tPos> _2 && _1.Name == _2.Name;
+			}
+			case tMatchTupleNode<tPos> _1: {
+				return (
+					a2 is tMatchTupleNode<tPos> _2 &&
+					mStream.Zip(_1.Items, _2.Items).All(_ => AreEqual(_._1, _._2))
+				);
+			}
+			case tMatchNode<tPos> _1: {
+				return (
+					a2 is tMatchNode<tPos> _2 &&
+					AreEqual(_1.Pattern, _2.Pattern) &&
+					AreEqual(_1.Type, _2.Type)
+				);
+			}
+			case tPrefixNode<tPos> _: {
+				break;
+			}
+			case tRecordNode<tPos> _1: {
+				return (
+					a2 is tRecordNode<tPos> _2 &&
+					mStream.Zip(
+						_1.Elements,
+						_2.Elements
+					).All(
+						_ => (
+							AreEqual(_._1.Key, _._2.Key) &&
+							AreEqual(_._1.Value, _._2.Value)
+						)
+					)
+				);
+			}
+			case tMatchRecordNode<tPos> _1: {
+				return (
+					a2 is tMatchRecordNode<tPos> _2 &&
+					mStream.Zip(
+						_1.Elements,
+						_2.Elements
+					).All(
+						_ => (
+							AreEqual(_._1.Key, _._2.Key) &&
+							AreEqual(_._1.Match, _._2.Match)
+						)
+					)
+				);
+			}
+			case tMatchPrefixNode<tPos> _1: {
+				return (
+					a2 is tMatchPrefixNode<tPos> _2 &&
+					_1.Prefix == _2.Prefix &&
+					AreEqual(_1.Match, _2.Match)
+				);
+			}
+			case tMatchGuardNode<tPos> _: {
+				break;
+			}
+			case tLambdaNode<tPos> _1: {
+				return (
+					a2 is tLambdaNode<tPos> _2 &&
+					AreEqual(_1.Head , _2.Head) &&
+					AreEqual(_1.Body, _2.Body)
+				);
+			}
+			case tMethodNode<tPos> _: {
+				break;
+			}
+			case tBlockNode<tPos> _: {
+				break;
+			}
+			case tCallNode<tPos> _1: {
+				return (
+					a2 is tCallNode<tPos> _2 &&
+					AreEqual(_1.Func, _2.Func) &&
+					AreEqual(_1.Arg, _2.Arg)
+				);
+			}
+			case tDefNode<tPos> _1: {
+				return (
+					a2 is tDefNode<tPos> _2 &&
+					AreEqual(_1.Src, _2.Src) &&
+					AreEqual(_1.Des, _2.Des)
+				);
+			}
+			case tRecLambdaItemNode<tPos> _1: {
+				return (
+					a2 is tRecLambdaItemNode<tPos> _2 &&
+					AreEqual(_1.Ident, _2.Ident) &&
+					AreEqual(_1.Lambda, _2.Lambda)
+				);
+			}
+			case tRecLambdasNode<tPos> _1: {
+				return (
+					a2 is tRecLambdasNode<tPos> _2 &&
+					mStream.Zip(_1.List, _2.List).All(_ => AreEqual(_._1, _._2))
+				);
+			}
+			case tReturnIfNode<tPos> _: {
+				break;
+			}
+			case tIfNode<tPos> _: {
+				break;
+			}
+			case tIfMatchNode<tPos> _: {
+				break;
+			}
+			case tPrefixTypeNode<tPos> _: {
+				break;
+			}
+			case tTupleTypeNode<tPos> _: {
+				break;
+			}
+			case tSetTypeNode<tPos> _: {
+				break;
+			}
+			case tLambdaTypeNode<tPos> _: {
+				break;
+			}
+			case tRecursiveTypeNode<tPos> _: {
+				break;
+			}
+			case tInterfaceTypeNode<tPos> _: {
+				break;
+			}
+			case tGenericTypeNode<tPos> _: {
+				break;
+			}
+			case tDefVarNode<tPos> _: {
+				break;
+			}
+			case tVarToValNode<tPos> _1: {
+				return (
+					a2 is tVarToValNode<tPos> _2 &&
+					AreEqual(_1.Obj, _2.Obj)
+				);
+			}
+			case tMethodCallNode<tPos> _1: {
+				return (
+					a2 is tMethodCallNode<tPos> _2 &&
+					AreEqual(_1.Method, _2.Method) &&
+					AreEqual(_1.Argument, _2.Argument) &&
+					AreEqual(_1.Result, _2.Result)
+				);
+			}
+			case tMethodCallsNode<tPos> _1: {
+				return (
+					a2 is tMethodCallsNode<tPos> _2 &&
+					AreEqual(_1.Object, _2.Object) &&
+					mStream.Zip(_1.MethodCalls, _2.MethodCalls).All(_ => AreEqual(_._1, _._2))
+				);
+			}
+			case tPipeToRightNode<tPos> _: {
+				break;
+			}
+			case tPipeToLeftNode<tPos> _: {
+				break;
+			}
+			case tTupleNode<tPos> _1: {
+				return (
+					a2 is tTupleNode<tPos> _2 &&
+					mStream.Zip(_1.Items, _2.Items).All(_ => AreEqual(_._1, _._2))
+				);
+			}
+			case tImportNode<tPos> _: {
+				break;
+			}
+			case tExportNode<tPos> _: {
+				break;
+			}
+			case tModuleNode<tPos> _: {
+				break;
+			}
+			default: {
+				throw mStd.Error("not implemented: " + a1.GetType().Name);
+			}
+		}
+		throw mStd.Error("not implemented: " + a1.GetType().Name);
+	}
+
 }

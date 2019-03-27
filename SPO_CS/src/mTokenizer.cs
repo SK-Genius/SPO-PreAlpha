@@ -76,7 +76,7 @@ mTokenizer {
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tText, tError>
 	Ident = (CharNotIn(SpazialChars).Modify(aChar => "" + aChar) | Text("..."))[1, null]
-	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2));
+	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2, ""));
 	
 	public enum
 	tTokenType {
@@ -147,8 +147,8 @@ mTokenizer {
 		);
 		
 		if (!Result.RestStream.IsEmpty()) {
-			var Row = Result.RestStream.First().Span.Start.Row;
-			var Col = Result.RestStream.First().Span.Start.Col;
+			var Row = Result.RestStream.ForceFirst().Span.Start.Row;
+			var Col = Result.RestStream.ForceFirst().Span.Start.Col;
 			var Line = aText.Split('\n')[Row];
 			var MarkerLine = mStream.Stream(
 				Line.ToCharArray()

@@ -78,9 +78,9 @@ mStream_Test {
 		mTest.Test(
 			"Join()",
 			aStreamOut => {
-				mStd.AssertEq(mStream.Stream("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}"), "a,b,c,d");
-				mStd.AssertEq(mStream.Stream("a").Join((a1, a2) => $"{a1},{a2}"), "a");
-				mStd.AssertEq(mStream.Stream<tText>().Join((a1, a2) => $"{a1},{a2}"), "");
+				mStd.AssertEq(mStream.Stream("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}", ""), "a,b,c,d");
+				mStd.AssertEq(mStream.Stream("a").Join((a1, a2) => $"{a1},{a2}", ""), "a");
+				mStd.AssertEq(mStream.Stream<tText>().Join((a1, a2) => $"{a1},{a2}", ""), "");
 			}
 		),
 		mTest.Test(

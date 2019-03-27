@@ -37,20 +37,20 @@ mStdLib_Test {
 						@"
 							§IMPORT (
 								{
-									...<...: §DEF ...<...
-									...+...: §DEF ...+...
-									...-...: §DEF ...-...
+									...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+									...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+									...-...: §DEF ...-... € [[§INT, §INT] => §INT]
 								}
-								§DEF n
+								§DEF n € §INT
 							)
 							
-							§DEF If...Then...Else... = (§DEF c, §DEF i, §DEF e) => {
+							§DEF If...Then...Else... = (§DEF c € §BOOL, §DEF i € [[] => §INT], §DEF e € [[] => §INT]) => {
 								§RETURN (.i) IF c
 								§RETURN (.e)
 							}
 							
 							§RECURSIV {
-								§DEF Fib... = §DEF a => .If (a .< 2) Then (
+								§DEF Fib... = §DEF a € §INT => .If (a .< 2) Then (
 									() => a
 								) Else (
 									() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
@@ -123,8 +123,8 @@ mStdLib_Test {
 							
 							§RECURSIV {
 								§DEF Fib... = §DEF a => §IF a MATCH {
-									(§DEF a | a .== 0) => 0
-									(§DEF a | a .== 1) => 1
+									(§DEF a & a .== 0) => 0
+									(§DEF a & a .== 1) => 1
 									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 								}
 							}
@@ -159,7 +159,7 @@ mStdLib_Test {
 							
 							§RECURSIV {
 								§DEF Fib... = §DEF x => §IF x MATCH {
-									(§DEF a | a .< 2) => a
+									(§DEF a & a .< 2) => a
 									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 								}
 							}

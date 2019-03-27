@@ -1,4 +1,5 @@
 ﻿//IMPORT mSPO_AST.cs
+//IMPORT mSPO_AST_Types.cs
 //IMPORT mIL_AST.cs
 //IMPORT mArrayList.cs
 //IMPORT mPerf.cs
@@ -269,7 +270,7 @@ mSPO2IL {
 				return mIL_AST.cTypeType;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tNumberNode<tPos> NumberNode: {
+			case mSPO_AST.tIntNode<tPos> NumberNode: {
 			//--------------------------------------------------------------------------------
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
@@ -286,9 +287,9 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 				if (
 					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != IdentNode.Name) &&
-					aDefConstructor.Commands.ToStream(
-					).All(
-						_ => !_.TryGetResultReg(out var Name) || Name != IdentNode.Name
+					!aDefConstructor.Commands.ToStream(
+					).Any(
+						_ => _.GetResultReg().Then(aName =>  mStd.Some(aName == IdentNode.Name)).Else(false)
 					)
 				) {
 					aDefConstructor.UnsolvedSymbols.Push((IdentNode.Name, IdentNode.Pos));
@@ -476,11 +477,10 @@ mSPO2IL {
 				var SwitchDef = ModuleConstructor.NewDefConstructor();
 				
 				while (Rest.Match(out var Case, out Rest)) {
-					var (Match, Run) = Case;
-					var CasePos = ModuleConstructor.MergePos(Match.Pos, Run.Pos);
+					var CasePos = ModuleConstructor.MergePos(Case.Match.Pos, Case.Expression.Pos);
 					
 					var TestDef = ModuleConstructor.NewDefConstructor();
-					TestDef.MapMatchTest(mIL_AST.cArg, Match);
+					TestDef.MapMatchTest(mIL_AST.cArg, Case.Match);
 					TestDef.Commands.Push(mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, mIL_AST.cTrue));
 					TestDef.FinishMapProc(CasePos, TestDef.UnsolvedSymbols);
 					var TestProc = SwitchDef.InitProc(CasePos, TempDef(TestDef.Index), TestDef.UnsolvedSymbols);
@@ -488,8 +488,8 @@ mSPO2IL {
 					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResut, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
-					RunDef.MapMatch(Match, mIL_AST.cArg);
-					var Result = RunDef.MapExpresion(Run);
+					RunDef.MapMatch(Case.Match, mIL_AST.cArg);
+					var Result = RunDef.MapExpresion(Case.Expression);
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, Result, mIL_AST.cTrue));
 					RunDef.FinishMapProc(CasePos, RunDef.UnsolvedSymbols);
 					var RunProc = SwitchDef.InitProc(CasePos, TempDef(RunDef.Index), RunDef.UnsolvedSymbols);
@@ -746,7 +746,7 @@ mSPO2IL {
 					var RestReg = TempFuncDef.CreateTempReg();
 					TempFuncDef.Commands.Push(mIL_AST.GetFirst(Pos, RestReg, HeadTailReg));
 					TempFuncDef.Commands.Push(mIL_AST.RepeatIf(Pos, RestReg, mIL_AST.cTrue));
-
+					
 					var TempFuncReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.UnsolvedSymbols.Push((TempDef(TempFuncDef.Index), Element.Key.Pos));
 					aDefConstructor.Commands.Push(mIL_AST.CallFunc(Pos, TempFuncReg, TempDef(TempFuncDef.Index), mIL_AST.cEmpty));
@@ -899,7 +899,7 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tNumberNode<tPos> NumberNode: {
+			case mSPO_AST.tIntNode<tPos> NumberNode: {
 			//--------------------------------------------------------------------------------
 				var IsIntReg = aDefConstructor.CreateTempReg();
 				var IsNotIntReg = aDefConstructor.CreateTempReg();
@@ -1081,7 +1081,7 @@ mSPO2IL {
 				mIL_AST.CallProc(aMethodCallsNode.Pos, Result, MethodReg, Arg)
 			);
 			if (Call.Result != null) {
-				aDefConstructor.MapMatch(Call.Result.Value, Result);
+				aDefConstructor.MapMatch(Call.Result, Result);
 			}
 			
 			var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
@@ -1131,30 +1131,30 @@ mSPO2IL {
 		using (mPerf.Measure()) {
 			var ModuleConstructor = NewModuleConstructor(aMergePos);
 			var TempLambdaDef = ModuleConstructor.NewDefConstructor();
-			TempLambdaDef.InitMapLambda(
-				mSPO_AST.Lambda(
-					aModuleNode.Pos,
-					aModuleNode.Import.Match,
-					mSPO_AST.Block(
-						aMergePos(
-							aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.First().Pos,
-							aModuleNode.Export.Pos
-						),
-						mStream.Concat(
-							aModuleNode.Commands,
-							mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
-								mSPO_AST.ReturnIf(
-									aModuleNode.Export.Pos,
-									aModuleNode.Export.Expression,
-									mSPO_AST.True(aModuleNode.Export.Pos)
-								)
+			var Lambda = mSPO_AST.Lambda(
+				aModuleNode.Pos,
+				aModuleNode.Import.Match,
+				mSPO_AST.Block(
+					aMergePos(
+						aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.ForceFirst().Pos,
+						aModuleNode.Export.Pos
+					),
+					mStream.Concat(
+						aModuleNode.Commands,
+						mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
+							mSPO_AST.ReturnIf(
+								aModuleNode.Export.Pos,
+								aModuleNode.Export.Expression,
+								mSPO_AST.True(aModuleNode.Export.Pos)
 							)
 						)
 					)
 				)
 			);
+			mSPO_AST_Types.AddTypesTo(Lambda, null);
+			TempLambdaDef.InitMapLambda(Lambda);
 			if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
-				var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).First();
+				var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).ForceFirst();
 				throw mStd.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
 			}
 			

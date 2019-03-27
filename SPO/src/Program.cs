@@ -13,8 +13,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-static class mProgram {
-	static void Main(tText[] aArgs) {
+public static class
+mProgram {
+	public static void
+	Main(
+		tText[] aArgs
+	) {
 		var ProjectFile = new System.IO.FileInfo(aArgs.Length > 0 ? aArgs[0] : "src/_.spo");
 		var Folder = ProjectFile.Directory.FullName;
 		var DebugOut = mStd.Action((mStd.tFunc<tText> a) => System.Console.Error.WriteLine(a()));

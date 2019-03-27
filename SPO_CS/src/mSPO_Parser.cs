@@ -81,10 +81,10 @@ mSPO_Parser {
 	.ModifyS(mTokenizer.X(mSPO_AST.Ident))
 	.SetName(nameof(Ident));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tNumberNode<tSpan>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIntNode<tSpan>, tError>
 	Number = NumberToken
 	.Modify(a => tInt32.Parse(a.Text))
-	.ModifyS(mSPO_AST.Number)
+	.ModifyS(mSPO_AST.Int)
 	.SetName(nameof(Number));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTextNode<tSpan>, tError>
@@ -335,7 +335,7 @@ mSPO_Parser {
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchGuardNode<tSpan>, tError>
-	MatchGuard = C( mParserGen.Seq(UnTypedMatch, Token("|"), Expression) )
+	MatchGuard = C( mParserGen.Seq(Match, Token("&"), Expression) )
 	.Modify((a1, _ , a2) => (a1, a2))
 	.ModifyS(mSPO_AST.MatchGuard)
 	.SetName(nameof(MatchGuard));
@@ -512,7 +512,7 @@ mSPO_Parser {
 	MethodCall = mParserGen.Seq(
 		Ident,
 		Infix(ExpressionInCall),
-		(-SpecialToken("=>") +Match)[0, 1].Modify(aMatches => aMatches?.First())
+		(-SpecialToken("=>") +Match)[0, 1].Modify(aMatches => aMatches?.ForceFirst())
 	)
 	.ModifyS(
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
@@ -591,7 +591,7 @@ mSPO_Parser {
 		UnTypedMatch.Def(
 			mParserGen.OneOf(
 				MatchFreeIdent.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-				C( mParserGen.Seq(Match, ((-SpecialToken(",") | (-NLs_Token)) +Match)[0, null]) )
+				C( mParserGen.Seq(Match, ((-SpecialToken(",") | -NLs_Token) +Match)[0, null]) )
 					.Modify(mStream.Stream)
 					.ModifyS(mSPO_AST.MatchTuple)
 					.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),

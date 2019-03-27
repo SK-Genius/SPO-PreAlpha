@@ -5,7 +5,6 @@ using System.Linq;
 using tBool = System.Boolean;
 using tText = System.String;
 
-
 public static class mCheckDep {
 	#region tList
 	

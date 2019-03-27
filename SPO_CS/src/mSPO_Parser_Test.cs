@@ -53,33 +53,40 @@ mSPO_Parser_Test {
 			aStreamOut => {
 				mStd.AssertEq(
 					mSPO_Parser.Number.ParseText("+1_234", "", a => aStreamOut(a())),
-					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
+					mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.Literal.ParseText("+1_234", "", a => aStreamOut(a())),
-					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
+					mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.ExpressionInCall.ParseText("+1_234", "", a => aStreamOut(a())),
-					mSPO_AST.Number(Span((1, 1), (1, 6)), 1234)
+					mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
+					mSPO_AST.AreEqual
 				);
 				
 				mStd.AssertEq(
 					mSPO_Parser.Text.ParseText("\"BLA\"", "", a => aStreamOut(a())),
-					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
+					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.Literal.ParseText("\"BLA\"", "", a => aStreamOut(a())),
-					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
+					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.ExpressionInCall.ParseText("\"BLA\"", "", a => aStreamOut(a())),
-					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA")
+					mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
+					mSPO_AST.AreEqual
 				);
 				
 				mStd.AssertEq(
 					mSPO_Parser.ExpressionInCall.ParseText("BLA", "", a => aStreamOut(a())),
-					mSPO_AST.Ident(Span((1, 1), (1, 3)), "BLA")
+					mSPO_AST.Ident(Span((1, 1), (1, 3)), "BLA"),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -91,10 +98,11 @@ mSPO_Parser_Test {
 					mSPO_AST.Tuple(
 						Span((1, 1), (1, 15)),
 						mStream.Stream<mSPO_AST.tExpressionNode<tSpan>>(
-							mSPO_AST.Number(Span((1, 2), (1, 7)), 1234),
+							mSPO_AST.Int(Span((1, 2), (1, 7)), 1234),
 							mSPO_AST.Text(Span((1, 10), (1, 14)), "BLA")
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -105,9 +113,10 @@ mSPO_Parser_Test {
 					mSPO_Parser.Match.ParseText("12", "", a => aStreamOut(a())),
 					mSPO_AST.Match(
 						Span((1, 1), (1, 2)),
-						mSPO_AST.Number(Span((1, 1), (1, 2)), 12),
+						mSPO_AST.Int(Span((1, 1), (1, 2)), 12),
 						null
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.Match.ParseText("x", "", a => aStreamOut(a())),
@@ -115,7 +124,8 @@ mSPO_Parser_Test {
 						Span((1, 1), (1, 1)),
 						mSPO_AST.Ident(Span((1, 1), (1, 1)), "x"),
 						null
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.Match.ParseText("(12, x)", "", a => aStreamOut(a())),
@@ -124,12 +134,13 @@ mSPO_Parser_Test {
 						mSPO_AST.MatchTuple(
 							Span((1, 1), (1, 7)), 
 							mStream.Stream(
-								mSPO_AST.Match(Span((1, 2), (1, 3)), mSPO_AST.Number(Span((1, 2), (1, 3)), 12), null),
+								mSPO_AST.Match(Span((1, 2), (1, 3)), mSPO_AST.Int(Span((1, 2), (1, 3)), 12), null),
 								mSPO_AST.Match(Span((1, 6), (1, 6)), mSPO_AST.Ident(Span((1, 6), (1, 6)), "x"), null)
 							)
 						),
 						null
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -148,7 +159,8 @@ mSPO_Parser_Test {
 								mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 				mStd.AssertEq(
 					mSPO_Parser.Expression.ParseText(".sin x", "", a => aStreamOut(a())),
@@ -161,7 +173,8 @@ mSPO_Parser_Test {
 								mSPO_AST.Ident(Span((1, 6), (1, 6)), "x")
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -188,7 +201,8 @@ mSPO_Parser_Test {
 								)
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -223,7 +237,8 @@ mSPO_Parser_Test {
 								)
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -238,22 +253,23 @@ mSPO_Parser_Test {
 						mSPO_AST.Tuple(
 							Span((1, 1), (1, 17)),
 							mStream.Stream<mSPO_AST.tExpressionNode<tSpan>>(
-								mSPO_AST.Number(Span((1, 1), (1, 1)), 2),
+								mSPO_AST.Int(Span((1, 1), (1, 1)), 2),
 								mSPO_AST.Call(
 									Span((1, 7), (1, 12)),
 									mSPO_AST.Ident(Span((1, 7), (1, 12)), "...+..."),
 									mSPO_AST.Tuple(
 										Span((1, 7), (1, 12)),
 										mStream.Stream<mSPO_AST.tExpressionNode<tSpan>>(
-											mSPO_AST.Number(Span((1, 7), (1, 7)), 4),
-											mSPO_AST.Number(Span((1, 12), (1, 12)), 3)
+											mSPO_AST.Int(Span((1, 7), (1, 7)), 4),
+											mSPO_AST.Int(Span((1, 12), (1, 12)), 3)
 										)
 									)
 								),
-								mSPO_AST.Number(Span((1, 17), (1, 17)), 3)
+								mSPO_AST.Int(Span((1, 17), (1, 17)), 3)
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -318,7 +334,8 @@ mSPO_Parser_Test {
 								)
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -341,7 +358,7 @@ mSPO_Parser_Test {
 										mStream.Stream(
 											mSPO_AST.Match(
 												Span((1, 2), (1, 2)),
-												mSPO_AST.Number(Span((1, 2), (1, 2)), 1),
+												mSPO_AST.Int(Span((1, 2), (1, 2)), 1),
 												null
 											),
 											mSPO_AST.Match(
@@ -357,7 +374,8 @@ mSPO_Parser_Test {
 							null
 						),
 						mSPO_AST.Ident(Span((1, 13), (1, 13)), "a")
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -390,7 +408,8 @@ mSPO_Parser_Test {
 								null
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		),
@@ -426,11 +445,12 @@ mSPO_Parser_Test {
 						mSPO_AST.Record(
 							Span((1, 26), (1, 37)),
 							mStream.Stream<(mSPO_AST.tIdentNode<tSpan> Key, mSPO_AST.tExpressionNode<tSpan> Value)>(
-								(mSPO_AST.Ident(Span((1, 27), (1, 27)), "a"), mSPO_AST.Number(Span((1, 30), (1, 30)), 1)),
-								(mSPO_AST.Ident(Span((1, 33), (1, 33)), "b"), mSPO_AST.Number(Span((1, 36), (1, 36)), 2))
+								(mSPO_AST.Ident(Span((1, 27), (1, 27)), "a"), mSPO_AST.Int(Span((1, 30), (1, 30)), 1)),
+								(mSPO_AST.Ident(Span((1, 33), (1, 33)), "b"), mSPO_AST.Int(Span((1, 36), (1, 36)), 2))
 							)
 						)
-					)
+					),
+					mSPO_AST.AreEqual
 				);
 			}
 		)

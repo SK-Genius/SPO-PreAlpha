@@ -6,6 +6,7 @@
 //IMPORT mMap_Test.cs
 //IMPORT mParserGen_Test.cs
 //IMPORT mSPO_AST_Test.cs
+//IMPORT mSPO_AST_Types_Test.cs
 //IMPORT mSPO_Interpreter_Test.cs
 //IMPORT mSPO_Parser_Test.cs
 //IMPORT mSPO2IL_Test.cs
@@ -43,7 +44,7 @@ using xTestCategory = NUnit.Framework.CategoryAttribute;
 public static class
 mRunTests {
 	
-	static mTest.tTest Test = mTest.Tests(
+	static readonly mTest.tTest Test = mTest.Tests(
 		"All",
 		mStd_Test.Test,
 		mStream_Test.Test,
@@ -60,6 +61,7 @@ mRunTests {
 		mIL_Parser_Test.Test,
 		mIL_Interpreter_Test.Test,
 		mSPO_AST_Test.Test,
+		mSPO_AST_Types_Test.Test,
 		mSPO_Parser_Test.Test,
 		mSPO2IL_Test.Test,
 		mSPO_Interpreter_Test.Test,

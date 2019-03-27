@@ -97,17 +97,14 @@ mIL_AST {
 		public tText _3;
 	}
 	
-	public static tBool
-	TryGetResultReg<tPos>(
-		this tCommandNode<tPos> aNode,
-		out tText aResultReg
+	public static mStd.tMaybe<tText>
+	GetResultReg<tPos>(
+		this tCommandNode<tPos> aNode
 	) {
-		if (aNode.NodeType >= tCommandNodeType._Commands_) {
-			aResultReg = null;
-			return false;
+		if (aNode.NodeType < tCommandNodeType._Commands_) {
+			return aNode._1;
 		} else {
-			aResultReg = aNode._1;
-			return true;
+			return mStd.cEmpty;
 		}
 	}
 	

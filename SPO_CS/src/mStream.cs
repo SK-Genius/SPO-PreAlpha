@@ -24,7 +24,7 @@ mStream {
 		internal t _Head;
 		internal mStd.tLazy<tStream<t>> _Tail;
 		
-		public t Head => this.First();
+		public t Head => this.ForceFirst();
 		public tStream<t> Tail => this.Skip(1);
 		
 		public tBool
@@ -154,11 +154,12 @@ mStream {
 	public static t
 	Join<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<t, t, t> aAgregatorFunc
+		mStd.tFunc<t, t, t> aAgregatorFunc,
+		t aDefault
 	) => (
 		aStream.Match(out var Head, out var Tail)
 		? Tail.Reduce(Head, aAgregatorFunc)
-		: default
+		: aDefault
 	);
 	
 	public static tStream<t>
@@ -253,23 +254,42 @@ mStream {
 	IsEmpty<t>(
 		this tStream<t> aStream
 	) => aStream is null;
-	
-	public static t
+
+	public static mStd.tMaybe<t>
 	First<t>(
 		this tStream<t> aStream
-	) => aStream._Head;
-	
+	) {
+		if (aStream.IsEmpty()) {
+			return mStd.cEmpty;
+		} else {
+			return aStream._Head;
+		}
+	}
+
 	public static t
+	ForceFirst<t>(
+		this tStream<t> aStream
+	) => aStream.First().ElseThrow("imposible");
+
+	public static mStd.tMaybe<t>
 	Last<t>(
 		this tStream<t> aStream
 	) {
-		var Result = aStream.First();
-		while (aStream.Match(out var Head, out aStream)) {
-			Result = Head;
+		if (aStream.First().Match(out var Result)) {
+			while (aStream.Match(out var Head, out aStream)) {
+				Result = Head;
+			}
+			return Result;
+		} else {
+			return mStd.cEmpty;
 		}
-		return Result;
 	}
-	
+
+	public static t
+	ForceLast<t>(
+		this tStream<t> aStream
+	) => aStream.Last().ElseThrow("imposible");
+
 	public static tBool
 	Any(
 		this tStream<tBool> aStream
