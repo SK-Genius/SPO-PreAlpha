@@ -538,14 +538,14 @@ mVM_Type {
 		}
 	}
 	
-	public static void
+	public static tBool
 	Unify(
 		tType a1,
 		tType a2,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		if (a1 == a2) {
-			return;
+			return true;
 		}
 		
 		if (
@@ -553,7 +553,7 @@ mVM_Type {
 			a2.Kind == tKind.Free
 		) {
 			if (ReferenceEquals(a1.Refs, a2.Refs)) {
-				return;
+				return true;
 			}
 			var Aliases = mStream.Concat(mStream.Stream(a1.Refs), mStream.Stream(a2.Refs));
 			var NewRefs = Aliases.ToArrayList().ToArray();
@@ -561,7 +561,7 @@ mVM_Type {
 				Alias.Id = a1.Id;
 				Alias.Refs = NewRefs;
 			}
-			return;
+			return true;
 		}
 		
 		if (a1.Kind == tKind.Free) {
@@ -573,55 +573,61 @@ mVM_Type {
 				Alias.Prefix = a2.Prefix;
 				Alias.Refs = a2.Refs;
 			}
-			return;
+			return true;
 		}
 		
 		if (a2.Kind == tKind.Free) {
-			Unify(a2, a1, aTrace);
-			return;
+			return Unify(a2, a1, aTrace);
 		}
 		
-		if (a1.Kind != a2.Kind) {
-			mStd.Assert(false);
-			var Type1 = new tType {
-				Id = a1.Id,
-				Kind = a1.Kind,
-				Prefix = a1.Prefix,
-				Refs = a1.Refs,
-			};
-			var Type2 = new tType {
-				Id = a2.Id,
-				Kind = a2.Kind,
-				Prefix = a2.Prefix,
-				Refs = a2.Refs,
-			};
-			
-			a1.Kind = tKind.Set;
-			a1.Id = ""+NextPlaceholderId;
-			NextPlaceholderId += 1;
-			a1.Prefix = null;
-			
-			if (a1.Kind == tKind.Set) {
-				a1.Refs = mStream.Stream(Type2, mStream.Stream(a1.Refs)).ToArrayList().ToArray();
-			} else if (a2.Kind == tKind.Set) {
-				a1.Refs = mStream.Stream(Type1, mStream.Stream(a2.Refs)).ToArrayList().ToArray();
-			} else {
-				a1.Refs = new[]{Type1, Type2};
+		if (a1.Kind == a2.Kind) {
+			mStd.AssertEq(a1.Id, a2.Id);
+			mStd.AssertEq(a1.Prefix, a2.Prefix);
+			var RefCount = a1.Refs.Length;
+			mStd.AssertEq(a2.Refs.Length, RefCount);
+			while (RefCount-- > 0) {
+				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
+					return false;
+				}
 			}
-			
-			a2.Kind = a1.Kind;
-			a2.Id = a1.Id;
-			a2.Prefix = a1.Prefix;
-			a2.Refs = a1.Refs;
-			return;
+			return true;
 		}
-		mStd.AssertEq(a1.Id, a2.Id);
-		mStd.AssertEq(a1.Prefix, a2.Prefix);
-		var RefCount = a1.Refs.Length;
-		mStd.AssertEq(a2.Refs.Length, RefCount);
-		while (RefCount --> 0) {
-			Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace);
+		
+		#if true
+		return false;
+		#else
+		var Type1 = new tType {
+			Id = a1.Id,
+			Kind = a1.Kind,
+			Prefix = a1.Prefix,
+			Refs = a1.Refs,
+		};
+		var Type2 = new tType {
+			Id = a2.Id,
+			Kind = a2.Kind,
+			Prefix = a2.Prefix,
+			Refs = a2.Refs,
+		};
+		
+		a1.Kind = tKind.Set;
+		a1.Id = "" + NextPlaceholderId;
+		NextPlaceholderId += 1;
+		a1.Prefix = null;
+		
+		if (a1.Kind == tKind.Set) {
+			a1.Refs = mStream.Stream(Type2, mStream.Stream(a1.Refs)).ToArrayList().ToArray();
+		} else if (a2.Kind == tKind.Set) {
+			a1.Refs = mStream.Stream(Type1, mStream.Stream(a2.Refs)).ToArrayList().ToArray();
+		} else {
+			a1.Refs = new[] { Type1, Type2 };
 		}
+		
+		a2.Kind = a1.Kind;
+		a2.Id = a1.Id;
+		a2.Prefix = a1.Prefix;
+		a2.Refs = a1.Refs;
+		return true;
+		#endif
 	}
 	
 	public static tText

@@ -147,10 +147,12 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tCallNode<tPos> Call: {
 				Result = mVM_Type.Free();
-				mVM_Type.Unify(
-					AddTypesTo(Call.Func, aScope),
-					mVM_Type.Proc(mVM_Type.Empty(), AddTypesTo(Call.Arg, aScope), Result),
-					_ => { _.ToString(); }
+				mStd.Assert(
+					mVM_Type.Unify(
+						AddTypesTo(Call.Func, aScope),
+						mVM_Type.Proc(mVM_Type.Empty(), AddTypesTo(Call.Arg, aScope), Result),
+						_ => { _.ToString(); }
+					)
 				);
 				break;
 			}
@@ -174,10 +176,12 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tVarToValNode<tPos> VarToVal: {
 				Result = mVM_Type.Free();
-				mVM_Type.Unify(
-					AddTypesTo(VarToVal.Obj, aScope),
-					mVM_Type.Var(Result),
-					_ => { _.ToString(); }
+				mStd.Assert(
+					mVM_Type.Unify(
+						AddTypesTo(VarToVal.Obj, aScope),
+						mVM_Type.Var(Result),
+						_ => { _.ToString(); }
+					)
 				);
 				break;
 			}
@@ -186,7 +190,12 @@ mSPO_AST_Types {
 				Result = mVM_Type.Free();
 				while (Tail.Match(out var Head, out Tail)) {
 					AddTypesTo(Head.Cond, aScope);
-					mVM_Type.Unify(Result, AddTypesTo(Head.Result, aScope), _ => { _.ToString(); });
+					mStd.Assert(
+						mVM_Type.Unify(
+							Result,
+							AddTypesTo(Head.Result, aScope), _ => { _.ToString(); }
+						)
+					);
 				}
 				break;
 			}
@@ -370,7 +379,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tMethodCallNode<tPos> MethodCall: {
 				var ArgType = AddTypesTo(MethodCall.Argument, aScope);
 				var MethodType = AddTypesTo(MethodCall.Method, aScope);
-				mVM_Type.Unify(ArgType, MethodType, _ => _.ToString());
+				mStd.Assert(mVM_Type.Unify(ArgType, MethodType, _ => _.ToString()));
 				MethodType.MatchProc(out _, out _, out var ResType);
 				AddTypesTo(MethodCall.Result, ResType, aScope, out aNewScope);
 				break;
@@ -382,20 +391,24 @@ mSPO_AST_Types {
 				while (Tail.Match(out var Head, out Tail)) {
 					var ArgType = AddTypesTo(Head.Argument, aNewScope);
 					if (Head.Method.Name == "_=...") {
-						mVM_Type.Unify(
-							ObjType,
-							ArgType,
-							_ => { _.ToString(); }
-						);
-					} else {
-						mVM_Type.Unify(
-							AddTypesTo(Head.Method, aNewScope),
-							mVM_Type.Proc(
+						mStd.Assert(
+							mVM_Type.Unify(
 								ObjType,
 								ArgType,
-								Head.Result is null ? mVM_Type.Empty() : AddTypesTo(Head.Result, aNewScope, out aNewScope)
-							),
-							_ => { _.ToString(); }
+								_ => { _.ToString(); }
+							)
+						);
+					} else {
+						mStd.Assert(
+							mVM_Type.Unify(
+								AddTypesTo(Head.Method, aNewScope),
+								mVM_Type.Proc(
+									ObjType,
+									ArgType,
+									Head.Result is null ? mVM_Type.Empty() : AddTypesTo(Head.Result, aNewScope, out aNewScope)
+								),
+								_ => { _.ToString(); }
+							)
 						);
 					}
 				}
@@ -425,10 +438,12 @@ mSPO_AST_Types {
 				}
 				Tail = RecLambdas.List;
 				while (Tail.Match(out var Head, out Tail)) {
-					mVM_Type.Unify(
-						aNewScope.Where(_ => _.Ident == Head.Ident.Name).ForceFirst().Type,
-						AddTypesTo(Head.Lambda, aNewScope),
-						_ => { _.ToString(); }
+					mStd.Assert(
+						mVM_Type.Unify(
+							aNewScope.Where(_ => _.Ident == Head.Ident.Name).ForceFirst().Type,
+							AddTypesTo(Head.Lambda, aNewScope),
+							_ => { _.ToString(); }
+						)
 					);
 				}
 				break;
