@@ -682,9 +682,9 @@ mVM_Data {
 		a1 = default;
 		a2 = default;
 		return (
-			aData.MatchPair(out a1, out var _2) &&
-			_2.MatchPair(out a2, out var __) &&
-			__.MatchEmpty()
+			aData.MatchPair(out a1, out var Rest2) &&
+			Rest2.MatchPair(out a2, out var Rest_) &&
+			Rest_.MatchEmpty()
 		);
 	}
 	
@@ -699,10 +699,10 @@ mVM_Data {
 		a2 = default;
 		a3 = default;
 		return (
-			aData.MatchPair(out a1, out var _23) &&
-			_23.MatchPair(out a2, out var _3) &&
-			_3.MatchPair(out a3, out var __) &&
-			__.MatchEmpty()
+			aData.MatchPair(out a1, out var Rest23) &&
+			Rest23.MatchPair(out a2, out var Rest3) &&
+			Rest3.MatchPair(out a3, out var Rest_) &&
+			Rest_.MatchEmpty()
 		);
 	}
 	
@@ -719,11 +719,11 @@ mVM_Data {
 		a3 = default;
 		a4 = default;
 		return (
-			aData.MatchPair(out a1, out var _234) &&
-			_234.MatchPair(out a2, out var _34) &&
-			_34.MatchPair(out a3, out var _4) &&
-			_4.MatchPair(out a4, out var __) &&
-			__.MatchEmpty()
+			aData.MatchPair(out a1, out var Rest234) &&
+			Rest234.MatchPair(out a2, out var Rest34) &&
+			Rest34.MatchPair(out a3, out var Rest4) &&
+			Rest4.MatchPair(out a4, out var Rest_) &&
+			Rest_.MatchEmpty()
 		);
 	}
 	
@@ -912,8 +912,8 @@ mVM_Data {
 		if (a.MatchVar(out Value)) {
 			return $"(§VAR {ToText(Value, NextLimit)})";
 		}
-		if (a.MatchPair(out var _1, out var _2)) {
-			return $"({ToText(_1, NextLimit)}; {ToText(_2,  NextLimit)})";
+		if (a.MatchPair(out var Rest1, out var Rest2)) {
+			return $"({ToText(Rest1, NextLimit)}; {ToText(Rest2,  NextLimit)})";
 		}
 		return $"(?{a._DataType}?)";
 	}
