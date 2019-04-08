@@ -878,8 +878,8 @@ mSPO_AST {
 			case tFalseNode<tPos> _: {
 				return a2 is tFalseNode<tPos>;
 			}
-			case tIntNode<tPos> _1: {
-				return a2 is tIntNode<tPos> _2 && _1.Value == _2.Value;
+			case tIntNode<tPos> Node1: {
+				return a2 is tIntNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
 			case tEmptyTypeNode<tPos> _: {
 				return a2 is tEmptyTypeNode<tPos>;
@@ -893,40 +893,40 @@ mSPO_AST {
 			case tTypeTypeNode<tPos> _: {
 				return a2 is tTypeTypeNode<tPos>;
 			}
-			case tTextNode<tPos> _1: {
-				return a2 is tTextNode<tPos> _2 && _1.Value == _2.Value;
+			case tTextNode<tPos> Node1: {
+				return a2 is tTextNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
 			case tIgnoreMatchNode<tPos> _: {
 				return a2 is tIgnoreMatchNode<tPos>;
 			}
-			case tIdentNode<tPos> _1: {
-				return a2 is tIdentNode<tPos> _2 && _1.Name == _2.Name;
+			case tIdentNode<tPos> Node1: {
+				return a2 is tIdentNode<tPos> Node2 && Node1.Name == Node2.Name;
 			}
-			case tMatchFreeIdentNode<tPos> _1: {
-				return a2 is tMatchFreeIdentNode<tPos> _2 && _1.Name == _2.Name;
+			case tMatchFreeIdentNode<tPos> Node1: {
+				return a2 is tMatchFreeIdentNode<tPos> Node2 && Node1.Name == Node2.Name;
 			}
-			case tMatchTupleNode<tPos> _1: {
+			case tMatchTupleNode<tPos> Node1: {
 				return (
-					a2 is tMatchTupleNode<tPos> _2 &&
-					mStream.Zip(_1.Items, _2.Items).All(_ => AreEqual(_._1, _._2))
+					a2 is tMatchTupleNode<tPos> Node2 &&
+					mStream.Zip(Node1.Items, Node2.Items).All(_ => AreEqual(_._1, _._2))
 				);
 			}
-			case tMatchNode<tPos> _1: {
+			case tMatchNode<tPos> Node1: {
 				return (
-					a2 is tMatchNode<tPos> _2 &&
-					AreEqual(_1.Pattern, _2.Pattern) &&
-					AreEqual(_1.Type, _2.Type)
+					a2 is tMatchNode<tPos> Node2 &&
+					AreEqual(Node1.Pattern, Node2.Pattern) &&
+					AreEqual(Node1.Type, Node2.Type)
 				);
 			}
 			case tPrefixNode<tPos> _: {
 				break;
 			}
-			case tRecordNode<tPos> _1: {
+			case tRecordNode<tPos> Node1: {
 				return (
-					a2 is tRecordNode<tPos> _2 &&
+					a2 is tRecordNode<tPos> Node2 &&
 					mStream.Zip(
-						_1.Elements,
-						_2.Elements
+						Node1.Elements,
+						Node2.Elements
 					).All(
 						_ => (
 							AreEqual(_._1.Key, _._2.Key) &&
@@ -935,12 +935,12 @@ mSPO_AST {
 					)
 				);
 			}
-			case tMatchRecordNode<tPos> _1: {
+			case tMatchRecordNode<tPos> Node1: {
 				return (
-					a2 is tMatchRecordNode<tPos> _2 &&
+					a2 is tMatchRecordNode<tPos> Node2 &&
 					mStream.Zip(
-						_1.Elements,
-						_2.Elements
+						Node1.Elements,
+						Node2.Elements
 					).All(
 						_ => (
 							AreEqual(_._1.Key, _._2.Key) &&
@@ -949,21 +949,21 @@ mSPO_AST {
 					)
 				);
 			}
-			case tMatchPrefixNode<tPos> _1: {
+			case tMatchPrefixNode<tPos> Node1: {
 				return (
-					a2 is tMatchPrefixNode<tPos> _2 &&
-					_1.Prefix == _2.Prefix &&
-					AreEqual(_1.Match, _2.Match)
+					a2 is tMatchPrefixNode<tPos> Node2 &&
+					Node1.Prefix == Node2.Prefix &&
+					AreEqual(Node1.Match, Node2.Match)
 				);
 			}
 			case tMatchGuardNode<tPos> _: {
 				break;
 			}
-			case tLambdaNode<tPos> _1: {
+			case tLambdaNode<tPos> Node1: {
 				return (
-					a2 is tLambdaNode<tPos> _2 &&
-					AreEqual(_1.Head , _2.Head) &&
-					AreEqual(_1.Body, _2.Body)
+					a2 is tLambdaNode<tPos> Node2 &&
+					AreEqual(Node1.Head , Node2.Head) &&
+					AreEqual(Node1.Body, Node2.Body)
 				);
 			}
 			case tMethodNode<tPos> _: {
@@ -972,31 +972,31 @@ mSPO_AST {
 			case tBlockNode<tPos> _: {
 				break;
 			}
-			case tCallNode<tPos> _1: {
+			case tCallNode<tPos> Node1: {
 				return (
-					a2 is tCallNode<tPos> _2 &&
-					AreEqual(_1.Func, _2.Func) &&
-					AreEqual(_1.Arg, _2.Arg)
+					a2 is tCallNode<tPos> Node2 &&
+					AreEqual(Node1.Func, Node2.Func) &&
+					AreEqual(Node1.Arg, Node2.Arg)
 				);
 			}
-			case tDefNode<tPos> _1: {
+			case tDefNode<tPos> Node1: {
 				return (
-					a2 is tDefNode<tPos> _2 &&
-					AreEqual(_1.Src, _2.Src) &&
-					AreEqual(_1.Des, _2.Des)
+					a2 is tDefNode<tPos> Node2 &&
+					AreEqual(Node1.Src, Node2.Src) &&
+					AreEqual(Node1.Des, Node2.Des)
 				);
 			}
-			case tRecLambdaItemNode<tPos> _1: {
+			case tRecLambdaItemNode<tPos> Node1: {
 				return (
-					a2 is tRecLambdaItemNode<tPos> _2 &&
-					AreEqual(_1.Ident, _2.Ident) &&
-					AreEqual(_1.Lambda, _2.Lambda)
+					a2 is tRecLambdaItemNode<tPos> Node2 &&
+					AreEqual(Node1.Ident, Node2.Ident) &&
+					AreEqual(Node1.Lambda, Node2.Lambda)
 				);
 			}
-			case tRecLambdasNode<tPos> _1: {
+			case tRecLambdasNode<tPos> Node1: {
 				return (
-					a2 is tRecLambdasNode<tPos> _2 &&
-					mStream.Zip(_1.List, _2.List).All(_ => AreEqual(_._1, _._2))
+					a2 is tRecLambdasNode<tPos> Node2 &&
+					mStream.Zip(Node1.List, Node2.List).All(_ => AreEqual(_._1, _._2))
 				);
 			}
 			case tReturnIfNode<tPos> _: {
@@ -1032,25 +1032,25 @@ mSPO_AST {
 			case tDefVarNode<tPos> _: {
 				break;
 			}
-			case tVarToValNode<tPos> _1: {
+			case tVarToValNode<tPos> Node1: {
 				return (
-					a2 is tVarToValNode<tPos> _2 &&
-					AreEqual(_1.Obj, _2.Obj)
+					a2 is tVarToValNode<tPos> Node2 &&
+					AreEqual(Node1.Obj, Node2.Obj)
 				);
 			}
-			case tMethodCallNode<tPos> _1: {
+			case tMethodCallNode<tPos> Node1: {
 				return (
-					a2 is tMethodCallNode<tPos> _2 &&
-					AreEqual(_1.Method, _2.Method) &&
-					AreEqual(_1.Argument, _2.Argument) &&
-					AreEqual(_1.Result, _2.Result)
+					a2 is tMethodCallNode<tPos> Node2 &&
+					AreEqual(Node1.Method, Node2.Method) &&
+					AreEqual(Node1.Argument, Node2.Argument) &&
+					AreEqual(Node1.Result, Node2.Result)
 				);
 			}
-			case tMethodCallsNode<tPos> _1: {
+			case tMethodCallsNode<tPos> Node1: {
 				return (
-					a2 is tMethodCallsNode<tPos> _2 &&
-					AreEqual(_1.Object, _2.Object) &&
-					mStream.Zip(_1.MethodCalls, _2.MethodCalls).All(_ => AreEqual(_._1, _._2))
+					a2 is tMethodCallsNode<tPos> Node2 &&
+					AreEqual(Node1.Object, Node2.Object) &&
+					mStream.Zip(Node1.MethodCalls, Node2.MethodCalls).All(_ => AreEqual(_._1, _._2))
 				);
 			}
 			case tPipeToRightNode<tPos> _: {
@@ -1059,10 +1059,10 @@ mSPO_AST {
 			case tPipeToLeftNode<tPos> _: {
 				break;
 			}
-			case tTupleNode<tPos> _1: {
+			case tTupleNode<tPos> Node1: {
 				return (
-					a2 is tTupleNode<tPos> _2 &&
-					mStream.Zip(_1.Items, _2.Items).All(_ => AreEqual(_._1, _._2))
+					a2 is tTupleNode<tPos> Node2 &&
+					mStream.Zip(Node1.Items, Node2.Items).All(_ => AreEqual(_._1, _._2))
 				);
 			}
 			case tImportNode<tPos> _: {
@@ -1080,5 +1080,4 @@ mSPO_AST {
 		}
 		throw mError.Error("not implemented: " + a1.GetType().Name);
 	}
-
 }
