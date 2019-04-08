@@ -73,9 +73,6 @@
     <Compile Include="src\mDebug.cs" />
     <Compile Include="src\mError.cs" />
     <Compile Include="src\mIL_AST.cs" />
-    <Compile Include="src\mIL_AST.Test.cs">
-      <DependentUpon>mIL_AST.cs</DependentUpon>
-    </Compile>
     <Compile Include="src\mIL_Interpreter.cs" />
     <Compile Include="src\mIL_Interpreter.Test.cs">
       <DependentUpon>mIL_Interpreter.cs</DependentUpon>
@@ -100,9 +97,6 @@
       <DependentUpon>mSPO2IL.cs</DependentUpon>
     </Compile>
     <Compile Include="src\mSPO_AST.cs" />
-    <Compile Include="src\mSPO_AST.Test.cs">
-      <DependentUpon>mSPO_AST.cs</DependentUpon>
-    </Compile>
     <Compile Include="src\mSPO_AST_Types.cs" />
     <Compile Include="src\mSPO_AST_Types.Test.cs">
       <DependentUpon>mSPO_AST_Types.cs</DependentUpon>
@@ -126,13 +120,7 @@
     </Compile>
     <Compile Include="src\mTest.cs" />
     <Compile Include="src\mTextParser.cs" />
-    <Compile Include="src\mTextParser.Test.cs">
-      <DependentUpon>mTextParser.cs</DependentUpon>
-    </Compile>
     <Compile Include="src\mTextStream.cs" />
-    <Compile Include="src\mTextStream.Test.cs">
-      <DependentUpon>mTextStream.cs</DependentUpon>
-    </Compile>
     <Compile Include="src\mTokenizer.cs" />
     <Compile Include="src\mTokenizer.Test.cs">
       <DependentUpon>mTokenizer.cs</DependentUpon>
@@ -140,9 +128,6 @@
     <Compile Include="src\mAny.cs" />
     <Compile Include="src\mVM.cs" />
     <Compile Include="src\mVM_Data.cs" />
-    <Compile Include="src\mVM_Data.Test.cs">
-      <DependentUpon>mVM_Data.cs</DependentUpon>
-    </Compile>
     <Compile Include="src\mVM.Test.cs">
       <DependentUpon>mVM.cs</DependentUpon>
     </Compile>
