@@ -51,7 +51,7 @@ mIL_Interpreter<tPos> {
 				var DefObjType = mVM_Type.Free("§OBJ");
 				var DefArgType = mVM_Type.Free("§ARG");
 				var DefResType = mVM_Type.Free("§RES");
-				mStd.Assert(
+				mAssert.Assert(
 					mVM_Type.Unify(
 						NewProc.DefType,
 						mVM_Type.Proc(
@@ -103,7 +103,7 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Free();
 						var ProcReg = Regs.ForceGet(RegId2);
 						var ArgReg = Regs.ForceGet(RegId3);
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(ProcReg),
 								mVM_Type.Proc(mVM_Type.Empty(), Types.Get(ArgReg), ResType),
@@ -119,7 +119,7 @@ mIL_Interpreter<tPos> {
 						var ProcReg = Regs.ForceGet(RegId2);
 						var ArgReg = Regs.ForceGet(RegId3);
 						var ObjType = mVM_Type.Free();
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(ProcReg),
 								mVM_Type.Pair(ObjType, mVM_Type.Proc(ObjType, Types.Get(ArgReg), ResType)),
@@ -156,8 +156,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.And(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -166,8 +166,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.Or(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -176,8 +176,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.XOr(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -186,8 +186,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.IntsAreEq(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -196,8 +196,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.IntsComp(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -206,8 +206,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.IntsAdd(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -216,8 +216,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.IntsSub(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -226,8 +226,8 @@ mIL_Interpreter<tPos> {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.ForceGet(RegId2);
 						var Reg2 = Regs.ForceGet(RegId3);
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.IntsMul(Span, Reg1, Reg2));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Free();
 						var ArgReg = Regs.ForceGet(RegId2);
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(ArgReg),
 								mVM_Type.Pair(ResType, mVM_Type.Free()),
@@ -263,7 +263,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Free();
 						var ArgReg = Regs.ForceGet(RegId2);
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(ArgReg),
 								mVM_Type.Pair(mVM_Type.Free(), ResType),
@@ -277,25 +277,25 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var ResReg = Regs.ForceGet(RegId1);
 						var CondReg = Regs.ForceGet(RegId2);
-						mStd.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(ResReg), DefResType, aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(ResReg), DefResType, aTrace));
 						NewProc.ReturnIf(Span, CondReg, ResReg);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.RepeatIf, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.ForceGet(RegId1);
 						var CondReg = Regs.ForceGet(RegId2);
-						mStd.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
-						mStd.Assert(mVM_Type.Unify(Types.Get(ArgReg), DefArgType, aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(ArgReg), DefArgType, aTrace));
 						NewProc.ContinueIf(Span, CondReg, ArgReg);
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.TailCallIf, out Span, out RegId1, out RegId2)) {
 					//--------------------------------------------------------------------------------
 						var ResReg = Regs.ForceGet(RegId1);
 						var CondReg = Regs.ForceGet(RegId2);
-						mStd.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
 						var ArgType = mVM_Type.Free();
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(ResReg),
 								mVM_Type.Pair(
@@ -324,7 +324,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var Reg = Regs.ForceGet(RegId3);
 						var ResType = mVM_Type.Free();
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(Reg),
 								mVM_Type.Prefix(Prefix, ResType),
@@ -338,7 +338,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
 						var Reg = Regs.ForceGet(RegId3);
-						//mStd.Assert(
+						//mAssert.Assert(
 						//	mVM_Type.Unify(
 						//		Types.Get(Reg),
 						//		mVM_Type.Prefix(mVM_Type.cUnknownPrefix, mVM_Type.Free()),
@@ -365,7 +365,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var RecordReg = Regs.ForceGet(RegId2);
 						var RecordType = Types.Get(RecordReg);
-						mStd.AssertNotEq(RecordType.Kind, mVM_Type.tKind.Empty);
+						mAssert.AssertNotEq(RecordType.Kind, mVM_Type.tKind.Empty);
 						Regs = Regs.Set(RegId1, NewProc.DivideRec(Span, RecordReg));
 						Types.Push(mVM_Type.Pair(RecordType.Refs[0], RecordType.Refs[1]));
 					//--------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var VarReg = Regs.ForceGet(RegId1);
 						var ValReg = Regs.ForceGet(RegId2);
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(VarReg),
 								mVM_Type.Var(Types.Get(ValReg)),
@@ -406,7 +406,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Free();
 						var VarReg = Regs.ForceGet(RegId2);
-						mStd.Assert(mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(ResType), aTrace));
+						mAssert.Assert(mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(ResType), aTrace));
 						Regs = Regs.Set(RegId1, NewProc.VarGet(Span, VarReg));
 						Types.Push(ResType);
 					//--------------------------------------------------------------------------------
@@ -418,7 +418,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.TypeCond, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
-						throw mStd.Error("TODO"); // TODO
+						throw mError.Error("TODO"); // TODO
 					//--------------------------------------------------------------------------------
 					} else if (Command.Match(mIL_AST.tCommandNodeType.TypeFunc, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ mIL_Interpreter<tPos> {
 						var ArgType = mVM_Type.Free();
 						var ResType = mVM_Type.Free();
 						Regs = Regs.Set(RegId1, NewProc.TypeMeth(Span, ObjTypeReg, FuncTypeReg));
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								Types.Get(FuncTypeReg),
 								mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType),
@@ -520,7 +520,7 @@ mIL_Interpreter<tPos> {
 					} else if (Command.Match(mIL_AST.tCommandNodeType.TypeRecursive, out Span, out RegId1, out RegId2, out RegId3)) {
 					//--------------------------------------------------------------------------------
 						var FreeTypeReg = Regs.ForceGet(RegId2);
-						mStd.AssertEq(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2)), null, _ => mVM_Type.ToText(_, 10));
+						mAssert.AssertEq(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2)), null, _ => mVM_Type.ToText(_, 10));
 						var TypeBodyReg = Regs.ForceGet(RegId3);
 						Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
 						Types.Push(
@@ -562,7 +562,7 @@ mIL_Interpreter<tPos> {
 					//--------------------------------------------------------------------------------
 					} else {
 					//--------------------------------------------------------------------------------
-						throw mStd.Error($"impossible  (missing: {Command.NodeType})");
+						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 					
 					mDebug.AssertEq(Types.Size() - 1, NewProc._LastReg);

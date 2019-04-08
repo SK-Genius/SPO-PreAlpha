@@ -34,14 +34,14 @@ mProgram {
 						"_LoadModule...",
 						mVM_Data.ExternProc(
 							(aDef, aObj, aArg, _) => {
-								mStd.Assert(aObj.MatchPrefix("IO", out var X));
-								mStd.Assert(X.MatchEmpty());
+								mAssert.Assert(aObj.MatchPrefix("IO", out var X));
+								mAssert.Assert(X.MatchEmpty());
 								
 								var File = "";
 								var RestText = aArg;
 								while (RestText.MatchPair(out var Char, out RestText)) {
-									mStd.Assert(Char.MatchPrefix("Char", out var Int));
-									mStd.Assert(Int.MatchInt(out var Ord));
+									mAssert.Assert(Char.MatchPrefix("Char", out var Int));
+									mAssert.Assert(Int.MatchInt(out var Ord));
 									File += (char)Ord;
 								}
 								
@@ -64,7 +64,7 @@ mProgram {
 			);
 			
 			var Result = mVM_Data.Empty();
-			mVM.Run<mStd.tSpan<mTextStream.tPos>>(
+			mVM.Run<mSpan.tSpan<mTextStream.tPos>>(
 				Method,
 				mVM_Data.Prefix("IO", mVM_Data.Empty()),
 				mVM_Data.Empty(),
@@ -73,10 +73,10 @@ mProgram {
 				a => {} //DebugOut
 			);
 			
-			mStd.Assert(Result.MatchBool(out var IsOK));
-			mStd.Assert(IsOK);
+			mAssert.Assert(Result.MatchBool(out var IsOK));
+			mAssert.Assert(IsOK);
 			DebugOut(() => "OK");
-		} catch (mStd.tError<mStd.tEmpty> Error) {
+		} catch (mError.tError<mStd.tEmpty> Error) {
 			DebugOut(() => Error.Message);
 			System.Environment.Exit(-1);
 		}

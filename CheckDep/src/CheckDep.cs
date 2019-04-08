@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -110,9 +111,16 @@ public static class mCheckDep {
 	Main(
 		string[] aFiles
 	) {
-		var Modules = default(tList<(tText Module, tList<tText> SubModules)>);
-		foreach (var File in aFiles) {
-			AddTo(ref Modules, new FileInfo(File).FullName, null);
+		CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+		try {
+			var Modules = default(tList<(tText Module, tList<tText> SubModules)>);
+			foreach (var File in aFiles) {
+				AddTo(ref Modules, new FileInfo(File).FullName, null);
+			}
+		} catch (Exception Ex) {
+			Console.WriteLine($"ERROR: " + Ex.Message);
+		} finally {
+			"".ToString();
 		}
 	}
 	
@@ -126,8 +134,7 @@ public static class mCheckDep {
 			return;
 		}
 		if(aModulePath.Any(_ => _ == aNewModule)) {
-			Console.WriteLine(aModulePath.Reduce(aNewModule + " in path:", (aAll, aNew) => aAll + "\n  " + aNew));
-			Environment.Exit(-1);
+			throw new Exception(aModulePath.Reduce(aNewModule + " in path:", (aAll, aNew) => aAll + "\n  " + aNew));
 		}
 		var ModuleFile = new FileInfo(aNewModule);
 		if (!ModuleFile.Exists) {
@@ -160,7 +167,7 @@ public static class mCheckDep {
 			HasErrors = true;
 		}
 		if (HasErrors) {
-			Environment.Exit(-1);
+			throw new Exception("in: " + aNewModule);
 		}
 	}
 	

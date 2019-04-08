@@ -32,10 +32,10 @@ mSPO_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchPair(out var Arg2_, out var _));
-		mStd.Assert(Arg2_.MatchInt(out var IntArg2));
+		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
+		mAssert.Assert(Arg2.MatchPair(out var Arg2_, out var _));
+		mAssert.Assert(Arg2_.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -45,7 +45,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run1",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -72,7 +72,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run2",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -98,7 +98,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run3",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -122,7 +122,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run4",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -142,7 +142,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run5",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -168,7 +168,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run6",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (§DEF ...*... € [[§INT, §INT] => §INT])
@@ -223,7 +223,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run7",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT ()
@@ -245,7 +245,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run8",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT ()
@@ -270,11 +270,11 @@ mSPO_Interpreter_Test {
 	[xTestCase("Run3")]
 	[xTestCase("Run4")]
 	[xTestCase("Run5")]
-//	[xTestCase("Run6")]
+	[xTestCase("Run6")]
 	[xTestCase("Run7")]
 	[xTestCase("Run8")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

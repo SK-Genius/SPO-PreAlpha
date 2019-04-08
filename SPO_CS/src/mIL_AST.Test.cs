@@ -38,7 +38,7 @@ mIL_AST_Test {
 	#if NUNIT
 	[xTestCase("TODO")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

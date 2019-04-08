@@ -1,4 +1,4 @@
-﻿//IMPORT mStd.cs
+﻿//IMPORT mAssert.cs
 
 using tBool = System.Boolean;
 
@@ -23,7 +23,7 @@ mDebug {
 		tBool a
 	) {
 		#if DEBUG
-		mStd.Assert(a);
+		mAssert.Assert(a);
 		#endif
 	}
 	
@@ -33,7 +33,7 @@ mDebug {
 		tText aMsg
 	) {
 		#if DEBUG
-		mStd.Assert(a, aMsg);
+		mAssert.Assert(a, aMsg);
 		#endif
 	}
 	
@@ -43,7 +43,7 @@ mDebug {
 		mStd.tFunc<tText> aMsg
 	) {
 		#if DEBUG
-		mStd.Assert(a, aMsg);
+		mAssert.Assert(a, aMsg);
 		#endif
 	}
 	
@@ -52,7 +52,7 @@ mDebug {
 		tBool a
 	) {
 		#if DEBUG
-		mStd.AssertNot(a);
+		mAssert.AssertNot(a);
 		#endif
 	}
 	
@@ -62,7 +62,7 @@ mDebug {
 		t a2
 	) {
 		#if DEBUG
-		mStd.AssertEq(a1, a2);
+		mAssert.AssertEq(a1, a2);
 		#endif
 	}
 	
@@ -72,7 +72,7 @@ mDebug {
 		t a2
 	) {
 		#if DEBUG
-		mStd.AssertNotEq(a1, a2);
+		mAssert.AssertNotEq(a1, a2);
 		#endif
 	}
 	

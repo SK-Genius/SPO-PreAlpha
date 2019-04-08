@@ -18,7 +18,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tPos = mTextStream.tPos;
-using tSpan =mStd.tSpan<mTextStream.tPos>;
+using tSpan =mSpan.tSpan<mTextStream.tPos>;
 
 #if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
@@ -60,10 +60,10 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var Def = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
-				mStd.AssertEq(Def.MapExpresion(ExpressionNode), mSPO2IL.TempReg(11));
+				var Def = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
+				mAssert.AssertEq(Def.MapExpresion(ExpressionNode), mSPO2IL.TempReg(11));
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					Def.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 17), (1, 17)), mSPO2IL.TempReg(1), "3"),
@@ -92,10 +92,10 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				DefConstructor.MapDef(DefNode);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 14), (1, 14)), mSPO2IL.TempReg(1), "2"),
@@ -119,10 +119,10 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				DefConstructor.MapDef(DefNode);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 38), (1, 38)), mSPO2IL.TempReg(1), "3"),
@@ -160,10 +160,10 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				Module.MapDef(DefNode);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					Module.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.TempReg(1), "3"),
@@ -197,10 +197,10 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				DefConstructor.MapDef(DefNode);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreateInt(Span((1, 63), (1, 63)), mSPO2IL.TempReg(1), "4"),
@@ -245,11 +245,11 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				DefConstructor.MapDef(DefNode);
 				
-				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
-				mStd.AssertEq(
+				mAssert.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mAssert.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1).ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 10), (1, 25)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
@@ -264,9 +264,9 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(DefConstructor.Index, 0);
+				mAssert.AssertEq(DefConstructor.Index, 0);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CallFunc(Span((1, 10), (1, 25)), mSPO2IL.TempReg(1), mSPO2IL.TempDef(1), mSPO2IL.Ident("...*...")),
@@ -274,7 +274,7 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.UnsolvedSymbols.ToStream(),
 					mStream.Stream((mSPO2IL.Ident("...*..."), Span((1, 20), (1, 25))), (mSPO2IL.TempDef(1), Span((1, 10), (1, 25))))
 				);
@@ -291,11 +291,11 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge).NewDefConstructor();
+				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
 				DefConstructor.MapDef(DefNode);
 				
-				mStd.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
-				mStd.AssertEq(
+				mAssert.AssertEq(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mAssert.AssertEq(
 					DefConstructor.ModuleConstructor.Defs.Get(1).ToStream(),
 					mStream.Stream(
 						mIL_AST.GetFirst(Span((1, 20), (1, 60)), mSPO2IL.Ident("...+..."), mIL_AST.cEnv),
@@ -323,8 +323,8 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(DefConstructor.Index, 0);
-				mStd.AssertEq(
+				mAssert.AssertEq(DefConstructor.Index, 0);
+				mAssert.AssertEq(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.CreatePair(Span((1, 20), (1, 60)), mSPO2IL.TempReg(1), mSPO2IL.Ident("...*..."), mIL_AST.cEmpty),
@@ -334,7 +334,7 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					DefConstructor.UnsolvedSymbols.ToStream(),
 					mStream.Stream(
 						(mSPO2IL.Ident("...+..."), Span((1, 48), (1, 60))),
@@ -355,12 +355,12 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mStd.Merge);
+				var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 				var (DefIndex, UnsolvedSymbols) = ModuleConstructor.MapLambda(LambdaNode);
 				
-				mStd.AssertEq(ModuleConstructor.Defs.Size(), 1);
-				mStd.AssertEq(DefIndex, 0);
-				mStd.AssertEq(
+				mAssert.AssertEq(ModuleConstructor.Defs.Size(), 1);
+				mAssert.AssertEq(DefIndex, 0);
+				mAssert.AssertEq(
 					ModuleConstructor.Defs.Get(DefIndex).ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 1), (1, 52)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
@@ -390,7 +390,7 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					UnsolvedSymbols.ToStream(),
 					mStream.Stream((mSPO2IL.Ident("...*..."), Span((1, 47), (1, 52))))
 				);
@@ -418,11 +418,11 @@ mSPO2IL_Test {
 					a => aStreamOut(a())
 				);
 				
-				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mStd.Merge);
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge);
 				
-				mStd.AssertEq(ModuleConstructor.Defs.Size(), 2);
+				mAssert.AssertEq(ModuleConstructor.Defs.Size(), 2);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					ModuleConstructor.Defs.Get(0).ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 1), (10, 9)), mSPO2IL.TempDef(1), mIL_AST.cEnv),
@@ -447,7 +447,7 @@ mSPO2IL_Test {
 					)
 				);
 				
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					ModuleConstructor.Defs.Get(1).ToStream(),
 					mStream.Stream(
 						mIL_AST.GetFirst(Span((7, 13), (7, 34)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
@@ -478,7 +478,7 @@ mSPO2IL_Test {
 	[xTestCase("MapNestedMatch")]
 	[xTestCase("MapModule")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

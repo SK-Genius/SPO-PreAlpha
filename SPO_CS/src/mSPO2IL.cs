@@ -3,6 +3,9 @@
 //IMPORT mIL_AST.cs
 //IMPORT mArrayList.cs
 //IMPORT mPerf.cs
+//IMPORT mError.cs
+//IMPORT mMaybe.cs
+//IMPORT mAssert.cs
 
 using tBool = System.Boolean;
 
@@ -289,7 +292,7 @@ mSPO2IL {
 					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != IdentNode.Name) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						_ => _.GetResultReg().Then(aName =>  mStd.Some(aName == IdentNode.Name)).Else(false)
+						_ => _.GetResultReg().Then(aName =>  mMaybe.Some(aName == IdentNode.Name)).Else(false)
 					)
 				) {
 					aDefConstructor.UnsolvedSymbols.Push((IdentNode.Name, IdentNode.Pos));
@@ -312,7 +315,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 				switch (TupleNode.Items.Take(2).ToArrayList().Size()) {
 					case 0: {
-						throw mStd.Error("impossible");
+						throw mError.Error("impossible");
 					}
 					case 1: {
 						mDebug.Assert(TupleNode.Items.Match(out var Head, out var _));
@@ -517,8 +520,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
 			//--------------------------------------------------------------------------------
-				mStd.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
-				mStd.AssertNot(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mAssert.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
+				mAssert.AssertNot(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(RecursiveTypeNode.HeadType.Pos, RecursiveTypeNode.HeadType.Name)
 				);
@@ -675,7 +678,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
-				throw mStd.Error(
+				throw mError.Error(
 					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapExpresion)}(...)"
 				);
@@ -794,14 +797,14 @@ mSPO2IL {
 						aReg
 					);
 				} else {
-					throw mStd.Error("not implemented"); //TODO: Unify MatchNode.Type & TypeNode
+					throw mError.Error("not implemented"); //TODO: Unify MatchNode.Type & TypeNode
 				}
 				break;
 			}
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
-				throw mStd.Error(
+				throw mError.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapMatch)}(...)"
 				);
@@ -926,7 +929,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
-				throw mStd.Error(
+				throw mError.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapMatchTest)}(...)"
 				);
@@ -1118,7 +1121,7 @@ mSPO2IL {
 				break;
 			}
 			default: {
-				throw mStd.Error("impossible");
+				throw mError.Error("impossible");
 			}
 		}
 	}
@@ -1155,7 +1158,7 @@ mSPO2IL {
 			TempLambdaDef.InitMapLambda(Lambda);
 			if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
 				var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).ForceFirst();
-				throw mStd.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
+				throw mError.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
 			}
 			
 			var DefSymbols = mArrayList.List<(tText Ident, tPos Pos)>();

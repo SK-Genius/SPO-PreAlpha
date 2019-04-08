@@ -173,7 +173,7 @@ mTest {
 				return Result;
 			}
 			default: {
-				throw mStd.Error("impossible");
+				throw mError.Error("impossible");
 			}
 		}
 	}

@@ -33,11 +33,11 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Literals",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(mSPO_AST.Int(1, 1), default),
 					mVM_Type.Int()
 				);
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
@@ -46,7 +46,7 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Tuple",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(
 						mSPO_AST.Tuple(
 							1,
@@ -62,7 +62,7 @@ mSPO_AST_Types_Test {
 						mVM_Type.Bool()
 					)
 				);
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
@@ -71,7 +71,7 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Lambda",
 			aDebugStream => {
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(
 						mSPO_AST.Lambda(
 							1,
@@ -98,7 +98,7 @@ mSPO_AST_Types_Test {
 						mVM_Type.Bool()
 					)
 				);
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
@@ -111,7 +111,7 @@ mSPO_AST_Types_Test {
 	[xTestCase("Tuple")]
 	[xTestCase("Lambda")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

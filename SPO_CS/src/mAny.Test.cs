@@ -1,5 +1,7 @@
 ﻿//IMPORT mTest.cs
-//IMPORT mVM_Type.cs
+//IMPORT mStd.cs
+//IMPORT mAssert.cs
+//IMPORT mAny.cs
 
 using tBool = System.Boolean;
 
@@ -23,33 +25,31 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mVM_Type_Test {
-	
+mAny_Test {
+
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		nameof(mVM_Type),
+		nameof(mStd),
 		mTest.Test(
-			"BoolBool",
-			aDebugStream => {
-				mAssert.Assert(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), a => aDebugStream(a())));
-			}
-		),
-		mTest.Test(
-			"BoolInt",
-			aDebugStream => {
-				mAssert.AssertNot(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), a => aDebugStream(a())));
+			"tAny.Equals()",
+			aStreamOut => {
+				mAssert.AssertEq(mAny.Any(1), mAny.Any(1));
+				mAssert.AssertEq(mAny.Any("1"), mAny.Any("1"));
+				mAssert.AssertNotEq(mAny.Any(1), mAny.Any(2));
+				mAssert.AssertNotEq(mAny.Any(1), mAny.Any(false));
+				mAssert.AssertNotEq(mAny.Any("1"), mAny.Any("2"));
+				mAssert.AssertNotEq(mAny.Any("1"), mAny.Any(1));
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("BoolBool")]
-	[xTestCase("BoolInt")]
+
+#if NUNIT
+	[xTestCase("tAny.Equals()")]
 	public static void _(tText a) {
 		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}
-	#endif
+#endif
 }

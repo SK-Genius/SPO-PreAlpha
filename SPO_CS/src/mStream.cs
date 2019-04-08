@@ -1,4 +1,6 @@
 ﻿//IMPORT mStd.cs
+//IMPORT mMaybe.cs
+
 //#define TAIL_RECURSIVE
 
 using tBool = System.Boolean;
@@ -255,7 +257,7 @@ mStream {
 		this tStream<t> aStream
 	) => aStream is null;
 
-	public static mStd.tMaybe<t>
+	public static mMaybe.tMaybe<t>
 	First<t>(
 		this tStream<t> aStream
 	) {
@@ -271,7 +273,7 @@ mStream {
 		this tStream<t> aStream
 	) => aStream.First().ElseThrow("imposible");
 
-	public static mStd.tMaybe<t>
+	public static mMaybe.tMaybe<t>
 	Last<t>(
 		this tStream<t> aStream
 	) {

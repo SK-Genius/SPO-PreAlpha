@@ -29,7 +29,7 @@ mStdLib {
 		if (!(_ImportData is null)) {
 			return _ImportData;
 		}
-		_ImportData = mIL_Interpreter<mStd.tSpan<mTextStream.tPos>>.Run(
+		_ImportData = mIL_Interpreter<mSpan.tSpan<mTextStream.tPos>>.Run(
 			mIL_Parser.Module.ParseText(
 @"§DEF Init
 	_01 := ENV

@@ -1,6 +1,7 @@
 ﻿//IMPORT mSPO_Parser.cs
 //IMPORT mIL_Interpreter.cs
 //IMPORT mSPO2IL.cs
+//IMPORT mSpan.cs
 
 using tBool = System.Boolean;
 
@@ -18,7 +19,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tPos = mTextStream.tPos;
-using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mSPO_Interpreter {
@@ -32,7 +33,7 @@ mSPO_Interpreter {
 	) => mIL_Interpreter<tSpan>.Run(
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),
-			mStd.Merge
+			mSpan.Merge
 		).Defs.ToStream(
 		).MapWithIndex(
 			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToStream())

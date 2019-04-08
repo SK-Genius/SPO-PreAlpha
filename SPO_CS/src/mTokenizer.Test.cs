@@ -27,11 +27,11 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 public static class
 mTokenizer_Test {
 	
-	private static mStd.tSpan<tPos>
+	private static mSpan.tSpan<tPos>
 	Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
-	) => new mStd.tSpan<tPos> {
+	) => new mSpan.tSpan<tPos> {
 		Start = {
 			Ident = "",
 			Row = aStart.Row,
@@ -55,7 +55,7 @@ mTokenizer_Test {
 					"",
 					a => aDebugStream(a())
 				).Result;
-				mStd.AssertEq(
+				mAssert.AssertEq(
 					TokenList,
 					mStream.Stream(
 						new mTokenizer.tToken{ Span = Span((1, 1), (1, 1)), Text = "a", Type = mTokenizer.tTokenType.Ident },
@@ -82,7 +82,7 @@ mTokenizer_Test {
 	#if NUNIT
 	[xTestCase("TwoLines")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

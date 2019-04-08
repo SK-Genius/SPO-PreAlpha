@@ -19,7 +19,7 @@ using tText = System.String;
 using tToken = mTokenizer.tToken;
 
 using tPos = mTextStream.tPos;
-using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 

@@ -1,6 +1,7 @@
 ﻿//IMPORT mSPO_AST.cs
 //IMPORT mTextParser.cs
 //IMPORT mTokenizer.cs
+//IMPORT mSpan.cs
 
 using tBool = System.Boolean;
 
@@ -21,7 +22,7 @@ using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
-using tSpan =mStd.tSpan<mTextStream.tPos>;
+using tSpan =mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
@@ -238,7 +239,7 @@ mSPO_Parser {
 				).ModifyS(
 					(aSpan, _, aFirst, aInfix) => (
 						Ident: mSPO_AST.Ident(
-							mStd.Span(
+							mSpan.Span(
 								mTextStream.Pos(aSpan.Start.Ident, aSpan.Start.Row, aSpan.Start.Col + 1),
 								aSpan.End
 							),

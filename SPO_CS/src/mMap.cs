@@ -33,7 +33,7 @@ mMap {
 		_EqualsFunc = aEqualsFunc
 	};
 	
-	public static mStd.tMaybe<tValue>
+	public static mMaybe.tMaybe<tValue>
 	Get<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey

@@ -31,42 +31,42 @@ mArrayList_Test {
 		mTest.Test(
 			"tArrayList.IsEmpty(...)",
 			aStreamOut => {
-				mStd.Assert(mArrayList.List<tInt32>().IsEmpty());
-				mStd.AssertNot(mArrayList.List(1).IsEmpty());
+				mAssert.Assert(mArrayList.List<tInt32>().IsEmpty());
+				mAssert.AssertNot(mArrayList.List(1).IsEmpty());
 			}
 		),
 		mTest.Test(
 			"tArrayList.Equals(...)",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List<tInt32>(), mArrayList.List<tInt32>());
-				mStd.AssertNotEq(mArrayList.List<tInt32>(), mArrayList.List(1));
-				mStd.AssertEq(mArrayList.List(1), mArrayList.List(1));
-				mStd.AssertNotEq(mArrayList.List(1), mArrayList.List(2));
-				mStd.AssertNotEq(mArrayList.List(1), mArrayList.List(1, 2));
-				mStd.AssertEq(mArrayList.List(3, 32, 5), mArrayList.List(3, 32, 5));
+				mAssert.AssertEq(mArrayList.List<tInt32>(), mArrayList.List<tInt32>());
+				mAssert.AssertNotEq(mArrayList.List<tInt32>(), mArrayList.List(1));
+				mAssert.AssertEq(mArrayList.List(1), mArrayList.List(1));
+				mAssert.AssertNotEq(mArrayList.List(1), mArrayList.List(2));
+				mAssert.AssertNotEq(mArrayList.List(1), mArrayList.List(1, 2));
+				mAssert.AssertEq(mArrayList.List(3, 32, 5), mArrayList.List(3, 32, 5));
 			}
 		),
 		mTest.Test(
 			"tArrayList.ToArrayList()",
 			aStreamOut => {
-				mStd.AssertEq(mStream.Stream(1, 2, 3).ToArrayList(), mArrayList.List(1, 2, 3));
-				mStd.AssertEq(mStream.Stream<tInt32>().ToArrayList(), mArrayList.List<tInt32>());
+				mAssert.AssertEq(mStream.Stream(1, 2, 3).ToArrayList(), mArrayList.List(1, 2, 3));
+				mAssert.AssertEq(mStream.Stream<tInt32>().ToArrayList(), mArrayList.List<tInt32>());
 			}
 		),
 		mTest.Test(
 			"tArrayList.ToLasyList()",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List<tInt32>().ToStream(), mStream.Stream<tInt32>());
-				mStd.AssertEq(mArrayList.List(1).ToStream(), mStream.Stream(1));
-				mStd.AssertEq(mArrayList.List(1, 2, 3).ToStream(), mStream.Stream(1, 2, 3));
+				mAssert.AssertEq(mArrayList.List<tInt32>().ToStream(), mStream.Stream<tInt32>());
+				mAssert.AssertEq(mArrayList.List(1).ToStream(), mStream.Stream(1));
+				mAssert.AssertEq(mArrayList.List(1, 2, 3).ToStream(), mStream.Stream(1, 2, 3));
 			}
 		),
 		mTest.Test(
 			"tArrayList.Push(...)",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List<tInt32>().Push(1).Push(2), mArrayList.List(1, 2));
-				mStd.AssertEq(mArrayList.List(1, 2).Push(3).Push(4), mArrayList.List(1, 2, 3, 4));
-				mStd.AssertEq(mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8).Push(9), mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8, 9));
+				mAssert.AssertEq(mArrayList.List<tInt32>().Push(1).Push(2), mArrayList.List(1, 2));
+				mAssert.AssertEq(mArrayList.List(1, 2).Push(3).Push(4), mArrayList.List(1, 2, 3, 4));
+				mAssert.AssertEq(mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8).Push(9), mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8, 9));
 			}
 		),
 		mTest.Test(
@@ -74,17 +74,17 @@ mArrayList_Test {
 			aStreamOut => {
 				{
 					var L = mArrayList.List(1, 2, 3);
-					mStd.AssertEq(L.Pop(), 3);
-					mStd.AssertEq(L.Pop(), 2);
-					mStd.AssertEq(L, mArrayList.List(1));
+					mAssert.AssertEq(L.Pop(), 3);
+					mAssert.AssertEq(L.Pop(), 2);
+					mAssert.AssertEq(L, mArrayList.List(1));
 				}
 				{
 					var L = mArrayList.List(1, 2, 3);
-					mStd.AssertEq(L.Pop(out var X).Pop(out var Y), mArrayList.List(1));
-					mStd.AssertEq(X, 3);
-					mStd.AssertEq(Y, 2);
-					mStd.AssertEq(L.Pop(out X), mArrayList.List<tInt32>());
-					mStd.AssertEq(X, 1);
+					mAssert.AssertEq(L.Pop(out var X).Pop(out var Y), mArrayList.List(1));
+					mAssert.AssertEq(X, 3);
+					mAssert.AssertEq(Y, 2);
+					mAssert.AssertEq(L.Pop(out X), mArrayList.List<tInt32>());
+					mAssert.AssertEq(X, 1);
 				}
 			}
 		),
@@ -93,27 +93,27 @@ mArrayList_Test {
 			aStreamOut => {
 				var L = mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 				var Slots = 12;
-				mStd.AssertEq(L._Items.Length, Slots);
+				mAssert.AssertEq(L._Items.Length, Slots);
 				
 				L.Push(13);
 				Slots += Slots / 2;
-				mStd.AssertEq(L._Items.Length, Slots);
+				mAssert.AssertEq(L._Items.Length, Slots);
 				
 				tInt32 _;
 				while (L.Size() > Slots/2) {
 					L.Pop(out _);
 				}
-				mStd.AssertEq(L._Items.Length, Slots);
+				mAssert.AssertEq(L._Items.Length, Slots);
 				
 				L.Pop(out _);
 				Slots = L.Size() * 3 / 2;
-				mStd.AssertEq(L._Items.Length, Slots);
+				mAssert.AssertEq(L._Items.Length, Slots);
 			}
 		),
 		mTest.Test(
 			"tArrayList.Get(...)",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.List(10, 11, 12).Get(1), 11);
+				mAssert.AssertEq(mArrayList.List(10, 11, 12).Get(1), 11);
 			}
 		),
 		mTest.Test(
@@ -121,16 +121,16 @@ mArrayList_Test {
 			aStreamOut => {
 				var L = mArrayList.List(10, 11, 12, 13);
 				L.Set(1, 21);
-				mStd.AssertEq(L, mArrayList.List(10, 21, 12, 13));
+				mAssert.AssertEq(L, mArrayList.List(10, 21, 12, 13));
 			}
 		),
 		mTest.Test(
 			"mArrayList.Concat(...)",
 			aStreamOut => {
-				mStd.AssertEq(mArrayList.Concat(mArrayList.List<tInt32>(), mArrayList.List<tInt32>()), mArrayList.List<tInt32>());
-				mStd.AssertEq(mArrayList.Concat(mArrayList.List(1, 2), mArrayList.List<tInt32>()), mArrayList.List(1, 2));
-				mStd.AssertEq(mArrayList.Concat(mArrayList.List<tInt32>(), mArrayList.List(1, 2)), mArrayList.List(1, 2));
-				mStd.AssertEq(mArrayList.Concat(mArrayList.List(1, 2), mArrayList.List(3, 4, 5)), mArrayList.List(1, 2, 3, 4, 5));
+				mAssert.AssertEq(mArrayList.Concat(mArrayList.List<tInt32>(), mArrayList.List<tInt32>()), mArrayList.List<tInt32>());
+				mAssert.AssertEq(mArrayList.Concat(mArrayList.List(1, 2), mArrayList.List<tInt32>()), mArrayList.List(1, 2));
+				mAssert.AssertEq(mArrayList.Concat(mArrayList.List<tInt32>(), mArrayList.List(1, 2)), mArrayList.List(1, 2));
+				mAssert.AssertEq(mArrayList.Concat(mArrayList.List(1, 2), mArrayList.List(3, 4, 5)), mArrayList.List(1, 2, 3, 4, 5));
 			}
 		)
 	);
@@ -147,7 +147,7 @@ mArrayList_Test {
 	[xTestCase("tArrayList.Set(...)")]
 	[xTestCase("mArrayList.Concat(...)")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

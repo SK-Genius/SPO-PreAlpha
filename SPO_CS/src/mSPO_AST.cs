@@ -674,7 +674,7 @@ mSPO_AST {
 	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
-				throw mStd.Error("impossible");
+				throw mError.Error("impossible");
 			}
 			case 1: {
 				mDebug.Assert(aItems.Match(out var Head, out var _));
@@ -1075,10 +1075,10 @@ mSPO_AST {
 				break;
 			}
 			default: {
-				throw mStd.Error("not implemented: " + a1.GetType().Name);
+				throw mError.Error("not implemented: " + a1.GetType().Name);
 			}
 		}
-		throw mStd.Error("not implemented: " + a1.GetType().Name);
+		throw mError.Error("not implemented: " + a1.GetType().Name);
 	}
 
 }

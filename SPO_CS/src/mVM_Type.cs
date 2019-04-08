@@ -276,8 +276,8 @@ mVM_Type {
 		tType aHeadType,
 		tType aTailType
 	) {
-		mStd.AssertIsIn(aTailType.Kind, tKind.Record, tKind.Empty);
-		mStd.AssertEq(aHeadType.Kind, tKind.Prefix);
+		mAssert.AssertIsIn(aTailType.Kind, tKind.Record, tKind.Empty);
+		mAssert.AssertEq(aHeadType.Kind, tKind.Prefix);
 		AssertNotIn(aHeadType.Prefix, aTailType);
 		
 		return new tType {
@@ -290,7 +290,7 @@ mVM_Type {
 			if (aRecord.Kind == tKind.Empty) {
 				return;
 			}
-			mStd.AssertNotEq(aPrefix, aRecord.Prefix);
+			mAssert.AssertNotEq(aPrefix, aRecord.Prefix);
 			AssertNotIn(aPrefix, aRecord.Refs[0]);
 		}
 	}
@@ -303,7 +303,7 @@ mVM_Type {
 		out tType aTailRecord
 	) {
 		if (aType.Kind == tKind.Bool) {
-			mStd.Assert(aType.Refs[0].MatchPrefix(out aHeadKey, out aHeadType));
+			mAssert.Assert(aType.Refs[0].MatchPrefix(out aHeadKey, out aHeadType));
 			aTailRecord = aType.Refs[1];
 			return true;
 		} else {
@@ -581,10 +581,10 @@ mVM_Type {
 		}
 		
 		if (a1.Kind == a2.Kind) {
-			mStd.AssertEq(a1.Id, a2.Id);
-			mStd.AssertEq(a1.Prefix, a2.Prefix);
+			mAssert.AssertEq(a1.Id, a2.Id);
+			mAssert.AssertEq(a1.Prefix, a2.Prefix);
 			var RefCount = a1.Refs.Length;
-			mStd.AssertEq(a2.Refs.Length, RefCount);
+			mAssert.AssertEq(a2.Refs.Length, RefCount);
 			while (RefCount-- > 0) {
 				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
 					return false;

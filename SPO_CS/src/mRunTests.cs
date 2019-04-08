@@ -46,7 +46,9 @@ mRunTests {
 	
 	static readonly mTest.tTest Test = mTest.Tests(
 		"All",
-		mStd_Test.Test,
+		mAny_Test.Test,
+		mMaybe_Test.Test,
+		mResult_Test.Test,
 		mStream_Test.Test,
 		mMap_Test.Test,
 //		mMath_Test.Test,
@@ -95,7 +97,7 @@ mRunTests {
 	[xTestCategory("all")]
 	[xTestCase("")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

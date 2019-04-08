@@ -1,5 +1,7 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mStd.cs
+//IMPORT mResult.cs
+//IMPORT mAssert.cs
 
 using tBool = System.Boolean;
 
@@ -23,40 +25,28 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mStd_Test {
-	
+mResult_Test {
+
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
-		nameof(mStd),
+		nameof(mResult),
 		mTest.Test(
-			"tMaybe.Equals()",
+			"tResult.Equals()",
 			aStreamOut => {
-				mStd.AssertEq<mStd.tResult<tInt32, tText>>(mStd.OK(1), mStd.OK(1));
-				mStd.AssertEq<mStd.tResult<tText, tText>>(mStd.OK("1"), mStd.OK("1"));
-				mStd.AssertEq<mStd.tResult<tInt32, tText>>(mStd.Fail("Bla"), mStd.Fail("Bla"));
-			}
-		),
-		mTest.Test(
-			"tVar.Equals()",
-			aStreamOut => {
-				mStd.AssertEq(mStd.Any(1), mStd.Any(1));
-				mStd.AssertEq(mStd.Any("1"), mStd.Any("1"));
-				mStd.AssertNotEq(mStd.Any(1), mStd.Any(2));
-				mStd.AssertNotEq(mStd.Any(1), mStd.Any(false));
-				mStd.AssertNotEq(mStd.Any("1"), mStd.Any("2"));
-				mStd.AssertNotEq(mStd.Any("1"), mStd.Any(1));
+				mAssert.AssertEq<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
+				mAssert.AssertEq<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
+				mAssert.AssertEq<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("tMaybe.Equals()")]
-	[xTestCase("tVar.Equals()")]
+
+#if NUNIT
+	[xTestCase("tResult.Equals()")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}
-	#endif
+#endif
 }

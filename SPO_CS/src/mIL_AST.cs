@@ -1,4 +1,5 @@
 ﻿//IMPORT mDebug.cs
+//IMPORT mMaybe.cs
 
 //#define MY_TRACE
 
@@ -97,7 +98,7 @@ mIL_AST {
 		public tText _3;
 	}
 	
-	public static mStd.tMaybe<tText>
+	public static mMaybe.tMaybe<tText>
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
 	) {

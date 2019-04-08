@@ -1,4 +1,5 @@
 ﻿//IMPORT mVM_Type.cs
+//IMPORT mAny.cs
 
 using tBool = System.Boolean;
 
@@ -545,7 +546,7 @@ mVM_Data {
 	public sealed class
 	tData {
 		public tDataType _DataType;
-		public mStd.tAny _Value;
+		public mAny.tAny _Value;
 		public tBool _IsMutable;
 		
 		public tBool
@@ -570,7 +571,7 @@ mVM_Data {
 	) => new tData{
 		_DataType = aType,
 		_IsMutable = aIsMutable,
-		_Value = mStd.Any(aValue)
+		_Value = mAny.Any(aValue)
 	};
 	
 	private static tData
@@ -582,14 +583,14 @@ mVM_Data {
 	) => new tData{
 		_DataType = aType,
 		_IsMutable = aIsMutable,
-		_Value = mStd.Any((aValue1, aValue2))
+		_Value = mAny.Any((aValue1, aValue2))
 	};
 	
 	private static tBool
 	Match(
 		this tData aData,
 		tDataType aType,
-		out mStd.tAny aValue
+		out mAny.tAny aValue
 	) {
 		aValue = aData._Value;
 		return aData._DataType.Equals(aType);
@@ -765,12 +766,12 @@ mVM_Data {
 		tData aRecord,
 		tData aPrefix
 	) {
-		mStd.Assert(aPrefix.MatchPrefix(out var PrefixHash, out _));
+		mAssert.Assert(aPrefix.MatchPrefix(out var PrefixHash, out _));
 		var Record = aRecord;
 		while (!Record.MatchEmpty()) {
-			mStd.Assert(Record.MatchRecord(out Record, out var Prefix));
-			mStd.Assert(Prefix.MatchPrefix(out var PrefixHash_, out _));
-			mStd.AssertNotEq(PrefixHash, PrefixHash_);
+			mAssert.Assert(Record.MatchRecord(out Record, out var Prefix));
+			mAssert.Assert(Prefix.MatchPrefix(out var PrefixHash_, out _));
+			mAssert.AssertNotEq(PrefixHash, PrefixHash_);
 		}
 		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
 	}

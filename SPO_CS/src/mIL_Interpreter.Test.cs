@@ -2,6 +2,7 @@
 //IMPORT mIL_Interpreter.cs
 //IMPORT mTextStream.cs
 //IMPORT mIL_Parser.cs
+//IMPORT mSpan.cs
 
 using tBool = System.Boolean;
 
@@ -19,7 +20,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tPos = mTextStream.tPos;
-using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 #if NUNIT
 using xTestClass = NUnit.Framework.TestFixtureAttribute;
@@ -59,9 +60,9 @@ mIL_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
+		mAssert.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
@@ -72,9 +73,9 @@ mIL_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
+		mAssert.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
@@ -85,9 +86,9 @@ mIL_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
+		mAssert.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -98,9 +99,9 @@ mIL_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mStd.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mStd.Assert(Arg1.MatchInt(out var IntArg1));
-		mStd.Assert(Arg2.MatchInt(out var IntArg2));
+		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
+		mAssert.Assert(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Bool(IntArg1.Equals(IntArg2));
 	}
 	
@@ -137,7 +138,7 @@ mIL_Interpreter_Test {
 					SpanToText,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mVM_Data.Int(6));
+				mAssert.AssertEq(Res, mVM_Data.Int(6));
 			}
 		),
 		mTest.Test(
@@ -176,7 +177,7 @@ mIL_Interpreter_Test {
 					SpanToText,
 					TraceOut
 				);
-				mStd.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
+				mAssert.AssertEq(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
 			}
 		),
 		mTest.Test(
@@ -218,8 +219,8 @@ mIL_Interpreter_Test {
 				while (CallStack != null) {
 					CallStack = CallStack.Step(a => ""+a);
 				}
-				mStd.AssertEq(Res, mVM_Data.Bool(true));
-				mStd.AssertError(
+				mAssert.AssertEq(Res, mVM_Data.Bool(true));
+				mAssert.AssertError(
 					() => {
 						Res = mVM_Data.Empty();
 						mVM.Run<tSpan>(
@@ -350,7 +351,7 @@ mIL_Interpreter_Test {
 						SpanToText,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(2));
+					mAssert.AssertEq(Res, mVM_Data.Int(2));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -362,7 +363,7 @@ mIL_Interpreter_Test {
 						SpanToText,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(12));
+					mAssert.AssertEq(Res, mVM_Data.Int(12));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -374,7 +375,7 @@ mIL_Interpreter_Test {
 						SpanToText,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(6));
+					mAssert.AssertEq(Res, mVM_Data.Int(6));
 				}
 				{
 					var Res = mVM_Data.Empty();
@@ -386,7 +387,7 @@ mIL_Interpreter_Test {
 						SpanToText,
 						TraceOut
 					);
-					mStd.AssertEq(Res, mVM_Data.Int(6));
+					mAssert.AssertEq(Res, mVM_Data.Int(6));
 				}
 			}
 		)
@@ -398,7 +399,7 @@ mIL_Interpreter_Test {
 	[xTestCase("Assert")]
 	[xTestCase("ParseModule")]
 	public static void _(tText a) {
-		mStd.AssertEq(
+		mAssert.AssertEq(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

@@ -1,5 +1,6 @@
 ﻿//IMPORT mParserGen.cs
 //IMPORT mTextStream.cs
+//IMPORT mSpan.cs
 
 // TODO: create a function how generate a call stack output
 
@@ -19,7 +20,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tPos = mTextStream.tPos;
-using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
@@ -42,9 +43,9 @@ mTextParser {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		using (mPerf.Measure()) {
-			var Stream = aText.ToStream(aIdent).Map(_ => (mStd.Span(_.Pos), _.Char));
+			var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-			mStd.Assert(
+			mAssert.Assert(
 				MaybeResult.Match(out var Result, out var ErrorList),
 				ErrorList.ToText(aText.Split('\n'))
 			);
@@ -53,7 +54,7 @@ mTextParser {
 				var Pos = Result.RestStream.ForceFirst().Span.Start;
 				var Line = aText.Split('\n')[Pos.Row-1];
 				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
-				throw mStd.Error(
+				throw mError.Error(
 					$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 					$"{Line}\n" +
 					$"{Line.Substring(0, StartSpacesCount) + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
@@ -132,7 +133,7 @@ mTextParser {
 	GetToken(
 		tText aToken
 	) {
-		mStd.AssertNotEq(aToken.Length, 0);
+		mAssert.AssertNotEq(aToken.Length, 0);
 		var I = aToken.Length - 1;
 		var Parser = -GetChar(aToken[I]);
 		while (I --> 0) {

@@ -1,4 +1,6 @@
 ﻿//IMPORT mTextParser.cs
+//IMPORT mError.cs
+//IMPORT mAssert.cs
 
 using tBool = System.Boolean;
 
@@ -16,7 +18,7 @@ using tChar = System.Char;
 using tText = System.String;
 
 using tPos = mTextStream.tPos;
-using tSpan = mStd.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 
@@ -141,7 +143,7 @@ mTokenizer {
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aIdent, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
-		mStd.Assert(
+		mAssert.Assert(
 			MaybeResult.Match(out var Result, out var ErrorList),
 			ErrorList.ToText(aText.Split('\n'))
 		);
@@ -160,7 +162,7 @@ mTokenizer {
 				"",
 				(aString, aChar) => aString + aChar
 			);
-			throw mStd.Error(
+			throw mError.Error(
 				$"({Row}, {Col}): expected end of text\n" +
 				$"{Line}\n" +
 				$"{MarkerLine}^\n"

@@ -1,6 +1,7 @@
 ﻿//IMPORT mArrayList.cs
 //IMPORT mVM_Type.cs
 //IMPORT mSPO_AST.cs
+//IMPORT mResult.cs
 
 using tBool = System.Boolean;
 
@@ -77,7 +78,7 @@ mSPO_AST_Types {
 					Result = AddTypesTo(Match.Pattern, aScope, out var _);
 				} else {
 					Result = ResolveAsType(Match.Type, aScope).Then(
-						aType => mStd.OK(AddTypesTo(Match.Pattern, aType, aScope, out var _))
+						aType => mResult.OK(AddTypesTo(Match.Pattern, aType, aScope, out var _))
 					).ElseThrow(_ => _);
 				}
 				break;
@@ -147,7 +148,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tCallNode<tPos> Call: {
 				Result = mVM_Type.Free();
-				mStd.Assert(
+				mAssert.Assert(
 					mVM_Type.Unify(
 						AddTypesTo(Call.Func, aScope),
 						mVM_Type.Proc(mVM_Type.Empty(), AddTypesTo(Call.Arg, aScope), Result),
@@ -176,7 +177,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tVarToValNode<tPos> VarToVal: {
 				Result = mVM_Type.Free();
-				mStd.Assert(
+				mAssert.Assert(
 					mVM_Type.Unify(
 						AddTypesTo(VarToVal.Obj, aScope),
 						mVM_Type.Var(Result),
@@ -190,7 +191,7 @@ mSPO_AST_Types {
 				Result = mVM_Type.Free();
 				while (Tail.Match(out var Head, out Tail)) {
 					AddTypesTo(Head.Cond, aScope);
-					mStd.Assert(
+					mAssert.Assert(
 						mVM_Type.Unify(
 							Result,
 							AddTypesTo(Head.Result, aScope), _ => { _.ToString(); }
@@ -200,7 +201,7 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mStd.Error($"not implemented: " + aNode.GetType().Name);
+				throw mError.Error($"not implemented: " + aNode.GetType().Name);
 			}
 		}
 		aNode.TypeAnnotation = Result;
@@ -232,7 +233,7 @@ mSPO_AST_Types {
 					(aNewScope, Result) = ResolveAsType(Match.Type, aScope).Then(
 						aType => {
 							var Result_ = AddTypesTo(Match.Pattern, aType, aScope, out var NewScope);
-							return mStd.OK((NewScope, Result_));
+							return mResult.OK((NewScope, Result_));
 						}
 					).ElseThrow(_ => _);
 				}
@@ -290,7 +291,7 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mStd.Error("not implemented: " + aMatch.GetType().Name);
+				throw mError.Error("not implemented: " + aMatch.GetType().Name);
 			}
 		}
 		aMatch.TypeAnnotation = Result;
@@ -308,20 +309,20 @@ mSPO_AST_Types {
 		switch (aMatch) {
 			case mSPO_AST.tExpressionNode<tPos> Expression: {
 				Result = AddTypesTo(Expression, aScope);
-				mStd.AssertEq(Result, aType);
+				mAssert.AssertEq(Result, aType);
 				aNewScope = aScope;
 				break;
 			}
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = AddTypesTo(Match.Pattern, aType, aScope, out aNewScope);
 				if (!(Match.Type is null)) {
-					mStd.AssertEq(AddTypesTo(Match.Type, aScope), aType);
+					mAssert.AssertEq(AddTypesTo(Match.Type, aScope), aType);
 				}
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
-				mStd.Assert(aType.MatchPrefix(out var Prefix, out var SubType));
-				mStd.AssertEq(Prefix, MatchPrefix.Prefix);
+				mAssert.Assert(aType.MatchPrefix(out var Prefix, out var SubType));
+				mAssert.AssertEq(Prefix, MatchPrefix.Prefix);
 				AddTypesTo(MatchPrefix.Match, SubType, aScope, out aNewScope);
 				Result = aType;
 				break;
@@ -347,7 +348,7 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mStd.Error("not implemented: " + aMatch.GetType().Name);
+				throw mError.Error("not implemented: " + aMatch.GetType().Name);
 			}
 		}
 		aMatch.TypeAnnotation = Result;
@@ -371,7 +372,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tReturnIfNode<tPos> ReturnIf: {
-				mStd.AssertEq(AddTypesTo(ReturnIf.Condition, aScope), mVM_Type.Bool());
+				mAssert.AssertEq(AddTypesTo(ReturnIf.Condition, aScope), mVM_Type.Bool());
 				AddTypesTo(ReturnIf.Result, aScope);
 				aNewScope = aScope;
 				break;
@@ -379,7 +380,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tMethodCallNode<tPos> MethodCall: {
 				var ArgType = AddTypesTo(MethodCall.Argument, aScope);
 				var MethodType = AddTypesTo(MethodCall.Method, aScope);
-				mStd.Assert(mVM_Type.Unify(ArgType, MethodType, _ => _.ToString()));
+				mAssert.Assert(mVM_Type.Unify(ArgType, MethodType, _ => _.ToString()));
 				MethodType.MatchProc(out _, out _, out var ResType);
 				AddTypesTo(MethodCall.Result, ResType, aScope, out aNewScope);
 				break;
@@ -391,7 +392,7 @@ mSPO_AST_Types {
 				while (Tail.Match(out var Head, out Tail)) {
 					var ArgType = AddTypesTo(Head.Argument, aNewScope);
 					if (Head.Method.Name == "_=...") {
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								ObjType,
 								ArgType,
@@ -399,7 +400,7 @@ mSPO_AST_Types {
 							)
 						);
 					} else {
-						mStd.Assert(
+						mAssert.Assert(
 							mVM_Type.Unify(
 								AddTypesTo(Head.Method, aNewScope),
 								mVM_Type.Proc(
@@ -438,7 +439,7 @@ mSPO_AST_Types {
 				}
 				Tail = RecLambdas.List;
 				while (Tail.Match(out var Head, out Tail)) {
-					mStd.Assert(
+					mAssert.Assert(
 						mVM_Type.Unify(
 							aNewScope.Where(_ => _.Ident == Head.Ident.Name).ForceFirst().Type,
 							AddTypesTo(Head.Lambda, aNewScope),
@@ -449,12 +450,12 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mStd.Error("not implemented: " + aCommand.GetType().Name);
+				throw mError.Error("not implemented: " + aCommand.GetType().Name);
 			}
 		}
 	}
 
-	public static mStd.tResult<mVM_Type.tType, tText>
+	public static mResult.tResult<mVM_Type.tType, tText>
 	ResolveAsType<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aExpression,
 		mStream.tStream<(tText Ident, mVM_Type.tType Type)> aScope
@@ -484,7 +485,7 @@ mSPO_AST_Types {
 					if (ResolveAsType(Head, aScope).Match(out var Type, out var Error)) {
 						Types = mStream.Stream(Type, Types);
 					} else {
-						return mStd.Fail(Error);
+						return mResult.Fail(Error);
 					}
 				}
 				Result = mVM_Type.Tuple(Types);
@@ -494,7 +495,7 @@ mSPO_AST_Types {
 				if (aScope.Where(_ => _.Ident == Ident.Name).First().Match(out var Value)) {
 					Result = Value.Type;
 				} else {
-					return mStd.Fail($"{Ident.Pos}: unknown type of identifier '{Ident.Name}'");
+					return mResult.Fail($"{Ident.Pos}: unknown type of identifier '{Ident.Name}'");
 				}
 				break;
 			}
@@ -502,11 +503,11 @@ mSPO_AST_Types {
 				if (
 					!ResolveAsType(LambdaType.ArgType, aScope).Then(
 						aArgType => ResolveAsType(LambdaType.ResType, aScope).Then(
-							aResType => mStd.OK(mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType))
+							aResType => mResult.OK(mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType))
 						)
 					).Match(out Result, out var Error)
 				) {
-					return mStd.Fail(Error);
+					return mResult.Fail(Error);
 				}
 				break;
 			}
@@ -545,11 +546,11 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mStd.Error("not implemented: " + aExpression.GetType().Name);
+				throw mError.Error("not implemented: " + aExpression.GetType().Name);
 			}
 		}
 		aExpression.TypeAnnotation = Result;
-		return mStd.OK(Result);
+		return mResult.OK(Result);
 	}
 	
 #endif

@@ -282,7 +282,7 @@ mVM {
 			case mVM_Data.tOpCode.DivideRec: {
 			//--------------------------------------------------------------------------------
 				var Arg = aCallStack._Regs.Get(Arg1);
-				mStd.Assert(Arg.MatchRecord(out var Record, out var Prefix));
+				mAssert.Assert(Arg.MatchRecord(out var Record, out var Prefix));
 				aCallStack._Regs.Push(
 					mVM_Data.Pair(
 						Record,
@@ -295,7 +295,7 @@ mVM {
 			case mVM_Data.tOpCode.Assert: {
 			//--------------------------------------------------------------------------------
 				if (aCallStack._Regs.Get(Arg1).MatchBool(out var Bool) && Bool) {
-					mStd.Assert(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
+					mAssert.Assert(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
 				}
 				break;
 			}
@@ -315,7 +315,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarSet: {
 			//--------------------------------------------------------------------------------
-				aCallStack._Regs.Get(Arg1)._Value = mStd.Any(aCallStack._Regs.Get(Arg2));
+				aCallStack._Regs.Get(Arg1)._Value = mAny.Any(aCallStack._Regs.Get(Arg2));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -342,7 +342,7 @@ mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
-					throw mStd.Error("impossible");
+					throw mError.Error("impossible");
 				}
 				break;
 			}
@@ -352,7 +352,7 @@ mVM {
 				var Proc_ = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
-				mStd.Assert(Proc_.MatchPair(out var Obj, out var Proc));
+				mAssert.Assert(Proc_.MatchPair(out var Obj, out var Proc));
 				
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
@@ -365,7 +365,7 @@ mVM {
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(aCallStack, Def_, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
-					throw mStd.Error("impossible");
+					throw mError.Error("impossible");
 				}
 				break;
 			}
@@ -412,7 +412,7 @@ mVM {
 				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					var CallerArgPair = aCallStack._Regs.Get(Arg2);
-					mStd.Assert(CallerArgPair.MatchPair(out var Proc, out var Arg));
+					mAssert.Assert(CallerArgPair.MatchPair(out var Proc, out var Arg));
 					mVM_Data.tData Res;
 					if (Proc.MatchExternDef(out var ExternDef)) {
 						Res = mVM_Data.ExternProc(ExternDef, Arg);
@@ -431,7 +431,7 @@ mVM {
 							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
 						);
 					} else {
-						throw mStd.Error("impossible");
+						throw mError.Error("impossible");
 					}
 					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
 					Des._DataType = Res._DataType;
@@ -456,7 +456,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
-				throw mStd.Error("TODO");
+				throw mError.Error("TODO");
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
@@ -497,7 +497,7 @@ mVM {
 				aRes._DataType = Res._DataType;
 				aRes._Value = Res._Value;
 			} else {
-				throw mStd.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
+				throw mError.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
 			}
 		}
 	}
