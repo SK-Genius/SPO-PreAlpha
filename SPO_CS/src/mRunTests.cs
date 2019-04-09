@@ -1,22 +1,19 @@
-﻿//IMPORT mArrayList.Test.cs
-//IMPORT mIL_AST.Test.cs
+﻿//IMPORT mAny.Test.cs
+//IMPORT mArrayList.Test.cs
 //IMPORT mIL_Interpreter.Test.cs
 //IMPORT mIL_Parser.Test.cs
 //IMPORT mStream.Test.cs
 //IMPORT mMap.Test.cs
+//IMPORT mMaybe.Test.cs
 //IMPORT mParserGen.Test.cs
-//IMPORT mSPO_AST.Test.cs
+//IMPORT mResult.Test.cs
 //IMPORT mSPO_AST_Types.Test.cs
 //IMPORT mSPO_Interpreter.Test.cs
 //IMPORT mSPO_Parser.Test.cs
 //IMPORT mSPO2IL.Test.cs
-//IMPORT mStd.Test.cs
 //IMPORT mStdLib.Test.cs
-//IMPORT mTextParser.Test.cs
-//IMPORT mTextStream.Test.cs
 //IMPORT mTokenizer.Test.cs
 //IMPORT mVM.Test.cs
-//IMPORT mVM_Data.Test.cs
 //IMPORT mVM_Type.Test.cs
 
 using tBool = System.Boolean;
