@@ -132,7 +132,7 @@ mSPO_Parser {
 	.SetName(nameof(UnTypedMatch));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
-	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(), (-SpecialToken("€") +Expression))
+	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(), -SpecialToken("€") +Expression)
 	.ModifyS(mSPO_AST.Match)
 	.SetName(nameof(TypedMatch));
 	
@@ -341,6 +341,10 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.MatchGuard)
 	.SetName(nameof(MatchGuard));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypeNode<tSpan>, tError>
+	Type = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tTypeNode<tSpan>, tError>(mTextParser.ComparePos)
+	.SetName(nameof(Type));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tEmptyTypeNode<tSpan>, tError>
 	EmptyType = (-SpecialToken("[") -SpecialToken("]"))
 	.ModifyS(mSPO_AST.EmptyType)
@@ -362,15 +366,15 @@ mSPO_Parser {
 	.SetName(nameof(TypeType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixTypeNode<tSpan>, tError>
-	PrefixType = E(InfixPrefix(ExpressionInCall))
+	PrefixType = E(InfixPrefix(Type))
 	.ModifyS(mSPO_AST.PrefixType)
 	.SetName(nameof(PrefixType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTupleTypeNode<tSpan>, tError>
 	TupleType = E(
 		mParserGen.Seq(
-			ExpressionInCall,
-			((-SpecialToken(",") | -NLs_Token) +ExpressionInCall)[1, null]
+			Type,
+			((-SpecialToken(",") | -NLs_Token) +Type)[1, null]
 		)
 	)
 	.Modify(mStream.Stream)
@@ -380,8 +384,8 @@ mSPO_Parser {
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSetTypeNode<tSpan>, tError>
 	SetType = E(
 		mParserGen.Seq(
-			-Token("|")[0, 1] +ExpressionInCall,
-			(-(NLs_Token[0, 1] +-Token("|") +-NLs_Token[0, 1]) +Expression)[1, null] +-Token("|")[0, 1]
+			-Token("|")[0, 1] +Type,
+			(-(NLs_Token[0, 1] +-Token("|") +-NLs_Token[0, 1]) +Type)[1, null] +-Token("|")[0, 1]
 		)
 	)
 	.Modify(mStream.Stream)
@@ -389,7 +393,7 @@ mSPO_Parser {
 	.SetName(nameof(SetType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaTypeNode<tSpan>, tError>
-	LambdaType = E(mParserGen.Seq(ExpressionInCall, SpecialToken("=>"), ExpressionInCall))
+	LambdaType = E(mParserGen.Seq(Type, SpecialToken("=>"), Type))
 	.Modify((a1, _, a2) => (a1, a2))
 	.ModifyS(mSPO_AST.LambdaType)
 	.SetName(nameof(LambdaType));
@@ -399,7 +403,7 @@ mSPO_Parser {
 		mParserGen.Seq(
 			KeyWord("RECURSIV"),
 			Ident,
-			ExpressionInCall
+			Type
 		)
 	)
 	.Modify((_, aIdent, aExpression) => (aIdent, aExpression))
@@ -411,7 +415,7 @@ mSPO_Parser {
 		mParserGen.Seq(
 			KeyWord("INTERFACE"),
 			Ident,
-			ExpressionInCall
+			Type
 		)
 	)
 	.Modify((_, aIdent, aExpression) => (aIdent, aExpression))
@@ -423,32 +427,21 @@ mSPO_Parser {
 		mParserGen.Seq(
 			KeyWord("GENERIC"),
 			Ident,
-			ExpressionInCall
+			Type
 		)
 	)
 	.Modify((_, aIdent, aExpression) => (aIdent, aExpression))
 	.ModifyS(mSPO_AST.GenericType)
 	.SetName(nameof(GenericType));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	Type = mParserGen.OneOf(
-		EmptyType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		BoolType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		IntType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		TypeType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		PrefixType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		TupleType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		SetType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		LambdaType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		RecursiveType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		InterfaceType.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-		GenericType.Cast<mSPO_AST.tExpressionNode<tSpan>>()
-	)
-	.SetName(nameof(Type));
-	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
-	Lambda = mParserGen.Seq(Match, SpecialToken("=>"), Expression)
-	.Modify((aMatch, _, aExpression) => (aMatch, aExpression))
+	Lambda = mParserGen.Seq(
+		mParserGen.Seq(Match, -Token("<=>"))[0, 1].Modify(_ => _.First().Then(__ => mMaybe.Some(__.Item1))),
+		Match,
+		-SpecialToken("=>"),
+		Expression
+	)
+	.Modify((aStaticMatch, aMatch, __, aExpression) => (aStaticMatch, aMatch, aExpression))
 	.ModifyS(mSPO_AST.Lambda)
 	.SetName(nameof(Lambda));
 	
@@ -589,6 +582,23 @@ mSPO_Parser {
 	.SetName(nameof(Module));
 	
 	static mSPO_Parser() {
+		Type.Def(
+			mParserGen.OneOf(
+				Ident.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				EmptyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				BoolType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				PrefixType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				TupleType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				SetType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				LambdaType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				RecursiveType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				InterfaceType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				GenericType.Cast<mSPO_AST.tTypeNode<tSpan>>()
+			)
+		);
+		
 		UnTypedMatch.Def(
 			mParserGen.OneOf(
 				MatchFreeIdent.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),

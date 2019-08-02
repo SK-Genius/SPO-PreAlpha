@@ -208,7 +208,7 @@ public static class mCheckDep {
 			}
 		}
 		using (
-			var Provider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider()
+			var Provider = new Microsoft.CSharp.CSharpCodeProvider()
 		) {
 			return Provider
 				.CompileAssemblyFromFile(

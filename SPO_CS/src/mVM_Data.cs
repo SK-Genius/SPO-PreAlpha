@@ -166,7 +166,6 @@ mVM_Data {
 		tInt32 aReg1,
 		tInt32 aReg2
 	) {
-		aDef.PosList.Push(aPos);
 		aDef._AddCommand(aPos, aCommand, aReg1, aReg2);
 		aDef._LastReg += 1;
 		return aDef._LastReg;
@@ -553,6 +552,7 @@ mVM_Data {
 		Equals(
 			tData a
 		) => (
+			!(a is null) &&
 			this._DataType.Equals(a._DataType) &&
 			this._Value.Equals(a._Value)
 		);
@@ -885,10 +885,12 @@ mVM_Data {
 	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
 	
 	public static tText
-	ToText(
+	ToText<tPos>(
 		this tData a,
 		tInt32 aLimit
 	) {
+		mAssert.AssertNotEq(a, null);
+		
 		if (aLimit == 0) {
 			return "...";
 		}
@@ -896,26 +898,47 @@ mVM_Data {
 		
 		if (a.MatchEmpty()) {
 			return "§EMPTY";
-		}
-		if (a.MatchBool(out var Bool)) {
+			
+		} else if (a.MatchBool(out var Bool)) {
 			return Bool ? "§TRUE" : "§FALSE";
-		}
-		if (a.MatchInt(out var Int)) {
+			
+		} else if (a.MatchInt(out var Int)) {
 			return $"{Int}";
-		}
-		if (a.MatchPrefix(out var Prefix, out var Value)) {
-			return $"(#{Prefix} {ToText(Value, NextLimit)})";
-		}
-		if (a.MatchRecord(out var SubRecord, out var KeyValue)) {
+			
+		} else if (a.MatchPrefix(out var Prefix, out var Value)) {
+			return $"(#{Prefix} {Value.ToText<tPos>(NextLimit)})";
+			
+		} else if (a.MatchRecord(out var SubRecord, out var KeyValue)) {
 			KeyValue.MatchPrefix(out var Key, out Value);
-			return $"{{{SubRecord.ToText(NextLimit)}, {Key}: {Value.ToText(NextLimit)}}}";
+			var Result = $"{{ {Key}: {Value}";
+			while (SubRecord.MatchRecord(out KeyValue, out var Temp)) {
+				Result += $", {Key}: {Value.ToText<tPos>(NextLimit)}";
+				SubRecord = Temp;
+			}
+			return Result + "}";
+			
+		} else if (a.MatchVar(out Value)) {
+			return $"(§VAR {Value.ToText<tPos>(NextLimit)})";
+			
+		} else if (a.MatchPair(out var Rest1, out var Rest2)) {
+			var Result = "(" + Rest1.ToText<tPos>(NextLimit);
+			while (Rest2.MatchPair(out Rest1, out var Temp)) {
+				Result += ", " + Rest1.ToText<tPos>(NextLimit);
+				Rest2 = Temp;
+			}
+			if (!Rest2.MatchEmpty()) {
+				Result += "; " + Rest2.ToText<tPos>(NextLimit);
+			}
+			return Result + ")";
+			
+		} else if (a.MatchProc<tPos>(out var Def, out var Env)) {
+			return $"(Proc @ {Def.PosList.ToStream().First()._Value})";
+			
+		} else if (a.MatchDef<tPos>(out var Def_)) {
+			return $"(Def @ {Def_.PosList.ToStream().First()._Value})";
+			
+		} else {
+			return $"(?{a._DataType}?)";
 		}
-		if (a.MatchVar(out Value)) {
-			return $"(§VAR {ToText(Value, NextLimit)})";
-		}
-		if (a.MatchPair(out var Rest1, out var Rest2)) {
-			return $"({ToText(Rest1, NextLimit)}; {ToText(Rest2,  NextLimit)})";
-		}
-		return $"(?{a._DataType}?)";
 	}
 }

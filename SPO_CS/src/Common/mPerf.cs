@@ -97,6 +97,7 @@ mPerf {
 		System.IntPtr aThreadHandle,
 		out tNat64 aCycles
 	);
+	
 	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
 	
 	private static tNat64

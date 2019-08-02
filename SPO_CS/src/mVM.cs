@@ -67,9 +67,9 @@ mVM {
 		aTraceOut(() => " 5 := BOOL_TYPE");
 		aTraceOut(() => " 6 := INT_TYPE");
 		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText(20));
-		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText(20));
-		aTraceOut(() => "10 := ARG  |  "+aArg.ToText(20));
+		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText<tPos>(20));
+		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText<tPos>(20));
+		aTraceOut(() => "10 := ARG  |  "+aArg.ToText<tPos>(20));
 		aTraceOut(() => "11 := RES");
 		
 		return Result;
@@ -340,7 +340,15 @@ mVM {
 				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, mVM_Data.Empty(), Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+					return NewCallStack(
+						aCallStack,
+						Def_,
+						Env,
+						mVM_Data.Empty(),
+						Arg,
+						Res,
+						aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+					);
 				} else {
 					throw mError.Error("impossible");
 				}
@@ -459,7 +467,7 @@ mVM {
 				throw mError.Error("TODO");
 			}
 		}
-		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
+		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText<tPos>(20)}");
 		return aCallStack;
 	}
 	

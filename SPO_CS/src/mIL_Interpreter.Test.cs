@@ -38,7 +38,7 @@ mIL_Interpreter_Test {
 		return $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	}
 	
-	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mMap.tMap<tText, tInt32>)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mTree.tTree<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,

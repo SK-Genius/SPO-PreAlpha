@@ -28,7 +28,7 @@ mTextStream {
 		
 		public override tText
 		ToString(
-		) => $"{this.Ident} ({this.Row}:{this.Col})";
+		) => $"{this.Ident}({this.Row}:{this.Col})";
 	}
 	
 	public static tPos

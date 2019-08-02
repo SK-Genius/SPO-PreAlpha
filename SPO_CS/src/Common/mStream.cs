@@ -242,7 +242,7 @@ mStream {
 		} else {
 			Count -= 1;
 		}
-
+		
 		while (aStream.Match(out var Head, out aStream)) {
 			if (aPredicate(Head)) {
 				return Stream(Head, () => aStream.Where(aPredicate));
@@ -256,7 +256,7 @@ mStream {
 	IsEmpty<t>(
 		this tStream<t> aStream
 	) => aStream is null;
-
+	
 	public static mMaybe.tMaybe<t>
 	First<t>(
 		this tStream<t> aStream
@@ -267,12 +267,12 @@ mStream {
 			return aStream._Head;
 		}
 	}
-
+	
 	public static t
 	ForceFirst<t>(
 		this tStream<t> aStream
 	) => aStream.First().ElseThrow("imposible");
-
+	
 	public static mMaybe.tMaybe<t>
 	Last<t>(
 		this tStream<t> aStream
@@ -286,12 +286,12 @@ mStream {
 			return mStd.cEmpty;
 		}
 	}
-
+	
 	public static t
 	ForceLast<t>(
 		this tStream<t> aStream
 	) => aStream.Last().ElseThrow("imposible");
-
+	
 	public static tBool
 	Any(
 		this tStream<tBool> aStream

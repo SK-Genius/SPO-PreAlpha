@@ -41,6 +41,7 @@ mParserGen_Test {
 	}
 	
 	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Massage)> cNoError = default;
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mParserGen),

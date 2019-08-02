@@ -185,6 +185,7 @@ mSPO_Parser_Test {
 					mSPO_Parser.Expression.ParseText("x => x .* x", "", a => aStreamOut(a())),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 11)),
+						null,
 						mSPO_AST.Match(
 							Span((1, 1), (1, 1)),
 							mSPO_AST.Ident(Span((1, 1), (1, 1)), "x"),
@@ -213,6 +214,7 @@ mSPO_Parser_Test {
 					mSPO_Parser.Expression.ParseText("(x € MyType) => x .* x", "", a => aStreamOut(a())),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 22)),
+						null,
 						mSPO_AST.Match(
 							Span((1, 1), (1, 12)),
 							mSPO_AST.Match(
@@ -280,6 +282,7 @@ mSPO_Parser_Test {
 					mSPO_Parser.Expression.ParseText("(a, b, (x, y, z)) => a .* z", "", a => aStreamOut(a())),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 27)),
+						null,
 						mSPO_AST.Match(
 							Span((1, 1), (1, 17)),
 							mSPO_AST.MatchTuple(
@@ -346,6 +349,7 @@ mSPO_Parser_Test {
 					mSPO_Parser.Expression.ParseText("(1 #* a) => a", "", a => aStreamOut(a())),
 					mSPO_AST.Lambda(
 						Span((1, 1), (1, 13)),
+						null,
 						mSPO_AST.Match(
 							Span((1, 1), (1, 8)),
 							mSPO_AST.MatchPrefix(

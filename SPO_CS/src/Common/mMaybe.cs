@@ -22,7 +22,7 @@ mMaybe {
 	tMaybe<t> {
 		internal tBool _HasValue;
 		internal t _Value;
-
+		
 		public static
 		implicit operator tMaybe<t>(
 			mStd.tEmpty _
@@ -32,7 +32,7 @@ mMaybe {
 				_Value = default,
 			};
 		}
-
+		
 		public static
 		implicit operator tMaybe<t>(
 			t aValue
@@ -43,12 +43,12 @@ mMaybe {
 			};
 		}
 	}
-
+	
 	public static tMaybe<t>
 	Some<t>(
 		t a
 	) => a;
-
+	
 	public static tBool
 	Match<t>(
 		this tMaybe<t> a,
@@ -62,7 +62,7 @@ mMaybe {
 			return false;
 		}
 	}
-
+	
 	public static tMaybe<tOut>
 	Then<tIn, tOut>(
 		this tMaybe<tIn> a,
@@ -74,7 +74,7 @@ mMaybe {
 			return mStd.cEmpty;
 		}
 	}
-
+	
 	public static t
 	Else<t>(
 		this tMaybe<t> a,
@@ -86,7 +86,7 @@ mMaybe {
 			return aDefault;
 		}
 	}
-
+	
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,
@@ -98,7 +98,7 @@ mMaybe {
 			throw mError.Error(aError);
 		}
 	}
-
+	
 	public static t
 	Else<t>(
 		this tMaybe<t> a,
@@ -110,7 +110,7 @@ mMaybe {
 			return aDefault.Value;
 		}
 	}
-
+	
 	public static tMaybe<t>
 	Assert<t>(
 		this tMaybe<t> a,

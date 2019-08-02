@@ -112,9 +112,13 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tLambdaNode<tPos> Lambda: {
+				var NewScope = aScope;
+				if (Lambda.Generic != null) {
+					AddTypesTo(Lambda.Generic, aScope, out NewScope);
+				}
 				Result = mVM_Type.Proc(
 					mVM_Type.Empty(),
-					AddTypesTo(Lambda.Head, aScope, out var NewScope),
+					AddTypesTo(Lambda.Head, NewScope, out NewScope),
 					AddTypesTo(Lambda.Body, NewScope)
 				);
 				break;
@@ -297,7 +301,7 @@ mSPO_AST_Types {
 		aMatch.TypeAnnotation = Result;
 		return Result;
 	}
-
+	
 	public static mVM_Type.tType
 	AddTypesTo<tPos>(
 		mSPO_AST.tMatchItemNode<tPos> aMatch,
@@ -354,7 +358,7 @@ mSPO_AST_Types {
 		aMatch.TypeAnnotation = Result;
 		return Result;
 	}
-
+	
 	public static void
 	AddTypesTo<tPos>(
 		mSPO_AST.tCommandNode<tPos> aCommand,
@@ -454,7 +458,7 @@ mSPO_AST_Types {
 			}
 		}
 	}
-
+	
 	public static mResult.tResult<mVM_Type.tType, tText>
 	ResolveAsType<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aExpression,
@@ -543,6 +547,10 @@ mSPO_AST_Types {
 						)
 					)
 				);
+				break;
+			}
+			case mSPO_AST.tCallNode<tPos> CallNode: {
+				Result = mVM_Type.Free(); // TODO: maybe delegate validation of the call to a later time point
 				break;
 			}
 			default: {

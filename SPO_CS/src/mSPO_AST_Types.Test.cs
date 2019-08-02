@@ -75,6 +75,7 @@ mSPO_AST_Types_Test {
 					mSPO_AST_Types.AddTypesTo(
 						mSPO_AST.Lambda(
 							1,
+							null,
 							mSPO_AST.Match(
 								1,
 								mSPO_AST.MatchPrefix(

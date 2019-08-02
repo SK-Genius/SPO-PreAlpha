@@ -456,6 +456,7 @@ mSPO2IL {
 							IfNode.Pos,
 							mSPO_AST.Lambda(
 								IfNode.Pos,
+								null,
 								mSPO_AST.Match(
 									IfNode.Pos,
 									mSPO_AST.Empty(IfNode.Pos),
@@ -1136,6 +1137,7 @@ mSPO2IL {
 			var TempLambdaDef = ModuleConstructor.NewDefConstructor();
 			var Lambda = mSPO_AST.Lambda(
 				aModuleNode.Pos,
+				null,
 				aModuleNode.Import.Match,
 				mSPO_AST.Block(
 					aMergePos(

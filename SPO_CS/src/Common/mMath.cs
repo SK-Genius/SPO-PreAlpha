@@ -23,6 +23,11 @@ mMath {
 	) => (a1 > a2) ? a1 : a2;
 	
 	public static tInt32
+	Abs(
+		this tInt32 a
+	) => a > 0 ? a : -a;
+	
+	public static tInt32
 	Sign(
 		this tInt32 a
 	) => (

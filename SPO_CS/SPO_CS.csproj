@@ -6,6 +6,11 @@
 		<DefineConstants>TRACE;NUNIT</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="NUnit" Version="3.11.0" />
+		<PackageReference Include="NUnit" Version="3.11.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+		<TestSrc Include="**\*.Test.cs" />
+		<Compile Update="@(TestSrc)">
+			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Test', '')).cs</DependentUpon>
+		</Compile>
 	</ItemGroup>
 </Project>

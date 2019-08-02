@@ -69,8 +69,6 @@ mTest {
 		_TestFunc = aTestFunc
 	};
 	
-	private static readonly System.Globalization.CultureInfo cCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
-
 	//================================================================================
 	public static tResult
 	Run(
@@ -79,7 +77,11 @@ mTest {
 		mStream.tStream<tText> aFilters
 	//================================================================================
 	) {
-		System.Globalization.CultureInfo.CurrentCulture = cCulture;
+		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+		System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+		System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 		const tText cTab = "|  ";
 		switch (aTest) {
 			case tTestRun TestRun: {
@@ -87,7 +89,7 @@ mTest {
 				if (aFilters.IsEmpty() || aFilters.Any(TestRun._Name.Contains)) {
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
-						TestRun._TestFunc(aText => aDebugStream("| " + aText));
+						TestRun._TestFunc(LineByLine(aDebugStream.AddPrefix(cTab)));
 						QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
 						
 						var Value_00 = (ClocksEnd - ClocksStart) * 100;
@@ -114,10 +116,8 @@ mTest {
 						aDebugStream("");
 						return tResult.OK;
 					} catch (System.Exception Exception) {
-						aDebugStream(cTab + Exception.Message);
-						foreach (var Line in Exception.StackTrace.Split('\n')) {
-							aDebugStream(cTab + cTab + Line.Trim());
-						}
+						LineByLine(aDebugStream.AddPrefix(cTab))(Exception.Message);
+						LineByLine(aDebugStream.AddPrefix(cTab + cTab))(Exception.StackTrace);
 						aDebugStream("-> Fail");
 						aDebugStream("");
 						return tResult.Fail;
@@ -137,7 +137,7 @@ mTest {
 				var StopWatch = new System.Diagnostics.Stopwatch();
 				StopWatch.Start();
 				foreach (var Test in Tests._Tests) {
-					switch (Test.Run(aText => aDebugStream(cTab + aText), aFilters)) {
+					switch (Test.Run(LineByLine(aDebugStream.AddPrefix(cTab)), aFilters)) {
 						case tResult.OK: {
 							if (Result != tResult.Fail) {
 								Result = tResult.OK;
@@ -176,5 +176,24 @@ mTest {
 				throw mError.Error("impossible");
 			}
 		}
+	}
+
+	private static mStd.tAction<tText>
+	LineByLine(
+		mStd.tAction<tText> aWritLine
+	) {
+		return (tText aLines) => {
+			foreach (var Line in aLines.Split('\n')) {
+				aWritLine(Line.TrimEnd('\r'));
+			}
+		};
+	}
+
+	private static mStd.tAction<tText>
+	AddPrefix(
+		this mStd.tAction<tText> aWritLine,
+		tText aPrefix
+	) {
+		return (tText aLine) => { aWritLine(aPrefix + aLine); };
 	}
 }

@@ -109,8 +109,8 @@ mStream_Test {
 				mAssert.Assert(mStream.Stream<tInt32>().IsEmpty());
 				mAssert.AssertNot(mStream.Stream(1).IsEmpty());
 				mAssert.AssertNot(mStream.Stream(1, 2).IsEmpty());
-			
-				mAssert.AssertNot(mStream.Stream<tInt32>() == new mStream.tStream<int>());
+				
+				mAssert.AssertNot(mStream.Stream<tInt32>() == new mStream.tStream<tInt32>());
 			}
 		),
 		mTest.Test(

@@ -38,6 +38,9 @@ mSPO_AST {
 	tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {}
 	
 	public interface
+	tTypeNode<tPos> : tExpressionNode<tPos> {}
+
+	public interface
 	tCommandNode<tPos> : tNode<tPos> {}
 	
 	public class
@@ -59,25 +62,25 @@ mSPO_AST {
 	}
 
 	public class
-	tEmptyTypeNode<tPos> : tLiteralNode<tPos> {
+	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
 
 	public class
-	tBoolTypeNode<tPos> : tLiteralNode<tPos> {
+	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
 
 	public class
-	tIntTypeNode<tPos> : tLiteralNode<tPos> {
+	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
 
 	public class
-	tTypeTypeNode<tPos> : tLiteralNode<tPos> {
+	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
@@ -103,7 +106,7 @@ mSPO_AST {
 	}
 	
 	public class
-	tIdentNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {
+	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Name;
@@ -173,6 +176,7 @@ mSPO_AST {
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tMatchNode<tPos> Generic;
 		public tMatchNode<tPos> Head;
 		public tExpressionNode<tPos> Body;
 	}
@@ -246,57 +250,57 @@ mSPO_AST {
 	}
 	
 	public class
-	tPrefixTypeNode<tPos> : tExpressionNode<tPos> {
+	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Prefix;
-		public mStream.tStream<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	public class
-	tTupleTypeNode<tPos> : tExpressionNode<tPos> {
+	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	public class
-	tSetTypeNode<tPos> : tExpressionNode<tPos> {
+	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tExpressionNode<tPos>> Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	public class
-	tLambdaTypeNode<tPos> : tExpressionNode<tPos> {
+	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> ArgType;
-		public tExpressionNode<tPos> ResType;
+		public tTypeNode<tPos> ArgType;
+		public tTypeNode<tPos> ResType;
 	}
 	
 	public class
-	tRecursiveTypeNode<tPos> : tExpressionNode<tPos> {
+	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType;
-		public tExpressionNode<tPos> BodyType;
+		public tTypeNode<tPos> BodyType;
 	}
 	
 	public class
-	tInterfaceTypeNode<tPos> : tExpressionNode<tPos> {
+	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> HeadType;
-		public tExpressionNode<tPos> BodyType;
+		public tIdentNode<tPos> HeadType;
+		public tTypeNode<tPos> BodyType;
 	}
 	
 	public class
-	tGenericTypeNode<tPos> : tExpressionNode<tPos> {
+	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> HeadType;
-		public tExpressionNode<tPos> BodyType;
+		public tIdentNode<tPos> HeadType;
+		public tTypeNode<tPos> BodyType;
 	}
 	
 	public class
@@ -492,7 +496,7 @@ mSPO_AST {
 	PrefixType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aPrefix,
-		mStream.tStream<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new tPrefixTypeNode<tPos> {
 		Pos = aPos,
 		Prefix = aPrefix,
@@ -502,7 +506,7 @@ mSPO_AST {
 	public static tTupleTypeNode<tPos>
 	TupleType<tPos>(
 		tPos aPos,
-		mStream.tStream<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new tTupleTypeNode<tPos> {
 		Pos = aPos,
 		Expressions = aTypes,
@@ -511,7 +515,7 @@ mSPO_AST {
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
 		tPos aPos,
-		mStream.tStream<tExpressionNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new tSetTypeNode<tPos> {
 		Pos = aPos,
 		Expressions = aTypes
@@ -520,8 +524,8 @@ mSPO_AST {
 	public static tLambdaTypeNode<tPos>
 	LambdaType<tPos>(
 		tPos aPos,
-		tExpressionNode<tPos> aArgType,
-		tExpressionNode<tPos> aResType
+		tTypeNode<tPos> aArgType,
+		tTypeNode<tPos> aResType
 	) => new tLambdaTypeNode<tPos> {
 		Pos = aPos,
 		ArgType = aArgType,
@@ -532,7 +536,7 @@ mSPO_AST {
 	RecursiveType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
-		tExpressionNode<tPos> aBodyType
+		tTypeNode<tPos> aBodyType
 	) => new tRecursiveTypeNode<tPos> {
 		Pos = aPos,
 		HeadType = aHeadType,
@@ -543,7 +547,7 @@ mSPO_AST {
 	InterfaceType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
-		tExpressionNode<tPos> aBodyType
+		tTypeNode<tPos> aBodyType
 	) => new tInterfaceTypeNode<tPos> {
 		Pos = aPos,
 		HeadType = aHeadType,
@@ -554,7 +558,7 @@ mSPO_AST {
 	GenericType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
-		tExpressionNode<tPos> aBodyType
+		tTypeNode<tPos> aBodyType
 	) => new tGenericTypeNode<tPos> {
 		Pos = aPos,
 		HeadType = aHeadType,
@@ -626,10 +630,12 @@ mSPO_AST {
 	public static tLambdaNode<tPos>
 	Lambda<tPos>(
 		tPos aPos,
+		mMaybe.tMaybe<tMatchNode<tPos>> aStaticMatch,
 		tMatchNode<tPos> aMatch,
 		tExpressionNode<tPos> aBody
 	) => new tLambdaNode<tPos> {
 		Pos = aPos,
+		Generic = aStaticMatch.Else(null),
 		Head = aMatch,
 		Body = aBody
 	};

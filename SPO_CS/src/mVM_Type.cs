@@ -647,8 +647,40 @@ mVM_Type {
 			(tKind.Free, _ => "?"+aType.Id),
 			(tKind.Prefix, _ => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]"),
 			(tKind.Record, _ => $"[{{{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}}}]"),
-			(tKind.Pair, _ => $"[{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}]"),
-			(tKind.Proc, _ => $"[{aType.Refs[0].ToText(NextLimit)} : {aType.Refs[1].ToText(NextLimit)} -> {aType.Refs[2].ToText(NextLimit)}]"),
+			(
+				tKind.Pair,
+				_ => {
+					var Result = "[";
+					var Temp = aType;
+					Result += Temp.Refs[0].ToText(NextLimit);
+					Temp = Temp.Refs[1];
+
+					while (Temp.Kind == tKind.Pair) {						
+						Result += ", " + Temp.Refs[0].ToText(NextLimit);
+						Temp = Temp.Refs[1];
+					}
+					if (Temp.Kind != tKind.Empty) {
+						Result += "; " + Temp.ToText(NextLimit);
+					}
+					return Result + "]";
+				}
+			),
+			(
+				tKind.Proc,
+				_ => {
+					var Result = "[";
+					if (aType.Refs[0].Kind != tKind.Empty) {
+						Result += aType.Refs[0].ToText(NextLimit) + " : ";
+					}
+					if (aType.Refs[1].Kind != tKind.Empty) {
+						Result += aType.Refs[1].ToText(NextLimit);
+					}
+					if (aType.Refs[2].Kind != tKind.Empty) {
+						Result += " -> " + aType.Refs[2].ToText(NextLimit);
+					}
+					return Result + "]";
+				}
+			),
 			(tKind.Ref, _ => $"[§REF {aType.Refs[0].ToText(NextLimit)}]"),
 			(tKind.Set, _ => $"[{mStream.Stream(aType.Refs).Map(a => a.ToText(NextLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]"),
 			(tKind.Var, _ => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]"),

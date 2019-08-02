@@ -107,7 +107,16 @@ mAssert {
 			throw mError.Error($"FAIL: {a1} == {a2}");
 		}
 	}
-
+	
+	public static void
+	AssertIsNull<t>(
+		t a
+	) {
+		if (ReferenceEquals(a, null)) {
+			throw mError.Error($"FAIL: {a} is null");
+		}
+	}
+	
 	public static void
 	AssertIsIn<t>(
 		t a1,

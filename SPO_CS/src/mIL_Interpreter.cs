@@ -26,7 +26,7 @@ mIL_Interpreter<tPos> {
 	
 	public static (
 		mStream.tStream<mVM_Data.tProcDef<tPos>>,
-		mMap.tMap<tText, tInt32>
+		mTree.tTree<tText, tInt32>
 	)
 	ParseModule(
 		mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
@@ -36,7 +36,7 @@ mIL_Interpreter<tPos> {
 			#if MY_TRACE
 				aTrace(() => nameof(ParseModule));
 			#endif
-			var ModuleMap = mMap.Map<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2) == 0);
+			var ModuleMap = mTree.Tree<tText, tInt32>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)));
 			var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
 			
 			var RestDefs = aDefs;
@@ -68,7 +68,7 @@ mIL_Interpreter<tPos> {
 				);
 				Module = mStream.Concat(Module, mStream.Stream(NewProc));
 				
-				var Regs = mMap.Map<tText, tInt32>((a, b) => a == b)
+				var Regs = mTree.Tree<tText, tInt32>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)))
 				.Set(mIL_AST.cEmpty, mVM_Data.tProcDef<tPos>.cEmptyReg)
 				.Set(mIL_AST.cOne, mVM_Data.tProcDef<tPos>.cOneReg)
 				.Set(mIL_AST.cFalse, mVM_Data.tProcDef<tPos>.cFalseReg)
@@ -567,6 +567,7 @@ mIL_Interpreter<tPos> {
 					
 					mDebug.AssertEq(Types.Size() - 1, NewProc._LastReg);
 				}
+				mDebug.AssertEq(NewProc.Commands.Size(), NewProc.PosList.Size());
 			}
 			#if MY_TRACE
 			PrintILModule(aDefs, Module, a => { aTrace(() => a); });
@@ -603,14 +604,14 @@ mIL_Interpreter<tPos> {
 				if (Command.NodeType >= mIL_AST.tCommandNodeType._Commands_) {
 					aTrace($"\t{Command.NodeType} {Command._1} {Command._2} {Command._3}:");
 				} else {
-					aTrace($"\t{Command._1} := {Command.NodeType} {Command._2} {Command._3}:");
 					if (Command.NodeType != mIL_AST.tCommandNodeType.Alias) {
 						RegIndex += 1;
-						try {
-							aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText(10)}");
-						} catch {
-							aTrace($"\t\t€ ERROR: out of index");
-						}
+					}
+					aTrace($"\t({RegIndex}) {Command._1} := {Command.NodeType} {Command._2} {Command._3}:");
+					try {
+						aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText(10)}");
+					} catch {
+						aTrace($"\t\t€ ERROR: out of index");
 					}
 				}
 			}
@@ -627,7 +628,7 @@ mIL_Interpreter<tPos> {
 	
 	public static mVM_Data.tData
 	Run(
-		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mMap.tMap<tText, tInt32>) aModule,
+		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mTree.tTree<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream

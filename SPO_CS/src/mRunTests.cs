@@ -1,18 +1,18 @@
-﻿//IMPORT mAny.Test.cs
-//IMPORT mArrayList.Test.cs
+﻿//IMPORT Common/mAny.Test.cs
+//IMPORT Common/mArrayList.Test.cs
+//IMPORT Common/mStream.Test.cs
+//IMPORT Common/mMap.Test.cs
+//IMPORT Common/mMaybe.Test.cs
+//IMPORT Common/mParserGen.Test.cs
+//IMPORT Common/mResult.Test.cs
+//IMPORT mTokenizer.Test.cs
 //IMPORT mIL_Interpreter.Test.cs
 //IMPORT mIL_Parser.Test.cs
-//IMPORT mStream.Test.cs
-//IMPORT mMap.Test.cs
-//IMPORT mMaybe.Test.cs
-//IMPORT mParserGen.Test.cs
-//IMPORT mResult.Test.cs
 //IMPORT mSPO_AST_Types.Test.cs
 //IMPORT mSPO_Interpreter.Test.cs
 //IMPORT mSPO_Parser.Test.cs
 //IMPORT mSPO2IL.Test.cs
 //IMPORT mStdLib.Test.cs
-//IMPORT mTokenizer.Test.cs
 //IMPORT mVM.Test.cs
 //IMPORT mVM_Type.Test.cs
 
@@ -41,13 +41,15 @@ using xTestCategory = NUnit.Framework.CategoryAttribute;
 public static class
 mRunTests {
 	
-	static readonly mTest.tTest Test = mTest.Tests(
+	public static readonly mTest.tTest
+	Test = mTest.Tests(
 		"All",
 		mAny_Test.Test,
 		mMaybe_Test.Test,
 		mResult_Test.Test,
 		mStream_Test.Test,
 		mMap_Test.Test,
+		mTree_Tests.Test,
 //		mMath_Test.Test,
 		mArrayList_Test.Test,
 		mParserGen_Test.Test,
@@ -73,21 +75,19 @@ mRunTests {
 		mStd.tAction<tText> aDebugOut
 	) => Test.Run(aDebugOut, aFilters);
 	
-	public static void
+	public static int
 	Main(
 		params tText[] aArgs
 	) {
-		if (
-			SelfTests(
-				mStream.Stream(aArgs),
-				_ => {
-					System.Console.WriteLine(_);
-					System.Console.Out.Flush();
-				}
-			) == mTest.tResult.Fail
-		) {
-			System.Environment.Exit(-1);
-		}
+		return SelfTests(
+			mStream.Stream(aArgs),
+			_ => {
+				System.Console.WriteLine(_);
+				System.Console.Out.Flush();
+			}
+		) == mTest.tResult.Fail
+		? 0
+		: -1;
 	}
 	
 	#if NUNIT

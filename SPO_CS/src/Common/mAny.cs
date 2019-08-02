@@ -34,7 +34,7 @@ mAny {
 			override public tBool
 			Equals(
 				object a
-			) => a is tAny && this.Equals((tAny)a);
+			) => (a is tAny X) && this.Equals(X);
 		}
 
 		public static tAny
