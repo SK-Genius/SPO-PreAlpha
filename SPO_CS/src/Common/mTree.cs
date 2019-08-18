@@ -107,7 +107,7 @@ mTree {
 				).Balance();
 			}
 			default: {
-				throw mError.Error("imposible");
+				throw mError.Error("impossible");
 			}
 		}
 	}
@@ -126,23 +126,13 @@ mTree {
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		if (aNode is null) {
-			throw mError.Error("unknown key: " + aKey);
-		}
-		switch (aKeyCompare(aKey, aNode.Key)) {
-			case 0: {
-				return aNode.Value;
-			}
-			case 1: {
-				return aNode.SubTree2.Get(aKey, aKeyCompare);
-			}
-			case -1: {
-				return aNode.SubTree1.Get(aKey, aKeyCompare);
-			}
-			default: {
-				throw mError.Error("");
-			}
-		}
+		mAssert.NotNull(aNode, () => "unknown key: " + aKey);
+		return mStd.Switch(
+			aKeyCompare(aKey, aNode.Key),
+			(0, _ => aNode.Value),
+			(1, _ => aNode.SubTree2.Get(aKey, aKeyCompare)),
+			(-1, _ => aNode.SubTree1.Get(aKey, aKeyCompare))
+		);
 	}
 	
 	public static tTree<tKey, tValue>
@@ -162,7 +152,7 @@ mTree {
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.AssertNotEq(aNode, null);
+		mAssert.NotEquals(aNode, null);
 		
 		var SubTree1 = aNode.SubTree1;
 		var SubTree2 = aNode.SubTree2;
@@ -170,7 +160,7 @@ mTree {
 		var Value = aNode.Value;
 		
 		if (SubTree1 is null && SubTree2 is null) {
-			mAssert.AssertEq(aKey, Key);
+			mAssert.Equals(aKey, Key);
 			return null;
 		}
 		
@@ -246,7 +236,7 @@ mTree {
 	}
 	
 	internal static tNode<tKey, tValue>
-	RotatRight<tKey, tValue>(
+	RotateRight<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
 	) {
 		return Node(
@@ -263,7 +253,7 @@ mTree {
 	}
 	
 	internal static tNode<tKey, tValue>
-	RotatLeft<tKey, tValue>(
+	RotateLeft<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
 	) {
 		return Node(
@@ -296,10 +286,10 @@ mTree {
 						Result.Key,
 						Result.Value,
 						Result.SubTree1,
-						Result.SubTree2.RotatRight()
+						Result.SubTree2.RotateRight()
 					);
 				}
-				Result = Result.RotatLeft();
+				Result = Result.RotateLeft();
 				break;
 			}
 			case 1: {
@@ -307,11 +297,11 @@ mTree {
 					Result = Node(
 						Result.Key,
 						Result.Value,
-						Result.SubTree1.RotatLeft(),
+						Result.SubTree1.RotateLeft(),
 						Result.SubTree2
 					);
 				}
-				Result = Result.RotatRight();
+				Result = Result.RotateRight();
 				break;
 			}
 		}

@@ -21,13 +21,13 @@ mError {
 		public tError(tText a) : base(a) { }
 		public t Value;
 	}
-
+	
 	public static tError<t>
 	Error<t>(
 		tText aMsg,
 		t aData
 	) => new tError<t>(aMsg) { Value = aData };
-
+	
 	public static tError<mStd.tEmpty>
 	Error(
 		tText aMsg

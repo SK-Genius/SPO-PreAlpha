@@ -22,19 +22,19 @@ mResult {
 	tResultFail<t> {
 		internal t _Error;
 	}
-
+	
 	public struct
 	tResultOK<t> {
 		internal t _Value;
 	}
-
+	
 	public struct
 	tResult<tOK, tFail> {
-
+		
 		internal tBool _IsOK;
 		internal tOK _Value;
 		internal tFail _Error;
-
+		
 		public static
 		implicit operator tResult<tOK, tFail>(
 			tResultOK<tOK> aOK
@@ -42,7 +42,7 @@ mResult {
 			_IsOK = true,
 			_Value = aOK._Value
 		};
-
+		
 		public static
 		implicit operator tResult<tOK, tFail>(
 			tResultFail<tFail> aFail
@@ -51,7 +51,7 @@ mResult {
 			_Error = aFail._Error
 		};
 	}
-
+	
 	public static tResultOK<tOK>
 	OK<tOK>(
 		tOK a
@@ -65,7 +65,7 @@ mResult {
 	) => new tResultFail<tFail> {
 		_Error = aError
 	};
-
+	
 	public static tResultFail<mStd.tEmpty>
 	Fail(
 	) => new tResultFail<mStd.tEmpty>();
@@ -80,7 +80,7 @@ mResult {
 		aError = a._Error;
 		return a._IsOK;
 	}
-
+	
 	public static tBool
 	Match<tOK>(
 		this tResult<tOK, mStd.tEmpty> a,
@@ -89,7 +89,7 @@ mResult {
 		aValue = a._Value;
 		return a._IsOK;
 	}
-
+	
 	public static tResult<tOK_Out, tError>
 	Then<tOK_In, tOK_Out, tError>(
 		this tResult<tOK_In, tError> a,
@@ -101,7 +101,7 @@ mResult {
 			return Fail(Error);
 		}
 	}
-
+	
 	public static tResult<tOK_Out, tError>
 	Then<tOK_In, tOK_Out, tError>(
 		this tResult<tOK_In, tError> a,
@@ -113,7 +113,7 @@ mResult {
 			return Fail(Error);
 		}
 	}
-
+	
 	public static tResult<tOK_Out, tError>
 	Then<tOK_In, tOK_Out, tError>(
 		this tResult<tOK_In, tError> a,
@@ -125,7 +125,7 @@ mResult {
 			return Fail(Error);
 		}
 	}
-
+	
 	public static tOK
 	Else<tOK, tError>(
 		this tResult<tOK, tError> a,
@@ -135,7 +135,7 @@ mResult {
 			? Value
 			: aOnError(Error);
 	}
-
+	
 	public static tOK
 	ElseThrow<tOK, tError>(
 		this tResult<tOK, tError> a,
@@ -147,7 +147,7 @@ mResult {
 			throw mError.Error(aModifyError(Error));
 		}
 	}
-
+	
 	public static tResult<tOK, tError>
 	Assert<tOK, tError>(
 		this tResult<tOK, tError> a,

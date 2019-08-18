@@ -18,11 +18,11 @@ using tText = System.String;
 public static class
 mAny {
 		#region tVar
-
+		
 		public struct
 		tAny {
 			internal object _Value;
-
+			
 			public tBool
 			Equals(
 				tAny a
@@ -30,18 +30,18 @@ mAny {
 				!(this._Value is null) &&
 				this._Value.Equals(a._Value)
 			);
-
+			
 			override public tBool
 			Equals(
 				object a
 			) => (a is tAny X) && this.Equals(X);
 		}
-
+		
 		public static tAny
 		Any<t>(
 			t a
 		) => new tAny { _Value = a };
-
+		
 		public static tBool
 		Match<t>(
 			this tAny a,
@@ -52,7 +52,7 @@ mAny {
 				throw mError.Error("");
 			}
 #endif
-
+			
 			if (a._Value is null || a._Value is t) {
 				aValue = (t)a._Value;
 				return true;
@@ -61,12 +61,12 @@ mAny {
 				return false;
 			}
 		}
-
+		
 		public static tBool
 		Match(
 			this tAny a
 		) => a._Value is null;
-
+		
 		public static t
 		To<t>(
 			this tAny a
@@ -76,6 +76,6 @@ mAny {
 			}
 			return Result;
 		}
-
+		
 		#endregion
 	}

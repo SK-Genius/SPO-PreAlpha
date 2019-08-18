@@ -33,20 +33,20 @@ mAny_Test {
 		mTest.Test(
 			"tAny.Equals()",
 			aStreamOut => {
-				mAssert.AssertEq(mAny.Any(1), mAny.Any(1));
-				mAssert.AssertEq(mAny.Any("1"), mAny.Any("1"));
-				mAssert.AssertNotEq(mAny.Any(1), mAny.Any(2));
-				mAssert.AssertNotEq(mAny.Any(1), mAny.Any(false));
-				mAssert.AssertNotEq(mAny.Any("1"), mAny.Any("2"));
-				mAssert.AssertNotEq(mAny.Any("1"), mAny.Any(1));
+				mAssert.Equals(mAny.Any(1), mAny.Any(1));
+				mAssert.Equals(mAny.Any("1"), mAny.Any("1"));
+				mAssert.NotEquals(mAny.Any(1), mAny.Any(2));
+				mAssert.NotEquals(mAny.Any(1), mAny.Any(false));
+				mAssert.NotEquals(mAny.Any("1"), mAny.Any("2"));
+				mAssert.NotEquals(mAny.Any("1"), mAny.Any(1));
 			}
 		)
 	);
-
+	
 #if NUNIT
 	[xTestCase("tAny.Equals()")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

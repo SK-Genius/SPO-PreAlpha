@@ -480,7 +480,7 @@ mSPO_AST {
 				return Empty(aPos);
 			}
 			case 1: {
-				mDebug.Assert(aItems.Match(out var Head, out var _));
+				mAssert.True(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
@@ -683,7 +683,7 @@ mSPO_AST {
 				throw mError.Error("impossible");
 			}
 			case 1: {
-				mDebug.Assert(aItems.Match(out var Head, out var _));
+				mAssert.True(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {

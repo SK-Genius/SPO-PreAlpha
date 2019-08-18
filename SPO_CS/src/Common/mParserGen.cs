@@ -7,7 +7,7 @@
 
 
 //#define MY_TRACE
-//#defind INF_LOOP_DETECTIOM
+//#defind INF_LOOP_DETECTION
 
 using tBool = System.Boolean;
 
@@ -29,7 +29,7 @@ using tText = System.String;
 public static class
 mParserGen {
 	#region Helper
-	// TODO: seperate file ???
+	// TODO: seperat file ???
 	
 	public struct tParserResult<tPos, tIn, tOut, tError> {
 		public (mSpan.tSpan<tPos> Span, tOut Value) Result;
@@ -535,7 +535,7 @@ mParserGen {
 		public tParser<tPos, tIn, tNewOut, tError>
 		Cast<tNewOut>(
 		) {
-			mAssert.Assert(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
+			mAssert.True(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
 			return this.Modify(_ => (tNewOut)(object)_);
 		}
 	}
@@ -688,7 +688,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> a1,
 		tParser<tPos, tIn, tOut, tError> a2
 	) {
-		mDebug.AssertNull(a1._ParseFunc);
+		mAssert.Null(a1._ParseFunc);
 		a1._ParseFunc = a2._ParseFunc;
 		a1.SetDebugDef(a2.DebugDef);
 	}
@@ -726,7 +726,7 @@ mParserGen {
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<object> aInfinitLoopDetectionSet
 	) {
-		#if INF_LOOP_DETECTIOM
+		#if INF_LOOP_DETECTION
 		if (!aInfinitLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 			#if MY_TRACE
 				aDebugStream($"!!! INFINIT LOOP !!! ({aParser._DebugName??aParser._DebugDef})");

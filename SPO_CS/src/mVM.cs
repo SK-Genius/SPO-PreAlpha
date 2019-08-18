@@ -104,8 +104,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
-				mDebug.Assert(BoolData2.MatchBool(out var Bool2));
+				mAssert.True(BoolData1.MatchBool(out var Bool1));
+				mAssert.True(BoolData2.MatchBool(out var Bool2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 && Bool2));
 				break;
 			}
@@ -114,8 +114,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
-				mDebug.Assert(BoolData2.MatchBool(out var Bool2));
+				mAssert.True(BoolData1.MatchBool(out var Bool1));
+				mAssert.True(BoolData2.MatchBool(out var Bool2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 || Bool2));
 				break;
 			}
@@ -124,8 +124,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(BoolData1.MatchBool(out var Bool1));
-				mDebug.Assert(BoolData2.MatchBool(out var Bool2));
+				mAssert.True(BoolData1.MatchBool(out var Bool1));
+				mAssert.True(BoolData2.MatchBool(out var Bool2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
 				break;
 			}
@@ -141,8 +141,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(IntData1.MatchInt(out var Int1));
-				mDebug.Assert(IntData2.MatchInt(out var Int2));
+				mAssert.True(IntData1.MatchInt(out var Int1));
+				mAssert.True(IntData2.MatchInt(out var Int2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Int1 == Int2));
 				break;
 			}
@@ -151,8 +151,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(IntData1.MatchInt(out var Int1));
-				mDebug.Assert(IntData2.MatchInt(out var Int2));
+				mAssert.True(IntData1.MatchInt(out var Int1));
+				mAssert.True(IntData2.MatchInt(out var Int2));
 				var Diff = Int1 - Int2;
 				aCallStack._Regs.Push(mVM_Data.Int(Diff.Sign()));
 				break;
@@ -162,8 +162,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(IntData1.MatchInt(out var Int1));
-				mDebug.Assert(IntData2.MatchInt(out var Int2));
+				mAssert.True(IntData1.MatchInt(out var Int1));
+				mAssert.True(IntData2.MatchInt(out var Int2));
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 + Int2));
 				break;
 			}
@@ -172,8 +172,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(IntData1.MatchInt(out var Int1));
-				mDebug.Assert(IntData2.MatchInt(out var Int2));
+				mAssert.True(IntData1.MatchInt(out var Int1));
+				mAssert.True(IntData2.MatchInt(out var Int2));
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 - Int2));
 				break;
 			}
@@ -182,8 +182,8 @@ mVM {
 			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mDebug.Assert(IntData1.MatchInt(out var Int1));
-				mDebug.Assert(IntData2.MatchInt(out var Int2));
+				mAssert.True(IntData1.MatchInt(out var Int1));
+				mAssert.True(IntData2.MatchInt(out var Int2));
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 * Int2));
 				break;
 			}
@@ -208,7 +208,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.First: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(
+				mAssert.True(
 					aCallStack._Regs.Get(Arg1).MatchPair(
 						out var Var1,
 						out var Var2
@@ -220,7 +220,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Second: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(
+				mAssert.True(
 					aCallStack._Regs.Get(Arg1).MatchPair(
 						out var Var1,
 						out var Var2
@@ -245,7 +245,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.DelPrefix: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(
+				mAssert.True(
 					aCallStack._Regs.Get(Arg2).MatchPrefix(Arg1, out var Data_)
 				);
 				aCallStack._Regs.Push(Data_);
@@ -254,7 +254,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.HasPrefix: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(
+				mAssert.True(
 					aCallStack._Regs.Get(Arg2).MatchPrefix(out var PrefixId, out var Data)
 				);
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
@@ -282,7 +282,7 @@ mVM {
 			case mVM_Data.tOpCode.DivideRec: {
 			//--------------------------------------------------------------------------------
 				var Arg = aCallStack._Regs.Get(Arg1);
-				mAssert.Assert(Arg.MatchRecord(out var Record, out var Prefix));
+				mAssert.True(Arg.MatchRecord(out var Record, out var Prefix));
 				aCallStack._Regs.Push(
 					mVM_Data.Pair(
 						Record,
@@ -295,7 +295,7 @@ mVM {
 			case mVM_Data.tOpCode.Assert: {
 			//--------------------------------------------------------------------------------
 				if (aCallStack._Regs.Get(Arg1).MatchBool(out var Bool) && Bool) {
-					mAssert.Assert(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
+					mAssert.True(aCallStack._Regs.Get(Arg2).MatchBool(out Bool) && Bool);
 				}
 				break;
 			}
@@ -321,7 +321,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarGet: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(aCallStack._Regs.Get(Arg1)._Value.Match(out mVM_Data.tData X));
+				mAssert.True(aCallStack._Regs.Get(Arg1)._Value.Match(out mVM_Data.tData X));
 				aCallStack._Regs.Push(X);
 				break;
 			}
@@ -360,7 +360,7 @@ mVM {
 				var Proc_ = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
-				mAssert.Assert(Proc_.MatchPair(out var Obj, out var Proc));
+				mAssert.True(Proc_.MatchPair(out var Obj, out var Proc));
 				
 				if (Proc.MatchExternDef(out var ExternDef)) {
 					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
@@ -380,7 +380,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ReturnIf: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
+				mAssert.True(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					var Src = aCallStack._Regs.Get(Arg2);
 					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
@@ -394,7 +394,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ContinueIf: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
+				mAssert.True(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					aCallStack._Regs = mArrayList.List(
 						mVM_Data.Empty(),
@@ -417,10 +417,10 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.TailCallIf: {
 			//--------------------------------------------------------------------------------
-				mDebug.Assert(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
+				mAssert.True(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					var CallerArgPair = aCallStack._Regs.Get(Arg2);
-					mAssert.Assert(CallerArgPair.MatchPair(out var Proc, out var Arg));
+					mAssert.True(CallerArgPair.MatchPair(out var Proc, out var Arg));
 					mVM_Data.tData Res;
 					if (Proc.MatchExternDef(out var ExternDef)) {
 						Res = mVM_Data.ExternProc(ExternDef, Arg);
@@ -476,7 +476,7 @@ mVM {
 		mStream.tStream<mVM_Data.tProcDef<tPos>> aDefs
 	) {
 		var Env = mVM_Data.Empty();
-		mDebug.Assert(aDefs.Match(out var LastDef, out aDefs));
+		mAssert.True(aDefs.Match(out var LastDef, out aDefs));
 		while (aDefs.Match(out var DefTemp, out aDefs)) {
 			Env = mVM_Data.Pair(Env, mVM_Data.Def(LastDef));
 			LastDef = DefTemp;

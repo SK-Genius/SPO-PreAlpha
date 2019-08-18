@@ -32,7 +32,7 @@ mStdLib_Test {
 		mTest.Test(
 			"IfThenElse",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -73,7 +73,7 @@ mStdLib_Test {
 		mTest.Test(
 			"If2",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -109,7 +109,7 @@ mStdLib_Test {
 		mTest.Test(
 			"IfMatch1",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -145,7 +145,7 @@ mStdLib_Test {
 		mTest.Test(
 			"IfMatch2",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -180,7 +180,7 @@ mStdLib_Test {
 		mTest.Test(
 			"VAR",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT {
@@ -220,9 +220,9 @@ mStdLib_Test {
 			aDebugStream => {
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mAssert.Assert(aObj._IsMutable);
-						mAssert.Assert(aObj.MatchVar(out var Stream));
-						mAssert.Assert(Stream._Value.Match(out System.IO.TextReader Reader));
+						mAssert.True(aObj._IsMutable);
+						mAssert.True(aObj.MatchVar(out var Stream));
+						mAssert.True(Stream._Value.Match(out System.IO.TextReader Reader));
 						var Line = Reader.ReadLine();
 						return mVM_Data.Prefix("Text", new mVM_Data.tData{ _Value = mAny.Any(Line) });
 					},
@@ -230,11 +230,11 @@ mStdLib_Test {
 				);
 				var WriteLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
-						mAssert.Assert(aObj._IsMutable);
-						mAssert.Assert(aObj.MatchVar(out var Stream));
-						mAssert.Assert(aArg.MatchPrefix("Text", out var Line));
-						mAssert.Assert(Stream._Value.Match(out  System.IO.TextWriter Writer));
-						mAssert.Assert(Line._Value.Match(out tText Text));
+						mAssert.True(aObj._IsMutable);
+						mAssert.True(aObj.MatchVar(out var Stream));
+						mAssert.True(aArg.MatchPrefix("Text", out var Line));
+						mAssert.True(Stream._Value.Match(out  System.IO.TextWriter Writer));
+						mAssert.True(Line._Value.Match(out tText Text));
 						Writer.WriteLine(Text);
 						Writer.Flush();
 						return mVM_Data.Empty();
@@ -290,11 +290,11 @@ mStdLib_Test {
 					a => aDebugStream(a())
 				);
 				
-				mAssert.AssertEq(Res, mVM_Data.Int(0));
+				mAssert.Equals(Res, mVM_Data.Int(0));
 				
 				var ResArray = Result.GetBuffer();
 				for (var I = 0; I < Reference.Length - 1; I += 1) {
-					mAssert.AssertEq(ResArray[I], Reference[I]);
+					mAssert.Equals(ResArray[I], Reference[I]);
 				}
 			}
 		)
@@ -308,7 +308,7 @@ mStdLib_Test {
 	[xTestCase("VAR")]
 	[xTestCase("Echo")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

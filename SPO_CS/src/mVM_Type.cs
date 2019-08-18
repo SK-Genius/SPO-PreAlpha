@@ -195,7 +195,7 @@ mVM_Type {
 	Value(
 		this tType aType
 	) {
-		mDebug.Assert(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
+		mAssert.True(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
 		return aType.Refs[0];
 	}
 	
@@ -241,7 +241,7 @@ mVM_Type {
 		tType aType
 	) => new tType {
 		Kind = tKind.Prefix,
-		Prefix = aPrefix.AssertNotNull(),
+		Prefix = mAssert.NotNull(aPrefix),
 		Refs = new []{ aType }
 	};
 	
@@ -276,8 +276,8 @@ mVM_Type {
 		tType aHeadType,
 		tType aTailType
 	) {
-		mAssert.AssertIsIn(aTailType.Kind, tKind.Record, tKind.Empty);
-		mAssert.AssertEq(aHeadType.Kind, tKind.Prefix);
+		mAssert.In(aTailType.Kind, tKind.Record, tKind.Empty);
+		mAssert.Equals(aHeadType.Kind, tKind.Prefix);
 		AssertNotIn(aHeadType.Prefix, aTailType);
 		
 		return new tType {
@@ -290,7 +290,7 @@ mVM_Type {
 			if (aRecord.Kind == tKind.Empty) {
 				return;
 			}
-			mAssert.AssertNotEq(aPrefix, aRecord.Prefix);
+			mAssert.NotEquals(aPrefix, aRecord.Prefix);
 			AssertNotIn(aPrefix, aRecord.Refs[0]);
 		}
 	}
@@ -303,7 +303,7 @@ mVM_Type {
 		out tType aTailRecord
 	) {
 		if (aType.Kind == tKind.Bool) {
-			mAssert.Assert(aType.Refs[0].MatchPrefix(out aHeadKey, out aHeadType));
+			mAssert.True(aType.Refs[0].MatchPrefix(out aHeadKey, out aHeadType));
 			aTailRecord = aType.Refs[1];
 			return true;
 		} else {
@@ -436,7 +436,7 @@ mVM_Type {
 		tType aType
 		// aCond
 	) {
-		mDebug.Assert(false); // TODO
+		mAssert.True(false); // TODO
 		return new tType {
 			Kind = tKind.Cond,
 			Refs = new [] { aType },
@@ -449,7 +449,7 @@ mVM_Type {
 		out tType aSuperType
 		// aCond
 	) {
-		mDebug.Assert(false); // TODO
+		mAssert.True(false); // TODO
 		if (aType.Kind == tKind.Cond) {
 			aSuperType = aType.Refs[0];
 			return true;
@@ -474,7 +474,7 @@ mVM_Type {
 		out tType aOutType
 		// aCond
 	) {
-		mDebug.Assert(false); // TODO
+		mAssert.True(false); // TODO
 		if (aType.Kind == tKind.Recursiv) {
 			aOutType = aType.Refs[0];
 			return true;
@@ -581,10 +581,10 @@ mVM_Type {
 		}
 		
 		if (a1.Kind == a2.Kind) {
-			mAssert.AssertEq(a1.Id, a2.Id);
-			mAssert.AssertEq(a1.Prefix, a2.Prefix);
+			mAssert.Equals(a1.Id, a2.Id);
+			mAssert.Equals(a1.Prefix, a2.Prefix);
 			var RefCount = a1.Refs.Length;
-			mAssert.AssertEq(a2.Refs.Length, RefCount);
+			mAssert.Equals(a2.Refs.Length, RefCount);
 			while (RefCount-- > 0) {
 				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
 					return false;

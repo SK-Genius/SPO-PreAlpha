@@ -130,19 +130,19 @@ mStream {
 	public static tRes
 	Reduce<tRes, tElem>(
 		this tStream<tElem> aStream,
-		tRes aInitialAgregate,
-		mStd.tFunc<tRes, tRes, tElem> aAgregatorFunc
+		tRes aInitialAggregate,
+		mStd.tFunc<tRes, tRes, tElem> aAggregatorFunc
 	#if TAIL_RECURSIVE
 	) => (
 		aStream.Match(out var Head, out var Tail)
-		? Tail.Reduce(aAgregatorFunc(aInitialAgregate, Head), aAgregatorFunc)
-		: aInitialAgregate
+		? Tail.Reduce(aAggregatorFunc(aInitialAggregate, Head), aAggregatorFunc)
+		: aInitialAggregate
 	);
 	#else
 	){
-		var Result = aInitialAgregate;
+		var Result = aInitialAggregate;
 		while (aStream.Match(out var Head, out aStream)) {
-			Result = aAgregatorFunc(Result, Head);
+			Result = aAggregatorFunc(Result, Head);
 		}
 		return Result;
 	}
@@ -156,11 +156,11 @@ mStream {
 	public static t
 	Join<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<t, t, t> aAgregatorFunc,
+		mStd.tFunc<t, t, t> aAggregatorFunc,
 		t aDefault
 	) => (
 		aStream.Match(out var Head, out var Tail)
-		? Tail.Reduce(Head, aAgregatorFunc)
+		? Tail.Reduce(Head, aAggregatorFunc)
 		: aDefault
 	);
 	
@@ -180,7 +180,7 @@ mStream {
 		tInt32 aCount
 	) {
 		#if TAIL_RECURSIVE
-		mDebug.Assert(aCount >= 0);
+		mAssert.(aCount >= 0);
 		return (
 			(aCount > 0 && aStream.Match(out var Head, out var Tail))
 			? Tail.Skip(aCount - 1)
@@ -271,7 +271,7 @@ mStream {
 	public static t
 	ForceFirst<t>(
 		this tStream<t> aStream
-	) => aStream.First().ElseThrow("imposible");
+	) => aStream.First().ElseThrow("impossible");
 	
 	public static mMaybe.tMaybe<t>
 	Last<t>(
@@ -290,7 +290,7 @@ mStream {
 	public static t
 	ForceLast<t>(
 		this tStream<t> aStream
-	) => aStream.Last().ElseThrow("imposible");
+	) => aStream.Last().ElseThrow("impossible");
 	
 	public static tBool
 	Any(

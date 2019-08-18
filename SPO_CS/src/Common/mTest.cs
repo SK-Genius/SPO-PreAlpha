@@ -50,38 +50,32 @@ mTest {
 		public tTest[] _Tests;
 	}
 	
-	//================================================================================
 	public static tTest
 	Tests(
 		tText aName,
 		params tTest[] aTests
-	//================================================================================
 	) => new tTests { _Name = aName, _Tests = aTests };
 	
-	//================================================================================
 	public static tTest
 	Test(
 		tText aName,
 		mStd.tAction<mStd.tAction<tText>> aTestFunc
-	//================================================================================
 	) => new tTestRun {
 		_Name = aName,
 		_TestFunc = aTestFunc
 	};
 	
-	//================================================================================
 	public static tResult
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tText> aFilters
-	//================================================================================
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
-
+		
 		const tText cTab = "|  ";
 		switch (aTest) {
 			case tTestRun TestRun: {
@@ -177,7 +171,7 @@ mTest {
 			}
 		}
 	}
-
+	
 	private static mStd.tAction<tText>
 	LineByLine(
 		mStd.tAction<tText> aWritLine
@@ -188,7 +182,7 @@ mTest {
 			}
 		};
 	}
-
+	
 	private static mStd.tAction<tText>
 	AddPrefix(
 		this mStd.tAction<tText> aWritLine,

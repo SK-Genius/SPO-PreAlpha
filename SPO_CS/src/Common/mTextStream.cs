@@ -69,10 +69,13 @@ mTextStream {
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Massage)> aErrors,
 		tText[] aSrcLines
-	) => aErrors
-		.Reverse()
-		.Map(_ => _.ToText(aSrcLines))
-		.Reduce("", (a1, a2) => a1 + "\n" + a2);
+	) => aErrors.Reverse(
+	).Map(
+		_ => _.ToText(aSrcLines)
+	).Reduce(
+		"",
+		(a1, a2) => a1 + "\n" + a2
+	);
 	
 	public static mStream.tStream<(tPos Pos, tChar Char)>
 	ToStream(
@@ -82,19 +85,21 @@ mTextStream {
 		var Col = (int?)1;
 		var Row = (int?)1;
 		
-		return mStream.Stream(aText.ToCharArray())
-			.Where(_ => _ != '\r')
-			.Map(
-				aChar => {
-					var Result = (Pos(aIdent, Row.Value, Col.Value), aChar);
-					if (aChar == '\n') {
-						Col = 1;
-						Row += 1;
-					} else {
-						Col += 1;
-					}
-					return Result;
+		return mStream.Stream(
+			aText.ToCharArray()
+		).Where(
+			_ => _ != '\r'
+		).Map(
+			aChar => {
+				var Result = (Pos(aIdent, Row.Value, Col.Value), aChar);
+				if (aChar == '\n') {
+					Col = 1;
+					Row += 1;
+				} else {
+					Col += 1;
 				}
-			);
+				return Result;
+			}
+		);
 	}
 }

@@ -32,17 +32,17 @@ mTree_Tests {
 			aDebugStream => {
 				{
 					var Tree = mTree.Tree<tInt32, tText>(Int32Compare);
-					mAssert.AssertEq(Tree.Deep(), 0);
-					mAssert.AssertError(() => { Tree.ForceGet(0); });
+					mAssert.Equals(Tree.Deep(), 0);
+					mAssert.Error(() => { Tree.ForceGet(0); });
 				}
 				{
 					var Tree = mTree.Tree(
 						Int32Compare,
 						(1, "bla")
 					);
-					mAssert.AssertEq(Tree.Deep(), 1);
-					mAssert.AssertEq(Tree.ForceGet(1), "bla");
-					mAssert.AssertError(() => { Tree.ForceGet(0); });
+					mAssert.Equals(Tree.Deep(), 1);
+					mAssert.Equals(Tree.ForceGet(1), "bla");
+					mAssert.Error(() => { Tree.ForceGet(0); });
 				}
 				{
 					var Tree = mTree.Tree(
@@ -50,10 +50,10 @@ mTree_Tests {
 						(1, "bla"),
 						(2, "blub")
 					);
-					mAssert.AssertEq(Tree.Deep(), 2);
-					mAssert.AssertError(() => { Tree.ForceGet(0); });
-					mAssert.AssertEq(Tree.ForceGet(1), "bla");
-					mAssert.AssertEq(Tree.ForceGet(2), "blub");
+					mAssert.Equals(Tree.Deep(), 2);
+					mAssert.Error(() => { Tree.ForceGet(0); });
+					mAssert.Equals(Tree.ForceGet(1), "bla");
+					mAssert.Equals(Tree.ForceGet(2), "blub");
 				}
 			}
 		),
@@ -66,10 +66,10 @@ mTree_Tests {
 						.Set(3, "foo")
 						.Set(2, "blub")
 						.Remove(3);
-					mAssert.AssertError(() => { Tree.ForceGet(0); });
-					mAssert.AssertEq(Tree.ForceGet(1), "bla");
-					mAssert.AssertEq(Tree.ForceGet(2), "blub");
-					mAssert.AssertError(() => { Tree.ForceGet(3); });
+					mAssert.Error(() => { Tree.ForceGet(0); });
+					mAssert.Equals(Tree.ForceGet(1), "bla");
+					mAssert.Equals(Tree.ForceGet(2), "blub");
+					mAssert.Error(() => { Tree.ForceGet(3); });
 				}
 			}
 		),
@@ -88,17 +88,17 @@ mTree_Tests {
 						.Set(7, "_7")
 						.Set(8, "_8")
 						.Set(9, "_9");
-					mAssert.AssertEq(Tree.ForceGet(0), "_0");
-					mAssert.AssertEq(Tree.ForceGet(1), "_1");
-					mAssert.AssertEq(Tree.ForceGet(2), "_2");
-					mAssert.AssertEq(Tree.ForceGet(3), "_3");
-					mAssert.AssertEq(Tree.ForceGet(4), "_4");
-					mAssert.AssertEq(Tree.ForceGet(5), "_5");
-					mAssert.AssertEq(Tree.ForceGet(6), "_6");
-					mAssert.AssertEq(Tree.ForceGet(7), "_7");
-					mAssert.AssertEq(Tree.ForceGet(8), "_8");
-					mAssert.AssertEq(Tree.ForceGet(9), "_9");
-					mAssert.AssertError(() => { Tree.ForceGet(20); });
+					mAssert.Equals(Tree.ForceGet(0), "_0");
+					mAssert.Equals(Tree.ForceGet(1), "_1");
+					mAssert.Equals(Tree.ForceGet(2), "_2");
+					mAssert.Equals(Tree.ForceGet(3), "_3");
+					mAssert.Equals(Tree.ForceGet(4), "_4");
+					mAssert.Equals(Tree.ForceGet(5), "_5");
+					mAssert.Equals(Tree.ForceGet(6), "_6");
+					mAssert.Equals(Tree.ForceGet(7), "_7");
+					mAssert.Equals(Tree.ForceGet(8), "_8");
+					mAssert.Equals(Tree.ForceGet(9), "_9");
+					mAssert.Error(() => { Tree.ForceGet(20); });
 
 					Tree = Tree.Remove(3);
 					Tree = Tree.Remove(7);
@@ -106,11 +106,11 @@ mTree_Tests {
 					Tree = Tree.Remove(9);
 					Tree = Tree.Remove(5);
 
-					mAssert.AssertEq(Tree.ForceGet(0), "_0");
-					mAssert.AssertEq(Tree.ForceGet(2), "_2");
-					mAssert.AssertEq(Tree.ForceGet(4), "_4");
-					mAssert.AssertEq(Tree.ForceGet(6), "_6");
-					mAssert.AssertEq(Tree.ForceGet(8), "_8");
+					mAssert.Equals(Tree.ForceGet(0), "_0");
+					mAssert.Equals(Tree.ForceGet(2), "_2");
+					mAssert.Equals(Tree.ForceGet(4), "_4");
+					mAssert.Equals(Tree.ForceGet(6), "_6");
+					mAssert.Equals(Tree.ForceGet(8), "_8");
 				}
 			}
 		)
@@ -121,7 +121,7 @@ mTree_Tests {
 	[xTestCase("Remove")]
 	[xTestCase("Big")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

@@ -47,7 +47,7 @@ mMap {
 		}
 		return mStd.cEmpty;
 	}
-
+	
 	public static tValue
 	ForceGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,

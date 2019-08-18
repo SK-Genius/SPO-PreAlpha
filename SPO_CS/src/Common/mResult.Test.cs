@@ -26,24 +26,24 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 #endif
 public static class
 mResult_Test {
-
+	
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		nameof(mResult),
 		mTest.Test(
 			"tResult.Equals()",
 			aStreamOut => {
-				mAssert.AssertEq<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
-				mAssert.AssertEq<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
-				mAssert.AssertEq<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
+				mAssert.Equals<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
+				mAssert.Equals<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
+				mAssert.Equals<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
 			}
 		)
 	);
-
+	
 #if NUNIT
 	[xTestCase("tResult.Equals()")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

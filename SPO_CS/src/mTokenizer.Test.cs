@@ -55,7 +55,7 @@ mTokenizer_Test {
 					"",
 					a => aDebugStream(a())
 				).Result;
-				mAssert.AssertEq(
+				mAssert.Equals(
 					TokenList,
 					mStream.Stream(
 						new mTokenizer.tToken{ Span = Span((1, 1), (1, 1)), Text = "a", Type = mTokenizer.tTokenType.Ident },
@@ -82,7 +82,7 @@ mTokenizer_Test {
 	#if NUNIT
 	[xTestCase("TwoLines")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

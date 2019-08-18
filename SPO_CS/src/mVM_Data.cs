@@ -80,7 +80,7 @@ mVM_Data {
 		TypeCond,
 		TypeFunc,
 		TypeMeth,
-		TypeRecursiv,
+		TypeRecursive,
 		TypeInterface,
 		TypeGeneric,
 	}
@@ -498,7 +498,7 @@ mVM_Data {
 	TypeFree<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos
-	) => aDef._AddReg(aPos, tOpCode.TypeRecursiv);
+	) => aDef._AddReg(aPos, tOpCode.TypeRecursive);
 	
 	public static tInt32
 	TypeRecursive<tPos>(
@@ -506,7 +506,7 @@ mVM_Data {
 		tPos aPos,
 		tInt32 aHeadTypeReg,
 		tInt32 aBodyTypeReg
-	) => aDef._AddReg(aPos, tOpCode.TypeRecursiv, aHeadTypeReg, aBodyTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeRecursive, aHeadTypeReg, aBodyTypeReg);
 	
 	public static tInt32
 	TypeInterface<tPos>(
@@ -766,12 +766,12 @@ mVM_Data {
 		tData aRecord,
 		tData aPrefix
 	) {
-		mAssert.Assert(aPrefix.MatchPrefix(out var PrefixHash, out _));
+		mAssert.True(aPrefix.MatchPrefix(out var PrefixHash, out _));
 		var Record = aRecord;
 		while (!Record.MatchEmpty()) {
-			mAssert.Assert(Record.MatchRecord(out Record, out var Prefix));
-			mAssert.Assert(Prefix.MatchPrefix(out var PrefixHash_, out _));
-			mAssert.AssertNotEq(PrefixHash, PrefixHash_);
+			mAssert.True(Record.MatchRecord(out Record, out var Prefix));
+			mAssert.True(Prefix.MatchPrefix(out var PrefixHash_, out _));
+			mAssert.NotEquals(PrefixHash, PrefixHash_);
 		}
 		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
 	}
@@ -799,7 +799,7 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		mDebug.AssertNot(aEnv._IsMutable);
+		mAssert.False(aEnv._IsMutable);
 		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
@@ -816,7 +816,7 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> aExternDef,
 		tData aEnv
 	) {
-		mDebug.AssertNot(aEnv._IsMutable);
+		mAssert.False(aEnv._IsMutable);
 		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
 	}
 	
@@ -889,7 +889,7 @@ mVM_Data {
 		this tData a,
 		tInt32 aLimit
 	) {
-		mAssert.AssertNotEq(a, null);
+		mAssert.NotEquals(a, null);
 		
 		if (aLimit == 0) {
 			return "...";

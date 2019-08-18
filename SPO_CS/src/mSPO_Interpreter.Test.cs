@@ -32,10 +32,10 @@ mSPO_Interpreter_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
-		mAssert.Assert(Arg2.MatchPair(out var Arg2_, out var _));
-		mAssert.Assert(Arg2_.MatchInt(out var IntArg2));
+		mAssert.True(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.True(Arg1.MatchInt(out var IntArg1));
+		mAssert.True(Arg2.MatchPair(out var Arg2_, out var _));
+		mAssert.True(Arg2_.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -45,7 +45,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run1",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -72,7 +72,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run2",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -98,7 +98,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run3",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -122,7 +122,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run4",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -142,7 +142,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run5",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT (
@@ -225,7 +225,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run7",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT ()
@@ -247,7 +247,7 @@ mSPO_Interpreter_Test {
 		mTest.Test(
 			"Run8",
 			aDebugStream => {
-				mAssert.AssertEq(
+				mAssert.Equals(
 					mSPO_Interpreter.Run(
 						@"
 							§IMPORT ()
@@ -276,7 +276,7 @@ mSPO_Interpreter_Test {
 	[xTestCase("Run7")]
 	[xTestCase("Run8")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

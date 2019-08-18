@@ -19,12 +19,12 @@ mSpan {
 	tSpan<tPos> {
 		public tPos Start;
 		public tPos End;
-
+		
 		public override tText
 		ToString(
 		) => $"{this.Start}..{this.End}";
 	}
-
+	
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aStart,
@@ -33,12 +33,12 @@ mSpan {
 		Start = aStart,
 		End = aEnd
 	};
-
+	
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aPos
 	) => Span(aPos, aPos);
-
+	
 	public static tSpan<tPos>
 	Merge<tPos>(
 		tSpan<tPos> a1,

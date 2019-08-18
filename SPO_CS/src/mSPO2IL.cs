@@ -92,7 +92,7 @@ mSPO2IL {
 				break;
 			}
 			case 1: {
-				mDebug.Assert(aSymbols.Match(out var Head, out var _));
+				mAssert.True(aSymbols.Match(out var Head, out var _));
 				ExtractEnv.Push(mIL_AST.Alias(aPos, Head.Ident, aReg));
 				break;
 			}
@@ -318,7 +318,7 @@ mSPO2IL {
 						throw mError.Error("impossible");
 					}
 					case 1: {
-						mDebug.Assert(TupleNode.Items.Match(out var Head, out var _));
+						mAssert.True(TupleNode.Items.Match(out var Head, out var _));
 						return aDefConstructor.MapExpresion(Head);
 					}
 					default: {
@@ -521,8 +521,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
 			//--------------------------------------------------------------------------------
-				mAssert.AssertNot(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
-				mAssert.AssertNot(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mAssert.False(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
+				mAssert.False(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(RecursiveTypeNode.HeadType.Pos, RecursiveTypeNode.HeadType.Name)
 				);
@@ -705,7 +705,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
 			//--------------------------------------------------------------------------------
-				mDebug.AssertNotEq(FreeIdentNode.Name, "_");
+				mAssert.NotEquals(FreeIdentNode.Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(FreeIdentNode.Pos, FreeIdentNode.Name, aReg));
 				aDefConstructor.KnownSymbols.Push(FreeIdentNode.Name);
 				break;
@@ -767,7 +767,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 				var RestReg = aReg;
 				var Items = TupleNode.Items;
-				mDebug.AssertEq(Items.Take(2).ToArrayList().Size(), 2);
+				mAssert.Equals(Items.Take(2).ToArrayList().Size(), 2);
 				while (Items.Match(out var Item, out Items)) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Item.Pos, ItemReg, RestReg));
@@ -826,8 +826,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
 			//--------------------------------------------------------------------------------
-				mDebug.AssertNotEq(FreeIdentNode.Name, "_");
-				mDebug.Assert(
+				mAssert.NotEquals(FreeIdentNode.Name, "_");
+				mAssert.True(
 					aDefConstructor.KnownSymbols.ToStream().All(_ => _ != FreeIdentNode.Name)
 				);
 				aDefConstructor.Commands.Push(

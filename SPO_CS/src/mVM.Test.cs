@@ -33,9 +33,9 @@ mVM_Test {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.Assert(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.Assert(Arg1.MatchInt(out var IntArg1));
-		mAssert.Assert(Arg2.MatchInt(out var IntArg2));
+		mAssert.True(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.True(Arg1.MatchInt(out var IntArg1));
+		mAssert.True(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
@@ -63,7 +63,7 @@ mVM_Test {
 				
 				var Res = mVM_Data.Empty();
 				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);
-				mAssert.AssertEq(Res, mVM_Data.Int(2));
+				mAssert.Equals(Res, mVM_Data.Int(2));
 			}
 		),
 		mTest.Test(
@@ -100,7 +100,7 @@ mVM_Test {
 				
 				var Res = mVM_Data.Empty();
 				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc2, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);
-				mAssert.AssertEq(Res, mVM_Data.Int(2));
+				mAssert.Equals(Res, mVM_Data.Int(2));
 			}
 		)
 	);
@@ -109,7 +109,7 @@ mVM_Test {
 	[xTestCase("ExternDef")]
 	[xTestCase("InternDef")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

@@ -18,42 +18,28 @@ using tText = System.String;
 
 public static class
 mAssert {
+	
+	private static readonly tText cErrorPrefix = "FAIL: ";
+	
 	public static void
-	Assert(
-		tBool a
-	) {
-		AssertEq(a, true);
-	}
-
-	public static void
-	Assert(
+	True(
 		tBool a,
-		tText aMsg
+		mStd.tFunc<tText> aMsg = null
 	) {
 		if (!a) {
-			throw mError.Error($"FAIL: {aMsg}");
+			throw mError.Error(cErrorPrefix+(aMsg?.Invoke() ?? "is not true"));
 		}
 	}
-
+	
 	public static void
-	Assert(
-		tBool a,
-		mStd.tFunc<tText> aMsg
-	) {
-		if (!a) {
-			throw mError.Error($"FAIL: {aMsg()}");
-		}
-	}
-
-	public static void
-	AssertNot(
+	False(
 		tBool a
 	) {
-		AssertEq(a, false);
+		Equals(a, false);
 	}
-
+	
 	public static void
-	AssertEq<t>(
+	Equals<t>(
 		t a1,
 		t a2,
 		mStd.tFunc<tBool, t, t> aAreEqual = null,
@@ -65,7 +51,7 @@ mAssert {
 		) {
 			return;
 		}
-
+		
 		tText Text1;
 		tText Text2;
 		if (aToText is null) {
@@ -85,8 +71,8 @@ mAssert {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
 		}
-		throw mError.Error($"FAIL:\n{Text1}\n!=\n{Text2}");
-
+		throw mError.Error(cErrorPrefix + $"\n{Text1}\n!=\n{Text2}");
+		
 #if JSON
 		string
 		AsJSON(
@@ -97,28 +83,41 @@ mAssert {
 		);
 #endif
 	}
-
+	
 	public static void
-	AssertNotEq<t>(
+	NotEquals<t>(
 		t a1,
 		t a2
 	) {
 		if (a1.Equals(a2)) {
-			throw mError.Error($"FAIL: {a1} == {a2}");
+			throw mError.Error(cErrorPrefix + $"{a1} == {a2}");
 		}
 	}
 	
-	public static void
-	AssertIsNull<t>(
-		t a
+	public static t
+	Null<t>(
+		t a,
+		mStd.tFunc<tText> aMsg = null
+	) {
+		if (!ReferenceEquals(a, null)) {
+			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is not null"));
+		}
+		return a;
+	}
+	
+	public static t
+	NotNull<t>(
+		t a,
+		mStd.tFunc<tText> aMsg = null
 	) {
 		if (ReferenceEquals(a, null)) {
-			throw mError.Error($"FAIL: {a} is null");
+			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is null"));
 		}
+		return a;
 	}
 	
 	public static void
-	AssertIsIn<t>(
+	In<t>(
 		t a1,
 		params t[] a2
 	) {
@@ -127,23 +126,23 @@ mAssert {
 				return;
 			}
 		}
-		throw mError.Error($"FAIL: {a1} in {a2}");
+		throw mError.Error(cErrorPrefix + $"{a1} in {a2}");
 	}
-
+	
 	public static void
-	AssertIsNotIn<t>(
+	NotIn<t>(
 		t a1,
 		params t[] a2
 	) {
 		foreach (var Element in a2) {
 			if (a1.Equals(Element)) {
-				throw mError.Error($"FAIL: {a1} not in {a2}");
+				throw mError.Error(cErrorPrefix + $"{a1} not in {a2}");
 			}
 		}
 	}
-
+	
 	public static void
-	AssertError(
+	Error(
 		mStd.tAction a
 	) {
 		try {
@@ -151,6 +150,6 @@ mAssert {
 		} catch {
 			return;
 		}
-		throw mError.Error("FAIL: Error expected");
+		throw mError.Error(cErrorPrefix + "Error expected");
 	}
 }

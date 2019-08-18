@@ -126,7 +126,7 @@ mArrayList {
 		this tArrayList<t> aList,
 		tInt32 aIndex
 	) {
-		mDebug.Assert(aIndex < aList._CurrSize);
+		mAssert.True(aIndex < aList._CurrSize);
 		return aList._Items[aIndex];
 	}
 	

@@ -45,9 +45,9 @@ mTextParser {
 		using (mPerf.Measure()) {
 			var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-			mAssert.Assert(
+			mAssert.True(
 				MaybeResult.Match(out var Result, out var ErrorList),
-				ErrorList.ToText(aText.Split('\n'))
+				() => ErrorList.ToText(aText.Split('\n'))
 			);
 			
 			if (!Result.RestStream.IsEmpty()) {
@@ -133,7 +133,7 @@ mTextParser {
 	GetToken(
 		tText aToken
 	) {
-		mAssert.AssertNotEq(aToken.Length, 0);
+		mAssert.NotEquals(aToken.Length, 0);
 		var I = aToken.Length - 1;
 		var Parser = -GetChar(aToken[I]);
 		while (I --> 0) {

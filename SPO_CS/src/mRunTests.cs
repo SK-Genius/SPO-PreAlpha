@@ -94,7 +94,7 @@ mRunTests {
 	[xTestCategory("all")]
 	[xTestCase("")]
 	public static void _(tText a) {
-		mAssert.AssertEq(
+		mAssert.Equals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
