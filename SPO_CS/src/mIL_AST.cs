@@ -89,6 +89,7 @@ mIL_AST {
 	public static readonly tText cIntType = "INT_TYPE";
 	public static readonly tText cTypeType = "Type_TYPE";
 	
+	[System.Diagnostics.DebuggerDisplay("{Pos}: {_1} = {NodeType} {_2} {_3}")]
 	public struct
 	tCommandNode<tPos> {
 		public tCommandNodeType NodeType;

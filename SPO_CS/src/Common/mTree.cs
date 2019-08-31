@@ -15,10 +15,19 @@ using tText = System.String;
 
 public static class
 mTree {
+	
+	[System.Diagnostics.DebuggerTypeProxy(typeof(mTree.tTree<,>.tDebuggerProxy))]
 	public class
 	tTree<tKey, tValue> {
 		internal mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
 		internal tNode<tKey, tValue> Root;
+
+		private struct tDebuggerProxy {
+			private readonly tTree<tKey, tValue> _Tree;
+			public tDebuggerProxy(tTree<tKey, tValue> a) { this._Tree = a; }
+			[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.RootHidden)]
+			public (tKey Key, tValue Value)[] List => this._Tree.ToStream().Take(100).ToArrayList().ToArray();
+		}
 	}
 	
 	internal class
@@ -325,5 +334,26 @@ mTree {
 				aSubTree2.Deep()
 			),
 		};
+	}
+
+	public static mStream.tStream<(tKey Key, tValue Value)>
+	ToStream<tKey, tValue>(
+		this tTree<tKey, tValue> a
+	) => a.Root.ToStream();
+	
+	private static mStream.tStream<(tKey Key, tValue Value)>
+	ToStream<tKey, tValue>(
+		this tNode<tKey, tValue> a
+	) {
+		if (a is null) {
+			return mStream.Stream<(tKey Key, tValue Value)>(); 
+		}
+		return mStream.Concat(
+			a.SubTree1.ToStream(),
+			mStream.Concat(
+				mStream.Stream((a.Key, a.Value)),
+				a.SubTree2.ToStream()
+			)
+		);
 	}
 }

@@ -40,6 +40,7 @@ mVM_Type {
 		Generic
 	}
 	
+	[System.Diagnostics.DebuggerDisplay("{mVM_Type.ToText(this, 3)}")]
 	public class
 	tType {
 		public tKind Kind;

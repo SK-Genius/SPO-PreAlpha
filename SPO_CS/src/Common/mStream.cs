@@ -21,6 +21,7 @@ using tText = System.String;
 public static class
 mStream {
 	
+	[System.Diagnostics.DebuggerTypeProxy(typeof(mStream.tStream<>.tDebuggerProxy))]
 	public sealed class
 	tStream<t> {
 		internal t _Head;
@@ -43,6 +44,13 @@ mStream {
 		Equals(
 			object a
 		) => this.Equals(a as tStream<t>);
+		
+		private struct tDebuggerProxy {
+			private readonly tStream<t> _Stream;
+			public tDebuggerProxy(tStream<t> a) { this._Stream = a; }
+			[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.RootHidden)]
+			public t[] Text => this._Stream.Take(100).ToArrayList().ToArray();
+		}
 	}
 	
 	public static tStream<t>

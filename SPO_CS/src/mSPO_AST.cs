@@ -18,6 +18,7 @@ using tText = System.String;
 
 public static class
 mSPO_AST {
+	private const tText cDebuggerDisplay = "{this.ToText(3)}";
 	
 	public interface
 	tNode<tPos> {
@@ -39,94 +40,108 @@ mSPO_AST {
 	
 	public interface
 	tTypeNode<tPos> : tExpressionNode<tPos> {}
-
+	
 	public interface
 	tCommandNode<tPos> : tNode<tPos> {}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tFalseNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tTrueNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
-
-	public class
+	
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tTextNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Value;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIntNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tInt32 Value;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Name;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tText Name;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>> Items;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -134,7 +149,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Type;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -142,21 +158,24 @@ mSPO_AST {
 		public tExpressionNode<tPos> Element;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> Elements;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -164,7 +183,8 @@ mSPO_AST {
 		public tMatchNode<tPos> Match;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -172,7 +192,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Guard;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -181,7 +202,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Body;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -190,14 +212,16 @@ mSPO_AST {
 		public tBlockNode<tPos> Body;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tCallNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -205,7 +229,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Arg;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -213,7 +238,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Src;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -221,27 +247,31 @@ mSPO_AST {
 		public tLambdaNode<tPos> Lambda;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tReturnIfNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Result;
 		public tExpressionNode<tPos> Condition;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)> Cases;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -249,7 +279,8 @@ mSPO_AST {
 		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)> Cases;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -257,21 +288,24 @@ mSPO_AST {
 		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -279,7 +313,8 @@ mSPO_AST {
 		public tTypeNode<tPos> ResType;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -287,7 +322,8 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -295,7 +331,8 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -303,7 +340,8 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -312,14 +350,16 @@ mSPO_AST {
 		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Obj;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMethodCallNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tIdentNode<tPos> Method;
@@ -327,7 +367,8 @@ mSPO_AST {
 		public tMatchNode<tPos> Result;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -335,7 +376,8 @@ mSPO_AST {
 		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -343,7 +385,8 @@ mSPO_AST {
 		public tExpressionNode<tPos> Right;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
@@ -351,26 +394,30 @@ mSPO_AST {
 		public tExpressionNode<tPos> Right;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Items;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tImportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tMatchNode<tPos> Match;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tExportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tExpressionNode<tPos> Expression;
 	}
 	
-	public class
+	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	public sealed class
 	tModuleNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; set; }
 		public tImportNode<tPos> Import;
@@ -861,7 +908,7 @@ mSPO_AST {
 		Pos = aPos,
 		Expression = aExpression 
 	};
-
+	
 	public static tBool
 	AreEqual<tPos>(
 		tNode<tPos> a1,
@@ -1085,5 +1132,121 @@ mSPO_AST {
 			}
 		}
 		throw mError.Error("not implemented: " + a1.GetType().Name);
+	}
+	
+	public static tText
+	ToText<t>(
+		this tNode<t> aNode,
+		tInt32 aLimit
+	) {
+		if (aLimit == 0) {
+			return "(...)";
+		}
+		
+		aLimit -= 1;
+		switch (aNode) {
+			// Expressions
+			case tIdentNode<t> Node: {
+				return Node.Name;
+			}
+			case tEmptyNode<t> Node: {
+				return "()";
+			}
+			case tTrueNode<t> Node: {
+				return "#True";
+			}
+			case tFalseNode<t> Node: {
+				return "#False";
+			}
+			case tIntNode<t> Node: {
+				return "" + Node.Value;
+			}
+			case tTextNode<t> Node: {
+				return $"\"{Node.Value}\"";
+			}
+			case tPrefixNode<t> Node: {
+				return $"(#{Node.Prefix} {Node.Element.ToText(aLimit)})";
+			}
+			case tTupleNode<t> Node: {
+				return $"({Node.Items.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)})";
+			}
+			case tLambdaNode<t> Node: {
+				return $"({Node.Head.ToText(aLimit)} => {Node.Body.ToText(aLimit)})";
+			}
+			case tCallNode<t> Node: {
+				return $"(.{Node.Func.ToText(aLimit)} {Node.Arg.ToText(aLimit)})";
+			}
+			case tMethodNode<t> Node: {
+				return $"({Node.Obj.ToText(aLimit)} : {Node.Arg.ToText(aLimit)} => {Node.Body.ToText(aLimit)})";
+			}
+			case tIfMatchNode<t> Node: {
+				return (
+					$"§If {Node.Expression} Match "
+					+ Node.Cases.Map(
+						a => a.Match.ToText(aLimit) + " => " + a.Expression.ToText(aLimit)
+					).Reduce(
+						"",
+						(a1, a2) => a1 + "; " + a2
+					)
+				);
+			}
+			// Matches
+			case tIgnoreMatchNode<t> Node: {
+				return "_";
+			}
+			case tMatchFreeIdentNode<t> Node: {
+				return Node.Name;
+			}
+			case tMatchPrefixNode<t> Node: {
+				return $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})";
+			}
+			case tMatchTupleNode<t> Node: {
+				return $"({Node.Items.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)})";
+			}
+			case tMatchGuardNode<t> Node: {
+				return $"({Node.Match.ToText(aLimit)} € {Node.Guard})";
+			}
+			// Types
+			case tEmptyTypeNode<t> Node: {
+				return "[]";
+			}
+			case tBoolTypeNode<t> Node: {
+				return "§Bool";
+			}
+			case tIntTypeNode<t> Node: {
+				return "§Int";
+			}
+			case tTypeTypeNode<t> Node: {
+				return "§Type";
+			}
+			case tPrefixTypeNode<t> Node: {
+				return $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)}]";
+			}
+			case tTupleTypeNode<t> Node: {
+				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)}]";
+			}
+			case tSetTypeNode<t> Node: {
+				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + " | " + a2)}]";
+			}
+			// Commands
+			case tBlockNode<t> Node: {
+				return "{...}";
+			}
+			case tMethodCallsNode<t> Node: {
+				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)} .";
+			}
+			case tMethodCallNode<t> Node: {
+				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.ToText(aLimit)}";
+			}
+			case tReturnIfNode<t> Node: {
+				return $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}";
+			}
+			case tDefNode<t> Node: {
+				return $"§Def {Node.Des} = {Node.Src}";
+			}
+			default: {
+				return "(???)";
+			}
+		}
 	}
 }

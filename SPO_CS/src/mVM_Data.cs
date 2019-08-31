@@ -85,8 +85,13 @@ mVM_Data {
 		TypeGeneric,
 	}
 	
+	public interface
+	tProcDef {
+		tText FirstPosText { get; }
+	}
+	
 	public sealed class
-	tProcDef<tPos> {
+	tProcDef<tPos> : tProcDef {
 		// standard stack indexes
 		public static readonly tInt32 cEmptyReg = 0;
 		public static readonly tInt32 cOneReg = 1;
@@ -118,9 +123,11 @@ mVM_Data {
 		);
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
-			Types = mArrayList.List<mVM_Type.tType>();
+		Types = mArrayList.List<mVM_Type.tType>();
 		
 		public tInt32 _LastReg = cResReg;
+
+		public string FirstPosText => "" + this.PosList.ToStream().First()._Value;
 	}
 	
 	internal static void
@@ -542,6 +549,7 @@ mVM_Data {
 		Type
 	}
 	
+	[System.Diagnostics.DebuggerDisplay("{mVM_Data.ToText(this, 3)}")]
 	public sealed class
 	tData {
 		public tDataType _DataType;
@@ -805,6 +813,13 @@ mVM_Data {
 	}
 	
 	public static tBool
+	MatchProc(
+		this tData aData,
+		out tProcDef aDef,
+		out tData aEnv
+	) => aData.Match(tDataType.Proc, out aDef, out aEnv);
+	
+	public static tBool
 	MatchProc<tPos>(
 		this tData aData,
 		out tProcDef<tPos> aDef,
@@ -831,6 +846,12 @@ mVM_Data {
 	Def<tPos>(
 		tProcDef<tPos> aDef
 	) => Data(tDataType.Def, false, aDef);
+	
+	public static tBool
+	MatchDef(
+		this tData aData,
+		out tProcDef aDef
+	) => aData.Match(tDataType.Def, out aDef);
 	
 	public static tBool
 	MatchDef<tPos>(
@@ -885,7 +906,7 @@ mVM_Data {
 	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
 	
 	public static tText
-	ToText<tPos>(
+	ToText(
 		this tData a,
 		tInt32 aLimit
 	) {
@@ -906,36 +927,36 @@ mVM_Data {
 			return $"{Int}";
 			
 		} else if (a.MatchPrefix(out var Prefix, out var Value)) {
-			return $"(#{Prefix} {Value.ToText<tPos>(NextLimit)})";
+			return $"(#{Prefix} {Value.ToText(NextLimit)})";
 			
 		} else if (a.MatchRecord(out var SubRecord, out var KeyValue)) {
 			KeyValue.MatchPrefix(out var Key, out Value);
 			var Result = $"{{ {Key}: {Value}";
 			while (SubRecord.MatchRecord(out KeyValue, out var Temp)) {
-				Result += $", {Key}: {Value.ToText<tPos>(NextLimit)}";
+				Result += $", {Key}: {Value.ToText(NextLimit)}";
 				SubRecord = Temp;
 			}
 			return Result + "}";
 			
 		} else if (a.MatchVar(out Value)) {
-			return $"(§VAR {Value.ToText<tPos>(NextLimit)})";
+			return $"(§VAR {Value.ToText(NextLimit)})";
 			
 		} else if (a.MatchPair(out var Rest1, out var Rest2)) {
-			var Result = "(" + Rest1.ToText<tPos>(NextLimit);
+			var Result = "(" + Rest1.ToText(NextLimit);
 			while (Rest2.MatchPair(out Rest1, out var Temp)) {
-				Result += ", " + Rest1.ToText<tPos>(NextLimit);
+				Result += ", " + Rest1.ToText(NextLimit);
 				Rest2 = Temp;
 			}
 			if (!Rest2.MatchEmpty()) {
-				Result += "; " + Rest2.ToText<tPos>(NextLimit);
+				Result += "; " + Rest2.ToText(NextLimit);
 			}
 			return Result + ")";
 			
-		} else if (a.MatchProc<tPos>(out var Def, out var Env)) {
-			return $"(Proc @ {Def.PosList.ToStream().First()._Value})";
+		} else if (a.MatchProc(out var Def, out var Env)) {
+			return $"(Proc @ {Def.FirstPosText})";
 			
-		} else if (a.MatchDef<tPos>(out var Def_)) {
-			return $"(Def @ {Def_.PosList.ToStream().First()._Value})";
+		} else if (a.MatchDef(out var Def_)) {
+			return $"(Def @ {Def_.FirstPosText})";
 			
 		} else {
 			return $"(?{a._DataType}?)";
