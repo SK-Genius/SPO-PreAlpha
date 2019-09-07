@@ -31,13 +31,13 @@ mVM_Type_Test {
 		mTest.Test(
 			"BoolBool",
 			aDebugStream => {
-				mAssert.True(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), a => aDebugStream(a())));
+				mAssert.IsTrue(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), a => aDebugStream(a())));
 			}
 		),
 		mTest.Test(
 			"BoolInt",
 			aDebugStream => {
-				mAssert.False(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), a => aDebugStream(a())));
+				mAssert.IsFalse(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), a => aDebugStream(a())));
 			}
 		)
 	);
@@ -46,7 +46,7 @@ mVM_Type_Test {
 	[xTestCase("BoolBool")]
 	[xTestCase("BoolInt")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

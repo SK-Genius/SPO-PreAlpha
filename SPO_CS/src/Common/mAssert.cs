@@ -22,7 +22,7 @@ mAssert {
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
 	public static void
-	True(
+	IsTrue(
 		tBool a,
 		mStd.tFunc<tText> aMsg = null
 	) {
@@ -32,14 +32,14 @@ mAssert {
 	}
 	
 	public static void
-	False(
+	IsFalse(
 		tBool a
 	) {
-		Equals(a, false);
+		AreEquals(a, false);
 	}
 	
 	public static void
-	Equals<t>(
+	AreEquals<t>(
 		t a1,
 		t a2,
 		mStd.tFunc<tBool, t, t> aAreEqual = null,
@@ -85,7 +85,7 @@ mAssert {
 	}
 	
 	public static void
-	NotEquals<t>(
+	AreNotEquals<t>(
 		t a1,
 		t a2
 	) {
@@ -95,7 +95,7 @@ mAssert {
 	}
 	
 	public static t
-	Null<t>(
+	IsNull<t>(
 		t a,
 		mStd.tFunc<tText> aMsg = null
 	) {
@@ -106,7 +106,7 @@ mAssert {
 	}
 	
 	public static t
-	NotNull<t>(
+	IsNotNull<t>(
 		t a,
 		mStd.tFunc<tText> aMsg = null
 	) {
@@ -117,7 +117,7 @@ mAssert {
 	}
 	
 	public static void
-	In<t>(
+	IsIn<t>(
 		t a1,
 		params t[] a2
 	) {
@@ -130,7 +130,7 @@ mAssert {
 	}
 	
 	public static void
-	NotIn<t>(
+	IsNotIn<t>(
 		t a1,
 		params t[] a2
 	) {
@@ -142,7 +142,7 @@ mAssert {
 	}
 	
 	public static void
-	Error(
+	ThrowsError(
 		mStd.tAction a
 	) {
 		try {

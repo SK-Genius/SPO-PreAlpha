@@ -135,7 +135,7 @@ mTree {
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.NotNull(aNode, () => "unknown key: " + aKey);
+		mAssert.IsNotNull(aNode, () => "unknown key: " + aKey);
 		return mStd.Switch(
 			aKeyCompare(aKey, aNode.Key),
 			(0, _ => aNode.Value),
@@ -161,7 +161,7 @@ mTree {
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.NotEquals(aNode, null);
+		mAssert.AreNotEquals(aNode, null);
 		
 		var SubTree1 = aNode.SubTree1;
 		var SubTree2 = aNode.SubTree2;
@@ -169,7 +169,7 @@ mTree {
 		var Value = aNode.Value;
 		
 		if (SubTree1 is null && SubTree2 is null) {
-			mAssert.Equals(aKey, Key);
+			mAssert.AreEquals(aKey, Key);
 			return null;
 		}
 		

@@ -22,7 +22,7 @@ using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
-using tSpan =mSpan.tSpan<mTextStream.tPos>;
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
 

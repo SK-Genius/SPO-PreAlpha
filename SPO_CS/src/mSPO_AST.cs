@@ -18,7 +18,7 @@ using tText = System.String;
 
 public static class
 mSPO_AST {
-	private const tText cDebuggerDisplay = "{this.ToText(3)}";
+	private const tText cDebuggerDisplay = "{this.ToText(10)}";
 	
 	public interface
 	tNode<tPos> {
@@ -527,7 +527,7 @@ mSPO_AST {
 				return Empty(aPos);
 			}
 			case 1: {
-				mAssert.True(aItems.Match(out var Head, out var _));
+				mAssert.IsTrue(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
@@ -730,7 +730,7 @@ mSPO_AST {
 				throw mError.Error("impossible");
 			}
 			case 1: {
-				mAssert.True(aItems.Match(out var Head, out var _));
+				mAssert.IsTrue(aItems.Match(out var Head, out var _));
 				return Head;
 			}
 			default: {
@@ -1168,7 +1168,7 @@ mSPO_AST {
 				return $"(#{Node.Prefix} {Node.Element.ToText(aLimit)})";
 			}
 			case tTupleNode<t> Node: {
-				return $"({Node.Items.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)})";
+				return $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})";
 			}
 			case tLambdaNode<t> Node: {
 				return $"({Node.Head.ToText(aLimit)} => {Node.Body.ToText(aLimit)})";
@@ -1191,20 +1191,27 @@ mSPO_AST {
 				);
 			}
 			// Matches
+			case tMatchNode<t> Node: {
+				if (Node.Type is null) {
+				 return Node.Pattern.ToText(aLimit);
+				} else {
+				 return $"({Node.Pattern.ToText(aLimit)} € {Node.Type.ToText(aLimit)})";
+				}
+			}
 			case tIgnoreMatchNode<t> Node: {
 				return "_";
 			}
 			case tMatchFreeIdentNode<t> Node: {
-				return Node.Name;
+				return "§DEF " + Node.Name;
 			}
 			case tMatchPrefixNode<t> Node: {
 				return $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})";
 			}
 			case tMatchTupleNode<t> Node: {
-				return $"({Node.Items.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)})";
+				return $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})";
 			}
 			case tMatchGuardNode<t> Node: {
-				return $"({Node.Match.ToText(aLimit)} € {Node.Guard})";
+				return $"({Node.Match.ToText(aLimit)} & {Node.Guard.ToText(aLimit)})";
 			}
 			// Types
 			case tEmptyTypeNode<t> Node: {
@@ -1220,20 +1227,20 @@ mSPO_AST {
 				return "§Type";
 			}
 			case tPrefixTypeNode<t> Node: {
-				return $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)}]";
+				return $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]";
 			}
 			case tTupleTypeNode<t> Node: {
-				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)}]";
+				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]";
 			}
 			case tSetTypeNode<t> Node: {
-				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + " | " + a2)}]";
+				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]";
 			}
 			// Commands
 			case tBlockNode<t> Node: {
 				return "{...}";
 			}
 			case tMethodCallsNode<t> Node: {
-				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Reduce("", (a1, a2) => a1 + ", " + a2)} .";
+				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .";
 			}
 			case tMethodCallNode<t> Node: {
 				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.ToText(aLimit)}";
@@ -1242,7 +1249,7 @@ mSPO_AST {
 				return $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}";
 			}
 			case tDefNode<t> Node: {
-				return $"§Def {Node.Des} = {Node.Src}";
+				return $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}";
 			}
 			default: {
 				return "(???)";

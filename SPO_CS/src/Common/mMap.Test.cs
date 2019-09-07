@@ -34,9 +34,9 @@ mMap_Test {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mAssert.Equals(TextToInt.ForceGet("one"), 1);
-				mAssert.Equals(TextToInt.ForceGet("two"), 2);
-				mAssert.Error(() => TextToInt.ForceGet("zero"));
+				mAssert.AreEquals(TextToInt.ForceGet("one"), 1);
+				mAssert.AreEquals(TextToInt.ForceGet("two"), 2);
+				mAssert.ThrowsError(() => TextToInt.ForceGet("zero"));
 			}
 		),
 		mTest.Test(
@@ -45,9 +45,9 @@ mMap_Test {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mAssert.Equals(TextToInt.Get("one"), 1);
-				mAssert.Equals(TextToInt.Get("two"), 2);
-				mAssert.Equals(TextToInt.Get("zero"), mStd.cEmpty);
+				mAssert.AreEquals(TextToInt.Get("one"), 1);
+				mAssert.AreEquals(TextToInt.Get("two"), 2);
+				mAssert.AreEquals(TextToInt.Get("zero"), mStd.cEmpty);
 			}
 		),
 		mTest.Test(
@@ -56,11 +56,11 @@ mMap_Test {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
 				.Set("two", 2);
-				mAssert.Equals(TextToInt.Get("one"), 1);
-				mAssert.Equals(TextToInt.Get("two"), 2);
+				mAssert.AreEquals(TextToInt.Get("one"), 1);
+				mAssert.AreEquals(TextToInt.Get("two"), 2);
 				TextToInt = TextToInt.Remove("one");
-				mAssert.Equals(TextToInt.Get("one"), mStd.cEmpty);
-				mAssert.Equals(TextToInt.Get("two"), 2);
+				mAssert.AreEquals(TextToInt.Get("one"), mStd.cEmpty);
+				mAssert.AreEquals(TextToInt.Get("two"), 2);
 			}
 		)
 	);
@@ -70,7 +70,7 @@ mMap_Test {
 	[xTestCase("tMap.Get")]
 	[xTestCase("tMap.Remove")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

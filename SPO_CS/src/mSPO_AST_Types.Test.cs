@@ -33,12 +33,12 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Literals",
 			aDebugStream => {
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(mSPO_AST.Int(1, 1), default),
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(mSPO_AST.Int(1, 1), default),
 					mVM_Type.Int()
 				);
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
 			}
@@ -46,8 +46,8 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Tuple",
 			aDebugStream => {
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(
 						mSPO_AST.Tuple(
 							1,
 							mStream.Stream<mSPO_AST.tExpressionNode<int>>(
@@ -62,8 +62,8 @@ mSPO_AST_Types_Test {
 						mVM_Type.Bool()
 					)
 				);
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
 			}
@@ -71,8 +71,8 @@ mSPO_AST_Types_Test {
 		mTest.Test(
 			"Lambda",
 			aDebugStream => {
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(
 						mSPO_AST.Lambda(
 							1,
 							null,
@@ -80,7 +80,7 @@ mSPO_AST_Types_Test {
 								1,
 								mSPO_AST.MatchPrefix(
 									1,
-									mSPO_AST.Ident(1, "BLA"),
+									mSPO_AST.Ident(1, "Bla..."),
 									mSPO_AST.Match(
 										1,
 										mSPO_AST.MatchFreeIdent(1, "a"),
@@ -95,12 +95,24 @@ mSPO_AST_Types_Test {
 					),
 					mVM_Type.Proc(
 						mVM_Type.Empty(),
-						mVM_Type.Prefix("_BLA", mVM_Type.Bool()),
+						mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
 						mVM_Type.Bool()
 					)
 				);
-				mAssert.Equals(
-					mSPO_AST_Types.AddTypesTo(mSPO_AST.False(1), default),
+				
+				var AST = mSPO_Parser.Expression.ParseText("(#Bla (§DEF a € §BOOL)) => a", "", default);
+				var Type = mSPO_AST_Types.UpdateTypes(AST, default);
+				mAssert.AreEquals(
+					Type,
+					mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
+						mVM_Type.Bool()
+					)
+				);
+				
+				mAssert.AreEquals(
+					mSPO_AST_Types.UpdateTypes(mSPO_AST.False(1), default),
 					mVM_Type.Bool()
 				);
 			}
@@ -112,7 +124,7 @@ mSPO_AST_Types_Test {
 	[xTestCase("Tuple")]
 	[xTestCase("Lambda")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

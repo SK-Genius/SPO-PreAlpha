@@ -34,11 +34,11 @@ mMaybe_Test {
 		mTest.Test(
 			"tMaybe.Equals()",
 			aStreamOut => {
-				mAssert.Equals(mMaybe.Some(1), mMaybe.Some(1));
-				mAssert.NotEquals(mMaybe.Some("1"), mMaybe.Some("2"));
-				mAssert.Equals<mMaybe.tMaybe<tInt32>>(mStd.cEmpty, mStd.cEmpty);
-				mAssert.NotEquals(mStd.cEmpty, mMaybe.Some(3));
-				mAssert.Equals<mMaybe.tMaybe<tInt32>>(default, mStd.cEmpty);
+				mAssert.AreEquals(mMaybe.Some(1), mMaybe.Some(1));
+				mAssert.AreNotEquals(mMaybe.Some("1"), mMaybe.Some("2"));
+				mAssert.AreEquals<mMaybe.tMaybe<tInt32>>(mStd.cEmpty, mStd.cEmpty);
+				mAssert.AreNotEquals(mStd.cEmpty, mMaybe.Some(3));
+				mAssert.AreEquals<mMaybe.tMaybe<tInt32>>(default, mStd.cEmpty);
 			}
 		)
 	);
@@ -46,7 +46,7 @@ mMaybe_Test {
 #if NUNIT
 	[xTestCase("tMaybe.Equals()")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

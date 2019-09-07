@@ -33,9 +33,9 @@ mResult_Test {
 		mTest.Test(
 			"tResult.Equals()",
 			aStreamOut => {
-				mAssert.Equals<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
-				mAssert.Equals<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
-				mAssert.Equals<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
+				mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
+				mAssert.AreEquals<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
+				mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
 			}
 		)
 	);
@@ -43,7 +43,7 @@ mResult_Test {
 #if NUNIT
 	[xTestCase("tResult.Equals()")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

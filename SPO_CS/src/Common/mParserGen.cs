@@ -535,7 +535,7 @@ mParserGen {
 		public tParser<tPos, tIn, tNewOut, tError>
 		Cast<tNewOut>(
 		) {
-			mAssert.True(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
+			mAssert.IsTrue(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
 			return this.Modify(_ => (tNewOut)(object)_);
 		}
 	}
@@ -688,7 +688,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> a1,
 		tParser<tPos, tIn, tOut, tError> a2
 	) {
-		mAssert.Null(a1._ParseFunc);
+		mAssert.IsNull(a1._ParseFunc);
 		a1._ParseFunc = a2._ParseFunc;
 		a1.SetDebugDef(a2.DebugDef);
 	}

@@ -124,7 +124,7 @@ mIL_AST {
 	) => _CommandNode(
 		aNodeType,
 		aPos,
-		mAssert.NotNull(a1),
+		mAssert.IsNotNull(a1),
 		null,
 		null
 	);
@@ -138,8 +138,8 @@ mIL_AST {
 	) => _CommandNode(
 		aNodeType,
 		aPos,
-		mAssert.NotNull(a1),
-		mAssert.NotNull(a2),
+		mAssert.IsNotNull(a1),
+		mAssert.IsNotNull(a2),
 		null
 	);
 	
@@ -153,9 +153,9 @@ mIL_AST {
 	) => _CommandNode(
 		aNodeType,
 		aPos,
-		mAssert.NotNull(a1),
-		mAssert.NotNull(a2),
-		mAssert.NotNull(a3)
+		mAssert.IsNotNull(a1),
+		mAssert.IsNotNull(a2),
+		mAssert.IsNotNull(a3)
 	);
 	
 	private static tCommandNode<tPos>
@@ -180,9 +180,9 @@ mIL_AST {
 		out tPos aPos
 	) {
 		if (aNode.Match(aNodeType, out aPos, out var Id1, out var Id2, out var Id3)) {
-			mAssert.Null(Id1);
-			mAssert.Null(Id2);
-			mAssert.Null(Id3);
+			mAssert.IsNull(Id1);
+			mAssert.IsNull(Id2);
+			mAssert.IsNull(Id3);
 			return true;
 		}
 		return false;
@@ -196,8 +196,8 @@ mIL_AST {
 		out tText aId
 	) {
 		if (aNode.Match(aNodeType, out aPos, out aId, out var Id2, out var Id3)) {
-			mAssert.Null(Id2);
-			mAssert.Null(Id3);
+			mAssert.IsNull(Id2);
+			mAssert.IsNull(Id3);
 			return true;
 		}
 		return false;
@@ -212,7 +212,7 @@ mIL_AST {
 		out tText aId2
 	) {
 		if (aNode.Match(aNodeType, out aPos, out aId1, out aId2, out var Id3)) {
-			mAssert.Null(Id3);
+			mAssert.IsNull(Id3);
 			return true;
 		}
 		return false;

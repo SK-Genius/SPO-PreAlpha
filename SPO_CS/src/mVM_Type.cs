@@ -40,7 +40,7 @@ mVM_Type {
 		Generic
 	}
 	
-	[System.Diagnostics.DebuggerDisplay("{mVM_Type.ToText(this, 3)}")]
+	[System.Diagnostics.DebuggerDisplay("{mVM_Type.ToText(this, 10)}")]
 	public class
 	tType {
 		public tKind Kind;
@@ -196,7 +196,7 @@ mVM_Type {
 	Value(
 		this tType aType
 	) {
-		mAssert.True(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
+		mAssert.IsTrue(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
 		return aType.Refs[0];
 	}
 	
@@ -242,7 +242,7 @@ mVM_Type {
 		tType aType
 	) => new tType {
 		Kind = tKind.Prefix,
-		Prefix = mAssert.NotNull(aPrefix),
+		Prefix = mAssert.IsNotNull(aPrefix),
 		Refs = new []{ aType }
 	};
 	
@@ -277,8 +277,8 @@ mVM_Type {
 		tType aHeadType,
 		tType aTailType
 	) {
-		mAssert.In(aTailType.Kind, tKind.Record, tKind.Empty);
-		mAssert.Equals(aHeadType.Kind, tKind.Prefix);
+		mAssert.IsIn(aTailType.Kind, tKind.Record, tKind.Empty);
+		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
 		AssertNotIn(aHeadType.Prefix, aTailType);
 		
 		return new tType {
@@ -291,7 +291,7 @@ mVM_Type {
 			if (aRecord.Kind == tKind.Empty) {
 				return;
 			}
-			mAssert.NotEquals(aPrefix, aRecord.Prefix);
+			mAssert.AreNotEquals(aPrefix, aRecord.Prefix);
 			AssertNotIn(aPrefix, aRecord.Refs[0]);
 		}
 	}
@@ -303,9 +303,9 @@ mVM_Type {
 		out tType aHeadType,
 		out tType aTailRecord
 	) {
-		if (aType.Kind == tKind.Bool) {
-			mAssert.True(aType.Refs[0].MatchPrefix(out aHeadKey, out aHeadType));
-			aTailRecord = aType.Refs[1];
+		if (aType.Kind == tKind.Record) {
+			mAssert.IsTrue(aType.Refs[1].MatchPrefix(out aHeadKey, out aHeadType));
+			aTailRecord = aType.Refs[0];
 			return true;
 		} else {
 			aHeadKey = default;
@@ -437,7 +437,7 @@ mVM_Type {
 		tType aType
 		// aCond
 	) {
-		mAssert.True(false); // TODO
+		mAssert.IsTrue(false); // TODO
 		return new tType {
 			Kind = tKind.Cond,
 			Refs = new [] { aType },
@@ -450,7 +450,7 @@ mVM_Type {
 		out tType aSuperType
 		// aCond
 	) {
-		mAssert.True(false); // TODO
+		mAssert.IsTrue(false); // TODO
 		if (aType.Kind == tKind.Cond) {
 			aSuperType = aType.Refs[0];
 			return true;
@@ -475,7 +475,7 @@ mVM_Type {
 		out tType aOutType
 		// aCond
 	) {
-		mAssert.True(false); // TODO
+		mAssert.IsTrue(false); // TODO
 		if (aType.Kind == tKind.Recursiv) {
 			aOutType = aType.Refs[0];
 			return true;
@@ -582,10 +582,10 @@ mVM_Type {
 		}
 		
 		if (a1.Kind == a2.Kind) {
-			mAssert.Equals(a1.Id, a2.Id);
-			mAssert.Equals(a1.Prefix, a2.Prefix);
+			mAssert.AreEquals(a1.Id, a2.Id);
+			mAssert.AreEquals(a1.Prefix, a2.Prefix);
 			var RefCount = a1.Refs.Length;
-			mAssert.Equals(a2.Refs.Length, RefCount);
+			mAssert.AreEquals(a2.Refs.Length, RefCount);
 			while (RefCount-- > 0) {
 				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
 					return false;
@@ -647,7 +647,24 @@ mVM_Type {
 			(tKind.Type, _ => $"[[]]"),
 			(tKind.Free, _ => "?"+aType.Id),
 			(tKind.Prefix, _ => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Record, _ => $"[{{{aType.Refs[0].ToText(NextLimit)}, {aType.Refs[1].ToText(NextLimit)}}}]"),
+			(
+				tKind.Record, (tKind _) => {
+					var Text = "[{";
+					var Type = aType;
+					for (var Limit = aLimit; Type.Kind == tKind.Record; Limit -= 1) {
+						if (Limit <= 0) {
+							Text += ", ...";
+							break;
+						}
+						Text += ", " + Type.Refs[1].ToText(aLimit);
+						Type = Type.Refs[0];
+					}
+					if (Type.Kind != tKind.Empty) {
+						Text += "; " + Type.ToText(aLimit);
+					}
+					return Text  + "}]";
+				}
+			),
 			(
 				tKind.Pair,
 				_ => {

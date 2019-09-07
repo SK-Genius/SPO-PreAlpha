@@ -32,12 +32,12 @@ mStream_Test {
 		mTest.Test(
 			"tStream.Equals()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream<tInt32>(), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream(1), mStream.Stream(1));
-				mAssert.NotEquals(mStream.Stream(1), mStream.Stream<tInt32>());
-				mAssert.NotEquals(mStream.Stream(1), mStream.Stream(2));
-				mAssert.NotEquals(mStream.Stream(1), mStream.Stream(1, 2));
-				mAssert.Equals(
+				mAssert.AreEquals(mStream.Stream<tInt32>(), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1), mStream.Stream(1));
+				mAssert.AreNotEquals(mStream.Stream(1), mStream.Stream<tInt32>());
+				mAssert.AreNotEquals(mStream.Stream(1), mStream.Stream(2));
+				mAssert.AreNotEquals(mStream.Stream(1), mStream.Stream(1, 2));
+				mAssert.AreEquals(
 					mStream.Nat(1).Take(4),
 					mStream.Stream(1, 2, 3, 4)
 				);
@@ -46,23 +46,23 @@ mStream_Test {
 		mTest.Test(
 			"Concat()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Concat(mStream.Stream(1, 2), mStream.Stream(3, 4)), mStream.Stream(1, 2, 3, 4));
-				mAssert.Equals(mStream.Concat(mStream.Stream(1, 2), mStream.Stream<tInt32>()), mStream.Stream(1, 2));
-				mAssert.Equals(mStream.Concat(mStream.Stream<tInt32>(), mStream.Stream(3, 4)), mStream.Stream(3, 4));
-				mAssert.Equals(mStream.Concat(mStream.Stream<tInt32>(), mStream.Stream<tInt32>()), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Concat(mStream.Stream(1, 2), mStream.Stream(3, 4)), mStream.Stream(1, 2, 3, 4));
+				mAssert.AreEquals(mStream.Concat(mStream.Stream(1, 2), mStream.Stream<tInt32>()), mStream.Stream(1, 2));
+				mAssert.AreEquals(mStream.Concat(mStream.Stream<tInt32>(), mStream.Stream(3, 4)), mStream.Stream(3, 4));
+				mAssert.AreEquals(mStream.Concat(mStream.Stream<tInt32>(), mStream.Stream<tInt32>()), mStream.Stream<tInt32>());
 			}
 		),
 		mTest.Test(
 			"Map()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream(1, 2, 3, 4).Map(a => a*a), mStream.Stream(1, 4, 9, 16));
-				mAssert.Equals(mStream.Stream<tInt32>().Map(a => a*a), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3, 4).Map(a => a*a), mStream.Stream(1, 4, 9, 16));
+				mAssert.AreEquals(mStream.Stream<tInt32>().Map(a => a*a), mStream.Stream<tInt32>());
 			}
 		),
 		mTest.Test(
 			"MapWithIndex()",
 			aStreamOut => {
-				mAssert.Equals(
+				mAssert.AreEquals(
 					mStream.Stream(1, 2, 3, 4).MapWithIndex((i, a) => (i, a*a)),
 					mStream.Stream((0, 1), (1, 4), (2, 9), (3, 16))
 				);
@@ -71,68 +71,68 @@ mStream_Test {
 		mTest.Test(
 			"Reduce()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
-				mAssert.Equals(mStream.Stream(1).Reduce(0, (a1, a2) => a1+a2), 1);
-				mAssert.Equals(mStream.Stream<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
+				mAssert.AreEquals(mStream.Stream(1, 2, 3, 4).Reduce(0, (a1, a2) => a1+a2), 10);
+				mAssert.AreEquals(mStream.Stream(1).Reduce(0, (a1, a2) => a1+a2), 1);
+				mAssert.AreEquals(mStream.Stream<tInt32>().Reduce(0, (a1, a2) => a1+a2), 0);
 			}
 		),
 		mTest.Test(
 			"Join()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}", ""), "a,b,c,d");
-				mAssert.Equals(mStream.Stream("a").Join((a1, a2) => $"{a1},{a2}", ""), "a");
-				mAssert.Equals(mStream.Stream<tText>().Join((a1, a2) => $"{a1},{a2}", ""), "");
+				mAssert.AreEquals(mStream.Stream("a", "b", "c", "d").Join((a1, a2) => $"{a1},{a2}", ""), "a,b,c,d");
+				mAssert.AreEquals(mStream.Stream("a").Join((a1, a2) => $"{a1},{a2}", ""), "a");
+				mAssert.AreEquals(mStream.Stream<tText>().Join((a1, a2) => $"{a1},{a2}", ""), "");
 			}
 		),
 		mTest.Test(
 			"Take()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream(1, 2, 3, 4).Take(3), mStream.Stream(1, 2, 3));
-				mAssert.Equals(mStream.Stream(1, 2, 3).Take(4), mStream.Stream(1, 2, 3));
-				mAssert.Equals(mStream.Stream<tInt32>().Take(4), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream(1, 2, 3).Take(0), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream(1, 2, 3).Take(-1), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3, 4).Take(3), mStream.Stream(1, 2, 3));
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(4), mStream.Stream(1, 2, 3));
+				mAssert.AreEquals(mStream.Stream<tInt32>().Take(4), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(0), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(-1), mStream.Stream<tInt32>());
 			}
 		),
 		mTest.Test(
 			"Skip()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream(1, 2, 3, 4).Skip(3), mStream.Stream(4));
-				mAssert.Equals(mStream.Stream(1, 2, 3).Skip(4), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream<tInt32>().Skip(4), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream(1, 2, 3).Skip(0), mStream.Stream(1, 2, 3));
+				mAssert.AreEquals(mStream.Stream(1, 2, 3, 4).Skip(3), mStream.Stream(4));
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Skip(4), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream<tInt32>().Skip(4), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Skip(0), mStream.Stream(1, 2, 3));
 			}
 		),
 		mTest.Test(
 			"IsEmpty()",
 			aStreamOut => {
-				mAssert.True(mStream.Stream<tInt32>().IsEmpty());
-				mAssert.False(mStream.Stream(1).IsEmpty());
-				mAssert.False(mStream.Stream(1, 2).IsEmpty());
+				mAssert.IsTrue(mStream.Stream<tInt32>().IsEmpty());
+				mAssert.IsFalse(mStream.Stream(1).IsEmpty());
+				mAssert.IsFalse(mStream.Stream(1, 2).IsEmpty());
 				
-				mAssert.False(mStream.Stream<tInt32>() == new mStream.tStream<tInt32>());
+				mAssert.IsFalse(mStream.Stream<tInt32>() == new mStream.tStream<tInt32>());
 			}
 		),
 		mTest.Test(
 			"Any()",
 			aStreamOut => {
-				mAssert.False(mStream.Stream<tBool>().Any());
-				mAssert.False(mStream.Stream(false).Any());
-				mAssert.True(mStream.Stream(true).Any());
-				mAssert.False(mStream.Stream(false, false, false).Any());
-				mAssert.True(mStream.Stream(true, true, true).Any());
-				mAssert.True(mStream.Stream(false, false, true, false).Any());
-				mAssert.True(mStream.Stream(1, 2, 3, 4).Map(a => a == 2).Any());
-				mAssert.False(mStream.Stream(1, 3, 4).Map(a => a == 2).Any());
+				mAssert.IsFalse(mStream.Stream<tBool>().Any());
+				mAssert.IsFalse(mStream.Stream(false).Any());
+				mAssert.IsTrue(mStream.Stream(true).Any());
+				mAssert.IsFalse(mStream.Stream(false, false, false).Any());
+				mAssert.IsTrue(mStream.Stream(true, true, true).Any());
+				mAssert.IsTrue(mStream.Stream(false, false, true, false).Any());
+				mAssert.IsTrue(mStream.Stream(1, 2, 3, 4).Map(a => a == 2).Any());
+				mAssert.IsFalse(mStream.Stream(1, 3, 4).Map(a => a == 2).Any());
 			}
 		),
 		mTest.Test(
 			"Every()",
 			aStreamOut => {
-				mAssert.Equals(mStream.Stream(1, 2, 3, 4, 5).Every(2), mStream.Stream(1, 3, 5));
-				mAssert.Equals(mStream.Stream(1, 2).Every(2), mStream.Stream(1));
-				mAssert.Equals(mStream.Stream<tInt32>().Every(2), mStream.Stream<tInt32>());
-				mAssert.Equals(mStream.Stream(1, 2, 3).Every(1), mStream.Stream(1, 2, 3));
+				mAssert.AreEquals(mStream.Stream(1, 2, 3, 4, 5).Every(2), mStream.Stream(1, 3, 5));
+				mAssert.AreEquals(mStream.Stream(1, 2).Every(2), mStream.Stream(1));
+				mAssert.AreEquals(mStream.Stream<tInt32>().Every(2), mStream.Stream<tInt32>());
+				mAssert.AreEquals(mStream.Stream(1, 2, 3).Every(1), mStream.Stream(1, 2, 3));
 			}
 		)
 	);
@@ -150,7 +150,7 @@ mStream_Test {
 	[xTestCase("Any()")]
 	[xTestCase("Every()")]
 	public static void _(tText a) {
-		mAssert.Equals(
+		mAssert.AreEquals(
 			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);

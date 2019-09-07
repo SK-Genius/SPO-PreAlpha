@@ -90,6 +90,7 @@ mVM_Data {
 		tText FirstPosText { get; }
 	}
 	
+	[System.Diagnostics.DebuggerDisplay("{this.DefType.ToText(10)}")]
 	public sealed class
 	tProcDef<tPos> : tProcDef {
 		// standard stack indexes
@@ -774,12 +775,12 @@ mVM_Data {
 		tData aRecord,
 		tData aPrefix
 	) {
-		mAssert.True(aPrefix.MatchPrefix(out var PrefixHash, out _));
+		mAssert.IsTrue(aPrefix.MatchPrefix(out var PrefixHash, out _));
 		var Record = aRecord;
 		while (!Record.MatchEmpty()) {
-			mAssert.True(Record.MatchRecord(out Record, out var Prefix));
-			mAssert.True(Prefix.MatchPrefix(out var PrefixHash_, out _));
-			mAssert.NotEquals(PrefixHash, PrefixHash_);
+			mAssert.IsTrue(Record.MatchRecord(out Record, out var Prefix));
+			mAssert.IsTrue(Prefix.MatchPrefix(out var PrefixHash_, out _));
+			mAssert.AreNotEquals(PrefixHash, PrefixHash_);
 		}
 		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
 	}
@@ -807,7 +808,7 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		mAssert.False(aEnv._IsMutable);
+		mAssert.IsFalse(aEnv._IsMutable);
 		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
@@ -831,7 +832,7 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> aExternDef,
 		tData aEnv
 	) {
-		mAssert.False(aEnv._IsMutable);
+		mAssert.IsFalse(aEnv._IsMutable);
 		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
 	}
 	
@@ -910,7 +911,7 @@ mVM_Data {
 		this tData a,
 		tInt32 aLimit
 	) {
-		mAssert.NotEquals(a, null);
+		mAssert.AreNotEquals(a, null);
 		
 		if (aLimit == 0) {
 			return "...";
