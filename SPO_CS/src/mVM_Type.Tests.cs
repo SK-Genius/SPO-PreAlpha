@@ -23,10 +23,10 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mVM_Type_Test {
+mVM_Type_Tests {
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mVM_Type),
 		mTest.Test(
 			"BoolBool",
@@ -47,7 +47,7 @@ mVM_Type_Test {
 	[xTestCase("BoolInt")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

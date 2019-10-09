@@ -21,11 +21,11 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 #endif
 public static class
 mTree_Tests {
-	private static mStd.tFunc<tInt32, tInt32, tInt32>
+	private static readonly mStd.tFunc<tInt32, tInt32, tInt32>
 	Int32Compare = (a1, a2) => mMath.Sign(a1 - a2);
 
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mTokenizer),
 		mTest.Test(
 			"Create",
@@ -122,7 +122,7 @@ mTree_Tests {
 	[xTestCase("Big")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

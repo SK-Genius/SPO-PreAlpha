@@ -1,20 +1,20 @@
-﻿//IMPORT Common/mAny.Test.cs
-//IMPORT Common/mArrayList.Test.cs
-//IMPORT Common/mStream.Test.cs
-//IMPORT Common/mMap.Test.cs
-//IMPORT Common/mMaybe.Test.cs
-//IMPORT Common/mParserGen.Test.cs
-//IMPORT Common/mResult.Test.cs
-//IMPORT mTokenizer.Test.cs
-//IMPORT mIL_Interpreter.Test.cs
-//IMPORT mIL_Parser.Test.cs
-//IMPORT mSPO_AST_Types.Test.cs
-//IMPORT mSPO_Interpreter.Test.cs
-//IMPORT mSPO_Parser.Test.cs
-//IMPORT mSPO2IL.Test.cs
-//IMPORT mStdLib.Test.cs
-//IMPORT mVM.Test.cs
-//IMPORT mVM_Type.Test.cs
+﻿//IMPORT Common/mAny.Tests.cs
+//IMPORT Common/mArrayList.Tests.cs
+//IMPORT Common/mStream.Tests.cs
+//IMPORT Common/mMap.Tests.cs
+//IMPORT Common/mMaybe.Tests.cs
+//IMPORT Common/mParserGen.Tests.cs
+//IMPORT Common/mResult.Tests.cs
+//IMPORT mTokenizer.Tests.cs
+//IMPORT mIL_Interpreter.Tests.cs
+//IMPORT mIL_Parser.Tests.cs
+//IMPORT mSPO_AST_Types.Tests.cs
+//IMPORT mSPO_Interpreter.Tests.cs
+//IMPORT mSPO_Parser.Tests.cs
+//IMPORT mSPO2IL.Tests.cs
+//IMPORT mStdLib.Tests.cs
+//IMPORT mVM.Tests.cs
+//IMPORT mVM_Type.Tests.cs
 
 using tBool = System.Boolean;
 
@@ -44,29 +44,29 @@ mRunTests {
 	public static readonly mTest.tTest
 	Test = mTest.Tests(
 		"All",
-		mAny_Test.Test,
-		mMaybe_Test.Test,
-		mResult_Test.Test,
-		mStream_Test.Test,
-		mMap_Test.Test,
-		mTree_Tests.Test,
+		mAny_Tests.Tests,
+		mMaybe_Tests.Tests,
+		mResult_Tests.Tests,
+		mStream_Tests.Tests,
+		mMap_Tests.Tests,
+		mTree_Tests.Tests,
 //		mMath_Test.Test,
-		mArrayList_Test.Test,
-		mParserGen_Test.Test,
+		mArrayList_Tests.Tests,
+		mParserGen_Tests.Tests,
 //		mTextParser_Test.Test,
-		mVM_Test.Test,
-		mVM_Type_Test.Test,
+		mVM_Tests.Tests,
+		mVM_Type_Tests.Tests,
 //		mVM_Data_Test.Test,
 //		mIL_AST_Test.Test,
-		mTokenizer_Test.Test,
-		mIL_Parser_Test.Test,
-		mIL_Interpreter_Test.Test,
+		mTokenizer_Tests.Tests,
+		mIL_Parser_Tests.Tests,
+		mIL_Interpreter_Tests.Tests,
 //		mSPO_AST_Test.Test,
-		mSPO_AST_Types_Test.Test,
-		mSPO_Parser_Test.Test,
-		mSPO2IL_Test.Test,
-		mSPO_Interpreter_Test.Test,
-		mStdLib_Test.Test
+		mSPO_AST_Types_Tests.Tests,
+		mSPO_Parser_Tests.Tests,
+		mSPO2IL_Tests.Tests,
+		mSPO_Interpreter_Tests.Tests,
+		mStdLib_Tests.Tests
 	);
 	
 	public static mTest.tResult

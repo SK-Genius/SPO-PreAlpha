@@ -29,7 +29,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mIL_Interpreter_Test {
+mIL_Interpreter_Tests {
 	
 	private static tText
 	SpanToText(
@@ -106,7 +106,7 @@ mIL_Interpreter_Test {
 	}
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mIL_Interpreter<tSpan>),
 		mTest.Test(
 			"Call",
@@ -400,7 +400,7 @@ mIL_Interpreter_Test {
 	[xTestCase("ParseModule")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

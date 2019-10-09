@@ -292,7 +292,7 @@ mSPO2IL {
 					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != IdentNode.Name) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						_ => _.GetResultReg().Then(aName =>  mMaybe.Some(aName == IdentNode.Name)).Else(false)
+						_ => _.GetResultReg().ThenTry(aName =>  mMaybe.Some(aName == IdentNode.Name)).Else(() => false)
 					)
 				) {
 					aDefConstructor.UnsolvedSymbols.Push((IdentNode.Name, IdentNode.Pos));

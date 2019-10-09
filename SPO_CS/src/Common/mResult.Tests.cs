@@ -2,7 +2,6 @@
 //IMPORT mStd.cs
 //IMPORT mResult.cs
 //IMPORT mAssert.cs
-//IMPORT mMaybe.cs
 
 using tBool = System.Boolean;
 
@@ -26,28 +25,26 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mMaybe_Test {
-
+mResult_Tests {
+	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		nameof(mStd),
+	Tests = mTest.Tests(
+		nameof(mResult),
 		mTest.Test(
-			"tMaybe.Equals()",
+			"tResult.Equals()",
 			aStreamOut => {
-				mAssert.AreEquals(mMaybe.Some(1), mMaybe.Some(1));
-				mAssert.AreNotEquals(mMaybe.Some("1"), mMaybe.Some("2"));
-				mAssert.AreEquals<mMaybe.tMaybe<tInt32>>(mStd.cEmpty, mStd.cEmpty);
-				mAssert.AreNotEquals(mStd.cEmpty, mMaybe.Some(3));
-				mAssert.AreEquals<mMaybe.tMaybe<tInt32>>(default, mStd.cEmpty);
+				mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
+				mAssert.AreEquals<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
+				mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
 			}
 		)
 	);
 	
 #if NUNIT
-	[xTestCase("tMaybe.Equals()")]
+	[xTestCase("tResult.Equals()")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

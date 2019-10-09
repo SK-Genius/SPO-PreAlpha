@@ -23,10 +23,10 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mMap_Test {
+mMap_Tests {
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mMap),
 		mTest.Test(
 			"tMap.ForceGet",
@@ -71,7 +71,7 @@ mMap_Test {
 	[xTestCase("tMap.Remove")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

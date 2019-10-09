@@ -26,7 +26,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mIL_Parser_Test {
+mIL_Parser_Tests {
 	
 	private static tSpan
 	Span(
@@ -46,7 +46,7 @@ mIL_Parser_Test {
 	};
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mIL_Parser),
 		mTest.Test(
 			"Commands",
@@ -223,7 +223,7 @@ mIL_Parser_Test {
 	[xTestCase("Commands")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

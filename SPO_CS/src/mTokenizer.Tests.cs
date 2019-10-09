@@ -25,7 +25,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mTokenizer_Test {
+mTokenizer_Tests {
 	
 	private static mSpan.tSpan<tPos>
 	Span(
@@ -45,7 +45,7 @@ mTokenizer_Test {
 	};
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mTokenizer),
 		mTest.Test(
 			"TwoLines",
@@ -83,7 +83,7 @@ mTokenizer_Test {
 	[xTestCase("TwoLines")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

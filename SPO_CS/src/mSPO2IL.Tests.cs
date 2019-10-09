@@ -27,7 +27,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mSPO2IL_Test {
+mSPO2IL_Tests {
 	
 	private static tSpan
 	Span(
@@ -47,7 +47,7 @@ mSPO2IL_Test {
 	};
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mSPO2IL),
 		mTest.Test(
 			"MapExpresion",
@@ -479,7 +479,7 @@ mSPO2IL_Test {
 	[xTestCase("MapModule")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

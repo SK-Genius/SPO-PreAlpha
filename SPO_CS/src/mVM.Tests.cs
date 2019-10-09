@@ -23,7 +23,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mVM_Test {
+mVM_Tests {
 	
 	private static
 	mVM_Data.tData
@@ -40,7 +40,7 @@ mVM_Test {
 	}
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mVM),
 		mTest.Test(
 			"ExternDef",
@@ -110,7 +110,7 @@ mVM_Test {
 	[xTestCase("InternDef")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

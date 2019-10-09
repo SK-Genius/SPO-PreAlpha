@@ -64,7 +64,7 @@ mMaybe {
 	}
 	
 	public static tMaybe<tOut>
-	Then<tIn, tOut>(
+	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tMaybe<tOut>, tIn> aMap
 	) {
@@ -78,12 +78,12 @@ mMaybe {
 	public static t
 	Else<t>(
 		this tMaybe<t> a,
-		t aDefault
+		mStd.tFunc<t> aDefault
 	) {
 		if (a.Match(out var Value)) {
 			return Value;
 		} else {
-			return aDefault;
+			return aDefault();
 		}
 	}
 	
@@ -116,7 +116,7 @@ mMaybe {
 		this tMaybe<t> a,
 		mStd.tFunc<tBool, t> aCond
 	) {
-		return a.Then<t, t>(
+		return a.ThenTry<t, t>(
 			_ => {
 				if (aCond(_)) {
 					return _;

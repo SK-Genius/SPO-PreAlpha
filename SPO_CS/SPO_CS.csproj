@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<LangVersion>7.3</LangVersion>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<OutputType>Exe</OutputType>
 		<IsTestProject>true</IsTestProject>
 		<DefineConstants>TRACE;NUNIT</DefineConstants>
@@ -9,9 +8,9 @@
 	<ItemGroup>
 		<PackageReference Include="NUnit" Version="3.11.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-		<TestSrc Include="**\*.Test.cs" />
+		<TestSrc Include="**\*.Tests.cs" />
 		<Compile Update="@(TestSrc)">
-			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Test', '')).cs</DependentUpon>
+			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Tests', '')).cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
 </Project>

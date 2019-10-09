@@ -23,12 +23,12 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mSPO_AST_Types_Test {
+mSPO_AST_Types_Tests {
 	
 	#if true
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mSPO_AST),
 		mTest.Test(
 			"Literals",
@@ -125,7 +125,7 @@ mSPO_AST_Types_Test {
 	[xTestCase("Lambda")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

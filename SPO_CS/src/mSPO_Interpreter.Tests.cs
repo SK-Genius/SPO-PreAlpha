@@ -23,7 +23,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mSPO_Interpreter_Test {
+mSPO_Interpreter_Tests {
 	
 	private static mVM_Data.tData
 	Mul(
@@ -40,7 +40,7 @@ mSPO_Interpreter_Test {
 	}
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mSPO_Interpreter),
 		mTest.Test(
 			"Run1",
@@ -279,7 +279,7 @@ mSPO_Interpreter_Test {
 	[xTestCase("Run8")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

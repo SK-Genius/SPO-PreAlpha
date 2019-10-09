@@ -23,7 +23,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mParserGen_Test {
+mParserGen_Tests {
 	
 	private static readonly mSpan.tSpan<mStd.tEmpty> cTestSpan = default;
 	
@@ -43,7 +43,7 @@ mParserGen_Test {
 	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Massage)> cNoError = default;
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mParserGen),
 		mTest.Test(
 			"AtomParser",
@@ -326,7 +326,7 @@ mParserGen_Test {
 	[xTestCase("Eval('MathExpr')")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

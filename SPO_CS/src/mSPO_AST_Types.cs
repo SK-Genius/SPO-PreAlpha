@@ -141,7 +141,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIfMatchNode<tPos> IfMatch: {
 				var MatchType = UpdateTypes(IfMatch.Expression, aScope);
-
+				
 				var Tail = IfMatch.Cases;
 				var Results = mStream.Stream<mVM_Type.tType>();
 				Result = default;
@@ -273,7 +273,7 @@ mSPO_AST_Types {
 						}
 						mAssert.IsNotNull(Type);
 					}
-
+					
 					Result = mVM_Type.Record(
 						mVM_Type.Prefix(
 							Head.Key.Name,
@@ -374,7 +374,7 @@ mSPO_AST_Types {
 					aScope
 				);
 				UpdateTypes(
-					mSPO_AST.MethodCallStatment(
+					mSPO_AST.MethodCallStatement(
 						default,
 						DefVar.Expression,
 						DefVar.MethodCalls
@@ -459,9 +459,9 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tLambdaTypeNode<tPos> LambdaType: {
 				if (
-					!ResolveTypeExpression(LambdaType.ArgType, aScope).Then(
+					!ResolveTypeExpression(LambdaType.ArgType, aScope).ThenTry(
 						aArgType => ResolveTypeExpression(LambdaType.ResType, aScope).Then(
-							aResType => mResult.OK(mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType))
+							aResType => mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType)
 						)
 					).Match(out Result, out var Error)
 				) {
@@ -469,11 +469,11 @@ mSPO_AST_Types {
 				}
 				break;
 			}
-			case mSPO_AST.tRecursiveTypeNode<tPos> RecursivType: {
-				var Name = RecursivType.HeadType.Name;
-				var RecursivVar = mVM_Type.Free(Name);
-				var TempScope = mStream.Stream((Name, RecursivVar), aScope);
-				Result = mVM_Type.Recursive(RecursivVar, UpdateTypes(RecursivType.BodyType, TempScope));
+			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveType: {
+				var Name = RecursiveType.HeadType.Name;
+				var RecursiveVar = mVM_Type.Free(Name);
+				var TempScope = mStream.Stream((Name, RecursiveVar), aScope);
+				Result = mVM_Type.Recursive(RecursiveVar, UpdateTypes(RecursiveType.BodyType, TempScope));
 				break;
 			}
 			case mSPO_AST.tSetTypeNode<tPos> SetType: {

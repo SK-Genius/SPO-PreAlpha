@@ -25,10 +25,10 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mAny_Test {
+mAny_Tests {
 
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mStd),
 		mTest.Test(
 			"tAny.Equals()",
@@ -47,7 +47,7 @@ mAny_Test {
 	[xTestCase("tAny.Equals()")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

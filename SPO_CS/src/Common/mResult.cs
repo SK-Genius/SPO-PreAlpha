@@ -29,33 +29,33 @@ mResult {
 	}
 	
 	public struct
-	tResult<tOK, tFail> {
+	tResult<t, tFail> {
 		
 		internal tBool _IsOK;
-		internal tOK _Value;
+		internal t _Value;
 		internal tFail _Error;
 		
 		public static
-		implicit operator tResult<tOK, tFail>(
-			tResultOK<tOK> aOK
-		) => new tResult<tOK, tFail> {
+		implicit operator tResult<t, tFail>(
+			tResultOK<t> aOK
+		) => new tResult<t, tFail> {
 			_IsOK = true,
 			_Value = aOK._Value
 		};
 		
 		public static
-		implicit operator tResult<tOK, tFail>(
+		implicit operator tResult<t, tFail>(
 			tResultFail<tFail> aFail
-		) => new tResult<tOK, tFail> {
+		) => new tResult<t, tFail> {
 			_IsOK = false,
 			_Error = aFail._Error
 		};
 	}
 	
-	public static tResultOK<tOK>
-	OK<tOK>(
-		tOK a
-	) => new tResultOK<tOK> {
+	public static tResultOK<t>
+	OK<t>(
+		t a
+	) => new tResultOK<t> {
 		_Value = a
 	};
 
@@ -71,9 +71,9 @@ mResult {
 	) => new tResultFail<mStd.tEmpty>();
 
 	public static tBool
-	Match<tOK, tFail>(
-		this tResult<tOK, tFail> a,
-		out tOK aValue,
+	Match<t, tFail>(
+		this tResult<t, tFail> a,
+		out t aValue,
 		out tFail aError
 	) {
 		aValue = a._Value;
@@ -82,18 +82,18 @@ mResult {
 	}
 	
 	public static tBool
-	Match<tOK>(
-		this tResult<tOK, mStd.tEmpty> a,
-		out tOK aValue
+	Match<t>(
+		this tResult<t, mStd.tEmpty> a,
+		out t aValue
 	) {
 		aValue = a._Value;
 		return a._IsOK;
 	}
 	
-	public static tResult<tOK_Out, tError>
-	Then<tOK_In, tOK_Out, tError>(
-		this tResult<tOK_In, tError> a,
-		mStd.tFunc<tResult<tOK_Out, tError>, tOK_In> aMod
+	public static tResult<tOut, tError>
+	ThenTry<tIn, tOut, tError>(
+		this tResult<tIn, tError> a,
+		mStd.tFunc<tResult<tOut, tError>, tIn> aMod
 	) {
 		if (a.Match(out var Value, out var Error)) {
 			return aMod(Value);
@@ -102,10 +102,22 @@ mResult {
 		}
 	}
 	
-	public static tResult<tOK_Out, tError>
-	Then<tOK_In, tOK_Out, tError>(
-		this tResult<tOK_In, tError> a,
-		mStd.tFunc<tResultOK<tOK_Out>, tOK_In> aMod
+	public static tResult<tOut, tError>
+	Then<tIn, tOut, tError>(
+		this tResult<tIn, tError> a,
+		mStd.tFunc<tOut, tIn> aMod
+	) {
+		if (a.Match(out var Value, out var Error)) {
+			return OK(aMod(Value));
+		} else {
+			return Fail(Error);
+		}
+	}
+	
+	public static tResult<tOut, tError>
+	Then<tIn, tOut, tError>(
+		this tResult<tIn, tError> a,
+		mStd.tFunc<tResultFail<tError>, tIn> aMod
 	) {
 		if (a.Match(out var Value, out var Error)) {
 			return aMod(Value);
@@ -114,31 +126,19 @@ mResult {
 		}
 	}
 	
-	public static tResult<tOK_Out, tError>
-	Then<tOK_In, tOK_Out, tError>(
-		this tResult<tOK_In, tError> a,
-		mStd.tFunc<tResultFail<tError>, tOK_In> aMod
-	) {
-		if (a.Match(out var Value, out var Error)) {
-			return aMod(Value);
-		} else {
-			return Fail(Error);
-		}
-	}
-	
-	public static tOK
-	Else<tOK, tError>(
-		this tResult<tOK, tError> a,
-		mStd.tFunc<tOK, tError> aOnError
+	public static t
+	Else<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tFunc<t, tError> aOnError
 	) {
 		return a.Match(out var Value, out var Error)
 			? Value
 			: aOnError(Error);
 	}
 	
-	public static tOK
-	ElseThrow<tOK, tError>(
-		this tResult<tOK, tError> a,
+	public static t
+	ElseThrow<t, tError>(
+		this tResult<t, tError> a,
 		mStd.tFunc<tText, tError> aModifyError
 	) {
 		if (a.Match(out var Value, out var Error)) {
@@ -148,13 +148,13 @@ mResult {
 		}
 	}
 	
-	public static tResult<tOK, tError>
-	Assert<tOK, tError>(
-		this tResult<tOK, tError> a,
-		mStd.tFunc<tBool, tOK> aCond,
+	public static tResult<t, tError>
+	Assert<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tFunc<tBool, t> aCond,
 		tError aError
 	) {
-		return a.Then<tOK, tOK, tError>(
+		return a.ThenTry<t, t, tError>(
 			_ => {
 				if (aCond(_)) {
 					return OK(_);

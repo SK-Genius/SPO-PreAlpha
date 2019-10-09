@@ -26,7 +26,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mSPO_Parser_Test {
+mSPO_Parser_Tests {
 	
 	private static tSpan
 	Span(
@@ -46,7 +46,7 @@ mSPO_Parser_Test {
 	};
 	
 	public static readonly mTest.tTest
-	Test = mTest.Tests(
+	Tests = mTest.Tests(
 		nameof(mSPO_Parser),
 		mTest.Test(
 			"Atoms",
@@ -388,7 +388,7 @@ mSPO_Parser_Test {
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Command.ParseText("o := ((§TO_VAL o) .+ i) .\n", "", a => aStreamOut(a())),
-					mSPO_AST.MethodCallStatment(
+					mSPO_AST.MethodCallStatement(
 						Span((1, 1), (1, 25)),
 						mSPO_AST.Ident(Span((1, 1), (1, 1)), "o"),
 						mStream.Stream(
@@ -474,7 +474,7 @@ mSPO_Parser_Test {
 	[xTestCase("Record")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
 			mTest.tResult.OK
 		);
 	}

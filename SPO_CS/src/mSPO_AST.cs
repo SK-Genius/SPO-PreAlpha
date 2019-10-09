@@ -682,7 +682,7 @@ mSPO_AST {
 		tExpressionNode<tPos> aBody
 	) => new tLambdaNode<tPos> {
 		Pos = aPos,
-		Generic = aStaticMatch.Else(null),
+		Generic = aStaticMatch.Else(() => null),
 		Head = aMatch,
 		Body = aBody
 	};
@@ -824,7 +824,7 @@ mSPO_AST {
 	};
 	
 	public static tMethodCallsNode<tPos>
-	MethodCallStatment<tPos>(
+	MethodCallStatement<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aObject,
 		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
@@ -860,12 +860,12 @@ mSPO_AST {
 	MethodCall<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aMethod,
-		tExpressionNode<tPos> aAgument,
+		tExpressionNode<tPos> aArgument,
 		tMatchNode<tPos> aResult
 	) => new tMethodCallNode<tPos> {
 		Pos = aPos,
 		Method = aMethod,
-		Argument = aAgument,
+		Argument = aArgument,
 		Result = aResult
 	};
 	
