@@ -1156,7 +1156,7 @@ mSPO2IL {
 					)
 				)
 			);
-			mSPO_AST_Types.UpdateTypes(Lambda, null);
+			mSPO_AST_Types.UpdateExpressionTypes(Lambda, null);
 			TempLambdaDef.InitMapLambda(Lambda);
 			if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
 				var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).ForceFirst();

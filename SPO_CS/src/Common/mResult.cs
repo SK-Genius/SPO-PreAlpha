@@ -103,15 +103,31 @@ mResult {
 	}
 	
 	public static tResult<tOut, tError>
+	WhenAllThen<tIn, tOut, tError>(
+		this mStream.tStream<tResult<tIn, tError>> a,
+		mStd.tFunc<tOut, mStream.tStream<tIn>> aOnSuccseed
+	) {
+		var List = mStream.Stream<tIn>();
+		while (a.Match(out var Head, out a)) {
+			if (Head.Match(out var Value, out var Error)) {
+				List = mStream.Stream(Value, List);
+			} else {
+				return Fail(Error);
+			}
+		}
+		return OK(aOnSuccseed(List.Reverse()));
+	}
+
+	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
 		mStd.tFunc<tOut, tIn> aMod
 	) {
-		if (a.Match(out var Value, out var Error)) {
-			return OK(aMod(Value));
-		} else {
-			return Fail(Error);
-		}
+		return (
+			a.Match(out var Value, out var Error)
+			? (tResult<tOut, tError>)OK(aMod(Value))
+			: Fail(Error)
+		);
 	}
 	
 	public static tResult<tOut, tError>
@@ -119,11 +135,35 @@ mResult {
 		this tResult<tIn, tError> a,
 		mStd.tFunc<tResultFail<tError>, tIn> aMod
 	) {
-		if (a.Match(out var Value, out var Error)) {
-			return aMod(Value);
-		} else {
-			return Fail(Error);
-		}
+		return (
+			a.Match(out var Value, out var Error)
+			? (tResult<tOut, tError>)aMod(Value)
+			: Fail(Error)
+		);
+	}
+	
+	public static tResult<t, tError>
+	ThenDo<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tAction<t> aAction
+	) {
+		return a.Then(
+			_ => {
+				aAction(_);
+				return _;
+			}
+		);
+	}
+	
+	public static tResult<t, tError>
+	ThenAssert<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tFunc<tBool, t> aCond,
+		mStd.tFunc<tError, t> aOnFail
+	) {
+		return a.ThenTry(
+			_ => aCond(_) ? (tResult<t, tError>)OK(_) : Fail(aOnFail(_))
+		);
 	}
 	
 	public static t
@@ -134,6 +174,18 @@ mResult {
 		return a.Match(out var Value, out var Error)
 			? Value
 			: aOnError(Error);
+	}
+	
+	public static tResult<t, tError>
+	ElseFail<t, tError>(
+		this mMaybe.tMaybe<t> a,
+		mStd.tFunc<tError> aOnFail
+	) {
+		if (a.Match(out var Value)) {
+			return OK(Value);
+		} else {
+			return Fail(aOnFail());
+		}
 	}
 	
 	public static t
