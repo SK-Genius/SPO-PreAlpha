@@ -393,15 +393,33 @@ mSPO_Parser {
 	.SetName(nameof(SetType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaTypeNode<tSpan>, tError>
-	LambdaType = E(mParserGen.Seq(Type, SpecialToken("=>"), Type))
-	.Modify((a1, _, a2) => (a1, a2))
+	LambdaType = E(
+		mParserGen.Seq(
+			Type,
+			SpecialToken(":"),
+			Type,
+			SpecialToken("=>"),
+			Type
+		).Modify((a1, _, a2, __, a3) => (a1, a2, a3)) |
+		mParserGen.Seq(
+			Type,
+			SpecialToken("=>"),
+			Type
+		).ModifyS(
+			(aSpan, a2, __, a3) => (
+				a1: (mSPO_AST.tTypeNode<tSpan>)mSPO_AST.EmptyType(mSpan.Span(aSpan.Start)),
+				a2,
+				a3
+			)
+		)
+	)
 	.ModifyS(mSPO_AST.LambdaType)
 	.SetName(nameof(LambdaType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecursiveTypeNode<tSpan>, tError>
 	RecursiveType = E(
 		mParserGen.Seq(
-			KeyWord("RECURSIV"),
+			KeyWord("RECURSIVE"),
 			Ident,
 			Type
 		)
@@ -459,7 +477,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecLambdasNode<tSpan>, tError>
 	RecLambda = mParserGen.Seq(
-		KeyWord("RECURSIV"),
+		KeyWord("RECURSIVE"),
 		SpecialToken("{"),
 		NLs_Token,
 		(RecLambdaItem +-NLs_Token)[1, null],

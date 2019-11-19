@@ -292,12 +292,26 @@ mIL_Parser {
 	Block = (Command +-NL)[1, null]
 	.SetDebugName(nameof(Block));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, (tText, mStream.tStream<mIL_AST.tCommandNode<tSpan>>), tError>
+	public static readonly mParserGen.tParser<tPos, tToken, (tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>), tError>
 	Def = mParserGen.Seq(KeyWord("DEF"), Ident, NL, Block)
-	.Modify((_, aID, __, aBlock) => (aID.Text, aBlock))
+	.Modify(
+		(_, aID, __, aBlock) => (
+			aID.Text,
+			mVM_Type.Proc(
+				mVM_Type.Empty(),
+				mVM_Type.Free("Env"),
+				mVM_Type.Proc(
+					mVM_Type.Free("OBJ"),
+					mVM_Type.Free("ARG"),
+					mVM_Type.Free("RES")
+				)
+			),
+			aBlock
+		)
+	)
 	.SetDebugName(nameof(Def));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mStream.tStream<mIL_AST.tCommandNode<tSpan>>)>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>)>, tError>
 	Module = Def[1, null]
 	.SetDebugName(nameof(Module));
 }

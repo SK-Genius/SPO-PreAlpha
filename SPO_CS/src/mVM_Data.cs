@@ -71,6 +71,9 @@ mVM_Data {
 		
 		// TYPE
 		IsType,
+		TypeEmpty,
+		TypeAny,
+		TypeInt,
 		TypeFree,
 		TypePair,
 		TypePrefix,
@@ -446,6 +449,24 @@ mVM_Data {
 		tPos aPos,
 		tInt32 aValue
 	) => aDef._AddReg(aPos, tOpCode.IsType, aValue);
+	
+	public static tInt32
+	TypeEmpty<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos
+	) => aDef._AddReg(aPos, tOpCode.TypeEmpty);
+	
+	public static tInt32
+	TypeAny<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos
+	) => aDef._AddReg(aPos, tOpCode.TypeAny);
+	
+	public static tInt32
+	TypeInt<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos
+	) => aDef._AddReg(aPos, tOpCode.TypeInt);
 	
 	public static tInt32
 	TypePair<tPos>(

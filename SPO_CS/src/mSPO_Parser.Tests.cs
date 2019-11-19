@@ -32,18 +32,18 @@ mSPO_Parser_Tests {
 	Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
-	) => new tSpan {
-		Start = {
+	) => mSpan.Span(
+		new tPos {
 			Ident = "",
 			Row = aStart.Row,
 			Col = aStart.Col
 		},
-		End = {
+		new tPos {
 			Ident = "",
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
-	};
+	);
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -474,7 +474,7 @@ mSPO_Parser_Tests {
 	[xTestCase("Record")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

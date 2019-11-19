@@ -12,6 +12,7 @@ using tInt64 = System.Int64;
 
 using tChar = System.Char;
 using tText = System.String;
+
 public static class mStd {
 	
 	#region tFunc & tAction
@@ -46,37 +47,11 @@ public static class mStd {
 	
 	#endregion
 	
-	public struct
+	public readonly struct
 	tEmpty {
 	}
 	
 	public static readonly tEmpty cEmpty = new tEmpty();
-	
-	public static tRes
-	Switch<tArg, tRes>(
-		this tArg a,
-		params (tArg, tFunc<tRes, tArg>)[] aCases
-	) => a.Switch(
-		_ => {
-			throw new System.NotImplementedException("unknown case "+_);
-		},
-		aCases
-	);
-	
-	public static tRes
-	Switch<tArg, tRes>(
-		this tArg a,
-		tFunc<tRes, tArg> aDefaultFunc,
-		params (tArg, tFunc<tRes, tArg>)[] aCases
-	) {
-		foreach (var Case in aCases) {
-			var (Match, Func) = Case;
-			if (Match.Equals(a)) {
-				return Func(a);
-			}
-		}
-		return aDefaultFunc(a);
-	}
 	
 	public static tBool
 	IsNull(

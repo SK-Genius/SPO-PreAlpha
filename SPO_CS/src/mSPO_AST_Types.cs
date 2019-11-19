@@ -222,7 +222,10 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMatchFreeIdentNode<tPos> MatchFreeIdent: {
-				mAssert.IsNotNull(aType);
+				if (aType is null) {
+					aNewScope = default;
+					return mResult.Fail($"{MatchFreeIdent.Pos} : ERROR missing type for {MatchFreeIdent.Name}");
+				}
 				Result = mResult.OK(aType);
 				aNewScope = mStream.Stream((MatchFreeIdent.Name, aType), aScope);
 				break;
@@ -512,7 +515,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tTypeTypeNode<tPos> _: {
-				Result = mResult.OK(mVM_Type.Type(null));
+				Result = mResult.OK(mVM_Type.Free("***"));
 				break;
 			}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {

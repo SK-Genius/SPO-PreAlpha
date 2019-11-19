@@ -19,19 +19,27 @@ using tText = System.String;
 public static class
 mMap {
 	
-	public struct
+	public readonly struct
 	tMap<tKey, tValue> {
-		internal mStream.tStream<(tKey, tValue)> _KeyValuePairs;
-		internal mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
+		internal readonly mStream.tStream<(tKey, tValue)> _KeyValuePairs;
+		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
+		
+		internal tMap(
+			mStream.tStream<(tKey, tValue)> aKeyValuePairs,
+			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
+		) {
+			_KeyValuePairs = aKeyValuePairs;
+			_EqualsFunc = aEqualsFunc;
+		}
 	}
 	
 	public static tMap<tKey, tValue>
 	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
-	) => new tMap<tKey, tValue>{
-		_KeyValuePairs = mStream.Stream<(tKey, tValue)>(),
-		_EqualsFunc = aEqualsFunc
-	};
+	) => new tMap<tKey, tValue>(
+		aKeyValuePairs: mStream.Stream<(tKey, tValue)>(),
+		aEqualsFunc: aEqualsFunc
+	);
 	
 	public static mMaybe.tMaybe<tValue>
 	Get<tKey, tValue>(
@@ -58,25 +66,25 @@ mMap {
 	Remove<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	) => new tMap<tKey, tValue>{
-		_EqualsFunc = aMap._EqualsFunc,
-		_KeyValuePairs = aMap._KeyValuePairs.Where(
+	) => new tMap<tKey, tValue>(
+		aEqualsFunc: aMap._EqualsFunc,
+		aKeyValuePairs: aMap._KeyValuePairs.Where(
 			((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 		)
-	};
+	);
 	
 	public static tMap<tKey, tValue>
 	Set<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey,
 		tValue aValue
-	) => new tMap<tKey, tValue>{
-		_EqualsFunc = aMap._EqualsFunc,
-		_KeyValuePairs = mStream.Stream(
+	) => new tMap<tKey, tValue>(
+		aEqualsFunc: aMap._EqualsFunc,
+		aKeyValuePairs: mStream.Stream(
 			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
 				((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 			)
 		)
-	};
+	);
 }

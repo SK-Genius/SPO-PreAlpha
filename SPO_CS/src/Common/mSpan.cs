@@ -15,12 +15,20 @@ using tText = System.String;
 
 public static class
 mSpan {
-	public struct
+	public readonly struct
 	tSpan<tPos> {
-		public tPos Start;
-		public tPos End;
+		public readonly tPos Start;
+		public readonly tPos End;
 		
-		public override tText
+		internal tSpan(
+			tPos aStart,
+			tPos aEnd
+		) {
+			this.Start = aStart;
+			this.End = aEnd;
+		}
+		
+		public override readonly tText
 		ToString(
 		) => $"{this.Start}..{this.End}";
 	}
@@ -29,10 +37,10 @@ mSpan {
 	Span<tPos>(
 		tPos aStart,
 		tPos aEnd
-	) => new tSpan<tPos> {
-		Start = aStart,
-		End = aEnd
-	};
+	) => new tSpan<tPos>(
+		aStart: aStart,
+		aEnd: aEnd
+	);
 	
 	public static tSpan<tPos>
 	Span<tPos>(
@@ -43,16 +51,9 @@ mSpan {
 	Merge<tPos>(
 		tSpan<tPos> a1,
 		tSpan<tPos> a2
-	) {
-		if (a1.Equals(default(tSpan<tPos>))) {
-			return a2;
-		}
-		if (a2.Equals(default(tSpan<tPos>))) {
-			return a1;
-		}
-		return new tSpan<tPos> {
-			Start = a1.Start,
-			End = a2.End
-		};
-	}
+	) => (
+		a1.Equals(default(tSpan<tPos>)) ? a2 :
+		a2.Equals(default(tSpan<tPos>)) ? a1 :
+		Span(a1.Start, a2.End)
+	);
 }

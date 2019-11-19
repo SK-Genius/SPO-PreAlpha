@@ -19,9 +19,13 @@ public static class
 mAny {
 		#region tVar
 		
-		public struct
+		public readonly struct
 		tAny {
-			internal object _Value;
+			internal readonly object _Value;
+			
+			internal tAny(object aValue) {
+				_Value = aValue;
+			}
 			
 			public tBool
 			Equals(
@@ -40,7 +44,7 @@ mAny {
 		public static tAny
 		Any<t>(
 			t a
-		) => new tAny { _Value = a };
+		) => new tAny(a);
 		
 		public static tBool
 		Match<t>(
@@ -70,12 +74,11 @@ mAny {
 		public static t
 		To<t>(
 			this tAny a
-		) {
-			if (!a.Match(out t Result)) {
-				throw mError.Error($"To: {typeof(t).FullName} <- {a}");
-			}
-			return Result;
-		}
+		) => (
+			a.Match(out t Result)
+			? Result
+			: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
+		);
 		
-		#endregion
-	}
+	#endregion
+}

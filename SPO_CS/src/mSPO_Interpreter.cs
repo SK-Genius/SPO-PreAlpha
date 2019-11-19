@@ -34,9 +34,11 @@ mSPO_Interpreter {
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),
 			mSpan.Merge
+		).ElseThrow(
+			a => a
 		).Defs.ToStream(
 		).MapWithIndex(
-			(aIndex, aCommands) => (mSPO2IL.TempDef(aIndex), aCommands.ToStream())
+			(aIndex, aDef) => (mSPO2IL.TempDef(aIndex), aDef.Type, aDef.Commands.ToStream())
 		),
 		aImport,
 		a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",

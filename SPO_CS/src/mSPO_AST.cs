@@ -309,6 +309,7 @@ mSPO_AST {
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; }
 		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tTypeNode<tPos> EnvType;
 		public tTypeNode<tPos> ArgType;
 		public tTypeNode<tPos> ResType;
 	}
@@ -571,10 +572,12 @@ mSPO_AST {
 	public static tLambdaTypeNode<tPos>
 	LambdaType<tPos>(
 		tPos aPos,
+		tTypeNode<tPos> aEnvType,
 		tTypeNode<tPos> aArgType,
 		tTypeNode<tPos> aResType
 	) => new tLambdaTypeNode<tPos> {
 		Pos = aPos,
+		EnvType = aEnvType,
 		ArgType = aArgType,
 		ResType = aResType
 	};

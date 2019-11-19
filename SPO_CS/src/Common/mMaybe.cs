@@ -18,30 +18,28 @@ using tText = System.String;
 
 public static class
 mMaybe {
-	public struct
+	public readonly struct
 	tMaybe<t> {
-		internal tBool _HasValue;
-		internal t _Value;
+		internal readonly tBool _HasValue;
+		internal readonly t _Value;
+		
+		internal tMaybe(
+			tBool aHasValue,
+			t aValue
+		) {
+			_HasValue = aHasValue;
+			_Value = aValue;
+		}
 		
 		public static
 		implicit operator tMaybe<t>(
 			mStd.tEmpty _
-		) {
-			return new tMaybe<t> {
-				_HasValue = false,
-				_Value = default,
-			};
-		}
+		) => new tMaybe<t>(false, default);
 		
 		public static
 		implicit operator tMaybe<t>(
 			t aValue
-		) {
-			return new tMaybe<t> {
-				_HasValue = true,
-				_Value = aValue,
-			};
-		}
+		) => new tMaybe<t>(true, aValue);
 	}
 	
 	public static tMaybe<t>
@@ -67,63 +65,53 @@ mMaybe {
 	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tMaybe<tOut>, tIn> aMap
-	) {
-		if (a.Match(out var Value)) {
-			return aMap(Value);
-		} else {
-			return mStd.cEmpty;
-		}
-	}
+	) => (
+		a.Match(out var Value)
+		? aMap(Value)
+		: mStd.cEmpty
+	);
 	
 	public static t
 	Else<t>(
 		this tMaybe<t> a,
 		mStd.tFunc<t> aDefault
-	) {
-		if (a.Match(out var Value)) {
-			return Value;
-		} else {
-			return aDefault();
-		}
-	}
+	) => (
+		a.Match(out var Value)
+		? Value
+		: aDefault()
+	);
 	
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,
 		tText aError
-	) {
-		if (a.Match(out var Value)) {
-			return Value;
-		} else {
-			throw mError.Error(aError);
-		}
-	}
+	) => (
+		a.Match(out var Value)
+		? Value
+		: throw mError.Error(aError)
+	);
 	
 	public static t
 	Else<t>(
 		this tMaybe<t> a,
 		mStd.tLazy<t> aDefault
-	) {
-		if (a.Match(out var Value)) {
-			return Value;
-		} else {
-			return aDefault.Value;
-		}
-	}
+	) => (
+		a.Match(out var Value)
+		?	Value
+		: aDefault.Value
+	);
 	
 	public static tMaybe<t>
 	Assert<t>(
 		this tMaybe<t> a,
 		mStd.tFunc<tBool, t> aCond
-	) {
-		return a.ThenTry<t, t>(
-			_ => {
-				if (aCond(_)) {
-					return _;
-				} else {
-					return mStd.cEmpty;
-				}
+	) => a.ThenTry<t, t>(
+		_ => {
+			if (aCond(_)) {
+				return _;
+			} else {
+				return mStd.cEmpty;
 			}
-		);
-	}
+		}
+	);
 }

@@ -54,6 +54,9 @@ mIL_AST {
 		VarGet,    // X := §VAR X ->
 		
 		IsType,        // X := §IS_TYPE X
+		TypeEmpty,     // T := []
+		TypeAny,       // T := §ANY
+		TypeInt,       // T := §INT
 		TypePair,      // T := [T, T]
 		TypePrefix,    // T := [+N T]
 		TypeRec,       // T := [{T} +T]
@@ -500,6 +503,24 @@ mIL_AST {
 		tText aResReg,
 		tText aBoolReg1
 	) => CommandNode(tCommandNodeType.IsType, aPos, aResReg, aBoolReg1);
+	
+	public static tCommandNode<tPos>
+	TypeEmpty<tPos>(
+		tPos aPos,
+		tText aId
+	) => CommandNode(tCommandNodeType.TypeEmpty, aPos, aId);
+	
+	public static tCommandNode<tPos>
+	TypeAny<tPos>(
+		tPos aPos,
+		tText aId
+	) => CommandNode(tCommandNodeType.TypeAny, aPos, aId);
+	
+	public static tCommandNode<tPos>
+	TypeInt<tPos>(
+		tPos aPos,
+		tText aId
+	) => CommandNode(tCommandNodeType.TypeInt, aPos, aId);
 	
 	public static tCommandNode<tPos>
 	TypeCond<tPos>(

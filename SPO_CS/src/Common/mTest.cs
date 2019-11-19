@@ -65,7 +65,7 @@ mTest {
 		_TestFunc = aTestFunc
 	};
 	
-	public static tResult
+	public static (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count)
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
@@ -106,20 +106,20 @@ mTest {
 						if (Value < 10) {
 							SubValue += Value_00 % 10;
 						}
-						aDebugStream($"-> OK ({Value}{SubValue} {E}Clocks)");
+						aDebugStream($"> OK ({Value}{SubValue} {E}Clocks)");
 						aDebugStream("");
-						return tResult.OK;
+						return (tResult.OK, 0, 0, 1);
 					} catch (System.Exception Exception) {
 						LineByLine(aDebugStream.AddPrefix(cTab))(Exception.Message);
 						LineByLine(aDebugStream.AddPrefix(cTab + cTab))(Exception.StackTrace);
-						aDebugStream("-> Fail");
+						aDebugStream("> Fail");
 						aDebugStream("");
-						return tResult.Fail;
+						return (tResult.Fail, 1, 0, 0);
 					}
 				} else {
-					aDebugStream("-> Skip");
+					aDebugStream("> Skip");
 					aDebugStream("");
-					return tResult.Skip;
+					return (tResult.Skip, 0, 1, 0);
 				}
 			}
 			case tTests Tests: {
@@ -128,21 +128,37 @@ mTest {
 					aFilters = null;
 				}
 				var Result = tResult.Skip;
+				var OK_Count = 0;
+				var SkipCount = 0;
+				var FailCount = 0;
+				
+				var OK_CountSum = 0;
+				var SkipCountSum = 0;
+				var FailCountSum = 0;
+				
 				var StopWatch = new System.Diagnostics.Stopwatch();
 				StopWatch.Start();
 				foreach (var Test in Tests._Tests) {
-					switch (Test.Run(LineByLine(aDebugStream.AddPrefix(cTab)), aFilters)) {
+					var SubResult = Test.Run(LineByLine(aDebugStream.AddPrefix(cTab)), aFilters);
+					OK_CountSum += SubResult.OK_Count;
+					SkipCountSum += SubResult.SkipCount;
+					FailCountSum += SubResult.FailCount;
+					
+					switch (SubResult.Result) {
 						case tResult.OK: {
+							OK_Count += 1;
 							if (Result != tResult.Fail) {
 								Result = tResult.OK;
 							}
 							break;
 						}
 						case tResult.Fail: {
+							FailCount += 1;
 							Result = tResult.Fail;
 							break;
 						}
 						case tResult.Skip: {
+							SkipCount += 1;
 							break;
 						}
 					}
@@ -162,9 +178,17 @@ mTest {
 					Value_00 /= 1000;
 				}
 				
-				aDebugStream($"-> {Result} ({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})");
+				aDebugStream(
+					tText.Concat(
+						"> ",
+						FailCountSum > 0 ? $"Fail:{FailCount}|{FailCountSum} " : "",
+						OK_CountSum > 0 ? $"OK:{OK_Count}|{OK_CountSum} " : "",
+						SkipCountSum > 0 ? $"Skip:{SkipCount}|{SkipCountSum} " : "",
+						$"({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})"
+					)
+				);
 				aDebugStream("");
-				return Result;
+				return (Result, FailCountSum, SkipCountSum, OK_CountSum);
 			}
 			default: {
 				throw mError.Error("impossible");

@@ -20,7 +20,7 @@ using xTestCase = NUnit.Framework.TestCaseAttribute;
 [xTestClass]
 #endif
 public static class
-mTree_Tests {
+mTreeMap_Tests {
 	private static readonly mStd.tFunc<tInt32, tInt32, tInt32>
 	Int32Compare = (a1, a2) => mMath.Sign(a1 - a2);
 
@@ -31,12 +31,12 @@ mTree_Tests {
 			"Create",
 			aDebugStream => {
 				{
-					var Tree = mTree.Tree<tInt32, tText>(Int32Compare);
+					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare);
 					mAssert.AreEquals(Tree.Deep(), 0);
 					mAssert.ThrowsError(() => { Tree.ForceGet(0); });
 				}
 				{
-					var Tree = mTree.Tree(
+					var Tree = mTreeMap.Tree(
 						Int32Compare,
 						(1, "bla")
 					);
@@ -45,7 +45,7 @@ mTree_Tests {
 					mAssert.ThrowsError(() => { Tree.ForceGet(0); });
 				}
 				{
-					var Tree = mTree.Tree(
+					var Tree = mTreeMap.Tree(
 						Int32Compare,
 						(1, "bla"),
 						(2, "blub")
@@ -61,7 +61,7 @@ mTree_Tests {
 			"Remove",
 			aDebugStream => {
 				{
-					var Tree = mTree.Tree<tInt32, tText>(Int32Compare)
+					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare)
 						.Set(1, "bla")
 						.Set(3, "foo")
 						.Set(2, "blub")
@@ -77,7 +77,7 @@ mTree_Tests {
 			"Big",
 			aDebugStream => {
 				{
-					var Tree = mTree.Tree<tInt32, tText>(Int32Compare)
+					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare)
 						.Set(0, "_0")
 						.Set(1, "_1")
 						.Set(2, "_2")
@@ -122,7 +122,7 @@ mTree_Tests {
 	[xTestCase("Big")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

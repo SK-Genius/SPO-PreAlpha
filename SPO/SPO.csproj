@@ -1,9 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.0</TargetFramework>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SPO_CS\SPO_CS.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="src\Stack.spo">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="src\StackTest.spo">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="src\_.spo">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>

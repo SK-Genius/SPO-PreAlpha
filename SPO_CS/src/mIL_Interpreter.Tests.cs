@@ -38,7 +38,7 @@ mIL_Interpreter_Tests {
 		return $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	}
 	
-	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mTree.tTree<tText, tInt32>)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mTreeMap.tTree<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,
@@ -400,7 +400,7 @@ mIL_Interpreter_Tests {
 	[xTestCase("ParseModule")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

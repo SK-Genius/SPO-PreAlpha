@@ -42,26 +42,25 @@ mTextParser {
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		using (mPerf.Measure()) {
-			var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
-			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-			mAssert.IsTrue(
-				MaybeResult.Match(out var Result, out var ErrorList),
-				() => ErrorList.ToText(aText.Split('\n'))
+		using var _ = mPerf.Measure();
+		var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
+		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
+		mAssert.IsTrue(
+			MaybeResult.Match(out var Result, out var ErrorList),
+			() => ErrorList.ToText(aText.Split('\n'))
+		);
+		
+		if (!Result.RemainingStream.IsEmpty()) {
+			var Pos = Result.RemainingStream.ForceFirst().Span.Start;
+			var Line = aText.Split('\n')[Pos.Row-1];
+			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
+			throw mError.Error(
+				$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
+				$"{Line}\n" +
+				$"{Line.Substring(0, StartSpacesCount) + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
 			);
-			
-			if (!Result.RestStream.IsEmpty()) {
-				var Pos = Result.RestStream.ForceFirst().Span.Start;
-				var Line = aText.Split('\n')[Pos.Row-1];
-				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
-				throw mError.Error(
-					$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
-					$"{Line}\n" +
-					$"{Line.Substring(0, StartSpacesCount) + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
-				);
-			}
-			return Result.Result;
 		}
+		return Result.Result;
 	}
 	
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>

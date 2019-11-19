@@ -311,7 +311,7 @@ mStdLib_Tests {
 	//[xTestCase("Echo")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

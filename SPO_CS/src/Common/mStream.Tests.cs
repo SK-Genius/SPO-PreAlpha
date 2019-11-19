@@ -134,6 +134,20 @@ mStream_Tests {
 				mAssert.AreEquals(mStream.Stream<tInt32>().Every(2), mStream.Stream<tInt32>());
 				mAssert.AreEquals(mStream.Stream(1, 2, 3).Every(1), mStream.Stream(1, 2, 3));
 			}
+		),
+		mTest.Test(
+			"foreach",
+			aStreamOut => {
+				#if !true
+					var Sum = 0;
+					foreach (var X in mStream.Stream(1, 2, 3, 4, 5)) {
+						Sum += X
+					}
+					mAssert.AreEquals(Sum, 15);
+				#else
+					mAssert.IsTrue(false);
+				#endif
+			}
 		)
 	);
 	
@@ -151,7 +165,7 @@ mStream_Tests {
 	[xTestCase("Every()")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

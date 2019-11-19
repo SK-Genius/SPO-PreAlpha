@@ -5,9 +5,8 @@
 //IMPORT mSpan.cs
 //IMPORT mResult.cs
 
-
 //#define MY_TRACE
-//#defind INF_LOOP_DETECTION
+//#define INF_LOOP_DETECTION
 
 using tBool = System.Boolean;
 
@@ -24,29 +23,38 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-[assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mParserGen) + "_Test")]
-
 public static class
 mParserGen {
 	#region Helper
 	// TODO: seperat file ???
 	
-	public struct tParserResult<tPos, tIn, tOut, tError> {
-		public (mSpan.tSpan<tPos> Span, tOut Value) Result;
-		public mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> RestStream;
-		public mStream.tStream<(tPos Pos, tError Massage)> MaybeError;
+	public readonly struct
+	tParserResult<tPos, tIn, tOut, tError> {
+		public readonly (mSpan.tSpan<tPos> Span, tOut Value) Result;
+		public readonly mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> RemainingStream;
+		public readonly mStream.tStream<(tPos Pos, tError Massage)> MaybeError;
+		
+		internal tParserResult(
+			(mSpan.tSpan<tPos> Span, tOut Value) aResult,
+			mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> aRemainingStream,
+			mStream.tStream<(tPos Pos, tError Massage)> aMaybeError
+		) {
+			this.Result = aResult;
+			this.RemainingStream = aRemainingStream;
+			this.MaybeError = aMaybeError;
+		}
 	}
 	
 	public static tParserResult<tPos, tIn, tOut, tError>
 	ParserResult<tPos, tIn, tOut, tError>(
 		(mSpan.tSpan<tPos> Span, tOut Value) aResult,
-		mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> aRestStream,
+		mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> aRemainingStream,
 		mStream.tStream<(tPos Pos, tError Massage)> aMaybeError
-	) => new tParserResult<tPos, tIn, tOut, tError> {
-		Result = aResult,
-		RestStream = aRestStream,
-		MaybeError = aMaybeError
-	};
+	) => new tParserResult<tPos, tIn, tOut, tError>(
+		aResult,
+		aRemainingStream,
+		aMaybeError
+	);
 	
 	public static tParser<tPos, tIn, tOut, tError>
 	Assert<tPos, tIn, tOut, tError>(
@@ -95,7 +103,7 @@ mParserGen {
 							Result.Result.Span,
 							aModifyFunc(Result.Result.Span)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -129,7 +137,7 @@ mParserGen {
 								Result.Result.Value
 							)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -164,7 +172,7 @@ mParserGen {
 								Result.Result.Value._2
 							)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -200,7 +208,7 @@ mParserGen {
 								Result.Result.Value._3
 							)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -237,7 +245,7 @@ mParserGen {
 								Result.Result.Value._4
 							)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -275,7 +283,7 @@ mParserGen {
 								Result.Result.Value._5
 							)
 						),
-						Result.RestStream,
+						Result.RemainingStream,
 						mStream.Stream<(tPos Pos, tError Massage)>()
 					)
 				);
@@ -440,7 +448,7 @@ mParserGen {
 					return mResult.OK(
 						ParserResult(
 							Result.Result,
-							Result.RestStream,
+							Result.RemainingStream,
 							Merge(ErrorList1, ErrorList2, aP1._ComparePos)
 						)
 					);
@@ -478,7 +486,7 @@ mParserGen {
 							Span = TempResult.Result.Span;
 						}
 						Span = mSpan.Merge(Span, TempResult.Result.Span);
-						RestStream = TempResult.RestStream;
+						RestStream = TempResult.RemainingStream;
 						I += 1;
 					}
 					if (I < aMin) {
@@ -517,7 +525,7 @@ mParserGen {
 									mSpan.Merge(Span, TempResult.Result.Span),
 									(List, TempResult.Result.Value)
 								),
-								TempResult.RestStream,
+								TempResult.RemainingStream,
 								mStream.Stream<(tPos Pos, tError Massage)>()
 							)
 						);
@@ -618,7 +626,7 @@ mParserGen {
 				)
 			) {
 				if (
-					aP2.Parse(Result1.RestStream, aDebugStream, ReferenceEquals(aStream, Result1.RestStream) ? mStream.Stream(Parser, aPath) : null)
+					aP2.Parse(Result1.RemainingStream, aDebugStream, ReferenceEquals(aStream, Result1.RemainingStream) ? mStream.Stream(Parser, aPath) : null)
 					.Match(
 						out var Result2,
 						out ErrorList
@@ -630,7 +638,7 @@ mParserGen {
 								mSpan.Merge(Result1.Result.Span, Result2.Result.Span),
 								(Result1.Result.Value, Result2.Result.Value)
 							),
-							Result2.RestStream,
+							Result2.RemainingStream,
 							Merge(Result1.MaybeError, Result2.MaybeError, aP1._ComparePos)
 						)
 					);
@@ -702,18 +710,17 @@ mParserGen {
 		mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> aStream,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		using (mPerf.Measure()) {
-			var Level = (tInt32?)0;
-			return aParser.Parse(
-				aStream,
-				aDebugText => {
-					if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
-					aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
-					if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
-				},
-				mStream.Stream<object>()
-			);
-		}
+		using var _ = mPerf.Measure();
+		var Level = (tInt32?)0;
+		return aParser.Parse(
+			aStream,
+			aDebugText => {
+				if (aDebugText.StartsWith("}", System.StringComparison.Ordinal)) { Level -= 1; }
+				aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
+				if (aDebugText.EndsWith("{", System.StringComparison.Ordinal)) { Level += 1; }
+			},
+			mStream.Stream<object>()
+		);
 	}
 	
 	internal static mResult.tResult<
@@ -766,10 +773,10 @@ mParserGen {
 		}
 		
 		#if MY_TRACE
-			if (Result.Match(out var _, out var ___)) {
-				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
+			if (Result.Match(out var PResult, out var Error_)) {
+				aDebugStream($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")} ({PResult.Result.Span})");
 			} else {
-				aDebugStream("} -> FAIL");
+				aDebugStream($"}} -> FAIL ({Error_._Head.Pos})");
 			}
 		#endif
 		

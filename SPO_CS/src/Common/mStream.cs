@@ -17,6 +17,8 @@ using tInt64 = System.Int64;
 
 using tChar = System.Char;
 using tText = System.String;
+using System.Collections.Generic;
+using System.Collections;
 
 public static class
 mStream {
@@ -51,7 +53,40 @@ mStream {
 			[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.RootHidden)]
 			public t[] Text => this._Stream.Take(100).ToArrayList().ToArray();
 		}
+		
+		public struct tEnumerator {
+			internal tStream<t> _;
+			
+			public t Current => _.Head;
+			
+			public
+			tEnumerator(
+				tStream<t> a
+			) {
+				this._ = Stream(default(t), a);
+			}
+			
+			public bool
+			MoveNext(
+			) {
+				if (this._.Tail is null) {
+					return false;
+				}
+
+				this._ = this._.Tail;
+				return true;
+			}
+			
+			public void Dispose() => throw new System.NotImplementedException();
+			
+			public void Reset() => throw new System.NotImplementedException();
+		}
 	}
+	
+	public static tStream<t>.tEnumerator
+	GetEnumerator<t>(
+		this tStream<t> a
+	) => new tStream<t>.tEnumerator(a);
 	
 	public static tStream<t>
 	Stream<t>(
@@ -217,9 +252,7 @@ mStream {
 	SkipWhile<t>(
 		this tStream<t> aStream,
 		mStd.tFunc<tBool, t> aCond
-	) {
-		return aStream.SkipUntil(_ => !aCond(_));
-	}
+	) => aStream.SkipUntil(_ => !aCond(_));
 	
 	public static tStream<t>
 	Every<t>(

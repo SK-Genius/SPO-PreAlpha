@@ -148,9 +148,9 @@ mTokenizer {
 			() => ErrorList.ToText(aText.Split('\n'))
 		);
 		
-		if (!Result.RestStream.IsEmpty()) {
-			var Row = Result.RestStream.ForceFirst().Span.Start.Row;
-			var Col = Result.RestStream.ForceFirst().Span.Start.Col;
+		if (!Result.RemainingStream.IsEmpty()) {
+			var Row = Result.RemainingStream.ForceFirst().Span.Start.Row;
+			var Col = Result.RemainingStream.ForceFirst().Span.Start.Col;
 			var Line = aText.Split('\n')[Row];
 			var MarkerLine = mStream.Stream(
 				Line.ToCharArray()

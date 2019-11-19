@@ -23,6 +23,7 @@ mVM_Type {
 	public enum
 	tKind {
 		Free,
+		Any,
 		Empty,
 		Bool,
 		Int,
@@ -35,9 +36,9 @@ mVM_Type {
 		Ref,
 		Set,
 		Cond,
-		Recursiv,
-		Interface,
-		Generic
+		Recursive,
+		Generic, // Universal
+		Interface, // Existential
 	}
 	
 	[System.Diagnostics.DebuggerDisplay("{mVM_Type.ToText(this, 10)}")]
@@ -52,30 +53,42 @@ mVM_Type {
 		Equals(
 			object a
 		) {
-			if (ReferenceEquals(this, a)) {
+			return this == (a as tType);
+		}
+		
+		public static tBool operator!=(
+			tType a1,
+			tType a2
+		) {
+			return !(a1 == a2);
+		}
+		public static tBool operator==(
+			tType a1,
+			tType a2
+		) {
+			if (ReferenceEquals(a1, a2)) {
 				return true;
 			}
 			
-			var Other = a as tType;
-			if (Other is null) {
+			if (a1 is null || a2 is null) {
 				return false;
 			}
 			
 			if (
-				this.Kind != Other.Kind ||
-				this.Id != Other.Id ||
-				this.Prefix != Other.Prefix ||
-				this.Refs.Length != Other.Refs.Length
+				a1.Kind != a2.Kind ||
+				a1.Id != a2.Id ||
+				a1.Prefix != a2.Prefix ||
+				a1.Refs.Length != a2.Refs.Length
 			) {
 				return false;
 			}
 			
-			if (this.Kind == tKind.Free) {
+			if (a1.Kind == tKind.Free) {
 				return true;
 			}
 			
-			for (var I = this.Refs.Length; I --> 0;) {
-				if (!this.Refs[I].Equals(Other.Refs[I])) {
+			for (var I = a1.Refs.Length; I --> 0;) {
+				if (!a1.Refs[I].Equals(a2.Refs[I])) {
 					return false;
 				}
 			}
@@ -121,7 +134,16 @@ mVM_Type {
 			return false;
 		}
 	}
-
+	
+	public static tType
+	Any(
+	) => new tType { Kind = tKind.Any };
+	
+	public static tBool
+	MarchAny(
+		this tType aType
+	) => aType.Kind == tKind.Any;
+	
 	public static tType
 	Empty(
 	) => new tType { Kind = tKind.Empty };
@@ -129,10 +151,8 @@ mVM_Type {
 	public static tBool
 	MatchEmpty(
 		this tType aType
-	) {
-		return aType.Kind == tKind.Empty;
-	}
-
+	) => aType.Kind == tKind.Empty;
+	
 	public static tType
 	Bool(
 	) => new tType { Kind = tKind.Bool };
@@ -140,9 +160,7 @@ mVM_Type {
 	public static tBool
 	MatchBool(
 		this tType aType
-	) {
-		return aType.Kind == tKind.Bool;
-	}
+	) => aType.Kind == tKind.Bool;
 	
 	public static tType
 	Int(
@@ -151,9 +169,7 @@ mVM_Type {
 	public static tBool
 	MatchInt(
 		this tType aType
-	) {
-		return aType.Kind == tKind.Int;
-	}
+	) => aType.Kind == tKind.Int;
 	
 	public static tType
 	Type(
@@ -162,9 +178,7 @@ mVM_Type {
 	public static tBool
 	MatchType(
 		this tType aType
-	) {
-		return aType.Kind == tKind.Type;
-	}
+	) => aType.Kind == tKind.Type;
 	
 	public static tType
 	Type(
@@ -180,12 +194,8 @@ mVM_Type {
 		out tType aValue
 	) {
 		if (aType.Kind == tKind.Bool) {
-			if (aType.Refs.Length == 0) {
-				aValue = default;
-			} else {
-				aValue = aType.Refs[0];
-			}
-			return true;
+			aValue = (aType.Refs.Length > 0) ? aType.Refs[0] : default;
+			return true;	
 		} else {
 			aValue = default;
 			return false;
@@ -268,9 +278,7 @@ mVM_Type {
 		this tType aType,
 		tText aPrefix,
 		out tType aTypeOut
-	) {
-		return aType.MatchPrefix(out var Prefix, out aTypeOut) && Prefix == aPrefix;
-	}
+	) => aType.MatchPrefix(out var Prefix, out aTypeOut) && Prefix == aPrefix;
 	
 	public static tType
 	Record(
@@ -358,9 +366,7 @@ mVM_Type {
 	MatchPrefix(
 		this tType aType,
 		tText aPrefix
-	) {
-		return aType.Prefix == aPrefix && aType.Refs[0].MatchEmpty();
-	}
+	) => aType.Prefix == aPrefix && aType.Refs[0].MatchEmpty();
 	
 	public static tType
 	Ref(
@@ -465,7 +471,7 @@ mVM_Type {
 		tType aTypeHead,
 		tType aTypeBody
 	) => new tType {
-		Kind = tKind.Recursiv,
+		Kind = tKind.Recursive,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
 	
@@ -476,7 +482,7 @@ mVM_Type {
 		// aCond
 	) {
 		mAssert.IsTrue(false); // TODO
-		if (aType.Kind == tKind.Recursiv) {
+		if (aType.Kind == tKind.Recursive) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
@@ -517,7 +523,7 @@ mVM_Type {
 		tType aTypeHead,
 		tType aTypeBody
 	) => new tType {
-		Kind = tKind.Generic,
+		Kind = tKind.Generic ,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
 	
@@ -528,7 +534,7 @@ mVM_Type {
 		out tType aBodyType
 		// aCond
 	) {
-		if (aType.Kind == tKind.Generic) {
+		if (aType.Kind == tKind.Generic ) {
 			aHeadType = aType.Refs[0];
 			aBodyType = aType.Refs[1];
 			return true;
@@ -640,15 +646,15 @@ mVM_Type {
 			return "...";
 		}
 		var NextLimit = aLimit - 1;
-		return aType.Kind.Switch(
-			(tKind.Empty, _ => "[]"),
-			(tKind.Bool, _ => "§BOOL"),
-			(tKind.Int, _ => "§INT"),
-			(tKind.Type, _ => $"[[]]"),
-			(tKind.Free, _ => "?"+aType.Id),
-			(tKind.Prefix, _ => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]"),
-			(
-				tKind.Record, (tKind _) => {
+		return aType.Kind switch {
+			tKind.Empty => "[]",
+			tKind.Bool => "§BOOL",
+			tKind.Int => "§INT",
+			tKind.Type => $"[[]]",
+			tKind.Free => "?"+aType.Id,
+			tKind.Prefix => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Record => mStd.Func(
+				() => {
 					var Text = "[{";
 					var Type = aType;
 					for (var Limit = aLimit; Type.Kind == tKind.Record; Limit -= 1) {
@@ -664,15 +670,14 @@ mVM_Type {
 					}
 					return Text  + "}]";
 				}
-			),
-			(
-				tKind.Pair,
-				_ => {
+			)(),
+			tKind.Pair => mStd.Func(
+				() => {
 					var Result = "[";
 					var Temp = aType;
 					Result += Temp.Refs[0].ToText(NextLimit);
 					Temp = Temp.Refs[1];
-
+					
 					while (Temp.Kind == tKind.Pair) {						
 						Result += ", " + Temp.Refs[0].ToText(NextLimit);
 						Temp = Temp.Refs[1];
@@ -682,10 +687,9 @@ mVM_Type {
 					}
 					return Result + "]";
 				}
-			),
-			(
-				tKind.Proc,
-				_ => {
+			)(),
+			tKind.Proc => mStd.Func(
+				() => {
 					var Result = "[";
 					if (aType.Refs[0].Kind != tKind.Empty) {
 						Result += aType.Refs[0].ToText(NextLimit) + " : ";
@@ -698,14 +702,15 @@ mVM_Type {
 					}
 					return Result + "]";
 				}
-			),
-			(tKind.Ref, _ => $"[§REF {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Set, _ => $"[{mStream.Stream(aType.Refs).Map(a => a.ToText(NextLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]"),
-			(tKind.Var, _ => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Recursiv, _ => $"[§RECURSIVE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Interface, _ => $"[§INTERFACE {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Generic, _ => $"[§ALL {aType.Id} -> {aType.Refs[0].ToText(NextLimit)}]"),
-			(tKind.Cond, _ => $"[{aType.Refs[0].ToText(NextLimit)} ? ...]") // TODO
-		);
+			)(),
+			tKind.Ref => $"[§REF {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Set => $"[{mStream.Stream(aType.Refs).Map(a => a.ToText(NextLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]",
+			tKind.Var => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Recursive => $"[§RECURSIVE {aType.Id} = {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Generic => $"[{aType.Id} => {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Interface => $"[§LET {aType.Id} IN {aType.Refs[0].ToText(NextLimit)}]",
+			tKind.Cond => $"[{aType.Refs[0].ToText(NextLimit)} ? ...]", // TODO
+			_ => throw mError.Error("impossible")
+		};
 	}
 }

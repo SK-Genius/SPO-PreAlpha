@@ -49,7 +49,7 @@ mRunTests {
 		mResult_Tests.Tests,
 		mStream_Tests.Tests,
 		mMap_Tests.Tests,
-		mTree_Tests.Tests,
+		mTreeMap_Tests.Tests,
 //		mMath_Test.Test,
 		mArrayList_Tests.Tests,
 		mParserGen_Tests.Tests,
@@ -69,23 +69,17 @@ mRunTests {
 		mStdLib_Tests.Tests
 	);
 	
-	public static mTest.tResult
-	SelfTests(
-		mStream.tStream<tText> aFilters,
-		mStd.tAction<tText> aDebugOut
-	) => Test.Run(aDebugOut, aFilters);
-	
 	public static int
 	Main(
 		params tText[] aArgs
 	) {
-		return SelfTests(
-			mStream.Stream(aArgs),
+		return Test.Run(
 			_ => {
 				System.Console.WriteLine(_);
 				System.Console.Out.Flush();
-			}
-		) == mTest.tResult.Fail
+			},
+			mStream.Stream(aArgs)
+		).Result == mTest.tResult.Fail
 		? 0
 		: -1;
 	}
@@ -95,7 +89,7 @@ mRunTests {
 	[xTestCase("")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Test.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

@@ -14,14 +14,21 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class
-mTree {
+mTreeMap {
 	
-	[System.Diagnostics.DebuggerTypeProxy(typeof(mTree.tTree<,>.tDebuggerProxy))]
-	public class
+	[System.Diagnostics.DebuggerTypeProxy(typeof(mTreeMap.tTree<,>.tDebuggerProxy))]
+	public readonly struct
 	tTree<tKey, tValue> {
-		internal mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
-		internal tNode<tKey, tValue> Root;
-
+		internal readonly mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
+		internal readonly tNode<tKey, tValue> Root;
+		
+		internal tTree(
+			mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
+			tNode<tKey, tValue> aRoot
+		) {
+			this.KeyCompare = aKeyCompare;
+			this.Root = aRoot;
+		}
 		private struct tDebuggerProxy {
 			private readonly tTree<tKey, tValue> _Tree;
 			public tDebuggerProxy(tTree<tKey, tValue> a) { this._Tree = a; }
@@ -58,9 +65,7 @@ mTree {
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
 		params (tKey Key, tValue Value)[] aItems
 	) {
-		var Tree = new tTree<tKey, tValue> {
-			KeyCompare = aKeyCompare,
-		};
+		var Tree = new tTree<tKey, tValue>(aKeyCompare, default);
 		foreach (var Item in aItems) {
 			Tree = Tree.Set(Item.Key, Item.Value);
 		}
@@ -73,10 +78,10 @@ mTree {
 		tKey aKey,
 		tValue aValue
 	) {
-		return new tTree<tKey, tValue> {
-			KeyCompare = aTree.KeyCompare,
-			Root = aTree.Root.Add(aKey, aValue, aTree.KeyCompare),
-		};
+		return new tTree<tKey, tValue>(
+			aTree.KeyCompare,
+			aTree.Root.Add(aKey, aValue, aTree.KeyCompare)
+		);
 	}
 	
 	internal static tNode<tKey, tValue>
@@ -136,24 +141,22 @@ mTree {
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
 		mAssert.IsNotNull(aNode, () => "unknown key: " + aKey);
-		return mStd.Switch(
-			aKeyCompare(aKey, aNode.Key),
-			(0, _ => aNode.Value),
-			(1, _ => aNode.SubTree2.Get(aKey, aKeyCompare)),
-			(-1, _ => aNode.SubTree1.Get(aKey, aKeyCompare))
-		);
+		return aKeyCompare(aKey, aNode.Key) switch {
+			0 => aNode.Value,
+			1 => aNode.SubTree2.Get(aKey, aKeyCompare),
+			-1 => aNode.SubTree1.Get(aKey, aKeyCompare),
+			_ => throw mError.Error("impossible")
+		};
 	}
 	
 	public static tTree<tKey, tValue>
 	Remove<tKey, tValue>(
 		this tTree<tKey, tValue> aTree,
 		tKey aKey
-	) {
-		return new tTree<tKey, tValue> {
-			Root = aTree.Root.Remove(aKey, aTree.KeyCompare),
-			KeyCompare = aTree.KeyCompare,
-		};
-	}
+	) => new tTree<tKey, tValue>(
+		aTree.KeyCompare,
+		aTree.Root.Remove(aKey, aTree.KeyCompare)
+	);
 	
 	internal static tNode<tKey, tValue>
 	Remove<tKey, tValue>(

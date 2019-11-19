@@ -33,18 +33,18 @@ mSPO2IL_Tests {
 	Span(
 		(tInt32 Row, tInt32 Col) aStart,
 		(tInt32 Row, tInt32 Col) aEnd
-	) => new tSpan {
-		Start = {
+	) => mSpan.Span(
+		new tPos {
 			Ident = "",
 			Row = aStart.Row,
 			Col = aStart.Col
 		},
-		End = {
+		new tPos {
 			Ident = "",
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
-	};
+	);
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -250,7 +250,7 @@ mSPO2IL_Tests {
 				
 				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);
 				mAssert.AreEquals(
-					DefConstructor.ModuleConstructor.Defs.Get(1).ToStream(),
+					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 10), (1, 25)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
 						
@@ -296,7 +296,7 @@ mSPO2IL_Tests {
 				
 				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);
 				mAssert.AreEquals(
-					DefConstructor.ModuleConstructor.Defs.Get(1).ToStream(),
+					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.GetFirst(Span((1, 20), (1, 60)), mSPO2IL.Ident("...+..."), mIL_AST.cEnv),
 						mIL_AST.GetSecond(Span((1, 20), (1, 60)), mSPO2IL.TempReg(13), mIL_AST.cEnv),
@@ -361,7 +361,7 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1);
 				mAssert.AreEquals(DefIndex, 0);
 				mAssert.AreEquals(
-					ModuleConstructor.Defs.Get(DefIndex).ToStream(),
+					ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 1), (1, 52)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
 							
@@ -418,12 +418,14 @@ mSPO2IL_Tests {
 					a => aStreamOut(a())
 				);
 				
-				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge);
+				if (!mSPO2IL.MapModule(ModuleNode, mSpan.Merge).Match(out var ModuleConstructor, out var Error)) {
+					throw mError.Error(Error);
+				}
 				
 				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2);
 				
 				mAssert.AreEquals(
-					ModuleConstructor.Defs.Get(0).ToStream(),
+					ModuleConstructor.Defs.Get(0).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 1), (10, 9)), mSPO2IL.TempDef(1), mIL_AST.cEnv),
 						
@@ -448,7 +450,7 @@ mSPO2IL_Tests {
 				);
 				
 				mAssert.AreEquals(
-					ModuleConstructor.Defs.Get(1).ToStream(),
+					ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.GetFirst(Span((7, 13), (7, 34)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
 						mIL_AST.GetSecond(Span((7, 13), (7, 34)), mSPO2IL.TempReg(4), mIL_AST.cEnv),
@@ -479,7 +481,7 @@ mSPO2IL_Tests {
 	[xTestCase("MapModule")]
 	public static void _(tText a) {
 		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)),
+			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
 			mTest.tResult.OK
 		);
 	}

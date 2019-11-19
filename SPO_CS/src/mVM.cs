@@ -494,19 +494,18 @@ mVM {
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		using (mPerf.Measure()) {
-			if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
-				var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
-				while (CallStack != null) {
-					CallStack = CallStack.Step(aPosToText);
-				}
-			} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
-				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
-				aRes._DataType = Res._DataType;
-				aRes._Value = Res._Value;
-			} else {
-				throw mError.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
+		using var _ = mPerf.Measure();
+		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
+			var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
+			while (CallStack != null) {
+				CallStack = CallStack.Step(aPosToText);
 			}
+		} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
+			var Res = ExternDef(Env, aObj, aArg, aTraceOut);
+			aRes._DataType = Res._DataType;
+			aRes._Value = Res._Value;
+		} else {
+			throw mError.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
 		}
 	}
 }
