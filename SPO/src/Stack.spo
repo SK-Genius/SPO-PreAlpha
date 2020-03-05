@@ -2,14 +2,14 @@
 
 §DEF EmptyStack = #Empty ()
 
-§DEF tStack... = §DEF t => [§RECURSIV tStack_ [[#Empty] | [#Stack [t, tStack_]]]]
+§DEF tStack... = §DEF t => [§RECURSIVE tStack_ [[#Empty] | [#Stack [t, tStack_]]]]
 
 §DEF Push...To... = (
 	§DEF aHead € t
 	§DEF aTail € (.tStack t)
 ) => #Stack (aHead, aTail)
 
-§RECURSIV {
+§RECURSIVE {
 	§DEF Map...With... = (
 		§DEF aStack € (.tStack t)
 		§DEF aFunc...

@@ -15,7 +15,7 @@
 §DEF True = 1 .== 1
 §DEF False = .! True
 
-§RECURSIV {
+§RECURSIVE {
 	§DEF ...=... = (§DEF a1, §DEF a2) => §IF (a1, a2) MATCH {
 		(
 			(#Stack (§DEF Head1, §DEF Tail1))

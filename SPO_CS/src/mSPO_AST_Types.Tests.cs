@@ -138,5 +138,4 @@ mSPO_AST_Types_Tests {
 	#endif
 	
 	#endif
-	
 }

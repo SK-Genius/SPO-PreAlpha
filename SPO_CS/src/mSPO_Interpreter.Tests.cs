@@ -175,9 +175,9 @@ mSPO_Interpreter_Tests {
 							
 							§DEF EmptyStack = #Empty ()
 							
-							§DEF tStack... = [[t] =>> [§RECURSIV tStack_ = [[#Empty []] | [#Stack [t, tStack_]]]]]
+							§DEF tStack... = [[t] =>> [§RECURSIVE tStack_ = [[#Empty []] | [#Stack [t, tStack_]]]]]
 							
-							§RECURSIV §TYPE tStack... = t => [#Empty | #Stack[t, tStack[t]]]	
+							§RECURSIVE §TYPE tStack... = t => [#Empty | #Stack[t, tStack[t]]]	
 							
 							§DEF Push...To... = [
 								t
@@ -186,7 +186,7 @@ mSPO_Interpreter_Tests {
 								§DEF Tail € [.tStack t]
 							) => #Stack (Head, Tail)
 							
-							§RECURSIV {
+							§RECURSIVE {
 								§DEF Map...With... = (§DEF Stack, §DEF Func...) => §IF Stack MATCH {
 									(#Stack (§DEF Head, §DEF Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
 									(#Empty ()) => EmptyStack

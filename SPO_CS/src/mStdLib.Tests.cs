@@ -49,7 +49,7 @@ mStdLib_Tests {
 								§RETURN (.e)
 							}
 							
-							§RECURSIV {
+							§RECURSIVE {
 								§DEF Fib... = §DEF a € §INT => .If (a .< 2) Then (
 									() => a
 								) Else (
@@ -86,7 +86,7 @@ mStdLib_Tests {
 								§DEF n € §INT
 							)
 							
-							§RECURSIV {
+							§RECURSIVE {
 								§DEF Fib... = (§DEF a € §INT) => §IF {
 									a .< 2 => a
 									1 .== 1 => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
@@ -121,7 +121,7 @@ mStdLib_Tests {
 								§DEF n € §INT
 							)
 							
-							§RECURSIV {
+							§RECURSIVE {
 								§DEF Fib... = (§DEF a € §INT) => §IF a MATCH {
 									(§DEF a & a .== 0) => 0
 									(§DEF a & a .== 1) => 1
@@ -157,7 +157,7 @@ mStdLib_Tests {
 								§DEF n € §INT
 							)
 							
-							§RECURSIV {
+							§RECURSIVE {
 								§DEF Fib... = (§DEF x € §INT) => §IF x MATCH {
 									(§DEF a & a .< 2) => a
 									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
