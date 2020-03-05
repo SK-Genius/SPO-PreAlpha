@@ -65,9 +65,10 @@ public static class mStd {
 			get {
 				if (this.Func is null) {
 					return this._Value;
+				} else {
+					this.Value = this.Func();
+					return this.Value;
 				}
-				this.Value = this.Func();
-				return this.Value;
 			}
 			set {
 				this._Value = value;
