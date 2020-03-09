@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mArrayList.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -16,12 +18,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mArrayList_Tests {
 	
@@ -134,23 +130,4 @@ mArrayList_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("tArrayList.IsEmpty(...)")]
-	[xTestCase("tArrayList.Equals(...)")]
-	[xTestCase("tArrayList.ToArrayList()")]
-	[xTestCase("tArrayList.ToLasyList()")]
-	[xTestCase("tArrayList.Push(...)")]
-	[xTestCase("tArrayList.Pop()")]
-	[xTestCase("tArrayList.Resize(...)")]
-	[xTestCase("tArrayList.Get(...)")]
-	[xTestCase("tArrayList.Set(...)")]
-	[xTestCase("mArrayList.Concat(...)")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

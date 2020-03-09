@@ -1,6 +1,8 @@
 ﻿//IMPORT mArrayList.cs
 //IMPORT mVM_Type.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -27,12 +29,12 @@ mSPO_AST {
 	
 	public interface
 	tMatchItemNode<tPos> : tNode<tPos> {
-		mVM_Type.tType TypeAnnotation { get; set; }
+		mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	public interface
 	tExpressionNode<tPos> : tNode<tPos> {
-		mVM_Type.tType TypeAnnotation { get; set; }
+		mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	public interface
@@ -47,383 +49,383 @@ mSPO_AST {
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tFalseNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTrueNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTextNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tText Value;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tText Value = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIntNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tInt32 Value;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tInt32 Value = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tText Name;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tText Name = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tText Name;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tText Name = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tMatchNode<tPos>> Items;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<tMatchNode<tPos>>? Items;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchItemNode<tPos> Pattern;
-		public tExpressionNode<tPos> Type;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchItemNode<tPos> Pattern = default!;
+		public tExpressionNode<tPos>? Type = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tText Prefix;
-		public tExpressionNode<tPos> Element;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tText Prefix = default!;
+		public tExpressionNode<tPos> Element = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tRecordNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> Elements;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? Elements;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tText Prefix;
-		public tMatchNode<tPos> Match;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tText Prefix = default!;
+		public tMatchNode<tPos> Match = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Match;
-		public tExpressionNode<tPos> Guard;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchNode<tPos> Match = default!;
+		public tExpressionNode<tPos> Guard = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Generic;
-		public tMatchNode<tPos> Head;
-		public tExpressionNode<tPos> Body;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchNode<tPos>? Generic;
+		public tMatchNode<tPos> Head = default!;
+		public tExpressionNode<tPos> Body = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMethodNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Obj;
-		public tMatchNode<tPos> Arg;
-		public tBlockNode<tPos> Body;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchNode<tPos> Obj = default!;
+		public tMatchNode<tPos> Arg = default!;
+		public tBlockNode<tPos> Body = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tBlockNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tCommandNode<tPos>> Commands;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<tCommandNode<tPos>>? Commands;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tCallNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Func;
-		public tExpressionNode<tPos> Arg;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Func = default!;
+		public tExpressionNode<tPos> Arg = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tDefNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Des;
-		public tExpressionNode<tPos> Src;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchNode<tPos> Des = default!;
+		public tExpressionNode<tPos> Src = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tMatchFreeIdentNode<tPos> Ident;
-		public tLambdaNode<tPos> Lambda;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tMatchFreeIdentNode<tPos> Ident = default!;
+		public tLambdaNode<tPos> Lambda = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; }
-		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
+		public tPos Pos { get; set; } = default!;
+		public mStream.tStream<tRecLambdaItemNode<tPos>>? List;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tReturnIfNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; }
-		public tExpressionNode<tPos> Result;
-		public tExpressionNode<tPos> Condition;
+		public tPos Pos { get; set; } = default!;
+		public tExpressionNode<tPos> Result = default!;
+		public tExpressionNode<tPos> Condition = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIfNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)> Cases;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)>? Cases;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Expression;
-		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)> Cases;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Expression = default!;
+		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)>? Cases;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tIdentNode<tPos> Prefix;
-		public mStream.tStream<tTypeNode<tPos>> Expressions;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tIdentNode<tPos> Prefix = default!;
+		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tTypeNode<tPos>> Expressions;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tTypeNode<tPos>> Expressions;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tTypeNode<tPos> EnvType;
-		public tTypeNode<tPos> ArgType;
-		public tTypeNode<tPos> ResType;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tTypeNode<tPos> EnvType = default!;
+		public tTypeNode<tPos> ArgType = default!;
+		public tTypeNode<tPos> ResType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType;
-		public tTypeNode<tPos> BodyType;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tIdentNode<tPos> HeadType = default!;
+		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType;
-		public tTypeNode<tPos> BodyType;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tIdentNode<tPos> HeadType = default!;
+		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType;
-		public tTypeNode<tPos> BodyType;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tIdentNode<tPos> HeadType = default!;
+		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tDefVarNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tIdentNode<tPos> Ident;
-		public tExpressionNode<tPos> Expression;
-		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tIdentNode<tPos> Ident = default!;
+		public tExpressionNode<tPos> Expression = default!;
+		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Obj;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Obj = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMethodCallNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; }
-		public tIdentNode<tPos> Method;
-		public tExpressionNode<tPos> Argument;
-		public tMatchNode<tPos> Result;
+		public tPos Pos { get; set; } = default!;
+		public tIdentNode<tPos> Method = default!;
+		public tExpressionNode<tPos> Argument = default!;
+		public tMatchNode<tPos>? Result;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Object;
-		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Object = default!;
+		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Left;
-		public tExpressionNode<tPos> Right;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Left = default!;
+		public tExpressionNode<tPos> Right = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Left;
-		public tExpressionNode<tPos> Right;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Left = default!;
+		public tExpressionNode<tPos> Right = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTupleNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; }
-		public mVM_Type.tType TypeAnnotation { get; set; }
-		public mStream.tStream<tExpressionNode<tPos>> Items;
+		public tPos Pos { get; set; } = default!;
+		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mStream.tStream<tExpressionNode<tPos>>? Items;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tImportNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; }
-		public tMatchNode<tPos> Match;
+		public tPos Pos { get; set; } = default!;
+		public tMatchNode<tPos> Match = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tExportNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; }
-		public tExpressionNode<tPos> Expression;
+		public tPos Pos { get; set; } = default!;
+		public tExpressionNode<tPos> Expression = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tModuleNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; }
-		public tImportNode<tPos> Import;
-		public tExportNode<tPos> Export;
-		public mStream.tStream<tCommandNode<tPos>> Commands;
+		public tPos Pos { get; set; } = default!;
+		public tImportNode<tPos> Import = default!;
+		public tExportNode<tPos> Export = default!;
+		public mStream.tStream<tCommandNode<tPos>>? Commands;
 	}
 	
 	public static tEmptyNode<tPos>
@@ -521,7 +523,7 @@ mSPO_AST {
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
-		mStream.tStream<tExpressionNode<tPos>> aItems
+		mStream.tStream<tExpressionNode<tPos>>? aItems
 	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
@@ -544,7 +546,7 @@ mSPO_AST {
 	PrefixType<tPos>(
 		tPos aPos,
 		tIdentNode<tPos> aPrefix,
-		mStream.tStream<tTypeNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>>? aTypes
 	) => new tPrefixTypeNode<tPos> {
 		Pos = aPos,
 		Prefix = aPrefix,
@@ -554,7 +556,7 @@ mSPO_AST {
 	public static tTupleTypeNode<tPos>
 	TupleType<tPos>(
 		tPos aPos,
-		mStream.tStream<tTypeNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>>? aTypes
 	) => new tTupleTypeNode<tPos> {
 		Pos = aPos,
 		Expressions = aTypes,
@@ -563,7 +565,7 @@ mSPO_AST {
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
 		tPos aPos,
-		mStream.tStream<tTypeNode<tPos>> aTypes
+		mStream.tStream<tTypeNode<tPos>>? aTypes
 	) => new tSetTypeNode<tPos> {
 		Pos = aPos,
 		Expressions = aTypes
@@ -651,7 +653,7 @@ mSPO_AST {
 	public static tRecordNode<tPos>
 	Record<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems
+		mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? aRecordItems
 	) => new tRecordNode<tPos> {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -660,7 +662,7 @@ mSPO_AST {
 	public static tMatchRecordNode<tPos>
 	MatchRecord<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)> aRecordItems
+		mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? aRecordItems
 	) => new tMatchRecordNode<tPos> {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -685,7 +687,7 @@ mSPO_AST {
 		tExpressionNode<tPos> aBody
 	) => new tLambdaNode<tPos> {
 		Pos = aPos,
-		Generic = aStaticMatch.Else(() => null),
+		Generic = aStaticMatch.Else(() => null!),
 		Head = aMatch,
 		Body = aBody
 	};
@@ -717,7 +719,7 @@ mSPO_AST {
 	public static tRecLambdasNode<tPos>
 	RecLambdas<tPos>(
 		tPos aPos,
-		mStream.tStream<tRecLambdaItemNode<tPos>> aList
+		mStream.tStream<tRecLambdaItemNode<tPos>>? aList
 	) => new tRecLambdasNode<tPos> {
 		Pos = aPos,
 		List = aList
@@ -726,7 +728,7 @@ mSPO_AST {
 	public static tMatchItemNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
-		mStream.tStream<tMatchNode<tPos>> aItems
+		mStream.tStream<tMatchNode<tPos>>? aItems
 	) {
 		switch (aItems.Take(2).ToArrayList().Size()) {
 			case 0: {
@@ -749,7 +751,7 @@ mSPO_AST {
 	Match<tPos>(
 		tPos aPos,
 		tMatchItemNode<tPos> aMatch,
-		tExpressionNode<tPos> aType
+		tExpressionNode<tPos>? aType
 	) => new tMatchNode<tPos> {
 		Pos = aPos,
 		Pattern = aMatch,
@@ -787,7 +789,7 @@ mSPO_AST {
 	public static tIfNode<tPos>
 	If<tPos>(
 		tPos aPos,
-		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
+		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)>? aCases
 	) => new tIfNode<tPos> {
 		Pos = aPos,
 		Cases = aCases
@@ -797,7 +799,7 @@ mSPO_AST {
 	IfMatch<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aExpression,
-		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
+		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)>? aCases
 	) => new tIfMatchNode<tPos> {
 		Pos = aPos,
 		Expression = aExpression,
@@ -809,7 +811,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aVar,
 		tExpressionNode<tPos> aExpression,
-		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
 	) => new tDefVarNode<tPos> {
 		Pos = aPos,
 		Ident = aVar,
@@ -830,7 +832,7 @@ mSPO_AST {
 	MethodCallStatement<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aObject,
-		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
 	) => new tMethodCallsNode<tPos> {
 		Pos = aPos,
 		Object = aObject,
@@ -864,7 +866,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aMethod,
 		tExpressionNode<tPos> aArgument,
-		tMatchNode<tPos> aResult
+		tMatchNode<tPos>? aResult
 	) => new tMethodCallNode<tPos> {
 		Pos = aPos,
 		Method = aMethod,
@@ -875,7 +877,7 @@ mSPO_AST {
 	public static tBlockNode<tPos>
 	Block<tPos>(
 		tPos aPos,
-		mStream.tStream<tCommandNode<tPos>> aCommands
+		mStream.tStream<tCommandNode<tPos>>? aCommands
 	) => new tBlockNode<tPos> {
 		Pos = aPos,
 		Commands = aCommands
@@ -885,7 +887,7 @@ mSPO_AST {
 	Module<tPos>(
 		tPos aPos,
 		tImportNode<tPos> aImport,
-		mStream.tStream<tCommandNode<tPos>> aCommands,
+		mStream.tStream<tCommandNode<tPos>>? aCommands,
 		tExportNode<tPos> aExport
 	) => new tModuleNode<tPos> {
 		Pos = aPos,
@@ -914,13 +916,13 @@ mSPO_AST {
 	
 	public static tBool
 	AreEqual<tPos>(
-		tNode<tPos> a1,
-		tNode<tPos> a2
+		tNode<tPos>? a1,
+		tNode<tPos>? a2
 	) {
 		if (ReferenceEquals(a1, a2)) {
 			return true;
 		}
-		if (a1 is null || a2 is null || !a1.Pos.Equals(a2.Pos)) {
+		if (a1 is null || a2 is null || !Equals(a1.Pos, a2.Pos)) {
 			return false;
 		}
 		
@@ -1196,9 +1198,9 @@ mSPO_AST {
 			// Matches
 			case tMatchNode<t> Node: {
 				if (Node.Type is null) {
-				 return Node.Pattern.ToText(aLimit);
+					return Node.Pattern.ToText(aLimit);
 				} else {
-				 return $"({Node.Pattern.ToText(aLimit)} € {Node.Type.ToText(aLimit)})";
+					return $"({Node.Pattern.ToText(aLimit)} € {Node.Type.ToText(aLimit)})";
 				}
 			}
 			case tIgnoreMatchNode<t> Node: {
@@ -1246,7 +1248,7 @@ mSPO_AST {
 				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .";
 			}
 			case tMethodCallNode<t> Node: {
-				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.ToText(aLimit)}";
+				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result?.ToText(aLimit) ?? "()"}";
 			}
 			case tReturnIfNode<t> Node: {
 				return $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}";

@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿#nullable enable
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;

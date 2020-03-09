@@ -7,6 +7,8 @@
 //IMPORT mMaybe.cs
 //IMPORT mAssert.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -96,7 +98,7 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tPos aPos,
 		tText aReg,
-		mStream.tStream<(tText Ident, tPos Pos)> aSymbols
+		mStream.tStream<(tText Ident, tPos Pos)>? aSymbols
 	) {
 		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
 		switch (aSymbols.Take(2).ToArrayList().Size()) {
@@ -163,13 +165,13 @@ mSPO2IL {
 	FinishMapProc<tPos>(
 		this ref tDefConstructor<tPos> aTempDefConstructor,
 		tPos aPos,
-		mArrayList.tArrayList<(tText Ident, tPos Pos)> aUnsolveSymbols
+		mArrayList.tArrayList<(tText Ident, tPos Pos)> aUnsolvedSymbols
 	) {
 		var Def = mArrayList.Concat(
 			aTempDefConstructor.UnrollList(
 				aPos,
 				mIL_AST.cEnv,
-				aUnsolveSymbols.ToStream()
+				aUnsolvedSymbols.ToStream()
 			),
 			aTempDefConstructor.Commands
 		);
@@ -500,8 +502,8 @@ mSPO2IL {
 					TestDef.Commands.Push(mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, mIL_AST.cTrue));
 					TestDef.FinishMapProc(CasePos, TestDef.UnsolvedSymbols);
 					var TestProc = SwitchDef.InitProc(CasePos, TempDef(TestDef.Index), TestDef.UnsolvedSymbols);
-					var TestResut = SwitchDef.CreateTempReg();
-					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResut, TestProc, mIL_AST.cArg));
+					var TestResult = SwitchDef.CreateTempReg();
+					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResult, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
 					RunDef.MapMatch(Case.Match, mIL_AST.cArg, null);
@@ -512,7 +514,7 @@ mSPO2IL {
 					var CallerArgPair = SwitchDef.CreateTempReg();
 					SwitchDef.Commands.Push(mIL_AST.CreatePair(CasePos, CallerArgPair, RunProc, mIL_AST.cArg));
 					
-					SwitchDef.Commands.Push(mIL_AST.TailCallIf(CasePos, CallerArgPair, TestResut));
+					SwitchDef.Commands.Push(mIL_AST.TailCallIf(CasePos, CallerArgPair, TestResult));
 				}
 				SwitchDef.Commands.Push(mIL_AST.ReturnIf(aExpressionNode.Pos, mIL_AST.cFalse, mIL_AST.cTrue));
 				SwitchDef.FinishMapProc(aExpressionNode.Pos, SwitchDef.UnsolvedSymbols);
@@ -704,7 +706,7 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMatchNode<tPos> aMatchNode,
 		tText aReg,
-		mVM_Type.tType aRegType
+		mVM_Type.tType? aRegType
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.Type;
@@ -773,9 +775,9 @@ mSPO2IL {
 							aDefConstructor.Commands.Push(mIL_AST.GetFirst(Pos, Reg, HeadTailReg));
 						}
 					}
-
+					
 					if (!Found) {
-						throw mError.Error($"{Pos} ERROR: cant't match type '{aRegType}' to type'{RecordNode.TypeAnnotation}'");
+						throw mError.Error($"{Pos} ERROR: can't match type '{aRegType}' to type'{RecordNode.TypeAnnotation}'");
 					}
 				}
 				break;
@@ -1062,7 +1064,12 @@ mSPO2IL {
 			}
 			
 			aDefConstructor.Commands.Push(
-				mIL_AST.CallFunc(RecLambdaItemNode.Pos, RecLambdaItemNode.Ident.Name, TempDef(TempDefConstructor.Index), ArgReg)
+				mIL_AST.CallFunc(
+					RecLambdaItemNode.Pos,
+					RecLambdaItemNode.Ident.Name,
+					TempDef(TempDefConstructor.Index),
+					ArgReg
+				)
 			);
 			
 			aDefConstructor.KnownSymbols.Push(RecLambdaItemNode.Ident.Name);
@@ -1179,7 +1186,10 @@ mSPO2IL {
 			_ => {
 				TempLambdaDef.InitMapLambda(Lambda);
 				if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
-					var First = TempLambdaDef.UnsolvedSymbols.ToStream().Where(_ => !_.Ident.StartsWith("d_")).ForceFirst();
+					var First = TempLambdaDef.UnsolvedSymbols.ToStream(
+					).Where(
+						_ => !_.Ident.StartsWith("d_")
+					).ForceFirst();
 					throw mError.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
 				}
 				

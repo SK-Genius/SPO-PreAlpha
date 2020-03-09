@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mParserGen.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -16,18 +18,12 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mParserGen_Tests {
 	
 	private static readonly mSpan.tSpan<mStd.tEmpty> cTestSpan = default;
 	
-	private static mStream.tStream<(mSpan.tSpan<mStd.tEmpty>, t)>
+	private static mStream.tStream<(mSpan.tSpan<mStd.tEmpty>, t)>?
 	TestStream<t>(
 		params t[] a 
 	) => mStream.Stream(a).Map(_ => (cTestSpan, _));
@@ -40,7 +36,7 @@ mParserGen_Tests {
 		return 0;
 	}
 	
-	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Massage)> cNoError = default;
+	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Massage)>? cNoError = default;
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -311,24 +307,4 @@ mParserGen_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("AtomParser")]
-	[xTestCase("...+...")]
-	[xTestCase("...-...")]
-	[xTestCase("-...")]
-	[xTestCase("...|...")]
-	[xTestCase("...[m, n]")]
-	[xTestCase("...[0, null]")]
-	[xTestCase("...[n, null]")]
-	[xTestCase("....Modify(...=>...)")]
-	[xTestCase("~...")]
-	[xTestCase("Eval('MathExpr')")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

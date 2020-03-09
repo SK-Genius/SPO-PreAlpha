@@ -1,5 +1,7 @@
 ﻿//#define MY_TRACE
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -24,7 +26,7 @@ mPerf {
 	private static tInt32 gStackIndex = 0;
 	
 	private static tInt32 gNextLogIndex = 0;
-	private static readonly (tNat64 Time, tText File, tText Name)[] gLog = new (tNat64, tText, tText)[cMaxLogCount];
+	private static readonly (tNat64 Time, tText? File, tText? Name)[] gLog = new (tNat64, tText?, tText?)[cMaxLogCount];
 	
 	public sealed class
 	tDisposer : System.IDisposable {

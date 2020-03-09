@@ -3,6 +3,8 @@
 //IMPORT mResult.cs
 //IMPORT mAssert.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -18,12 +20,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mResult_Tests {
 	
@@ -39,14 +35,4 @@ mResult_Tests {
 			}
 		)
 	);
-	
-#if NUNIT
-	[xTestCase("tResult.Equals()")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-#endif
 }

@@ -1,5 +1,7 @@
 ﻿//IMPORT mStd.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -17,16 +19,24 @@ using tText = System.String;
 
 public static class
 mError {
-	public sealed class tError<t> : System.Exception {
-		public tError(tText a) : base(a) { }
-		public t Value;
+	public sealed class
+	tError<t> : System.Exception {
+		public readonly t Value;
+		
+		internal
+		tError(
+			tText aMsg,
+			t aValue
+		) : base(aMsg) {
+			this.Value = aValue;
+		}
 	}
 	
 	public static tError<t>
 	Error<t>(
 		tText aMsg,
 		t aData
-	) => new tError<t>(aMsg) { Value = aData };
+	) => new tError<t>(aMsg, aData);
 	
 	public static tError<mStd.tEmpty>
 	Error(

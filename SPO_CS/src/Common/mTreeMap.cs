@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿#nullable enable
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -20,11 +22,11 @@ mTreeMap {
 	public readonly struct
 	tTree<tKey, tValue> {
 		internal readonly mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
-		internal readonly tNode<tKey, tValue> Root;
+		internal readonly tNode<tKey, tValue>? Root;
 		
 		internal tTree(
 			mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
-			tNode<tKey, tValue> aRoot
+			tNode<tKey, tValue>? aRoot
 		) {
 			this.KeyCompare = aKeyCompare;
 			this.Root = aRoot;
@@ -39,16 +41,16 @@ mTreeMap {
 	
 	internal class
 	tNode<tKey, tValue> {
-		internal tKey Key;
-		internal tValue Value;
+		internal tKey Key = default!;
+		internal tValue Value = default!;
 		internal tInt32 Deep;
-		internal tNode<tKey, tValue> SubTree1;
-		internal tNode<tKey, tValue> SubTree2;
+		internal tNode<tKey, tValue>? SubTree1;
+		internal tNode<tKey, tValue>? SubTree2;
 	}
 	
 	internal static tInt32
 	Deep<tKey, tValue>(
-		this tNode<tKey, tValue> a
+		this tNode<tKey, tValue>? a
 	) {
 		return a?.Deep ?? 0;
 	}
@@ -86,7 +88,7 @@ mTreeMap {
 	
 	internal static tNode<tKey, tValue>
 	Add<tKey, tValue>(
-		this tNode<tKey, tValue> aNode,
+		this tNode<tKey, tValue>? aNode,
 		tKey aKey,
 		tValue aValue,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
@@ -136,11 +138,11 @@ mTreeMap {
 	
 	internal static tValue
 	Get<tKey, tValue>(
-		this tNode<tKey, tValue> aNode,
+		this tNode<tKey, tValue>? aNode,
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.IsNotNull(aNode, () => "unknown key: " + aKey);
+		mAssert.IsFalse(aNode is null, () => "unknown key: " + aKey);
 		return aKeyCompare(aKey, aNode.Key) switch {
 			0 => aNode.Value,
 			1 => aNode.SubTree2.Get(aKey, aKeyCompare),
@@ -155,16 +157,16 @@ mTreeMap {
 		tKey aKey
 	) => new tTree<tKey, tValue>(
 		aTree.KeyCompare,
-		aTree.Root.Remove(aKey, aTree.KeyCompare)
+		aTree.Root!.Remove(aKey, aTree.KeyCompare)
 	);
 	
-	internal static tNode<tKey, tValue>
+	internal static tNode<tKey, tValue>?
 	Remove<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.AreNotEquals(aNode, null);
+		mAssert.IsFalse(aNode is null);
 		
 		var SubTree1 = aNode.SubTree1;
 		var SubTree2 = aNode.SubTree2;
@@ -180,18 +182,18 @@ mTreeMap {
 			case 0: {
 				
 				if (SubTree1.Deep() > SubTree2.Deep()) {
-					SubTree1 = SubTree1.RemoveMax(out Key, out Value);
+					SubTree1 = SubTree1!.RemoveMax(out Key, out Value);
 				} else {
-					SubTree2 = SubTree2.RemoveMin(out Key, out Value);
+					SubTree2 = SubTree2!.RemoveMin(out Key, out Value);
 				}
 				break;
 			}
 			case -1: {
-				SubTree1 = aNode.SubTree1.Remove(aKey, aKeyCompare);
+				SubTree1 = aNode.SubTree1!.Remove(aKey, aKeyCompare);
 				break;
 			}
 			case 1: {
-				SubTree2 = aNode.SubTree2.Remove(aKey, aKeyCompare);
+				SubTree2 = aNode.SubTree2!.Remove(aKey, aKeyCompare);
 				break;
 			}
 		}
@@ -199,7 +201,7 @@ mTreeMap {
 		return Node(Key, Value, SubTree1, SubTree2).Balance();
 	}
 	
-	internal static tNode<tKey, tValue>
+	internal static tNode<tKey, tValue>?
 	RemoveMin<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
 		out tKey aKey,
@@ -223,7 +225,7 @@ mTreeMap {
 		}
 	}
 	
-	internal static tNode<tKey, tValue>
+	internal static tNode<tKey, tValue>?
 	RemoveMax<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
 		out tKey aKey,
@@ -252,7 +254,7 @@ mTreeMap {
 		this tNode<tKey, tValue> aNode
 	) {
 		return Node(
-			aNode.SubTree1.Key,
+			aNode.SubTree1!.Key,
 			aNode.SubTree1.Value,
 			aNode.SubTree1.SubTree1,
 			Node(
@@ -269,7 +271,7 @@ mTreeMap {
 		this tNode<tKey, tValue> aNode
 	) {
 		return Node(
-			aNode.SubTree2.Key,
+			aNode.SubTree2!.Key,
 			aNode.SubTree2.Value,
 			Node(
 				aNode.Key,
@@ -293,7 +295,7 @@ mTreeMap {
 		var Result = aNode;
 		switch (mMath.Sign(Diff)) {
 			case -1: {
-				if (Result.SubTree2.SubTree1.Deep() > Result.SubTree2.SubTree2.Deep()) {
+				if (Result.SubTree2!.SubTree1.Deep() > Result.SubTree2.SubTree2.Deep()) {
 					Result = Node(
 						Result.Key,
 						Result.Value,
@@ -305,7 +307,7 @@ mTreeMap {
 				break;
 			}
 			case 1: {
-				if (Result.SubTree1.SubTree2.Deep() > Result.SubTree1.SubTree1.Deep()) {
+				if (Result.SubTree1!.SubTree2.Deep() > Result.SubTree1.SubTree1.Deep()) {
 					Result = Node(
 						Result.Key,
 						Result.Value,
@@ -324,8 +326,8 @@ mTreeMap {
 	Node<tKey, tValue>(
 		tKey aKey,
 		tValue aValue,
-		tNode<tKey, tValue> aSubTree1,
-		tNode<tKey, tValue> aSubTree2
+		tNode<tKey, tValue>? aSubTree1,
+		tNode<tKey, tValue>? aSubTree2
 	) {
 		return new tNode<tKey, tValue> {
 			Key = aKey,
@@ -338,15 +340,15 @@ mTreeMap {
 			),
 		};
 	}
-
-	public static mStream.tStream<(tKey Key, tValue Value)>
+	
+	public static mStream.tStream<(tKey Key, tValue Value)>?
 	ToStream<tKey, tValue>(
 		this tTree<tKey, tValue> a
 	) => a.Root.ToStream();
 	
-	private static mStream.tStream<(tKey Key, tValue Value)>
+	private static mStream.tStream<(tKey Key, tValue Value)>?
 	ToStream<tKey, tValue>(
-		this tNode<tKey, tValue> a
+		this tNode<tKey, tValue>? a
 	) {
 		if (a is null) {
 			return mStream.Stream<(tKey Key, tValue Value)>(); 

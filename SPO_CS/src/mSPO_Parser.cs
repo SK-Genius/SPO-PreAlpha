@@ -3,6 +3,8 @@
 //IMPORT mTokenizer.cs
 //IMPORT mSpan.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -172,7 +174,7 @@ mSPO_Parser {
 	Command = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(Command));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tCommandNode<tSpan>>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tCommandNode<tSpan>>?, tError>
 	Commands = Command[0, null]
 	.SetName(nameof(Commands));
 	
@@ -188,7 +190,7 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild> Childs), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild>? Childs), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -209,7 +211,7 @@ mSPO_Parser {
 		)
 	);
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild> Childs), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdentNode<tSpan> Ident, mStream.tStream<tChild>? Childs), tError>
 	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -225,7 +227,7 @@ mSPO_Parser {
 		.ModifyS(
 			(aSpan, aFirstChild, aFirstIdent, aInfix) => (
 				Ident: mSPO_AST.Ident(aSpan, "..." + aFirstIdent.Text.Substring(1) + aInfix.Ident.Name.Substring(1)),
-				Childs: mStream.Stream(aFirstChild, aInfix.Childs)
+				Childs: mStream.Stream(aFirstChild, aInfix.Childs).MaybeNull()
 			)
 		)
 	);
@@ -253,7 +255,7 @@ mSPO_Parser {
 				.ModifyS(
 					(aSpan, aFirstChild, _, aFirst, aInfix) => (
 						Ident: mSPO_AST.Ident(aSpan, "..." + aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)),
-						Childs: mStream.Stream(aFirstChild, aInfix.Childs)
+						Childs: mStream.Stream(aFirstChild, aInfix.Childs).MaybeNull()
 					)
 				)
 			)
@@ -536,14 +538,14 @@ mSPO_Parser {
 	)
 	.SetName(nameof(MethodCall));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>?, tError>
 	MethodCalls = mParserGen.Seq(
 		MethodCall,
 		((-SpecialToken(",")|-NLs_Token) +MethodCall)[0, null],
 		NLs_Token[0, 1],
 		SpecialToken(".")
 	)
-	.Modify((aFirst, aRest, _, __) => mStream.Stream(aFirst, aRest))
+	.Modify((aFirst, aRest, _, __) => mStream.Stream(aFirst, aRest).MaybeNull())
 	.SetName(nameof(MethodCalls));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefVarNode<tSpan>, tError>

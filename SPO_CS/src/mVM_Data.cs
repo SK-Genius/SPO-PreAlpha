@@ -1,6 +1,8 @@
 ﻿//IMPORT mVM_Type.cs
 //IMPORT mAny.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -130,7 +132,7 @@ mVM_Data {
 		Types = mArrayList.List<mVM_Type.tType>();
 		
 		public tInt32 _LastReg = cResReg;
-
+		
 		public string FirstPosText => "" + this.PosList.ToStream().First()._Value;
 	}
 	
@@ -589,8 +591,8 @@ mVM_Data {
 		
 		override public tBool
 		Equals(
-			object a
-		) => this.Equals((tData)a);
+			object? a
+		) => this.Equals((tData)a!);
 	}
 	
 	private static tData
@@ -632,7 +634,7 @@ mVM_Data {
 		tDataType aType,
 		out t aValue
 	) {
-		aValue = default;
+		aValue = default!;
 		return aData._DataType.Equals(aType) && aData._Value.Match(out aValue);
 	}
 	
@@ -643,16 +645,17 @@ mVM_Data {
 		out t1 aValue1,
 		out t2 aValue2
 	) {
-		aValue1 = default;
-		aValue2 = default;
 		if (
 			aData._DataType.Equals(aType) &&
 			aData._Value.Match(out (t1, t2) Tuple)
 		) {
 			(aValue1, aValue2) = Tuple;
 			return true;
+		} else {
+			aValue1 = default!;
+			aValue2 = default!;
+			return false;
 		}
-		return false;
 	}
 	
 	public static tData
@@ -710,8 +713,7 @@ mVM_Data {
 		out tData a1,
 		out tData a2
 	) {
-		a1 = default;
-		a2 = default;
+		a2 = default!;
 		return (
 			aData.MatchPair(out a1, out var Rest2) &&
 			Rest2.MatchPair(out a2, out var Rest_) &&
@@ -726,9 +728,8 @@ mVM_Data {
 		out tData a2,
 		out tData a3
 	) {
-		a1 = default;
-		a2 = default;
-		a3 = default;
+		a2 = default!;
+		a3 = default!;
 		return (
 			aData.MatchPair(out a1, out var Rest23) &&
 			Rest23.MatchPair(out a2, out var Rest3) &&
@@ -745,10 +746,9 @@ mVM_Data {
 		out tData a3,
 		out tData a4
 	) {
-		a1 = default;
-		a2 = default;
-		a3 = default;
-		a4 = default;
+		a2 = default!;
+		a3 = default!;
+		a4 = default!;
 		return (
 			aData.MatchPair(out a1, out var Rest234) &&
 			Rest234.MatchPair(out a2, out var Rest34) &&
@@ -932,8 +932,6 @@ mVM_Data {
 		this tData a,
 		tInt32 aLimit
 	) {
-		mAssert.AreNotEquals(a, null);
-		
 		if (aLimit == 0) {
 			return "...";
 		}

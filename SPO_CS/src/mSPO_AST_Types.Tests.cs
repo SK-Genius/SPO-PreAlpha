@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mSPO_AST_Types.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -16,12 +18,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mSPO_AST_Types_Tests {
 	
@@ -104,7 +100,7 @@ mSPO_AST_Types_Tests {
 					)
 				);
 				
-				var AST = mSPO_Parser.Expression.ParseText("(#Bla (§DEF a € §BOOL)) => a", "", default);
+				var AST = mSPO_Parser.Expression.ParseText("(#Bla (§DEF a € §BOOL)) => a", "", a => { aDebugStream(a()); });
 				var Type = mSPO_AST_Types.UpdateExpressionTypes(AST, default);
 				mAssert.AreEquals(
 					Type,
@@ -124,18 +120,6 @@ mSPO_AST_Types_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("Literals")]
-	[xTestCase("Tuple")]
-	[xTestCase("Lambda")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 	
 	#endif
 }

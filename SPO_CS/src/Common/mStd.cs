@@ -1,4 +1,8 @@
-﻿using tBool = System.Boolean;
+﻿#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -55,12 +59,18 @@ public static class mStd {
 	
 	public static tBool
 	IsNull(
-		this object a
+		[NotNullWhen(false)] this object? a
 	) => a is null;
 	
-	public struct tLazy<t> {
+	public static t?
+	MaybeNull<t>(
+		this t a
+	) where t : class => a;
+	
+	public struct
+	tLazy<t> {
 		private t _Value;
-		public mStd.tFunc<t> Func { private get; set; }
+		public mStd.tFunc<t>? Func { private get; set; }
 		public t Value {
 			get {
 				if (this.Func is null) {

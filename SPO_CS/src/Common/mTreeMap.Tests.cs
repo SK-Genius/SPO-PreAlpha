@@ -1,4 +1,6 @@
-﻿using tBool = System.Boolean;
+﻿#nullable enable
+
+using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
 using tNat16 = System.UInt16;
@@ -13,17 +15,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mTreeMap_Tests {
 	private static readonly mStd.tFunc<tInt32, tInt32, tInt32>
 	Int32Compare = (a1, a2) => mMath.Sign(a1 - a2);
-
+	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mTokenizer),
@@ -99,13 +95,13 @@ mTreeMap_Tests {
 					mAssert.AreEquals(Tree.ForceGet(8), "_8");
 					mAssert.AreEquals(Tree.ForceGet(9), "_9");
 					mAssert.ThrowsError(() => { Tree.ForceGet(20); });
-
+					
 					Tree = Tree.Remove(3);
 					Tree = Tree.Remove(7);
 					Tree = Tree.Remove(1);
 					Tree = Tree.Remove(9);
 					Tree = Tree.Remove(5);
-
+					
 					mAssert.AreEquals(Tree.ForceGet(0), "_0");
 					mAssert.AreEquals(Tree.ForceGet(2), "_2");
 					mAssert.AreEquals(Tree.ForceGet(4), "_4");
@@ -115,16 +111,4 @@ mTreeMap_Tests {
 			}
 		)
 	);
-
-#if NUNIT
-	[xTestCase("Create")]
-	[xTestCase("Remove")]
-	[xTestCase("Big")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

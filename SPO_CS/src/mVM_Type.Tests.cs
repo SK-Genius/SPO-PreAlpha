@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mVM_Type.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -16,12 +18,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mVM_Type_Tests {
 	
@@ -41,15 +37,4 @@ mVM_Type_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("BoolBool")]
-	[xTestCase("BoolInt")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

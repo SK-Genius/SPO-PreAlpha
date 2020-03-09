@@ -3,17 +3,12 @@
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<OutputType>Exe</OutputType> <!--  Exe | Library | Module | Winexe -->
-		<DefineConstants>noMY_TRACE;noNUNIT</DefineConstants>
+		<DefineConstants>noMY_TRACE</DefineConstants>
 		<NoWarn>659,661</NoWarn>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<!--
-		<PackageReference Include="NUnit" Version="3.11.0" />
-		<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-		-->
-		
 		<TestSrc Include="**\*.Tests.cs" />
 		<Compile Update="@(TestSrc)">
 			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Tests', '')).cs</DependentUpon>

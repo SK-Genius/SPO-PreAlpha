@@ -1,6 +1,8 @@
 ﻿//IMPORT mStd.cs
 //IMPORT mError.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -34,7 +36,7 @@ mMaybe {
 		public static
 		implicit operator tMaybe<t>(
 			mStd.tEmpty _
-		) => new tMaybe<t>(false, default);
+		) => new tMaybe<t>(false, default!);
 		
 		public static
 		implicit operator tMaybe<t>(
@@ -56,7 +58,7 @@ mMaybe {
 			aValue = a._Value;
 			return true;
 		} else {
-			aValue = default;
+			aValue = default!;
 			return false;
 		}
 	}

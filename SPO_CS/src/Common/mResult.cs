@@ -1,6 +1,8 @@
 ﻿//IMPORT mError.cs
 //IMPORT mStd.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -68,7 +70,7 @@ mResult {
 	OK<t>(
 		t a
 	) => new tResultOK<t>(a);
-
+	
 	public static tResultFail<tFail>
 	Fail<tFail>(
 		tFail aError
@@ -77,7 +79,7 @@ mResult {
 	public static tResultFail<mStd.tEmpty>
 	Fail(
 	) => new tResultFail<mStd.tEmpty>(mStd.cEmpty);
-
+	
 	public static tBool
 	Match<t, tFail>(
 		this tResult<t, tFail> a,
@@ -110,8 +112,8 @@ mResult {
 	
 	public static tResult<tOut, tError>
 	WhenAllThen<tIn, tOut, tError>(
-		this mStream.tStream<tResult<tIn, tError>> a,
-		mStd.tFunc<tOut, mStream.tStream<tIn>> aOnSuccseed
+		this mStream.tStream<tResult<tIn, tError>>? a,
+		mStd.tFunc<tOut, mStream.tStream<tIn>?> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>();
 		while (a.Match(out var Head, out a)) {
@@ -121,9 +123,9 @@ mResult {
 				return Fail(Error);
 			}
 		}
-		return OK(aOnSuccseed(List.Reverse()));
+		return OK(aOnSucceed(List.Reverse()));
 	}
-
+	
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,

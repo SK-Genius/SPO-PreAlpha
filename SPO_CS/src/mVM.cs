@@ -2,6 +2,8 @@
 //IMPORT mArrayList.cs
 //IMPORT mPerf.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -22,16 +24,16 @@ mVM {
 	
 	public sealed class
 	tCallStack<tPos> {
-		internal tCallStack<tPos> _Parent;
-		internal mArrayList.tArrayList<mVM_Data.tData> _Regs;
-		internal mVM_Data.tProcDef<tPos> _ProcDef;
+		internal tCallStack<tPos>? _Parent;
+		internal mArrayList.tArrayList<mVM_Data.tData> _Regs = default!;
+		internal mVM_Data.tProcDef<tPos> _ProcDef = default!;
 		internal tInt32 _CodePointer = 0;
-		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut;
+		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut = default!;
 	}
 	
 	public static tCallStack<tPos>
 	NewCallStack<tPos>(
-		tCallStack<tPos> aParent,
+		tCallStack<tPos>? aParent,
 		mVM_Data.tProcDef<tPos> aProcDef,
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
@@ -75,7 +77,7 @@ mVM {
 		return Result;
 	}
 	
-	public static tCallStack<tPos>
+	public static tCallStack<tPos>?
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tText, tPos> aPosToText
@@ -473,7 +475,7 @@ mVM {
 	
 	public static mVM_Data.tData
 	GetModuleFactory<tPos>(
-		mStream.tStream<mVM_Data.tProcDef<tPos>> aDefs
+		mStream.tStream<mVM_Data.tProcDef<tPos>>? aDefs
 	) {
 		var Env = mVM_Data.Empty();
 		mAssert.IsTrue(aDefs.Match(out var LastDef, out aDefs));
@@ -496,8 +498,8 @@ mVM {
 	) {
 		using var _ = mPerf.Measure();
 		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
-			var CallStack = NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
-			while (CallStack != null) {
+			var CallStack = (tCallStack<tPos>?)NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
+			while (!CallStack.IsNull()) {
 				CallStack = CallStack.Step(aPosToText);
 			}
 		} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {

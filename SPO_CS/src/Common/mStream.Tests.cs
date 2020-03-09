@@ -2,6 +2,8 @@
 //IMPORT mStream.cs
 //IMPORT mAssert.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -17,12 +19,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mStream_Tests {
 	
@@ -150,24 +146,4 @@ mStream_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("tStream.Equals()")]
-	[xTestCase("Concat()")]
-	[xTestCase("Map()")]
-	[xTestCase("MapWithIndex()")]
-	[xTestCase("Reduce()")]
-	[xTestCase("Join()")]
-	[xTestCase("Take()")]
-	[xTestCase("Skip()")]
-	[xTestCase("IsEmpty()")]
-	[xTestCase("Any()")]
-	[xTestCase("Every()")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

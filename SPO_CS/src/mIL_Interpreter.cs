@@ -4,6 +4,8 @@
 //IMPORT mVM.cs
 //IMPORT mPerf.cs
 
+#nullable enable
+
 //#define MY_TRACE
 
 using tBool = System.Boolean;
@@ -25,11 +27,11 @@ public static class
 mIL_Interpreter<tPos> {
 	
 	public static (
-		mStream.tStream<mVM_Data.tProcDef<tPos>>,
+		mStream.tStream<mVM_Data.tProcDef<tPos>>?,
 		mTreeMap.tTree<tText, tInt32>
 	)
 	ParseModule(
-		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		using var _ = mPerf.Measure();
@@ -47,16 +49,20 @@ mIL_Interpreter<tPos> {
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			
-			DefType.MatchProc(out var NullType, out var DefEnvType, out var DefProcType);
+			if (!DefType.MatchProc(out var NullType, out var DefEnvType, out var DefProcType)) {
+				throw mError.Error("impossible");
+			}
 			mAssert.AreEquals(NullType.Kind, mVM_Type.tKind.Empty);
-			DefProcType.MatchProc(out var DefObjType, out var DefArgType, out var DefResType);
+			if (!DefProcType.MatchProc(out var DefObjType, out var DefArgType, out var DefResType)) {
+				throw mError.Error("impossible");
+			}
 			
 			mAssert.IsTrue(
 				mVM_Type.Unify(
 					NewProc.DefType,
 					mVM_Type.Proc(
 						mVM_Type.Empty(),
-						DefEnvType,
+						DefEnvType!,
 						mVM_Type.Proc(
 							DefObjType,
 							DefArgType,
@@ -142,7 +148,7 @@ mIL_Interpreter<tPos> {
 				} else if (Command.Match(mIL_AST.tCommandNodeType.Int, out Span, out RegId1, out RegId2)) {
 				//--------------------------------------------------------------------------------
 					var ResType = mVM_Type.Int();
-					Regs = Regs.Set(RegId1, NewProc.Int(Span, int.Parse(RegId2)));
+					Regs = Regs.Set(RegId1, NewProc.Int(Span, tInt32.Parse(RegId2!)));
 					Types.Push(ResType);
 				//--------------------------------------------------------------------------------
 				} else if (Command.Match(mIL_AST.tCommandNodeType.IsBool, out Span, out RegId1, out RegId2)) {
@@ -604,8 +610,8 @@ mIL_Interpreter<tPos> {
 	
 	public static void
 	PrintILModule(
-		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
-		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
+		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
+		mStream.tStream<mVM_Data.tProcDef<tPos>>? aModule,
 		mStd.tAction<tText> aTrace
 	) {
 		var RestDefsModules = mStream.Zip(aDefs, aModule);
@@ -634,7 +640,7 @@ mIL_Interpreter<tPos> {
 	
 	public static mVM_Data.tData
 	Run(
-		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
@@ -642,7 +648,7 @@ mIL_Interpreter<tPos> {
 	
 	public static mVM_Data.tData
 	Run(
-		(mStream.tStream<mVM_Data.tProcDef<tPos>>, mTreeMap.tTree<tText, tInt32>) aModule,
+		(mStream.tStream<mVM_Data.tProcDef<tPos>>?, mTreeMap.tTree<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
@@ -657,7 +663,7 @@ mIL_Interpreter<tPos> {
 				break;
 			}
 			case 1: {
-				DefTuple = mVM_Data.Def(Defs.ForceFirst());
+				DefTuple = mVM_Data.Def(Defs!.ForceFirst());
 				break;
 			}
 			default: {
@@ -670,7 +676,7 @@ mIL_Interpreter<tPos> {
 				break;
 			}
 		}
-		var InitProc = VMModule.ForceFirst();
+		var InitProc = VMModule!.ForceFirst();
 		
 		#if MY_TRACE
 			var TraceOut = aDebugStream;

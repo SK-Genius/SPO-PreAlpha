@@ -2,6 +2,10 @@
 //IMPORT mArrayList.cs
 //IMPORT mDebug.cs
 
+#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -45,15 +49,15 @@ mVM_Type {
 	public class
 	tType {
 		public tKind Kind;
-		public tText Id;
-		public tText Prefix;
+		public tText? Id;
+		public tText? Prefix;
 		public tType[] Refs = new tType[0];
 		
 		public override bool
 		Equals(
-			object a
+			object? a
 		) {
-			return this == (a as tType);
+			return this == ((tType)a!);
 		}
 		
 		public static tBool operator!=(
@@ -96,8 +100,8 @@ mVM_Type {
 			return true;
 		}
 	}
-		
-	public static readonly tText cUnknownPrefix = null; // TODO
+	
+	public static readonly tText? cUnknownPrefix = null; // TODO
 	
 	private static int NextPlaceholderId = 1; // TODO: remove static var
 	
@@ -124,7 +128,7 @@ mVM_Type {
 	public static tBool
 	MatchFree(
 		this tType aType,
-		out tText aId
+		[NotNullWhen(true)]out tText? aId
 	) {
 		if (aType.Kind == tKind.Free) {
 			aId = aType.Id;
@@ -182,16 +186,16 @@ mVM_Type {
 	
 	public static tType
 	Type(
-		tType aType
+		tType? aType
 	) => new tType {
 		Kind = tKind.Type,
-		Refs = new []{ aType }
+		Refs = aType is null ? new tType[0] : new []{ aType }
 	};
 	
 	public static tBool
 	MatchType(
 		this tType aType,
-		out tType aValue
+		[NotNullWhen(true)] out tType? aValue
 	) {
 		if (aType.Kind == tKind.Bool) {
 			aValue = (aType.Refs.Length > 0) ? aType.Refs[0] : default;
@@ -222,8 +226,8 @@ mVM_Type {
 	public static tBool
 	MatchPair(
 		this tType aType,
-		out tType aType1,
-		out tType aType2
+		[NotNullWhen(true)]out tType? aType1,
+		[NotNullWhen(true)]out tType? aType2
 	) {
 		if (aType.Kind == tKind.Pair) {
 			aType1 = aType.Refs[0];
@@ -238,7 +242,7 @@ mVM_Type {
 	
 	public static tType
 	Tuple(
-		mStream.tStream<tType> aTypes
+		mStream.tStream<tType>? aTypes
 	) => aTypes.Reduce(Empty(), (aTail, aHead) => Pair(aHead, aTail));
 	
 	public static tType
@@ -259,8 +263,8 @@ mVM_Type {
 	public static tBool
 	MatchPrefix(
 		this tType aType,
-		out tText aPrefix,
-		out tType aTypeOut
+		[NotNullWhen(true)] out tText? aPrefix,
+		[NotNullWhen(true)] out tType? aTypeOut
 	) {
 		if (aType.Kind == tKind.Prefix) {
 			aPrefix = aType.Prefix;
@@ -277,7 +281,7 @@ mVM_Type {
 	MatchPrefix(
 		this tType aType,
 		tText aPrefix,
-		out tType aTypeOut
+		[NotNullWhen(true)] out tType? aTypeOut
 	) => aType.MatchPrefix(out var Prefix, out aTypeOut) && Prefix == aPrefix;
 	
 	public static tType
@@ -287,7 +291,7 @@ mVM_Type {
 	) {
 		mAssert.IsIn(aTailType.Kind, tKind.Record, tKind.Empty);
 		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
-		AssertNotIn(aHeadType.Prefix, aTailType);
+		AssertNotIn(aHeadType.Prefix!, aTailType);
 		
 		return new tType {
 			Kind = tKind.Record,
@@ -307,9 +311,9 @@ mVM_Type {
 	public static tBool
 	MatchRecord(
 		this tType aType,
-		out tText aHeadKey,
-		out tType aHeadType,
-		out tType aTailRecord
+		[NotNullWhen(true)] out tText? aHeadKey,
+		[NotNullWhen(true)] out tType? aHeadType,
+		[NotNullWhen(true)] out tType? aTailRecord
 	) {
 		if (aType.Kind == tKind.Record) {
 			mAssert.IsTrue(aType.Refs[1].MatchPrefix(out aHeadKey, out aHeadType));
@@ -336,9 +340,9 @@ mVM_Type {
 	public static tBool
 	MatchProc(
 		this tType aType,
-		out tType aObjType,
-		out tType aArgType,
-		out tType aResType
+		[NotNullWhen(true)] out tType? aObjType,
+		[NotNullWhen(true)] out tType? aArgType,
+		[NotNullWhen(true)] out tType? aResType
 	) {
 		if (aType.Kind == tKind.Proc) {
 			aObjType = aType.Refs[0];
@@ -379,7 +383,7 @@ mVM_Type {
 	public static tBool
 	MatchRef(
 		this tType aType,
-		out tType aOutType
+		[NotNullWhen(true)] out tType? aOutType
 	) {
 		if (aType.Kind == tKind.Ref) {
 			aOutType = aType.Refs[0];
@@ -401,7 +405,7 @@ mVM_Type {
 	public static tBool
 	MatchVar(
 		this tType aType,
-		out tType aOutType
+		[NotNullWhen(true)] out tType? aOutType
 	) {
 		if (aType.Kind == tKind.Var) {
 			aOutType = aType.Refs[0];
@@ -424,8 +428,8 @@ mVM_Type {
 	public static tBool
 	MatchSet(
 		this tType aType,
-		out tType aType1,
-		out tType aType2
+		[NotNullWhen(true)] out tType? aType1,
+		[NotNullWhen(true)] out tType? aType2
 	) {
 		if (aType.Kind == tKind.Set) {
 			aType1 = aType.Refs[0];
@@ -503,8 +507,8 @@ mVM_Type {
 	public static tBool
 	MatchInterface(
 		this tType aType,
-		out tType aHeadType,
-		out tType aBodyType
+		[NotNullWhen(true)] out tType? aHeadType,
+		[NotNullWhen(true)] out tType? aBodyType
 		// aCond
 	) {
 		if (aType.Kind == tKind.Interface) {
@@ -530,8 +534,8 @@ mVM_Type {
 	public static tBool
 	MatchGeneric(
 		this tType aType,
-		out tType aHeadType,
-		out tType aBodyType
+		[NotNullWhen(true)] out tType? aHeadType,
+		[NotNullWhen(true)] out tType? aBodyType
 		// aCond
 	) {
 		if (aType.Kind == tKind.Generic ) {

@@ -1,6 +1,8 @@
 ﻿//IMPORT mStream.cs
 //IMPORT mDebug.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -21,11 +23,11 @@ mMap {
 	
 	public readonly struct
 	tMap<tKey, tValue> {
-		internal readonly mStream.tStream<(tKey, tValue)> _KeyValuePairs;
+		internal readonly mStream.tStream<(tKey, tValue)>? _KeyValuePairs;
 		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 		
 		internal tMap(
-			mStream.tStream<(tKey, tValue)> aKeyValuePairs,
+			mStream.tStream<(tKey, tValue)>? aKeyValuePairs,
 			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 		) {
 			_KeyValuePairs = aKeyValuePairs;
@@ -60,7 +62,7 @@ mMap {
 	ForceGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	) => aMap.Get(aKey).ElseThrow("imposible");
+	) => aMap.Get(aKey).ElseThrow("impossible");
 	
 	public static tMap<tKey, tValue>
 	Remove<tKey, tValue>(

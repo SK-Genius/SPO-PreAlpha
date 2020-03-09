@@ -3,6 +3,8 @@
 //IMPORT mSPO2IL.cs
 //IMPORT mSpan.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;

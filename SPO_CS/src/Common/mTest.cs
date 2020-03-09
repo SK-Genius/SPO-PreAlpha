@@ -1,5 +1,7 @@
 ﻿//IMPORT mStream.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -69,7 +71,7 @@ mTest {
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<tText> aFilters
+		mStream.tStream<tText>? aFilters
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -111,7 +113,7 @@ mTest {
 						return (tResult.OK, 0, 0, 1);
 					} catch (System.Exception Exception) {
 						LineByLine(aDebugStream.AddPrefix(cTab))(Exception.Message);
-						LineByLine(aDebugStream.AddPrefix(cTab + cTab))(Exception.StackTrace);
+						LineByLine(aDebugStream.AddPrefix(cTab + cTab))(Exception.StackTrace!);
 						aDebugStream("> Fail");
 						aDebugStream("");
 						return (tResult.Fail, 1, 0, 0);

@@ -4,6 +4,8 @@
 //IMPORT mIL_Parser.cs
 //IMPORT mSpan.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -22,28 +24,23 @@ using tText = System.String;
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mIL_Interpreter_Tests {
 	
 	private static tText
 	SpanToText(
 		tSpan a
-	) {
-		return $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
-	}
+	) => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	
-	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>, mTreeMap.tTree<tText, tInt32>)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>?, mTreeMap.tTree<tText, tInt32>)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_Interpreter<tSpan>.ParseModule(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aTrace);
+	) => mIL_Interpreter<tSpan>.ParseModule(
+		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
+		aTrace
+	);
 	
 	public static mVM_Data.tData
 	Run(
@@ -51,7 +48,12 @@ mIL_Interpreter_Tests {
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_Interpreter<tSpan>.Run(mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace), aImport, SpanToText, aTrace);
+	) => mIL_Interpreter<tSpan>.Run(
+		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
+		aImport,
+		SpanToText,
+		aTrace
+	);
 	
 	private static mVM_Data.tData
 	Add (
@@ -207,7 +209,7 @@ mIL_Interpreter_Tests {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var CallStack = mVM.NewCallStack(
+				var CallStack = (mVM.tCallStack<tSpan>?)mVM.NewCallStack(
 					null,
 					Proc,
 					Env,
@@ -216,7 +218,7 @@ mIL_Interpreter_Tests {
 					Res,
 					TraceOut
 				);
-				while (CallStack != null) {
+				while (!CallStack.IsNull()) {
 					CallStack = CallStack.Step(a => ""+a);
 				}
 				mAssert.AreEquals(Res, mVM_Data.Bool(true));
@@ -392,17 +394,4 @@ mIL_Interpreter_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("Call")]
-	[xTestCase("Prefix")]
-	[xTestCase("Assert")]
-	[xTestCase("ParseModule")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

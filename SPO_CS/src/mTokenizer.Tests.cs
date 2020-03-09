@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mTokenizer.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;

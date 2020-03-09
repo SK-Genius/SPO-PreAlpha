@@ -1,6 +1,8 @@
 ﻿//IMPORT mDebug.cs
 //IMPORT mMaybe.cs
 
+#nullable enable
+
 //#define MY_TRACE
 
 using tBool = System.Boolean;
@@ -98,8 +100,8 @@ mIL_AST {
 		public tCommandNodeType NodeType;
 		public tPos Pos;
 		public tText _1;
-		public tText _2;
-		public tText _3;
+		public tText? _2;
+		public tText? _3;
 	}
 	
 	public static mMaybe.tMaybe<tText>
@@ -112,12 +114,6 @@ mIL_AST {
 			return mStd.cEmpty;
 		}
 	}
-	
-	public static tCommandNode<tPos>
-	CommandNode<tPos>(
-		tCommandNodeType aNodeType,
-		tPos aPos
-	) => _CommandNode(aNodeType, aPos, null, null, null);
 	
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
@@ -166,8 +162,8 @@ mIL_AST {
 		tCommandNodeType aNodeType,
 		tPos aPos,
 		tText a1,
-		tText a2,
-		tText a3
+		tText? a2,
+		tText? a3
 	) => new tCommandNode<tPos>{
 		NodeType = aNodeType,
 		Pos = aPos,
@@ -175,21 +171,6 @@ mIL_AST {
 		_2 = a2,
 		_3 = a3
 	};
-	
-	public static tBool
-	Match<tPos>(
-		this tCommandNode<tPos> aNode,
-		tCommandNodeType aNodeType,
-		out tPos aPos
-	) {
-		if (aNode.Match(aNodeType, out aPos, out var Id1, out var Id2, out var Id3)) {
-			mAssert.IsNull(Id1);
-			mAssert.IsNull(Id2);
-			mAssert.IsNull(Id3);
-			return true;
-		}
-		return false;
-	}
 	
 	public static tBool
 	Match<tPos>(
@@ -233,13 +214,13 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2;
-			aId3 = aNode._3;
+			aId2 = aNode._2!;
+			aId3 = aNode._3!;
 			return true;
 		}
-		aId1 = null;
-		aId2 = null;
-		aId3 = null;
+		aId1 = default!;
+		aId2 = default!;
+		aId3 = default!;
 		return false;
 	}
 	

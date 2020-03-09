@@ -2,6 +2,8 @@
 //IMPORT mTextStream.cs
 //IMPORT mSpan.cs
 
+#nullable enable
+
 // TODO: create a function how generate a call stack output
 
 using tBool = System.Boolean;

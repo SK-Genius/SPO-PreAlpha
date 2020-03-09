@@ -1,5 +1,7 @@
 ﻿//IMPORT mError.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -21,9 +23,9 @@ mAny {
 		
 		public readonly struct
 		tAny {
-			internal readonly object _Value;
+			internal readonly object? _Value;
 			
-			internal tAny(object aValue) {
+			internal tAny(object? aValue) {
 				_Value = aValue;
 			}
 			
@@ -37,7 +39,7 @@ mAny {
 			
 			override public tBool
 			Equals(
-				object a
+				object? a
 			) => (a is tAny X) && this.Equals(X);
 		}
 		
@@ -56,12 +58,13 @@ mAny {
 				throw mError.Error("");
 			}
 #endif
+			mAssert.IsNotNull(a._Value);
 			
-			if (a._Value is null || a._Value is t) {
+			if (a._Value is t) {
 				aValue = (t)a._Value;
 				return true;
 			} else {
-				aValue = default;
+				aValue = default!;
 				return false;
 			}
 		}

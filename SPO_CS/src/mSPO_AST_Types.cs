@@ -3,6 +3,8 @@
 //IMPORT mSPO_AST.cs
 //IMPORT mResult.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -30,7 +32,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, tText>
 	UpdateExpressionTypes<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aNode,
-		mStream.tStream<(tText Ident, mVM_Type.tType Type)> aScope
+		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aScope
 	) {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		switch (aNode) {
@@ -126,7 +128,8 @@ mSPO_AST_Types {
 					if (UpdateCommandTypes(Command, BlockScope).Match(out BlockScope, out var Error)) {
 						if (Command is mSPO_AST.tReturnIfNode<tPos> ReturnIf) {
 							var Type = ReturnIf.Result.TypeAnnotation;
-							if (Types.All(_ => !_.Equals(Type))) {
+							mAssert.IsFalse(Type is null);
+							if (Types.All(_ => !Equals(_, Type))) {
 								Types = mStream.Stream(Type, Types);
 							}
 						}
@@ -134,7 +137,7 @@ mSPO_AST_Types {
 						return mResult.Fail(Error);
 					}
 				}
-				Result = mResult.OK(Types.Join((a1, a2) => mVM_Type.Set(a2, a1), default));
+				Result = mResult.OK(Types.Join((a1, a2) => mVM_Type.Set(a2, a1), mVM_Type.Empty()));
 				break;
 			}
 			case mSPO_AST.tCallNode<tPos> Call: {
@@ -205,10 +208,10 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, tText>
 	UpdateMatchTypes<tPos>(
 		mSPO_AST.tMatchItemNode<tPos> aMatch,
-		mVM_Type.tType aType,
+		mVM_Type.tType? aType,
 		tTypeRelation aTypeRelation,
-		mStream.tStream<(tText Ident, mVM_Type.tType Type)> aScope,
-		out mStream.tStream<(tText Ident, mVM_Type.tType Type)> aNewScope
+		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aScope,
+		out mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aNewScope
 	) {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		switch (aMatch) {
@@ -236,9 +239,9 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
-				var SubType = (mVM_Type.tType)null;
-				if (aType != null) {
-					var Prefix = (tText)null;
+				var SubType = (mVM_Type.tType?)null;
+				if (!(aType is null)) {
+					var Prefix = (tText?)null;
 					while (aType.MatchSet(out var Type, out var Types)) {
 						if (Type.MatchPrefix(out Prefix, out SubType) && Prefix == MatchPrefix.Prefix) {
 							aType = Type;
@@ -287,15 +290,15 @@ mSPO_AST_Types {
 				Result = mResult.OK(mVM_Type.Empty());
 				aNewScope = aScope;
 				while (Tail.Match(out var Head, out Tail)) {
-					var Type = (mVM_Type.tType)null;
-					if (aType != null) { 
+					var Type = (mVM_Type.tType?)null;
+					if (!(aType is null)) { 
 						var RecordType = aType;
-						while (RecordType.MatchRecord(out var Key, out Type, out RecordType)) {
+						while (RecordType.MatchRecord(out var Key, out Type, out RecordType!)) {
 							if (Key == Head.Key.Name) {
 								break;
 							}
 						}
-						mAssert.IsNotNull(Type);
+						mAssert.IsFalse(Type is null);
 					}
 					
 					Result = UpdateMatchTypes(Head.Match, Type, aTypeRelation, aNewScope, out aNewScope).Then(
@@ -326,12 +329,12 @@ mSPO_AST_Types {
 		return Result.ThenDo(_ => { aMatch.TypeAnnotation = _; });
 	}
 	
-	public static mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>, tText>
+	public static mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>?, tText>
 	UpdateCommandTypes<tPos>(
 		mSPO_AST.tCommandNode<tPos> aCommand,
-		mStream.tStream<(tText Ident, mVM_Type.tType Type)> aScope
+		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aScope
 	) {
-		mStream.tStream<(tText Ident, mVM_Type.tType Type)> NewScope;
+		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? NewScope;
 		
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
@@ -423,7 +426,7 @@ mSPO_AST_Types {
 									}
 								).Match(out _, out var Error)
 							) {
-								return (mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>, tText>)mResult.Fail(Error);
+								return (mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>?, tText>)mResult.Fail(Error);
 							}
 						}
 						return mResult.OK(NewScope);
@@ -434,7 +437,7 @@ mSPO_AST_Types {
 				return UpdateExpressionTypes(DefVar.Expression, aScope).ThenTry(
 					aValueType => UpdateCommandTypes(
 						mSPO_AST.MethodCallStatement(
-							default,
+							DefVar.Pos,
 							DefVar.Expression,
 							DefVar.MethodCalls
 						),
@@ -498,7 +501,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, tText>
 	ResolveTypeExpression<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aExpression,
-		mStream.tStream<(tText Ident, mVM_Type.tType Type)> aScope
+		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aScope
 	) {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		switch (aExpression) {
@@ -566,7 +569,7 @@ mSPO_AST_Types {
 						mStream.Stream<mVM_Type.tType>(),
 						(aList, aItem) => aList.All(a => a != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Reduce(
-						(mVM_Type.tType)null,
+						(mVM_Type.tType?)null,
 						(aSet, aItem) => mVM_Type.Set(aItem, aSet)
 					)
 				);

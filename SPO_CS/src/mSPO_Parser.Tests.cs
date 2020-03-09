@@ -1,6 +1,8 @@
 ﻿//IMPORT mTest.cs
 //IMPORT mSPO_Parser.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -19,12 +21,6 @@ using tText = System.String;
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mSPO_Parser_Tests {
 	
@@ -459,24 +455,4 @@ mSPO_Parser_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("Atoms")]
-	[xTestCase("Tuple")]
-	[xTestCase("Match1")]
-	[xTestCase("FunctionCall")]
-	[xTestCase("Lambda")]
-	[xTestCase("Expression")]
-	[xTestCase("TypedMatch")]
-	[xTestCase("NestedMatch")]
-	[xTestCase("PrefixMatch")]
-	[xTestCase("MethodCall")]
-	[xTestCase("Record")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

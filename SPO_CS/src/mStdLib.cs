@@ -3,6 +3,8 @@
 //IMPORT mIL_Parser.cs
 //IMPORT mIL_Interpreter.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -21,7 +23,7 @@ using tText = System.String;
 public static class
 mStdLib {
 	
-	private static mVM_Data.tData _ImportData;
+	private static mVM_Data.tData? _ImportData;
 	
 	public static mVM_Data.tData
 	GetImportData(

@@ -1,6 +1,10 @@
 ﻿//IMPORT mStd.cs
 //IMPORT mError.cs
 
+#nullable enable
+
+using System.Diagnostics.CodeAnalysis;
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -23,8 +27,8 @@ mAssert {
 	
 	public static void
 	IsTrue(
-		tBool a,
-		mStd.tFunc<tText> aMsg = null
+		[DoesNotReturnIf(false)]tBool a,
+		mStd.tFunc<tText>? aMsg = null
 	) {
 		if (!a) {
 			throw mError.Error(cErrorPrefix+(aMsg?.Invoke() ?? "is not true"));
@@ -33,17 +37,18 @@ mAssert {
 	
 	public static void
 	IsFalse(
-		tBool a
+		[DoesNotReturnIf(true)]tBool a,
+		mStd.tFunc<tText>? aMsg = null
 	) {
-		AreEquals(a, false);
+		IsTrue(!a, aMsg);
 	}
 	
 	public static void
 	AreEquals<t>(
 		t a1,
 		t a2,
-		mStd.tFunc<tBool, t, t> aAreEqual = null,
-		mStd.tFunc<tText, t> aToText = null
+		mStd.tFunc<tBool, t, t>? aAreEqual = null,
+		mStd.tFunc<tText, t>? aToText = null
 	) {
 		if (
 			ReferenceEquals(a1, a2) ||
@@ -60,12 +65,12 @@ mAssert {
 				Text1 = AsJSON(a1);
 				Text2 = AsJSON(a2);
 			} catch {
-				Text1 = a1.ToString();
-				Text2 = a2.ToString();
+				Text1 = a1?.ToString() ?? "null";
+				Text2 = a2?.ToString() ?? "null";
 			}
 #else
-			Text1 = a1.ToString();
-			Text2 = a2.ToString();
+			Text1 = a1?.ToString() ?? "null";
+			Text2 = a2?.ToString() ?? "null";
 #endif
 		} else {
 			Text1 = aToText(a1);
@@ -89,7 +94,7 @@ mAssert {
 		t a1,
 		t a2
 	) {
-		if (a1.Equals(a2)) {
+		if (Equals(a1, a2)) {
 			throw mError.Error(cErrorPrefix + $"{a1} == {a2}");
 		}
 	}
@@ -97,7 +102,7 @@ mAssert {
 	public static t
 	IsNull<t>(
 		t a,
-		mStd.tFunc<tText> aMsg = null
+		mStd.tFunc<tText>? aMsg = null
 	) {
 		if (!ReferenceEquals(a, null)) {
 			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is not null"));
@@ -108,7 +113,7 @@ mAssert {
 	public static t
 	IsNotNull<t>(
 		t a,
-		mStd.tFunc<tText> aMsg = null
+		mStd.tFunc<tText>? aMsg = null
 	) {
 		if (ReferenceEquals(a, null)) {
 			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is null"));
@@ -122,7 +127,7 @@ mAssert {
 		params t[] a2
 	) {
 		foreach (var Element in a2) {
-			if (a1.Equals(Element)) {
+			if (Equals(a1, Element)) {
 				return;
 			}
 		}
@@ -135,7 +140,7 @@ mAssert {
 		params t[] a2
 	) {
 		foreach (var Element in a2) {
-			if (a1.Equals(Element)) {
+			if (Equals(a1, Element)) {
 				throw mError.Error(cErrorPrefix + $"{a1} not in {a2}");
 			}
 		}

@@ -16,6 +16,8 @@
 //IMPORT mVM.Tests.cs
 //IMPORT mVM_Type.Tests.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;

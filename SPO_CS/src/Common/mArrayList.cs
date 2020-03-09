@@ -2,6 +2,8 @@
 //IMPORT mMath.cs
 //IMPORT mDebug.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -25,7 +27,7 @@ mArrayList {
 	public sealed class
 	tArrayList<t> {
 		internal tInt32 _CurrSize;
-		internal t[] _Items;
+		internal t[] _Items = System.Array.Empty<t>();
 		
 		public tBool 
 		Equals(
@@ -36,7 +38,7 @@ mArrayList {
 			}
 			
 			for (var Index = 0; Index < this._CurrSize; Index += 1) {
-				if (!this._Items[Index].Equals(a._Items[Index])) {
+				if (!object.Equals(this._Items[Index], a._Items[Index])) {
 					return false;
 				}
 			}
@@ -45,8 +47,8 @@ mArrayList {
 		
 		override public tBool
 		Equals(
-			object a
-		) => this.Equals((tArrayList<t>)a);
+			object? a
+		) => this.Equals((tArrayList<t>)a!);
 	}
 	
 	public static tArrayList<t>
@@ -153,7 +155,7 @@ mArrayList {
 		};
 	}
 	
-	public static mStream.tStream<t>
+	public static mStream.tStream<t>?
 	ToLasyList<t>(
 		this tArrayList<t> aList,
 		tInt32 aStartIndex
@@ -166,14 +168,14 @@ mArrayList {
 		)
 	);
 	
-	public static mStream.tStream<t>
+	public static mStream.tStream<t>?
 	ToStream<t>(
 		this tArrayList<t> aList
 	) => aList.ToLasyList(0);
 	
 	public static tArrayList<t>
 	ToArrayList<t>(
-		this mStream.tStream<t> aList
+		this mStream.tStream<t>? aList
 	) => aList.Reduce(List<t>(), Push);
 	
 	public static t[]

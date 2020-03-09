@@ -1,6 +1,8 @@
 ﻿//IMPORT mTokenizer.cs
 //IMPORT mIL_AST.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -288,11 +290,11 @@ mIL_Parser {
 	)
 	.SetDebugName(nameof(Command));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
 	Block = (Command +-NL)[1, null]
 	.SetDebugName(nameof(Block));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, (tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>), tError>
+	public static readonly mParserGen.tParser<tPos, tToken, (tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?), tError>
 	Def = mParserGen.Seq(KeyWord("DEF"), Ident, NL, Block)
 	.Modify(
 		(_, aID, __, aBlock) => (
@@ -311,7 +313,7 @@ mIL_Parser {
 	)
 	.SetDebugName(nameof(Def));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>)>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?)>?, tError>
 	Module = Def[1, null]
 	.SetDebugName(nameof(Module));
 }

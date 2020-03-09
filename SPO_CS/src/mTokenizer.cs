@@ -2,6 +2,8 @@
 //IMPORT mError.cs
 //IMPORT mAssert.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -33,7 +35,7 @@ mTokenizer {
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, tError>, tText> Text = mTextParser.GetToken;
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
-	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>, tError> __ = _[0, null];
+	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>?, tError> __ = _[0, null];
 	
 	public static readonly tText SpazialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
@@ -131,7 +133,7 @@ mTokenizer {
 		.SetName(nameof(tTokenType.SpecialToken))
 	);
 	
-	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>, tError>
+	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>?, tError>
 	Tokenizer = (Token +-__)[0, null];
 	
 	public static tOut

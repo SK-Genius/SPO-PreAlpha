@@ -1,5 +1,7 @@
 ﻿//IMPORT mStream.cs
 
+#nullable enable
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -67,7 +69,7 @@ mTextStream {
 	
 	public static tText
 	ToText(
-		this mStream.tStream<(tPos Pos, tError Massage)> aErrors,
+		this mStream.tStream<(tPos Pos, tError Massage)>? aErrors,
 		tText[] aSrcLines
 	) => aErrors.Reverse(
 	).Map(
@@ -77,7 +79,7 @@ mTextStream {
 		(a1, a2) => a1 + "\n" + a2
 	);
 	
-	public static mStream.tStream<(tPos Pos, tChar Char)>
+	public static mStream.tStream<(tPos Pos, tChar Char)>?
 	ToStream(
 		this tText aText,
 		tText aIdent
