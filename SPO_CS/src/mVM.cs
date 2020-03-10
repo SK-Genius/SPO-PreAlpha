@@ -385,7 +385,7 @@ mVM {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).MatchBool(out var Cond));
 				if (Cond) {
 					var Src = aCallStack._Regs.Get(Arg2);
-					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
+					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Src._DataType;
 					Des._Value = Src._Value;
 					aCallStack._TraceOut(() => "====================================");
@@ -407,10 +407,10 @@ mVM {
 						mVM_Data.TypeBool(),
 						mVM_Data.TypeInt(),
 						mVM_Data.TypeType(),
-						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cEnvReg),
-						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cObjReg),
+						aCallStack._Regs.Get(mVM_Data.cEnvReg),
+						aCallStack._Regs.Get(mVM_Data.cObjReg),
 						aCallStack._Regs.Get(Arg2),
-						aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg)
+						aCallStack._Regs.Get(mVM_Data.cResReg)
 					);
 					aCallStack._CodePointer = 0;
 				}
@@ -437,13 +437,13 @@ mVM {
 							Env,
 							mVM_Data.Empty(),
 							Arg,
-							aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg),
+							aCallStack._Regs.Get(mVM_Data.cResReg),
 							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
 						);
 					} else {
 						throw mError.Error("impossible");
 					}
-					var Des = aCallStack._Regs.Get(mVM_Data.tProcDef<tPos>.cResReg);
+					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
 					aCallStack._TraceOut(() => "====================================");

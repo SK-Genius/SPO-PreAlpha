@@ -75,17 +75,17 @@ mIL_Interpreter<tPos> {
 			Module = mStream.Concat(Module, mStream.Stream(NewProc));
 			
 			var Regs = mTreeMap.Tree<tText, tInt32>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)))
-			.Set(mIL_AST.cEmpty, mVM_Data.tProcDef<tPos>.cEmptyReg)
-			.Set(mIL_AST.cOne, mVM_Data.tProcDef<tPos>.cOneReg)
-			.Set(mIL_AST.cFalse, mVM_Data.tProcDef<tPos>.cFalseReg)
-			.Set(mIL_AST.cTrue, mVM_Data.tProcDef<tPos>.cTrueReg)
-			.Set(mIL_AST.cEmptyType, mVM_Data.tProcDef<tPos>.cEmptyTypeReg)
-			.Set(mIL_AST.cBoolType, mVM_Data.tProcDef<tPos>.cBoolTypeReg)
-			.Set(mIL_AST.cIntType, mVM_Data.tProcDef<tPos>.cIntTypeReg)
-			.Set(mIL_AST.cEnv, mVM_Data.tProcDef<tPos>.cEnvReg)
-			.Set(mIL_AST.cObj, mVM_Data.tProcDef<tPos>.cObjReg)
-			.Set(mIL_AST.cArg, mVM_Data.tProcDef<tPos>.cArgReg)
-			.Set(mIL_AST.cRes, mVM_Data.tProcDef<tPos>.cResReg);
+			.Set(mIL_AST.cEmpty, mVM_Data.cEmptyReg)
+			.Set(mIL_AST.cOne, mVM_Data.cOneReg)
+			.Set(mIL_AST.cFalse, mVM_Data.cFalseReg)
+			.Set(mIL_AST.cTrue, mVM_Data.cTrueReg)
+			.Set(mIL_AST.cEmptyType, mVM_Data.cEmptyTypeReg)
+			.Set(mIL_AST.cBoolType, mVM_Data.cBoolTypeReg)
+			.Set(mIL_AST.cIntType, mVM_Data.cIntTypeReg)
+			.Set(mIL_AST.cEnv, mVM_Data.cEnvReg)
+			.Set(mIL_AST.cObj, mVM_Data.cObjReg)
+			.Set(mIL_AST.cArg, mVM_Data.cArgReg)
+			.Set(mIL_AST.cRes, mVM_Data.cResReg);
 			
 			var Types = NewProc.Types
 			.Push(mVM_Type.Empty())
@@ -616,7 +616,7 @@ mIL_Interpreter<tPos> {
 	) {
 		var RestDefsModules = mStream.Zip(aDefs, aModule);
 		while (RestDefsModules.Match(out var Def, out RestDefsModules)) {
-			var RegIndex = mVM_Data.tProcDef<mStd.tEmpty>.cResReg;
+			var RegIndex = mVM_Data.cResReg;
 			var (IL_Def, VM_Def) = Def; 
 			var (Name, Type, Commands) = IL_Def; 
 			aTrace($"{Name} € {VM_Def.DefType.ToText(10)}:");

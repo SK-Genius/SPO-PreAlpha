@@ -95,23 +95,23 @@ mVM_Data {
 		tText FirstPosText { get; }
 	}
 	
+	// standard stack indexes
+	public static readonly tInt32 cEmptyReg = 0;
+	public static readonly tInt32 cOneReg = 1;
+	public static readonly tInt32 cFalseReg = 2;
+	public static readonly tInt32 cTrueReg = 3;
+	public static readonly tInt32 cEmptyTypeReg = 4;
+	public static readonly tInt32 cBoolTypeReg = 5;
+	public static readonly tInt32 cIntTypeReg = 6;
+	public static readonly tInt32 cTypeTypeReg = 7;
+	public static readonly tInt32 cEnvReg = 8;
+	public static readonly tInt32 cObjReg = 9;
+	public static readonly tInt32 cArgReg = 10;
+	public static readonly tInt32 cResReg = 11;
+	
 	[System.Diagnostics.DebuggerDisplay("{this.DefType.ToText(10)}")]
 	public sealed class
 	tProcDef<tPos> : tProcDef {
-		// standard stack indexes
-		public static readonly tInt32 cEmptyReg = 0;
-		public static readonly tInt32 cOneReg = 1;
-		public static readonly tInt32 cFalseReg = 2;
-		public static readonly tInt32 cTrueReg = 3;
-		public static readonly tInt32 cEmptyTypeReg = 4;
-		public static readonly tInt32 cBoolTypeReg = 5;
-		public static readonly tInt32 cIntTypeReg = 6;
-		public static readonly tInt32 cTypeTypeReg = 7;
-		public static readonly tInt32 cEnvReg = 8;
-		public static readonly tInt32 cObjReg = 9;
-		public static readonly tInt32 cArgReg = 10;
-		public static readonly tInt32 cResReg = 11;
-		
 		public readonly mArrayList.tArrayList<(tOpCode, tInt32, tInt32)>
 			Commands = mArrayList.List<(tOpCode, tInt32, tInt32)>();
 		

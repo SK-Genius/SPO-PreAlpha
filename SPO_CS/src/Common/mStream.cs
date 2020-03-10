@@ -241,8 +241,6 @@ mStream {
 		: Stream<t>()
 	);
 	
-	static int Count = 100_000; 
-	
 	public static tStream<t>?
 	Where<t>(
 		this tStream<t>? aStream,
@@ -255,12 +253,6 @@ mStream {
 			Tail.Where(aPredicate)
 		);
 		#else
-		if (Count == 0) {
-			Count.ToString();
-		} else {
-			Count -= 1;
-		}
-		
 		while (aStream.Match(out var Head, out aStream)) {
 			if (aPredicate(Head)) {
 				return Stream(Head, () => aStream.Where(aPredicate));

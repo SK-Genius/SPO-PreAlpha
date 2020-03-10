@@ -66,8 +66,8 @@ mTest {
 	Test(
 		tText aName,
 		mStd.tAction<mStd.tAction<tText>> aTestFunc,
-    [CallerFilePath] string aFile = null!,
-		[CallerLineNumber] int aLine = 0
+    [CallerFilePath] tText aFile = null!,
+		[CallerLineNumber] tInt32 aLine = 0
 	) => new tTestRun {
 		_Name = aName,
 		_TestFunc = aTestFunc,
