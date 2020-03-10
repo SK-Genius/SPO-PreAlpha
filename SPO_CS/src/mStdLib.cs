@@ -23,15 +23,16 @@ using tText = System.String;
 public static class
 mStdLib {
 	
-	private static mVM_Data.tData? _ImportData;
+	private static mMaybe.tMaybe<mVM_Data.tData> _ImportData;
 	
 	public static mVM_Data.tData
 	GetImportData(
 	) {
-		if (!(_ImportData is null)) {
-			return _ImportData;
+		if (_ImportData.Match(out var Data)) {
+			return Data;
 		}
-		_ImportData = mIL_Interpreter<mSpan.tSpan<mTextStream.tPos>>.Run(
+		
+		var ImportData = mIL_Interpreter<mSpan.tSpan<mTextStream.tPos>>.Run(
 			mIL_Parser.Module.ParseText(
 @"§DEF Init
 	_01 := ENV
@@ -236,6 +237,7 @@ mStdLib {
 			a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
 			aLine => { }
 		);
-		return _ImportData;
+		_ImportData = mMaybe.Some(ImportData);
+		return ImportData;
 	}
 }

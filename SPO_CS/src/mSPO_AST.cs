@@ -29,12 +29,12 @@ mSPO_AST {
 	
 	public interface
 	tMatchItemNode<tPos> : tNode<tPos> {
-		mVM_Type.tType? TypeAnnotation { get; set; }
+		mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	public interface
 	tExpressionNode<tPos> : tNode<tPos> {
-		mVM_Type.tType? TypeAnnotation { get; set; }
+		mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	public interface
@@ -50,56 +50,56 @@ mSPO_AST {
 	public sealed class
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tFalseNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTrueNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tTextNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Value = default!;
 	}
 	
@@ -107,7 +107,7 @@ mSPO_AST {
 	public sealed class
 	tIntNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tInt32 Value = default!;
 	}
 	
@@ -115,14 +115,14 @@ mSPO_AST {
 	public sealed class
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Name = default!;
 	}
 	
@@ -130,7 +130,7 @@ mSPO_AST {
 	public sealed class
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Name = default!;
 	}
 	
@@ -138,7 +138,7 @@ mSPO_AST {
 	public sealed class
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>>? Items;
 	}
 	
@@ -146,16 +146,16 @@ mSPO_AST {
 	public sealed class
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchItemNode<tPos> Pattern = default!;
-		public tExpressionNode<tPos>? Type = default!;
+		public mMaybe.tMaybe<tExpressionNode<tPos>> Type;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
 		public tExpressionNode<tPos> Element = default!;
 	}
@@ -164,7 +164,7 @@ mSPO_AST {
 	public sealed class
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
 	}
 	
@@ -172,7 +172,7 @@ mSPO_AST {
 	public sealed class
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? Elements;
 	}
 	
@@ -180,7 +180,7 @@ mSPO_AST {
 	public sealed class
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
 		public tMatchNode<tPos> Match = default!;
 	}
@@ -189,7 +189,7 @@ mSPO_AST {
 	public sealed class
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Match = default!;
 		public tExpressionNode<tPos> Guard = default!;
 	}
@@ -198,8 +198,8 @@ mSPO_AST {
 	public sealed class
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
-		public tMatchNode<tPos>? Generic;
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<tMatchNode<tPos>> Generic;
 		public tMatchNode<tPos> Head = default!;
 		public tExpressionNode<tPos> Body = default!;
 	}
@@ -208,7 +208,7 @@ mSPO_AST {
 	public sealed class
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Obj = default!;
 		public tMatchNode<tPos> Arg = default!;
 		public tBlockNode<tPos> Body = default!;
@@ -218,7 +218,7 @@ mSPO_AST {
 	public sealed class
 	tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tCommandNode<tPos>>? Commands;
 	}
 	
@@ -226,7 +226,7 @@ mSPO_AST {
 	public sealed class
 	tCallNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Func = default!;
 		public tExpressionNode<tPos> Arg = default!;
 	}
@@ -235,7 +235,7 @@ mSPO_AST {
 	public sealed class
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Des = default!;
 		public tExpressionNode<tPos> Src = default!;
 	}
@@ -244,7 +244,7 @@ mSPO_AST {
 	public sealed class
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchFreeIdentNode<tPos> Ident = default!;
 		public tLambdaNode<tPos> Lambda = default!;
 	}
@@ -268,7 +268,7 @@ mSPO_AST {
 	public sealed class
 	tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)>? Cases;
 	}
 	
@@ -276,7 +276,7 @@ mSPO_AST {
 	public sealed class
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression = default!;
 		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)>? Cases;
 	}
@@ -285,7 +285,7 @@ mSPO_AST {
 	public sealed class
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Prefix = default!;
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
@@ -294,7 +294,7 @@ mSPO_AST {
 	public sealed class
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
@@ -302,7 +302,7 @@ mSPO_AST {
 	public sealed class
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
@@ -310,7 +310,7 @@ mSPO_AST {
 	public sealed class
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tTypeNode<tPos> EnvType = default!;
 		public tTypeNode<tPos> ArgType = default!;
 		public tTypeNode<tPos> ResType = default!;
@@ -320,7 +320,7 @@ mSPO_AST {
 	public sealed class
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
@@ -329,7 +329,7 @@ mSPO_AST {
 	public sealed class
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
@@ -338,7 +338,7 @@ mSPO_AST {
 	public sealed class
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
@@ -347,7 +347,7 @@ mSPO_AST {
 	public sealed class
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Ident = default!;
 		public tExpressionNode<tPos> Expression = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
@@ -357,7 +357,7 @@ mSPO_AST {
 	public sealed class
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Obj = default!;
 	}
 	
@@ -367,14 +367,14 @@ mSPO_AST {
 		public tPos Pos { get; set; } = default!;
 		public tIdentNode<tPos> Method = default!;
 		public tExpressionNode<tPos> Argument = default!;
-		public tMatchNode<tPos>? Result;
+		public mMaybe.tMaybe<tMatchNode<tPos>> Result;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
 	public sealed class
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Object = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
@@ -383,7 +383,7 @@ mSPO_AST {
 	public sealed class
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left = default!;
 		public tExpressionNode<tPos> Right = default!;
 	}
@@ -392,7 +392,7 @@ mSPO_AST {
 	public sealed class
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left = default!;
 		public tExpressionNode<tPos> Right = default!;
 	}
@@ -401,7 +401,7 @@ mSPO_AST {
 	public sealed class
 	tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; set; } = default!;
-		public mVM_Type.tType? TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>>? Items;
 	}
 	
@@ -687,7 +687,7 @@ mSPO_AST {
 		tExpressionNode<tPos> aBody
 	) => new tLambdaNode<tPos> {
 		Pos = aPos,
-		Generic = aStaticMatch.Else(() => null!),
+		Generic = aStaticMatch,
 		Head = aMatch,
 		Body = aBody
 	};
@@ -751,7 +751,7 @@ mSPO_AST {
 	Match<tPos>(
 		tPos aPos,
 		tMatchItemNode<tPos> aMatch,
-		tExpressionNode<tPos>? aType
+		mMaybe.tMaybe<tExpressionNode<tPos>> aType
 	) => new tMatchNode<tPos> {
 		Pos = aPos,
 		Pattern = aMatch,
@@ -762,7 +762,7 @@ mSPO_AST {
 	UnTypedMatch<tPos>(
 		tPos aPos,
 		tMatchItemNode<tPos> aMatch
-	) => Match(aPos, aMatch, null);
+	) => Match(aPos, aMatch, mStd.cEmpty);
 	
 	public static tDefNode<tPos>
 	Def<tPos>(
@@ -866,7 +866,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aMethod,
 		tExpressionNode<tPos> aArgument,
-		tMatchNode<tPos>? aResult
+		mMaybe.tMaybe<tMatchNode<tPos>> aResult
 	) => new tMethodCallNode<tPos> {
 		Pos = aPos,
 		Method = aMethod,
@@ -916,13 +916,13 @@ mSPO_AST {
 	
 	public static tBool
 	AreEqual<tPos>(
-		tNode<tPos>? a1,
-		tNode<tPos>? a2
+		tNode<tPos> a1,
+		tNode<tPos> a2
 	) {
 		if (ReferenceEquals(a1, a2)) {
 			return true;
 		}
-		if (a1 is null || a2 is null || !Equals(a1.Pos, a2.Pos)) {
+		if (!Equals(a1.Pos, a2.Pos)) {
 			return false;
 		}
 		
@@ -973,7 +973,11 @@ mSPO_AST {
 				return (
 					a2 is tMatchNode<tPos> Node2 &&
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
-					AreEqual(Node1.Type, Node2.Type)
+					(
+						Node1.Type.Match(out var Type1)
+						? (Node2.Type.Match(out var Type2) && AreEqual(Type1, Type2))
+						: !Node2.Type.Match(out var _)
+					)
 				);
 			}
 			case tPrefixNode<tPos> _: {
@@ -1101,7 +1105,11 @@ mSPO_AST {
 					a2 is tMethodCallNode<tPos> Node2 &&
 					AreEqual(Node1.Method, Node2.Method) &&
 					AreEqual(Node1.Argument, Node2.Argument) &&
-					AreEqual(Node1.Result, Node2.Result)
+					(
+						Node1.Result.Match(out var Result1)
+						? (Node2.Result.Match(out var Result2) && AreEqual(Result1, Result2))
+						: !Node2.Result.Match(out var _)
+					)
 				);
 			}
 			case tMethodCallsNode<tPos> Node1: {
@@ -1197,10 +1205,10 @@ mSPO_AST {
 			}
 			// Matches
 			case tMatchNode<t> Node: {
-				if (Node.Type is null) {
-					return Node.Pattern.ToText(aLimit);
+				if (Node.Type.Match(out var Type)) {
+					return $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})";
 				} else {
-					return $"({Node.Pattern.ToText(aLimit)} € {Node.Type.ToText(aLimit)})";
+					return Node.Pattern.ToText(aLimit);
 				}
 			}
 			case tIgnoreMatchNode<t> Node: {
@@ -1248,7 +1256,7 @@ mSPO_AST {
 				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .";
 			}
 			case tMethodCallNode<t> Node: {
-				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result?.ToText(aLimit) ?? "()"}";
+				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Then(_ => _.ToText(aLimit)).Else("()")}";
 			}
 			case tReturnIfNode<t> Node: {
 				return $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}";

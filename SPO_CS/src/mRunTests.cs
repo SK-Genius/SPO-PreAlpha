@@ -33,13 +33,6 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-#if NUNIT
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCategory = NUnit.Framework.CategoryAttribute;
-
-[xTestClass]
-#endif
 public static class
 mRunTests {
 	
@@ -85,15 +78,4 @@ mRunTests {
 		? 0
 		: -1;
 	}
-	
-	#if NUNIT
-	[xTestCategory("all")]
-	[xTestCase("")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Test.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

@@ -73,7 +73,7 @@ mSPO_AST_Types_Tests {
 					mSPO_AST_Types.UpdateExpressionTypes(
 						mSPO_AST.Lambda(
 							1,
-							null,
+							mStd.cEmpty,
 							mSPO_AST.Match(
 								1,
 								mSPO_AST.MatchPrefix(
@@ -82,10 +82,10 @@ mSPO_AST_Types_Tests {
 									mSPO_AST.Match(
 										1,
 										mSPO_AST.MatchFreeIdent(1, "a"),
-										mSPO_AST.BoolType(1)
+										mMaybe.Some((mSPO_AST.tExpressionNode<tInt32>)mSPO_AST.BoolType(1))
 									)
 								),
-								null
+								mStd.cEmpty
 							),
 							mSPO_AST.Ident(1, "a")
 						),

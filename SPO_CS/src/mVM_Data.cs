@@ -619,16 +619,6 @@ mVM_Data {
 	};
 	
 	private static tBool
-	Match(
-		this tData aData,
-		tDataType aType,
-		out mAny.tAny aValue
-	) {
-		aValue = aData._Value;
-		return aData._DataType.Equals(aType);
-	}
-	
-	private static tBool
 	Match<t>(
 		this tData aData,
 		tDataType aType,

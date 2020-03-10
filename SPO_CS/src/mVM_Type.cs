@@ -128,13 +128,13 @@ mVM_Type {
 	public static tBool
 	MatchFree(
 		this tType aType,
-		[NotNullWhen(true)]out tText? aId
+		[MaybeNullWhen(false)]out tText aId
 	) {
 		if (aType.Kind == tKind.Free) {
-			aId = aType.Id;
+			aId = aType.Id!;
 			return true;
 		} else {
-			aId = default;
+			aId = default!;
 			return false;
 		}
 	}
@@ -195,13 +195,13 @@ mVM_Type {
 	public static tBool
 	MatchType(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aValue
+		[MaybeNullWhen(false)] out tType aValue
 	) {
 		if (aType.Kind == tKind.Bool) {
-			aValue = (aType.Refs.Length > 0) ? aType.Refs[0] : default;
+			aValue = aType.Refs[0];
 			return true;	
 		} else {
-			aValue = default;
+			aValue = default!;
 			return false;
 		}
 	}
@@ -226,16 +226,16 @@ mVM_Type {
 	public static tBool
 	MatchPair(
 		this tType aType,
-		[NotNullWhen(true)]out tType? aType1,
-		[NotNullWhen(true)]out tType? aType2
+		[MaybeNullWhen(false)]out tType aType1,
+		[MaybeNullWhen(false)]out tType aType2
 	) {
 		if (aType.Kind == tKind.Pair) {
 			aType1 = aType.Refs[0];
 			aType2 = aType.Refs[1];
 			return true;
 		} else {
-			aType1 = default;
-			aType2 = default;
+			aType1 = default!;
+			aType2 = default!;
 			return false;
 		}
 	}
@@ -263,16 +263,16 @@ mVM_Type {
 	public static tBool
 	MatchPrefix(
 		this tType aType,
-		[NotNullWhen(true)] out tText? aPrefix,
-		[NotNullWhen(true)] out tType? aTypeOut
+		[MaybeNullWhen(false)] out tText aPrefix,
+		[MaybeNullWhen(false)] out tType aTypeOut
 	) {
 		if (aType.Kind == tKind.Prefix) {
-			aPrefix = aType.Prefix;
+			aPrefix = aType.Prefix!;
 			aTypeOut = aType.Refs[0];
 			return true;
 		} else {
-			aPrefix = default;
-			aTypeOut = default;
+			aPrefix = default!;
+			aTypeOut = default!;
 			return false;
 		}
 	}
@@ -281,8 +281,8 @@ mVM_Type {
 	MatchPrefix(
 		this tType aType,
 		tText aPrefix,
-		[NotNullWhen(true)] out tType? aTypeOut
-	) => aType.MatchPrefix(out var Prefix, out aTypeOut) && Prefix == aPrefix;
+		[MaybeNullWhen(false)] out tType aTypeOut
+	) => aType.MatchPrefix(out var Prefix, out aTypeOut!) && Prefix == aPrefix;
 	
 	public static tType
 	Record(
@@ -311,18 +311,18 @@ mVM_Type {
 	public static tBool
 	MatchRecord(
 		this tType aType,
-		[NotNullWhen(true)] out tText? aHeadKey,
-		[NotNullWhen(true)] out tType? aHeadType,
-		[NotNullWhen(true)] out tType? aTailRecord
+		[MaybeNullWhen(false)] out tText aHeadKey,
+		[MaybeNullWhen(false)] out tType aHeadType,
+		[MaybeNullWhen(false)] out tType aTailRecord
 	) {
 		if (aType.Kind == tKind.Record) {
-			mAssert.IsTrue(aType.Refs[1].MatchPrefix(out aHeadKey, out aHeadType));
+			mAssert.IsTrue(aType.Refs[1].MatchPrefix(out aHeadKey!, out aHeadType!));
 			aTailRecord = aType.Refs[0];
 			return true;
 		} else {
-			aHeadKey = default;
-			aHeadType = default;
-			aTailRecord = default;
+			aHeadKey = default!;
+			aHeadType = default!;
+			aTailRecord = default!;
 			return false;
 		}
 	}
@@ -340,9 +340,9 @@ mVM_Type {
 	public static tBool
 	MatchProc(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aObjType,
-		[NotNullWhen(true)] out tType? aArgType,
-		[NotNullWhen(true)] out tType? aResType
+		[MaybeNullWhen(false)] out tType aObjType,
+		[MaybeNullWhen(false)] out tType aArgType,
+		[MaybeNullWhen(false)] out tType aResType
 	) {
 		if (aType.Kind == tKind.Proc) {
 			aObjType = aType.Refs[0];
@@ -350,9 +350,9 @@ mVM_Type {
 			aResType = aType.Refs[2];
 			return true;
 		} else {
-			aObjType = default;
-			aArgType = default;
-			aResType = default;
+			aObjType = default!;
+			aArgType = default!;
+			aResType = default!;
 			return false;
 		}
 	}
@@ -383,13 +383,13 @@ mVM_Type {
 	public static tBool
 	MatchRef(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aOutType
+		[MaybeNullWhen(false)] out tType aOutType
 	) {
 		if (aType.Kind == tKind.Ref) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
-			aOutType = default;
+			aOutType = default!;
 			return false;
 		}
 	}
@@ -405,13 +405,13 @@ mVM_Type {
 	public static tBool
 	MatchVar(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aOutType
+		[MaybeNullWhen(false)] out tType aOutType
 	) {
 		if (aType.Kind == tKind.Var) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
-			aOutType = default;
+			aOutType = default!;
 			return false;
 		}
 	}
@@ -428,16 +428,16 @@ mVM_Type {
 	public static tBool
 	MatchSet(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aType1,
-		[NotNullWhen(true)] out tType? aType2
+		[MaybeNullWhen(false)] out tType aType1,
+		[MaybeNullWhen(false)] out tType aType2
 	) {
 		if (aType.Kind == tKind.Set) {
 			aType1 = aType.Refs[0];
 			aType2 = aType.Refs[1];
 			return true;
 		} else {
-			aType1 = default;
-			aType2 = default;
+			aType1 = default!;
+			aType2 = default!;
 			return false;
 		}
 	}
@@ -465,7 +465,7 @@ mVM_Type {
 			aSuperType = aType.Refs[0];
 			return true;
 		} else {
-			aSuperType = default;
+			aSuperType = default!;
 			return false;
 		}
 	}
@@ -490,7 +490,7 @@ mVM_Type {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
-			aOutType = default;
+			aOutType = default!;
 			return false;
 		}
 	}
@@ -507,8 +507,8 @@ mVM_Type {
 	public static tBool
 	MatchInterface(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aHeadType,
-		[NotNullWhen(true)] out tType? aBodyType
+		[MaybeNullWhen(false)] out tType aHeadType,
+		[MaybeNullWhen(false)] out tType aBodyType
 		// aCond
 	) {
 		if (aType.Kind == tKind.Interface) {
@@ -516,8 +516,8 @@ mVM_Type {
 			aBodyType = aType.Refs[1];
 			return true;
 		} else {
-			aHeadType = default;
-			aBodyType = default;
+			aHeadType = default!;
+			aBodyType = default!;
 			return false;
 		}
 	}
@@ -534,8 +534,8 @@ mVM_Type {
 	public static tBool
 	MatchGeneric(
 		this tType aType,
-		[NotNullWhen(true)] out tType? aHeadType,
-		[NotNullWhen(true)] out tType? aBodyType
+		[MaybeNullWhen(false)] out tType aHeadType,
+		[MaybeNullWhen(false)] out tType aBodyType
 		// aCond
 	) {
 		if (aType.Kind == tKind.Generic ) {
@@ -543,8 +543,8 @@ mVM_Type {
 			aBodyType = aType.Refs[1];
 			return true;
 		} else {
-			aHeadType = default;
-			aBodyType = default;
+			aHeadType = default!;
+			aBodyType = default!;
 			return false;
 		}
 	}

@@ -52,7 +52,7 @@ mMap {
 		while (RestList.Match(out var KeyValuePair, out RestList)) {
 			var (Key, Value) = KeyValuePair;
 			if (aMap._EqualsFunc(Key, aKey)) {
-				return Value;
+				return mMaybe.Some(Value);
 			}
 		}
 		return mStd.cEmpty;

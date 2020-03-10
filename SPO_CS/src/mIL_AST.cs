@@ -100,8 +100,8 @@ mIL_AST {
 		public tCommandNodeType NodeType;
 		public tPos Pos;
 		public tText _1;
-		public tText? _2;
-		public tText? _3;
+		public mMaybe.tMaybe<tText> _2;
+		public mMaybe.tMaybe<tText> _3;
 	}
 	
 	public static mMaybe.tMaybe<tText>
@@ -109,7 +109,7 @@ mIL_AST {
 		this tCommandNode<tPos> aNode
 	) {
 		if (aNode.NodeType < tCommandNodeType._Commands_) {
-			return aNode._1;
+			return mMaybe.Some(aNode._1);
 		} else {
 			return mStd.cEmpty;
 		}
@@ -124,8 +124,8 @@ mIL_AST {
 		aNodeType,
 		aPos,
 		mAssert.IsNotNull(a1),
-		null,
-		null
+		mStd.cEmpty,
+		mStd.cEmpty
 	);
 	
 	public static tCommandNode<tPos>
@@ -138,8 +138,8 @@ mIL_AST {
 		aNodeType,
 		aPos,
 		mAssert.IsNotNull(a1),
-		mAssert.IsNotNull(a2),
-		null
+		mAssert.IsNotNull(mMaybe.Some(a2)),
+		mStd.cEmpty
 	);
 	
 	public static tCommandNode<tPos>
@@ -153,8 +153,8 @@ mIL_AST {
 		aNodeType,
 		aPos,
 		mAssert.IsNotNull(a1),
-		mAssert.IsNotNull(a2),
-		mAssert.IsNotNull(a3)
+		mAssert.IsNotNull(mMaybe.Some(a2)),
+		mAssert.IsNotNull(mMaybe.Some(a3))
 	);
 	
 	private static tCommandNode<tPos>
@@ -162,8 +162,8 @@ mIL_AST {
 		tCommandNodeType aNodeType,
 		tPos aPos,
 		tText a1,
-		tText? a2,
-		tText? a3
+		mMaybe.tMaybe<tText> a2,
+		mMaybe.tMaybe<tText> a3
 	) => new tCommandNode<tPos>{
 		NodeType = aNodeType,
 		Pos = aPos,
@@ -179,12 +179,14 @@ mIL_AST {
 		out tPos aPos,
 		out tText aId
 	) {
-		if (aNode.Match(aNodeType, out aPos, out aId, out var Id2, out var Id3)) {
-			mAssert.IsNull(Id2);
-			mAssert.IsNull(Id3);
+		aPos = aNode.Pos;
+		if (aNode.NodeType == aNodeType) {
+			aId = aNode._1;
 			return true;
+		} else {
+			aId = default!;
+			return false;
 		}
-		return false;
 	}
 	
 	public static tBool
@@ -195,11 +197,16 @@ mIL_AST {
 		out tText aId1,
 		out tText aId2
 	) {
-		if (aNode.Match(aNodeType, out aPos, out aId1, out aId2, out var Id3)) {
-			mAssert.IsNull(Id3);
+		aPos = aNode.Pos;
+		if (aNode.NodeType == aNodeType) {
+			aId1 = aNode._1;
+			mAssert.IsTrue(aNode._2.Match(out aId2));
 			return true;
+		} else {
+			aId1 = default!;
+			aId2 = default!;
+			return false;
 		}
-		return false;
 	}
 	
 	public static tBool
@@ -214,14 +221,15 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2!;
-			aId3 = aNode._3!;
+			mAssert.IsTrue(aNode._2.Match(out aId2));
+			mAssert.IsTrue(aNode._3.Match(out aId3));
 			return true;
+		} else {
+			aId1 = default!;
+			aId2 = default!;
+			aId3 = default!;
+			return false;
 		}
-		aId1 = default!;
-		aId2 = default!;
-		aId3 = default!;
-		return false;
 	}
 	
 	public static tCommandNode<tPos>

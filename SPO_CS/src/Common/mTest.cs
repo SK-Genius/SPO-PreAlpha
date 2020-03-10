@@ -2,6 +2,8 @@
 
 #nullable enable
 
+using System.Runtime.CompilerServices;
+
 using tBool = System.Boolean;
 
 using tNat8 = System.Byte;
@@ -42,14 +44,16 @@ mTest {
 	
 	public struct
 	tTestRun : tTest {
-		public tText _Name;
-		public mStd.tAction<mStd.tAction<tText>> _TestFunc;
+		internal tText _Name;
+		internal mStd.tAction<mStd.tAction<tText>> _TestFunc;
+		internal tText _File;
+		internal tInt32 _Line; 
 	}
 	
 	public struct
 	tTests : tTest {
-		public tText _Name;
-		public tTest[] _Tests;
+		internal tText _Name;
+		internal tTest[] _Tests;
 	}
 	
 	public static tTest
@@ -61,10 +65,14 @@ mTest {
 	public static tTest
 	Test(
 		tText aName,
-		mStd.tAction<mStd.tAction<tText>> aTestFunc
+		mStd.tAction<mStd.tAction<tText>> aTestFunc,
+    [CallerFilePath] string aFile = null!,
+		[CallerLineNumber] int aLine = 0
 	) => new tTestRun {
 		_Name = aName,
-		_TestFunc = aTestFunc
+		_TestFunc = aTestFunc,
+		_File = aFile,
+		_Line = aLine,
 	};
 	
 	public static (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count)
@@ -82,6 +90,7 @@ mTest {
 		switch (aTest) {
 			case tTestRun TestRun: {
 				aDebugStream(TestRun._Name);
+				aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
 				if (aFilters.IsEmpty() || aFilters.Any(TestRun._Name.Contains)) {
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
@@ -182,11 +191,23 @@ mTest {
 				
 				aDebugStream(
 					tText.Concat(
-						"> ",
-						FailCountSum > 0 ? $"Fail:{FailCount}|{FailCountSum} " : "",
-						OK_CountSum > 0 ? $"OK:{OK_Count}|{OK_CountSum} " : "",
-						SkipCountSum > 0 ? $"Skip:{SkipCount}|{SkipCountSum} " : "",
-						$"({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})"
+						(
+							"> "
+						), (
+							FailCountSum == 0 ? "" :
+							FailCount == FailCountSum ? $"Fail:{FailCount} " :
+							$"Fail:{FailCount}|{FailCountSum} "
+						), (
+							OK_CountSum == 0 ? "" :
+							OK_Count == OK_CountSum ? $"OK:{OK_Count} " :
+							$"OK:{OK_Count}|{OK_CountSum} "
+						), (
+							SkipCountSum == 0 ? "" :
+							SkipCount == SkipCountSum ? $"Skip:{SkipCount} " :
+							$"Skip:{SkipCount}|{SkipCountSum} "
+						), (
+							$"({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})"
+						)
 					)
 				);
 				aDebugStream("");

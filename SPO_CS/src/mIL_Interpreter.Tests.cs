@@ -209,8 +209,8 @@ mIL_Interpreter_Tests {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var CallStack = (mVM.tCallStack<tSpan>?)mVM.NewCallStack(
-					null,
+				var CallStack = mVM.NewCallStack(
+					mStd.cEmpty,
 					Proc,
 					Env,
 					mVM_Data.Empty(),
@@ -218,8 +218,8 @@ mIL_Interpreter_Tests {
 					Res,
 					TraceOut
 				);
-				while (!CallStack.IsNull()) {
-					CallStack = CallStack.Step(a => ""+a);
+				while (CallStack.Match(out var CallStack_)) {
+					CallStack = CallStack_.Step(a => ""+a);
 				}
 				mAssert.AreEquals(Res, mVM_Data.Bool(true));
 				mAssert.ThrowsError(

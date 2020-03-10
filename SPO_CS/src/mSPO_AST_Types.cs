@@ -94,12 +94,12 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tLambdaNode<tPos> Lambda: {
 				var NewScope = aScope;
-				if (Lambda.Generic != null) {
-					if (!UpdateMatchTypes(Lambda.Generic, null, tTypeRelation.Sub, aScope, out NewScope).Match(out _, out var Error)) {
+				if (Lambda.Generic.Match(out var Match)) {
+					if (!UpdateMatchTypes(Match, mStd.cEmpty, tTypeRelation.Sub, aScope, out NewScope).Match(out _, out var Error)) {
 						return mResult.Fail(Error);
 					}
 				}
-				Result = UpdateMatchTypes(Lambda.Head, null, tTypeRelation.Sub, NewScope, out NewScope).ThenTry(
+				Result = UpdateMatchTypes(Lambda.Head, mStd.cEmpty, tTypeRelation.Sub, NewScope, out NewScope).ThenTry(
 					aArgType => UpdateExpressionTypes(Lambda.Body, NewScope).Then(
 						aResType => mVM_Type.Proc(
 							mVM_Type.Empty(),
@@ -111,8 +111,8 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMethodNode<tPos> Method: {
-				Result = UpdateMatchTypes(Method.Obj, null, tTypeRelation.Equal, aScope, out var NewScope).ThenTry(
-					aObjType => UpdateMatchTypes(Method.Arg, null, tTypeRelation.Sub, NewScope, out var NewScope2).ThenTry(
+				Result = UpdateMatchTypes(Method.Obj, mStd.cEmpty, tTypeRelation.Equal, aScope, out var NewScope).ThenTry(
+					aObjType => UpdateMatchTypes(Method.Arg, mStd.cEmpty, tTypeRelation.Sub, NewScope, out var NewScope2).ThenTry(
 						aArgType => UpdateExpressionTypes(Method.Body, NewScope2).Then(
 							aResType => mVM_Type.Proc(aObjType, aArgType, aResType)
 						)
@@ -128,9 +128,9 @@ mSPO_AST_Types {
 					if (UpdateCommandTypes(Command, BlockScope).Match(out BlockScope, out var Error)) {
 						if (Command is mSPO_AST.tReturnIfNode<tPos> ReturnIf) {
 							var Type = ReturnIf.Result.TypeAnnotation;
-							mAssert.IsFalse(Type is null);
-							if (Types.All(_ => !Equals(_, Type))) {
-								Types = mStream.Stream(Type, Types);
+							mAssert.IsTrue(Type.Match(out var Type_));
+							if (Types.All(_ => !Equals(_, Type_))) {
+								Types = mStream.Stream(Type_, Types);
 							}
 						}
 					} else {
@@ -159,7 +159,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tIfMatchNode<tPos> IfMatch: {
 				Result = UpdateExpressionTypes(IfMatch.Expression, aScope).ThenTry(
 					MatchType => IfMatch.Cases.Map(
-						aCase => UpdateMatchTypes(aCase.Match, MatchType, tTypeRelation.Super, aScope, out var TempScope).ThenTry(
+						aCase => UpdateMatchTypes(aCase.Match, mMaybe.Some(MatchType), tTypeRelation.Super, aScope, out var TempScope).ThenTry(
 							_ => UpdateExpressionTypes(aCase.Expression, TempScope)
 						)
 					).WhenAllThen(
@@ -167,7 +167,7 @@ mSPO_AST_Types {
 							mStream.Stream<mVM_Type.tType>(),
 							(aList, aItem) => aList.All(a => a != aItem) ? mStream.Stream(aItem, aList) : aList
 						).Reduce(
-							(mVM_Type.tType)null,
+							(mVM_Type.tType)null!,
 							(aTypeSet, aType) => mVM_Type.Set(aType, aTypeSet)
 						)
 					)
@@ -175,7 +175,8 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tVarToValNode<tPos> VarToVal: {
-				mAssert.IsTrue(VarToVal.Obj.TypeAnnotation.MatchVar(out var ValType));
+				mAssert.IsTrue(VarToVal.Obj.TypeAnnotation.Match(out var Type));
+				mAssert.IsTrue(Type.MatchVar(out var ValType));
 				Result = mResult.OK(ValType);
 				break;
 			}
@@ -192,7 +193,7 @@ mSPO_AST_Types {
 						mStream.Stream<mVM_Type.tType>(),
 						(aList, aItem) => aList.All(a => a != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Reduce(
-						(mVM_Type.tType)null,
+						(mVM_Type.tType)null!,
 						(aTypeSet, aType) => mVM_Type.Set(aType, aTypeSet)
 					)
 				);
@@ -202,13 +203,13 @@ mSPO_AST_Types {
 				throw mError.Error($"not implemented: " + aNode.GetType().Name);
 			}
 		}
-		return Result.ThenDo(_ => { aNode.TypeAnnotation = _; });
+		return Result.ThenDo(_ => { aNode.TypeAnnotation = mMaybe.Some(_); });
 	}
 	
 	public static mResult.tResult<mVM_Type.tType, tText>
 	UpdateMatchTypes<tPos>(
 		mSPO_AST.tMatchItemNode<tPos> aMatch,
-		mVM_Type.tType? aType,
+		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
 		mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aScope,
 		out mStream.tStream<(tText Ident, mVM_Type.tType Type)>? aNewScope
@@ -216,41 +217,47 @@ mSPO_AST_Types {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
-				if (Match.Type != null) {
-					var Type = ResolveTypeExpression(Match.Type, aScope).ElseThrow(_ => _);
-					Result = UpdateMatchTypes(Match.Pattern, Type, aTypeRelation, aScope, out aNewScope);
+				if (Match.Type.Match(out var Type_)) {
+					var Type = ResolveTypeExpression(Type_, aScope).ElseThrow(_ => _);
+					Result = UpdateMatchTypes(Match.Pattern, mMaybe.Some(Type), aTypeRelation, aScope, out aNewScope);
 				} else {
 					Result = UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope, out aNewScope);
 				}
 				break;
 			}
 			case mSPO_AST.tMatchFreeIdentNode<tPos> MatchFreeIdent: {
-				if (aType is null) {
+				if (aType.Match(out var Type)) {
+					Result = mResult.OK(Type);
+					aNewScope = mStream.Stream((MatchFreeIdent.Name, Type), aScope);
+				} else {
 					aNewScope = default;
 					return mResult.Fail($"{MatchFreeIdent.Pos} : ERROR missing type for {MatchFreeIdent.Name}");
 				}
-				Result = mResult.OK(aType);
-				aNewScope = mStream.Stream((MatchFreeIdent.Name, aType), aScope);
 				break;
 			}
 			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatch: {
 				aNewScope = aScope;
-				Result = mResult.OK(aType);
+				mAssert.IsTrue(aType.Match(out var Type_));
+				Result = mResult.OK(Type_);
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
-				var SubType = (mVM_Type.tType?)null;
-				if (!(aType is null)) {
-					var Prefix = (tText?)null;
-					while (aType.MatchSet(out var Type, out var Types)) {
-						if (Type.MatchPrefix(out Prefix, out SubType) && Prefix == MatchPrefix.Prefix) {
-							aType = Type;
+				var SubType = mMaybe.None<mVM_Type.tType>();
+				if (aType.Match(out var Type_)) {
+					
+					while (Type_.MatchSet(out var Type, out var Types)) {
+						if (Type.MatchPrefix(out var Prefix, out var SubType_) && Prefix == MatchPrefix.Prefix) {
+							SubType = mMaybe.Some(SubType_);
+							Type_ = Type;
 							break;
 						}
-						aType = Types;
+						Type_ = Types;
 					}
-					mAssert.IsTrue(aType.MatchPrefix(out Prefix, out SubType));
-					mAssert.AreEquals(Prefix, MatchPrefix.Prefix);
+					{
+						mAssert.IsTrue(Type_.MatchPrefix(out var Prefix, out var SubType__));
+						SubType = mMaybe.Some(SubType__);
+						mAssert.AreEquals(Prefix, MatchPrefix.Prefix);
+					}
 				}
 				Result = UpdateMatchTypes(MatchPrefix.Match, SubType, aTypeRelation, aScope, out aNewScope).Then(
 					_ => mVM_Type.Prefix(MatchPrefix.Prefix, _)
@@ -261,22 +268,22 @@ mSPO_AST_Types {
 				var Tail = MatchTuple.Items;
 				var Types = mStream.Stream<mVM_Type.tType>();
 				aNewScope = aScope;
-				if (aType is null) {
+				if (aType.Match(out var Type__)) {
 					while (Tail.Match(out var Head, out Tail)) {
-						if (UpdateMatchTypes(Head, null, aTypeRelation, aNewScope, out aNewScope).Match(out var Type, out var Error)) {
-							Types = mStream.Stream(Type, Types);
+						if (!Type__.MatchPair(out var Type, out Type__!)) {
+							return mResult.Fail($"{Head.Pos}: ERROR expected pair");
+						}
+						
+						if (UpdateMatchTypes(Head, mMaybe.Some(Type), aTypeRelation, aNewScope, out aNewScope).Match(out var Type_, out var Error)) {
+							Types = mStream.Stream(Type_, Types);
 						} else {
 							return mResult.Fail(Error);
 						}
 					}
 				} else {
 					while (Tail.Match(out var Head, out Tail)) {
-						if (!aType.MatchPair(out var Type, out aType)) {
-							return mResult.Fail($"{Head.Pos}: ERROR expected pair");
-						}
-						
-						if (UpdateMatchTypes(Head, Type, aTypeRelation, aNewScope, out aNewScope).Match(out var Type_, out var Error)) {
-							Types = mStream.Stream(Type_, Types);
+						if (UpdateMatchTypes(Head, mStd.cEmpty, aTypeRelation, aNewScope, out aNewScope).Match(out var Type, out var Error)) {
+							Types = mStream.Stream(Type, Types);
 						} else {
 							return mResult.Fail(Error);
 						}
@@ -290,18 +297,24 @@ mSPO_AST_Types {
 				Result = mResult.OK(mVM_Type.Empty());
 				aNewScope = aScope;
 				while (Tail.Match(out var Head, out Tail)) {
-					var Type = (mVM_Type.tType?)null;
-					if (!(aType is null)) { 
-						var RecordType = aType;
-						while (RecordType.MatchRecord(out var Key, out Type, out RecordType!)) {
+					var Type = mMaybe.None<mVM_Type.tType>();
+					if (aType.Match(out var RecordType)) { 
+						while (RecordType.MatchRecord(out var Key, out var Type_, out RecordType!)) {
+							Type = mMaybe.Some(Type_);
 							if (Key == Head.Key.Name) {
 								break;
 							}
 						}
-						mAssert.IsFalse(Type is null);
+						mAssert.IsTrue(Type.Match(out _));
 					}
 					
-					Result = UpdateMatchTypes(Head.Match, Type, aTypeRelation, aNewScope, out aNewScope).Then(
+					Result = UpdateMatchTypes(
+						Head.Match,
+						Type,
+						aTypeRelation,
+						aNewScope,
+						out aNewScope
+					).Then(
 						a => mVM_Type.Record(mVM_Type.Prefix(Head.Key.Name, a), Result._Value)
 					);
 				}
@@ -326,7 +339,7 @@ mSPO_AST_Types {
 				throw mError.Error("not implemented: " + aMatch.GetType().Name);
 			}
 		}
-		return Result.ThenDo(_ => { aMatch.TypeAnnotation = _; });
+		return Result.ThenDo(_ => { aMatch.TypeAnnotation = mMaybe.Some(_); });
 	}
 	
 	public static mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>?, tText>
@@ -338,12 +351,12 @@ mSPO_AST_Types {
 		
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
-				if (Def.Des.Type is null) {
-					return UpdateExpressionTypes(Def.Src, aScope).ThenTry(
+				if (Def.Des.Type.Match(out var Type)) {
+					return ResolveTypeExpression(Type, aScope).ThenTry(
 						aType => UpdateMatchTypes(
 							Def.Des,
-							aType,
-							tTypeRelation.Equal,
+							mMaybe.Some(aType),
+							tTypeRelation.Super,
 							aScope,
 							out var Scope_
 						).Then(
@@ -351,11 +364,11 @@ mSPO_AST_Types {
 						)
 					);
 				} else {
-					return ResolveTypeExpression(Def.Des.Type, aScope).ThenTry(
+					return UpdateExpressionTypes(Def.Src, aScope).ThenTry(
 						aType => UpdateMatchTypes(
 							Def.Des,
-							aType,
-							tTypeRelation.Super,
+							mMaybe.Some(aType),
+							tTypeRelation.Equal,
 							aScope,
 							out var Scope_
 						).Then(
@@ -382,8 +395,18 @@ mSPO_AST_Types {
 						_ => aArgType == _.MethArgType,
 						_ => ""
 					).ThenTry(
-						_ => UpdateMatchTypes(MethodCall.Result, _.MethResType, tTypeRelation.Sub, aScope, out var Scope_).Then(
-							_ => Scope_
+						_ => (
+							!MethodCall.Result.Match(out var T)
+							? mResult.OK(aScope)
+							: UpdateMatchTypes<tPos>(
+								T,
+								mMaybe.Some(_.MethResType),
+								tTypeRelation.Sub,
+								aScope,
+								out var Scope_
+							).Then(
+								_ => Scope_
+							)
 						)
 					)
 				);
@@ -414,8 +437,8 @@ mSPO_AST_Types {
 												_ => ""
 											).ThenTry(
 												Types => {
-													if (Head.Result != null) {
-														return UpdateMatchTypes(Head.Result, Types.Res, tTypeRelation.Sub, NewScope, out NewScope).Then(
+													if (Head.Result.Match(out var Result)) {
+														return UpdateMatchTypes(Result, mMaybe.Some(Types.Res), tTypeRelation.Sub, NewScope, out NewScope).Then(
 															_ => NewScope
 														);
 													}
@@ -569,7 +592,7 @@ mSPO_AST_Types {
 						mStream.Stream<mVM_Type.tType>(),
 						(aList, aItem) => aList.All(a => a != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Reduce(
-						(mVM_Type.tType?)null,
+						mVM_Type.Empty(),
 						(aSet, aItem) => mVM_Type.Set(aItem, aSet)
 					)
 				);
@@ -587,6 +610,6 @@ mSPO_AST_Types {
 				throw mError.Error("not implemented: " + aExpression.GetType().Name);
 			}
 		}
-		return Result.ThenDo(_ => { aExpression.TypeAnnotation = _; });
+		return Result.ThenDo(_ => { aExpression.TypeAnnotation = mMaybe.Some(_); });
 	}
 }

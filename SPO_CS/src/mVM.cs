@@ -24,16 +24,16 @@ mVM {
 	
 	public sealed class
 	tCallStack<tPos> {
-		internal tCallStack<tPos>? _Parent;
+		internal mMaybe.tMaybe<tCallStack<tPos>> _Parent;
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs = default!;
 		internal mVM_Data.tProcDef<tPos> _ProcDef = default!;
 		internal tInt32 _CodePointer = 0;
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut = default!;
 	}
 	
-	public static tCallStack<tPos>
+	public static mMaybe.tMaybe<tCallStack<tPos>>
 	NewCallStack<tPos>(
-		tCallStack<tPos>? aParent,
+		mMaybe.tMaybe<tCallStack<tPos>> aParent,
 		mVM_Data.tProcDef<tPos> aProcDef,
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
@@ -74,10 +74,10 @@ mVM {
 		aTraceOut(() => "10 := ARG  |  "+aArg.ToText(20));
 		aTraceOut(() => "11 := RES");
 		
-		return Result;
+		return mMaybe.Some(Result);
 	}
 	
-	public static tCallStack<tPos>?
+	public static mMaybe.tMaybe<tCallStack<tPos>>
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tText, tPos> aPosToText
@@ -343,7 +343,7 @@ mVM {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
 					return NewCallStack(
-						aCallStack,
+						mMaybe.Some(aCallStack),
 						Def_,
 						Env,
 						mVM_Data.Empty(),
@@ -373,7 +373,7 @@ mVM {
 				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
 					var Res = mVM_Data.Empty();
 					aCallStack._Regs.Push(Res);
-					return NewCallStack(aCallStack, Def_, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+					return NewCallStack(mMaybe.Some(aCallStack), Def_, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 				} else {
 					throw mError.Error("impossible");
 				}
@@ -470,7 +470,7 @@ mVM {
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
-		return aCallStack;
+		return mMaybe.Some(aCallStack);
 	}
 	
 	public static mVM_Data.tData
@@ -498,9 +498,9 @@ mVM {
 	) {
 		using var _ = mPerf.Measure();
 		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
-			var CallStack = (tCallStack<tPos>?)NewCallStack(null, Def, Env, aObj, aArg, aRes, aTraceOut);
-			while (!CallStack.IsNull()) {
-				CallStack = CallStack.Step(aPosToText);
+			var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
+			while (CallStack.Match(out var CallStack_)) {
+				CallStack = CallStack_.Step(aPosToText);
 			}
 		} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
 			var Res = ExternDef(Env, aObj, aArg, aTraceOut);

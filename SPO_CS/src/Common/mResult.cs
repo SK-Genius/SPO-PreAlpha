@@ -43,38 +43,38 @@ mResult {
 	}
 	
 	public struct
-	tResult<t, tFail> {
+	tResult<tOK, tError> {
 		
 		internal tBool _IsOK;
-		internal t _Value;
-		internal tFail _Error;
+		internal tOK _Value;
+		internal tError _Error;
 		
 		public static
-		implicit operator tResult<t, tFail>(
-			tResultOK<t> aOK
-		) => new tResult<t, tFail> {
+		implicit operator tResult<tOK, tError>(
+			tResultOK<tOK> aOK
+		) => new tResult<tOK, tError> {
 			_IsOK = true,
 			_Value = aOK._Value
 		};
 		
 		public static
-		implicit operator tResult<t, tFail>(
-			tResultFail<tFail> aFail
-		) => new tResult<t, tFail> {
+		implicit operator tResult<tOK, tError>(
+			tResultFail<tError> aFail
+		) => new tResult<tOK, tError> {
 			_IsOK = false,
 			_Error = aFail._Error
 		};
 	}
 	
-	public static tResultOK<t>
-	OK<t>(
-		t a
-	) => new tResultOK<t>(a);
+	public static tResultOK<tOK>
+	OK<tOK>(
+		tOK a
+	) => new tResultOK<tOK>(a);
 	
-	public static tResultFail<tFail>
-	Fail<tFail>(
-		tFail aError
-	) => new tResultFail<tFail>(aError);
+	public static tResultFail<tError>
+	Fail<tError>(
+		tError aError
+	) => new tResultFail<tError>(aError);
 	
 	public static tResultFail<mStd.tEmpty>
 	Fail(
@@ -99,6 +99,13 @@ mResult {
 		aValue = a._Value;
 		return a._IsOK;
 	}
+	
+	public static tOut
+	Match<tOK, tError, tOut>(
+		this tResult<tOK, tError> a,
+		mStd.tFunc<tOut, tOK> aIfOK,
+		mStd.tFunc<tOut, tError> aIfError
+	) => a._IsOK ? aIfOK(a._Value) : aIfError(a._Error);
 	
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(

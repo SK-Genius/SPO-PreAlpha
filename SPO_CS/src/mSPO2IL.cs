@@ -129,7 +129,7 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
 	) {
-		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg, null);
+		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg, mStd.cEmpty);
 		var ResultReg = aDefConstructor.MapExpresion(aLambdaNode.Body);
 		if (!(aLambdaNode.Body is mSPO_AST.tBlockNode<tPos>)) {
 			aDefConstructor.Commands.Push(
@@ -148,8 +148,8 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	) {
-		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg, null);
-		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj, null);
+		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg, mStd.cEmpty);
+		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj, mStd.cEmpty);
 		
 		var ResultReg = aDefConstructor.MapExpresion(aMethodNode.Body);
 		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aMethodNode.Pos, ResultReg, mIL_AST.cTrue));
@@ -464,17 +464,17 @@ mSPO2IL {
 						mSPO_AST.Match(
 							IfNode.Pos,
 							new mSPO_AST.tMatchFreeIdentNode<tPos>{Name = ResultReg},
-							null
+							mStd.cEmpty
 						),
 						mSPO_AST.Call(
 							IfNode.Pos,
 							mSPO_AST.Lambda(
 								IfNode.Pos,
-								null,
+								mStd.cEmpty,
 								mSPO_AST.Match(
 									IfNode.Pos,
 									mSPO_AST.Empty(IfNode.Pos),
-									null
+									mStd.cEmpty
 								),
 								mSPO_AST.Block(IfNode.Pos, Ifs.ToStream())
 							),
@@ -506,7 +506,7 @@ mSPO2IL {
 					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResult, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
-					RunDef.MapMatch(Case.Match, mIL_AST.cArg, null);
+					RunDef.MapMatch(Case.Match, mIL_AST.cArg, mStd.cEmpty);
 					var Result = RunDef.MapExpresion(Case.Expression);
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, Result, mIL_AST.cTrue));
 					RunDef.FinishMapProc(CasePos, RunDef.UnsolvedSymbols);
@@ -706,7 +706,7 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMatchNode<tPos> aMatchNode,
 		tText aReg,
-		mVM_Type.tType? aRegType
+		mMaybe.tMaybe<mVM_Type.tType> aRegType
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.Type;
@@ -745,7 +745,7 @@ mSPO2IL {
 				aDefConstructor.MapMatch(
 					PrefixNode.Match,
 					ResultReg,
-					null
+					mStd.cEmpty
 				);
 				break;
 			}
@@ -758,8 +758,8 @@ mSPO2IL {
 					
 					var Reg = aReg;
 					var Found = false;
-					var RecType = aRegType;
-					while (RecType.MatchRecord(out var HeadKey, out var HeadType, out RecType)) {
+					mAssert.IsTrue(aRegType.Match(out var RecType));
+					while (RecType.MatchRecord(out var HeadKey, out var HeadType, out RecType!)) {
 						var HeadTailReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
 						if (HeadKey == Element.Key.Name) {
@@ -767,7 +767,7 @@ mSPO2IL {
 							aDefConstructor.Commands.Push(mIL_AST.GetSecond(Pos, TempValueReg_, HeadTailReg));
 							var TempValueReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Element.Key.Name, TempValueReg_));
-							aDefConstructor.MapMatch(Element.Match, TempValueReg, null);
+							aDefConstructor.MapMatch(Element.Match, TempValueReg, mStd.cEmpty);
 							Found = true;
 							break;
 						} else {
@@ -804,22 +804,22 @@ mSPO2IL {
 			case mSPO_AST.tMatchGuardNode<tPos> GuardNode: {
 			//--------------------------------------------------------------------------------
 				// TODO: ASSERT GuardNode._Guard
-				aDefConstructor.MapMatch(GuardNode.Match, aReg, null);
+				aDefConstructor.MapMatch(GuardNode.Match, aReg, mStd.cEmpty);
 				break;
 			}
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 			//--------------------------------------------------------------------------------
-				if (TypeNode is null) {
-					aDefConstructor.MapMatch(MatchNode, aReg, null);
-				} else if (MatchNode.Type is null) {
+				if (!TypeNode.Match(out var TypeNode_)) {
+					aDefConstructor.MapMatch(MatchNode, aReg, mStd.cEmpty);
+				} else if (!MatchNode.Type.Match(out var MatchTypeNode)) {
 					aDefConstructor.MapMatch(
 						mSPO_AST.Match(MatchNode.Pos, MatchNode.Pattern, TypeNode),
 						aReg,
-						null
+						mStd.cEmpty
 					);
 				} else {
-					throw mError.Error("not implemented"); //TODO: Unify MatchNode.Type & TypeNode
+					throw mError.Error("not implemented"); //TODO: Unify MatchTypeNode & TypeNode_
 				}
 				break;
 			}
@@ -945,7 +945,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 			//--------------------------------------------------------------------------------
-				aDefConstructor.MapMatch(MatchNode, aInReg, null);
+				aDefConstructor.MapMatch(MatchNode, aInReg, mStd.cEmpty);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -1104,14 +1104,14 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}
-			var Result = (Call.Result is null) ? mIL_AST.cEmpty : aDefConstructor.CreateTempReg();
+			var Result = Call.Result.Match(out var _) ? aDefConstructor.CreateTempReg() : mIL_AST.cEmpty;
 			var MethodReg = aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
 				mIL_AST.CreatePair(aMethodCallsNode.Object.Pos, MethodReg, Object, MethodName),
 				mIL_AST.CallProc(aMethodCallsNode.Pos, Result, MethodReg, Arg)
 			);
-			if (Call.Result != null) {
-				aDefConstructor.MapMatch(Call.Result, Result, null);
+			if (Call.Result.Match(out var Result_)) {
+				aDefConstructor.MapMatch(Result_, Result, mStd.cEmpty);
 			}
 			
 			var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
@@ -1163,7 +1163,7 @@ mSPO2IL {
 		var TempLambdaDef = ModuleConstructor.NewDefConstructor();
 		var Lambda = mSPO_AST.Lambda(
 			aModuleNode.Pos,
-			null,
+			mStd.cEmpty,
 			aModuleNode.Import.Match,
 			mSPO_AST.Block(
 				aMergePos(
@@ -1182,7 +1182,7 @@ mSPO2IL {
 				)
 			)
 		);
-		return mSPO_AST_Types.UpdateExpressionTypes(Lambda, null).Then(
+		return mSPO_AST_Types.UpdateExpressionTypes(Lambda, mStd.cEmpty).Then(
 			_ => {
 				TempLambdaDef.InitMapLambda(Lambda);
 				if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {

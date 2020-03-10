@@ -31,9 +31,6 @@ mStream {
 		internal t _Head = default!;
 		internal mStd.tLazy<tStream<t>?> _Tail;
 		
-		public t Head => this.ForceFirst();
-		public tStream<t>? Tail => this.Skip(1);
-		
 		public tBool
 		Equals(
 			tStream<t>? a
@@ -47,7 +44,12 @@ mStream {
 		override public tBool
 		Equals(
 			object? a
-		) => this.Equals(a as tStream<t>);
+		) => this.Equals((tStream<t>?)a);
+		
+		public static
+		implicit operator tStream<t>?(
+			mStd.tEmpty _
+		) => null;
 		
 		private struct tDebuggerProxy {
 			private readonly tStream<t> _Stream;
@@ -55,40 +57,7 @@ mStream {
 			[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.RootHidden)]
 			public t[] Text => this._Stream.Take(100).ToArrayList().ToArray();
 		}
-		
-		public struct tEnumerator {
-			internal tStream<t> _;
-			
-			public t Current => _.Head;
-			
-			public
-			tEnumerator(
-				tStream<t>? a
-			) {
-				this._ = Stream(default(t)!, a);
-			}
-			
-			public bool
-			MoveNext(
-			) {
-				if (this._.Tail is null) {
-					return false;
-				}
-				
-				this._ = this._.Tail;
-				return true;
-			}
-			
-			public void Dispose() => throw new System.NotImplementedException();
-			
-			public void Reset() => throw new System.NotImplementedException();
-		}
 	}
-	
-	public static tStream<t>.tEnumerator
-	GetEnumerator<t>(
-		this tStream<t> a
-	) => new tStream<t>.tEnumerator(a);
 	
 	public static tStream<t>
 	Stream<t>(
@@ -116,9 +85,7 @@ mStream {
 	
 	public static tStream<t>?
 	Stream<t>(
-	) {
-		return null;
-	}
+	) => mStd.cEmpty;
 	
 	public static tStream<t>?
 	Stream<t>(
@@ -163,6 +130,7 @@ mStream {
 		: a2
 	);
 	
+	[return: NotNullIfNotNull("aStream")]
 	public static tStream<tRes>?
 	Map<tRes, tElem>(
 		this tStream<tElem>? aStream,
@@ -314,7 +282,7 @@ mStream {
 		if (aStream.IsEmpty()) {
 			return mStd.cEmpty;
 		} else {
-			return aStream._Head;
+			return mMaybe.Some(aStream._Head);
 		}
 	}
 	
@@ -331,7 +299,7 @@ mStream {
 			while (aStream.Match(out var Head, out aStream)) {
 				Result = Head;
 			}
-			return Result;
+			return mMaybe.Some(Result);
 		} else {
 			return mStd.cEmpty;
 		}

@@ -134,7 +134,7 @@ mSPO_Parser {
 	.SetName(nameof(UnTypedMatch));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
-	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(), -SpecialToken("€") +Expression)
+	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(), (-SpecialToken("€") +Expression).Modify(mMaybe.Some))
 	.ModifyS(mSPO_AST.Match)
 	.SetName(nameof(TypedMatch));
 	
@@ -284,7 +284,7 @@ mSPO_Parser {
 		(aSpan, aIdent, aChilds) => mSPO_AST.MatchPrefix(
 			aSpan,
 			aIdent,
-			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChilds), null)
+			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChilds), mStd.cEmpty)
 		)
 	)
 	.SetName(nameof(MatchPrefix));
@@ -533,7 +533,7 @@ mSPO_Parser {
 			aSpan,
 			mSPO_AST.Ident(aSpan, aFirst.Name.Substring(1) + aInfix.Ident.Name.Substring(1)),
 			mSPO_AST.Tuple(aSpan, aInfix.Childs),
-			aMaybeOut
+			aMaybeOut is null ? mStd.cEmpty : mMaybe.Some(aMaybeOut)
 		)
 	)
 	.SetName(nameof(MethodCall));

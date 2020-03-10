@@ -20,8 +20,10 @@ using tText = System.String;
 
 public static class
 mMaybe {
+	
 	public readonly struct
 	tMaybe<t> {
+		
 		internal readonly tBool _HasValue;
 		internal readonly t _Value;
 		
@@ -37,17 +39,16 @@ mMaybe {
 		implicit operator tMaybe<t>(
 			mStd.tEmpty _
 		) => new tMaybe<t>(false, default!);
-		
-		public static
-		implicit operator tMaybe<t>(
-			t aValue
-		) => new tMaybe<t>(true, aValue);
 	}
 	
 	public static tMaybe<t>
 	Some<t>(
 		t a
-	) => a;
+	) => new tMaybe<t>(true, a);
+	
+	public static tMaybe<t>
+	None<t>(
+	) => mStd.cEmpty;
 	
 	public static tBool
 	Match<t>(
@@ -63,6 +64,23 @@ mMaybe {
 		}
 	}
 	
+	public static tOut
+	Match<tIn, tOut>(
+		this tMaybe<tIn> a,
+		mStd.tFunc<tOut, tIn> aIfSome,
+		mStd.tFunc<tOut> aIfNone
+	) => a._HasValue ? aIfSome(a._Value) : aIfNone();
+	
+	public static tMaybe<tOut>
+	Then<tIn, tOut>(
+		this tMaybe<tIn> a,
+		mStd.tFunc<tOut, tIn> aMap
+	) => (
+		a.Match(out var Value)
+		? Some(aMap(Value))
+		: mStd.cEmpty
+	);
+	
 	public static tMaybe<tOut>
 	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
@@ -71,6 +89,16 @@ mMaybe {
 		a.Match(out var Value)
 		? aMap(Value)
 		: mStd.cEmpty
+	);
+	
+	public static t
+	Else<t>(
+		this tMaybe<t> a,
+		t aDefault
+	) => (
+		a.Match(out var Value)
+		? Value
+		: aDefault
 	);
 	
 	public static t
@@ -99,7 +127,7 @@ mMaybe {
 		mStd.tLazy<t> aDefault
 	) => (
 		a.Match(out var Value)
-		?	Value
+		? Value
 		: aDefault.Value
 	);
 	
@@ -110,7 +138,7 @@ mMaybe {
 	) => a.ThenTry<t, t>(
 		_ => {
 			if (aCond(_)) {
-				return _;
+				return mMaybe.Some(_);
 			} else {
 				return mStd.cEmpty;
 			}
