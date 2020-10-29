@@ -32,7 +32,7 @@ mSPO_Interpreter {
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	) => mIL_Interpreter<tSpan>.Run(
+	) => mIL_GenerateOpcodes.Run(
 		mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),
 			mSpan.Merge

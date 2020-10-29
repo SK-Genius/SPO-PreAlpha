@@ -44,16 +44,16 @@ mTest {
 	
 	public struct
 	tTestRun : tTest {
-		internal tText _Name;
-		internal mStd.tAction<mStd.tAction<tText>> _TestFunc;
-		internal tText _File;
-		internal tInt32 _Line; 
+		internal tText _Name { get; init; }
+		internal mStd.tAction<mStd.tAction<tText>> _TestFunc { get; init; }
+		internal tText _File { get; init; }
+		internal tInt32 _Line { get; init; }
 	}
 	
 	public struct
 	tTests : tTest {
-		internal tText _Name;
-		internal tTest[] _Tests;
+		internal tText _Name { get; init; }
+		internal tTest[] _Tests { get; init; }
 	}
 	
 	public static tTest
@@ -99,15 +99,22 @@ mTest {
 						
 						var Value_00 = (ClocksEnd - ClocksStart) * 100;
 						var E = "";
-						if (Value_00 >= 1_000_000_000_00) {
-							E = "G";
-							Value_00 /= 1_000_000_000;
-						} else if (Value_00 >= 1_000_000_00) {
-							E = "M";
-							Value_00 /= 1_000_000;
-						} else if (Value_00 >= 1_000_00) {
-							E = "k";
-							Value_00 /= 1_000;
+						switch (Value_00) {
+							case >= 1_000_000_000_00: {
+								E = "G";
+								Value_00 /= 1_000_000_000;
+								break;
+							}
+							case >= 1_000_000_00: {
+								E = "M";
+								Value_00 /= 1_000_000;
+								break;
+							}
+							case >= 1_000_00: {
+								E = "k";
+								Value_00 /= 1_000;
+								break;
+							}
 						}
 						var Value = Value_00 / 100;
 						var SubValue = "";
@@ -178,18 +185,25 @@ mTest {
 				var MSec = StopWatch.ElapsedMilliseconds;
 				var E = "mSec";
 				var Value_00 = MSec * 100;
-				if (MSec >= 60 * 60 * 1000) {
-					E = "Hour";
-					Value_00 /= 60 * 60 * 1000;
-				} else if (MSec >= 60 * 1000) {
-					E = "Min";
-					Value_00 /= 60 * 1000;
-				} else if (MSec >= 1000) {
-					E = "Sec";
-					Value_00 /= 1000;
-				}
-				
-				aDebugStream(
+					switch (MSec) {
+						case >= 60 * 60 * 1000: {
+							E = "Hour";
+							Value_00 /= 60 * 60 * 1000;
+							break;
+						}
+						case >= 60 * 1000: {
+							E = "Min";
+							Value_00 /= 60 * 1000;
+							break;
+						}
+						case >= 1000: {
+							E = "Sec";
+							Value_00 /= 1000;
+							break;
+						}
+					}
+					
+					aDebugStream(
 					tText.Concat(
 						(
 							"> "
@@ -234,7 +248,7 @@ mTest {
 	AddPrefix(
 		this mStd.tAction<tText> aWritLine,
 		tText aPrefix
-	) {
-		return (tText aLine) => { aWritLine(aPrefix + aLine); };
-	}
+	) => (tText aLine) => {
+		aWritLine(aPrefix + aLine);
+	};
 }

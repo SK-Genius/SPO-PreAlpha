@@ -25,7 +25,7 @@ using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
-mIL_Interpreter_Tests {
+mIL_GenerateOpcodes_Tests {
 	
 	private static tText
 	SpanToText(
@@ -37,7 +37,7 @@ mIL_Interpreter_Tests {
 		tText aSourceCode,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_Interpreter<tSpan>.ParseModule(
+	) => mIL_GenerateOpcodes.GenerateOpcodes(
 		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
 		aTrace
 	);
@@ -48,7 +48,7 @@ mIL_Interpreter_Tests {
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_Interpreter<tSpan>.Run(
+	) => mIL_GenerateOpcodes.Run(
 		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
 		aImport,
 		SpanToText,
@@ -109,7 +109,7 @@ mIL_Interpreter_Tests {
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mIL_Interpreter<tSpan>),
+		nameof(mIL_GenerateOpcodes),
 		mTest.Test(
 			"Call",
 			aDebugStream => {
@@ -127,7 +127,9 @@ mIL_Interpreter_Tests {
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
 					);
 				#else
-					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
+					var TraceOut = mStd.Action(
+						(mStd.tFunc<tText> _) => {}
+					);
 				#endif
 				
 				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
@@ -206,7 +208,9 @@ mIL_Interpreter_Tests {
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
 					);
 				#else
-					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
+					var TraceOut = mStd.Action(
+						(mStd.tFunc<tText> _) => {}
+					);
 				#endif
 				
 				var CallStack = mVM.NewCallStack(
@@ -260,7 +264,7 @@ mIL_Interpreter_Tests {
 					"	mul_  := §1ST rest2\n" +
 					
 					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := .sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	sub := .sub_ EMPTY\n" + // sub_ :: €EMPTY => (€Int, €Int) => €Int
 					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
 					
 					"	_1_1 := _1, _1\n" +
@@ -284,9 +288,9 @@ mIL_Interpreter_Tests {
 					"	eq_   := §1ST rest3\n" +
 					
 					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := .sub_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
+					"	sub := .sub_ EMPTY\n" + // sub_ :: €EMPTY => (€Int, €Int) => €Int
 					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
-					"	eq  := .eq_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Bool
+					"	eq  := .eq_ EMPTY\n" + // eq_ :: €EMPTY => (€Int, €Int) => €Bool
 					
 					"	_1_1 := _1, _1\n" +
 					"	_0   := .sub _1_1\n" +
@@ -341,7 +345,9 @@ mIL_Interpreter_Tests {
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
 					);
 				#else
-					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
+					var TraceOut = mStd.Action(
+						(mStd.tFunc<tText> _) => {}
+					);
 				#endif
 				{
 					var Res = mVM_Data.Empty();

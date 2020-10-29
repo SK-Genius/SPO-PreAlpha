@@ -103,23 +103,17 @@ mAssert {
 	IsNull<t>(
 		t a,
 		mStd.tFunc<tText>? aMsg = null
-	) {
-		if (!ReferenceEquals(a, null)) {
-			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is not null"));
-		}
-		return a;
-	}
+	) => (
+		a is not null
+		? throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is not null"))
+		: a
+	);
 	
 	public static t
 	IsNotNull<t>(
 		t a,
 		mStd.tFunc<tText>? aMsg = null
-	) {
-		if (ReferenceEquals(a, null)) {
-			throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is null"));
-		}
-		return a;
-	}
+	) => a ?? throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is null"));
 	
 	public static void
 	IsIn<t>(

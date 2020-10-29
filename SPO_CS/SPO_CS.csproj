@@ -1,18 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-	
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
-		<OutputType>Exe</OutputType> <!--  Exe | Library | Module | Winexe -->
+		<LangVersion>preview</LangVersion>
+		<TargetFramework>net5.0</TargetFramework>
+		<!-- netcoreapp3.1 net5.0 -->
+		<OutputType>Exe</OutputType>
+		<!--  Exe | Library | Module | Winexe -->
 		<DefineConstants>noMY_TRACE</DefineConstants>
-		<NoWarn>659,661</NoWarn>
+		<NoWarn>659,661,8604</NoWarn>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-	
 	<ItemGroup>
 		<TestSrc Include="**\*.Tests.cs" />
 		<Compile Update="@(TestSrc)">
 			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Tests', '')).cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
-	
 </Project>

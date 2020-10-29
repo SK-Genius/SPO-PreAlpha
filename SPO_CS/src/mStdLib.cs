@@ -32,7 +32,7 @@ mStdLib {
 			return Data;
 		}
 		
-		var ImportData = mIL_Interpreter<mSpan.tSpan<mTextStream.tPos>>.Run(
+		var ImportData = mIL_GenerateOpcodes.Run(
 			mIL_Parser.Module.ParseText(
 @"§DEF Init
 	_01 := ENV

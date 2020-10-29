@@ -32,7 +32,7 @@ mIL_Parser {
 	NL = mTokenizer.NL_Token;
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
-	QuotedString  = mTokenizer.TextToken;
+	QuotedString = mTokenizer.TextToken;
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	Number = mTokenizer.NumberToken;
@@ -57,7 +57,7 @@ mIL_Parser {
 		_ => new mTokenizer.tToken{
 			Span = _.Span,
 			Type = _.Type,
-			Text = _.Text.Substring(1)
+			Text = _.Text[1..]
 		}
 	);
 	
@@ -291,7 +291,7 @@ mIL_Parser {
 	.SetDebugName(nameof(Command));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
-	Block = (Command +-NL)[1, null]
+	Block = (Command +-NL)[1..]
 	.SetDebugName(nameof(Block));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, (tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?), tError>
@@ -314,6 +314,6 @@ mIL_Parser {
 	.SetDebugName(nameof(Def));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?)>?, tError>
-	Module = Def[1, null]
+	Module = Def[1..]
 	.SetDebugName(nameof(Module));
 }

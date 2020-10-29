@@ -89,9 +89,9 @@ mTextParser {
 	GetCharIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		a => {
+		aChar => {
 			foreach (var RefChar in aRefChars) {
-				if (a == RefChar) {
+				if (aChar == RefChar) {
 					return true;
 				}
 			}
@@ -106,9 +106,9 @@ mTextParser {
 	GetCharNotIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		a => {
+		aChar => {
 			foreach (var RefChar in aRefChars) {
-				if (a == RefChar) {
+				if (aChar == RefChar) {
 					return false;
 				}
 			}

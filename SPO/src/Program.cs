@@ -21,7 +21,12 @@ mProgram {
 	) {
 		var ProjectFile = new System.IO.FileInfo(aArgs.Length > 0 ? aArgs[0] : "src/_.spo");
 		var Folder = ProjectFile.Directory.FullName;
-		var DebugOut = mStd.Action((mStd.tFunc<tText> a) => System.Console.Error.WriteLine(a()));
+		var DebugOut = mStd.Action(
+			(mStd.tFunc<tText> a) => {
+				System.Console.Error.WriteLine(a());
+				System.Console.Error.Flush();
+			}
+		);
 		try {
 			var StdLib = mStdLib.GetImportData();
 			

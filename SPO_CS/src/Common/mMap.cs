@@ -30,8 +30,8 @@ mMap {
 			mStream.tStream<(tKey, tValue)>? aKeyValuePairs,
 			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 		) {
-			_KeyValuePairs = aKeyValuePairs;
-			_EqualsFunc = aEqualsFunc;
+			this._KeyValuePairs = aKeyValuePairs;
+			this._EqualsFunc = aEqualsFunc;
 		}
 	}
 	
@@ -48,9 +48,7 @@ mMap {
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
 	) {
-		var RestList = aMap._KeyValuePairs;
-		while (RestList.Match(out var KeyValuePair, out RestList)) {
-			var (Key, Value) = KeyValuePair;
+		foreach (var (Key, Value) in aMap._KeyValuePairs) {
 			if (aMap._EqualsFunc(Key, aKey)) {
 				return mMaybe.Some(Value);
 			}

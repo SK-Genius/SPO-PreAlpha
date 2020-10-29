@@ -1,16 +1,24 @@
 ﻿§IMPORT {
 	StdLib: §DEF StdLib
-	LoadModule...: §DEF LoadModule...
+	LoadModule...: §DEF LoadModule... € [tIO : tText => [§ANY => §ANY]]
 }
 
 §EXPORT (§DEF aIO) : () {
-	aIO :
-		LoadModule "Stack.spo" => §DEF StackModule...
-		LoadModule "StackTest.spo" => §DEF StackTestModule...
-	.
 	
-	§DEF StackModule = .StackModule StdLib
-	{ RunTest: §DEF RunTest } = .StackTestModule (StdLib, StackModule)
-	
-	§RETURN .RunTest
+		(aIO : LoadModule "Stack.spo" => ...) §MATCH {
+		§DEF StackModuleF... € [{StdLib € §TYPE_OF StdLib} => §ANY] => {
+			StackTestModuleF... §MATCH {
+				§DEF StackModule = .StackModuleF StdLib
+				(LoadModule "StackTest.spo" => ...) §MATCH {
+					StackTestModuleF... € [{StdLib € §TYPE_OF StdLib, StackModule € §TYPE_OF StackModule} => {Run € [] => ³BOOL}}] => {
+						§DEF StackTestModule = .StackTestModuleF {StdLib: StdLib, StackModule: StackModule}
+						§RETURN .StackTestModule::Run
+					}
+					... => ERROR ???
+				}
+				... => ERROR ???
+			}
+		}
+	}
+
 }

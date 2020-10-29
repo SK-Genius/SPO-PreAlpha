@@ -37,6 +37,8 @@ public static class mStd {
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> a) => a;
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> a) => a;
 	
+	public static t Call<t>(mStd.tFunc<t> a) => a();
+	
 	public delegate void tAction();
 	public delegate void tAction<in tArg>(tArg a);
 	public delegate void tAction<in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
@@ -67,23 +69,47 @@ public static class mStd {
 		this t a
 	) where t : class => a;
 	
-	public struct
+	public sealed class
 	tLazy<t> {
+		private mStd.tFunc<t>? _Func;
 		private t _Value;
-		public mStd.tFunc<t>? Func { private get; set; }
+		
 		public t Value {
 			get {
-				if (this.Func is null) {
+				if (this._Func is null) {
 					return this._Value;
 				} else {
-					this.Value = this.Func();
-					return this.Value;
+					this._Value = this._Func();
+					this._Func = null;
+					return this._Value;
 				}
 			}
-			set {
-				this._Value = value;
-				this.Func = null;
-			}
+		}
+		
+		internal
+		tLazy(
+			t a
+		) {
+			this._Value = a;
+			this._Func = null;
+		}
+		
+		internal
+		tLazy(
+			mStd.tFunc<t> a
+		) {
+			this._Func = a;
+			this._Value = default!;
 		}
 	}
+	
+	public static tLazy<t>
+	NonLazy<t>(
+		t a
+	) => new tLazy<t>(a);
+	
+	public static tLazy<t>
+	Lazy<t>(
+		mStd.tFunc<t> a
+	) => new tLazy<t>(a);
 }

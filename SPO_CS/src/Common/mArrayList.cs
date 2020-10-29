@@ -29,7 +29,7 @@ mArrayList {
 		internal tInt32 _CurrSize;
 		internal t[] _Items = System.Array.Empty<t>();
 		
-		public tBool 
+		public tBool
 		Equals(
 			tArrayList<t> a
 		) {
@@ -38,14 +38,14 @@ mArrayList {
 			}
 			
 			for (var Index = 0; Index < this._CurrSize; Index += 1) {
-				if (!object.Equals(this._Items[Index], a._Items[Index])) {
+				if (!Equals(this._Items[Index], a._Items[Index])) {
 					return false;
 				}
 			}
 			return true;
 		}
 		
-		override public tBool
+		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tArrayList<t>)a!);
@@ -61,12 +61,12 @@ mArrayList {
 	
 	public static tInt32
 	Size<t>(
-		this tArrayList<t> aList 
+		this tArrayList<t> aList
 	) => aList._CurrSize;
 	
 	public static tBool
 	IsEmpty<t>(
-		this tArrayList<t> aList 
+		this tArrayList<t> aList
 	) => aList.Size() == 0;
 	
 	private static void
@@ -156,7 +156,7 @@ mArrayList {
 	}
 	
 	public static mStream.tStream<t>?
-	ToLasyList<t>(
+	ToLazyList<t>(
 		this tArrayList<t> aList,
 		tInt32 aStartIndex
 	) => (
@@ -164,14 +164,14 @@ mArrayList {
 		? mStream.Stream<t>()
 		: mStream.Stream(
 			aList._Items[aStartIndex],
-			() => aList.ToLasyList(aStartIndex + 1)
+			() => aList.ToLazyList(aStartIndex + 1)
 		)
 	);
 	
 	public static mStream.tStream<t>?
 	ToStream<t>(
 		this tArrayList<t> aList
-	) => aList.ToLasyList(0);
+	) => aList.ToLazyList(0);
 	
 	public static tArrayList<t>
 	ToArrayList<t>(

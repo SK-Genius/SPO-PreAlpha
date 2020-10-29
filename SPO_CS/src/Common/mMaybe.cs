@@ -31,8 +31,8 @@ mMaybe {
 			tBool aHasValue,
 			t aValue
 		) {
-			_HasValue = aHasValue;
-			_Value = aValue;
+			this._HasValue = aHasValue;
+			this._Value = aValue;
 		}
 		
 		public static
@@ -136,12 +136,6 @@ mMaybe {
 		this tMaybe<t> a,
 		mStd.tFunc<tBool, t> aCond
 	) => a.ThenTry<t, t>(
-		_ => {
-			if (aCond(_)) {
-				return mMaybe.Some(_);
-			} else {
-				return mStd.cEmpty;
-			}
-		}
+		_ => aCond(_) ? mMaybe.Some(_) : mStd.cEmpty
 	);
 }

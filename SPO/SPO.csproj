@@ -1,12 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<LangVersion>preview</LangVersion>
+		<TargetFramework>net5.0</TargetFramework>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
-	
 	<ItemGroup>
 		<ProjectReference Include="..\SPO_CS\SPO_CS.csproj" />
-		
 		<None Update="src\Stack.spo">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>

@@ -27,7 +27,7 @@ mResult {
 		internal tResultFail(
 			t aError
 		) {
-			_Error = aError;
+			this._Error = aError;
 		}
 	}
 	
@@ -38,7 +38,7 @@ mResult {
 		internal tResultOK(
 			t aValue
 		) {
-			_Value = aValue;
+			this._Value = aValue;
 		}
 	}
 	
@@ -111,20 +111,16 @@ mResult {
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
 		mStd.tFunc<tResult<tOut, tError>, tIn> aMod
-	) => (
-		a.Match(out var Value, out var Error)
-		? aMod(Value)
-		: Fail(Error)
-	);
+	) => a.Match(out var Value, out var Error) ? aMod(Value) : Fail(Error);
 	
 	public static tResult<tOut, tError>
 	WhenAllThen<tIn, tOut, tError>(
-		this mStream.tStream<tResult<tIn, tError>>? a,
+		this mStream.tStream<tResult<tIn, tError>>? aResults,
 		mStd.tFunc<tOut, mStream.tStream<tIn>?> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>();
-		while (a.Match(out var Head, out a)) {
-			if (Head.Match(out var Value, out var Error)) {
+		foreach (var Result in aResults) {
+			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);
 			} else {
 				return Fail(Error);
@@ -139,7 +135,7 @@ mResult {
 		mStd.tFunc<tOut, tIn> aMod
 	) => (
 		a.Match(out var Value, out var Error)
-		? (tResult<tOut, tError>)OK(aMod(Value))
+		? OK(aMod(Value))
 		: Fail(Error)
 	);
 	
@@ -149,7 +145,7 @@ mResult {
 		mStd.tFunc<tResultFail<tError>, tIn> aMod
 	) => (
 		a.Match(out var Value, out var Error)
-		? (tResult<tOut, tError>)aMod(Value)
+		? aMod(Value)
 		: Fail(Error)
 	);
 	
@@ -177,33 +173,41 @@ mResult {
 	Else<t, tError>(
 		this tResult<t, tError> a,
 		mStd.tFunc<t, tError> aOnError
-	) => a.Match(out var Value, out var Error)
+	) => (
+		a.Match(out var Value, out var Error)
 		? Value
-		: aOnError(Error);
+		: aOnError(Error)
+	);
+	
+	public static tResult<t, tError>
+	ElseTry<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tFunc<tResult<t, tError>, tError> aOnError
+	) => (
+		a.Match(out var Value, out var Error)
+		? OK(Value)
+		: aOnError(Error)
+	);
 	
 	public static tResult<t, tError>
 	ElseFail<t, tError>(
 		this mMaybe.tMaybe<t> a,
 		mStd.tFunc<tError> aOnFail
-	) {
-		if (a.Match(out var Value)) {
-			return OK(Value);
-		} else {
-			return Fail(aOnFail());
-		}
-	}
+	) => (
+		a.Match(out var Value)
+		? OK(Value)
+		: (tResult<t, tError>)Fail(aOnFail())
+	);
 	
 	public static t
 	ElseThrow<t, tError>(
 		this tResult<t, tError> a,
 		mStd.tFunc<tText, tError> aModifyError
-	) {
-		if (a.Match(out var Value, out var Error)) {
-			return Value;
-		} else {
-			throw mError.Error(aModifyError(Error));
-		}
-	}
+	) => (
+		a.Match(out var Value, out var Error)
+		? Value
+		: throw mError.Error(aModifyError(Error))
+	);
 	
 	public static tResult<t, tError>
 	Assert<t, tError>(
@@ -211,12 +215,6 @@ mResult {
 		mStd.tFunc<tBool, t> aCond,
 		tError aError
 	) => a.ThenTry<t, t, tError>(
-		_ => {
-			if (aCond(_)) {
-				return OK(_);
-			} else {
-				return Fail(aError);
-			}
-		}
+		_ => aCond(_) ? OK(_) : (tResult<t, tError>)Fail(aError)
 	);
 }

@@ -55,7 +55,7 @@ mRunTests {
 //		mIL_AST_Test.Test,
 		mTokenizer_Tests.Tests,
 		mIL_Parser_Tests.Tests,
-		mIL_Interpreter_Tests.Tests,
+		mIL_GenerateOpcodes_Tests.Tests,
 //		mSPO_AST_Test.Test,
 		mSPO_AST_Types_Tests.Tests,
 		mSPO_Parser_Tests.Tests,

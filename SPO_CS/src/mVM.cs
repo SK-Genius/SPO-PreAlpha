@@ -479,9 +479,9 @@ mVM {
 	) {
 		var Env = mVM_Data.Empty();
 		mAssert.IsTrue(aDefs.Match(out var LastDef, out aDefs));
-		while (aDefs.Match(out var DefTemp, out aDefs)) {
+		foreach (var Def in aDefs) {
 			Env = mVM_Data.Pair(Env, mVM_Data.Def(LastDef));
-			LastDef = DefTemp;
+			LastDef = Def;
 		}
 		
 		return mVM_Data.Proc(LastDef, Env);

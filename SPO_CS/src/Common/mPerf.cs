@@ -58,7 +58,9 @@ mPerf {
 		gStackIndex += 1;
 	}
 	
+	#if MY_TRACE
 	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
+	#endif
 	
 	public static void
 	ExitScope(

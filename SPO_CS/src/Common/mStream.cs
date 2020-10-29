@@ -28,8 +28,17 @@ mStream {
 	[System.Diagnostics.DebuggerTypeProxy(typeof(mStream.tStream<>.tDebuggerProxy))]
 	public sealed class
 	tStream<t> {
-		internal t _Head = default!;
-		internal mStd.tLazy<tStream<t>?> _Tail;
+		internal readonly t _Head = default!;
+		internal readonly mStd.tLazy<tStream<t>?> _Tail;
+		
+		internal
+		tStream(
+			t aHead,
+			mStd.tLazy<tStream<t>?> aTail
+		) {
+			this._Head = aHead;
+			this._Tail = aTail;
+		}
 		
 		public tBool
 		Equals(
@@ -41,7 +50,7 @@ mStream {
 			(Tail1 is null ? Tail2 is null : Tail1.Equals(Tail2))
 		);
 		
-		override public tBool
+		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tStream<t>?)a);
@@ -59,29 +68,48 @@ mStream {
 		}
 	}
 	
+	public struct
+	tStreamIterator<t> {
+		private t _Head;
+		private tStream<t>? _Tail;
+		
+		public
+		tStreamIterator(
+			tStream<t> aStream
+		) {
+			this._Head = default!;
+			this._Tail = aStream;
+		}
+		
+		public t Current => this._Head;
+		
+		public bool
+		MoveNext(
+		) => this._Tail.Match(out this._Head, out this._Tail);
+	}
+	
+	public static tStreamIterator<t>
+	GetEnumerator<t>(
+		this tStream<t> aStream
+	) => new tStreamIterator<t>(aStream);
+	
 	public static tStream<t>
 	Stream<t>(
 		t aHead,
 		mStd.tFunc<tStream<t>?> aTailFunc
-	) {
-		var Result = new tStream<t> {
-			_Head = aHead
-		};
-		Result._Tail.Func = aTailFunc;
-		return Result;
-	}
+	) => new tStream<t>(
+		aHead,
+		mStd.Lazy(aTailFunc)
+	);
 	
 	public static tStream<t>
 	Stream<t>(
 		t aHead,
 		tStream<t>? aTail
-	) {
-		var Result = new tStream<t> {
-			_Head = aHead
-		};
-		Result._Tail.Value = aTail;
-		return Result;
-	}
+	) => new tStream<t>(
+		aHead,
+		mStd.NonLazy(aTail)
+	);
 	
 	public static tStream<t>?
 	Stream<t>(
@@ -161,8 +189,8 @@ mStream {
 	#else
 	){
 		var Result = aInitialAggregate;
-		while (aStream.Match(out var Head, out aStream)) {
-			Result = aAggregatorFunc(Result, Head);
+		foreach (var Item in aStream) {
+			Result = aAggregatorFunc(Result, Item);
 		}
 		return Result;
 	}
@@ -183,15 +211,15 @@ mStream {
 		? Tail.Reduce(Head, aAggregatorFunc)
 		: aDefault
 	);
-	
+
 	public static tStream<t>?
 	Take<t>(
 		this tStream<t>? aStream,
 		tInt32 aCount
 	) => (
 		(aCount > 0 && aStream.Match(out var Head, out var Tail))
-		? Stream(Head, () => Tail.Take(aCount-1))
-		: Stream<t>()
+		? Stream(Head, () => Tail.Take(aCount - 1))
+		: mStd.cEmpty
 	);
 	
 	public static tStream<t>?
@@ -270,13 +298,11 @@ mStream {
 	public static mMaybe.tMaybe<t>
 	First<t>(
 		this tStream<t>? aStream
-	) {
-		if (aStream.IsEmpty()) {
-			return mStd.cEmpty;
-		} else {
-			return mMaybe.Some(aStream._Head);
-		}
-	}
+	) => (
+		aStream.IsEmpty()
+		? mStd.cEmpty
+		: mMaybe.Some(aStream._Head)
+	);
 	
 	public static t
 	ForceFirst<t>(
@@ -287,14 +313,11 @@ mStream {
 	Last<t>(
 		this tStream<t>? aStream
 	) {
-		if (!aStream.IsEmpty() && aStream.First().Match(out var Result)) {
-			while (aStream.Match(out var Head, out aStream)) {
-				Result = Head;
-			}
-			return mMaybe.Some(Result);
-		} else {
-			return mStd.cEmpty;
+		var Result = mMaybe.None<t>();
+		foreach (var Item in aStream) {
+			Result = mMaybe.Some(Item);
 		}
+		return Result;
 	}
 	
 	public static t
@@ -309,9 +332,8 @@ mStream {
 		#if TAIL_RECURSIVE
 		return aStream.Match(out var Head, out var Tail) && (Head || Tail.Any());
 		#else
-		var Tail = aStream;
-		while (Tail.Match(out var Head, out Tail)) {
-			if (Head) {
+		foreach (var Item in aStream) {
+			if (Item) {
 				return true;
 			}
 		}
@@ -341,9 +363,8 @@ mStream {
 		this tStream<t>? aStream
 	) {
 		var Result = Stream<t>();
-		var Tail = aStream;
-		while (Tail.Match(out var Head, out Tail)) {
-			Result = Stream(Head, Result);
+		foreach (var Item in aStream) {
+			Result = Stream(Item, Result);
 		}
 		return Result;
 	}

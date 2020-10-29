@@ -105,8 +105,6 @@ mStream_Tests {
 				mAssert.IsTrue(mStream.Stream<tInt32>().IsEmpty());
 				mAssert.IsFalse(mStream.Stream(1).IsEmpty());
 				mAssert.IsFalse(mStream.Stream(1, 2).IsEmpty());
-				
-				mAssert.IsFalse(mStream.Stream<tInt32>() == new mStream.tStream<tInt32>());
 			}
 		),
 		mTest.Test(
@@ -129,6 +127,16 @@ mStream_Tests {
 				mAssert.AreEquals(mStream.Stream(1, 2).Every(2), mStream.Stream(1));
 				mAssert.AreEquals(mStream.Stream<tInt32>().Every(2), mStream.Stream<tInt32>());
 				mAssert.AreEquals(mStream.Stream(1, 2, 3).Every(1), mStream.Stream(1, 2, 3));
+			}
+		),
+		mTest.Test(
+			"foreach",
+			sStreamOut => {
+				var Sum = 0;
+				foreach (var Value in mStream.Nat(3).Take(3)) {
+					Sum += Value;
+				}
+				mAssert.AreEquals(Sum, 3 + 4 + 5);
 			}
 		)
 	);

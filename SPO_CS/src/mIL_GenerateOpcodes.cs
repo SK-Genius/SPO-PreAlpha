@@ -24,25 +24,24 @@ using tChar = System.Char;
 using tText = System.String;
 
 public static class
-mIL_Interpreter<tPos> {
+mIL_GenerateOpcodes {
 	
 	public static (
 		mStream.tStream<mVM_Data.tProcDef<tPos>>?,
 		mTreeMap.tTree<tText, tInt32>
 	)
-	ParseModule(
+	GenerateOpcodes<tPos>(
 		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		using var _ = mPerf.Measure();
 		#if MY_TRACE
-			aTrace(() => nameof(ParseModule));
+			aTrace(() => nameof(GenerateOpcodes));
 		#endif
-		var ModuleMap = mTreeMap.Tree<tText, tInt32>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)));
+		var ModuleMap = mTreeMap.Tree<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign());
 		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
 		
-		var RestDefs = aDefs;
-		while (RestDefs.Match(out var Def, out RestDefs)) {
+		foreach (var Def in aDefs) {
 			var (DefName, DefType, Commands) = Def;
 			var NewProc = new mVM_Data.tProcDef<tPos>();
 			// TODO: set type if it known
@@ -74,7 +73,7 @@ mIL_Interpreter<tPos> {
 			);
 			Module = mStream.Concat(Module, mStream.Stream(NewProc));
 			
-			var Regs = mTreeMap.Tree<tText, tInt32>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)))
+			var Regs = mTreeMap.Tree<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
 			.Set(mIL_AST.cEmpty, mVM_Data.cEmptyReg)
 			.Set(mIL_AST.cOne, mVM_Data.cOneReg)
 			.Set(mIL_AST.cFalse, mVM_Data.cFalseReg)
@@ -101,8 +100,7 @@ mIL_Interpreter<tPos> {
 			.Push(DefArgType)
 			.Push(DefResType);
 			
-			var RestCommands = Commands;
-			while (RestCommands.Match(out var Command, out RestCommands)) {
+			foreach (var Command in Commands) {
 				//--------------------------------------------------------------------------------
 				if (Command.Match(mIL_AST.tCommandNodeType.CallFunc, out var Span, out var RegId1, out var RegId2, out var RegId3)) {
 				//--------------------------------------------------------------------------------
@@ -541,7 +539,7 @@ mIL_Interpreter<tPos> {
 				} else if (Command.Match(mIL_AST.tCommandNodeType.TypeRecursive, out Span, out RegId1, out RegId2, out RegId3)) {
 				//--------------------------------------------------------------------------------
 					var FreeTypeReg = Regs.ForceGet(RegId2);
-					mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2)), null, _ => mVM_Type.ToText(_, 10));
+					mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2)), null, _ => _.ToText(10));
 					var TypeBodyReg = Regs.ForceGet(RegId3);
 					Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
 					Types.Push(
@@ -590,37 +588,33 @@ mIL_Interpreter<tPos> {
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
 		}
-		#if MY_TRACE
+#if MY_TRACE
 		PrintILModule(aDefs, Module, a => { aTrace(() => a); });
-		#endif
-		
-		#if !true
+#endif
+
+#if !true
 		{
-			var Rest = ModuleMap._KeyValuePairs;
 			var Module_ = Module.ToArrayList();
-			while (Rest.Match(out var KeyValue, out Rest)) {
+			foreach (var KeyValue in ModuleMap._KeyValuePairs) {
 				var (Name, Index) = KeyValue;
 				aTrace($@"{Name} @ {Module_.Get(Index)._DefType}");
 			}
 		}
-		#endif
-		
+#endif
+
 		return (Module, ModuleMap);
 	}
 	
 	public static void
-	PrintILModule(
+	PrintILModule<tPos>(
 		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
 		mStream.tStream<mVM_Data.tProcDef<tPos>>? aModule,
 		mStd.tAction<tText> aTrace
 	) {
-		var RestDefsModules = mStream.Zip(aDefs, aModule);
-		while (RestDefsModules.Match(out var Def, out RestDefsModules)) {
+		foreach (var ((Name, _, Commands), VM_Def) in mStream.Zip(aDefs, aModule)) {
 			var RegIndex = mVM_Data.cResReg;
-			var (IL_Def, VM_Def) = Def; 
-			var (Name, Type, Commands) = IL_Def; 
 			aTrace($"{Name} € {VM_Def.DefType.ToText(10)}:");
-			while (Commands.Match(out var Command, out Commands)) {
+			foreach (var Command in Commands) {
 				if (Command.NodeType >= mIL_AST.tCommandNodeType._Commands_) {
 					aTrace($"\t{Command.NodeType} {Command._1} {Command._2} {Command._3}:");
 				} else {
@@ -639,15 +633,15 @@ mIL_Interpreter<tPos> {
 	}
 	
 	public static mVM_Data.tData
-	Run(
+	Run<tPos>(
 		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => Run(ParseModule(aDefs, aTrace), aImport, aPosToText, aTrace);
+	) => Run(GenerateOpcodes(aDefs, aTrace), aImport, aPosToText, aTrace);
 	
 	public static mVM_Data.tData
-	Run(
+	Run<tPos>(
 		(mStream.tStream<mVM_Data.tProcDef<tPos>>?, mTreeMap.tTree<tText, tInt32>) aModule,
 		mVM_Data.tData aImport,
 		mStd.tFunc<tText, tPos> aPosToText,
@@ -657,25 +651,17 @@ mIL_Interpreter<tPos> {
 		var Res = mVM_Data.Empty();
 		var Defs = VMModule.Skip(1).Reverse();
 		
-		var DefTuple = mVM_Data.Empty();
-		switch (Defs.Take(2).ToArrayList().Size()) {
-			case 0: {
-				break;
-			}
-			case 1: {
-				DefTuple = mVM_Data.Def(Defs!.ForceFirst());
-				break;
-			}
-			default: {
-				while (Defs.Match(out var Def, out Defs)) {
-					DefTuple = mVM_Data.Pair(
-						mVM_Data.Def(Def),
-						DefTuple
-					);
-				}
-				break;
-			}
-		}
+		var DefTuple = Defs.Take(2).ToArrayList().Size() switch {
+			0 => mVM_Data.Empty(),
+			1 => mVM_Data.Def(Defs!.ForceFirst()),
+			_ => Defs.Reduce(
+				mVM_Data.Empty(),
+				(aTuple, aDef) => mVM_Data.Pair(
+					mVM_Data.Def(aDef),
+					aTuple
+				)
+			),
+		};
 		var InitProc = VMModule!.ForceFirst();
 		
 		#if MY_TRACE

@@ -584,12 +584,12 @@ mVM_Data {
 		Equals(
 			tData a
 		) => (
-			!(a is null) &&
-			this._DataType.Equals(a._DataType) &&
-			this._Value.Equals(a._Value)
+			a is not null
+			&& this._DataType.Equals(a._DataType)
+			&& this._Value.Equals(a._Value)
 		);
 		
-		override public tBool
+		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tData)a!);
@@ -625,7 +625,10 @@ mVM_Data {
 		out t aValue
 	) {
 		aValue = default!;
-		return aData._DataType.Equals(aType) && aData._Value.Match(out aValue);
+		return (
+			aData._DataType.Equals(aType) &&
+			aData._Value.Match(out aValue)
+		);
 	}
 	
 	private static tBool

@@ -51,21 +51,18 @@ mVM_Type {
 		public tKind Kind;
 		public tText? Id;
 		public tText? Prefix;
-		public tType[] Refs = new tType[0];
+		public tType[] Refs = System.Array.Empty<tType>();
 		
 		public override bool
 		Equals(
 			object? a
-		) {
-			return this == ((tType)a!);
-		}
+		) => this == (tType)a!;
 		
 		public static tBool operator!=(
 			tType a1,
 			tType a2
-		) {
-			return !(a1 == a2);
-		}
+		) => !(a1 == a2);
+		
 		public static tBool operator==(
 			tType a1,
 			tType a2
@@ -210,7 +207,7 @@ mVM_Type {
 	Value(
 		this tType aType
 	) {
-		mAssert.IsTrue(aType.Kind == tKind.Type ||aType.Kind == tKind.Free);
+		mAssert.IsTrue(aType.Kind is tKind.Type or tKind.Free);
 		return aType.Refs[0];
 	}
 	
@@ -298,7 +295,7 @@ mVM_Type {
 			Refs = new[]{aTailType, aHeadType}
 		};
 		
-		void
+		static void
 		AssertNotIn(tText aPrefix, tType aRecord) {
 			if (aRecord.Kind == tKind.Empty) {
 				return;
@@ -568,7 +565,7 @@ mVM_Type {
 			}
 			var Aliases = mStream.Concat(mStream.Stream(a1.Refs), mStream.Stream(a2.Refs));
 			var NewRefs = Aliases.ToArrayList().ToArray();
-			while (Aliases.Match(out var Alias, out Aliases)) {
+			foreach (var Alias in Aliases) {
 				Alias.Id = a1.Id;
 				Alias.Refs = NewRefs;
 			}
@@ -577,8 +574,7 @@ mVM_Type {
 		
 		if (a1.Kind == tKind.Free) {
 			// TODO: check aginst cycles (a1 in a2)
-			var Aliases = mStream.Stream(a1.Refs);
-			while (Aliases.Match(out var Alias, out Aliases)) {
+			foreach (var Alias in mStream.Stream(a1.Refs)) {
 				Alias.Kind = a2.Kind;
 				Alias.Id = a2.Id;
 				Alias.Prefix = a2.Prefix;
@@ -654,7 +650,7 @@ mVM_Type {
 			tKind.Empty => "[]",
 			tKind.Bool => "§BOOL",
 			tKind.Int => "§INT",
-			tKind.Type => $"[[]]",
+			tKind.Type => "[[]]",
 			tKind.Free => "?"+aType.Id,
 			tKind.Prefix => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]",
 			tKind.Record => mStd.Func(

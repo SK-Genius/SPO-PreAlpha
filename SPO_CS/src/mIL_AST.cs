@@ -107,13 +107,9 @@ mIL_AST {
 	public static mMaybe.tMaybe<tText>
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
-	) {
-		if (aNode.NodeType < tCommandNodeType._Commands_) {
-			return mMaybe.Some(aNode._1);
-		} else {
-			return mStd.cEmpty;
-		}
-	}
+	) => (aNode.NodeType < tCommandNodeType._Commands_)
+		? mMaybe.Some(aNode._1)
+		: mStd.cEmpty;
 	
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(

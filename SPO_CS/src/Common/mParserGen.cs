@@ -24,6 +24,7 @@ using tInt64 = System.Int64;
 
 using tChar = System.Char;
 using tText = System.String;
+using System;
 
 public static class
 mParserGen {
@@ -65,23 +66,17 @@ mParserGen {
 		mStd.tFunc<(tPos Pos, tError Massage), (mSpan.tSpan<tPos> Span, tOut Value)> aErrorMessage
 	) {
 		var Parser = new tParser<tPos, tIn, tOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				if (aIsValid(Result.Result.Value)) {
-					return mResult.OK(Result);
-				} else {
-					return mResult.Fail(mStream.Stream(aErrorMessage(Result.Result)));
-				}
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).ThenTry<tParserResult<tPos, tIn, tOut, tError>, tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos, tError)>>(
+			aResult => (
+				aIsValid(aResult.Result.Value)
+				? mResult.OK(aResult)
+				: mResult.Fail(mStream.Stream(aErrorMessage(aResult.Result)))
+			)
+		);
 		return Parser;
 	}
 	
@@ -91,28 +86,20 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(Result.Result.Span)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
-					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(aResult.Result.Span)
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -122,31 +109,23 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, tOut> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(
-								Result.Result.Span,
-								Result.Result.Value
-							)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(
+						aResult.Result.Span,
+						aResult.Result.Value
 					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -156,32 +135,24 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(
-								Result.Result.Span,
-								Result.Result.Value._1,
-								Result.Result.Value._2
-							)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) =>aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(
+						aResult.Result.Span,
+						aResult.Result.Value._1,
+						aResult.Result.Value._2
 					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -191,33 +162,25 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(
-								Result.Result.Span,
-								Result.Result.Value._1,
-								Result.Result.Value._2,
-								Result.Result.Value._3
-							)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(
+						aResult.Result.Span,
+						aResult.Result.Value._1,
+						aResult.Result.Value._2,
+						aResult.Result.Value._3
 					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -227,34 +190,26 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3, t4> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(
-								Result.Result.Span,
-								Result.Result.Value._1,
-								Result.Result.Value._2,
-								Result.Result.Value._3,
-								Result.Result.Value._4
-							)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(
+						aResult.Result.Span,
+						aResult.Result.Value._1,
+						aResult.Result.Value._2,
+						aResult.Result.Value._3,
+						aResult.Result.Value._4
 					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -264,35 +219,27 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3, t4, t5> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aParser._ParseFunc(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result,
-					out var ErrorList
-				)
-			) {
-				return mResult.OK(
-					ParserResult(
-						(
-							Result.Result.Span,
-							aModifyFunc(
-								Result.Result.Span,
-								Result.Result.Value._1,
-								Result.Result.Value._2,
-								Result.Result.Value._3,
-								Result.Result.Value._4,
-								Result.Result.Value._5
-							)
-						),
-						Result.RemainingStream,
-						mStream.Stream<(tPos Pos, tError Massage)>()
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).Then(
+			aResult => ParserResult(
+				(
+					aResult.Result.Span,
+					aModifyFunc(
+						aResult.Result.Span,
+						aResult.Result.Value._1,
+						aResult.Result.Value._2,
+						aResult.Result.Value._3,
+						aResult.Result.Value._4,
+						aResult.Result.Value._5
 					)
-				);
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				),
+				aResult.RemainingStream,
+				mStream.Stream<(tPos Pos, tError Massage)>()
+			)
+		);
 		return Parser.SetDebugDef("{", aParser.DebugName ?? aParser.DebugDef, "}");
 	}
 	
@@ -416,7 +363,7 @@ mParserGen {
 		operator+(
 			tParser<tPos, tIn, tOut, tError> aP1,
 			tParser<tPos, tIn, tOut, tError> aP2
-		) => (aP1).__(aP2);
+		) => aP1.__(aP2);
 		
 		public static tParser<tPos, tIn, mStd.tEmpty, tError>
 		operator-(
@@ -430,55 +377,49 @@ mParserGen {
 			tParser<tPos, tIn, tOut, tError> aP2
 		) {
 			var Parser = new tParser<tPos, tIn, tOut, tError>(aP1._ComparePos);
-			Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-				if (
-					aP1.Parse(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-					.Match(
-						out var Result,
-						out var ErrorList1
+			Parser._ParseFunc = (aStream, aDebugStream, aPath) => aP1.Parse(
+				aStream,
+				aDebugStream,
+				mStream.Stream(Parser, aPath)
+			).ElseTry(
+				aErrorList1 => aP2.Parse(
+					aStream,
+					aDebugStream,
+					mStream.Stream(Parser, aPath)
+				).Then(
+					aResult =>ParserResult(
+						aResult.Result,
+						aResult.RemainingStream,
+						Merge(aErrorList1, aResult.MaybeError, aP1._ComparePos)
 					)
-				) {
-					return mResult.OK(Result);
-				}
-				
-				if (
-					aP2.Parse(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-					.Match(
-						out Result,
-						out var ErrorList2
-					)
-				) {
-					return mResult.OK(
-						ParserResult(
-							Result.Result,
-							Result.RemainingStream,
-							Merge(ErrorList1, ErrorList2, aP1._ComparePos)
-						)
-					);
-				}
-				return mResult.Fail(Merge(ErrorList1, ErrorList2, aP1._ComparePos));
-			};
+				).ElseTry(
+					aErrorList2 =>mResult.Fail(Merge(aErrorList1, aErrorList2, aP1._ComparePos))
+				)
+			);
 			return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")");
 		}
 		
 		public tParser<tPos, tIn, mStream.tStream<tOut>?, tError>
 		this[
-			tNat32 aMin,
-			tNat32? aMax
+			Range aRange
 		] {
 			get {
+				mAssert.IsFalse(aRange.Start.IsFromEnd);
+				
+				var Min = aRange.Start.Value;
+				var Max = aRange.End.IsFromEnd ? (int?)null : aRange.End.Value;
 				var Parser = new tParser<tPos, tIn, mStream.tStream<tOut>?, tError>(this._ComparePos);
 				Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
 					var Result = mStream.Stream<tOut>();
-					var RestStream = aStream;
-					var Max = aMax ?? int.MaxValue;
+					var RemainingStream = aStream;
+					var Max_ = Max ?? int.MaxValue;
 					var Span = default(mSpan.tSpan<tPos>);
 					var I = 0;
 					
 					var LastError = mStream.Stream<(tPos Pos, tError Massage)>();
 					while (
-						I < Max &&
-						this.Parse(RestStream, aDebugStream, mStream.Stream(Parser, aPath))
+						I < Max_ &&
+						this.Parse(RemainingStream, aDebugStream, mStream.Stream(Parser, aPath))
 						.Match(
 							out var TempResult,
 							out LastError
@@ -489,16 +430,16 @@ mParserGen {
 							Span = TempResult.Result.Span;
 						}
 						Span = mSpan.Merge(Span, TempResult.Result.Span);
-						RestStream = TempResult.RemainingStream;
+						RemainingStream = TempResult.RemainingStream;
 						I += 1;
 					}
-					if (I < aMin) {
-						return mResult.Fail(LastError);
-					} else {
-						return mResult.OK(ParserResult((Span, Result.Reverse()), RestStream, LastError));
-					}
+					return (
+						(I < Min)
+						? mResult.Fail(LastError)
+						: mResult.OK(ParserResult((Span, Result.Reverse()), RemainingStream, LastError))
+					);
 				};
-				return Parser.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", aMin, "..", aMax, "]");
+				return Parser.SetDebugDef("(", this.DebugName??this.DebugDef, ")[", Min, "..", Max, "]");
 			}
 		}
 		
@@ -558,8 +499,7 @@ mParserGen {
 	) {
 		#if DEBUG || MY_TRACE
 			var Def = "";
-			var Parts = mStream.Stream(aDebugNameParts);
-			while (Parts.Match(out var Part, out Parts)) {
+			foreach (var Part in mStream.Stream(aDebugNameParts)) {
 				Def += Part?.ToString() ?? "";
 			}
 			aParser._DebugDef = Def;
@@ -574,8 +514,7 @@ mParserGen {
 	) {
 		#if DEBUG || MY_TRACE
 			var Name = "";
-			var Parts = mStream.Stream(aDebugNameParts);
-			while (Parts.Match(out var Part, out Parts)) {
+			foreach (var Part in mStream.Stream(aDebugNameParts)) {
 				Name += Part?.ToString() ?? "";
 			}
 			aParser._DebugName = Name.Replace("\n", @"\n").Replace("\r", @"\r").Replace("\t", @"\t");
@@ -618,40 +557,41 @@ mParserGen {
 		this tParser<tPos, tIn, tOut1, tError> aP1,
 		tParser<tPos, tIn, tOut2, tError> aP2
 	) {
-		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>(aP1._ComparePos);
-		
-		Parser._ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (
-				aP1.Parse(aStream, aDebugStream, mStream.Stream(Parser, aPath))
-				.Match(
-					out var Result1,
-					out var ErrorList
+		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>(aP1._ComparePos);		
+		Parser._ParseFunc = (aStream, aDebugStream, aPath) => aP1.Parse(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).ThenTry(
+			aResult1 => aP2.Parse(
+				aResult1.RemainingStream,
+				aDebugStream,
+				ReferenceEquals(aStream, aResult1.RemainingStream)
+				? mStream.Stream(Parser, aPath)
+				: null
+			).Then(
+				aResult2 => ParserResult(
+					(
+						mSpan.Merge(aResult1.Result.Span, aResult2.Result.Span),
+						(aResult1.Result.Value, aResult2.Result.Value)
+					),
+					aResult2.RemainingStream,
+					Merge(aResult1.MaybeError, aResult2.MaybeError, aP1._ComparePos)
 				)
-			) {
-				if (
-					aP2.Parse(Result1.RemainingStream, aDebugStream, ReferenceEquals(aStream, Result1.RemainingStream) ? mStream.Stream(Parser, aPath) : null)
-					.Match(
-						out var Result2,
-						out ErrorList
+			).ElseTry(
+				aErrorList => mResult.Fail(
+					Merge(
+						Merge(
+							aResult1.MaybeError,
+							aErrorList,
+							aP1._ComparePos
+						),
+						aErrorList,
+						aP1._ComparePos
 					)
-				) {
-					return mResult.OK(
-						ParserResult(
-							(
-								mSpan.Merge(Result1.Result.Span, Result2.Result.Span),
-								(Result1.Result.Value, Result2.Result.Value)
-							),
-							Result2.RemainingStream,
-							Merge(Result1.MaybeError, Result2.MaybeError, aP1._ComparePos)
-						)
-					);
-				} else {
-					return mResult.Fail(Merge(Merge(Result1.MaybeError, Result2.MaybeError, aP1._ComparePos), ErrorList, aP1._ComparePos));
-				}
-			} else {
-				return mResult.Fail(ErrorList);
-			}
-		};
+				)
+			)
+		);
 		return Parser.SetDebugDef("(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")");
 	}
 	
@@ -665,13 +605,11 @@ mParserGen {
 		if (a2 is null) { return a1; }
 		
 		var Comp = aComparePos(a1.ForceFirst().Pos, a2.ForceFirst().Pos);
-		if (Comp > 0) {
-			return a1;
-		} else if (Comp < 0) {
-			return a2;
-		} else {
-			return mStream.Stream(a1.ForceLast(), a2);
-		}
+		return Comp switch {
+			> 0 => a1,
+			< 0 => a2,
+			_ => mStream.Stream(a1.ForceLast(), a2),
+		};
 	}
 	
 	public static tParser<tPos, tIn, tOut, tError>
@@ -753,7 +691,7 @@ mParserGen {
 			}
 		#endif
 		
-		if (ReferenceEquals(aParser._LastInput, aStream) && !(aStream is null)) {
+		if (false && ReferenceEquals(aParser._LastInput, aStream) && aStream is not null) {
 			var Result_ = aParser._LastOutput;
 			#if MY_TRACE
 				if (Result_.Match(out var _, out var __)) {
@@ -768,9 +706,9 @@ mParserGen {
 		var Result = aParser._ParseFunc(aStream, aDebugStream, aInfinitLoopDetectionSet);
 		if (
 			!Result.Match(out var Value, out var Error) &&
-			!(aParser._ModifyErrorsFunc is null)
+			aParser._ModifyErrorsFunc is not null
 		) {
-			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream is null ? default : aStream.ForceFirst()));
+			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream?.ForceFirst() ?? default));
 		}
 		
 		#if MY_TRACE
@@ -793,13 +731,11 @@ mParserGen {
 		mStd.tFunc<(tPos Pos, tError Massage), (mSpan.tSpan<tPos> Span, t Value)> aCreateErrorFunc,
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	) => new tParser<tPos, t, t, tError>(aComparePos){
-		_ParseFunc = (aStream, aDebugStream, aPath) => {
-			if (aStream.Match(out var Head, out var Tail) && aTest(Head.Value)) {
-				return mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Massage)>()));
-			} else {
-				return mResult.Fail(mStream.Stream(aCreateErrorFunc(Head)));
-			}
-		},
+		_ParseFunc = (aStream, aDebugStream, aPath) => (
+			aStream.Match(out var Head, out var Tail) && aTest(Head.Value)
+			? mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Massage)>()))
+			: mResult.Fail(mStream.Stream(aCreateErrorFunc(Head)))
+		),
 		_ModifyErrorsFunc = (_, a) => mStream.Stream(aCreateErrorFunc(a)),
 	};
 	

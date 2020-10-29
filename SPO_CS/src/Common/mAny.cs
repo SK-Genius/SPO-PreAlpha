@@ -19,69 +19,65 @@ using tText = System.String;
 
 public static class
 mAny {
-		#region tVar
+	public readonly struct
+	tAny {
+		internal readonly object? _Value;
 		
-		public readonly struct
-		tAny {
-			internal readonly object? _Value;
-			
-			internal tAny(object? aValue) {
-				_Value = aValue;
-			}
-			
-			public tBool
-			Equals(
-				tAny a
-			) => (
-				!(this._Value is null) &&
-				this._Value.Equals(a._Value)
-			);
-			
-			override public tBool
-			Equals(
-				object? a
-			) => (a is tAny X) && this.Equals(X);
+		internal tAny(object? aValue) {
+			this._Value = aValue;
 		}
 		
-		public static tAny
-		Any<t>(
-			t a
-		) => new tAny(a);
-		
-		public static tBool
-		Match<t>(
-			this tAny a,
-			out t aValue
-		) {
-#if DEBUG
-			if (typeof(t) == typeof(tAny)) {
-				throw mError.Error("");
-			}
-#endif
-			mAssert.IsNotNull(a._Value);
-			
-			if (a._Value is t) {
-				aValue = (t)a._Value;
-				return true;
-			} else {
-				aValue = default!;
-				return false;
-			}
-		}
-		
-		public static tBool
-		Match(
-			this tAny a
-		) => a._Value is null;
-		
-		public static t
-		To<t>(
-			this tAny a
+		public tBool
+		Equals(
+			tAny a
 		) => (
-			a.Match(out t Result)
-			? Result
-			: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
+			this._Value is not null &&
+			this._Value.Equals(a._Value)
 		);
 		
-	#endregion
+		public override tBool
+		Equals(
+			object? a
+		) => a is tAny X && this.Equals(X);
+	}
+	
+	public static tAny
+	Any<t>(
+		t a
+	) => new tAny(a);
+	
+	public static tBool
+	Match<t>(
+		this tAny a,
+		out t aValue
+	) {
+#if DEBUG
+		if (typeof(t) == typeof(tAny)) {
+			throw mError.Error("");
+		}
+#endif
+		mAssert.IsNotNull(a._Value);
+		
+		if (a._Value is t Value) {
+			aValue = Value;
+			return true;
+		} else {
+			aValue = default!;
+			return false;
+		}
+	}
+	
+	public static tBool
+	Match(
+		this tAny a
+	) => a._Value is null;
+	
+	public static t
+	To<t>(
+		this tAny a
+	) => (
+		a.Match(out t Result)
+		? Result
+		: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
+	);
 }

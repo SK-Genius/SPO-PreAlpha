@@ -519,28 +519,24 @@ mSPO_AST {
 		Pos = aPos,
 		Name = "_" + aName
 	};
-	
+
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
 		mStream.tStream<tExpressionNode<tPos>>? aItems
-	) {
-		switch (aItems.Take(2).ToArrayList().Size()) {
-			case 0: {
-				return Empty(aPos);
-			}
-			case 1: {
+	) => aItems.Take(2).ToArrayList().Size() switch {
+		0 => Empty(aPos),
+		1 => mStd.Call(
+			() => {
 				mAssert.IsTrue(aItems.Match(out var Head, out var _));
 				return Head;
 			}
-			default: {
-				return new tTupleNode<tPos> {
-					Pos = aPos,
-					Items = aItems
-				};
-			}
-		}
-	}
+		),
+		_ => new tTupleNode<tPos> {
+			Pos = aPos,
+			Items = aItems
+		},
+	};
 	
 	public static tPrefixTypeNode<tPos>
 	PrefixType<tPos>(
@@ -724,28 +720,24 @@ mSPO_AST {
 		Pos = aPos,
 		List = aList
 	};
-	
+
 	public static tMatchItemNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
 		mStream.tStream<tMatchNode<tPos>>? aItems
-	) {
-		switch (aItems.Take(2).ToArrayList().Size()) {
-			case 0: {
-				throw mError.Error("impossible");
-			}
-			case 1: {
+	) => aItems.Take(2).ToArrayList().Size() switch {
+		0 => throw mError.Error("impossible"),
+		1 => mStd.Call(
+			() => {
 				mAssert.IsTrue(aItems.Match(out var Head, out var _));
 				return Head;
 			}
-			default: {
-				return new tMatchTupleNode<tPos> {
-					Pos = aPos,
-					Items = aItems
-				};
-			}
-		}
-	}
+		),
+		_ => new tMatchTupleNode<tPos> {
+			Pos = aPos,
+			Items = aItems
+		},
+	};
 	
 	public static tMatchNode<tPos>
 	Match<tPos>(
@@ -1141,7 +1133,7 @@ mSPO_AST {
 				break;
 			}
 			default: {
-				throw mError.Error("not implemented: " + a1.GetType().Name);
+				break;
 			}
 		}
 		throw mError.Error("not implemented: " + a1.GetType().Name);
@@ -1157,116 +1149,53 @@ mSPO_AST {
 		}
 		
 		aLimit -= 1;
-		switch (aNode) {
+		return aNode switch {
 			// Expressions
-			case tIdentNode<t> Node: {
-				return Node.Name;
-			}
-			case tEmptyNode<t> Node: {
-				return "()";
-			}
-			case tTrueNode<t> Node: {
-				return "#True";
-			}
-			case tFalseNode<t> Node: {
-				return "#False";
-			}
-			case tIntNode<t> Node: {
-				return "" + Node.Value;
-			}
-			case tTextNode<t> Node: {
-				return $"\"{Node.Value}\"";
-			}
-			case tPrefixNode<t> Node: {
-				return $"(#{Node.Prefix} {Node.Element.ToText(aLimit)})";
-			}
-			case tTupleNode<t> Node: {
-				return $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})";
-			}
-			case tLambdaNode<t> Node: {
-				return $"({Node.Head.ToText(aLimit)} => {Node.Body.ToText(aLimit)})";
-			}
-			case tCallNode<t> Node: {
-				return $"(.{Node.Func.ToText(aLimit)} {Node.Arg.ToText(aLimit)})";
-			}
-			case tMethodNode<t> Node: {
-				return $"({Node.Obj.ToText(aLimit)} : {Node.Arg.ToText(aLimit)} => {Node.Body.ToText(aLimit)})";
-			}
-			case tIfMatchNode<t> Node: {
-				return (
-					$"§If {Node.Expression} Match "
-					+ Node.Cases.Map(
-						a => a.Match.ToText(aLimit) + " => " + a.Expression.ToText(aLimit)
-					).Reduce(
-						"",
-						(a1, a2) => a1 + "; " + a2
-					)
-				);
-			}
+			tIdentNode<t> Node => Node.Name,
+			tEmptyNode<t> Node => "()",
+			tTrueNode<t> Node => "#True",
+			tFalseNode<t> Node => "#False",
+			tIntNode<t> Node => "" + Node.Value,
+			tTextNode<t> Node => $"\"{Node.Value}\"",
+			tPrefixNode<t> Node => $"(#{Node.Prefix} {Node.Element.ToText(aLimit)})",
+			tTupleNode<t> Node => $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})",
+			tLambdaNode<t> Node => $"({Node.Head.ToText(aLimit)} => {Node.Body.ToText(aLimit)})",
+			tCallNode<t> Node => $"(.{Node.Func.ToText(aLimit)} {Node.Arg.ToText(aLimit)})",
+			tMethodNode<t> Node => $"({Node.Obj.ToText(aLimit)} : {Node.Arg.ToText(aLimit)} => {Node.Body.ToText(aLimit)})",
+			tIfMatchNode<t> Node => (
+				$"§If {Node.Expression} Match " + Node.Cases.Map(
+					a => a.Match.ToText(aLimit) + " => " + a.Expression.ToText(aLimit)
+				).Reduce(
+					"",
+					(a1, a2) => a1 + "; " + a2
+				)
+			),
 			// Matches
-			case tMatchNode<t> Node: {
-				if (Node.Type.Match(out var Type)) {
-					return $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})";
-				} else {
-					return Node.Pattern.ToText(aLimit);
-				}
-			}
-			case tIgnoreMatchNode<t> Node: {
-				return "_";
-			}
-			case tMatchFreeIdentNode<t> Node: {
-				return "§DEF " + Node.Name;
-			}
-			case tMatchPrefixNode<t> Node: {
-				return $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})";
-			}
-			case tMatchTupleNode<t> Node: {
-				return $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})";
-			}
-			case tMatchGuardNode<t> Node: {
-				return $"({Node.Match.ToText(aLimit)} & {Node.Guard.ToText(aLimit)})";
-			}
+			tMatchNode<t> Node => (
+				Node.Type.Match(out var Type)
+				? $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})"
+				: Node.Pattern.ToText(aLimit)
+			),
+			tIgnoreMatchNode<t> Node => "_",
+			tMatchFreeIdentNode<t> Node => "§DEF " + Node.Name,
+			tMatchPrefixNode<t> Node => $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})",
+			tMatchTupleNode<t> Node => $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})",
+			tMatchGuardNode<t> Node => $"({Node.Match.ToText(aLimit)} & {Node.Guard.ToText(aLimit)})",
 			// Types
-			case tEmptyTypeNode<t> Node: {
-				return "[]";
-			}
-			case tBoolTypeNode<t> Node: {
-				return "§Bool";
-			}
-			case tIntTypeNode<t> Node: {
-				return "§Int";
-			}
-			case tTypeTypeNode<t> Node: {
-				return "§Type";
-			}
-			case tPrefixTypeNode<t> Node: {
-				return $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]";
-			}
-			case tTupleTypeNode<t> Node: {
-				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]";
-			}
-			case tSetTypeNode<t> Node: {
-				return $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]";
-			}
+			tEmptyTypeNode<t> Node => "[]",
+			tBoolTypeNode<t> Node => "§Bool",
+			tIntTypeNode<t> Node => "§Int",
+			tTypeTypeNode<t> Node => "§Type",
+			tPrefixTypeNode<t> Node => $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]",
+			tTupleTypeNode<t> Node => $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]",
+			tSetTypeNode<t> Node => $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]",
 			// Commands
-			case tBlockNode<t> Node: {
-				return "{...}";
-			}
-			case tMethodCallsNode<t> Node: {
-				return $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .";
-			}
-			case tMethodCallNode<t> Node: {
-				return $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Then(_ => _.ToText(aLimit)).Else("()")}";
-			}
-			case tReturnIfNode<t> Node: {
-				return $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}";
-			}
-			case tDefNode<t> Node: {
-				return $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}";
-			}
-			default: {
-				return "(???)";
-			}
-		}
+			tBlockNode<t> Node => "{...}",
+			tMethodCallsNode<t> Node => $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Then(_ => _.ToText(aLimit)).Else("()")}",
+			tReturnIfNode<t> Node => $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}",
+			tDefNode<t> Node => $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}",
+			_ => "(???)",
+		};
 	}
 }

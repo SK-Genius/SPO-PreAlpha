@@ -35,7 +35,7 @@ mTokenizer {
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, tError>, tText> Text = mTextParser.GetToken;
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
-	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>?, tError> __ = _[0, null];
+	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>?, tError> __ = _[0..];
 	
 	public static readonly tText SpazialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
@@ -47,7 +47,7 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	Nat = mParserGen.Seq(
 		Digit,
-		(-Char('_')[0, null] + Digit)[0, null]
+		(-Char('_')[0..] + Digit)[0..]
 	).Modify(
 		(aFirst, aRest) => aRest.Reduce(
 			aFirst,
@@ -79,7 +79,7 @@ mTokenizer {
 	.SetName(nameof(Number));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tText, tError>
-	Ident = (CharNotIn(SpazialChars).Modify(aChar => "" + aChar) | Text("..."))[1, null]
+	Ident = (CharNotIn(SpazialChars).Modify(aChar => "" + aChar) | Text("..."))[1..]
 	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2, ""));
 	
 	public enum
@@ -97,14 +97,14 @@ mTokenizer {
 		public tText Text;
 		public tSpan Span;
 		
-		override public tText
+		public override tText
 		ToString(
 		) => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
 	}
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
 	Token = mParserGen.OneOf(
-		mParserGen.Seq(Char('"'), CharNotIn("\"")[0, null], Char('"'))
+		mParserGen.Seq(Char('"'), CharNotIn("\"")[0..], Char('"'))
 		.ModifyS((aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan })
 		.SetName(nameof(tTokenType.Text)),
 		
@@ -134,7 +134,7 @@ mTokenizer {
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>?, tError>
-	Tokenizer = (Token +-__)[0, null];
+	Tokenizer = (Token +-__)[0..];
 	
 	public static tOut
 	ParseText<tOut>(
@@ -188,7 +188,7 @@ mTokenizer {
 	).SetDebugName(nameof(NL_Token));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStd.tEmpty, tError>
-	NLs_Token = -(NL_Token | SpaceToken)[1, null]
+	NLs_Token = -(NL_Token | SpaceToken)[1..]
 	.SetDebugName(nameof(NLs_Token));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>

@@ -68,8 +68,8 @@ mTreeMap {
 		params (tKey Key, tValue Value)[] aItems
 	) {
 		var Tree = new tTree<tKey, tValue>(aKeyCompare, default);
-		foreach (var Item in aItems) {
-			Tree = Tree.Set(Item.Key, Item.Value);
+		foreach (var (Key, Value) in aItems) {
+			Tree = Tree.Set(Key, Value);
 		}
 		return Tree;
 	}
@@ -79,12 +79,10 @@ mTreeMap {
 		this tTree<tKey, tValue> aTree,
 		tKey aKey,
 		tValue aValue
-	) {
-		return new tTree<tKey, tValue>(
-			aTree.KeyCompare,
-			aTree.Root.Add(aKey, aValue, aTree.KeyCompare)
-		);
-	}
+	) => new tTree<tKey, tValue>(
+		aTree.KeyCompare,
+		aTree.Root.Add(aKey, aValue, aTree.KeyCompare)
+	);
 	
 	internal static tNode<tKey, tValue>
 	Add<tKey, tValue>(
@@ -97,35 +95,27 @@ mTreeMap {
 			return Node(aKey, aValue, null, null);
 		}
 		
-		switch (aKeyCompare(aNode.Key, aKey)) {
-			case 0: {
-				return Node(
-					aKey,
-					aValue,
-					aNode.SubTree1,
-					aNode.SubTree2
-				);
-			}
-			case 1: {
-				return Node(
-					aNode.Key,
-					aNode.Value,
-					aNode.SubTree1.Add(aKey, aValue, aKeyCompare),
-					aNode.SubTree2
-				).Balance();
-			}
-			case -1: {
-				return Node(
-					aNode.Key,
-					aNode.Value,
-					aNode.SubTree1,
-					aNode.SubTree2.Add(aKey, aValue, aKeyCompare)
-				).Balance();
-			}
-			default: {
-				throw mError.Error("impossible");
-			}
-		}
+		return aKeyCompare(aNode.Key, aKey) switch {
+			0 => Node(
+				aKey,
+				aValue,
+				aNode.SubTree1,
+				aNode.SubTree2
+			),
+			1 => Node(
+				aNode.Key,
+				aNode.Value,
+				aNode.SubTree1.Add(aKey, aValue, aKeyCompare),
+				aNode.SubTree2
+			).Balance(),
+			-1 => Node(
+				aNode.Key,
+				aNode.Value,
+				aNode.SubTree1,
+				aNode.SubTree2.Add(aKey, aValue, aKeyCompare)
+			).Balance(),
+			_ => throw mError.Error("impossible"),
+		};
 	}
 	
 	public static tValue
@@ -147,7 +137,7 @@ mTreeMap {
 			0 => aNode.Value,
 			1 => aNode.SubTree2.Get(aKey, aKeyCompare),
 			-1 => aNode.SubTree1.Get(aKey, aKeyCompare),
-			_ => throw mError.Error("impossible")
+			_ => throw mError.Error("impossible"),
 		};
 	}
 	
@@ -180,7 +170,6 @@ mTreeMap {
 		
 		switch (aKeyCompare(aKey, Key)) {
 			case 0: {
-				
 				if (SubTree1.Deep() > SubTree2.Deep()) {
 					SubTree1 = SubTree1!.RemoveMax(out Key, out Value);
 				} else {
@@ -288,38 +277,34 @@ mTreeMap {
 		this tNode<tKey, tValue> aNode
 	) {
 		var Diff = aNode.SubTree1.Deep() - aNode.SubTree2.Deep();
-		if (mMath.Abs(Diff) <= 1) {
+		if (Diff.Abs() <= 1) {
 			return aNode;
 		}
 		
-		var Result = aNode;
-		switch (mMath.Sign(Diff)) {
-			case -1: {
-				if (Result.SubTree2!.SubTree1.Deep() > Result.SubTree2.SubTree2.Deep()) {
-					Result = Node(
-						Result.Key,
-						Result.Value,
-						Result.SubTree1,
-						Result.SubTree2.RotateRight()
-					);
-				}
-				Result = Result.RotateLeft();
-				break;
-			}
-			case 1: {
-				if (Result.SubTree1!.SubTree2.Deep() > Result.SubTree1.SubTree1.Deep()) {
-					Result = Node(
-						Result.Key,
-						Result.Value,
-						Result.SubTree1.RotateLeft(),
-						Result.SubTree2
-					);
-				}
-				Result = Result.RotateRight();
-				break;
-			}
-		}
-		return Result;
+		return Diff.Sign() switch
+		{
+			-1 => (
+				(aNode.SubTree2!.SubTree1.Deep() > aNode.SubTree2.SubTree2.Deep())
+				? Node(
+					aNode.Key,
+					aNode.Value,
+					aNode.SubTree1,
+					aNode.SubTree2.RotateRight()
+				)
+				: aNode
+			).RotateLeft(),
+			1 => (
+				(aNode.SubTree1!.SubTree2.Deep() > aNode.SubTree1.SubTree1.Deep())
+				? Node(
+					aNode.Key,
+					aNode.Value,
+					aNode.SubTree1.RotateLeft(),
+					aNode.SubTree2
+				)
+				: aNode
+			).RotateRight(),
+			_ => aNode,
+		};
 	}
 	
 	internal static tNode<tKey, tValue>
@@ -349,16 +334,13 @@ mTreeMap {
 	private static mStream.tStream<(tKey Key, tValue Value)>?
 	ToStream<tKey, tValue>(
 		this tNode<tKey, tValue>? a
-	) {
-		if (a is null) {
-			return mStream.Stream<(tKey Key, tValue Value)>(); 
-		}
-		return mStream.Concat(
+	) => (a is null)
+		? mStream.Stream<(tKey Key, tValue Value)>()
+		: mStream.Concat(
 			a.SubTree1.ToStream(),
 			mStream.Concat(
 				mStream.Stream((a.Key, a.Value)),
 				a.SubTree2.ToStream()
 			)
 		);
-	}
 }

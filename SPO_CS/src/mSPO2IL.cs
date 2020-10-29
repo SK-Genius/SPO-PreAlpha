@@ -112,7 +112,7 @@ mSPO2IL {
 			}
 			default: {
 				var RestEnv = aReg;
-				while (aSymbols.Match(out var Symbol, out aSymbols)) {
+				foreach (var Symbol in aSymbols) {
 					ExtractEnv.Push(mIL_AST.GetFirst(aPos, Symbol.Ident, RestEnv));
 					var NewRestEnv = aDefConstructor.CreateTempReg();
 					ExtractEnv.Push(mIL_AST.GetSecond(aPos, NewRestEnv, RestEnv));
@@ -131,7 +131,7 @@ mSPO2IL {
 	) {
 		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg, mStd.cEmpty);
 		var ResultReg = aDefConstructor.MapExpresion(aLambdaNode.Body);
-		if (!(aLambdaNode.Body is mSPO_AST.tBlockNode<tPos>)) {
+		if (aLambdaNode.Body is not mSPO_AST.tBlockNode<tPos>) {
 			aDefConstructor.Commands.Push(
 				mIL_AST.ReturnIf(aLambdaNode.Body.Pos, ResultReg, mIL_AST.cTrue)
 			);
@@ -220,8 +220,7 @@ mSPO2IL {
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
-			var UnsolvedSymbols = aEnv.ToStream();
-			while (UnsolvedSymbols.Match(out var Symbol, out UnsolvedSymbols)) {
+			foreach (var Symbol in aEnv.ToStream()) {
 				if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != Symbol.Ident)) {
 					aDefConstructor.UnsolvedSymbols.Push(Symbol);
 				}
@@ -230,8 +229,7 @@ mSPO2IL {
 			if (aEnv.Size() == 1) {
 				ArgReg = aEnv.Get(0).Ident;
 			} else {
-				UnsolvedSymbols = aEnv.ToStream().Reverse();
-				while (UnsolvedSymbols.Match(out var Symbol_, out UnsolvedSymbols)) {
+				foreach (var Symbol_ in aEnv.ToStream().Reverse()) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, Symbol_.Ident, ArgReg));
 					ArgReg = NewArgReg;
@@ -336,9 +334,8 @@ mSPO2IL {
 						return aDefConstructor.MapExpresion(Head);
 					}
 					default: {
-						var List = TupleNode.Items.Reverse();
 						var ResultReg = mIL_AST.cEmpty;
-						while (List.Match(out var Item, out List)) {
+						foreach (var Item in TupleNode.Items.Reverse()) {
 							var ItemReg = aDefConstructor.MapExpresion(Item);
 							var TupleReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(
@@ -373,14 +370,13 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecordNode<tPos> RecordNode: {
 			//--------------------------------------------------------------------------------
-				var Elements = RecordNode.Elements;
 				var ResultReg = mIL_AST.cEmpty;
-				while (Elements.Match(out var Element, out Elements)) {
-					var Expression = aDefConstructor.MapExpresion(Element.Value);
+				foreach (var (Key, Value) in RecordNode.Elements) {
+					var Expression = aDefConstructor.MapExpresion(Value);
 					var PrefixReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.AddPrefix(Element.Key.Pos, PrefixReg, Element.Key.Name, Expression));
+					aDefConstructor.Commands.Push(mIL_AST.AddPrefix(Key.Pos, PrefixReg, Key.Name, Expression));
 					var NewResultReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.ExtendRec(Element.Key.Pos, NewResultReg, ResultReg, PrefixReg));
+					aDefConstructor.Commands.Push(mIL_AST.ExtendRec(Key.Pos, NewResultReg, ResultReg, PrefixReg));
 					ResultReg = NewResultReg;
 				}
 				return ResultReg;
@@ -432,8 +428,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tBlockNode<tPos> BlockNode: {
 			//--------------------------------------------------------------------------------
-				var CommandNodes = BlockNode.Commands;
-				while (CommandNodes.Match(out var CommandNode, out CommandNodes)) {
+				foreach (var CommandNode in BlockNode.Commands) {
 					aDefConstructor.MapCommand(CommandNode);
 				}
 				// TODO: remove created symbols from unknown symbols
@@ -443,9 +438,7 @@ mSPO2IL {
 			case mSPO_AST.tIfNode<tPos> IfNode: {
 			//--------------------------------------------------------------------------------
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
-				var Pairs = IfNode.Cases;
-				while (Pairs.Match(out var Pair, out Pairs)) {
-					var (Test, Run) = Pair;
+				foreach (var (Test, Run) in IfNode.Cases) {
 					Ifs.Push(mSPO_AST.ReturnIf(aDefConstructor.ModuleConstructor.MergePos(Test.Pos, Run.Pos), Run, Test));
 				}
 				Ifs.Push(
@@ -488,17 +481,14 @@ mSPO2IL {
 			case mSPO_AST.tIfMatchNode<tPos> IfMatchNode: {
 			//--------------------------------------------------------------------------------
 				var Input = aDefConstructor.MapExpresion(IfMatchNode.Expression);
-				
 				var ModuleConstructor = aDefConstructor.ModuleConstructor;
-				var Rest = IfMatchNode.Cases;
-				
 				var SwitchDef = ModuleConstructor.NewDefConstructor();
 				
-				while (Rest.Match(out var Case, out Rest)) {
-					var CasePos = ModuleConstructor.MergePos(Case.Match.Pos, Case.Expression.Pos);
+				foreach (var (Match, Expression) in IfMatchNode.Cases) {
+					var CasePos = ModuleConstructor.MergePos(Match.Pos, Expression.Pos);
 					
 					var TestDef = ModuleConstructor.NewDefConstructor();
-					TestDef.MapMatchTest(mIL_AST.cArg, Case.Match);
+					TestDef.MapMatchTest(mIL_AST.cArg, Match);
 					TestDef.Commands.Push(mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, mIL_AST.cTrue));
 					TestDef.FinishMapProc(CasePos, TestDef.UnsolvedSymbols);
 					var TestProc = SwitchDef.InitProc(CasePos, TempDef(TestDef.Index), TestDef.UnsolvedSymbols);
@@ -506,8 +496,8 @@ mSPO2IL {
 					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResult, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
-					RunDef.MapMatch(Case.Match, mIL_AST.cArg, mStd.cEmpty);
-					var Result = RunDef.MapExpresion(Case.Expression);
+					RunDef.MapMatch(Match, mIL_AST.cArg, mStd.cEmpty);
+					var Result = RunDef.MapExpresion(Expression);
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, Result, mIL_AST.cTrue));
 					RunDef.FinishMapProc(CasePos, RunDef.UnsolvedSymbols);
 					var RunProc = SwitchDef.InitProc(CasePos, TempDef(RunDef.Index), RunDef.UnsolvedSymbols);
@@ -557,7 +547,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 				SetTypeNode.Expressions.Match(out var First, out var Rest);
 				var ResultReg = aDefConstructor.MapExpresion(First);
-				while (Rest.Match(out var Head, out Rest)) {
+				foreach (var Head in Rest) {
 					var ExprReg = aDefConstructor.MapExpresion(Head);
 					var SetTypeReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.TypeSet(Head.Pos, SetTypeReg, ExprReg, ResultReg));
@@ -572,7 +562,7 @@ mSPO2IL {
 					return mIL_AST.cEmptyType;
 				} else {
 					var ResultReg = aDefConstructor.MapExpresion(First);
-					while (Rest.Match(out var Head, out Rest)) {
+					foreach (var Head in Rest) {
 						var PairTypeReg = aDefConstructor.CreateTempReg();
 						var ExprReg = aDefConstructor.MapExpresion(Head);
 						aDefConstructor.Commands.Push(mIL_AST.TypePair(Head.Pos, PairTypeReg, ExprReg, ResultReg));
@@ -611,25 +601,23 @@ mSPO2IL {
 							);
 						}
 						case mSPO_AST.tCallNode<tPos> CallNode: {
-							mSPO_AST.tExpressionNode<tPos> Func;
-							if (CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode) {
-								Func = mSPO_AST.Ident(IdentNode.Pos, "..." + IdentNode.Name.Substring(1));
-							} else {
-								Func = CallNode.Func;
-							}
+							var Func = (
+								CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode
+								? mSPO_AST.Ident(IdentNode.Pos, "..." + IdentNode.Name[1..])
+								: CallNode.Func
+							);
 							var FuncReg = aDefConstructor.MapExpresion(Func);
-							mSPO_AST.tExpressionNode<tPos> Arg;
-							if (CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple) {
-								Arg = mSPO_AST.Tuple(
+							var Arg = (
+								CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
+								? mSPO_AST.Tuple(
 									Tuple.Pos,
 									mStream.Stream(PipeToRightNode.Right, Tuple.Items)
-								);
-							} else {
-								Arg = mSPO_AST.Tuple(
+								)
+								: mSPO_AST.Tuple(
 									CallNode.Arg.Pos,
 									mStream.Stream(PipeToRightNode.Right, mStream.Stream(CallNode.Arg))
-								);
-							}
+								)
+							);
 							var ArgReg = aDefConstructor.MapExpresion(Arg);
 							var ResultReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(
@@ -651,45 +639,43 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tPipeToLeftNode<tPos> PipeToLeftNode: {
 			//--------------------------------------------------------------------------------
-					switch (PipeToLeftNode.Left) {
-						case mSPO_AST.tCallNode<tPos> CallNode: {
-							mSPO_AST.tExpressionNode<tPos> Func;
-							if (CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode) {
-								Func = mSPO_AST.Ident(IdentNode.Pos, IdentNode.Name.Substring(1) + "...");
-							} else {
-								Func = CallNode.Func;
-							}
-							var FuncReg = aDefConstructor.MapExpresion(Func);
-							mSPO_AST.tExpressionNode<tPos> Arg;
-							if (CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple) {
-								Arg = mSPO_AST.Tuple(
-									Tuple.Pos,
-									mStream.Concat(Tuple.Items, mStream.Stream(PipeToLeftNode.Right))
-								);
-							} else {
-								Arg = mSPO_AST.Tuple(
-									CallNode.Arg.Pos,
-									mStream.Stream(CallNode.Arg, mStream.Stream(PipeToLeftNode.Right))
-								);
-							}
-							var ArgReg = aDefConstructor.MapExpresion(Arg);
-							var ResultReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(
-								mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
-							);
-							return ResultReg;
-						}
-						default: {
-							var FirstArgReg = aDefConstructor.MapExpresion(PipeToLeftNode.Right);
-							var FuncReg = aDefConstructor.MapExpresion(PipeToLeftNode.Left);
-							var ResultReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(
-								mIL_AST.CallFunc(PipeToLeftNode.Pos, ResultReg, FuncReg, FirstArgReg)
-							);
-							return ResultReg;
-						}
+				switch (PipeToLeftNode.Left) {
+					case mSPO_AST.tCallNode<tPos> CallNode: {
+						var Func = (
+							(CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode)
+							? mSPO_AST.Ident(IdentNode.Pos, IdentNode.Name[1..] + "...")
+							: CallNode.Func
+						);
+						var FuncReg = aDefConstructor.MapExpresion(Func);
+						var Arg = (
+							CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
+							? mSPO_AST.Tuple(
+								Tuple.Pos,
+								mStream.Concat(Tuple.Items, mStream.Stream(PipeToLeftNode.Right))
+							)
+							: mSPO_AST.Tuple(
+								CallNode.Arg.Pos,
+								mStream.Stream(CallNode.Arg, mStream.Stream(PipeToLeftNode.Right))
+							)
+						);
+						var ArgReg = aDefConstructor.MapExpresion(Arg);
+						var ResultReg = aDefConstructor.CreateTempReg();
+						aDefConstructor.Commands.Push(
+							mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+						);
+						return ResultReg;
+					}
+					default: {
+						var FirstArgReg = aDefConstructor.MapExpresion(PipeToLeftNode.Right);
+						var FuncReg = aDefConstructor.MapExpresion(PipeToLeftNode.Left);
+						var ResultReg = aDefConstructor.CreateTempReg();
+						aDefConstructor.Commands.Push(
+							mIL_AST.CallFunc(PipeToLeftNode.Pos, ResultReg, FuncReg, FirstArgReg)
+						);
+						return ResultReg;
 					}
 				}
+			}
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
@@ -752,9 +738,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchRecordNode<tPos> RecordNode: {
 			//--------------------------------------------------------------------------------
-				var Elements = RecordNode.Elements;
-				while (Elements.Match(out var Element, out Elements)) {
-					var Pos = Element.Key.Pos;
+				foreach (var (Key, Match) in RecordNode.Elements) {
+					var Pos = Key.Pos;
 					
 					var Reg = aReg;
 					var Found = false;
@@ -762,12 +747,12 @@ mSPO2IL {
 					while (RecType.MatchRecord(out var HeadKey, out var HeadType, out RecType!)) {
 						var HeadTailReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
-						if (HeadKey == Element.Key.Name) {
+						if (HeadKey == Key.Name) {
 							var TempValueReg_ = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(mIL_AST.GetSecond(Pos, TempValueReg_, HeadTailReg));
 							var TempValueReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Element.Key.Name, TempValueReg_));
-							aDefConstructor.MapMatch(Element.Match, TempValueReg, mStd.cEmpty);
+							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Key.Name, TempValueReg_));
+							aDefConstructor.MapMatch(Match, TempValueReg, mStd.cEmpty);
 							Found = true;
 							break;
 						} else {
@@ -786,9 +771,8 @@ mSPO2IL {
 			case mSPO_AST.tMatchTupleNode<tPos> TupleNode: {
 			//--------------------------------------------------------------------------------
 				var RestReg = aReg;
-				var Items = TupleNode.Items;
-				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2);
-				while (Items.Match(out var Item, out Items)) {
+				mAssert.AreEquals(TupleNode.Items.Take(2).ToArrayList().Size(), 2);
+				foreach (var Item in TupleNode.Items) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Item.Pos, ItemReg, RestReg));
 					
@@ -904,9 +888,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchTupleNode<tPos> TupleNode: {
 			//--------------------------------------------------------------------------------
-				var Items = TupleNode.Items;
 				var RestReg = aInReg;
-				while (Items.Match(out var Item, out Items)) {
+				foreach (var Item in TupleNode.Items) {
 					var IsPairReg = aDefConstructor.CreateTempReg();
 					var IsNotPairReg = aDefConstructor.CreateTempReg();
 					var TempReg = aDefConstructor.CreateTempReg();
@@ -992,8 +975,7 @@ mSPO2IL {
 		var TempLambdaDefs = mArrayList.List<tDefConstructor<tPos>>();
 		var AllUnsolvedSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
 		
-		var List = aRecLambdasNode.List;
-		while (List.Match(out var RecLambdaItemNode, out List)) {
+		foreach (var RecLambdaItemNode in aRecLambdasNode.List) {
 			var NewDefIndex = aDefConstructor.ModuleConstructor.Defs.Size();
 			NewDefIndices.Push(NewDefIndex);
 			AllUnsolvedSymbols.Push((TempDef(NewDefIndex), RecLambdaItemNode.Pos));
@@ -1029,7 +1011,7 @@ mSPO2IL {
 				)
 			);
 			
-			while (TempUnsolvedSymbols.Match(out var Symbol, out TempUnsolvedSymbols)) {
+			foreach (var Symbol in TempUnsolvedSymbols) {
 				AllUnsolvedSymbols.Push(Symbol);
 			}
 		}
@@ -1046,15 +1028,13 @@ mSPO2IL {
 			
 			var ArgReg = mIL_AST.cEmpty;
 			if (!AllUnsolvedSymbols.IsEmpty()) {
-				var Iterator = AllUnsolvedSymbols.ToStream();
-				while (Iterator.Match(out var UnsolvedSymbol, out Iterator)) {
+				foreach (var UnsolvedSymbol in AllUnsolvedSymbols.ToStream()) {
 					if (aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != UnsolvedSymbol.Ident)) {
 						aDefConstructor.UnsolvedSymbols.Push(UnsolvedSymbol);
 					}
 				}
 				
-				Iterator = AllUnsolvedSymbols.ToStream().Reverse();
-				while (Iterator.Match(out var Symbol_, out Iterator)) {
+				foreach (var Symbol_ in AllUnsolvedSymbols.ToStream().Reverse()) {
 					var NewArgReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
 						mIL_AST.CreatePair(RecLambdaItemNode.Pos, NewArgReg, Symbol_.Ident, ArgReg)
@@ -1095,9 +1075,8 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMethodCallsNode<tPos> aMethodCallsNode
 	) {
-		var Rest = aMethodCallsNode.MethodCalls;
 		var Object = aDefConstructor.MapExpresion(aMethodCallsNode.Object);
-		while (Rest.Match(out var Call, out Rest)) {
+		foreach (var Call in aMethodCallsNode.MethodCalls) {
 			var Arg = aDefConstructor.MapExpresion(Call.Argument);
 			var MethodName = Call.Method.Name;
 			if (MethodName == "_=...") {

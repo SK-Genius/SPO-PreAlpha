@@ -25,7 +25,7 @@ mAny_Tests {
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mStd),
+		nameof(mAny),
 		mTest.Test(
 			"tAny.Equals()",
 			aStreamOut => {
