@@ -285,6 +285,7 @@ mParserGen {
 		mStd.tFunc<mStream.tStream<(tPos Pos, tError Massage)>?, mStream.tStream<(tPos Pos, tError Massage)>?, (mSpan.tSpan<tPos> Span, tIn Input)> aModifyFunc
 	) {
 		aParser._ModifyErrorsFunc = aModifyFunc;
+		
 		return aParser;
 	}
 	
@@ -419,8 +420,11 @@ mParserGen {
 					var LastError = mStream.Stream<(tPos Pos, tError Massage)>();
 					while (
 						I < Max_ &&
-						this.Parse(RemainingStream, aDebugStream, mStream.Stream(Parser, aPath))
-						.Match(
+						this.Parse(
+							RemainingStream,
+							aDebugStream,
+							mStream.Stream(Parser, aPath)
+						).Match(
 							out var TempResult,
 							out LastError
 						)

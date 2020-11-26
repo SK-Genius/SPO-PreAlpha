@@ -145,10 +145,7 @@ mTokenizer {
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aIdent, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
-		mAssert.IsTrue(
-			MaybeResult.Match(out var Result, out var ErrorList),
-			() => ErrorList.ToText(aText.Split('\n'))
-		);
+		var Result = MaybeResult.ElseThrow(_ => _.ToText(aText.Split('\n')));
 		
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Row = Result.RemainingStream.ForceFirst().Span.Start.Row;

@@ -801,14 +801,14 @@ mVM_Data {
 	
 	public static tData
 	Record(
-		params (tText, tData)[] aFields
-	) {
-		var Result = Empty();
-		foreach (var (Key, Value) in aFields) {
-			Result = Record(Result, Prefix(Key, Value));
-		}
-		return Result;
-	}
+		params (tText Key, tData Value)[] aFields
+	) => aFields.AsStream(
+	).Map(
+		a => Prefix(a.Key, a.Value)
+	).Reduce(
+		Empty(),
+		(aTail, aHead) => Record(aTail, aHead)
+	);
 	
 	public static tBool
 	MatchRecord(
@@ -930,49 +930,54 @@ mVM_Data {
 		}
 		var NextLimit = aLimit - 1;
 		
-		if (a.MatchEmpty()) {
-			return "§EMPTY";
+		return 0 switch {
+			_ when a.MatchEmpty()
+			=> "§EMPTY",
 			
-		} else if (a.MatchBool(out var Bool)) {
-			return Bool ? "§TRUE" : "§FALSE";
+			_ when a.MatchBool(out var Bool)
+			=> Bool ? "§TRUE" : "§FALSE",
 			
-		} else if (a.MatchInt(out var Int)) {
-			return $"{Int}";
+			_ when a.MatchInt(out var Int)
+			=> $"{Int}",
 			
-		} else if (a.MatchPrefix(out var Prefix, out var Value)) {
-			return $"(#{Prefix} {Value.ToText(NextLimit)})";
+			_ when a.MatchPrefix(out var Prefix, out var Value)
+			=> $"(#{Prefix} {Value.ToText(NextLimit)})",
 			
-		} else if (a.MatchRecord(out var SubRecord, out var KeyValue)) {
-			KeyValue.MatchPrefix(out var Key, out Value);
-			var Result = $"{{ {Key}: {Value}";
-			while (SubRecord.MatchRecord(out KeyValue, out var Temp)) {
-				Result += $", {Key}: {Value.ToText(NextLimit)}";
-				SubRecord = Temp;
-			}
-			return Result + "}";
+			_ when a.MatchRecord(out var SubRecord, out var KeyValue)
+			=> mStd.Call(() => {
+				KeyValue.MatchPrefix(out var Key, out var Value);
+				var Result = $"{{ {Key}: {Value}";
+				while (SubRecord.MatchRecord(out KeyValue, out var Temp)) {
+					Result += $", {Key}: {Value.ToText(NextLimit)}";
+					SubRecord = Temp;
+				}
+				return Result + "}";
+			}),
 			
-		} else if (a.MatchVar(out Value)) {
-			return $"(§VAR {Value.ToText(NextLimit)})";
+			_ when a.MatchVar(out var Value)
+			=> $"(§VAR {Value.ToText(NextLimit)})",
 			
-		} else if (a.MatchPair(out var Rest1, out var Rest2)) {
-			var Result = "(" + Rest1.ToText(NextLimit);
-			while (Rest2.MatchPair(out Rest1, out var Temp)) {
-				Result += ", " + Rest1.ToText(NextLimit);
-				Rest2 = Temp;
-			}
-			if (!Rest2.MatchEmpty()) {
-				Result += "; " + Rest2.ToText(NextLimit);
-			}
-			return Result + ")";
+			_ when a.MatchPair(out var Rest1, out var Rest2)
+			=> mStd.Call(() => {
+				var Result = "(" + Rest1.ToText(NextLimit);
+				while (Rest2.MatchPair(out Rest1, out var Temp)) {
+					Result += ", " + Rest1.ToText(NextLimit);
+					Rest2 = Temp;
+				}
+				if (!Rest2.MatchEmpty()) {
+					Result += "; " + Rest2.ToText(NextLimit);
+				}
+				return Result + ")";
+			}),
 			
-		} else if (a.MatchProc(out var Def, out var Env)) {
-			return $"(Proc @ {Def.FirstPosText})";
+			_ when a.MatchProc(out var Def, out var Env)
+			=> $"(Proc @ {Def.FirstPosText})",
 			
-		} else if (a.MatchDef(out var Def_)) {
-			return $"(Def @ {Def_.FirstPosText})";
+			_ when a.MatchDef(out var Def_)
+			=> $"(Def @ {Def_.FirstPosText})",
 			
-		} else {
-			return $"(?{a._DataType}?)";
-		}
+			_
+			=> $"(?{a._DataType}?)",
+		};
 	}
 }

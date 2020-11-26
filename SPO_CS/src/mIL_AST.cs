@@ -196,7 +196,7 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			mAssert.IsTrue(aNode._2.Match(out aId2));
+			aId2 = aNode._2.ElseThrow("");
 			return true;
 		} else {
 			aId1 = default!;
@@ -217,8 +217,8 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			mAssert.IsTrue(aNode._2.Match(out aId2));
-			mAssert.IsTrue(aNode._3.Match(out aId3));
+			aId2 = aNode._2.ElseThrow("");
+			aId3 = aNode._3.ElseThrow("");
 			return true;
 		} else {
 			aId1 = default!;

@@ -37,7 +37,7 @@ public static class mStd {
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> a) => a;
 	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> a) => a;
 	
-	public static t Call<t>(mStd.tFunc<t> a) => a();
+	public static t Call<t>(tFunc<t> a) => a();
 	
 	public delegate void tAction();
 	public delegate void tAction<in tArg>(tArg a);

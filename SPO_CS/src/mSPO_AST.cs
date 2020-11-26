@@ -24,7 +24,7 @@ mSPO_AST {
 	
 	public interface
 	tNode<tPos> {
-		tPos Pos { get; set; }
+		tPos Pos { get; }
 	}
 	
 	public interface
@@ -47,157 +47,157 @@ mSPO_AST {
 	tCommandNode<tPos> : tNode<tPos> {}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tFalseNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tTrueNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-	}
+	} 
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tTextNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Value = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIntNode<tPos> : tLiteralNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tInt32 Value = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Name = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Name = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>>? Items;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchItemNode<tPos> Pattern = default!;
 		public mMaybe.tMaybe<tExpressionNode<tPos>> Type;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
 		public tExpressionNode<tPos> Element = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tRecordNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? Elements;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
 		public tMatchNode<tPos> Match = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Match = default!;
 		public tExpressionNode<tPos> Guard = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mMaybe.tMaybe<tMatchNode<tPos>> Generic;
 		public tMatchNode<tPos> Head = default!;
@@ -205,9 +205,9 @@ mSPO_AST {
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMethodNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Obj = default!;
 		public tMatchNode<tPos> Arg = default!;
@@ -215,101 +215,101 @@ mSPO_AST {
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tBlockNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tCommandNode<tPos>>? Commands;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tCallNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Func = default!;
 		public tExpressionNode<tPos> Arg = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tDefNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Des = default!;
 		public tExpressionNode<tPos> Src = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchFreeIdentNode<tPos> Ident = default!;
 		public tLambdaNode<tPos> Lambda = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mStream.tStream<tRecLambdaItemNode<tPos>>? List;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tReturnIfNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public tExpressionNode<tPos> Result = default!;
 		public tExpressionNode<tPos> Condition = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIfNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)>? Cases;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression = default!;
 		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)>? Cases;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Prefix = default!;
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tTypeNode<tPos> EnvType = default!;
 		public tTypeNode<tPos> ArgType = default!;
@@ -317,36 +317,36 @@ mSPO_AST {
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tDefVarNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdentNode<tPos> Ident = default!;
 		public tExpressionNode<tPos> Expression = default!;
@@ -354,75 +354,75 @@ mSPO_AST {
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Obj = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMethodCallNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public tIdentNode<tPos> Method = default!;
 		public tExpressionNode<tPos> Argument = default!;
 		public mMaybe.tMaybe<tMatchNode<tPos>> Result;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Object = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left = default!;
 		public tExpressionNode<tPos> Right = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Left = default!;
 		public tExpressionNode<tPos> Right = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tTupleNode<tPos> : tExpressionNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>>? Items;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tImportNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public tMatchNode<tPos> Match = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tExportNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public tExpressionNode<tPos> Expression = default!;
 	}
 	
 	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
-	public sealed class
+	public sealed record
 	tModuleNode<tPos> : tNode<tPos> {
-		public tPos Pos { get; set; } = default!;
+		public tPos Pos { get; init; }
 		public tImportNode<tPos> Import = default!;
 		public tExportNode<tPos> Export = default!;
 		public mStream.tStream<tCommandNode<tPos>>? Commands;
@@ -519,7 +519,7 @@ mSPO_AST {
 		Pos = aPos,
 		Name = "_" + aName
 	};
-
+	
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
@@ -1172,9 +1172,11 @@ mSPO_AST {
 			),
 			// Matches
 			tMatchNode<t> Node => (
-				Node.Type.Match(out var Type)
-				? $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})"
-				: Node.Pattern.ToText(aLimit)
+				Node.Type.Then(
+					Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})"
+				).Else(
+					() => Node.Pattern.ToText(aLimit)
+				)
 			),
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdentNode<t> Node => "§DEF " + Node.Name,

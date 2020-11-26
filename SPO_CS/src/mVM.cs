@@ -333,26 +333,35 @@ mVM {
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
-				if (Proc.MatchExternDef(out var ExternDef)) {
-					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
-				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
-				} else if (Proc.MatchDef<tPos>(out var Def)) {
-					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
-				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
-					var Res = mVM_Data.Empty();
-					aCallStack._Regs.Push(Res);
-					return NewCallStack(
-						mMaybe.Some(aCallStack),
-						Def_,
-						Env,
-						mVM_Data.Empty(),
-						Arg,
-						Res,
-						aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
-					);
-				} else {
-					throw mError.Error("impossible");
+				switch (0) {
+					case 0 when Proc.MatchExternDef(out var ExternDef): {
+						aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
+						break;
+					}
+					case 0 when Proc.MatchExternProc(out var ExternDef, out var Env): {
+						aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
+						break;
+					}
+					case 0 when Proc.MatchDef<tPos>(out var Def): {
+						aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
+						break;
+					}
+					case 0 when Proc.MatchProc<tPos>(out var Def_, out var Env): {
+						var Res = mVM_Data.Empty();
+						aCallStack._Regs.Push(Res);
+						return NewCallStack(
+							mMaybe.Some(aCallStack),
+							Def_,
+							Env,
+							mVM_Data.Empty(),
+							Arg,
+							Res,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
+					}
+					default: {
+						throw mError.Error("impossible");
+					}
 				}
 				break;
 			}
@@ -364,18 +373,27 @@ mVM {
 				
 				mAssert.IsTrue(Proc_.MatchPair(out var Obj, out var Proc));
 				
-				if (Proc.MatchExternDef(out var ExternDef)) {
-					aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
-				} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-					aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
-				} else if (Proc.MatchDef<tPos>(out var Def)) {
-					aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
-				} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
-					var Res = mVM_Data.Empty();
-					aCallStack._Regs.Push(Res);
-					return NewCallStack(mMaybe.Some(aCallStack), Def_, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
-				} else {
-					throw mError.Error("impossible");
+				switch (0) {
+					case 0 when Proc.MatchExternDef(out var ExternDef): {
+						aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
+						break;
+					}
+					case 0 when Proc.MatchExternProc(out var ExternDef, out var Env): {
+						aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
+						break;
+					}
+					case 0 when Proc.MatchDef<tPos>(out var Def): {
+						aCallStack._Regs.Push(mVM_Data.Proc(Def, Arg));
+						break;
+					}
+					case 0 when Proc.MatchProc<tPos>(out var Def, out var Env): {
+						var Res = mVM_Data.Empty();
+						aCallStack._Regs.Push(Res);
+						return NewCallStack(mMaybe.Some(aCallStack), Def, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+					}
+					default: {
+						throw mError.Error("impossible");
+					}
 				}
 				break;
 			}
@@ -424,24 +442,33 @@ mVM {
 					var CallerArgPair = aCallStack._Regs.Get(Arg2);
 					mAssert.IsTrue(CallerArgPair.MatchPair(out var Proc, out var Arg));
 					mVM_Data.tData Res;
-					if (Proc.MatchExternDef(out var ExternDef)) {
-						Res = mVM_Data.ExternProc(ExternDef, Arg);
-					} else if(Proc.MatchExternProc(out ExternDef, out var Env)) {
-						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
-					} else if (Proc.MatchDef<tPos>(out var Def)) {
-						Res = mVM_Data.Proc(Def, Arg);
-					} else if (Proc.MatchProc<tPos>(out var Def_, out Env)) {
-						return NewCallStack(
-							aCallStack._Parent,
-							Def_,
-							Env,
-							mVM_Data.Empty(),
-							Arg,
-							aCallStack._Regs.Get(mVM_Data.cResReg),
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
-						);
-					} else {
-						throw mError.Error("impossible");
+					switch (0) {
+						case 0 when Proc.MatchExternDef(out var ExternDef): {
+							Res = mVM_Data.ExternProc(ExternDef, Arg);
+							break;
+						}
+						case 0 when Proc.MatchExternProc(out var ExternDef, out var Env): {
+							Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+							break;
+						}
+						case 0 when Proc.MatchDef<tPos>(out var Def): {
+							Res = mVM_Data.Proc(Def, Arg);
+							break;
+						}
+						case 0 when Proc.MatchProc<tPos>(out var Def, out var Env): {
+							return NewCallStack(
+								aCallStack._Parent,
+								Def,
+								Env,
+								mVM_Data.Empty(),
+								Arg,
+								aCallStack._Regs.Get(mVM_Data.cResReg),
+								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							);
+						}
+						default: {
+							throw mError.Error("impossible");
+						}
 					}
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
@@ -497,17 +524,23 @@ mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		using var _ = mPerf.Measure();
-		if (aProc.MatchProc<tPos>(out var Def, out var Env)) {
-			var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
-			while (CallStack.Match(out var CallStack_)) {
-				CallStack = CallStack_.Step(aPosToText);
+		switch (0) {
+			case 0 when aProc.MatchProc<tPos>(out var Def, out var Env): {
+				var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
+				while (CallStack.Match(out var CallStack_)) {
+					CallStack = CallStack_.Step(aPosToText);
+				}
+				break;
 			}
-		} else if (aProc.MatchExternProc(out var ExternDef, out Env)) {
-			var Res = ExternDef(Env, aObj, aArg, aTraceOut);
-			aRes._DataType = Res._DataType;
-			aRes._Value = Res._Value;
-		} else {
-			throw mError.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
+			case 0 when aProc.MatchExternProc(out var ExternDef, out var Env): {
+				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
+				aRes._DataType = Res._DataType;
+				aRes._Value = Res._Value;
+				break;
+			}
+			default: {
+				throw mError.Error($"tPos ({typeof(tPos)}) does not match with the tPos of aProc");
+			}
 		}
 	}
 }

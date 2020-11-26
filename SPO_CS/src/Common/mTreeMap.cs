@@ -335,12 +335,12 @@ mTreeMap {
 	ToStream<tKey, tValue>(
 		this tNode<tKey, tValue>? a
 	) => (a is null)
-		? mStream.Stream<(tKey Key, tValue Value)>()
-		: mStream.Concat(
-			a.SubTree1.ToStream(),
-			mStream.Concat(
-				mStream.Stream((a.Key, a.Value)),
-				a.SubTree2.ToStream()
-			)
-		);
+	? mStream.Stream<(tKey Key, tValue Value)>()
+	: mStream.Concat(
+		a.SubTree1.ToStream(),
+		mStream.Concat(
+			mStream.Stream((a.Key, a.Value)),
+			a.SubTree2.ToStream()
+		)
+	);
 }

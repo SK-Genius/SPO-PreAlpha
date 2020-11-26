@@ -413,10 +413,8 @@ mSPO2IL_Tests {
 					"",
 					a => aStreamOut(a())
 				);
-				
-				if (!mSPO2IL.MapModule(ModuleNode, mSpan.Merge).Match(out var ModuleConstructor, out var Error)) {
-					throw mError.Error(Error);
-				}
+
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge).ElseThrow();
 				
 				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2);
 				

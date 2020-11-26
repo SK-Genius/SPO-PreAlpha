@@ -285,57 +285,57 @@ mSPO2IL {
 				return mIL_AST.cTypeType;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIntNode<tPos> NumberNode: {
+			case mSPO_AST.tIntNode<tPos> { Pos: var Pos, Value: var Value }: {
 			//--------------------------------------------------------------------------------
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.CreateInt(
-						NumberNode.Pos,
+						Pos,
 						ResultReg,
-						"" + NumberNode.Value
+						"" + Value
 					)
 				);
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIdentNode<tPos> IdentNode: {
+			case mSPO_AST.tIdentNode<tPos> { Pos: var Pos, Name: var Name }: {
 			//--------------------------------------------------------------------------------
 				if (
-					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != IdentNode.Name) &&
+					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != Name) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						_ => _.GetResultReg().ThenTry(aName =>  mMaybe.Some(aName == IdentNode.Name)).Else(() => false)
+						_ => _.GetResultReg().ThenTry(aName =>  mMaybe.Some(aName == Name)).Else(() => false)
 					)
 				) {
-					aDefConstructor.UnsolvedSymbols.Push((IdentNode.Name, IdentNode.Pos));
+					aDefConstructor.UnsolvedSymbols.Push((Name, Pos));
 				}
-				return IdentNode.Name;
+				return Name;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tCallNode<tPos> CallNode: {
+			case mSPO_AST.tCallNode<tPos>{ Pos: var Pos, Func: var Func, Arg: var Arg }: {
 			//--------------------------------------------------------------------------------
-				var FuncReg = aDefConstructor.MapExpresion(CallNode.Func);
-				var ArgReg = aDefConstructor.MapExpresion(CallNode.Arg);
+				var FuncReg = aDefConstructor.MapExpresion(Func);
+				var ArgReg = aDefConstructor.MapExpresion(Arg);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+					mIL_AST.CallFunc(Pos, ResultReg, FuncReg, ArgReg)
 				);
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tTupleNode<tPos> TupleNode: {
+			case mSPO_AST.tTupleNode<tPos>{ Items: var Items }: {
 			//--------------------------------------------------------------------------------
-				switch (TupleNode.Items.Take(2).ToArrayList().Size()) {
+				switch (Items.Take(2).ToArrayList().Size()) {
 					case 0: {
 						throw mError.Error("impossible");
 					}
 					case 1: {
-						mAssert.IsTrue(TupleNode.Items.Match(out var Head, out var _));
+						mAssert.IsTrue(Items.Match(out var Head, out var _));
 						return aDefConstructor.MapExpresion(Head);
 					}
 					default: {
 						var ResultReg = mIL_AST.cEmpty;
-						foreach (var Item in TupleNode.Items.Reverse()) {
+						foreach (var Item in Items.Reverse()) {
 							var ItemReg = aDefConstructor.MapExpresion(Item);
 							var TupleReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(
@@ -353,25 +353,25 @@ mSPO2IL {
 				}
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tPrefixNode<tPos> PrefixNode: {
+			case mSPO_AST.tPrefixNode<tPos>{ Pos: var Pos, Prefix: var Prefix, Element: var Element }: {
 			//--------------------------------------------------------------------------------
-				var ExpresionReg = aDefConstructor.MapExpresion(PrefixNode.Element);
+				var ExpresionReg = aDefConstructor.MapExpresion(Element);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.AddPrefix(
-						PrefixNode.Pos,
+						Pos,
 						ResultReg,
-						PrefixNode.Prefix,
+						Prefix,
 						ExpresionReg
 					)
 				);
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tRecordNode<tPos> RecordNode: {
+			case mSPO_AST.tRecordNode<tPos>{ Elements: var Elements }: {
 			//--------------------------------------------------------------------------------
 				var ResultReg = mIL_AST.cEmpty;
-				foreach (var (Key, Value) in RecordNode.Elements) {
+				foreach (var (Key, Value) in Elements) {
 					var Expression = aDefConstructor.MapExpresion(Value);
 					var PrefixReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.AddPrefix(Key.Pos, PrefixReg, Key.Name, Expression));
@@ -382,13 +382,12 @@ mSPO2IL {
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tTextNode<tPos> TextNode: {
+			case mSPO_AST.tTextNode<tPos>{ Pos: var Pos, Value: var Value }: {
 			//--------------------------------------------------------------------------------
-				var Pos = TextNode.Pos;
 				var TextReg = mIL_AST.cEmpty;
-				var Index = TextNode.Value.Length;
+				var Index = Value.Length;
 				while (Index --> 0) {
-					var Char = TextNode.Value[Index];
+					var Char = Value[Index];
 					var CharOrdReg = aDefConstructor.CreateTempReg();
 					var CharReg = aDefConstructor.CreateTempReg();
 					var TextReg_ = aDefConstructor.CreateTempReg();
@@ -426,26 +425,26 @@ mSPO2IL {
 				);
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tBlockNode<tPos> BlockNode: {
+			case mSPO_AST.tBlockNode<tPos>{ Commands: var Commands }: {
 			//--------------------------------------------------------------------------------
-				foreach (var CommandNode in BlockNode.Commands) {
-					aDefConstructor.MapCommand(CommandNode);
+				foreach (var Command in Commands) {
+					aDefConstructor.MapCommand(Command);
 				}
 				// TODO: remove created symbols from unknown symbols
 				return mIL_AST.cEmpty;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIfNode<tPos> IfNode: {
+			case mSPO_AST.tIfNode<tPos>{ Pos: var Pos, Cases: var Cases }: {
 			//--------------------------------------------------------------------------------
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
-				foreach (var (Test, Run) in IfNode.Cases) {
+				foreach (var (Test, Run) in Cases) {
 					Ifs.Push(mSPO_AST.ReturnIf(aDefConstructor.ModuleConstructor.MergePos(Test.Pos, Run.Pos), Run, Test));
 				}
 				Ifs.Push(
 					mSPO_AST.ReturnIf(
-						IfNode.Pos,
-						mSPO_AST.Empty(IfNode.Pos),
-						mSPO_AST.True(IfNode.Pos)
+						Pos,
+						mSPO_AST.Empty(Pos),
+						mSPO_AST.True(Pos)
 					)
 				); // TODO: ASSERT FALSE
 				
@@ -453,38 +452,38 @@ mSPO2IL {
 				
 				aDefConstructor.MapCommand(
 					mSPO_AST.Def(
-						IfNode.Pos,
+						Pos,
 						mSPO_AST.Match(
-							IfNode.Pos,
+							Pos,
 							new mSPO_AST.tMatchFreeIdentNode<tPos>{Name = ResultReg},
 							mStd.cEmpty
 						),
 						mSPO_AST.Call(
-							IfNode.Pos,
+							Pos,
 							mSPO_AST.Lambda(
-								IfNode.Pos,
+								Pos,
 								mStd.cEmpty,
 								mSPO_AST.Match(
-									IfNode.Pos,
-									mSPO_AST.Empty(IfNode.Pos),
+									Pos,
+									mSPO_AST.Empty(Pos),
 									mStd.cEmpty
 								),
-								mSPO_AST.Block(IfNode.Pos, Ifs.ToStream())
+								mSPO_AST.Block(Pos, Ifs.ToStream())
 							),
-							mSPO_AST.Empty(IfNode.Pos)
+							mSPO_AST.Empty(Pos)
 						)
 					)
 				);
 				return ResultReg; 
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIfMatchNode<tPos> IfMatchNode: {
+			case mSPO_AST.tIfMatchNode<tPos>{ Pos: var Pos, Expression: var MatchExpression, Cases: var Cases }: {
 			//--------------------------------------------------------------------------------
-				var Input = aDefConstructor.MapExpresion(IfMatchNode.Expression);
+				var Input = aDefConstructor.MapExpresion(MatchExpression);
 				var ModuleConstructor = aDefConstructor.ModuleConstructor;
 				var SwitchDef = ModuleConstructor.NewDefConstructor();
 				
-				foreach (var (Match, Expression) in IfMatchNode.Cases) {
+				foreach (var (Match, Expression) in Cases) {
 					var CasePos = ModuleConstructor.MergePos(Match.Pos, Expression.Pos);
 					
 					var TestDef = ModuleConstructor.NewDefConstructor();
@@ -510,55 +509,55 @@ mSPO2IL {
 				SwitchDef.FinishMapProc(aExpressionNode.Pos, SwitchDef.UnsolvedSymbols);
 				var SwitchProc = aDefConstructor.InitProc(aExpressionNode.Pos, TempDef(SwitchDef.Index), SwitchDef.UnsolvedSymbols);
 				var ResultReg = aDefConstructor.CreateTempReg();
-				aDefConstructor.Commands.Push(mIL_AST.CallFunc(IfMatchNode.Pos, ResultReg, SwitchProc, Input));
+				aDefConstructor.Commands.Push(mIL_AST.CallFunc(Pos, ResultReg, SwitchProc, Input));
 				
 				return ResultReg; 
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tVarToValNode<tPos> VarToValNode: {
+			case mSPO_AST.tVarToValNode<tPos>{ Pos: var Pos, Obj: var Obj }: {
 			//--------------------------------------------------------------------------------
-				var ObjReg = aDefConstructor.MapExpresion(VarToValNode.Obj);
+				var ObjReg = aDefConstructor.MapExpresion(Obj);
 				var ResultReg = aDefConstructor.CreateTempReg();
-				aDefConstructor.Commands.Push(mIL_AST.VarGet(VarToValNode.Pos, ResultReg, ObjReg));
+				aDefConstructor.Commands.Push(mIL_AST.VarGet(Pos, ResultReg, ObjReg));
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveTypeNode: {
+			case mSPO_AST.tRecursiveTypeNode<tPos>{ Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType }: {
 			//--------------------------------------------------------------------------------
-				mAssert.IsFalse(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == RecursiveTypeNode.HeadType.Name));
-				mAssert.IsFalse(aDefConstructor.KnownSymbols.ToStream().Any(a => a == RecursiveTypeNode.HeadType.Name));
+				mAssert.IsFalse(aDefConstructor.UnsolvedSymbols.ToStream().Any(a => a.Ident == HeadType.Name));
+				mAssert.IsFalse(aDefConstructor.KnownSymbols.ToStream().Any(a => a == HeadType.Name));
 				aDefConstructor.Commands.Push(
-					mIL_AST.TypeFree(RecursiveTypeNode.HeadType.Pos, RecursiveTypeNode.HeadType.Name)
+					mIL_AST.TypeFree(HeadType.Pos, HeadType.Name)
 				);
-				var BodyTypeReg = aDefConstructor.MapExpresion(RecursiveTypeNode.BodyType);
+				var BodyTypeReg = aDefConstructor.MapExpresion(BodyType);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeRecursive(
-						RecursiveTypeNode.Pos,
+						Pos,
 						ResultReg,
-						RecursiveTypeNode.HeadType.Name,
+						HeadType.Name,
 						BodyTypeReg
 					)
 				);
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tSetTypeNode<tPos> SetTypeNode: {
+			case mSPO_AST.tSetTypeNode<tPos>{ Expressions: var Expressions }: {
 			//--------------------------------------------------------------------------------
-				SetTypeNode.Expressions.Match(out var First, out var Rest);
-				var ResultReg = aDefConstructor.MapExpresion(First);
-				foreach (var Head in Rest) {
-					var ExprReg = aDefConstructor.MapExpresion(Head);
+				Expressions.Match(out var Head, out var Tail);
+				var ResultReg = aDefConstructor.MapExpresion(Head);
+				foreach (var Expression in Tail) {
+					var ExprReg = aDefConstructor.MapExpresion(Expression);
 					var SetTypeReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.TypeSet(Head.Pos, SetTypeReg, ExprReg, ResultReg));
+					aDefConstructor.Commands.Push(mIL_AST.TypeSet(Expression.Pos, SetTypeReg, ExprReg, ResultReg));
 					ResultReg = SetTypeReg;
 				}
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tTupleTypeNode<tPos> TupleTypeNode: {
+			case mSPO_AST.tTupleTypeNode<tPos>{Expressions: var Expressions }: {
 			//--------------------------------------------------------------------------------
-				if (!TupleTypeNode.Expressions.Match(out var First, out var Rest)) {
+				if (!Expressions.Match(out var First, out var Rest)) {
 					return mIL_AST.cEmptyType;
 				} else {
 					var ResultReg = aDefConstructor.MapExpresion(First);
@@ -584,19 +583,19 @@ mSPO2IL {
 				return ResultReg;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tPipeToRightNode<tPos> PipeToRightNode: {
+			case mSPO_AST.tPipeToRightNode<tPos>{ Pos: var Pos, Left: var Left, Right: var Right }: {
 			//--------------------------------------------------------------------------------
-					switch (PipeToRightNode.Right) {
-						case mSPO_AST.tPipeToRightNode<tPos> PipeToRightNode_: {
+					switch (Right) {
+						case mSPO_AST.tPipeToRightNode<tPos>{ Left: var RightLeft, Right: var RightRight }: {
 							return aDefConstructor.MapExpresion(
 								mSPO_AST.PipeToRight(
-									PipeToRightNode.Pos,
+									Pos,
 									mSPO_AST.PipeToRight(
-										PipeToRightNode.Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
-										PipeToRightNode.Left,
-										PipeToRightNode_.Left
+										Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
+										Left,
+										RightLeft
 									),
-									PipeToRightNode_.Right
+									Right
 								)
 							);
 						}
@@ -611,11 +610,11 @@ mSPO2IL {
 								CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
 								? mSPO_AST.Tuple(
 									Tuple.Pos,
-									mStream.Stream(PipeToRightNode.Right, Tuple.Items)
+									mStream.Stream(Right, Tuple.Items)
 								)
 								: mSPO_AST.Tuple(
 									CallNode.Arg.Pos,
-									mStream.Stream(PipeToRightNode.Right, mStream.Stream(CallNode.Arg))
+									mStream.Stream(Right, mStream.Stream(CallNode.Arg))
 								)
 							);
 							var ArgReg = aDefConstructor.MapExpresion(Arg);
@@ -626,51 +625,51 @@ mSPO2IL {
 							return ResultReg;
 						}
 						default: {
-							var FirstArgReg = aDefConstructor.MapExpresion(PipeToRightNode.Left);
-							var FuncReg = aDefConstructor.MapExpresion(PipeToRightNode.Right);
+							var FirstArgReg = aDefConstructor.MapExpresion(Left);
+							var FuncReg = aDefConstructor.MapExpresion(Right);
 							var ResultReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(
-								mIL_AST.CallFunc(PipeToRightNode.Pos, ResultReg, FuncReg, FirstArgReg)
+								mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
 							);
 							return ResultReg;
 						}
 					}
 				}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tPipeToLeftNode<tPos> PipeToLeftNode: {
+			case mSPO_AST.tPipeToLeftNode<tPos>{ Pos: var Pos, Left: var Left, Right: var Right }: {
 			//--------------------------------------------------------------------------------
-				switch (PipeToLeftNode.Left) {
-					case mSPO_AST.tCallNode<tPos> CallNode: {
+				switch (Left) {
+					case mSPO_AST.tCallNode<tPos>{ Pos: var LeftPos, Func: var LeftFunc, Arg: var LeftArg }: {
 						var Func = (
-							(CallNode.Func is mSPO_AST.tIdentNode<tPos> IdentNode)
+							(LeftFunc is mSPO_AST.tIdentNode<tPos> IdentNode)
 							? mSPO_AST.Ident(IdentNode.Pos, IdentNode.Name[1..] + "...")
-							: CallNode.Func
+							: LeftFunc
 						);
 						var FuncReg = aDefConstructor.MapExpresion(Func);
 						var Arg = (
-							CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
+							LeftArg is mSPO_AST.tTupleNode<tPos> Tuple
 							? mSPO_AST.Tuple(
 								Tuple.Pos,
-								mStream.Concat(Tuple.Items, mStream.Stream(PipeToLeftNode.Right))
+								mStream.Concat(Tuple.Items, mStream.Stream(Right))
 							)
 							: mSPO_AST.Tuple(
-								CallNode.Arg.Pos,
-								mStream.Stream(CallNode.Arg, mStream.Stream(PipeToLeftNode.Right))
+								LeftArg.Pos,
+								mStream.Stream(LeftArg, mStream.Stream(Right))
 							)
 						);
 						var ArgReg = aDefConstructor.MapExpresion(Arg);
 						var ResultReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+							mIL_AST.CallFunc(LeftPos, ResultReg, FuncReg, ArgReg)
 						);
 						return ResultReg;
 					}
 					default: {
-						var FirstArgReg = aDefConstructor.MapExpresion(PipeToLeftNode.Right);
-						var FuncReg = aDefConstructor.MapExpresion(PipeToLeftNode.Left);
+						var FirstArgReg = aDefConstructor.MapExpresion(Right);
+						var FuncReg = aDefConstructor.MapExpresion(Left);
 						var ResultReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(PipeToLeftNode.Pos, ResultReg, FuncReg, FirstArgReg)
+							mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
 						);
 						return ResultReg;
 					}
@@ -704,11 +703,11 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
+			case mSPO_AST.tMatchFreeIdentNode<tPos>{ Pos: var Pos, Name: var Name }: {
 			//--------------------------------------------------------------------------------
-				mAssert.AreNotEquals(FreeIdentNode.Name, "_");
-				aDefConstructor.Commands.Push(mIL_AST.Alias(FreeIdentNode.Pos, FreeIdentNode.Name, aReg));
-				aDefConstructor.KnownSymbols.Push(FreeIdentNode.Name);
+				mAssert.AreNotEquals(Name, "_");
+				aDefConstructor.Commands.Push(mIL_AST.Alias(Pos, Name, aReg));
+				aDefConstructor.KnownSymbols.Push(Name);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -717,33 +716,33 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchPrefixNode<tPos> PrefixNode: {
+			case mSPO_AST.tMatchPrefixNode<tPos>{ Pos: var Pos, Prefix: var Prefix, Match: var Match }: {
 			//--------------------------------------------------------------------------------
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.SubPrefix(
-						PrefixNode.Pos,
+						Pos,
 						ResultReg,
-						PrefixNode.Prefix,
+						Prefix,
 						aReg
 					)
 				);
 				aDefConstructor.MapMatch(
-					PrefixNode.Match,
+					Match,
 					ResultReg,
 					mStd.cEmpty
 				);
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchRecordNode<tPos> RecordNode: {
+			case mSPO_AST.tMatchRecordNode<tPos>{ Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
 			//--------------------------------------------------------------------------------
-				foreach (var (Key, Match) in RecordNode.Elements) {
+				foreach (var (Key, Match) in Elements) {
 					var Pos = Key.Pos;
 					
 					var Reg = aReg;
 					var Found = false;
-					mAssert.IsTrue(aRegType.Match(out var RecType));
+					var RecType = aRegType.ElseThrow("");
 					while (RecType.MatchRecord(out var HeadKey, out var HeadType, out RecType!)) {
 						var HeadTailReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
@@ -762,17 +761,17 @@ mSPO2IL {
 					}
 					
 					if (!Found) {
-						throw mError.Error($"{Pos} ERROR: can't match type '{aRegType}' to type'{RecordNode.TypeAnnotation}'");
+						throw mError.Error($"{Pos} ERROR: can't match type '{aRegType}' to type'{TypeAnnotation}'");
 					}
 				}
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchTupleNode<tPos> TupleNode: {
+			case mSPO_AST.tMatchTupleNode<tPos>{ Items: var Items }: {
 			//--------------------------------------------------------------------------------
 				var RestReg = aReg;
-				mAssert.AreEquals(TupleNode.Items.Take(2).ToArrayList().Size(), 2);
-				foreach (var Item in TupleNode.Items) {
+				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2);
+				foreach (var Item in Items) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Item.Pos, ItemReg, RestReg));
 					
@@ -785,10 +784,10 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchGuardNode<tPos> GuardNode: {
+			case mSPO_AST.tMatchGuardNode<tPos>{ Match: var Match, Guard: var Guard }: {
 			//--------------------------------------------------------------------------------
-				// TODO: ASSERT GuardNode._Guard
-				aDefConstructor.MapMatch(GuardNode.Match, aReg, mStd.cEmpty);
+				// TODO: ASSERT Guard
+				aDefConstructor.MapMatch(Match, aReg, mStd.cEmpty);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -829,14 +828,14 @@ mSPO2IL {
 		
 		switch (PatternNode) {
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchFreeIdentNode<tPos> FreeIdentNode: {
+			case mSPO_AST.tMatchFreeIdentNode<tPos>{ Pos: var Pos, Name: var Name }: {
 			//--------------------------------------------------------------------------------
-				mAssert.AreNotEquals(FreeIdentNode.Name, "_");
+				mAssert.AreNotEquals(Name, "_");
 				mAssert.IsTrue(
-					aDefConstructor.KnownSymbols.ToStream().All(_ => _ != FreeIdentNode.Name)
+					aDefConstructor.KnownSymbols.ToStream().All(_ => _ != Name)
 				);
 				aDefConstructor.Commands.Push(
-					mIL_AST.Alias(FreeIdentNode.Pos, FreeIdentNode.Name, aInReg)
+					mIL_AST.Alias(Pos, Name, aInReg)
 				);
 				break;
 			}
@@ -846,58 +845,52 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchPrefixNode<tPos> PrefixNode: {
+			case mSPO_AST.tMatchPrefixNode<tPos>{Pos: var Pos, Prefix: var Prefix, Match: var Match }: {
 			//--------------------------------------------------------------------------------
-				var Prefix = PrefixNode.Prefix;
-				var SubMatch = PrefixNode.Match;
 				var IsPrefix = aDefConstructor.CreateTempReg();
 				var IsNotPrefix = aDefConstructor.CreateTempReg();
 				var Reg = aDefConstructor.CreateTempReg();
 				var InvReg = aDefConstructor.CreateTempReg();
 				var SubValue = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.IsPrefix(PrefixNode.Pos, IsPrefix, aInReg),
-					mIL_AST.XOr(PrefixNode.Pos, IsNotPrefix, IsPrefix, mIL_AST.cTrue),
-					mIL_AST.ReturnIf(PrefixNode.Pos, mIL_AST.cFalse, IsNotPrefix),
-					mIL_AST.HasPrefix(PrefixNode.Pos, Reg, Prefix, aInReg),
-					mIL_AST.XOr(PrefixNode.Pos, InvReg, Reg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf(PrefixNode.Pos, mIL_AST.cFalse, InvReg),
-					mIL_AST.SubPrefix(PrefixNode.Pos, SubValue, Prefix, aInReg)
+					mIL_AST.IsPrefix(Pos, IsPrefix, aInReg),
+					mIL_AST.XOr(Pos, IsNotPrefix, IsPrefix, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, IsNotPrefix),
+					mIL_AST.HasPrefix(Pos, Reg, Prefix, aInReg),
+					mIL_AST.XOr(Pos, InvReg, Reg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, InvReg),
+					mIL_AST.SubPrefix(Pos, SubValue, Prefix, aInReg)
 				);
-				aDefConstructor.MapMatchTest(SubValue, SubMatch);
+				aDefConstructor.MapMatchTest(SubValue, Match);
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchGuardNode<tPos> GuardNode: {
+			case mSPO_AST.tMatchGuardNode<tPos>{ Pos: var Pos, Match: var Match, Guard: var Guard }: {
 			//--------------------------------------------------------------------------------
-				var SubMatch = GuardNode.Match;
-				var Guard = GuardNode.Guard;
-				
-				aDefConstructor.MapMatchTest(aInReg, SubMatch);
+				aDefConstructor.MapMatchTest(aInReg, Match);
 				
 				var InvReg = aDefConstructor.CreateTempReg();
-				
 				var TestReg = aDefConstructor.MapExpresion(Guard);
 				aDefConstructor.Commands.Push(
 					// TODO: check type
-					mIL_AST.XOr(GuardNode.Pos, InvReg, TestReg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf(GuardNode.Pos, mIL_AST.cFalse, InvReg)
+					mIL_AST.XOr(Pos, InvReg, TestReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, InvReg)
 				);
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tMatchTupleNode<tPos> TupleNode: {
+			case mSPO_AST.tMatchTupleNode<tPos>{Pos: var Pos, Items: var Items }: {
 			//--------------------------------------------------------------------------------
 				var RestReg = aInReg;
-				foreach (var Item in TupleNode.Items) {
+				foreach (var Item in Items) {
 					var IsPairReg = aDefConstructor.CreateTempReg();
 					var IsNotPairReg = aDefConstructor.CreateTempReg();
 					var TempReg = aDefConstructor.CreateTempReg();
 					var RestReg_ = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
-						mIL_AST.IsPair(TupleNode.Pos, IsPairReg, aInReg),
-						mIL_AST.XOr(TupleNode.Pos, IsNotPairReg, IsPairReg, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(TupleNode.Pos, mIL_AST.cFalse, IsNotPairReg),
+						mIL_AST.IsPair(Pos, IsPairReg, aInReg),
+						mIL_AST.XOr(Pos, IsNotPairReg, IsPairReg, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, IsNotPairReg),
 						mIL_AST.GetFirst(Item.Pos, TempReg, RestReg),
 						mIL_AST.GetSecond(Item.Pos, RestReg_, RestReg)
 					);
@@ -907,7 +900,7 @@ mSPO2IL {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mSPO_AST.tIntNode<tPos> NumberNode: {
+			case mSPO_AST.tIntNode<tPos>{Pos: var Pos, Value: var Value }: {
 			//--------------------------------------------------------------------------------
 				var IsIntReg = aDefConstructor.CreateTempReg();
 				var IsNotIntReg = aDefConstructor.CreateTempReg();
@@ -915,13 +908,13 @@ mSPO2IL {
 				var CondReg = aDefConstructor.CreateTempReg();
 				var InvCondReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.IsPair(NumberNode.Pos, IsIntReg, aInReg),
-					mIL_AST.XOr(NumberNode.Pos, IsNotIntReg, IsIntReg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf(NumberNode.Pos, mIL_AST.cFalse, IsNotIntReg),
-					mIL_AST.CreateInt(NumberNode.Pos, IntReg, $"{NumberNode.Value}"),
-					mIL_AST.IntsAreEq(NumberNode.Pos, CondReg, aInReg, IntReg),
-					mIL_AST.XOr(NumberNode.Pos, InvCondReg, CondReg, mIL_AST.cTrue),
-					mIL_AST.ReturnIf(NumberNode.Pos, mIL_AST.cFalse, InvCondReg)
+					mIL_AST.IsPair(Pos, IsIntReg, aInReg),
+					mIL_AST.XOr(Pos, IsNotIntReg, IsIntReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, IsNotIntReg),
+					mIL_AST.CreateInt(Pos, IntReg, $"{Value}"),
+					mIL_AST.IntsAreEq(Pos, CondReg, aInReg, IntReg),
+					mIL_AST.XOr(Pos, InvCondReg, CondReg, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, InvCondReg)
 				);
 				break;
 			}

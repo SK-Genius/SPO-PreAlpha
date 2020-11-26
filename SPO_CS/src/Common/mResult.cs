@@ -100,7 +100,7 @@ mResult {
 		return a._IsOK;
 	}
 	
-	public static tOut
+	private static tOut
 	Match<tOK, tError, tOut>(
 		this tResult<tOK, tError> a,
 		mStd.tFunc<tOut, tOK> aIfOK,
@@ -193,10 +193,9 @@ mResult {
 	ElseFail<t, tError>(
 		this mMaybe.tMaybe<t> a,
 		mStd.tFunc<tError> aOnFail
-	) => (
-		a.Match(out var Value)
-		? OK(Value)
-		: (tResult<t, tError>)Fail(aOnFail())
+	) => a.Then(
+		_ => (tResult<t, tError>)OK(_),
+		() => Fail(aOnFail())
 	);
 	
 	public static t
@@ -209,12 +208,23 @@ mResult {
 		: throw mError.Error(aModifyError(Error))
 	);
 	
+	public static t
+	ElseThrow<t, tError>(
+		this tResult<t, tError> a,
+		tText aErrorMsg
+	) => a.ElseThrow(_ => aErrorMsg);
+	
+	public static t
+	ElseThrow<t>(
+		this tResult<t, tText> a
+	) => a.ElseThrow(_ => _);
+	
 	public static tResult<t, tError>
 	Assert<t, tError>(
 		this tResult<t, tError> a,
 		mStd.tFunc<tBool, t> aCond,
 		tError aError
-	) => a.ThenTry<t, t, tError>(
-		_ => aCond(_) ? OK(_) : (tResult<t, tError>)Fail(aError)
+	) => a.ThenTry(
+		_ => aCond(_).Then(() => _).ElseFail(() => aError)
 	);
 }

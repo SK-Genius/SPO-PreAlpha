@@ -64,12 +64,11 @@ mMaybe {
 		}
 	}
 	
-	public static tOut
-	Match<tIn, tOut>(
-		this tMaybe<tIn> a,
-		mStd.tFunc<tOut, tIn> aIfSome,
-		mStd.tFunc<tOut> aIfNone
-	) => a._HasValue ? aIfSome(a._Value) : aIfNone();
+	public static tMaybe<t>
+	Then<t>(
+		this tBool a,
+		mStd.tFunc<t> aCreate
+	) => a ? Some(aCreate()) : mStd.cEmpty;
 	
 	public static tMaybe<tOut>
 	Then<tIn, tOut>(
@@ -79,6 +78,17 @@ mMaybe {
 		a.Match(out var Value)
 		? Some(aMap(Value))
 		: mStd.cEmpty
+	);
+	
+	public static tOut
+	Then<tIn, tOut>(
+		this tMaybe<tIn> a,
+		mStd.tFunc<tOut, tIn> aMap,
+		mStd.tFunc<tOut> aOnFail
+	) => (
+		a.Match(out var Value)
+		? aMap(Value)
+		: aOnFail()
 	);
 	
 	public static tMaybe<tOut>

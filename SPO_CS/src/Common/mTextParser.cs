@@ -47,11 +47,7 @@ mTextParser {
 		using var _ = mPerf.Measure();
 		var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		mAssert.IsTrue(
-			MaybeResult.Match(out var Result, out var ErrorList),
-			() => ErrorList.ToText(aText.Split('\n'))
-		);
-		
+		var Result = MaybeResult.ElseThrow(_ => _.ToText(aText.Split('\n')));
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Pos = Result.RemainingStream.ForceFirst().Span.Start;
 			var Line = aText.Split('\n')[Pos.Row-1];

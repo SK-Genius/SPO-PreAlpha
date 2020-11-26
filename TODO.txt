@@ -3,7 +3,7 @@
 	o type definition of an SPO_IL module
 	
 	o types
-		- arrays  ??? [v1, v2, ...]
+		- arrays ??? [v1, v2, ...]
 		- strings & chars
 	
 	o lambdas with "..." notation

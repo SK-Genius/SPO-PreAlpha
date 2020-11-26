@@ -46,7 +46,7 @@ mAny {
 		t a
 	) => new tAny(a);
 	
-	public static tBool
+	internal static tBool
 	Match<t>(
 		this tAny a,
 		out t aValue
@@ -67,7 +67,7 @@ mAny {
 		}
 	}
 	
-	public static tBool
+	internal static tBool
 	Match(
 		this tAny a
 	) => a._Value is null;

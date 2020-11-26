@@ -126,6 +126,11 @@ mStream {
 		return Result;
 	}
 	
+	public static tStream<t>?
+	AsStream<t>(
+		this t[] a
+	) => Stream(a);
+	
 	public static tStream<tInt32>
 	Nat(
 		int aStart
@@ -211,7 +216,7 @@ mStream {
 		? Tail.Reduce(Head, aAggregatorFunc)
 		: aDefault
 	);
-
+	
 	public static tStream<t>?
 	Take<t>(
 		this tStream<t>? aStream,
