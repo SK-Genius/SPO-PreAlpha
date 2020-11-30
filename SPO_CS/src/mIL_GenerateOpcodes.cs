@@ -512,7 +512,6 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.TypeCond, out var Span, out var RegId1, out var RegId2, out var RegId3): {
 					//--------------------------------------------------------------------------------
 						throw mError.Error("TODO"); // TODO
-						break;
 					}
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.TypeFunc, out var Span, out var RegId1, out var RegId2, out var RegId3): {

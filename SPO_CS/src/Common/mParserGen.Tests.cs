@@ -98,7 +98,6 @@ mParserGen_Tests {
 					AB.StartParse(TestStream('_'), a => aDebugStream(a())),
 					Fail("miss A")
 				);
-				var x = AB.StartParse(TestStream('A', '_'), a => aDebugStream(a()));
 				mAssert.AreEquals(
 					AB.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
 					Fail("miss B", "miss B") // TODO

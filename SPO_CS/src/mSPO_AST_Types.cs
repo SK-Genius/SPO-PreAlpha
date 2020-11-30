@@ -405,54 +405,6 @@ mSPO_AST_Types {
 					)
 				);
 			}
-			//case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
-			//	return UpdateExpressionTypes(MethodCalls.Object, aScope).ThenTry(
-			//		ObjType => {
-			//			var NewScope = aScope;
-			//			foreach (var MethodCall in MethodCalls.MethodCalls) {
-			//				if (
-			//					!UpdateExpressionTypes(MethodCall.Argument, NewScope).ThenTry(
-			//						aArgType => {
-			//							if (MethodCall.Method.Name == "_=...") {
-			//								ObjType = mVM_Type.Var(aArgType); // TODO
-			//								return mResult.OK(NewScope);
-			//							} else {
-			//								return UpdateExpressionTypes(MethodCall.Method, NewScope).ThenTry(
-			//									aMethodType => aMethodType.MatchProc(
-			//										out var ObjType_,
-			//										out var ArgType_,
-			//										out var ResType_
-			//									).Then(
-			//										() => (Obj: ObjType_, Arg: ArgType_, Res: ResType_)
-			//									).ElseFail(
-			//										() => ""
-			//									)
-			//								).ThenAssert(
-			//									aTypes => aTypes.Obj.Equals(ObjType),
-			//									_ => ""
-			//								).Then(
-			//									aTypes => MethodCall.Result.Then(
-			//										aResType => UpdateMatchTypes(
-			//											aResType,
-			//											mMaybe.Some(aTypes.Res),
-			//											tTypeRelation.Sub,
-			//											NewScope
-			//										)
-			//									)
-			//								).Else(
-			//									() => mResult.OK((mVM_Type.Empty(), NewScope))
-			//								);
-			//							}
-			//						}
-			//					).Match(out _, out var Error)
-			//				) {
-			//					return (mResult.tResult<mStream.tStream<(tText Ident, mVM_Type.tType Type)>?, tText>)mResult.Fail(Error);
-			//				}
-			//			}
-			//			return mResult.OK(NewScope);
-			//		}
-			//	);
-			//}
 			case mSPO_AST.tDefVarNode<tPos> DefVar: {
 				return UpdateExpressionTypes(DefVar.Expression, aScope).ThenTry(
 					aValueType => UpdateCommandTypes(

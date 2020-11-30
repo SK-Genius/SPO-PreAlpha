@@ -695,7 +695,7 @@ mParserGen {
 			}
 		#endif
 		
-		if (false && ReferenceEquals(aParser._LastInput, aStream) && aStream is not null) {
+		if (ReferenceEquals(aParser._LastInput, aStream) && aStream is not null) {
 			var Result_ = aParser._LastOutput;
 			#if MY_TRACE
 				if (Result_.Match(out var _, out var __)) {

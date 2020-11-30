@@ -23,7 +23,7 @@ mSPO_AST {
 	private const tText cDebuggerDisplay = "{this.ToText(10)}";
 	
 	public interface
-	tNode<tPos> {
+	tNode<out tPos> {
 		tPos Pos { get; }
 	}
 	

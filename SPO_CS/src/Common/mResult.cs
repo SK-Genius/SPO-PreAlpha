@@ -100,13 +100,6 @@ mResult {
 		return a._IsOK;
 	}
 	
-	private static tOut
-	Match<tOK, tError, tOut>(
-		this tResult<tOK, tError> a,
-		mStd.tFunc<tOut, tOK> aIfOK,
-		mStd.tFunc<tOut, tError> aIfError
-	) => a._IsOK ? aIfOK(a._Value) : aIfError(a._Error);
-	
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
