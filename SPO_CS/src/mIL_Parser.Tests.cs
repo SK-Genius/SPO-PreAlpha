@@ -21,12 +21,6 @@ using tText = System.String;
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mIL_Parser_Tests {
 	
@@ -220,14 +214,4 @@ mIL_Parser_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("Commands")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }

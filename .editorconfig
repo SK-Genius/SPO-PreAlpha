@@ -76,7 +76,7 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:non
 csharp_style_var_elsewhere = true:error
 csharp_style_var_for_built_in_types = true:error
 csharp_style_var_when_type_is_apparent = true:error
-csharp_using_directive_placement = inside_namespace:error
+csharp_using_directive_placement = outside_namespace:error
 
 dotnet_code_quality_unused_parameters = all:warning
 dotnet_naming_rule.type_namingRule.severity = Error

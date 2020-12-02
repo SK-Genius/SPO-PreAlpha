@@ -678,7 +678,7 @@ mVM_Type {
 					Result += Temp.Refs[0].ToText(NextLimit);
 					Temp = Temp.Refs[1];
 					
-					while (Temp.Kind == tKind.Pair) {						
+					while (Temp.Kind == tKind.Pair) {
 						Result += ", " + Temp.Refs[0].ToText(NextLimit);
 						Temp = Temp.Refs[1];
 					}

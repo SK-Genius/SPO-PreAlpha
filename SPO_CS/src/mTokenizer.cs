@@ -37,7 +37,7 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>?, tError> __ = _[0..];
 	
-	public static readonly tText SpazialChars = "#$§€\".:,;()[]{} \t\n\r";
+	public static readonly tText SpacialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	Digit = CharInRange('0', '9')
@@ -79,7 +79,7 @@ mTokenizer {
 	.SetName(nameof(Number));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tText, tError>
-	Ident = (CharNotIn(SpazialChars).Modify(aChar => "" + aChar) | Text("..."))[1..]
+	Ident = (CharNotIn(SpacialChars).Modify(aChar => "" + aChar) | Text("..."))[1..]
 	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2, ""));
 	
 	public enum

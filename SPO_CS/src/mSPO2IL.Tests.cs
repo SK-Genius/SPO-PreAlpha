@@ -360,7 +360,7 @@ mSPO2IL_Tests {
 					ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
 					mStream.Stream(
 						mIL_AST.Alias(Span((1, 1), (1, 52)), mSPO2IL.Ident("...*..."), mIL_AST.cEnv),
-							
+						
 						mIL_AST.GetFirst(Span((1, 2), (1, 7)), mSPO2IL.TempReg(1), mIL_AST.cArg),
 						mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.Ident("a"), mSPO2IL.TempReg(1)),
 						mIL_AST.GetSecond(Span((1, 2), (1, 7)), mSPO2IL.TempReg(2), mIL_AST.cArg),
@@ -413,7 +413,7 @@ mSPO2IL_Tests {
 					"",
 					a => aStreamOut(a())
 				);
-
+				
 				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge).ElseThrow();
 				
 				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2);

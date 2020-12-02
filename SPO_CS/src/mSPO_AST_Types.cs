@@ -75,7 +75,7 @@ mSPO_AST_Types {
 					)
 				)
 			),
-		   mSPO_AST.tLambdaNode<tPos> Lambda => (
+			mSPO_AST.tLambdaNode<tPos> Lambda => (
 				Lambda.Generic.ElseFail(
 					() => ""
 				).ThenTry(
@@ -110,7 +110,7 @@ mSPO_AST_Types {
 					_ => _.Type
 				)
 			),
-		   mSPO_AST.tMethodNode<tPos> Method => (
+			mSPO_AST.tMethodNode<tPos> Method => (
 				UpdateMatchTypes(Method.Obj, mStd.cEmpty, tTypeRelation.Equal, aScope).ThenTry(
 					aObj => UpdateMatchTypes(Method.Arg, mStd.cEmpty, tTypeRelation.Sub, aObj.Scope).ThenTry(
 						aArg => UpdateExpressionTypes(Method.Body, aArg.Scope).Then(

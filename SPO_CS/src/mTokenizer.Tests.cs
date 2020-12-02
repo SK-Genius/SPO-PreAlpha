@@ -20,12 +20,6 @@ using tText = System.String;
 
 using tPos = mTextStream.tPos;
 
-#if NUNIT
-using xTestClass = NUnit.Framework.TestFixtureAttribute;
-using xTestCase = NUnit.Framework.TestCaseAttribute;
-
-[xTestClass]
-#endif
 public static class
 mTokenizer_Tests {
 	
@@ -80,14 +74,4 @@ mTokenizer_Tests {
 			}
 		)
 	);
-	
-	#if NUNIT
-	[xTestCase("TwoLines")]
-	public static void _(tText a) {
-		mAssert.AreEquals(
-			Tests.Run(System.Console.WriteLine, mStream.Stream(a)).Result,
-			mTest.tResult.OK
-		);
-	}
-	#endif
 }
