@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
 	<PropertyGroup>
-		<LangVersion>preview</LangVersion>
 		<TargetFramework>net5.0</TargetFramework>
-		<!-- netcoreapp3.1 net5.0 -->
 		<OutputType>Exe</OutputType>
 		<!--  Exe | Library | Module | Winexe -->
 		<DefineConstants>noMY_TRACE</DefineConstants>
-		<NoWarn>659,661,8604</NoWarn>
+		<NoWarn>659,661,8604,8618</NoWarn>
 		<Nullable>enable</Nullable>
+		<Deterministic>true</Deterministic>
 	</PropertyGroup>
 	<ItemGroup>
 		<TestSrc Include="**\*.Tests.cs" />

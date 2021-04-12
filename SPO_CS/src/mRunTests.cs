@@ -33,49 +33,35 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
-public static class
-mRunTests {
-	
-	public static readonly mTest.tTest
-	Test = mTest.Tests(
-		"All",
-		mAny_Tests.Tests,
-		mMaybe_Tests.Tests,
-		mResult_Tests.Tests,
-		mStream_Tests.Tests,
-		mMap_Tests.Tests,
-		mTreeMap_Tests.Tests,
-//		mMath_Test.Test,
-		mArrayList_Tests.Tests,
-		mParserGen_Tests.Tests,
-//		mTextParser_Test.Test,
-		mVM_Tests.Tests,
-		mVM_Type_Tests.Tests,
-//		mVM_Data_Test.Test,
-//		mIL_AST_Test.Test,
-		mTokenizer_Tests.Tests,
-		mIL_Parser_Tests.Tests,
-		mIL_GenerateOpcodes_Tests.Tests,
-//		mSPO_AST_Test.Test,
-		mSPO_AST_Types_Tests.Tests,
-		mSPO_Parser_Tests.Tests,
-		mSPO2IL_Tests.Tests,
-		mSPO_Interpreter_Tests.Tests,
-		mStdLib_Tests.Tests
-	);
-	
-	public static int
-	Main(
-		params tText[] aArgs
-	) {
-		return Test.Run(
-			_ => {
-				System.Console.WriteLine(_);
-				System.Console.Out.Flush();
-			},
-			mStream.Stream(aArgs)
-		).Result == mTest.tResult.Fail
-		? 0
-		: -1;
-	}
-}
+return mTest.Tests(
+	"All",
+	mAny_Tests.Tests,
+	mMaybe_Tests.Tests,
+	mResult_Tests.Tests,
+	mStream_Tests.Tests,
+	mMap_Tests.Tests,
+	mTreeMap_Tests.Tests,
+//	mMath_Test.Test,
+	mArrayList_Tests.Tests,
+	mParserGen_Tests.Tests,
+//	mTextParser_Test.Test,
+	mVM_Tests.Tests,
+	mVM_Type_Tests.Tests,
+//	mVM_Data_Test.Test,
+//	mIL_AST_Test.Test,
+	mTokenizer_Tests.Tests,
+	mIL_Parser_Tests.Tests,
+	mIL_GenerateOpcodes_Tests.Tests,
+//	mSPO_AST_Test.Test,
+	mSPO_AST_Types_Tests.Tests,
+	mSPO_Parser_Tests.Tests,
+	mSPO2IL_Tests.Tests,
+	mSPO_Interpreter_Tests.Tests,
+	mStdLib_Tests.Tests
+).Run(
+	_ => {
+		System.Console.WriteLine(_);
+		System.Console.Out.Flush();
+	},
+	mStream.Stream(args)
+).Result == mTest.tResult.Fail ? -1 : 0;

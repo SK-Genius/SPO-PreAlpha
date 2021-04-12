@@ -60,7 +60,7 @@ mIL_Parser {
 			Text = _.Text[1..]
 		}
 	);
-	
+
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>
 	Command = mParserGen.OneOf(
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), Number)
@@ -117,6 +117,11 @@ mIL_Parser {
 		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
 		.ModifyS(mTokenizer.X(mIL_AST.IntsMul))
 		.SetDebugName(nameof(mIL_AST.IntsMul)),
+		
+		mParserGen.Seq(Ident, -SpecialToken(":") -Token("="), KeyWord("INT"), Ident, -Token("/") +Ident)
+		.Modify((a1, _, __, a2, a3) => (a1, a2, a3))
+		.ModifyS(mTokenizer.X(mIL_AST.IntsDiv))
+		.SetDebugName(nameof(mIL_AST.IntsDiv)),
 		
 		mParserGen.Seq(Ident, -SpecialToken(":") -Token("=") -KeyWord("IS_PAIR"), Ident)
 		.Modify((aIdent1, _, aIdent2) => (aIdent1, aIdent2))
@@ -293,27 +298,18 @@ mIL_Parser {
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
 	Block = (Command +-NL)[1..]
 	.SetDebugName(nameof(Block));
-	
-	public static readonly mParserGen.tParser<tPos, tToken, (tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?), tError>
-	Def = mParserGen.Seq(-KeyWord("DEF") +Ident +-NL, Block)
-	.Modify(
-		(aID, aBlock) => (
-			aID.Text,
-			mVM_Type.Proc(
-				mVM_Type.Empty(),
-				mVM_Type.Free("Env"),
-				mVM_Type.Proc(
-					mVM_Type.Free("OBJ"),
-					mVM_Type.Free("ARG"),
-					mVM_Type.Free("RES")
-				)
-			),
-			aBlock
-		)
-	)
+
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
+	Types = (-KeyWord("TYPES") -NL +Block)
+	.SetDebugName(nameof(Types));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tDef<tSpan>, tError>
+	Def = mParserGen.Seq(-KeyWord("DEF") +Ident, -SpecialToken("€") + Ident +-NL, Block)
+	.Modify((a1, a2, a3) => mIL_AST.Def(a1.Text, a2.Text, a3))
 	.SetDebugName(nameof(Def));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?)>?, tError>
-	Module = Def[1..]
+	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tModule<tSpan>, tError>
+	Module = mParserGen.Seq(Types, Def[1..])
+	.Modify((a1, a2) => mIL_AST.Module(a1, a2))
 	.SetDebugName(nameof(Module));
 }

@@ -828,7 +828,7 @@ mSPO_AST {
 	) => new tMethodCallsNode<tPos> {
 		Pos = aPos,
 		Object = aObject,
-		MethodCalls = aMethodCalls
+		MethodCalls = aMethodCalls,
 	};
 	
 	public static tExpressionNode<tPos>
@@ -839,7 +839,7 @@ mSPO_AST {
 	) => new tPipeToRightNode<tPos> {
 		Pos = aPos,
 		Left = aLeft,
-		Right = aRight
+		Right = aRight,
 	};
 	
 	public static tExpressionNode<tPos>
@@ -850,7 +850,7 @@ mSPO_AST {
 	) => new tPipeToLeftNode<tPos> {
 		Pos = aPos,
 		Left = aLeft,
-		Right = aRight
+		Right = aRight,
 	};
 	
 	public static tMethodCallNode<tPos>
@@ -863,7 +863,7 @@ mSPO_AST {
 		Pos = aPos,
 		Method = aMethod,
 		Argument = aArgument,
-		Result = aResult
+		Result = aResult,
 	};
 	
 	public static tBlockNode<tPos>
@@ -872,7 +872,7 @@ mSPO_AST {
 		mStream.tStream<tCommandNode<tPos>>? aCommands
 	) => new tBlockNode<tPos> {
 		Pos = aPos,
-		Commands = aCommands
+		Commands = aCommands,
 	};
 	
 	public static tModuleNode<tPos>
@@ -885,7 +885,7 @@ mSPO_AST {
 		Pos = aPos,
 		Import = aImport,
 		Export = aExport,
-		Commands = aCommands
+		Commands = aCommands,
 	};
 	
 	public static tImportNode<tPos>
@@ -894,7 +894,7 @@ mSPO_AST {
 		tMatchNode<tPos> aMatch
 	) => new tImportNode<tPos> {
 		Pos = aPos,
-		Match = aMatch 
+		Match = aMatch,
 	};
 	
 	public static tExportNode<tPos>
@@ -903,7 +903,7 @@ mSPO_AST {
 		tExpressionNode<tPos> aExpression
 	) => new tExportNode<tPos> {
 		Pos = aPos,
-		Expression = aExpression 
+		Expression = aExpression,
 	};
 	
 	public static tBool
@@ -966,9 +966,13 @@ mSPO_AST {
 					a2 is tMatchNode<tPos> Node2 &&
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
-						Node1.Type.Match(out var Type1)
-						? (Node2.Type.Match(out var Type2) && AreEqual(Type1, Type2))
-						: !Node2.Type.Match(out var _)
+						Node1.Type.Match(
+							Some: Type1 => Node2.Type.Match(
+								Some: Type2 => AreEqual(Type1, Type2),
+								None: () => false
+							),
+							None: () => Node2.Type.IsNone()
+						)
 					)
 				);
 			}
@@ -1098,9 +1102,9 @@ mSPO_AST {
 					AreEqual(Node1.Method, Node2.Method) &&
 					AreEqual(Node1.Argument, Node2.Argument) &&
 					(
-						Node1.Result.Match(out var Result1)
-						? (Node2.Result.Match(out var Result2) && AreEqual(Result1, Result2))
-						: !Node2.Result.Match(out var _)
+						Node1.Result.IsSome(out var Result1)
+						? (Node2.Result.IsSome(out var Result2) && AreEqual(Result1, Result2))
+						: Node2.Result.IsNone()
 					)
 				);
 			}
@@ -1172,10 +1176,9 @@ mSPO_AST {
 			),
 			// Matches
 			tMatchNode<t> Node => (
-				Node.Type.Then(
-					Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})"
-				).Else(
-					() => Node.Pattern.ToText(aLimit)
+				Node.Type.Match(
+					Some: Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})",
+					None: () => Node.Pattern.ToText(aLimit)
 				)
 			),
 			tIgnoreMatchNode<t> Node => "_",
@@ -1194,7 +1197,7 @@ mSPO_AST {
 			// Commands
 			tBlockNode<t> Node => "{...}",
 			tMethodCallsNode<t> Node => $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Then(_ => _.ToText(aLimit)).Else("()")}",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(Some: _ => _.ToText(aLimit), None: () => "()")}",
 			tReturnIfNode<t> Node => $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}",
 			tDefNode<t> Node => $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}",
 			_ => "(???)",

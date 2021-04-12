@@ -57,7 +57,7 @@ mStdLib_Tests {
 						",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(),
+							mStdLib.GetImportData(a => aDebugStream(a())),
 							mVM_Data.Int(8)
 						),
 						a => aDebugStream(a())
@@ -93,7 +93,7 @@ mStdLib_Tests {
 						",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(),
+							mStdLib.GetImportData(a => aDebugStream(a())),
 							mVM_Data.Int(8)
 						),
 						a => aDebugStream(a())
@@ -129,7 +129,7 @@ mStdLib_Tests {
 						",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(),
+							mStdLib.GetImportData(a => aDebugStream(a())),
 							mVM_Data.Int(8)
 						),
 						a => aDebugStream(a())
@@ -164,7 +164,7 @@ mStdLib_Tests {
 						",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(),
+							mStdLib.GetImportData(a => aDebugStream(a())),
 							mVM_Data.Int(8)
 						),
 						a => aDebugStream(a())
@@ -204,7 +204,7 @@ mStdLib_Tests {
 							§EXPORT x
 						",
 						"",
-						mStdLib.GetImportData(),
+						mStdLib.GetImportData(a => aDebugStream(a())),
 						a => aDebugStream(a())
 					),
 					mVM_Data.Var(mVM_Data.Int(22))

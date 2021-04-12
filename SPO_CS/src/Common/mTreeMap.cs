@@ -118,27 +118,31 @@ mTreeMap {
 		};
 	}
 	
-	public static tValue
-	ForceGet<tKey, tValue>(
+	public static mMaybe.tMaybe<tValue>
+	TryGet<tKey, tValue>(
 		this tTree<tKey, tValue> aTree,
 		tKey aKey
-	) {
-		return aTree.Root.Get(aKey, aTree.KeyCompare);
-	}
+	) => aTree.Root.TryGet(aKey, aTree.KeyCompare);
 	
-	internal static tValue
-	Get<tKey, tValue>(
+	//public static tValue
+	//ForceGet<tKey, tValue>(
+	//	this tTree<tKey, tValue> aTree,
+	//	tKey aKey
+	//) => aTree.TryGet(aKey).ElseThrow("unknown key: " + aKey);
+	
+	internal static mMaybe.tMaybe<tValue>
+	TryGet<tKey, tValue>(
 		this tNode<tKey, tValue>? aNode,
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) {
-		mAssert.IsFalse(aNode is null, () => "unknown key: " + aKey);
-		return aKeyCompare(aKey, aNode.Key) switch {
-			0 => aNode.Value,
-			1 => aNode.SubTree2.Get(aKey, aKeyCompare),
-			-1 => aNode.SubTree1.Get(aKey, aKeyCompare),
-			_ => throw mError.Error("impossible"),
-		};
+		if (aNode is null) { return mStd.cEmpty; }
+		var Comp = aKeyCompare(aKey, aNode.Key);
+		return (
+			(Comp == 0) ? mMaybe.Some(aNode.Value) :
+			(Comp > 0) ? aNode.SubTree2.TryGet(aKey, aKeyCompare) :
+			aNode.SubTree1.TryGet(aKey, aKeyCompare)
+		);
 	}
 	
 	public static tTree<tKey, tValue>

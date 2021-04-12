@@ -1,4 +1,5 @@
 ﻿//IMPORT mStd.cs
+//IMPORT mLazy.cs
 //IMPORT mMaybe.cs
 
 #nullable enable
@@ -29,12 +30,12 @@ mStream {
 	public sealed class
 	tStream<t> {
 		internal readonly t _Head = default!;
-		internal readonly mStd.tLazy<tStream<t>?> _Tail;
+		internal readonly mLazy.tLazy<tStream<t>?> _Tail;
 		
 		internal
 		tStream(
 			t aHead,
-			mStd.tLazy<tStream<t>?> aTail
+			mLazy.tLazy<tStream<t>?> aTail
 		) {
 			this._Head = aHead;
 			this._Tail = aTail;
@@ -93,22 +94,22 @@ mStream {
 		this tStream<t> aStream
 	) => new tStreamIterator<t>(aStream);
 	
-	public static tStream<t>
+	public static tStream<t>?
 	Stream<t>(
 		t aHead,
 		mStd.tFunc<tStream<t>?> aTailFunc
 	) => new tStream<t>(
 		aHead,
-		mStd.Lazy(aTailFunc)
+		mLazy.Lazy(aTailFunc)
 	);
 	
-	public static tStream<t>
+	public static tStream<t>?
 	Stream<t>(
 		t aHead,
 		tStream<t>? aTail
 	) => new tStream<t>(
 		aHead,
-		mStd.NonLazy(aTail)
+		mLazy.NonLazy(aTail)
 	);
 	
 	public static tStream<t>?
@@ -131,7 +132,7 @@ mStream {
 		this t[] a
 	) => Stream(a);
 	
-	public static tStream<tInt32>
+	public static tStream<tInt32>?
 	Nat(
 		int aStart
 	) => Stream(aStart, () => Nat(aStart+1));
@@ -200,6 +201,16 @@ mStream {
 		return Result;
 	}
 	#endif
+	
+	public static mMaybe.tMaybe<t>
+	TryReduce<t>(
+		this tStream<t>? aStream,
+		mStd.tFunc<t, t, t> aAggregatorFunc
+	) => (
+		aStream.Match(out var Head, out var Tail)
+		? mMaybe.Some(Tail.Reduce(Head, aAggregatorFunc))
+		: mMaybe.None<t>()
+	);
 	
 	public static tStream<t>?
 	Flat<t>(
@@ -345,6 +356,12 @@ mStream {
 		return false;
 		#endif
 	}
+	
+	public static mMaybe.tMaybe<t>
+	TryGet<t>(
+		this tStream<t>? aStream,
+		tInt32 aIndex
+	) => aStream.Skip(aIndex).First();
 	
 	public static tBool
 	Any<t>(

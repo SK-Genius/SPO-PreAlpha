@@ -1,5 +1,6 @@
 ﻿//IMPORT mStd.cs
 //IMPORT mError.cs
+//IMPORT mLazy.cs
 
 #nullable enable
 
@@ -51,7 +52,7 @@ mMaybe {
 	) => mStd.cEmpty;
 	
 	public static tBool
-	Match<t>(
+	IsSome<t>(
 		this tMaybe<t> a,
 		out t aValue
 	) {
@@ -64,88 +65,55 @@ mMaybe {
 		}
 	}
 	
-	public static tMaybe<t>
-	Then<t>(
-		this tBool a,
-		mStd.tFunc<t> aCreate
-	) => a ? Some(aCreate()) : mStd.cEmpty;
+	public static tBool
+	IsNone<t>(
+		this tMaybe<t> a
+	) => !a._HasValue;
+	
+	public static tOut
+	Match<tIn, tOut>( // nice but slow
+		this tMaybe<tIn> a,
+		mStd.tFunc<tOut, tIn> Some,
+		mStd.tFunc<tOut> None
+	) => (
+		a.IsSome(out var Value)
+		? Some(Value)
+		: None()
+	);
 	
 	public static tMaybe<tOut>
 	Then<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tOut, tIn> aMap
-	) => (
-		a.Match(out var Value)
-		? Some(aMap(Value))
-		: mStd.cEmpty
-	);
-	
-	public static tOut
-	Then<tIn, tOut>(
-		this tMaybe<tIn> a,
-		mStd.tFunc<tOut, tIn> aMap,
-		mStd.tFunc<tOut> aOnFail
-	) => (
-		a.Match(out var Value)
-		? aMap(Value)
-		: aOnFail()
-	);
+	) => a.IsSome(out var Value) ? Some(aMap(Value)) : mStd.cEmpty;
 	
 	public static tMaybe<tOut>
 	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tMaybe<tOut>, tIn> aMap
-	) => (
-		a.Match(out var Value)
-		? aMap(Value)
-		: mStd.cEmpty
-	);
+	) => a.IsSome(out var Value) ? aMap(Value) : mStd.cEmpty;
 	
-	public static t
-	Else<t>(
-		this tMaybe<t> a,
-		t aDefault
-	) => (
-		a.Match(out var Value)
-		? Value
-		: aDefault
-	);
+	public static tOut
+	Else<tOut>(
+		this tMaybe<tOut> a,
+		mStd.tFunc<tOut> aElse
+	) => a.IsSome(out var Value) ? Value : aElse();
 	
-	public static t
-	Else<t>(
-		this tMaybe<t> a,
-		mStd.tFunc<t> aDefault
-	) => (
-		a.Match(out var Value)
-		? Value
-		: aDefault()
-	);
+	public static tOut
+	Else<tOut>(
+		this tMaybe<tOut> a,
+		mLazy.tLazy<tOut> aElse
+	) => a.IsSome(out var Value) ? Value : aElse.Value;
+	
+	public static tMaybe<tOut>
+	ElseTry<tOut>(
+		this tMaybe<tOut> a,
+		mLazy.tLazy<tMaybe<tOut>> aElse
+	) => a.IsSome(out var _) ? a : aElse.Value;
 	
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,
 		tText aError
-	) => (
-		a.Match(out var Value)
-		? Value
-		: throw mError.Error(aError)
-	);
-	
-	public static t
-	Else<t>(
-		this tMaybe<t> a,
-		mStd.tLazy<t> aDefault
-	) => (
-		a.Match(out var Value)
-		? Value
-		: aDefault.Value
-	);
-	
-	public static tMaybe<t>
-	Assert<t>(
-		this tMaybe<t> a,
-		mStd.tFunc<tBool, t> aCond
-	) => a.ThenTry<t, t>(
-		_ => aCond(_) ? mMaybe.Some(_) : mStd.cEmpty
-	);
+	) => a.IsSome(out var Value) ? Value : throw mError.Error(aError);
 }

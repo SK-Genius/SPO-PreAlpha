@@ -37,6 +37,7 @@ mVM_Data {
 		IntsAdd,
 		IntsSub,
 		IntsMul,
+		IntsDiv,
 		
 		// PAIR
 		IsPair,
@@ -268,6 +269,14 @@ mVM_Data {
 		tInt32 aIntReg1,
 		tInt32 aIntReg2
 	) => aDef._AddReg(aPos, tOpCode.IntsMul, aIntReg1, aIntReg2);
+	
+	public static tInt32
+	IntsDiv<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tInt32 aIntReg1,
+		tInt32 aIntReg2
+	) => aDef._AddReg(aPos, tOpCode.IntsDiv, aIntReg1, aIntReg2);
 	
 	public static tInt32
 	IsPair<tPos>(

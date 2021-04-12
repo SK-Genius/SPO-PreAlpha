@@ -21,25 +21,33 @@ using tText = System.String;
 public static class
 mResult {
 	public readonly struct
-	tResultFail<t> {
-		internal readonly t _Error;
+	tResultFail<tError> {
+		internal readonly tError _Error;
 		
 		internal tResultFail(
-			t aError
+			tError aError
 		) {
 			this._Error = aError;
 		}
+		
+		public tResult<tOK, tError>
+		AsResult<tOK>(
+		) => this;
 	}
 	
 	public readonly struct
-	tResultOK<t> {
-		internal readonly t _Value;
+	tResultOK<tOK> {
+		internal readonly tOK _Value;
 		
 		internal tResultOK(
-			t aValue
+			tOK aValue
 		) {
 			this._Value = aValue;
 		}
+		
+		public tResult<tOK, tError>
+		AsResult<tError>(
+		) => this;
 	}
 	
 	public struct
@@ -186,9 +194,9 @@ mResult {
 	ElseFail<t, tError>(
 		this mMaybe.tMaybe<t> a,
 		mStd.tFunc<tError> aOnFail
-	) => a.Then(
-		_ => (tResult<t, tError>)OK(_),
-		() => Fail(aOnFail())
+	) => a.Match(
+		Some: _ => (tResult<t, tError>)OK(_),
+		None: () => Fail(aOnFail())
 	);
 	
 	public static t
@@ -211,13 +219,4 @@ mResult {
 	ElseThrow<t>(
 		this tResult<t, tText> a
 	) => a.ElseThrow(_ => _);
-	
-	public static tResult<t, tError>
-	Assert<t, tError>(
-		this tResult<t, tError> a,
-		mStd.tFunc<tBool, t> aCond,
-		tError aError
-	) => a.ThenTry(
-		_ => aCond(_).Then(() => _).ElseFail(() => aError)
-	);
 }

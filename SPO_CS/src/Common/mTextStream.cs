@@ -69,7 +69,7 @@ mTextStream {
 	
 	public static tText
 	ToText(
-		this mStream.tStream<(tPos Pos, tError Massage)>? aErrors,
+		this mStream.tStream<(tPos Pos, tError Message)>? aErrors,
 		tText[] aSrcLines
 	) => aErrors.Reverse(
 	).Map(

@@ -32,18 +32,23 @@ mSPO_Interpreter {
 		tText aIdent,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	) => mIL_GenerateOpcodes.Run(
-		mSPO2IL.MapModule(
+	) {
+		var Module = mSPO2IL.MapModule(
 			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),
 			mSpan.Merge
-		).ElseThrow(
-			a => a
-		).Defs.ToStream(
-		).MapWithIndex(
-			(aIndex, aDef) => (mSPO2IL.TempDef(aIndex), aDef.Type, aDef.Commands.ToStream())
-		),
-		aImport,
-		a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
-		aDebugStream
-	);
+		).ElseThrow();
+		
+		return mIL_GenerateOpcodes.Run(
+			mIL_AST.Module(
+				Module.TypeDef.ToStream(),
+				Module.Defs.ToStream(
+				).MapWithIndex(
+					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.TempDef(aIndex), aDef.Type, aDef.Commands.ToStream())
+				)
+			),
+			aImport,
+			a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
+			aDebugStream
+		);
+	}
 }

@@ -23,15 +23,41 @@ using tText = System.String;
 public static class
 mIL_AST {
 	
+	public record tDef<tPos>(
+		tText Ident,
+		tText Type,
+		mStream.tStream<tCommandNode<tPos>>? Commands
+	);
+	
+	public static tDef<tPos>
+	Def<tPos>(
+		tText Ident,
+		tText Type,
+		mStream.tStream<tCommandNode<tPos>>? Commands
+	) => new tDef<tPos>(Ident, Type, Commands);
+	
+	public record tModule<tPos>(
+		mStream.tStream<tCommandNode<tPos>>? TypeDef,
+		mStream.tStream<tDef<tPos>>? Defs
+	);
+	
+	public static tModule<tPos>
+	Module<tPos>(
+		mStream.tStream<tCommandNode<tPos>>? aTypeDef,
+		mStream.tStream<tDef<tPos>>? aDefs
+	) => new tModule<tPos>(aTypeDef, aDefs);
+	
 	public enum
 	tCommandNodeType {
-		IsInt,     // X := §IS_INT X
+		_BeginExpressions_,
+		IsInt  = _BeginExpressions_,     // X := §IS_INT X
 		Int,       // X := §INT I
 		IntsAreEq, // X := §INT X == X
 		IntsComp,  // X := §INT X <=> X
 		IntsAdd,   // X := §INT X + X
 		IntsSub,   // X := §INT X - X
 		IntsMul,   // X := §INT X * X
+		IntsDiv,   // X := §INT X / X
 		IsBool,    // X := §IS_BOOL X
 		BoolNot,   // X := §BOOL ! X
 		BoolAnd,   // X := §BOOL X & X
@@ -54,11 +80,10 @@ mIL_AST {
 		IsVar,     // X := §IS_VAR X
 		VarDef,    // X := §VAR X
 		VarGet,    // X := §VAR X ->
+		_EndExpressions_,
 		
-		IsType,        // X := §IS_TYPE X
-		TypeEmpty,     // T := []
-		TypeAny,       // T := §ANY
-		TypeInt,       // T := §INT
+		_BeginTypes_ = _EndExpressions_,
+		IsType = _BeginTypes_,        // X := §IS_TYPE X
 		TypePair,      // T := [T, T]
 		TypePrefix,    // T := [+N T]
 		TypeRec,       // T := [{T} +T]
@@ -71,14 +96,16 @@ mIL_AST {
 		TypeRecursive, // T := [§RECURSIVE t T]
 		TypeInterface, // T := [§INTERFACE t T]
 		TypeGeneric,   // T := [§GENERIC t T]
+		_EndTypes_,
 		
-		_Commands_,
-		VarSet = _Commands_, // §VAR X <- X
+		_BeginCommands_ = _EndTypes_,
+		VarSet = _BeginCommands_, // §VAR X <- X
 		ReturnIf,            // §RETURN X IF X
 		RepeatIf,            // §REPEAT X IF X
 		TailCallIf,          // §TAIL_CALL X IF X
 		Assert,              // §ASSERT X
 		Proof,               // §ASSERT X => X
+		_EndCommands_,
 	}
 	
 	public static readonly tText cEmpty = "EMPTY";
@@ -93,8 +120,8 @@ mIL_AST {
 	public static readonly tText cBoolType = "BOOL_TYPE";
 	public static readonly tText cIntType = "INT_TYPE";
 	public static readonly tText cTypeType = "Type_TYPE";
-	
-	[System.Diagnostics.DebuggerDisplay("{Pos}: {_1} = {NodeType} {_2} {_3}")]
+		
+	[System.Diagnostics.DebuggerDisplay("{Pos}: {_1} = {NodeType} {_2.Else(\"-\")} {_3.Else(\"-\")}")]
 	public struct
 	tCommandNode<tPos> {
 		public tCommandNodeType NodeType;
@@ -107,7 +134,7 @@ mIL_AST {
 	public static mMaybe.tMaybe<tText>
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
-	) => (aNode.NodeType < tCommandNodeType._Commands_)
+	) => (aNode.NodeType < tCommandNodeType._BeginCommands_)
 		? mMaybe.Some(aNode._1)
 		: mStd.cEmpty;
 	
@@ -314,6 +341,14 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.IntsMul, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	public static tCommandNode<tPos>
+	IntsDiv<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aIntReg1,
+		tText aIntReg2
+	) => CommandNode(tCommandNodeType.IntsDiv, aPos, aResReg, aIntReg1, aIntReg2);
+	
+	public static tCommandNode<tPos>
 	IsPair<tPos>(
 		tPos aPos,
 		tText aResReg,
@@ -488,24 +523,6 @@ mIL_AST {
 		tText aResReg,
 		tText aBoolReg1
 	) => CommandNode(tCommandNodeType.IsType, aPos, aResReg, aBoolReg1);
-	
-	public static tCommandNode<tPos>
-	TypeEmpty<tPos>(
-		tPos aPos,
-		tText aId
-	) => CommandNode(tCommandNodeType.TypeEmpty, aPos, aId);
-	
-	public static tCommandNode<tPos>
-	TypeAny<tPos>(
-		tPos aPos,
-		tText aId
-	) => CommandNode(tCommandNodeType.TypeAny, aPos, aId);
-	
-	public static tCommandNode<tPos>
-	TypeInt<tPos>(
-		tPos aPos,
-		tText aId
-	) => CommandNode(tCommandNodeType.TypeInt, aPos, aId);
 	
 	public static tCommandNode<tPos>
 	TypeCond<tPos>(

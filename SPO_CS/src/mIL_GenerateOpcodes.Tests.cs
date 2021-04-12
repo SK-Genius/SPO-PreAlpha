@@ -32,7 +32,7 @@ mIL_GenerateOpcodes_Tests {
 		tSpan a
 	) => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	
-	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>?, mTreeMap.tTree<tText, tInt32>)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>? Defs, mTreeMap.tTree<tText, tInt32> DefLookup)
 	ParseModule(
 		tText aSourceCode,
 		tText aIdent,
@@ -43,16 +43,16 @@ mIL_GenerateOpcodes_Tests {
 	);
 	
 	public static mVM_Data.tData
-	Run(
+	Run(            
 		tText aSourceCode,
-		tText aIdent,
+		tText aIdent,  
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) => mIL_GenerateOpcodes.Run(
 		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
-		aImport,
-		SpanToText,
-		aTrace
+		aImport,             
+		SpanToText,          
+		aTrace            
 	);
 	
 	private static mVM_Data.tData
@@ -113,8 +113,12 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Call",
 			aDebugStream => {
-				var (Module, ModuleMap) = ParseModule(
-					"§DEF ...++\n" +
+				var (Defs, DefLookup) = ParseModule(
+					"§TYPES\n" +
+					"	Int->Int := [INT => INT]\n" +
+					"	Env->Int->Int := [Int->Int => Int->Int]\n" +
+					"" +
+					"§DEF ...++ € Env->Int->Int\n" +
 					"	_1 := 1\n" +
 					"	res := §INT ARG + _1\n" +
 					"	§RETURN res IF TRUE\n",
@@ -132,7 +136,7 @@ mIL_GenerateOpcodes_Tests {
 					);
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
+				var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).ElseThrow("");
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -148,11 +152,15 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Prefix",
 			aDebugStream => {
-				var (Module, ModuleMap) = ParseModule(
-					"§DEF ...++\n" +
+				var (Defs, DefLookup) = ParseModule(
+					"§TYPES\n" +
+					"	vec := [#VECTOR INT]\n" +
+					"	vec_ := [vec, EMPTY]\n" +
+					"	vec->vec := [vec_ => vec_]\n" +
+					"	Env := [EMPTY => vec->vec]\n" +					
+					"§DEF ...++ € Env\n" +
 					"	add := .ENV EMPTY\n" +
 					"	_1 := 1\n" +
-					
 					"	arg := -#VECTOR ARG\n" +
 					"	arg_1 := arg, _1\n" +
 					"	inc := .add arg_1\n" +
@@ -170,7 +178,7 @@ mIL_GenerateOpcodes_Tests {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
+				var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow("");
 				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
@@ -187,19 +195,25 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Assert",
 			aDebugStream => {
-				var (Module, ModuleMap) = ParseModule(
-					"§DEF ...++\n" +
+				var (Defs, DefLookup) = ParseModule(
+					"§TYPES\n" +
+					"	IntInt := [INT, INT]\n" +
+					"	IntInt->Int := [IntInt => INT]\n" +
+					"	Env := [EMPTY => IntInt->Int]\n" +
+					"	Env->IntInt->Int := [Env => IntInt->Int]\n" +
+					"§DEF ...++ € Env->IntInt->Int\n" +
 					"	...=...? := . ENV EMPTY\n" +
 					"	_1 := 1\n" + 
-					"	arg_1 := ARG, _1\n" +
-					"	arg_eq_1? := . ...=...? arg_1\n" +
+					"	_1Empty := _1, EMPTY\n" + 
+					"	args := ARG, _1Empty\n" +
+					"	arg_eq_1? := . ...=...? args\n" +
 					"	§ASSERT TRUE => arg_eq_1?\n" +
-					"	§RETURN arg_eq_1? IF TRUE\n",
+					"	§RETURN arg_eq_1? IF TRUE",
 					"",
 					a => aDebugStream(a())
 				);
 				
-				var Proc = Module.Skip(ModuleMap.ForceGet("...++")).ForceFirst();
+				var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow("");
 				var Env = mVM_Data.ExternDef(Eq);
 				var Res = mVM_Data.Empty();
 				
@@ -222,7 +236,7 @@ mIL_GenerateOpcodes_Tests {
 					Res,
 					TraceOut
 				);
-				while (CallStack.Match(out var CallStack_)) {
+				while (CallStack.IsSome(out var CallStack_)) {
 					CallStack = CallStack_.Step(a => ""+a);
 				}
 				mAssert.AreEquals(Res, mVM_Data.Bool(true));
@@ -244,7 +258,7 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"ParseModule",
 			aDebugStream => {
-				var (Module, ModuleMap) = ParseModule(
+				var (Defs, DefLookup) = ParseModule(
 					"§DEF bla\n" +
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +
@@ -328,10 +342,10 @@ mIL_GenerateOpcodes_Tests {
 					a => aDebugStream(a())
 				);
 				
-				var Proc1 = Module.Skip(ModuleMap.ForceGet("bla")).ForceFirst();
-				var Proc2 = Module.Skip(ModuleMap.ForceGet("bla2")).ForceFirst();
-				var Proc3 = Module.Skip(ModuleMap.ForceGet("...!!")).ForceFirst();
-				var Proc4 = Module.Skip(ModuleMap.ForceGet("...!")).ForceFirst();
+				var Proc1 = DefLookup.TryGet("bla").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc2 = DefLookup.TryGet("bla2").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc3 = DefLookup.TryGet("...!!").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc4 = DefLookup.TryGet("...!").ThenTry(Defs.TryGet).ElseThrow("");
 				
 				var Env = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),

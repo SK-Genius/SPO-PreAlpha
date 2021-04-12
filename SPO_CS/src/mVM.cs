@@ -190,6 +190,16 @@ mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
+			case mVM_Data.tOpCode.IntsDiv: {
+			//--------------------------------------------------------------------------------
+				var IntData1 = aCallStack._Regs.Get(Arg1);
+				var IntData2 = aCallStack._Regs.Get(Arg2);
+				mAssert.IsTrue(IntData1.MatchInt(out var Int1));
+				mAssert.IsTrue(IntData2.MatchInt(out var Int2));
+				aCallStack._Regs.Push(mVM_Data.Pair(mVM_Data.Int(Int1 / Int2), mVM_Data.Int(Int1 % Int2)));
+				break;
+			}
+			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IsPair: {
 			//--------------------------------------------------------------------------------
 				var Data = aCallStack._Regs.Get(Arg1);
@@ -527,7 +537,7 @@ mVM {
 		switch (0) {
 			case 0 when aProc.MatchProc<tPos>(out var Def, out var Env): {
 				var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
-				while (CallStack.Match(out var CallStack_)) {
+				while (CallStack.IsSome(out var CallStack_)) {
 					CallStack = CallStack_.Step(aPosToText);
 				}
 				break;

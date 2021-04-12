@@ -25,13 +25,21 @@ mAssert {
 	
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
+	[DoesNotReturn]
+	public static void
+	Fail(
+		tText? aMsg = null
+	) {
+		throw mError.Error(cErrorPrefix + (aMsg ?? $"Fail"));
+	}
+	
 	public static void
 	IsTrue(
 		[DoesNotReturnIf(false)]tBool a,
 		mStd.tFunc<tText>? aMsg = null
 	) {
 		if (!a) {
-			throw mError.Error(cErrorPrefix+(aMsg?.Invoke() ?? "is not true"));
+			Fail(aMsg?.Invoke() ?? "is not true");
 		}
 	}
 	
@@ -40,10 +48,10 @@ mAssert {
 		[DoesNotReturnIf(true)]tBool a,
 		mStd.tFunc<tText>? aMsg = null
 	) {
-		IsTrue(!a, aMsg);
+		IsTrue(!a, () => aMsg?.Invoke() ?? "is not false");
 	}
 	
-	public static void
+	public static t
 	AreEquals<t>(
 		t a1,
 		t a2,
@@ -54,7 +62,7 @@ mAssert {
 			ReferenceEquals(a1, a2) ||
 			(aAreEqual?.Invoke(a1, a2) ?? a1?.Equals(a2) ?? false)
 		) {
-			return;
+			return a1;
 		}
 		
 		tText Text1;
@@ -76,7 +84,8 @@ mAssert {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
 		}
-		throw mError.Error(cErrorPrefix + $"\n{Text1}\n!=\n{Text2}");
+		Fail($"\n{Text1}\n!=\n{Text2}");
+		return a1;
 		
 #if JSON
 		string
@@ -89,55 +98,63 @@ mAssert {
 #endif
 	}
 	
-	public static void
+	public static t
 	AreNotEquals<t>(
 		t a1,
 		t a2
 	) {
-		if (Equals(a1, a2)) {
-			throw mError.Error(cErrorPrefix + $"{a1} == {a2}");
-		}
+		IsFalse(Equals(a1, a2), () => $"{a1} == {a2}");
+		return a1;
 	}
 	
 	public static t
 	IsNull<t>(
 		t a,
 		mStd.tFunc<tText>? aMsg = null
-	) => (
-		a is not null
-		? throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is not null"))
-		: a
-	);
+	) {
+		IsTrue(a is null, () => aMsg?.Invoke() ?? $"{a} is not null");
+		return a;
+	}
 	
 	public static t
 	IsNotNull<t>(
 		t a,
 		mStd.tFunc<tText>? aMsg = null
-	) => a ?? throw mError.Error(cErrorPrefix + (aMsg?.Invoke() ?? $"{a} is null"));
+	) {
+		IsFalse(a is null, () => aMsg?.Invoke() ?? $"{a} is null");
+		return a;
+	}
 	
-	public static void
+	public static t
 	IsIn<t>(
 		t a1,
 		params t[] a2
 	) {
 		foreach (var Element in a2) {
 			if (Equals(a1, Element)) {
-				return;
+				return a1;
 			}
 		}
-		throw mError.Error(cErrorPrefix + $"{a1} in {a2}");
+		Fail($"{a1} in {a2.AsStream().Map(a => "" + a).TryReduce((a1, a2) => a1 + ", " + a2).Else("")}");
+		return a1;
 	}
 	
-	public static void
+	public static t
 	IsNotIn<t>(
 		t a1,
 		params t[] a2
 	) {
 		foreach (var Element in a2) {
-			if (Equals(a1, Element)) {
-				throw mError.Error(cErrorPrefix + $"{a1} not in {a2}");
-			}
+			IsFalse(Equals(a1, Element), () => $"{a1} not in {a2}");
 		}
+		return a1;
+	}
+	
+	[DoesNotReturn]
+	public static void
+	Impossible(
+	) {
+		Fail("Impossible");
 	}
 	
 	public static void
@@ -149,6 +166,6 @@ mAssert {
 		} catch {
 			return;
 		}
-		throw mError.Error(cErrorPrefix + "Error expected");
+		Fail("Error expected");
 	}
 }

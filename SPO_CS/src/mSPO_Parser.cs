@@ -155,13 +155,13 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefNode<tSpan>, tError>
 	Def = mParserGen.Seq(Match, Token("="), PipeExpression | Expression)
-	.Modify((aMatch, __, aExpression) => (aMatch, aExpression))
+	.Modify((aMatch, _, aExpression) => (aMatch, aExpression))
 	.ModifyS(mSPO_AST.Def)
 	.SetName(nameof(Def));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tReturnIfNode<tSpan>, tError>
 	ReturnIf = mParserGen.Seq(KeyWord("RETURN"), Expression, Token("IF"), Expression)
-	.Modify((_, aResult, __, aCond) => (aResult, aCond))
+	.Modify((_, aResult, _, aCond) => (aResult, aCond))
 	.ModifyS(mSPO_AST.ReturnIf)
 	.SetName(nameof(ReturnIf));
 	
@@ -180,7 +180,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tBlockNode<tSpan>, tError>
 	Block = mParserGen.Seq(SpecialToken("{"), NLs_Token, Commands, SpecialToken("}"))
-	.Modify((_, __, aCommands, ___) => aCommands)
+	.Modify((_, _, aCommands, _) => aCommands)
 	.ModifyS(mSPO_AST.Block)
 	.SetName(nameof(Block));
 	
@@ -227,7 +227,7 @@ mSPO_Parser {
 		.ModifyS(
 			(aSpan, aFirstChild, aFirstIdent, aInfix) => (
 				Ident: mSPO_AST.Ident(aSpan, "..." + aFirstIdent.Text[1..] + aInfix.Ident.Name[1..]),
-				Childs: mStream.Stream(aFirstChild, aInfix.Childs).MaybeNull()
+				Childs: mStream.Stream(aFirstChild, aInfix.Childs)
 			)
 		)
 	);
@@ -255,7 +255,7 @@ mSPO_Parser {
 				.ModifyS(
 					(aSpan, aFirstChild, _, aFirst, aInfix) => (
 						Ident: mSPO_AST.Ident(aSpan, "..." + aFirst.Name[1..] + aInfix.Ident.Name[1..]),
-						Childs: mStream.Stream(aFirstChild, aInfix.Childs).MaybeNull()
+						Childs: mStream.Stream(aFirstChild, aInfix.Childs)
 					)
 				)
 			)
@@ -303,10 +303,10 @@ mSPO_Parser {
 				Ident,
 				SpecialToken(":"),
 				Expression
-			).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Value: aExpression))[0..],
+			).Modify((_, aIdent, _, aExpression) => (Key: aIdent, Value: aExpression))[0..],
 			-NLs_Token[0..1] +SpecialToken("}")
 		)
-		.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
+		.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
 		.ModifyS(mSPO_AST.Record) |
 		mParserGen.Seq(
 			SpecialToken("{"),
@@ -330,10 +330,10 @@ mSPO_Parser {
 			Ident,
 			SpecialToken(":"),
 			Match
-		).Modify((_, aIdent, __, aExpression) => (Key: aIdent, Match: aExpression))[0..],
+		).Modify((_, aIdent, _, aExpression) => (Key: aIdent, Match: aExpression))[0..],
 		-NLs_Token[0..1] +SpecialToken("}")
 	)
-	.Modify((_, aHead, aTail, __) => mStream.Stream(aHead, aTail))
+	.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
 	.ModifyS(mSPO_AST.MatchRecord)
 	.SetName(nameof(Record));
 	
@@ -402,13 +402,13 @@ mSPO_Parser {
 			Type,
 			SpecialToken("=>"),
 			Type
-		).Modify((a1, _, a2, __, a3) => (a1, a2, a3)) |
+		).Modify((a1, _, a2, _, a3) => (a1, a2, a3)) |
 		mParserGen.Seq(
 			Type,
 			SpecialToken("=>"),
 			Type
 		).ModifyS(
-			(aSpan, a2, __, a3) => (
+			(aSpan, a2, _, a3) => (
 				a1: (mSPO_AST.tTypeNode<tSpan>)mSPO_AST.EmptyType(mSpan.Span(aSpan.Start)),
 				a2,
 				a3
@@ -461,7 +461,7 @@ mSPO_Parser {
 		-SpecialToken("=>"),
 		Expression
 	)
-	.Modify((aStaticMatch, aMatch, __, aExpression) => (aStaticMatch, aMatch, aExpression))
+	.Modify((aStaticMatch, aMatch, _, aExpression) => (aStaticMatch, aMatch, aExpression))
 	.ModifyS(mSPO_AST.Lambda)
 	.SetName(nameof(Lambda));
 	
@@ -484,7 +484,7 @@ mSPO_Parser {
 		NLs_Token,
 		(RecLambdaItem +-NLs_Token)[1..],
 		SpecialToken("}")
-	).Modify((_, __, ___, a, ____) => a)
+	).Modify((_, _, _, a, _) => a)
 	.ModifyS(mSPO_AST.RecLambdas)
 	.SetName(nameof(RecLambda));
 	
@@ -498,10 +498,10 @@ mSPO_Parser {
 			SpecialToken("=>"),
 			Expression,
 			NLs_Token
-		).Modify((aCond, _, aRes, __) => (aCond, aRes))[0..],
+		).Modify((aCond, _, aRes, _) => (aCond, aRes))[0..],
 		SpecialToken("}")
 	)
-	.Modify((_, __, ___, a, ____) => a)
+	.Modify((_, _, _, a, _) => a)
 	.ModifyS(mSPO_AST.If)
 	.SetName(nameof(If));
 	
@@ -515,10 +515,10 @@ mSPO_Parser {
 			SpecialToken("=>"),
 			Expression,
 			NLs_Token
-		).Modify((aMatch, _, aExpression, __) => (aMatch, aExpression))[0..],
+		).Modify((aMatch, _, aExpression, _) => (aMatch, aExpression))[0..],
 		SpecialToken("}")
 	)
-	.Modify((_, aExpression, __, aBranches, ___) => (aExpression, aBranches))
+	.Modify((_, aExpression, _, aBranches, _) => (aExpression, aBranches))
 	.ModifyS(mSPO_AST.IfMatch)
 	.SetName(nameof(IfMatch));
 	
@@ -545,7 +545,7 @@ mSPO_Parser {
 		NLs_Token[0..1],
 		SpecialToken(".")
 	)
-	.Modify((aFirst, aRest, _, __) => mStream.Stream(aFirst, aRest).MaybeNull())
+	.Modify((aFirst, aRest, _, _) => mStream.Stream(aFirst, aRest))
 	.SetName(nameof(MethodCalls));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefVarNode<tSpan>, tError>
@@ -559,7 +559,7 @@ mSPO_Parser {
 			SpecialToken(".").Modify(a => mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>())
 		)
 	)
-	.Modify((_, aIdent, __, aFirst, aRest) => (aIdent, aFirst, aRest))
+	.Modify((_, aIdent, _, aFirst, aRest) => (aIdent, aFirst, aRest))
 	.ModifyS(mSPO_AST.DefVar)
 	.SetName(nameof(DefVar));
 	
@@ -575,7 +575,7 @@ mSPO_Parser {
 		NLs_Token[0..1],
 		MethodCalls
 	)
-	.Modify((aObj, _, __, aMethodCalls) => (aObj, aMethodCalls))
+	.Modify((aObj, _, _, aMethodCalls) => (aObj, aMethodCalls))
 	.ModifyS(mSPO_AST.MethodCallStatement)
 	.SetName(nameof(MethodCallStatment));
 	
@@ -597,7 +597,7 @@ mSPO_Parser {
 		Export,
 		NLs_Token[0..1]
 	)
-	.Modify((_, aImport, aCommands, aExports, __) => (aImport, aCommands, aExports))
+	.Modify((_, aImport, aCommands, aExports, _) => (aImport, aCommands, aExports))
 	.ModifyS(mSPO_AST.Module)
 	.SetName(nameof(Module));
 	

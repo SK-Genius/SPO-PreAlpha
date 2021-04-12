@@ -36,18 +36,18 @@ mParserGen_Tests {
 		return 0;
 	}
 	
-	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Massage)>?
+	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Message)>?
 	cNoError = default;
 	
-	private static mResult.tResultFail<mStream.tStream<(mStd.tEmpty Pos, tText Massage)>?>
+	private static mResult.tResultFail<mStream.tStream<(mStd.tEmpty Pos, tText Message)>?>
 	Fail(
 		params tText[] aError
 	) {
-		var Result = mStream.Stream<(mStd.tEmpty Pos, tText Massage)>();
-		foreach (var Massage in aError) {
-			Result = mStream.Stream<(mStd.tEmpty Pos, tText Massage)>(
-				(Pos: mStd.cEmpty, Massage),
-				(mStream.tStream<(mStd.tEmpty Pos, tText Massage)>?)Result
+		var Result = mStream.Stream<(mStd.tEmpty Pos, tText Message)>();
+		foreach (var Message in aError) {
+			Result = mStream.Stream<(mStd.tEmpty Pos, tText Message)>(
+				(Pos: mStd.cEmpty, Message),
+				(mStream.tStream<(mStd.tEmpty Pos, tText Message)>?)Result
 			);
 		}
 		return mResult.Fail(Result.Reverse());

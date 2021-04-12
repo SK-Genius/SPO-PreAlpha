@@ -31,13 +31,14 @@ mSPO2IL {
 	
 	public struct
 	tModuleConstructor<tPos> {
-		public mArrayList.tArrayList<(mVM_Type.tType Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> Defs;
+		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> TypeDef;
+		public mArrayList.tArrayList<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> Defs;
 		internal mStd.tFunc<tPos, tPos, tPos> MergePos;
 	}
 	
 	public struct
 	tDefConstructor<tPos> {
-		public mVM_Type.tType Type; 
+		public tText Type; 
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands;
 		public tInt32 LastTempReg;
 		public mArrayList.tArrayList<tText> KnownSymbols;
@@ -50,7 +51,7 @@ mSPO2IL {
 	NewModuleConstructor<tPos>(
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
 	) => new tModuleConstructor<tPos> {
-		Defs = mArrayList.List<(mVM_Type.tType, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>>)>(),
+		Defs = mArrayList.List<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
 		MergePos = aMergePos
 	};
 	
@@ -60,15 +61,7 @@ mSPO2IL {
 	) {
 		var DefIndex = aModuleConstructor.Defs.Size();
 		var Commands = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
-		var Type = mVM_Type.Proc(
-			mVM_Type.Empty(),
-			mVM_Type.Free("ENV"),
-			mVM_Type.Proc(
-				mVM_Type.Free("OBJ"),
-				mVM_Type.Free("ARG"),
-				mVM_Type.Free("RES")
-			)
-		);
+		var Type = default(tText); // TODO
 		
 		aModuleConstructor.Defs.Push((Type, Commands));
 		return new tDefConstructor<tPos> {
@@ -304,7 +297,10 @@ mSPO2IL {
 					aDefConstructor.UnsolvedSymbols.ToStream().All(_ => _.Ident != Name) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						_ => _.GetResultReg().ThenTry(aName =>  mMaybe.Some(aName == Name)).Else(() => false)
+						_ => _.GetResultReg().Match(
+							Some: aName =>  aName == Name,
+							None: () => false
+						)
 					)
 				) {
 					aDefConstructor.UnsolvedSymbols.Push((Name, Pos));
@@ -793,9 +789,9 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 			//--------------------------------------------------------------------------------
-				if (!TypeNode.Match(out var TypeNode_)) {
+				if (!TypeNode.IsSome(out var TypeNode_)) {
 					aDefConstructor.MapMatch(MatchNode, aReg, mStd.cEmpty);
-				} else if (!MatchNode.Type.Match(out var MatchTypeNode)) {
+				} else if (!MatchNode.Type.IsSome(out var MatchTypeNode)) {
 					aDefConstructor.MapMatch(
 						mSPO_AST.Match(MatchNode.Pos, MatchNode.Pattern, TypeNode),
 						aReg,
@@ -1076,13 +1072,13 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}
-			var Result = Call.Result.Match(out var _) ? aDefConstructor.CreateTempReg() : mIL_AST.cEmpty;
+			var Result = Call.Result.IsNone() ? mIL_AST.cEmpty : aDefConstructor.CreateTempReg();
 			var MethodReg = aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
 				mIL_AST.CreatePair(aMethodCallsNode.Object.Pos, MethodReg, Object, MethodName),
 				mIL_AST.CallProc(aMethodCallsNode.Pos, Result, MethodReg, Arg)
 			);
-			if (Call.Result.Match(out var Result_)) {
+			if (Call.Result.IsSome(out var Result_)) {
 				aDefConstructor.MapMatch(Result_, Result, mStd.cEmpty);
 			}
 			
@@ -1167,7 +1163,8 @@ mSPO2IL {
 				
 				var DefSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
 				for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
-					DefSymbols.Push((TempDef(I), default));
+					var Def = ModuleConstructor.Defs.Get(I);
+					DefSymbols.Push((TempDef(I), aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)));
 				}
 				TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
 				

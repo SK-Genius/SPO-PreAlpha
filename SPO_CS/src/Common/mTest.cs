@@ -89,9 +89,9 @@ mTest {
 		const tText cTab = "|  ";
 		switch (aTest) {
 			case tTestRun TestRun: {
-				aDebugStream(TestRun._Name);
-				aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
 				if (aFilters.IsEmpty() || aFilters.Any(TestRun._Name.Contains)) {
+					aDebugStream(TestRun._Name);
+					aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
 						TestRun._TestFunc(LineByLine(aDebugStream.AddPrefix(cTab)));
@@ -135,8 +135,12 @@ mTest {
 						return (tResult.Fail, 1, 0, 0);
 					}
 				} else {
-					aDebugStream("> Skip");
-					aDebugStream("");
+					if (false) { // TODO(SK): use a flag to show/hide this information
+						aDebugStream(TestRun._Name);
+						aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
+						aDebugStream("> Fail");
+						aDebugStream("");
+					}
 					return (tResult.Skip, 0, 1, 0);
 				}
 			}

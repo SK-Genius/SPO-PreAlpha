@@ -584,7 +584,11 @@ mVM_Type {
 		}
 		
 		if (a2.Kind == tKind.Free) {
-			return Unify(a2, a1, aTrace);
+			var result = Unify(a2, a1, aTrace);
+			if (!result) {
+				aTrace(() => $"in: '{a1.ToText(5)}' and '{a2.ToText(5)}'");
+			}
+			return result;
 		}
 		
 		if (a1.Kind == a2.Kind) {
@@ -594,6 +598,7 @@ mVM_Type {
 			mAssert.AreEquals(a2.Refs.Length, RefCount);
 			while (RefCount-- > 0) {
 				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
+					aTrace(() => $"in: '{a1.ToText(5)}' and '{a2.ToText(5)}'");
 					return false;
 				}
 			}
@@ -601,6 +606,7 @@ mVM_Type {
 		}
 		
 		#if true
+		aTrace(() => $"can't unify '{a1.ToText(5)}' and '{a2.ToText(5)}'");
 		return false;
 		#else
 		var Type1 = new tType {
@@ -650,6 +656,7 @@ mVM_Type {
 			tKind.Empty => "[]",
 			tKind.Bool => "§BOOL",
 			tKind.Int => "§INT",
+			tKind.Any => "§ANY",
 			tKind.Type => "[[]]",
 			tKind.Free => "?"+aType.Id,
 			tKind.Prefix => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]",
