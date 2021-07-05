@@ -33,10 +33,23 @@ mSPO_Interpreter {
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		var Module = mSPO2IL.MapModule(
-			mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream),
-			mSpan.Merge
+		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream);
+		
+		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
+			ModuleNode.Import.Match,
+			mStd.cEmpty,
+			mSPO_AST_Types.tTypeRelation.Sub,
+			mStream.Stream<(tText Ident, mVM_Type.tType Type)>()
+		).Then(
+			a => a.Scope
 		).ElseThrow();
+		
+		var Scope = ModuleNode.Commands.Reduce(
+			mResult.OK(InitScope).AsResult<tText>(),
+			(aResultScope, aCommand) => aResultScope.ThenTry(aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope))
+		);
+		
+		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge);
 		
 		return mIL_GenerateOpcodes.Run(
 			mIL_AST.Module(

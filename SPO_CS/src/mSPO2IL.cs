@@ -52,7 +52,8 @@ mSPO2IL {
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
 	) => new tModuleConstructor<tPos> {
 		Defs = mArrayList.List<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
-		MergePos = aMergePos
+		TypeDef = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
+		MergePos = aMergePos,
 	};
 	
 	public static tDefConstructor<tPos>
@@ -1121,7 +1122,7 @@ mSPO2IL {
 		}
 	}
 	
-	public static mResult.tResult<tModuleConstructor<tPos>, tText>
+	public static tModuleConstructor<tPos>
 	MapModule<tPos>(
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
@@ -1135,7 +1136,7 @@ mSPO2IL {
 			aModuleNode.Import.Match,
 			mSPO_AST.Block(
 				aMergePos(
-					aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.ForceFirst().Pos,
+					aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.TryFirst().Then(_ => _.Pos).ElseDefault(),
 					aModuleNode.Export.Pos
 				),
 				mStream.Concat(
@@ -1150,26 +1151,34 @@ mSPO2IL {
 				)
 			)
 		);
-		return mSPO_AST_Types.UpdateExpressionTypes(Lambda, mStd.cEmpty).Then(
-			_ => {
-				TempLambdaDef.InitMapLambda(Lambda);
-				if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
-					var First = TempLambdaDef.UnsolvedSymbols.ToStream(
-					).Where(
-						_ => !_.Ident.StartsWith("d_")
-					).ForceFirst();
-					throw mError.Error($"Unknown symbol '{First.Ident}' @ {First.Pos}", First.Pos);
-				}
-				
-				var DefSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
-				for (var I = 1; I < ModuleConstructor.Defs.Size(); I += 1) {
-					var Def = ModuleConstructor.Defs.Get(I);
-					DefSymbols.Push((TempDef(I), aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)));
-				}
-				TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
-				
-				return ModuleConstructor;
-			}
-		);
+		
+		mSPO_AST_Types.UpdateExpressionTypes(Lambda, null);
+		
+//		Lambda.TypeAnnotation = mMaybe.Some(
+//			mVM_Type.Proc(
+//				mVM_Type.Empty(),
+//				aModuleNode.Import.Match.TypeAnnotation.ElseThrow(""),
+//				aModuleNode.Export.Expression.TypeAnnotation.ElseThrow("")
+//			)
+//		);
+		
+		TempLambdaDef.InitMapLambda(Lambda);
+		if (TempLambdaDef.UnsolvedSymbols.Size() != ModuleConstructor.Defs.Size() - 1) {
+			throw TempLambdaDef.UnsolvedSymbols.ToStream(
+			).Where(
+				_ => !_.Ident.StartsWith("d_")
+			).TryFirst(
+			).Then(
+				_ => mError.Error($"Unknown symbol '{_.Ident}' @ {_.Pos}", _.Pos)
+			).ElseDefault();
+		}
+		
+		var DefSymbols = mArrayList.List<(tText Ident, tPos Pos)>();
+		foreach (var (I, Def) in ModuleConstructor.Defs.ToLazyList().MapWithIndex().Skip(1)) {
+			DefSymbols.Push((TempDef(I), aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)));
+		}
+		TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
+		
+		return ModuleConstructor;
 	}
 }

@@ -18,6 +18,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mResult {
 	public readonly struct
@@ -50,6 +51,7 @@ mResult {
 		) => this;
 	}
 	
+	[System.Diagnostics.DebuggerDisplay("{_IsOK ? \"Value: \"+_Value : \"Error: \"+_Error}")]
 	public struct
 	tResult<tOK, tError> {
 		

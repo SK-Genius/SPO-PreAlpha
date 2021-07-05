@@ -23,6 +23,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mStream {
 	
@@ -179,7 +180,12 @@ mStream {
 	MapWithIndex<tRes, tElem>(
 		this tStream<tElem>? aStream,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
-	) => Zip(Nat(0), aStream).Map(a => aMapFunc(a._1, a._2));
+	) => aStream.MapWithIndex().Map(a => aMapFunc(a.Index, a.Item));
+	
+	public static tStream<(tInt32 Index, t Item)>?
+	MapWithIndex<t>(
+		this tStream<t>? aStream
+	) => Zip(Nat(0), aStream);
 	
 	public static tRes
 	Reduce<tRes, tElem>(
@@ -312,7 +318,7 @@ mStream {
 	) => aStream is null;
 	
 	public static mMaybe.tMaybe<t>
-	First<t>(
+	TryFirst<t>(
 		this tStream<t>? aStream
 	) => (
 		aStream.IsEmpty()
@@ -320,13 +326,8 @@ mStream {
 		: mMaybe.Some(aStream._Head)
 	);
 	
-	public static t
-	ForceFirst<t>(
-		this tStream<t>? aStream
-	) => aStream.First().ElseThrow("impossible");
-	
 	public static mMaybe.tMaybe<t>
-	Last<t>(
+	TryLast<t>(
 		this tStream<t>? aStream
 	) {
 		var Result = mMaybe.None<t>();
@@ -335,11 +336,6 @@ mStream {
 		}
 		return Result;
 	}
-	
-	public static t
-	ForceLast<t>(
-		this tStream<t> aStream
-	) => aStream.Last().ElseThrow("impossible");
 	
 	public static tBool
 	Any(
@@ -361,7 +357,7 @@ mStream {
 	TryGet<t>(
 		this tStream<t>? aStream,
 		tInt32 aIndex
-	) => aStream.Skip(aIndex).First();
+	) => aStream.Skip(aIndex).TryFirst();
 	
 	public static tBool
 	Any<t>(

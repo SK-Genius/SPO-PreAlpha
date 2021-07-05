@@ -23,18 +23,7 @@ mVM_Type_Tests {
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mVM_Type),
-		mTest.Test(
-			"BoolBool",
-			aDebugStream => {
-				mAssert.IsTrue(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Bool(), a => aDebugStream(a())));
-			}
-		),
-		mTest.Test(
-			"BoolInt",
-			aDebugStream => {
-				mAssert.IsFalse(mVM_Type.Unify(mVM_Type.Bool(), mVM_Type.Int(), a => aDebugStream(a())));
-			}
-		)
+		nameof(mVM_Type)
+		// TODO
 	);
 }

@@ -547,100 +547,34 @@ mVM_Type {
 	}
 	
 	public static tBool
-	Unify(
-		tType a1,
-		tType a2,
+	IsSubType(
+		tType aSubType,
+		tType aSupType,
+		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
+	) {
+		if (aSubType == aSupType) {
+			return true;
+		}
+		// TODO: implement
+		throw new System.NotImplementedException();
+	}
+	
+	public static mResult.tResult<tType, tText>
+	Infer(
+		tType aProc,
+		tType aObj,
+		tType aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		if (a1 == a2) {
-			return true;
+		if (aProc.MatchGeneric(out var FreeType, out var InnerType)) {
+			return Infer(InnerType, aObj, aArg, aTrace);
 		}
 		
-		if (
-			a1.Kind == tKind.Free &&
-			a2.Kind == tKind.Free
-		) {
-			if (ReferenceEquals(a1.Refs, a2.Refs)) {
-				return true;
-			}
-			var Aliases = mStream.Concat(mStream.Stream(a1.Refs), mStream.Stream(a2.Refs));
-			var NewRefs = Aliases.ToArrayList().ToArray();
-			foreach (var Alias in Aliases) {
-				Alias.Id = a1.Id;
-				Alias.Refs = NewRefs;
-			}
-			return true;
-		}
+		mAssert.IsTrue(aProc.MatchProc(out var ObjType, out var ArgType, out var ResType));
+		mAssert.IsTrue(IsSubType(aArg, ArgType, mStd.cEmpty));
+		mAssert.AreEquals(aObj, ObjType);
 		
-		if (a1.Kind == tKind.Free) {
-			// TODO: check aginst cycles (a1 in a2)
-			foreach (var Alias in mStream.Stream(a1.Refs)) {
-				Alias.Kind = a2.Kind;
-				Alias.Id = a2.Id;
-				Alias.Prefix = a2.Prefix;
-				Alias.Refs = a2.Refs;
-			}
-			return true;
-		}
-		
-		if (a2.Kind == tKind.Free) {
-			var result = Unify(a2, a1, aTrace);
-			if (!result) {
-				aTrace(() => $"in: '{a1.ToText(5)}' and '{a2.ToText(5)}'");
-			}
-			return result;
-		}
-		
-		if (a1.Kind == a2.Kind) {
-			mAssert.AreEquals(a1.Id, a2.Id);
-			mAssert.AreEquals(a1.Prefix, a2.Prefix);
-			var RefCount = a1.Refs.Length;
-			mAssert.AreEquals(a2.Refs.Length, RefCount);
-			while (RefCount-- > 0) {
-				if (!Unify(a1.Refs[RefCount], a2.Refs[RefCount], aTrace)) {
-					aTrace(() => $"in: '{a1.ToText(5)}' and '{a2.ToText(5)}'");
-					return false;
-				}
-			}
-			return true;
-		}
-		
-		#if true
-		aTrace(() => $"can't unify '{a1.ToText(5)}' and '{a2.ToText(5)}'");
-		return false;
-		#else
-		var Type1 = new tType {
-			Id = a1.Id,
-			Kind = a1.Kind,
-			Prefix = a1.Prefix,
-			Refs = a1.Refs,
-		};
-		var Type2 = new tType {
-			Id = a2.Id,
-			Kind = a2.Kind,
-			Prefix = a2.Prefix,
-			Refs = a2.Refs,
-		};
-		
-		a1.Kind = tKind.Set;
-		a1.Id = "" + NextPlaceholderId;
-		NextPlaceholderId += 1;
-		a1.Prefix = null;
-		
-		if (a1.Kind == tKind.Set) {
-			a1.Refs = mStream.Stream(Type2, mStream.Stream(a1.Refs)).ToArrayList().ToArray();
-		} else if (a2.Kind == tKind.Set) {
-			a1.Refs = mStream.Stream(Type1, mStream.Stream(a2.Refs)).ToArrayList().ToArray();
-		} else {
-			a1.Refs = new[] { Type1, Type2 };
-		}
-		
-		a2.Kind = a1.Kind;
-		a2.Id = a1.Id;
-		a2.Prefix = a1.Prefix;
-		a2.Refs = a1.Refs;
-		return true;
-		#endif
+		return mResult.OK(ResType);
 	}
 	
 	public static tText

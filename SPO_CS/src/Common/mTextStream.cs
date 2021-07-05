@@ -19,6 +19,7 @@ using tText = System.String;
 
 using tError = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mTextStream {
 	

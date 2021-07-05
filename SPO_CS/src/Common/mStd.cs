@@ -17,6 +17,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class mStd {
 	
 	#region tFunc & tAction
@@ -56,6 +57,12 @@ public static class mStd {
 	public readonly struct
 	tEmpty {
 	}
+	
+	public static tRes
+	Let<tArg, tRes>(
+		tArg a,
+		tFunc<tRes, tArg> aFunc
+	) => aFunc(a);
 	
 	public static readonly tEmpty cEmpty = new tEmpty();
 }

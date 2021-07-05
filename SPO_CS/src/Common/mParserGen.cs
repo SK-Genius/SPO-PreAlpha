@@ -26,6 +26,7 @@ using tChar = System.Char;
 using tText = System.String;
 using System;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mParserGen {
 	#region Helper
@@ -608,12 +609,21 @@ mParserGen {
 		if (a1 is null) { return a2; }
 		if (a2 is null) { return a1; }
 		
-		var Comp = aComparePos(a1.ForceFirst().Pos, a2.ForceFirst().Pos);
-		return Comp switch {
-			> 0 => a1,
-			< 0 => a2,
-			_ => mStream.Stream(a1.ForceLast(), a2),
-		};
+		// TODO: review (First vs Last ???)
+		return a1.TryFirst().Match(
+			None: () => a2,
+			Some: _1 => a2.TryFirst().Match(
+				None: () => a1,
+				Some: _2 => aComparePos(_1.Pos, _2.Pos) switch {
+					> 0 => a1,
+					< 0 => a2,
+					_ => a1.TryLast().Match(
+						None: () => a2,
+						Some: _ => mStream.Stream(_, a2)
+					)
+				}
+			)
+		);
 	}
 	
 	public static tParser<tPos, tIn, tOut, tError>
@@ -712,7 +722,7 @@ mParserGen {
 			!Result.Match(out var Value, out var Error) &&
 			aParser._ModifyErrorsFunc is not null
 		) {
-			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream?.ForceFirst() ?? default));
+			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().ElseDefault()));
 		}
 		
 		#if MY_TRACE

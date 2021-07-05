@@ -89,6 +89,17 @@ mIL_GenerateOpcodes {
 				}
 				case mIL_AST.tCommandNodeType.TypeRec: {
 					Type = mVM_Type.Record(
+						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow("TODO"),
+						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow("TODO")
+					);
+					break;
+				}
+				case mIL_AST.tCommandNodeType.TypeFree: {
+					Type = mVM_Type.Free("TODO");
+					break;
+				}
+				case mIL_AST.tCommandNodeType.TypeGeneric: {
+					Type = mVM_Type.Generic(
 						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow("TODO"),
 						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow("TODO")
 					);
@@ -104,27 +115,24 @@ mIL_GenerateOpcodes {
 		}
 		
 		foreach (var (DefName, TypeName, Commands) in aModule.Defs) {
-			var NewProc = new mVM_Data.tProcDef<tPos>();
 			// TODO: set type if it known
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			
-			var DefType = TypeMap.TryGet(TypeName).ThenTry(Types_.TryGet).ElseThrow("");
+			var DefType = TypeMap.TryGet(TypeName).ThenTry(Types_.TryGet).ElseThrow($"type '{TypeName}' not found");
 			
 			if (!DefType.MatchProc(out var NullType, out var DefEnvType, out var DefProcType)) {
 				throw mError.Error("impossible");
 			}
+			if (DefProcType.MatchGeneric(out var FreeType, out var InnerType)) {
+				DefProcType = InnerType;	
+			}
 			if (!DefProcType.MatchProc(out var DefObjType, out var DefArgType, out var DefResType)) {
 				throw mError.Error("impossible");
 			}
-			mAssert.IsTrue(
-				mVM_Type.Unify(
-					NewProc.DefType,
-					DefType,
-					aTrace
-				)
-			);
-				
+			
+			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
+			
 			Module = mStream.Concat(Module, mStream.Stream(NewProc));
 			
 			var Regs = mTreeMap.Tree<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
@@ -160,17 +168,14 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.CallFunc, out var Span, out var RegId1, out var RegId2, out var RegId3): {
 					//--------------------------------------------------------------------------------
-						var ResType = mVM_Type.Free();
 						var ProcReg = Regs.TryGet(RegId2).ElseThrow("");
 						var ArgReg = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(ProcReg),
-								mVM_Type.Proc(mVM_Type.Empty(), Types.Get(ArgReg), ResType),
-								aTrace
-							),
-							() => $"in {Command.Pos}: {Command._1} = .{Command._2.Else("-")} {Command._3.Else("-")}"
-						);
+						var ResType = mVM_Type.Infer(
+							Types.Get(ProcReg),
+							mVM_Type.Empty(),
+							Types.Get(ArgReg),
+							aTrace
+						).ElseThrow();
 						Regs = Regs.Set(RegId1, NewProc.Call(Span, ProcReg, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -178,17 +183,15 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.CallProc, out var Span, out var RegId1, out var RegId2, out var RegId3): {
 					//--------------------------------------------------------------------------------
-						var ResType = mVM_Type.Free();
 						var ProcReg = Regs.TryGet(RegId2).ElseThrow("");
 						var ArgReg = Regs.TryGet(RegId3).ElseThrow("");
 						var ObjType = mVM_Type.Free();
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(ProcReg),
-								mVM_Type.Pair(ObjType, mVM_Type.Proc(ObjType, Types.Get(ArgReg), ResType)),
-								aTrace
-							)
-						);
+						var ResType = mVM_Type.Infer(
+							Types.Get(ProcReg),
+							ObjType,
+							Types.Get(ArgReg),
+							aTrace
+						).ElseThrow();
 						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ProcReg, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -229,8 +232,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
 						Regs = Regs.Set(RegId1, NewProc.And(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -241,8 +244,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
 						Regs = Regs.Set(RegId1, NewProc.Or(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -253,8 +256,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Bool(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Bool(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
 						Regs = Regs.Set(RegId1, NewProc.XOr(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -265,8 +268,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Bool();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsAreEq(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -277,8 +280,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsComp(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -289,8 +292,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsAdd(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -301,8 +304,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsSub(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -313,8 +316,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Int();
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsMul(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -325,8 +328,8 @@ mIL_GenerateOpcodes {
 						var ResType = mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int());
 						var Reg1 = Regs.TryGet(RegId2).ElseThrow("");
 						var Reg2 = Regs.TryGet(RegId3).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg1), mVM_Type.Int(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(Reg2), mVM_Type.Int(), aTrace));
+						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
+						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Int());
 						Regs = Regs.Set(RegId1, NewProc.IntsDiv(Span, Reg1, Reg2));
 						Types.Push(ResType);
 						break;
@@ -352,15 +355,8 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.First, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
-						var ResType = mVM_Type.Free();
 						var ArgReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(ArgReg),
-								mVM_Type.Pair(ResType, mVM_Type.Free()),
-								aTrace
-							)
-						);
+						mAssert.IsTrue(Types.Get(ArgReg).MatchPair(out var ResType, out var __));
 						Regs = Regs.Set(RegId1, NewProc.First(Span, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -368,15 +364,8 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.Second, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
-						var ResType = mVM_Type.Free();
 						var ArgReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(ArgReg),
-								mVM_Type.Pair(mVM_Type.Free(), ResType),
-								aTrace
-							)
-						);
+						mAssert.IsTrue(Types.Get(ArgReg).MatchPair(out var ResType, out  var __));
 						Regs = Regs.Set(RegId1, NewProc.Second(Span, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -386,8 +375,8 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var ResReg = Regs.TryGet(RegId1).ElseThrow("");
 						var CondReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(ResReg), DefResType, aTrace));
+						mAssert.IsTrue(Types.Get(CondReg).MatchBool());
+						mAssert.IsTrue(mVM_Type.IsSubType(Types.Get(ResReg), DefResType, mStd.cEmpty));
 						NewProc.ReturnIf(Span, CondReg, ResReg);
 						break;
 					}
@@ -396,30 +385,31 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.TryGet(RegId1).ElseThrow("");
 						var CondReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(ArgReg), DefArgType, aTrace));
+						mAssert.IsTrue(Types.Get(CondReg).MatchBool());
+						mAssert.IsTrue(mVM_Type.IsSubType(DefArgType, Types.Get(ArgReg), mStd.cEmpty));
 						NewProc.ContinueIf(Span, CondReg, ArgReg);
 						break;
 					}
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.TailCallIf, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
-						var ResReg = Regs.TryGet(RegId1).ElseThrow("");
-						var CondReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(CondReg), mVM_Type.Bool(), aTrace));
-						var ArgType = mVM_Type.Free();
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(ResReg),
-								mVM_Type.Pair(
-									mVM_Type.Proc(mVM_Type.Empty(), ArgType, DefResType),
-									ArgType
-								),
-								aTrace
-							)
-						);
-						NewProc.TailCallIf(Span, CondReg, ResReg);
-						break;
+						throw new System.NotImplementedException();
+						// var ResReg = Regs.TryGet(RegId1).ElseThrow("");
+						// var CondReg = Regs.TryGet(RegId2).ElseThrow("");
+						// mAssert.AreEquals(Types.Get(CondReg), mVM_Type.Bool());
+						// var ArgType = mVM_Type.Free();
+						// mAssert.IsTrue(
+						// 	mVM_Type.Unify(
+						// 		Types.Get(ResReg),
+						// 		mVM_Type.Pair(
+						// 			mVM_Type.Proc(mVM_Type.Empty(), ArgType, DefResType),
+						// 			ArgType
+						// 		),
+						// 		aTrace
+						// 	)
+						// );
+						// NewProc.TailCallIf(Span, CondReg, ResReg);
+						// break;
 					}
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsPrefix, out var Span, out var RegId1, out var RegId2): {
@@ -442,14 +432,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.SubPrefix, out var Span, out var RegId1, out var Prefix, out var RegId3): {
 					//--------------------------------------------------------------------------------
 						var Reg = Regs.TryGet(RegId3).ElseThrow("");
-						var ResType = mVM_Type.Free();
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(Reg),
-								mVM_Type.Prefix(Prefix, ResType),
-								aTrace
-							)
-						);
+						mAssert.IsTrue(Types.Get(Reg).MatchPrefix(Prefix, out var ResType));
 						Regs = Regs.Set(RegId1, NewProc.DelPrefix(Span, Prefix.GetHashCode(), Reg));
 						Types.Push(ResType);
 						break;
@@ -528,12 +511,9 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var VarReg = Regs.TryGet(RegId1).ElseThrow("");
 						var ValReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(VarReg),
-								mVM_Type.Var(Types.Get(ValReg)),
-								aTrace
-							)
+						mAssert.AreEquals(
+							Types.Get(VarReg),
+							mVM_Type.Var(Types.Get(ValReg))
 						);
 						NewProc.VarSet(Span, VarReg, ValReg);
 						break;
@@ -541,9 +521,8 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.VarGet, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
-						var ResType = mVM_Type.Free();
 						var VarReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(mVM_Type.Unify(Types.Get(VarReg), mVM_Type.Var(ResType), aTrace));
+						mAssert.IsTrue(Types.Get(VarReg).MatchVar(out var ResType));
 						Regs = Regs.Set(RegId1, NewProc.VarGet(Span, VarReg));
 						Types.Push(ResType);
 						break;
@@ -583,16 +562,9 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var ObjTypeReg = Regs.TryGet(RegId2).ElseThrow("");
 						var FuncTypeReg = Regs.TryGet(RegId3).ElseThrow("");
-						var ArgType = mVM_Type.Free();
-						var ResType = mVM_Type.Free();
+						mAssert.IsTrue(Types.Get(FuncTypeReg).MatchProc(out var EmptyType, out var ArgType, out var ResType));
+						mAssert.AreEquals(EmptyType, mVM_Type.Empty());
 						Regs = Regs.Set(RegId1, NewProc.TypeMeth(Span, ObjTypeReg, FuncTypeReg));
-						mAssert.IsTrue(
-							mVM_Type.Unify(
-								Types.Get(FuncTypeReg),
-								mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType),
-								aTrace
-							)
-						);
 						Types.Push(
 							mVM_Type.Type(
 								mVM_Type.Proc(
@@ -796,7 +768,7 @@ mIL_GenerateOpcodes {
 		
 		var DefTuple = Defs.Take(2).ToArrayList().Size() switch {
 			0 => mVM_Data.Empty(),
-			1 => mVM_Data.Def(Defs!.ForceFirst()),
+			1 => Defs.TryFirst().Then(_ => mVM_Data.Def(_)).ElseThrow(""),
 			_ => Defs.Reduce(
 				mVM_Data.Empty(),
 				(aTuple, aDef) => mVM_Data.Pair(
@@ -805,7 +777,7 @@ mIL_GenerateOpcodes {
 				)
 			),
 		};
-		var InitProc = VMModule!.ForceFirst();
+		var InitProc = VMModule.TryFirst().ElseThrow("");
 		
 		#if MY_TRACE
 			var TraceOut = aDebugStream;

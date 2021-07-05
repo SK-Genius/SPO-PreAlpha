@@ -20,6 +20,7 @@ using tText = System.String;
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mPerf {
 	private const tInt32 cMaxLogCount = 1<<16;

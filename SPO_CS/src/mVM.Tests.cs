@@ -51,7 +51,21 @@ mVM_Tests {
 				
 				var Env = mVM_Data.ExternDef(Add);
 				
-				var Proc1 = new mVM_Data.tProcDef<mStd.tEmpty>();
+				var Proc1 = new mVM_Data.tProcDef<mStd.tEmpty>(
+					mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()),
+							mVM_Type.Int()
+						),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Int(),
+							mVM_Type.Int()
+						)
+					)
+				);
 				var Reg1 = Proc1.Pair(mStd.cEmpty, mVM_Data.cOneReg, mVM_Data.cOneReg);
 				var Reg2 = Proc1.Call(mStd.cEmpty, mVM_Data.cEnvReg, mVM_Data.cEmptyReg);
 				var Reg3 = Proc1.Call(mStd.cEmpty, Reg2, Reg1);
@@ -75,7 +89,21 @@ mVM_Tests {
 				
 				var Env = mVM_Data.ExternDef(Add);
 				
-				var Proc2 = new mVM_Data.tProcDef<mStd.tEmpty>();
+				var Proc2 = new mVM_Data.tProcDef<mStd.tEmpty>(
+					mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()),
+							mVM_Type.Int()
+						),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Int(),
+							mVM_Type.Int()
+						)
+					)
+				);
 				Proc2.ReturnIf(
 					mStd.cEmpty,
 					mVM_Data.cTrueReg,

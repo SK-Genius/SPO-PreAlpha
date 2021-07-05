@@ -19,9 +19,11 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class
 mMaybe {
 	
+	[System.Diagnostics.DebuggerDisplay("{_HasValue ? \"Some: \"+_Value : \"None\"}")]
 	public readonly struct
 	tMaybe<t> {
 		
@@ -104,6 +106,11 @@ mMaybe {
 		this tMaybe<tOut> a,
 		mLazy.tLazy<tOut> aElse
 	) => a.IsSome(out var Value) ? Value : aElse.Value;
+	
+	public static tOut
+	ElseDefault<tOut>(
+		this tMaybe<tOut> a
+	) => a.IsSome(out var Value) ? Value : default;
 	
 	public static tMaybe<tOut>
 	ElseTry<tOut>(

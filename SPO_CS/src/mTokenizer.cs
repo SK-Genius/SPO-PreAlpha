@@ -148,8 +148,8 @@ mTokenizer {
 		var Result = MaybeResult.ElseThrow(_ => _.ToText(aText.Split('\n')));
 		
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Row = Result.RemainingStream.ForceFirst().Span.Start.Row;
-			var Col = Result.RemainingStream.ForceFirst().Span.Start.Col;
+			var Row = Result.RemainingStream.TryFirst().Then(_ => _.Span.Start.Row).ElseThrow("");
+			var Col = Result.RemainingStream.TryFirst().Then(_ => _.Span.Start.Col).ElseThrow("");
 			var Line = aText.Split('\n')[Row];
 			var MarkerLine = mStream.Stream(
 				Line.ToCharArray()

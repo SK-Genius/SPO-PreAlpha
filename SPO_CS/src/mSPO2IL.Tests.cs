@@ -414,7 +414,7 @@ mSPO2IL_Tests {
 					a => aStreamOut(a())
 				);
 				
-				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge).ElseThrow();
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge);
 				
 				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2);
 				

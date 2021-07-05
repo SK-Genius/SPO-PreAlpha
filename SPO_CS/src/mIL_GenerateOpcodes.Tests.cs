@@ -154,17 +154,14 @@ mIL_GenerateOpcodes_Tests {
 			aDebugStream => {
 				var (Defs, DefLookup) = ParseModule(
 					"§TYPES\n" +
-					"	vec := [#VECTOR INT]\n" +
-					"	vec_ := [vec, EMPTY]\n" +
-					"	vec->vec := [vec_ => vec_]\n" +
-					"	Env := [EMPTY => vec->vec]\n" +					
-					"§DEF ...++ € Env\n" +
-					"	add := .ENV EMPTY\n" +
+					"	pre := [#PRE INT]\n" +
+					"	pre->pre := [pre => pre]\n" +
+					"	->pre->pre := [EMPTY => pre->pre]\n" +
+					"§DEF ...++ € ->pre->pre\n" +
 					"	_1 := 1\n" +
-					"	arg := -#VECTOR ARG\n" +
-					"	arg_1 := arg, _1\n" +
-					"	inc := .add arg_1\n" +
-					"	res := +#VECTOR inc\n" +
+					"	arg := -#PRE ARG\n" +
+					"	inc := §INT arg + _1\n" +
+					"	res := +#PRE inc\n" +
 					"	§RETURN res IF TRUE\n",
 					"",
 					a => aDebugStream(a())
@@ -184,12 +181,12 @@ mIL_GenerateOpcodes_Tests {
 				mVM.Run<tSpan>(
 					mVM_Data.Proc(Proc, Env),
 					mVM_Data.Empty(),
-					mVM_Data.Prefix("VECTOR", mVM_Data.Int(12)),
+					mVM_Data.Prefix("PRE", mVM_Data.Int(12)),
 					Res,
 					SpanToText,
 					TraceOut
 				);
-				mAssert.AreEquals(Res, mVM_Data.Prefix("VECTOR", mVM_Data.Int(13)));
+				mAssert.AreEquals(Res, mVM_Data.Prefix("PRE", mVM_Data.Int(13)));
 			}
 		),
 		mTest.Test(
@@ -198,22 +195,22 @@ mIL_GenerateOpcodes_Tests {
 				var (Defs, DefLookup) = ParseModule(
 					"§TYPES\n" +
 					"	IntInt := [INT, INT]\n" +
-					"	IntInt->Int := [IntInt => INT]\n" +
-					"	Env := [EMPTY => IntInt->Int]\n" +
-					"	Env->IntInt->Int := [Env => IntInt->Int]\n" +
-					"§DEF ...++ € Env->IntInt->Int\n" +
+					"	IntInt->Bool := [IntInt => BOOL]\n" +
+					"	Env := [EMPTY => IntInt->Bool]\n" +
+					"	Int->Bool := [INT => BOOL]\n" +
+					"	Env-->Int->Bool := [Env => Int->Bool]\n" +
+					"§DEF ...=1 € Env-->Int->Bool\n" +
 					"	...=...? := . ENV EMPTY\n" +
 					"	_1 := 1\n" + 
-					"	_1Empty := _1, EMPTY\n" + 
-					"	args := ARG, _1Empty\n" +
+					"	args := ARG, _1\n" +
 					"	arg_eq_1? := . ...=...? args\n" +
 					"	§ASSERT TRUE => arg_eq_1?\n" +
-					"	§RETURN arg_eq_1? IF TRUE",
+					"	§RETURN arg_eq_1? IF TRUE\n",
 					"",
 					a => aDebugStream(a())
 				);
 				
-				var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc = DefLookup.TryGet("...=1").ThenTry(Defs.TryGet).ElseThrow("");
 				var Env = mVM_Data.ExternDef(Eq);
 				var Res = mVM_Data.Empty();
 				
@@ -259,7 +256,25 @@ mIL_GenerateOpcodes_Tests {
 			"ParseModule",
 			aDebugStream => {
 				var (Defs, DefLookup) = ParseModule(
-					"§DEF bla\n" +
+					"§TYPES\n" +
+					"	IntInt := [INT, INT]\n" +
+					"	IntInt->Int := [IntInt => INT]\n" +
+					"	_IntInt->Int := [EMPTY => IntInt->Int]\n" +
+					"	IntInt->Bool := [IntInt => BOOL]\n" +
+					"	_IntInt->Bool := [EMPTY => IntInt->Bool]\n" +
+					"	T := [§FREE] \n" + // TODO: has to be a free type
+					"	IntT := [INT, T]\n" +
+					"	IntT->T := [IntT => T]\n" +
+					"	GenT := [§ALL T => IntT->T]\n" +
+					"	Env1 := [GenT, EMPTY]\n" +
+					"	Env2 := [_IntInt->Bool, Env1]\n" +
+					"	Env3 := [_IntInt->Int, Env2]\n" +
+					"	Env4 := [_IntInt->Int, Env3]\n" +
+					"	Env5 := [_IntInt->Int, Env4]\n" +
+					"	->Int := [EMPTY => INT]\n" +
+					"	tBla := [Env5 => ->Int]\n" +
+					"	t...! := [Env5 => GenT]\n" +
+					"§DEF bla € tBla\n" +
 					"	_1 := 1\n" +
 					"	add_ := §1ST ENV\n" +
 					
@@ -269,7 +284,7 @@ mIL_GenerateOpcodes_Tests {
 					"	r := .add p\n" +
 					"	§RETURN r IF TRUE\n" +
 					
-					"§DEF bla2\n" +
+					"§DEF bla2 € tBla\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +
@@ -291,7 +306,7 @@ mIL_GenerateOpcodes_Tests {
 					"	_12  := .mul _3_4\n" +
 					"	§RETURN _12 IF TRUE\n" +
 					
-					"§DEF ...!!\n" +
+					"§DEF ...!! € t...!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +
@@ -322,7 +337,7 @@ mIL_GenerateOpcodes_Tests {
 					"	newArg_newRes := newArg, newRes\n" +
 					"	§REPEAT newArg_newRes IF TRUE\n" +
 					
-					"§DEF ...!\n" +
+					"§DEF ...! € t...!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +

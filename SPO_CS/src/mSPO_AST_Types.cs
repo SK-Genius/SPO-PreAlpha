@@ -40,9 +40,13 @@ mSPO_AST_Types {
 			mSPO_AST.tFalseNode<tPos> _ => mResult.OK(mVM_Type.Bool()),
 			mSPO_AST.tIntNode<tPos> _ => mResult.OK(mVM_Type.Int()),
 			mSPO_AST.tIdentNode<tPos> Ident => (
+				Ident.Name == "_=..."
+			) ? (
+				mStd.Let(mVM_Type.Free(), FreeType => mResult.OK(mVM_Type.Proc(FreeType, FreeType, mVM_Type.Empty())))
+			) : (
 				aScope.Where(
 					_ => _.Ident == Ident.Name
-				).First(
+				).TryFirst(
 				).ElseFail(
 					() => $"No identifier '{Ident.Name}' in scope."
 				).Then(
@@ -440,7 +444,7 @@ mSPO_AST_Types {
 				foreach (var Item in RecLambdas.List) {
 					if (!NewScope.Where(
 						_ => _.Ident == Item.Ident.Name
-					).First(
+					).TryFirst(
 					).ElseFail(
 						() => ""
 					).Then(
@@ -508,7 +512,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tIdentNode<tPos> Ident: {
-				Result = aScope.Where(_ => _.Ident == Ident.Name).First(
+				Result = aScope.Where(_ => _.Ident == Ident.Name).TryFirst(
 				).ElseFail(
 					() => $"{Ident.Pos}: unknown type of identifier '{Ident.Name}'"
 				).Then(

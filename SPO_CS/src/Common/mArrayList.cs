@@ -21,6 +21,7 @@ using tText = System.String;
 
 [assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mArrayList)+"_Test")]
 
+//[System.Diagnostics.DebuggerStepThrough]
 public static class
 mArrayList {
 	
@@ -154,6 +155,11 @@ mArrayList {
 			_Items = Array
 		};
 	}
+	
+	public static mStream.tStream<t>?
+	ToLazyList<t>(
+		this tArrayList<t> aList
+	) => aList.ToLazyList(0);
 	
 	public static mStream.tStream<t>?
 	ToLazyList<t>(

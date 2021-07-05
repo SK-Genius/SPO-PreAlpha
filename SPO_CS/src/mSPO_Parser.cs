@@ -456,7 +456,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
-		mParserGen.Seq(Match, -Token("<=>"))[0..1].Modify(_ => _.First().ThenTry(__ => mMaybe.Some(__.Item1))),
+		mParserGen.Seq(Match, -Token("<=>"))[0..1].Modify(_ => _.TryFirst().ThenTry(__ => mMaybe.Some(__.Item1))),
 		Match,
 		-SpecialToken("=>"),
 		Expression
@@ -526,7 +526,7 @@ mSPO_Parser {
 	MethodCall = mParserGen.Seq(
 		Ident,
 		Infix(ExpressionInCall),
-		(-SpecialToken("=>") +Match)[0..1].Modify(aMatches => aMatches?.ForceFirst())
+		(-SpecialToken("=>") +Match)[0..1].Modify(aMatches => aMatches.TryFirst().ElseDefault())
 	)
 	.ModifyS(
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(

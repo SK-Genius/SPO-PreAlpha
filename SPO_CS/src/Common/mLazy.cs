@@ -17,6 +17,7 @@ using tInt64 = System.Int64;
 using tChar = System.Char;
 using tText = System.String;
 
+[System.Diagnostics.DebuggerStepThrough]
 public static class mLazy {
 	public sealed class
 	tLazy<t> {
@@ -50,6 +51,7 @@ public static class mLazy {
 		}
 		
 		public static implicit operator tLazy<t>(t a) => Lazy(() => a);
+		
 		public static implicit operator tLazy<t>(mStd.tFunc<t> a) => Lazy(a);
 	}
 	

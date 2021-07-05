@@ -119,22 +119,24 @@ mVM_Data {
 		public readonly mArrayList.tArrayList<tPos>
 			PosList = mArrayList.List<tPos>();
 		
-		public readonly mVM_Type.tType DefType = mVM_Type.Proc(
-			mVM_Type.Empty(),
-			mVM_Type.Free("§ENV"),
-			mVM_Type.Proc(
-				mVM_Type.Free("§OBJ"),
-				mVM_Type.Free("§ARG"),
-				mVM_Type.Free("§RES")
-			)
-		);
+		public readonly mVM_Type.tType DefType;
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
 		
 		public tInt32 _LastReg = cResReg;
 		
-		public string FirstPosText => "" + this.PosList.ToStream().First()._Value;
+		public string FirstPosText => "" + this.PosList.ToStream().TryFirst()._Value;
+		
+		public tProcDef(
+			mVM_Type.tType aDefType
+		) {
+			mAssert.IsTrue(aDefType.MatchProc(out var Empty, out var Env, out var Proc));
+			mAssert.AreEquals(Empty.Kind, mVM_Type.tKind.Empty);
+			mAssert.AreEquals(Proc.Kind, mVM_Type.tKind.Proc);
+			
+			this.DefType = aDefType;
+		}
 	}
 	
 	internal static void
