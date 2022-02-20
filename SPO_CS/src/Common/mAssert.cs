@@ -1,31 +1,16 @@
 ﻿//IMPORT mStd.cs
 //IMPORT mError.cs
+//IMPORT mMaybe.cs
 
 #nullable enable
 
-using System.Diagnostics.CodeAnalysis;
-
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mAssert {
 	
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	[DoesNotReturn]
 	public static void
 	Fail(
@@ -34,6 +19,7 @@ mAssert {
 		throw mError.Error(cErrorPrefix + (aMsg ?? $"Fail"));
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	IsTrue(
 		[DoesNotReturnIf(false)]tBool a,
@@ -44,6 +30,7 @@ mAssert {
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	IsFalse(
 		[DoesNotReturnIf(true)]tBool a,
@@ -52,6 +39,7 @@ mAssert {
 		IsTrue(!a, () => aMsg?.Invoke() ?? "is not false");
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	AreEquals<t>(
 		t a1,
@@ -99,6 +87,7 @@ mAssert {
 #endif
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	AreNotEquals<t>(
 		t a1,
@@ -108,6 +97,7 @@ mAssert {
 		return a1;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	IsNull<t>(
 		t a,
@@ -117,6 +107,7 @@ mAssert {
 		return a;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	IsNotNull<t>(
 		t a,
@@ -126,6 +117,7 @@ mAssert {
 		return a;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	IsIn<t>(
 		t a1,
@@ -140,6 +132,7 @@ mAssert {
 		return a1;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	IsNotIn<t>(
 		t a1,
@@ -151,6 +144,7 @@ mAssert {
 		return a1;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	[DoesNotReturn]
 	public static void
 	Impossible(
@@ -158,6 +152,7 @@ mAssert {
 		Fail("Impossible");
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	ThrowsError(
 		mStd.tAction a

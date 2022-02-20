@@ -5,21 +5,6 @@
 
 //#define MY_TRACE
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mIL_AST {
 	
@@ -34,7 +19,7 @@ mIL_AST {
 		tText Ident,
 		tText Type,
 		mStream.tStream<tCommandNode<tPos>>? Commands
-	) => new tDef<tPos>(Ident, Type, Commands);
+	) => new(Ident, Type, Commands);
 	
 	public record tModule<tPos>(
 		mStream.tStream<tCommandNode<tPos>>? TypeDef,
@@ -45,7 +30,7 @@ mIL_AST {
 	Module<tPos>(
 		mStream.tStream<tCommandNode<tPos>>? aTypeDef,
 		mStream.tStream<tDef<tPos>>? aDefs
-	) => new tModule<tPos>(aTypeDef, aDefs);
+	) => new(aTypeDef, aDefs);
 	
 	public enum
 	tCommandNodeType {
@@ -131,6 +116,11 @@ mIL_AST {
 		public mMaybe.tMaybe<tText> _3;
 	}
 	
+	public static tText
+	ToText<tPos>(
+		this tCommandNode<tPos> a
+	) => $"{a.Pos}: {a._1} = {a.NodeType} {a._2.Else("-")} {a._3.Else("-")}";
+		
 	public static mMaybe.tMaybe<tText>
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
@@ -187,7 +177,7 @@ mIL_AST {
 		tText a1,
 		mMaybe.tMaybe<tText> a2,
 		mMaybe.tMaybe<tText> a3
-	) => new tCommandNode<tPos>{
+	) => new() {
 		NodeType = aNodeType,
 		Pos = aPos,
 		_1 = a1,

@@ -6,21 +6,6 @@
 
 // TODO: create a function how generate a call stack output
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -55,7 +40,7 @@ mTextParser {
 			throw mError.Error(
 				$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 				$"{Line}\n" +
-				$"{Line.Substring(0, StartSpacesCount) + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
+				$"{Line[..StartSpacesCount] + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
 			);
 		}
 		return Result.Result;

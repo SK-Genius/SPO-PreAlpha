@@ -3,21 +3,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mParserGen_Tests {
 	
@@ -47,7 +32,7 @@ mParserGen_Tests {
 		foreach (var Message in aError) {
 			Result = mStream.Stream<(mStd.tEmpty Pos, tText Message)>(
 				(Pos: mStd.cEmpty, Message),
-				(mStream.tStream<(mStd.tEmpty Pos, tText Message)>?)Result
+				Result
 			);
 		}
 		return mResult.Fail(Result.Reverse());
@@ -346,7 +331,7 @@ mParserGen_Tests {
 				var __ = -_[0..];
 				
 				var Digit = CharIn("0123456789")
-				.Modify(aChar => (tInt32)aChar - (tInt32)'0');
+				.Modify(aChar => aChar - '0');
 				
 				var Nat = Digit[1..]
 				.Modify(aDigits => aDigits.Reduce(0, (aNat, aDigit) => aNat*10 + aDigit));

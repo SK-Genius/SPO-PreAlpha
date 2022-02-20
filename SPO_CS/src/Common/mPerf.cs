@@ -2,25 +2,10 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mPerf {
 	private const tInt32 cMaxLogCount = 1<<16;
@@ -31,6 +16,7 @@ mPerf {
 	
 	public sealed class
 	tDisposer : System.IDisposable {
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void
 		Dispose(
 		) {
@@ -38,8 +24,9 @@ mPerf {
 		}
 	}
 	
-	private static readonly tDisposer gDisposer = new tDisposer();
+	private static readonly tDisposer gDisposer = new();
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tDisposer
 	Measure(
 		[xCallerName] tText aCallerName = "",
@@ -49,6 +36,7 @@ mPerf {
 		return gDisposer;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	EnterScope(
 		tText aCallerName,
@@ -63,6 +51,7 @@ mPerf {
 	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
 	#endif
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	ExitScope(
 	) {
@@ -96,7 +85,7 @@ mPerf {
 		}
 	}
 	
-	[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+	[DllImport("kernel32.dll")]
 	private static extern bool
 	QueryThreadCycleTime(
 		System.IntPtr aThreadHandle,
@@ -105,6 +94,7 @@ mPerf {
 	
 	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private static tNat64
 	ThreadCycles(
 	) {

@@ -1,29 +1,15 @@
 #nullable enable
 
-using System.Diagnostics.CodeAnalysis;
-
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class mLazy {
+	[Pure]
+	[DebuggerStepThrough]
 	public sealed class
 	tLazy<t> {
 		private mStd.tFunc<t>? _Func;
 		private t _Value;
 		
+		[Pure]
 		public t Value {           
 			get {                     
 				if (this._Func is not null) {
@@ -34,6 +20,8 @@ public static class mLazy {
 			}
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal
 		tLazy(
 			t a
@@ -42,6 +30,8 @@ public static class mLazy {
 			this._Func = null;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal
 		tLazy(
 			mStd.tFunc<t> a
@@ -50,18 +40,26 @@ public static class mLazy {
 			this._Value = default!;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator tLazy<t>(t a) => Lazy(() => a);
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static implicit operator tLazy<t>(mStd.tFunc<t> a) => Lazy(a);
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tLazy<t>
 	NonLazy<t>(
 		t a
-	) => new tLazy<t>(a);
+	) => new(a);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tLazy<t>
 	Lazy<t>(
 		mStd.tFunc<t> a
-	) => new tLazy<t>(a);
+	) => new(a);
 }

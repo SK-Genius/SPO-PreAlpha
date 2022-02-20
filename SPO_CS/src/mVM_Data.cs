@@ -3,21 +3,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mVM_Data {
 	
@@ -611,7 +596,7 @@ mVM_Data {
 		tDataType aType,
 		tBool aIsMutable,
 		t aValue
-	) => new tData{
+	) => new() {
 		_DataType = aType,
 		_IsMutable = aIsMutable,
 		_Value = mAny.Any(aValue)
@@ -623,7 +608,7 @@ mVM_Data {
 		tBool aIsMutable,
 		t1 aValue1,
 		t2 aValue2
-	) => new tData{
+	) => new() {
 		_DataType = aType,
 		_IsMutable = aIsMutable,
 		_Value = mAny.Any((aValue1, aValue2))

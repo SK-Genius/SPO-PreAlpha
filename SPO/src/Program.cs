@@ -28,7 +28,7 @@ mProgram {
 			}
 		);
 		try {
-			var StdLib = mStdLib.GetImportData();
+			var StdLib = mStdLib.GetImportData(DebugOut);
 			
 			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),

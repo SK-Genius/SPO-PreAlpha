@@ -1,23 +1,9 @@
-﻿//IMPORT mError.cs
+﻿//IMPORT mAssert.cs
+//IMPORT mError.cs
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mAny {
 	public readonly struct
@@ -28,6 +14,8 @@ mAny {
 			this._Value = aValue;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public tBool
 		Equals(
 			tAny a
@@ -36,17 +24,23 @@ mAny {
 			this._Value.Equals(a._Value)
 		);
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override tBool
 		Equals(
 			object? a
 		) => a is tAny X && this.Equals(X);
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tAny
 	Any<t>(
 		t a
-	) => new tAny(a);
+	) => new(a);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static tBool
 	Match<t>(
 		this tAny a,
@@ -68,11 +62,15 @@ mAny {
 		}
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	internal static tBool
 	Match(
 		this tAny a
 	) => a._Value is null;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	To<t>(
 		this tAny a

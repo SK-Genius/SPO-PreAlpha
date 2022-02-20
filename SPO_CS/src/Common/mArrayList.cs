@@ -4,24 +4,9 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
+[assembly:InternalsVisibleTo(nameof(mArrayList)+"_Test")]
 
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[assembly:System.Runtime.CompilerServices.InternalsVisibleTo(nameof(mArrayList)+"_Test")]
-
-//[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mArrayList {
 	
@@ -30,6 +15,8 @@ mArrayList {
 		internal tInt32 _CurrSize;
 		internal t[] _Items = System.Array.Empty<t>();
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public tBool
 		Equals(
 			tArrayList<t> a
@@ -46,30 +33,39 @@ mArrayList {
 			return true;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tArrayList<t>)a!);
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	List<t>(
 		params t[] aArray
-	) => new tArrayList<t> {
+	) => new() {
 		_CurrSize = aArray.Length,
 		_Items = (t[])aArray.Clone()
 	};
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tInt32
 	Size<t>(
 		this tArrayList<t> aList
 	) => aList._CurrSize;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tBool
 	IsEmpty<t>(
 		this tArrayList<t> aList
 	) => aList.Size() == 0;
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private static void
 	Resize<t>(
 		this tArrayList<t> aList
@@ -79,6 +75,7 @@ mArrayList {
 		aList._Items = NewArray;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
@@ -92,6 +89,7 @@ mArrayList {
 		return aList;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
@@ -103,6 +101,7 @@ mArrayList {
 		return aList;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	Pop<t>(
 		this tArrayList<t> aList 
@@ -115,6 +114,7 @@ mArrayList {
 		return Item;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	Pop<t>(
 		this tArrayList<t> aList,
@@ -124,6 +124,8 @@ mArrayList {
 		return aList;
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	Get<t>(
 		this tArrayList<t> aList,
@@ -133,6 +135,7 @@ mArrayList {
 		return aList._Items[aIndex];
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void
 	Set<t>(
 		this tArrayList<t> aList,
@@ -142,6 +145,8 @@ mArrayList {
 		aList._Items[aIndex] = aValue;
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	Concat<t>(
 		tArrayList<t> a1,
@@ -156,13 +161,17 @@ mArrayList {
 		};
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static mStream.tStream<t>?
 	ToLazyList<t>(
 		this tArrayList<t> aList
-	) => aList.ToLazyList(0);
+	) => aList.ToStream(0);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static mStream.tStream<t>?
-	ToLazyList<t>(
+	ToStream<t>(
 		this tArrayList<t> aList,
 		tInt32 aStartIndex
 	) => (
@@ -170,20 +179,26 @@ mArrayList {
 		? mStream.Stream<t>()
 		: mStream.Stream(
 			aList._Items[aStartIndex],
-			() => aList.ToLazyList(aStartIndex + 1)
+			() => aList.ToStream(aStartIndex + 1)
 		)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static mStream.tStream<t>?
 	ToStream<t>(
 		this tArrayList<t> aList
-	) => aList.ToLazyList(0);
+	) => aList.ToStream(0);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tArrayList<t>
 	ToArrayList<t>(
 		this mStream.tStream<t>? aList
 	) => aList.Reduce(List<t>(), Push);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t[]
 	ToArray<t>(
 		this tArrayList<t> a

@@ -2,28 +2,11 @@
 
 #nullable enable
 
-using System.Runtime.CompilerServices;
-
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mTest {
 	
-	[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+	[DllImport("kernel32.dll")]
 	private static extern bool
 	QueryThreadCycleTime(
 		System.IntPtr aThreadHandle,

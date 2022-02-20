@@ -4,32 +4,20 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mMaybe {
 	
-	[System.Diagnostics.DebuggerDisplay("{_HasValue ? \"Some: \"+_Value : \"None\"}")]
+	[DebuggerStepThrough]
+	[DebuggerDisplay("{_HasValue ? \"Some: \"+_Value : \"None\"}")]
 	public readonly struct
 	tMaybe<t> {
 		
 		internal readonly tBool _HasValue;
 		internal readonly t _Value;
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal tMaybe(
 			tBool aHasValue,
 			t aValue
@@ -38,21 +26,36 @@ mMaybe {
 			this._Value = aValue;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static
 		implicit operator tMaybe<t>(
 			mStd.tEmpty _
-		) => new tMaybe<t>(false, default!);
+		) => new(false, default!);
+		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static
+		implicit operator tMaybe<t>(
+			t a
+		) => Some(a);
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMaybe<t>
 	Some<t>(
 		t a
-	) => new tMaybe<t>(true, a);
+	) => new(true, a);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMaybe<t>
 	None<t>(
 	) => mStd.cEmpty;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tBool
 	IsSome<t>(
 		this tMaybe<t> a,
@@ -67,11 +70,15 @@ mMaybe {
 		}
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tBool
 	IsNone<t>(
 		this tMaybe<t> a
 	) => !a._HasValue;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tOut
 	Match<tIn, tOut>( // nice but slow
 		this tMaybe<tIn> a,
@@ -83,41 +90,55 @@ mMaybe {
 		: None()
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMaybe<tOut>
 	Then<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tOut, tIn> aMap
 	) => a.IsSome(out var Value) ? Some(aMap(Value)) : mStd.cEmpty;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMaybe<tOut>
 	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tMaybe<tOut>, tIn> aMap
 	) => a.IsSome(out var Value) ? aMap(Value) : mStd.cEmpty;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tOut
 	Else<tOut>(
 		this tMaybe<tOut> a,
 		mStd.tFunc<tOut> aElse
 	) => a.IsSome(out var Value) ? Value : aElse();
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tOut
 	Else<tOut>(
 		this tMaybe<tOut> a,
 		mLazy.tLazy<tOut> aElse
 	) => a.IsSome(out var Value) ? Value : aElse.Value;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tOut
 	ElseDefault<tOut>(
 		this tMaybe<tOut> a
 	) => a.IsSome(out var Value) ? Value : default;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMaybe<tOut>
 	ElseTry<tOut>(
 		this tMaybe<tOut> a,
 		mLazy.tLazy<tMaybe<tOut>> aElse
 	) => a.IsSome(out var _) ? a : aElse.Value;
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,

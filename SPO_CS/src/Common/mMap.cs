@@ -3,22 +3,7 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mMap {
 	
@@ -27,6 +12,8 @@ mMap {
 		internal readonly mStream.tStream<(tKey, tValue)>? _KeyValuePairs;
 		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal tMap(
 			mStream.tStream<(tKey, tValue)>? aKeyValuePairs,
 			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
@@ -36,50 +23,60 @@ mMap {
 		}
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMap<tKey, tValue>
 	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
-	) => new tMap<tKey, tValue>(
+	) => new(
 		aKeyValuePairs: mStream.Stream<(tKey, tValue)>(),
 		aEqualsFunc: aEqualsFunc
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static mMaybe.tMaybe<tValue>
-	Get<tKey, tValue>(
+	TryGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
 	) {
 		foreach (var (Key, Value) in aMap._KeyValuePairs) {
 			if (aMap._EqualsFunc(Key, aKey)) {
-				return mMaybe.Some(Value);
+				return Value;
 			}
 		}
 		return mStd.cEmpty;
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tValue
 	ForceGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	) => aMap.Get(aKey).ElseThrow("impossible");
+	) => aMap.TryGet(aKey).ElseThrow("impossible");
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMap<tKey, tValue>
 	Remove<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey
-	) => new tMap<tKey, tValue>(
+	) => new(
 		aEqualsFunc: aMap._EqualsFunc,
 		aKeyValuePairs: aMap._KeyValuePairs.Where(
 			((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 		)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tMap<tKey, tValue>
 	Set<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
 		tKey aKey,
 		tValue aValue
-	) => new tMap<tKey, tValue>(
+	) => new(
 		aEqualsFunc: aMap._EqualsFunc,
 		aKeyValuePairs: mStream.Stream(
 			(aKey, aValue),

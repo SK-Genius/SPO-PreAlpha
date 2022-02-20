@@ -4,21 +4,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mVM {
 	
@@ -74,7 +59,7 @@ mVM {
 		aTraceOut(() => "10 := ARG  |  "+aArg.ToText(20));
 		aTraceOut(() => "11 := RES");
 		
-		return mMaybe.Some(Result);
+		return Result;
 	}
 	
 	public static mMaybe.tMaybe<tCallStack<tPos>>
@@ -360,7 +345,7 @@ mVM {
 						var Res = mVM_Data.Empty();
 						aCallStack._Regs.Push(Res);
 						return NewCallStack(
-							mMaybe.Some(aCallStack),
+							aCallStack,
 							Def_,
 							Env,
 							mVM_Data.Empty(),
@@ -399,7 +384,7 @@ mVM {
 					case 0 when Proc.MatchProc<tPos>(out var Def, out var Env): {
 						var Res = mVM_Data.Empty();
 						aCallStack._Regs.Push(Res);
-						return NewCallStack(mMaybe.Some(aCallStack), Def, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+						return NewCallStack(aCallStack, Def, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 					}
 					default: {
 						throw mError.Error("impossible");
@@ -507,7 +492,7 @@ mVM {
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
-		return mMaybe.Some(aCallStack);
+		return aCallStack;
 	}
 	
 	public static mVM_Data.tData

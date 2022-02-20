@@ -3,55 +3,50 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mResult {
+	[DebuggerStepThrough]
 	public readonly struct
 	tResultFail<tError> {
 		internal readonly tError _Error;
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal tResultFail(
 			tError aError
 		) {
 			this._Error = aError;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public tResult<tOK, tError>
 		AsResult<tOK>(
 		) => this;
 	}
 	
+	[DebuggerStepThrough]
 	public readonly struct
 	tResultOK<tOK> {
 		internal readonly tOK _Value;
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal tResultOK(
 			tOK aValue
 		) {
 			this._Value = aValue;
 		}
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public tResult<tOK, tError>
 		AsResult<tError>(
 		) => this;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay("{_IsOK ? \"Value: \"+_Value : \"Error: \"+_Error}")]
+	[DebuggerStepThrough]
+	[DebuggerDisplay("{_IsOK ? \"Value: \"+_Value : \"Error: \"+_Error}")]
 	public struct
 	tResult<tOK, tError> {
 		
@@ -59,37 +54,49 @@ mResult {
 		internal tOK _Value;
 		internal tError _Error;
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static
 		implicit operator tResult<tOK, tError>(
 			tResultOK<tOK> aOK
-		) => new tResult<tOK, tError> {
+		) => new() {
 			_IsOK = true,
 			_Value = aOK._Value
 		};
 		
+		[Pure]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static
 		implicit operator tResult<tOK, tError>(
 			tResultFail<tError> aFail
-		) => new tResult<tOK, tError> {
+		) => new() {
 			_IsOK = false,
 			_Error = aFail._Error
 		};
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResultOK<tOK>
 	OK<tOK>(
 		tOK a
-	) => new tResultOK<tOK>(a);
+	) => new(a);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResultFail<tError>
 	Fail<tError>(
 		tError aError
-	) => new tResultFail<tError>(aError);
+	) => new(aError);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResultFail<mStd.tEmpty>
 	Fail(
-	) => new tResultFail<mStd.tEmpty>(mStd.cEmpty);
+	) => new(mStd.cEmpty);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tBool
 	Match<t, tFail>(
 		this tResult<t, tFail> a,
@@ -101,6 +108,8 @@ mResult {
 		return a._IsOK;
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tBool
 	Match<t>(
 		this tResult<t, mStd.tEmpty> a,
@@ -110,12 +119,16 @@ mResult {
 		return a._IsOK;
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
 		mStd.tFunc<tResult<tOut, tError>, tIn> aMod
 	) => a.Match(out var Value, out var Error) ? aMod(Value) : Fail(Error);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<tOut, tError>
 	WhenAllThen<tIn, tOut, tError>(
 		this mStream.tStream<tResult<tIn, tError>>? aResults,
@@ -132,6 +145,8 @@ mResult {
 		return OK(aOnSucceed(List.Reverse()));
 	}
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
@@ -142,6 +157,8 @@ mResult {
 		: Fail(Error)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> a,
@@ -152,6 +169,9 @@ mResult {
 		: Fail(Error)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[DebuggerStepThrough]
 	public static tResult<t, tError>
 	ThenDo<t, tError>(
 		this tResult<t, tError> a,
@@ -163,6 +183,8 @@ mResult {
 		}
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<t, tError>
 	ThenAssert<t, tError>(
 		this tResult<t, tError> a,
@@ -172,6 +194,8 @@ mResult {
 		_ => aCond(_) ? (tResult<t, tError>)OK(_) : Fail(aOnFail(_))
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	Else<t, tError>(
 		this tResult<t, tError> a,
@@ -182,6 +206,8 @@ mResult {
 		: aOnError(Error)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<t, tError>
 	ElseTry<t, tError>(
 		this tResult<t, tError> a,
@@ -192,6 +218,8 @@ mResult {
 		: aOnError(Error)
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tResult<t, tError>
 	ElseFail<t, tError>(
 		this mMaybe.tMaybe<t> a,
@@ -201,6 +229,8 @@ mResult {
 		None: () => Fail(aOnFail())
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	ElseThrow<t, tError>(
 		this tResult<t, tError> a,
@@ -211,12 +241,16 @@ mResult {
 		: throw mError.Error(aModifyError(Error))
 	);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	ElseThrow<t, tError>(
 		this tResult<t, tError> a,
 		tText aErrorMsg
 	) => a.ElseThrow(_ => aErrorMsg);
 	
+	[Pure]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static t
 	ElseThrow<t>(
 		this tResult<t, tText> a

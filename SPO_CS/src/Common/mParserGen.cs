@@ -10,23 +10,9 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
 using System;
 
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mParserGen {
 	#region Helper
@@ -54,7 +40,7 @@ mParserGen {
 		(mSpan.tSpan<tPos> Span, tOut Value) aResult,
 		mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)>? aRemainingStream,
 		mStream.tStream<(tPos Pos, tError Message)>? aMaybeError
-	) => new tParserResult<tPos, tIn, tOut, tError>(
+	) => new(
 		aResult,
 		aRemainingStream,
 		aMaybeError
@@ -642,7 +628,7 @@ mParserGen {
 	public static tParser<tPos, tIn, tOut, tError>
 	UndefParser<tPos, tIn, tOut, tError>(
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
-	) => new tParser<tPos, tIn, tOut, tError>(aComparePos);
+	) => new(aComparePos);
 	
 	public static void
 	Def<tPos, tIn, tOut, tError>(
@@ -744,7 +730,7 @@ mParserGen {
 		mStd.tFunc<tBool, t> aTest,
 		mStd.tFunc<(tPos Pos, tError Message), (mSpan.tSpan<tPos> Span, t Value)> aCreateErrorFunc,
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
-	) => new tParser<tPos, t, t, tError>(aComparePos){
+	) => new(aComparePos){
 		_ParseFunc = (aStream, aDebugStream, aPath) => (
 			aStream.Match(out var Head, out var Tail) && aTest(Head.Value)
 			? mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>()))
@@ -756,7 +742,7 @@ mParserGen {
 	public static tParser<tPos, tIn, mStd.tEmpty, tError>
 	EmptyParser<tPos, tIn, tError>(
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
-	) => new tParser<tPos, tIn, mStd.tEmpty, tError>(aComparePos){
+	) => new(aComparePos){
 		_ParseFunc = (aStream, aDebugStream, aPath) => mResult.OK(
 			ParserResult(
 				(

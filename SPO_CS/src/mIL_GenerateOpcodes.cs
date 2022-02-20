@@ -6,25 +6,14 @@
 
 #nullable enable
 
-//#define MY_TRACE
-
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
+#define noMY_TRACE
 
 public static class
 mIL_GenerateOpcodes {
+	public static readonly tText cEmptyType = "EMPTY";
+	public static readonly tText cBoolType = "BOOL";
+	public static readonly tText cIntType = "INT";
+	public static readonly tText cAnyType = "ANY";
 	
 	public static (
 		mStream.tStream<mVM_Data.tProcDef<tPos>>?,
@@ -42,10 +31,10 @@ mIL_GenerateOpcodes {
 		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
 		
 		var TypeMap = mTreeMap.Tree<tText, tInt32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
-		.Set("EMPTY", 0)
-		.Set("ANY", 1)
-		.Set("BOOL", 2)
-		.Set("INT", 3);
+		.Set(cEmptyType, 0)
+		.Set(cAnyType, 1)
+		.Set(cBoolType, 2)
+		.Set(cIntType, 3);
 		
 		var Types_ = mStream.Stream<mVM_Type.tType>(
 			mVM_Type.Empty(),
@@ -57,8 +46,8 @@ mIL_GenerateOpcodes {
 		var NextTypeIndex = Types_.Reduce(0, (a, _) => a + 1);
 		foreach (var TypeDef in aModule.TypeDef) {
 			if (
-				TypeDef.NodeType < mIL_AST.tCommandNodeType._BeginTypes_ ||
-				TypeDef.NodeType >= mIL_AST.tCommandNodeType._EndTypes_
+				TypeDef.NodeType is < mIL_AST.tCommandNodeType._BeginTypes_ or
+				>= mIL_AST.tCommandNodeType._EndTypes_
 			) {
 				throw mError.Error($"{TypeDef.NodeType} is not a Type Command");
 			}
@@ -115,6 +104,7 @@ mIL_GenerateOpcodes {
 		}
 		
 		foreach (var (DefName, TypeName, Commands) in aModule.Defs) {
+			aTrace(() => "§DEF " + DefName);
 			// TODO: set type if it known
 			var NextIndex = Module.Reduce(0, (aSum, _) => aSum + 1);
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
@@ -164,6 +154,13 @@ mIL_GenerateOpcodes {
 			.Push(DefResType);
 			
 			foreach (var Command in Commands) {
+				//aTrace(() => Command.ToText());
+				//aTrace(
+				//	() => ("  :: " +
+				//		Command._2.ThenTry(Reg => Regs.TryGet(Reg)).Then(_ => Types.Get(_).ToText(10)).Else("") + " ; " + 
+				//		Command._3.ThenTry(Reg => Regs.TryGet(Reg)).Then(_ => Types.Get(_).ToText(10)).Else("")
+				//	)
+				//);
 				switch (0) {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.CallFunc, out var Span, out var RegId1, out var RegId2, out var RegId3): {
@@ -356,7 +353,8 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.First, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(Types.Get(ArgReg).MatchPair(out var ResType, out var __));
+						var ArgType = Types.Get(ArgReg);
+						mAssert.IsTrue(ArgType.MatchPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText(10)}");
 						Regs = Regs.Set(RegId1, NewProc.First(Span, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -365,7 +363,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.Second, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.TryGet(RegId2).ElseThrow("");
-						mAssert.IsTrue(Types.Get(ArgReg).MatchPair(out var ResType, out  var __));
+						mAssert.IsTrue(Types.Get(ArgReg).MatchPair(out var _, out  var ResType));
 						Regs = Regs.Set(RegId1, NewProc.Second(Span, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -699,12 +697,13 @@ mIL_GenerateOpcodes {
 						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 				}
+				//aTrace(() => "  => " + Regs.TryGet(Command._1).Then(_ => Types.Get(_).ToText(10)).Else("???"));
 				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
 		}
 #if MY_TRACE
-		PrintILModule(aDefs, Module, a => { aTrace(() => a); });
+		//PrintILModule(aDefs, Module, a => { aTrace(() => a); });
 #endif
 
 #if !true

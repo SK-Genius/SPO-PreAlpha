@@ -7,24 +7,9 @@
 //IMPORT mMaybe.cs
 //IMPORT mAssert.cs
 
+using System;
+
 #nullable enable
-
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
-// TODO: maybe use nested functions to cleanup ???
 
 public static class
 mSPO2IL {
@@ -50,7 +35,7 @@ mSPO2IL {
 	public static tModuleConstructor<tPos>
 	NewModuleConstructor<tPos>(
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
-	) => new tModuleConstructor<tPos> {
+	) => new() {
 		Defs = mArrayList.List<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
 		TypeDef = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
 		MergePos = aMergePos,
@@ -123,7 +108,9 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
 	) {
-		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg, mStd.cEmpty);
+		aDefConstructor.Type = aDefConstructor.ModuleConstructor.MapType(aLambdaNode.TypeAnnotation.ElseThrow(""));
+		
+		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg);
 		var ResultReg = aDefConstructor.MapExpresion(aLambdaNode.Body);
 		if (aLambdaNode.Body is not mSPO_AST.tBlockNode<tPos>) {
 			aDefConstructor.Commands.Push(
@@ -142,8 +129,8 @@ mSPO2IL {
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	) {
-		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg, mStd.cEmpty);
-		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj, mStd.cEmpty);
+		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg);
+		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj);
 		
 		var ResultReg = aDefConstructor.MapExpresion(aMethodNode.Body);
 		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aMethodNode.Pos, ResultReg, mIL_AST.cTrue));
@@ -177,7 +164,7 @@ mSPO2IL {
 		);
 	}
 	
-	public static (tInt32, mArrayList.tArrayList<(tText Ident, tPos Pos)>)
+	public static (tInt32 Index, mArrayList.tArrayList<(tText Ident, tPos Pos)> UnsolvedSymbols)
 	MapLambda<tPos>(
 		this ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
@@ -400,7 +387,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
 			//--------------------------------------------------------------------------------
-				var(NewDefIndex, UnsolvedSymbols) = aDefConstructor.ModuleConstructor.MapLambda(
+				var (NewDefIndex, UnsolvedSymbols) = aDefConstructor.ModuleConstructor.MapLambda(
 					LambdaNode
 				);
 				return aDefConstructor.InitProc(
@@ -412,7 +399,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
 			//--------------------------------------------------------------------------------
-				var(NewDefIndex, UnsolvedSymbols) = aDefConstructor.ModuleConstructor.MapMethod(
+				var (NewDefIndex, UnsolvedSymbols) = aDefConstructor.ModuleConstructor.MapMethod(
 					MethodNode
 				);
 				return aDefConstructor.InitProc(
@@ -492,7 +479,7 @@ mSPO2IL {
 					SwitchDef.Commands.Push(mIL_AST.CallFunc(CasePos, TestResult, TestProc, mIL_AST.cArg));
 					
 					var RunDef = ModuleConstructor.NewDefConstructor();
-					RunDef.MapMatch(Match, mIL_AST.cArg, mStd.cEmpty);
+					RunDef.MapMatch(Match, mIL_AST.cArg);
 					var Result = RunDef.MapExpresion(Expression);
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, Result, mIL_AST.cTrue));
 					RunDef.FinishMapProc(CasePos, RunDef.UnsolvedSymbols);
@@ -687,8 +674,7 @@ mSPO2IL {
 	MapMatch<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMatchNode<tPos> aMatchNode,
-		tText aReg,
-		mMaybe.tMaybe<mVM_Type.tType> aRegType
+		tText aReg
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.Type;
@@ -726,8 +712,7 @@ mSPO2IL {
 				);
 				aDefConstructor.MapMatch(
 					Match,
-					ResultReg,
-					mStd.cEmpty
+					ResultReg
 				);
 				break;
 			}
@@ -739,7 +724,7 @@ mSPO2IL {
 					
 					var Reg = aReg;
 					var Found = false;
-					var RecType = aRegType.ElseThrow("");
+					var RecType = TypeAnnotation.ElseThrow("");
 					while (RecType.MatchRecord(out var HeadKey, out var HeadType, out RecType!)) {
 						var HeadTailReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
@@ -748,7 +733,7 @@ mSPO2IL {
 							aDefConstructor.Commands.Push(mIL_AST.GetSecond(Pos, TempValueReg_, HeadTailReg));
 							var TempValueReg = aDefConstructor.CreateTempReg();
 							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, Key.Name, TempValueReg_));
-							aDefConstructor.MapMatch(Match, TempValueReg, mStd.cEmpty);
+							aDefConstructor.MapMatch(Match, TempValueReg);
 							Found = true;
 							break;
 						} else {
@@ -758,7 +743,7 @@ mSPO2IL {
 					}
 					
 					if (!Found) {
-						throw mError.Error($"{Pos} ERROR: can't match type '{aRegType}' to type'{TypeAnnotation}'");
+						throw mError.Error($"{Pos} ERROR: can't match type '{TypeAnnotation}'");
 					}
 				}
 				break;
@@ -772,7 +757,7 @@ mSPO2IL {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Item.Pos, ItemReg, RestReg));
 					
-					aDefConstructor.MapMatch(Item, ItemReg, Item.TypeAnnotation);
+					aDefConstructor.MapMatch(Item, ItemReg);
 					
 					var NewRestReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetSecond(Item.Pos, NewRestReg, RestReg));
@@ -784,19 +769,18 @@ mSPO2IL {
 			case mSPO_AST.tMatchGuardNode<tPos>{ Match: var Match, Guard: var Guard }: {
 			//--------------------------------------------------------------------------------
 				// TODO: ASSERT Guard
-				aDefConstructor.MapMatch(Match, aReg, mStd.cEmpty);
+				aDefConstructor.MapMatch(Match, aReg);
 				break;
 			}
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 			//--------------------------------------------------------------------------------
 				if (!TypeNode.IsSome(out var TypeNode_)) {
-					aDefConstructor.MapMatch(MatchNode, aReg, mStd.cEmpty);
+					aDefConstructor.MapMatch(MatchNode, aReg);
 				} else if (!MatchNode.Type.IsSome(out var MatchTypeNode)) {
 					aDefConstructor.MapMatch(
 						mSPO_AST.Match(MatchNode.Pos, MatchNode.Pattern, TypeNode),
-						aReg,
-						mStd.cEmpty
+						aReg
 					);
 				} else {
 					throw mError.Error("not implemented"); //TODO: Unify MatchTypeNode & TypeNode_
@@ -918,7 +902,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 			//--------------------------------------------------------------------------------
-				aDefConstructor.MapMatch(MatchNode, aInReg, mStd.cEmpty);
+				aDefConstructor.MapMatch(MatchNode, aInReg);
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -938,7 +922,7 @@ mSPO2IL {
 		mSPO_AST.tDefNode<tPos> aDefNode
 	) {
 		var ValueReg = aDefConstructor.MapExpresion(aDefNode.Src);
-		aDefConstructor.MapMatch(aDefNode.Des, ValueReg, aDefNode.Src.TypeAnnotation);
+		aDefConstructor.MapMatch(aDefNode.Des, ValueReg);
 	}
 	
 	public static void
@@ -1080,7 +1064,7 @@ mSPO2IL {
 				mIL_AST.CallProc(aMethodCallsNode.Pos, Result, MethodReg, Arg)
 			);
 			if (Call.Result.IsSome(out var Result_)) {
-				aDefConstructor.MapMatch(Result_, Result, mStd.cEmpty);
+				aDefConstructor.MapMatch(Result_, Result);
 			}
 			
 			var KnownSymbols = aDefConstructor.KnownSymbols.ToStream();
@@ -1178,6 +1162,9 @@ mSPO2IL {
 			DefSymbols.Push((TempDef(I), aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)));
 		}
 		TempLambdaDef.FinishMapProc(aModuleNode.Pos, DefSymbols);
+		
+		
+		// TODO: Defs needs Types
 		
 		return ModuleConstructor;
 	}

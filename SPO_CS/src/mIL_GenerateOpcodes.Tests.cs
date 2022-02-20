@@ -6,21 +6,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -33,7 +18,7 @@ mIL_GenerateOpcodes_Tests {
 	) => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>? Defs, mTreeMap.tTree<tText, tInt32> DefLookup)
-	ParseModule(
+	CompileModule(
 		tText aSourceCode,
 		tText aIdent,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
@@ -113,7 +98,7 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Call",
 			aDebugStream => {
-				var (Defs, DefLookup) = ParseModule(
+				var (Defs, DefLookup) = CompileModule(
 					"§TYPES\n" +
 					"	Int->Int := [INT => INT]\n" +
 					"	Env->Int->Int := [Int->Int => Int->Int]\n" +
@@ -152,7 +137,7 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Prefix",
 			aDebugStream => {
-				var (Defs, DefLookup) = ParseModule(
+				var (Defs, DefLookup) = CompileModule(
 					"§TYPES\n" +
 					"	pre := [#PRE INT]\n" +
 					"	pre->pre := [pre => pre]\n" +
@@ -192,7 +177,7 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"Assert",
 			aDebugStream => {
-				var (Defs, DefLookup) = ParseModule(
+				var (Defs, DefLookup) = CompileModule(
 					"§TYPES\n" +
 					"	IntInt := [INT, INT]\n" +
 					"	IntInt->Bool := [IntInt => BOOL]\n" +
@@ -255,39 +240,42 @@ mIL_GenerateOpcodes_Tests {
 		mTest.Test(
 			"ParseModule",
 			aDebugStream => {
-				var (Defs, DefLookup) = ParseModule(
+				var (Defs, DefLookup) = CompileModule(
 					"§TYPES\n" +
 					"	IntInt := [INT, INT]\n" +
 					"	IntInt->Int := [IntInt => INT]\n" +
 					"	_IntInt->Int := [EMPTY => IntInt->Int]\n" +
 					"	IntInt->Bool := [IntInt => BOOL]\n" +
 					"	_IntInt->Bool := [EMPTY => IntInt->Bool]\n" +
-					"	T := [§FREE] \n" + // TODO: has to be a free type
-					"	IntT := [INT, T]\n" +
-					"	IntT->T := [IntT => T]\n" +
-					"	GenT := [§ALL T => IntT->T]\n" +
-					"	Env1 := [GenT, EMPTY]\n" +
-					"	Env2 := [_IntInt->Bool, Env1]\n" +
-					"	Env3 := [_IntInt->Int, Env2]\n" +
-					"	Env4 := [_IntInt->Int, Env3]\n" +
-					"	Env5 := [_IntInt->Int, Env4]\n" +
+					"	Env1 := [_IntInt->Bool, EMPTY]\n" + // eq
+					"	Env2 := [_IntInt->Int, Env1]\n" + // mul
+					"	Env3 := [_IntInt->Int, Env2]\n" + // sub
+					"	Env4 := [_IntInt->Int, Env3]\n" + // add
+					"	t...!! := [Env4 => IntInt->Int]\n" +
+					"	Env5 := [t...!!, Env4]\n" + // ...!!
 					"	->Int := [EMPTY => INT]\n" +
 					"	tBla := [Env5 => ->Int]\n" +
-					"	t...! := [Env5 => GenT]\n" +
+					"	Int->Int := [INT => INT]\n" +
+					"	t...! := [Env5 => Int->Int]\n" +
+					
+					
 					"§DEF bla € tBla\n" +
 					"	_1 := 1\n" +
-					"	add_ := §1ST ENV\n" +
-					
+					"	rest0 := §2ND ENV\n" +
+					"	add_ := §1ST rest0\n" +
+
 					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
 					
 					"	p := _1, _1\n" +
 					"	r := .add p\n" +
 					"	§RETURN r IF TRUE\n" +
 					
+					
 					"§DEF bla2 € tBla\n" +
 					"	_1 := 1\n" +
-					"	add_  := §1ST ENV\n" +
-					"	rest1 := §2ND ENV\n" +
+					"	rest0  := §2ND ENV\n" +
+					"	add_  := §1ST rest0\n" +
+					"	rest1 := §2ND rest0\n" +
 					"	sub_  := §1ST rest1\n" +
 					"	rest2 := §2ND rest1\n" +
 					"	mul_  := §1ST rest2\n" +
@@ -306,7 +294,8 @@ mIL_GenerateOpcodes_Tests {
 					"	_12  := .mul _3_4\n" +
 					"	§RETURN _12 IF TRUE\n" +
 					
-					"§DEF ...!! € t...!\n" +
+					
+					"§DEF ...!! € t...!!\n" +
 					"	_1 := 1\n" +
 					"	add_  := §1ST ENV\n" +
 					"	rest1 := §2ND ENV\n" +
@@ -327,8 +316,8 @@ mIL_GenerateOpcodes_Tests {
 					"	arg    := §1ST ARG\n" +
 					"	res    := §2ND ARG\n" +
 					"	arg_0  := arg, _0\n" +
-					"	areEq0 := .eq arg_0\n" +
-					"	§RETURN res IF areEq0\n" +
+					"	arg=0 := .eq arg_0\n" +
+					"	§RETURN res IF arg=0\n" +
 					
 					"	res_arg := res, arg\n" +
 					"	newRes  := .mul res_arg\n" +
@@ -337,19 +326,21 @@ mIL_GenerateOpcodes_Tests {
 					"	newArg_newRes := newArg, newRes\n" +
 					"	§REPEAT newArg_newRes IF TRUE\n" +
 					
+					
 					"§DEF ...! € t...!\n" +
 					"	_1 := 1\n" +
-					"	add_  := §1ST ENV\n" +
-					"	rest1 := §2ND ENV\n" +
+					"	...!!_ := §1ST ENV\n" +
+					"	rest0  := §2ND ENV\n" +
+					"	add_  := §1ST rest0\n" +
+					"	rest1 := §2ND rest0\n" +
 					"	sub_  := §1ST rest1\n" +
 					"	rest2 := §2ND rest1\n" +
 					"	mul_  := §1ST rest2\n" +
 					"	rest3 := §2ND rest2\n" +
 					"	eq_   := §1ST rest3\n" +
 					"	rest4 := §2ND rest3\n" +
-					"	...!!_ := §1ST rest4\n" +
-					"	...!! := . ...!!_ ENV\n" +
 					
+					"	...!! := . ...!!_ rest0\n" +
 					"	arg_1 := ARG, _1\n" +
 					"	res   := . ...!! arg_1\n" +
 					"	§RETURN res IF TRUE\n",
@@ -361,20 +352,26 @@ mIL_GenerateOpcodes_Tests {
 				var Proc2 = DefLookup.TryGet("bla2").ThenTry(Defs.TryGet).ElseThrow("");
 				var Proc3 = DefLookup.TryGet("...!!").ThenTry(Defs.TryGet).ElseThrow("");
 				var Proc4 = DefLookup.TryGet("...!").ThenTry(Defs.TryGet).ElseThrow("");
-				
+
 				var Env = mVM_Data.Tuple(
+					mVM_Data.Def(Proc3),
 					mVM_Data.ExternDef(Add),
 					mVM_Data.ExternDef(Sub),
 					mVM_Data.ExternDef(Mul),
-					mVM_Data.ExternDef(Eq),
-					mVM_Data.Def(Proc3)
+					mVM_Data.ExternDef(Eq)
 				);
-				#if MY_TRACE
+				var Env_ = mVM_Data.Tuple(
+					mVM_Data.ExternDef(Add),
+					mVM_Data.ExternDef(Sub),
+					mVM_Data.ExternDef(Mul),
+					mVM_Data.ExternDef(Eq)
+				);
+#if MY_TRACE
 					var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
 					);
-				#else
-					var TraceOut = mStd.Action(
+#else
+				var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> _) => {}
 					);
 				#endif
@@ -405,7 +402,7 @@ mIL_GenerateOpcodes_Tests {
 				{
 					var Res = mVM_Data.Empty();
 					mVM.Run<tSpan>(
-						mVM_Data.Proc(Proc3, Env),
+						mVM_Data.Proc(Proc3, Env_),
 						mVM_Data.Empty(),
 						mVM_Data.Pair(mVM_Data.Int(3), mVM_Data.Int(1)),
 						Res,

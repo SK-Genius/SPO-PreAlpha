@@ -2,24 +2,9 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tError = System.String;
 
-[System.Diagnostics.DebuggerStepThrough]
+[DebuggerStepThrough]
 public static class
 mTextStream {
 	
@@ -39,7 +24,7 @@ mTextStream {
 		tText aIdent,
 		tInt32 aRow,
 		tInt32 aCol
-	) => new tPos {
+	) => new() {
 		Ident = aIdent,
 		Row = aRow,
 		Col = aCol

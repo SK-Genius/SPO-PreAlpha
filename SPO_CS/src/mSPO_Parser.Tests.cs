@@ -3,21 +3,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -220,7 +205,7 @@ mSPO_Parser_Tests {
 									mSPO_AST.Ident(Span((1, 2), (1, 2)), "x"),
 									mStd.cEmpty
 								),
-								mMaybe.Some((mSPO_AST.tExpressionNode<tSpan>)mSPO_AST.Ident(Span((1, 6), (1, 11)), "MyType"))
+								mSPO_AST.Ident(Span((1, 6), (1, 11)), "MyType")
 							),
 							mStd.cEmpty
 						),

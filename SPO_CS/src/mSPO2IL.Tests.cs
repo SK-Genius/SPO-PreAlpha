@@ -4,21 +4,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -236,12 +221,13 @@ mSPO2IL_Tests {
 				var DefNode = mSPO_Parser.Def.ParseText(
 					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-					"§DEF x = §DEF a => 2 .* a",
+					"§DEF x = §DEF a € §INT => 2 .* a",
 					"",
 					a => aStreamOut(a())
 				);
 				
 				var DefConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge).NewDefConstructor();
+				mSPO_AST_Types.UpdateCommandTypes(DefNode, default);
 				DefConstructor.MapDef(DefNode);
 				
 				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);

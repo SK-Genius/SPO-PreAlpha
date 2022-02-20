@@ -4,21 +4,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -41,7 +26,7 @@ mTokenizer {
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	Digit = CharInRange('0', '9')
-	.Modify(aChar => aChar - (int)'0')
+	.Modify(aChar => aChar - '0')
 	.SetName(nameof(Digit));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>

@@ -3,21 +3,6 @@
 
 #nullable enable
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mSPO_AST {
 	private const tText cDebuggerDisplay = "{this.ToText(10)}";
@@ -46,56 +31,56 @@ mSPO_AST {
 	public interface
 	tCommandNode<tPos> : tNode<tPos> {}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tEmptyNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tFalseNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tTrueNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	} 
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tTextNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
@@ -103,7 +88,7 @@ mSPO_AST {
 		public tText Value = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIntNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
@@ -111,14 +96,14 @@ mSPO_AST {
 		public tInt32 Value = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -126,7 +111,7 @@ mSPO_AST {
 		public tText Name = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -134,7 +119,7 @@ mSPO_AST {
 		public tText Name = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -142,7 +127,7 @@ mSPO_AST {
 		public mStream.tStream<tMatchNode<tPos>>? Items;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -151,7 +136,7 @@ mSPO_AST {
 		public mMaybe.tMaybe<tExpressionNode<tPos>> Type;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tPrefixNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -160,7 +145,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Element = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -168,7 +153,7 @@ mSPO_AST {
 		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -176,7 +161,7 @@ mSPO_AST {
 		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? Elements;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -185,7 +170,7 @@ mSPO_AST {
 		public tMatchNode<tPos> Match = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
@@ -194,7 +179,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Guard = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -204,7 +189,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Body = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -214,7 +199,7 @@ mSPO_AST {
 		public tBlockNode<tPos> Body = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -222,7 +207,7 @@ mSPO_AST {
 		public mStream.tStream<tCommandNode<tPos>>? Commands;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tCallNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -231,7 +216,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Arg = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
@@ -240,7 +225,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Src = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
 		public tPos Pos { get; init; }
@@ -249,14 +234,14 @@ mSPO_AST {
 		public tLambdaNode<tPos> Lambda = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
 		public mStream.tStream<tRecLambdaItemNode<tPos>>? List;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tReturnIfNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
@@ -264,7 +249,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Condition = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -272,7 +257,7 @@ mSPO_AST {
 		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)>? Cases;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tIfMatchNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -281,7 +266,7 @@ mSPO_AST {
 		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)>? Cases;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -290,7 +275,7 @@ mSPO_AST {
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -298,7 +283,7 @@ mSPO_AST {
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -306,7 +291,7 @@ mSPO_AST {
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -316,7 +301,7 @@ mSPO_AST {
 		public tTypeNode<tPos> ResType = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -325,7 +310,7 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -334,7 +319,7 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
@@ -343,7 +328,7 @@ mSPO_AST {
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
@@ -353,7 +338,7 @@ mSPO_AST {
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tVarToValNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -361,7 +346,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Obj = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMethodCallNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
@@ -370,7 +355,7 @@ mSPO_AST {
 		public mMaybe.tMaybe<tMatchNode<tPos>> Result;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
@@ -379,7 +364,7 @@ mSPO_AST {
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -388,7 +373,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Right = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -397,7 +382,7 @@ mSPO_AST {
 		public tExpressionNode<tPos> Right = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
@@ -405,21 +390,21 @@ mSPO_AST {
 		public mStream.tStream<tExpressionNode<tPos>>? Items;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tImportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
 		public tMatchNode<tPos> Match = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tExportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
 		public tExpressionNode<tPos> Expression = default!;
 	}
 	
-	[System.Diagnostics.DebuggerDisplay(cDebuggerDisplay)]
+	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tModuleNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
@@ -431,49 +416,49 @@ mSPO_AST {
 	public static tEmptyNode<tPos>
 	Empty<tPos>(
 		tPos aPos
-	) => new tEmptyNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tFalseNode<tPos>
 	False<tPos>(
 		tPos aPos
-	) => new tFalseNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tTrueNode<tPos>
 	True<tPos>(
 		tPos aPos
-	) => new tTrueNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tEmptyTypeNode<tPos>
 	EmptyType<tPos>(
 		tPos aPos
-	) => new tEmptyTypeNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tBoolTypeNode<tPos>
 	BoolType<tPos>(
 		tPos aPos
-	) => new tBoolTypeNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tIntTypeNode<tPos>
 	IntType<tPos>(
 		tPos aPos
-	) => new tIntTypeNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
 	public static tTypeTypeNode<tPos>
 	TypeType<tPos>(
 		tPos aPos
-	) => new tTypeTypeNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
@@ -481,7 +466,7 @@ mSPO_AST {
 	Int<tPos>(
 		tPos aPos,
 		tInt32 aValue
-	) => new tIntNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Value = aValue
 	};
@@ -490,7 +475,7 @@ mSPO_AST {
 	Text<tPos>(
 		tPos aPos,
 		tText aValue
-	) => new tTextNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Value = aValue
 	};
@@ -498,7 +483,7 @@ mSPO_AST {
 	public static tIgnoreMatchNode<tPos>
 	IgnoreMatch<tPos>(
 		tPos aPos
-	) => new tIgnoreMatchNode<tPos> {
+	) => new() {
 		Pos = aPos
 	};
 	
@@ -506,7 +491,7 @@ mSPO_AST {
 	Ident<tPos>(
 		tPos aPos,
 		tText aName
-	) => new tIdentNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Name = "_" + aName
 	};
@@ -515,7 +500,7 @@ mSPO_AST {
 	MatchFreeIdent<tPos>(
 		tPos aPos,
 		tText aName
-	) => new tMatchFreeIdentNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Name = "_" + aName
 	};
@@ -543,7 +528,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aPrefix,
 		mStream.tStream<tTypeNode<tPos>>? aTypes
-	) => new tPrefixTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix,
 		Expressions = aTypes,
@@ -553,7 +538,7 @@ mSPO_AST {
 	TupleType<tPos>(
 		tPos aPos,
 		mStream.tStream<tTypeNode<tPos>>? aTypes
-	) => new tTupleTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Expressions = aTypes,
 	};
@@ -562,7 +547,7 @@ mSPO_AST {
 	SetType<tPos>(
 		tPos aPos,
 		mStream.tStream<tTypeNode<tPos>>? aTypes
-	) => new tSetTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Expressions = aTypes
 	};
@@ -573,7 +558,7 @@ mSPO_AST {
 		tTypeNode<tPos> aEnvType,
 		tTypeNode<tPos> aArgType,
 		tTypeNode<tPos> aResType
-	) => new tLambdaTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		EnvType = aEnvType,
 		ArgType = aArgType,
@@ -585,7 +570,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
-	) => new tRecursiveTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
 		BodyType = aBodyType
@@ -596,7 +581,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
-	) => new tInterfaceTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
 		BodyType = aBodyType
@@ -607,7 +592,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
-	) => new tGenericTypeNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
 		BodyType = aBodyType
@@ -618,7 +603,7 @@ mSPO_AST {
 		tPos aPos,
 		tExpressionNode<tPos> aFunc,
 		tExpressionNode<tPos> aArg
-	) => new tCallNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Func = aFunc,
 		Arg = aArg
@@ -629,7 +614,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos> aPrefix,
 		tExpressionNode<tPos> aElement
-	) => new tPrefixNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix.Name,
 		Element = aElement
@@ -640,7 +625,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdentNode<tPos>aPrefix,
 		tMatchNode<tPos> aMatch
-	) => new tMatchPrefixNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix.Name,
 		Match = aMatch
@@ -650,7 +635,7 @@ mSPO_AST {
 	Record<tPos>(
 		tPos aPos,
 		mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? aRecordItems
-	) => new tRecordNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
 	};
@@ -659,7 +644,7 @@ mSPO_AST {
 	MatchRecord<tPos>(
 		tPos aPos,
 		mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? aRecordItems
-	) => new tMatchRecordNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
 	};
@@ -669,7 +654,7 @@ mSPO_AST {
 		tPos aPos,
 		tMatchNode<tPos> aMatch,
 		tExpressionNode<tPos> aGuard
-	) => new tMatchGuardNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Match = aMatch,
 		Guard = aGuard
@@ -681,7 +666,7 @@ mSPO_AST {
 		mMaybe.tMaybe<tMatchNode<tPos>> aStaticMatch,
 		tMatchNode<tPos> aMatch,
 		tExpressionNode<tPos> aBody
-	) => new tLambdaNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Generic = aStaticMatch,
 		Head = aMatch,
@@ -694,7 +679,7 @@ mSPO_AST {
 		tMatchNode<tPos> aObjMatch,
 		tMatchNode<tPos> aArgMatch,
 		tBlockNode<tPos> aBody
-	) => new tMethodNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Obj = aObjMatch,
 		Arg = aArgMatch,
@@ -706,7 +691,7 @@ mSPO_AST {
 		tPos aPos,
 		tMatchFreeIdentNode<tPos> aIdent,
 		tLambdaNode<tPos> aLambda
-	) => new tRecLambdaItemNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Ident = aIdent,
 		Lambda = aLambda
@@ -716,7 +701,7 @@ mSPO_AST {
 	RecLambdas<tPos>(
 		tPos aPos,
 		mStream.tStream<tRecLambdaItemNode<tPos>>? aList
-	) => new tRecLambdasNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		List = aList
 	};
@@ -744,7 +729,7 @@ mSPO_AST {
 		tPos aPos,
 		tMatchItemNode<tPos> aMatch,
 		mMaybe.tMaybe<tExpressionNode<tPos>> aType
-	) => new tMatchNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Pattern = aMatch,
 		Type = aType
@@ -761,7 +746,7 @@ mSPO_AST {
 		tPos aPos,
 		tMatchNode<tPos> aMatch,
 		tExpressionNode<tPos> aExpression
-	) => new tDefNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Des = aMatch,
 		Src = aExpression
@@ -772,7 +757,7 @@ mSPO_AST {
 		tPos aPos,
 		tExpressionNode<tPos> aResult,
 		tExpressionNode<tPos> aCondition
-	) => new tReturnIfNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Result = aResult,
 		Condition = aCondition
@@ -782,7 +767,7 @@ mSPO_AST {
 	If<tPos>(
 		tPos aPos,
 		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)>? aCases
-	) => new tIfNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Cases = aCases
 	};
@@ -792,7 +777,7 @@ mSPO_AST {
 		tPos aPos,
 		tExpressionNode<tPos> aExpression,
 		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)>? aCases
-	) => new tIfMatchNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Expression = aExpression,
 		Cases = aCases
@@ -804,7 +789,7 @@ mSPO_AST {
 		tIdentNode<tPos> aVar,
 		tExpressionNode<tPos> aExpression,
 		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
-	) => new tDefVarNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Ident = aVar,
 		Expression = aExpression,
@@ -815,7 +800,7 @@ mSPO_AST {
 	VarToVal<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aObj
-	) => new tVarToValNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Obj = aObj,
 	};
@@ -825,7 +810,7 @@ mSPO_AST {
 		tPos aPos,
 		tExpressionNode<tPos> aObject,
 		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
-	) => new tMethodCallsNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Object = aObject,
 		MethodCalls = aMethodCalls,
@@ -859,7 +844,7 @@ mSPO_AST {
 		tIdentNode<tPos> aMethod,
 		tExpressionNode<tPos> aArgument,
 		mMaybe.tMaybe<tMatchNode<tPos>> aResult
-	) => new tMethodCallNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Method = aMethod,
 		Argument = aArgument,
@@ -870,7 +855,7 @@ mSPO_AST {
 	Block<tPos>(
 		tPos aPos,
 		mStream.tStream<tCommandNode<tPos>>? aCommands
-	) => new tBlockNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Commands = aCommands,
 	};
@@ -881,7 +866,7 @@ mSPO_AST {
 		tImportNode<tPos> aImport,
 		mStream.tStream<tCommandNode<tPos>>? aCommands,
 		tExportNode<tPos> aExport
-	) => new tModuleNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Import = aImport,
 		Export = aExport,
@@ -892,7 +877,7 @@ mSPO_AST {
 	Import<tPos>(
 		tPos aPos,
 		tMatchNode<tPos> aMatch
-	) => new tImportNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Match = aMatch,
 	};
@@ -901,7 +886,7 @@ mSPO_AST {
 	Export<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aExpression
-	) => new tExportNode<tPos> {
+	) => new() {
 		Pos = aPos,
 		Expression = aExpression,
 	};

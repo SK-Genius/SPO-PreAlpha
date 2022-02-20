@@ -6,21 +6,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-using tBool = System.Boolean;
-
-using tNat8 = System.Byte;
-using tNat16 = System.UInt16;
-using tNat32 = System.UInt32;
-using tNat64 = System.UInt64;
-
-using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
-
 public static class
 mVM_Type {
 	
@@ -138,7 +123,7 @@ mVM_Type {
 	
 	public static tType
 	Any(
-	) => new tType { Kind = tKind.Any };
+	) => new() { Kind = tKind.Any };
 	
 	public static tBool
 	MarchAny(
@@ -147,7 +132,7 @@ mVM_Type {
 	
 	public static tType
 	Empty(
-	) => new tType { Kind = tKind.Empty };
+	) => new() { Kind = tKind.Empty };
 	
 	public static tBool
 	MatchEmpty(
@@ -156,7 +141,7 @@ mVM_Type {
 	
 	public static tType
 	Bool(
-	) => new tType { Kind = tKind.Bool };
+	) => new() { Kind = tKind.Bool };
 	
 	public static tBool
 	MatchBool(
@@ -165,7 +150,7 @@ mVM_Type {
 	
 	public static tType
 	Int(
-	) => new tType { Kind = tKind.Int };
+	) => new() { Kind = tKind.Int };
 	
 	public static tBool
 	MatchInt(
@@ -174,7 +159,7 @@ mVM_Type {
 	
 	public static tType
 	Type(
-	) => new tType { Kind = tKind.Type };
+	) => new() { Kind = tKind.Type };
 	
 	public static tBool
 	MatchType(
@@ -184,7 +169,7 @@ mVM_Type {
 	public static tType
 	Type(
 		tType? aType
-	) => new tType {
+	) => new() {
 		Kind = tKind.Type,
 		Refs = aType is null ? new tType[0] : new []{ aType }
 	};
@@ -215,7 +200,7 @@ mVM_Type {
 	Pair(
 		tType aType1,
 		tType aType2
-	) => new tType {
+	) => new() {
 		Kind = tKind.Pair,
 		Refs = new []{ aType1, aType2 }
 	};
@@ -251,7 +236,7 @@ mVM_Type {
 	Prefix(
 		tText aPrefix,
 		tType aType
-	) => new tType {
+	) => new() {
 		Kind = tKind.Prefix,
 		Prefix = mAssert.IsNotNull(aPrefix),
 		Refs = new []{ aType }
@@ -329,7 +314,7 @@ mVM_Type {
 		tType aObjType,
 		tType aArgType,
 		tType aResType
-	) => new tType {
+	) => new() {
 		Kind = tKind.Proc,
 		Refs = new []{ aObjType, aArgType, aResType }
 	};
@@ -357,7 +342,7 @@ mVM_Type {
 	public static tType
 	Prefix(
 		tText aId
-	) => new tType {
+	) => new() {
 		Kind = tKind.Prefix,
 		Id = aId,
 		Refs = new[]{Empty()},
@@ -372,7 +357,7 @@ mVM_Type {
 	public static tType
 	Ref(
 		tType aType
-	) => new tType {
+	) => new() {
 		Kind = tKind.Ref,
 		Refs = new []{ aType }
 	};
@@ -394,7 +379,7 @@ mVM_Type {
 	public static tType
 	Var(
 		tType aType
-	) => new tType {
+	) => new() {
 		Kind = tKind.Var,
 		Refs = new []{ aType }
 	};
@@ -417,7 +402,7 @@ mVM_Type {
 	Set(
 		tType aType1,
 		tType aType2
-	) => new tType {
+	) => new() {
 		Kind = tKind.Set,
 		Refs = new []{ aType1, aType2 }
 	};
@@ -471,7 +456,7 @@ mVM_Type {
 	Recursive(
 		tType aTypeHead,
 		tType aTypeBody
-	) => new tType {
+	) => new() {
 		Kind = tKind.Recursive,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
@@ -496,7 +481,7 @@ mVM_Type {
 	Interface(
 		tType aTypeHead,
 		tType aTypeBody
-	) => new tType {
+	) => new() {
 		Kind = tKind.Interface,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
@@ -523,7 +508,7 @@ mVM_Type {
 	Generic(
 		tType aTypeHead,
 		tType aTypeBody
-	) => new tType {
+	) => new() {
 		Kind = tKind.Generic ,
 		Refs = new [] { aTypeHead, aTypeBody },
 	};
@@ -548,7 +533,7 @@ mVM_Type {
 	
 	public static tBool
 	IsSubType(
-		tType aSubType,
+		this tType aSubType,
 		tType aSupType,
 		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
 	) {
@@ -609,7 +594,7 @@ mVM_Type {
 					if (Type.Kind != tKind.Empty) {
 						Text += "; " + Type.ToText(aLimit);
 					}
-					return Text  + "}]";
+					return Text + "}]";
 				}
 			)(),
 			tKind.Pair => mStd.Func(
