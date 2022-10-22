@@ -1,17 +1,15 @@
 ﻿#nullable enable
 
-[DebuggerStepThrough]
 public static class
 mTreeMap {
 	
-	[DebuggerTypeProxy(typeof(mTreeMap.tTree<,>.tDebuggerProxy))]
+	[DebuggerTypeProxy(typeof(tTree<,>.tDebuggerProxy))]
 	public readonly struct
 	tTree<tKey, tValue> {
 		internal readonly mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
 		internal readonly tNode<tKey, tValue>? Root;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tTree(
 			mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
 			tNode<tKey, tValue>? aRoot
@@ -25,7 +23,7 @@ mTreeMap {
 			public tDebuggerProxy(tTree<tKey, tValue> a) { this._Tree = a; }
 			
 			[Pure]
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public (tKey Key, tValue Value)[] List => this._Tree.ToStream().Take(100).ToArrayList().ToArray();
 		}
 	}
@@ -39,8 +37,7 @@ mTreeMap {
 		internal tNode<tKey, tValue>? SubTree2;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tInt32
 	Deep<tKey, tValue>(
 		this tNode<tKey, tValue>? a
@@ -48,8 +45,7 @@ mTreeMap {
 		return a?.Deep ?? 0;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tInt32
 	Deep<tKey, tValue>(
 		this tTree<tKey, tValue> a
@@ -57,8 +53,7 @@ mTreeMap {
 		return a.Root.Deep();
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
 	Tree<tKey, tValue>(
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
@@ -71,8 +66,7 @@ mTreeMap {
 		return Tree;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
 	Set<tKey, tValue>(
 		this tTree<tKey, tValue> aTree,
@@ -83,8 +77,7 @@ mTreeMap {
 		aTree.Root.Add(aKey, aValue, aTree.KeyCompare)
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	Add<tKey, tValue>(
 		this tNode<tKey, tValue>? aNode,
@@ -119,8 +112,7 @@ mTreeMap {
 		};
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mMaybe.tMaybe<tValue>
 	TryGet<tKey, tValue>(
 		this tTree<tKey, tValue> aTree,
@@ -133,8 +125,7 @@ mTreeMap {
 	//	tKey aKey
 	//) => aTree.TryGet(aKey).ElseThrow("unknown key: " + aKey);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static mMaybe.tMaybe<tValue>
 	TryGet<tKey, tValue>(
 		this tNode<tKey, tValue>? aNode,
@@ -150,8 +141,7 @@ mTreeMap {
 		);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
 	Remove<tKey, tValue>(
 		this tTree<tKey, tValue> aTree,
@@ -161,8 +151,7 @@ mTreeMap {
 		aTree.Root!.Remove(aKey, aTree.KeyCompare)
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>?
 	Remove<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
@@ -203,8 +192,7 @@ mTreeMap {
 		return Node(Key, Value, SubTree1, SubTree2).Balance();
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>?
 	RemoveMin<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
@@ -229,8 +217,7 @@ mTreeMap {
 		}
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>?
 	RemoveMax<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
@@ -255,8 +242,7 @@ mTreeMap {
 		}
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	RotateRight<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
@@ -274,8 +260,7 @@ mTreeMap {
 		);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	RotateLeft<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
@@ -293,8 +278,7 @@ mTreeMap {
 		);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	Balance<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
@@ -330,8 +314,7 @@ mTreeMap {
 		};
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	Node<tKey, tValue>(
 		tKey aKey,
@@ -351,15 +334,13 @@ mTreeMap {
 		};
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<(tKey Key, tValue Value)>?
 	ToStream<tKey, tValue>(
 		this tTree<tKey, tValue> a
 	) => a.Root.ToStream();
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static mStream.tStream<(tKey Key, tValue Value)>?
 	ToStream<tKey, tValue>(
 		this tNode<tKey, tValue>? a

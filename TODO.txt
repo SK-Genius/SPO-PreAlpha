@@ -1,5 +1,7 @@
 ﻿NEXT:
 =====
+	o fix pattern matching for tuple: check if last element is empty type '[]'
+
 	o type definition of an SPO_IL module
 	
 	o maybe rename operators:

@@ -14,31 +14,35 @@ using tError = System.String;
 public static class
 mTextParser {
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
 	ComparePos(
 		tPos a1,
 		tPos a2
-	) {
-		return mMath.Sign((a1.Row != a2.Row) ? (a1.Row - a2.Row) : (a1.Col - a2.Col));
-	}
+	) => mMath.Sign(
+		a1.Row != a2.Row
+		? a1.Row - a2.Row
+		: a1.Col - a2.Col
+	);
 	
+	[Pure, DebuggerHidden]
 	public static (tSpan Span, tOut Result)
 	ParseText<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aText,
-		tText aIdent,
+		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		using var _ = mPerf.Measure();
-		var Stream = aText.ToStream(aIdent).Map(_ => (mSpan.Span(_.Pos), _.Char));
+		var Stream = aText.ToStream(aId).Map(a => (mSpan.Span(a.Pos), a.Char));
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		var Result = MaybeResult.ElseThrow(_ => _.ToText(aText.Split('\n')));
+		var Result = MaybeResult.ElseThrow(a => a.ToText(aText.Split('\n')));
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().Then(_ => _.Span.Start).ElseThrow("");
+			var Pos = Result.RemainingStream.TryFirst().Then(a => a.Span.Start).ElseThrow();
 			var Line = aText.Split('\n')[Pos.Row-1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(
-				$"{Pos.Ident}({Pos.Row}, {Pos.Col}): expected end of text\n" +
+				$"{Pos.Id}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 				$"{Line}\n" +
 				$"{Line[..StartSpacesCount] + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
 			);
@@ -46,6 +50,7 @@ mTextParser {
 		return Result.Result;
 	}
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetChar(
 		tChar aRefChar
@@ -56,6 +61,7 @@ mTextParser {
 	)
 	.SetDebugName("'", aRefChar, "'");
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetNotChar(
 		tChar aRefChar
@@ -66,6 +72,7 @@ mTextParser {
 	)
 	.SetDebugName("'^", aRefChar, "'");
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharIn(
 		tText aRefChars
@@ -83,6 +90,7 @@ mTextParser {
 	)
 	.SetDebugName("[", aRefChars, "]");
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharNotIn(
 		tText aRefChars
@@ -100,6 +108,7 @@ mTextParser {
 	)
 	.SetDebugName("[^", aRefChars, "]");
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
 	GetCharInRange(
 		tChar aMinChar,
@@ -111,6 +120,7 @@ mTextParser {
 	)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tText, tError>
 	GetToken(
 		tText aToken
@@ -128,6 +138,7 @@ mTextParser {
 		.SetDebugName("\"", aToken, "\"");
 	}
 	
+	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tOut, tError>
 	SetName<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,

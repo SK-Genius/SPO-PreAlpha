@@ -54,9 +54,9 @@ mVM {
 		aTraceOut(() => " 5 := BOOL_TYPE");
 		aTraceOut(() => " 6 := INT_TYPE");
 		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  "+aEnv.ToText(20));
-		aTraceOut(() => " 9 := OBJ  |  "+aObj.ToText(20));
-		aTraceOut(() => "10 := ARG  |  "+aArg.ToText(20));
+		aTraceOut(() => " 8 := ENV  |  " + aEnv.ToText(20));
+		aTraceOut(() => " 9 := OBJ  |  " + aObj.ToText(20));
+		aTraceOut(() => "10 := ARG  |  " + aArg.ToText(20));
 		aTraceOut(() => "11 := RES");
 		
 		return Result;
@@ -538,4 +538,63 @@ mVM {
 			}
 		}
 	}
+	
+	public static mVM_Data.tData
+	Run<tPos>(
+		mIL_AST.tModule<tPos> aModule,
+		mVM_Data.tData aImport,
+		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) => Run(mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace), aImport, aPosToText, aTrace);
+	
+	public static mVM_Data.tData
+	Run<tPos>(
+		(mStream.tStream<mVM_Data.tProcDef<tPos>>?, mTreeMap.tTree<tText, tInt32>) aModule,
+		mVM_Data.tData aImport,
+		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+	) {
+		var (VMModule, ModuleMap) = aModule;
+		var Res = mVM_Data.Empty();
+		var Defs = VMModule.Skip(1).Reverse();
+		
+		var DefTuple = Defs.Reduce(
+			mVM_Data.Empty(),
+			(aTuple, aDef) => mVM_Data.Pair(
+				aTuple,
+				mVM_Data.Def(aDef)
+			)
+		);
+		var InitProc = VMModule.TryFirst().ElseThrow();
+		
+#if MY_TRACE
+		var TraceOut = aDebugStream;
+#else
+		var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
+#endif
+		
+		mVM.Run(
+			mVM_Data.Proc(InitProc, DefTuple),
+			mVM_Data.Empty(),
+			aImport,
+			Res,
+			aPosToText,
+			TraceOut
+		);
+		
+		return Res;
+	}
+	
+//	public static mVM_Data.tData
+//	Run(
+//		tText aSourceCode,
+//		tText aId,
+//		mVM_Data.tData aImport,
+//		mStd.tAction<mStd.tFunc<tText>> aTrace
+//	) => Run(
+//		mIL_Parser.Module.ParseText(aSourceCode, aId, aTrace),
+//		aImport,
+//		SpanToText,
+//		aTrace
+//	);
 }

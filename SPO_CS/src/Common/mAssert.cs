@@ -4,13 +4,12 @@
 
 #nullable enable
 
-[DebuggerStepThrough]
 public static class
 mAssert {
 	
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	[DoesNotReturn]
 	public static void
 	Fail(
@@ -19,18 +18,29 @@ mAssert {
 		throw mError.Error(cErrorPrefix + (aMsg ?? $"Fail"));
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	IsTrue(
-		[DoesNotReturnIf(false)]tBool a,
-		mStd.tFunc<tText>? aMsg = null
+		[DoesNotReturnIf(false)] tBool a,
+		[CallerArgumentExpression("a")] tText aMsg = ""
+	) {
+		if (!a) {
+			Fail(aMsg);
+		}
+	}
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static void
+	IsTrue(
+		[DoesNotReturnIf(false)] tBool a,
+		mStd.tFunc<tText>? aMsg
 	) {
 		if (!a) {
 			Fail(aMsg?.Invoke() ?? "is not true");
 		}
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	IsFalse(
 		[DoesNotReturnIf(true)]tBool a,
@@ -39,7 +49,7 @@ mAssert {
 		IsTrue(!a, () => aMsg?.Invoke() ?? "is not false");
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	AreEquals<t>(
 		t a1,
@@ -73,7 +83,33 @@ mAssert {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
 		}
-		Fail($"\n{Text1}\n!=\n{Text2}");
+		Fail(
+			mStream.Zip<string, string>(
+				Text1.Split('\n').AsStream(),
+				Text2.Split('\n').AsStream()
+			).MapWithIndex(
+				(aIndex, Line) => Line._1 != Line._2 
+					?
+						$"""
+						
+						{Gray($"<{aIndex + 1}:")} {Red(Line._1)}
+						{Gray($">{aIndex + 1}:")} {Red(Line._2)}
+						"""
+					:
+						$"""
+						
+						{Gray($"={aIndex + 1}:{Line._2}")}
+						"""
+			).Join(
+				(a1, a2) => (a1, a2) switch {
+					(null, null) => null,
+					(null, var Right) => Right,
+					(var Left, null) => Left,
+					(var Left, var Right) => Left + '\n' + Right
+				},
+				null
+			) ?? ""
+		);
 		return a1;
 		
 #if JSON
@@ -87,7 +123,7 @@ mAssert {
 #endif
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	AreNotEquals<t>(
 		t a1,
@@ -97,7 +133,7 @@ mAssert {
 		return a1;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	IsNull<t>(
 		t a,
@@ -107,7 +143,7 @@ mAssert {
 		return a;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	IsNotNull<t>(
 		t a,
@@ -117,7 +153,7 @@ mAssert {
 		return a;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	IsIn<t>(
 		t a1,
@@ -132,7 +168,7 @@ mAssert {
 		return a1;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	IsNotIn<t>(
 		t a1,
@@ -144,7 +180,7 @@ mAssert {
 		return a1;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	[DoesNotReturn]
 	public static void
 	Impossible(
@@ -152,7 +188,7 @@ mAssert {
 		Fail("Impossible");
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	ThrowsError(
 		mStd.tAction a
@@ -164,4 +200,28 @@ mAssert {
 		}
 		Fail("Error expected");
 	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	private static tText
+	SwitchColors(
+		tText a
+	) => mConsole.SwitchColor(a);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	private static tText
+	Red(
+		tText a
+	) => mConsole.Color(mConsole.tColorCode.Red, a);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	private static tText
+	Gray(
+		tText a
+	) => mConsole.Color(mConsole.tColorCode.Gray, a);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	private static tText
+	Yellow(
+		tText a
+	) => mConsole.Color(mConsole.tColorCode.Yellow, a);
 }

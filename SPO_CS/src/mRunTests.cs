@@ -44,8 +44,8 @@ return mTest.Tests(
 	mSPO_Interpreter_Tests.Tests,
 	mStdLib_Tests.Tests
 ).Run(
-	_ => {
-		System.Console.WriteLine(_);
+	a => {
+		System.Console.WriteLine(a.Replace("\t", "  "));
 		System.Console.Out.Flush();
 	},
 	mStream.Stream(args)

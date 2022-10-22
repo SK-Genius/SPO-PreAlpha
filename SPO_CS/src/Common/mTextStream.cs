@@ -4,32 +4,33 @@
 
 using tError = System.String;
 
-[DebuggerStepThrough]
 public static class
 mTextStream {
 	
 	public struct
 	tPos {
-		public tText Ident;
+		public tText Id;
 		public tInt32 Row;
 		public tInt32 Col;
 		
 		public override tText
 		ToString(
-		) => $"{this.Ident}({this.Row}:{this.Col})";
+		) => $"{this.Id}({this.Row}:{this.Col})";
 	}
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tPos
 	Pos(
-		tText aIdent,
+		tText aId,
 		tInt32 aRow,
 		tInt32 aCol
 	) => new() {
-		Ident = aIdent,
+		Id = aId,
 		Row = aRow,
 		Col = aCol
 	};
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tText
 	ToText(
 		this (tPos Pos, tError Message) aError,
@@ -47,28 +48,33 @@ mTextStream {
 			(aString, aChar) => aString + aChar
 		);
 		return (
-			$"{aError.Pos.Ident}({aError.Pos.Row}, {aError.Pos.Col}) ERROR: {aError.Message}\n" +
-			$"{Line}\n" +
-			$"{MarkerLine}^\n"
+			$"""
+			{aError.Pos.Id}({aError.Pos.Row}, {aError.Pos.Col}) ERROR: {aError.Message}
+			{Line}
+			{MarkerLine}^
+			
+			"""
 		);
 	}
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tText
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Message)>? aErrors,
 		tText[] aSrcLines
 	) => aErrors.Reverse(
 	).Map(
-		_ => _.ToText(aSrcLines)
+		a => a.ToText(aSrcLines)
 	).Reduce(
 		"",
 		(a1, a2) => a1 + "\n" + a2
 	);
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<(tPos Pos, tChar Char)>?
 	ToStream(
 		this tText aText,
-		tText aIdent
+		tText aId
 	) {
 		var Col = (int?)1;
 		var Row = (int?)1;
@@ -76,10 +82,10 @@ mTextStream {
 		return mStream.Stream(
 			aText.ToCharArray()
 		).Where(
-			_ => _ != '\r'
+			a => a != '\r'
 		).Map(
 			aChar => {
-				var Result = (Pos(aIdent, Row.Value, Col.Value), aChar);
+				var Result = (Pos(aId, Row.Value, Col.Value), aChar);
 				if (aChar == '\n') {
 					Col = 1;
 					Row += 1;

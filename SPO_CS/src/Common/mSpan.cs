@@ -1,15 +1,14 @@
 ﻿#nullable enable
 
-[DebuggerStepThrough]
 public static class
 mSpan {
+	
 	public readonly struct
 	tSpan<tPos> {
 		public readonly tPos Start;
 		public readonly tPos End;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tSpan(
 			tPos aStart,
 			tPos aEnd
@@ -18,15 +17,13 @@ mSpan {
 			this.End = aEnd;
 		}
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override readonly tText
 		ToString(
 		) => $"{this.Start}..{this.End}";
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aStart,
@@ -36,15 +33,13 @@ mSpan {
 		aEnd: aEnd
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tSpan<tPos>
 	Span<tPos>(
 		tPos aPos
 	) => Span(aPos, aPos);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tSpan<tPos>
 	Merge<tPos>(
 		tSpan<tPos> a1,

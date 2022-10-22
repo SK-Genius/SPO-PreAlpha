@@ -3,7 +3,6 @@
 
 #nullable enable
 
-[DebuggerStepThrough]
 public static class
 mMap {
 	
@@ -12,8 +11,7 @@ mMap {
 		internal readonly mStream.tStream<(tKey, tValue)>? _KeyValuePairs;
 		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tMap(
 			mStream.tStream<(tKey, tValue)>? aKeyValuePairs,
 			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
@@ -23,8 +21,7 @@ mMap {
 		}
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMap<tKey, tValue>
 	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
@@ -33,8 +30,7 @@ mMap {
 		aEqualsFunc: aEqualsFunc
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mMaybe.tMaybe<tValue>
 	TryGet<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
@@ -48,16 +44,7 @@ mMap {
 		return mStd.cEmpty;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static tValue
-	ForceGet<tKey, tValue>(
-		this tMap<tKey, tValue> aMap,
-		tKey aKey
-	) => aMap.TryGet(aKey).ElseThrow("impossible");
-	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMap<tKey, tValue>
 	Remove<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
@@ -65,12 +52,11 @@ mMap {
 	) => new(
 		aEqualsFunc: aMap._EqualsFunc,
 		aKeyValuePairs: aMap._KeyValuePairs.Where(
-			((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
+			[DebuggerHidden]((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 		)
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMap<tKey, tValue>
 	Set<tKey, tValue>(
 		this tMap<tKey, tValue> aMap,
@@ -81,7 +67,7 @@ mMap {
 		aKeyValuePairs: mStream.Stream(
 			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
-				((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
+				[DebuggerHidden]((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 			)
 		)
 	);

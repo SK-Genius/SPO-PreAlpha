@@ -2,7 +2,6 @@
 
 #nullable enable
 
-[DebuggerStepThrough]
 public static class
 mTest {
 	
@@ -40,6 +39,7 @@ mTest {
 		internal tTest[] _Tests { get; init; }
 	}
 	
+	[DebuggerHidden]
 	public static tTest
 	Tests(
 		tText aName,
@@ -59,6 +59,7 @@ mTest {
 		_Line = aLine,
 	};
 	
+	[DebuggerHidden]
 	public static (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count)
 	Run(
 		this tTest aTest,
@@ -78,7 +79,7 @@ mTest {
 					aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
-						TestRun._TestFunc(LineByLine(aDebugStream.AddPrefix(cTab)));
+						TestRun._TestFunc(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _))));
 						QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
 						
 						var Value_00 = (ClocksEnd - ClocksStart) * 100;
@@ -108,21 +109,21 @@ mTest {
 						if (Value < 10) {
 							SubValue += Value_00 % 10;
 						}
-						aDebugStream($"> OK ({Value}{SubValue} {E}Clocks)");
+						aDebugStream($"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")} ({Value}{SubValue} {E}Clocks)");
 						aDebugStream("");
 						return (tResult.OK, 0, 0, 1);
 					} catch (System.Exception Exception) {
-						LineByLine(aDebugStream.AddPrefix(cTab))(Exception.Message);
-						LineByLine(aDebugStream.AddPrefix(cTab + cTab))(Exception.StackTrace!);
-						aDebugStream("> Fail");
+						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _))) (Exception.GetType().Name + ":  " + Exception.Message);
+						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _))) (Exception.StackTrace!);
+						aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
 						aDebugStream("");
 						return (tResult.Fail, 1, 0, 0);
 					}
 				} else {
-					if (false) { // TODO(SK): use a flag to show/hide this information
+					if (!true) { // TODO(SK): use a flag to show/hide this information
 						aDebugStream(TestRun._Name);
 						aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
-						aDebugStream("> Fail");
+						aDebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
 						aDebugStream("");
 					}
 					return (tResult.Skip, 0, 1, 0);
@@ -145,7 +146,7 @@ mTest {
 				var StopWatch = new System.Diagnostics.Stopwatch();
 				StopWatch.Start();
 				foreach (var Test in Tests._Tests) {
-					var SubResult = Test.Run(LineByLine(aDebugStream.AddPrefix(cTab)), aFilters);
+					var SubResult = Test.Run(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)), aFilters);
 					OK_CountSum += SubResult.OK_Count;
 					SkipCountSum += SubResult.SkipCount;
 					FailCountSum += SubResult.FailCount;
@@ -197,16 +198,16 @@ mTest {
 							"> "
 						), (
 							FailCountSum == 0 ? "" :
-							FailCount == FailCountSum ? $"Fail:{FailCount} " :
-							$"Fail:{FailCount}|{FailCountSum} "
+							FailCount == FailCountSum ? mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount} ") :
+							mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount}|{FailCountSum} ")
 						), (
 							OK_CountSum == 0 ? "" :
-							OK_Count == OK_CountSum ? $"OK:{OK_Count} " :
-							$"OK:{OK_Count}|{OK_CountSum} "
+							OK_Count == OK_CountSum ? mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count} ") :
+							mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count}|{OK_CountSum} ")
 						), (
 							SkipCountSum == 0 ? "" :
-							SkipCount == SkipCountSum ? $"Skip:{SkipCount} " :
-							$"Skip:{SkipCount}|{SkipCountSum} "
+							SkipCount == SkipCountSum ? mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount} ") :
+							mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount}|{SkipCountSum} ")
 						), (
 							$"({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})"
 						)
@@ -221,22 +222,15 @@ mTest {
 		}
 	}
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static mStd.tAction<tText>
 	LineByLine(
 		mStd.tAction<tText> aWritLine
 	) {
-		return (tText aLines) => {
+		return [DebuggerHidden](tText aLines) => {
 			foreach (var Line in aLines.Split('\n')) {
 				aWritLine(Line.TrimEnd('\r'));
 			}
 		};
 	}
-	
-	private static mStd.tAction<tText>
-	AddPrefix(
-		this mStd.tAction<tText> aWritLine,
-		tText aPrefix
-	) => (tText aLine) => {
-		aWritLine(aPrefix + aLine);
-	};
 }

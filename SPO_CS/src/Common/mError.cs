@@ -2,7 +2,6 @@
 
 #nullable enable
 
-[DebuggerStepThrough]
 public static class
 mError {
 	public sealed class

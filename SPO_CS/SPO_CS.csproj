@@ -1,19 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+	
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<LangVersion>Preview</LangVersion>
 		<OutputType>Exe</OutputType>
 		<!--  Exe | Library | Module | Winexe -->
+		
 		<DefineConstants>noMY_TRACE</DefineConstants>
 		<NoWarn>659,661,8604,8618</NoWarn>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>
 		<AnalysisLevel>preview-all</AnalysisLevel>
 	</PropertyGroup>
+	
 	<ItemGroup>
 		<TestSrc Include="**\*.Tests.cs" />
 		<Compile Update="@(TestSrc)">
 			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Tests', '')).cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
+	
 </Project>

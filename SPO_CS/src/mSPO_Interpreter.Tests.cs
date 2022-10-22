@@ -13,10 +13,11 @@ mSPO_Interpreter_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(aArg.MatchPair(out var Arg1_, out var Arg2));
+		mAssert.IsTrue(Arg1_.MatchPair(out var Empty, out var Arg1));
+		mAssert.IsTrue(Empty.MatchEmpty());
 		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchPair(out var Arg2_, out var _));
-		mAssert.IsTrue(Arg2_.MatchInt(out var IntArg2));
+		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -28,17 +29,17 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								§DEF ...*... € [[§INT, §INT] => §INT]
-								§DEF k € §INT
-							)
-							
-							§DEF x... = §DEF a € §INT => (k .* a)
-							§DEF y = (.x 5)
-							
-							§EXPORT y
-						",
+						"""
+						§IMPORT (
+							§DEF ...*... € [[§INT, §INT] => §INT]
+							§DEF k € §INT
+						)
+						
+						§DEF x... = §DEF a € §INT => (k .* a)
+						§DEF y = (.x 5)
+						
+						§EXPORT y
+						""",
 						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
@@ -55,16 +56,16 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								§DEF ...*... € [[§INT, §INT] => §INT]
-								§DEF k € §INT
-							)
-							
-							§DEF y = (.(§DEF a € §INT => (k .* a)) 5)
-							
-							§EXPORT y
-						",
+						"""
+						§IMPORT (
+							§DEF ...*... € [[§INT, §INT] => §INT]
+							§DEF k € §INT
+						)
+						
+						§DEF y = (.(§DEF a € §INT => (k .* a)) 5)
+						
+						§EXPORT y
+						""",
 						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
@@ -81,14 +82,14 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								§DEF ...*... € [[§INT, §INT] => §INT]
-								§DEF k € §INT
-							)
-							
-							§EXPORT .(§DEF a € §INT => (k .* a)) 5
-						",
+						"""
+						§IMPORT (
+							§DEF ...*... € [[§INT, §INT] => §INT]
+							§DEF k € §INT
+						)
+						
+						§EXPORT .(§DEF a € §INT => (k .* a)) 5
+						""",
 						"",
 						mVM_Data.Tuple(
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
@@ -105,13 +106,13 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								§DEF ...*... € [[§INT, §INT] => §INT]
-							)
-							
-							§EXPORT .((§DEF a € §INT, _ € [], _ € []) => (2 .* a)) (3, 5, 7)
-						",
+						"""
+						§IMPORT (
+							§DEF ...*... € [[§INT, §INT] => §INT]
+						)
+						
+						§EXPORT .((§DEF a € §INT, _ € §INT, _ € §INT) => (2 .* a)) (3, 5, 7)
+						""",
 						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						a => aDebugStream(a())
@@ -125,18 +126,18 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								§DEF ...*... € [[§INT, §INT] => §INT]
-							)
-							
-							§EXPORT .(
-								§DEF a € [§INT, §INT, []] => §IF a MATCH {
-									(_, §DEF a, _) => (a .* a)
-									_ => 0
-								}
-							) (1, 2, ())
-						",
+						"""
+						§IMPORT (
+							§DEF ...*... € [[§INT, §INT] => §INT]
+						)
+						
+						§EXPORT .(
+							§DEF a € [§INT, §INT] => §IF a MATCH {
+								(§DEF b, _) => (b .* b)
+								_ => 0
+							}
+						) (2, 3)
+						""",
 						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						a => aDebugStream(a())
@@ -151,31 +152,31 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (§DEF ...*... € [[§INT, §INT] => §INT])
-							
-							§DEF EmptyStack = #Empty ()
-							
-							§DEF tStack... = [[t] =>> [§RECURSIVE tStack_ = [[#Empty []] | [#Stack [t, tStack_]]]]]
-							
-							§RECURSIVE §TYPE tStack... = t => [#Empty | #Stack[t, tStack[t]]]	
-							
-							§DEF Push...To... = [
-								t
-							] <=> (
-								§DEF Head € t
-								§DEF Tail € [.tStack t]
-							) => #Stack (Head, Tail)
-							
-							§RECURSIVE {
-								§DEF Map...With... = (§DEF Stack, §DEF Func...) => §IF Stack MATCH {
-									(#Stack (§DEF Head, §DEF Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
-									(#Empty ()) => EmptyStack
-								}
+						"""
+						§IMPORT (§DEF ...*... € [[§INT, §INT] => §INT])
+						
+						§DEF EmptyStack = #Empty ()
+						
+						§DEF tStack... = [[t] =>> [§RECURSIVE tStack_ = [[#Empty []] | [#Stack [t, tStack_]]]]]
+						
+						§RECURSIVE §TYPE tStack... = t => [#Empty | #Stack[t, tStack[t]]]	
+						
+						§DEF Push...To... = [
+							t
+						] <=> (
+							§DEF Head € t
+							§DEF Tail € [.tStack t]
+						) => #Stack (Head, Tail)
+						
+						§RECURSIVE {
+							§DEF Map...With... = (§DEF Stack, §DEF Func...) => §IF Stack MATCH {
+								(#Stack (§DEF Head, §DEF Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
+								(#Empty ()) => EmptyStack
 							}
-							
-							§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
-						",
+						}
+						
+						§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
+						""",
 						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 						a => aDebugStream(a())
@@ -208,17 +209,17 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT ()
-							
-							§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
-							
-							§EXPORT §IF X MATCH {
-								(#Blub ()) => 1
-								(#Bla ()) => 2
-								(_) => 3
-							}
-						",
+						"""
+						§IMPORT ()
+						
+						§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
+						
+						§EXPORT §IF X MATCH {
+							(#Blub ()) => 1
+							(#Bla ()) => 2
+							(_) => 3
+						}
+						""",
 						"",
 						mVM_Data.Empty(),
 						a => aDebugStream(a())
@@ -232,13 +233,13 @@ mSPO_Interpreter_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT ()
-							
-							{C: §DEF X, A: §DEF Y} = {A: 1, B: 2, C: 3}
-							
-							§EXPORT (X, Y)
-						",
+						"""
+						§IMPORT ()
+						
+						{C: §DEF X, A: §DEF Y} = {A: 1, B: 2, C: 3}
+						
+						§EXPORT (X, Y)
+						""",
 						"",
 						mVM_Data.Empty(),
 						a => aDebugStream(a())

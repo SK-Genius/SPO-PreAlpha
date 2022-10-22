@@ -15,29 +15,16 @@ mIL_GenerateOpcodes_Tests {
 	private static tText
 	SpanToText(
 		tSpan a
-	) => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
+	) => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>? Defs, mTreeMap.tTree<tText, tInt32> DefLookup)
 	CompileModule(
 		tText aSourceCode,
-		tText aIdent,
+		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) => mIL_GenerateOpcodes.GenerateOpcodes(
-		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
+		mIL_Parser.Module.ParseText(aSourceCode, aId, aTrace),
 		aTrace
-	);
-	
-	public static mVM_Data.tData
-	Run(            
-		tText aSourceCode,
-		tText aIdent,  
-		mVM_Data.tData aImport,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_GenerateOpcodes.Run(
-		mIL_Parser.Module.ParseText(aSourceCode, aIdent, aTrace),
-		aImport,             
-		SpanToText,          
-		aTrace            
 	);
 	
 	private static mVM_Data.tData
@@ -95,25 +82,26 @@ mIL_GenerateOpcodes_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mIL_GenerateOpcodes),
-		mTest.Test(
-			"Call",
+		mTest.Test("Call",
 			aDebugStream => {
 				var (Defs, DefLookup) = CompileModule(
-					"§TYPES\n" +
-					"	Int->Int := [INT => INT]\n" +
-					"	Env->Int->Int := [Int->Int => Int->Int]\n" +
-					"" +
-					"§DEF ...++ € Env->Int->Int\n" +
-					"	_1 := 1\n" +
-					"	res := §INT ARG + _1\n" +
-					"	§RETURN res IF TRUE\n",
+					"""
+					§TYPES
+						Int->Int := [INT => INT]
+						Env->Int->Int := [Int->Int => Int->Int]
+					§DEF ...++ € Env->Int->Int
+						_1 := 1
+						res := §INT ARG + _1
+						§RETURN res IF TRUE
+					
+					""",
 					"",
 					a => aDebugStream(a())
 				);
 				
 				#if MY_TRACE
 					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+						(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 					);
 				#else
 					var TraceOut = mStd.Action(
@@ -121,7 +109,7 @@ mIL_GenerateOpcodes_Tests {
 					);
 				#endif
 				
-				var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).ElseThrow("");
+				var Proc = DefLookup.TryGet("...++").ThenTry(a => Defs.TryGet(a)).ElseThrow();
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -134,33 +122,35 @@ mIL_GenerateOpcodes_Tests {
 				mAssert.AreEquals(Res, mVM_Data.Int(6));
 			}
 		),
-		mTest.Test(
-			"Prefix",
+		mTest.Test("Prefix",
 			aDebugStream => {
 				var (Defs, DefLookup) = CompileModule(
-					"§TYPES\n" +
-					"	pre := [#PRE INT]\n" +
-					"	pre->pre := [pre => pre]\n" +
-					"	->pre->pre := [EMPTY => pre->pre]\n" +
-					"§DEF ...++ € ->pre->pre\n" +
-					"	_1 := 1\n" +
-					"	arg := -#PRE ARG\n" +
-					"	inc := §INT arg + _1\n" +
-					"	res := +#PRE inc\n" +
-					"	§RETURN res IF TRUE\n",
+					"""
+					§TYPES
+						pre := [#PRE INT]
+						pre->pre := [pre => pre]
+						->pre->pre := [EMPTY => pre->pre]
+					§DEF ...++ € ->pre->pre
+						_1 := 1
+						arg := -#PRE ARG
+						inc := §INT arg + _1
+						res := +#PRE inc
+						§RETURN res IF TRUE
+					
+					""",
 					"",
 					a => aDebugStream(a())
 				);
 				
 				#if MY_TRACE
 					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+						(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 					);
 				#else
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 				#endif
 				
-				var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow();
 				var Env = mVM_Data.ExternDef(Add);
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
@@ -174,34 +164,36 @@ mIL_GenerateOpcodes_Tests {
 				mAssert.AreEquals(Res, mVM_Data.Prefix("PRE", mVM_Data.Int(13)));
 			}
 		),
-		mTest.Test(
-			"Assert",
+		mTest.Test("Assert",
 			aDebugStream => {
 				var (Defs, DefLookup) = CompileModule(
-					"§TYPES\n" +
-					"	IntInt := [INT, INT]\n" +
-					"	IntInt->Bool := [IntInt => BOOL]\n" +
-					"	Env := [EMPTY => IntInt->Bool]\n" +
-					"	Int->Bool := [INT => BOOL]\n" +
-					"	Env-->Int->Bool := [Env => Int->Bool]\n" +
-					"§DEF ...=1 € Env-->Int->Bool\n" +
-					"	...=...? := . ENV EMPTY\n" +
-					"	_1 := 1\n" + 
-					"	args := ARG, _1\n" +
-					"	arg_eq_1? := . ...=...? args\n" +
-					"	§ASSERT TRUE => arg_eq_1?\n" +
-					"	§RETURN arg_eq_1? IF TRUE\n",
+					"""
+					§TYPES
+						IntInt := [INT, INT]
+						IntInt->Bool := [IntInt => BOOL]
+						Env := [EMPTY => IntInt->Bool]
+						Int->Bool := [INT => BOOL]
+						Env-->Int->Bool := [Env => Int->Bool]
+					§DEF ...=1 € Env-->Int->Bool
+						...=...? := . ENV EMPTY
+						_1 := 1
+						args := ARG, _1
+						arg_eq_1? := . ...=...? args
+						§ASSERT TRUE => arg_eq_1?
+						§RETURN arg_eq_1? IF TRUE
+					
+					""",
 					"",
 					a => aDebugStream(a())
 				);
 				
-				var Proc = DefLookup.TryGet("...=1").ThenTry(Defs.TryGet).ElseThrow("");
+				var Proc = DefLookup.TryGet("...=1").ThenTry(Defs.TryGet).ElseThrow();
 				var Env = mVM_Data.ExternDef(Eq);
 				var Res = mVM_Data.Empty();
 				
 				#if MY_TRACE
 					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+						(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 					);
 				#else
 					var TraceOut = mStd.Action(
@@ -237,128 +229,121 @@ mIL_GenerateOpcodes_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"ParseModule",
+		mTest.Test("ParseModule",
 			aDebugStream => {
 				var (Defs, DefLookup) = CompileModule(
-					"§TYPES\n" +
-					"	IntInt := [INT, INT]\n" +
-					"	IntInt->Int := [IntInt => INT]\n" +
-					"	_IntInt->Int := [EMPTY => IntInt->Int]\n" +
-					"	IntInt->Bool := [IntInt => BOOL]\n" +
-					"	_IntInt->Bool := [EMPTY => IntInt->Bool]\n" +
-					"	Env1 := [_IntInt->Bool, EMPTY]\n" + // eq
-					"	Env2 := [_IntInt->Int, Env1]\n" + // mul
-					"	Env3 := [_IntInt->Int, Env2]\n" + // sub
-					"	Env4 := [_IntInt->Int, Env3]\n" + // add
-					"	t...!! := [Env4 => IntInt->Int]\n" +
-					"	Env5 := [t...!!, Env4]\n" + // ...!!
-					"	->Int := [EMPTY => INT]\n" +
-					"	tBla := [Env5 => ->Int]\n" +
-					"	Int->Int := [INT => INT]\n" +
-					"	t...! := [Env5 => Int->Int]\n" +
-					
-					
-					"§DEF bla € tBla\n" +
-					"	_1 := 1\n" +
-					"	rest0 := §2ND ENV\n" +
-					"	add_ := §1ST rest0\n" +
-
-					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					
-					"	p := _1, _1\n" +
-					"	r := .add p\n" +
-					"	§RETURN r IF TRUE\n" +
-					
-					
-					"§DEF bla2 € tBla\n" +
-					"	_1 := 1\n" +
-					"	rest0  := §2ND ENV\n" +
-					"	add_  := §1ST rest0\n" +
-					"	rest1 := §2ND rest0\n" +
-					"	sub_  := §1ST rest1\n" +
-					"	rest2 := §2ND rest1\n" +
-					"	mul_  := §1ST rest2\n" +
-					
-					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := .sub_ EMPTY\n" + // sub_ :: €EMPTY => (€Int, €Int) => €Int
-					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
-					
-					"	_1_1 := _1, _1\n" +
-					"	_2   := .add _1_1\n" +
-					"	_2_1 := _2, _1\n" +
-					"	_3   := .add _2_1\n" +
-					"	_2_2 := _2, _2\n" +
-					"	_4   := .add _2_2\n" +
-					"	_3_4 := _3, _4\n" +
-					"	_12  := .mul _3_4\n" +
-					"	§RETURN _12 IF TRUE\n" +
-					
-					
-					"§DEF ...!! € t...!!\n" +
-					"	_1 := 1\n" +
-					"	add_  := §1ST ENV\n" +
-					"	rest1 := §2ND ENV\n" +
-					"	sub_  := §1ST rest1\n" +
-					"	rest2 := §2ND rest1\n" +
-					"	mul_  := §1ST rest2\n" +
-					"	rest3 := §2ND rest2\n" +
-					"	eq_   := §1ST rest3\n" +
-					
-					"	add := .add_ EMPTY\n" + // add_ :: €EMPTY => (€Int, €Int) => €Int
-					"	sub := .sub_ EMPTY\n" + // sub_ :: €EMPTY => (€Int, €Int) => €Int
-					"	mul := .mul_ EMPTY\n" + // mul_ :: €EMPTY => (€Int, €Int) => €Int
-					"	eq  := .eq_ EMPTY\n" + // eq_ :: €EMPTY => (€Int, €Int) => €Bool
-					
-					"	_1_1 := _1, _1\n" +
-					"	_0   := .sub _1_1\n" +
-					
-					"	arg    := §1ST ARG\n" +
-					"	res    := §2ND ARG\n" +
-					"	arg_0  := arg, _0\n" +
-					"	arg=0 := .eq arg_0\n" +
-					"	§RETURN res IF arg=0\n" +
-					
-					"	res_arg := res, arg\n" +
-					"	newRes  := .mul res_arg\n" +
-					"	arg_1   := arg, _1\n" +
-					"	newArg  := .sub arg_1\n" +
-					"	newArg_newRes := newArg, newRes\n" +
-					"	§REPEAT newArg_newRes IF TRUE\n" +
-					
-					
-					"§DEF ...! € t...!\n" +
-					"	_1 := 1\n" +
-					"	...!!_ := §1ST ENV\n" +
-					"	rest0  := §2ND ENV\n" +
-					"	add_  := §1ST rest0\n" +
-					"	rest1 := §2ND rest0\n" +
-					"	sub_  := §1ST rest1\n" +
-					"	rest2 := §2ND rest1\n" +
-					"	mul_  := §1ST rest2\n" +
-					"	rest3 := §2ND rest2\n" +
-					"	eq_   := §1ST rest3\n" +
-					"	rest4 := §2ND rest3\n" +
-					
-					"	...!! := . ...!!_ rest0\n" +
-					"	arg_1 := ARG, _1\n" +
-					"	res   := . ...!! arg_1\n" +
-					"	§RETURN res IF TRUE\n",
+					"""
+					§TYPES
+						IntInt := [INT, INT]
+						IntInt->Int := [IntInt => INT]
+						_IntInt->Int := [EMPTY => IntInt->Int]
+						IntInt->Bool := [IntInt => BOOL]
+						_IntInt->Bool := [EMPTY => IntInt->Bool]
+						Env1 := [EMPTY, _IntInt->Int]
+						Env2 := [Env1, _IntInt->Int]
+						Env3 := [Env2, _IntInt->Int]
+						Env4 := [Env3, _IntInt->Bool]
+						t...!! := [Env4 => IntInt->Int]
+						Env5 := [Env4, t...!!]
+						->Int := [EMPTY => INT]
+						tBla := [Env5 => ->Int]
+						Int->Int := [INT => INT]
+						t...! := [Env5 => Int->Int]
+					§DEF bla € tBla
+						_1 := 1
+						env5 := §1ST ENV
+						env4 := §1ST env5
+						env3 := §1ST env4
+						env2 := §1ST env3
+						add_ := §2ND env2
+						add := .add_ EMPTY
+						p := _1, _1
+						r := .add p
+						§RETURN r IF TRUE
+					§DEF bla2 € tBla
+						_1 := 1
+						...!!_ := §2ND ENV
+						env5   := §1ST ENV
+						eq_    := §2ND env5
+						env4   := §1ST env5
+						mul_   := §2ND env4
+						env3   := §1ST env4
+						sub_   := §2ND env3
+						env2   := §1ST env3
+						add_   := §2ND env2
+						env1   := §1ST env2
+						add := .add_ EMPTY
+						sub := .sub_ EMPTY
+						mul := .mul_ EMPTY
+						_1_1 := _1, _1
+						_2   := .add _1_1
+						_2_1 := _2, _1
+						_3   := .add _2_1
+						_2_2 := _2, _2
+						_4   := .add _2_2
+						_3_4 := _3, _4
+						_12  := .mul _3_4
+						§RETURN _12 IF TRUE
+					§DEF ...!! € t...!!
+						_1 := 1
+						eq_    := §2ND ENV
+						env4   := §1ST ENV
+						mul_   := §2ND env4
+						env3   := §1ST env4
+						sub_   := §2ND env3
+						env2   := §1ST env3
+						add_   := §2ND env2
+						env1   := §1ST env2
+						add := .add_ EMPTY
+						sub := .sub_ EMPTY
+						mul := .mul_ EMPTY
+						eq  := .eq_ EMPTY
+						_1_1 := _1, _1
+						_0   := .sub _1_1
+						arg    := §1ST ARG
+						res    := §2ND ARG
+						arg_0  := arg, _0
+						arg=0 := .eq arg_0
+						§RETURN res IF arg=0
+						res_arg := res, arg
+						newRes  := .mul res_arg
+						arg_1   := arg, _1
+						newArg  := .sub arg_1
+						newArg_newRes := newArg, newRes
+						§REPEAT newArg_newRes IF TRUE
+					§DEF ...! € t...!
+						_1 := 1
+						...!!_ := §2ND ENV
+						env5   := §1ST ENV
+						eq_    := §2ND env5
+						env4   := §1ST env5
+						mul_   := §2ND env4
+						env3   := §1ST env4
+						sub_   := §2ND env3
+						env2   := §1ST env3
+						add_   := §2ND env2
+						env1   := §1ST env2
+						...!! := . ...!!_ env5
+						arg_1 := ARG, _1       
+						res   := . ...!! arg_1
+						§RETURN res IF TRUE
+						
+					""",
 					"",
 					a => aDebugStream(a())
 				);
 				
-				var Proc1 = DefLookup.TryGet("bla").ThenTry(Defs.TryGet).ElseThrow("");
-				var Proc2 = DefLookup.TryGet("bla2").ThenTry(Defs.TryGet).ElseThrow("");
-				var Proc3 = DefLookup.TryGet("...!!").ThenTry(Defs.TryGet).ElseThrow("");
-				var Proc4 = DefLookup.TryGet("...!").ThenTry(Defs.TryGet).ElseThrow("");
-
+				var Proc1 = DefLookup.TryGet("bla").ThenTry(Defs.TryGet).ElseThrow();
+				var Proc2 = DefLookup.TryGet("bla2").ThenTry(Defs.TryGet).ElseThrow();
+				var Proc3 = DefLookup.TryGet("...!!").ThenTry(Defs.TryGet).ElseThrow();
+				var Proc4 = DefLookup.TryGet("...!").ThenTry(Defs.TryGet).ElseThrow();
+				
 				var Env = mVM_Data.Tuple(
-					mVM_Data.Def(Proc3),
 					mVM_Data.ExternDef(Add),
 					mVM_Data.ExternDef(Sub),
 					mVM_Data.ExternDef(Mul),
-					mVM_Data.ExternDef(Eq)
+					mVM_Data.ExternDef(Eq),
+					mVM_Data.Def(Proc3)
 				);
 				var Env_ = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),
@@ -366,12 +351,12 @@ mIL_GenerateOpcodes_Tests {
 					mVM_Data.ExternDef(Mul),
 					mVM_Data.ExternDef(Eq)
 				);
-#if MY_TRACE
+				#if MY_TRACE
 					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+						(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 					);
-#else
-				var TraceOut = mStd.Action(
+				#else
+					var TraceOut = mStd.Action(
 						(mStd.tFunc<tText> _) => {}
 					);
 				#endif

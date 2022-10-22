@@ -5,7 +5,6 @@
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
-[DebuggerStepThrough]
 public static class
 mPerf {
 	private const tInt32 cMaxLogCount = 1<<16;
@@ -16,7 +15,7 @@ mPerf {
 	
 	public sealed class
 	tDisposer : System.IDisposable {
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public void
 		Dispose(
 		) {
@@ -26,7 +25,7 @@ mPerf {
 	
 	private static readonly tDisposer gDisposer = new();
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tDisposer
 	Measure(
 		[xCallerName] tText aCallerName = "",
@@ -36,7 +35,7 @@ mPerf {
 		return gDisposer;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	EnterScope(
 		tText aCallerName,
@@ -51,7 +50,7 @@ mPerf {
 	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
 	#endif
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	ExitScope(
 	) {
@@ -92,9 +91,9 @@ mPerf {
 		out tNat64 aCycles
 	);
 	
-	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
+	private static readonly System.IntPtr PseudoHandle = -2;
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tNat64
 	ThreadCycles(
 	) {

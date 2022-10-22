@@ -3,19 +3,18 @@
 
 #nullable enable
 
-[DebuggerStepThrough]
 public static class
 mAny {
 	public readonly struct
 	tAny {
 		internal readonly object? _Value;
 		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tAny(object? aValue) {
 			this._Value = aValue;
 		}
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
 		Equals(
 			tAny a
@@ -24,23 +23,20 @@ mAny {
 			this._Value.Equals(a._Value)
 		);
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
 		Equals(
 			object? a
 		) => a is tAny X && this.Equals(X);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tAny
 	Any<t>(
 		t a
 	) => new(a);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
 	Match<t>(
 		this tAny a,
@@ -62,15 +58,13 @@ mAny {
 		}
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
 	Match(
 		this tAny a
 	) => a._Value is null;
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	To<t>(
 		this tAny a

@@ -15,31 +15,31 @@ mStdLib_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								{
-									...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
-									...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-									...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-								}
-								§DEF n € §INT
+						"""
+						§IMPORT (
+							{
+								...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+								...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+								...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+							}
+							§DEF n € §INT
+						)
+						
+						§DEF If...Then...Else... = (§DEF c € §BOOL, §DEF i € [[] => §INT], §DEF e € [[] => §INT]) => {
+							§RETURN (.i) IF c
+							§RETURN (.e)
+						}
+						
+						§RECURSIVE {
+							§DEF Fib... = §DEF a € §INT => .If (a .< 2) Then (
+								() => a
+							) Else (
+								() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 							)
-							
-							§DEF If...Then...Else... = (§DEF c € §BOOL, §DEF i € [[] => §INT], §DEF e € [[] => §INT]) => {
-								§RETURN (.i) IF c
-								§RETURN (.e)
-							}
-							
-							§RECURSIVE {
-								§DEF Fib... = §DEF a € §INT => .If (a .< 2) Then (
-									() => a
-								) Else (
-									() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-								)
-							}
-							
-							§EXPORT .Fib n
-						",
+						}
+						
+						§EXPORT .Fib n
+						""",
 						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(a => aDebugStream(a())),
@@ -56,26 +56,26 @@ mStdLib_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								{
-									...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
-									...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-									...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-									...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-								}
-								§DEF n € §INT
-							)
-							
-							§RECURSIVE {
-								§DEF Fib... = (§DEF a € §INT) => §IF {
-									a .< 2 => a
-									1 .== 1 => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
-								}
+						"""
+						§IMPORT (
+							{
+								...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+								...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+								...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+								...-...: §DEF ...-... € [[§INT, §INT] => §INT]
 							}
-							
-							§EXPORT .Fib n
-						",
+							§DEF n € §INT
+						)
+						
+						§RECURSIVE {
+							§DEF Fib... = (§DEF a € §INT) => §IF {
+								a .< 2 => a
+								1 .== 1 => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
+							}
+						}
+						
+						§EXPORT .Fib n
+						""",
 						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(a => aDebugStream(a())),
@@ -92,26 +92,26 @@ mStdLib_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								{
-									...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-									...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-									...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-								}
-								§DEF n € §INT
-							)
-							
-							§RECURSIVE {
-								§DEF Fib... = (§DEF a € §INT) => §IF a MATCH {
-									(§DEF a & a .== 0) => 0
-									(§DEF a & a .== 1) => 1
-									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-								}
+						"""
+						§IMPORT (
+							{
+								...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+								...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+								...-...: §DEF ...-... € [[§INT, §INT] => §INT]
 							}
-							
-							§EXPORT .Fib n
-						",
+							§DEF n € §INT
+						)
+						
+						§RECURSIVE {
+							§DEF Fib... = (§DEF a € §INT) => §IF a MATCH {
+								(§DEF a & a .== 0) => 0
+								(§DEF a & a .== 1) => 1
+								§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+							}
+						}
+						
+						§EXPORT .Fib n
+						""",
 						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(a => aDebugStream(a())),
@@ -128,25 +128,25 @@ mStdLib_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT (
-								{
-									...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
-									...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-									...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-								}
-								§DEF n € §INT
-							)
-							
-							§RECURSIVE {
-								§DEF Fib... = (§DEF x € §INT) => §IF x MATCH {
-									(§DEF a & a .< 2) => a
-									§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
-								}
+						"""
+						§IMPORT (
+							{
+								...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+								...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+								...-...: §DEF ...-... € [[§INT, §INT] => §INT]
 							}
-							
-							§EXPORT .Fib n
-						",
+							§DEF n € §INT
+						)
+						
+						§RECURSIVE {
+							§DEF Fib... = (§DEF x € §INT) => §IF x MATCH {
+								(§DEF a & a .< 2) => a
+								§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+							}
+						}
+						
+						§EXPORT .Fib n
+						""",
 						"",
 						mVM_Data.Tuple(
 							mStdLib.GetImportData(a => aDebugStream(a())),
@@ -163,31 +163,31 @@ mStdLib_Tests {
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
-						@"
-							§IMPORT {
-								...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-								...*...: §DEF ...*... € [[§INT, §INT] => §INT]
-							}
-							
-							§DEF +... = §DEF o € §INT : §DEF i € §INT {
-								o := ((§TO_VAL o) .+ i) .
-							}
-							
-							§DEF *... = §DEF o € §INT : §DEF i € §INT {
-								o := ((§TO_VAL o) .* i) .
-							}
-							
-							§VAR x := 1 .
-							
-							x : + 3, * 2 .
-							
-							x :
-								+ 3
-								* 2
-							.
-							
-							§EXPORT x
-						",
+						"""
+						§IMPORT {
+							...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+							...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+						}
+						
+						§DEF +... = §DEF o € §INT : §DEF i € §INT {
+							o := ((§TO_VAL o) .+ i) .
+						}
+						
+						§DEF *... = §DEF o € §INT : §DEF i € §INT {
+							o := ((§TO_VAL o) .* i) .
+						}
+						
+						§VAR x := 1 .
+						
+						x : + 3, * 2 .
+						
+						x :
+							+ 3
+							* 2
+						.
+						
+						§EXPORT x
+						""",
 						"",
 						mStdLib.GetImportData(a => aDebugStream(a())),
 						a => aDebugStream(a())
@@ -195,7 +195,7 @@ mStdLib_Tests {
 					mVM_Data.Var(mVM_Data.Int(22))
 				);
 			}
-		#if !true // TODO: implement methode type
+		#if !true // TODO: implement method type
 		),
 		mTest.Test(
 			"Echo",
@@ -224,18 +224,18 @@ mStdLib_Tests {
 					mVM_Data.Empty()
 				);
 				var Main = mSPO_Interpreter.Run(
-					@"
-						§IMPORT (
-							§DEF ReadLine € [tStreamIn : => §TEXT]
-							§DEF WriteLine... € [tStreamOut : §TEXT]
-						)
-						
-						§EXPORT (§DEF StdIn € tStreamIn, §DEF StdOut € tStreamOut) : §DEF Args € §INT {
-							StdIn : ReadLine => §DEF Line .
-							StdOut : WriteLine Line .
-							§RETURN 0
-						}
-					",
+					"""
+					§IMPORT (
+						§DEF ReadLine € [tStreamIn : => §TEXT]
+						§DEF WriteLine... € [tStreamOut : §TEXT]
+					)
+					
+					§EXPORT (§DEF StdIn € tStreamIn, §DEF StdOut € tStreamOut) : §DEF Args € §INT {
+						StdIn : ReadLine => §DEF Line .
+						StdOut : WriteLine Line .
+						§RETURN 0
+					}
+					""",
 					"",
 					mVM_Data.Tuple(ReadLine, WriteLine),
 					a => aDebugStream(a())

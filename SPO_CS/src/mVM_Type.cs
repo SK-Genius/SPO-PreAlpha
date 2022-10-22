@@ -4,8 +4,6 @@
 
 #nullable enable
 
-using System.Diagnostics.CodeAnalysis;
-
 public static class
 mVM_Type {
 	
@@ -30,7 +28,6 @@ mVM_Type {
 		Interface, // Existential
 	}
 	
-	[System.Diagnostics.DebuggerDisplay("{mVM_Type.ToText(this, 10)}")]
 	public class
 	tType {
 		public tKind Kind;
@@ -81,6 +78,10 @@ mVM_Type {
 			
 			return true;
 		}
+		
+		public override string
+		ToString(
+		) => this.ToText(10);
 	}
 	
 	public static readonly tText? cUnknownPrefix = null; // TODO
@@ -102,7 +103,7 @@ mVM_Type {
 	public static tType
 	Free(
 	) {
-		var Id = ""+NextPlaceholderId;
+		var Id = "?"+NextPlaceholderId;
 		NextPlaceholderId += 1;
 		return Free(Id);
 	}
@@ -110,13 +111,16 @@ mVM_Type {
 	public static tBool
 	MatchFree(
 		this tType aType,
-		[MaybeNullWhen(false)]out tText aId
+		[MaybeNullWhen(false)]out tText aId,
+		[MaybeNullWhen(false)]out tType aRef
 	) {
 		if (aType.Kind == tKind.Free) {
 			aId = aType.Id!;
+			aRef = aType.Refs[0];
 			return true;
 		} else {
 			aId = default!;
+			aRef = default;
 			return false;
 		}
 	}
@@ -126,7 +130,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Any };
 	
 	public static tBool
-	MarchAny(
+	MatchAny(
 		this tType aType
 	) => aType.Kind == tKind.Any;
 	
@@ -163,8 +167,17 @@ mVM_Type {
 	
 	public static tBool
 	MatchType(
-		this tType aType
-	) => aType.Kind == tKind.Type;
+		this tType aType,
+		out mMaybe.tMaybe<tType> aOfType
+	) { 
+		if (aType.Kind != tKind.Type) {
+			aOfType = mStd.cEmpty;
+			return false;
+		}
+		
+		aOfType = aType.Refs.Length == 0 ? mStd.cEmpty : aType.Refs[0];
+		return true;
+	}
 	
 	public static tType
 	Type(
@@ -173,20 +186,6 @@ mVM_Type {
 		Kind = tKind.Type,
 		Refs = aType is null ? new tType[0] : new []{ aType }
 	};
-	
-	public static tBool
-	MatchType(
-		this tType aType,
-		[MaybeNullWhen(false)] out tType aValue
-	) {
-		if (aType.Kind == tKind.Bool) {
-			aValue = aType.Refs[0];
-			return true;	
-		} else {
-			aValue = default!;
-			return false;
-		}
-	}
 	
 	public static tType
 	Value(
@@ -211,21 +210,29 @@ mVM_Type {
 		[MaybeNullWhen(false)]out tType aType1,
 		[MaybeNullWhen(false)]out tType aType2
 	) {
-		if (aType.Kind == tKind.Pair) {
-			aType1 = aType.Refs[0];
-			aType2 = aType.Refs[1];
-			return true;
-		} else {
-			aType1 = default!;
-			aType2 = default!;
-			return false;
+		switch (aType.Kind) {
+			case tKind.Pair: {
+				aType1 = aType.Refs[0];
+				aType2 = aType.Refs[1];
+				return true;
+			}
+			case tKind.Empty: {
+				aType1 = default!;
+				aType2 = default!;
+				return false;
+			}
+			default: {
+				aType1 = aType;
+				aType2 = Empty();
+				return true;
+			}
 		}
 	}
 	
 	public static tType
 	Tuple(
 		mStream.tStream<tType>? aTypes
-	) => aTypes.Reduce(Empty(), (aTail, aHead) => Pair(aHead, aTail));
+	) => aTypes.Reduce(Empty(), Pair);
 	
 	public static tType
 	Tuple(
@@ -402,10 +409,14 @@ mVM_Type {
 	Set(
 		tType aType1,
 		tType aType2
-	) => new() {
-		Kind = tKind.Set,
-		Refs = new []{ aType1, aType2 }
-	};
+	) {
+		mAssert.IsNotNull(aType1);
+		mAssert.IsNotNull(aType2);
+		return new() {
+			Kind = tKind.Set,
+			Refs = new []{ aType1, aType2 }
+		};
+	}
 	
 	public static tBool
 	MatchSet(
@@ -531,17 +542,157 @@ mVM_Type {
 		}
 	}
 	
-	public static tBool
+	public static tType
+	Normalize(
+		this tType a
+	) => (
+		a.Kind == tKind.Pair && a.Refs[1].MatchEmpty()
+		? a.Refs[0].Normalize()
+		: a
+	);
+	
+	public static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>?, tText>
 	IsSubType(
 		this tType aSubType,
 		tType aSupType,
-		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
+		mStream.tStream<(tType Free, tType Ref)>? aTypeMappings
 	) {
+		aSubType = aSubType.Normalize();
+		aSupType = aSupType.Normalize();
+		
 		if (aSubType == aSupType) {
-			return true;
+			return mResult.OK(aTypeMappings);
 		}
+		
+		var SubBaseType = aSubType.BaseType();
+		
+		if (aSupType.Kind is tKind.Free) {
+			return mResult.OK(
+				mStream.Stream(
+					(Free: aSupType, Ref: aSubType),
+					aTypeMappings
+				)
+			);
+		}
+		
+		if (aSubType.Kind is tKind.Free) {
+			return mResult.OK(
+				mStream.Stream(
+					(Free: aSubType, Ref: aSupType),
+					aTypeMappings
+				)
+			);
+		}
+		
 		// TODO: implement
-		throw new System.NotImplementedException();
+		switch (aSupType.Kind) {
+			case tKind.Free: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Any: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Empty:
+			case tKind.Bool:
+			case tKind.Int:
+			case tKind.Type: {
+				if (SubBaseType.Kind == aSupType.Kind) {
+					return mResult.OK(aTypeMappings);
+				} else {
+					return mResult.Fail($"{SubBaseType.Kind} != {aSupType.Kind}");
+				}
+			}
+			case tKind.Pair: {
+				if (
+					!SubBaseType.MatchPair(out var Sub1, out var Sub2) ||
+					!aSupType.MatchPair(out var Sup1, out var Sup2)
+				) {
+					return mResult.Fail(mStd.FileLine());
+				}
+				
+				return Sub1.IsSubType(
+					Sup1,
+					aTypeMappings
+				).ThenTry(
+					a => Sub2.IsSubType(
+						Sup2,
+						a
+					)
+				);
+			}
+			case tKind.Prefix: {
+				if (
+					SubBaseType.MatchPrefix(out var SubPrefix, out var Sub) &&
+					aSupType.MatchPrefix(out var SupPrefix, out var Sup) &&
+					SubPrefix == SupPrefix
+				) {
+					return Sub.IsSubType(Sup, aTypeMappings);
+				} else {
+					return mResult.Fail(mStd.FileLine());
+				}
+			}
+			case tKind.Record: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Proc: {
+				if (
+					!aSubType.MatchProc(out var SubObj, out var SubArg, out var SubRes) ||
+					!aSupType.MatchProc(out var SupObj, out var SupArg, out var SupRes)
+				) {
+					return mResult.Fail(mStd.FileLine());
+				}
+				
+				return SubObj.IsSubType(SupObj, aTypeMappings)
+				.ThenTry(_ => SupObj.IsSubType(SubObj, _))
+				.ThenTry(_ => SubArg.IsSubType(SupArg, _))
+				.ThenTry(_ => SubRes.IsSubType(SupRes, _));
+			}
+			case tKind.Var: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Ref: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Set: {
+				if (SubBaseType.Kind == tKind.Set) {
+					throw new System.NotImplementedException();
+				} else {
+					throw new System.NotImplementedException();
+				}
+			}
+			case tKind.Cond: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Recursive: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Generic: {
+				throw new System.NotImplementedException();
+			}
+			case tKind.Interface: {
+				throw new System.NotImplementedException();
+			}
+			default: {
+				mAssert.Impossible();
+				return default;
+			}
+		}
+	}
+	
+	public static tType
+	BaseType(
+		this tType a
+	) {
+		if (a.Kind == tKind.Cond) {
+			if (a.MatchCond(out var Sup)) {
+				return BaseType(Sup);
+			} else {
+				mAssert.Impossible();
+				return default;
+			}
+		} else {
+			return a;
+		}
 	}
 	
 	public static mResult.tResult<tType, tText>
@@ -556,7 +707,15 @@ mVM_Type {
 		}
 		
 		mAssert.IsTrue(aProc.MatchProc(out var ObjType, out var ArgType, out var ResType));
-		mAssert.IsTrue(IsSubType(aArg, ArgType, mStd.cEmpty));
+		mAssert.IsTrue(
+			aArg.IsSubType(ArgType, mStd.cEmpty).Match(out _, out var Error),
+			() => $"""
+			{Error}
+				{aArg}
+				is not a subtype of
+				{ArgType}
+			"""
+		);
 		mAssert.AreEquals(aObj, ObjType);
 		
 		return mResult.OK(ResType);
@@ -579,7 +738,7 @@ mVM_Type {
 			tKind.Type => "[[]]",
 			tKind.Free => "?"+aType.Id,
 			tKind.Prefix => $"[#{aType.Prefix} {aType.Refs[0].ToText(NextLimit)}]",
-			tKind.Record => mStd.Func(
+			tKind.Record => mStd.Call(
 				() => {
 					var Text = "[{";
 					var Type = aType;
@@ -596,8 +755,8 @@ mVM_Type {
 					}
 					return Text + "}]";
 				}
-			)(),
-			tKind.Pair => mStd.Func(
+			),
+			tKind.Pair => mStd.Call(
 				() => {
 					var Result = "[";
 					var Temp = aType;
@@ -613,8 +772,8 @@ mVM_Type {
 					}
 					return Result + "]";
 				}
-			)(),
-			tKind.Proc => mStd.Func(
+			),
+			tKind.Proc => mStd.Call(
 				() => {
 					var Result = "[";
 					if (aType.Refs[0].Kind != tKind.Empty) {
@@ -628,7 +787,7 @@ mVM_Type {
 					}
 					return Result + "]";
 				}
-			)(),
+			),
 			tKind.Ref => $"[§REF {aType.Refs[0].ToText(NextLimit)}]",
 			tKind.Set => $"[{mStream.Stream(aType.Refs).Map(a => a.ToText(NextLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]",
 			tKind.Var => $"[§VAR {aType.Refs[0].ToText(NextLimit)}]",

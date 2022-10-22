@@ -8,6 +8,8 @@ mSPO_AST_Types_Tests {
 	
 	#if true
 	
+	private const tInt32 cNoPos = 1; 
+	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mSPO_AST),
@@ -15,11 +17,11 @@ mSPO_AST_Types_Tests {
 			"Literals",
 			aDebugStream => {
 				mAssert.AreEquals(
-					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.Int(1, 1), default),
+					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.Int(cNoPos, 1), default),
 					mResult.OK(mVM_Type.Int())
 				);
 				mAssert.AreEquals(
-					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(1), default),
+					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
 					mResult.OK(mVM_Type.Bool())
 				);
 			}
@@ -30,10 +32,10 @@ mSPO_AST_Types_Tests {
 				mAssert.AreEquals(
 					mSPO_AST_Types.UpdateExpressionTypes(
 						mSPO_AST.Tuple(
-							1,
-							mStream.Stream<mSPO_AST.tExpressionNode<int>>(
-								mSPO_AST.Int(1, 1),
-								mSPO_AST.True(1)
+							cNoPos,
+							mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>(
+								mSPO_AST.Int(cNoPos, 1),
+								mSPO_AST.True(cNoPos)
 							)
 						),
 						default
@@ -46,7 +48,7 @@ mSPO_AST_Types_Tests {
 					)
 				);
 				mAssert.AreEquals(
-					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(1), default),
+					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
 					mResult.OK(mVM_Type.Bool())
 				);
 			}
@@ -57,22 +59,22 @@ mSPO_AST_Types_Tests {
 				mAssert.AreEquals(
 					mSPO_AST_Types.UpdateExpressionTypes(
 						mSPO_AST.Lambda(
-							1,
+							cNoPos,
 							mStd.cEmpty,
 							mSPO_AST.Match(
-								1,
+								cNoPos,
 								mSPO_AST.MatchPrefix(
-									1,
-									mSPO_AST.Ident(1, "Bla..."),
+									cNoPos,
+									mSPO_AST.Id(cNoPos, "Bla..."),
 									mSPO_AST.Match(
-										1,
-										mSPO_AST.MatchFreeIdent(1, "a"),
-										mSPO_AST.BoolType(1)
+										cNoPos,
+										mSPO_AST.MatchFreeId(cNoPos, "a"),
+										mSPO_AST.BoolType(cNoPos)
 									)
 								),
 								mStd.cEmpty
 							),
-							mSPO_AST.Ident(1, "a")
+							mSPO_AST.Id(cNoPos, "a")
 						),
 						default
 					),
@@ -99,7 +101,7 @@ mSPO_AST_Types_Tests {
 				);
 				
 				mAssert.AreEquals(
-					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(1), default),
+					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
 					mResult.OK(mVM_Type.Bool())
 				);
 			}

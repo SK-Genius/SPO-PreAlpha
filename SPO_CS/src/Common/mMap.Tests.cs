@@ -10,17 +10,6 @@ mMap_Tests {
 	Tests = mTest.Tests(
 		nameof(mMap),
 		mTest.Test(
-			"tMap.ForceGet",
-			aStreamOut => {
-				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
-				.Set("one", 1)
-				.Set("two", 2);
-				mAssert.AreEquals(TextToInt.ForceGet("one"), 1);
-				mAssert.AreEquals(TextToInt.ForceGet("two"), 2);
-				mAssert.ThrowsError(() => TextToInt.ForceGet("zero"));
-			}
-		),
-		mTest.Test(
 			"tMap.Get",
 			aStreamOut => {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)

@@ -9,17 +9,17 @@ public static class
 mIL_AST {
 	
 	public record tDef<tPos>(
-		tText Ident,
+		tText Id,
 		tText Type,
 		mStream.tStream<tCommandNode<tPos>>? Commands
 	);
 	
 	public static tDef<tPos>
 	Def<tPos>(
-		tText Ident,
+		tText Id,
 		tText Type,
 		mStream.tStream<tCommandNode<tPos>>? Commands
-	) => new(Ident, Type, Commands);
+	) => new(Id, Type, Commands);
 	
 	public record tModule<tPos>(
 		mStream.tStream<tCommandNode<tPos>>? TypeDef,
@@ -34,6 +34,7 @@ mIL_AST {
 	
 	public enum
 	tCommandNodeType {
+		_, // unused
 		_BeginExpressions_,
 		IsInt  = _BeginExpressions_,     // X := §IS_INT X
 		Int,       // X := §INT I
@@ -105,8 +106,8 @@ mIL_AST {
 	public static readonly tText cBoolType = "BOOL_TYPE";
 	public static readonly tText cIntType = "INT_TYPE";
 	public static readonly tText cTypeType = "Type_TYPE";
-		
-	[System.Diagnostics.DebuggerDisplay("{Pos}: {_1} = {NodeType} {_2.Else(\"-\")} {_3.Else(\"-\")}")]
+	
+	[DebuggerDisplay("{ToText(this)}")]
 	public struct
 	tCommandNode<tPos> {
 		public tCommandNodeType NodeType;
@@ -114,6 +115,8 @@ mIL_AST {
 		public tText _1;
 		public mMaybe.tMaybe<tText> _2;
 		public mMaybe.tMaybe<tText> _3;
+		
+		public override string ToString() => ToText(this);
 	}
 	
 	public static tText
@@ -213,7 +216,7 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2.ElseThrow("");
+			aId2 = aNode._2.ElseThrow();
 			return true;
 		} else {
 			aId1 = default!;
@@ -234,8 +237,8 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2.ElseThrow("");
-			aId3 = aNode._3.ElseThrow("");
+			aId2 = aNode._2.ElseThrow();
+			aId3 = aNode._3.ElseThrow();
 			return true;
 		} else {
 			aId1 = default!;
@@ -469,21 +472,21 @@ mIL_AST {
 		tPos aPos,
 		tText aResReg,
 		tText aCondReg
-	) => CommandNode(tCommandNodeType.ReturnIf, aPos, aResReg, aCondReg);
+	) => CommandNode(tCommandNodeType.ReturnIf, aPos, "", aCondReg, aResReg);
 	
 	public static tCommandNode<tPos>
 	RepeatIf<tPos>(
 		tPos aPos,
 		tText aArgReg,
 		tText aCondReg
-	) => CommandNode(tCommandNodeType.RepeatIf, aPos, aArgReg, aCondReg);
+	) => CommandNode(tCommandNodeType.RepeatIf, aPos, "", aCondReg, aArgReg);
 	
 	public static tCommandNode<tPos>
 	TailCallIf<tPos>(
 		tPos aPos,
 		tText aCallerArgReg,
 		tText aCondReg
-	) => CommandNode(tCommandNodeType.TailCallIf, aPos, aCallerArgReg, aCondReg);
+	) => CommandNode(tCommandNodeType.TailCallIf, aPos, "", aCondReg, aCallerArgReg);
 	
 	public static tCommandNode<tPos>
 	Assert<tPos>(

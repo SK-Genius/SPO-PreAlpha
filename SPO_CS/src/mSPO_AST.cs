@@ -105,18 +105,18 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIdentNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
+	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tText Name = default!;
+		public tText Id = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchFreeIdentNode<tPos> : tMatchItemNode<tPos> {
+	tMatchFreeIdNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tText Name = default!;
+		public tText Id = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -150,7 +150,7 @@ mSPO_AST {
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
+		public mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -158,7 +158,7 @@ mSPO_AST {
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? Elements;
+		public mStream.tStream<(tIdNode<tPos> Id, tMatchNode<tPos> Match)>? Elements;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -230,7 +230,7 @@ mSPO_AST {
 	tRecLambdaItemNode<tPos> : tNode<tPos>{
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchFreeIdentNode<tPos> Ident = default!;
+		public tMatchFreeIdNode<tPos> Id = default!;
 		public tLambdaNode<tPos> Lambda = default!;
 	}
 	
@@ -271,7 +271,7 @@ mSPO_AST {
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tIdentNode<tPos> Prefix = default!;
+		public tIdNode<tPos> Prefix = default!;
 		public mStream.tStream<tTypeNode<tPos>>? Expressions;
 	}
 	
@@ -306,7 +306,7 @@ mSPO_AST {
 	tRecursiveTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType = default!;
+		public tIdNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
@@ -315,7 +315,7 @@ mSPO_AST {
 	tInterfaceTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType = default!;
+		public tIdNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
@@ -324,7 +324,7 @@ mSPO_AST {
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tIdentNode<tPos> HeadType = default!;
+		public tIdNode<tPos> HeadType = default!;
 		public tTypeNode<tPos> BodyType = default!;
 	}
 	
@@ -333,7 +333,7 @@ mSPO_AST {
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tIdentNode<tPos> Ident = default!;
+		public tIdNode<tPos> Id = default!;
 		public tExpressionNode<tPos> Expression = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
@@ -350,7 +350,7 @@ mSPO_AST {
 	public sealed record
 	tMethodCallNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
-		public tIdentNode<tPos> Method = default!;
+		public tIdNode<tPos> Method = default!;
 		public tExpressionNode<tPos> Argument = default!;
 		public mMaybe.tMaybe<tMatchNode<tPos>> Result;
 	}
@@ -487,22 +487,22 @@ mSPO_AST {
 		Pos = aPos
 	};
 	
-	public static tIdentNode<tPos>
-	Ident<tPos>(
+	public static tIdNode<tPos>
+	Id<tPos>(
 		tPos aPos,
-		tText aName
+		tText aId
 	) => new() {
 		Pos = aPos,
-		Name = "_" + aName
+		Id = "_" + aId
 	};
 	
-	public static tMatchFreeIdentNode<tPos>
-	MatchFreeIdent<tPos>(
+	public static tMatchFreeIdNode<tPos>
+	MatchFreeId<tPos>(
 		tPos aPos,
-		tText aName
+		tText aId
 	) => new() {
 		Pos = aPos,
-		Name = "_" + aName
+		Id = "_" + aId
 	};
 	
 	public static tExpressionNode<tPos>
@@ -526,7 +526,7 @@ mSPO_AST {
 	public static tPrefixTypeNode<tPos>
 	PrefixType<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aPrefix,
+		tIdNode<tPos> aPrefix,
 		mStream.tStream<tTypeNode<tPos>>? aTypes
 	) => new() {
 		Pos = aPos,
@@ -568,7 +568,7 @@ mSPO_AST {
 	public static tRecursiveTypeNode<tPos>
 	RecursiveType<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aHeadType,
+		tIdNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
 	) => new() {
 		Pos = aPos,
@@ -579,7 +579,7 @@ mSPO_AST {
 	public static tInterfaceTypeNode<tPos>
 	InterfaceType<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aHeadType,
+		tIdNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
 	) => new() {
 		Pos = aPos,
@@ -590,7 +590,7 @@ mSPO_AST {
 	public static tGenericTypeNode<tPos>
 	GenericType<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aHeadType,
+		tIdNode<tPos> aHeadType,
 		tTypeNode<tPos> aBodyType
 	) => new() {
 		Pos = aPos,
@@ -612,29 +612,29 @@ mSPO_AST {
 	public static tPrefixNode<tPos>
 	Prefix<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aPrefix,
+		tIdNode<tPos> aPrefix,
 		tExpressionNode<tPos> aElement
 	) => new() {
 		Pos = aPos,
-		Prefix = aPrefix.Name,
+		Prefix = aPrefix.Id,
 		Element = aElement
 	};
 	
 	public static tMatchPrefixNode<tPos>
 	MatchPrefix<tPos>(
 		tPos aPos,
-		tIdentNode<tPos>aPrefix,
+		tIdNode<tPos>aPrefix,
 		tMatchNode<tPos> aMatch
 	) => new() {
 		Pos = aPos,
-		Prefix = aPrefix.Name,
+		Prefix = aPrefix.Id,
 		Match = aMatch
 	};
 	
 	public static tRecordNode<tPos>
 	Record<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdentNode<tPos> Key, tExpressionNode<tPos> Value)>? aRecordItems
+		mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)>? aRecordItems
 	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -643,7 +643,7 @@ mSPO_AST {
 	public static tMatchRecordNode<tPos>
 	MatchRecord<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdentNode<tPos> Key, tMatchNode<tPos> Match)>? aRecordItems
+		mStream.tStream<(tIdNode<tPos> Key, tMatchNode<tPos> Match)>? aRecordItems
 	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -689,11 +689,11 @@ mSPO_AST {
 	public static tRecLambdaItemNode<tPos>
 	RecLambdaItem<tPos>(
 		tPos aPos,
-		tMatchFreeIdentNode<tPos> aIdent,
+		tMatchFreeIdNode<tPos> aId,
 		tLambdaNode<tPos> aLambda
 	) => new() {
 		Pos = aPos,
-		Ident = aIdent,
+		Id = aId,
 		Lambda = aLambda
 	};
 	
@@ -705,19 +705,14 @@ mSPO_AST {
 		Pos = aPos,
 		List = aList
 	};
-
+	
 	public static tMatchItemNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
 		mStream.tStream<tMatchNode<tPos>>? aItems
-	) => aItems.Take(2).ToArrayList().Size() switch {
+	) => aItems.Take(2).Count() switch {
 		0 => throw mError.Error("impossible"),
-		1 => mStd.Call(
-			() => {
-				mAssert.IsTrue(aItems.Match(out var Head, out var _));
-				return Head;
-			}
-		),
+		1 => aItems.TryFirst().ElseThrow(),
 		_ => new tMatchTupleNode<tPos> {
 			Pos = aPos,
 			Items = aItems
@@ -732,7 +727,8 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Pattern = aMatch,
-		Type = aType
+		Type = aType,
+		TypeAnnotation = aMatch.TypeAnnotation,
 	};
 	
 	public static tMatchNode<tPos>
@@ -786,12 +782,12 @@ mSPO_AST {
 	public static tDefVarNode<tPos>
 	DefVar<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aVar,
+		tIdNode<tPos> aVar,
 		tExpressionNode<tPos> aExpression,
 		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
 	) => new() {
 		Pos = aPos,
-		Ident = aVar,
+		Id = aVar,
 		Expression = aExpression,
 		MethodCalls = aMethodCalls
 	};
@@ -841,7 +837,7 @@ mSPO_AST {
 	public static tMethodCallNode<tPos>
 	MethodCall<tPos>(
 		tPos aPos,
-		tIdentNode<tPos> aMethod,
+		tIdNode<tPos> aMethod,
 		tExpressionNode<tPos> aArgument,
 		mMaybe.tMaybe<tMatchNode<tPos>> aResult
 	) => new() {
@@ -934,16 +930,16 @@ mSPO_AST {
 			case tIgnoreMatchNode<tPos> _: {
 				return a2 is tIgnoreMatchNode<tPos>;
 			}
-			case tIdentNode<tPos> Node1: {
-				return a2 is tIdentNode<tPos> Node2 && Node1.Name == Node2.Name;
+			case tIdNode<tPos> Node1: {
+				return a2 is tIdNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
-			case tMatchFreeIdentNode<tPos> Node1: {
-				return a2 is tMatchFreeIdentNode<tPos> Node2 && Node1.Name == Node2.Name;
+			case tMatchFreeIdNode<tPos> Node1: {
+				return a2 is tMatchFreeIdNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
 			case tMatchTupleNode<tPos> Node1: {
 				return (
 					a2 is tMatchTupleNode<tPos> Node2 &&
-					mStream.Zip(Node1.Items, Node2.Items).All(_ => AreEqual(_._1, _._2))
+					mStream.Zip(Node1.Items, Node2.Items).All(a => AreEqual(a._1, a._2))
 				);
 			}
 			case tMatchNode<tPos> Node1: {
@@ -971,9 +967,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						_ => (
-							AreEqual(_._1.Key, _._2.Key) &&
-							AreEqual(_._1.Value, _._2.Value)
+						a => (
+							AreEqual(a._1.Key, a._2.Key) &&
+							AreEqual(a._1.Value, a._2.Value)
 						)
 					)
 				);
@@ -985,9 +981,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						_ => (
-							AreEqual(_._1.Key, _._2.Key) &&
-							AreEqual(_._1.Match, _._2.Match)
+						a => (
+							AreEqual(a._1.Id, a._2.Id) &&
+							AreEqual(a._1.Match, a._2.Match)
 						)
 					)
 				);
@@ -1032,14 +1028,14 @@ mSPO_AST {
 			case tRecLambdaItemNode<tPos> Node1: {
 				return (
 					a2 is tRecLambdaItemNode<tPos> Node2 &&
-					AreEqual(Node1.Ident, Node2.Ident) &&
+					AreEqual(Node1.Id, Node2.Id) &&
 					AreEqual(Node1.Lambda, Node2.Lambda)
 				);
 			}
 			case tRecLambdasNode<tPos> Node1: {
 				return (
 					a2 is tRecLambdasNode<tPos> Node2 &&
-					mStream.Zip(Node1.List, Node2.List).All(_ => AreEqual(_._1, _._2))
+					mStream.Zip(Node1.List, Node2.List).All(a => AreEqual(a._1, a._2))
 				);
 			}
 			case tReturnIfNode<tPos> _: {
@@ -1097,7 +1093,7 @@ mSPO_AST {
 				return (
 					a2 is tMethodCallsNode<tPos> Node2 &&
 					AreEqual(Node1.Object, Node2.Object) &&
-					mStream.Zip(Node1.MethodCalls, Node2.MethodCalls).All(_ => AreEqual(_._1, _._2))
+					mStream.Zip(Node1.MethodCalls, Node2.MethodCalls).All(a => AreEqual(a._1, a._2))
 				);
 			}
 			case tPipeToRightNode<tPos> _: {
@@ -1109,7 +1105,7 @@ mSPO_AST {
 			case tTupleNode<tPos> Node1: {
 				return (
 					a2 is tTupleNode<tPos> Node2 &&
-					mStream.Zip(Node1.Items, Node2.Items).All(_ => AreEqual(_._1, _._2))
+					mStream.Zip(Node1.Items, Node2.Items).All(a => AreEqual(a._1, a._2))
 				);
 			}
 			case tImportNode<tPos> _: {
@@ -1140,7 +1136,7 @@ mSPO_AST {
 		aLimit -= 1;
 		return aNode switch {
 			// Expressions
-			tIdentNode<t> Node => Node.Name,
+			tIdNode<t> Node => Node.Id,
 			tEmptyNode<t> Node => "()",
 			tTrueNode<t> Node => "#True",
 			tFalseNode<t> Node => "#False",
@@ -1167,7 +1163,7 @@ mSPO_AST {
 				)
 			),
 			tIgnoreMatchNode<t> Node => "_",
-			tMatchFreeIdentNode<t> Node => "§DEF " + Node.Name,
+			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
 			tMatchPrefixNode<t> Node => $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})",
 			tMatchTupleNode<t> Node => $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})",
 			tMatchGuardNode<t> Node => $"({Node.Match.ToText(aLimit)} & {Node.Guard.ToText(aLimit)})",
@@ -1182,7 +1178,7 @@ mSPO_AST {
 			// Commands
 			tBlockNode<t> Node => "{...}",
 			tMethodCallsNode<t> Node => $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(Some: _ => _.ToText(aLimit), None: () => "()")}",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(Some: a => a.ToText(aLimit), None: () => "()")}",
 			tReturnIfNode<t> Node => $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}",
 			tDefNode<t> Node => $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}",
 			_ => "(???)",

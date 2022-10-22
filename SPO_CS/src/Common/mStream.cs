@@ -6,21 +6,16 @@
 
 //#define TAIL_RECURSIVE
 
-using System.Diagnostics.CodeAnalysis;
-
-[DebuggerStepThrough]
 public static class
 mStream {
 	
-	[DebuggerStepThrough]
 	[DebuggerTypeProxy(typeof(tStream<>.tDebuggerProxy))]
 	public sealed class
 	tStream<t> {
 		internal readonly t _Head = default!;
 		internal readonly mLazy.tLazy<tStream<t>?> _Tail;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tStream(
 			t aHead,
@@ -30,43 +25,54 @@ mStream {
 			this._Tail = aTail;
 		}
 		
-		[Pure]
+		[Pure, DebuggerHidden]
 		public tBool
 		Equals(
 			tStream<t>? a
-		) => (
-			this.Match(out var Head1, out var Tail1) &&
-			a.Match(out var Head2, out var Tail2) &&
-			Head1.Equals(Head2) &&
-			(Tail1 is null ? Tail2 is null : Tail1.Equals(Tail2))
+		) => this.Match(
+			[DebuggerHidden]() => a.IsEmpty(),
+			[DebuggerHidden](aHead1, aTail1) => a.Match(
+				[DebuggerHidden]() => false,
+				[DebuggerHidden](aHead2, aTail2) => Equals(aHead1, aHead2) && Equals(aTail1, aTail2)
+			)
 		);
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tStream<t>?)a);
 		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public static
 		implicit operator tStream<t>?(
 			mStd.tEmpty _
 		) => null;
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public override string
+		ToString(
+		) => this.Reduce(
+			new System.Text.StringBuilder().AppendLine("("),
+			[DebuggerHidden](aSB, a) => aSB.Append("  ").AppendLine(a.ToString())
+		).AppendLine(
+			")"
+		).ToString();
 		
 		private struct tDebuggerProxy {
 			private readonly tStream<t> _Stream;
 			
 			public tDebuggerProxy(tStream<t> a) { this._Stream = a; }
 			
-			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public t[] Text {
 				get {
-					var Count = this._Stream.Take(100).Reduce(0, (a, _) => a + 1);
+					var Count = this._Stream.Take(100).Count();
 					return this._Stream.Take(100).MapWithIndex(
-						(aIndex, aItem) => (Index: aIndex, Value: aItem)
+						[DebuggerHidden](aIndex, aItem) => (Index: aIndex, Value: aItem)
 					).Reduce(
 						new t[Count],
-						(aArray, a) => {
+						[DebuggerHidden](aArray, a) => {
 							aArray[a.Index] = a.Value;
 							return aArray;
 						}
@@ -76,14 +82,12 @@ mStream {
 		}
 	}
 	
-	[DebuggerStepThrough]
 	public struct
 	tStreamIterator<t> {
 		private t _Head;
 		private tStream<t>? _Tail;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public
 		tStreamIterator(
 			tStream<t> aStream
@@ -94,22 +98,19 @@ mStream {
 		
 		public t Current => this._Head;
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public bool
 		MoveNext(
 		) => this._Tail.Match(out this._Head, out this._Tail);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStreamIterator<t>
 	GetEnumerator<t>(
-		this tStream<t> aStream
+		this tStream<t>? aStream
 	) => new(aStream);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
 		t aHead,
@@ -119,8 +120,7 @@ mStream {
 		mLazy.Lazy(aTailFunc)
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
 		t aHead,
@@ -130,14 +130,12 @@ mStream {
 		aTail
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
 	) => mStd.cEmpty;
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
 		params t[] aStream
@@ -149,21 +147,51 @@ mStream {
 		return Result;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	AsStream<t>(
 		this t[] a
 	) => Stream(a);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<tInt32>?
 	Nat(
 		int aStart
 	) => Stream(aStart, () => Nat(aStart+1));
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tOut
+	Match<tIn, tOut>(
+		this tStream<tIn> aStream,
+		mStd.tFunc<tOut> aOnNone,
+		mStd.tFunc<tOut, tIn, tStream<tIn>> aOnAny
+	) => (
+		aStream is null
+		? aOnNone()
+		: aOnAny(aStream._Head, aStream._Tail.Value)
+	);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tOut
+	Match<tIn, tOut>(
+		this tStream<tIn> aStream,
+		mStd.tFunc<tOut> aOnNone,
+		mStd.tFunc<tOut, tStream<tIn>> aOnAny
+	) => (
+		aStream is null
+		? aOnNone()
+		: aOnAny(aStream)
+	);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tOut
+	Match<tIn, tOut>(
+		this tStream<tIn> aStream,
+		mStd.tFunc<tOut, tIn, tStream<tIn>> aOnAny,
+		mStd.tFunc<tOut> aOnNone
+	) => aStream.Match(aOnNone, aOnAny);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	Match<t>(
 		[NotNullWhen(true)] this tStream<t>? aStream,
@@ -181,18 +209,32 @@ mStream {
 		}
 	}
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Concat<t>(
 		tStream<t>? a1,
 		tStream<t>? a2
-	) => (
-		a1.Match(out var Head, out var Tail)
-		? Stream(Head, () => Concat(Tail, a2))
-		: a2
+	) => a1.Match(
+		[DebuggerHidden]() => a2,
+		[DebuggerHidden](aHead, aTail) => Stream(aHead, () => Concat(aTail, a2))
 	);
 	
-	[Pure]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>?
+	Flatt<t>(
+		params tStream<t>?[] a
+	) => mStream.Stream(a).Flatt();
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>?
+	Flatt<t>(
+		this tStream<tStream<t>?>? a
+	) => a.Reduce(
+		default(tStream<t>?),
+		(aRes, a) => Concat(aRes, a)
+	);
+	
+	[Pure, DebuggerHidden]
 	[return: NotNullIfNotNull("aStream")]
 	public static tStream<tRes>?
 	Map<tRes, tElem>(
@@ -200,26 +242,24 @@ mStream {
 		mStd.tFunc<tRes, tElem> aMapFunc
 	) => (
 		aStream.Match(out var Head, out var Tail)
-		? Stream(aMapFunc(Head), () => Tail.Map(aMapFunc))
+		? Stream(aMapFunc(Head), [DebuggerHidden]() => Tail.Map(aMapFunc))
 		: Stream<tRes>()
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<tRes>?
 	MapWithIndex<tRes, tElem>(
 		this tStream<tElem>? aStream,
 		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
-	) => aStream.MapWithIndex().Map(a => aMapFunc(a.Index, a.Item));
+	) => aStream.MapWithIndex().Map([DebuggerHidden](a) => aMapFunc(a.Index, a.Item));
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<(tInt32 Index, t Item)>?
 	MapWithIndex<t>(
 		this tStream<t>? aStream
 	) => Zip(Nat(0), aStream);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tRes
 	Reduce<tRes, tElem>(
 		this tStream<tElem>? aStream,
@@ -241,7 +281,13 @@ mStream {
 	}
 	#endif
 	
-	[Pure]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tInt32
+	Count<t>(
+		this tStream<t>? aStream
+	) => aStream.Reduce(0, (a, _) => a + 1);
+	
+	[Pure, DebuggerHidden]
 	public static mMaybe.tMaybe<t>
 	TryReduce<t>(
 		this tStream<t>? aStream,
@@ -252,13 +298,7 @@ mStream {
 		: mStd.cEmpty
 	);
 	
-	[Pure]
-	public static tStream<t>?
-	Flat<t>(
-		this tStream<tStream<t>?>? aStreamStream
-	) => aStreamStream.Reduce(Stream<t>(), Concat);
-	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static t
 	Join<t>(
 		this tStream<t>? aStream,
@@ -270,7 +310,7 @@ mStream {
 		: aDefault
 	);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Take<t>(
 		this tStream<t>? aStream,
@@ -281,7 +321,7 @@ mStream {
 		: mStd.cEmpty
 	);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Skip<t>(
 		this tStream<t>? aStream,
@@ -300,7 +340,7 @@ mStream {
 		#endif
 	}
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	SkipUntil<t>(
 		this tStream<t>? aStream,
@@ -314,15 +354,14 @@ mStream {
 		return default;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	SkipWhile<t>(
 		this tStream<t>? aStream,
 		mStd.tFunc<tBool, t> aCond
-	) => aStream.SkipUntil(_ => !aCond(_));
+	) => aStream.SkipUntil([DebuggerHidden](a) => !aCond(a));
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Every<t>(
 		this tStream<t>? aStream,
@@ -333,7 +372,7 @@ mStream {
 		: Stream<t>()
 	);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Where<t>(
 		this tStream<t>? aStream,
@@ -342,28 +381,26 @@ mStream {
 		#if TAIL_RECURSIVE
 		return (
 			!aStream.Match(out var Head, out var Tail) ? Stream<t>() :
-			aPredicate(Head) ? Stream(Head, () => Tail.Where(aPredicate)) :
+			aPredicate(Head) ? Stream(Head, [DebuggerHidden]() => Tail.Where(aPredicate)) :
 			Tail.Where(aPredicate)
 		);
 		#else
 		while (aStream.Match(out var Head, out aStream)) {
 			if (aPredicate(Head)) {
-				return Stream(Head, () => aStream.Where(aPredicate));
+				return Stream(Head, [DebuggerHidden]() => aStream.Where(aPredicate));
 			}
 		}
 		return Stream<t>();
 		#endif
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	IsEmpty<t>(
 		[NotNullWhen(false)]this tStream<t>? aStream
 	) => aStream is null;
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mMaybe.tMaybe<t>
 	TryFirst<t>(
 		this tStream<t>? aStream
@@ -373,7 +410,7 @@ mStream {
 		: mMaybe.Some(aStream._Head)
 	);
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static mMaybe.tMaybe<t>
 	TryLast<t>(
 		this tStream<t>? aStream
@@ -385,7 +422,7 @@ mStream {
 		return Result;
 	}
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tBool
 	Any(
 		this tStream<tBool>? aStream
@@ -402,38 +439,34 @@ mStream {
 		#endif
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mMaybe.tMaybe<t>
 	TryGet<t>(
 		this tStream<t>? aStream,
 		tInt32 aIndex
 	) => aStream.Skip(aIndex).TryFirst();
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	Any<t>(
 		this tStream<t>? aStream,
 		mStd.tFunc<tBool, t> aPrefix
 	) => aStream.Map(aPrefix).Any();
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	All(
 		this tStream<tBool>? aStream
-	) => !aStream.Map(_ => !_).Any();
+	) => !aStream.Map(a => !a).Any();
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	All<t>(
 		this tStream<t>? aStream,
 		mStd.tFunc<tBool, t> aPrefix
 	) => aStream.Map(aPrefix).All();
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	Reverse<t>(
 		this tStream<t>? aStream
@@ -445,7 +478,7 @@ mStream {
 		return Result;
 	}
 	
-	[Pure]
+	[Pure, DebuggerHidden]
 	public static tStream<(t1 _1, t2 _2)>?
 	Zip<t1, t2>(
 		tStream<t1>? a1,

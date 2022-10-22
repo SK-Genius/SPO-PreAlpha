@@ -4,9 +4,6 @@
 
 #nullable enable
 
-[assembly:InternalsVisibleTo(nameof(mArrayList)+"_Test")]
-
-[DebuggerStepThrough]
 public static class
 mArrayList {
 	
@@ -15,8 +12,7 @@ mArrayList {
 		internal tInt32 _CurrSize;
 		internal t[] _Items = System.Array.Empty<t>();
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
 		Equals(
 			tArrayList<t> a
@@ -33,16 +29,14 @@ mArrayList {
 			return true;
 		}
 		
-		[Pure]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
 		Equals(
 			object? a
 		) => this.Equals((tArrayList<t>)a!);
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	List<t>(
 		params t[] aArray
@@ -51,21 +45,19 @@ mArrayList {
 		_Items = (t[])aArray.Clone()
 	};
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
 	Size<t>(
 		this tArrayList<t> aList
 	) => aList._CurrSize;
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	IsEmpty<t>(
 		this tArrayList<t> aList
 	) => aList.Size() == 0;
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static void
 	Resize<t>(
 		this tArrayList<t> aList
@@ -75,7 +67,7 @@ mArrayList {
 		aList._Items = NewArray;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
@@ -89,7 +81,7 @@ mArrayList {
 		return aList;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
@@ -101,7 +93,7 @@ mArrayList {
 		return aList;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	Pop<t>(
 		this tArrayList<t> aList 
@@ -114,7 +106,7 @@ mArrayList {
 		return Item;
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	Pop<t>(
 		this tArrayList<t> aList,
@@ -124,8 +116,7 @@ mArrayList {
 		return aList;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	Get<t>(
 		this tArrayList<t> aList,
@@ -135,7 +126,7 @@ mArrayList {
 		return aList._Items[aIndex];
 	}
 	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	Set<t>(
 		this tArrayList<t> aList,
@@ -145,8 +136,7 @@ mArrayList {
 		aList._Items[aIndex] = aValue;
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	Concat<t>(
 		tArrayList<t> a1,
@@ -161,15 +151,13 @@ mArrayList {
 		};
 	}
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<t>?
 	ToLazyList<t>(
 		this tArrayList<t> aList
 	) => aList.ToStream(0);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<t>?
 	ToStream<t>(
 		this tArrayList<t> aList,
@@ -183,22 +171,19 @@ mArrayList {
 		)
 	);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<t>?
 	ToStream<t>(
 		this tArrayList<t> aList
 	) => aList.ToStream(0);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	ToArrayList<t>(
 		this mStream.tStream<t>? aList
 	) => aList.Reduce(List<t>(), Push);
 	
-	[Pure]
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t[]
 	ToArray<t>(
 		this tArrayList<t> a

@@ -41,7 +41,7 @@ mVM_Tests {
 						mVM_Type.Empty(),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()),
+							mVM_Type.Tuple(mVM_Type.Int(), mVM_Type.Int()),
 							mVM_Type.Int()
 						),
 						mVM_Type.Proc(
@@ -79,7 +79,7 @@ mVM_Tests {
 						mVM_Type.Empty(),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()),
+							mVM_Type.Tuple(mVM_Type.Int(), mVM_Type.Int()),
 							mVM_Type.Int()
 						),
 						mVM_Type.Proc(

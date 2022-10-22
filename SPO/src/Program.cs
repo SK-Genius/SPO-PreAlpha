@@ -74,7 +74,7 @@ mProgram {
 				mVM_Data.Prefix("IO", mVM_Data.Empty()),
 				mVM_Data.Empty(),
 				Result,
-				a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
+				a => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
 				a => {} //DebugOut
 			);
 			

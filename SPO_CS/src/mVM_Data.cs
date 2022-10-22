@@ -569,7 +569,7 @@ mVM_Data {
 		Type
 	}
 	
-	[System.Diagnostics.DebuggerDisplay("{mVM_Data.ToText(this, 3)}")]
+	[DebuggerDisplay("{mVM_Data.ToText(this, 3)}")]
 	public sealed class
 	tData {
 		public tDataType _DataType;
@@ -689,12 +689,19 @@ mVM_Data {
 		this tData aData,
 		out tData aFirst,
 		out tData aSecond
-	) => aData.Match(tDataType.Pair, out aFirst, out aSecond);
+	) {
+		if (!aData.Match(tDataType.Pair, out aFirst, out aSecond)) {
+			aFirst = aData;
+			aSecond = Empty();
+			return false;
+		}
+		return true;
+	}
 	
 	public static tData
 	Tuple(
 		params tData[] a
-	) => mStream.Stream(a).Reverse().Reduce(Empty(), (aList, aItem) => Pair(aItem, aList));
+	) => mStream.Stream(a).Reduce(Empty(), Pair);
 	
 	public static tBool
 	MatchTuple(
@@ -928,7 +935,7 @@ mVM_Data {
 		
 		return 0 switch {
 			_ when a.MatchEmpty()
-			=> "§EMPTY",
+			=> "()",
 			
 			_ when a.MatchBool(out var Bool)
 			=> Bool ? "§TRUE" : "§FALSE",
@@ -953,17 +960,16 @@ mVM_Data {
 			_ when a.MatchVar(out var Value)
 			=> $"(§VAR {Value.ToText(NextLimit)})",
 			
-			_ when a.MatchPair(out var Rest1, out var Rest2)
+			_ when a.MatchPair(out var Left, out var Right)
 			=> mStd.Call(() => {
-				var Result = "(" + Rest1.ToText(NextLimit);
-				while (Rest2.MatchPair(out Rest1, out var Temp)) {
-					Result += ", " + Rest1.ToText(NextLimit);
-					Rest2 = Temp;
+				var Result = Right.ToText(NextLimit) + ")";
+				while (Left.MatchPair(out Left, out Right)) {
+					Result = Right.ToText(NextLimit) + ", " + Result;
 				}
-				if (!Rest2.MatchEmpty()) {
-					Result += "; " + Rest2.ToText(NextLimit);
+				if (!Left.MatchEmpty()) {
+					Result = Left.ToText(NextLimit) + "; " + Result;
 				}
-				return Result + ")";
+				return "(" + Result;
 			}),
 			
 			_ when a.MatchProc(out var Def, out var Env)

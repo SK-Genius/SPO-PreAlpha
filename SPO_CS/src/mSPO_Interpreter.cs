@@ -5,47 +5,47 @@
 
 #nullable enable
 
-using tPos = mTextStream.tPos;
-using tSpan = mSpan.tSpan<mTextStream.tPos>;
-
 public static class
 mSPO_Interpreter {
 	
+	// TODO: return tResult
 	public static mVM_Data.tData
 	Run(
 		tText aCode,
-		tText aIdent,
+		tText aId,
 		mVM_Data.tData aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aIdent, aDebugStream);
+		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
 		
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
 			ModuleNode.Import.Match,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
-			mStream.Stream<(tText Ident, mVM_Type.tType Type)>()
+			mStd.cEmpty
 		).Then(
 			a => a.Scope
 		).ElseThrow();
 		
 		var Scope = ModuleNode.Commands.Reduce(
 			mResult.OK(InitScope).AsResult<tText>(),
-			(aResultScope, aCommand) => aResultScope.ThenTry(aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope))
-		);
+			(aResultScope, aCommand) => aResultScope.ThenTry(
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+			)
+		).ElseThrow();
 		
-		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge);
+		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, Scope);
 		
-		return mIL_GenerateOpcodes.Run(
+		return mVM.Run(
 			mIL_AST.Module(
 				Module.TypeDef.ToStream(),
 				Module.Defs.ToStream(
 				).MapWithIndex(
-					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.TempDef(aIndex), aDef.Type, aDef.Commands.ToStream())
+					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.DefId(aIndex), aDef.Type, aDef.Commands.ToStream())
 				)
 			),
 			aImport,
-			a => $"{a.Start.Ident}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
+			a => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
 			aDebugStream
 		);
 	}
