@@ -25,34 +25,34 @@ mStdLib {
 				§TYPES
 					t1 := [BOOL => BOOL]
 					t1_ := [EMPTY => t1]
-					t2_ := [BOOL, EMPTY]
-					t2 := [BOOL, t2_]
+					t2_ := [EMPTY, BOOL]
+					t2 := [t2_, BOOL]
 					t3 := [t2 => BOOL]
 					t3_ := [EMPTY => t3]
 					t4 := [INT => INT]
 					t4_ := [EMPTY => t4]
-					t5_ := [INT, EMPTY]
-					t5 := [INT, t5_]
+					t5_ := [EMPTY, INT]
+					t5 := [t5_, INT]
 					t6 := [t5 => INT]
 					t6_ := [EMPTY => t6]
 					t7 := [t5 => BOOL]
 					t7_ := [EMPTY => t7]
-					t8 := [t1_, EMPTY]
-					t9 := [t3_, t8]
-					t10 := [t3_, t9]
-					t11 := [t3_, t10]
-					t12 := [t4_, t11]
-					t13 := [t6_, t12]
-					t14 := [t6_, t13]
-					t15 := [t6_, t14]
-					t16 := [t6_, t15]
-					t17 := [t6_, t16]
-					t18 := [t7_, t17]
-					t19 := [t7_, t18]
-					t20 := [t7_, t19]
-					t21 := [t7_, t20]
-					t22 := [t7_, t21]
-					t23 := [t7_, t22]
+					t8 := [EMPTY, t1_]
+					t9 := [t8, t3_]
+					t10 := [t9, t3_]
+					t11 := [t10, t3_]
+					t12 := [t11, t4_]
+					t13 := [t12, t6_]
+					t14 := [t13, t6_]
+					t15 := [t14, t6_]
+					t16 := [t15, t6_]
+					t17 := [t16, t6_]
+					t18 := [t17, t7_]
+					t19 := [t18, t7_]
+					t20 := [t19, t7_]
+					t21 := [t20, t7_]
+					t22 := [t21, t7_]
+					t23 := [t22, t7_]
 					t24 := [EMPTY => EMPTY]
 					t25 := [t23 => t24]
 					t26 := [#_!... t1]
@@ -91,37 +91,37 @@ mStdLib {
 					t59 := [t23 => t58]
 				§DEF Init € t59
 					_01 := ENV
-					...<=... := §1ST _01
-					_02 := §2ND _01
-					...<... := §1ST _02
-					_03 := §2ND _02
-					...>=... := §1ST _03
-					_04 := §2ND _03
-					...>... := §1ST _04
-					_05 := §2ND _04
-					...!=... := §1ST _05
-					_06 := §2ND _05
-					...==... := §1ST _06
-					_07 := §2ND _06
-					...%... := §1ST _07
-					_08 := §2ND _07
-					.../... := §1ST _08
-					_09 := §2ND _08
-					...*... := §1ST _09
-					_10 := §2ND _09
-					...-... := §1ST _10
-					_11 := §2ND _10
-					...+... := §1ST _11
-					_12 := §2ND _11
-					-... := §1ST _12
-					_13 := §2ND _12
-					...^... := §1ST _13
-					_14 := §2ND _13
-					...|... := §1ST _14
-					_15 := §2ND _14
-					...&... := §1ST _15
-					_16 := §2ND _15
-					!... := §1ST _16
+					...<=... := §2ND _01
+					_02 := §1ST _01
+					...<... := §2ND _02
+					_03 := §1ST _02
+					...>=... := §2ND _03
+					_04 := §1ST _03
+					...>... := §2ND _04
+					_05 := §1ST _04
+					...!=... := §2ND _05
+					_06 := §1ST _05
+					...==... := §2ND _06
+					_07 := §1ST _06
+					...%... := §2ND _07
+					_08 := §1ST _07
+					.../... := §2ND _08
+					_09 := §1ST _08
+					...*... := §2ND _09
+					_10 := §1ST _09
+					...-... := §2ND _10
+					_11 := §1ST _10
+					...+... := §2ND _11
+					_12 := §1ST _11
+					-... := §2ND _12
+					_13 := §1ST _12
+					...^... := §2ND _13
+					_14 := §1ST _13
+					...|... := §2ND _14
+					_15 := §1ST _14
+					...&... := §2ND _15
+					_16 := §1ST _15
+					!... := §2ND _16
 					_50 := . !... EMPTY
 					_50_ := +#_!... _50
 					_51 := {EMPTY} + _50_
@@ -175,21 +175,21 @@ mStdLib {
 					Res := §BOOL ARG ^ TRUE
 					§RETURN Res IF TRUE
 				§DEF ...&... € t3_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §BOOL A & B
 					§RETURN Res IF TRUE
 				§DEF ...|... € t3_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §BOOL A | B
 					§RETURN Res IF TRUE
 				§DEF ...^... € t3_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §BOOL A ^ B
 					§RETURN Res IF TRUE
 				§DEF -... € t4_
@@ -198,62 +198,62 @@ mStdLib {
 					Res := §INT _0 - ARG
 					§RETURN Res IF TRUE
 				§DEF ...+... € t6_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §INT A + B
 					§RETURN Res IF TRUE
 				§DEF ...-... € t6_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §INT A - B
 					§RETURN Res IF TRUE
 				§DEF ...*... € t6_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §INT A * B
 					§RETURN Res IF TRUE
 				§DEF .../... € t6_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					DivMod := §INT A / B
 					Res := §1ST DivMod
 					§RETURN Res IF TRUE
 				§DEF ...%... € t6_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					DivMod := §INT A / B
 					Res := §2ND DivMod
 					§RETURN Res IF TRUE
 				§DEF ...==... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Res := §INT A == B
 					§RETURN Res IF TRUE
 				§DEF ...!=... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					Comp := §INT A == B
 					Res := §BOOL Comp ^ TRUE
 					§RETURN Res IF TRUE
 				§DEF ...>... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					_1 := ONE
 					Comp := §INT A <=> B
 					Res := §INT Comp == _1
 					§RETURN Res IF TRUE
 				§DEF ...>=... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					_1 := ONE
 					_0 := §INT _1 - _1
 					Comp := §INT A <=> B
@@ -262,9 +262,9 @@ mStdLib {
 					Res := §BOOL >? | =?
 					§RETURN Res IF TRUE
 				§DEF ...<... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					_1 := ONE
 					_0 := §INT _1 - _1
 					_-1 := §INT _0 - _1
@@ -272,9 +272,9 @@ mStdLib {
 					Res := §INT Comp == _-1
 					§RETURN Res IF TRUE
 				§DEF ...<=... € t7_
-					A := §1ST ARG
-					_ := §2ND ARG
-					B := §1ST _
+					B := §2ND ARG
+					_ := §1ST ARG
+					A := §2ND _
 					_1 := ONE
 					_0 := §INT _1 - _1
 					_-1 := §INT _0 - _1

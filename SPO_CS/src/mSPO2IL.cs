@@ -24,11 +24,11 @@ mSPO2IL {
 	
 	public struct
 	tDefConstructor<tPos> {
-		public tInt32 Index;
+		public tNat32 Index;
 		public tText Id; // TODO: remove because redundant, see ModuleConstructor
 		public tText? TypeId; // TODO: remove because redundant, see ModuleConstructor
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands;
-		public tInt32 LastTempReg;
+		public tNat32 LastTempReg;
 		public mArrayList.tArrayList<tText> FreeIds;
 		public mArrayList.tArrayList<(tText Id, tPos Pos)> EnvIds;
 		public tModuleConstructor<tPos> ModuleConstructor; // TODO: remove back ref
@@ -63,8 +63,8 @@ mSPO2IL {
 		};
 	}
 	
-	public static tText RegId(tInt32 a) => "t_" + a;
-	public static tText DefId(tInt32 a) => "d_" + a;
+	public static tText RegId(tNat32 a) => "t_" + a;
+	public static tText DefId(tNat32 a) => "d_" + a;
 	public static tText Id(tText a) => "_" + a;
 	
 	public static tText
@@ -113,41 +113,52 @@ mSPO2IL {
 		mVM_Type.tType aType
 	) {
 		switch (aType.Normalize()) {
-			case var a when (a.MatchType(out _)):{
+			case var a when (a.IsType(out _)):{
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cTypeType, a);
 				return mIL_GenerateOpcodes.cTypeType;
 			}
-			case var a when a.MatchEmpty(): {
+			case var a when a.IsEmpty(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cEmptyType, a);
 				return mIL_GenerateOpcodes.cEmptyType;
 			}
-			case var a when a.MatchBool(): {
+			case var a when a.IsBool(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cBoolType, a);
 				return mIL_GenerateOpcodes.cBoolType;
 			}
-			case var a when a.MatchInt(): {
+			case var a when a.IsInt(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cIntType, a);
 				return mIL_GenerateOpcodes.cIntType;
 			}
-			case var a when a.MatchFree(out var Id_, out var Ref): {
+			case var a when a.IsFree(out var Id_, out var Ref): {
 				if (Ref.Kind == mVM_Type.tKind.Free) {
 					aModuleConstructor.Types = aModuleConstructor.Types.Set(Id_, a);
+					// TODO: aModuleConstructor.TypeDef.Push(...) ???
 					return Id_;
 				} else {
 					return aModuleConstructor.MapType(Ref);
 				}
 			}
-			case var a when a.MatchPrefix(out var Prefix, out var Id): {
-				var NewId = $"[#{Prefix} {Id}]";
+			case var a when a.IsPrefix(out var Prefix, out var Type): {
+				var Id = aModuleConstructor.MapType(Type);
+				var NewId = $"[#{Prefix}:{Id}]";
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), NewId, Prefix, Id));
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.MatchRecord(out var Key, out var HeadId, out var TailId): {
-				var NewId = $"[{{{Key}: {HeadId}, {TailId}}}]";
+			case var a when a.IsRecord(out var Key, out var HeadType, out var TailType): {
+				var IdHead = aModuleConstructor.MapType(HeadType);
+				var IdTail = aModuleConstructor.MapType(TailType);
+				
+				var TempId = $"[#{Key}:{IdHead}]";
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), TempId, Key, IdHead));
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(TempId, mVM_Type.Prefix(Key, HeadType));
+				
+				var NewId = $"[{{{Key}:{IdHead};{IdTail}}}]";
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecord(default(tPos), NewId, IdTail, TempId));
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.MatchPair(out var Type1, out var Type2) && !Type2.MatchEmpty(): {
+			case var a when a.IsPair(out var Type1, out var Type2) && !Type2.IsEmpty(): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
 				var NewId = $"[{Id1};{Id2}]";
@@ -155,7 +166,7 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.MatchSet(out var Type1, out var Type2): {
+			case var a when a.IsSet(out var Type1, out var Type2): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
 				var NewId = $"[{Id1}|{Id2}]";
@@ -163,13 +174,13 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.MatchProc(out var EnvType, out var ArgType, out var ResType): {
+			case var a when a.IsProc(out var EnvType, out var ArgType, out var ResType): {
 				var IdArg = aModuleConstructor.MapType(ArgType);
 				var IdRes = aModuleConstructor.MapType(ResType);
 				var IdFunc = $"[{IdArg}->{IdRes}]";
 				aModuleConstructor.TypeDef.Push(mIL_AST.TypeFunc(default(tPos), IdFunc, IdArg, IdRes));
 				
-				if (EnvType.MatchEmpty()) {
+				if (EnvType.IsEmpty()) {
 					aModuleConstructor.Types = aModuleConstructor.Types.Set(IdFunc, a);
 					return IdFunc;
 				}
@@ -214,7 +225,7 @@ mSPO2IL {
 						if (!aEnvId.Id.StartsWith("d_")) {
 							throw new Exception();
 						}
-						var TypeName = Defs.Get(tInt32.Parse(aEnvId.Id[2..])).Type;
+						var TypeName = Defs.Get(tNat32.Parse(aEnvId.Id[2..])).Type;
 						return (
 							Id: aEnvId.Id,
 							Type: Types.TryGet(
@@ -236,7 +247,7 @@ mSPO2IL {
 						if (!a.Id.StartsWith("d_")) {
 							throw new Exception();
 						}
-						var TypeName = Defs.Get(tInt32.Parse(a.Id[2..])).Type;
+						var TypeName = Defs.Get(tNat32.Parse(a.Id[2..])).Type;
 						return Types.TryGet(
 							TypeName
 						).ElseThrow(
@@ -361,7 +372,7 @@ mSPO2IL {
 	}
 	
 	public static (
-		tInt32 Index,
+		tNat32 Index,
 		mArrayList.tArrayList<(tText Id, tPos Pos)> EnvIds,
 		mStream.tStream<(tText Id, mVM_Type.tType Type)>? Scope
 	)
@@ -510,11 +521,11 @@ mSPO2IL {
 						throw mError.Error("impossible");
 					}
 					case 1: {
-						mAssert.IsTrue(Items.Match(out var Head, out var _));
+						mAssert.IsTrue(Items.Is(out var Head, out var _));
 						return aDefConstructor.MapExpresion(Head, aScope);
 					}
 					default: {
-						mAssert.IsTrue(Items.Match(out var Head, out var _));
+						mAssert.IsTrue(Items.Is(out var Head, out var _));
 						var TailReg = mIL_AST.cEmpty;
 						foreach (var Item in Items) {
 							var HeadReg = aDefConstructor.MapExpresion(Item, aScope);
@@ -662,7 +673,7 @@ mSPO2IL {
 				
 				var Scope = mSPO_AST_Types.UpdateCommandTypes(Def, aScope).ElseThrow();
 				
-				aDefConstructor.MapCommand(
+				aDefConstructor.MapDef(
 					Def,
 					Scope
 				);
@@ -707,8 +718,10 @@ mSPO2IL {
 					RunDef.Commands.Push(mIL_AST.ReturnIf(CasePos, TempReg, mIL_AST.cTrue));
 					RunDef.FinishMapProc(CasePos, CaseType, aScope);
 					var RunProc = SwitchDef.InitProc(CasePos, RunDef.Id, RunDef.EnvIds, aScope);
+					var CallerArgPair_ = SwitchDef.CreateTempReg();
+					SwitchDef.Commands.Push(mIL_AST.CreatePair(CasePos, CallerArgPair_, mIL_AST.cEmpty, RunProc));
 					var CallerArgPair = SwitchDef.CreateTempReg();
-					SwitchDef.Commands.Push(mIL_AST.CreatePair(CasePos, CallerArgPair, RunProc, mIL_AST.cArg));
+					SwitchDef.Commands.Push(mIL_AST.CreatePair(CasePos, CallerArgPair, CallerArgPair_, mIL_AST.cArg));
 					
 					SwitchDef.Commands.Push(mIL_AST.TailCallIf(CasePos, CallerArgPair, TestResult));
 				}
@@ -758,7 +771,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tSetTypeNode<tPos>{ Expressions: var Expressions }: {
 			//--------------------------------------------------------------------------------
-				mAssert.IsTrue(Expressions.Match(out var Head, out var Tail));
+				mAssert.IsTrue(Expressions.Is(out var Head, out var Tail));
 				var ResultReg = aDefConstructor.MapExpresion(Head, aScope);
 				foreach (var Expression in Tail) {
 					var ExprReg = aDefConstructor.MapExpresion(Expression, aScope);
@@ -771,7 +784,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTupleTypeNode<tPos>{Expressions: var Expressions }: {
 			//--------------------------------------------------------------------------------
-				if (!Expressions.Match(out var First, out var Rest)) {
+				if (!Expressions.Is(out var First, out var Rest)) {
 					return mIL_AST.cEmptyType;
 				} else {
 					var Pos = First.Pos;
@@ -920,6 +933,12 @@ mSPO2IL {
 				return mStd.cEmpty;
 			}
 			//--------------------------------------------------------------------------------
+			case mSPO_AST.tIntNode<tPos> IntNode: {
+			//--------------------------------------------------------------------------------
+				// TODO: ???
+				return mStd.cEmpty;
+			}
+			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchFreeIdNode<tPos>{ Pos: var Pos, Id: var Name }: {
 			//--------------------------------------------------------------------------------
 				mAssert.AreNotEquals(Name, "_");
@@ -944,7 +963,7 @@ mSPO2IL {
 						aReg
 					)
 				);
-				return  aDefConstructor.MapMatch(
+				return aDefConstructor.MapMatch(
 					Match,
 					ResultReg
 				);
@@ -959,7 +978,7 @@ mSPO2IL {
 					var Reg = aReg;
 					var Found = false;
 					var RecType = TypeAnnotation.ElseThrow();
-					while (RecType.MatchRecord(out var HeadId, out var HeadType, out RecType!)) {
+					while (RecType.IsRecord(out var HeadId, out var HeadType, out RecType!)) {
 						var HeadTailReg = aDefConstructor.CreateTempReg();
 						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
 						if (HeadId == IdNode.Id) {
@@ -987,7 +1006,7 @@ mSPO2IL {
 				//--------------------------------------------------------------------------------
 				var Scope = mStream.Stream<(tText Id, mVM_Type.tType Type)>();
 				var RestReg = aReg;
-				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2);
+				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), (tNat32)2);
 				foreach (var Item in Items.Reverse()) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetSecond(PatternNode.Pos, ItemReg, RestReg));
@@ -1123,7 +1142,7 @@ mSPO2IL {
 				var CondReg = aDefConstructor.CreateTempReg();
 				var InvCondReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
-					mIL_AST.IsPair(Pos, IsIntReg, aInReg),
+					mIL_AST.IsInt(Pos, IsIntReg, aInReg),
 					mIL_AST.XOr(Pos, IsNotIntReg, IsIntReg, mIL_AST.cTrue),
 					mIL_AST.ReturnIf(Pos, mIL_AST.cFalse, IsNotIntReg),
 					mIL_AST.CreateInt(Pos, IntReg, $"{Value}"),
@@ -1189,7 +1208,7 @@ mSPO2IL {
 	) {
 		// TODO: set proper Def type ?
 		
-		var NewDefIndices = mArrayList.List<tInt32>();
+		var NewDefIndices = mArrayList.List<tNat32>();
 		var SPODefNodes = mArrayList.List<mSPO_AST.tRecLambdaItemNode<tPos>>();
 		var TempLambdaDefs = mArrayList.List<tDefConstructor<tPos>>();
 		var AllEnvIds = mArrayList.List<(tText Id, tPos Pos)>();
@@ -1209,7 +1228,7 @@ mSPO2IL {
 		// create all rec. func. in each rec. func.
 		var FuncNames = aRecLambdasNode.List.Map(a => a.Id.Id).ToArrayList();
 		foreach (var TempLambdaDef in TempLambdaDefs.ToArray()) {
-			for (var J = 0; J < Max; J += 1) {
+			foreach (var J in mStream.Nat(0).Take(Max)) {
 				var Definition = AllEnvIds.Get(J);
 				TempLambdaDef.Commands.Push(
 					mIL_AST.CallFunc(Definition.Pos, FuncNames.Get(J), Definition.Id, mIL_AST.cEnv)
@@ -1219,7 +1238,7 @@ mSPO2IL {
 		
 		// InitMapLambda(...) for all rec. func.
 		var Scope = aScope;
-		for (var I = 0; I < Max; I += 1) {
+		foreach (var I in mStream.Nat(0).Take(Max)) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempLambdaDef = TempLambdaDefs.Get(I);
 			
@@ -1239,7 +1258,7 @@ mSPO2IL {
 		}
 		
 		// FinishMapProc(...) for all rec. func.
-		for (var I = 0; I < Max; I += 1) {
+		foreach (var I in mStream.Nat(0).Take(Max)) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempDefConstructor = TempLambdaDefs.Get(I);
 			
@@ -1402,7 +1421,20 @@ mSPO2IL {
 			);
 		}
 		
-		string.Create(10, 1, (span, i) => span[0] = (char)i);
+		var EnvIds = TempLambdaDef.EnvIds.ToStream();
+		TempLambdaDef.EnvIds = mStream.Nat(
+			1
+		).Take(
+			TempLambdaDef.EnvIds.Size()
+		).Reverse( // TODO(SK): remove
+		).Map(
+			aNr => EnvIds.Where(
+				aEnvId => aEnvId.Id == "d_"+aNr
+			).TryFirst(
+			).ElseThrow(
+			)
+		).ToArrayList(
+		);
 		
 		// TODO: set proper Def type ?
 		var DefSymbols = mArrayList.List<(tText Id, tPos Pos)>();

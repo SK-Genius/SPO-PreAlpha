@@ -11,8 +11,8 @@ mSPO_Parser_Tests {
 	
 	private static tSpan
 	Span(
-		(tInt32 Row, tInt32 Col) aStart,
-		(tInt32 Row, tInt32 Col) aEnd
+		(tNat32 Row, tNat32 Col) aStart,
+		(tNat32 Row, tNat32 Col) aEnd
 	) => mSpan.Span(
 		new tPos {
 			Id = "",

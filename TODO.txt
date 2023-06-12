@@ -1,6 +1,7 @@
 ﻿NEXT:
 =====
 	o more compile time type checks
+		- type conditions (dependent types ???)
 
 	o fix pattern matching for tuple: check if last element is empty type '[]'
 
@@ -30,8 +31,8 @@
 			- §CONTINUE...
 
 
-ROADMAP:
-========
+ROAD_MAP:
+=========
 	o self hosted
 	o concurrency
 

@@ -14,9 +14,7 @@ mAssert {
 	public static void
 	Fail(
 		tText? aMsg = null
-	) {
-		throw mError.Error(cErrorPrefix + (aMsg ?? $"Fail"));
-	}
+	) => throw mError.Error(cErrorPrefix + (aMsg ?? $"Fail"));
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
@@ -44,9 +42,20 @@ mAssert {
 	public static void
 	IsFalse(
 		[DoesNotReturnIf(true)]tBool a,
-		mStd.tFunc<tText>? aMsg = null
+		mStd.tFunc<tText>? aMsg
 	) {
 		IsTrue(!a, () => aMsg?.Invoke() ?? "is not false");
+	}
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static void
+	IsFalse(
+		[DoesNotReturnIf(true)] tBool a,
+		[CallerArgumentExpression("a")] tText aMsg = ""
+	) {
+		if (a) {
+			Fail(aMsg);
+		}
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -94,14 +103,12 @@ mAssert {
 					return (
 						Line1 is null ? $"""
 							
-							{Gray($"< ---")}
-							{Gray($">{aIndex + 1}:")} {Red(Line2)}
+							{Gray($">{aIndex + 1}:")} {Green(Line2)}
 							""" :
 						
 						Line2 is null ? $"""
 							
 							{Gray($"<{aIndex + 1}:")} {Red(Line1)}
-							{Gray($"> ---")}
 							""" :
 						
 						Line1 == Line2 ? $"""
@@ -112,14 +119,14 @@ mAssert {
 						$"""
 							
 							{Gray($"<{aIndex + 1}:")} {Red(Line1)}
-							{Gray($">{aIndex + 1}:")} {Red(Line2)}
+							{Gray($">{aIndex + 1}:")} {Green(Line2)}
 							"""
 					);
 				}
 			).Join(
 				(a1, a2) => a1 + '\n' + a2,
 				""
-			) ?? ""
+			).Replace("\r", "") ?? ""
 		);
 		return a1;
 		
@@ -214,9 +221,9 @@ mAssert {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tText
-	SwitchColors(
+	Green(
 		tText a
-	) => mConsole.SwitchColor(a);
+	) => mConsole.Color(mConsole.tColorCode.Green, a);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tText
@@ -229,10 +236,4 @@ mAssert {
 	Gray(
 		tText a
 	) => mConsole.Color(mConsole.tColorCode.Gray, a);
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	private static tText
-	Yellow(
-		tText a
-	) => mConsole.Color(mConsole.tColorCode.Yellow, a);
 }

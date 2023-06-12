@@ -59,7 +59,7 @@ mSPO_AST_Types {
 				).WhenAllThen(
 					a => a.Reduce(
 						mVM_Type.Empty(),
-						(aTail, aHead) => mVM_Type.Record(aHead, aTail)
+						(aTail, aHead) => mVM_Type.Record(aTail, aHead)
 					)
 				)
 			),
@@ -127,7 +127,7 @@ mSPO_AST_Types {
 					aScope
 				).ThenTry(
 					aFuncType => (
-						aFuncType.MatchProc(out var ObjType, out var ArgType, out var ResType)
+						aFuncType.IsProc(out var ObjType, out var ArgType, out var ResType)
 						? mResult.OK((ObjType, ArgType, ResType)).AsResult<tText>()
 						: mResult.Fail(mStd.FileLine())
 					)
@@ -161,7 +161,7 @@ mSPO_AST_Types {
 				mStd.Call(
 					() => {
 						var Type = VarToVal.Obj.TypeAnnotation.ElseThrow();
-						mAssert.IsTrue(Type.MatchVar(out var ValType));
+						mAssert.IsTrue(Type.IsVar(out var ValType));
 						return mResult.OK(ValType);
 					}
 				)
@@ -230,7 +230,7 @@ mSPO_AST_Types {
 				Result = aType.ThenDo(
 					a => mStd.Call(
 						() => {
-							if (a.MatchType(out var OfType)) {
+							if (a.IsType(out var OfType)) {
 								a = OfType.Match(
 									None: () => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
 									Some: aType => a
@@ -251,8 +251,8 @@ mSPO_AST_Types {
 			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
 				var SubType = mMaybe.None<mVM_Type.tType>();
 				if (aType.IsSome(out var Type_)) {
-					while (Type_.MatchSet(out var Type, out var Types)) {
-						if (Type.MatchPrefix(out var Prefix, out var SubType_) && Prefix == MatchPrefix.Prefix) {
+					while (Type_.IsSet(out var Type, out var Types)) {
+						if (Type.IsPrefix(out var Prefix, out var SubType_) && Prefix == MatchPrefix.Prefix) {
 							SubType = SubType_;
 							Type_ = Type;
 							break;
@@ -260,7 +260,7 @@ mSPO_AST_Types {
 						Type_ = Types;
 					}
 					{
-						mAssert.IsTrue(Type_.MatchPrefix(out var Prefix, out var SubType__));
+						mAssert.IsTrue(Type_.IsPrefix(out var Prefix, out var SubType__));
 						SubType = SubType__;
 						mAssert.AreEquals(Prefix, MatchPrefix.Prefix);
 					}
@@ -275,7 +275,7 @@ mSPO_AST_Types {
 				var NewScope = aScope;
 				if (aType.IsSome(out var TypeTail)) {
 					foreach (var Item in MatchTuple.Items.Reverse()) {
-						if (!TypeTail.MatchPair(out TypeTail!, out var Type1)) {
+						if (!TypeTail.IsPair(out TypeTail!, out var Type1)) {
 							return mResult.Fail($"{Item.Pos}: ERROR expected pair");
 						}
 						
@@ -304,7 +304,7 @@ mSPO_AST_Types {
 				foreach (var Item in MatchRecord.Elements) {
 					var Type = mMaybe.None<mVM_Type.tType>();
 					if (aType.IsSome(out var RecordType)) { 
-						while (RecordType.MatchRecord(out var Id, out var Type_, out RecordType!)) {
+						while (RecordType.IsRecord(out var Id, out var Type_, out RecordType!)) {
 							Type = Type_;
 							if (Id == Item.Id.Id) {
 								break;
@@ -320,7 +320,7 @@ mSPO_AST_Types {
 							aTypeRelation,
 							a1.Scope
 						).Then(
-							a2 => (mVM_Type.Record(mVM_Type.Prefix(Item.Id.Id, a2.Type), a1.Type), a2.Scope)
+							a2 => (mVM_Type.Record(a1.Type, mVM_Type.Prefix(Item.Id.Id, a2.Type)), a2.Scope)
 						)
 					);
 				}
@@ -366,7 +366,7 @@ mSPO_AST_Types {
 	) => UpdateExpressionTypes(aMethodCall.Argument, aScope).ThenTry(
 		aArgType => UpdateExpressionTypes(aMethodCall.Method, aScope).ThenTry(
 			aMethodType => (
-				aMethodType.MatchProc(out var MethObjType, out var MethArgType, out var MethResType)
+				aMethodType.IsProc(out var MethObjType, out var MethArgType, out var MethResType)
 				? (mResult.tResult<(mVM_Type.tType MethObjType, mVM_Type.tType MethArgType, mVM_Type.tType MethResType), tText>)mResult.OK((MethObjType, MethArgType, MethResType))
 				: mResult.Fail(mStd.FileLine())
 			)
@@ -579,7 +579,7 @@ mSPO_AST_Types {
 				).ElseFail(
 					() => $"{IdNode.Pos}: unknown type of Identifier '{IdNode.Id}'"
 				).ThenTry(
-					a => a.Type.MatchType(out var OfType)
+					a => a.Type.IsType(out var OfType)
 					? OfType.ElseFail(() => "TODO")
 					: mResult.Fail("TODO")
 				);

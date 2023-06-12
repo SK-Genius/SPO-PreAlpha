@@ -11,6 +11,13 @@ mMath {
 	) => (a1 > a2) ? a1 : a2;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tNat32
+	Max(
+		tNat32 a1,
+		tNat32 a2
+	) => (a1 > a2) ? a1 : a2;
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
 	Abs(
 		this tInt32 a

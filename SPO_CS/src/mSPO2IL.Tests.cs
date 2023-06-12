@@ -12,8 +12,8 @@ mSPO2IL_Tests {
 	
 	private static tSpan
 	Span(
-		(tInt32 Row, tInt32 Col) aStart,
-		(tInt32 Row, tInt32 Col) aEnd
+		(tNat32 Row, tNat32 Col) aStart,
+		(tNat32 Row, tNat32 Col) aEnd
 	) => mSpan.Span(
 		new tPos {
 			Id = "",
@@ -262,11 +262,11 @@ mSPO2IL_Tests {
 				var DefConstructor = Module.NewDefConstructor();
 				DefConstructor.MapDef(DefNode, Scope);
 				
-				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), (tNat32)2);
 				mAssert.AreEquals(
 					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
-						mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.Id("...*..."), mIL_AST.cEnv), // [ENV]:(...*...) => ...*...
+						mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.Id("...*..."), mIL_AST.cEnv), // ENV == ...*...
 						
 						mIL_AST.Alias(Span((1, 10), (1, 22)), mSPO2IL.Id("a"), mIL_AST.cArg), // ARG == a
 						
@@ -279,7 +279,7 @@ mSPO2IL_Tests {
 					)
 				);
 				
-				mAssert.AreEquals(DefConstructor.Index, 0);
+				mAssert.AreEquals(DefConstructor.Index, (tNat32)0);
 				
 				mAssert.AreEquals(
 					DefConstructor.Commands.ToStream(),
@@ -345,7 +345,7 @@ mSPO2IL_Tests {
 				var DefConstructor = Module.NewDefConstructor();
 				DefConstructor.MapDef(DefNode, Scope);
 				
-				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), (tNat32)2);
 				mAssert.AreEquals(
 					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
@@ -374,7 +374,7 @@ mSPO2IL_Tests {
 					)
 				);
 				
-				mAssert.AreEquals(DefConstructor.Index, 0);
+				mAssert.AreEquals(DefConstructor.Index, (tNat32)0);
 				mAssert.AreEquals(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
@@ -442,7 +442,7 @@ mSPO2IL_Tests {
 				var DefConstructor = Module.NewDefConstructor();
 				DefConstructor.MapDef(DefNode, Scope);
 				
-				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), 2);
+				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), (tNat32)2);
 				mAssert.AreEquals(
 					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
@@ -471,7 +471,7 @@ mSPO2IL_Tests {
 					)
 				);
 				
-				mAssert.AreEquals(DefConstructor.Index, 0);
+				mAssert.AreEquals(DefConstructor.Index, (tNat32)0);
 				mAssert.AreEquals(
 					DefConstructor.Commands.ToStream(),
 					mStream.Stream(
@@ -488,6 +488,83 @@ mSPO2IL_Tests {
 						(mSPO2IL.Id("...>..."), Span((1, 69), (1, 81))),
 						(mSPO2IL.Id("...*..."), Span((1, 70), (1, 75))),
 						(mSPO2IL.DefId(1), Span((1, 20), (1, 81)))
+					)
+				);
+			}
+		),
+		mTest.Test("MapIfMatch",
+			aStreamOut => {
+				var DefNode = mSPO_Parser.Def.ParseText(
+					//        1         2         3         4         5         6         7         8
+					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+					"""
+					§DEF x = §IF 1 MATCH {
+						0 => 2
+						1 => 4
+						_ => 6
+					}
+					""",
+					"",
+					a => aStreamOut(a())
+				);
+				
+				var InitScope = mStream.Stream<(tText Id, mVM_Type.tType Type)>();
+				var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
+				mAssert.AreEquals(
+					Scope,
+					mStream.Stream(
+						(
+							Id: mSPO2IL.Id("x"),
+							Type: mVM_Type.Int()
+						),
+						InitScope
+					)
+				);
+				
+				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
+				var DefConstructor = Module.NewDefConstructor();
+				DefConstructor.MapDef(DefNode, Scope);
+				
+				foreach (var def in DefConstructor.ModuleConstructor.Defs.ToArray()) {
+					foreach (var command in def.Commands.ToStream()) {
+						aStreamOut(command.ToText());
+					}
+					aStreamOut("");
+				}
+				aStreamOut("");
+				
+				mAssert.AreEquals(DefConstructor.ModuleConstructor.Defs.Size(), (tNat32)8);
+				mAssert.AreEquals(
+					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
+					mStream.Stream(
+						mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.Id("...*..."), mIL_AST.cEnv), // ENV == ...*...
+						
+						mIL_AST.Alias(Span((1, 10), (1, 22)), mSPO2IL.Id("a"), mIL_AST.cArg), // ARG == a
+						
+						mIL_AST.CreateInt(Span((1, 27), (1, 27)), mSPO2IL.RegId(1), "2"), // 2 => [1]:2
+						mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.RegId(2), mIL_AST.cEmpty, mSPO2IL.RegId(1)), // (); [1]:2 => [2]:(2)
+						mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.RegId(3), mSPO2IL.RegId(2), mSPO2IL.Id("a")), // [2]:(2); a => (2, a)
+						
+						mIL_AST.CallFunc(Span((1, 27), (1, 32)), mSPO2IL.RegId(4), mSPO2IL.Id("...*..."), mSPO2IL.RegId(3)), // ...*... (2, a) => [4]
+						mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mSPO2IL.RegId(4), mIL_AST.cTrue) // [4] TRUE
+					)
+				);
+				
+				mAssert.AreEquals(DefConstructor.Index, (tNat32)0);
+				
+				mAssert.AreEquals(
+					DefConstructor.Commands.ToStream(),
+					mStream.Stream(
+						mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.RegId(1), mSPO2IL.DefId(1), mSPO2IL.Id("...*...")),
+						mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.Id("x"), mSPO2IL.RegId(1))
+					)
+				);
+				
+				mAssert.AreEquals(
+					DefConstructor.EnvIds.ToStream(),
+					mStream.Stream(
+						(mSPO2IL.Id("...*..."), Span((1, 27), (1, 32))),
+						(mSPO2IL.DefId(1), Span((1, 10), (1, 32)))
 					)
 				);
 			}
@@ -538,9 +615,9 @@ mSPO2IL_Tests {
 				
 				var (DefId, EnvIds) = ModuleConstructor.MapLambda(LambdaNode, InitScope);
 				
-				var DefIndex = 0;
+				var DefIndex = (tNat32)0;
 				
-				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1);
+				mAssert.AreEquals(ModuleConstructor.Defs.Size(), (tNat32)1);
 				mAssert.AreEquals(DefId, mSPO2IL.DefId(DefIndex));
 				mAssert.AreEquals(
 					ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
@@ -610,7 +687,7 @@ mSPO2IL_Tests {
 				
 				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
 				
-				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2);
+				mAssert.AreEquals(ModuleConstructor.Defs.Size(), (tNat32)2);
 				
 				mAssert.AreEquals(
 					ModuleConstructor.Defs.Get(0).Commands.ToStream(),

@@ -10,8 +10,8 @@ mTextStream {
 	public struct
 	tPos {
 		public tText Id;
-		public tInt32 Row;
-		public tInt32 Col;
+		public tNat32 Row;
+		public tNat32 Col;
 		
 		public override tText
 		ToString(
@@ -22,8 +22,8 @@ mTextStream {
 	public static tPos
 	Pos(
 		tText aId,
-		tInt32 aRow,
-		tInt32 aCol
+		tNat32 aRow,
+		tNat32 aCol
 	) => new() {
 		Id = aId,
 		Row = aRow,
@@ -76,8 +76,8 @@ mTextStream {
 		this tText aText,
 		tText aId
 	) {
-		var Col = (int?)1;
-		var Row = (int?)1;
+		var Col = (tNat32?)1;
+		var Row = (tNat32?)1;
 		
 		return mStream.Stream(
 			aText.ToCharArray()

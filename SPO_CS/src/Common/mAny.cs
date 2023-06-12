@@ -38,7 +38,7 @@ mAny {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
-	Match<t>(
+	Is<t>(
 		this tAny a,
 		out t aValue
 	) {
@@ -60,7 +60,7 @@ mAny {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
-	Match(
+	Is(
 		this tAny a
 	) => a._Value is null;
 	
@@ -69,7 +69,7 @@ mAny {
 	To<t>(
 		this tAny a
 	) => (
-		a.Match(out t Result)
+		a.Is(out t Result)
 		? Result
 		: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
 	);

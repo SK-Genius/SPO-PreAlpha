@@ -21,8 +21,8 @@ mTextParser {
 		tPos a2
 	) => mMath.Sign(
 		a1.Row != a2.Row
-		? a1.Row - a2.Row
-		: a1.Col - a2.Col
+		? (tInt32)a1.Row - (tInt32)a2.Row
+		: (tInt32)a1.Col - (tInt32)a2.Col
 	);
 	
 	[Pure, DebuggerHidden]
@@ -44,7 +44,7 @@ mTextParser {
 			throw mError.Error(
 				$"{Pos.Id}({Pos.Row}, {Pos.Col}): expected end of text\n" +
 				$"{Line}\n" +
-				$"{Line[..StartSpacesCount] + new tText(' ', Pos.Col - StartSpacesCount - 1)}^"
+				$"{Line[..StartSpacesCount] + new tText(' ', (tInt32)Pos.Col - StartSpacesCount - 1)}^"
 			);
 		}
 		return Result.Result;

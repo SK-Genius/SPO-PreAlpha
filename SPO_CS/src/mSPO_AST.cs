@@ -513,7 +513,7 @@ mSPO_AST {
 		0 => Empty(aPos),
 		1 => mStd.Call(
 			() => {
-				mAssert.IsTrue(aItems.Match(out var Head, out var _));
+				mAssert.IsTrue(aItems.Is(out var Head, out var _));
 				return Head;
 			}
 		),

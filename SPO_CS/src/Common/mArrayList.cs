@@ -9,7 +9,7 @@ mArrayList {
 	
 	public sealed class
 	tArrayList<t> {
-		internal tInt32 _CurrSize;
+		internal tNat32 _CurrSize;
 		internal t[] _Items = System.Array.Empty<t>();
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -41,12 +41,12 @@ mArrayList {
 	List<t>(
 		params t[] aArray
 	) => new() {
-		_CurrSize = aArray.Length,
+		_CurrSize = (tNat32)aArray.Length,
 		_Items = (t[])aArray.Clone()
 	};
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tInt32
+	public static tNat32
 	Size<t>(
 		this tArrayList<t> aList
 	) => aList._CurrSize;
@@ -120,7 +120,7 @@ mArrayList {
 	public static t
 	Get<t>(
 		this tArrayList<t> aList,
-		tInt32 aIndex
+		tNat32 aIndex
 	) {
 		mAssert.IsTrue(aIndex < aList._CurrSize);
 		return aList._Items[aIndex];
@@ -130,7 +130,7 @@ mArrayList {
 	public static void
 	Set<t>(
 		this tArrayList<t> aList,
-		tInt32 aIndex,
+		tNat32 aIndex,
 		t aValue
 	) {
 		aList._Items[aIndex] = aValue;
@@ -146,7 +146,7 @@ mArrayList {
 		System.Array.Copy(a1._Items, Array, a1._CurrSize);
 		System.Array.Copy(a2._Items, 0, Array, a1._CurrSize, a2._CurrSize);
 		return new tArrayList<t> {
-			_CurrSize = Array.Length,
+			_CurrSize = (tNat32)Array.Length,
 			_Items = Array
 		};
 	}

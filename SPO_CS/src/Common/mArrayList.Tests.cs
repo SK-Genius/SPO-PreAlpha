@@ -73,22 +73,22 @@ mArrayList_Tests {
 			"tArrayList.Resize(...)",
 			aStreamOut => {
 				var L = mArrayList.List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
-				var Slots = 12;
-				mAssert.AreEquals(L._Items.Length, Slots);
+				var Slots = (tNat32)12;
+				mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 				
 				L.Push(13);
 				Slots += Slots / 2;
-				mAssert.AreEquals(L._Items.Length, Slots);
+				mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 				
 				tInt32 _;
 				while (L.Size() > Slots/2) {
 					L.Pop(out _);
 				}
-				mAssert.AreEquals(L._Items.Length, Slots);
+				mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 				
 				L.Pop(out _);
 				Slots = L.Size() * 3 / 2;
-				mAssert.AreEquals(L._Items.Length, Slots);
+				mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 			}
 		),
 		mTest.Test(

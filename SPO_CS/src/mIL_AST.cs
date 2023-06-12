@@ -189,7 +189,7 @@ mIL_AST {
 	};
 	
 	public static tBool
-	Match<tPos>(
+	Is<tPos>(
 		this tCommandNode<tPos> aNode,
 		tCommandNodeType aNodeType,
 		out tPos aPos,
@@ -206,7 +206,7 @@ mIL_AST {
 	}
 	
 	public static tBool
-	Match<tPos>(
+	Is<tPos>(
 		this tCommandNode<tPos> aNode,
 		tCommandNodeType aNodeType,
 		out tPos aPos,
@@ -226,7 +226,7 @@ mIL_AST {
 	}
 	
 	public static tBool
-	Match<tPos>(
+	Is<tPos>(
 		this tCommandNode<tPos> aNode,
 		tCommandNodeType aNodeType,
 		out tPos aPos,

@@ -126,7 +126,7 @@ mMaybe {
 	ElseTry<tOut>(
 		this tMaybe<tOut> a,
 		mLazy.tLazy<tMaybe<tOut>> aElse
-	) => a.IsSome(out var _) ? a : aElse.Value;
+	) => a.IsSome(out _) ? a : aElse.Value;
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t

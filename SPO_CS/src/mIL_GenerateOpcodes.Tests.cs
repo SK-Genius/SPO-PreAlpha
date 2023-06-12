@@ -17,7 +17,7 @@ mIL_GenerateOpcodes_Tests {
 		tSpan a
 	) => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
 	
-	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>? Defs, mTreeMap.tTree<tText, tInt32> DefLookup)
+	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>>? Defs, mTreeMap.tTree<tText, tNat32> DefLookup)
 	CompileModule(
 		tText aSourceCode,
 		tText aId,
@@ -34,9 +34,9 @@ mIL_GenerateOpcodes_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
+		mAssert.IsTrue(aArg.IsPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(Arg1.IsInt(out var IntArg1));
+		mAssert.IsTrue(Arg2.IsInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	
@@ -47,9 +47,9 @@ mIL_GenerateOpcodes_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
+		mAssert.IsTrue(aArg.IsPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(Arg1.IsInt(out var IntArg1));
+		mAssert.IsTrue(Arg2.IsInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 - IntArg2);
 	}
 	
@@ -60,9 +60,9 @@ mIL_GenerateOpcodes_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
+		mAssert.IsTrue(aArg.IsPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(Arg1.IsInt(out var IntArg1));
+		mAssert.IsTrue(Arg2.IsInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
@@ -73,9 +73,9 @@ mIL_GenerateOpcodes_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
+		mAssert.IsTrue(aArg.IsPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(Arg1.IsInt(out var IntArg1));
+		mAssert.IsTrue(Arg2.IsInt(out var IntArg2));
 		return mVM_Data.Bool(IntArg1.Equals(IntArg2));
 	}
 	

@@ -67,6 +67,9 @@ const string cShowSkippedTestsCommandShort = "-s";
 const string cFilterCommand = "--filter";
 const string cFilterCommandShort = "-f";
 
+const string cNoLogCommand = "--noLog";
+const string cNoLogCommandShort = "-n";
+
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 	System.Console.WriteLine(
 		$"""
@@ -74,6 +77,7 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
 		{cFilterCommandShort} {cFilterCommand}
+		{cNoLogCommandShort} {cNoLogCommand}
 		"""
 	);
 	return 0;
@@ -93,10 +97,12 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	return 0;
 } else {
 	var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
+	var IsLogEnabled = !Args.Any(_ => _ is cNoLogCommand or cNoLogCommandShort);
 	
 	return Tests.Run(
 		PrintLn,
 		Filter,
-		HideSkippedTests
+		HideSkippedTests,
+		IsLogEnabled
 	).Result == mTest.tResult.Fail ? -1 : 0;
 }

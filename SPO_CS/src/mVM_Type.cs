@@ -109,7 +109,7 @@ mVM_Type {
 	}
 	
 	public static tBool
-	MatchFree(
+	IsFree(
 		this tType aType,
 		[MaybeNullWhen(false)]out tText aId,
 		[MaybeNullWhen(false)]out tType aRef
@@ -130,7 +130,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Any };
 	
 	public static tBool
-	MatchAny(
+	IsAny(
 		this tType aType
 	) => aType.Kind == tKind.Any;
 	
@@ -139,7 +139,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Empty };
 	
 	public static tBool
-	MatchEmpty(
+	IsEmpty(
 		this tType aType
 	) => aType.Kind == tKind.Empty;
 	
@@ -148,7 +148,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Bool };
 	
 	public static tBool
-	MatchBool(
+	IsBool(
 		this tType aType
 	) => aType.Kind == tKind.Bool;
 	
@@ -157,7 +157,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Int };
 	
 	public static tBool
-	MatchInt(
+	IsInt(
 		this tType aType
 	) => aType.Kind == tKind.Int;
 	
@@ -166,7 +166,7 @@ mVM_Type {
 	) => new() { Kind = tKind.Type };
 	
 	public static tBool
-	MatchType(
+	IsType(
 		this tType aType,
 		out mMaybe.tMaybe<tType> aOfType
 	) { 
@@ -205,7 +205,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchPair(
+	IsPair(
 		this tType aType,
 		[MaybeNullWhen(false)]out tType aType1,
 		[MaybeNullWhen(false)]out tType aType2
@@ -254,7 +254,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchPrefix(
+	IsPrefix(
 		this tType aType,
 		[MaybeNullWhen(false)] out tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
@@ -271,16 +271,16 @@ mVM_Type {
 	}
 	
 	public static tBool
-	MatchPrefix(
+	IsPrefix(
 		this tType aType,
 		tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
-	) => aType.MatchPrefix(out var Prefix, out aTypeOut!) && Prefix == aPrefix;
+	) => aType.IsPrefix(out var Prefix, out aTypeOut!) && Prefix == aPrefix;
 	
 	public static tType
 	Record(
-		tType aHeadType,
-		tType aTailType
+		tType aTailType,
+		tType aHeadType
 	) {
 		mAssert.IsIn(aTailType.Kind, tKind.Record, tKind.Empty);
 		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
@@ -302,14 +302,14 @@ mVM_Type {
 	}
 	
 	public static tBool
-	MatchRecord(
+	IsRecord(
 		this tType aType,
 		[MaybeNullWhen(false)] out tText aHeadKey,
 		[MaybeNullWhen(false)] out tType aHeadType,
 		[MaybeNullWhen(false)] out tType aTailRecord
 	) {
 		if (aType.Kind == tKind.Record) {
-			mAssert.IsTrue(aType.Refs[1].MatchPrefix(out aHeadKey!, out aHeadType!));
+			mAssert.IsTrue(aType.Refs[1].IsPrefix(out aHeadKey!, out aHeadType!));
 			aTailRecord = aType.Refs[0];
 			return true;
 		} else {
@@ -331,7 +331,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchProc(
+	IsProc(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aObjType,
 		[MaybeNullWhen(false)] out tType aArgType,
@@ -360,10 +360,10 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchPrefix(
+	IsPrefix(
 		this tType aType,
 		tText aPrefix
-	) => aType.Prefix == aPrefix && aType.Refs[0].MatchEmpty();
+	) => aType.Prefix == aPrefix && aType.Refs[0].IsEmpty();
 	
 	public static tType
 	Ref(
@@ -374,7 +374,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchRef(
+	IsRef(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
@@ -396,7 +396,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchVar(
+	IsVar(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
@@ -423,7 +423,7 @@ mVM_Type {
 	}
 	
 	public static tBool
-	MatchSet(
+	IsSet(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aType1,
 		[MaybeNullWhen(false)] out tType aType2
@@ -452,7 +452,7 @@ mVM_Type {
 	}
 	
 	public static tBool
-	MatchCond(
+	IsCond(
 		this tType aType,
 		out tType aSuperType
 		// aCond
@@ -477,7 +477,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchRecursive(
+	IsRecursive(
 		this tType aType,
 		out tType aOutType
 		// aCond
@@ -502,7 +502,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchInterface(
+	IsInterface(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aHeadType,
 		[MaybeNullWhen(false)] out tType aBodyType
@@ -529,7 +529,7 @@ mVM_Type {
 	};
 	
 	public static tBool
-	MatchGeneric(
+	IsGeneric(
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aHeadType,
 		[MaybeNullWhen(false)] out tType aBodyType
@@ -550,10 +550,17 @@ mVM_Type {
 	Normalize(
 		this tType a
 	) => (
-		a.Kind == tKind.Pair && a.Refs[1].MatchEmpty()
+		a.Kind == tKind.Pair && a.Refs[1].IsEmpty()
 		? a.Refs[0].Normalize()
 		: a
 	);
+	
+	private static tText
+	ExtendError(
+		tText aError,
+		tType aSubType,
+		tType aSupType
+	) => $"{aError}\n\nin\n{aSubType.ToText(3)}\n!<\n{aSupType.ToText(3)}";
 	
 	public static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>?, tText>
 	IsSubType(
@@ -602,44 +609,81 @@ mVM_Type {
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
 					? mResult.OK(aTypeMappings)
-					: mResult.Fail($"{SubBaseType.Kind} != {aSupType.Kind}");
+					: mResult.Fail(ExtendError("", aSubType, aSupType));
 			}
 			case tKind.Pair: {
-				if (
-					!SubBaseType.MatchPair(out var Sub1, out var Sub2) ||
-					!aSupType.MatchPair(out var Sup1, out var Sup2)
-				) {
-					return mResult.Fail(mStd.FileLine());
+				var TailSubType = SubBaseType;
+				var TailSupType = aSupType;
+				while (TailSubType.Kind is not tKind.Empty) {
+					if (
+						!TailSubType.IsPair(out TailSubType, out var HeadSubType) ||
+						!TailSupType.IsPair(out TailSupType, out var HeadSupType)
+					) {
+						return mResult.Fail(ExtendError("", aSubType, aSupType));
+					}
+					
+					if (
+						!HeadSubType.IsSubType(
+							HeadSupType,
+							aTypeMappings
+						).Match(out aTypeMappings, out var Error)
+					) {
+						return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+					}
 				}
-				
-				return Sub1.IsSubType(
-					Sup1,
+				return TailSubType.IsSubType(
+					TailSupType,
 					aTypeMappings
-				).ThenTry(
-					a => Sub2.IsSubType(
-						Sup2,
-						a
-					)
+				).ElseTry(
+					_ => mResult.Fail(ExtendError(_, aSubType, aSupType))
 				);
 			}
 			case tKind.Prefix: {
 				if (
-					SubBaseType.MatchPrefix(out var SubPrefix, out var Sub) &&
-					aSupType.MatchPrefix(out var SupPrefix, out var Sup) &&
+					SubBaseType.IsPrefix(out var SubPrefix, out var Sub) &&
+					aSupType.IsPrefix(out var SupPrefix, out var Sup) &&
 					SubPrefix == SupPrefix
 				) {
-					return Sub.IsSubType(Sup, aTypeMappings);
+					return Sub.IsSubType(
+						Sup,
+						aTypeMappings
+					).ElseTry(
+						_ => mResult.Fail(ExtendError(_, aSubType, aSupType))
+					);
 				} else {
-					return mResult.Fail(mStd.FileLine());
+					return mResult.Fail(ExtendError("", aSubType, aSupType));
 				}
 			}
 			case tKind.Record: {
-				throw new System.NotImplementedException();
+				var SubTailType = aSubType;
+				while (SubTailType.IsRecord(out var SubHeadKey, out var SubHeadType, out SubTailType)) {
+					var SupTailType = aSupType;
+					var HasFound = false;
+					while (SupTailType.IsRecord(out var SupHeadKey, out var SupHeadType, out SupTailType)) {
+						if (SubHeadKey == SupHeadKey) {
+							if (
+								SubHeadType.IsSubType(SupHeadType, aTypeMappings).Match(
+									out aTypeMappings,
+									out var Error
+								)
+							) {
+								HasFound = true;
+								break;
+							} else {
+								return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+							}
+						}
+					}
+					if (!HasFound) {
+						return mResult.Fail(ExtendError("", aSubType, aSupType));
+					}
+				}
+				return mResult.OK(aTypeMappings);
 			}
 			case tKind.Proc: {
 				if (
-					!aSubType.MatchProc(out var SubObj, out var SubArg, out var SubRes) ||
-					!aSupType.MatchProc(out var SupObj, out var SupArg, out var SupRes)
+					!aSubType.IsProc(out var SubObj, out var SubArg, out var SubRes) ||
+					!aSupType.IsProc(out var SupObj, out var SupArg, out var SupRes)
 				) {
 					return mResult.Fail(mStd.FileLine());
 				}
@@ -647,7 +691,8 @@ mVM_Type {
 				return SubObj.IsSubType(SupObj, aTypeMappings)
 				.ThenTry(_ => SupObj.IsSubType(SubObj, _))
 				.ThenTry(_ => SubArg.IsSubType(SupArg, _))
-				.ThenTry(_ => SubRes.IsSubType(SupRes, _));
+				.ThenTry(_ => SubRes.IsSubType(SupRes, _))
+				.ElseTry(_ => mResult.Fail(ExtendError(_, aSubType, aSupType)));
 			}
 			case tKind.Var: {
 				throw new System.NotImplementedException();
@@ -656,10 +701,18 @@ mVM_Type {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Set: {
-				if (SubBaseType.Kind == tKind.Set) {
-					throw new System.NotImplementedException();
+				if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
+					return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
+						_ => SubType2.IsSubType(aSupType, _)
+					);
+				} else if (aSupType.IsSet(out var SupType1, out var SupType2)) {
+					return SubBaseType.IsSubType(SupType1, aTypeMappings).ElseTry(
+						aError1 => SubBaseType.IsSubType(SupType2, aTypeMappings).ElseTry(
+							aError2 => mResult.Fail(aError1 + "\n" + aError2)
+						)
+					);
 				} else {
-					throw new System.NotImplementedException();
+					return mResult.Fail(ExtendError("TODO: Good Error Msg", aSubType, aSupType));
 				}
 			}
 			case tKind.Cond: {
@@ -686,7 +739,7 @@ mVM_Type {
 		this tType a
 	) {
 		if (a.Kind == tKind.Cond) {
-			if (a.MatchCond(out var Sup)) {
+			if (a.IsCond(out var Sup)) {
 				return BaseType(Sup);
 			} else {
 				mAssert.Impossible();
@@ -704,23 +757,19 @@ mVM_Type {
 		tType aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		if (aProc.MatchGeneric(out var FreeType, out var InnerType)) {
+		if (aProc.IsGeneric(out var FreeType, out var InnerType)) {
 			return Infer(InnerType, aObj, aArg, aTrace);
 		}
 		
 		mAssert.IsTrue(
-			aProc.MatchProc(out var ObjType, out var ArgType, out var ResType),
+			aProc.IsProc(out var ObjType, out var ArgType, out var ResType),
 			() => $"expect Proc but is {aProc}"
 		);
-		mAssert.IsTrue(
-			aArg.IsSubType(ArgType, mStd.cEmpty).Match(out _, out var Error),
-			() => $"""
-			{Error}
-				{aArg}
-				is not a subtype of
-				{ArgType}
-			"""
-		);
+		
+		
+		if (!aArg.IsSubType(ArgType, mStd.cEmpty).Match(out _, out var Error)) {
+			return mResult.Fail(ExtendError(Error, aArg, ArgType));
+		}
 		mAssert.AreEquals(aObj, ObjType);
 		
 		return mResult.OK(ResType);

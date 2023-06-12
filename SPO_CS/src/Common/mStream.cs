@@ -101,7 +101,7 @@ mStream {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public bool
 		MoveNext(
-		) => this._Tail.Match(out this._Head, out this._Tail);
+		) => this._Tail.Is(out this._Head, out this._Tail);
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -154,10 +154,16 @@ mStream {
 	) => Stream(a);
 	
 	[Pure, DebuggerHidden]
-	public static tStream<tInt32>?
+	public static tStream<tNat32>?
 	Nat(
-		int aStart
-	) => Stream(aStart, () => Nat(aStart+1));
+		tNat32 aStart
+	) => Stream(aStart, () => Nat(aStart + 1));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tInt32>?
+	Int(
+		tInt32 aStart
+	) => Stream(aStart, () => Int(aStart + 1));
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
@@ -193,7 +199,7 @@ mStream {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
-	Match<t>(
+	Is<t>(
 		[NotNullWhen(true)] this tStream<t>? aStream,
 		out t aHead,
 		out tStream<t>? aTail
@@ -241,7 +247,7 @@ mStream {
 		this tStream<tElem>? aStream,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	) => (
-		aStream.Match(out var Head, out var Tail)
+		aStream.Is(out var Head, out var Tail)
 		? Stream(aMapFunc(Head), [DebuggerHidden]() => Tail.Map(aMapFunc))
 		: Stream<tRes>()
 	);
@@ -250,11 +256,11 @@ mStream {
 	public static tStream<tRes>?
 	MapWithIndex<tRes, tElem>(
 		this tStream<tElem>? aStream,
-		mStd.tFunc<tRes, tInt32, tElem> aMapFunc
+		mStd.tFunc<tRes, tNat32, tElem> aMapFunc
 	) => aStream.MapWithIndex().Map([DebuggerHidden](a) => aMapFunc(a.Index, a.Item));
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tStream<(tInt32 Index, t Item)>?
+	public static tStream<(tNat32 Index, t Item)>?
 	MapWithIndex<t>(
 		this tStream<t>? aStream
 	) => ZipShort(Nat(0), aStream);
@@ -282,10 +288,10 @@ mStream {
 	#endif
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tInt32
+	public static tNat32
 	Count<t>(
 		this tStream<t>? aStream
-	) => aStream.Reduce(0, (a, _) => a + 1);
+	) => aStream.Reduce((tNat32)0, (a, _) => a + 1);
 	
 	[Pure, DebuggerHidden]
 	public static mMaybe.tMaybe<t>
@@ -293,7 +299,7 @@ mStream {
 		this tStream<t>? aStream,
 		mStd.tFunc<t, t, t> aAggregatorFunc
 	) => (
-		aStream.Match(out var Head, out var Tail)
+		aStream.Is(out var Head, out var Tail)
 		? mMaybe.Some(Tail.Reduce(Head, aAggregatorFunc))
 		: mStd.cEmpty
 	);
@@ -305,7 +311,7 @@ mStream {
 		mStd.tFunc<t, t, t> aAggregatorFunc,
 		t aDefault
 	) => (
-		aStream.Match(out var Head, out var Tail)
+		aStream.Is(out var Head, out var Tail)
 		? Tail.Reduce(Head, aAggregatorFunc)
 		: aDefault
 	);
@@ -314,9 +320,9 @@ mStream {
 	public static tStream<t>?
 	Take<t>(
 		this tStream<t>? aStream,
-		tInt32 aCount
+		tNat32 aCount
 	) => (
-		(aCount > 0 && aStream.Match(out var Head, out var Tail))
+		(aCount > 0 && aStream.Is(out var Head, out var Tail))
 		? Stream(Head, () => Tail.Take(aCount - 1))
 		: mStd.cEmpty
 	);
@@ -325,7 +331,7 @@ mStream {
 	public static tStream<t>?
 	Skip<t>(
 		this tStream<t>? aStream,
-		tInt32 aCount
+		tNat32 aCount
 	) {
 		#if TAIL_RECURSIVE
 		mAssert.(aCount >= 0);
@@ -335,7 +341,7 @@ mStream {
 			: aStream
 		);
 		#else
-		while (aCount --> 0 && aStream.Match(out var _, out aStream)) { }
+		while (aCount --> 0 && aStream.Is(out var _, out aStream)) { }
 		return aStream;
 		#endif
 	}
@@ -346,7 +352,7 @@ mStream {
 		this tStream<t>? aStream,
 		mStd.tFunc<tBool, t> aCond
 	) {
-		while (aStream.Match(out var Head, out aStream)) {
+		while (aStream.Is(out var Head, out aStream)) {
 			if (aCond(Head)) {
 				return Stream(Head, aStream);
 			}
@@ -365,12 +371,15 @@ mStream {
 	public static tStream<t>?
 	Every<t>(
 		this tStream<t>? aStream,
-		tInt32 aCount
-	) => (
-		aStream.Match(out var Head, out var Tail)
-		? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))
-		: Stream<t>()
-	);
+		tNat32 aCount
+	) {
+		mAssert.AreNotEquals(aCount, (tNat32)0);
+		return (
+			aStream.Is(out var Head, out var Tail)
+			? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))
+			: Stream<t>()
+		);
+	}
 	
 	[Pure, DebuggerHidden]
 	public static tStream<t>?
@@ -385,7 +394,7 @@ mStream {
 			Tail.Where(aPredicate)
 		);
 		#else
-		while (aStream.Match(out var Head, out aStream)) {
+		while (aStream.Is(out var Head, out aStream)) {
 			if (aPredicate(Head)) {
 				return Stream(Head, [DebuggerHidden]() => aStream.Where(aPredicate));
 			}
@@ -443,7 +452,7 @@ mStream {
 	public static mMaybe.tMaybe<t>
 	TryGet<t>(
 		this tStream<t>? aStream,
-		tInt32 aIndex
+		tNat32 aIndex
 	) => aStream.Skip(aIndex).TryFirst();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -484,8 +493,8 @@ mStream {
 		tStream<t1>? a1,
 		tStream<t2>? a2
 	) => (
-		a1.Match(out var Head1, out var Tail1) &&
-		a2.Match(out var Head2, out var Tail2)
+		a1.Is(out var Head1, out var Tail1) &&
+		a2.Is(out var Head2, out var Tail2)
 	)
 	? Stream((Head1, Head2), () => ZipShort(Tail1, Tail2))
 	: Stream<(t1, t2)>();
@@ -500,8 +509,8 @@ mStream {
 			return mStd.cEmpty;
 		}
 		
-		var MaybeHead1 = a1.Match(out var Head1, out var Tail1) ? mMaybe.Some(Head1) : mStd.cEmpty;
-		var MaybeHead2 = a2.Match(out var Head2, out var Tail2) ? mMaybe.Some(Head2) : mStd.cEmpty;
+		var MaybeHead1 = a1.Is(out var Head1, out var Tail1) ? mMaybe.Some(Head1) : mStd.cEmpty;
+		var MaybeHead2 = a2.Is(out var Head2, out var Tail2) ? mMaybe.Some(Head2) : mStd.cEmpty;
 		return Stream((MaybeHead1, MaybeHead2), () => ZipExtend(Tail1, Tail2));
 	}
 }

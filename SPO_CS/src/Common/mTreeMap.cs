@@ -10,7 +10,8 @@ mTreeMap {
 		internal readonly tNode<tKey, tValue>? Root;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		internal tTree(
+		internal
+		tTree(
 			mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
 			tNode<tKey, tValue>? aRoot
 		) {
@@ -18,13 +19,19 @@ mTreeMap {
 			this.Root = aRoot;
 		}
 		
-		private struct tDebuggerProxy {
+		private struct
+		tDebuggerProxy {
 			private readonly tTree<tKey, tValue> _Tree;
-			public tDebuggerProxy(tTree<tKey, tValue> a) { this._Tree = a; }
+			public tDebuggerProxy(
+				tTree<tKey, tValue> a
+			) {
+				this._Tree = a;
+			}
 			
 			[Pure]
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
-			public (tKey Key, tValue Value)[] List => this._Tree.ToStream().Take(100).ToArrayList().ToArray();
+			public (tKey Key, tValue Value)[]
+			List => this._Tree.ToStream().Take(100).ToArrayList().ToArray();
 		}
 	}
 	
@@ -41,30 +48,24 @@ mTreeMap {
 	internal static tInt32
 	Deep<tKey, tValue>(
 		this tNode<tKey, tValue>? a
-	) {
-		return a?.Deep ?? 0;
-	}
+	) => a?.Deep ?? 0;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tInt32
 	Deep<tKey, tValue>(
 		this tTree<tKey, tValue> a
-	) {
-		return a.Root.Deep();
-	}
+	) => a.Root.Deep();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
 	Tree<tKey, tValue>(
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
 		params (tKey Key, tValue Value)[] aItems
-	) {
-		var Tree = new tTree<tKey, tValue>(aKeyCompare, default);
-		foreach (var (Key, Value) in aItems) {
-			Tree = Tree.Set(Key, Value);
-		}
-		return Tree;
-	}
+	) => aItems.AsStream(
+	).Reduce(
+		new tTree<tKey, tValue>(aKeyCompare, default),
+		(Tree, _) => Tree.Set(_.Key, _.Value)
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
@@ -84,33 +85,29 @@ mTreeMap {
 		tKey aKey,
 		tValue aValue,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
-	) {
-		if (aNode is null) {
-			return Node(aKey, aValue, null, null);
-		}
-		
-		return aKeyCompare(aNode.Key, aKey) switch {
-			0 => Node(
-				aKey,
-				aValue,
-				aNode.SubTree1,
-				aNode.SubTree2
-			),
-			1 => Node(
-				aNode.Key,
-				aNode.Value,
-				aNode.SubTree1.Add(aKey, aValue, aKeyCompare),
-				aNode.SubTree2
-			).Balance(),
-			-1 => Node(
-				aNode.Key,
-				aNode.Value,
-				aNode.SubTree1,
-				aNode.SubTree2.Add(aKey, aValue, aKeyCompare)
-			).Balance(),
-			_ => throw mError.Error("impossible"),
-		};
-	}
+	) => aNode is null
+	? Node(aKey, aValue, null, null)
+	: aKeyCompare(aNode.Key, aKey) switch {
+		0 => Node(
+			aKey,
+			aValue,
+			aNode.SubTree1,
+			aNode.SubTree2
+		),
+		1 => Node(
+			aNode.Key,
+			aNode.Value,
+			aNode.SubTree1.Add(aKey, aValue, aKeyCompare),
+			aNode.SubTree2
+		).Balance(),
+		-1 => Node(
+			aNode.Key,
+			aNode.Value,
+			aNode.SubTree1,
+			aNode.SubTree2.Add(aKey, aValue, aKeyCompare)
+		).Balance(),
+		_ => throw mError.Error("impossible"),
+	};
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mMaybe.tMaybe<tValue>
@@ -131,15 +128,13 @@ mTreeMap {
 		this tNode<tKey, tValue>? aNode,
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
-	) {
-		if (aNode is null) { return mStd.cEmpty; }
-		var Comp = aKeyCompare(aKey, aNode.Key);
-		return (
-			(Comp == 0) ? mMaybe.Some(aNode.Value) :
-			(Comp > 0) ? aNode.SubTree2.TryGet(aKey, aKeyCompare) :
-			aNode.SubTree1.TryGet(aKey, aKeyCompare)
-		);
-	}
+	) => aNode is null
+	? (mMaybe.tMaybe<tValue>)mStd.cEmpty
+	: aKeyCompare(aKey, aNode.Key) switch {
+		0 => mMaybe.Some(aNode.Value),
+		>0 => aNode.SubTree2.TryGet(aKey, aKeyCompare),
+		_ => aNode.SubTree1.TryGet(aKey, aKeyCompare)
+	};
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
@@ -246,37 +241,33 @@ mTreeMap {
 	internal static tNode<tKey, tValue>
 	RotateRight<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
-	) {
-		return Node(
-			aNode.SubTree1!.Key,
-			aNode.SubTree1.Value,
-			aNode.SubTree1.SubTree1,
-			Node(
-				aNode.Key,
-				aNode.Value,
-				aNode.SubTree1.SubTree2,
-				aNode.SubTree2
-			)
-		);
-	}
+	) => Node(
+		aNode.SubTree1!.Key,
+		aNode.SubTree1.Value,
+		aNode.SubTree1.SubTree1,
+		Node(
+			aNode.Key,
+			aNode.Value,
+			aNode.SubTree1.SubTree2,
+			aNode.SubTree2
+		)
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
 	RotateLeft<tKey, tValue>(
 		this tNode<tKey, tValue> aNode
-	) {
-		return Node(
-			aNode.SubTree2!.Key,
-			aNode.SubTree2.Value,
-			Node(
-				aNode.Key,
-				aNode.Value,
-				aNode.SubTree1,
-				aNode.SubTree2.SubTree1
-			),
-			aNode.SubTree2.SubTree2
-		);
-	}
+	) => Node(
+		aNode.SubTree2!.Key,
+		aNode.SubTree2.Value,
+		Node(
+			aNode.Key,
+			aNode.Value,
+			aNode.SubTree1,
+			aNode.SubTree2.SubTree1
+		),
+		aNode.SubTree2.SubTree2
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tNode<tKey, tValue>
@@ -321,18 +312,16 @@ mTreeMap {
 		tValue aValue,
 		tNode<tKey, tValue>? aSubTree1,
 		tNode<tKey, tValue>? aSubTree2
-	) {
-		return new tNode<tKey, tValue> {
-			Key = aKey,
-			Value = aValue,
-			SubTree1 = aSubTree1,
-			SubTree2 = aSubTree2,
-			Deep = 1 + mMath.Max(
-				aSubTree1.Deep(),
-				aSubTree2.Deep()
-			),
-		};
-	}
+	) => new tNode<tKey, tValue> {
+		Key = aKey,
+		Value = aValue,
+		SubTree1 = aSubTree1,
+		SubTree2 = aSubTree2,
+		Deep = 1 + mMath.Max(
+			aSubTree1.Deep(),
+			aSubTree2.Deep()
+		),
+	};
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<(tKey Key, tValue Value)>?

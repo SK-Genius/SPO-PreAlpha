@@ -121,7 +121,8 @@ mTest {
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tText>? aFilters,
-		tBool aHideSkippedTests
+		tBool aHideSkippedTests,
+		tBool aIsLogEnable
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -139,7 +140,11 @@ mTest {
 					aDebugStream($"[{Run.File}:{Run.Line}]");
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
-						Run.TestFunc(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _))));
+						Run.TestFunc(
+							aIsLogEnable
+							? LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
+							: _ => {}
+						);
 						QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
 						
 						var Value_00 = (ClocksEnd - ClocksStart) * 100;
@@ -173,8 +178,10 @@ mTest {
 						aDebugStream("");
 						return (tResult.OK, 0, 0, 1);
 					} catch (System.Exception Exception) {
-						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _))) (Exception.GetType().Name + ":  " + Exception.Message);
-						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _))) (Exception.StackTrace!);
+						if (aIsLogEnable) {
+							LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _))) (Exception.GetType().Name + ":  " + Exception.Message);
+							LineByLine([DebuggerHidden](_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _))) (Exception.StackTrace!);
+						}
 						aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
 						aDebugStream("");
 						return (tResult.Fail, 1, 0, 0);
@@ -205,7 +212,8 @@ mTest {
 					var SubResult = Test.Run(
 						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)),
 						aFilters,
-						aHideSkippedTests
+						aHideSkippedTests,
+						aIsLogEnable
 					);
 					OK_CountSum += SubResult.OK_Count;
 					SkipCountSum += SubResult.SkipCount;
@@ -232,27 +240,14 @@ mTest {
 				}
 				StopWatch.Stop();
 				var MSec = StopWatch.ElapsedMilliseconds;
-				var E = "mSec";
-				var Value_00 = MSec * 100;
-					switch (MSec) {
-						case >= 60 * 60 * 1000: {
-							E = "Hour";
-							Value_00 /= 60 * 60 * 1000;
-							break;
-						}
-						case >= 60 * 1000: {
-							E = "Min";
-							Value_00 /= 60 * 1000;
-							break;
-						}
-						case >= 1000: {
-							E = "Sec";
-							Value_00 /= 1000;
-							break;
-						}
-					}
-					
-					aDebugStream(
+				var (Value_00, E) = MSec switch {
+					>= 60 * 60 * 1000 => (MSec / 60 * 60 * 1000, "Hour"),
+					>= 60 * 1000 => (MSec / 60 * 1000, "Min"),
+					>= 1000 => (MSec / 1000, "Sec"),
+					_ => (MSec, "mSec")
+				};
+				
+				aDebugStream(
 					tText.Concat(
 						(
 							"> "

@@ -14,9 +14,9 @@ mVM_Tests {
 		mVM_Data.tData aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		mAssert.IsTrue(aArg.MatchPair(out var Arg1, out var Arg2));
-		mAssert.IsTrue(Arg1.MatchInt(out var IntArg1));
-		mAssert.IsTrue(Arg2.MatchInt(out var IntArg2));
+		mAssert.IsTrue(aArg.IsPair(out var Arg1, out var Arg2));
+		mAssert.IsTrue(Arg1.IsInt(out var IntArg1));
+		mAssert.IsTrue(Arg2.IsInt(out var IntArg2));
 		return mVM_Data.Int(IntArg1 + IntArg2);
 	}
 	

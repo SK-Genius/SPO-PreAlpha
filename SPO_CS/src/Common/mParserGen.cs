@@ -476,7 +476,7 @@ mParserGen {
 							mStream.Stream(Parser, aPath)
 						).Match(
 							out var TempResult,
-							out var ErrorList
+							out _
 						)
 					) {
 						return mResult.OK(
@@ -489,7 +489,7 @@ mParserGen {
 								mStream.Stream<(tPos Pos, tError Message)>()
 							)
 						);
-					} else if (!RestStream.Match(out var Head, out RestStream)) {
+					} else if (!RestStream.Is(out var Head, out RestStream)) {
 						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massege)>()); // TODO
 					} else {
 						Span = mSpan.Merge(Span, Head.Span);
@@ -798,7 +798,7 @@ mParserGen {
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	) => new(aComparePos){
 		_ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => (
-			aStream.Match(out var Head, out var Tail) && aTest(Head.Value)
+			aStream.Is(out var Head, out var Tail) && aTest(Head.Value)
 			? mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>()))
 			: mResult.Fail(mStream.Stream(aCreateErrorFunc(Head)))
 		),

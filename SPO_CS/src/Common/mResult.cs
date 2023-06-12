@@ -91,6 +91,7 @@ mResult {
 	) => new(mStd.cEmpty);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[System.Obsolete]
 	public static tBool
 	Match<t, tFail>(
 		this tResult<t, tFail> aRes,
@@ -103,13 +104,44 @@ mResult {
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[System.Obsolete]
 	public static tBool
-	Match<t>(
+	Is<t>(
 		this tResult<t, mStd.tEmpty> aRes,
 		out t aValue
 	) {
 		aValue = aRes._Value;
 		return aRes._IsOK;
+	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[System.Obsolete]
+	public static tRes
+	Match<t, tFail, tRes>(
+		this tResult<t, tFail> aRes,
+		mStd.tFunc<tRes, t> aOnSuccess,
+		mStd.tFunc<tRes, tFail> aOnFail
+	) {
+		if (aRes._IsOK) {
+			return aOnSuccess(aRes._Value);
+		} else {
+			return aOnFail(aRes._Error);
+		}
+	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[System.Obsolete]
+	public static tRes
+	Match<t, tRes>(
+		this tResult<t, mStd.tEmpty> aRes,
+		mStd.tFunc<tRes, t> aOnSuccess,
+		mStd.tFunc<tRes> aOnFail
+	) {
+		if (aRes._IsOK) {
+			return aOnSuccess(aRes._Value);
+		} else {
+			return aOnFail();
+		}
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

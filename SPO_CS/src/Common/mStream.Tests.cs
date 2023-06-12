@@ -19,7 +19,7 @@ mStream_Tests {
 				mAssert.AreNotEquals(mStream.Stream(1), mStream.Stream(2));
 				mAssert.AreNotEquals(mStream.Stream(1), mStream.Stream(1, 2));
 				mAssert.AreEquals(
-					mStream.Nat(1).Take(4),
+					mStream.Int(1).Take(4),
 					mStream.Stream(1, 2, 3, 4)
 				);
 			}
@@ -44,7 +44,7 @@ mStream_Tests {
 			"MapWithIndex()",
 			aStreamOut => {
 				mAssert.AreEquals(
-					mStream.Stream(1, 2, 3, 4).MapWithIndex((i, a) => (i, a*a)),
+					mStream.Stream(1, 2, 3, 4).MapWithIndex((i, a) => ((tInt32)i, a*a)),
 					mStream.Stream((0, 1), (1, 4), (2, 9), (3, 16))
 				);
 			}
@@ -72,7 +72,6 @@ mStream_Tests {
 				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(4), mStream.Stream(1, 2, 3));
 				mAssert.AreEquals(mStream.Stream<tInt32>().Take(4), mStream.Stream<tInt32>());
 				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(0), mStream.Stream<tInt32>());
-				mAssert.AreEquals(mStream.Stream(1, 2, 3).Take(-1), mStream.Stream<tInt32>());
 			}
 		),
 		mTest.Test(
@@ -118,7 +117,7 @@ mStream_Tests {
 			"foreach",
 			sStreamOut => {
 				var Sum = 0;
-				foreach (var Value in mStream.Nat(3).Take(3)) {
+				foreach (var Value in mStream.Int(3).Take(3)) {
 					Sum += Value;
 				}
 				mAssert.AreEquals(Sum, 3 + 4 + 5);
