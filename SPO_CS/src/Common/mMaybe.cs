@@ -88,7 +88,7 @@ mMaybe {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
-	Then<tIn, tOut>(
+	ThenDo<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tOut, tIn> aMap
 	) => a.IsSome(out var Value) ? Some(aMap(Value)) : mStd.cEmpty;
@@ -104,6 +104,13 @@ mMaybe {
 	public static tOut
 	Else<tOut>(
 		this tMaybe<tOut> a,
+		tOut aElse
+	) => a.IsSome(out var Value) ? Value : aElse;
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tOut
+	ElseDo<tOut>(
+		this tMaybe<tOut> a,
 		mStd.tFunc<tOut> aElse
 	) => a.IsSome(out var Value) ? Value : aElse();
 	
@@ -113,12 +120,6 @@ mMaybe {
 		this tMaybe<tOut> a,
 		mLazy.tLazy<tOut> aElse
 	) => a.IsSome(out var Value) ? Value : aElse.Value;
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tOut
-	ElseDefault<tOut>(
-		this tMaybe<tOut> a
-	) => a.IsSome(out var Value) ? Value : default;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>

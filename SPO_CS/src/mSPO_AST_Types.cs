@@ -227,7 +227,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMatchFreeIdNode<tPos> MatchFreeId: {
-				Result = aType.Then(
+				Result = aType.ThenDo(
 					a => mStd.Call(
 						() => {
 							if (a.MatchType(out var OfType)) {
@@ -245,7 +245,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatch: {
-				Result = aType.Then(a => (a, aScope)).ElseFail(() => mStd.FileLine());
+				Result = aType.ThenDo(a => (a, aScope)).ElseFail(() => mStd.FileLine());
 				break;
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
@@ -337,7 +337,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
 				// mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(tText Id, mVM_Type.tType Type)>? Scope), tText> Result;
-				Result = aType.Then(
+				Result = aType.ThenDo(
 					_ => (
 						Type: _,
 						Scope: mStream.Stream(

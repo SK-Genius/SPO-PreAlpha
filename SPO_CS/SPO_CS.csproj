@@ -6,7 +6,7 @@
 		<OutputType>Exe</OutputType>
 		<!--  Exe | Library | Module | Winexe -->
 		
-		<DefineConstants>noMY_TRACE</DefineConstants>
+		<DefineConstants>noMY_TRACE;DISABLE_DEBUGGER_HIDDEN</DefineConstants>
 		<NoWarn>659,661,8604,8618</NoWarn>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>

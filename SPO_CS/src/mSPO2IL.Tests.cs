@@ -266,8 +266,7 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					DefConstructor.ModuleConstructor.Defs.Get(1).Commands.ToStream(),
 					mStream.Stream(
-						mIL_AST.GetSecond(Span((1, 10), (1, 32)), mSPO2IL.Id("...*..."), mIL_AST.cEnv), // [ENV]:(...*...) => ...*...
-						mIL_AST.GetFirst(Span((1, 10), (1, 32)), mSPO2IL.RegId(5), mIL_AST.cEnv), // [ENV]:(...*...) => [4]:()
+						mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.Id("...*..."), mIL_AST.cEnv), // [ENV]:(...*...) => ...*...
 						
 						mIL_AST.Alias(Span((1, 10), (1, 22)), mSPO2IL.Id("a"), mIL_AST.cArg), // ARG == a
 						
@@ -546,8 +545,7 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
 					mStream.Stream(
-						mIL_AST.GetSecond(Span((1, 1), (1, 87)), mSPO2IL.Id("...*..."), mIL_AST.cEnv),
-						mIL_AST.GetFirst(Span((1, 1), (1, 87)), mSPO2IL.RegId(16), mIL_AST.cEnv),
+						mIL_AST.Alias(Span((1, 1), (1, 87)), mSPO2IL.Id("...*..."), mIL_AST.cEnv),
 						
 						mIL_AST.GetSecond(Span((1, 1), (1, 77)), mSPO2IL.RegId(1), mIL_AST.cArg),
 						mIL_AST.GetSecond(Span((1, 32), (1, 76)), mSPO2IL.RegId(2), mSPO2IL.RegId(1)),
@@ -617,8 +615,7 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					ModuleConstructor.Defs.Get(0).Commands.ToStream(),
 					mStream.Stream(
-						mIL_AST.GetSecond(Span((1, 1), (10, 9)), mSPO2IL.DefId(1), mIL_AST.cEnv),
-						mIL_AST.GetFirst(Span((1, 1), (10, 9)), mSPO2IL.RegId(11), mIL_AST.cEnv),
+						mIL_AST.Alias(Span((1, 1), (10, 9)), mSPO2IL.DefId(1), mIL_AST.cEnv),
 						
 						mIL_AST.GetSecond(Span((1, 9), (5, 1)), mSPO2IL.RegId(1), mIL_AST.cArg),
 						mIL_AST.Alias(Span((4, 2), (4, 11)), mSPO2IL.Id("k"), mSPO2IL.RegId(1)),

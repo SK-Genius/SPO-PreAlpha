@@ -12,7 +12,9 @@ mTest {
 		out tNat64 aCycles
 	);
 	
-	private static readonly System.IntPtr PseudoHandle = (System.IntPtr)(-2);
+	private static readonly System.IntPtr PseudoHandle = -2;
+	
+	private const tText cTab = "|  ";
 	
 	public enum
 	tResult {
@@ -25,18 +27,18 @@ mTest {
 	tTest {
 	}
 	
-	public struct
+	public readonly struct
 	tTestRun : tTest {
-		internal tText _Name { get; init; }
-		internal mStd.tAction<mStd.tAction<tText>> _TestFunc { get; init; }
-		internal tText _File { get; init; }
-		internal tInt32 _Line { get; init; }
+		public tText Name { get; init; }
+		public mStd.tAction<mStd.tAction<tText>> TestFunc { get; init; }
+		public tText File { get; init; }
+		public tInt32 Line { get; init; }
 	}
 	
-	public struct
-	tTests : tTest {
-		internal tText _Name { get; init; }
-		internal tTest[] _Tests { get; init; }
+	public readonly struct
+	tTestCollection : tTest {
+		public tText Name { get; init; }
+		public tTest[] Tests { get; init; }
 	}
 	
 	[DebuggerHidden]
@@ -44,7 +46,7 @@ mTest {
 	Tests(
 		tText aName,
 		params tTest[] aTests
-	) => new tTests { _Name = aName, _Tests = aTests };
+	) => new tTestCollection { Name = aName, Tests = aTests };
 	
 	public static tTest
 	Test(
@@ -53,33 +55,91 @@ mTest {
 		[CallerFilePath] tText aFile = null!,
 		[CallerLineNumber] tInt32 aLine = 0
 	) => new tTestRun {
-		_Name = aName,
-		_TestFunc = aTestFunc,
-		_File = aFile,
-		_Line = aLine,
+		Name = aName,
+		TestFunc = aTestFunc,
+		File = aFile,
+		Line = aLine,
 	};
+	
+	[DebuggerHidden]
+	public static tText
+	Name(
+		this tTest aTest
+	) => aTest switch {
+		tTestRun Run => Run.Name,
+		tTestCollection Collection => Collection.Name
+	};
+	
+	[DebuggerHidden]
+	public static tBool
+	HasAnyMatch(
+		this tTest aTest,
+		mStream.tStream<tText>? aFilters
+	) => aFilters.IsEmpty() || aTest switch {
+		tTestRun Run => aFilters.Any(Run.Name.Contains),
+		tTestCollection Collection => (
+			aFilters.Any(Collection.Name.Contains) ||
+			Collection.Tests.AsStream().Any(_ => _.HasAnyMatch(aFilters))
+		)
+	};
+	
+	[DebuggerHidden]
+	public static void
+	List(
+		this tTest aTest,
+		mStd.tAction<tText> aDebugStream,
+		mStream.tStream<tText>? aFilters
+	) {
+		if (!aTest.HasAnyMatch(aFilters)) {
+			return;
+		}
+		
+		var TestName = aTest.Name();
+		aDebugStream(TestName);
+		if (aFilters.Any(TestName.Contains)) {
+			aFilters = default;
+		}
+		switch (aTest) {
+			case tTestCollection Collection: {
+				var PrintLn = mStd.Action((tText aLine) => aDebugStream(cTab + aLine));
+				foreach (var Test in Collection.Tests) {
+					Test.List(PrintLn, aFilters);
+				}
+				break;
+			}
+			case tTestRun Run: {
+				aDebugStream($"[{Run.File}:{Run.Line}]");
+				aDebugStream("");
+				break;
+			}
+		}
+	}
 	
 	[DebuggerHidden]
 	public static (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count)
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<tText>? aFilters
+		mStream.tStream<tText>? aFilters,
+		tBool aHideSkippedTests
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		
-		const tText cTab = "|  ";
+		if (aHideSkippedTests && !aTest.HasAnyMatch(aFilters)) {
+			aDebugStream = _ => {};
+		}
+		
+		aDebugStream(aTest.Name());
 		switch (aTest) {
-			case tTestRun TestRun: {
-				if (aFilters.IsEmpty() || aFilters.Any(TestRun._Name.Contains)) {
-					aDebugStream(TestRun._Name);
-					aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
+			case tTestRun Run: {
+				if (aFilters.IsEmpty() || aFilters.Any(Run.Name.Contains)) {
+					aDebugStream($"[{Run.File}:{Run.Line}]");
 					try {
 						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
-						TestRun._TestFunc(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _))));
+						Run.TestFunc(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _))));
 						QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
 						
 						var Value_00 = (ClocksEnd - ClocksStart) * 100;
@@ -120,18 +180,14 @@ mTest {
 						return (tResult.Fail, 1, 0, 0);
 					}
 				} else {
-					if (!true) { // TODO(SK): use a flag to show/hide this information
-						aDebugStream(TestRun._Name);
-						aDebugStream($"[{TestRun._File}:{TestRun._Line}]");
-						aDebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
-						aDebugStream("");
-					}
+					aDebugStream($"[{Run.File}:{Run.Line}]");
+					aDebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
+					aDebugStream("");
 					return (tResult.Skip, 0, 1, 0);
 				}
 			}
-			case tTests Tests: {
-				aDebugStream(Tests._Name);
-				if (aFilters.IsEmpty() || aFilters.Any(Tests._Name.Contains)) {
+			case tTestCollection Collection: {
+				if (aFilters.IsEmpty() || aFilters.Any(Collection.Name.Contains)) {
 					aFilters = null;
 				}
 				var Result = tResult.Skip;
@@ -143,10 +199,14 @@ mTest {
 				var SkipCountSum = 0;
 				var FailCountSum = 0;
 				
-				var StopWatch = new System.Diagnostics.Stopwatch();
+				var StopWatch = new Stopwatch();
 				StopWatch.Start();
-				foreach (var Test in Tests._Tests) {
-					var SubResult = Test.Run(LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)), aFilters);
+				foreach (var Test in Collection.Tests) {
+					var SubResult = Test.Run(
+						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)),
+						aFilters,
+						aHideSkippedTests
+					);
 					OK_CountSum += SubResult.OK_Count;
 					SkipCountSum += SubResult.SkipCount;
 					FailCountSum += SubResult.FailCount;

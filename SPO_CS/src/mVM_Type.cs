@@ -232,7 +232,11 @@ mVM_Type {
 	public static tType
 	Tuple(
 		mStream.tStream<tType>? aTypes
-	) => aTypes.Reduce(Empty(), Pair);
+	) => aTypes.Take(2).Count() switch {
+		0 => Empty(),
+		1 => aTypes.TryGet(0).ElseThrow(),
+		_ => aTypes.Reduce(Empty(), Pair),
+	};
 	
 	public static tType
 	Tuple(
@@ -596,11 +600,9 @@ mVM_Type {
 			case tKind.Bool:
 			case tKind.Int:
 			case tKind.Type: {
-				if (SubBaseType.Kind == aSupType.Kind) {
-					return mResult.OK(aTypeMappings);
-				} else {
-					return mResult.Fail($"{SubBaseType.Kind} != {aSupType.Kind}");
-				}
+				return SubBaseType.Kind == aSupType.Kind
+					? mResult.OK(aTypeMappings)
+					: mResult.Fail($"{SubBaseType.Kind} != {aSupType.Kind}");
 			}
 			case tKind.Pair: {
 				if (
@@ -706,7 +708,10 @@ mVM_Type {
 			return Infer(InnerType, aObj, aArg, aTrace);
 		}
 		
-		mAssert.IsTrue(aProc.MatchProc(out var ObjType, out var ArgType, out var ResType));
+		mAssert.IsTrue(
+			aProc.MatchProc(out var ObjType, out var ArgType, out var ResType),
+			() => $"expect Proc but is {aProc}"
+		);
 		mAssert.IsTrue(
 			aArg.IsSubType(ArgType, mStd.cEmpty).Match(out _, out var Error),
 			() => $"""
@@ -758,19 +763,18 @@ mVM_Type {
 			),
 			tKind.Pair => mStd.Call(
 				() => {
-					var Result = "[";
-					var Temp = aType;
-					Result += Temp.Refs[0].ToText(NextLimit);
-					Temp = Temp.Refs[1];
+					var Result = aType.Refs[1].ToText(NextLimit);
 					
+					var Temp = aType.Refs[0];
 					while (Temp.Kind == tKind.Pair) {
-						Result += ", " + Temp.Refs[0].ToText(NextLimit);
-						Temp = Temp.Refs[1];
+						Result = Temp.Refs[1].ToText(NextLimit) + ", " + Result;
+						Temp = Temp.Refs[0];
 					}
 					if (Temp.Kind != tKind.Empty) {
-						Result += "; " + Temp.ToText(NextLimit);
+						Result = Temp.ToText(NextLimit) + "; " + Result;
 					}
-					return Result + "]";
+					
+					return "[" + Result + "]";
 				}
 			),
 			tKind.Proc => mStd.Call(

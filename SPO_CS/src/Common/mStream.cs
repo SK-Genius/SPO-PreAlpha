@@ -59,7 +59,7 @@ mStream {
 			")"
 		).ToString();
 		
-		private struct tDebuggerProxy {
+		private readonly struct tDebuggerProxy {
 			private readonly tStream<t> _Stream;
 			
 			public tDebuggerProxy(tStream<t> a) { this._Stream = a; }
@@ -257,7 +257,7 @@ mStream {
 	public static tStream<(tInt32 Index, t Item)>?
 	MapWithIndex<t>(
 		this tStream<t>? aStream
-	) => Zip(Nat(0), aStream);
+	) => ZipShort(Nat(0), aStream);
 	
 	[Pure, DebuggerHidden]
 	public static tRes
@@ -480,15 +480,28 @@ mStream {
 	
 	[Pure, DebuggerHidden]
 	public static tStream<(t1 _1, t2 _2)>?
-	Zip<t1, t2>(
+	ZipShort<t1, t2>(
 		tStream<t1>? a1,
 		tStream<t2>? a2
 	) => (
-		(
-			a1.Match(out var Head1, out var Tail1) &&
-			a2.Match(out var Head2, out var Tail2)
-		)
-		? Stream((Head1, Head2), () => Zip(Tail1, Tail2))
-		: Stream<(t1, t2)>()
-	);
+		a1.Match(out var Head1, out var Tail1) &&
+		a2.Match(out var Head2, out var Tail2)
+	)
+	? Stream((Head1, Head2), () => ZipShort(Tail1, Tail2))
+	: Stream<(t1, t2)>();
+	
+	[Pure, DebuggerHidden]
+	public static tStream<(mMaybe.tMaybe<t1> _1, mMaybe.tMaybe<t2> _2)>?
+	ZipExtend<t1, t2>(
+		tStream<t1>? a1,
+		tStream<t2>? a2
+	) {
+		if (a1.IsEmpty() && a2.IsEmpty()) {
+			return mStd.cEmpty;
+		}
+		
+		var MaybeHead1 = a1.Match(out var Head1, out var Tail1) ? mMaybe.Some(Head1) : mStd.cEmpty;
+		var MaybeHead2 = a2.Match(out var Head2, out var Tail2) ? mMaybe.Some(Head2) : mStd.cEmpty;
+		return Stream((MaybeHead1, MaybeHead2), () => ZipExtend(Tail1, Tail2));
+	}
 }

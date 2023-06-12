@@ -168,8 +168,8 @@ mIL_GenerateOpcodes {
 				aTrace(() => Command.ToText());
 				aTrace(
 					() => ("  :: " +
-						Command._2.ThenTry(aReg => Regs.TryGet(aReg)).Then(a => Types.Get(a).ToText(10)).Else("") + " ; " + 
-						Command._3.ThenTry(aReg => Regs.TryGet(aReg)).Then(a => Types.Get(a).ToText(10)).Else("")
+						Command._2.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText(10)).Else("") + " ; " + 
+						Command._3.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText(10)).Else("")
 					)
 				);
 				switch (0) {
@@ -207,14 +207,14 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.Alias, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, a)).ElseThrow();;
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, a)).ElseThrow();;
 						break;
 					}
 					//--------------------------------------------------------------------------------
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsInt, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsInt(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsInt(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -230,7 +230,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsBool, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsBool(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsBool(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -346,7 +346,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsPair, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsPair(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsPair(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -442,7 +442,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsPrefix, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsPrefix(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsPrefix(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -484,7 +484,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsRecord, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsRecord(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsRecord(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -520,7 +520,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsVar, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsVar(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsVar(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -558,7 +558,7 @@ mIL_GenerateOpcodes {
 					case 0 when Command.Match(mIL_AST.tCommandNodeType.IsType, out var Span, out var RegId1, out var RegId2): {
 					//--------------------------------------------------------------------------------
 						var ResType = mVM_Type.Bool();
-						Regs = Regs.TryGet(RegId2).Then(a => Regs.Set(RegId1, NewProc.IsType(Span, a))).ElseThrow();
+						Regs = Regs.TryGet(RegId2).ThenDo(a => Regs.Set(RegId1, NewProc.IsType(Span, a))).ElseThrow();
 						Types.Push(ResType);
 						break;
 					}
@@ -754,7 +754,7 @@ mIL_GenerateOpcodes {
 		mStream.tStream<mVM_Data.tProcDef<tPos>>? aModule,
 		mStd.tAction<tText> aTrace
 	) {
-		foreach (var ((Name, _, Commands), VM_Def) in mStream.Zip(aDefs, aModule)) {
+		foreach (var ((Name, _, Commands), VM_Def) in mStream.ZipShort(aDefs, aModule)) {
 			var RegIndex = mVM_Data.cResReg;
 			aTrace($"{Name} € {VM_Def.DefType.ToText(10)}:");
 			foreach (var Command in Commands) {

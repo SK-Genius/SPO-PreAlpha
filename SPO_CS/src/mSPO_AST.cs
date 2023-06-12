@@ -939,7 +939,13 @@ mSPO_AST {
 			case tMatchTupleNode<tPos> Node1: {
 				return (
 					a2 is tMatchTupleNode<tPos> Node2 &&
-					mStream.Zip(Node1.Items, Node2.Items).All(a => AreEqual(a._1, a._2))
+					mStream.ZipExtend(Node1.Items, Node2.Items).All(
+						a => (
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
 				);
 			}
 			case tMatchNode<tPos> Node1: {
@@ -963,13 +969,15 @@ mSPO_AST {
 			case tRecordNode<tPos> Node1: {
 				return (
 					a2 is tRecordNode<tPos> Node2 &&
-					mStream.Zip(
+					mStream.ZipExtend(
 						Node1.Elements,
 						Node2.Elements
 					).All(
 						a => (
-							AreEqual(a._1.Key, a._2.Key) &&
-							AreEqual(a._1.Value, a._2.Value)
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1.Key, a2.Key) &&
+							AreEqual(a1.Value, a2.Value)
 						)
 					)
 				);
@@ -977,13 +985,15 @@ mSPO_AST {
 			case tMatchRecordNode<tPos> Node1: {
 				return (
 					a2 is tMatchRecordNode<tPos> Node2 &&
-					mStream.Zip(
+					mStream.ZipExtend(
 						Node1.Elements,
 						Node2.Elements
 					).All(
 						a => (
-							AreEqual(a._1.Id, a._2.Id) &&
-							AreEqual(a._1.Match, a._2.Match)
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1.Id, a2.Id) &&
+							AreEqual(a1.Match, a2.Match)
 						)
 					)
 				);
@@ -1035,7 +1045,13 @@ mSPO_AST {
 			case tRecLambdasNode<tPos> Node1: {
 				return (
 					a2 is tRecLambdasNode<tPos> Node2 &&
-					mStream.Zip(Node1.List, Node2.List).All(a => AreEqual(a._1, a._2))
+					mStream.ZipExtend(Node1.List, Node2.List).All(
+						a => (
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
 				);
 			}
 			case tReturnIfNode<tPos> _: {
@@ -1093,7 +1109,13 @@ mSPO_AST {
 				return (
 					a2 is tMethodCallsNode<tPos> Node2 &&
 					AreEqual(Node1.Object, Node2.Object) &&
-					mStream.Zip(Node1.MethodCalls, Node2.MethodCalls).All(a => AreEqual(a._1, a._2))
+					mStream.ZipExtend(Node1.MethodCalls, Node2.MethodCalls).All(
+						a => (
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
 				);
 			}
 			case tPipeToRightNode<tPos> _: {
@@ -1105,7 +1127,13 @@ mSPO_AST {
 			case tTupleNode<tPos> Node1: {
 				return (
 					a2 is tTupleNode<tPos> Node2 &&
-					mStream.Zip(Node1.Items, Node2.Items).All(a => AreEqual(a._1, a._2))
+					mStream.ZipExtend(Node1.Items, Node2.Items).All(
+						a => (
+							a._1.IsSome(out var a1) &&
+							a._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
 				);
 			}
 			case tImportNode<tPos> _: {

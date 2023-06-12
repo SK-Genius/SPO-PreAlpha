@@ -489,12 +489,12 @@ mParserGen {
 								mStream.Stream<(tPos Pos, tError Message)>()
 							)
 						);
+					} else if (!RestStream.Match(out var Head, out RestStream)) {
+						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massege)>()); // TODO
+					} else {
+						Span = mSpan.Merge(Span, Head.Span);
+						List = mStream.Concat(List, mStream.Stream(Head.Value));
 					}
-					if (!RestStream.Match(out var Head, out RestStream)) {
-						return mResult.Fail(mStream.Stream<(tPos Pos, tError Message)>()); // TODO
-					}
-					Span = mSpan.Merge(Span, Head.Span);
-					List = mStream.Concat(List, mStream.Stream(Head.Value));
 				}
 			};
 			return Parser.SetDebugDef("~(", aParser.DebugName??aParser.DebugDef, ")");
@@ -709,25 +709,27 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mSpan.tSpan<tPos>, tIn)>? aStream,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<object>? aInfinitLoopDetectionSet
+		mStream.tStream<object>? aInfiniteLoopDetectionSet
 	) {
-		var HasToLogIfFailed = !true;
+		const bool HasToLogIfFailed = !true;
 		var HasToLog = false;
 		var Trace = mStream.Stream<tText>();
-		mStd.tAction<tText> AppendToTrace = (tText a) => {
+		void AppendToTrace(tText a) {
+			#if true
 			Trace = mStream.Stream(a, Trace);
-		};
-		
-		#if INF_LOOP_DETECTION
-		if (!aInfinitLoopDetectionSet.All(a => !ReferenceEquals(a, aParser))) {
-			#if MY_TRACE
-				aDebugStream($"!!! INFINIT LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
 			#endif
+		}
+
+#if INF_LOOP_DETECTION
+		if (!aInfiniteLoopDetectionSet.All(a => !ReferenceEquals(a, aParser))) {
+#if MY_TRACE
+				aDebugStream($"!!! INFINITE LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
+#endif
 			return mResult.Fail(mList.List<tError>());
 		}
-		#endif
-		
-		#if MY_TRACE
+#endif
+
+#if MY_TRACE
 			
 			if (aParser._DebugName != null) {
 				AppendToTrace(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
@@ -736,8 +738,8 @@ mParserGen {
 			} else {
 				AppendToTrace("??? -> {");
 			}
-		#endif
-		
+#endif
+
 		if (ReferenceEquals(aParser._LastInput, aStream) && aStream is not null) {
 			var Result_ = aParser._LastOutput;
 			#if MY_TRACE
@@ -758,12 +760,12 @@ mParserGen {
 			return Result_;
 		}
 		
-		var Result = aParser._ParseFunc(aStream, AppendToTrace, aInfinitLoopDetectionSet);
+		var Result = aParser._ParseFunc(aStream, AppendToTrace, aInfiniteLoopDetectionSet);
 		if (
 			!Result.Match(out var Value, out var Error) &&
 			aParser._ModifyErrorsFunc is not null
 		) {
-			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().ElseDefault()));
+			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().Else(default)));
 		}
 		
 		#if MY_TRACE
@@ -772,7 +774,7 @@ mParserGen {
 				aParser._LastTrace = Trace;
 				HasToLog = true;
 			} else {
-				AppendToTrace($"}} -> FAIL ({Error_._Head.Pos})");
+				AppendToTrace($"}} -> FAIL ({Error_.Match(aOnNone: () => "", aOnAny: (_) => "")})");
 				HasToLog = HasToLogIfFailed;
 			}
 		#endif

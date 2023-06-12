@@ -38,7 +38,7 @@ mTextParser {
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
 		var Result = MaybeResult.ElseThrow(a => a.ToText(aText.Split('\n')));
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().Then(a => a.Span.Start).ElseThrow();
+			var Pos = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start).ElseThrow();
 			var Line = aText.Split('\n')[Pos.Row-1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(

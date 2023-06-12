@@ -68,8 +68,8 @@ mVM {
 		mStd.tFunc<tText, tPos> aPosToText
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		aCallStack._TraceOut(
-			() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}");
+		mStd.tFunc<tText> CommandLine = () => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
+		aCallStack._TraceOut(CommandLine);
 		aCallStack._CodePointer += 1;
 		
 		switch (OpCode) {
@@ -209,7 +209,8 @@ mVM {
 					aCallStack._Regs.Get(Arg1).MatchPair(
 						out var Var1,
 						out var Var2
-					)
+					),
+					$"{CommandLine()} # expect pair but is {aCallStack._Regs.Get(Arg1).ToText(20)}"
 				);
 				aCallStack._Regs.Push(Var1);
 				break;
@@ -558,13 +559,17 @@ mVM {
 		var Res = mVM_Data.Empty();
 		var Defs = VMModule.Skip(1).Reverse();
 		
-		var DefTuple = Defs.Reduce(
-			mVM_Data.Empty(),
-			(aTuple, aDef) => mVM_Data.Pair(
-				aTuple,
-				mVM_Data.Def(aDef)
-			)
-		);
+		var DefTuple = Defs.Take(2).Count() switch {
+			0 => mVM_Data.Empty(),
+			1 => mVM_Data.Def(Defs.TryFirst().ElseThrow()),
+			_ => Defs.Reduce(
+				mVM_Data.Empty(),
+				(aTuple, aDef) => mVM_Data.Pair(
+					aTuple,
+					mVM_Data.Def(aDef)
+				)
+			),
+		};
 		var InitProc = VMModule.TryFirst().ElseThrow();
 		
 #if MY_TRACE

@@ -511,14 +511,14 @@ mSPO_Parser {
 	MethodCall = mParserGen.Seq(
 		Id,
 		Infix(ExpressionInCall),
-		(-SpecialToken("=>") +Match)[0..1].Modify(aMatches => aMatches.TryFirst().ElseDefault())
+		(-SpecialToken("=>") +Match)[0..1].Modify(aMatches => aMatches.TryFirst())
 	)
 	.ModifyS(
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
 			aSpan,
 			mSPO_AST.Id(aSpan, aFirst.Id[1..] + aInfix.Id.Id[1..]),
 			mSPO_AST.Tuple(aSpan, aInfix.Childs),
-			aMaybeOut is null ? mStd.cEmpty : mMaybe.Some(aMaybeOut)
+			aMaybeOut
 		)
 	)
 	.SetName(nameof(MethodCall));

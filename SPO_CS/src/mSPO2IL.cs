@@ -18,7 +18,7 @@ mSPO2IL {
 	tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> TypeDef;
 		public mTreeMap.tTree<tText, mVM_Type.tType> Types;
-		public mArrayList.tArrayList<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> Defs;
+		public mArrayList.tArrayList<(tText? Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> Defs;
 		internal mStd.tFunc<tPos, tPos, tPos> MergePos;
 	}
 	
@@ -38,7 +38,7 @@ mSPO2IL {
 	NewModuleConstructor<tPos>(
 		mStd.tFunc<tPos, tPos, tPos> aMergePos
 	) => new() {
-		Defs = mArrayList.List<(tText Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
+		Defs = mArrayList.List<(tText? Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
 		TypeDef = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
 		Types = mTreeMap.Tree<string, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2))),
 		MergePos = aMergePos,
@@ -83,13 +83,27 @@ mSPO2IL {
 		mStream.tStream<(tText Id, tPos Pos)>? aSymbols
 	) {
 		var ExtractEnv = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
-		var RestEnv = aReg;
-		foreach (var Symbol in aSymbols.Reverse()) {
-			ExtractEnv.Push(mIL_AST.GetSecond(aPos, Symbol.Id, RestEnv));
-			var NewRestEnv = aDefConstructor.CreateTempReg();
-			ExtractEnv.Push(mIL_AST.GetFirst(aPos, NewRestEnv, RestEnv));
-			RestEnv = NewRestEnv;
+		
+		switch (aSymbols.Take(2).Count()) {
+			case 0: {
+				break;
+			}
+			case 1: {
+				ExtractEnv.Push(mIL_AST.Alias(aPos, aSymbols.TryFirst().ElseThrow().Id, aReg));
+				break;
+			}
+			default: {
+				var RestEnv = aReg;
+				foreach (var Symbol in aSymbols.Reverse()) {
+					ExtractEnv.Push(mIL_AST.GetSecond(aPos, Symbol.Id, RestEnv));
+					var NewRestEnv = aDefConstructor.CreateTempReg();
+					ExtractEnv.Push(mIL_AST.GetFirst(aPos, NewRestEnv, RestEnv));
+					RestEnv = NewRestEnv;
+				}
+				break;
+			}
 		}
+		
 		return ExtractEnv;
 	}
 	
@@ -136,7 +150,7 @@ mSPO2IL {
 			case var a when a.MatchPair(out var Type1, out var Type2) && !Type2.MatchEmpty(): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
-				var NewId = $"[{Id1},{Id2}]";
+				var NewId = $"[{Id1};{Id2}]";
 				aModuleConstructor.TypeDef.Push(mIL_AST.TypePair(default(tPos), NewId, Id1, Id2));
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
@@ -195,7 +209,7 @@ mSPO2IL {
 				aScope.Where(
 					a => a.Id == aEnvId.Id
 				).TryFirst(
-				).Else(
+				).ElseDo(
 					() => {
 						if (!aEnvId.Id.StartsWith("d_")) {
 							throw new Exception();
@@ -744,7 +758,7 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tSetTypeNode<tPos>{ Expressions: var Expressions }: {
 			//--------------------------------------------------------------------------------
-				Expressions.Match(out var Head, out var Tail);
+				mAssert.IsTrue(Expressions.Match(out var Head, out var Tail));
 				var ResultReg = aDefConstructor.MapExpresion(Head, aScope);
 				foreach (var Expression in Tail) {
 					var ExprReg = aDefConstructor.MapExpresion(Expression, aScope);
@@ -1353,7 +1367,7 @@ mSPO2IL {
 			aModuleNode.Import.Match,
 			mSPO_AST.Block(
 				aMergePos(
-					aModuleNode.Commands.IsEmpty() ? default : aModuleNode.Commands.TryFirst().Then(a => a.Pos).ElseDefault(),
+					aModuleNode.Commands.TryFirst().ThenDo(a => a.Pos).Else(default),
 					aModuleNode.Export.Pos
 				),
 				mStream.Concat(
@@ -1381,9 +1395,11 @@ mSPO2IL {
 			).Where(
 				a => !a.Id.StartsWith("d_")
 			).TryFirst(
-			).Then(
+			).ThenDo(
 				a => mError.Error($"Unknown symbol '{a.Id}' @ {a.Pos}", a.Pos)
-			).ElseDefault();
+			).ElseDo(
+				() => mError.Error($"unknown error", default(tPos))
+			);
 		}
 		
 		string.Create(10, 1, (span, i) => span[0] = (char)i);

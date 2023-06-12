@@ -20,6 +20,7 @@ mStdLib {
 		
 		var ImportData = mVM.Run(
 			mIL_Parser.Module.ParseText(
+				// TODO Update to new pair structure
 				"""
 				§TYPES
 					t1 := [BOOL => BOOL]
