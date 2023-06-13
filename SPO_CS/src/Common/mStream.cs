@@ -291,7 +291,7 @@ mStream {
 	public static tNat32
 	Count<t>(
 		this tStream<t>? aStream
-	) => aStream.Reduce((tNat32)0, (a, _) => a + 1);
+	) => aStream.Reduce(0u, (a, _) => a + 1);
 	
 	[Pure, DebuggerHidden]
 	public static mMaybe.tMaybe<t>
@@ -373,7 +373,7 @@ mStream {
 		this tStream<t>? aStream,
 		tNat32 aCount
 	) {
-		mAssert.AreNotEquals(aCount, (tNat32)0);
+		mAssert.AreNotEquals(aCount, 0u);
 		return (
 			aStream.Is(out var Head, out var Tail)
 			? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))

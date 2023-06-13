@@ -73,15 +73,27 @@ mIL_Parser_Tests {
 			("a := [§ALL b => c]", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TypeGeneric, Span((1, 1), (1, 18)), "a", "b", "c")),
 		}.AsStream(
 		).Map(
-			aTestCase => mTest.Test(
-				aTestCase.Expr,
-				aStreamOut => {
-					mAssert.AreEquals(
-						mIL_Parser.Command.ParseText(aTestCase.Expr, "", a => aStreamOut(a())),
-						aTestCase.Command
-					);
-				}
+			aTestCase => mStream.Stream(
+				mTest.Test(
+					$"{nameof(mTextParser.ParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+					aStreamOut => {
+						mAssert.AreEquals(
+							mIL_Parser.Command.ParseText(aTestCase.Expr, "", a => aStreamOut(a())),
+							aTestCase.Command
+						);
+					}
+				),
+				mTest.Test(
+					$"{nameof(mIL_AST.ToText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+					aStreamOut => {
+						mAssert.AreEquals(
+							aTestCase.Command.ToText(),
+							aTestCase.Expr
+						);
+					}
+				)
 			)
+		).Flatt(
 		).ToArrayList(
 		).ToArray(
 		)

@@ -122,8 +122,66 @@ mIL_AST {
 	public static tText
 	ToText<tPos>(
 		this tCommandNode<tPos> a
-	) => $"{a.Pos}: {a._1} = {a.NodeType} {a._2.Else("-")} {a._3.Else("-")}";
+	) => a.NodeType switch {
+		tCommandNodeType.IsType => $"{a._1} := §IS_TYPE {a._2}",
+		tCommandNodeType.Int => $"{a._1} := §INT {a._2}",
+		tCommandNodeType.IsInt => $"{a._1} := §IS_INT {a._2}",
+		tCommandNodeType.IntsAreEq => $"{a._1} := §INT {a._2} == {a._3}",
+		tCommandNodeType.IntsComp => $"{a._1} := §INT {a._2} <=> {a._3}",
+		tCommandNodeType.IntsAdd => $"{a._1} := §INT {a._2} + {a._3}",
+		tCommandNodeType.IntsSub => $"{a._1} := §INT {a._2} - {a._3}",
+		tCommandNodeType.IntsMul => $"{a._1} := §INT {a._2} * {a._3}",
+		tCommandNodeType.IntsDiv => $"{a._1} := §INT {a._2} / {a._3}",
+		tCommandNodeType.IsBool => $"{a._1} := §IS_BOOL {a._2}",
+		tCommandNodeType.BoolNot => $"{a._1} := §BOOL !{a._2}",
+		tCommandNodeType.BoolAnd => $"{a._1} := §BOOL {a._2} & {a._3}",
+		tCommandNodeType.BoolOr => $"{a._1} := §BOOL {a._2} | {a._3}",
+		tCommandNodeType.BoolXOr => $"{a._1} := §BOOL {a._2} ^ {a._3}",
+		tCommandNodeType.Alias => $"{a._1} := {a._2}",
+		tCommandNodeType.IsPair => $"{a._1} := §IS_PAIR {a._2}",
+		tCommandNodeType.Pair => $"{a._1} := {a._2}, {a._3}",
+		tCommandNodeType.First => $"{a._1} := §1ST {a._2}",
+		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
+		tCommandNodeType.IsPrefix => $"{a._1} := §IS_PREFIX {a._2}",
+		tCommandNodeType.AddPrefix => $"{a._1} := +#{a._2} {a._3}",
+		tCommandNodeType.SubPrefix => $"{a._1} := -#{a._2} {a._3}",
+		tCommandNodeType.HasPrefix => $"{a._1} := ?#{a._2} {a._3}",
+		tCommandNodeType.IsRecord => $"{a._1} := §IS_RECORD {a._2}",
+		tCommandNodeType.ExtendRec => $"{a._1} := {{{a._2}}} + {a._3}",
+		tCommandNodeType.DivideRec => $"{a._1} := {{{a._2}}} /",
+		tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
+		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
+		tCommandNodeType.IsVar => $"{a._1} := §IS_VAR {a._2}",
+		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
+		tCommandNodeType.VarGet => $"{a._1} := §VAR {a._2} ->",
 		
+		tCommandNodeType.TypePair => $"{a._1} := [{a._2}, {a._3}]",
+		tCommandNodeType.TypePrefix => $"{a._1} := [#{a._2} {a._3}]",
+		tCommandNodeType.TypeRec => $"{a._1} := [{{{a._2}}} + {a._3}]",
+		tCommandNodeType.TypeFunc => $"{a._1} := [{a._2} => {a._3}]",
+		tCommandNodeType.TypeMethod => $"{a._1} := [{a._2} : {a._3}]",
+		tCommandNodeType.TypeSet => $"{a._1} := [{a._2} | {a._3}]",
+		tCommandNodeType.TypeCond => $"{a._1} := [{a._2} & {a._3}]",
+		tCommandNodeType.TypeVar => $"{a._1} := [§VAR {a._2}]",
+		tCommandNodeType.TypeFree => $"{a._1} := [{a._2}]",
+		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
+		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
+		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",
+		tCommandNodeType.ReturnIf => $"§RETURN {a._3} IF {a._2}",
+		
+		tCommandNodeType.RepeatIf => $"§REPEAT {a._3} IF {a._2}",
+		tCommandNodeType.TailCallIf => $"TAIL_CALL {a._3} IF {a._2}",
+		tCommandNodeType.Assert => $"§ASSERT {a._1} => {a._2}",
+		tCommandNodeType.Proof => $"§PROOF {a._2} => {a._3}",
+		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
+		_ => $"{a._1} := {a._2} {a._3}"
+	};
+	
+	public static tText
+	ToTextWithSpan<tPos>(
+		this tCommandNode<tPos> a
+	) => $"{a.Pos}: {a.ToText()}";
+	
 	public static mMaybe.tMaybe<tText>
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode

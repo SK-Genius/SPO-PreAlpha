@@ -1006,7 +1006,7 @@ mSPO2IL {
 				//--------------------------------------------------------------------------------
 				var Scope = mStream.Stream<(tText Id, mVM_Type.tType Type)>();
 				var RestReg = aReg;
-				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), (tNat32)2);
+				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2u);
 				foreach (var Item in Items.Reverse()) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetSecond(PatternNode.Pos, ItemReg, RestReg));

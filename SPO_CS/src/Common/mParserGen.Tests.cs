@@ -258,11 +258,11 @@ mParserGen_Tests {
 				
 				mAssert.AreEquals(
 					A2_.StartParse(TestStream('A', 'A', '_'), a => aDebugStream(a())),
-					mResult.OK(mParserGen.ParserResult((cTestSpan, (tNat32)2), TestStream('_'), cNoError))
+					mResult.OK(mParserGen.ParserResult((cTestSpan, 2u), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
 					A2_.StartParse(TestStream('A', 'A', 'A', 'A', 'A', '_'), a => aDebugStream(a())),
-					mResult.OK(mParserGen.ParserResult((cTestSpan, (tNat32)5), TestStream('_'), cNoError))
+					mResult.OK(mParserGen.ParserResult((cTestSpan, 5u), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
 					A2_.StartParse(TestStream<tChar>(), a => aDebugStream(a())),

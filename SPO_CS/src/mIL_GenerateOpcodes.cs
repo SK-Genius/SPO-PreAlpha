@@ -33,11 +33,11 @@ mIL_GenerateOpcodes {
 		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
 		
 		var TypeMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
-		.Set(cEmptyType, (tNat32)0)
-		.Set(cAnyType, (tNat32)1)
-		.Set(cBoolType, (tNat32)2)
-		.Set(cIntType, (tNat32)3)
-		.Set(cTypeType, (tNat32)4);
+		.Set(cEmptyType, 0u)
+		.Set(cAnyType, 1u)
+		.Set(cBoolType, 2u)
+		.Set(cIntType, 3u)
+		.Set(cTypeType, 4u);
 		
 		var Types_ = mStream.Stream(
 			mVM_Type.Empty(),
