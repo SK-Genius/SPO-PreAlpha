@@ -1,13 +1,6 @@
-﻿//IMPORT mTest.cs
-//IMPORT mStd.cs
-//IMPORT mResult.cs
-//IMPORT mAssert.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mResult_Tests {
-	
+
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mResult),

@@ -1,10 +1,4 @@
-﻿//IMPORT mStd.cs
-//IMPORT mArrayList.cs
-//IMPORT mDebug.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mVM_Type {
 	
 	public enum

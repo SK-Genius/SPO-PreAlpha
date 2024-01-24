@@ -1,10 +1,4 @@
-﻿//IMPORT mParserGen.cs
-//IMPORT mTextStream.cs
-//IMPORT mSpan.cs
-
-#nullable enable
-
-// TODO: create a function how generate a call stack output
+﻿// TODO: create a function how generate a call stack output
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;

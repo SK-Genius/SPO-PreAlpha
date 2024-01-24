@@ -1,11 +1,4 @@
-﻿//IMPORT mVM.cs
-//IMPORT mSPO_Parser.cs
-//IMPORT mIL_Parser.cs
-//IMPORT mIL_Interpreter.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mStdLib {
 	
 	private static mMaybe.tMaybe<mVM_Data.tData> _ImportData;

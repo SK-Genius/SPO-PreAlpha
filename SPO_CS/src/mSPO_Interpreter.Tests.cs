@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mSPO_Interpreter.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mSPO_Interpreter_Tests {
 	
 	private static mVM_Data.tData

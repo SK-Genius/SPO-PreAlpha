@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mSPO_AST_Types.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mSPO_AST_Types_Tests {
 	
 	#if true

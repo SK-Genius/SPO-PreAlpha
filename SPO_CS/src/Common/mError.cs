@@ -1,8 +1,4 @@
-﻿//IMPORT mStd.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mError {
 	public sealed class
 	tError<t> : System.Exception {

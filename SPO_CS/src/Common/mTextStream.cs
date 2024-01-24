@@ -1,8 +1,4 @@
-﻿//IMPORT mStream.cs
-
-#nullable enable
-
-using tError = System.String;
+﻿using tError = System.String;
 
 public static class
 mTextStream {
@@ -13,7 +9,7 @@ mTextStream {
 		public tNat32 Row;
 		public tNat32 Col;
 		
-		public override tText
+		public override readonly tText
 		ToString(
 		) => $"{this.Id}({this.Row}:{this.Col})";
 	}

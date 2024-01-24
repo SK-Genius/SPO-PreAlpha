@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mMap.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mMap_Tests {
 	
 	public static readonly mTest.tTest

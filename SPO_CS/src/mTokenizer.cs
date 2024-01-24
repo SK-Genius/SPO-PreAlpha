@@ -1,10 +1,4 @@
-﻿//IMPORT mTextParser.cs
-//IMPORT mError.cs
-//IMPORT mAssert.cs
-
-#nullable enable
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
@@ -82,7 +76,7 @@ mTokenizer {
 		public tText Text;
 		public tSpan Span;
 		
-		public override tText
+		public override readonly tText
 		ToString(
 		) => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
 	}
@@ -135,7 +129,9 @@ mTokenizer {
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Row = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start.Row).ElseThrow();
 			var Col = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start.Col).ElseThrow();
-			var Line = aText.Split('\n')[Row];
+			var Lines = aText.Split('\n');
+			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
+			var Line = Lines[Row - 1];
 			var MarkerLine = mStream.Stream(
 				Line.ToCharArray()
 			).Take(
@@ -149,6 +145,7 @@ mTokenizer {
 			throw mError.Error(
 				$"""
 				({Row}, {Col}): expected end of text
+				{PrevLine}
 				{Line}
 				{MarkerLine}^
 				
@@ -193,7 +190,7 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	IdToken = mParserGen.AtomParser<tPos, tToken, tError>(
 		a => a.Type == tTokenType.Id,
-		a => (a.Span.Start, "expect Idifier"),
+		a => (a.Span.Start, "expect Identifier"),
 		mTextParser.ComparePos
 	).SetDebugName(nameof(IdToken));
 	

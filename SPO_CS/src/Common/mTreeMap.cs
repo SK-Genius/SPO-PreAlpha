@@ -19,19 +19,14 @@ mTreeMap {
 			this.Root = aRoot;
 		}
 		
-		private struct
-		tDebuggerProxy {
-			private readonly tTree<tKey, tValue> _Tree;
-			public tDebuggerProxy(
-				tTree<tKey, tValue> a
-			) {
-				this._Tree = a;
-			}
-			
+		private readonly struct
+		tDebuggerProxy(
+			tTree<tKey, tValue> aTree
+		) {
 			[Pure]
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
-			public (tKey Key, tValue Value)[]
-			List => this._Tree.ToStream().Take(100).ToArrayList().ToArray();
+			public readonly (tKey Key, tValue Value)[]
+			List => aTree.ToStream().Take(100).ToArrayList().ToArray();
 		}
 	}
 	

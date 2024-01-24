@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mVM_Type.cs
-
-#nullable enable
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class

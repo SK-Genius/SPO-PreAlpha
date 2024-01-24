@@ -1,24 +1,4 @@
-﻿//IMPORT Common/mAny.Tests.cs
-//IMPORT Common/mArrayList.Tests.cs
-//IMPORT Common/mStream.Tests.cs
-//IMPORT Common/mMap.Tests.cs
-//IMPORT Common/mMaybe.Tests.cs
-//IMPORT Common/mParserGen.Tests.cs
-//IMPORT Common/mResult.Tests.cs
-//IMPORT mTokenizer.Tests.cs
-//IMPORT mIL_Interpreter.Tests.cs
-//IMPORT mIL_Parser.Tests.cs
-//IMPORT mSPO_AST_Types.Tests.cs
-//IMPORT mSPO_Interpreter.Tests.cs
-//IMPORT mSPO_Parser.Tests.cs
-//IMPORT mSPO2IL.Tests.cs
-//IMPORT mStdLib.Tests.cs
-//IMPORT mVM.Tests.cs
-//IMPORT mVM_Type.Tests.cs
-
-#nullable enable
-
-var Tests = mTest.Tests(
+﻿var Tests = mTest.Tests(
 	"All",
 	mAny_Tests.Tests,
 	mMaybe_Tests.Tests,

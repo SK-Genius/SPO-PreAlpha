@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mVM.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mVM_Tests {
 	
 	private static
@@ -28,7 +23,7 @@ mVM_Tests {
 			aDebugStream => {
 				#if MY_TRACE
 					var TraceOut = mStd.Action(
-						(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+						(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 					);
 				#else
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
@@ -57,7 +52,14 @@ mVM_Tests {
 				Proc1.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Reg3);
 				
 				var Res = mVM_Data.Empty();
-				mVM.Run<mStd.tEmpty>(mVM_Data.Proc(Proc1, Env), mVM_Data.Empty(), mVM_Data.Empty(), Res, a=>""+a, TraceOut);
+				mVM.Run<mStd.tEmpty>(
+					mVM_Data.Proc(Proc1, Env),
+					mVM_Data.Empty(),
+					mVM_Data.Empty(),
+					Res,
+					a => "" + a,
+					TraceOut
+				);
 				mAssert.AreEquals(Res, mVM_Data.Int(2));
 			}
 		),

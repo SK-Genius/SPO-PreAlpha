@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mTokenizer.cs
-
-#nullable enable
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 
 public static class
 mTokenizer_Tests {

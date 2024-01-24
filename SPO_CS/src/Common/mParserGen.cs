@@ -1,14 +1,5 @@
-﻿//IMPORT mStream.cs
-//IMPORT mDebug.cs
-//IMPORT mPerf.cs
-//IMPORT mMath.cs
-//IMPORT mSpan.cs
-//IMPORT mResult.cs
-
-//#define MY_TRACE
+﻿//#define MY_TRACE
 //#define INF_LOOP_DETECTION
-
-#nullable enable
 
 using System;
 
@@ -631,15 +622,15 @@ mParserGen {
 		
 		// TODO: review (First vs Last ???)
 		return a1.TryFirst().Match(
-			None: () => a2,
-			Some: a1_ => a2.TryFirst().Match(
-				None: () => a1,
-				Some: a2_ => aComparePos(a1_.Pos, a2_.Pos) switch {
+			aOnNone: () => a2,
+			aOnSome: a1_ => a2.TryFirst().Match(
+				aOnNone: () => a1,
+				aOnSome: a2_ => aComparePos(a1_.Pos, a2_.Pos) switch {
 					> 0 => a1,
 					< 0 => a2,
 					_ => a1.TryLast().Match(
-						None: () => a2,
-						Some: a => mStream.Stream(a, a2)
+						aOnNone: () => a2,
+						aOnSome: a => mStream.Stream(a, a2)
 					)
 				}
 			)
@@ -731,7 +722,7 @@ mParserGen {
 
 #if MY_TRACE
 			
-			if (aParser._DebugName != null) {
+			if (aParser._DebugName is not null) {
 				AppendToTrace(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
 			} else if (aParser._DebugDef != "") {
 				AppendToTrace(aParser._DebugDef+" -> {");
@@ -770,7 +761,7 @@ mParserGen {
 		
 		#if MY_TRACE
 			if (Result.Match(out var PResult, out var Error_)) {
-				AppendToTrace($"}} -> OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")} ({PResult.Result.Span})");
+				AppendToTrace($"}} -> OK{tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}"} ({PResult.Result.Span})");
 				aParser._LastTrace = Trace;
 				HasToLog = true;
 			} else {

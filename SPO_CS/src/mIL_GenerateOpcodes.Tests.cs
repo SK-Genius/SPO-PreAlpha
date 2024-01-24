@@ -1,12 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mIL_Interpreter.cs
-//IMPORT mTextStream.cs
-//IMPORT mIL_Parser.cs
-//IMPORT mSpan.cs
-
-#nullable enable
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
@@ -230,7 +222,7 @@ mIL_GenerateOpcodes_Tests {
 			}
 		),
 		mTest.Test("ParseModule",
-			aDebugStream => {
+			aDebugStream => { // 
 				var (Defs, DefLookup) = CompileModule(
 					"""
 					§TYPES
@@ -310,7 +302,8 @@ mIL_GenerateOpcodes_Tests {
 						arg_1   := arg, _1
 						newArg  := .sub arg_1
 						newArg_newRes := newArg, newRes
-						§REPEAT newArg_newRes IF TRUE
+						self_with_arg := SELF, newArg_newRes
+						§RETURN .self_with_arg IF TRUE
 					§DEF ...! € t...!
 						_1 := 1
 						...!!_ := §2ND ENV

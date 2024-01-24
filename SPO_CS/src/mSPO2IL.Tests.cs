@@ -1,10 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mSPO2IL.cs
-//IMPORT mSPO_Parser.cs
-
-#nullable enable
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
@@ -49,13 +43,26 @@ mSPO2IL_Tests {
 	) {
 		aStreamOut($"Def Count: {aSPO_Defs.Count()}");
 		var DefIndex = 0u;
-		mAssert.AreEquals(aSPO_Defs.Count(), (tNat32)aIL_Defs.Length);
 		foreach (var (SPO_Def, IL_Def) in mStream.ZipShort(aSPO_Defs, mStream.Stream(aIL_Defs))) {
 			aStreamOut(mSPO2IL.DefId(DefIndex));
 			AssertCommandsAre(SPO_Def.Commands.ToStream(), IL_Def);
 			aStreamOut("  OK");
 			DefIndex += 1;
 		}
+		
+		if (aSPO_Defs.Count() > aIL_Defs.Length) {
+			aStreamOut("miss additional defs:");
+			foreach (var SPO_Def in aSPO_Defs.Skip((tNat32)aIL_Defs.Length)) {
+				foreach (var command in SPO_Def.Commands.ToStream()) {
+					aStreamOut(command.ToText());
+				}
+				aStreamOut("");
+			}
+			aStreamOut("");
+			mAssert.Fail();
+		}
+		
+		mAssert.AreEquals(aSPO_Defs.Count(), (tNat32)aIL_Defs.Length);
 	}
 	
 	public static readonly mTest.tTest
@@ -78,7 +85,7 @@ mSPO2IL_Tests {
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 				var Type = mSPO_AST_Types.UpdateExpressionTypes(ExpressionNode, Scope).ElseThrow();
 				var Def = Module.NewDefConstructor();
-				mAssert.AreEquals(Def.MapExpresion(ExpressionNode, Scope), mSPO2IL.RegId(11));
+				mAssert.AreEquals(Def.MapExpression(ExpressionNode, Scope), mSPO2IL.RegId(11));
 				
 				mAssert.AreEquals(
 					Def.Commands.ToStream(),
@@ -306,7 +313,7 @@ mSPO2IL_Tests {
 						mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.RegId(3), mSPO2IL.RegId(2), mSPO2IL.Id("a")), // [2]:(2); a => (2, a)
 						
 						mIL_AST.CallFunc(Span((1, 27), (1, 32)), mSPO2IL.RegId(4), mSPO2IL.Id("...*..."), mSPO2IL.RegId(3)), // ...*... (2, a) => [4]
-						mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mSPO2IL.RegId(4), mIL_AST.cTrue) // [4] TRUE
+						mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mIL_AST.cTrue, mSPO2IL.RegId(4)) // [4] TRUE
 					)
 				);
 				
@@ -401,7 +408,7 @@ mSPO2IL_Tests {
 						mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.RegId(10), mIL_AST.cEmpty, mSPO2IL.RegId(9)),
 						mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.RegId(11), mSPO2IL.RegId(10), mSPO2IL.Id("c")),
 						mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.RegId(12), mSPO2IL.Id("...+..."), mSPO2IL.RegId(11)),
-						mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mSPO2IL.RegId(12), mIL_AST.cTrue)
+						mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.RegId(12))
 					)
 				);
 				
@@ -498,7 +505,7 @@ mSPO2IL_Tests {
 						mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.RegId(10), mIL_AST.cEmpty, mSPO2IL.RegId(9)),
 						mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.RegId(11), mSPO2IL.RegId(10), mSPO2IL.Id("c")),
 						mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.RegId(12), mSPO2IL.Id("...>..."), mSPO2IL.RegId(11)),
-						mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mSPO2IL.RegId(12), mIL_AST.cTrue)
+						mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.RegId(12))
 					)
 				);
 				
@@ -556,13 +563,13 @@ mSPO2IL_Tests {
 				var DefConstructor = Module.NewDefConstructor();
 				DefConstructor.MapDef(DefNode, Scope);
 				
-				//foreach (var def in DefConstructor.ModuleConstructor.Defs.ToArray()) {
-				//	foreach (var command in def.Commands.ToStream()) {
-				//		aStreamOut(command.ToText());
-				//	}
-				//	aStreamOut("");
-				//}
-				//aStreamOut("");
+				foreach (var def in DefConstructor.ModuleConstructor.Defs.ToArray()) {
+					foreach (var command in def.Commands.ToStream()) {
+						aStreamOut(command.ToText());
+					}
+					aStreamOut("");
+				}
+				aStreamOut("");
 				
 				AssertDefsAre(
 					aStreamOut,
@@ -649,6 +656,154 @@ mSPO2IL_Tests {
 				);
 			}
 		),
+		mTest.Test("MapIfMatchWithSet",
+			aStreamOut => {
+				var ModuleNode = mSPO_Parser.Module.ParseText(
+					//       1         2         3         4         5         6         7         8
+					//345678901234567890123456789012345678901234567890123456789012345678901234567890
+					"""
+					§IMPORT ()
+					
+					§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
+					
+					§EXPORT §IF X MATCH {
+						(#Blub ()) => 1
+						(#Bla ()) => 2
+						(_) => 3
+					}
+					""",
+					"",
+					a => aStreamOut(a())
+				);
+				
+				var InitScope = mSPO_AST_Types.UpdateMatchTypes(
+					ModuleNode.Import.Match,
+					mStd.cEmpty,
+					mSPO_AST_Types.tTypeRelation.Sub,
+					mStd.cEmpty
+				).Then(
+					a => a.Scope
+				).ElseThrow();
+				
+				var Scope = ModuleNode.Commands.Reduce(
+					mResult.OK(InitScope).AsResult<tText>(),
+					(aResultScope, aCommand) => aResultScope.ThenTry(
+						aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+					)
+				).ElseThrow();
+				
+				var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, Scope);
+				
+				AssertDefsAre(
+					aStreamOut,
+					Module.Defs.ToStream(),
+					// d_0
+					"""
+					d_1 := §2ND ENV
+					t_10 := §1ST ENV
+					d_2 := §2ND t_10
+					t_11 := §1ST t_10
+					d_3 := §2ND t_11
+					t_12 := §1ST t_11
+					d_4 := §2ND t_12
+					t_13 := §1ST t_12
+					d_5 := §2ND t_13
+					t_14 := §1ST t_13
+					d_6 := §2ND t_14
+					t_15 := §1ST t_14
+					d_7 := §2ND t_15
+					t_16 := §1ST t_15
+					t_1 := +#_Bla... EMPTY
+					_X := t_1
+					t_2 := EMPTY, d_2
+					t_3 := t_2, d_3
+					t_4 := t_3, d_4
+					t_5 := t_4, d_5
+					t_6 := t_5, d_6
+					t_7 := t_6, d_7
+					t_8 := .d_1 t_7
+					t_9 := .t_8 _X
+					§RETURN t_9 IF TRUE
+					""",
+					// d_1
+					"""
+					d_7 := §2ND ENV
+					t_16 := §1ST ENV
+					d_6 := §2ND t_16
+					t_17 := §1ST t_16
+					d_5 := §2ND t_17
+					t_18 := §1ST t_17
+					d_4 := §2ND t_18
+					t_19 := §1ST t_18
+					d_3 := §2ND t_19
+					t_20 := §1ST t_19
+					d_2 := §2ND t_20
+					t_21 := §1ST t_20
+					t_1 := .d_2 EMPTY
+					t_2 := .t_1 ARG
+					t_3 := .d_3 EMPTY
+					t_4 := EMPTY, t_3
+					t_5 := t_4, ARG
+					TAIL_CALL t_5 IF t_2
+					t_6 := .d_4 EMPTY
+					t_7 := .t_6 ARG
+					t_8 := .d_5 EMPTY
+					t_9 := EMPTY, t_8
+					t_10 := t_9, ARG
+					TAIL_CALL t_10 IF t_7
+					t_11 := .d_6 EMPTY
+					t_12 := .t_11 ARG
+					t_13 := .d_7 EMPTY
+					t_14 := EMPTY, t_13
+					t_15 := t_14, ARG
+					TAIL_CALL t_15 IF t_12
+					""",
+					// d_2
+					"""
+					t_1 := §IS_PREFIX ARG
+					t_2 := §BOOL t_1 ^ TRUE
+					§RETURN FALSE IF t_2
+					t_3 := ?#_Blub... ARG
+					t_4 := §BOOL t_3 ^ TRUE
+					§RETURN FALSE IF t_4
+					t_5 := -#_Blub... ARG
+					§RETURN TRUE IF TRUE
+					""",
+					// d_3
+					"""
+					t_1 := -#_Blub... ARG
+					t_2 := §INT 1
+					§RETURN t_2 IF TRUE
+					""",
+					// d_4
+					"""
+					t_1 := §IS_PREFIX ARG
+					t_2 := §BOOL t_1 ^ TRUE
+					§RETURN FALSE IF t_2
+					t_3 := ?#_Bla... ARG
+					t_4 := §BOOL t_3 ^ TRUE
+					§RETURN FALSE IF t_4
+					t_5 := -#_Bla... ARG
+					§RETURN TRUE IF TRUE
+					""",
+					// d_5
+					"""
+					t_1 := -#_Bla... ARG
+					t_2 := §INT 2
+					§RETURN t_2 IF TRUE
+					""",
+					// d_6
+					"""
+					§RETURN TRUE IF TRUE
+					""",
+					// d_7
+					"""
+					t_1 := §INT 3
+					§RETURN t_1 IF TRUE
+					"""
+				);
+			}
+		),
 		mTest.Test("MapNestedMatch",
 			aStreamOut => {
 				var LambdaNode = mSPO_Parser.Lambda.ParseText(
@@ -725,7 +880,7 @@ mSPO2IL_Tests {
 						mIL_AST.CreatePair(Span((1, 82), (1, 87)), mSPO2IL.RegId(13), mIL_AST.cEmpty, mSPO2IL.Id("a")),
 						mIL_AST.CreatePair(Span((1, 82), (1, 87)), mSPO2IL.RegId(14), mSPO2IL.RegId(13), mSPO2IL.Id("z")),
 						mIL_AST.CallFunc(Span((1, 82), (1, 87)), mSPO2IL.RegId(15), mSPO2IL.Id("...*..."), mSPO2IL.RegId(14)),
-						mIL_AST.ReturnIf(Span((1, 82), (1, 87)), mSPO2IL.RegId(15), mIL_AST.cTrue)
+						mIL_AST.ReturnIf(Span((1, 82), (1, 87)), mIL_AST.cTrue, mSPO2IL.RegId(15))
 					)
 				);
 				
@@ -790,7 +945,7 @@ mSPO2IL_Tests {
 						mIL_AST.Alias(Span((7, 1), (7, 9)), mSPO2IL.Id("x..."), mSPO2IL.RegId(9)),
 						mIL_AST.CallFunc(Span((8, 10), (8, 13)), mSPO2IL.RegId(10), mSPO2IL.Id("x..."), mSPO2IL.Id("k")),
 						mIL_AST.Alias(Span((8, 1), (8, 6)), mSPO2IL.Id("y"), mSPO2IL.RegId(10)),
-						mIL_AST.ReturnIf(Span((10, 1), (10, 9)), mSPO2IL.Id("y"), mIL_AST.cTrue)
+						mIL_AST.ReturnIf(Span((10, 1), (10, 9)), mIL_AST.cTrue, mSPO2IL.Id("y"))
 					)
 				);
 				
@@ -807,7 +962,7 @@ mSPO2IL_Tests {
 						mIL_AST.CreatePair(Span((7, 29), (7, 34)), mSPO2IL.RegId(1), mIL_AST.cEmpty, mSPO2IL.Id("k")),
 						mIL_AST.CreatePair(Span((7, 29), (7, 34)), mSPO2IL.RegId(2), mSPO2IL.RegId(1), mSPO2IL.Id("a")),
 						mIL_AST.CallFunc(Span((7, 29), (7, 34)), mSPO2IL.RegId(3), mSPO2IL.Id("...*..."), mSPO2IL.RegId(2)),
-						mIL_AST.ReturnIf(Span((7, 29), (7, 34)), mSPO2IL.RegId(3), mIL_AST.cTrue)
+						mIL_AST.ReturnIf(Span((7, 29), (7, 34)), mIL_AST.cTrue, mSPO2IL.RegId(3))
 					)
 				);
 			}

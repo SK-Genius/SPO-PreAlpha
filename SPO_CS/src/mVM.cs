@@ -1,10 +1,4 @@
-﻿//IMPORT mVM_Data.cs
-//IMPORT mArrayList.cs
-//IMPORT mPerf.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mVM {
 	
 	public sealed class
@@ -26,6 +20,8 @@ mVM {
 		mVM_Data.tData aRes,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
+		var FreeType = aProcDef.TypeFree(default);
+	
 		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
 			_Parent = aParent,
@@ -35,6 +31,7 @@ mVM {
 				mVM_Data.Int(1),
 				mVM_Data.Bool(false),
 				mVM_Data.Bool(true),
+				mVM_Data.Proc(aProcDef, aEnv),
 				mVM_Data.TypeEmpty(),
 				mVM_Data.TypeBool(),
 				mVM_Data.TypeInt(),
@@ -50,14 +47,15 @@ mVM {
 		aTraceOut(() => " 1 := 1");
 		aTraceOut(() => " 2 := FALSE");
 		aTraceOut(() => " 3 := TRUE");
-		aTraceOut(() => " 4 := EMPTY_TYPE");
-		aTraceOut(() => " 5 := BOOL_TYPE");
-		aTraceOut(() => " 6 := INT_TYPE");
-		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  " + aEnv.ToText(20));
-		aTraceOut(() => " 9 := OBJ  |  " + aObj.ToText(20));
-		aTraceOut(() => "10 := ARG  |  " + aArg.ToText(20));
-		aTraceOut(() => "11 := RES");
+		aTraceOut(() => " 4 := SELF");
+		aTraceOut(() => " 5 := EMPTY_TYPE");
+		aTraceOut(() => " 6 := BOOL_TYPE");
+		aTraceOut(() => " 7 := INT_TYPE");
+		aTraceOut(() => " 8 := TYPE_TYPE");
+		aTraceOut(() => " 9 := ENV  |  " + aEnv.ToText(20));
+		aTraceOut(() => "10 := OBJ  |  " + aObj.ToText(20));
+		aTraceOut(() => "11 := ARG  |  " + aArg.ToText(20));
+		aTraceOut(() => "12 := RES");
 		
 		return Result;
 	}
@@ -77,13 +75,6 @@ mVM {
 			case mVM_Data.tOpCode.NewInt: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Int((tInt32)Arg1));
-				break;
-			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsBool: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Bool));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -114,13 +105,6 @@ mVM {
 				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
 				mAssert.IsTrue(BoolData2.IsBool(out var Bool2));
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
-				break;
-			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsInt: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Int));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -185,13 +169,6 @@ mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsPair: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Pair));
-				break;
-			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewPair: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(
@@ -228,13 +205,6 @@ mVM {
 				break;
 			}
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsPrefix: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Prefix));
-				break;
-			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.AddPrefix: {
 			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Prefix(Arg1, aCallStack._Regs.Get(Arg2)));
@@ -256,13 +226,6 @@ mVM {
 					aCallStack._Regs.Get(Arg2).IsPrefix(out var PrefixId, out var Data)
 				);
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
-				break;
-			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsRecord: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Record));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -295,13 +258,6 @@ mVM {
 				if (aCallStack._Regs.Get(Arg1).IsBool(out var Bool) && Bool) {
 					mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsBool(out Bool) && Bool);
 				}
-				break;
-			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsVar: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Var));
 				break;
 			}
 			//--------------------------------------------------------------------------------
@@ -356,7 +312,7 @@ mVM {
 						);
 					}
 					default: {
-						throw mError.Error("impossible");
+						throw mError.Error("impossible: " + Proc._DataType);
 					}
 				}
 				break;
@@ -388,7 +344,7 @@ mVM {
 						return NewCallStack(aCallStack, Def, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
 					}
 					default: {
-						throw mError.Error("impossible");
+						throw mError.Error("impossible: " + Proc._DataType);
 					}
 				}
 				break;
@@ -396,42 +352,20 @@ mVM {
 			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ReturnIf: {
 			//--------------------------------------------------------------------------------
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
 				if (Cond) {
-					var Src = aCallStack._Regs.Get(Arg2);
+					var Res = aCallStack._Regs.Get(Arg2);
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
-					Des._DataType = Src._DataType;
-					Des._Value = Src._Value;
+					Des._DataType = Res._DataType;
+					Des._Value = Res._Value;
 					aCallStack._TraceOut(() => "====================================");
 					return aCallStack._Parent;
 				}
 				break;
 			}
+			
 			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.ContinueIf: {
-			//--------------------------------------------------------------------------------
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond));
-				if (Cond) {
-					aCallStack._Regs = mArrayList.List(
-						mVM_Data.Empty(),
-						mVM_Data.Int(1),
-						mVM_Data.Bool(false),
-						mVM_Data.Bool(true),
-						mVM_Data.TypeEmpty(),
-						mVM_Data.TypeBool(),
-						mVM_Data.TypeInt(),
-						mVM_Data.TypeType(),
-						aCallStack._Regs.Get(mVM_Data.cEnvReg),
-						aCallStack._Regs.Get(mVM_Data.cObjReg),
-						aCallStack._Regs.Get(Arg2),
-						aCallStack._Regs.Get(mVM_Data.cResReg)
-					);
-					aCallStack._CodePointer = 0;
-				}
-				break;
-			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.TailCallIf: {
+			case mVM_Data.tOpCode.CallAndReturnIf: {
 			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
 				if (Cond) {
@@ -475,13 +409,6 @@ mVM {
 				}
 				break;
 			}
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.IsType: {
-			//--------------------------------------------------------------------------------
-				var Data = aCallStack._Regs.Get(Arg1);
-				aCallStack._Regs.Push(mVM_Data.Bool(Data._DataType == mVM_Data.tDataType.Type));
-				break;
-			}
 			
 			// TODO: missing IL Command
 			// - Create Process
@@ -490,7 +417,7 @@ mVM {
 			//--------------------------------------------------------------------------------
 			default: {
 			//--------------------------------------------------------------------------------
-				throw mError.Error("TODO");
+				throw mError.Error("TODO " + OpCode);
 			}
 		}
 		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
@@ -566,7 +493,7 @@ mVM {
 		var InitProc = VMModule.TryFirst().ElseThrow();
 		
 #if MY_TRACE
-		var TraceOut = aDebugStream;
+		var TraceOut = aTrace;
 #else
 		var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
 #endif

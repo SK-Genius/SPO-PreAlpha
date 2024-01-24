@@ -1,10 +1,4 @@
-﻿//IMPORT mStream.cs
-//IMPORT mMath.cs
-//IMPORT mDebug.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mArrayList {
 	
 	public sealed class

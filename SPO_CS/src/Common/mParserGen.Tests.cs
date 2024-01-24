@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mParserGen.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mParserGen_Tests {
 	
 	private static readonly mSpan.tSpan<mStd.tEmpty> cTestSpan = default;
@@ -371,13 +366,13 @@ mParserGen_Tests {
 					.Modify((a1, ___, aOp, ____, a2) => aOp(a1, a2))
 				);
 				
-				var Eval = (tText aExpr) => {
+				tInt32 Eval(tText aExpr) {
 					var X = Expression.StartParse(
 						TestStream(aExpr.ToCharArray()),
 						a => aDebugStream(a())
 					);
 					return X.ElseThrow("").Result.Value;
-				};
+				}
 				
 				mAssert.AreEquals(Eval("1"), 1);
 				mAssert.AreEquals(Eval("-2"), -2);

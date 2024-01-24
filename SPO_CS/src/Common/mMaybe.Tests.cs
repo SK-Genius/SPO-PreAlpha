@@ -1,12 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mStd.cs
-//IMPORT mResult.cs
-//IMPORT mAssert.cs
-//IMPORT mMaybe.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mMaybe_Tests {
 
 	public static readonly mTest.tTest
@@ -117,16 +109,16 @@ mMaybe_Tests {
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).Match(
-						None: () => "No value",
-						Some: i => i.ToString()
+						aOnNone: () => "No value",
+						aOnSome: i => i.ToString()
 					),
 					"1"
 				);
 				
 				mAssert.AreEquals(
 					mMaybe.None<int>().Match(
-						None: () => "No value",
-						Some: i => i.ToString()
+						aOnNone: () => "No value",
+						aOnSome: i => i.ToString()
 					),
 					"No value"
 				);

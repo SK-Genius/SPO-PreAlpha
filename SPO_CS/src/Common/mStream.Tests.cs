@@ -1,10 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mStream.cs
-//IMPORT mAssert.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mStream_Tests {
 	
 	public static readonly mTest.tTest

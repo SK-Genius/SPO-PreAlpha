@@ -1,9 +1,4 @@
-﻿//IMPORT mError.cs
-//IMPORT mStd.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mResult {
 	public readonly struct
 	tResultFail<tError> {
@@ -64,7 +59,7 @@ mResult {
 			_Error = aFail._Error
 		};
 		
-		public override string
+		public override readonly string
 		ToString(
 		) => this.Then(
 			a => "" + a
@@ -240,8 +235,8 @@ mResult {
 		this mMaybe.tMaybe<t> aRes,
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
-		Some: [DebuggerHidden](aValue) => (tResult<t, tError>)OK(aValue),
-		None: [DebuggerHidden]() => Fail(aOnFail())
+		aOnSome: [DebuggerHidden](aValue) => (tResult<t, tError>)OK(aValue),
+		aOnNone: [DebuggerHidden]() => Fail(aOnFail())
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
 	
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
-		<LangVersion>Preview</LangVersion>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>preview</LangVersion>
 		<OutputType>Exe</OutputType>
 		<!--  Exe | Library | Module | Winexe -->
 		

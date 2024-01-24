@@ -1,21 +1,14 @@
-﻿//IMPORT mVM_Type.cs
-//IMPORT mAny.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mVM_Data {
 	
 	public enum
 	tOpCode {
 		// BOOL
-		IsBool,
 		And,
 		Or,
 		XOr,
 		
 		// INT
-		IsInt,
 		NewInt,
 		IntsAreEq,
 		IntsComp,
@@ -25,24 +18,20 @@ mVM_Data {
 		IntsDiv,
 		
 		// PAIR
-		IsPair,
 		NewPair,
 		First,
 		Second,
 		
 		// PREFIX
-		IsPrefix,
 		AddPrefix,
 		DelPrefix,
 		HasPrefix,
 		
 		// RECORD
-		IsRecord,
 		ExtendRec,
 		DivideRec,
 		
 		// VAR
-		IsVar,
 		VarDef,
 		VarSet,
 		VarGet,
@@ -51,14 +40,23 @@ mVM_Data {
 		CallFunc,
 		CallProc,
 		ReturnIf,
-		ContinueIf,
-		TailCallIf,
+		CallAndReturnIf,
+		CallAndReturnIfArgIsEmpty,
+		CallAndReturnIfArgIsBool,
+		CallAndReturnIfArgIsInt,
+		CallAndReturnIfArgIsType,
+		CallAndReturnIfArgIsPrefix,
+		CallAndReturnIfArgIsRecord,
+		CallAndReturnIfArgIsPair,
+		CallAndReturnIfArgIsSet,
+		CallAndReturnIfArgIsVar,
+		CallAndReturnIfArgIsFunc,
+		CallAndReturnIfArgIsMethod,
 		
 		// ASSERT
 		Assert,
 		
 		// TYPE
-		IsType,
 		TypeEmpty,
 		TypeAny,
 		TypeInt,
@@ -86,6 +84,7 @@ mVM_Data {
 	public static readonly tNat32 cOneReg = 1;
 	public static readonly tNat32 cFalseReg = 2;
 	public static readonly tNat32 cTrueReg = 3;
+	//public static readonly tNat32 cSelfFuncReg = 4;
 	public static readonly tNat32 cEmptyTypeReg = 4;
 	public static readonly tNat32 cBoolTypeReg = 5;
 	public static readonly tNat32 cIntTypeReg = 6;
@@ -173,13 +172,6 @@ mVM_Data {
 	}
 	
 	public static tNat32
-	IsBool<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsBool, aValue);
-	
-	public static tNat32
 	And<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -202,13 +194,6 @@ mVM_Data {
 		tNat32 aBoolReg1,
 		tNat32 aBoolReg2
 	) => aDef._AddReg(aPos, tOpCode.XOr, aBoolReg1, aBoolReg2);
-	
-	public static tNat32
-	IsInt<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tInt32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsInt, (tNat32)aValue);
 	
 	public static tNat32
 	Int<tPos>(
@@ -266,13 +251,6 @@ mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.IntsDiv, aIntReg1, aIntReg2);
 	
 	public static tNat32
-	IsPair<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsPair, aValue);
-	
-	public static tNat32
 	Pair<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -293,13 +271,6 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aPairReg
 	) => aDef._AddReg(aPos, tOpCode.Second, aPairReg);
-	
-	public static tNat32
-	IsPrefix<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsPrefix, aValue);
 	
 	public static tNat32
 	AddPrefix<tPos>(
@@ -326,13 +297,6 @@ mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.HasPrefix, aPrefixId, aDataReg);
 	
 	public static tNat32
-	IsRecord<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsRecord, aValue);
-	
-	public static tNat32
 	ExtendRec<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -353,13 +317,6 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aRecReg
 	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
-	
-	public static tNat32
-	IsVar<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsVar, aValue);
 	
 	public static tNat32
 	VarDef<tPos>(
@@ -412,23 +369,123 @@ mVM_Data {
 	}
 	
 	public static void
-	ContinueIf<tPos>(
+	CallAndReturnIf<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aCondReg,
-		tNat32 aArgReg
+		tNat32 aFuncAndArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.ContinueIf, aCondReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIf, aCondReg, aFuncAndArgReg);
 	}
 	
 	public static void
-	TailCallIf<tPos>(
+	CallAndReturnIfArgIsEmpty<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aCondReg,
-		tNat32 aCallerArgReg
+		tNat32 aFuncReg,
+		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.TailCallIf, aCondReg, aCallerArgReg);
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsEmpty, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsBool<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsBool, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsInt<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsInt, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsType<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsType, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsPrefix<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsPrefix, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsRecord<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsRecord, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsPair<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsPair, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsSet<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsSet, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsVar<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsVar, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsFunc<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsFunc, aFuncReg, aArgReg);
+	}
+	
+	public static void
+	CallAndReturnIfArgIsMethod<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aFuncReg,
+		tNat32 aArgReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsMethod, aFuncReg, aArgReg);
 	}
 	
 	public static void
@@ -440,13 +497,6 @@ mVM_Data {
 	) {
 		aDef._AddCommand(aPos, tOpCode.Assert, aPreCondReg, aPostCondReg);
 	}
-	
-	public static tNat32
-	IsType<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValue
-	) => aDef._AddReg(aPos, tOpCode.IsType, aValue);
 	
 	public static tNat32
 	TypeEmpty<tPos>(
@@ -810,7 +860,7 @@ mVM_Data {
 		a => Prefix(a.Key, a.Value)
 	).Reduce(
 		Empty(),
-		(aTail, aHead) => Record(aTail, aHead)
+		Record
 	);
 	
 	public static tBool

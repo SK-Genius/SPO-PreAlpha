@@ -1,9 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mArrayList.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mArrayList_Tests {
 	
 	public static readonly mTest.tTest

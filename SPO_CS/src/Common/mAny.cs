@@ -1,9 +1,4 @@
-﻿//IMPORT mAssert.cs
-//IMPORT mError.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mAny {
 	public readonly struct
 	tAny {

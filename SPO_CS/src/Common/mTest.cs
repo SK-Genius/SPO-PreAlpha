@@ -1,8 +1,4 @@
-﻿//IMPORT mStream.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mTest {
 	
 	[DllImport("kernel32.dll")]

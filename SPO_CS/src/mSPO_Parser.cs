@@ -1,11 +1,4 @@
-﻿//IMPORT mSPO_AST.cs
-//IMPORT mTextParser.cs
-//IMPORT mTokenizer.cs
-//IMPORT mSpan.cs
-
-#nullable enable
-
-using tToken = mTokenizer.tToken;
+﻿using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
@@ -146,13 +139,13 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tReturnIfNode<tSpan>, tError>
 	ReturnIf = mParserGen.Seq(KeyWord("RETURN"), Expression, Token("IF"), Expression)
-	.Modify((_, aResult, _, aCond) => (aResult, aCond))
+	.Modify((_, aResult, _, aCond) => (aCond, aResult))
 	.ModifyS(mSPO_AST.ReturnIf)
 	.SetName(nameof(ReturnIf));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tReturnIfNode<tSpan>, tError>
 	Return = (-KeyWord("RETURN") +(PipeExpression | Expression))
-	.ModifyS((aSpan, a) => mSPO_AST.ReturnIf(aSpan, a, mSPO_AST.True(aSpan)))
+	.ModifyS((aSpan, a) => mSPO_AST.ReturnIf(aSpan, mSPO_AST.True(aSpan), a))
 	.SetName(nameof(Return));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>

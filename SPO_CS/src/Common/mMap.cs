@@ -1,9 +1,4 @@
-﻿//IMPORT mStream.cs
-//IMPORT mDebug.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mMap {
 	
 	public readonly struct

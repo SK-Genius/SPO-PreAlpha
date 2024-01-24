@@ -1,9 +1,4 @@
-﻿//IMPORT mArrayList.cs
-//IMPORT mVM_Type.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mSPO_AST {
 	private const tText cDebuggerDisplay = "{this.ToText(10)}";
 	
@@ -751,8 +746,8 @@ mSPO_AST {
 	public static tReturnIfNode<tPos>
 	ReturnIf<tPos>(
 		tPos aPos,
-		tExpressionNode<tPos> aResult,
-		tExpressionNode<tPos> aCondition
+		tExpressionNode<tPos> aCondition,
+		tExpressionNode<tPos> aResult
 	) => new() {
 		Pos = aPos,
 		Result = aResult,
@@ -954,11 +949,11 @@ mSPO_AST {
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
 						Node1.Type.Match(
-							Some: Type1 => Node2.Type.Match(
-								Some: Type2 => AreEqual(Type1, Type2),
-								None: () => false
+							aOnSome: Type1 => Node2.Type.Match(
+								aOnSome: Type2 => AreEqual(Type1, Type2),
+								aOnNone: () => false
 							),
-							None: () => Node2.Type.IsNone()
+							aOnNone: () => Node2.Type.IsNone()
 						)
 					)
 				);
@@ -1186,8 +1181,8 @@ mSPO_AST {
 			// Matches
 			tMatchNode<t> Node => (
 				Node.Type.Match(
-					Some: Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})",
-					None: () => Node.Pattern.ToText(aLimit)
+					aOnSome: Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})",
+					aOnNone: () => Node.Pattern.ToText(aLimit)
 				)
 			),
 			tIgnoreMatchNode<t> Node => "_",
@@ -1206,7 +1201,7 @@ mSPO_AST {
 			// Commands
 			tBlockNode<t> Node => "{...}",
 			tMethodCallsNode<t> Node => $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(Some: a => a.ToText(aLimit), None: () => "()")}",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(aOnSome: a => a.ToText(aLimit), aOnNone: () => "()")}",
 			tReturnIfNode<t> Node => $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}",
 			tDefNode<t> Node => $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}",
 			_ => "(???)",

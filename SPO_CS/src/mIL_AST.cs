@@ -36,61 +36,62 @@ mIL_AST {
 	tCommandNodeType {
 		_, // unused
 		_BeginExpressions_,
-		IsInt  = _BeginExpressions_,     // X := §IS_INT X
-		Int,       // X := §INT I
-		IntsAreEq, // X := §INT X == X
-		IntsComp,  // X := §INT X <=> X
-		IntsAdd,   // X := §INT X + X
-		IntsSub,   // X := §INT X - X
-		IntsMul,   // X := §INT X * X
-		IntsDiv,   // X := §INT X / X
-		IsBool,    // X := §IS_BOOL X
-		BoolNot,   // X := §BOOL ! X
-		BoolAnd,   // X := §BOOL X & X
-		BoolOr,    // X := §BOOL X | X
-		BoolXOr,   // X := §BOOL X ^ X
-		Alias,     // X := X
-		IsPair,    // X := §IS_PAIR
-		Pair,      // X := X, X
-		First,     // X := §FIRST X
-		Second,    // X := §SECOND X
-		IsPrefix,  // X := §IS_PREFIX X
-		AddPrefix, // X := +N X
-		SubPrefix, // X := -N X
-		HasPrefix, // X := ?N X
-		IsRecord,  // X := §IS_RECORD X
-		ExtendRec, // X := {X} +X
-		DivideRec, // X := {X} /
-		CallFunc,  // X := .X X
-		CallProc,  // X := :X X
-		IsVar,     // X := §IS_VAR X
-		VarDef,    // X := §VAR X
-		VarGet,    // X := §VAR X ->
+		Alias = _BeginExpressions_, // X := X
+		Int,                        // X := §INT I
+		IntsAreEq,                  // X := §INT X == X
+		IntsComp,                   // X := §INT X <=> X
+		IntsAdd,                    // X := §INT X + X
+		IntsSub,                    // X := §INT X - X
+		IntsMul,                    // X := §INT X * X
+		IntsDiv,                    // X := §INT X / X
+		BoolAnd,                    // X := §BOOL X & X
+		BoolOr,                     // X := §BOOL X | X
+		BoolXOr,                    // X := §BOOL X ^ X
+		Pair,                       // X := X, X
+		First,                      // X := §1ST X
+		Second,                     // X := §2ND X
+		ApplyPrefix,                // X := +#N X
+		RemovePrefix,               // X := -#N X
+		ExtendRec,                  // X := {X} +X
+		DivideRec,                  // X := {X} /
+		CallFunc,                   // X := .X X
+		CallProc,                   // X := :X X
+		VarDef,                     // X := §VAR X
+		VarGet,                     // X := §VAR X ->
 		_EndExpressions_,
 		
 		_BeginTypes_ = _EndExpressions_,
-		IsType = _BeginTypes_,        // X := §IS_TYPE X
-		TypePair,      // T := [T, T]
-		TypePrefix,    // T := [+N T]
-		TypeRec,       // T := [{T} +T]
-		TypeFunc,      // T := [T -> T]
-		TypeMethod,    // T := [T : T]
-		TypeSet,       // T := [T | T]
-		TypeCond,      // T := [T & P]
-		TypeVar,       // T := [§VAR T]
-		TypeFree,      // T := t in T (see type definitions below)
-		TypeRecursive, // T := [§RECURSIVE t T]
-		TypeInterface, // T := [§INTERFACE t T]
-		TypeGeneric,   // T := [§GENERIC t T]
-		_EndTypes_,
+		TypePair = _BeginTypes_,  // T := [T, T]
+		TypePrefix,               // T := [#N T]
+		TypeRecord,               // T := [{T} +T]
+		TypeFunc,                 // T := [T -> T]
+		TypeMethod,               // T := [T : T]
+		TypeSet,                  // T := [T | T]
+		TypeCond,                 // T := [T & P]
+		TypeVar,                  // T := [§VAR T]
+		TypeFree,                 // T := t in T (see type definitions below)
+		TypeRecursive,            // T := [§RECURSIVE t => T]
+		TypeInterface,            // T := [§ANY t => T]
+		TypeGeneric,              // T := [§ALL t => T]
+		_EndTypes_,    
 		
 		_BeginCommands_ = _EndTypes_,
-		VarSet = _BeginCommands_, // §VAR X <- X
-		ReturnIf,            // §RETURN X IF X
-		RepeatIf,            // §REPEAT X IF X
-		TailCallIf,          // §TAIL_CALL X IF X
-		Assert,              // §ASSERT X
-		Proof,               // §ASSERT X => X
+		VarSet = _BeginCommands_,   // §VAR X <- X
+		ReturnIf,                   // §RETURN X IF X
+		CallAndReturnIf,            // §RETURN .X IF X
+		CallAndReturnIfArgIsEmpty,  // §RETURN .X X IF_ARG_Is_EMPTY
+		CallAndReturnIfArgIsBool,   // §RETURN .X X IF_ARG_Is_BOOL
+		CallAndReturnIfArgIsInt,    // §RETURN .X X IF_ARG_Is_INT
+		CallAndReturnIfArgIsType,   // §RETURN .X X IF_ARG_Is_TYPE
+		CallAndReturnIfArgIsPair,   // §RETURN .X X IF_ARG_Is_PAIR
+		CallAndReturnIfArgIsPrefix, // §RETURN .X X IF_ARG_Is_PREFIX
+		CallAndReturnIfArgIsRecord, // §RETURN .X X IF_ARG_Is_RECORD
+		CallAndReturnIfArgIsFunc,   // §RETURN .X X IF_ARG_Is_FUNC
+		CallAndReturnIfArgIsMethod, // §RETURN .X X IF_ARG_Is_METHOD
+		CallAndReturnIfArgIsSet,    // §RETURN .X X IF_ARG_Is_SET
+		CallAndReturnIfArgIsVar,    // §RETURN .X X IF_ARG_Is_VAR
+		Assert,                     // §ASSERT X
+		Proof,                      // §ASSERT X => X
 		_EndCommands_,
 	}
 	
@@ -102,6 +103,7 @@ mIL_AST {
 	public static readonly tText cObj = "OBJ";
 	public static readonly tText cArg = "ARG";
 	public static readonly tText cRes = "RES";
+	public static readonly tText cSelfFunc = "SELF";
 	public static readonly tText cEmptyType = "EMPTY_TYPE";
 	public static readonly tText cBoolType = "BOOL_TYPE";
 	public static readonly tText cIntType = "INT_TYPE";
@@ -116,48 +118,39 @@ mIL_AST {
 		public mMaybe.tMaybe<tText> _2;
 		public mMaybe.tMaybe<tText> _3;
 		
-		public override string ToString() => ToText(this);
+		public override readonly string ToString() => ToText(this);
 	}
 	
 	public static tText
 	ToText<tPos>(
 		this tCommandNode<tPos> a
 	) => a.NodeType switch {
-		tCommandNodeType.IsType => $"{a._1} := §IS_TYPE {a._2}",
-		tCommandNodeType.Int => $"{a._1} := §INT {a._2}",
-		tCommandNodeType.IsInt => $"{a._1} := §IS_INT {a._2}",
+		tCommandNodeType.Alias => $"{a._1} := {a._2}",
+		tCommandNodeType.Int => $"{a._1} := {a._2}",
 		tCommandNodeType.IntsAreEq => $"{a._1} := §INT {a._2} == {a._3}",
 		tCommandNodeType.IntsComp => $"{a._1} := §INT {a._2} <=> {a._3}",
 		tCommandNodeType.IntsAdd => $"{a._1} := §INT {a._2} + {a._3}",
 		tCommandNodeType.IntsSub => $"{a._1} := §INT {a._2} - {a._3}",
 		tCommandNodeType.IntsMul => $"{a._1} := §INT {a._2} * {a._3}",
 		tCommandNodeType.IntsDiv => $"{a._1} := §INT {a._2} / {a._3}",
-		tCommandNodeType.IsBool => $"{a._1} := §IS_BOOL {a._2}",
-		tCommandNodeType.BoolNot => $"{a._1} := §BOOL !{a._2}",
 		tCommandNodeType.BoolAnd => $"{a._1} := §BOOL {a._2} & {a._3}",
 		tCommandNodeType.BoolOr => $"{a._1} := §BOOL {a._2} | {a._3}",
 		tCommandNodeType.BoolXOr => $"{a._1} := §BOOL {a._2} ^ {a._3}",
-		tCommandNodeType.Alias => $"{a._1} := {a._2}",
-		tCommandNodeType.IsPair => $"{a._1} := §IS_PAIR {a._2}",
 		tCommandNodeType.Pair => $"{a._1} := {a._2}, {a._3}",
 		tCommandNodeType.First => $"{a._1} := §1ST {a._2}",
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
-		tCommandNodeType.IsPrefix => $"{a._1} := §IS_PREFIX {a._2}",
-		tCommandNodeType.AddPrefix => $"{a._1} := +#{a._2} {a._3}",
-		tCommandNodeType.SubPrefix => $"{a._1} := -#{a._2} {a._3}",
-		tCommandNodeType.HasPrefix => $"{a._1} := ?#{a._2} {a._3}",
-		tCommandNodeType.IsRecord => $"{a._1} := §IS_RECORD {a._2}",
+		tCommandNodeType.ApplyPrefix => $"{a._1} := +#{a._2} {a._3}",
+		tCommandNodeType.RemovePrefix => $"{a._1} := -#{a._2} {a._3}",
 		tCommandNodeType.ExtendRec => $"{a._1} := {{{a._2}}} + {a._3}",
 		tCommandNodeType.DivideRec => $"{a._1} := {{{a._2}}} /",
 		tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
 		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
-		tCommandNodeType.IsVar => $"{a._1} := §IS_VAR {a._2}",
 		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
 		tCommandNodeType.VarGet => $"{a._1} := §VAR {a._2} ->",
 		
 		tCommandNodeType.TypePair => $"{a._1} := [{a._2}, {a._3}]",
 		tCommandNodeType.TypePrefix => $"{a._1} := [#{a._2} {a._3}]",
-		tCommandNodeType.TypeRec => $"{a._1} := [{{{a._2}}} + {a._3}]",
+		tCommandNodeType.TypeRecord => $"{a._1} := [{{{a._2}}} + {a._3}]",
 		tCommandNodeType.TypeFunc => $"{a._1} := [{a._2} => {a._3}]",
 		tCommandNodeType.TypeMethod => $"{a._1} := [{a._2} : {a._3}]",
 		tCommandNodeType.TypeSet => $"{a._1} := [{a._2} | {a._3}]",
@@ -167,13 +160,23 @@ mIL_AST {
 		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
 		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
 		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",
-		tCommandNodeType.ReturnIf => $"§RETURN {a._3} IF {a._2}",
 		
-		tCommandNodeType.RepeatIf => $"§REPEAT {a._3} IF {a._2}",
-		tCommandNodeType.TailCallIf => $"TAIL_CALL {a._3} IF {a._2}",
 		tCommandNodeType.Assert => $"§ASSERT {a._1} => {a._2}",
 		tCommandNodeType.Proof => $"§PROOF {a._2} => {a._3}",
 		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
+		tCommandNodeType.ReturnIf => $"§RETURN {a._2} IF {a._1}",
+		tCommandNodeType.CallAndReturnIf => $"§RETURN .{a._2} IF {a._1}",
+		tCommandNodeType.CallAndReturnIfArgIsEmpty => $"§RETURN .{a._1} {a._2} IF_ARG_IS_EMPTY",
+		tCommandNodeType.CallAndReturnIfArgIsBool  => $"§RETURN .{a._1} {a._2} IF_ARG_IS_BOOL",
+		tCommandNodeType.CallAndReturnIfArgIsInt => $"§RETURN .{a._1} {a._2} IF_ARG_IS_INT",
+		tCommandNodeType.CallAndReturnIfArgIsType => $"§RETURN .{a._1} {a._2} IF_ARG_IS_TYPE",
+		tCommandNodeType.CallAndReturnIfArgIsPair => $"§RETURN .{a._1} {a._2} IF_ARG_IS_PAIR",
+		tCommandNodeType.CallAndReturnIfArgIsPrefix => $"§RETURN .{a._1} {a._2} IF_ARG_IS_PREFIX",
+		tCommandNodeType.CallAndReturnIfArgIsRecord => $"§RETURN .{a._1} {a._2} IF_ARG_IS_RECORD",
+		tCommandNodeType.CallAndReturnIfArgIsSet => $"§RETURN .{a._1} {a._2} IF_ARG_IS_SET",
+		tCommandNodeType.CallAndReturnIfArgIsVar => $"§RETURN .{a._1} {a._2} IF_ARG_IS_VAR",
+		tCommandNodeType.CallAndReturnIfArgIsFunc => $"§RETURN .{a._1} {a._2} IF_ARG_IS_FUNC",
+		tCommandNodeType.CallAndReturnIfArgIsMethod => $"§RETURN .{a._1} {a._2} IF_ARG_IS_METHOD",
 		_ => $"{a._1} := {a._2} {a._3}"
 	};
 	
@@ -307,11 +310,11 @@ mIL_AST {
 	}
 	
 	public static tCommandNode<tPos>
-	IsBool<tPos>(
+	Alias<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsBool, aPos, aResReg, aBoolReg1);
+	) => CommandNode(tCommandNodeType.Alias, aPos, aResReg, aBoolReg1);
 	
 	public static tCommandNode<tPos>
 	And<tPos>(
@@ -336,13 +339,6 @@ mIL_AST {
 		tText aBoolReg1,
 		tText aBoolReg2
 	) => CommandNode(tCommandNodeType.BoolXOr, aPos, aResReg, aBoolReg1, aBoolReg2);
-	
-	public static tCommandNode<tPos>
-	IsInt<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsInt, aPos, aResReg, aBoolReg1);
 	
 	public static tCommandNode<tPos>
 	IntsAreEq<tPos>(
@@ -400,13 +396,6 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.IntsDiv, aPos, aResReg, aIntReg1, aIntReg2);
 	
 	public static tCommandNode<tPos>
-	IsPair<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsPair, aPos, aResReg, aBoolReg1);
-	
-	public static tCommandNode<tPos>
 	CreatePair<tPos>(
 		tPos aPos,
 		tText aResReg,
@@ -429,19 +418,12 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.Second, aPos, aResReg, aPairReg);
 	
 	public static tCommandNode<tPos>
-	IsPrefix<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsPrefix, aPos, aResReg, aBoolReg1);
-	
-	public static tCommandNode<tPos>
 	AddPrefix<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.AddPrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.ApplyPrefix, aPos, aResReg, aPrefix, aArgReg);
 	
 	public static tCommandNode<tPos>
 	SubPrefix<tPos>(
@@ -449,22 +431,7 @@ mIL_AST {
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.SubPrefix, aPos, aResReg, aPrefix, aArgReg);
-	
-	public static tCommandNode<tPos>
-	HasPrefix<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aPrefix,
-		tText aArgReg
-	) => CommandNode(tCommandNodeType.HasPrefix, aPos, aResReg, aPrefix, aArgReg);
-	
-	public static tCommandNode<tPos>
-	IsRecord<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsRecord, aPos, aResReg, aBoolReg1);
+	) => CommandNode(tCommandNodeType.RemovePrefix, aPos, aResReg, aPrefix, aArgReg);
 	
 	public static tCommandNode<tPos>
 	ExtendRec<tPos>(
@@ -498,13 +465,6 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.CallProc, aPos, aResReg, aProcReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	IsVar<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsVar, aPos, aResReg, aBoolReg1);
-	
-	public static tCommandNode<tPos>
 	VarDef<tPos>(
 		tPos aPos,
 		tText aResReg,
@@ -526,39 +486,11 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.VarGet, aPos, aValueReg, aVarReg);
 	
 	public static tCommandNode<tPos>
-	ReturnIf<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aCondReg
-	) => CommandNode(tCommandNodeType.ReturnIf, aPos, "", aCondReg, aResReg);
-	
-	public static tCommandNode<tPos>
-	RepeatIf<tPos>(
-		tPos aPos,
-		tText aArgReg,
-		tText aCondReg
-	) => CommandNode(tCommandNodeType.RepeatIf, aPos, "", aCondReg, aArgReg);
-	
-	public static tCommandNode<tPos>
-	TailCallIf<tPos>(
-		tPos aPos,
-		tText aCallerArgReg,
-		tText aCondReg
-	) => CommandNode(tCommandNodeType.TailCallIf, aPos, "", aCondReg, aCallerArgReg);
-	
-	public static tCommandNode<tPos>
 	Assert<tPos>(
 		tPos aPos,
 		tText aPreCondReg,
 		tText aPostCondReg
 	) => CommandNode(tCommandNodeType.Assert, aPos, aPreCondReg, aPostCondReg);
-	
-	public static tCommandNode<tPos>
-	Alias<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aArgReg
-	) => CommandNode(tCommandNodeType.Alias, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
 	Proof<tPos>(
@@ -569,11 +501,95 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
 	
 	public static tCommandNode<tPos>
-	IsType<tPos>(
+	CallAndReturnIf<tPos>(
 		tPos aPos,
-		tText aResReg,
-		tText aBoolReg1
-	) => CommandNode(tCommandNodeType.IsType, aPos, aResReg, aBoolReg1);
+		tText aCondReg,
+		tText aFuncAndArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIf, aPos, aCondReg, aFuncAndArgReg);
+	
+	public static tCommandNode<tPos>
+	ReturnIf<tPos>(
+		tPos aPos,
+		tText aCondReg,
+		tText aResReg
+	) => CommandNode(tCommandNodeType.ReturnIf, aPos, aCondReg, aResReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsEmpty<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsEmpty, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsBool<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsBool, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsInt<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsInt, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsType<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsType, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsPair<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsPair, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsPrefix<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsPrefix, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsRecord<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsRecord, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsSet<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsSet, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsFunc<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsFunc, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsMethod<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsMethod, aPos, aFuncReg, aArgReg);
+	
+	public static tCommandNode<tPos>
+	CallAndReturnIfArgIsVar<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsVar, aPos, aFuncReg, aArgReg);
 	
 	public static tCommandNode<tPos>
 	TypeCond<tPos>(
@@ -621,7 +637,7 @@ mIL_AST {
 		tText aId1,
 		tText aId2,
 		tText aId3
-	) => CommandNode(tCommandNodeType.TypeRec, aPos, aId1, aId2, aId3);
+	) => CommandNode(tCommandNodeType.TypeRecord, aPos, aId1, aId2, aId3);
 	
 	public static tCommandNode<tPos>
 	TypeSet<tPos>(

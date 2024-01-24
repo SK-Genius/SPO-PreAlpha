@@ -1,11 +1,4 @@
-﻿//IMPORT mSPO_Parser.cs
-//IMPORT mIL_Interpreter.cs
-//IMPORT mSPO2IL.cs
-//IMPORT mSpan.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mSPO_Interpreter {
 	
 	// TODO: return tResult

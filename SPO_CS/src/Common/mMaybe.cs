@@ -1,10 +1,4 @@
-﻿//IMPORT mStd.cs
-//IMPORT mError.cs
-//IMPORT mLazy.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mMaybe {
 	
 	public readonly struct
@@ -37,8 +31,8 @@ mMaybe {
 		public override string
 		ToString(
 		) => this.Match(
-			None: () => "-",
-			Some: a => "" + a
+			aOnNone: () => "-",
+			aOnSome: a => "" + a
 		);
 	}
 	
@@ -78,12 +72,12 @@ mMaybe {
 	public static tOut
 	Match<tIn, tOut>( // nice but slow
 		this tMaybe<tIn> a,
-		mStd.tFunc<tOut> None,
-		mStd.tFunc<tOut, tIn> Some
+		mStd.tFunc<tOut> aOnNone,
+		mStd.tFunc<tOut, tIn> aOnSome
 	) => (
 		a.IsSome(out var Value)
-		? Some(Value)
-		: None()
+		? aOnSome(Value)
+		: aOnNone()
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -104,36 +98,36 @@ mMaybe {
 	public static tOut
 	Else<tOut>(
 		this tMaybe<tOut> a,
-		tOut aElse
-	) => a.IsSome(out var Value) ? Value : aElse;
+		tOut aFallback
+	) => a.IsSome(out var Value) ? Value : aFallback;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
 	ElseDo<tOut>(
 		this tMaybe<tOut> a,
-		mStd.tFunc<tOut> aElse
-	) => a.IsSome(out var Value) ? Value : aElse();
+		mStd.tFunc<tOut> aOnNone
+	) => a.IsSome(out var Value) ? Value : aOnNone();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
 	Else<tOut>(
 		this tMaybe<tOut> a,
-		mLazy.tLazy<tOut> aElse
-	) => a.IsSome(out var Value) ? Value : aElse.Value;
+		mLazy.tLazy<tOut> aFallback
+	) => a.IsSome(out var Value) ? Value : aFallback.Value;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ElseTry<tOut>(
 		this tMaybe<tOut> a,
-		mLazy.tLazy<tMaybe<tOut>> aElse
-	) => a.IsSome(out _) ? a : aElse.Value;
+		mLazy.tLazy<tMaybe<tOut>> aFallback
+	) => a.IsSome(out _) ? a : aFallback.Value;
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,
-		mStd.tFunc<tText> aError
-	) => a.IsSome(out var Value) ? Value : throw mError.Error(aError());
+		mStd.tFunc<tText> aOnThrow
+	) => a.IsSome(out var Value) ? Value : throw mError.Error(aOnThrow());
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t

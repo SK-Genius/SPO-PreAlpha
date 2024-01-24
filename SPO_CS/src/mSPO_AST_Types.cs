@@ -1,11 +1,4 @@
-﻿//IMPORT mArrayList.cs
-//IMPORT mVM_Type.cs
-//IMPORT mSPO_AST.cs
-//IMPORT mResult.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mSPO_AST_Types {
 	public enum tTypeRelation {
 		Sub,
@@ -212,7 +205,7 @@ mSPO_AST_Types {
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = Match.Type.Match(
-					Some: aType_ => mStd.Call(
+					aOnSome: aType_ => mStd.Call(
 						() => ResolveTypeExpression(aType_, aScope).ThenTry(
 							aType => UpdateMatchTypes(
 								Match.Pattern,
@@ -222,7 +215,7 @@ mSPO_AST_Types {
 							)
 						)
 					),
-					None: () => UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope)
+					aOnNone: () => UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope)
 				);
 				break;
 			}
@@ -232,8 +225,8 @@ mSPO_AST_Types {
 						() => {
 							if (a.IsType(out var OfType)) {
 								a = OfType.Match(
-									None: () => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
-									Some: aType => a
+									aOnNone: () => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
+									aOnSome: aType => a
 								);
 							}
 							return (a, mStream.Stream((MatchFreeId.Id, a), aScope));
@@ -396,7 +389,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tDefNode<tPos> Def: {
 				return (
 					Def.Des.Type.Match(
-						None: () => UpdateExpressionTypes(
+						aOnNone: () => UpdateExpressionTypes(
 							Def.Src,
 							aScope
 						).ThenTry(
@@ -409,7 +402,7 @@ mSPO_AST_Types {
 						).Then(
 							a => a.Scope
 						),
-						Some: aDesType => ResolveTypeExpression(
+						aOnSome: aDesType => ResolveTypeExpression(
 							aDesType,
 							aScope
 						).ThenTry(
@@ -431,7 +424,7 @@ mSPO_AST_Types {
 					aScope
 				).ThenAssert(
 					aConditionType => aConditionType == mVM_Type.Bool(),
-					_ => mStd.FileLine()
+					_ => $"{_.ToText(1)} != {mIL_GenerateOpcodes.cBoolType} in {mStd.FileLine()}"
 				).ThenTry(
 					_ => UpdateExpressionTypes(ReturnIf.Result, aScope)
 				).Then(

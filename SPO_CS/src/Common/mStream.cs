@@ -1,10 +1,4 @@
-﻿//IMPORT mStd.cs
-//IMPORT mLazy.cs
-//IMPORT mMaybe.cs
-
-#nullable enable
-
-//#define TAIL_RECURSIVE
+﻿//#define TAIL_RECURSIVE
 
 public static class
 mStream {
@@ -59,16 +53,13 @@ mStream {
 			")"
 		).ToString();
 		
-		private readonly struct tDebuggerProxy {
-			private readonly tStream<t> _Stream;
-			
-			public tDebuggerProxy(tStream<t> a) { this._Stream = a; }
+		private readonly struct tDebuggerProxy(tStream<t> aStream) {
 			
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public t[] Text {
 				get {
-					var Count = this._Stream.Take(100).Count();
-					return this._Stream.Take(100).MapWithIndex(
+					var Count = aStream.Take(100).Count();
+					return aStream.Take(100).MapWithIndex(
 						[DebuggerHidden](aIndex, aItem) => (Index: aIndex, Value: aItem)
 					).Reduce(
 						new t[Count],
@@ -81,22 +72,15 @@ mStream {
 			}
 		}
 	}
-	
+	[method: Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public struct
-	tStreamIterator<t> {
-		private t _Head;
-		private tStream<t>? _Tail;
-		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public
-		tStreamIterator(
-			tStream<t> aStream
-		) {
-			this._Head = default!;
-			this._Tail = aStream;
-		}
-		
-		public t Current => this._Head;
+	tStreamIterator<t>(
+		tStream<t> aStream
+	) {
+		private t _Head = default!;
+		private tStream<t>? _Tail = aStream;
+
+		public readonly t Current => this._Head;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public bool
@@ -128,6 +112,7 @@ mStream {
 	) => new(
 		aHead,
 		aTail
+
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

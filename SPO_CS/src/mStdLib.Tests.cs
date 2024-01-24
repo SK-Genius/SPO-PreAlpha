@@ -1,10 +1,4 @@
-﻿//IMPORT mTest.cs
-//IMPORT mStdLib.cs
-//IMPORT mSPO_Interpreter.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mStdLib_Tests {
 	
 	public static readonly mTest.tTest

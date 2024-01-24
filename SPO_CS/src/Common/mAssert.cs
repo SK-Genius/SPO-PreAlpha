@@ -1,10 +1,4 @@
-﻿//IMPORT mStd.cs
-//IMPORT mError.cs
-//IMPORT mMaybe.cs
-
-#nullable enable
-
-public static class
+﻿public static class
 mAssert {
 	
 	private static readonly tText cErrorPrefix = "FAIL: ";
