@@ -1,4 +1,5 @@
 ﻿public static class
+
 mAny_Tests {
 	
 	public static readonly mTest.tTest

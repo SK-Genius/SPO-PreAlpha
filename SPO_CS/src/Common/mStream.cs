@@ -1,5 +1,8 @@
 ﻿//#define TAIL_RECURSIVE
 
+using System;
+using System.Collections.Generic;
+
 public static class
 mStream {
 	
@@ -288,6 +291,50 @@ mStream {
 		? mMaybe.Some(Tail.Reduce(Head, aAggregatorFunc))
 		: mStd.cEmpty
 	);
+
+	private class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : IComparer<t> {
+		
+		public int Compare(t? a1, t? a2) => aComp(a1, a2);
+	}
+
+	[Pure, DebuggerHidden]
+	public static tStream<t>?
+	DontRepeat<t>(
+		this tStream<t>? aStream
+	) {
+		if (aStream.Is(out var First, out var Tail)) {
+			while (Tail.Is(out var Next, out var NextTail)) {
+				if (!First.Equals(Next)) {
+					return Stream(First, () => Tail.DontRepeat());
+				}
+				Tail = NextTail;
+			}
+			return Stream(First);
+		} else {
+			return Stream<t>();
+		}
+	}
+	
+	[Pure, DebuggerHidden]
+	public static tStream<t>?
+	Sort<t>(
+		this tStream<t>? aStream
+	) where t : IComparable<t> {
+		var Res = aStream.ToArrayList().ToArray();
+		Array.Sort(Res);
+		return Stream(Res);
+	}
+	
+	[Pure, DebuggerHidden]
+	public static tStream<t>?
+	Sort<t>(
+		this tStream<t>? aStream,
+		mStd.tFunc<tInt32, t, t> aCompare
+	) {
+		var Res = aStream.ToArrayList().ToArray();
+		Array.Sort(Res, new tGenComp<t>(aCompare));
+		return Stream(Res);
+	}
 	
 	[Pure, DebuggerHidden]
 	public static t

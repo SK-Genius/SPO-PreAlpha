@@ -30,15 +30,27 @@ mTextParser {
 		using var _ = mPerf.Measure();
 		var Stream = aText.ToStream(aId).Map(a => (mSpan.Span(a.Pos), a.Char));
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		var Result = MaybeResult.ElseThrow(a => a.ToText(aText.Split('\n')));
+		var Result = MaybeResult.ElseThrow(
+			a => a.Sort(
+				(a1, a2) => {
+					var RowComp = (tInt32)a1.Pos.Row - (tInt32)a2.Pos.Row;
+					if (RowComp != 0) {
+						return RowComp;
+					}
+					return (tInt32)a1.Pos.Col - (tInt32)a2.Pos.Col;
+				}
+			).ToText(aText.Split('\n'))
+		);
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Pos = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start).ElseThrow();
 			var Line = aText.Split('\n')[Pos.Row-1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(
-				$"{Pos.Id}({Pos.Row}, {Pos.Col}): expected end of text\n" +
-				$"{Line}\n" +
-				$"{Line[..StartSpacesCount] + new tText(' ', (tInt32)Pos.Col - StartSpacesCount - 1)}^"
+				$"""
+				{Pos.Id}({Pos.Row}, {Pos.Col}): expected end of text
+				{Line}
+				{Line[..StartSpacesCount] + new tText(' ', (tInt32)Pos.Col - StartSpacesCount - 1)}^
+				"""
 			);
 		}
 		return Result.Result;

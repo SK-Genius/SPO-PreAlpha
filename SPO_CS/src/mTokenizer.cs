@@ -124,7 +124,17 @@ mTokenizer {
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aId, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(a => (a.Span, a)), aDebugStream);
-		var Result = MaybeResult.ElseThrow(a => a.ToText(aText.Split('\n')));
+		var Result = MaybeResult.ElseThrow(
+			a => a.Sort(
+				(a1, a2) => {
+					var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
+					return RowComp != 0
+						? RowComp
+						: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
+				}
+			).DontRepeat(
+			).ToText(aText.Split('\n'))
+		);
 		
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Row = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start.Row).ElseThrow();

@@ -129,7 +129,7 @@ mSPO_AST_Types {
 				)
 			).ThenAssert(
 				a => a.ArgType.IsSubType(a.FuncType.ArgType, null).Match(out _, out _),
-				a => $"Can't convert {a.ArgType.ToText(10)} to {a.FuncType.ArgType.ToText(10)}"
+				a => $"Can't convert {a.ArgType.ToText()} to {a.FuncType.ArgType.ToText()}"
 			).Then(
 				a => a.FuncType.ResType
 			),
@@ -424,7 +424,7 @@ mSPO_AST_Types {
 					aScope
 				).ThenAssert(
 					aConditionType => aConditionType == mVM_Type.Bool(),
-					_ => $"{_.ToText(1)} != {mIL_GenerateOpcodes.cBoolType} in {mStd.FileLine()}"
+					_ => $"{_.ToText()} != {mIL_GenerateOpcodes.cBoolType} in {ReturnIf.ToText(3)} ({ReturnIf.Pos})"
 				).ThenTry(
 					_ => UpdateExpressionTypes(ReturnIf.Result, aScope)
 				).Then(

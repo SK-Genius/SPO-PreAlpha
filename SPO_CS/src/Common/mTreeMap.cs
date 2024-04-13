@@ -30,7 +30,7 @@ mTreeMap {
 		}
 	}
 	
-	internal class
+	internal sealed class
 	tNode<tKey, tValue> {
 		internal tKey Key = default!;
 		internal tValue Value = default!;

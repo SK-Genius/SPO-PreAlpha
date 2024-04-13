@@ -31,7 +31,7 @@ mVM {
 				mVM_Data.Int(1),
 				mVM_Data.Bool(false),
 				mVM_Data.Bool(true),
-				mVM_Data.Proc(aProcDef, aEnv),
+				//mVM_Data.Proc(aProcDef, aEnv),
 				mVM_Data.TypeEmpty(),
 				mVM_Data.TypeBool(),
 				mVM_Data.TypeInt(),
@@ -47,15 +47,15 @@ mVM {
 		aTraceOut(() => " 1 := 1");
 		aTraceOut(() => " 2 := FALSE");
 		aTraceOut(() => " 3 := TRUE");
-		aTraceOut(() => " 4 := SELF");
-		aTraceOut(() => " 5 := EMPTY_TYPE");
-		aTraceOut(() => " 6 := BOOL_TYPE");
-		aTraceOut(() => " 7 := INT_TYPE");
-		aTraceOut(() => " 8 := TYPE_TYPE");
-		aTraceOut(() => " 9 := ENV  |  " + aEnv.ToText(20));
-		aTraceOut(() => "10 := OBJ  |  " + aObj.ToText(20));
-		aTraceOut(() => "11 := ARG  |  " + aArg.ToText(20));
-		aTraceOut(() => "12 := RES");
+		//aTraceOut(() => " 4 := SELF");
+		aTraceOut(() => " 4 := EMPTY_TYPE");
+		aTraceOut(() => " 5 := BOOL_TYPE");
+		aTraceOut(() => " 6 := INT_TYPE");
+		aTraceOut(() => " 7 := TYPE_TYPE");
+		aTraceOut(() => " 8 := ENV  |  " + aEnv.ToText(20));
+		aTraceOut(() => " 9 := OBJ  |  " + aObj.ToText(20));
+		aTraceOut(() => "10 := ARG  |  " + aArg.ToText(20));
+		aTraceOut(() => "11 := RES");
 		
 		return Result;
 	}
@@ -66,7 +66,7 @@ mVM {
 		mStd.tFunc<tText, tPos> aPosToText
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		mStd.tFunc<tText> CommandLine = () => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
+		tText CommandLine() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
 		aCallStack._TraceOut(CommandLine);
 		aCallStack._CodePointer += 1;
 		
@@ -355,52 +355,6 @@ mVM {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
 				if (Cond) {
 					var Res = aCallStack._Regs.Get(Arg2);
-					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
-					Des._DataType = Res._DataType;
-					Des._Value = Res._Value;
-					aCallStack._TraceOut(() => "====================================");
-					return aCallStack._Parent;
-				}
-				break;
-			}
-			
-			//--------------------------------------------------------------------------------
-			case mVM_Data.tOpCode.CallAndReturnIf: {
-			//--------------------------------------------------------------------------------
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
-				if (Cond) {
-					var CallerArgPair = aCallStack._Regs.Get(Arg2);
-					mAssert.IsTrue(CallerArgPair.IsPair(out var Empty_Proc, out var Arg));
-					mAssert.IsTrue(Empty_Proc.IsPair(out var Empty, out var Proc));
-					mVM_Data.tData Res;
-					switch (0) {
-						case 0 when Proc.IsExternDef(out var ExternDef): {
-							Res = mVM_Data.ExternProc(ExternDef, Arg);
-							break;
-						}
-						case 0 when Proc.IsExternProc(out var ExternDef, out var Env): {
-							Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
-							break;
-						}
-						case 0 when Proc.IsDef<tPos>(out var Def): {
-							Res = mVM_Data.Proc(Def, Arg);
-							break;
-						}
-						case 0 when Proc.IsProc<tPos>(out var Def, out var Env): {
-							return NewCallStack(
-								aCallStack._Parent,
-								Def,
-								Env,
-								mVM_Data.Empty(),
-								Arg,
-								aCallStack._Regs.Get(mVM_Data.cResReg),
-								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
-							);
-						}
-						default: {
-							throw mError.Error("impossible");
-						}
-					}
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;

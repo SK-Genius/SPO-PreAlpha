@@ -150,7 +150,7 @@ mIL_Parser {
 		.ModifyS(mTokenizer.X(mIL_AST.VarSet))
 		.SetDebugName(nameof(mIL_AST.VarSet)),
 		
-		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("VAR"), Id, Token("->"))
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("VAR"), Id, -Token("->"))
 		.Modify((a1, _, _, a2, _) => (a1, a2))
 		.ModifyS(mTokenizer.X(mIL_AST.VarGet))
 		.SetDebugName(nameof(mIL_AST.VarGet)),
@@ -165,65 +165,50 @@ mIL_Parser {
 		.ModifyS(mTokenizer.X(mIL_AST.ReturnIf))
 		.SetDebugName(nameof(mIL_AST.ReturnIf)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, -Token("IF") +Id)
-		.Modify((_, a1, a2) => (a2, a1))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIf))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIf)),
+		mParserGen.Seq(KeyWord("RETURN"), Id, -Token("IF_NOT_EMPTY"))
+		.Modify((_, a1, _) => a1)
+		.ModifyS(mTokenizer.X(mIL_AST.ReturnIfNotEmpty))
+		.SetDebugName(nameof(mIL_AST.ReturnIfNotEmpty)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_EMPTY"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsEmpty))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsEmpty)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_BOOL"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsBool))
+		.SetDebugName(nameof(mIL_AST.TryAsBool)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_BOOL"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsBool))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsBool)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_INT"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsInt))
+		.SetDebugName(nameof(mIL_AST.TryAsInt)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_INT"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsInt))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsInt)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_VAR"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsVar))
+		.SetDebugName(nameof(mIL_AST.TryAsVar)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_TYPE"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsType))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsType)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_REF"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsRef))
+		.SetDebugName(nameof(mIL_AST.TryAsRef)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_PREFIX"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsPrefix))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsPrefix)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_PAIR"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsPair))
+		.SetDebugName(nameof(mIL_AST.TryAsPair)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_RECORD"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsRecord))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsRecord)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_RECORD"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsRecord))
+		.SetDebugName(nameof(mIL_AST.TryAsRecord)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_PAIR"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsPair))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsPair)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_TYPE"))
+		.Modify((a1, _, _, a2, _) => (a1, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryAsType))
+		.SetDebugName(nameof(mIL_AST.TryAsType)),
 		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_SET"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsSet))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsSet)),
-		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_VAR"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsVar))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsVar)),
-		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_FUNC"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsFunc))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsFunc)),
-		
-		mParserGen.Seq(KeyWord("RETURN"), -SpecialToken(".") +Id, Id, -Token("IF_ARG_IS_METHOD"))
-		.Modify((_, a1, a2, _) => (a1, a2))
-		.ModifyS(mTokenizer.X(mIL_AST.CallAndReturnIfArgIsMethod))
-		.SetDebugName(nameof(mIL_AST.CallAndReturnIfArgIsMethod)),
+		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY_REMOVE"), Prefix, -Token("FROM") + Id)
+		.Modify((a1, _, _, a2, a3) => (a1, a3, a2))
+		.ModifyS(mTokenizer.X(mIL_AST.TryRemovePrefixFrom))
+		.SetDebugName(nameof(mIL_AST.TryRemovePrefixFrom)),
 		
 		mParserGen.Seq(KeyWord("ASSERT"), Id, SpecialToken("=>"), Id)
 		.Modify((_, a1, _, a2) => (a1, a2))

@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-#define noMY_TRACE
+//#define MY_TRACE
 
 using System;
 using System.Text.RegularExpressions;
@@ -15,8 +15,8 @@ mIL_GenerateOpcodes {
 	
 	// TODO: return tResult
 	public static (
-		mStream.tStream<mVM_Data.tProcDef<tPos>>?,
-		mTreeMap.tTree<tText, tNat32>
+		mStream.tStream<mVM_Data.tProcDef<tPos>>? Module,
+		mTreeMap.tTree<tText, tNat32> ModuleMap
 	)
 	GenerateOpcodes<tPos>(
 		mIL_AST.tModule<tPos> aModule,
@@ -92,11 +92,18 @@ mIL_GenerateOpcodes {
 					break;
 				}
 				case mIL_AST.tCommandNodeType.TypeFree: {
-					Type = mVM_Type.Free("TODO"); // TODO
+					Type = mVM_Type.Free(TypeDef._1); // TODO
 					break;
 				}
 				case mIL_AST.tCommandNodeType.TypeGeneric: {
 					Type = mVM_Type.Generic(
+						TypeDef._2.ThenTry(a => TypeMap.TryGet(a)).ThenTry(a => Types_.TryGet(a)).ElseThrow(() => "TODO"), // TODO
+						TypeDef._3.ThenTry(a => TypeMap.TryGet(a)).ThenTry(a => Types_.TryGet(a)).ElseThrow(() => "TODO") // TODO
+					);
+					break;
+				}
+				case mIL_AST.tCommandNodeType.TypeRecursive: {
+					Type = mVM_Type.Recursive(
 						TypeDef._2.ThenTry(a => TypeMap.TryGet(a)).ThenTry(a => Types_.TryGet(a)).ElseThrow(() => "TODO"), // TODO
 						TypeDef._3.ThenTry(a => TypeMap.TryGet(a)).ThenTry(a => Types_.TryGet(a)).ElseThrow(() => "TODO") // TODO
 					);
@@ -119,11 +126,16 @@ mIL_GenerateOpcodes {
 			
 			var DefType = TypeMap.TryGet(TypeName).ThenTry(Types_.TryGet).ElseThrow(() => $"type '{TypeName}' not found");
 			
+			if (DefType.IsRecursive(out var FreeVar, out var TempType)) {
+				DefType = TempType;
+				FreeVar.Refs[0] = TempType;
+			}
+			
 			if (!DefType.IsProc(out var NullType, out var DefEnvType, out var DefProcType)) {
 				throw mError.Error("impossible");
 			}
 			if (DefProcType.IsGeneric(out var FreeType, out var InnerType)) {
-				DefProcType = InnerType;	
+				DefProcType = InnerType;
 			}
 			if (!DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType)) {
 				throw mError.Error("impossible");
@@ -170,8 +182,8 @@ mIL_GenerateOpcodes {
 				aTrace(() => Command.ToText());
 				aTrace(
 					() => ("  :: " +
-						Command._2.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText(10)).Else("") + " ; " + 
-						Command._3.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText(10)).Else("")
+						Command._2.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText()).Else("") + " ; " + 
+						Command._3.ThenTry(aReg => Regs.TryGet(aReg)).ThenDo(a => Types.Get(a).ToText()).Else("")
 					)
 				);
 				switch (Command) {
@@ -332,7 +344,7 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						mAssert.IsTrue(ArgType.IsPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText(10)}");
+						mAssert.IsTrue(ArgType.IsPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText()}");
 						Regs = Regs.Set(RegId1, NewProc.First(Span, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -403,95 +415,62 @@ mIL_GenerateOpcodes {
 						
 						ResType.IsSubType(DefResType, mStd.cEmpty)
 						.ElseThrow(
-							_ => tText.Concat(
-								_,
-								"\n",
-								ResType.ToText(1),
-								"\n!<\n",
-								DefResType.ToText(1),
-								"\n",
-								Command
-							)
+							_ => $"""
+								{_}
+								{ResType.ToText()}
+								!<
+								{DefResType.ToText()}
+								{Command}
+								"""
 						);
 						
 						NewProc.ReturnIf(Span, CondReg, ResReg);
 						break;
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIf, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						var CondReg = Regs.GetOrThrow(RegId1, Command);
-						var FuncAndArgReg = Regs.GetOrThrow(RegId2, Command);
-						mAssert.IsTrue(Types.Get(FuncAndArgReg).IsPair(out var FuncType, out var ArgType));
-						mAssert.IsTrue(Types.Get(CondReg).IsBool(), $"expect $Bool but was {Types.Get(CondReg).Kind}");
-						mAssert.IsTrue(FuncType.IsProc(out var ObjType, out var ArgType_, out var ResType));
-						mAssert.IsTrue(ObjType.IsEmpty());
-						
-						ArgType.IsSubType(ArgType_, mStd.cEmpty)
-						.ElseThrow(
-							_ => tText.Concat(
-								_,
-								"\n",
-								ArgType.ToText(1),
-								"\n!<\n",
-								ArgType_.ToText(1),
-								"\n",
-								Command
-							)
-						);
-						
-						NewProc.CallAndReturnIf(Span, CondReg, FuncAndArgReg);
-						break;
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsPrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar));
 					}
 					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsSet, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
-					}
-					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsFunc, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
-					}
-					//--------------------------------------------------------------------------------
-					case { NodeType: mIL_AST.tCommandNodeType.CallAndReturnIfArgIsMethod, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
-						throw new NotImplementedException();
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef));
 					}
 					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -637,7 +616,7 @@ mIL_GenerateOpcodes {
 					//--------------------------------------------------------------------------------
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.ElseThrow())), null, a => a.ToText(10));
+						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.ElseThrow())), null, a => a.ToText());
 						Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
 						Types.Push(
 							mVM_Type.Type(
@@ -687,7 +666,7 @@ mIL_GenerateOpcodes {
 						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 				}
-				aTrace(() => "  => " + Regs.TryGet(Command._1).ThenDo(a => Types.Get(a).ToText(10)).Else("???"));
+				aTrace(() => "  => " + Regs.TryGet(Command._1).ThenDo(a => Types.Get(a).ToText()).Else("???"));
 				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
@@ -739,7 +718,7 @@ mIL_GenerateOpcodes {
 	) {
 		foreach (var ((Name, _, Commands), VM_Def) in mStream.ZipShort(aDefs, aModule)) {
 			var RegIndex = mVM_Data.cResReg;
-			aTrace($"{Name} € {VM_Def.DefType.ToText(10)}:");
+			aTrace($"{Name} € {VM_Def.DefType.ToText()}:");
 			foreach (var Command in Commands) {
 				if (Command.NodeType >= mIL_AST.tCommandNodeType._BeginCommands_) {
 					aTrace($"\t{Command.NodeType} {Command._1} {Command._2} {Command._3}:");
@@ -747,7 +726,7 @@ mIL_GenerateOpcodes {
 					RegIndex += 1;
 					aTrace($"\t({RegIndex}) {Command._1} := {Command.NodeType} {Command._2} {Command._3}:");
 					try {
-						aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText(10)}");
+						aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText()}");
 					} catch {
 						aTrace($"\t\t€ ERROR: out of index");
 					}

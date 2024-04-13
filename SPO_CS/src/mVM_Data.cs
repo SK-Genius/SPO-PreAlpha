@@ -40,18 +40,15 @@ mVM_Data {
 		CallFunc,
 		CallProc,
 		ReturnIf,
-		CallAndReturnIf,
-		CallAndReturnIfArgIsEmpty,
-		CallAndReturnIfArgIsBool,
-		CallAndReturnIfArgIsInt,
-		CallAndReturnIfArgIsType,
-		CallAndReturnIfArgIsPrefix,
-		CallAndReturnIfArgIsRecord,
-		CallAndReturnIfArgIsPair,
-		CallAndReturnIfArgIsSet,
-		CallAndReturnIfArgIsVar,
-		CallAndReturnIfArgIsFunc,
-		CallAndReturnIfArgIsMethod,
+		TryAsNotEmpty,
+		TryAsBool,
+		TryAsInt,
+		TryAsType,
+		TryAsPair,
+		TryAsVar,
+		TryAsRef,
+		TryAsRecord,
+		TryRemovePrefixFrom,
 		
 		// ASSERT
 		Assert,
@@ -369,123 +366,93 @@ mVM_Data {
 	}
 	
 	public static void
-	CallAndReturnIf<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aCondReg,
-		tNat32 aFuncAndArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIf, aCondReg, aFuncAndArgReg);
-	}
-	
-	public static void
-	CallAndReturnIfArgIsEmpty<tPos>(
+	TryAsNotEmpty<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsEmpty, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsNotEmpty, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsBool<tPos>(
+	TryAsBool<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsBool, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsBool, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsInt<tPos>(
+	TryAsInt<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsInt, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsInt, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsType<tPos>(
+	TryAsType<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsType, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsType, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsPrefix<tPos>(
+	TryRemovePrefixFrom<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsPrefix, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryRemovePrefixFrom, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsRecord<tPos>(
+	TryAsRecord<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsRecord, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsRecord, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsPair<tPos>(
+	TryAsPair<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsPair, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsPair, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsSet<tPos>(
+	TryAsVar<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsSet, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsVar, aFuncReg, aArgReg);
 	}
 	
 	public static void
-	CallAndReturnIfArgIsVar<tPos>(
+	TryAsRef<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
 	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsVar, aFuncReg, aArgReg);
-	}
-	
-	public static void
-	CallAndReturnIfArgIsFunc<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aFuncReg,
-		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsFunc, aFuncReg, aArgReg);
-	}
-	
-	public static void
-	CallAndReturnIfArgIsMethod<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aFuncReg,
-		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.CallAndReturnIfArgIsMethod, aFuncReg, aArgReg);
+		aDef._AddCommand(aPos, tOpCode.TryAsRef, aFuncReg, aArgReg);
 	}
 	
 	public static void

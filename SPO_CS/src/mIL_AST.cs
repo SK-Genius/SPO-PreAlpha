@@ -78,18 +78,23 @@ mIL_AST {
 		_BeginCommands_ = _EndTypes_,
 		VarSet = _BeginCommands_,   // §VAR X <- X
 		ReturnIf,                   // §RETURN X IF X
-		CallAndReturnIf,            // §RETURN .X IF X
-		CallAndReturnIfArgIsEmpty,  // §RETURN .X X IF_ARG_Is_EMPTY
-		CallAndReturnIfArgIsBool,   // §RETURN .X X IF_ARG_Is_BOOL
-		CallAndReturnIfArgIsInt,    // §RETURN .X X IF_ARG_Is_INT
-		CallAndReturnIfArgIsType,   // §RETURN .X X IF_ARG_Is_TYPE
-		CallAndReturnIfArgIsPair,   // §RETURN .X X IF_ARG_Is_PAIR
-		CallAndReturnIfArgIsPrefix, // §RETURN .X X IF_ARG_Is_PREFIX
-		CallAndReturnIfArgIsRecord, // §RETURN .X X IF_ARG_Is_RECORD
-		CallAndReturnIfArgIsFunc,   // §RETURN .X X IF_ARG_Is_FUNC
-		CallAndReturnIfArgIsMethod, // §RETURN .X X IF_ARG_Is_METHOD
-		CallAndReturnIfArgIsSet,    // §RETURN .X X IF_ARG_Is_SET
-		CallAndReturnIfArgIsVar,    // §RETURN .X X IF_ARG_Is_VAR
+		ReturnIfNotEmpty,           // §RETURN x IF_NOT_EMPTY
+		TryAsInt,                   // X := §TRY X AS_INT
+		TryAsBool,                   // X := §TRY X AS_BOOL
+		TryAsPair,                  // X := §TRY X AS_PAIR
+		TryAsRecord,                // X := §TRY X AS_RECORD
+		TryAsVar,                   // X := §TRY X AS_VAR
+		TryAsRef,                   // X := §TRY X AS_REF
+		TryAsType,                  // X := §TRY X AS_TYPE
+		TryRemovePrefixFrom,        // X := §TRY_REMOVE_PREFIX P FROM X
+
+		// TODO:
+		// y := §TRY x AS_FUNC_WITH_ARG_TYPE t # ???
+		// y := §TRY x AS_METH_WITH_ARG_TYPE t # ???
+		// or
+		// y := §TRY .f x   # failed on wrong arg type or if f fails internal
+		// y := §TRY :m e_x # failed on wrong arg type or if m fails internal
+
 		Assert,                     // §ASSERT X
 		Proof,                      // §ASSERT X => X
 		_EndCommands_,
@@ -126,7 +131,7 @@ mIL_AST {
 		this tCommandNode<tPos> a
 	) => a.NodeType switch {
 		tCommandNodeType.Alias => $"{a._1} := {a._2}",
-		tCommandNodeType.Int => $"{a._1} := {a._2}",
+		tCommandNodeType.Int => $"{a._1} := §INT {a._2}",
 		tCommandNodeType.IntsAreEq => $"{a._1} := §INT {a._2} == {a._3}",
 		tCommandNodeType.IntsComp => $"{a._1} := §INT {a._2} <=> {a._3}",
 		tCommandNodeType.IntsAdd => $"{a._1} := §INT {a._2} + {a._3}",
@@ -165,18 +170,15 @@ mIL_AST {
 		tCommandNodeType.Proof => $"§PROOF {a._2} => {a._3}",
 		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
 		tCommandNodeType.ReturnIf => $"§RETURN {a._2} IF {a._1}",
-		tCommandNodeType.CallAndReturnIf => $"§RETURN .{a._2} IF {a._1}",
-		tCommandNodeType.CallAndReturnIfArgIsEmpty => $"§RETURN .{a._1} {a._2} IF_ARG_IS_EMPTY",
-		tCommandNodeType.CallAndReturnIfArgIsBool  => $"§RETURN .{a._1} {a._2} IF_ARG_IS_BOOL",
-		tCommandNodeType.CallAndReturnIfArgIsInt => $"§RETURN .{a._1} {a._2} IF_ARG_IS_INT",
-		tCommandNodeType.CallAndReturnIfArgIsType => $"§RETURN .{a._1} {a._2} IF_ARG_IS_TYPE",
-		tCommandNodeType.CallAndReturnIfArgIsPair => $"§RETURN .{a._1} {a._2} IF_ARG_IS_PAIR",
-		tCommandNodeType.CallAndReturnIfArgIsPrefix => $"§RETURN .{a._1} {a._2} IF_ARG_IS_PREFIX",
-		tCommandNodeType.CallAndReturnIfArgIsRecord => $"§RETURN .{a._1} {a._2} IF_ARG_IS_RECORD",
-		tCommandNodeType.CallAndReturnIfArgIsSet => $"§RETURN .{a._1} {a._2} IF_ARG_IS_SET",
-		tCommandNodeType.CallAndReturnIfArgIsVar => $"§RETURN .{a._1} {a._2} IF_ARG_IS_VAR",
-		tCommandNodeType.CallAndReturnIfArgIsFunc => $"§RETURN .{a._1} {a._2} IF_ARG_IS_FUNC",
-		tCommandNodeType.CallAndReturnIfArgIsMethod => $"§RETURN .{a._1} {a._2} IF_ARG_IS_METHOD",
+		tCommandNodeType.ReturnIfNotEmpty => $"§RETURN {a._2} IF_NOT_EMPTY",
+		tCommandNodeType.TryAsInt => $"{a._1} := §TRY {a._2} AS_INT",
+		tCommandNodeType.TryAsBool => $"{a._1} := §TRY {a._2} AS_BOOL",
+		tCommandNodeType.TryAsRef => $"{a._1} := §TRY {a._2} AS_REF",
+		tCommandNodeType.TryAsVar => $"{a._1} := §TRY {a._2} AS_VAR",
+		tCommandNodeType.TryAsType => $"{a._1} := §TRY {a._2} AS_TYPE",
+		tCommandNodeType.TryAsPair => $"{a._1} := §TRY {a._2} AS_PAIR",
+		tCommandNodeType.TryAsRecord => $"{a._1} := §TRY {a._2} AS_RECORD",
+		tCommandNodeType.TryRemovePrefixFrom => $"{a._1} := §TRY_REMOVE #{a._3} FROM {a._2}",
 		_ => $"{a._1} := {a._2} {a._3}"
 	};
 	
@@ -501,13 +503,6 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIf<tPos>(
-		tPos aPos,
-		tText aCondReg,
-		tText aFuncAndArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIf, aPos, aCondReg, aFuncAndArgReg);
-	
-	public static tCommandNode<tPos>
 	ReturnIf<tPos>(
 		tPos aPos,
 		tText aCondReg,
@@ -515,81 +510,67 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.ReturnIf, aPos, aCondReg, aResReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsEmpty<tPos>(
+	ReturnIfNotEmpty<tPos>(
 		tPos aPos,
-		tText aFuncReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsEmpty, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.ReturnIfNotEmpty, aPos, cEmpty, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsBool<tPos>(
+	TryAsBool<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsBool, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsBool, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsInt<tPos>(
+	TryAsInt<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsInt, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsInt, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsType<tPos>(
+	TryAsType<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsType, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsType, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsPair<tPos>(
+	TryAsPair<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsPair, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsPair, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsPrefix<tPos>(
+	TryAsRecord<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsPrefix, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsRecord, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsRecord<tPos>(
+	TryAsVar<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsRecord, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsVar, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsSet<tPos>(
+	TryAsRef<tPos>(
 		tPos aPos,
-		tText aFuncReg,
+		tText aResReg,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsSet, aPos, aFuncReg, aArgReg);
+	) => CommandNode(tCommandNodeType.TryAsRef, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsFunc<tPos>(
+	TryRemovePrefixFrom<tPos>(
 		tPos aPos,
-		tText aFuncReg,
-		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsFunc, aPos, aFuncReg, aArgReg);
-	
-	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsMethod<tPos>(
-		tPos aPos,
-		tText aFuncReg,
-		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsMethod, aPos, aFuncReg, aArgReg);
-	
-	public static tCommandNode<tPos>
-	CallAndReturnIfArgIsVar<tPos>(
-		tPos aPos,
-		tText aFuncReg,
-		tText aArgReg
-	) => CommandNode(tCommandNodeType.CallAndReturnIfArgIsVar, aPos, aFuncReg, aArgReg);
+		tText aResReg,
+		tText aArgReg,
+		tText aPrefix
+	) => CommandNode(tCommandNodeType.TryRemovePrefixFrom, aPos, aResReg, aArgReg, aPrefix);
 	
 	public static tCommandNode<tPos>
 	TypeCond<tPos>(

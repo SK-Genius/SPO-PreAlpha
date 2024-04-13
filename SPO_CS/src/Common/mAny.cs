@@ -20,7 +20,7 @@ mAny {
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
-		Equals(
+		Equals( 
 			object? a
 		) => a is tAny X && this.Equals(X);
 	}
@@ -43,16 +43,16 @@ mAny {
 		}
 #endif
 		mAssert.IsNotNull(a._Value);
-		
+		       
 		if (a._Value is t Value) {
 			aValue = Value;
-			return true;
-		} else {
+			return true;  
+		} else {       
 			aValue = default!;
-			return false;
-		}
-	}
-	
+			return false; 
+		}              
+	}               
+	                
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
 	Is(

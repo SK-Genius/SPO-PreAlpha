@@ -1,14 +1,16 @@
-﻿public static class
+﻿using System;
+
+public static class
 mTest {
 	
 	[DllImport("kernel32.dll")]
 	private static extern bool
 	QueryThreadCycleTime(
-		System.IntPtr aThreadHandle,
+		nint aThreadHandle,
 		out tNat64 aCycles
 	);
 	
-	private static readonly System.IntPtr PseudoHandle = -2;
+	private static readonly nint PseudoHandle = -2;
 	
 	private const tText cTab = "|  ";
 	
@@ -63,7 +65,8 @@ mTest {
 		this tTest aTest
 	) => aTest switch {
 		tTestRun Run => Run.Name,
-		tTestCollection Collection => Collection.Name
+		tTestCollection Collection => Collection.Name,
+		_ => throw new NotImplementedException(aTest.GetType().FullName)
 	};
 	
 	[DebuggerHidden]
@@ -76,7 +79,8 @@ mTest {
 		tTestCollection Collection => (
 			aFilters.Any(Collection.Name.Contains) ||
 			Collection.Tests.AsStream().Any(_ => _.HasAnyMatch(aFilters))
-		)
+		),
+		_ => throw new NotImplementedException(aTest.GetType().FullName),
 	};
 	
 	[DebuggerHidden]
@@ -132,61 +136,61 @@ mTest {
 		aDebugStream(aTest.Name());
 		switch (aTest) {
 			case tTestRun Run: {
-				if (aFilters.IsEmpty() || aFilters.Any(Run.Name.Contains)) {
-					aDebugStream($"[{Run.File}:{Run.Line}]");
-					try {
-						QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
-						Run.TestFunc(
-							aIsLogEnable
-							? LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
-							: _ => {}
-						);
-						QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
-						
-						var Value_00 = (ClocksEnd - ClocksStart) * 100;
-						var E = "";
-						switch (Value_00) {
-							case >= 1_000_000_000_00: {
-								E = "G";
-								Value_00 /= 1_000_000_000;
-								break;
-							}
-							case >= 1_000_000_00: {
-								E = "M";
-								Value_00 /= 1_000_000;
-								break;
-							}
-							case >= 1_000_00: {
-								E = "k";
-								Value_00 /= 1_000;
-								break;
-							}
-						}
-						var Value = Value_00 / 100;
-						var SubValue = "";
-						if (Value < 100) {
-							SubValue += "." + ((Value_00 / 10) % 10);
-						}
-						if (Value < 10) {
-							SubValue += Value_00 % 10;
-						}
-						aDebugStream($"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")} ({Value}{SubValue} {E}Clocks)");
-						aDebugStream("");
-						return (tResult.OK, 0, 0, 1);
-					} catch (System.Exception Exception) {
-						if (aIsLogEnable) {
-							LineByLine([DebuggerHidden](_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _))) (Exception.GetType().Name + ":  " + Exception.Message);
-							LineByLine([DebuggerHidden](_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _))) (Exception.StackTrace!);
-						}
-						aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
-						aDebugStream("");
-						return (tResult.Fail, 1, 0, 0);
-					}
-				} else {
-					aDebugStream($"[{Run.File}:{Run.Line}]");
+				aDebugStream($"[{Run.File}:{Run.Line}]");
+				
+				if (!aFilters.IsEmpty() && !aFilters.Any(Run.Name.Contains)) {
 					aDebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
 					aDebugStream("");
 					return (tResult.Skip, 0, 1, 0);
+				}
+				
+				try {
+					QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
+					Run.TestFunc(
+						aIsLogEnable
+						? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
+						: _ => { }
+					);
+					QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
+					
+					var Value_00 = (ClocksEnd - ClocksStart) * 100;
+					var E = "";
+					switch (Value_00) {
+						case >= 1_000_000_000_00: {
+							E = "G";
+							Value_00 /= 1_000_000_000;
+							break;
+						}
+						case >= 1_000_000_00: {
+							E = "M";
+							Value_00 /= 1_000_000;
+							break;
+						}
+						case >= 1_000_00: {
+							E = "k";
+							Value_00 /= 1_000;
+							break;
+						}
+					}
+					var Value = Value_00 / 100;
+					var SubValue = "";
+					if (Value < 100) {
+						SubValue += "." + ((Value_00 / 10) % 10);
+					}
+					if (Value < 10) {
+						SubValue += Value_00 % 10;
+					}
+					aDebugStream($"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")} ({Value}{SubValue} {E}Clocks)");
+					aDebugStream("");
+					return (tResult.OK, 0, 0, 1);
+				} catch (Exception Exception) {
+					if (aIsLogEnable) {
+						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ":  " + Exception.Message);
+						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!);
+					}
+					aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
+					aDebugStream("");
+					return (tResult.Fail, 1, 0, 0);
 				}
 			}
 			case tTestCollection Collection: {

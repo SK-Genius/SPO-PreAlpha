@@ -296,7 +296,10 @@ mParserGen {
 	tParser<tPos, tIn, tOut, tError> {
 		internal mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)>? _LastInput;
 		internal mResult.tResult<tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos Pos, tError Message)>?> _LastOutput;
+
+		#if MY_TRACE
 		internal mStream.tStream<tText>? _LastTrace;
+		#endif
 		
 		internal mStd.tFunc<
 			mResult.tResult<tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos Pos, tError Message)>?>,
@@ -500,7 +503,7 @@ mParserGen {
 		}
 	}
 	
-	[Pure, DebuggerHidden]
+	[DebuggerHidden]
 	public static tParser<tPos, tIn, tOut, tError>
 	SetDebugDef<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
@@ -516,7 +519,7 @@ mParserGen {
 		return aParser;
 	}
 	
-	[Pure, DebuggerHidden]
+	[DebuggerHidden]
 	public static tParser<tPos, tIn, tOut, tError>
 	SetDebugName<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
@@ -683,9 +686,9 @@ mParserGen {
 		return aParser.Parse(
 			aStream,
 			aDebugText => {
-				if (aDebugText.StartsWith("}", StringComparison.Ordinal)) { Level -= 1; }
+				if (aDebugText.StartsWith('}')) { Level -= 1; }
 				aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
-				if (aDebugText.EndsWith("{", StringComparison.Ordinal)) { Level += 1; }
+				if (aDebugText.EndsWith('{')) { Level += 1; }
 			},
 			mStream.Stream<object>()
 		);

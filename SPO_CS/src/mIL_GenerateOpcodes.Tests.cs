@@ -235,16 +235,11 @@ mIL_GenerateOpcodes_Tests {
 						Env2 := [Env1, _IntInt->Int]
 						Env3 := [Env2, _IntInt->Int]
 						Env4 := [Env3, _IntInt->Bool]
-						t...!! := [Env4 => IntInt->Int]
-						Env5 := [Env4, t...!!]
 						->Int := [EMPTY => INT]
-						tBla := [Env5 => ->Int]
-						Int->Int := [INT => INT]
-						t...! := [Env5 => Int->Int]
+						tBla := [Env4 => ->Int]
 					§DEF bla € tBla
 						_1 := 1
-						env5 := §1ST ENV
-						env4 := §1ST env5
+						env4 := §1ST ENV
 						env3 := §1ST env4
 						env2 := §1ST env3
 						add_ := §2ND env2
@@ -254,10 +249,8 @@ mIL_GenerateOpcodes_Tests {
 						§RETURN r IF TRUE
 					§DEF bla2 € tBla
 						_1 := 1
-						...!!_ := §2ND ENV
-						env5   := §1ST ENV
-						eq_    := §2ND env5
-						env4   := §1ST env5
+						eq_    := §2ND ENV
+						env4   := §1ST ENV
 						mul_   := §2ND env4
 						env3   := §1ST env4
 						sub_   := §2ND env3
@@ -276,50 +269,6 @@ mIL_GenerateOpcodes_Tests {
 						_3_4 := _3, _4
 						_12  := .mul _3_4
 						§RETURN _12 IF TRUE
-					§DEF ...!! € t...!!
-						_1 := 1
-						eq_    := §2ND ENV
-						env4   := §1ST ENV
-						mul_   := §2ND env4
-						env3   := §1ST env4
-						sub_   := §2ND env3
-						env2   := §1ST env3
-						add_   := §2ND env2
-						env1   := §1ST env2
-						add := .add_ EMPTY
-						sub := .sub_ EMPTY
-						mul := .mul_ EMPTY
-						eq  := .eq_ EMPTY
-						_1_1 := _1, _1
-						_0   := .sub _1_1
-						arg    := §1ST ARG
-						res    := §2ND ARG
-						arg_0  := arg, _0
-						arg=0 := .eq arg_0
-						§RETURN res IF arg=0
-						res_arg := res, arg
-						newRes  := .mul res_arg
-						arg_1   := arg, _1
-						newArg  := .sub arg_1
-						newArg_newRes := newArg, newRes
-						self_with_arg := SELF, newArg_newRes
-						§RETURN .self_with_arg IF TRUE
-					§DEF ...! € t...!
-						_1 := 1
-						...!!_ := §2ND ENV
-						env5   := §1ST ENV
-						eq_    := §2ND env5
-						env4   := §1ST env5
-						mul_   := §2ND env4
-						env3   := §1ST env4
-						sub_   := §2ND env3
-						env2   := §1ST env3
-						add_   := §2ND env2
-						env1   := §1ST env2
-						...!! := . ...!!_ env5
-						arg_1 := ARG, _1       
-						res   := . ...!! arg_1
-						§RETURN res IF TRUE
 						
 					""",
 					"",
@@ -328,17 +277,8 @@ mIL_GenerateOpcodes_Tests {
 				
 				var Proc1 = DefLookup.TryGet("bla").ThenTry(Defs.TryGet).ElseThrow();
 				var Proc2 = DefLookup.TryGet("bla2").ThenTry(Defs.TryGet).ElseThrow();
-				var Proc3 = DefLookup.TryGet("...!!").ThenTry(Defs.TryGet).ElseThrow();
-				var Proc4 = DefLookup.TryGet("...!").ThenTry(Defs.TryGet).ElseThrow();
 				
 				var Env = mVM_Data.Tuple(
-					mVM_Data.ExternDef(Add),
-					mVM_Data.ExternDef(Sub),
-					mVM_Data.ExternDef(Mul),
-					mVM_Data.ExternDef(Eq),
-					mVM_Data.Def(Proc3)
-				);
-				var Env_ = mVM_Data.Tuple(
 					mVM_Data.ExternDef(Add),
 					mVM_Data.ExternDef(Sub),
 					mVM_Data.ExternDef(Mul),
@@ -376,30 +316,6 @@ mIL_GenerateOpcodes_Tests {
 						TraceOut
 					);
 					mAssert.AreEquals(Res, mVM_Data.Int(12));
-				}
-				{
-					var Res = mVM_Data.Empty();
-					mVM.Run<tSpan>(
-						mVM_Data.Proc(Proc3, Env_),
-						mVM_Data.Empty(),
-						mVM_Data.Pair(mVM_Data.Int(3), mVM_Data.Int(1)),
-						Res,
-						SpanToText,
-						TraceOut
-					);
-					mAssert.AreEquals(Res, mVM_Data.Int(6));
-				}
-				{
-					var Res = mVM_Data.Empty();
-					mVM.Run<tSpan>(
-						mVM_Data.Proc(Proc4, Env),
-						mVM_Data.Empty(),
-						mVM_Data.Int(3),
-						Res,
-						SpanToText,
-						TraceOut
-					);
-					mAssert.AreEquals(Res, mVM_Data.Int(6));
 				}
 			}
 		)

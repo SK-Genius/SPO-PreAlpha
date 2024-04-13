@@ -2,7 +2,6 @@
 
 public static class
 mMath {
-	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
 	Max(

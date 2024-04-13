@@ -34,7 +34,7 @@ mSPO_Interpreter {
 				Module.TypeDef.ToStream(),
 				Module.Defs.ToStream(
 				).MapWithIndex(
-					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.DefId(aIndex), aDef.Type, aDef.Commands.ToStream())
+					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.GetDefId(aIndex), aDef.TypeId, aDef.Commands.ToStream())
 				)
 			),
 			aImport,

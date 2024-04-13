@@ -7,10 +7,11 @@
 		<!--  Exe | Library | Module | Winexe -->
 		
 		<DefineConstants>noMY_TRACE;DISABLE_DEBUGGER_HIDDEN</DefineConstants>
-		<NoWarn>659,661,8604,8618</NoWarn>
+		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>
 		<AnalysisLevel>preview-all</AnalysisLevel>
+		<NoWarn>659,661,8604,8618</NoWarn>
 	</PropertyGroup>
 	
 	<ItemGroup>

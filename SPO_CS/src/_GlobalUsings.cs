@@ -12,5 +12,5 @@ global using System.Runtime.InteropServices;
 		System.AttributeTargets.Method |
 		System.AttributeTargets.Property
 	)]
-	internal class MyFakeAttribute : System.Attribute { } 
+	internal sealed class MyFakeAttribute : System.Attribute { } 
 #endif
