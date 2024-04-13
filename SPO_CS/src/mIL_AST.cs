@@ -131,7 +131,7 @@ mIL_AST {
 		this tCommandNode<tPos> a
 	) => a.NodeType switch {
 		tCommandNodeType.Alias => $"{a._1} := {a._2}",
-		tCommandNodeType.Int => $"{a._1} := §INT {a._2}",
+		tCommandNodeType.Int => $"{a._1} := {a._2}",
 		tCommandNodeType.IntsAreEq => $"{a._1} := §INT {a._2} == {a._3}",
 		tCommandNodeType.IntsComp => $"{a._1} := §INT {a._2} <=> {a._3}",
 		tCommandNodeType.IntsAdd => $"{a._1} := §INT {a._2} + {a._3}",

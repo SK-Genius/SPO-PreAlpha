@@ -36,10 +36,10 @@ mStdLib_Tests {
 						""",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(a => aDebugStream(a())),
+							mStdLib.GetImportData(_ => aDebugStream(_())),
 							mVM_Data.Int(8)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(21)
 				);
@@ -72,10 +72,10 @@ mStdLib_Tests {
 						""",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(a => aDebugStream(a())),
+							mStdLib.GetImportData(_ => aDebugStream(_())),
 							mVM_Data.Int(8)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(21)
 				);
@@ -108,10 +108,10 @@ mStdLib_Tests {
 						""",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(a => aDebugStream(a())),
+							mStdLib.GetImportData(_ => aDebugStream(_())),
 							mVM_Data.Int(8)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(21)
 				);
@@ -143,10 +143,10 @@ mStdLib_Tests {
 						""",
 						"",
 						mVM_Data.Tuple(
-							mStdLib.GetImportData(a => aDebugStream(a())),
+							mStdLib.GetImportData(_ => aDebugStream(_())),
 							mVM_Data.Int(8)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(21)
 				);
@@ -183,8 +183,8 @@ mStdLib_Tests {
 						§EXPORT x
 						""",
 						"",
-						mStdLib.GetImportData(a => aDebugStream(a())),
-						a => aDebugStream(a())
+						mStdLib.GetImportData(_ => aDebugStream(_())),
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Var(mVM_Data.Int(22))
 				);
@@ -232,7 +232,7 @@ mStdLib_Tests {
 					""",
 					"",
 					mVM_Data.Tuple(ReadLine, WriteLine),
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				);
 				
 				var Reference = new byte[]{ 44, 55, 66, (int)'\n' };
@@ -262,8 +262,8 @@ mStdLib_Tests {
 					mVM_Data.Tuple(StreamIn, StreamOut),
 					mVM_Data.Empty(),
 					Res,
-					a => "" + a,
-					a => aDebugStream(a())
+					_ => "" + _,
+					_ => aDebugStream(_())
 				);
 				
 				mAssert.AreEquals(Res, mVM_Data.Int(0));

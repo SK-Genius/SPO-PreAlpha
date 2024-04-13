@@ -33,12 +33,12 @@ mTextParser {
 		var Result = MaybeResult.ElseThrow(
 			a => a.Sort(
 				(a1, a2) => {
-					var RowComp = (tInt32)a1.Pos.Row - (tInt32)a2.Pos.Row;
-					if (RowComp != 0) {
-						return RowComp;
-					}
-					return (tInt32)a1.Pos.Col - (tInt32)a2.Pos.Col;
+					var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
+					return RowComp != 0
+						? RowComp
+						: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
 				}
+			).DontRepeat(
 			).ToText(aText.Split('\n'))
 		);
 		if (!Result.RemainingStream.IsEmpty()) {

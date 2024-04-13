@@ -40,7 +40,7 @@ mSPO_Interpreter_Tests {
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							mVM_Data.Int(2)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(10)
 				);
@@ -66,7 +66,7 @@ mSPO_Interpreter_Tests {
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							mVM_Data.Int(2)
 						),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(10)
 				);
@@ -135,7 +135,7 @@ mSPO_Interpreter_Tests {
 						""",
 						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Int(4),
 					null,
@@ -176,7 +176,7 @@ mSPO_Interpreter_Tests {
 						""",
 						"",
 						mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					),
 					mVM_Data.Prefix(
 						"_Stack...",

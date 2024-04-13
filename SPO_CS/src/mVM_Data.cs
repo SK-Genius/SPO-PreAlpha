@@ -91,7 +91,7 @@ mVM_Data {
 	public static readonly tNat32 cArgReg = 10;
 	public static readonly tNat32 cResReg = 11;
 	
-	[DebuggerDisplay("{this.DefType.ToText(10)}")]
+	[DebuggerDisplay("{this.DefType.ToText()}")]
 	public sealed class
 	tProcDef<tPos> : tProcDef {
 		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32)>
@@ -586,7 +586,7 @@ mVM_Data {
 		Type
 	}
 	
-	[DebuggerDisplay("{mVM_Data.ToText(this, 3)}")]
+	[DebuggerDisplay("{mVM_Data.ToText(this)}")]
 	public sealed class
 	tData {
 		public tDataType _DataType;

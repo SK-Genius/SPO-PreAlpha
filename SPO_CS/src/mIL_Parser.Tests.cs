@@ -62,7 +62,7 @@ mIL_Parser_Tests {
 			
 			("§VAR a <- b", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.VarSet, Span((1, 1), (1, 11)), "a", "b")),
 			("§RETURN a IF b", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIf, Span((1, 1), (1, 14)), "b", "a")),
-			("§RETURN a IF_NOT_EMPTY", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Span((1, 1), (1, 24)), "", "a")),
+			("§RETURN a IF_NOT_EMPTY", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Span((1, 1), (1, 22)), "", "a")),
 			("a := §TRY b AS_BOOL", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TryAsBool, Span((1, 1), (1, 19)), "a", "b")),
 			("a := §TRY b AS_INT", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TryAsInt, Span((1, 1), (1, 18)), "a", "b")),
 			("a := §TRY b AS_TYPE", mIL_AST.CommandNode(mIL_AST.tCommandNodeType.TryAsType, Span((1, 1), (1, 19)), "a", "b")),

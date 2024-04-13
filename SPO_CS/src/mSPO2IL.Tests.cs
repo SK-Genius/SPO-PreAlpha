@@ -646,7 +646,7 @@ mSPO2IL_Tests {
 					aStreamOut,
 					Module.Defs.ToStream(),
 					"""
-					t_1 := §INT 1
+					t_1 := 1
 					t_2 := EMPTY, d_3
 					t_3 := t_2, d_2
 					t_4 := t_3, d_5
@@ -682,7 +682,7 @@ mSPO2IL_Tests {
 					d_3 := ENV
 					t_1 := .d_3 EMPTY
 					t_2 := §TRY ARG AS_INT
-					t_3 := §INT 0
+					t_3 := 0
 					t_4 := §INT t_2 == t_3
 					t_5 := §BOOL t_4 ^ TRUE
 					§RETURN EMPTY IF t_5
@@ -690,14 +690,14 @@ mSPO2IL_Tests {
 					§RETURN t_6 IF TRUE
 					""",
 					"""
-					t_1 := §INT 2
+					t_1 := 2
 					§RETURN t_1 IF TRUE
 					""",
 					"""
 					d_5 := ENV
 					t_1 := .d_5 EMPTY
 					t_2 := §TRY ARG AS_INT
-					t_3 := §INT 1
+					t_3 := 1
 					t_4 := §INT t_2 == t_3
 					t_5 := §BOOL t_4 ^ TRUE
 					§RETURN EMPTY IF t_5
@@ -705,11 +705,11 @@ mSPO2IL_Tests {
 					§RETURN t_6 IF TRUE
 					""",
 					"""
-					t_1 := §INT 4
+					t_1 := 4
 					§RETURN t_1 IF TRUE
 					""",
 					"""
-					t_1 := §INT 6
+					t_1 := 6
 					§RETURN t_1 IF TRUE
 					"""
 				);
@@ -816,7 +816,7 @@ mSPO2IL_Tests {
 					""",
 					// d_3
 					"""
-					t_1 := §INT 1
+					t_1 := 1
 					§RETURN t_1 IF TRUE
 					""",
 					// d_4
@@ -829,12 +829,12 @@ mSPO2IL_Tests {
 					""",
 					// d_5
 					"""
-					t_1 := §INT 2
+					t_1 := 2
 					§RETURN t_1 IF TRUE
 					""",
 					// d_6
 					"""
-					t_1 := §INT 3
+					t_1 := 3
 					§RETURN t_1 IF TRUE
 					"""
 				);

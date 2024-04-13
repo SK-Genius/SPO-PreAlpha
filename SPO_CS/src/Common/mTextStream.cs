@@ -60,7 +60,7 @@ mTextStream {
 		tText[] aSrcLines
 	) => aErrors.Reverse(
 	).Map(
-		a => a.ToText(aSrcLines)
+		_ => _.ToText(aSrcLines)
 	).Reduce(
 		"",
 		(a1, a2) => a1 + "\n" + a2
@@ -78,7 +78,7 @@ mTextStream {
 		return mStream.Stream(
 			aText.ToCharArray()
 		).Where(
-			a => a != '\r'
+			_ => _ != '\r'
 		).Map(
 			aChar => {
 				var Result = (Pos(aId, Row.Value, Col.Value), aChar);

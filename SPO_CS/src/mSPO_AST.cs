@@ -1,6 +1,8 @@
-﻿public static class
+﻿using System.Reflection.Metadata.Ecma335;
+
+public static class
 mSPO_AST {
-	private const tText cDebuggerDisplay = "{this.ToText(10)}";
+	private const tText cDebuggerDisplay = "{this.ToText()}";
 	
 	public interface
 	tNode<out tPos> {
@@ -1150,60 +1152,73 @@ mSPO_AST {
 	public static tText
 	ToText<t>(
 		this tNode<t> aNode,
-		tInt32 aLimit
+		tText aIndent = "\n"
 	) {
-		if (aLimit == 0) {
-			return "(...)";
+		tText __;
+		tText ____;
+		if (aIndent.Length != 0 && aIndent[0] == '\n') {
+			var OneLiner = aNode.ToText("");
+			if (OneLiner.Length <= 80) {
+				return OneLiner;
+			}
+			
+			__ = aIndent;
+			____ = aIndent + "  ";
+		} else {
+			__ = "";
+			____ = " ";
 		}
 		
-		aLimit -= 1;
 		return aNode switch {
 			// Expressions
 			tIdNode<t> Node => Node.Id,
 			tEmptyNode<t> Node => "()",
-			tTrueNode<t> Node => "#True",
-			tFalseNode<t> Node => "#False",
+			tTrueNode<t> Node => "#TRUE",
+			tFalseNode<t> Node => "#FALSE",
 			tIntNode<t> Node => "" + Node.Value,
 			tTextNode<t> Node => $"\"{Node.Value}\"",
-			tPrefixNode<t> Node => $"(#{Node.Prefix} {Node.Element.ToText(aLimit)})",
-			tTupleNode<t> Node => $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})",
-			tLambdaNode<t> Node => $"({Node.Head.ToText(aLimit)} => {Node.Body.ToText(aLimit)})",
-			tCallNode<t> Node => $"(.{Node.Func.ToText(aLimit)} {Node.Arg.ToText(aLimit)})",
-			tMethodNode<t> Node => $"({Node.Obj.ToText(aLimit)} : {Node.Arg.ToText(aLimit)} => {Node.Body.ToText(aLimit)})",
+			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
+			tTupleNode<t> Node => $"({Node.Items.Map(a => ____ + a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
+			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
+			tMethodNode<t> Node => $"({____}{Node.Obj.ToText(____)} : {Node.Arg.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tIfMatchNode<t> Node => (
-				$"§If {Node.Expression} Match " + Node.Cases.Map(
-					a => a.Match.ToText(aLimit) + " => " + a.Expression.ToText(aLimit)
+				$"§IF {Node.Expression} MATCH " + Node.Cases.Map(
+					a => a.Match.ToText(____) + " => " + a.Expression.ToText(____)
 				).Reduce(
 					"",
 					(a1, a2) => a1 + "; " + a2
 				)
 			),
+			
 			// Matches
 			tMatchNode<t> Node => (
 				Node.Type.Match(
-					aOnSome: Type => $"({Node.Pattern.ToText(aLimit)} € {Type.ToText(aLimit)})",
-					aOnNone: () => Node.Pattern.ToText(aLimit)
+					aOnSome: Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
+					aOnNone: () => Node.Pattern.ToText(____)
 				)
 			),
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
-			tMatchPrefixNode<t> Node => $"(#{Node.Prefix} {Node.Match.ToText(aLimit)})",
-			tMatchTupleNode<t> Node => $"({Node.Items.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")})",
-			tMatchGuardNode<t> Node => $"({Node.Match.ToText(aLimit)} & {Node.Guard.ToText(aLimit)})",
+			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
+			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",
+			
 			// Types
 			tEmptyTypeNode<t> Node => "[]",
-			tBoolTypeNode<t> Node => "§Bool",
-			tIntTypeNode<t> Node => "§Int",
-			tTypeTypeNode<t> Node => "§Type",
-			tPrefixTypeNode<t> Node => $"[#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]",
-			tTupleTypeNode<t> Node => $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")}]",
-			tSetTypeNode<t> Node => $"[{Node.Expressions.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + " | " + a2, "")}]",
+			tBoolTypeNode<t> Node => "§BOOL",
+			tIntTypeNode<t> Node => "§INT",
+			tTypeTypeNode<t> Node => "§TYPE",
+			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
+			
 			// Commands
-			tBlockNode<t> Node => "{...}",
-			tMethodCallsNode<t> Node => $"{Node.Object.ToText(aLimit)} : {Node.MethodCalls.Map(a => a.ToText(aLimit)).Join((a1, a2) => a1 + ", " + a2, "")} .",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(aLimit)} {Node.Argument.ToText(aLimit)} => {Node.Result.Match(aOnSome: a => a.ToText(aLimit), aOnNone: () => "()")}",
-			tReturnIfNode<t> Node => $"§Return {Node.Result.ToText(aLimit)} If {Node.Condition.ToText(aLimit)}",
-			tDefNode<t> Node => $"§Def {Node.Des.ToText(aLimit)} = {Node.Src.ToText(aLimit)}",
+			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(a => a.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
+			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(a => a.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aOnSome: a => a.ToText(____), aOnNone: () => "()")}",
+			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
+			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			_ => "(???)",
 		};
 	}

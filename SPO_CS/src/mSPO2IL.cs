@@ -208,7 +208,7 @@ mSPO2IL {
 		var FreeIds = aDefConstructor.FreeIds.ToStream();
 		aDefConstructor.EnvIds = aDefConstructor.EnvIds.ToStream(
 		).Where(
-			a => !FreeIds.Any(a_ => a_ == a.Id)
+			a => !FreeIds.Any(_ => _ == a.Id)
 		).ToArrayList();
 		
 		var Defs = aModuleConstructor.Defs;
@@ -220,7 +220,7 @@ mSPO2IL {
 			mStream.Stream<mVM_Type.tType>(),
 			(aRes, aEnvId) => mStream.Stream(
 				aScope.Where(
-					a => a.Id == aEnvId.Id
+					_ => _.Id == aEnvId.Id
 				).TryFirst(
 				).ElseDo(
 					() => {
@@ -241,15 +241,15 @@ mSPO2IL {
 				aRes
 			)
 		).Match(
-			aOnAny: a => mVM_Type.Tuple(a.Reverse()),
+			aOnAny: _ => mVM_Type.Tuple(_.Reverse()),
 			aOnNone: () => mVM_Type.Tuple(
 				EnvIds.ToStream(
 				).Map(
-					a => {
-						if (!a.Id.StartsWith("d_")) {
+					_ => {
+						if (!_.Id.StartsWith("d_")) {
 							throw new Exception();
 						}
-						var TypeName = Defs.Get(tNat32.Parse(a.Id[2..])).TypeId;
+						var TypeName = Defs.Get(tNat32.Parse(_.Id[2..])).TypeId;
 						return Types.TryGet(
 							TypeName
 						).ElseThrow(
@@ -418,7 +418,7 @@ mSPO2IL {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnv.IsEmpty()) {
 			foreach (var Symbol in aEnv.ToStream()) {
-				if (aDefConstructor.EnvIds.ToStream().All(a => a.Id != Symbol.Id)) {
+				if (aDefConstructor.EnvIds.ToStream().All(_ => _.Id != Symbol.Id)) {
 					aDefConstructor.EnvIds.Push(Symbol);
 				}
 			}
@@ -500,7 +500,7 @@ mSPO2IL {
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id }: {
 			//--------------------------------------------------------------------------------
 				if (
-					aDefConstructor.EnvIds.ToStream().All(a => a.Id != Id) &&
+					aDefConstructor.EnvIds.ToStream().All(_ => _.Id != Id) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
 						a => a.GetResultReg().Match(
@@ -1283,7 +1283,7 @@ mSPO2IL {
 		var Max = NewDefIndices.Size();
 		
 		// create all rec. func. in each rec. func.
-		var FuncNames = aRecLambdasNode.List.Map(a => a.Id.Id).ToArrayList();
+		var FuncNames = aRecLambdasNode.List.Map(_ => _.Id.Id).ToArrayList();
 		foreach (var TempLambdaDef in TempLambdaDefs.ToArray()) {
 			foreach (var J in mStream.Nat(0).Take(Max)) {
 				var Definition = AllEnvIds.Get(J);
@@ -1304,8 +1304,8 @@ mSPO2IL {
 			var TempEnvIds = TempLambdaDef.EnvIds.ToStream(
 			).Where(
 				aUnsolved => (
-					FreeIds.All(a => a != aUnsolved.Id) &&
-					aRecLambdasNode.List.All(a => a.Id.Id != aUnsolved.Id)
+					FreeIds.All(_ => _ != aUnsolved.Id) &&
+					aRecLambdasNode.List.All(_ => _.Id.Id != aUnsolved.Id)
 				)
 			);
 			
@@ -1329,7 +1329,7 @@ mSPO2IL {
 			var ArgReg = mIL_AST.cEmpty;
 			if (!AllEnvIds.IsEmpty()) {
 				foreach (var UnsolvedSymbol in AllEnvIds.ToStream()) {
-					if (aDefConstructor.EnvIds.ToStream().All(a => a.Id != UnsolvedSymbol.Id)) {
+					if (aDefConstructor.EnvIds.ToStream().All(_ => _.Id != UnsolvedSymbol.Id)) {
 						aDefConstructor.EnvIds.Push(UnsolvedSymbol);
 					}
 				}
