@@ -1,4 +1,6 @@
-﻿public static class
+﻿using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
+
+public static class
 mSPO_AST_Types {
 	public enum tTypeRelation {
 		Sub,
@@ -9,7 +11,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, tText>
 	UpdateExpressionTypes<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aNode,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)>? aScope
+		tScope? aScope
 	) => (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> _ => mResult.OK(mVM_Type.Empty()),
@@ -194,14 +196,14 @@ mSPO_AST_Types {
 		_ => { aNode.TypeAnnotation = _; }
 	);
 	
-	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(tText Id, mVM_Type.tType Type)>? Scope), tText>
+	public static mResult.tResult<(mVM_Type.tType Type, tScope? Scope), tText>
 	UpdateMatchTypes<tPos>(
 		mSPO_AST.tMatchItemNode<tPos> aMatch,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)>? aScope
+		tScope? aScope
 	) {
-		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(tText Id, mVM_Type.tType Type)>? Scope), tText> Result;
+		mResult.tResult<(mVM_Type.tType Type, tScope? Scope), tText> Result;
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = Match.Type.Match(
@@ -329,7 +331,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
-				// mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(tText Id, mVM_Type.tType Type)>? Scope), tText> Result;
+				// mResult.tResult<(mVM_Type.tType Type, tScope? Scope), tText> Result;
 				Result = aType.ThenDo(
 					_ => (
 						Type: _,
@@ -352,10 +354,10 @@ mSPO_AST_Types {
 		return Result.ThenDo(_ => { aMatch.TypeAnnotation = _.Type; });
 	}
 	
-	public static mResult.tResult<mStream.tStream<(tText Id, mVM_Type.tType Type)>?, tText>
+	public static mResult.tResult<tScope?, tText>
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)>? aScope
+		tScope? aScope
 	) => UpdateExpressionTypes(aMethodCall.Argument, aScope).ThenTry(
 		aArgType => UpdateExpressionTypes(aMethodCall.Method, aScope).ThenTry(
 			aMethodType => (
@@ -380,41 +382,34 @@ mSPO_AST_Types {
 		)
 	);
 	
-	public static mResult.tResult<mStream.tStream<(tText Id, mVM_Type.tType Type)>?, tText>
+	public static mResult.tResult<tScope?, tText>
 	UpdateCommandTypes<tPos>(
 		mSPO_AST.tCommandNode<tPos> aCommand,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)>? aScope
+		tScope? aScope
 	) {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
-				return (
-					Def.Des.Type.Match(
-						aOnNone: () => UpdateExpressionTypes(
-							Def.Src,
+				return UpdateExpressionTypes(
+					Def.Src,
+					aScope
+				).ThenTry(
+					aSrcType => Def.Des.Type.Match(
+						aOnSome: DesTypeNode => UpdateMatchTypes(
+							Def.Des,
+							aSrcType,
+							tTypeRelation.Equal,
 							aScope
 						).ThenTry(
-							aType => UpdateMatchTypes(
-								Def.Des,
-								aType,
-								tTypeRelation.Equal,
-								aScope
-							)
-						).Then(
-							_ => _.Scope
+							_ => aSrcType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _)
 						),
-						aOnSome: aDesType => ResolveTypeExpression(
-							aDesType,
+						aOnNone: () => UpdateMatchTypes(
+							Def.Des,
+							aSrcType,
+							tTypeRelation.Equal,
 							aScope
-						).ThenTry(
-							aType => UpdateMatchTypes(
-								Def.Des,
-								aType,
-								tTypeRelation.Super,
-								aScope
-							)
-						).Then(
-							_ => _.Scope
 						)
+					).Then(
+						_ => _.Scope
 					)
 				);
 			}
@@ -532,7 +527,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, tText>
 	ResolveTypeExpression<tPos>(
 		mSPO_AST.tExpressionNode<tPos> aExpression,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)>? aScope
+		tScope? aScope
 	) {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		
