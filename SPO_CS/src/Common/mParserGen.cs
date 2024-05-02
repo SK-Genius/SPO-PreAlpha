@@ -499,7 +499,7 @@ mParserGen {
 		Cast<tNewOut>(
 		) {
 			mAssert.IsTrue(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
-			return this.Modify(a => (tNewOut)(object)a);
+			return this.Modify(_ => (tNewOut)(object)_);
 		}
 	}
 	
@@ -633,7 +633,7 @@ mParserGen {
 					< 0 => a2,
 					_ => a1.TryLast().Match(
 						aOnNone: () => a2,
-						aOnSome: a => mStream.Stream(a, a2)
+						aOnSome: _ => mStream.Stream(_, a2)
 					)
 				}
 			)
@@ -715,7 +715,7 @@ mParserGen {
 		}
 
 #if INF_LOOP_DETECTION
-		if (!aInfiniteLoopDetectionSet.All(a => !ReferenceEquals(a, aParser))) {
+		if (!aInfiniteLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
 #if MY_TRACE
 				aDebugStream($"!!! INFINITE LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
 #endif

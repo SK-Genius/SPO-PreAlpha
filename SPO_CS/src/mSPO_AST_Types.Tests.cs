@@ -82,7 +82,7 @@ mSPO_AST_Types_Tests {
 					)
 				);
 				
-				var AST = mSPO_Parser.Expression.ParseText("(#Bla (§DEF a € §BOOL)) => a", "", a => { aDebugStream(a()); });
+				var AST = mSPO_Parser.Expression.ParseText("(#Bla (§DEF a € §BOOL)) => a", "", _ => { aDebugStream(_()); });
 				var Type = mSPO_AST_Types.UpdateExpressionTypes(AST, default);
 				mAssert.AreEquals(
 					Type,

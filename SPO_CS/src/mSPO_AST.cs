@@ -937,9 +937,9 @@ mSPO_AST {
 				return (
 					a2 is tMatchTupleNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.Items, Node2.Items).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -970,9 +970,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1.Key, a2.Key) &&
 							AreEqual(a1.Value, a2.Value)
 						)
@@ -986,9 +986,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1.Id, a2.Id) &&
 							AreEqual(a1.Match, a2.Match)
 						)
@@ -1043,9 +1043,9 @@ mSPO_AST {
 				return (
 					a2 is tRecLambdasNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.List, Node2.List).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1107,9 +1107,9 @@ mSPO_AST {
 					a2 is tMethodCallsNode<tPos> Node2 &&
 					AreEqual(Node1.Object, Node2.Object) &&
 					mStream.ZipExtend(Node1.MethodCalls, Node2.MethodCalls).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1125,9 +1125,9 @@ mSPO_AST {
 				return (
 					a2 is tTupleNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.Items, Node2.Items).All(
-						a => (
-							a._1.IsSome(out var a1) &&
-							a._2.IsSome(out var a2) &&
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1178,13 +1178,13 @@ mSPO_AST {
 			tIntNode<t> Node => "" + Node.Value,
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
-			tTupleNode<t> Node => $"({Node.Items.Map(a => ____ + a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
 			tMethodNode<t> Node => $"({____}{Node.Obj.ToText(____)} : {Node.Arg.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tIfMatchNode<t> Node => (
 				$"§IF {Node.Expression} MATCH " + Node.Cases.Map(
-					a => a.Match.ToText(____) + " => " + a.Expression.ToText(____)
+					_ => _.Match.ToText(____) + " => " + _.Expression.ToText(____)
 				).Reduce(
 					"",
 					(a1, a2) => a1 + "; " + a2
@@ -1201,7 +1201,7 @@ mSPO_AST {
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
 			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
-			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",
 			
 			// Types
@@ -1209,14 +1209,14 @@ mSPO_AST {
 			tBoolTypeNode<t> Node => "§BOOL",
 			tIntTypeNode<t> Node => "§INT",
 			tTypeTypeNode<t> Node => "§TYPE",
-			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
-			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
-			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(a => a.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
+			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			
 			// Commands
-			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(a => a.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
-			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(a => a.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aOnSome: a => a.ToText(____), aOnNone: () => "()")}",
+			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
+			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aOnSome: _ => _.ToText(____), aOnNone: () => "()")}",
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			_ => "(???)",

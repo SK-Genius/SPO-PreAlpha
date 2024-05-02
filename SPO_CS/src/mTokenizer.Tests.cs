@@ -29,7 +29,7 @@ mTokenizer_Tests {
 				var TokenList = mTokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",
 					"",
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				).Result;
 				mAssert.AreEquals(
 					TokenList,

@@ -62,9 +62,9 @@ mResult {
 		public override readonly string
 		ToString(
 		) => this.Then(
-			a => "" + a
+			_ => "" + _
 		).Else(
-			a => $"Error: {a}"
+			_ => $"Error: {_}"
 		);
 	}
 	
@@ -261,5 +261,5 @@ mResult {
 	public static t
 	ElseThrow<t>(
 		this tResult<t, tText> aRes
-	) => aRes.ElseThrow(a => a);
+	) => aRes.ElseThrow(_ => _);
 }

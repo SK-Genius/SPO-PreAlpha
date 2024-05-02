@@ -28,10 +28,10 @@ mTextParser {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		using var _ = mPerf.Measure();
-		var Stream = aText.ToStream(aId).Map(a => (mSpan.Span(a.Pos), a.Char));
+		var Stream = aText.ToStream(aId).Map(_ => (mSpan.Span(_.Pos), _.Char));
 		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
 		var Result = MaybeResult.ElseThrow(
-			a => a.Sort(
+			_ => _.Sort(
 				(a1, a2) => {
 					var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
 					return RowComp != 0
@@ -42,7 +42,7 @@ mTextParser {
 			).ToText(aText.Split('\n'))
 		);
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().ThenDo(a => a.Span.Start).ElseThrow();
+			var Pos = Result.RemainingStream.TryFirst().ThenDo(_ => _.Span.Start).ElseThrow();
 			var Line = aText.Split('\n')[Pos.Row-1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(
@@ -61,8 +61,8 @@ mTextParser {
 	GetChar(
 		tChar aRefChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		a => a == aRefChar,
-		a => (a.Span.Start, $"expect {aRefChar}"),
+		_ => _ == aRefChar,
+		_ => (_.Span.Start, $"expect {aRefChar}"),
 		ComparePos
 	)
 	.SetDebugName("'", aRefChar, "'");
@@ -72,8 +72,8 @@ mTextParser {
 	GetNotChar(
 		tChar aRefChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		a => a != aRefChar,
-		a => (a.Span.Start, $"expect not {aRefChar}"),
+		_ => _ != aRefChar,
+		_ => (_.Span.Start, $"expect not {aRefChar}"),
 		ComparePos
 	)
 	.SetDebugName("'^", aRefChar, "'");
@@ -91,7 +91,7 @@ mTextParser {
 			}
 			return false;
 		},
-		a => (a.Span.Start, $"expect one of [{aRefChars}]"),
+		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos
 	)
 	.SetDebugName("[", aRefChars, "]");
@@ -109,7 +109,7 @@ mTextParser {
 			}
 			return true;
 		},
-		a => (a.Span.Start, $"expect non of [{aRefChars}]"),
+		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos
 	)
 	.SetDebugName("[^", aRefChars, "]");
@@ -120,8 +120,8 @@ mTextParser {
 		tChar aMinChar,
 		tChar aMaxChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		a => aMinChar <= a && a <= aMaxChar,
-		a => (a.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
+		_ => aMinChar <= _ && _ <= aMaxChar,
+		_ => (_.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
 		ComparePos
 	)
 	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
@@ -150,7 +150,7 @@ mTextParser {
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
 		tText aName
 	) => aParser.AddError(
-		a => (a.Span.Start, $"invalid {aName}")
+		_ => (_.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName(aName);
 }

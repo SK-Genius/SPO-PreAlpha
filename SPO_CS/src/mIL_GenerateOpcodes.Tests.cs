@@ -88,7 +88,7 @@ mIL_GenerateOpcodes_Tests {
 					
 					""",
 					"",
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				);
 				
 				#if MY_TRACE
@@ -101,7 +101,7 @@ mIL_GenerateOpcodes_Tests {
 					);
 				#endif
 				
-				var Proc = DefLookup.TryGet("...++").ThenTry(a => Defs.TryGet(a)).ElseThrow();
+				var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).ElseThrow();
 				var Res = mVM_Data.Empty();
 				mVM.Run<tSpan>(
 					mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -131,7 +131,7 @@ mIL_GenerateOpcodes_Tests {
 					
 					""",
 					"",
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				);
 				
 				#if MY_TRACE
@@ -176,7 +176,7 @@ mIL_GenerateOpcodes_Tests {
 					
 					""",
 					"",
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				);
 				
 				var Proc = DefLookup.TryGet("...=1").ThenTry(Defs.TryGet).ElseThrow();
@@ -203,7 +203,7 @@ mIL_GenerateOpcodes_Tests {
 					TraceOut
 				);
 				while (CallStack.IsSome(out var CallStack_)) {
-					CallStack = CallStack_.Step(a => ""+a);
+					CallStack = CallStack_.Step(_ => "" + _);
 				}
 				mAssert.AreEquals(Res, mVM_Data.Bool(true));
 				mAssert.ThrowsError(
@@ -272,7 +272,7 @@ mIL_GenerateOpcodes_Tests {
 						
 					""",
 					"",
-					a => aDebugStream(a())
+					_ => aDebugStream(_())
 				);
 				
 				var Proc1 = DefLookup.TryGet("bla").ThenTry(Defs.TryGet).ElseThrow();

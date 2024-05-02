@@ -61,7 +61,7 @@ mVM_Type_Tests {
 							mSPO_Parser.Type.ParseText(
 								a.Type,
 								"",
-								a => aStreamOut(a())
+								_ => aStreamOut(_())
 							),
 							cTestScope
 						).ElseThrow()

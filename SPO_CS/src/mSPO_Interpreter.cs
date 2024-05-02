@@ -17,7 +17,7 @@ mSPO_Interpreter {
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
 		).Then(
-			a => a.Scope
+			_ => _.Scope
 		).ElseThrow();
 		
 		var Scope = ModuleNode.Commands.Reduce(
@@ -38,7 +38,7 @@ mSPO_Interpreter {
 				)
 			),
 			aImport,
-			a => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.Start.Row}:{a.Start.Col})",
+			_ => $"{_.Start.Id}({_.Start.Row}:{_.Start.Col} .. {_.Start.Row}:{_.Start.Col})",
 			aDebugStream
 		);
 	}

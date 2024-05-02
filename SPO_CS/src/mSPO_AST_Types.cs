@@ -99,7 +99,7 @@ mSPO_AST_Types {
 							if (UpdateCommandTypes(Command, BlockScope).Match(out BlockScope, out var Error)) {
 								if (Command is mSPO_AST.tReturnIfNode<tPos> ReturnIf) {
 									var Type = ReturnIf.Result.TypeAnnotation.ElseThrow();
-									if (Types.All(a => !Equals(a, Type))) {
+									if (Types.All(_ => !Equals(_, Type))) {
 										Types = mStream.Stream(Type, Types);
 									}
 								}
@@ -165,7 +165,7 @@ mSPO_AST_Types {
 						aCase.Cond,
 						aScope
 					).ThenAssert(
-						a => a == mVM_Type.Bool(),
+						_ => _ == mVM_Type.Bool(),
 						_ => mStd.FileLine()
 					).ThenTry(
 						_ => UpdateExpressionTypes(aCase.Result, aScope)
@@ -342,7 +342,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tExpressionNode<tPos> Expression: {
-				Result = UpdateExpressionTypes(Expression, aScope).Then(a => (a, aScope));
+				Result = UpdateExpressionTypes(Expression, aScope).Then(_ => (_, aScope));
 				break;
 			}
 			default: {
@@ -628,9 +628,9 @@ mSPO_AST_Types {
 			}
 		}
 		return Result.ThenDo(
-			a => { aExpression.TypeAnnotation = a; }
+			_ => { aExpression.TypeAnnotation = _; }
 		).ElseTry(
-			a => throw mError.Error(a)
+			_ => throw mError.Error(_)
 		);
 	}
 }

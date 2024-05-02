@@ -498,7 +498,7 @@ mStream {
 	public static tBool
 	All(
 		this tStream<tBool>? aStream
-	) => !aStream.Map(a => !a).Any();
+	) => !aStream.Map(_ => !_).Any();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool

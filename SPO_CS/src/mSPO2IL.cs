@@ -503,7 +503,7 @@ mSPO2IL {
 					aDefConstructor.EnvIds.ToStream().All(_ => _.Id != Id) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						a => a.GetResultReg().Match(
+						_ => _.GetResultReg().Match(
 							aOnSome: aName => aName == Id,
 							aOnNone: () => false
 						)
@@ -928,8 +928,8 @@ mSPO2IL {
 			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos>{ Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType }: {
 			//--------------------------------------------------------------------------------
-				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(a => a.Id == HeadType.Id));
-				mAssert.IsFalse(aDefConstructor.FreeIds.ToStream().Any(a => a == HeadType.Id));
+				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _.Id == HeadType.Id));
+				mAssert.IsFalse(aDefConstructor.FreeIds.ToStream().Any(_ => _ == HeadType.Id));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
@@ -1410,7 +1410,7 @@ mSPO2IL {
 			}
 			
 			var FreeIds = aDefConstructor.FreeIds.ToStream();
-			if (FreeIds.All(a => a != MethodId)) {
+			if (FreeIds.All(_ => _ != MethodId)) {
 				aDefConstructor.EnvIds.Push((MethodId, Call.Method.Pos)); // TODO
 			}
 		}
@@ -1447,7 +1447,7 @@ mSPO2IL {
 			aModuleNode.Import.Match,
 			mSPO_AST.Block(
 				aMergePos(
-					aModuleNode.Commands.TryFirst().ThenDo(a => a.Pos).Else(default),
+					aModuleNode.Commands.TryFirst().ThenDo(_ => _.Pos).Else(default),
 					aModuleNode.Export.Pos
 				),
 				mStream.Concat(
@@ -1473,10 +1473,10 @@ mSPO2IL {
 		if (TempLambdaDef.EnvIds.Size() != ModuleConstructor.Defs.Size() - 1) {
 			throw TempLambdaDef.EnvIds.ToStream(
 			).Where(
-				a => !a.Id.StartsWith("d_")
+				_ => !_.Id.StartsWith("d_")
 			).TryFirst(
 			).ThenDo(
-				a => mError.Error($"Unknown symbol '{a.Id}' @ {a.Pos}", a.Pos)
+				_ => mError.Error($"Unknown symbol '{_.Id}' @ {_.Pos}", _.Pos)
 			).ElseDo(
 				() => mError.Error($"unknown error", default(tPos))
 			);
@@ -1490,7 +1490,7 @@ mSPO2IL {
 		).Reverse( // TODO: remove
 		).Map(
 			aNr => EnvIds.Where(
-				aEnvId => aEnvId.Id == "d_"+aNr
+				_ => _.Id == mSPO2IL.GetDefId(aNr)
 			).TryFirst(
 			).ElseThrow(
 			)

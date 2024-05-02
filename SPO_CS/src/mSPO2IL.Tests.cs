@@ -76,7 +76,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"0 .< (1 .+ 2) < 4",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var Scope = mStream.Stream(
@@ -122,7 +122,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF a = (1, 2)",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -158,7 +158,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -208,7 +208,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -255,7 +255,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -312,7 +312,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF x = §DEF a € §INT => 2 .* a",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mStream.Stream(
@@ -395,7 +395,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF ...*...+... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .+ c",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mStream.Stream(
@@ -500,7 +500,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF TestTest... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .> c",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mStream.Stream(
@@ -611,7 +611,7 @@ mSPO2IL_Tests {
 					}
 					""",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mStream.Stream<(tText Id, mVM_Type.tType Type)>();
@@ -732,7 +732,7 @@ mSPO2IL_Tests {
 					}
 					""",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mSPO_AST_Types.UpdateMatchTypes(
@@ -741,7 +741,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.tTypeRelation.Sub,
 					mStd.cEmpty
 				).Then(
-					a => a.Scope
+					_ => _.Scope
 				).ElseThrow();
 				
 				var Scope = ModuleNode.Commands.Reduce(
@@ -847,7 +847,7 @@ mSPO2IL_Tests {
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a € §INT, §DEF b € §INT, (§DEF x € §INT, §DEF y € §INT, §DEF z € §INT)) => a .* z",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mStream.Stream(
@@ -942,7 +942,7 @@ mSPO2IL_Tests {
 					§EXPORT y
 					""",
 					"",
-					a => aStreamOut(a())
+					_ => aStreamOut(_())
 				);
 				
 				var InitScope = mSPO_AST_Types.UpdateMatchTypes(
@@ -951,7 +951,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.tTypeRelation.Sub,
 					null
 				).Then(
-					a => a.Scope
+					_ => _.Scope
 				).ElseThrow();
 				
 				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);

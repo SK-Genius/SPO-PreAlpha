@@ -6,7 +6,7 @@ mParserGen_Tests {
 	private static mStream.tStream<(mSpan.tSpan<mStd.tEmpty>, t)>?
 	TestStream<t>(
 		params t[] aList
-	) => mStream.Stream(aList).Map(a => (cTestSpan, a));
+	) => mStream.Stream(aList).Map(_ => (cTestSpan, _));
 	
 	private static tInt32
 	ComparePos(
@@ -39,22 +39,22 @@ mParserGen_Tests {
 		mTest.Test(
 			"AtomParser",
 			aDebugStream => {
-				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos);
+				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				
 				mAssert.AreEquals(
-					A.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					A.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 'A'), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					A.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A.StartParse(TestStream('_'), a => aDebugStream(a())),
+					A.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A.StartParse(TestStream('B', '_'), a => aDebugStream(a())),
+					A.StartParse(TestStream('B', '_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 			}
@@ -62,24 +62,24 @@ mParserGen_Tests {
 		mTest.Test(
 			"...+...",
 			aDebugStream => {
-				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos);
-				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', a => (a.Span.Start, "miss B"), ComparePos);
+				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
+				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
 				var AB = mParserGen.Seq(A, B);
 				
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('A', 'B', '_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('A', 'B', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, ('A', 'B')), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					AB.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					Fail("miss B", "miss B") // TODO
 				);
 			}
@@ -87,23 +87,23 @@ mParserGen_Tests {
 		mTest.Test(
 			"...-...",
 			aDebugStream => {
-				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos);
-				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', a => (a.Span.Start, "miss B"), ComparePos);
+				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
+				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
 				var AB = A +-B;
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('A', 'B', '_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('A', 'B', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 'A'), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					AB.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					Fail("miss B", "miss B")
 				);
 			}
@@ -111,18 +111,18 @@ mParserGen_Tests {
 		mTest.Test(
 			"-...",
 			aDebugStream => {
-				var A = -mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "unexpected A"), ComparePos);
+				var A = -mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "unexpected A"), ComparePos);
 				
 				mAssert.AreEquals(
-					A.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					A.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStd.cEmpty), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					A.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("unexpected A")
 				);
 				mAssert.AreEquals(
-					A.StartParse(TestStream('_'), a => aDebugStream(a())),
+					A.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("unexpected A")
 				);
 			}
@@ -130,28 +130,28 @@ mParserGen_Tests {
 		mTest.Test(
 			"...|...",
 			aDebugStream => {
-				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos);
-				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', a => (a.Span.Start, "miss B"), ComparePos);
+				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
+				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
 				var AB = A | B;
 				
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('A', 'B'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('A', 'B'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 'A'), TestStream('B'), cNoError))
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('B', 'A'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('B', 'A'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 'B'), TestStream('A'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					AB.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A", "miss B")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A", "miss B")
 				);
 				mAssert.AreEquals(
-					AB.StartParse(TestStream('_', '_'), a => aDebugStream(a())),
+					AB.StartParse(TestStream('_', '_'), _ => aDebugStream(_())),
 					Fail("miss A", "miss B")
 				);
 			}
@@ -159,38 +159,38 @@ mParserGen_Tests {
 		mTest.Test(
 			"...[m, n]",
 			aDebugStream => {
-				var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos)[2..3];
+				var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..3];
 				
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('A', 'A', '_'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A')), TestStream('_'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('A', 'A', 'A', '_'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('A', 'A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('A', 'A', 'A', 'A', '_'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('A', 'A', 'A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('A', '_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('_'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('_', 'A'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('_', 'A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('A'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_3.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					A2_3.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 			}
@@ -198,14 +198,14 @@ mParserGen_Tests {
 		mTest.Test(
 			"...[0, null]",
 			aDebugStream => {
-				var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos)[0..];
+				var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[0..];
 				
 				mAssert.AreEquals(
-					A0_.StartParse(TestStream('A', 'A', '_'), a => aDebugStream(a())),
+					A0_.StartParse(TestStream('A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A')), TestStream('_'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 				mAssert.AreEquals(
-					A0_.StartParse(TestStream( '_'), a => aDebugStream(a())),
+					A0_.StartParse(TestStream( '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream<tChar>()), TestStream('_'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 			}
@@ -213,34 +213,34 @@ mParserGen_Tests {
 		mTest.Test(
 			"...[n, null]",
 			aDebugStream => {
-				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos)[2..];
+				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..];
 				
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', 'A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A')), TestStream('_'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', 'A', 'A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', 'A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, mStream.Stream('A', 'A', 'A')), TestStream('_'), mStream.Stream((default(mStd.tEmpty), "miss A"))))
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					A2_.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('_', 'A'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('_', 'A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 			}
@@ -248,35 +248,35 @@ mParserGen_Tests {
 		mTest.Test(
 			"....Modify(...=>...)",
 			aDebugStream => {
-				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos)[2..]
+				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..]
 				.Modify(aChars => aChars.Count());
 				
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', 'A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 2u), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', 'A', 'A', 'A', 'A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', 'A', 'A', 'A', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, 5u), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					A2_.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('_', 'A'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('_', 'A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 				mAssert.AreEquals(
-					A2_.StartParse(TestStream('A', '_'), a => aDebugStream(a())),
+					A2_.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
 					Fail("miss A")
 				);
 			}
@@ -284,37 +284,37 @@ mParserGen_Tests {
 		mTest.Test(
 			"~...",
 			aDebugStream => {
-				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'A', a => (a.Span.Start, "miss A"), ComparePos);
-				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(a => a == 'B', a => (a.Span.Start, "miss B"), ComparePos);
+				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
+				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
 				var AB = mParserGen.Seq(A, B).Modify(_ => "AB");
 				var NotAB = ~AB;
 				
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('A', 'B', '_'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('A', 'B', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, (mStream.Stream<tChar>(), "AB")), TestStream('_'), cNoError))
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('B', 'A', 'A', 'B', 'A', '_'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('B', 'A', 'A', 'B', 'A', '_'), _ => aDebugStream(_())),
 					mResult.OK(mParserGen.ParserResult((cTestSpan, (mStream.Stream('B', 'A'), "AB")), TestStream('A', '_'), cNoError))
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream<tChar>(), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream<tChar>(), _ => aDebugStream(_())),
 					Fail()
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('_'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('_'), _ => aDebugStream(_())),
 					Fail()
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('_', 'A'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('_', 'A'), _ => aDebugStream(_())),
 					Fail()
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('A'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('A'), _ => aDebugStream(_())),
 					Fail()
 				);
 				mAssert.AreEquals(
-					NotAB.StartParse(TestStream('A', '_', 'B', 'A'), a => aDebugStream(a())),
+					NotAB.StartParse(TestStream('A', '_', 'B', 'A'), _ => aDebugStream(_())),
 					Fail()
 				);
 			}
@@ -331,10 +331,10 @@ mParserGen_Tests {
 				var Nat = Digit[1..]
 				.Modify(aDigits => aDigits.Reduce(0, (aNat, aDigit) => aNat*10 + aDigit));
 				
-				var PosSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '+', a => (a.Span.Start, "miss +"), ComparePos))
+				var PosSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '+', _ => (_.Span.Start, "miss +"), ComparePos))
 				.Modify(() => +1);
 				
-				var NegSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '-', a => (a.Span.Start, "miss -"), ComparePos))
+				var NegSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '-', _ => (_.Span.Start, "miss -"), ComparePos))
 				.Modify(() => -1);
 				
 				var Signum = PosSignum | NegSignum;
@@ -369,7 +369,7 @@ mParserGen_Tests {
 				tInt32 Eval(tText aExpr) {
 					var X = Expression.StartParse(
 						TestStream(aExpr.ToCharArray()),
-						a => aDebugStream(a())
+						_ => aDebugStream(_())
 					);
 					return X.ElseThrow("").Result.Value;
 				}
@@ -392,7 +392,7 @@ mParserGen_Tests {
 						}
 						return false;
 					},
-					a => (a.Span.Start, $"miss one of [{aChars}]"),
+					_ => (_.Span.Start, $"miss one of [{aChars}]"),
 					ComparePos
 				);
 				
@@ -401,8 +401,8 @@ mParserGen_Tests {
 					tText aToken
 				) {
 					var Parser = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
-						a => a == aToken[0],
-						a => (a.Span.Start, ""),
+						_ => _ == aToken[0],
+						_ => (_.Span.Start, ""),
 						ComparePos
 					).Modify(aChar => "" + aChar);
 					foreach (var Char in aToken[1..]) {
@@ -410,10 +410,10 @@ mParserGen_Tests {
 							Parser,
 							mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
 								aChar => aChar == Char,
-								a => (a.Span.Start, "miss {Char}"),
+								_ => (_.Span.Start, "miss {Char}"),
 								ComparePos
 							)
-						).Modify(a => a.Item1 + a.Item2);
+						).Modify(_ => _.Item1 + _.Item2);
 					}
 					return Parser;
 				}
@@ -421,7 +421,7 @@ mParserGen_Tests {
 				mParserGen.tParser<mStd.tEmpty, tChar, tOut, tText>
 				P<tOut>(
 					mParserGen.tParser<mStd.tEmpty, tChar, tOut, tText> aParser
-				) => mParserGen.Seq(Token("("), __, aParser, __, Token(")")).Modify(a => a.Item3);
+				) => mParserGen.Seq(Token("("), __, aParser, __, Token(")")).Modify(_ => _.Item3);
 			}
 		)
 	);

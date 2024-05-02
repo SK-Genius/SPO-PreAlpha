@@ -32,7 +32,7 @@ mMaybe {
 		ToString(
 		) => this.Match(
 			aOnNone: () => "-",
-			aOnSome: a => "" + a
+			aOnSome: _ => "" + _
 		);
 	}
 	

@@ -36,10 +36,10 @@ mIL_Parser {
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	Prefix = SpecialId('#').Modify(
-		a => new tToken{
-			Span = a.Span,
-			Type = a.Type,
-			Text = a.Text[1..]
+		_ => new tToken{
+			Span = _.Span,
+			Type = _.Type,
+			Text = _.Text[1..]
 		}
 	);
 	

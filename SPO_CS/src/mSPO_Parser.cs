@@ -42,7 +42,7 @@ mSPO_Parser {
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aName
 	) => aParser.AddError(
-		a => (a.Span.Start, $"invalid {aName}")
+		_ => (_.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName(aName);
 	
@@ -53,7 +53,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIgnoreMatchNode<tSpan>, tError>
 	IgnoreMatch = IdToken
-	.Assert(a => a.Type == tTokenType.Id && a.Text == "_", a => (a.Span.Start, "expected _"))
+	.Assert(_ => _.Type == tTokenType.Id && _.Text == "_", _ => (_.Span.Start, "expected _"))
 	.ModifyS(mSPO_AST.IgnoreMatch)
 	.SetName(nameof(IgnoreMatch));
 	
@@ -64,7 +64,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIntNode<tSpan>, tError>
 	Number = NumberToken
-	.Modify(a => tInt32.Parse(a.Text))
+	.Modify(_ => tInt32.Parse(_.Text))
 	.ModifyS(mSPO_AST.Int)
 	.SetName(nameof(Number));
 	
@@ -178,13 +178,13 @@ mSPO_Parser {
 				mSPO_AST.Id(
 					aSpan,
 					aList.Map(
-						a => a.Item2.Id[1..]
+						_ => _.Item2.Id[1..]
 					).Reduce(
 						"",
 						(a1, a2) => $"{a1}...{a2}"
 					) + (aLastChild.IsEmpty() ? "" : "...")
 				),
-				mStream.Concat(aList.Map(a => a.Item1), aLastChild)
+				mStream.Concat(aList.Map(_ => _.Item1), aLastChild)
 			)
 		)
 	);
@@ -252,7 +252,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchFreeIdNode<tSpan>, tError>
 	MatchFreeId = (-KeyWord("DEF") +Id)
-	.Modify(a => a.Id[1..])
+	.Modify(_ => _.Id[1..])
 	.ModifyS(mSPO_AST.MatchFreeId)
 	.SetName(nameof(MatchFreeId));
 	
@@ -434,7 +434,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
-		mParserGen.Seq(Match, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(a_ => mMaybe.Some(a_.Item1))),
+		mParserGen.Seq(Match, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(_ => mMaybe.Some(_.Item1))),
 		Match,
 		-SpecialToken("=>"),
 		Expression
@@ -534,7 +534,7 @@ mSPO_Parser {
 		Expression,
 		(
 			((-SpecialToken(",") | -NLs_Token) +MethodCalls) |
-			SpecialToken(".").Modify(a => mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>())
+			SpecialToken(".").Modify(_ => mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>())
 		)
 	)
 	.Modify((_, aId, _, aFirst, aRest) => (aId, aFirst, aRest))
