@@ -26,6 +26,9 @@ mVM_Type_Tests {
 	Tests = mTest.Tests(
 		nameof(mVM_Type),
 		mStream.Stream<(tText Expr, tText Type)>(
+			("()", "[]"),
+			("§TRUE", "§BOOL"),
+			("§FALSE", "§BOOL"),
 			("1", "§INT"),
 			("...+...", "[[§INT, §INT] => §INT]"),
 			("1 .+ 1", "§INT"),
@@ -35,16 +38,34 @@ mVM_Type_Tests {
 			(
 				"""
 				§IF (1, 2) MATCH {
-					( 1, 1 ) => 1
+					(1, 1) => 1
 					(1, _) => 2
 					(2, §DEF a) => a
 				}
 				""",
 				"§INT"
+			),
+			(
+				"""
+				§IF 1 MATCH {
+					1 => 1
+					_ => ()
+				}
+				""",
+				"[§INT | []]"
+			),
+			(
+				"""
+				§IF 1 MATCH {
+					1 => 1
+					_ => ()
+				}
+				""",
+				"[[] | §INT]"
 			)
 		).Map(
 			a => mTest.Test(
-				a.Expr + " € " + a.Type,
+				a.Expr + " => " + a.Type,
 				aStreamOut => {
 					var AST =  mSPO_Parser.Expression.ParseText(
 						a.Expr,
@@ -52,20 +73,25 @@ mVM_Type_Tests {
 						_ => aStreamOut(_())
 					);
 					
-					mAssert.AreEquals(
-						mSPO_AST_Types.UpdateExpressionTypes(
-							AST,
-							cTestScope
-						).ElseThrow(),
-						mSPO_AST_Types.ResolveTypeExpression(
-							mSPO_Parser.Type.ParseText(
-								a.Type,
-								"",
-								_ => aStreamOut(_())
-							),
-							cTestScope
-						).ElseThrow()
-					);
+					var Type = mSPO_AST_Types.UpdateExpressionTypes(
+						AST,
+						cTestScope
+					).ElseThrow();
+					
+					var Type_ = mSPO_AST_Types.ResolveTypeExpression(
+						mSPO_Parser.Type.ParseText(
+							a.Type,
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						cTestScope
+					).ElseThrow();
+					
+					Type.IsSubType(Type_, mStd.cEmpty)
+					.ElseThrow(_ => Type.ToText() + " != " + Type_.ToText());
+					
+					Type_.IsSubType(Type, mStd.cEmpty)
+					.ElseThrow(_ => Type.ToText() + " != " + Type_.ToText());
 				}
 			)
 		).ToArrayList(

@@ -68,6 +68,16 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Int)
 	.SetName(nameof(Number));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTrueNode<tSpan>, tError>
+	True = KeyWord("TRUE")
+	.ModifyS(mSPO_AST.True)
+	.SetName(nameof(True));
+	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tFalseNode<tSpan>, tError>
+	False = KeyWord("FALSE")
+	.ModifyS(mSPO_AST.False)
+	.SetName(nameof(False));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTextNode<tSpan>, tError>
 	Text = TextToken
 	.ModifyS(mTokenizer.X(mSPO_AST.Text))
@@ -77,6 +87,8 @@ mSPO_Parser {
 	Literal = (
 		mParserGen.OneOf(
 			Empty.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			True.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			False.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
 			Number.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
 			Text.Cast<mSPO_AST.tLiteralNode<tSpan>>()
 		)
@@ -350,6 +362,11 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.PrefixType)
 	.SetName(nameof(PrefixType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarTypeNode<tSpan>, tError>
+	VarType = E(-KeyWord("VAR") +Type)
+	.ModifyS(mSPO_AST.VarType)
+	.SetName(nameof(VarType));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTupleTypeNode<tSpan>, tError>
 	TupleType = E(
 		mParserGen.Seq(
@@ -588,6 +605,7 @@ mSPO_Parser {
 				IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				PrefixType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+				VarType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				TupleType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				SetType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				LambdaType.Cast<mSPO_AST.tTypeNode<tSpan>>(),

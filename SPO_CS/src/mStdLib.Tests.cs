@@ -163,11 +163,11 @@ mStdLib_Tests {
 							...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 						}
 						
-						§DEF +... = §DEF o € §INT : §DEF i € §INT {
+						§DEF +... = §DEF o € [§VAR §INT] : §DEF i € §INT {
 							o := ((§TO_VAL o) .+ i) .
 						}
 						
-						§DEF *... = §DEF o € §INT : §DEF i € §INT {
+						§DEF *... = §DEF o € [§VAR §INT] : §DEF i € §INT {
 							o := ((§TO_VAL o) .* i) .
 						}
 						

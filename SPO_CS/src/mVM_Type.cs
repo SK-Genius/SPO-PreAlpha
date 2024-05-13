@@ -951,9 +951,9 @@ mVM_Type {
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Set => $"[{____}{mStream.Stream(aType.Refs).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Recursive => $"[{____}§RECURSIVE {aType.Id} = {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Generic => $"[{____}{aType.Id} => {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Interface => $"[{____}§LET {aType.Id} IN {aType.Refs[0].ToText(____)}{__}]",
+			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Interface => $"[{____}§LET {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Cond => $"[{____ + aType.Refs[0].ToText(____)} ? ...{__}]", // TODO
 			_ => throw mError.Error("impossible")
 		};

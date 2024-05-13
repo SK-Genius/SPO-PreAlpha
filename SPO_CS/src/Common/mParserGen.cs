@@ -484,7 +484,7 @@ mParserGen {
 							)
 						);
 					} else if (!RestStream.Is(out var Head, out RestStream)) {
-						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massege)>()); // TODO
+						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massage)>()); // TODO
 					} else {
 						Span = mSpan.Merge(Span, Head.Span);
 						List = mStream.Concat(List, mStream.Stream(Head.Value));
@@ -764,7 +764,11 @@ mParserGen {
 		
 		#if MY_TRACE
 			if (Result.Match(out var PResult, out var Error_)) {
-				AppendToTrace($"}} -> OK{tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}"} ({PResult.Result.Span})");
+				AppendToTrace(
+					$$"""
+					} -> OK{{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}} ({{PResult.Result.Span}})
+					"""
+				);
 				aParser._LastTrace = Trace;
 				HasToLog = true;
 			} else {

@@ -11,11 +11,24 @@ mSPO_Interpreter {
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
 		
+		var TypeArg = mVM_Type.Free();
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
 			ModuleNode.Import.Match,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
-			mStd.cEmpty
+			mStream.Stream(
+				(
+					"_=...",
+					mVM_Type.Generic(
+						TypeArg,
+						mVM_Type.Proc(
+							mVM_Type.Var(TypeArg),
+							TypeArg,
+							mVM_Type.Empty()
+						)
+					)
+				)
+			)
 		).Then(
 			_ => _.Scope
 		).ElseThrow();

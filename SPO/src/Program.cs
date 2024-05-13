@@ -39,14 +39,14 @@ mProgram {
 						"_LoadModule...",
 						mVM_Data.ExternProc(
 							(aDef, aObj, aArg, _) => {
-								mAssert.IsTrue(aObj.MatchPrefix("IO", out var X));
-								mAssert.IsTrue(X.MatchEmpty());
+								mAssert.IsTrue(aObj.IsPrefix("IO", out var X));
+								mAssert.IsTrue(X.IsEmpty());
 								
 								var File = "";
 								var RestText = aArg;
-								while (RestText.MatchPair(out var Char, out RestText)) {
-									mAssert.IsTrue(Char.MatchPrefix("Char", out var Int));
-									mAssert.IsTrue(Int.MatchInt(out var Ord));
+								while (RestText.IsPair(out var Char, out RestText)) {
+									mAssert.IsTrue(Char.IsPrefix("Char", out var Int));
+									mAssert.IsTrue(Int.IsInt(out var Ord));
 									File += (char)Ord;
 								}
 								
@@ -78,7 +78,7 @@ mProgram {
 				a => {} //DebugOut
 			);
 			
-			mAssert.IsTrue(Result.MatchBool(out var IsOK));
+			mAssert.IsTrue(Result.IsBool(out var IsOK));
 			mAssert.IsTrue(IsOK);
 			DebugOut(() => "OK");
 		} catch (mError.tError<mStd.tEmpty> Error) {

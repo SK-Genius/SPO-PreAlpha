@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
 
@@ -194,6 +195,15 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(IdEnvFunc, a);
 				return IdEnvFunc;
 			}
+			case var a when a.IsVar(out var InnerType): {
+				var InnerId = aModuleConstructor.MapType(InnerType);
+				var NewId = $"[§VAR {InnerId}]";
+				
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypeVar(default(tPos), NewId, InnerId));
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);				
+				
+				return NewId;
+			}
 			default: {
 				throw new NotImplementedException("" + aType.Kind);
 			}
@@ -359,7 +369,7 @@ mSPO2IL {
 			aDefConstructor.UnrollEnv(
 				aPos,
 				mIL_AST.cEnv,
-				aDefConstructor.EnvIds.ToStream() // .Reverse() // TODO
+				aDefConstructor.EnvIds.ToStream()
 			),
 			aDefConstructor.Commands
 		);
@@ -457,44 +467,28 @@ mSPO2IL {
 		tScope? aScope
 	) {
 		switch (aExpressionNode) {
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cEmpty;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tFalseNode<tPos> FalseNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cFalse;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTrueNode<tPos> TrueNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cTrue;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tEmptyTypeNode<tPos> EmptyTypeNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cEmptyType;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tBoolTypeNode<tPos> BoolTypeNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cBoolType;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIntTypeNode<tPos> IntTypeNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cIntType;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTypeTypeNode<tPos> TypeTypeNode: {
-			//--------------------------------------------------------------------------------
 				return mIL_AST.cTypeType;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIntNode<tPos> { Pos: var Pos, Value: var Value }: {
-			//--------------------------------------------------------------------------------
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.CreateInt(
@@ -505,9 +499,7 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id }: {
-			//--------------------------------------------------------------------------------
 				if (
 					aDefConstructor.EnvIds.ToStream().All(_ => _.Id != Id) &&
 					!aDefConstructor.Commands.ToStream(
@@ -523,9 +515,7 @@ mSPO2IL {
 				}
 				return Id;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tCallNode<tPos>{ Pos: var Pos, Func: var Func, Arg: var Arg }: {
-			//--------------------------------------------------------------------------------
 				var FuncReg = aDefConstructor.MapExpression(aModuleConstructor, Func, aScope);
 				var ArgReg = aDefConstructor.MapExpression(aModuleConstructor, Arg, aScope);
 				var ResultReg = aDefConstructor.CreateTempReg();
@@ -534,9 +524,7 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTupleNode<tPos>{ Items: var Items }: {
-			//--------------------------------------------------------------------------------
 				switch (Items.Take(2).ToArrayList().Size()) {
 					case 0: {
 						throw mError.Error("impossible");
@@ -565,9 +553,7 @@ mSPO2IL {
 					}
 				}
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tPrefixNode<tPos>{ Pos: var Pos, Prefix: var Prefix, Element: var Element }: {
-			//--------------------------------------------------------------------------------
 				var ExpresionReg = aDefConstructor.MapExpression(aModuleConstructor, Element, aScope);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
@@ -580,9 +566,7 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecordNode<tPos>{ Elements: var Elements }: {
-			//--------------------------------------------------------------------------------
 				var ResultReg = mIL_AST.cEmpty;
 				foreach (var (Key, Value) in Elements) {
 					var Expression = aDefConstructor.MapExpression(aModuleConstructor, Value, aScope);
@@ -594,9 +578,7 @@ mSPO2IL {
 				}
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTextNode<tPos>{ Pos: var Pos, Value: var Value }: {
-			//--------------------------------------------------------------------------------
 				var TailReg = mIL_AST.cEmpty;
 				var Index = Value.Length;
 				while (Index --> 0) {
@@ -613,9 +595,7 @@ mSPO2IL {
 				}
 				return TailReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
-			//--------------------------------------------------------------------------------
 				var (DefId, EnvIds) = aModuleConstructor.MapLambda(
 					LambdaNode,
 					aScope
@@ -627,9 +607,7 @@ mSPO2IL {
 					EnvIds
 				);
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
-			//--------------------------------------------------------------------------------
 				var (NewDefIndex, EnvIds) = aModuleConstructor.MapMethod(
 					MethodNode,
 					aScope
@@ -640,23 +618,19 @@ mSPO2IL {
 					EnvIds
 				);
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tBlockNode<tPos>{ Commands: var Commands }: {
-			//--------------------------------------------------------------------------------
 				var Scope = aScope;
 				foreach (var Command in Commands) {
-					// TODO: resolve types for commands here or in MapCommand(...)
+					mSPO_AST_Types.UpdateCommandTypes(Command, Scope);
 					Scope = aDefConstructor.MapCommand(aModuleConstructor, Command, Scope);
 				}
 				// TODO: remove created symbols from unknown symbols
 				return mIL_AST.cEmpty;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIfNode<tPos>{ Pos: var Pos, Cases: var Cases }: {
-			//--------------------------------------------------------------------------------
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
 				foreach (var (Test, Run) in Cases) {
-					Ifs.Push(mSPO_AST.ReturnIf(aModuleConstructor.MergePos(Test.Pos, Run.Pos), Run, Test));
+					Ifs.Push(mSPO_AST.ReturnIf(aModuleConstructor.MergePos(Test.Pos, Run.Pos), Test, Run));
 				}
 				Ifs.Push(
 					mSPO_AST.ReturnIf(
@@ -701,9 +675,7 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIfMatchNode<tPos>{ Pos: var Pos, Expression: var MatchExpression, Cases: var Cases }: {
-			//--------------------------------------------------------------------------------
 				var InputReg = aDefConstructor.MapExpression(aModuleConstructor, MatchExpression, aScope);
 				var TypeId = aModuleConstructor.MapType(aExpressionNode.TypeAnnotation.ElseThrow());
 				
@@ -749,8 +721,8 @@ mSPO2IL {
 				// TODO: add gard command for the case that no case matched the argument
 				// SwitchDef.Commands.Push(mIL_AST.ReturnIf(aExpressionNode.Pos, mIL_AST.cTrue, mIL_AST.cFalse));
 				#else
-				foreach (var (Match, Expression) in Cases) {
-					var CasePos = aModuleConstructor.MergePos(Match.Pos, Expression.Pos);
+				foreach (var Case in Cases) {
+					var CasePos = aModuleConstructor.MergePos(Case.Match.Pos, Case.Expression.Pos);
 					
 					var TestAndCallCaseFunc = aModuleConstructor.NewDefConstructor(
 						aModuleConstructor.MapType(
@@ -761,129 +733,16 @@ mSPO2IL {
 							)
 						)
 					);
-					
-					switch (Match.Pattern) {
-						case mSPO_AST.tIgnoreMatchNode<tPos> p: {
-							var Res__ = TestAndCallCaseFunc.MapExpression(aModuleConstructor, Expression, aScope);
-							TestAndCallCaseFunc.Commands.Push(
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res__)
-							);
-							break;
-						}
-						case mSPO_AST.tEmptyTypeNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-						case mSPO_AST.tBoolTypeNode<tPos> p: {
-							var LazyCaseDef = aModuleConstructor.NewDefConstructor(
-								aModuleConstructor.MapType(
-									mVM_Type.Proc(
-										mVM_Type.Empty(),
-										mVM_Type.Bool(),
-										Match.TypeAnnotation.ElseThrow()
-									)
-								)
-							);
-							 // TODO: map pattern as arg
-							LazyCaseDef.MapExpression(aModuleConstructor, Expression, aScope);
-							LazyCaseDef.FinishMapProc(CasePos, aModuleConstructor, CaseType, aScope);
-							var LazyCaseDefId = TestAndCallCaseFunc.InitProc(
-								p.Pos,
-								LazyCaseDef.Index,
-								LazyCaseDef.EnvIds
-							);
-							
-							var BoolArg = SwitchDef.CreateTempReg();
-							var Res = SwitchDef.CreateTempReg();
-							
-							TestAndCallCaseFunc.Commands.Push(
-								mIL_AST.TryAsBool(CasePos, BoolArg, mIL_AST.cArg),
-								mIL_AST.CallFunc(CasePos, Res, LazyCaseDefId, BoolArg),
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res)
-							);
-							break;
-						}
-						case mSPO_AST.tTrueNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-						case mSPO_AST.tFalseNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-						case mSPO_AST.tIntTypeNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-						case mSPO_AST.tIntNode<tPos> p: {
-							var LazyCaseDef = aModuleConstructor.NewDefConstructor(
-								aModuleConstructor.MapType(
-									mVM_Type.Proc(
-										mVM_Type.Empty(),
-										mVM_Type.Int(),
-										Match.TypeAnnotation.ElseThrow()
-									)
-								)
-							);
-							// TODO: map pattern as arg
-							var Res = LazyCaseDef.MapExpression(aModuleConstructor, Expression, aScope);
-							LazyCaseDef.Commands.Push(
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res)
-							);
-							LazyCaseDef.FinishMapProc(CasePos, aModuleConstructor, CaseType, aScope);
-							var LazyCaseDefId = TestAndCallCaseFunc.InitProc(
-								p.Pos,
-								LazyCaseDef.Index,
-								LazyCaseDef.EnvIds
-							);
-							
-							TestAndCallCaseFunc.Commands.Push(
-								mIL_AST.TryAsInt(CasePos, TestAndCallCaseFunc.CreateTempReg(out var IntArg), mIL_AST.cArg),
-								mIL_AST.CreateInt(CasePos, TestAndCallCaseFunc.CreateTempReg(out var Int), "" + p.Value),
-								mIL_AST.IntsAreEq(CasePos, TestAndCallCaseFunc.CreateTempReg(out var Eq), IntArg, Int),
-								mIL_AST.XOr(CasePos, TestAndCallCaseFunc.CreateTempReg(out var NotEq), Eq, mIL_AST.cTrue),
-								mIL_AST.ReturnIf(CasePos, NotEq, mIL_AST.cEmpty),
-								mIL_AST.CallFunc(CasePos, TestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, IntArg),
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res__)
-							);
-							break;
-						}
-						case mSPO_AST.tTupleTypeNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-						case mSPO_AST.tMatchPrefixNode<tPos> p: {
-							var LazyCaseDef = aModuleConstructor.NewDefConstructor(
-								aModuleConstructor.MapType(
-									mVM_Type.Proc(
-										mVM_Type.Empty(),
-										mVM_Type.Prefix(p.Prefix, p.Match.TypeAnnotation.ElseThrow()),
-										Match.TypeAnnotation.ElseThrow()
-									)
-								)
-							);
-							
-							var Res = LazyCaseDef.MapExpression(aModuleConstructor, Expression, aScope);
-							LazyCaseDef.Commands.Push(
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res)
-							);
-							LazyCaseDef.FinishMapProc(CasePos, aModuleConstructor, CaseType, aScope);
-							var LazyCaseDefId = TestAndCallCaseFunc.InitProc(
-								p.Pos,
-								LazyCaseDef.Index,
-								LazyCaseDef.EnvIds
-							);
-							
-							TestAndCallCaseFunc.Commands.Push(
-								mIL_AST.TryRemovePrefixFrom(CasePos, TestAndCallCaseFunc.CreateTempReg(out var InnerArg), mIL_AST.cArg, p.Prefix),
-								mIL_AST.CallFunc(CasePos, TestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, InnerArg),
-								mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, Res__)
-							);
-							break;
-						}
-						case mSPO_AST.tMatchNode<tPos> p: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-							break;
-						}
-						default: {
-							throw new NotImplementedException(Match.Pattern.GetType().Name);
-						}
-					}
+
+				
+					aModuleConstructor.MapIfCase(
+						TestAndCallCaseFunc,
+						SwitchDef,
+						Case,
+						CaseType,
+						CasePos,
+						aScope
+					);
 					
 					TestAndCallCaseFunc.FinishMapProc(
 						Pos,
@@ -927,17 +786,13 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tVarToValNode<tPos>{ Pos: var Pos, Obj: var Obj }: {
-			//--------------------------------------------------------------------------------
 				var ObjReg = aDefConstructor.MapExpression(aModuleConstructor, Obj, aScope);
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(mIL_AST.VarGet(Pos, ResultReg, ObjReg));
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tRecursiveTypeNode<tPos>{ Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType }: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _.Id == HeadType.Id));
 				mAssert.IsFalse(aDefConstructor.FreeIds.ToStream().Any(_ => _ == HeadType.Id));
 				aDefConstructor.Commands.Push(
@@ -955,9 +810,7 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tSetTypeNode<tPos>{ Expressions: var Expressions }: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(Expressions.Is(out var Head, out var Tail));
 				var ResultReg = aDefConstructor.MapExpression(aModuleConstructor, Head, aScope);
 				foreach (var Expression in Tail) {
@@ -968,9 +821,7 @@ mSPO2IL {
 				}
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tTupleTypeNode<tPos>{Expressions: var Expressions }: {
-			//--------------------------------------------------------------------------------
 				if (!Expressions.Is(out var First, out var Rest)) {
 					return mIL_AST.cEmptyType;
 				} else {
@@ -986,9 +837,7 @@ mSPO2IL {
 					return ResultReg;
 				}
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tPrefixTypeNode<tPos> PrefixTypeNode: {
-			//--------------------------------------------------------------------------------
 				var InnerType = aDefConstructor.MapExpression(
 					aModuleConstructor,
 					mSPO_AST.TupleType(PrefixTypeNode.Pos, PrefixTypeNode.Expressions),
@@ -1000,64 +849,60 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tPipeToRightNode<tPos>{ Pos: var Pos, Left: var Left, Right: var Right }: {
-			//--------------------------------------------------------------------------------
-					switch (Right) {
-						case mSPO_AST.tPipeToRightNode<tPos>{ Left: var RightLeft, Right: var RightRight }: {
-							return aDefConstructor.MapExpression(
-								aModuleConstructor,
+				switch (Right) {
+					case mSPO_AST.tPipeToRightNode<tPos>{ Left: var RightLeft, Right: var RightRight }: {
+						return aDefConstructor.MapExpression(
+							aModuleConstructor,
+							mSPO_AST.PipeToRight(
+								Pos,
 								mSPO_AST.PipeToRight(
-									Pos,
-									mSPO_AST.PipeToRight(
-										Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
-										Left,
-										RightLeft
-									),
-									Right
+									Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
+									Left,
+									RightLeft
 								),
-								aScope
-							);
-						}
-						case mSPO_AST.tCallNode<tPos> CallNode: {
-							var Func = (
-								CallNode.Func is mSPO_AST.tIdNode<tPos> IdNode
-								? mSPO_AST.Id(IdNode.Pos, "..." + IdNode.Id[1..])
-								: CallNode.Func
-							);
-							var FuncReg = aDefConstructor.MapExpression(aModuleConstructor, Func, aScope);
-							var Arg = (
-								CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
-								? mSPO_AST.Tuple(
-									Tuple.Pos,
-									mStream.Stream(Right, Tuple.Items)
-								)
-								: mSPO_AST.Tuple(
-									CallNode.Arg.Pos,
-									mStream.Stream(Right, mStream.Stream(CallNode.Arg))
-								)
-							);
-							var ArgReg = aDefConstructor.MapExpression(aModuleConstructor, Arg, aScope);
-							var ResultReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(
-								mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
-							);
-							return ResultReg;
-						}
-						default: {
-							var FirstArgReg = aDefConstructor.MapExpression(aModuleConstructor, Left, aScope);
-							var FuncReg = aDefConstructor.MapExpression(aModuleConstructor, Right, aScope);
-							var ResultReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(
-								mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
-							);
-							return ResultReg;
-						}
+								Right
+							),
+							aScope
+						);
+					}
+					case mSPO_AST.tCallNode<tPos> CallNode: {
+						var Func = (
+							CallNode.Func is mSPO_AST.tIdNode<tPos> IdNode
+							? mSPO_AST.Id(IdNode.Pos, "..." + IdNode.Id[1..])
+							: CallNode.Func
+						);
+						var FuncReg = aDefConstructor.MapExpression(aModuleConstructor, Func, aScope);
+						var Arg = (
+							CallNode.Arg is mSPO_AST.tTupleNode<tPos> Tuple
+							? mSPO_AST.Tuple(
+								Tuple.Pos,
+								mStream.Stream(Right, Tuple.Items)
+							)
+							: mSPO_AST.Tuple(
+								CallNode.Arg.Pos,
+								mStream.Stream(Right, mStream.Stream(CallNode.Arg))
+							)
+						);
+						var ArgReg = aDefConstructor.MapExpression(aModuleConstructor, Arg, aScope);
+						var ResultReg = aDefConstructor.CreateTempReg();
+						aDefConstructor.Commands.Push(
+							mIL_AST.CallFunc(CallNode.Pos, ResultReg, FuncReg, ArgReg)
+						);
+						return ResultReg;
+					}
+					default: {
+						var FirstArgReg = aDefConstructor.MapExpression(aModuleConstructor, Left, aScope);
+						var FuncReg = aDefConstructor.MapExpression(aModuleConstructor, Right, aScope);
+						var ResultReg = aDefConstructor.CreateTempReg();
+						aDefConstructor.Commands.Push(
+							mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
+						);
+						return ResultReg;
 					}
 				}
-			//--------------------------------------------------------------------------------
+			}
 			case mSPO_AST.tPipeToLeftNode<tPos>{ Pos: var Pos, Left: var Left, Right: var Right }: {
-			//--------------------------------------------------------------------------------
 				switch (Left) {
 					case mSPO_AST.tCallNode<tPos>{ Pos: var LeftPos, Func: var LeftFunc, Arg: var LeftArg }: {
 						var Func = (
@@ -1095,13 +940,151 @@ mSPO2IL {
 					}
 				}
 			}
-			//--------------------------------------------------------------------------------
 			default: {
-			//--------------------------------------------------------------------------------
 				throw mError.Error(
 					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapExpression)}(...)"
 				);
+			}
+		}
+	}
+	
+	internal static void
+	MapIfCase<tPos>(
+		this tModuleConstructor<tPos> aModuleConstructor,
+		tDefConstructor<tPos> aTestAndCallCaseFunc,
+		tDefConstructor<tPos> aSwitchDef,
+		(mSPO_AST.tMatchNode<tPos> Match, mSPO_AST.tExpressionNode<tPos> Expression) aCase,
+		mVM_Type.tType aCaseType,
+		tPos aCasePos,
+		tScope? aScope
+	) {
+		switch (aCase.Match.Pattern) {
+			case mSPO_AST.tIgnoreMatchNode<tPos> p: {
+				var Res__ = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression, aScope);
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
+			}
+			case mSPO_AST.tEmptyTypeNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tBoolTypeNode<tPos> p: {
+				var LazyCaseDef = aModuleConstructor.NewDefConstructor(
+					aModuleConstructor.MapType(
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Bool(),
+							aCase.Match.TypeAnnotation.ElseThrow()
+						)
+					)
+				);
+				// TODO: map pattern as arg
+				LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression, aScope);
+				LazyCaseDef.FinishMapProc(aCasePos, aModuleConstructor, aCaseType, aScope);
+				var LazyCaseDefId = aTestAndCallCaseFunc.InitProc(
+					p.Pos,
+					LazyCaseDef.Index,
+					LazyCaseDef.EnvIds
+				);
+				
+				var BoolArg = aSwitchDef.CreateTempReg();
+				var Res = aSwitchDef.CreateTempReg();
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.TryAsBool(aCasePos, BoolArg, mIL_AST.cArg),
+					mIL_AST.CallFunc(aCasePos, Res, LazyCaseDefId, BoolArg),
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
+				);
+				break;
+			}
+			case mSPO_AST.tTrueNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tFalseNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tIntTypeNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tIntNode<tPos> p: {
+				var LazyCaseDef = aModuleConstructor.NewDefConstructor(
+					aModuleConstructor.MapType(
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Int(),
+							aCase.Match.TypeAnnotation.ElseThrow()
+						)
+					)
+				);
+				// TODO: map pattern as arg
+				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression, aScope);
+				LazyCaseDef.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
+				);
+				LazyCaseDef.FinishMapProc(aCasePos, aModuleConstructor, aCaseType, aScope);
+				var LazyCaseDefId = aTestAndCallCaseFunc.InitProc(
+					p.Pos,
+					LazyCaseDef.Index,
+					LazyCaseDef.EnvIds
+				);
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.TryAsInt(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var IntArg), mIL_AST.cArg),
+					mIL_AST.CreateInt(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Int), "" + p.Value),
+					mIL_AST.IntsAreEq(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Eq), IntArg, Int),
+					mIL_AST.XOr(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var NotEq), Eq, mIL_AST.cTrue),
+					mIL_AST.ReturnIf(aCasePos, NotEq, mIL_AST.cEmpty),
+					mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, IntArg),
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
+			}
+			case mSPO_AST.tTupleTypeNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tMatchPrefixNode<tPos> p: {
+				var LazyCaseDef = aModuleConstructor.NewDefConstructor(
+					aModuleConstructor.MapType(
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Prefix(p.Prefix, p.Match.TypeAnnotation.ElseThrow()),
+							aCase.Match.TypeAnnotation.ElseThrow()
+						)
+					)
+				);
+				
+				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression, aScope);
+				LazyCaseDef.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
+				);
+				LazyCaseDef.FinishMapProc(aCasePos, aModuleConstructor, aCaseType, aScope);
+				var LazyCaseDefId = aTestAndCallCaseFunc.InitProc(
+					p.Pos,
+					LazyCaseDef.Index,
+					LazyCaseDef.EnvIds
+				);
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.TryRemovePrefixFrom(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var InnerArg), mIL_AST.cArg, p.Prefix),
+					mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, InnerArg),
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
+			}
+			case mSPO_AST.tMatchTupleNode<tPos> p: {
+				// TODO: Restructure for complex matches
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tMatchNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			case mSPO_AST.tMatchGuardNode<tPos> p: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
+			}
+			default: {
+				throw new NotImplementedException(aCase.Match.Pattern.GetType().Name);
 			}
 		}
 	}
@@ -1117,33 +1100,23 @@ mSPO2IL {
 		var TypeNode = aMatchNode.Type;
 		
 		switch (PatternNode) {
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
-			//--------------------------------------------------------------------------------
 				return mStd.cEmpty;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIntNode<tPos> IntNode: {
-			//--------------------------------------------------------------------------------
 				// TODO: ???
 				return mStd.cEmpty;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchFreeIdNode<tPos>{ Pos: var Pos, Id: var Name }: {
-			//--------------------------------------------------------------------------------
 				mAssert.AreNotEquals(Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aMatchNode.Pos, Name, aRegId));
 				aDefConstructor.FreeIds.Push(Name);
 				return mStream.Stream((Id: Name, Type: aMatchNode.TypeAnnotation.ElseThrow()));
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatchNode: {
-			//--------------------------------------------------------------------------------
 				return mStd.cEmpty;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchPrefixNode<tPos>{ Pos: var Pos, Prefix: var Prefix, Match: var Match }: {
-			//--------------------------------------------------------------------------------
 				var ResultReg = aDefConstructor.CreateTempReg();
 				aDefConstructor.Commands.Push(
 					mIL_AST.SubPrefix(
@@ -1161,9 +1134,7 @@ mSPO2IL {
 					ResType
 				);
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchRecordNode<tPos>{ Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
-			//--------------------------------------------------------------------------------
 				var Type = aRegType;
 				var Scope = mStream.Stream<(tText Id, mVM_Type.tType)>();
 				foreach (var (IdNode, Match) in Elements) {
@@ -1195,9 +1166,7 @@ mSPO2IL {
 				}
 				return Scope;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchTupleNode<tPos>{ Items: var Items }: {
-				//--------------------------------------------------------------------------------
 				var Scope = mStream.Stream<(tText Id, mVM_Type.tType Type)>();
 				var RemainingReg = aRegId;
 				var RemainingTypes = aRegType;
@@ -1216,15 +1185,11 @@ mSPO2IL {
 				mAssert.IsTrue(RemainingTypes.IsEmpty());
 				return Scope;
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchGuardNode<tPos>{ Match: var Match, Guard: var Guard }: {
-			//--------------------------------------------------------------------------------
 				// TODO: ASSERT Guard
 				return aDefConstructor.MapMatch(Match, aRegId, aRegType);
 			}
-			//--------------------------------------------------------------------------------
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
-			//--------------------------------------------------------------------------------
 				if (TypeNode.IsSome(out var TypeNode_)) {
 					if (MatchNode.Type.IsSome(out var MatchTypeNode)) {
 						throw mError.Error("not implemented"); //TODO: Unify MatchTypeNode & TypeNode_
@@ -1239,9 +1204,7 @@ mSPO2IL {
 					return aDefConstructor.MapMatch(MatchNode, aRegId, aRegType);
 				}
 			}
-			//--------------------------------------------------------------------------------
 			default: {
-			//--------------------------------------------------------------------------------
 				throw mError.Error(
 					$"not implemented: {nameof(mSPO_AST)}.{PatternNode.GetType().Name} " +
 					$"in {nameof(mSPO2IL)}.{nameof(MapMatch)}(...)"
@@ -1282,7 +1245,7 @@ mSPO2IL {
 		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode,
 		tScope? aScope
 	) {
-		// TODO: set proper Def type ?
+		// TODO NOW: set proper Def type ?
 		
 		var NewDefIndices = mArrayList.List<tNat32>();
 		var SPODefNodes = mArrayList.List<mSPO_AST.tRecLambdaItemNode<tPos>>();
@@ -1304,7 +1267,7 @@ mSPO2IL {
 		// create all rec. func. in each rec. func.
 		var FuncNames = aRecLambdasNode.List.Map(_ => _.Id.Id).ToArrayList();
 		foreach (var TempLambdaDef in TempLambdaDefs.ToArray()) {
-			foreach (var J in mStream.Nat(0).Take(Max)) {
+			foreach (var J in mStream.NatStartWith(0).Take(Max)) {
 				var Definition = AllEnvIds.Get(J);
 				TempLambdaDef.Commands.Push(
 					mIL_AST.CallFunc(Definition.Pos, FuncNames.Get(J), Definition.Id, mIL_AST.cEnv)
@@ -1314,7 +1277,7 @@ mSPO2IL {
 		
 		// InitMapLambda(...) for all rec. func.
 		var Scope = aScope;
-		foreach (var I in mStream.Nat(0).Take(Max)) {
+		foreach (var I in mStream.NatStartWith(0).Take(Max)) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempLambdaDef = TempLambdaDefs.Get(I);
 			
@@ -1334,7 +1297,7 @@ mSPO2IL {
 		}
 		
 		// FinishMapProc(...) for all rec. func.
-		foreach (var I in mStream.Nat(0).Take(Max)) {
+		foreach (var I in mStream.NatStartWith(0).Take(Max)) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempDefConstructor = TempLambdaDefs.Get(I);
 			
@@ -1378,24 +1341,24 @@ mSPO2IL {
 	}
 	
 	public static tScope?
-	MapVar<tPos>(
+	MapDefVar<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tModuleConstructor<tPos> aModuleConstructor,
-		mSPO_AST.tDefVarNode<tPos> aVarNode,
+		mSPO_AST.tDefVarNode<tPos> aDefVarNode,
 		tScope? aScope
 	) {
-		var Reg = aDefConstructor.MapExpression(aModuleConstructor, aVarNode.Expression, aScope);
+		var Reg = aDefConstructor.MapExpression(aModuleConstructor, aDefVarNode.Expression, aScope);
 		aDefConstructor.Commands.Push(
 			mIL_AST.VarDef(
-				aVarNode.Pos,
-				aVarNode.Id.Id,
+				aDefVarNode.Pos,
+				aDefVarNode.Id.Id,
 				Reg
 			)
 		);
 		return mStream.Stream(
 			(
-				Id: aVarNode.Id.Id,
-				Type: aVarNode.TypeAnnotation.ElseThrow()
+				Id: aDefVarNode.Id.Id,
+				Type: aDefVarNode.Id.TypeAnnotation.ElseThrow()
 			),
 			aScope
 		);
@@ -1448,7 +1411,7 @@ mSPO2IL {
 		mSPO_AST.tDefNode<tPos> Node => aDefConstructor.MapDef(aModuleConstructor, Node, aScope),
 		mSPO_AST.tRecLambdasNode<tPos> Node => aDefConstructor.MapRecursiveLambdas(aModuleConstructor, Node, aScope),
 		mSPO_AST.tReturnIfNode<tPos> Node => aDefConstructor.MapReturnIf(aModuleConstructor, Node, aScope),
-		mSPO_AST.tDefVarNode<tPos> Node => aDefConstructor.MapVar(aModuleConstructor, Node, aScope),
+		mSPO_AST.tDefVarNode<tPos> Node => aDefConstructor.MapDefVar(aModuleConstructor, Node, aScope),
 		mSPO_AST.tMethodCallsNode<tPos> Node => aDefConstructor.MapMethodCalls(aModuleConstructor, Node, aScope),
 		_ => throw mError.Error("Impossible")
 	};
@@ -1503,7 +1466,7 @@ mSPO2IL {
 		}
 		
 		var EnvIds = TempLambdaDef.EnvIds.ToStream();
-		TempLambdaDef.EnvIds = mStream.Nat(
+		TempLambdaDef.EnvIds = mStream.NatStartWith(
 			1
 		).Take(
 			TempLambdaDef.EnvIds.Size()

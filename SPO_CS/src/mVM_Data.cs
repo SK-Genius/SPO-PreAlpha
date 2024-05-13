@@ -586,7 +586,7 @@ mVM_Data {
 		Type
 	}
 	
-	[DebuggerDisplay("{mVM_Data.ToText(this)}")]
+	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
 	public sealed class
 	tData {
 		public tDataType _DataType;
@@ -965,10 +965,11 @@ mVM_Data {
 			
 			_ when a.IsRecord(out var SubRecord, out var KeyValue)
 			=> mStd.Call(() => {
-				KeyValue.IsPrefix(out var Key, out var Value);
-				var Result = $"{{ {Key}: {Value}";
-				while (SubRecord.IsRecord(out KeyValue, out var Temp)) {
-					Result += $", {Key}: {Value.ToText(NextLimit)}";
+				mAssert.IsTrue(KeyValue.IsPrefix(out var Key, out var Value));
+				var Result = $"{{ {Key}: {Value.ToText(NextLimit)}";
+				while (SubRecord.IsRecord(out var Temp, out KeyValue)) {
+					mAssert.IsTrue(KeyValue.IsPrefix(out var Key_, out var Value_));
+					Result += $", {Key_}: {Value_.ToText(NextLimit)}";
 					SubRecord = Temp;
 				}
 				return Result + "}";

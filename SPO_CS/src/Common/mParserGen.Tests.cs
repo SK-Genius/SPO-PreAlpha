@@ -80,7 +80,7 @@ mParserGen_Tests {
 				);
 				mAssert.AreEquals(
 					AB.StartParse(TestStream('A', '_'), _ => aDebugStream(_())),
-					Fail("miss B", "miss B") // TODO
+					Fail("miss B", "miss B") // TODO: remove redundant error messages
 				);
 			}
 		),

@@ -3,6 +3,7 @@
 //#define MY_TRACE
 
 using System;
+using System.Runtime.InteropServices.ObjectiveC;
 using System.Text.RegularExpressions;
 
 public static class
@@ -109,6 +110,23 @@ mIL_GenerateOpcodes {
 					);
 					break;
 				}
+				case mIL_AST.tCommandNodeType.TypeVar: {
+					Type = mVM_Type.Var(
+						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
+					);
+					break;
+				}
+				case mIL_AST.tCommandNodeType.TypeMethod: {
+					var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"); // TODO
+					var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"); // TODO
+					
+
+					mAssert.IsTrue(FuncType.IsProc(out var EmptyType, out var ArgType, out var ResType));
+					mAssert.IsTrue(EmptyType.IsEmpty());
+					
+					Type = mVM_Type.Proc(ObjType, ArgType, ResType);
+					break;
+				}
 				default: {
 					throw mError.Error("not implemented: " + TypeDef.NodeType);
 				}
@@ -165,6 +183,7 @@ mIL_GenerateOpcodes {
 			.Push(mVM_Type.Int())
 			.Push(mVM_Type.Bool())
 			.Push(mVM_Type.Bool())
+			// self type
 			.Push(mVM_Type.Type(mVM_Type.Empty()))
 			.Push(mVM_Type.Type(mVM_Type.Bool()))
 			.Push(mVM_Type.Type(mVM_Type.Int()))
@@ -182,20 +201,16 @@ mIL_GenerateOpcodes {
 				aTrace(() => Command.ToText());
 				aTrace(
 					() => ("  :: " +
-						Command._2.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText()).Else("") + " ; " + 
-						Command._3.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText()).Else("")
+						Command._2.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("") + " ; " + 
+						Command._3.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("")
 					)
 				);
 				switch (Command) {
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.Alias, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						Regs = Regs.Set(RegId1, Regs.GetOrThrow(RegId2, Command));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.CallFunc, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var ProcReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgReg = Regs.GetOrThrow(RegId3, Command);
 						var ResType = mVM_Type.Infer(
@@ -210,32 +225,27 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.CallProc, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
-						var ProcReg = Regs.GetOrThrow(RegId2, Command);
+						var ObjMethodPair = Regs.GetOrThrow(RegId2, Command);
+						mAssert.IsTrue(Types.Get(ObjMethodPair).IsPair(out var ObjType, out var MethType));
+						
 						var ArgReg = Regs.GetOrThrow(RegId3, Command);
-						var ObjType = mVM_Type.Free();
 						var ResType = mVM_Type.Infer(
-							Types.Get(ProcReg),
+							MethType,
 							ObjType,
 							Types.Get(ArgReg),
 							aTrace
 						).ElseThrow(Fail_);
-						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ProcReg, ArgReg));
+						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ObjMethodPair, ArgReg));
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.Int, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						Regs = Regs.Set(RegId1, NewProc.Int(Span, tInt32.Parse(RegId2.ElseThrow())));
 						Types.Push(mVM_Type.Int());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.BoolAnd, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
@@ -244,9 +254,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Bool());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.BoolOr, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
@@ -255,9 +263,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Bool());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.BoolXOr, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
@@ -266,9 +272,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Bool());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsAreEq, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -277,9 +281,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Bool());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsComp, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -288,9 +290,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Int());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsAdd, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -299,9 +299,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Int());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsSub, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -310,9 +308,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Int());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsMul, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -321,9 +317,7 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Int());
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.IntsDiv, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Int());
@@ -332,18 +326,14 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.Pair, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.Pair(Span, Reg1, Reg2));
 						Types.Push(mVM_Type.Pair(Types.Get(Reg1), Types.Get(Reg2)));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.First, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
 						mAssert.IsTrue(ArgType.IsPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText()}");
@@ -351,27 +341,21 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.Second, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						mAssert.IsTrue(Types.Get(ArgReg).IsPair(out _, out  var ResType));
 						Regs = Regs.Set(RegId1, NewProc.Second(Span, ArgReg));
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.ApplyPrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Prefix = RegId2.ElseThrow();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.AddPrefix(Span, (tNat32)Prefix.GetHashCode(), Reg)); // TODO: avoid Hash collisions
 						Types.Push(mVM_Type.Prefix(Prefix, Types.Get(Reg)));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.RemovePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Prefix = RegId2.ElseThrow();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
 						mAssert.IsTrue(Types.Get(Reg).IsPrefix(Prefix, out var ResType));
@@ -379,18 +363,14 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.ExtendRec, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var OldRecordReg = Regs.GetOrThrow(RegId2, Command);
 						var NewElementReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.ExtendRec(Span, OldRecordReg, NewElementReg));
 						Types.Push(mVM_Type.Record(Types.Get(OldRecordReg), Types.Get(NewElementReg)));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.DivideRec, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var RecordReg = Regs.GetOrThrow(RegId2, Command);
 						var RecordType = Types.Get(RecordReg);
 						mAssert.AreNotEquals(RecordType.Kind, mVM_Type.tKind.Empty);
@@ -398,18 +378,14 @@ mIL_GenerateOpcodes {
 						Types.Push(mVM_Type.Pair(RecordType.Refs[0], RecordType.Refs[1]));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.Assert, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var Reg1 = Regs.GetOrThrow(RegId1, Command);
 						var Reg2 = Regs.GetOrThrow(RegId2, Command);
 						// TODO
 						NewProc.Assert(Span, Reg1, Reg2);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIf, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var CondReg = Regs.GetOrThrow(RegId1, Command);
 						var ResReg = Regs.GetOrThrow(RegId2, Command);
 						
@@ -429,62 +405,40 @@ mIL_GenerateOpcodes {
 						NewProc.ReturnIf(Span, CondReg, ResReg);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var Reg = Regs.GetOrThrow(RegId2, Command);
 						Regs = Regs.Set(RegId1, NewProc.VarDef(Span, Reg));
 						Types.Push(mVM_Type.Var(Types.Get(Reg)));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.VarSet, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var VarReg = Regs.GetOrThrow(RegId1, Command);
 						var ValReg = Regs.GetOrThrow(RegId2, Command);
 						mAssert.AreEquals(
@@ -494,23 +448,17 @@ mIL_GenerateOpcodes {
 						NewProc.VarSet(Span, VarReg, ValReg);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.VarGet, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-							//--------------------------------------------------------------------------------
 						var VarReg = Regs.GetOrThrow(RegId2, Command);
 						mAssert.IsTrue(Types.Get(VarReg).IsVar(out var ResType));
 						Regs = Regs.Set(RegId1, NewProc.VarGet(Span, VarReg));
 						Types.Push(ResType);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeCond, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
-						throw mError.Error("TODO"); // TODO
+						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TypeCond));
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeFunc, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var ArgTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var ResTypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeFunc(Span, ArgTypeReg, ResTypeReg));
@@ -525,9 +473,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeMethod, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var ObjTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var FuncTypeReg = Regs.GetOrThrow(RegId3, Command);
 						mAssert.IsTrue(Types.Get(FuncTypeReg).IsProc(out var EmptyType, out var ArgType, out var ResType));
@@ -544,9 +490,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypePair, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Type1Reg = Regs.GetOrThrow(RegId2, Command);
 						var Type2Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypePair(Span, Type1Reg, Type2Reg));
@@ -560,9 +504,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Prefix = RegId2.ElseThrow();
 						var TypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypePrefix(Span, (tNat32)Prefix.GetHashCode(), TypeReg)); // TODO: avoid Hash collisions
@@ -576,9 +518,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeSet, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var Type1Reg = Regs.GetOrThrow(RegId2, Command);
 						var Type2Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeSet(Span, Type1Reg, Type2Reg));
@@ -592,9 +532,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-					//--------------------------------------------------------------------------------
 						var TypeReg = Regs.GetOrThrow(RegId2, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeVar(Span, TypeReg));
 						Types.Push(
@@ -606,16 +544,12 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeFree, Pos: var Span, _1: var RegId1 }: {
-					//--------------------------------------------------------------------------------
 						Regs = Regs.Set(RegId1, NewProc.TypeFree(Span));
 						Types.Push(mVM_Type.Type(mVM_Type.Free(RegId1)));
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeRecursive, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.ElseThrow())), null, _ => _.ToText());
@@ -630,9 +564,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeInterface, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeInterface(Span, FreeTypeReg, TypeBodyReg));
@@ -646,9 +578,7 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					case { NodeType: mIL_AST.tCommandNodeType.TypeGeneric, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-					//--------------------------------------------------------------------------------
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeGeneric(Span, FreeTypeReg, TypeBodyReg));
@@ -662,13 +592,11 @@ mIL_GenerateOpcodes {
 						);
 						break;
 					}
-					//--------------------------------------------------------------------------------
 					default: {
-					//--------------------------------------------------------------------------------
 						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 				}
-				aTrace(() => "  => " + Regs.TryGet(Command._1).ThenDo(_ => Types.Get(_).ToText()).Else("???"));
+				aTrace(() => "  => " + Regs.TryGet(Command._1).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("???"));
 				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
@@ -728,7 +656,7 @@ mIL_GenerateOpcodes {
 					RegIndex += 1;
 					aTrace($"\t({RegIndex}) {Command._1} := {Command.NodeType} {Command._2} {Command._3}:");
 					try {
-						aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText()}");
+						aTrace($"\t\t€ {VM_Def.Types.Get(RegIndex).ToText("\n\t\t")}");
 					} catch {
 						aTrace($"\t\t€ ERROR: out of index");
 					}

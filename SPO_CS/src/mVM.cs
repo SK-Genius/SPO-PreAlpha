@@ -71,15 +71,11 @@ mVM {
 		aCallStack._CodePointer += 1;
 		
 		switch (OpCode) {
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewInt: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Int((tInt32)Arg1));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.And: {
-			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
@@ -87,9 +83,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 && Bool2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Or: {
-			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
@@ -97,9 +91,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 || Bool2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.XOr: {
-			//--------------------------------------------------------------------------------
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
@@ -107,9 +99,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsAreEq: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -117,9 +107,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(Int1 == Int2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsComp: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -128,9 +116,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Diff.Sign()));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsAdd: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -138,9 +124,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 + Int2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsSub: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -148,9 +132,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 - Int2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsMul: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -158,9 +140,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 * Int2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.IntsDiv: {
-			//--------------------------------------------------------------------------------
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
@@ -168,9 +148,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Pair(mVM_Data.Int(Int1 / Int2), mVM_Data.Int(Int1 % Int2)));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.NewPair: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(
 					mVM_Data.Pair(
 						aCallStack._Regs.Get(Arg1),
@@ -179,9 +157,7 @@ mVM {
 				);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.First: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(
 					aCallStack._Regs.Get(Arg1).IsPair(
 						out var Var1,
@@ -192,9 +168,7 @@ mVM {
 				aCallStack._Regs.Push(Var1);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Second: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(
 					aCallStack._Regs.Get(Arg1).IsPair(
 						out var Var1,
@@ -204,33 +178,26 @@ mVM {
 				aCallStack._Regs.Push(Var2);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.AddPrefix: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Prefix(Arg1, aCallStack._Regs.Get(Arg2)));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.DelPrefix: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(
-					aCallStack._Regs.Get(Arg2).IsPrefix(Arg1, out var Data_)
+					aCallStack._Regs.Get(Arg2).IsPrefix(out var Prefix, out var Data_)
 				);
+				mAssert.AreEquals(Prefix, Arg1);
 				aCallStack._Regs.Push(Data_);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.HasPrefix: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(
 					aCallStack._Regs.Get(Arg2).IsPrefix(out var PrefixId, out var Data)
 				);
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ExtendRec: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(
 					mVM_Data.Record(
 						aCallStack._Regs.Get(Arg1),
@@ -239,9 +206,7 @@ mVM {
 				);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.DivideRec: {
-			//--------------------------------------------------------------------------------
 				var Arg = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Arg.IsRecord(out var Record, out var Prefix));
 				aCallStack._Regs.Push(
@@ -252,36 +217,26 @@ mVM {
 				);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.Assert: {
-			//--------------------------------------------------------------------------------
 				if (aCallStack._Regs.Get(Arg1).IsBool(out var Bool) && Bool) {
 					mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsBool(out Bool) && Bool);
 				}
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarDef: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Push(mVM_Data.Var(aCallStack._Regs.Get(Arg1)));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarSet: {
-			//--------------------------------------------------------------------------------
 				aCallStack._Regs.Get(Arg1)._Value = mAny.Any(aCallStack._Regs.Get(Arg2));
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.VarGet: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mVM_Data.tData X));
 				aCallStack._Regs.Push(X);
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.CallFunc: {
-			//--------------------------------------------------------------------------------
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
@@ -317,9 +272,7 @@ mVM {
 				}
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.CallProc: {
-			//--------------------------------------------------------------------------------
 				var Proc_ = aCallStack._Regs.Get(Arg1);
 				var Arg  = aCallStack._Regs.Get(Arg2);
 				
@@ -349,9 +302,7 @@ mVM {
 				}
 				break;
 			}
-			//--------------------------------------------------------------------------------
 			case mVM_Data.tOpCode.ReturnIf: {
-			//--------------------------------------------------------------------------------
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
 				if (Cond) {
 					var Res = aCallStack._Regs.Get(Arg2);
@@ -368,9 +319,7 @@ mVM {
 			// - Create Process
 			// - Send Message
 			
-			//--------------------------------------------------------------------------------
 			default: {
-			//--------------------------------------------------------------------------------
 				throw mError.Error("TODO " + OpCode);
 			}
 		}

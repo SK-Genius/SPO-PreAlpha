@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata.Ecma335;
+﻿using System;
+using System.Reflection.Metadata.Ecma335;
 
 public static class
 mSPO_AST {
@@ -274,6 +275,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tVarTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> Type;
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -529,6 +538,15 @@ mSPO_AST {
 		Pos = aPos,
 		Prefix = aPrefix,
 		Expressions = aTypes,
+	};
+	
+	public static tVarTypeNode<tPos>
+	VarType<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aType
+	) => new() {
+		Pos = aPos,
+		Type = aType,
 	};
 	
 	public static tTupleTypeNode<tPos>
@@ -1178,6 +1196,7 @@ mSPO_AST {
 			tIntNode<t> Node => "" + Node.Value,
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
+			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
 			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
@@ -1192,11 +1211,9 @@ mSPO_AST {
 			),
 			
 			// Matches
-			tMatchNode<t> Node => (
-				Node.Type.Match(
-					aOnSome: Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
-					aOnNone: () => Node.Pattern.ToText(____)
-				)
+			tMatchNode<t> Node => Node.Type.Match(
+				aOnSome: Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
+				aOnNone: () => Node.Pattern.ToText(____)
 			),
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
@@ -1219,7 +1236,8 @@ mSPO_AST {
 			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aOnSome: _ => _.ToText(____), aOnNone: () => "()")}",
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
-			_ => "(???)",
+			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",
+			_ => throw new NotImplementedException(aNode.GetType().Name),
 		};
 	}
 }

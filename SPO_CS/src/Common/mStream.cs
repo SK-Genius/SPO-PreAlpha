@@ -143,9 +143,9 @@ mStream {
 	
 	[Pure, DebuggerHidden]
 	public static tStream<tNat32>?
-	Nat(
+	NatStartWith(
 		tNat32 aStart
-	) => Stream(aStart, () => Nat(aStart + 1));
+	) => Stream(aStart, () => NatStartWith(aStart + 1));
 	
 	[Pure, DebuggerHidden]
 	public static tStream<tInt32>?
@@ -251,7 +251,7 @@ mStream {
 	public static tStream<(tNat32 Index, t Item)>?
 	MapWithIndex<t>(
 		this tStream<t>? aStream
-	) => ZipShort(Nat(0), aStream);
+	) => ZipShort(NatStartWith(0), aStream);
 	
 	[Pure, DebuggerHidden]
 	public static tRes
