@@ -3,15 +3,6 @@
 public static class
 mTest {
 	
-	[DllImport("kernel32.dll")]
-	private static extern bool
-	QueryThreadCycleTime(
-		nint aThreadHandle,
-		out tNat64 aCycles
-	);
-	
-	private static readonly nint PseudoHandle = -2;
-	
 	private const tText cTab = "|  ";
 	
 	public enum
@@ -145,13 +136,13 @@ mTest {
 				}
 				
 				try {
-					QueryThreadCycleTime(PseudoHandle, out var ClocksStart);
+					var ClocksStart = mPerf.ThreadCycles();
 					Run.TestFunc(
 						aIsLogEnable
 						? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
 						: _ => { }
 					);
-					QueryThreadCycleTime(PseudoHandle, out var ClocksEnd);
+					var ClocksEnd = mPerf.ThreadCycles();
 					
 					var Value_00 = (ClocksEnd - ClocksStart) * 100;
 					var E = "";

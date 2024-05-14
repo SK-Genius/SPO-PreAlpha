@@ -84,20 +84,48 @@ mPerf {
 		}
 	}
 	
-	[DllImport("kernel32.dll")]
-	private static extern bool
-	QueryThreadCycleTime(
-		System.IntPtr aThreadHandle,
-		out tNat64 aCycles
-	);
-	
-	private static readonly System.IntPtr PseudoHandle = -2;
+	//private static readonly nint PseudoHandle = -2;
+	//
+	//[DllImport("kernel32.dll")]
+	//private static extern bool
+	//QueryThreadCycleTime(
+	//	nint aThreadHandle,
+	//	out tNat64 aCycles
+	//);
+	//
+	//private struct tTimeQueryResult {
+	//	public tNat64 Sec;
+	//	public tNat64 NanoSec;
+	//}
+	//
+	//private enum tClockId {
+	//	CLOCK_REALTIME = 1,
+	//	CLOCK_MONOTONIC,
+	//	CLOCK_PROCESS_CPUTIME_ID,
+	//	CLOCK_THREAD_CPUTIME_ID,
+	//}
+	//
+	//[DllImport("libc.so")]
+	//private static extern void
+	//clock_gettime(
+	//	tClockId clk_id,
+	//	out tTimeQueryResult tp
+	//);
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	private static tNat64
+	public static tNat64
 	ThreadCycles(
 	) {
-		QueryThreadCycleTime(PseudoHandle, out var Cycles);
-		return Cycles;
+		// TODO: time spans for linux tests
+		//if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+		//{
+		//	clock_gettime(tClockId.CLOCK_THREAD_CPUTIME_ID, out var tp);
+		//	return tp.NanoSec;
+		//	return 1;
+		//} else {
+		//	QueryThreadCycleTime(PseudoHandle, out var cycles);
+		//	return cycles;
+		//}
+		return 1;
 	}
 }
