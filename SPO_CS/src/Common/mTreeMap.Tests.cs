@@ -8,8 +8,7 @@ mTreeMap_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mTokenizer),
-		mTest.Test(
-			"Create",
+		mTest.Test("Create",
 			aDebugStream => {
 				{
 					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare);
@@ -38,8 +37,7 @@ mTreeMap_Tests {
 				}
 			}
 		),
-		mTest.Test(
-			"Remove",
+		mTest.Test("Remove",
 			aDebugStream => {
 				{
 					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare)
@@ -54,8 +52,7 @@ mTreeMap_Tests {
 				}
 			}
 		),
-		mTest.Test(
-			"Big",
+		mTest.Test("Big",
 			aDebugStream => {
 				{
 					var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare)

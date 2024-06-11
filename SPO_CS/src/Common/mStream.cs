@@ -82,7 +82,7 @@ mStream {
 	) {
 		private t _Head = default!;
 		private tStream<t>? _Tail = aStream;
-
+		
 		public readonly t Current => this._Head;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

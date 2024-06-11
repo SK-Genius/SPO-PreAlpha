@@ -92,28 +92,28 @@ mAssert {
 				Text2.Split('\n').AsStream()
 			).MapWithIndex(
 				(aIndex, Line) => {
-					var Line1 = Line._1.IsSome(out var Temp1) ? Temp1 : null;
-					var Line2 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
+					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
+					var Line2 = Line._1.IsSome(out var Temp1) ? Temp1 : null;
 					return (
-						Line1 is null ? $"""
-							
-							{Gray($">{aIndex + 1}:")} {Green(Line2)}
-							""" :
-						
 						Line2 is null ? $"""
 							
-							{Gray($"<{aIndex + 1}:")} {Red(Line1)}
+							{Gray($">{aIndex + 1}:")} {Green(Line1)}
 							""" :
 						
-						Line1 == Line2 ? $"""
+						Line1 is null ? $"""
 							
-							{Gray($"={aIndex + 1}:{Line2}")}
+							{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+							""" :
+						
+						Line2 == Line1 ? $"""
+							
+							{Gray($"={aIndex + 1}:{Line1}")}
 							""" :
 						
 						$"""
 							
-							{Gray($"<{aIndex + 1}:")} {Red(Line1)}
-							{Gray($">{aIndex + 1}:")} {Green(Line2)}
+							{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+							{Gray($">{aIndex + 1}:")} {Green(Line1)}
 							"""
 					);
 				}

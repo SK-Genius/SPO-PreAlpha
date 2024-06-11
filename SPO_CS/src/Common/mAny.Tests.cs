@@ -5,8 +5,7 @@ mAny_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mAny),
-		mTest.Test(
-			"tAny.Equals()",
+		mTest.Test("tAny.Equals()",
 			aStreamOut => {
 				mAssert.AreEquals(mAny.Any(1), mAny.Any(1));
 				mAssert.AreEquals(mAny.Any("1"), mAny.Any("1"));

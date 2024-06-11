@@ -733,7 +733,6 @@ mSPO2IL {
 							)
 						)
 					);
-
 				
 					aModuleConstructor.MapIfCase(
 						TestAndCallCaseFunc,
@@ -962,6 +961,17 @@ mSPO2IL {
 		switch (aCase.Match.Pattern) {
 			case mSPO_AST.tIgnoreMatchNode<tPos> p: {
 				var Res__ = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression, aScope);
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
+			}
+			case mSPO_AST.tMatchFreeIdNode<tPos> p: {
+				var Scope = mStream.Stream((p.Id, p.TypeAnnotation.ElseThrow()), aScope);
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.Alias(aCasePos, p.Id, mIL_AST.cArg)
+				);
+				var Res__ = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression, Scope);
 				aTestAndCallCaseFunc.Commands.Push(
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
 				);
@@ -1252,11 +1262,22 @@ mSPO2IL {
 		var TempLambdaDefs = mArrayList.List<tDefConstructor<tPos>>();
 		var AllEnvIds = mArrayList.List<(tText Id, tPos Pos)>();
 		
+		var Scope = aScope;
+		foreach (var RecLambdaItemNode in aRecLambdasNode.List) {
+			Scope = mStream.Stream(
+				(
+					Id: RecLambdaItemNode.Id.Id,
+					Type: RecLambdaItemNode.Lambda.TypeAnnotation.ElseThrow()
+				),
+				Scope
+			);
+		}
+		
 		foreach (var RecLambdaItemNode in aRecLambdasNode.List) {
 			var NewDefIndex = aModuleConstructor.Defs.Size();
 			NewDefIndices.Push(NewDefIndex);
 			AllEnvIds.Push((GetDefId(NewDefIndex), RecLambdaItemNode.Pos)); // TODO
-			var Type = mSPO_AST_Types.UpdateExpressionTypes(RecLambdaItemNode.Lambda, aScope).ElseThrow();
+			var Type = mSPO_AST_Types.UpdateExpressionTypes(RecLambdaItemNode.Lambda, Scope).ElseThrow();
 			var TypeId = aModuleConstructor.MapType(Type);
 			TempLambdaDefs.Push(aModuleConstructor.NewDefConstructor(TypeId));
 			SPODefNodes.Push(RecLambdaItemNode);
@@ -1276,7 +1297,6 @@ mSPO2IL {
 		}
 		
 		// InitMapLambda(...) for all rec. func.
-		var Scope = aScope;
 		foreach (var I in mStream.NatStartWith(0).Take(Max)) {
 			var RecLambdaItemNode = SPODefNodes.Get(I);
 			var TempLambdaDef = TempLambdaDefs.Get(I);
@@ -1305,7 +1325,7 @@ mSPO2IL {
 				RecLambdaItemNode.Pos,
 				aModuleConstructor,
 				RecLambdaItemNode.Lambda.TypeAnnotation.ElseThrow(),
-				aScope
+				Scope
 			);
 			
 			var ArgReg = mIL_AST.cEmpty;

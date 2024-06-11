@@ -24,8 +24,7 @@ mSPO_Parser_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mSPO_Parser),
-		mTest.Test(
-			"Atoms",
+		mTest.Test("Atoms",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Number.ParseText("+1_234", "", _ => { aStreamOut(_()); }),
@@ -66,8 +65,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Tuple",
+		mTest.Test("Tuple",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.ExpressionInCall.ParseText(
@@ -88,8 +86,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Match1",
+		mTest.Test("Match1",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Match.ParseText("12", "", _ => { aStreamOut(_()); }),
@@ -126,8 +123,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"FunctionCall",
+		mTest.Test("FunctionCall",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -172,8 +168,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Lambda",
+		mTest.Test("Lambda",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -207,8 +202,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"TypedMatch",
+		mTest.Test("TypedMatch",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -250,8 +244,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Expression",
+		mTest.Test("Expression",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -287,8 +280,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"NestedMatch",
+		mTest.Test("NestedMatch",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -360,8 +352,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"PrefixMatch",
+		mTest.Test("PrefixMatch",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Expression.ParseText(
@@ -407,8 +398,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"MethodCall",
+		mTest.Test("MethodCall",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Command.ParseText(
@@ -447,8 +437,7 @@ mSPO_Parser_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Record",
+		mTest.Test("Record",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mSPO_Parser.Command.ParseText(

@@ -4,8 +4,7 @@ mMap_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mMap),
-		mTest.Test(
-			"tMap.Get",
+		mTest.Test("tMap.Get",
 			aStreamOut => {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)
@@ -15,8 +14,7 @@ mMap_Tests {
 				mAssert.AreEquals(TextToInt.TryGet("zero"), mStd.cEmpty);
 			}
 		),
-		mTest.Test(
-			"tMap.Remove",
+		mTest.Test("tMap.Remove",
 			aStreamOut => {
 				var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 				.Set("one", 1)

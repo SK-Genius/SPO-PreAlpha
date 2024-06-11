@@ -64,8 +64,7 @@ mVM_Type_Tests {
 				"[[] | §INT]"
 			)
 		).Map(
-			a => mTest.Test(
-				a.Expr + " => " + a.Type,
+			a => mTest.Test(a.Expr + " => " + a.Type,
 				aStreamOut => {
 					var AST =  mSPO_Parser.Expression.ParseText(
 						a.Expr,

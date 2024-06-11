@@ -36,8 +36,7 @@ mParserGen_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mParserGen),
-		mTest.Test(
-			"AtomParser",
+		mTest.Test("AtomParser",
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				
@@ -59,8 +58,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...+...",
+		mTest.Test("...+...",
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
@@ -84,8 +82,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...-...",
+		mTest.Test("...-...",
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
@@ -108,8 +105,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"-...",
+		mTest.Test("-...",
 			aDebugStream => {
 				var A = -mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "unexpected A"), ComparePos);
 				
@@ -127,8 +123,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...|...",
+		mTest.Test("...|...",
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
@@ -156,8 +151,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...[m, n]",
+		mTest.Test("...[m, n]",
 			aDebugStream => {
 				var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..3];
 				
@@ -195,8 +189,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...[0, null]",
+		mTest.Test("...[0, null]",
 			aDebugStream => {
 				var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[0..];
 				
@@ -210,8 +203,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"...[n, null]",
+		mTest.Test("...[n, null]",
 			aDebugStream => {
 				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..];
 				
@@ -245,8 +237,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"....Modify(...=>...)",
+		mTest.Test("....Modify(...=>...)",
 			aDebugStream => {
 				var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos)[2..]
 				.Modify(aChars => aChars.Count());
@@ -281,8 +272,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"~...",
+		mTest.Test("~...",
 			aDebugStream => {
 				var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'A', _ => (_.Span.Start, "miss A"), ComparePos);
 				var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(_ => _ == 'B', _ => (_.Span.Start, "miss B"), ComparePos);
@@ -319,8 +309,7 @@ mParserGen_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Eval('MathExpr')",
+		mTest.Test("Eval('MathExpr')",
 			aDebugStream => {
 				var _ = -CharIn(" \t");
 				var __ = -_[0..];

@@ -123,7 +123,7 @@ mIL_AST {
 		public mMaybe.tMaybe<tText> _2;
 		public mMaybe.tMaybe<tText> _3;
 		
-		public override readonly string ToString() => ToText(this);
+		public override readonly string ToString() => ToText(this) + $"  // {this.Pos}";
 	}
 	
 	public static tText

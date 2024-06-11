@@ -23,8 +23,7 @@ mTokenizer_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mTokenizer),
-		mTest.Test(
-			"TwoLines",
+		mTest.Test("TwoLines",
 			aDebugStream => {
 				var TokenList = mTokenizer.Tokenizer.ParseText(
 					"a := §INT b <=> c \n a := [#b c]",

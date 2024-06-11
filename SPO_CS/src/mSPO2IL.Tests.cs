@@ -48,7 +48,7 @@ mSPO2IL_Tests {
 		foreach (var (SPO_Def, IL_Def) in mStream.ZipShort(aSPO_Defs, mStream.Stream(aIL_Defs))) {
 			aStreamOut(mSPO2IL.GetDefId(DefIndex));
 			AssertCommandsAre(SPO_Def.Commands.ToStream(), IL_Def);
-			aStreamOut("  OK");
+			aStreamOut(" OK");
 			DefIndex += 1;
 		}
 		
@@ -72,7 +72,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapExpression",
 			aStreamOut => {
 				var ExpressionNode = mSPO_Parser.Expression.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"0 .< (1 .+ 2) < 4",
 					"",
@@ -118,7 +118,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapDef1",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF a = (1, 2)",
 					"",
@@ -154,7 +154,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapDefMatch",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 					"",
@@ -188,7 +188,7 @@ mSPO2IL_Tests {
 						mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7)), // [7]:(1, (2, 3)) => [8]:(2, 3)
 						mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(9), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [9]:3
 						mIL_AST.Alias(Span((1, 19), (1, 24)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(9)), // [9]:3 == c
-						mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)),  // [8]:(2, 3) => [10]:(2)
+						mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [10]:(2)
 						mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(2) => [11]:2
 						mIL_AST.Alias(Span((1, 11), (1, 16)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(11)), // [11]:2 == b
 						mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)), // [10]:(2) => [12]:()
@@ -204,7 +204,7 @@ mSPO2IL_Tests {
 		mTest.Test("MatchTuple",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 					"",
@@ -251,7 +251,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapMatchPrefix",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 					"",
@@ -308,7 +308,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapLambda1",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF x = §DEF a € §INT => 2 .* a",
 					"",
@@ -391,7 +391,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapLambda2",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF ...*...+... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .+ c",
 					"",
@@ -496,7 +496,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapLambda3",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"§DEF TestTest... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .> c",
 					"",
@@ -601,7 +601,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapIfMatch_1",
 			aStreamOut => {
 				var DefNode = mSPO_Parser.Def.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"""
 					§DEF x = §IF 1 MATCH {
@@ -718,7 +718,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapIfMatch_2_WithSet",
 			aStreamOut => {
 				var ModuleNode = mSPO_Parser.Module.ParseText(
-					//       1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"""
 					§IMPORT ()
@@ -843,7 +843,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapNestedMatch",
 			aStreamOut => {
 				var LambdaNode = mSPO_Parser.Lambda.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"(§DEF a € §INT, §DEF b € §INT, (§DEF x € §INT, §DEF y € §INT, §DEF z € §INT)) => a .* z",
 					"",
@@ -890,31 +890,31 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(DefIndex, 0u);
 				mAssert.AreEquals(
 					ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
-					mStream.Stream(
-						mIL_AST.Alias	(Span((1,  1), (1, 87)),	mSPO2IL.GetId("...*..."),	mIL_AST.cEnv),
-									
-						mIL_AST.GetSecond	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(1),	mIL_AST.cArg),
-						mIL_AST.GetSecond	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(2),	mSPO2IL.GetRegId(1)),
-						mIL_AST.Alias	(Span((1, 63), (1, 75)),	mSPO2IL.GetId("z"),	mSPO2IL.GetRegId(2)),
-						mIL_AST.GetFirst	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(3),	mSPO2IL.GetRegId(1)),
-						mIL_AST.GetSecond	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(4),	mSPO2IL.GetRegId(3)),
-						mIL_AST.Alias	(Span((1, 48), (1, 60)),	mSPO2IL.GetId("y"),	mSPO2IL.GetRegId(4)),
-						mIL_AST.GetFirst	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(5),	mSPO2IL.GetRegId(3)),
-						mIL_AST.GetSecond	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(6),	mSPO2IL.GetRegId(5)),
-						mIL_AST.Alias	(Span((1, 33), (1, 45)),	mSPO2IL.GetId("x"),	mSPO2IL.GetRegId(6)),
-						mIL_AST.GetFirst	(Span((1, 32), (1, 76)),	mSPO2IL.GetRegId(7),	mSPO2IL.GetRegId(5)),
-						mIL_AST.GetFirst	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(8),	mIL_AST.cArg),
-						mIL_AST.GetSecond	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(9),	mSPO2IL.GetRegId(8)),
-						mIL_AST.Alias	(Span((1, 17), (1, 29)),	mSPO2IL.GetId("b"),	mSPO2IL.GetRegId(9)),
-						mIL_AST.GetFirst	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(10),	mSPO2IL.GetRegId(8)),
-						mIL_AST.GetSecond	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(11),	mSPO2IL.GetRegId(10)),
-						mIL_AST.Alias	(Span((1,  2), (1, 14)),	mSPO2IL.GetId("a"),	mSPO2IL.GetRegId(11)),
-						mIL_AST.GetFirst	(Span((1,  1), (1, 77)),	mSPO2IL.GetRegId(12),	mSPO2IL.GetRegId(10)),
-											
-						mIL_AST.CreatePair	(Span((1, 82), (1, 87)),	mSPO2IL.GetRegId(13),	mIL_AST.cEmpty,	mSPO2IL.GetId("a")),
-						mIL_AST.CreatePair	(Span((1, 82), (1, 87)),	mSPO2IL.GetRegId(14),	mSPO2IL.GetRegId(13),	mSPO2IL.GetId("z")),
-						mIL_AST.CallFunc	(Span((1, 82), (1, 87)),	mSPO2IL.GetRegId(15),	mSPO2IL.GetId("...*..."),	mSPO2IL.GetRegId(14)),
-						mIL_AST.ReturnIf	(Span((1, 82), (1, 87)),	mIL_AST.cTrue,	mSPO2IL.GetRegId(15))
+					mStream.Stream<(tText Command, (tNat32, tNat32) Start, (tNat32, tNat32) End)>(
+						("_...*... := ENV", (1, 1), (1, 87)),
+						("t_1 := §2ND ARG", (1, 1), (1, 77)),
+						("t_2 := §2ND t_1", (1, 32), (1, 76)),
+						("_z := t_2", (1, 63), (1, 75)),
+						("t_3 := §1ST t_1", (1, 32), (1, 76)),
+						("t_4 := §2ND t_3", (1, 32), (1, 76)),
+						("_y := t_4", (1, 48), (1, 60)),
+						("t_5 := §1ST t_3", (1, 32), (1, 76)),
+						("t_6 := §2ND t_5", (1, 32), (1, 76)),
+						("_x := t_6", (1, 33), (1, 45)),
+						("t_7 := §1ST t_5", (1, 32), (1, 76)),
+						("t_8 := §1ST ARG", (1, 1), (1, 77)),
+						("t_9 := §2ND t_8", (1, 1), (1, 77)),
+						("_b := t_9", (1, 17), (1, 29)),
+						("t_10 := §1ST t_8", (1, 1), (1, 77)),
+						("t_11 := §2ND t_10", (1, 1), (1, 77)),
+						("_a := t_11", (1, 2), (1, 14)),
+						("t_12 := §1ST t_10", (1, 1), (1, 77)),
+						("t_13 := EMPTY, _a", (1, 82), (1, 87)),
+						("t_14 := t_13, _z", (1, 82), (1, 87)),
+						("t_15 := ._...*... t_14", (1, 82), (1, 87)),
+						("§RETURN t_15 IF TRUE", (1, 82), (1, 87))
+					).Map(
+						_ => ParseCommand(_.Command, Span(_.Start, _.End), aStreamOut)
 					)
 				);
 				
@@ -927,7 +927,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapModule",
 			aStreamOut => {
 				var ModuleNode = mSPO_Parser.Module.ParseText(
-					//        1         2         3         4         5         6         7         8
+					//    1     2     3     4     5     6     7     8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"""
 					§IMPORT (
@@ -956,54 +956,230 @@ mSPO2IL_Tests {
 				
 				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
 				
-				mAssert.AreEquals(ModuleConstructor.Defs.Size(), 2u);
-				
-				mAssert.AreEquals(
-					ModuleConstructor.Defs.Get(0).Commands.ToStream(),
-					mStream.Stream(
-						mIL_AST.Alias(Span((1, 1), (10, 9)), mSPO2IL.GetDefId(1), mIL_AST.cEnv),
-						
-						mIL_AST.GetSecond	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(1),	mIL_AST.cArg),
-						mIL_AST.Alias	(Span((4, 2), (4, 11)),	mSPO2IL.GetId("k"),	mSPO2IL.GetRegId(1)),
-						mIL_AST.GetFirst	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(2),	mIL_AST.cArg),
-						mIL_AST.GetSecond	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(3),	mSPO2IL.GetRegId(2)),
-						mIL_AST.Alias	(Span((3, 2), (3, 29)),	mSPO2IL.GetId("...*..."),	mSPO2IL.GetRegId(3)),
-						mIL_AST.GetFirst	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(4),	mSPO2IL.GetRegId(2)),
-						mIL_AST.GetSecond	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(5),	mSPO2IL.GetRegId(4)),
-						mIL_AST.Alias	(Span((2, 2), (2, 14)),	mSPO2IL.GetId("T"),	mSPO2IL.GetRegId(5)),
-						mIL_AST.GetFirst	(Span((1, 9), (5,  1)),	mSPO2IL.GetRegId(6),	mSPO2IL.GetRegId(4)),
-									
-						mIL_AST.CreatePair	(Span(( 7, 13), ( 7, 34)),	mSPO2IL.GetRegId(7),	mIL_AST.cEmpty,	mSPO2IL.GetId("...*...")),
-						mIL_AST.CreatePair	(Span(( 7, 13), ( 7, 34)),	mSPO2IL.GetRegId(8),	mSPO2IL.GetRegId(7),	mSPO2IL.GetId("k")),
-						mIL_AST.CallFunc	(Span(( 7, 13), ( 7, 34)),	mSPO2IL.GetRegId(9),	mSPO2IL.GetDefId(1),	mSPO2IL.GetRegId(8)),
-						mIL_AST.Alias	(Span(( 7,  1), ( 7,  9)),	mSPO2IL.GetId("x..."),	mSPO2IL.GetRegId(9)),
-						mIL_AST.CallFunc	(Span(( 8, 10), ( 8, 13)),	mSPO2IL.GetRegId(10),	mSPO2IL.GetId("x..."),	mSPO2IL.GetId("k")),
-						mIL_AST.Alias	(Span(( 8,  1), ( 8,  6)),	mSPO2IL.GetId("y"),	mSPO2IL.GetRegId(10)),
-						mIL_AST.ReturnIf	(Span((10,  1), (10,  9)),	mIL_AST.cTrue,	mSPO2IL.GetId("y"))
+				AssertModuleDefs(
+					aStreamOut,
+					ModuleConstructor.Defs,
+					[
+						("d_1 := ENV", (1, 1), (10, 9)),
+						("t_1 := §2ND ARG", (1, 9), (5, 1)),
+						("_k := t_1", (4, 2), (4, 11)),
+						("t_2 := §1ST ARG", (1, 9), (5, 1)),
+						("t_3 := §2ND t_2", (1, 9), (5, 1)),
+						("_...*... := t_3", (3, 2), (3, 29)),
+						("t_4 := §1ST t_2", (1, 9), (5, 1)),
+						("t_5 := §2ND t_4", (1, 9), (5, 1)),
+						("_T := t_5", (2, 2), (2, 14)),
+						("t_6 := §1ST t_4", (1, 9), (5, 1)),
+						("t_7 := EMPTY, _...*...", (7, 13), (7, 34)),
+						("t_8 := t_7, _k", (7, 13), (7, 34)),
+						("t_9 := .d_1 t_8", (7, 13), (7, 34)),
+						("_x... := t_9", (7, 1), (7, 9)),
+						("t_10 := ._x... _k", (8, 10), (8, 13)),
+						("_y := t_10", (8, 1), (8, 6)),
+						("§RETURN _y IF TRUE", (10, 1), (10, 9)),
+					],
+					[
+						("_k := §2ND ENV", (7, 13), (7, 34)),
+						("t_4 := §1ST ENV", (7, 13), (7, 34)),
+						("_...*... := §2ND t_4", (7, 13), (7, 34)),
+						("t_5 := §1ST t_4", (7, 13), (7, 34)),
+						("_a := ARG", (7, 14), (7, 23)),
+						("t_1 := EMPTY, _k", (7, 29), (7, 34)),
+						("t_2 := t_1, _a", (7, 29), (7, 34)),
+						("t_3 := ._...*... t_2", (7, 29), (7, 34)),
+						("§RETURN t_3 IF TRUE", (7, 29), (7, 34)),
+					]
+				);
+			}
+		),
+		mTest.Test("MapRecursion",
+			aStreamOut => {
+				var ModuleNode = mSPO_Parser.Module.ParseText(
+					//    1     2     3     4     5     6     7     8
+					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+					"""
+					§IMPORT (
+						§DEF ...+... € [[§INT, §INT] => §INT]
+						§DEF ...-... € [[§INT, §INT] => §INT]
 					)
+					
+					§RECURSIVE {
+						§DEF Fib... = (§DEF a € §INT) => §IF a MATCH {
+							0 => 0
+							§DEF b => (.Fib(b .- 2)) .+ (.Fib(b .- 1))
+						}
+					}
+					
+					§EXPORT Fib...
+					""",
+					"",
+					_ => aStreamOut(_())
 				);
 				
-				mAssert.AreEquals(
-					ModuleConstructor.Defs.Get(1).Commands.ToStream(),
-					mStream.Stream(
-						mIL_AST.GetSecond	(Span((7, 13), (7, 34)),	mSPO2IL.GetId("k"),	mIL_AST.cEnv),
-						mIL_AST.GetFirst	(Span((7, 13), (7, 34)),	mSPO2IL.GetRegId(4),	mIL_AST.cEnv),
-						mIL_AST.GetSecond	(Span((7, 13), (7, 34)),	mSPO2IL.GetId("...*..."),	mSPO2IL.GetRegId(4)),
-						mIL_AST.GetFirst	(Span((7, 13), (7, 34)),	mSPO2IL.GetRegId(5),	mSPO2IL.GetRegId(4)),
-									
-						mIL_AST.Alias	(Span((7, 14), (7, 23)),	mSPO2IL.GetId("a"),	mIL_AST.cArg),
-									
-						mIL_AST.CreatePair	(Span((7, 29), (7, 34)),	mSPO2IL.GetRegId(1),	mIL_AST.cEmpty,	mSPO2IL.GetId("k")),
-						mIL_AST.CreatePair	(Span((7, 29), (7, 34)),	mSPO2IL.GetRegId(2),	mSPO2IL.GetRegId(1),	mSPO2IL.GetId("a")),
-						mIL_AST.CallFunc	(Span((7, 29), (7, 34)),	mSPO2IL.GetRegId(3),	mSPO2IL.GetId("...*..."),	mSPO2IL.GetRegId(2)),
-						mIL_AST.ReturnIf	(Span((7, 29), (7, 34)),	mIL_AST.cTrue,	mSPO2IL.GetRegId(3))
-					)
+				var InitScope = mSPO_AST_Types.UpdateMatchTypes(
+					ModuleNode.Import.Match,
+					mStd.cEmpty,
+					mSPO_AST_Types.tTypeRelation.Sub,
+					null
+				).Then(
+					_ => _.Scope
+				).ElseThrow();
+				
+				var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
+				
+				AssertModuleDefs(
+					aStreamOut,
+					ModuleConstructor.Defs,
+					[
+						("d_1 := §2ND ENV", (1, 1), (13, 14)),
+						("t_12 := §1ST ENV", (1, 1), (13, 14)),
+						("d_2 := §2ND t_12", (1, 1), (13, 14)),
+						("t_13 := §1ST t_12", (1, 1), (13, 14)),
+						("d_3 := §2ND t_13", (1, 1), (13, 14)),
+						("t_14 := §1ST t_13", (1, 1), (13, 14)),
+						("d_4 := §2ND t_14", (1, 1), (13, 14)),
+						("t_15 := §1ST t_14", (1, 1), (13, 14)),
+						("d_5 := §2ND t_15", (1, 1), (13, 14)),
+						("t_16 := §1ST t_15", (1, 1), (13, 14)),
+						("t_1 := §2ND ARG", (1, 9), (4, 1)),
+						("_...-... := t_1", (3, 2), (3, 38)),
+						("t_2 := §1ST ARG", (1, 9), (4, 1)),
+						("t_3 := §2ND t_2", (1, 9), (4, 1)),
+						("_...+... := t_3", (2, 2), (2, 38)),
+						("t_4 := §1ST t_2", (1, 9), (4, 1)),
+						("t_5 := EMPTY, d_1", (7, 2), (10, 2)),
+						("t_6 := t_5, d_4", (7, 2), (10, 2)),
+						("t_7 := t_6, d_3", (7, 2), (10, 2)),
+						("t_8 := t_7, _...+...", (7, 2), (10, 2)),
+						("t_9 := t_8, _...-...", (7, 2), (10, 2)),
+						("t_10 := t_9, d_5", (7, 2), (10, 2)),
+						("t_11 := t_10, d_2", (7, 2), (10, 2)),
+						("_Fib... := .d_1 t_11", (7, 2), (10, 2)),
+						("§RETURN _Fib... IF TRUE", (13, 1), (13, 14))
+					],
+					[
+						("d_1 := §2ND ENV", (7, 2), (10, 2)),
+						("t_1 := §1ST ENV", (7, 2), (10, 2)),
+						("d_2 := §2ND t_1", (7, 2), (10, 2)),
+						("t_2 := §1ST t_1", (7, 2), (10, 2)),
+						("d_5 := §2ND t_2", (7, 2), (10, 2)),
+						("t_3 := §1ST t_2", (7, 2), (10, 2)),
+						("_...-... := §2ND t_3", (7, 2), (10, 2)),
+						("t_4 := §1ST t_3", (7, 2), (10, 2)),
+						("_...+... := §2ND t_4", (7, 2), (10, 2)),
+						("t_5 := §1ST t_4", (7, 2), (10, 2)),
+						("d_3 := §2ND t_5", (7, 2), (10, 2)),
+						("t_6 := §1ST t_5", (7, 2), (10, 2)),
+						("d_4 := §2ND t_6", (7, 2), (10, 2)),
+						("t_7 := §1ST t_6", (7, 2), (10, 2)),
+						("_Fib... := .d_1 ENV", (7, 2), (10, 2)),
+						("_a := ARG", (7, 17), (7, 29)),
+						("t_1 := EMPTY, d_4", (7, 35), (10, 2)),
+						("t_2 := t_1, d_3", (7, 35), (10, 2)),
+						("t_3 := t_2, _...+...", (7, 35), (10, 2)),
+						("t_4 := t_3, _Fib...", (7, 35), (10, 2)),
+						("t_5 := t_4, _...-...", (7, 35), (10, 2)),
+						("t_6 := t_5, d_5", (7, 35), (10, 2)),
+						("t_7 := .d_2 t_6", (7, 35), (10, 2)),
+						("t_8 := .t_7 _a", (7, 35), (10, 2)),
+						("§RETURN t_8 IF TRUE", (7, 35), (10, 2)),
+					],
+					[
+						("d_5 := §2ND ENV", (7, 35), (10, 2)),
+						("t_8 := §1ST ENV", (7, 35), (10, 2)),
+						("_...-... := §2ND t_8", (7, 35), (10, 2)),
+						("t_9 := §1ST t_8", (7, 35), (10, 2)),
+						("_Fib... := §2ND t_9", (7, 35), (10, 2)),
+						("t_10 := §1ST t_9", (7, 35), (10, 2)),
+						("_...+... := §2ND t_10", (7, 35), (10, 2)),
+						("t_11 := §1ST t_10", (7, 35), (10, 2)),
+						("d_3 := §2ND t_11", (7, 35), (10, 2)),
+						("t_12 := §1ST t_11", (7, 35), (10, 2)),
+						("d_4 := §2ND t_12", (7, 35), (10, 2)),
+						("t_13 := §1ST t_12", (7, 35), (10, 2)),
+						("t_1 := .d_3 d_4", (7, 35), (10, 2)),
+						("t_2 := .t_1 ARG", (8, 3), (8, 8)),
+						("§RETURN t_2 IF_NOT_EMPTY", (8, 3), (8, 8)),
+						("t_3 := EMPTY, _...+...", (7, 35), (10, 2)),
+						("t_4 := t_3, _Fib...", (7, 35), (10, 2)),
+						("t_5 := t_4, _...-...", (7, 35), (10, 2)),
+						("t_6 := .d_5 t_5", (7, 35), (10, 2)),
+						("t_7 := .t_6 ARG", (9, 3), (9, 44)),
+						("§RETURN t_7 IF_NOT_EMPTY", (9, 3), (9, 44)),
+						("§RETURN EMPTY IF TRUE", (7, 35), (10, 2)),
+					],
+					[
+						("d_4 := ENV", (7, 35), (10, 2)),
+						("t_1 := .d_4 EMPTY", (8, 3), (8, 3)),
+						("t_2 := §TRY ARG AS_INT", (8, 3), (8, 8)),
+						("t_3 := 0", (8, 3), (8, 8)),
+						("t_4 := §INT t_2 == t_3", (8, 3), (8, 8)),
+						("t_5 := §BOOL t_4 ^ TRUE", (8, 3), (8, 8)),
+						("§RETURN EMPTY IF t_5", (8, 3), (8, 8)),
+						("t_6 := .t_1 t_2", (8, 3), (8, 8)),
+						("§RETURN t_6 IF TRUE", (8, 3), (8, 8)),
+					],
+					[
+						("t_1 := 0", (8, 8), (8, 8)),
+						("§RETURN t_1 IF TRUE", (8, 3), (8, 8)),
+					],
+					[
+						("_...-... := §2ND ENV", (7, 35), (10, 2)),
+						("t_1 := §1ST ENV", (7, 35), (10, 2)),
+						("_Fib... := §2ND t_1", (7, 35), (10, 2)),
+						("t_2 := §1ST t_1", (7, 35), (10, 2)),
+						("_...+... := §2ND t_2", (7, 35), (10, 2)),
+						("t_3 := §1ST t_2", (7, 35), (10, 2)),
+						("_b := ARG", (9, 3), (9, 44)),
+						("t_1 := EMPTY, _b", (9, 19), (9, 24)),
+						("t_2 := 2", (9, 24), (9, 24)),
+						("t_3 := t_1, t_2", (9, 19), (9, 24)),
+						("t_4 := ._...-... t_3", (9, 19), (9, 24)),
+						("t_5 := ._Fib... t_4", (9, 14), (9, 25)),
+						("t_6 := EMPTY, t_5", (9, 13), (9, 44)),
+						("t_7 := EMPTY, _b", (9, 37), (9, 42)),
+						("t_8 := 1", (9, 42), (9, 42)),
+						("t_9 := t_7, t_8", (9, 37), (9, 42)),
+						("t_10 := ._...-... t_9", (9, 37), (9, 42)),
+						("t_11 := ._Fib... t_10", (9, 32), (9, 43)),
+						("t_12 := t_6, t_11", (9, 13), (9, 44)),
+						("t_13 := ._...+... t_12", (9, 13), (9, 44)),
+						("§RETURN t_13 IF TRUE", (9, 3), (9, 44)),
+					]
 				);
 			}
 		)
 	);
 	
-	private static void PrintModuleDefs<tPos>(
+	private static mIL_AST.tCommandNode<tSpan>
+	ParseCommand(
+		tText aCommand,
+		tSpan aSpan,
+		mStd.tAction<tText> aDebugStream
+	) {
+		var Command = mIL_Parser.Command.ParseText(aCommand, "", _ => { aDebugStream(_()); });
+		Command.Pos = aSpan;
+		return Command;
+	}
+	
+	private static void
+	AssertModuleDefs(
+		mStd.tAction<tText> aDebugStream,
+		mArrayList.tArrayList<(tText? TypeId, mArrayList.tArrayList<mIL_AST.tCommandNode<tSpan>> Commands)> aDefs1,
+		params (tText Command, (tNat32, tNat32) From, (tNat32, tNat32) To)[][] aDefs2
+	) {
+		var Count = (tNat32)aDefs2.Length;
+		mAssert.AreEquals(aDefs1.Size(), Count);
+		for (var I = 0u; I < Count; I += 1) {
+			mAssert.AreEquals(
+				aDefs1.Get(I).Commands.ToStream(),
+				mStream.Stream(aDefs2[I]).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream))
+			);
+		}
+	}
+	
+	private static void
+	PrintModuleDefs<tPos>(
 		mStream.tStream<(tText TypeId, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> aDefs,
 		mStd.tAction<tText> aStreamOut
 	) {

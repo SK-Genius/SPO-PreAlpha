@@ -19,8 +19,7 @@ mSPO_Interpreter_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mSPO_Interpreter),
-		mTest.Test(
-			"Run1",
+		mTest.Test("Run1",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -46,8 +45,7 @@ mSPO_Interpreter_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Run2",
+		mTest.Test("Run2",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -72,8 +70,7 @@ mSPO_Interpreter_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Run3",
+		mTest.Test("Run3",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -96,8 +93,7 @@ mSPO_Interpreter_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Run4",
+		mTest.Test("Run4",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -116,8 +112,7 @@ mSPO_Interpreter_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Run5",
+		mTest.Test("Run5",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -144,8 +139,7 @@ mSPO_Interpreter_Tests {
 			}
 		),
 		#if !true // TODO: implement generic operator (for example: <=>)
-		mTest.Test(
-			"Run6",
+		mTest.Test("Run6",
 			aDebugStream => {
 				mAssert.AssertEq(
 					mSPO_Interpreter.Run(
@@ -201,8 +195,7 @@ mSPO_Interpreter_Tests {
 			}
 		),
 		#endif
-		mTest.Test(
-			"Run7",
+		mTest.Test("Run7",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -225,8 +218,7 @@ mSPO_Interpreter_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Run8",
+		mTest.Test("Run8",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(

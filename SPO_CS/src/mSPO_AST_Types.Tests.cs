@@ -8,8 +8,7 @@ mSPO_AST_Types_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mSPO_AST),
-		mTest.Test(
-			"Literals",
+		mTest.Test("Literals",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.Int(cNoPos, 1), default),
@@ -21,8 +20,7 @@ mSPO_AST_Types_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Tuple",
+		mTest.Test("Tuple",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_AST_Types.UpdateExpressionTypes(
@@ -48,8 +46,7 @@ mSPO_AST_Types_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Lambda",
+		mTest.Test("Lambda",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_AST_Types.UpdateExpressionTypes(

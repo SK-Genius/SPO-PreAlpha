@@ -4,8 +4,7 @@ mMaybe_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mMaybe),
-		mTest.Test(
-			"Creating a Maybe with Some and check the value",
+		mTest.Test("Creating a Maybe with Some and check the value",
 			aStreamOut => {
 				var SomeInt = mMaybe.Some(1);
 				
@@ -14,8 +13,7 @@ mMaybe_Tests {
 				mAssert.IsFalse(SomeInt.IsNone());
 			}
 		),
-		mTest.Test(
-			"Creating a Maybe with None and check the value",
+		mTest.Test("Creating a Maybe with None and check the value",
 			aStreamOut => {
 				var NoneInt = mMaybe.None<int>();
 				
@@ -24,8 +22,7 @@ mMaybe_Tests {
 				mAssert.IsFalse(NoneInt.IsSome(out _));
 			}
 		),
-		mTest.Test(
-			"Implicit cast from Empty to None Maybe",
+		mTest.Test("Implicit cast from Empty to None Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mStd.cEmpty,
@@ -33,8 +30,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Implicit cast from value to Some Maybe",
+		mTest.Test("Implicit cast from value to Some Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					1,
@@ -42,8 +38,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Using Else with a None Maybe to get a default value",
+		mTest.Test("Using Else with a None Maybe to get a default value",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.None<int>().Else(5),
@@ -51,8 +46,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Using Else with a Some Maybe returns the contained value",
+		mTest.Test("Using Else with a Some Maybe returns the contained value",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).Else(5),
@@ -60,8 +54,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Applying a function using ThenDo on a Some Maybe",
+		mTest.Test("Applying a function using ThenDo on a Some Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).ThenDo(
@@ -71,8 +64,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Applying a function using ThenDo on a None Maybe",
+		mTest.Test("Applying a function using ThenDo on a None Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.None<int>().ThenDo(
@@ -82,8 +74,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Applying a function using ThenTry on a Some Maybe",
+		mTest.Test("Applying a function using ThenTry on a Some Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).ThenTry(
@@ -93,8 +84,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Applying a function using ThenTry on a None Maybe",
+		mTest.Test("Applying a function using ThenTry on a None Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.None<int>().ThenTry(
@@ -104,8 +94,7 @@ mMaybe_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"Using Match to handle both Some and None cases",
+		mTest.Test("Using Match to handle both Some and None cases",
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).Match(

@@ -18,8 +18,7 @@ mVM_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mVM),
-		mTest.Test(
-			"ExternDef",
+		mTest.Test("ExternDef",
 			aDebugStream => {
 				#if MY_TRACE
 					var TraceOut = mStd.Action(
@@ -63,8 +62,7 @@ mVM_Tests {
 				mAssert.AreEquals(Res, mVM_Data.Int(2));
 			}
 		),
-		mTest.Test(
-			"InternDef",
+		mTest.Test("InternDef",
 			aDebugStream => {
 				#if MY_TRACE
 					var TraceOut = mStd.Action(

@@ -4,8 +4,7 @@ mStdLib_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mStdLib),
-		mTest.Test(
-			"IfThenElse",
+		mTest.Test("IfThenElse",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -45,8 +44,7 @@ mStdLib_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"If2",
+		mTest.Test("If2",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -81,8 +79,7 @@ mStdLib_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"IfMatch1",
+		mTest.Test("IfMatch1",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -117,8 +114,7 @@ mStdLib_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"IfMatch2",
+		mTest.Test("IfMatch2",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -152,8 +148,7 @@ mStdLib_Tests {
 				);
 			}
 		),
-		mTest.Test(
-			"VAR",
+		mTest.Test("VAR",
 			aDebugStream => {
 				mAssert.AreEquals(
 					mSPO_Interpreter.Run(
@@ -191,8 +186,7 @@ mStdLib_Tests {
 			}
 		#if !true // TODO: implement method type
 		),
-		mTest.Test(
-			"Echo",
+		mTest.Test("Echo",
 			aDebugStream => {
 				var ReadLine = mVM_Data.ExternProc(
 					(aEnv, aObj, aArg, aTrace) => {
