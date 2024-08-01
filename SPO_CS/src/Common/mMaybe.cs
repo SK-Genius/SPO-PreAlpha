@@ -136,5 +136,9 @@ mMaybe {
 		[CallerMemberName]tText aCaller = "",
 		[CallerFilePath]tText aFile = "",
 		[CallerArgumentExpression("a")] string aExpr = ""
-	) => a.IsSome(out var Value) ? Value : throw mError.Error($"Error in '{aCaller}' ({aFile}:{aLine}): '{aExpr}' should not empty");
+	) => (
+		a.IsSome(out var Value)
+		? Value
+		: throw mError.Error($"Error in '{aCaller}' ({aFile}:{aLine}): '{aExpr}' should not empty")
+	);
 }

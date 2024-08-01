@@ -627,9 +627,12 @@ mSPO_AST_Types {
 						(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Match(
 						() => mVM_Type.Empty(),
-						(aHead, aTail) => aTail.Reduce(
-							aHead,
-							(aSet, aItem) => mVM_Type.Set(aItem, aSet)
+						(aHead, aTail) => aTail.Match(
+							() => aHead,
+							_ => aTail.Reduce(
+								aHead,
+								(aSet, aItem) => mVM_Type.Set(aItem, aSet)
+							)
 						)
 					)
 				);

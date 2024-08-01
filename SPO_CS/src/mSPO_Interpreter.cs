@@ -32,14 +32,14 @@ mSPO_Interpreter {
 			_ => _.Scope
 		).ElseThrow();
 		
-		var Scope = ModuleNode.Commands.Reduce(
+		ModuleNode.Commands.Reduce(
 			mResult.OK(InitScope).AsResult<tText>(),
 			(aResultScope, aCommand) => aResultScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
 		).ElseThrow();
 		
-		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, Scope);
+		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
 		
 		return mVM.Run(
 			mIL_AST.Module(
