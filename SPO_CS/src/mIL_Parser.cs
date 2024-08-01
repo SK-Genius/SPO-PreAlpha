@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using tToken = mTokenizer.tToken;
+﻿using tToken = mTokenizer.tToken;
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -9,7 +7,6 @@ using tError = System.String;
 
 public static class
 mIL_Parser {
-	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	NL = mTokenizer.NL_Token;
 	

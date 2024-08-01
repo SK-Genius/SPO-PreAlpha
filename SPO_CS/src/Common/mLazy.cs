@@ -1,5 +1,3 @@
-#nullable enable
-
 public static class mLazy {
 	[Pure]
 	public sealed class
@@ -7,14 +5,14 @@ public static class mLazy {
 		private mStd.tFunc<t>? _Func;
 		private t _Value;
 		
-		public t Value {           
+		public t Value {
 			[DebuggerHidden]
-			get {                     
+			get {
 				if (this._Func is not null) {
 					this._Value = this._Func();
-					this._Func = null;      
-				}                        
-				return this._Value;      
+					this._Func = null;
+				} 
+				return this._Value; 
 			}
 		}
 		

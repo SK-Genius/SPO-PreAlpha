@@ -1,8 +1,6 @@
 ﻿//#define MY_TRACE
 //#define INF_LOOP_DETECTION
 
-using System;
-
 public static class
 mParserGen {
 	#region Helper
@@ -407,7 +405,7 @@ mParserGen {
 		[Pure, DebuggerHidden]
 		public tParser<tPos, tIn, mStream.tStream<tOut>?, tError>
 		this[
-			Range aRange
+			System.Range aRange
 		] {
 			get {
 				mAssert.IsFalse(aRange.Start.IsFromEnd);

@@ -1,7 +1,4 @@
-﻿using tPos = mTextStream.tPos;
-using tSpan = mSpan.tSpan<mTextStream.tPos>;
-
-public static class
+﻿public static class
 mVM_Type_Tests {
 	private static tText
 	Id(

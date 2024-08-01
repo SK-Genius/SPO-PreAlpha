@@ -5,7 +5,6 @@ using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
 
 public static class
 mSPO2IL {
-	
 	public class
 	tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> TypeDef;

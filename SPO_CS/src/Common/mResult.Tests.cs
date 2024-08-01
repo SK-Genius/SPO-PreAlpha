@@ -1,6 +1,5 @@
 ﻿public static class
 mResult_Tests {
-
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mResult),

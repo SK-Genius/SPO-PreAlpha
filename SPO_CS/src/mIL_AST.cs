@@ -1,13 +1,7 @@
-﻿//IMPORT mDebug.cs
-//IMPORT mMaybe.cs
-
-#nullable enable
-
-//#define MY_TRACE
+﻿//#define MY_TRACE
 
 public static class
 mIL_AST {
-	
 	public record tDef<tPos>(
 		tText Id,
 		tText Type,

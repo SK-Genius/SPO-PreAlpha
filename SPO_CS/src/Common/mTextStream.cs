@@ -2,7 +2,6 @@
 
 public static class
 mTextStream {
-	
 	public struct
 	tPos {
 		public tText Id;

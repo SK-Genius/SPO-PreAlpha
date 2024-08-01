@@ -1,6 +1,5 @@
 public static class
 mConsole {
-	
 	private enum
 	tFn {
 		Reset = 0,

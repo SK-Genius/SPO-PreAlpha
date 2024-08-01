@@ -2,7 +2,6 @@
 
 public static class
 mTreeMap {
-	
 	[DebuggerTypeProxy(typeof(tTree<,>.tDebuggerProxy))]
 	public readonly struct
 	tTree<tKey, tValue> {

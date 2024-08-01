@@ -1,6 +1,5 @@
 ﻿public static class
 mMaybe {
-	
 	public readonly struct
 	tMaybe<t> {
 		

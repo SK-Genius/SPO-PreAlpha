@@ -1,9 +1,7 @@
-﻿using tPos = mTextStream.tPos;
-using tSpan = mSpan.tSpan<mTextStream.tPos>;
+﻿using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mIL_GenerateOpcodes_Tests {
-	
 	private static tText
 	SpanToText(
 		tSpan a

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-public static class
+﻿public static class
 mTreeMap_Tests {
 	private static readonly mStd.tFunc<tInt32, tInt32, tInt32>
 	Int32Compare = (a1, a2) => mMath.Sign(a1 - a2);

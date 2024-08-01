@@ -1,6 +1,5 @@
 ﻿public static class
 mParserGen_Tests {
-	
 	private static readonly mSpan.tSpan<mStd.tEmpty> cTestSpan = default;
 	
 	private static mStream.tStream<(mSpan.tSpan<mStd.tEmpty>, t)>?

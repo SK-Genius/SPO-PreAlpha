@@ -1,6 +1,5 @@
 ﻿public static class
 mSPO_Interpreter_Tests {
-	
 	private static mVM_Data.tData
 	Mul(
 		mVM_Data.tData aEnv,

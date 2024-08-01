@@ -1,8 +1,5 @@
-﻿#nullable enable
-
-public static class
+﻿public static class
 mSpan {
-	
 	public readonly struct
 	tSpan<tPos> {
 		public readonly tPos Start;

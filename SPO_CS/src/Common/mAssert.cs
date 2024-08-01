@@ -1,6 +1,5 @@
 ﻿public static class
 mAssert {
-	
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

@@ -1,6 +1,5 @@
 ﻿public static class
 mSPO_Interpreter {
-	
 	// TODO: return tResult
 	public static mVM_Data.tData
 	Run(

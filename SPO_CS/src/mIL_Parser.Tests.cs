@@ -3,7 +3,6 @@ using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mIL_Parser_Tests {
-	
 	private static tSpan
 	Span(
 		(tNat32 Row, tNat32 Col) aStart,

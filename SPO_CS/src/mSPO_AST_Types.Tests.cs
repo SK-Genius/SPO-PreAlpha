@@ -1,6 +1,5 @@
 ﻿public static class
 mSPO_AST_Types_Tests {
-	
 	#if true
 	
 	private const tInt32 cNoPos = 1; 

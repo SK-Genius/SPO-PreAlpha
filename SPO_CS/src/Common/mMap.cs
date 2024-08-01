@@ -1,6 +1,5 @@
 ﻿public static class
 mMap {
-	
 	public readonly struct
 	tMap<tKey, tValue> {
 		internal readonly mStream.tStream<(tKey, tValue)>? _KeyValuePairs;

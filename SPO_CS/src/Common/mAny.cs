@@ -43,16 +43,16 @@ mAny {
 		}
 #endif
 		mAssert.IsNotNull(a._Value);
-		       
+		
 		if (a._Value is t Value) {
 			aValue = Value;
 			return true;  
-		} else {       
+		} else {
 			aValue = default!;
 			return false; 
-		}              
-	}               
-	                
+		} 
+	} 
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static tBool
 	Is(

@@ -1,10 +1,6 @@
-﻿#nullable enable
-
-//#define MY_TRACE
+﻿//#define MY_TRACE
 
 using System;
-using System.Runtime.InteropServices.ObjectiveC;
-using System.Text.RegularExpressions;
 
 public static class
 mIL_GenerateOpcodes {

@@ -1,6 +1,5 @@
 ﻿public static class
 mStream_Tests {
-	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mStream),

@@ -2,7 +2,6 @@
 
 public static class
 mTest {
-	
 	private const tText cTab = "|  ";
 	
 	public enum

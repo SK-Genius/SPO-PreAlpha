@@ -1,11 +1,8 @@
-﻿using System;
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mSPO2IL_Tests {
-	
 	private static tSpan
 	Span(
 		(tNat32 Row, tNat32 Col) aStart,
@@ -995,7 +992,7 @@ mSPO2IL_Tests {
 		mTest.Test("MapRecursion",
 			aStreamOut => {
 				var ModuleNode = mSPO_Parser.Module.ParseText(
-					//    1     2     3     4     5     6     7     8
+					//        1         2         3         4         5         6         7         8
 					//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 					"""
 					§IMPORT (
@@ -1171,6 +1168,7 @@ mSPO2IL_Tests {
 		var Count = (tNat32)aDefs2.Length;
 		mAssert.AreEquals(aDefs1.Size(), Count);
 		for (var I = 0u; I < Count; I += 1) {
+			aDebugStream($"Def {I}:");
 			mAssert.AreEquals(
 				aDefs1.Get(I).Commands.ToStream(),
 				mStream.Stream(aDefs2[I]).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream))

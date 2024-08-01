@@ -717,7 +717,7 @@ mVM_Data {
 	
 	public static tData
 	Tuple(
-		params tData[] a
+		params System.ReadOnlySpan<tData> a
 	) => mStream.Stream(a).Reduce(Empty(), Pair);
 	
 	public static tBool

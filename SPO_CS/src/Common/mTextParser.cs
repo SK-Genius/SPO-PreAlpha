@@ -7,7 +7,6 @@ using tError = System.String;
 
 public static class
 mTextParser {
-	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
 	ComparePos(

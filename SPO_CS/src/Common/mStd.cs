@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-global using tBool = System.Boolean;
+﻿global using tBool = System.Boolean;
 
 global using tNat8 = System.Byte;
 global using tNat16 = System.UInt16;
@@ -16,7 +14,6 @@ global using tChar = System.Char;
 global using tText = System.String;
 
 public static class mStd {
-	
 	#region tFunc & tAction
 	
 	public delegate tRes tFunc<out tRes>();

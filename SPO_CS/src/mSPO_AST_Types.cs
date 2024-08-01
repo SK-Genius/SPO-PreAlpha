@@ -1,6 +1,4 @@
-﻿using System;
-
-using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
+﻿using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
 
 public static class
 mSPO_AST_Types {
@@ -598,7 +596,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tLambdaTypeNode<tPos> LambdaType: {
-				Result = ResolveTypeExpression(LambdaType.ArgType, aScope).ThenTry(               // §DEF ArgType = §TRY ResolveTypeExpression(LambdaType.ArgType, aScope)
+				Result = ResolveTypeExpression(LambdaType.ArgType, aScope).ThenTry(            // §DEF ArgType = §TRY ResolveTypeExpression(LambdaType.ArgType, aScope)
 					aArgType => ResolveTypeExpression(LambdaType.ResType, aScope).Then(        // §DEF ResType = §TRY ResolveTypeExpression(LambdaType.ResType, aScope)
 						aResType => mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType)        // Result = mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType)
 					)

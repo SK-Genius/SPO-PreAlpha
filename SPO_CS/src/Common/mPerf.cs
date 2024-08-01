@@ -1,7 +1,5 @@
 ﻿//#define MY_TRACE
 
-#nullable enable
-
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 

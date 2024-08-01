@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public static class
 mStream {
-	
 	[DebuggerTypeProxy(typeof(tStream<>.tDebuggerProxy))]
 	public sealed class
 	tStream<t> {
@@ -126,6 +125,18 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
+		params System.ReadOnlySpan<t> aStream
+	) {
+		var Result = (tStream<t>?)null;
+		for (var I = aStream.Length; I --> 0;) {
+			Result = Stream(aStream[I], Result);
+		}
+		return Result;
+	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>?
+	Stream<t>(
 		params t[] aStream
 	) {
 		var Result = (tStream<t>?)null;
@@ -134,6 +145,12 @@ mStream {
 		}
 		return Result;
 	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>?
+	AsStream<t>(
+		this System.ReadOnlySpan<t> a
+	) => Stream(a);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
@@ -216,8 +233,8 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Flatt<t>(
-		params tStream<t>?[] a
-	) => mStream.Stream(a).Flatt();
+		params System.ReadOnlySpan<tStream<t>?> a
+	) => Stream(a).Flatt();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?

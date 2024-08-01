@@ -1,6 +1,5 @@
 ﻿public static class
 mArrayList {
-	
 	public sealed class
 	tArrayList<t> {
 		internal tNat32 _CurrSize;
@@ -141,7 +140,7 @@ mArrayList {
 		System.Array.Copy(a2._Items, 0, Array, a1._CurrSize, a2._CurrSize);
 		return new tArrayList<t> {
 			_CurrSize = (tNat32)Array.Length,
-			_Items = Array
+			_Items = Array,
 		};
 	}
 	
