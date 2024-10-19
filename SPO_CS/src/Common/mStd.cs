@@ -13,6 +13,8 @@ global using tInt64 = System.Int64;
 global using tChar = System.Char;
 global using tText = System.String;
 
+global using tCPtr = System.IntPtr;
+
 public static class mStd {
 	#region tFunc & tAction
 	

@@ -112,7 +112,8 @@ mTest {
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tText>? aFilters,
 		tBool aHideSkippedTests,
-		tBool aIsLogEnable
+		tBool aIsLogEnable,
+		tBool aStopOnFirstFail
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -203,7 +204,8 @@ mTest {
 						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)),
 						aFilters,
 						aHideSkippedTests,
-						aIsLogEnable
+						aIsLogEnable,
+						aStopOnFirstFail
 					);
 					OK_CountSum += SubResult.OK_Count;
 					SkipCountSum += SubResult.SkipCount;
@@ -226,6 +228,10 @@ mTest {
 							SkipCount += 1;
 							break;
 						}
+					}
+					
+					if (aStopOnFirstFail && FailCount > 0) {
+						break;	
 					}
 				}
 				StopWatch.Stop();

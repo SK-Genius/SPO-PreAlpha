@@ -379,8 +379,8 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					DefConstructor.EnvIds.ToStream(),
 					mStream.Stream(
-						(mSPO2IL.GetId("...*..."), Span((1, 27), (1, 32))),
-						(mSPO2IL.GetDefId(1), Span((1, 10), (1, 32)))
+						mSPO2IL.GetId("...*..."),
+						mSPO2IL.GetDefId(1)
 					)
 				);
 			}
@@ -483,9 +483,9 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					DefConstructor.EnvIds.ToStream(),
 					mStream.Stream(
-						(mSPO2IL.GetId("...+..."), Span((1, 69), (1, 81))),
-						(mSPO2IL.GetId("...*..."), Span((1, 70), (1, 75))),
-						(mSPO2IL.GetDefId(1), Span((1, 20), (1, 81)))
+						mSPO2IL.GetId("...+..."),
+						mSPO2IL.GetId("...*..."),
+						mSPO2IL.GetDefId(1)
 					)
 				);
 			}
@@ -588,9 +588,9 @@ mSPO2IL_Tests {
 				mAssert.AreEquals(
 					DefConstructor.EnvIds.ToStream(),
 					mStream.Stream(
-						(mSPO2IL.GetId("...>..."), Span((1, 69), (1, 81))),
-						(mSPO2IL.GetId("...*..."), Span((1, 70), (1, 75))),
-						(mSPO2IL.GetDefId(1), Span((1, 20), (1, 81)))
+						mSPO2IL.GetId("...>..."),
+						mSPO2IL.GetId("...*..."),
+						mSPO2IL.GetDefId(1)
 					)
 				);
 			}
@@ -917,7 +917,7 @@ mSPO2IL_Tests {
 				
 				mAssert.AreEquals(
 					EnvIds.ToStream(),
-					mStream.Stream((mSPO2IL.GetId("...*..."), Span((1, 82), (1, 87))))
+					mStream.Stream(mSPO2IL.GetId("...*..."))
 				);
 			}
 		),

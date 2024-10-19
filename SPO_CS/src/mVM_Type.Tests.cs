@@ -31,7 +31,6 @@ mVM_Type_Tests {
 			("1 .+ 1", "§INT"),
 			("a € §INT => a .+ a", "[§INT => §INT]"),
 			(".((a1 € §INT, a2 € §INT, a3 € §INT) => (a1 .+ a2) .+ a3)(1, 2, 3)", "§INT"),
-			// TODO: (".((a1, a2, a3) => ((a1 .+ a2) .+ a3))(1, 2, 3)", "§INT"),
 			(
 				"""
 				§IF (1, 2) MATCH {

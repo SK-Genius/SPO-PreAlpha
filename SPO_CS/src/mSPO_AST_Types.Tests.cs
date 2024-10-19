@@ -6,7 +6,7 @@ mSPO_AST_Types_Tests {
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mSPO_AST),
+		nameof(mSPO_AST_Types),
 		mTest.Test("Literals",
 			aDebugStream => {
 				mAssert.AreEquals(

@@ -2,7 +2,7 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<LangVersion>preview</LangVersion>
+		<LangVersion>Preview</LangVersion>
 		<OutputType>Exe</OutputType>
 		<!--  Exe | Library | Module | Winexe -->
 		
@@ -12,6 +12,7 @@
 		<Deterministic>true</Deterministic>
 		<AnalysisLevel>preview-all</AnalysisLevel>
 		<NoWarn>659,661,8604,8618</NoWarn>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	
 	<ItemGroup>

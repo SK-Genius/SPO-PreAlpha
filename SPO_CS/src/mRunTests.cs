@@ -10,12 +10,12 @@
 	mArrayList_Tests.Tests,
 	mParserGen_Tests.Tests,
 //	mTextParser_Test.Test,
-	mVM_Tests.Tests,
-	mVM_Type_Tests.Tests,
 //	mVM_Data_Test.Test,
 //	mIL_AST_Test.Test,
 	mTokenizer_Tests.Tests,
 	mIL_Parser_Tests.Tests,
+	mVM_Type_Tests.Tests,
+	mVM_Tests.Tests,
 	mIL_GenerateOpcodes_Tests.Tests,
 //	mSPO_AST_Test.Test,
 	mSPO_AST_Types_Tests.Tests,
@@ -50,6 +50,9 @@ const string cFilterCommandShort = "-f";
 const string cNoLogCommand = "--noLog";
 const string cNoLogCommandShort = "-n";
 
+const string cStopOnFirstFail = "--StopOnFirstFail";
+const string cStopOnFirstFailShort = "-1";
+
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 	System.Console.WriteLine(
 		$"""
@@ -58,6 +61,7 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
 		{cFilterCommandShort} {cFilterCommand}
 		{cNoLogCommandShort} {cNoLogCommand}
+		{cStopOnFirstFailShort} {cStopOnFirstFail}
 		"""
 	);
 	return 0;
@@ -78,11 +82,13 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 } else {
 	var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
 	var IsLogEnabled = !Args.Any(_ => _ is cNoLogCommand or cNoLogCommandShort);
+	var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort);
 	
 	return Tests.Run(
 		PrintLn,
 		Filter,
 		HideSkippedTests,
-		IsLogEnabled
+		IsLogEnabled,
+		StopOnFirstFail
 	).Result == mTest.tResult.Fail ? -1 : 0;
 }
