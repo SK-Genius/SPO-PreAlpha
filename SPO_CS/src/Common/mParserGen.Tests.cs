@@ -370,7 +370,7 @@ mParserGen_Tests {
 				mAssert.AreEquals(Eval("( 7 * (8 / 4))"), 14);
 				mAssert.AreEquals(Eval("( 7 * (8 / (4  -6)))"), -28);
 				
-				mParserGen.tParser<mStd.tEmpty, char, char, string>
+				mParserGen.tParser<mStd.tEmpty, tChar, tChar, tText>
 				CharIn(
 					tText aChars
 				) => mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
@@ -384,7 +384,7 @@ mParserGen_Tests {
 					ComparePos
 				);
 				
-				mParserGen.tParser<mStd.tEmpty, char, string, string>
+				mParserGen.tParser<mStd.tEmpty, tChar, tText, tText>
 				Token(
 					tText aToken
 				) {

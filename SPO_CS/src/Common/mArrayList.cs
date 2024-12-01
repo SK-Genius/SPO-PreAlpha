@@ -25,7 +25,7 @@ mArrayList {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
 		Equals(
-			object? a
+			tUnknown? a
 		) => this.Equals((tArrayList<t>)a!);
 	}
 	

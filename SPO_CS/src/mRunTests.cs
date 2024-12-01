@@ -35,23 +35,23 @@ PrintLn(
 	System.Console.Out.Flush();
 }
 
-const string cHelpCommand = "--help";
-const string cHelpCommandShort = "-h";
+const tText cHelpCommand = "--help";
+const tText cHelpCommandShort = "-h";
 
-const string cListCommand = "--list";
-const string cListCommandShort = "-l";
+const tText cListCommand = "--list";
+const tText cListCommandShort = "-l";
 
-const string cShowSkippedTestsCommand = "--showSkippedTests";
-const string cShowSkippedTestsCommandShort = "-s";
+const tText cShowSkippedTestsCommand = "--showSkippedTests";
+const tText cShowSkippedTestsCommandShort = "-s";
 
-const string cFilterCommand = "--filter";
-const string cFilterCommandShort = "-f";
+const tText cFilterCommand = "--filter";
+const tText cFilterCommandShort = "-f";
 
-const string cNoLogCommand = "--noLog";
-const string cNoLogCommandShort = "-n";
+const tText cOutputLevelCommand = "--outputLevel";
+const tText cOutputLevelCommandShort = "-o";
 
-const string cStopOnFirstFail = "--StopOnFirstFail";
-const string cStopOnFirstFailShort = "-1";
+const tText cStopOnFirstFail = "--StopOnFirstFail";
+const tText cStopOnFirstFailShort = "-1";
 
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 	System.Console.WriteLine(
@@ -60,7 +60,7 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
 		{cFilterCommandShort} {cFilterCommand}
-		{cNoLogCommandShort} {cNoLogCommand}
+		{cOutputLevelCommandShort}=<level> {cOutputLevelCommand}=<level>
 		{cStopOnFirstFailShort} {cStopOnFirstFail}
 		"""
 	);
@@ -81,14 +81,20 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	return 0;
 } else {
 	var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
-	var IsLogEnabled = !Args.Any(_ => _ is cNoLogCommand or cNoLogCommandShort);
+	var OutputLevel = Args.Where(
+		_ => _.StartsWith(cOutputLevelCommand + "=") || _.StartsWith(cOutputLevelCommandShort + "=")
+	).TryFirst(
+	).Match(
+		_ => tInt32.Parse(_.Split('=', 2)[1].Trim()),
+		() => tInt32.MaxValue
+	);
 	var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort);
 	
 	return Tests.Run(
 		PrintLn,
 		Filter,
 		HideSkippedTests,
-		IsLogEnabled,
+		OutputLevel,
 		StopOnFirstFail
 	).Result == mTest.tResult.Fail ? -1 : 0;
 }

@@ -59,7 +59,7 @@ mResult {
 			_Error = aFail._Error
 		};
 		
-		public override readonly string
+		public override readonly tText
 		ToString(
 		) => this.Then(
 			_ => "" + _
@@ -235,8 +235,8 @@ mResult {
 		this mMaybe.tMaybe<t> aRes,
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
-		aOnSome: [DebuggerHidden](aValue) => (tResult<t, tError>)OK(aValue),
-		aOnNone: [DebuggerHidden]() => Fail(aOnFail())
+		[DebuggerHidden](aValue) => (tResult<t, tError>)OK(aValue),
+		[DebuggerHidden]() => Fail(aOnFail())
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

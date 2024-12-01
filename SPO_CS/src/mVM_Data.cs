@@ -107,7 +107,7 @@ mVM_Data {
 		
 		public tNat32 _LastReg = cResReg;
 		
-		public string FirstPosText => "" + this.PosList.ToStream().TryFirst()._Value;
+		public tText FirstPosText => "" + this.PosList.ToStream().TryFirst()._Value;
 		
 		public tProcDef(
 			mVM_Type.tType aDefType
@@ -604,7 +604,7 @@ mVM_Data {
 		
 		public override tBool
 		Equals(
-			object? a
+			tUnknown? a
 		) => this.Equals((tData)a!);
 	}
 	

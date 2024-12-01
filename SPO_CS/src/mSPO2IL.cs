@@ -30,14 +30,14 @@ mSPO2IL {
 	) => new() {
 		Defs = mArrayList.List<(tText? Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
 		TypeDef = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
-		Types = mTreeMap.Tree<string, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2))),
+		Types = mTreeMap.Tree<tText, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2))),
 		MergePos = aMergePos,
 	};
 	
 	public static tDefConstructor<tPos>
 	NewDefConstructor<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
-		string aTypeId
+		tText aTypeId
 	) {
 		var DefIndex = aModuleConstructor.Defs.Size();
 		var Commands = mArrayList.List<mIL_AST.tCommandNode<tPos>>();
@@ -463,8 +463,8 @@ mSPO2IL {
 					!aDefConstructor.Commands.ToStream(
 					).Any(
 						_ => _.GetResultReg().Match(
-							aOnSome: aName => aName == Id,
-							aOnNone: () => false
+							aName => aName == Id,
+							() => false
 						)
 					)
 				) {
@@ -549,7 +549,7 @@ mSPO2IL {
 					var HeadReg = aDefConstructor.CreateTempReg();
 					var TextReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(
-						mIL_AST.CreateInt(Pos, CharOrdReg, ((int)Char).ToString()),
+						mIL_AST.CreateInt(Pos, CharOrdReg, ((tInt32)Char).ToString()),
 						mIL_AST.AddPrefix(Pos, HeadReg, "Char", CharOrdReg),
 						mIL_AST.CreatePair(Pos, TextReg, TailReg, HeadReg)
 					);

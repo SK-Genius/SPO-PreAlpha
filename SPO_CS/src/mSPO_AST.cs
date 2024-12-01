@@ -968,11 +968,11 @@ mSPO_AST {
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
 						Node1.Type.Match(
-							aOnSome: Type1 => Node2.Type.Match(
-								aOnSome: Type2 => AreEqual(Type1, Type2),
-								aOnNone: () => false
+							Type1 => Node2.Type.Match(
+								Type2 => AreEqual(Type1, Type2),
+								() => false
 							),
-							aOnNone: () => Node2.Type.IsNone()
+							() => Node2.Type.IsNone()
 						)
 					)
 				);
@@ -1211,8 +1211,8 @@ mSPO_AST {
 			
 			// Matches
 			tMatchNode<t> Node => Node.Type.Match(
-				aOnSome: Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
-				aOnNone: () => Node.Pattern.ToText(____)
+				Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
+				() => Node.Pattern.ToText(____)
 			),
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
@@ -1232,7 +1232,7 @@ mSPO_AST {
 			// Commands
 			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
 			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aOnSome: _ => _.ToText(____), aOnNone: () => "()")}",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(_ => _.ToText(____), () => "()")}",
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",

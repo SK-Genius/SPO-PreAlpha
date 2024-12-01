@@ -14,7 +14,7 @@ mMaybe_Tests {
 		),
 		mTest.Test("Creating a Maybe with None and check the value",
 			aStreamOut => {
-				var NoneInt = mMaybe.None<int>();
+				var NoneInt = mMaybe.None<tInt32>();
 				
 				mAssert.IsTrue(NoneInt.IsNone());
 				
@@ -25,7 +25,7 @@ mMaybe_Tests {
 			aStreamOut => {
 				mAssert.AreEquals(
 					mStd.cEmpty,
-					mMaybe.None<int>()
+					mMaybe.None<tInt32>()
 				);
 			}
 		),
@@ -40,7 +40,7 @@ mMaybe_Tests {
 		mTest.Test("Using Else with a None Maybe to get a default value",
 			aStreamOut => {
 				mAssert.AreEquals(
-					mMaybe.None<int>().Else(5),
+					mMaybe.None<tInt32>().Else(5),
 					5
 				);
 			}
@@ -66,7 +66,7 @@ mMaybe_Tests {
 		mTest.Test("Applying a function using ThenDo on a None Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
-					mMaybe.None<int>().ThenDo(
+					mMaybe.None<tInt32>().ThenDo(
 						i => i.ToString()
 					),
 					mStd.cEmpty
@@ -86,7 +86,7 @@ mMaybe_Tests {
 		mTest.Test("Applying a function using ThenTry on a None Maybe",
 			aStreamOut => {
 				mAssert.AreEquals(
-					mMaybe.None<int>().ThenTry(
+					mMaybe.None<tInt32>().ThenTry(
 						i => mMaybe.Some(i.ToString())
 					),
 					mStd.cEmpty
@@ -97,16 +97,16 @@ mMaybe_Tests {
 			aStreamOut => {
 				mAssert.AreEquals(
 					mMaybe.Some(1).Match(
-						aOnNone: () => "No value",
-						aOnSome: i => i.ToString()
+						() => "No value",
+						i => i.ToString()
 					),
 					"1"
 				);
 				
 				mAssert.AreEquals(
-					mMaybe.None<int>().Match(
-						aOnNone: () => "No value",
-						aOnSome: i => i.ToString()
+					mMaybe.None<tInt32>().Match(
+						() => "No value",
+						i => i.ToString()
 					),
 					"No value"
 				);

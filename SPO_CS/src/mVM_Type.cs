@@ -29,9 +29,9 @@ mVM_Type {
 		public tText? Prefix;
 		public tType[] Refs = System.Array.Empty<tType>();
 		
-		public override bool
+		public override tBool
 		Equals(
-			object? a
+			tUnknown? a
 		) => this == (tType)a!;
 		
 		public static tBool operator!=(
@@ -73,14 +73,14 @@ mVM_Type {
 			return true;
 		}
 		
-		public override string
+		public override tText
 		ToString(
 		) => this.ToText();
 	}
 	
 	public static readonly tText? cUnknownPrefix = null; // TODO
 	
-	private static int NextPlaceholderId = 1; // TODO: remove static var
+	private static tInt32 NextPlaceholderId = 1; // TODO: remove static var
 	
 	public static tType
 	Free(

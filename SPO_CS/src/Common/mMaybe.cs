@@ -27,11 +27,11 @@ mMaybe {
 			t a
 		) => Some(a);
 		
-		public override string
+		public override tText
 		ToString(
 		) => this.Match(
-			aOnNone: () => "-",
-			aOnSome: _ => "" + _
+			() => "-",
+			_ => "" + _
 		);
 	}
 	
@@ -79,6 +79,18 @@ mMaybe {
 		: aOnNone()
 	);
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tOut
+	Match<tIn, tOut>( // nice but slow
+		this tMaybe<tIn> a,
+		mStd.tFunc<tOut, tIn> aOnSome,
+		mStd.tFunc<tOut> aOnNone
+	) => (
+	a.IsSome(out var Value)
+		? aOnSome(Value)
+		: aOnNone()
+	);
+
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ThenDo<tIn, tOut>(
@@ -135,7 +147,7 @@ mMaybe {
 		[CallerLineNumber]tInt32 aLine = 0,
 		[CallerMemberName]tText aCaller = "",
 		[CallerFilePath]tText aFile = "",
-		[CallerArgumentExpression("a")] string aExpr = ""
+		[CallerArgumentExpression("a")] tText aExpr = ""
 	) => (
 		a.IsSome(out var Value)
 		? Value

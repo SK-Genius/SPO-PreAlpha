@@ -22,7 +22,7 @@ mSPO2IL_Tests {
 	
 	private static void AssertCommandsAre<tPos>(
 		mStream.tStream<mIL_AST.tCommandNode<tPos>>? aSPO_Commands,
-		string aIL_Commands
+		tText aIL_Commands
 	) {
 		mAssert.AreEquals(
 			aSPO_Commands.Map(
@@ -38,7 +38,7 @@ mSPO2IL_Tests {
 	private static void AssertDefsAre<tPos>(
 		mStd.tAction<tText> aStreamOut,
 		mStream.tStream<(tText? Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)>? aSPO_Defs,
-		params string[] aIL_Defs
+		params tText[] aIL_Defs
 	) {
 		aStreamOut($"Def Count: {aSPO_Defs.Count()}");
 		var DefIndex = 0u;

@@ -303,7 +303,7 @@ mParserGen {
 			mResult.tResult<tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos Pos, tError Message)>?>,
 			mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)>?,
 			mStd.tAction<tText>,
-			mStream.tStream<object>?
+			mStream.tStream<tUnknown>?
 		> _ParseFunc;
 		
 		internal mStd.tFunc<mStream.tStream<(tPos Pos, tError Message)>?, mStream.tStream<(tPos Pos, tError Message)>?, (mSpan.tSpan<tPos>, tIn)>? _ModifyErrorsFunc;
@@ -411,12 +411,12 @@ mParserGen {
 				mAssert.IsFalse(aRange.Start.IsFromEnd);
 				
 				var Min = aRange.Start.Value;
-				var Max = aRange.End.IsFromEnd ? (int?)null : aRange.End.Value;
+				var Max = aRange.End.IsFromEnd ? (tInt32?)null : aRange.End.Value;
 				var Parser = new tParser<tPos, tIn, mStream.tStream<tOut>?, tError>(this._ComparePos);
 				Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => {
 					var Result = mStream.Stream<tOut>();
 					var RemainingStream = aStream;
-					var Max_ = Max ?? int.MaxValue;
+					var Max_ = Max ?? tInt32.MaxValue;
 					var Span = default(mSpan.tSpan<tPos>);
 					var I = 0;
 					
@@ -497,7 +497,7 @@ mParserGen {
 		Cast<tNewOut>(
 		) {
 			mAssert.IsTrue(typeof(tNewOut).IsAssignableFrom(typeof(tOut)));
-			return this.Modify(_ => (tNewOut)(object)_);
+			return this.Modify(_ => (tNewOut)(tUnknown)_);
 		}
 	}
 	
@@ -505,7 +505,7 @@ mParserGen {
 	public static tParser<tPos, tIn, tOut, tError>
 	SetDebugDef<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
-		params object?[] aDebugNameParts
+		params tUnknown?[] aDebugNameParts
 	) {
 		#if DEBUG || MY_TRACE
 			var Def = "";
@@ -521,7 +521,7 @@ mParserGen {
 	public static tParser<tPos, tIn, tOut, tError>
 	SetDebugName<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
-		params object[] aDebugNameParts
+		params tUnknown[] aDebugNameParts
 	) {
 		#if DEBUG || MY_TRACE
 			var Name = "";
@@ -623,15 +623,15 @@ mParserGen {
 		
 		// TODO: review (First vs Last ???)
 		return a1.TryFirst().Match(
-			aOnNone: () => a2,
-			aOnSome: a1_ => a2.TryFirst().Match(
-				aOnNone: () => a1,
-				aOnSome: a2_ => aComparePos(a1_.Pos, a2_.Pos) switch {
+			() => a2,
+			a1_ => a2.TryFirst().Match(
+				() => a1,
+				a2_ => aComparePos(a1_.Pos, a2_.Pos) switch {
 					> 0 => a1,
 					< 0 => a2,
 					_ => a1.TryLast().Match(
-						aOnNone: () => a2,
-						aOnSome: _ => mStream.Stream(_, a2)
+						() => a2,
+						_ => mStream.Stream(_, a2)
 					)
 				}
 			)
@@ -688,7 +688,7 @@ mParserGen {
 				aDebugStream(() => new tText(' ', mMath.Max(Level.Value, 0)) + aDebugText);
 				if (aDebugText.EndsWith('{')) { Level += 1; }
 			},
-			mStream.Stream<object>()
+			mStream.Stream<tUnknown>()
 		);
 	}
 	
@@ -701,9 +701,9 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStream.tStream<(mSpan.tSpan<tPos>, tIn)>? aStream,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<object>? aInfiniteLoopDetectionSet
+		mStream.tStream<tUnknown>? aInfiniteLoopDetectionSet
 	) {
-		const bool HasToLogIfFailed = !true;
+		const tBool HasToLogIfFailed = !true;
 		var HasToLog = false;
 		var Trace = mStream.Stream<tText>();
 		void AppendToTrace(tText a) {

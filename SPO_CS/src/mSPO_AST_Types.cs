@@ -218,7 +218,7 @@ mSPO_AST_Types {
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = Match.Type.Match(
-					aOnSome: aType_ => mStd.Call(
+					aType_ => mStd.Call(
 						() => ResolveTypeExpression(aType_, aScope).ThenTry(
 							aType => UpdateMatchTypes(
 								Match.Pattern,
@@ -228,7 +228,7 @@ mSPO_AST_Types {
 							)
 						)
 					),
-					aOnNone: () => UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope)
+					() => UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope)
 				);
 				break;
 			}
@@ -238,8 +238,8 @@ mSPO_AST_Types {
 						() => {
 							if (_.IsType(out var OfType)) {
 								_ = OfType.Match(
-									aOnNone: () => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
-									aOnSome: aType => _
+									() => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
+									aType => _
 								);
 							}
 							return (_, mStream.Stream((MatchFreeId.Id, _), aScope));
@@ -412,7 +412,7 @@ mSPO_AST_Types {
 					aScope
 				).ThenTry(
 					aSrcType => Def.Des.Type.Match(
-						aOnSome: DesTypeNode => UpdateMatchTypes(
+						DesTypeNode => UpdateMatchTypes(
 							Def.Des,
 							aSrcType,
 							tTypeRelation.Equal,
@@ -420,7 +420,7 @@ mSPO_AST_Types {
 						).ThenTry(
 							_ => aSrcType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _)
 						),
-						aOnNone: () => UpdateMatchTypes(
+						() => UpdateMatchTypes(
 							Def.Des,
 							aSrcType,
 							tTypeRelation.Equal,

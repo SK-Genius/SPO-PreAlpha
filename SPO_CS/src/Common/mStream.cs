@@ -36,7 +36,7 @@ mStream {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
 		Equals(
-			object? a
+			tUnknown? a
 		) => this.Equals((tStream<t>?)a);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -46,7 +46,7 @@ mStream {
 		) => null;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public override string
+		public override tText
 		ToString(
 		) => this.Reduce(
 			new System.Text.StringBuilder().AppendLine("("),
@@ -85,7 +85,7 @@ mStream {
 		public readonly t Current => this._Head;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public bool
+		public tBool
 		MoveNext(
 		) => this._Tail.Is(out this._Head, out this._Tail);
 	}
@@ -310,8 +310,7 @@ mStream {
 	);
 
 	private class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : IComparer<t> {
-		
-		public int Compare(t? a1, t? a2) => aComp(a1, a2);
+		public tInt32 Compare(t? a1, t? a2) => aComp(a1, a2);
 	}
 
 	[Pure, DebuggerHidden]

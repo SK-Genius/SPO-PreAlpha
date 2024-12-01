@@ -2,10 +2,10 @@
 mAny {
 	public readonly struct
 	tAny {
-		internal readonly object? _Value;
+		internal readonly tUnknown? _Value;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		internal tAny(object? aValue) {
+		internal tAny(tUnknown? aValue) {
 			this._Value = aValue;
 		}
 		
@@ -20,8 +20,8 @@ mAny {
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override tBool
-		Equals( 
-			object? a
+		Equals(
+			tUnknown? a
 		) => a is tAny X && this.Equals(X);
 	}
 	

@@ -1,4 +1,6 @@
-﻿global using tBool = System.Boolean;
+﻿global using tUnknown = System.Object;
+
+global using tBool = System.Boolean;
 
 global using tNat8 = System.Byte;
 global using tNat16 = System.UInt16;

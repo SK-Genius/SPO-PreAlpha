@@ -112,7 +112,7 @@ mTest {
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tText>? aFilters,
 		tBool aHideSkippedTests,
-		tBool aIsLogEnable,
+		tInt32 aOutputLevel,
 		tBool aStopOnFirstFail
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -138,9 +138,9 @@ mTest {
 				try {
 					var ClocksStart = mPerf.ThreadCycles();
 					Run.TestFunc(
-						aIsLogEnable
-						? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
-						: _ => { }
+						aOutputLevel >= 3
+							? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
+							: _ => { }
 					);
 					var ClocksEnd = mPerf.ThreadCycles();
 					
@@ -175,8 +175,11 @@ mTest {
 					aDebugStream("");
 					return (tResult.OK, 0, 0, 1);
 				} catch (Exception Exception) {
-					if (aIsLogEnable) {
+					if (aOutputLevel >= 1) {
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ":  " + Exception.Message);
+					}
+
+					if (aOutputLevel >= 2) {
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!);
 					}
 					aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
@@ -204,7 +207,7 @@ mTest {
 						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)),
 						aFilters,
 						aHideSkippedTests,
-						aIsLogEnable,
+						aOutputLevel,
 						aStopOnFirstFail
 					);
 					OK_CountSum += SubResult.OK_Count;
