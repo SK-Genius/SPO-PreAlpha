@@ -64,7 +64,7 @@ mTextParser {
 		_ => (_.Span.Start, $"expect {aRefChar}"),
 		ComparePos
 	)
-	.SetDebugName("'", aRefChar, "'");
+	.SetDebugName(["'", aRefChar, "'"]);
 	
 	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
@@ -75,7 +75,7 @@ mTextParser {
 		_ => (_.Span.Start, $"expect not {aRefChar}"),
 		ComparePos
 	)
-	.SetDebugName("'^", aRefChar, "'");
+	.SetDebugName(["'^", aRefChar, "'"]);
 	
 	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
@@ -93,7 +93,7 @@ mTextParser {
 		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos
 	)
-	.SetDebugName("[", aRefChars, "]");
+	.SetDebugName(["[", aRefChars, "]"]);
 	
 	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
@@ -111,7 +111,7 @@ mTextParser {
 		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos
 	)
-	.SetDebugName("[^", aRefChars, "]");
+	.SetDebugName(["[^", aRefChars, "]"]);
 	
 	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tChar, tError>
@@ -123,7 +123,7 @@ mTextParser {
 		_ => (_.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
 		ComparePos
 	)
-	.SetDebugName("[", aMinChar, "..", aMaxChar, "]");
+	.SetDebugName(["[", aMinChar, "..", aMaxChar, "]"]);
 	
 	[Pure, DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tText, tError>
@@ -139,8 +139,8 @@ mTextParser {
 		}
 		return Parser
 		.Modify(aSpan => aToken)
-		.ModifyErrors((_, a) => mStream.Stream((a.Span.Start, $"expect '{aToken}'")))
-		.SetDebugName("\"", aToken, "\"");
+		.ModifyErrors((_, a) => mStream.Stream([(a.Span.Start, $"expect '{aToken}'")]))
+		.SetDebugName(["\"", aToken, "\""]);
 	}
 	
 	[Pure, DebuggerHidden]
@@ -151,5 +151,5 @@ mTextParser {
 	) => aParser.AddError(
 		_ => (_.Span.Start, $"invalid {aName}")
 	)
-	.SetDebugName(aName);
+	.SetDebugName([aName]);
 }

@@ -33,7 +33,7 @@ mTest {
 	public static tTest
 	Tests(
 		tText aName,
-		params tTest[] aTests
+		tTest[] aTests
 	) => new tTestCollection { Name = aName, Tests = aTests };
 	
 	public static tTest
@@ -68,7 +68,7 @@ mTest {
 		tTestRun Run => aFilters.Any(Run.Name.Contains),
 		tTestCollection Collection => (
 			aFilters.Any(Collection.Name.Contains) ||
-			Collection.Tests.AsStream().Any(_ => _.HasAnyMatch(aFilters))
+			Collection.Tests.AsSpan().AsStream().Any(_ => _.HasAnyMatch(aFilters))
 		),
 		_ => throw new NotImplementedException(aTest.GetType().FullName),
 	};
@@ -127,7 +127,9 @@ mTest {
 		aDebugStream(aTest.Name());
 		switch (aTest) {
 			case tTestRun Run: {
-				aDebugStream($"[{Run.File}:{Run.Line}]");
+				if (aOutputLevel >= 1) {
+					aDebugStream($"[ {Run.File}:{Run.Line} ]");
+				}
 				
 				if (!aFilters.IsEmpty() && !aFilters.Any(Run.Name.Contains)) {
 					aDebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
@@ -138,7 +140,7 @@ mTest {
 				try {
 					var ClocksStart = mPerf.ThreadCycles();
 					Run.TestFunc(
-						aOutputLevel >= 3
+						aOutputLevel >= 4
 							? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
 							: _ => { }
 					);
@@ -175,12 +177,12 @@ mTest {
 					aDebugStream("");
 					return (tResult.OK, 0, 0, 1);
 				} catch (Exception Exception) {
-					if (aOutputLevel >= 1) {
-						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ":  " + Exception.Message);
+					if (aOutputLevel >= 2) {
+						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ": " + Exception.Message);
 					}
 
-					if (aOutputLevel >= 2) {
-						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!);
+					if (aOutputLevel >= 3) {
+						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!.Replace(":line ", ":"));
 					}
 					aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
 					aDebugStream("");

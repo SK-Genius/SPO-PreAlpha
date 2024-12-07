@@ -1,6 +1,7 @@
 ﻿//#define TAIL_RECURSIVE
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public static class
@@ -74,13 +75,20 @@ mStream {
 			}
 		}
 	}
+	
 	[method: Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public struct
 	tStreamIterator<t>(
 		tStream<t> aStream
-	) {
+	) : IEnumerator<t> {
 		private t _Head = default!;
 		private tStream<t>? _Tail = aStream;
+		
+		public void Reset() => throw new NotImplementedException();
+		
+		Object? IEnumerator.Current {
+			get { return this.Current; }
+		}
 		
 		public readonly t Current => this._Head;
 		
@@ -88,6 +96,11 @@ mStream {
 		public tBool
 		MoveNext(
 		) => this._Tail.Is(out this._Head, out this._Tail);
+		
+		public void
+		Dispose(
+		) {
+		}
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -120,12 +133,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
-	) => mStd.cEmpty;
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tStream<t>?
-	Stream<t>(
-		params System.ReadOnlySpan<t> aStream
+		System.ReadOnlySpan<t> aStream
 	) {
 		var Result = (tStream<t>?)null;
 		for (var I = aStream.Length; I --> 0;) {
@@ -137,7 +145,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Stream<t>(
-		params t[] aStream
+		System.Span<t> aStream
 	) {
 		var Result = (tStream<t>?)null;
 		for (var I = aStream.Length; I --> 0;) {
@@ -145,17 +153,17 @@ mStream {
 		}
 		return Result;
 	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tStream<t>?
-	AsStream<t>(
-		this System.ReadOnlySpan<t> a
-	) => Stream(a);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	AsStream<t>(
 		this t[] a
+	) => a.AsSpan().AsStream();
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>?
+	AsStream<t>(
+		this System.Span<t> a
 	) => Stream(a);
 	
 	[Pure, DebuggerHidden]
@@ -233,7 +241,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
 	Flatt<t>(
-		params System.ReadOnlySpan<tStream<t>?> a
+		System.Span<tStream<t>?> a
 	) => Stream(a).Flatt();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -254,7 +262,7 @@ mStream {
 	) => (
 		aStream.Is(out var Head, out var Tail)
 		? Stream(aMapFunc(Head), [DebuggerHidden]() => Tail.Map(aMapFunc))
-		: Stream<tRes>()
+		: mStd.cEmpty
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -325,9 +333,9 @@ mStream {
 				}
 				Tail = NextTail;
 			}
-			return Stream(First);
+			return Stream([First]);
 		} else {
-			return Stream<t>();
+			return mStd.cEmpty;
 		}
 	}
 	
@@ -338,7 +346,7 @@ mStream {
 	) where t : IComparable<t> {
 		var Res = aStream.ToArrayList().ToArray();
 		Array.Sort(Res);
-		return Stream(Res);
+		return Stream(Res.AsSpan());
 	}
 	
 	[Pure, DebuggerHidden]
@@ -349,7 +357,7 @@ mStream {
 	) {
 		var Res = aStream.ToArrayList().ToArray();
 		Array.Sort(Res, new tGenComp<t>(aCompare));
-		return Stream(Res);
+		return Stream(Res.AsSpan());
 	}
 	
 	[Pure, DebuggerHidden]
@@ -425,7 +433,7 @@ mStream {
 		return (
 			aStream.Is(out var Head, out var Tail)
 			? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))
-			: Stream<t>()
+			: mStd.cEmpty
 		);
 	}
 	
@@ -447,7 +455,7 @@ mStream {
 				return Stream(Head, [DebuggerHidden]() => aStream.Where(aPredicate));
 			}
 		}
-		return Stream<t>();
+		return mStd.cEmpty;
 		#endif
 	}
 	
@@ -528,7 +536,7 @@ mStream {
 	Reverse<t>(
 		this tStream<t>? aStream
 	) {
-		var Result = Stream<t>();
+		var Result = Stream<t>([]);
 		foreach (var Item in aStream) {
 			Result = Stream(Item, Result);
 		}
@@ -545,7 +553,7 @@ mStream {
 		a2.Is(out var Head2, out var Tail2)
 	)
 	? Stream((Head1, Head2), () => ZipShort(Tail1, Tail2))
-	: Stream<(t1, t2)>();
+	: mStd.cEmpty;
 	
 	[Pure, DebuggerHidden]
 	public static tStream<(mMaybe.tMaybe<t1> _1, mMaybe.tMaybe<t2> _2)>?

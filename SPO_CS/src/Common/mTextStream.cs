@@ -1,4 +1,6 @@
-﻿using tError = System.String;
+﻿using System;
+
+using tError = System.String;
 
 public static class
 mTextStream {
@@ -33,7 +35,7 @@ mTextStream {
 	) {
 		var Line = aSrcLines[aError.Pos.Row-1];
 		var MarkerLine = mStream.Stream(
-			Line.ToCharArray()
+			Line.AsSpan()
 		).Take(
 			aError.Pos.Col - 1
 		).Map(
@@ -75,7 +77,7 @@ mTextStream {
 		var Row = (tNat32?)1;
 		
 		return mStream.Stream(
-			aText.ToCharArray()
+			aText.AsSpan()
 		).Where(
 			_ => _ != '\r'
 		).Map(

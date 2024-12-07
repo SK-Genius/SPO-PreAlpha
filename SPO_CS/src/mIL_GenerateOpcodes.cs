@@ -23,10 +23,10 @@ mIL_GenerateOpcodes {
 		#if MY_TRACE
 			aTrace(() => nameof(GenerateOpcodes));
 		#endif
-		var ModuleMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign());
-		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>();
+		var ModuleMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>([]);
 		
-		var TypeMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
+		var TypeMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), [])
 		.Set(cEmptyType, 0u)
 		.Set(cAnyType, 1u)
 		.Set(cBoolType, 2u)
@@ -34,11 +34,13 @@ mIL_GenerateOpcodes {
 		.Set(cTypeType, 4u);
 		
 		var Types_ = mStream.Stream(
-			mVM_Type.Empty(),
-			mVM_Type.Any(),
-			mVM_Type.Bool(),
-			mVM_Type.Int(),
-			mVM_Type.Type()
+			[
+				mVM_Type.Empty(),
+				mVM_Type.Any(),
+				mVM_Type.Bool(),
+				mVM_Type.Int(),
+				mVM_Type.Type()
+			]
 		);
 		
 		var NextTypeIndex = Types_.Count();
@@ -127,7 +129,7 @@ mIL_GenerateOpcodes {
 					throw mError.Error("not implemented: " + TypeDef.NodeType);
 				}
 			}
-			Types_ = mStream.Concat(Types_, mStream.Stream(Type));
+			Types_ = mStream.Concat(Types_, mStream.Stream([Type]));
 			TypeMap = TypeMap.Set(TypeDef._1, NextTypeIndex);
 			NextTypeIndex += 1;
 		}
@@ -157,9 +159,9 @@ mIL_GenerateOpcodes {
 			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			
-			Module = mStream.Concat(Module, mStream.Stream(NewProc));
+			Module = mStream.Concat(Module, mStream.Stream([NewProc]));
 			
-			var Regs = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign())
+			var Regs = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), [])
 			.Set(mIL_AST.cEmpty, mVM_Data.cEmptyReg)
 			.Set(mIL_AST.cOne, mVM_Data.cOneReg)
 			.Set(mIL_AST.cFalse, mVM_Data.cFalseReg)

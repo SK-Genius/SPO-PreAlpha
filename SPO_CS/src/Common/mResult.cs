@@ -152,7 +152,7 @@ mResult {
 		this mStream.tStream<tResult<tIn, tError>>? aResults,
 		mStd.tFunc<tOut, mStream.tStream<tIn>?> aOnSucceed
 	) {
-		var List = mStream.Stream<tIn>();
+		var List = mStream.Stream<tIn>([]);
 		foreach (var Result in aResults) {
 			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);

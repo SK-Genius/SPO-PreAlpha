@@ -1,28 +1,17 @@
 ﻿public static class
 mError {
 	public sealed class
-	tError<t> : System.Exception {
-		public readonly t Value;
-		
+	tError : System.Exception {
 		internal
 		tError(
-			tText aMsg,
-			t aValue
+			tText aMsg
 		) : base(aMsg) {
-			this.Value = aValue;
 		}
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static tError<t>
-	Error<t>(
-		tText aMsg,
-		t aData
-	) => new(aMsg, aData);
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static tError<mStd.tEmpty>
+	public static tError
 	Error(
 		tText aMsg
-	) => Error(aMsg, mStd.cEmpty);
+	) => new(aMsg);
 }

@@ -16,17 +16,19 @@ mSPO_Interpreter {
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(
-				(
-					"_=...",
-					mVM_Type.Generic(
-						TypeArg,
-						mVM_Type.Proc(
-							mVM_Type.Var(TypeArg),
+				[
+					(
+						"_=...",
+						mVM_Type.Generic(
 							TypeArg,
-							mVM_Type.Empty()
+							mVM_Type.Proc(
+								mVM_Type.Var(TypeArg),
+								TypeArg,
+								mVM_Type.Empty()
+							)
 						)
 					)
-				)
+				]
 			)
 		).Then(
 			_ => _.Scope

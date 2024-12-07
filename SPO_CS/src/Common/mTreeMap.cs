@@ -54,7 +54,7 @@ mTreeMap {
 	public static tTree<tKey, tValue>
 	Tree<tKey, tValue>(
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
-		params (tKey Key, tValue Value)[] aItems
+		System.Span<(tKey Key, tValue Value)> aItems
 	) => aItems.AsStream(
 	).Reduce(
 		new tTree<tKey, tValue>(aKeyCompare, default),
@@ -123,7 +123,7 @@ mTreeMap {
 		tKey aKey,
 		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
 	) => aNode is null
-	? (mMaybe.tMaybe<tValue>)mStd.cEmpty
+	? mStd.cEmpty
 	: aKeyCompare(aKey, aNode.Key) switch {
 		0 => mMaybe.Some(aNode.Value),
 		>0 => aNode.SubTree2.TryGet(aKey, aKeyCompare),
@@ -328,11 +328,11 @@ mTreeMap {
 	ToStream<tKey, tValue>(
 		this tNode<tKey, tValue>? a
 	) => (a is null)
-	? mStream.Stream<(tKey Key, tValue Value)>()
+	? mStd.cEmpty
 	: mStream.Concat(
 		a.SubTree1.ToStream(),
 		mStream.Concat(
-			mStream.Stream((a.Key, a.Value)),
+			mStream.Stream([(a.Key, a.Value)]),
 			a.SubTree2.ToStream()
 		)
 	);

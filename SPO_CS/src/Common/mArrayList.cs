@@ -32,10 +32,10 @@ mArrayList {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	List<t>(
-		params t[] aArray
+		params System.Span<t> aArray
 	) => new() {
 		_CurrSize = (tNat32)aArray.Length,
-		_Items = (t[])aArray.Clone()
+		_Items = aArray.ToArray()
 	};
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -78,7 +78,7 @@ mArrayList {
 	public static tArrayList<t>
 	Push<t>(
 		this tArrayList<t> aList,
-		params t[] aNewItems
+		params System.Span<t> aNewItems
 	) {
 		foreach (var NewItem in aNewItems) {
 			aList = aList.Push(NewItem);
@@ -129,6 +129,16 @@ mArrayList {
 		aList._Items[aIndex] = aValue;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static void
+	Update<t>(
+		this tArrayList<t> aList,
+		tNat32 aIndex,
+		mStd.tFunc<t, t> aOnUpdate
+	) {
+		aList._Items[aIndex] = aOnUpdate(aList._Items[aIndex]);
+	}
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	Concat<t>(
@@ -157,7 +167,7 @@ mArrayList {
 		tInt32 aStartIndex
 	) => (
 		(aStartIndex >= aList._CurrSize)
-		? mStream.Stream<t>()
+		? mStd.cEmpty
 		: mStream.Stream(
 			aList._Items[aStartIndex],
 			() => aList.ToStream(aStartIndex + 1)

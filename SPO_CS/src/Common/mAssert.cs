@@ -1,4 +1,6 @@
-﻿public static class
+﻿using System;
+
+public static class
 mAssert {
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
@@ -87,8 +89,8 @@ mAssert {
 		}
 		Fail(
 			mStream.ZipExtend(
-				Text1.Split('\n').AsStream(),
-				Text2.Split('\n').AsStream()
+				Text1.Split('\n').AsSpan().AsStream(),
+				Text2.Split('\n').AsSpan().AsStream()
 			).MapWithIndex(
 				(aIndex, Line) => {
 					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
@@ -168,7 +170,7 @@ mAssert {
 	public static t
 	IsIn<t>(
 		t a1,
-		params t[] a2
+		System.Span<t> a2
 	) {
 		foreach (var Element in a2) {
 			if (Equals(a1, Element)) {
@@ -183,7 +185,7 @@ mAssert {
 	public static t
 	IsNotIn<t>(
 		t a1,
-		params t[] a2
+		t[] a2
 	) {
 		foreach (var Element in a2) {
 			IsFalse(Equals(a1, Element), () => $"{a1} not in {a2}");

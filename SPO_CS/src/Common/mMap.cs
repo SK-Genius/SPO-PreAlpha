@@ -20,7 +20,7 @@ mMap {
 	Map<tKey, tValue>(
 		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 	) => new(
-		aKeyValuePairs: mStream.Stream<(tKey, tValue)>(),
+		aKeyValuePairs: mStd.cEmpty,
 		aEqualsFunc: aEqualsFunc
 	);
 	

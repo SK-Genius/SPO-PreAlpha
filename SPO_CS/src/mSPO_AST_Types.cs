@@ -99,7 +99,7 @@ mSPO_AST_Types {
 			mSPO_AST.tBlockNode<tPos> Block => (
 				mStd.Call(
 					() => {
-						var Types = mStream.Stream<mVM_Type.tType>();
+						var Types = mStream.Stream<mVM_Type.tType>([]);
 						var BlockScope = aScope;
 						foreach (var Command in Block.Commands) {
 							if (UpdateCommandTypes(Command, BlockScope).Match(out BlockScope, out var Error)) {
@@ -149,7 +149,7 @@ mSPO_AST_Types {
 						)
 					).WhenAllThen(
 						aCaseTypes => aCaseTypes.Reduce(
-							mStream.Stream<mVM_Type.tType>(),
+							mStream.Stream<mVM_Type.tType>([]),
 							(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
 						).Reduce(
 							(mVM_Type.tType)null!,
@@ -186,7 +186,7 @@ mSPO_AST_Types {
 				).WhenAllThen(
 					a => {
 						var X = a.Reduce(
-							mStream.Stream<mVM_Type.tType>(),
+							mStream.Stream<mVM_Type.tType>([]),
 							(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
 						);
 						
@@ -277,7 +277,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMatchTupleNode<tPos> MatchTuple: {
-				var Types = mStream.Stream<mVM_Type.tType>();
+				var Types = mStream.Stream<mVM_Type.tType>([]);
 				var NewScope = aScope;
 				if (aType.IsSome(out var TypeTail)) {
 					foreach (var Item in MatchTuple.Items.Reverse()) {
@@ -571,7 +571,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
-				var Types = mStream.Stream<mVM_Type.tType>();
+				var Types = mStream.Stream<mVM_Type.tType>([]);
 				foreach (var Expression in TupleType.Expressions) {
 					if (ResolveTypeExpression(Expression, aScope).Match(out var Type, out var Error)) {
 						Types = mStream.Stream(Type, Types);
@@ -623,7 +623,7 @@ mSPO_AST_Types {
 					_ => ResolveTypeExpression(_, aScope)
 				).WhenAllThen(
 					_ => _.Reduce(
-						mStream.Stream<mVM_Type.tType>(),
+						mStream.Stream<mVM_Type.tType>([]),
 						(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Match(
 						() => mVM_Type.Empty(),

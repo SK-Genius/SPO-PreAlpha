@@ -717,7 +717,7 @@ mVM_Data {
 	
 	public static tData
 	Tuple(
-		params System.ReadOnlySpan<tData> a
+		System.Span<tData> a
 	) => mStream.Stream(a).Reduce(Empty(), Pair);
 	
 	public static tBool
@@ -821,7 +821,7 @@ mVM_Data {
 	
 	public static tData
 	Record(
-		params (tText Key, tData Value)[] aFields
+		(tText Key, tData Value)[] aFields
 	) => aFields.AsStream(
 	).Map(
 		_ => Prefix(_.Key, _.Value)

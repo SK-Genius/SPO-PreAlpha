@@ -1,4 +1,6 @@
-﻿public static class
+﻿using System;
+
+public static class
 mVM_Type {
 	
 	public enum
@@ -90,7 +92,7 @@ mVM_Type {
 			Kind = tKind.Free,
 			Id = aId
 		};
-		Type.Refs = new[]{ Type }; // needed for unification
+		Type.Refs = [Type]; // needed for unification
 		return Type;
 	}
 	
@@ -206,7 +208,7 @@ mVM_Type {
 		tType? aType
 	) => new() {
 		Kind = tKind.Type,
-		Refs = aType is null ? new tType[0] : new []{ aType }
+		Refs = aType is null ? new tType[0] : [aType]
 	};
 	
 	public static tType
@@ -223,7 +225,7 @@ mVM_Type {
 		tType aType2
 	) => new() {
 		Kind = tKind.Pair,
-		Refs = new []{ aType1, aType2 }
+		Refs = [aType1, aType2]
 	};
 	
 	public static tBool
@@ -257,6 +259,11 @@ mVM_Type {
 	
 	public static tType
 	Tuple(
+		System.Span<tType> aTypes
+	) => Tuple(mStream.Stream(aTypes));
+	
+	public static tType
+	Tuple(
 		mStream.tStream<tType>? aTypes
 	) => aTypes.Take(2).Count() switch {
 		0 => Empty(),
@@ -265,18 +272,13 @@ mVM_Type {
 	};
 	
 	public static tType
-	Tuple(
-		params tType[] aTypes
-	) => Tuple(mStream.Stream(aTypes));
-	
-	public static tType
 	Prefix(
 		tText aPrefix,
 		tType aType
 	) => new() {
 		Kind = tKind.Prefix,
 		Prefix = mAssert.IsNotNull(aPrefix),
-		Refs = new []{ aType }
+		Refs = [aType]
 	};
 	
 	public static tBool
@@ -318,13 +320,13 @@ mVM_Type {
 		tType aTailType,
 		tType aHeadType
 	) {
-		mAssert.IsIn(aTailType.Kind, tKind.Record, tKind.Empty);
+		mAssert.IsIn(aTailType.Kind, [tKind.Record, tKind.Empty]);
 		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
 		AssertNotIn(aHeadType.Prefix!, aTailType);
 		
 		return new tType {
 			Kind = tKind.Record,
-			Refs = new[]{aTailType, aHeadType}
+			Refs = [aTailType, aHeadType]
 		};
 		
 		static void
@@ -367,7 +369,7 @@ mVM_Type {
 		tType aResType
 	) => new() {
 		Kind = tKind.Proc,
-		Refs = new []{ aObjType, aArgType, aResType }
+		Refs = [aObjType, aArgType, aResType]
 	};
 	
 	public static tBool
@@ -405,7 +407,7 @@ mVM_Type {
 	) => new() {
 		Kind = tKind.Prefix,
 		Id = aId,
-		Refs = new[]{Empty()},
+		Refs = [Empty()],
 	};
 	
 	public static tBool
@@ -425,7 +427,7 @@ mVM_Type {
 		tType aType
 	) => new() {
 		Kind = tKind.Ref,
-		Refs = new []{ aType }
+		Refs = [aType]
 	};
 	
 	public static tBool
@@ -451,7 +453,7 @@ mVM_Type {
 		tType aType
 	) => new() {
 		Kind = tKind.Var,
-		Refs = new []{ aType }
+		Refs = [aType]
 	};
 	
 	public static tBool
@@ -481,7 +483,7 @@ mVM_Type {
 		mAssert.IsNotNull(aType2);
 		return new() {
 			Kind = tKind.Set,
-			Refs = new []{ aType1, aType2 }
+			Refs = [aType1, aType2]
 		};
 	}
 	
@@ -514,7 +516,7 @@ mVM_Type {
 		mAssert.IsTrue(false); // TODO
 		return new tType {
 			Kind = tKind.Cond,
-			Refs = new [] { aType },
+			Refs = [aType],
 		};
 	}
 	
@@ -544,7 +546,7 @@ mVM_Type {
 		tType aTypeBody
 	) => new() {
 		Kind = tKind.Recursive,
-		Refs = new [] { aTypeHead, aTypeBody },
+		Refs = [aTypeHead, aTypeBody],
 	};
 	
 	public static tBool
@@ -576,7 +578,7 @@ mVM_Type {
 		tType aTypeBody
 	) => new() {
 		Kind = tKind.Interface,
-		Refs = new [] { aTypeHead, aTypeBody },
+		Refs = [aTypeHead, aTypeBody],
 	};
 	
 	public static tBool
@@ -607,7 +609,7 @@ mVM_Type {
 		tType aTypeBody
 	) => new() {
 		Kind = tKind.Generic ,
-		Refs = new [] { aTypeHead, aTypeBody },
+		Refs = [aTypeHead, aTypeBody],
 	};
 	
 	public static tBool
@@ -949,7 +951,7 @@ mVM_Type {
 				}
 			),
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Set => $"[{____}{mStream.Stream(aType.Refs).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
+			tKind.Set => $"[{____}{mStream.Stream(aType.Refs.AsSpan()).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",

@@ -151,6 +151,6 @@ mMaybe {
 	) => (
 		a.IsSome(out var Value)
 		? Value
-		: throw mError.Error($"Error in '{aCaller}' ({aFile}:{aLine}): '{aExpr}' should not empty")
+		: throw mError.Error($"Error in '{aCaller}' ( {aFile}:{aLine} ): '{aExpr}' should not empty")
 	);
 }

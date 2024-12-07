@@ -509,6 +509,12 @@ mSPO_AST {
 		Pos = aPos,
 		Id = "_" + aId
 	};
+
+	public static tExpressionNode<tPos>
+	Tuple<tPos>(
+		tPos aPos,
+		System.Span<tExpressionNode<tPos>> aItems
+	) => Tuple(aPos, mStream.Stream(aItems));
 	
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
@@ -644,6 +650,12 @@ mSPO_AST {
 		Prefix = aPrefix.Id,
 		Match = aMatch
 	};
+	
+	public static tRecordNode<tPos>
+	Record<tPos>(
+		tPos aPos,
+		System.Span<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems
+	) => Record(aPos, mStream.Stream(aRecordItems));
 	
 	public static tRecordNode<tPos>
 	Record<tPos>(
@@ -1236,6 +1248,11 @@ mSPO_AST {
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",
+			tRecLambdasNode<t> Node => $@"""
+				§REC {{
+				{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
+				}}
+				""",
 			_ => throw new NotImplementedException(aNode.GetType().Name),
 		};
 	}
