@@ -24,7 +24,7 @@ mArenaMaybeRef {
 	public static unsafe tArenaMaybeRef<t>
 	NoneRef<t>(
 	) where t : unmanaged
-	=> new tArenaMaybeRef<t>(-1);
+	=> new (-1);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static unsafe tBool

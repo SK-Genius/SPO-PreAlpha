@@ -4,6 +4,7 @@ using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
+using System;
 
 public static class
 mTextParser {
@@ -41,12 +42,12 @@ mTextParser {
 			).ToText(aText.Split('\n'))
 		);
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().ThenDo(_ => _.Span.Start).ElseThrow();
-			var Line = aText.Split('\n')[Pos.Row-1];
+			var Pos = Result.RemainingStream.TryFirst().ElseThrow().Span.Start;
+			var Line = aText.Split('\n')[Pos.Row - 1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(
 				$"""
-				{Pos.Id}({Pos.Row}, {Pos.Col}): expected end of text
+				{Pos.Id}:{Pos.Row} expected end of text
 				{Line}
 				{Line[..StartSpacesCount] + new tText(' ', (tInt32)Pos.Col - StartSpacesCount - 1)}^
 				"""
@@ -82,14 +83,7 @@ mTextParser {
 	GetCharIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => {
-			foreach (var RefChar in aRefChars) {
-				if (aChar == RefChar) {
-					return true;
-				}
-			}
-			return false;
-		},
+		aChar => mStream.Stream(aRefChars.AsSpan()).Any(_ => _ == aChar),
 		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos
 	)
@@ -100,14 +94,7 @@ mTextParser {
 	GetCharNotIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => {
-			foreach (var RefChar in aRefChars) {
-				if (aChar == RefChar) {
-					return false;
-				}
-			}
-			return true;
-		},
+		aChar => mStream.Stream(aRefChars.AsSpan()).All(_ => _ != aChar),
 		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos
 	)

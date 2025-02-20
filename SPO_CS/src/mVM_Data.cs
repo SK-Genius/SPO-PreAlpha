@@ -976,7 +976,7 @@ mVM_Data {
 			}),
 			
 			_ when a.IsVar(out var Value)
-			=> $"(§VAR {Value.ToText(NextLimit)})",
+				=> $"(§VAR {Value.ToText(NextLimit)})",
 			
 			_ when a.IsPair(out var Left, out var Right)
 			=> mStd.Call(() => {

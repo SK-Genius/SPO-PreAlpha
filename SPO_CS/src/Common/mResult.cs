@@ -86,7 +86,6 @@ mResult {
 	) => new(mStd.cEmpty);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	[System.Obsolete]
 	public static tBool
 	Match<t, tFail>(
 		this tResult<t, tFail> aRes,
@@ -116,13 +115,11 @@ mResult {
 		this tResult<t, tFail> aRes,
 		mStd.tFunc<tRes, t> aOnSuccess,
 		mStd.tFunc<tRes, tFail> aOnFail
-	) {
-		if (aRes._IsOK) {
-			return aOnSuccess(aRes._Value);
-		} else {
-			return aOnFail(aRes._Error);
-		}
-	}
+	) => (
+		aRes._IsOK
+		? aOnSuccess(aRes._Value)
+		: aOnFail(aRes._Error)
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	[System.Obsolete]
@@ -131,20 +128,22 @@ mResult {
 		this tResult<t, mStd.tEmpty> aRes,
 		mStd.tFunc<tRes, t> aOnSuccess,
 		mStd.tFunc<tRes> aOnFail
-	) {
-		if (aRes._IsOK) {
-			return aOnSuccess(aRes._Value);
-		} else {
-			return aOnFail();
-		}
-	}
+	) => (
+		aRes._IsOK
+		? aOnSuccess(aRes._Value)
+		: aOnFail()
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
 		mStd.tFunc<tResult<tOut, tError>, tIn> aMod
-	) => aRes.Match(out var Value, out var Error) ? aMod(Value) : Fail(Error);
+	) => (
+		aRes.Match(out var Value, out var Error)
+		? aMod(Value)
+		: Fail(Error)
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<tOut, tError>
@@ -204,7 +203,11 @@ mResult {
 		mStd.tFunc<tBool, t> aCond,
 		mStd.tFunc<tError, t> aOnFail
 	) => aRes.ThenTry(
-		[DebuggerHidden](a) => aCond(a) ? (tResult<t, tError>)OK(a) : Fail(aOnFail(a))
+		[DebuggerHidden] (a) => (
+			aCond(a)
+			? (tResult<t, tError>)OK(a)
+			: Fail(aOnFail(a))
+		)
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -235,8 +238,8 @@ mResult {
 		this mMaybe.tMaybe<t> aRes,
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
-		[DebuggerHidden](aValue) => (tResult<t, tError>)OK(aValue),
-		[DebuggerHidden]() => Fail(aOnFail())
+		[DebuggerHidden] (aValue) => (tResult<t, tError>)OK(aValue),
+		[DebuggerHidden] () => Fail(aOnFail())
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

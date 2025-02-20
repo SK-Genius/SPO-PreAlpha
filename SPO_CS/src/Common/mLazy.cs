@@ -12,7 +12,7 @@ public static class mLazy {
 					this._Value = this._Func();
 					this._Func = null;
 				} 
-				return this._Value; 
+				return this._Value;
 			}
 		}
 		
@@ -35,7 +35,7 @@ public static class mLazy {
 		}
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public static implicit operator tLazy<t>(t a) => Lazy([DebuggerHidden]() => a);
+		public static implicit operator tLazy<t>(t a) => Lazy([DebuggerHidden] () => a);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public static implicit operator tLazy<t>(mStd.tFunc<t> a) => Lazy(a);

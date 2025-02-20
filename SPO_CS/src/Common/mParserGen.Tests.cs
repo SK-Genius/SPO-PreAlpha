@@ -377,12 +377,7 @@ mParserGen_Tests {
 					CharIn(
 						tText aChars
 					) => mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
-						aChar => {
-							foreach (var Char in aChars) {
-								if (Char == aChar) { return true; }
-							}
-							return false;
-						},
+						aChar => mStream.Stream(aChars.AsSpan()).Any(_ => _ == aChar),
 						_ => (_.Span.Start, $"miss one of [{aChars}]"),
 						ComparePos
 					);

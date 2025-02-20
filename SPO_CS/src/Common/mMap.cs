@@ -46,7 +46,7 @@ mMap {
 	) => new(
 		aEqualsFunc: aMap._EqualsFunc,
 		aKeyValuePairs: aMap._KeyValuePairs.Where(
-			[DebuggerHidden]((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
+			[DebuggerHidden] ((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 		)
 	);
 	
@@ -61,7 +61,7 @@ mMap {
 		aKeyValuePairs: mStream.Stream(
 			(aKey, aValue),
 			aMap._KeyValuePairs.Where(
-				[DebuggerHidden]((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
+				[DebuggerHidden] ((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 			)
 		)
 	);

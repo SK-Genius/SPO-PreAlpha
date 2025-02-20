@@ -1,4 +1,4 @@
-﻿using tScope = mStream.tStream<(string Id, mVM_Type.tType Type)>;
+﻿using tScope = mStream.tStream<(System.String Id, mVM_Type.tType Type)>;
 
 public static class
 mSPO_AST_Types {
@@ -192,7 +192,7 @@ mSPO_AST_Types {
 						
 						return X.Count() switch {
 							0 => mVM_Type.Empty(),
-							1 => X.TryFirst().ElseThrow(() => "impossible"),
+							1 => X.TryFirst().ElseThrow(),
 							_ => X.Reduce(
 								mVM_Type.Empty(),
 								(aTypeSet, aType) => mVM_Type.Set(aType, aTypeSet)

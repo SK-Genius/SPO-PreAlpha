@@ -107,8 +107,8 @@ mVM_Type {
 	public static tBool
 	IsFree(
 		this tType aType,
-		[MaybeNullWhen(false)]out tText aId,
-		[MaybeNullWhen(false)]out tType aRef
+		[MaybeNullWhen(false)] out tText aId,
+		[MaybeNullWhen(false)] out tType aRef
 	) {
 		if (aType.Kind == tKind.Free) {
 			aId = aType.Id!;
@@ -231,8 +231,8 @@ mVM_Type {
 	public static tBool
 	IsPair(
 		this tType aType,
-		[MaybeNullWhen(false)]out tType aType1,
-		[MaybeNullWhen(false)]out tType aType2
+		[MaybeNullWhen(false)] out tType aType1,
+		[MaybeNullWhen(false)] out tType aType2
 	) {
 		if (aType.Kind == tKind.Free) {
 			aType = aType.Refs[0];
@@ -267,7 +267,7 @@ mVM_Type {
 		mStream.tStream<tType>? aTypes
 	) => aTypes.Take(2).Count() switch {
 		0 => Empty(),
-		1 => aTypes.TryGet(0).ElseThrow(),
+		1 => aTypes.TryFirst().ElseThrow(),
 		_ => aTypes.Reduce(Empty(), Pair),
 	};
 	

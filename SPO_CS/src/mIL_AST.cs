@@ -67,7 +67,7 @@ mIL_AST {
 		TypeRecursive,            // T := [§RECURSIVE t => T]
 		TypeInterface,            // T := [§ANY t => T]
 		TypeGeneric,              // T := [§ALL t => T]
-		_EndTypes_,    
+		_EndTypes_,
 		
 		_BeginCommands_ = _EndTypes_,
 		VarSet = _BeginCommands_,   // §VAR X <- X
@@ -81,14 +81,14 @@ mIL_AST {
 		TryAsRef,                   // X := §TRY X AS_REF
 		TryAsType,                  // X := §TRY X AS_TYPE
 		TryRemovePrefixFrom,        // X := §TRY_REMOVE_PREFIX P FROM X
-
+		
 		// TODO:
 		// y := §TRY x AS_FUNC_WITH_ARG_TYPE t # ???
 		// y := §TRY x AS_METH_WITH_ARG_TYPE t # ???
 		// or
 		// y := §TRY .f x   # failed on wrong arg type or if f fails internal
 		// y := §TRY :m e_x # failed on wrong arg type or if m fails internal
-
+		
 		Assert,                     // §ASSERT X
 		Proof,                      // §ASSERT X => X
 		_EndCommands_,

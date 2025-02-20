@@ -3,9 +3,9 @@
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
-public static class
+public static partial class
 mPerf {
-	private const tInt32 cMaxLogCount = 1<<16;
+	private const tInt32 cMaxLogCount = 1 << 16;
 	private static tInt32 gStackIndex = 0;
 	
 	private static tInt32 gNextLogIndex = 0;
@@ -57,7 +57,7 @@ mPerf {
 		gNextLogIndex += 1;
 		if (gStackIndex == 0) {
 			#if MY_TRACE
-				var Stack = new (tNat64 Time, tText File, tText Name)[1<<16];
+				var Stack = new (tNat64 Time, tText File, tText Name)[1 << 16];
 				var StackIndex = 0;
 				for (var I = 0; I < gNextLogIndex; I += 1) {
 					var LogLine = gLog[I];
@@ -82,30 +82,31 @@ mPerf {
 		}
 	}
 	
-	[DllImport("kernel32.dll", SetLastError = true)]
-	private static extern tNat64
+	[LibraryImport("kernel32.dll", SetLastError = true)]
+	private static partial tNat64
 	GetCurrentThread(
 	);
 	
-	[DllImport("kernel32.dll")]
-	private static extern tBool
+	[LibraryImport("kernel32.dll")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	private static partial tBool
 	QueryThreadCycleTime(
 		tNat64 aThreadHandle,
 		out tNat64 aCycles
 	);
 	
-	private struct tTimeQueryResult {
-		public tNat64 Sec;
-		public tNat64 NanoSec;
-	}
-	
-	private enum tClockId {
-		CLOCK_REALTIME = 1,
-		CLOCK_MONOTONIC,
-		CLOCK_PROCESS_CPUTIME_ID,
-		CLOCK_THREAD_CPUTIME_ID,
-	}
-	
+	//private struct tTimeQueryResult {
+	//	public tNat64 Sec;
+	//	public tNat64 NanoSec;
+	//}
+	//
+	//private enum tClockId {
+	//	CLOCK_REALTIME = 1,
+	//	CLOCK_MONOTONIC,
+	//	CLOCK_PROCESS_CPUTIME_ID,
+	//	CLOCK_THREAD_CPUTIME_ID,
+	//}
+	//
 	//[DllImport("libc.so")]
 	//private static extern void
 	//clock_gettime(

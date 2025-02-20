@@ -15,7 +15,7 @@ var Tests = mTest.Tests(
 		mParserGen_Tests.Tests,
 		//mTextParser_Test.Test,
 		//mVM_Data_Test.Test,
-		//mIL_AST_Test.Test,
+		//mIL_AST_Test.Test, 
 		mTokenizer_Tests.Tests,
 		mIL_Parser_Tests.Tests,
 		mVM_Type_Tests.Tests,
@@ -63,18 +63,22 @@ const tText cFilterCommandShort = "-f";
 const tText cOutputLevelCommand = "--outputLevel";
 const tText cOutputLevelCommandShort = "-o";
 
-const tText cStopOnFirstFail = "--StopOnFirstFail";
+const tText cStopOnFirstFail = "--stopOnFirstFail";
 const tText cStopOnFirstFailShort = "-1";
 
+const tText cPlainText = "--plainText";
+const tText cPlainTextShort = "-p";
+
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
-	System.Console.WriteLine(
+	Console.WriteLine(
 		$"""
 		{cHelpCommandShort} {cHelpCommand}
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
-		{cFilterCommandShort} {cFilterCommand}
-		{cOutputLevelCommandShort}=<level> {cOutputLevelCommand}=<level>
+		{cFilterCommandShort} <filter text> {cFilterCommand} <filter text>
+		{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level>
 		{cStopOnFirstFailShort} {cStopOnFirstFail}
+		{cPlainTextShort} {cPlainText}
 		"""
 	);
 	return 0;
@@ -95,17 +99,25 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 }
 
 var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
-var OutputLevel = Args.Where(
-	_ => _.StartsWith(cOutputLevelCommand + "=") || _.StartsWith(cOutputLevelCommandShort + "=")
+
+var OutputLevel = Args.SkipUntil(
+	_ => _ is cOutputLevelCommand or cOutputLevelCommandShort
+).SkipUntil(
+	_ => _ is cOutputLevelCommand or cOutputLevelCommandShort
+).Skip(
+	1
 ).TryFirst(
 ).Match(
-	_ => tInt32.Parse(_.Split('=', 2)[1].Trim()),
+	tInt32.Parse,
 	() => tInt32.MaxValue
 );
+
+var PlainText = Args.Any(_ => _ is cPlainText or cPlainTextShort);
+
 var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort);
 
 return Tests.Run(
-	OutputLevel == 0 ? PrintLnNoFormat : PrintLn,
+	PlainText ? PrintLnNoFormat : PrintLn,
 	Filter,
 	HideSkippedTests,
 	OutputLevel,

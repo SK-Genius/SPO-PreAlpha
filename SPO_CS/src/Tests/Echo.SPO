@@ -1,0 +1,10 @@
+§IMPORT (
+	§DEF ReadLine € [tStreamIn : => §TEXT]
+	§DEF WriteLine... € [tStreamOut : §TEXT]
+)
+
+§EXPORT (§DEF StdIn € tStreamIn, §DEF StdOut € tStreamOut) : §DEF Args € §INT {
+	StdIn : ReadLine => §DEF Line .
+	StdOut : WriteLine Line .
+	§RETURN 0
+}

@@ -2,7 +2,7 @@
 mSPO_AST_Types_Tests {
 	#if true
 	
-	private const tInt32 cNoPos = 1; 
+	private const tInt32 cNoPos = 1;
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(

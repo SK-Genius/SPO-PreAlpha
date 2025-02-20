@@ -1,0 +1,18 @@
+﻿§IMPORT (
+	{
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+	}
+	§DEF n € §INT
+)
+
+§RECURSIVE {
+	§DEF Fib... = (§DEF a € §INT) => §IF a MATCH {
+		(§DEF a & a .== 0) => 0
+		(§DEF a & a .== 1) => 1
+		§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+	}
+}
+
+§EXPORT .Fib n

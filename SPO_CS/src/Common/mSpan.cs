@@ -15,7 +15,7 @@ mSpan {
 		}
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public override readonly tText
+		public override tText
 		ToString(
 		) => $"{this.Start}..{this.End}";
 	}

@@ -3,7 +3,7 @@ mArrayList {
 	public sealed class
 	tArrayList<t> {
 		internal tNat32 _CurrSize;
-		internal t[] _Items = System.Array.Empty<t>();
+		internal t[] _Items = [];
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
@@ -89,7 +89,7 @@ mArrayList {
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	Pop<t>(
-		this tArrayList<t> aList 
+		this tArrayList<t> aList
 	) {
 		var Item = aList._Items[aList._CurrSize - 1];
 		aList._CurrSize -= 1;

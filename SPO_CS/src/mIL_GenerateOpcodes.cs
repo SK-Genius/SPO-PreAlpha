@@ -52,83 +52,53 @@ mIL_GenerateOpcodes {
 				throw mError.Error($"{TypeDef.NodeType} is not a Type Command");
 			}
 			
-			var Type = mVM_Type.Empty();
-			switch (TypeDef.NodeType) {
-				case mIL_AST.tCommandNodeType.TypeFunc: {
-					Type = mVM_Type.Proc(
-						mVM_Type.Empty(),
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypePair: {
-					Type = mVM_Type.Pair(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeSet: {
-					Type = mVM_Type.Set(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypePrefix: {
-					Type = mVM_Type.Prefix(
-						TypeDef._2.ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeRecord: {
-					Type = mVM_Type.Record(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeFree: {
-					Type = mVM_Type.Free(TypeDef._1); // TODO
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeGeneric: {
-					Type = mVM_Type.Generic(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeRecursive: {
-					Type = mVM_Type.Recursive(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"), // TODO
-						TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeVar: {
-					Type = mVM_Type.Var(
-						TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO") // TODO
-					);
-					break;
-				}
-				case mIL_AST.tCommandNodeType.TypeMethod: {
-					var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"); // TODO
-					var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).ElseThrow(() => "TODO"); // TODO
-					
-
-					mAssert.IsTrue(FuncType.IsProc(out var EmptyType, out var ArgType, out var ResType));
-					mAssert.IsTrue(EmptyType.IsEmpty());
-					
-					Type = mVM_Type.Proc(ObjType, ArgType, ResType);
-					break;
-				}
-				default: {
-					throw mError.Error("not implemented: " + TypeDef.NodeType);
-				}
-			}
+			var Type = TypeDef.NodeType switch {
+				mIL_AST.tCommandNodeType.TypeFunc => mVM_Type.Proc(
+					mVM_Type.Empty(),
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypePair => mVM_Type.Pair(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeSet => mVM_Type.Set(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypePrefix => mVM_Type.Prefix(
+					TypeDef._2.ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeRecord => mVM_Type.Record(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeFree => mVM_Type.Free(TypeDef._1), // TODO
+				mIL_AST.tCommandNodeType.TypeGeneric => mVM_Type.Generic(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeRecursive => mVM_Type.Recursive(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeVar => mVM_Type.Var(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeMethod => mStd.Call(
+					() => {
+						var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"); // TODO
+						var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"); // TODO
+						
+						mAssert.IsTrue(FuncType.IsProc(out var EmptyType, out var ArgType, out var ResType));
+						mAssert.IsTrue(EmptyType.IsEmpty());
+						
+						return mVM_Type.Proc(ObjType, ArgType, ResType);
+					}
+				),
+				_ => throw mError.Error("not implemented: " + TypeDef.NodeType),
+			};
 			Types_ = mStream.Concat(Types_, mStream.Stream([Type]));
 			TypeMap = TypeMap.Set(TypeDef._1, NextTypeIndex);
 			NextTypeIndex += 1;
@@ -217,7 +187,7 @@ mIL_GenerateOpcodes {
 							Types.Get(ArgReg),
 							aTrace
 						).ElseThrow(
-							_ => Fail_(_)
+							Fail_
 						);
 						Regs = Regs.Set(RegId1, NewProc.Call(Span, ProcReg, ArgReg));
 						Types.Push(ResType);
@@ -227,13 +197,15 @@ mIL_GenerateOpcodes {
 						var ObjMethodPair = Regs.GetOrThrow(RegId2, Command);
 						mAssert.IsTrue(Types.Get(ObjMethodPair).IsPair(out var ObjType, out var MethType));
 						
-						var ArgReg = Regs.GetOrThrow(RegId3, Command);
+						var ArgReg  = Regs.GetOrThrow(RegId3, Command);
 						var ResType = mVM_Type.Infer(
 							MethType,
 							ObjType,
 							Types.Get(ArgReg),
 							aTrace
-						).ElseThrow(Fail_);
+						).ElseThrow(
+							Fail_
+						);
 						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ObjMethodPair, ArgReg));
 						Types.Push(ResType);
 						break;
@@ -332,7 +304,7 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.First, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgReg  = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
 						mAssert.IsTrue(ArgType.IsPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText()}");
 						Regs = Regs.Set(RegId1, NewProc.First(Span, ArgReg));
@@ -599,11 +571,11 @@ mIL_GenerateOpcodes {
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
 		}
-#if MY_TRACE
+		#if MY_TRACE
 		//PrintILModule(aDefs, Module, _ => { aTrace(() => _); });
-#endif
+		#endif
 		
-#if !true
+		#if !true
 		{
 			var Module_ = Module.ToArrayList();
 			foreach (var KeyValue in ModuleMap._KeyValuePairs) {
@@ -611,7 +583,7 @@ mIL_GenerateOpcodes {
 				aTrace($@"{Name} @ {Module_.Get(Index)._DefType}");
 			}
 		}
-#endif
+		#endif
 		
 		return (Module, ModuleMap);
 	}

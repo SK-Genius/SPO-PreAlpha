@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public static class
 mArenaStack {
 	
@@ -64,4 +62,3 @@ mArenaStack {
 	);
 	
 }
-	

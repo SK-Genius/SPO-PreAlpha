@@ -509,7 +509,7 @@ mSPO_AST {
 		Pos = aPos,
 		Id = "_" + aId
 	};
-
+	
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
@@ -926,34 +926,34 @@ mSPO_AST {
 		}
 		
 		switch (a1) {
-			case tEmptyNode<tPos> _: {
+			case tEmptyNode<tPos>: {
 				return a2 is tEmptyNode<tPos>;
 			}
-			case tTrueNode<tPos> _: {
+			case tTrueNode<tPos>: {
 				return a2 is tTrueNode<tPos>;
 			}
-			case tFalseNode<tPos> _: {
+			case tFalseNode<tPos>: {
 				return a2 is tFalseNode<tPos>;
 			}
 			case tIntNode<tPos> Node1: {
 				return a2 is tIntNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
-			case tEmptyTypeNode<tPos> _: {
+			case tEmptyTypeNode<tPos>: {
 				return a2 is tEmptyTypeNode<tPos>;
 			}
-			case tBoolTypeNode<tPos> _: {
+			case tBoolTypeNode<tPos>: {
 				return a2 is tBoolTypeNode<tPos>;
 			}
-			case tIntTypeNode<tPos> _: {
+			case tIntTypeNode<tPos>: {
 				return a2 is tIntTypeNode<tPos>;
 			}
-			case tTypeTypeNode<tPos> _: {
+			case tTypeTypeNode<tPos>: {
 				return a2 is tTypeTypeNode<tPos>;
 			}
 			case tTextNode<tPos> Node1: {
 				return a2 is tTextNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
-			case tIgnoreMatchNode<tPos> _: {
+			case tIgnoreMatchNode<tPos>: {
 				return a2 is tIgnoreMatchNode<tPos>;
 			}
 			case tIdNode<tPos> Node1: {
@@ -989,7 +989,7 @@ mSPO_AST {
 					)
 				);
 			}
-			case tPrefixNode<tPos> _: {
+			case tPrefixNode<tPos>: {
 				break;
 			}
 			case tRecordNode<tPos> Node1: {
@@ -1031,7 +1031,7 @@ mSPO_AST {
 					AreEqual(Node1.Match, Node2.Match)
 				);
 			}
-			case tMatchGuardNode<tPos> _: {
+			case tMatchGuardNode<tPos>: {
 				break;
 			}
 			case tLambdaNode<tPos> Node1: {
@@ -1041,10 +1041,10 @@ mSPO_AST {
 					AreEqual(Node1.Body, Node2.Body)
 				);
 			}
-			case tMethodNode<tPos> _: {
+			case tMethodNode<tPos>: {
 				break;
 			}
-			case tBlockNode<tPos> _: {
+			case tBlockNode<tPos>: {
 				break;
 			}
 			case tCallNode<tPos> Node1: {
@@ -1080,37 +1080,37 @@ mSPO_AST {
 					)
 				);
 			}
-			case tReturnIfNode<tPos> _: {
+			case tReturnIfNode<tPos>: {
 				break;
 			}
-			case tIfNode<tPos> _: {
+			case tIfNode<tPos>: {
 				break;
 			}
-			case tIfMatchNode<tPos> _: {
+			case tIfMatchNode<tPos>: {
 				break;
 			}
-			case tPrefixTypeNode<tPos> _: {
+			case tPrefixTypeNode<tPos>: {
 				break;
 			}
-			case tTupleTypeNode<tPos> _: {
+			case tTupleTypeNode<tPos>: {
 				break;
 			}
-			case tSetTypeNode<tPos> _: {
+			case tSetTypeNode<tPos>: {
 				break;
 			}
-			case tLambdaTypeNode<tPos> _: {
+			case tLambdaTypeNode<tPos>: {
 				break;
 			}
-			case tRecursiveTypeNode<tPos> _: {
+			case tRecursiveTypeNode<tPos>: {
 				break;
 			}
-			case tInterfaceTypeNode<tPos> _: {
+			case tInterfaceTypeNode<tPos>: {
 				break;
 			}
-			case tGenericTypeNode<tPos> _: {
+			case tGenericTypeNode<tPos>: {
 				break;
 			}
-			case tDefVarNode<tPos> _: {
+			case tDefVarNode<tPos>: {
 				break;
 			}
 			case tVarToValNode<tPos> Node1: {
@@ -1144,10 +1144,10 @@ mSPO_AST {
 					)
 				);
 			}
-			case tPipeToRightNode<tPos> _: {
+			case tPipeToRightNode<tPos>: {
 				break;
 			}
-			case tPipeToLeftNode<tPos> _: {
+			case tPipeToLeftNode<tPos>: {
 				break;
 			}
 			case tTupleNode<tPos> Node1: {
@@ -1162,13 +1162,13 @@ mSPO_AST {
 					)
 				);
 			}
-			case tImportNode<tPos> _: {
+			case tImportNode<tPos>: {
 				break;
 			}
-			case tExportNode<tPos> _: {
+			case tExportNode<tPos>: {
 				break;
 			}
-			case tModuleNode<tPos> _: {
+			case tModuleNode<tPos>: {
 				break;
 			}
 			default: {

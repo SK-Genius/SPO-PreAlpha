@@ -67,7 +67,7 @@ mVM_Tests {
 				aDebugStream => {
 					#if MY_TRACE
 						var TraceOut = mStd.Action(
-							(mStd.tFunc<tText> aLasyText) => aDebugStream(aLasyText())
+							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
 					#else
 						var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});

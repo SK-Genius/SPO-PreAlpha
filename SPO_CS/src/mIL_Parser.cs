@@ -33,11 +33,7 @@ mIL_Parser {
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	Prefix = SpecialId('#').Modify(
-		_ => new tToken{
-			Span = _.Span,
-			Type = _.Type,
-			Text = _.Text[1..]
-		}
+		_ => _ with { Text = _.Text[1..] }
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>
@@ -282,13 +278,13 @@ mIL_Parser {
 	.SetDebugName([nameof(Command)]);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
-	Block = (Command +-NL)[1..]
+	Block = mParserGen.Seq(Command, -NL, (-mTokenizer.SpaceToken[..] -NL)[..]).Modify((a, _, _) => a)[1..]
 	.SetDebugName([nameof(Block)]);
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
 	Types = (-KeyWord("TYPES") -NL +Block)
 	.SetDebugName([nameof(Types)]);
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tDef<tSpan>, tError>
 	Def = mParserGen.Seq(-KeyWord("DEF") +Id, -SpecialToken("€") + Id +-NL, Block)
 	.Modify((a1, a2, a3) => mIL_AST.Def(a1.Text, a2.Text, a3))

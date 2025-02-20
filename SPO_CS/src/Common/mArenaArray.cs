@@ -1,5 +1,3 @@
-using System;
-
 public static class
 mArenaArray {
 	
@@ -42,6 +40,7 @@ mArenaArray {
 				if (0 < Index || Index <= _Count) {
 					throw new System.IndexOutOfRangeException();
 				}
+				
 				return new mArenaRef.tArenaRef<t>(
 					_Offset + Index * sizeof(t)
 				);
@@ -85,7 +84,7 @@ mArenaArray {
 		internal tArenaArray<t> _Span;
 		internal tInt32 _Index;
 		
-		public unsafe mArenaRef.tArenaRef<t>
+		public readonly unsafe mArenaRef.tArenaRef<t>
 		Current {
 			[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 			get => new mArenaRef.tArenaRef<t>(

@@ -33,7 +33,7 @@ mTextStream {
 		this (tPos Pos, tError Message) aError,
 		tText[] aSrcLines
 	) {
-		var Line = aSrcLines[aError.Pos.Row-1];
+		var Line = aSrcLines[aError.Pos.Row - 1];
 		var MarkerLine = mStream.Stream(
 			Line.AsSpan()
 		).Take(
@@ -46,7 +46,7 @@ mTextStream {
 		);
 		return (
 			$"""
-			{aError.Pos.Id}({aError.Pos.Row}, {aError.Pos.Col}) ERROR: {aError.Message}
+			{aError.Pos.Id}:{aError.Pos.Row} ERROR: {aError.Message}
 			{Line}
 			{MarkerLine}^
 			

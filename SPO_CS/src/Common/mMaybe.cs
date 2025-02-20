@@ -90,7 +90,7 @@ mMaybe {
 		? aOnSome(Value)
 		: aOnNone()
 	);
-
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ThenDo<tIn, tOut>(
@@ -119,20 +119,6 @@ mMaybe {
 		mStd.tFunc<tOut> aOnNone
 	) => a.IsSome(out var Value) ? Value : aOnNone();
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tOut
-	Else<tOut>(
-		this tMaybe<tOut> a,
-		mLazy.tLazy<tOut> aFallback
-	) => a.IsSome(out var Value) ? Value : aFallback.Value;
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tMaybe<tOut>
-	ElseTry<tOut>(
-		this tMaybe<tOut> a,
-		mLazy.tLazy<tMaybe<tOut>> aFallback
-	) => a.IsSome(out _) ? a : aFallback.Value;
-	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	ElseThrow<t>(
@@ -144,10 +130,10 @@ mMaybe {
 	public static t
 	ElseThrow<t>(
 		this tMaybe<t> a,
-		[CallerLineNumber]tInt32 aLine = 0,
-		[CallerMemberName]tText aCaller = "",
-		[CallerFilePath]tText aFile = "",
-		[CallerArgumentExpression("a")] tText aExpr = ""
+		[CallerLineNumber] tInt32 aLine = 0,
+		[CallerMemberName] tText aCaller = "",
+		[CallerFilePath] tText aFile = "",
+		[CallerArgumentExpression(nameof(a))] tText aExpr = ""
 	) => (
 		a.IsSome(out var Value)
 		? Value

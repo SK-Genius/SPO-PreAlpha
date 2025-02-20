@@ -18,7 +18,7 @@ mIL_GenerateOpcodes_Tests {
 	);
 	
 	private static mVM_Data.tData
-	Add (
+	Add(
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
@@ -31,7 +31,7 @@ mIL_GenerateOpcodes_Tests {
 	}
 	
 	private static mVM_Data.tData
-	Sub (
+	Sub(
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
@@ -44,7 +44,7 @@ mIL_GenerateOpcodes_Tests {
 	}
 	
 	private static mVM_Data.tData
-	Mul (
+	Mul(
 		mVM_Data.tData aEnv,
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
@@ -100,7 +100,7 @@ mIL_GenerateOpcodes_Tests {
 						);
 					#endif
 					
-					var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).ElseThrow();
+					var Proc = DefLookup.TryGet("...++").ThenTry(Defs.TryGet).ElseThrow();
 					var Res = mVM_Data.Empty();
 					mVM.Run<tSpan>(
 						mVM_Data.Proc(Proc, mVM_Data.Empty()),

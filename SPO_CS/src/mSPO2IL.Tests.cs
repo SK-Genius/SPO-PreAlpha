@@ -86,17 +86,10 @@ mSPO2IL_Tests {
 						]
 					);
 					
+					mSPO_AST_Types.UpdateExpressionTypes(ExpressionNode, Scope);
+					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Type = mSPO_AST_Types.UpdateExpressionTypes(ExpressionNode, Scope).ElseThrow();
-					var Def = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Int()
-							)
-						)
-					);
+					var Def = Module.NewDefConstructor();
 					mAssert.AreEquals(Def.MapExpression(Module, ExpressionNode), mSPO2IL.GetRegId(11));
 					
 					mAssert.AreEquals(
@@ -129,17 +122,10 @@ mSPO2IL_Tests {
 						_ => aStreamOut(_())
 					);
 					
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty).ElseThrow();
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()])
-							)
-						)
-					);
+					var DefConstructor = Module.NewDefConstructor();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(
@@ -167,16 +153,10 @@ mSPO2IL_Tests {
 						_ => aStreamOut(_())
 					);
 					
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty).ElseThrow();
 					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
 					);
 					DefConstructor.MapDef(Module, DefNode);
 					
@@ -219,18 +199,10 @@ mSPO2IL_Tests {
 						_ => aStreamOut(_())
 					);
 					
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty).ElseThrow();
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
-
-					);
+					var DefConstructor = Module.NewDefConstructor();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(
@@ -268,17 +240,10 @@ mSPO2IL_Tests {
 						_ => aStreamOut(_())
 					);
 					
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty).ElseThrow();
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
-					);
+					var DefConstructor = Module.NewDefConstructor();
 					
 					DefConstructor.MapDef(Module, DefNode);
 					
@@ -355,16 +320,39 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
+					var DefConstructor = Module.NewDefConstructor();
+					DefConstructor.MapDef(Module, DefNode);
+					
+					foreach (var Def in Module.Defs.ToStream()) {
+						aStreamOut("------------------");
+						aStreamOut(Def.TypeId);
+						aStreamOut("------------------");
+						foreach (var Command in Def.Commands.ToStream()) {
+							aStreamOut(Command.ToText());
+						}
+					}
+					
+					DefConstructor.FinishMapProc(
+						default,
+						Module,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							InitScope.TryFirst().ElseThrow().Type,
+							mVM_Type.Empty()
 						)
 					);
-					DefConstructor.MapDef(Module, DefNode);
+					
+					aStreamOut("");
+					aStreamOut("=====================");
+					aStreamOut("");
+					foreach (var Def in Module.Defs.ToStream()) {
+						aStreamOut("------------------");
+						aStreamOut(Def.TypeId);
+						aStreamOut("------------------");
+						foreach (var Command in Def.Commands.ToStream()) {
+							aStreamOut(Command.ToText());
+						}
+					}
 					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
 					mAssert.AreEquals(
@@ -454,16 +442,17 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
+					var DefConstructor = Module.NewDefConstructor();
+					DefConstructor.MapDef(Module, DefNode);
+					DefConstructor.FinishMapProc(
+						default,
+						Module,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Tuple(InitScope.Map(_ => _.Type)),
+							mVM_Type.Empty()
 						)
 					);
-					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
 					mAssert.AreEquals(
@@ -566,15 +555,7 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
-					);
+					var DefConstructor = Module.NewDefConstructor();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
@@ -663,15 +644,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor(
-						Module.MapType(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
-					);
+					var DefConstructor = Module.NewDefConstructor();
 					
 					DefConstructor.MapDef(Module, DefNode);
 					
@@ -779,14 +752,16 @@ mSPO2IL_Tests {
 						mStd.cEmpty
 					).Then(
 						_ => _.Scope
-					).ElseThrow();
+					).ElseThrow(
+					);
 					
 					var Scope = ModuleNode.Commands.Reduce(
 						mResult.OK(InitScope).AsResult<tText>(),
 						(aResultScope, aCommand) => aResultScope.ThenTry(
 							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 						)
-					).ElseThrow();
+					).ElseThrow(
+					);
 					
 					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
 					
@@ -999,7 +974,8 @@ mSPO2IL_Tests {
 						mStd.cEmpty
 					).Then(
 						_ => _.Scope
-					).ElseThrow();
+					).ElseThrow(
+					);
 					
 					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
 					
@@ -1072,7 +1048,8 @@ mSPO2IL_Tests {
 						mStd.cEmpty
 					).Then(
 						_ => _.Scope
-					).ElseThrow();
+					).ElseThrow(
+					);
 					
 					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
 					

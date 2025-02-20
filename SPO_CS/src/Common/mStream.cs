@@ -27,10 +27,10 @@ mStream {
 		Equals(
 			tStream<t>? a
 		) => this.Match(
-			[DebuggerHidden]() => a.IsEmpty(),
-			[DebuggerHidden](aHead1, aTail1) => a.Match(
-				[DebuggerHidden]() => false,
-				[DebuggerHidden](aHead2, aTail2) => Equals(aHead1, aHead2) && Equals(aTail1, aTail2)
+			[DebuggerHidden] () => a.IsEmpty(),
+			[DebuggerHidden] (aHead1, aTail1) => a.Match(
+				[DebuggerHidden] () => false,
+				[DebuggerHidden] (aHead2, aTail2) => Equals(aHead1, aHead2) && Equals(aTail1, aTail2)
 			)
 		);
 		
@@ -51,7 +51,7 @@ mStream {
 		ToString(
 		) => this.Reduce(
 			new System.Text.StringBuilder().AppendLine("("),
-			[DebuggerHidden](aSB, a) => aSB.Append("  ").AppendLine(a.ToString())
+			[DebuggerHidden] (aSB, a) => aSB.Append("  ").AppendLine(a.ToString())
 		).AppendLine(
 			")"
 		).ToString();
@@ -63,10 +63,10 @@ mStream {
 				get {
 					var Count = aStream.Take(100).Count();
 					return aStream.Take(100).MapWithIndex(
-						[DebuggerHidden](aIndex, aItem) => (Index: aIndex, Value: aItem)
+						[DebuggerHidden] (aIndex, aItem) => (Index: aIndex, Value: aItem)
 					).Reduce(
 						new t[Count],
-						[DebuggerHidden](aArray, a) => {
+						[DebuggerHidden] (aArray, a) => {
 							aArray[a.Index] = a.Value;
 							return aArray;
 						}
@@ -86,7 +86,7 @@ mStream {
 		
 		public void Reset() => throw new NotImplementedException();
 		
-		Object? IEnumerator.Current {
+		readonly Object? IEnumerator.Current {
 			get { return this.Current; }
 		}
 		
@@ -127,7 +127,6 @@ mStream {
 	) => new(
 		aHead,
 		aTail
-
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -234,8 +233,8 @@ mStream {
 		tStream<t>? a1,
 		tStream<t>? a2
 	) => a1.Match(
-		[DebuggerHidden]() => a2,
-		[DebuggerHidden](aHead, aTail) => Stream(aHead, () => Concat(aTail, a2))
+		[DebuggerHidden] () => a2,
+		[DebuggerHidden] (aHead, aTail) => Stream(aHead, () => Concat(aTail, a2))
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -254,14 +253,14 @@ mStream {
 	);
 	
 	[Pure, DebuggerHidden]
-	[return: NotNullIfNotNull("aStream")]
+	[return: NotNullIfNotNull(nameof(aStream))]
 	public static tStream<tRes>?
 	Map<tRes, tElem>(
 		this tStream<tElem>? aStream,
 		mStd.tFunc<tRes, tElem> aMapFunc
 	) => (
 		aStream.Is(out var Head, out var Tail)
-		? Stream(aMapFunc(Head), [DebuggerHidden]() => Tail.Map(aMapFunc))
+		? Stream(aMapFunc(Head), [DebuggerHidden] () => Tail.Map(aMapFunc))
 		: mStd.cEmpty
 	);
 	
@@ -270,7 +269,7 @@ mStream {
 	MapWithIndex<tRes, tElem>(
 		this tStream<tElem>? aStream,
 		mStd.tFunc<tRes, tNat32, tElem> aMapFunc
-	) => aStream.MapWithIndex().Map([DebuggerHidden](a) => aMapFunc(a.Index, a.Item));
+	) => aStream.MapWithIndex().Map([DebuggerHidden] (a) => aMapFunc(a.Index, a.Item));
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<(tNat32 Index, t Item)>?
@@ -316,11 +315,11 @@ mStream {
 		? mMaybe.Some(Tail.Reduce(Head, aAggregatorFunc))
 		: mStd.cEmpty
 	);
-
+	
 	private class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : IComparer<t> {
 		public tInt32 Compare(t? a1, t? a2) => aComp(a1, a2);
 	}
-
+	
 	[Pure, DebuggerHidden]
 	public static tStream<t>?
 	DontRepeat<t>(
@@ -328,7 +327,7 @@ mStream {
 	) {
 		if (aStream.Is(out var First, out var Tail)) {
 			while (Tail.Is(out var Next, out var NextTail)) {
-				if (!First.Equals(Next)) {
+				if (!Equals(First, Next)) {
 					return Stream(First, () => Tail.DontRepeat());
 				}
 				Tail = NextTail;
@@ -421,7 +420,7 @@ mStream {
 	SkipWhile<t>(
 		this tStream<t>? aStream,
 		mStd.tFunc<tBool, t> aCond
-	) => aStream.SkipUntil([DebuggerHidden](a) => !aCond(a));
+	) => aStream.SkipUntil([DebuggerHidden] (a) => !aCond(a));
 	
 	[Pure, DebuggerHidden]
 	public static tStream<t>?
@@ -446,13 +445,13 @@ mStream {
 		#if TAIL_RECURSIVE
 		return (
 			!aStream.Match(out var Head, out var Tail) ? Stream<t>() :
-			aPredicate(Head) ? Stream(Head, [DebuggerHidden]() => Tail.Where(aPredicate)) :
+			aPredicate(Head) ? Stream(Head, [DebuggerHidden] () => Tail.Where(aPredicate)) :
 			Tail.Where(aPredicate)
 		);
 		#else
 		while (aStream.Is(out var Head, out aStream)) {
 			if (aPredicate(Head)) {
-				return Stream(Head, [DebuggerHidden]() => aStream.Where(aPredicate));
+				return Stream(Head, [DebuggerHidden] () => aStream.Where(aPredicate));
 			}
 		}
 		return mStd.cEmpty;
@@ -462,7 +461,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
 	IsEmpty<t>(
-		[NotNullWhen(false)]this tStream<t>? aStream
+		[NotNullWhen(false)] this tStream<t>? aStream
 	) => aStream is null;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

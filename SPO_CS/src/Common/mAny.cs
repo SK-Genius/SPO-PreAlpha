@@ -37,19 +37,20 @@ mAny {
 		this tAny a,
 		out t aValue
 	) {
-#if DEBUG
-		if (typeof(t) == typeof(tAny)) {
-			throw mError.Error("");
-		}
-#endif
+		#if DEBUG
+			if (typeof(t) == typeof(tAny)) {
+				throw mError.Error("");
+			}
+		#endif
+		
 		mAssert.IsNotNull(a._Value);
 		
 		if (a._Value is t Value) {
 			aValue = Value;
-			return true;  
+			return true;
 		} else {
 			aValue = default!;
-			return false; 
+			return false;
 		} 
 	} 
 	

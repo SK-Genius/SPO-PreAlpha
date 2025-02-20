@@ -38,12 +38,12 @@ mTokenizer {
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	PosSignum = (-Char('+'))
-	.Modify(aSpan => +1)
+	.Modify(_ => +1)
 	.SetName(nameof(PosSignum));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	NegSignum = (-Char('-'))
-	.Modify((aSpan) => -1)
+	.Modify(_ => -1)
 	.SetName(nameof(NegSignum));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
@@ -141,8 +141,8 @@ mTokenizer {
 		);
 		
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Row = Result.RemainingStream.TryFirst().ThenDo(_ => _.Span.Start.Row).ElseThrow();
-			var Col = Result.RemainingStream.TryFirst().ThenDo(_ => _.Span.Start.Col).ElseThrow();
+			var Row = Result.RemainingStream.TryFirst().ElseThrow().Span.Start.Row;
+			var Col = Result.RemainingStream.TryFirst().ElseThrow().Span.Start.Col;
 			var Lines = aText.Split('\n');
 			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
 			var Line = Lines[Row - 1];
@@ -158,7 +158,7 @@ mTokenizer {
 			);
 			throw mError.Error(
 				$"""
-				({Row}, {Col}): expected end of text
+				:{Row} expected end of text
 				{PrevLine}
 				{Line}
 				{MarkerLine}^
@@ -252,7 +252,7 @@ mTokenizer {
 	
 	public static mStd.tFunc<tRes, tSpan>
 	X<tRes>(
-		mStd.tFunc<tRes, tSpan>aFunc
+		mStd.tFunc<tRes, tSpan> aFunc
 	) => aSpan => aFunc(aSpan);
 	
 	public static mStd.tFunc<tRes, tSpan, tToken>

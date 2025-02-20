@@ -44,12 +44,12 @@ mParserGen {
 		mStd.tFunc<(tPos Pos, tError Message), (mSpan.tSpan<tPos> Span, tOut Value)> aErrorMessage
 	) {
 		var Parser = new tParser<tPos, tIn, tOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).ThenTry<tParserResult<tPos, tIn, tOut, tError>, tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos, tError)>?>(
-			[DebuggerHidden](aResult) => (
+			[DebuggerHidden] (aResult) => (
 				aIsValid(aResult.Result.Value)
 				? mResult.OK(aResult)
 				: mResult.Fail(mStream.Stream([aErrorMessage(aResult.Result)]))
@@ -65,12 +65,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(aResult.Result.Span)
@@ -89,12 +89,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, tOut> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(
@@ -116,12 +116,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) =>aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(
@@ -144,12 +144,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(
@@ -173,12 +173,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3, t4> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(
@@ -203,12 +203,12 @@ mParserGen {
 		mStd.tFunc<tNewOut, mSpan.tSpan<tPos>, t1, t2, t3, t4, t5> aModifyFunc
 	) {
 		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos);
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aParser._ParseFunc(
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aParser._ParseFunc(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).Then(
-			[DebuggerHidden](aResult) => ParserResult(
+			[DebuggerHidden] (aResult) => ParserResult(
 				(
 					aResult.Result.Span,
 					aModifyFunc(
@@ -232,42 +232,42 @@ mParserGen {
 	Modify<tPos, tIn, tNewOut, tError>(
 		this tParser<tPos, tIn, mStd.tEmpty, tError> aParser,
 		mStd.tFunc<tNewOut> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan) => aModifyFunc());
+	) => aParser.ModifyS([DebuggerHidden] (aSpan) => aModifyFunc());
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
 	Modify<tPos, tIn, t, tNewOut, tError>(
 		this tParser<tPos, tIn, t, tError> aParser,
 		mStd.tFunc<tNewOut, t> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan, a) => aModifyFunc(a));
+	) => aParser.ModifyS([DebuggerHidden] (aSpan, a) => aModifyFunc(a));
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
 	Modify<tPos, tIn, t1, t2, tNewOut, tError>(
 		this tParser<tPos, tIn, (t1, t2), tError> aParser,
 		mStd.tFunc<tNewOut, t1, t2> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan, a1, a2) => aModifyFunc(a1, a2));
+	) => aParser.ModifyS([DebuggerHidden] (aSpan, a1, a2) => aModifyFunc(a1, a2));
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
 	Modify<tPos, tIn, t1, t2, t3, tNewOut, tError>(
 		this tParser<tPos, tIn, (t1, t2, t3), tError> aParser,
 		mStd.tFunc<tNewOut, t1, t2, t3> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan, a1, a2, a3) => aModifyFunc(a1, a2, a3));
+	) => aParser.ModifyS([DebuggerHidden] (aSpan, a1, a2, a3) => aModifyFunc(a1, a2, a3));
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
 	Modify<tPos, tIn, t1, t2, t3, t4, tNewOut, tError>(
 		this tParser<tPos, tIn, (t1, t2, t3, t4), tError> aParser,
 		mStd.tFunc<tNewOut, t1, t2, t3, t4> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan, a1, a2, a3, a4) => aModifyFunc(a1, a2, a3, a4));
+	) => aParser.ModifyS([DebuggerHidden] (aSpan, a1, a2, a3, a4) => aModifyFunc(a1, a2, a3, a4));
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
 	Modify<tPos, tIn, t1, t2, t3, t4, t5, tNewOut, tError>(
 		this tParser<tPos, tIn, (t1, t2, t3, t4, t5), tError> aParser,
 		mStd.tFunc<tNewOut, t1, t2, t3, t4, t5> aModifyFunc
-	) => aParser.ModifyS([DebuggerHidden](aSpan, a1, a2, a3, a4, a5) => aModifyFunc(a1, a2, a3, a4, a5));
+	) => aParser.ModifyS([DebuggerHidden] (aSpan, a1, a2, a3, a4, a5) => aModifyFunc(a1, a2, a3, a4, a5));
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tOut, tError>
@@ -285,7 +285,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStd.tFunc<(tPos Pos, tError Message), (mSpan.tSpan<tPos> Span, tIn Value)> aCreateError
 	) => aParser.ModifyErrors(
-		[DebuggerHidden](aErrors, a) => mStream.Concat(aErrors, mStream.Stream([aCreateError(a)]))
+		[DebuggerHidden] (aErrors, a) => mStream.Concat(aErrors, mStream.Stream([aCreateError(a)]))
 	);
 	
 	#endregion
@@ -294,7 +294,7 @@ mParserGen {
 	tParser<tPos, tIn, tOut, tError> {
 		internal mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)>? _LastInput;
 		internal mResult.tResult<tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos Pos, tError Message)>?> _LastOutput;
-
+		
 		#if MY_TRACE
 		internal mStream.tStream<tText>? _LastTrace;
 		#endif
@@ -316,16 +316,16 @@ mParserGen {
 		
 		public tText? DebugName
 		#if DEBUG || MY_TRACE
-			=> this._DebugName;
+		 => this._DebugName;
 		#else
-			=> null;
+		 => null;
 		#endif
 		
 		public tText DebugDef
 		#if DEBUG || MY_TRACE
-			=> this._DebugDef;
+		 => this._DebugDef;
 		#else
-			=> null;
+		 => null;
 		#endif
 		
 		[Pure, DebuggerHidden]
@@ -343,63 +343,63 @@ mParserGen {
 			tParser<tPos, tIn, tOut, tError> aParser
 		) => aParser
 			.ModifyS(aSpan => mStd.cEmpty)
-			.SetDebugDef(["-(", aParser.DebugName??aParser.DebugDef, ")"]);
+			.SetDebugDef(["-(", aParser.DebugName ?? aParser.DebugDef, ")"]);
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, tOut, tError>
-		operator+(
+		operator +(
 			tParser<tPos, tIn, tOut, tError> aP1,
 			tParser<tPos, tIn, mStd.tEmpty, tError> aP2
 		) => aP1.__(aP2).Modify((a1, a2) => a1);
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, tOut, tError>
-		operator+(
+		operator +(
 			tParser<tPos, tIn, mStd.tEmpty, tError> aP1,
 			tParser<tPos, tIn, tOut, tError> aP2
 		) => aP1.__(aP2).Modify((a1, a2) => a2);
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, (tOut, tOut), tError>
-		operator+(
+		operator +(
 			tParser<tPos, tIn, tOut, tError> aP1,
 			tParser<tPos, tIn, tOut, tError> aP2
 		) => aP1.__(aP2);
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, mStd.tEmpty, tError>
-		operator-(
+		operator -(
 			tParser<tPos, tIn, mStd.tEmpty, tError> aP1,
 			tParser<tPos, tIn, tOut, tError> aP2
 		) => -(aP1 + aP2);
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, tOut, tError>
-		operator|(
+		operator |(
 			tParser<tPos, tIn, tOut, tError> aP1,
 			tParser<tPos, tIn, tOut, tError> aP2
 		) {
 			var Parser = new tParser<tPos, tIn, tOut, tError>(aP1._ComparePos);
-			Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aP1.Parse(
+			Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aP1.Parse(
 				aStream,
 				aDebugStream,
 				mStream.Stream(Parser, aPath)
 			).ElseTry(
-				[DebuggerHidden](aErrorList1) => aP2.Parse(
+				[DebuggerHidden] (aErrorList1) => aP2.Parse(
 					aStream,
 					aDebugStream,
 					mStream.Stream(Parser, aPath)
 				).Then(
-					[DebuggerHidden](aResult) =>ParserResult(
+					[DebuggerHidden] (aResult) => ParserResult(
 						aResult.Result,
 						aResult.RemainingStream,
 						Merge(aErrorList1, aResult.MaybeError, aP1._ComparePos)
 					)
 				).ElseTry(
-					aErrorList2 =>mResult.Fail(Merge(aErrorList1, aErrorList2, aP1._ComparePos))
+					aErrorList2 => mResult.Fail(Merge(aErrorList1, aErrorList2, aP1._ComparePos))
 				)
 			);
-			return Parser.SetDebugDef(["(", aP1.DebugName??aP1.DebugDef, ") | (", aP2.DebugName??aP2.DebugDef, ")"]);
+			return Parser.SetDebugDef(["(", aP1.DebugName ?? aP1.DebugDef, ") | (", aP2.DebugName ?? aP2.DebugDef, ")"]);
 		}
 		
 		[Pure, DebuggerHidden]
@@ -413,7 +413,7 @@ mParserGen {
 				var Min = aRange.Start.Value;
 				var Max = aRange.End.IsFromEnd ? (tInt32?)null : aRange.End.Value;
 				var Parser = new tParser<tPos, tIn, mStream.tStream<tOut>?, tError>(this._ComparePos);
-				Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => {
+				Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => {
 					var Result = mStream.Stream<tOut>([]);
 					var RemainingStream = aStream;
 					var Max_ = Max ?? tInt32.MaxValue;
@@ -446,17 +446,17 @@ mParserGen {
 						: mResult.OK(ParserResult((Span, Result.Reverse()), RemainingStream, LastError))
 					);
 				};
-				return Parser.SetDebugDef(["(", this.DebugName??this.DebugDef, ")[", Min, "..", Max, "]"]);
+				return Parser.SetDebugDef(["(", this.DebugName ?? this.DebugDef, ")[", Min, "..", Max, "]"]);
 			}
 		}
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, (mStream.tStream<tIn>?, tOut), tError>
-		operator~(
+		operator ~(
 			tParser<tPos, tIn, tOut, tError> aParser
 		) {
-			var Parser = new tParser<tPos, tIn, (mStream.tStream<tIn>?, tOut),tError>(aParser._ComparePos);
-			Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => {
+			var Parser = new tParser<tPos, tIn, (mStream.tStream<tIn>?, tOut), tError>(aParser._ComparePos);
+			Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => {
 				var List = mStream.Stream<tIn>([]);
 				var RestStream = aStream;
 				var Span = default(mSpan.tSpan<tPos>);
@@ -489,7 +489,7 @@ mParserGen {
 					}
 				}
 			};
-			return Parser.SetDebugDef(["~(", aParser.DebugName??aParser.DebugDef, ")"]);
+			return Parser.SetDebugDef(["~(", aParser.DebugName ?? aParser.DebugDef, ")"]);
 		}
 		
 		[Pure, DebuggerHidden]
@@ -573,20 +573,20 @@ mParserGen {
 		this tParser<tPos, tIn, tOut1, tError> aP1,
 		tParser<tPos, tIn, tOut2, tError> aP2
 	) {
-		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>(aP1._ComparePos);		
-		Parser._ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => aP1.Parse(
+		var Parser = new tParser<tPos, tIn, (tOut1, tOut2), tError>(aP1._ComparePos);
+		Parser._ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => aP1.Parse(
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
 		).ThenTry(
-			[DebuggerHidden](aResult1) => aP2.Parse(
+			[DebuggerHidden] (aResult1) => aP2.Parse(
 				aResult1.RemainingStream,
 				aDebugStream,
 				ReferenceEquals(aStream, aResult1.RemainingStream)
 				? mStream.Stream(Parser, aPath)
 				: null
 			).Then(
-				[DebuggerHidden](aResult2) => ParserResult(
+				[DebuggerHidden] (aResult2) => ParserResult(
 					(
 						mSpan.Merge(aResult1.Result.Span, aResult2.Result.Span),
 						(aResult1.Result.Value, aResult2.Result.Value)
@@ -595,7 +595,7 @@ mParserGen {
 					Merge(aResult1.MaybeError, aResult2.MaybeError, aP1._ComparePos)
 				)
 			).ElseTry(
-				[DebuggerHidden](aErrorList) => mResult.Fail(
+				[DebuggerHidden] (aErrorList) => mResult.Fail(
 					Merge(
 						Merge(
 							aResult1.MaybeError,
@@ -608,7 +608,7 @@ mParserGen {
 				)
 			)
 		);
-		return Parser.SetDebugDef(["(", aP1.DebugName??aP1.DebugDef, ") + (", aP2.DebugName??aP2.DebugDef, ")"]);
+		return Parser.SetDebugDef(["(", aP1.DebugName ?? aP1.DebugDef, ") + (", aP2.DebugName ?? aP2.DebugDef, ")"]);
 	}
 	
 	[Pure, DebuggerHidden]
@@ -708,20 +708,20 @@ mParserGen {
 		var Trace = mStream.Stream<tText>([]);
 		void AppendToTrace(tText a) {
 			#if true
-			Trace = mStream.Stream(a, Trace);
+				Trace = mStream.Stream(a, Trace);
 			#endif
 		}
-
-#if INF_LOOP_DETECTION
+		
+		#if INF_LOOP_DETECTION
 		if (!aInfiniteLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
-#if MY_TRACE
+			#if MY_TRACE
 				aDebugStream($"!!! INFINITE LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
-#endif
+			#endif
 			return mResult.Fail(mList.List<tError>());
 		}
-#endif
-
-#if MY_TRACE
+		#endif
+		
+		#if MY_TRACE
 			
 			if (aParser._DebugName is not null) {
 				AppendToTrace(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
@@ -730,8 +730,8 @@ mParserGen {
 			} else {
 				AppendToTrace("??? -> {");
 			}
-#endif
-
+		#endif
+		
 		if (ReferenceEquals(aParser._LastInput, aStream) && aStream is not null) {
 			var Result_ = aParser._LastOutput;
 			#if MY_TRACE
@@ -793,19 +793,19 @@ mParserGen {
 		mStd.tFunc<(tPos Pos, tError Message), (mSpan.tSpan<tPos> Span, t Value)> aCreateErrorFunc,
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
 	) => new(aComparePos){
-		_ParseFunc = [DebuggerHidden](aStream, aDebugStream, aPath) => (
+		_ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => (
 			aStream.Is(out var Head, out var Tail) && aTest(Head.Value)
 			? mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>([])))
 			: mResult.Fail(mStream.Stream([aCreateErrorFunc(Head)]))
 		),
-		_ModifyErrorsFunc = [DebuggerHidden](_, a) => mStream.Stream([aCreateErrorFunc(a)]),
+		_ModifyErrorsFunc = [DebuggerHidden] (_, a) => mStream.Stream([aCreateErrorFunc(a)]),
 	};
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, mStd.tEmpty, tError>
 	EmptyParser<tPos, tIn, tError>(
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
-	) => new(aComparePos){
+	) => new(aComparePos) {
 		_ParseFunc = (aStream, aDebugStream, aPath) => mResult.OK(
 			ParserResult(
 				(

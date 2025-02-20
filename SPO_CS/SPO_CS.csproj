@@ -4,9 +4,9 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<LangVersion>13.0</LangVersion>
 		<OutputType>Exe</OutputType>
-		<!--  Exe | Library | Module | Winexe -->
+		<!-- Exe | Library | Module | Winexe -->
 		
-		<DefineConstants>noMY_TRACE;DISABLE_DEBUGGER_HIDDEN</DefineConstants>
+		<DefineConstants>noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN;noJSON</DefineConstants>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>

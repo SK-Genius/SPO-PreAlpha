@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-public static class
+﻿public static class
 mTreeMap {
 	[DebuggerTypeProxy(typeof(tTree<,>.tDebuggerProxy))]
 	public readonly struct
@@ -24,7 +22,7 @@ mTreeMap {
 		) {
 			[Pure]
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
-			public readonly (tKey Key, tValue Value)[]
+			public (tKey Key, tValue Value)[]
 			List => aTree.ToStream().Take(100).ToArrayList().ToArray();
 		}
 	}
@@ -117,7 +115,7 @@ mTreeMap {
 	//) => aTree.TryGet(aKey).ElseThrow("unknown key: " + aKey);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	internal static mMaybe.tMaybe<tValue>
+	private static mMaybe.tMaybe<tValue>
 	TryGet<tKey, tValue>(
 		this tNode<tKey, tValue>? aNode,
 		tKey aKey,
@@ -217,18 +215,18 @@ mTreeMap {
 			aKey = aNode.Key;
 			aValue = aNode.Value;
 			return aNode.SubTree1;
-		} else {
-			var SubTree2 = aNode.SubTree2.RemoveMax(
-				out aKey,
-				out aValue
-			);
-			return Node(
-				aNode.Key,
-				aNode.Value,
-				aNode.SubTree1,
-				SubTree2
-			);
 		}
+		
+		var SubTree2 = aNode.SubTree2.RemoveMax(
+			out aKey,
+			out aValue
+		);
+		return Node(
+			aNode.Key,
+			aNode.Value,
+			aNode.SubTree1,
+			SubTree2
+		);
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -273,8 +271,7 @@ mTreeMap {
 			return aNode;
 		}
 		
-		return Diff.Sign() switch
-		{
+		return Diff.Sign() switch {
 			-1 => (
 				(aNode.SubTree2!.SubTree1.Deep() > aNode.SubTree2.SubTree2.Deep())
 				? Node(
@@ -306,7 +303,7 @@ mTreeMap {
 		tValue aValue,
 		tNode<tKey, tValue>? aSubTree1,
 		tNode<tKey, tValue>? aSubTree2
-	) => new tNode<tKey, tValue> {
+	) => new () {
 		Key = aKey,
 		Value = aValue,
 		SubTree1 = aSubTree1,

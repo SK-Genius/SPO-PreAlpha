@@ -180,7 +180,7 @@ mTest {
 					if (aOutputLevel >= 2) {
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ": " + Exception.Message);
 					}
-
+					
 					if (aOutputLevel >= 3) {
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!.Replace(":line ", ":"));
 					}
@@ -206,7 +206,7 @@ mTest {
 				StopWatch.Start();
 				foreach (var Test in Collection.Tests) {
 					var SubResult = Test.Run(
-						LineByLine([DebuggerHidden](_) => aDebugStream(cTab + _)),
+						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + _)),
 						aFilters,
 						aHideSkippedTests,
 						aOutputLevel,
@@ -236,7 +236,7 @@ mTest {
 					}
 					
 					if (aStopOnFirstFail && FailCount > 0) {
-						break;	
+						break;
 					}
 				}
 				StopWatch.Stop();
@@ -282,11 +282,9 @@ mTest {
 	private static mStd.tAction<tText>
 	LineByLine(
 		mStd.tAction<tText> aWritLine
-	) {
-		return [DebuggerHidden](tText aLines) => {
-			foreach (var Line in aLines.Split('\n')) {
-				aWritLine(Line.TrimEnd('\r'));
-			}
-		};
-	}
+	) => [DebuggerHidden] (aLines) => {
+		foreach (var Line in aLines.Split('\n')) {
+			aWritLine(Line.TrimEnd('\r'));
+		}
+	};
 }

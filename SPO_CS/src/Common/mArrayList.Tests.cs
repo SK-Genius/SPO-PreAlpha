@@ -26,7 +26,7 @@ mArrayList_Tests {
 					mAssert.AreEquals(mStream.Stream<tInt32>([]).ToArrayList(), mArrayList.List<tInt32>());
 				}
 			),
-			mTest.Test("tArrayList.ToLasyList()",
+			mTest.Test("tArrayList.ToLazyList()",
 				aStreamOut => {
 					mAssert.AreEquals(mArrayList.List<tInt32>([]).ToStream(), mStream.Stream<tInt32>([]));
 					mAssert.AreEquals(mArrayList.List([1]).ToStream(), mStream.Stream([1]));

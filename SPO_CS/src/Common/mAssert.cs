@@ -15,7 +15,7 @@ mAssert {
 	public static void
 	IsTrue(
 		[DoesNotReturnIf(false)] tBool a,
-		[CallerArgumentExpression("a")] tText aMsg = ""
+		[CallerArgumentExpression(nameof(a))] tText aMsg = ""
 	) {
 		if (!a) {
 			Fail(aMsg);
@@ -36,7 +36,7 @@ mAssert {
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static void
 	IsFalse(
-		[DoesNotReturnIf(true)]tBool a,
+		[DoesNotReturnIf(true)] tBool a,
 		mStd.tFunc<tText>? aMsg
 	) {
 		IsTrue(!a, () => aMsg?.Invoke() ?? "is not false");
@@ -46,7 +46,7 @@ mAssert {
 	public static void
 	IsFalse(
 		[DoesNotReturnIf(true)] tBool a,
-		[CallerArgumentExpression("a")] tText aMsg = ""
+		[CallerArgumentExpression(nameof(a))] tText aMsg = ""
 	) {
 		if (a) {
 			Fail(aMsg);
@@ -71,18 +71,18 @@ mAssert {
 		tText Text1;
 		tText Text2;
 		if (aToText is null) {
-#if JSON
-			try {
-				Text1 = AsJSON(a1);
-				Text2 = AsJSON(a2);
-			} catch {
+			#if JSON
+				try {
+					Text1 = AsJSON(a1);
+					Text2 = AsJSON(a2);
+				} catch {
+					Text1 = a1?.ToString() ?? "null";
+					Text2 = a2?.ToString() ?? "null";
+				}
+			#else
 				Text1 = a1?.ToString() ?? "null";
 				Text2 = a2?.ToString() ?? "null";
-			}
-#else
-			Text1 = a1?.ToString() ?? "null";
-			Text2 = a2?.ToString() ?? "null";
-#endif
+			#endif
 		} else {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
@@ -125,15 +125,15 @@ mAssert {
 		);
 		return a1;
 		
-#if JSON
-		string
-		AsJSON(
-			object o
-		) => Newtonsoft.Json.JsonConvert.SerializeObject(
-			o,
-			Newtonsoft.Json.Formatting.Indented
-		);
-#endif
+		#if JSON
+			string
+			AsJSON(
+				object o
+			) => Newtonsoft.Json.JsonConvert.SerializeObject(
+				o,
+				Newtonsoft.Json.Formatting.Indented
+			);
+		#endif
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

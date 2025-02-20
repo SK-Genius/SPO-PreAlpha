@@ -21,7 +21,7 @@ mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		var FreeType = aProcDef.TypeFree(default);
-	
+		
 		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
 			_Parent = aParent,
@@ -238,7 +238,7 @@ mVM {
 			}
 			case mVM_Data.tOpCode.CallFunc: {
 				var Proc = aCallStack._Regs.Get(Arg1);
-				var Arg  = aCallStack._Regs.Get(Arg2);
+				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				switch (0) {
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -274,7 +274,7 @@ mVM {
 			}
 			case mVM_Data.tOpCode.CallProc: {
 				var Proc_ = aCallStack._Regs.Get(Arg1);
-				var Arg  = aCallStack._Regs.Get(Arg2);
+				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
 				
@@ -395,11 +395,11 @@ mVM {
 		};
 		var InitProc = VMModule.TryFirst().ElseThrow();
 		
-#if MY_TRACE
-		var TraceOut = aTrace;
-#else
-		var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
-#endif
+		#if MY_TRACE
+			var TraceOut = aTrace;
+		#else
+			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
+		#endif
 		
 		mVM.Run(
 			mVM_Data.Proc(InitProc, DefTuple),

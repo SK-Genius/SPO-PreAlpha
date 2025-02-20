@@ -182,7 +182,7 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Childs), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Children), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -203,7 +203,7 @@ mSPO_Parser {
 		)
 	);
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Childs), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Children), tError>
 	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -211,7 +211,7 @@ mSPO_Parser {
 		.ModifyS(
 			(aSpan, aFirstId, aInfix) => (
 				Id: mSPO_AST.Id(aSpan, aFirstId.Text[1..] + aInfix.Id.Id[1..]),
-				Childs: aInfix.Childs
+				Children: aInfix.Children
 			)
 		)
 	) | (
@@ -219,7 +219,7 @@ mSPO_Parser {
 		.ModifyS(
 			(aSpan, aFirstChild, aFirstId, aInfix) => (
 				Id: mSPO_AST.Id(aSpan, "..." + aFirstId.Text[1..] + aInfix.Id.Id[1..]),
-				Childs: mStream.Stream(aFirstChild, aInfix.Childs)
+				Children: mStream.Stream(aFirstChild, aInfix.Children)
 			)
 		)
 	);
@@ -239,7 +239,7 @@ mSPO_Parser {
 							),
 							aFirst.Id[1..] + aInfix.Id.Id[1..]
 						),
-						Childs: aInfix.Childs
+						Children: aInfix.Children
 					)
 				)
 			) | (
@@ -247,12 +247,12 @@ mSPO_Parser {
 				.ModifyS(
 					(aSpan, aFirstChild, _, aFirst, aInfix) => (
 						Id: mSPO_AST.Id(aSpan, "..." + aFirst.Id[1..] + aInfix.Id.Id[1..]),
-						Childs: mStream.Stream(aFirstChild, aInfix.Childs)
+						Children: mStream.Stream(aFirstChild, aInfix.Children)
 					)
 				)
 			)
 		).ModifyS(
-			(aSpan, a) => mSPO_AST.Call(aSpan, a.Id, mSPO_AST.Tuple(aSpan, a.Childs))
+			(aSpan, a) => mSPO_AST.Call(aSpan, a.Id, mSPO_AST.Tuple(aSpan, a.Children))
 		) | (
 			-SpecialToken(".") +(ExpressionInCall +ExpressionInCall).ModifyS(mSPO_AST.Call)
 		)
@@ -261,7 +261,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixNode<tSpan>, tError>
 	Prefix = InfixPrefix(ExpressionInCall)
-	.ModifyS((aSpan, aId, aChilds) => mSPO_AST.Prefix(aSpan, aId, mSPO_AST.Tuple(aSpan, aChilds)))
+	.ModifyS((aSpan, aId, aChildren) => mSPO_AST.Prefix(aSpan, aId, mSPO_AST.Tuple(aSpan, aChildren)))
 	.SetName(nameof(Prefix));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchFreeIdNode<tSpan>, tError>
@@ -273,10 +273,10 @@ mSPO_Parser {
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchPrefixNode<tSpan>, tError>
 	MatchPrefix = C( InfixPrefix(UnTypedMatch) )
 	.ModifyS(
-		(aSpan, aId, aChilds) => mSPO_AST.MatchPrefix(
+		(aSpan, aId, aChildren) => mSPO_AST.MatchPrefix(
 			aSpan,
 			aId,
-			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChilds), mStd.cEmpty)
+			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChildren), mStd.cEmpty)
 		)
 	)
 	.SetName(nameof(MatchPrefix));
@@ -529,7 +529,7 @@ mSPO_Parser {
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
 			aSpan,
 			mSPO_AST.Id(aSpan, aFirst.Id[1..] + aInfix.Id.Id[1..]),
-			mSPO_AST.Tuple(aSpan, aInfix.Childs),
+			mSPO_AST.Tuple(aSpan, aInfix.Children),
 			aMaybeOut
 		)
 	)
@@ -566,7 +566,7 @@ mSPO_Parser {
 	.SetName(nameof(VarToVal));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallsNode<tSpan>, tError>
-	MethodCallStatment = mParserGen.Seq(
+	MethodCallStatement = mParserGen.Seq(
 		ExpressionInCall,
 		SpecialToken(":"),
 		NLs_Token[0..1],
@@ -574,7 +574,7 @@ mSPO_Parser {
 	)
 	.Modify((aObj, _, _, aMethodCalls) => (aObj, aMethodCalls))
 	.ModifyS(mSPO_AST.MethodCallStatement)
-	.SetName(nameof(MethodCallStatment));
+	.SetName(nameof(MethodCallStatement));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tImportNode<tSpan>, tError>
 	Import = (-KeyWord("IMPORT") +(Match +-NLs_Token))
@@ -681,14 +681,14 @@ mSPO_Parser {
 			(Expression +-KeyWord("<") +(PipeToLeft | Expression))
 			.ModifyS(mSPO_AST.PipeToLeft)
 		);
-			
+		
 		// TODO: Macros, Streaming, Block, ...
 		Command.Def(
 			mParserGen.OneOf(
 				Def.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 				[
 					DefVar.Cast<mSPO_AST.tCommandNode<tSpan>>(),
-					MethodCallStatment.Cast<mSPO_AST.tCommandNode<tSpan>>(),
+					MethodCallStatement.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					RecLambda.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					ReturnIf.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					Return.Cast<mSPO_AST.tCommandNode<tSpan>>()
