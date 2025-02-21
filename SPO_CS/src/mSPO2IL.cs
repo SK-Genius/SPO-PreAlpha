@@ -1462,6 +1462,8 @@ mSPO2IL {
 			)
 		);
 		
+		mSPO_AST_Types.UpdateExpressionTypes(Lambda, aScope);
+		
 		var ModuleConstructor = NewModuleConstructor(aMergePos);
 		var TempLambdaDef = ModuleConstructor.NewDefConstructor();
 		
