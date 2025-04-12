@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-public static class
+﻿public static class
 mStdLib {
 	
 	private static mMaybe.tMaybe<mVM_Data.tData> _ImportData;
@@ -15,8 +13,8 @@ mStdLib {
 		
 		var ImportData = mVM.Run(
 			mIL_Parser.Module.ParseText(
-				File.ReadAllText("src/Std.ILT"), // TODO Update to new pair structure
-				Path.Combine(Directory.GetParent(mStd.File()).FullName, "Std.ILT"),
+				System.IO.File.ReadAllText("src/Std.ILT"), // TODO Update to new pair structure
+				System.IO.Path.Combine(System.IO.Directory.GetParent(mStd.File()).FullName, "Std.ILT"),
 				aDebugStream
 			),
 			mVM_Data.Empty(),

@@ -1,7 +1,5 @@
 ﻿//#define MY_TRACE
 
-using System;
-
 public static class
 mIL_GenerateOpcodes {
 	public static readonly tText cEmptyType = "EMPTY";
@@ -363,44 +361,46 @@ mIL_GenerateOpcodes {
 						
 						ResType.IsSubType(DefResType, mStd.cEmpty)
 						.ElseThrow(
-							_ => $"""
+							_ => (
+								$"""
 								{_}
 								{ResType.ToText()}
 								!<
 								{DefResType.ToText()}
 								{Command}
 								"""
+							)
 						);
 						
 						NewProc.ReturnIf(Span, CondReg, ResReg);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var Reg = Regs.GetOrThrow(RegId2, Command);
@@ -426,7 +426,7 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeCond, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-						throw new NotImplementedException(nameof(mIL_AST.tCommandNodeType.TypeCond));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TypeCond));
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeFunc, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var ArgTypeReg = Regs.GetOrThrow(RegId2, Command);

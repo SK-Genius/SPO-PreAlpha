@@ -4,7 +4,6 @@ using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
-using System;
 
 public static class
 mTextParser {
@@ -15,8 +14,8 @@ mTextParser {
 		tPos a2
 	) => mMath.Sign(
 		a1.Row != a2.Row
-		? (tInt32)a1.Row - (tInt32)a2.Row
-		: (tInt32)a1.Col - (tInt32)a2.Col
+		? (System.Int32)a1.Row - (System.Int32)a2.Row
+		: (System.Int32)a1.Col - (System.Int32)a2.Col
 	);
 	
 	[Pure, DebuggerHidden]
@@ -33,10 +32,10 @@ mTextParser {
 		var Result = MaybeResult.ElseThrow(
 			_ => _.Sort(
 				(a1, a2) => {
-					var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
+					var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;
 					return RowComp != 0
 						? RowComp
-						: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
+						: (System.Int32)a2.Pos.Col - (System.Int32)a1.Pos.Col;
 				}
 			).DontRepeat(
 			).ToText(aText.Split('\n'))
@@ -49,7 +48,7 @@ mTextParser {
 				$"""
 				{Pos.Id}:{Pos.Row} expected end of text
 				{Line}
-				{Line[..StartSpacesCount] + new tText(' ', (tInt32)Pos.Col - StartSpacesCount - 1)}^
+				{Line[..StartSpacesCount] + new tText(' ', (System.Int32)Pos.Col - StartSpacesCount - 1)}^
 				"""
 			);
 		}
@@ -83,7 +82,7 @@ mTextParser {
 	GetCharIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => mStream.Stream(aRefChars.AsSpan()).Any(_ => _ == aChar),
+		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).Any(_ => _ == aChar),
 		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos
 	)
@@ -94,7 +93,7 @@ mTextParser {
 	GetCharNotIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => mStream.Stream(aRefChars.AsSpan()).All(_ => _ != aChar),
+		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).All(_ => _ != aChar),
 		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos
 	)

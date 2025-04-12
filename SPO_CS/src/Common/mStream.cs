@@ -1,9 +1,5 @@
 ﻿//#define TAIL_RECURSIVE
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 public static class
 mStream {
 	[DebuggerTypeProxy(typeof(tStream<>.tDebuggerProxy))]
@@ -80,13 +76,13 @@ mStream {
 	public struct
 	tStreamIterator<t>(
 		tStream<t> aStream
-	) : IEnumerator<t> {
+	) : System.Collections.Generic.IEnumerator<t> {
 		private t _Head = default!;
 		private tStream<t>? _Tail = aStream;
 		
-		public void Reset() => throw new NotImplementedException();
+		public void Reset() => throw new System.NotImplementedException();
 		
-		readonly Object? IEnumerator.Current {
+		readonly System.Object? System.Collections.IEnumerator.Current {
 			get { return this.Current; }
 		}
 		
@@ -97,7 +93,7 @@ mStream {
 		MoveNext(
 		) => this._Tail.Is(out this._Head, out this._Tail);
 		
-		public void
+		public readonly void
 		Dispose(
 		) {
 		}
@@ -157,7 +153,7 @@ mStream {
 	public static tStream<t>?
 	AsStream<t>(
 		this t[] a
-	) => a.AsSpan().AsStream();
+	) => System.MemoryExtensions.AsSpan(a).AsStream();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>?
@@ -176,6 +172,24 @@ mStream {
 	Int(
 		tInt32 aStart
 	) => Stream(aStart, () => Int(aStart + 1));
+	
+	public static tBool
+	Eq<t>(
+		this tStream<t>? a1,
+		tStream<t>? a2,
+		mStd.tFunc<tBool, t, t> aEq
+	) => a1.Match(
+		[DebuggerHidden] () => a2.IsEmpty(),
+		[DebuggerHidden] (aHead1, aTail1) => a2.Match(
+			[DebuggerHidden] () => false,
+			[DebuggerHidden] (aHead2, aTail2) => aEq(aHead1, aHead2) && Eq(aTail1, aTail2, aEq)
+		)
+	);
+	
+	public static mStd.tFunc<tBool, tStream<t>?, tStream<t>?>
+	Eq<t>(
+		mStd.tFunc<tBool, t, t> aEq
+	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEq);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
@@ -316,8 +330,8 @@ mStream {
 		: mStd.cEmpty
 	);
 	
-	private class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : IComparer<t> {
-		public tInt32 Compare(t? a1, t? a2) => aComp(a1, a2);
+	private class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : System.Collections.Generic.IComparer<t> {
+		public System.Int32 Compare(t? a1, t? a2) => aComp(a1, a2);
 	}
 	
 	[Pure, DebuggerHidden]
@@ -342,10 +356,10 @@ mStream {
 	public static tStream<t>?
 	Sort<t>(
 		this tStream<t>? aStream
-	) where t : IComparable<t> {
+	) where t : System.IComparable<t> {
 		var Res = aStream.ToArrayList().ToArray();
-		Array.Sort(Res);
-		return Stream(Res.AsSpan());
+		System.Array.Sort(Res);
+		return Stream(System.MemoryExtensions.AsSpan(Res));
 	}
 	
 	[Pure, DebuggerHidden]
@@ -355,8 +369,8 @@ mStream {
 		mStd.tFunc<tInt32, t, t> aCompare
 	) {
 		var Res = aStream.ToArrayList().ToArray();
-		Array.Sort(Res, new tGenComp<t>(aCompare));
-		return Stream(Res.AsSpan());
+		System.Array.Sort(Res, new tGenComp<t>(aCompare));
+		return Stream(System.MemoryExtensions.AsSpan(Res));
 	}
 	
 	[Pure, DebuggerHidden]

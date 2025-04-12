@@ -1,11 +1,12 @@
 root	= true
 
 [*.*]
-end_of_line         	= crlf
-indent_size         	= 4
-indent_style        	= tab
-insert_final_newline	= false
-tab_width           	= 4
+end_of_line             	= crlf
+indent_size             	= 4
+indent_style            	= tab
+insert_final_newline    	= false
+tab_width               	= 4
+trim_trailing_whitespace	= false
 
 [*.cs]
 trim_trailing_whitespace = false
@@ -131,33 +132,33 @@ dotnet_style_qualification_for_property                         	= true:none
 dotnet_style_readonly_field                                     	= true:error
 dotnet_style_require_accessibility_modifiers                    	= for_non_interface_members:error
 
-dotnet_diagnostic.CA1032.severity	= none
-dotnet_diagnostic.CA1034.severity	= none
-dotnet_diagnostic.CA1040.severity	= none
-dotnet_diagnostic.CA1042.severity	= none
-dotnet_diagnostic.CA1050.severity	= none
-dotnet_diagnostic.CA1051.severity	= none
-dotnet_diagnostic.CA1062.severity	= none
-dotnet_diagnostic.CA1066.severity	= none
-dotnet_diagnostic.CA1069.severity	= none
-dotnet_diagnostic.CA1707.severity	= none
-dotnet_diagnostic.CA1710.severity	= none
-dotnet_diagnostic.CA1711.severity	= none
-dotnet_diagnostic.CA1715.severity	= none
-dotnet_diagnostic.CA1720.severity	= none
-dotnet_diagnostic.CA1725.severity	= none
-dotnet_diagnostic.CA1802.severity	= none
-dotnet_diagnostic.CA1805.severity	= none
-dotnet_diagnostic.CA1815.severity	= none
-dotnet_diagnostic.CA1819.severity	= none
-dotnet_diagnostic.CA1825.severity	= none
-dotnet_diagnostic.CA2225.severity	= none
-dotnet_diagnostic.CA2231.severity	= none
-dotnet_diagnostic.CA5392.severity	= none # windows only
+dotnet_diagnostic.CA1032.severity 	= none # Implement standard exception constructors
+dotnet_diagnostic.CA1034.severity 	= none # Nested types should not be visible
+dotnet_diagnostic.CA1040.severity 	= none # Avoid empty interfaces
+dotnet_diagnostic.CA1042.severity 	= none # Do not use read-only fields for mutable reference types
+dotnet_diagnostic.CA1050.severity 	= none # Declare types in namespaces
+dotnet_diagnostic.CA1051.severity 	= none # Do not declare visible instance fields
+dotnet_diagnostic.CA1062.severity 	= none # Validate arguments of public methods
+dotnet_diagnostic.CA1066.severity 	= none # Implement IEquatable<T> for value types
+dotnet_diagnostic.CA1069.severity 	= none # Enums should not have duplicate values
+dotnet_diagnostic.CA1707.severity 	= none # Identifiers should not contain underscores
+dotnet_diagnostic.CA1710.severity 	= none # Identifiers should have correct suffix
+dotnet_diagnostic.CA1711.severity 	= none # Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1715.severity 	= none # Identifiers should have correct prefix
+dotnet_diagnostic.CA1720.severity 	= none # Identifiers should not contain type names
+dotnet_diagnostic.CA1725.severity 	= none # Parameter names should match base declaration
+#dotnet_diagnostic.CA1805.severity	= none # Do not initialize unnecessarily
+dotnet_diagnostic.CA1815.severity 	= none # Override equals and operator equals on value types
+dotnet_diagnostic.CA1819.severity 	= none # Properties should not return arrays
+#dotnet_diagnostic.CA1825.severity	= none # Avoid zero-length array allocations
+dotnet_diagnostic.CA2225.severity 	= none # Operator overloads have named alternates
+dotnet_diagnostic.CA2231.severity 	= none # Overload operator equals on overriding value types
+#dotnet_diagnostic.CA5392.severity	= none # Use DefaultDllImportSearchPaths attribute for P/Invokes (Windows only)
 
-dotnet_diagnostic.CS8524.severity	= none
-dotnet_diagnostic.CS8981.severity	= none
-dotnet_diagnostic.CS8620.severity	= none
+#dotnet_diagnostic.CS8524.severity	= none # The switch expression does not handle all possible values of its input type
+dotnet_diagnostic.CS8981.severity 	= none # The type name only contains lower-cased ASCII characters
+dotnet_diagnostic.CS8620.severity 	= none # IEnumerable differences in the nullability of reference types
 
-dotnet_diagnostic.IDE0042.severity  = none
-dotnet_diagnostic.IDE0047.severity  = none
+dotnet_diagnostic.IDE0042.severity  = none # Deconstruct variable declaration
+dotnet_diagnostic.IDE0047.severity  = none # Remove unnecessary parentheses
+dotnet_diagnostic.IDE0055.severity  = none # Fix formatting

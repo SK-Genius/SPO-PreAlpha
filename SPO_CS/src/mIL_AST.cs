@@ -120,6 +120,27 @@ mIL_AST {
 		public override readonly tText ToString() => ToText(this) + $"  // {this.Pos}";
 	}
 	
+	public static tBool
+	Eq<tPos>(
+		this tCommandNode<tPos> a1,
+		tCommandNode<tPos> a2,
+		mStd.tFunc<tBool, tPos, tPos> aEqPos
+	) {
+		var res = (
+			a1.NodeType == a2.NodeType &&
+			aEqPos(a1.Pos, a2.Pos) &&
+			a1._1 == a2._1 &&
+			a1._2.Eq(a2._2, (_, __) => _ == __) &&
+			a1._3.Eq(a2._3, (_, __) => _ == __)
+		);
+		return res;
+	}
+	
+	public static mStd.tFunc<tBool, tCommandNode<tPos>, tCommandNode<tPos>>
+	Eq_<tPos>(
+		mStd.tFunc<tBool, tPos, tPos> aEqPos
+	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEqPos);
+	
 	public static tText
 	ToText<tPos>(
 		this tCommandNode<tPos> a

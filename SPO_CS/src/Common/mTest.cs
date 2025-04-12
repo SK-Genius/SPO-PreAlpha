@@ -1,6 +1,4 @@
-﻿using System;
-
-public static class
+﻿public static class
 mTest {
 	private const tText cTab = "|  ";
 	
@@ -41,7 +39,7 @@ mTest {
 		tText aName,
 		mStd.tAction<mStd.tAction<tText>> aTestFunc,
 		[CallerFilePath] tText aFile = null!,
-		[CallerLineNumber] tInt32 aLine = 0
+		[CallerLineNumber] System.Int32 aLine = 0
 	) => new tTestRun {
 		Name = aName,
 		TestFunc = aTestFunc,
@@ -56,7 +54,7 @@ mTest {
 	) => aTest switch {
 		tTestRun Run => Run.Name,
 		tTestCollection Collection => Collection.Name,
-		_ => throw new NotImplementedException(aTest.GetType().FullName)
+		_ => throw new System.NotImplementedException(aTest.GetType().FullName)
 	};
 	
 	[DebuggerHidden]
@@ -68,9 +66,9 @@ mTest {
 		tTestRun Run => aFilters.Any(Run.Name.Contains),
 		tTestCollection Collection => (
 			aFilters.Any(Collection.Name.Contains) ||
-			Collection.Tests.AsSpan().AsStream().Any(_ => _.HasAnyMatch(aFilters))
+			System.MemoryExtensions.AsSpan(Collection.Tests).AsStream().Any(_ => _.HasAnyMatch(aFilters))
 		),
-		_ => throw new NotImplementedException(aTest.GetType().FullName),
+		_ => throw new System.NotImplementedException(aTest.GetType().FullName),
 	};
 	
 	[DebuggerHidden]
@@ -102,6 +100,9 @@ mTest {
 				aDebugStream("");
 				break;
 			}
+			default: {
+				throw mError.Error("impossible");
+			}
 		}
 	}
 	
@@ -113,6 +114,8 @@ mTest {
 		mStream.tStream<tText>? aFilters,
 		tBool aHideSkippedTests,
 		tInt32 aOutputLevel,
+		tInt32 aTreeLevel,
+		tBool aDebuggerBreak,
 		tBool aStopOnFirstFail
 	) {
 		System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -120,7 +123,10 @@ mTest {
 		System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 		System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		
-		if (aHideSkippedTests && !aTest.HasAnyMatch(aFilters)) {
+		if (
+			aTreeLevel <= 0 ||
+			(aHideSkippedTests && !aTest.HasAnyMatch(aFilters))
+		) {
 			aDebugStream = _ => {};
 		}
 		
@@ -139,6 +145,9 @@ mTest {
 				
 				try {
 					var ClocksStart = mPerf.ThreadCycles();
+					if (aDebuggerBreak) {
+						Debugger.Launch();
+					}
 					Run.TestFunc(
 						aOutputLevel >= 4
 							? LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
@@ -147,7 +156,7 @@ mTest {
 					var ClocksEnd = mPerf.ThreadCycles();
 					
 					var Value_00 = (ClocksEnd - ClocksStart) * 100;
-					var E = "";
+					tText E;
 					switch (Value_00) {
 						case >= 1_000_000_000_00: {
 							E = "G";
@@ -164,6 +173,11 @@ mTest {
 							Value_00 /= 1_000;
 							break;
 						}
+						default: {
+							E = "";
+							Value_00 /= 1;
+							break;
+						}
 					}
 					var Value = Value_00 / 100;
 					var SubValue = "";
@@ -176,7 +190,7 @@ mTest {
 					aDebugStream($"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")} ({Value}{SubValue} {E}Clocks)");
 					aDebugStream("");
 					return (tResult.OK, 0, 0, 1);
-				} catch (Exception Exception) {
+				} catch (System.Exception Exception) {
 					if (aOutputLevel >= 2) {
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + mConsole.Color(mConsole.tColorCode.Red, _)))(Exception.GetType().Name + ": " + Exception.Message);
 					}
@@ -210,6 +224,8 @@ mTest {
 						aFilters,
 						aHideSkippedTests,
 						aOutputLevel,
+						aTreeLevel - 1,
+						aDebuggerBreak,
 						aStopOnFirstFail
 					);
 					OK_CountSum += SubResult.OK_Count;
@@ -232,6 +248,9 @@ mTest {
 						case tResult.Skip: {
 							SkipCount += 1;
 							break;
+						}
+						default: {
+							throw mError.Error("impossible");
 						}
 					}
 					

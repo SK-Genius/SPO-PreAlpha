@@ -1,6 +1,4 @@
-﻿using System;
-
-public static class
+﻿public static class
 mSPO_AST {
 	private const tText cDebuggerDisplay = "{this.ToText()}";
 	
@@ -217,7 +215,6 @@ mSPO_AST {
 	public sealed record
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Des = default!;
 		public tExpressionNode<tPos> Src = default!;
 	}
@@ -337,7 +334,6 @@ mSPO_AST {
 	public sealed record
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdNode<tPos> Id = default!;
 		public tExpressionNode<tPos> Expression = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
@@ -364,7 +360,6 @@ mSPO_AST {
 	public sealed record
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Object = default!;
 		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
 	}
@@ -1240,6 +1235,7 @@ mSPO_AST {
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
+			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			
 			// Commands
 			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
@@ -1253,7 +1249,7 @@ mSPO_AST {
 				{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
 				}}
 				""",
-			_ => throw new NotImplementedException(aNode.GetType().Name),
+			_ => throw new System.NotImplementedException(aNode.GetType().Name),
 		};
 	}
 }

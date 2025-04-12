@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-public static class
+﻿public static class
 mVM_Type_Tests {
 	private static tText
 	Id(

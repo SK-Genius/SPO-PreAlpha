@@ -1,6 +1,4 @@
-﻿using System;
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
@@ -147,7 +145,7 @@ mTokenizer {
 			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
 			var Line = Lines[Row - 1];
 			var MarkerLine = mStream.Stream(
-				Line.AsSpan()
+				System.MemoryExtensions.AsSpan(Line)
 			).Take(
 				Col - 1
 			).Map(

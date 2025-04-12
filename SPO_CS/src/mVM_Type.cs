@@ -1,6 +1,4 @@
-﻿using System;
-
-public static class
+﻿public static class
 mVM_Type {
 	
 	public enum
@@ -758,11 +756,11 @@ mVM_Type {
 				}
 			}
 			case tKind.Record: {
-				var SubTailType = aSubType;
-				while (SubTailType.IsRecord(out var SubHeadKey, out var SubHeadType, out SubTailType)) {
-					var SupTailType = aSupType;
+				var SupTailType = aSupType;
+				while (SupTailType.IsRecord(out var SupHeadKey, out var SupHeadType, out SupTailType)) {
+					var SubTailType = aSubType;
 					var HasFound = false;
-					while (SupTailType.IsRecord(out var SupHeadKey, out var SupHeadType, out SupTailType)) {
+					while (SubTailType.IsRecord(out var SubHeadKey, out var SubHeadType, out SubTailType)) {
 						if (SubHeadKey == SupHeadKey) {
 							if (
 								SubHeadType.IsSubType(SupHeadType, aTypeMappings).Match(
@@ -951,7 +949,7 @@ mVM_Type {
 				}
 			),
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Set => $"[{____}{mStream.Stream(aType.Refs.AsSpan()).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
+			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",

@@ -174,6 +174,9 @@ mTreeMap {
 				SubTree2 = aNode.SubTree2!.Remove(aKey, aKeyCompare);
 				break;
 			}
+			default: {
+				throw mError.Error("impossible");
+			}
 		}
 		
 		return Node(Key, Value, SubTree1, SubTree2).Balance();

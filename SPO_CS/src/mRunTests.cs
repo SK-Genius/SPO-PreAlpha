@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-
-var Tests = mTest.Tests(
+﻿var Tests = mTest.Tests(
 	"All",
 	[
 		mAny_Tests.Tests,
@@ -30,7 +27,7 @@ var Tests = mTest.Tests(
 	]
 );
 
-var Args = mStream.Stream(args.AsSpan());
+var Args = mStream.Stream(System.MemoryExtensions.AsSpan(args));
 
 static void
 PrintLn(
@@ -44,7 +41,12 @@ static void
 PrintLnNoFormat(
 	tText aLine
 ) {
-	System.Console.WriteLine(Regex.Replace(aLine.Replace("\t", "  "), "[\x1b]\\[\\d+m", ""));
+	System.Console.WriteLine(
+		System.Text.RegularExpressions.Regex.Replace(
+			aLine.Replace("\t", "  "),
+			"[\x1b]\\[\\d+m", ""
+		)
+	);
 	System.Console.Out.Flush();
 }
 
@@ -63,21 +65,48 @@ const tText cFilterCommandShort = "-f";
 const tText cOutputLevelCommand = "--outputLevel";
 const tText cOutputLevelCommandShort = "-o";
 
+const tText cTreeLevelCommand = "--treeLevel";
+const tText cTreeLevelCommandShort = "-t";
+
 const tText cStopOnFirstFail = "--stopOnFirstFail";
 const tText cStopOnFirstFailShort = "-1";
 
 const tText cPlainText = "--plainText";
 const tText cPlainTextShort = "-p";
 
+const tText cDebugger = "--debugger";
+const tText cDebuggerShort = "-d";
+
+static mMaybe.tMaybe<tText>
+GetArgParam(
+	mStream.tStream<tText> aArgs,
+	tText aShortArgName,
+	tText aLongArgNAme
+) => aArgs.SkipUntil(
+	_ => _ == aLongArgNAme || _ == aShortArgName
+).Skip(
+	1
+).TryFirst(
+).ElseTry(
+	() => aArgs.Where(
+		_ => _.StartsWith(aShortArgName)
+	).TryFirst(
+	).ThenDo(
+		_ => _[aShortArgName.Length..]
+	)
+);
+
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
-	Console.WriteLine(
+	System.Console.WriteLine(
 		$"""
 		{cHelpCommandShort} {cHelpCommand}
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
 		{cFilterCommandShort} <filter text> {cFilterCommand} <filter text>
 		{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level>
+		{cTreeLevelCommandShort} <level> {cTreeLevelCommand} <level>
 		{cStopOnFirstFailShort} {cStopOnFirstFail}
+		{cDebuggerShort} {cDebugger}
 		{cPlainTextShort} {cPlainText}
 		"""
 	);
@@ -98,21 +127,29 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	return 0;
 }
 
-var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
-
-var OutputLevel = Args.SkipUntil(
-	_ => _ is cOutputLevelCommand or cOutputLevelCommandShort
-).SkipUntil(
-	_ => _ is cOutputLevelCommand or cOutputLevelCommandShort
-).Skip(
-	1
-).TryFirst(
+var OutputLevel = GetArgParam(
+	Args,
+	cOutputLevelCommandShort,
+	cOutputLevelCommand
 ).Match(
 	tInt32.Parse,
 	() => tInt32.MaxValue
 );
 
+var TreeLevel = GetArgParam(
+	Args,
+	cTreeLevelCommandShort,
+	cTreeLevelCommand
+).Match(
+	tInt32.Parse,
+	() => tInt32.MaxValue
+);
+
+var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
+
 var PlainText = Args.Any(_ => _ is cPlainText or cPlainTextShort);
+
+var DebuggerBreak = Args.Any(_ => _ is cDebugger or cDebuggerShort);
 
 var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort);
 
@@ -121,5 +158,7 @@ return Tests.Run(
 	Filter,
 	HideSkippedTests,
 	OutputLevel,
+	TreeLevel,
+	DebuggerBreak,
 	StopOnFirstFail
 ).Result == mTest.tResult.Fail ? -1 : 0;

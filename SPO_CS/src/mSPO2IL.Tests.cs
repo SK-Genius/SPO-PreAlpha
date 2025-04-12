@@ -1,6 +1,4 @@
-﻿using System;
-
-using tPos = mTextStream.tPos;
+﻿using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
@@ -20,6 +18,17 @@ mSPO2IL_Tests {
 			Row = aEnd.Row,
 			Col = aEnd.Col
 		}
+	);
+	
+	public static tBool
+	EqSpan(
+		this tSpan a1,
+		tSpan a2
+	) => (
+		a1.Start.Row == a2.Start.Row &&
+		a1.Start.Col == a2.Start.Col &&
+		a1.End.Row == a2.End.Row &&
+		a1.End.Col == a2.End.Col
 	);
 	
 	private static void AssertCommandsAre<tPos>(
@@ -226,7 +235,8 @@ mSPO2IL_Tests {
 								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(11)), // [11]:1 == a
 								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)) // [10]:(1) => [12]:()
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
 			),
@@ -278,7 +288,8 @@ mSPO2IL_Tests {
 								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(20)), // [20]:1 == a
 								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(21), mSPO2IL.GetRegId(19)) // [19]:(1) => [21]:()
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
 			),
@@ -306,31 +317,25 @@ mSPO2IL_Tests {
 					);
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
-					var ExpScope = mStream.Stream(
-						(
-							Id: mSPO2IL.GetId("x"),
-							Type: mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Int(),
-								mVM_Type.Int()
-							)
-						),
-						InitScope
+					
+					mAssert.AreEquals(
+						Scope,
+						mStream.Stream(
+							(
+								Id: mSPO2IL.GetId("x"),
+								Type: mVM_Type.Proc(
+									mVM_Type.Empty(),
+									mVM_Type.Int(),
+									mVM_Type.Int()
+								)
+							),
+							InitScope
+						)
 					);
-					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = Module.NewDefConstructor();
 					DefConstructor.MapDef(Module, DefNode);
-					
-					foreach (var Def in Module.Defs.ToStream()) {
-						aStreamOut("------------------");
-						aStreamOut(Def.TypeId);
-						aStreamOut("------------------");
-						foreach (var Command in Def.Commands.ToStream()) {
-							aStreamOut(Command.ToText());
-						}
-					}
 					
 					DefConstructor.FinishMapProc(
 						default,
@@ -342,9 +347,6 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					aStreamOut("");
-					aStreamOut("=====================");
-					aStreamOut("");
 					foreach (var Def in Module.Defs.ToStream()) {
 						aStreamOut("------------------");
 						aStreamOut(Def.TypeId);
@@ -356,7 +358,7 @@ mSPO2IL_Tests {
 					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
 					mAssert.AreEquals(
-						Module.Defs.Get(1).Commands.ToStream(),
+						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
 							[
 								mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv), // ENV == ...*...
@@ -368,21 +370,26 @@ mSPO2IL_Tests {
 								mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2), mSPO2IL.GetId("a")), // [2]:(2); a => (2, a)
 								
 								mIL_AST.CallFunc(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(4), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(3)), // ...*... (2, a) => [4]
-								mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mIL_AST.cTrue, mSPO2IL.GetRegId(4)) // [4] TRUE
+								mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mIL_AST.cTrue, mSPO2IL.GetRegId(4)), // [4] TRUE
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
-					mAssert.AreEquals(DefConstructor.Index, 0u);
-					
 					mAssert.AreEquals(
-						DefConstructor.Commands.ToStream(),
+						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
 							[
-								mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(1), mSPO2IL.GetId("...*...")),
-								mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1))
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(2), mIL_AST.cEnv),
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(2)),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
+								
+								mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
+								mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1)),
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
 					mAssert.AreEquals(
@@ -390,7 +397,7 @@ mSPO2IL_Tests {
 						mStream.Stream(
 							[
 								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(1)
+								mSPO2IL.GetDefId(0)
 							]
 						)
 					);
@@ -454,9 +461,18 @@ mSPO2IL_Tests {
 						)
 					);
 					
+					foreach (var Def in Module.Defs.ToStream()) {
+						aStreamOut("------------------");
+						aStreamOut(Def.TypeId);
+						aStreamOut("------------------");
+						foreach (var Command in Def.Commands.ToStream()) {
+							aStreamOut(Command.ToText());
+						}
+					}
+					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
 					mAssert.AreEquals(
-						Module.Defs.Get(1).Commands.ToStream(),
+						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
 							[
 								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
@@ -482,20 +498,28 @@ mSPO2IL_Tests {
 								mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(11)),
 								mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
-					mAssert.AreEquals(DefConstructor.Index, 0u);
 					mAssert.AreEquals(
-						DefConstructor.Commands.ToStream(),
+						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
 							[
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(5)),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
+								
 								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmpty, mSPO2IL.GetId("...+...")),
 								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(1), mSPO2IL.GetRegId(2)),
+								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 								mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("...*...+..."), mSPO2IL.GetRegId(3))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
 					mAssert.AreEquals(
@@ -504,7 +528,7 @@ mSPO2IL_Tests {
 							[
 								mSPO2IL.GetId("...+..."),
 								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(1)
+								mSPO2IL.GetDefId(0)
 							]
 						)
 					);
@@ -557,10 +581,19 @@ mSPO2IL_Tests {
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = Module.NewDefConstructor();
 					DefConstructor.MapDef(Module, DefNode);
+					DefConstructor.FinishMapProc(
+						default,
+						Module,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Tuple(InitScope.Map(_ => _.Type)),
+							mVM_Type.Empty()
+						)
+					);
 					
 					mAssert.AreEquals(Module.Defs.Size(), 2u);
 					mAssert.AreEquals(
-						Module.Defs.Get(1).Commands.ToStream(),
+						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
 							[
 								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
@@ -586,20 +619,28 @@ mSPO2IL_Tests {
 								mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(11)),
 								mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
-					mAssert.AreEquals(DefConstructor.Index, 0u);
 					mAssert.AreEquals(
-						DefConstructor.Commands.ToStream(),
+						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
 							[
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(5)),
+								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
+								
 								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmpty, mSPO2IL.GetId("...>...")),
 								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(1), mSPO2IL.GetRegId(2)),
+								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 								mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("TestTest..."), mSPO2IL.GetRegId(3))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
 					mAssert.AreEquals(
@@ -608,7 +649,7 @@ mSPO2IL_Tests {
 							[
 								mSPO2IL.GetId("...>..."),
 								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(1)
+								mSPO2IL.GetDefId(0)
 							]
 						)
 					);
@@ -647,6 +688,15 @@ mSPO2IL_Tests {
 					var DefConstructor = Module.NewDefConstructor();
 					
 					DefConstructor.MapDef(Module, DefNode);
+					DefConstructor.FinishMapProc(
+						default,
+						Module,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Empty(),
+							mVM_Type.Empty()
+						)
+					);
 					
 					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
 					
@@ -655,58 +705,14 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							t_1 := 1
-							t_2 := EMPTY, d_3
-							t_3 := t_2, d_2
-							t_4 := t_3, d_5
-							t_5 := t_4, d_4
-							t_6 := t_5, d_6
-							t_7 := .d_1 t_6
-							t_8 := .t_7 t_1
-							_x := t_8
-							""",
-							"""
-							d_6 := §2ND ENV
-							t_7 := §1ST ENV
-							d_4 := §2ND t_7
-							t_8 := §1ST t_7
-							d_5 := §2ND t_8
-							t_9 := §1ST t_8
-							d_2 := §2ND t_9
-							t_10 := §1ST t_9
-							d_3 := §2ND t_10
-							t_11 := §1ST t_10
-							t_1 := .d_2 d_3
-							t_2 := .t_1 ARG
-							§RETURN t_2 IF_NOT_EMPTY
-							t_3 := .d_4 d_5
-							t_4 := .t_3 ARG
-							§RETURN t_4 IF_NOT_EMPTY
-							t_5 := .d_6 EMPTY
-							t_6 := .t_5 ARG
-							§RETURN t_6 IF_NOT_EMPTY
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_3 := ENV
-							t_1 := .d_3 EMPTY
-							t_2 := §TRY ARG AS_INT
-							t_3 := 0
-							t_4 := §INT t_2 == t_3
-							t_5 := §BOOL t_4 ^ TRUE
-							§RETURN EMPTY IF t_5
-							t_6 := .t_1 t_2
-							§RETURN t_6 IF TRUE
-							""",
-							"""
 							t_1 := 2
 							§RETURN t_1 IF TRUE
 							""",
 							"""
-							d_5 := ENV
-							t_1 := .d_5 EMPTY
+							d_0 := ENV
+							t_1 := .d_0 EMPTY
 							t_2 := §TRY ARG AS_INT
-							t_3 := 1
+							t_3 := 0
 							t_4 := §INT t_2 == t_3
 							t_5 := §BOOL t_4 ^ TRUE
 							§RETURN EMPTY IF t_5
@@ -718,9 +724,65 @@ mSPO2IL_Tests {
 							§RETURN t_1 IF TRUE
 							""",
 							"""
+							d_2 := ENV
+							t_1 := .d_2 EMPTY
+							t_2 := §TRY ARG AS_INT
+							t_3 := 1
+							t_4 := §INT t_2 == t_3
+							t_5 := §BOOL t_4 ^ TRUE
+							§RETURN EMPTY IF t_5
+							t_6 := .t_1 t_2
+							§RETURN t_6 IF TRUE
+							""",
+							"""
 							t_1 := 6
 							§RETURN t_1 IF TRUE
+							""",
 							"""
+							d_4 := §2ND ENV
+							t_7 := §1ST ENV
+							d_3 := §2ND t_7
+							t_8 := §1ST t_7
+							d_2 := §2ND t_8
+							t_9 := §1ST t_8
+							d_1 := §2ND t_9
+							t_10 := §1ST t_9
+							d_0 := §2ND t_10
+							t_11 := §1ST t_10
+							t_1 := .d_1 d_0
+							t_2 := .t_1 ARG
+							§RETURN t_2 IF_NOT_EMPTY
+							t_3 := .d_3 d_2
+							t_4 := .t_3 ARG
+							§RETURN t_4 IF_NOT_EMPTY
+							t_5 := .d_4 EMPTY
+							t_6 := .t_5 ARG
+							§RETURN t_6 IF_NOT_EMPTY
+							§RETURN EMPTY IF TRUE
+							""",
+							"""
+							d_5 := §2ND ENV
+							t_9 := §1ST ENV
+							d_4 := §2ND t_9
+							t_10 := §1ST t_9
+							d_3 := §2ND t_10
+							t_11 := §1ST t_10
+							d_2 := §2ND t_11
+							t_12 := §1ST t_11
+							d_1 := §2ND t_12
+							t_13 := §1ST t_12
+							d_0 := §2ND t_13
+							t_14 := §1ST t_13
+							t_1 := 1
+							t_2 := EMPTY, d_0
+							t_3 := t_2, d_1
+							t_4 := t_3, d_2
+							t_5 := t_4, d_3
+							t_6 := t_5, d_4
+							t_7 := .d_5 t_6
+							t_8 := .t_7 t_1
+							_x := t_8
+							""",
 						]
 					);
 				}
@@ -1203,7 +1265,7 @@ mSPO2IL_Tests {
 			aDebugStream($"Def {I}:");
 			mAssert.AreEquals(
 				aDefs1.Get(I).Commands.ToStream(),
-				mStream.Stream(aDefs2[I].AsSpan()).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream))
+				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream))
 			);
 		}
 	}

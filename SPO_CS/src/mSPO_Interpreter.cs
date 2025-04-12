@@ -32,14 +32,16 @@ mSPO_Interpreter {
 			)
 		).Then(
 			_ => _.Scope
-		).ElseThrow();
+		).ElseThrow(
+		);
 		
 		ModuleNode.Commands.Reduce(
 			mResult.OK(InitScope).AsResult<tText>(),
 			(aResultScope, aCommand) => aResultScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
-		).ElseThrow();
+		).ElseThrow(
+		);
 		
 		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
 		

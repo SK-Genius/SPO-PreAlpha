@@ -186,7 +186,7 @@ mVM {
 				mAssert.IsTrue(
 					aCallStack._Regs.Get(Arg2).IsPrefix(out var Prefix, out var Data_)
 				);
-				mAssert.AreEquals(Prefix, Arg1);
+				mAssert.AreEquals(Prefix, Arg1, (a1, a2) => a1 == a2);
 				aCallStack._Regs.Push(Data_);
 				break;
 			}
@@ -401,7 +401,7 @@ mVM {
 			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
 		#endif
 		
-		mVM.Run(
+		Run(
 			mVM_Data.Proc(InitProc, DefTuple),
 			mVM_Data.Empty(),
 			aImport,

@@ -1,6 +1,4 @@
-﻿using System;
-
-public static class
+﻿public static class
 mAssert {
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
@@ -71,26 +69,16 @@ mAssert {
 		tText Text1;
 		tText Text2;
 		if (aToText is null) {
-			#if JSON
-				try {
-					Text1 = AsJSON(a1);
-					Text2 = AsJSON(a2);
-				} catch {
-					Text1 = a1?.ToString() ?? "null";
-					Text2 = a2?.ToString() ?? "null";
-				}
-			#else
-				Text1 = a1?.ToString() ?? "null";
-				Text2 = a2?.ToString() ?? "null";
-			#endif
+			Text1 = a1?.ToString() ?? "null";
+			Text2 = a2?.ToString() ?? "null";
 		} else {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
 		}
 		Fail(
 			mStream.ZipExtend(
-				Text1.Split('\n').AsSpan().AsStream(),
-				Text2.Split('\n').AsSpan().AsStream()
+				System.MemoryExtensions.AsSpan(Text1.Split('\n')).AsStream(),
+				System.MemoryExtensions.AsSpan(Text2.Split('\n')).AsStream()
 			).MapWithIndex(
 				(aIndex, Line) => {
 					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
@@ -124,16 +112,6 @@ mAssert {
 			).Replace("\r", "") ?? ""
 		);
 		return a1;
-		
-		#if JSON
-			string
-			AsJSON(
-				object o
-			) => Newtonsoft.Json.JsonConvert.SerializeObject(
-				o,
-				Newtonsoft.Json.Formatting.Indented
-			);
-		#endif
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

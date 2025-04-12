@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
@@ -6,7 +6,7 @@
 		<OutputType>Exe</OutputType>
 		<!-- Exe | Library | Module | Winexe -->
 		
-		<DefineConstants>noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN;noJSON</DefineConstants>
+		<DefineConstants>noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN</DefineConstants>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>

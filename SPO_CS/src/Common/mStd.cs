@@ -1,4 +1,6 @@
-﻿global using tUnknown = System.Object;
+﻿#pragma warning disable 8019
+
+global using tUnknown = System.Object;
 
 global using tBool = System.Boolean;
 
@@ -17,6 +19,7 @@ global using tText = System.String;
 
 global using tCPtr = System.IntPtr;
 
+#pragma warning restore 8019
 public static class mStd {
 	#region tFunc & tAction
 	

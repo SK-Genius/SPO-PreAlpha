@@ -14,23 +14,26 @@ mSPO_AST_Types {
 		tScope? aScope
 	) => (
 		aNode switch {
-			mSPO_AST.tEmptyNode<tPos> _ => mResult.OK(mVM_Type.Empty()),
-			mSPO_AST.tTrueNode<tPos> _ => mResult.OK(mVM_Type.Bool()),
-			mSPO_AST.tFalseNode<tPos> _ => mResult.OK(mVM_Type.Bool()),
-			mSPO_AST.tIntNode<tPos> _ => mResult.OK(mVM_Type.Int()),
+			mSPO_AST.tEmptyNode<tPos> => mResult.OK(mVM_Type.Empty()),
+			mSPO_AST.tTrueNode<tPos> => mResult.OK(mVM_Type.Bool()),
+			mSPO_AST.tFalseNode<tPos> => mResult.OK(mVM_Type.Bool()),
+			mSPO_AST.tIntNode<tPos> => mResult.OK(mVM_Type.Int()),
 			mSPO_AST.tIdNode<tPos> IdNode => (
-				(
-					IdNode.Id == "_=..."
-				) ? (
-					mStd.Let(mVM_Type.Free(), FreeType => mResult.OK(mVM_Type.Proc(FreeType, FreeType, mVM_Type.Empty())))
-				) : (
-					aScope.Where(
-						_ => _.Id == IdNode.Id
-					).TryFirst(
-					).ElseFail(
-						() => $"No Identifier '{IdNode.Id}' in scope."
-					).Then(
-						_ => _.Type
+				IdNode.TypeAnnotation.Match(
+					_ => mResult.OK(_),
+					() => (
+						IdNode.Id == "_=..."
+					) ? (
+						mStd.Let(mVM_Type.Free(), FreeType => mResult.OK(mVM_Type.Proc(FreeType, FreeType, mVM_Type.Empty())))
+					) : (
+						aScope.Where(
+							_ => _.Id == IdNode.Id
+						).TryFirst(
+						).ElseFail(
+							() => default(tText) ?? throw new System.Exception() // $"No Identifier '{IdNode.Id}' in scope"
+						).Then(
+							_ => _.Type
+						)
 					)
 				)
 			),
@@ -411,23 +414,13 @@ mSPO_AST_Types {
 					Def.Src,
 					aScope
 				).ThenTry(
-					aSrcType => Def.Des.Type.Match(
-						DesTypeNode => UpdateMatchTypes(
-							Def.Des,
-							aSrcType,
-							tTypeRelation.Equal,
-							aScope
-						).ThenTry(
-							_ => aSrcType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _)
-						),
-						() => UpdateMatchTypes(
-							Def.Des,
-							aSrcType,
-							tTypeRelation.Equal,
-							aScope
-						)
-					).Then(
-						_ => _.Scope
+					aSrcType => UpdateMatchTypes(
+						Def.Des,
+						aSrcType,
+						tTypeRelation.Equal,
+						aScope
+					).ThenTry(
+						_ => aSrcType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _.Scope)
 					)
 				);
 			}
@@ -554,19 +547,19 @@ mSPO_AST_Types {
 		mResult.tResult<mVM_Type.tType, tText> Result;
 		
 		switch (aExpression) {
-			case mSPO_AST.tEmptyTypeNode<tPos> _: {
+			case mSPO_AST.tEmptyTypeNode<tPos>: {
 				Result = mResult.OK(mVM_Type.Empty());
 				break;
 			}
-			case mSPO_AST.tBoolTypeNode<tPos> _: {
+			case mSPO_AST.tBoolTypeNode<tPos>: {
 				Result = mResult.OK(mVM_Type.Bool());
 				break;
 			}
-			case mSPO_AST.tIntTypeNode<tPos> _: {
+			case mSPO_AST.tIntTypeNode<tPos>: {
 				Result = mResult.OK(mVM_Type.Int());
 				break;
 			}
-			case mSPO_AST.tTypeTypeNode<tPos> _: {
+			case mSPO_AST.tTypeTypeNode<tPos>: {
 				Result = mResult.OK(mVM_Type.Type());
 				break;
 			}

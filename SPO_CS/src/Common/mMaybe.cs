@@ -91,6 +91,24 @@ mMaybe {
 		: aOnNone()
 	);
 	
+	public static tBool
+	Eq<t>(
+		this tMaybe<t> a1,
+		tMaybe<t> a2,
+		mStd.tFunc<tBool, t, t> aEq
+	) => a1.Match(
+		[DebuggerHidden] () => a2.IsNone(),
+		[DebuggerHidden] (_1) => a2.Match(
+			[DebuggerHidden] () => false,
+			[DebuggerHidden] (_2) => aEq(_1, _2)
+		)
+	);
+	
+	public static mStd.tFunc<tBool, tMaybe<t>, tMaybe<t>>
+	Eq<t>(
+		mStd.tFunc<tBool, t, t> aEq
+	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEq);
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ThenDo<tIn, tOut>(
@@ -106,18 +124,25 @@ mMaybe {
 	) => a.IsSome(out var Value) ? aMap(Value) : mStd.cEmpty;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tOut
-	Else<tOut>(
-		this tMaybe<tOut> a,
-		tOut aFallback
+	public static t
+	Else<t>(
+		this tMaybe<t> a,
+		t aFallback
 	) => a.IsSome(out var Value) ? Value : aFallback;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tOut
-	ElseDo<tOut>(
-		this tMaybe<tOut> a,
-		mStd.tFunc<tOut> aOnNone
+	public static t
+	ElseDo<t>(
+		this tMaybe<t> a,
+		mStd.tFunc<t> aOnNone
 	) => a.IsSome(out var Value) ? Value : aOnNone();
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tMaybe<t>
+	ElseTry<t>(
+		this tMaybe<t> a,
+		mStd.tFunc<tMaybe<t>> aOnNone
+	) => a.IsSome(out _) ? a : aOnNone();
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
