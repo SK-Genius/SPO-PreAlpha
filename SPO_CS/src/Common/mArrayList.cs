@@ -136,7 +136,8 @@ mArrayList {
 		tNat32 aIndex,
 		mStd.tFunc<t, t> aOnUpdate
 	) {
-		aList._Items[aIndex] = aOnUpdate(aList._Items[aIndex]);
+		ref var Item = ref aList._Items[aIndex];
+		Item = aOnUpdate(Item);
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

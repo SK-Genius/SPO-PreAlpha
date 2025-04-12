@@ -43,12 +43,12 @@ mSPO_Interpreter {
 		).ElseThrow(
 		);
 		
-		var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
+		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
 		
 		return mVM.Run(
 			mIL_AST.Module(
-				Module.TypeDef.ToStream(),
-				Module.Defs.ToStream(
+				ModuleConstructor.TypeDef.ToStream(),
+				ModuleConstructor.Defs.ToStream(
 				).MapWithIndex(
 					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.GetDefId(aIndex), aDef.TypeId, aDef.Commands.ToStream())
 				)

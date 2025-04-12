@@ -416,7 +416,7 @@ mSPO2IL {
 		tPos aPos,
 		tNat32 aDefIndex,
 		mVM_Type.tType aType,
-		mStream.tStream<(tText Id, mVM_Type.tType Type)> aEnvList
+		tScope aEnvList
 	) {
 		var ArgReg = mIL_AST.cEmpty;
 		if (!aEnvList.IsEmpty()) {
@@ -1250,8 +1250,6 @@ mSPO2IL {
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode
 	) {
-		// TODO NOW: set proper Def type ?
-		
 		var RecFuncs = mArrayList.List<
 			(
 				tText FuncId,
@@ -1312,7 +1310,17 @@ mSPO2IL {
 			var DefIndex = TempDefConstructor.FinishMapProc(
 				RecLambdaItemNode.Pos,
 				aModuleConstructor,
-				RecLambdaItemNode.Lambda.TypeAnnotation.ElseThrow()
+				mVM_Type.Proc(
+					mVM_Type.Empty(),
+					mVM_Type.Empty(),
+					//mVM_Type.Tuple(
+					//	TempDefConstructor.EnvIds.ToStream(
+					//	).Map(
+					//		_ => TempDefConstructor.TypeDict.TryGet(_).ElseThrow()
+					//	)
+					//),
+					RecLambdaItemNode.Lambda.TypeAnnotation.ElseThrow()
+				)
 			);
 			
 			var ArgReg = mIL_AST.cEmpty;
@@ -1467,23 +1475,22 @@ mSPO2IL {
 		
 		TempLambdaDef.StartMapLambda(ModuleConstructor, Lambda);
 		
-		if (TempLambdaDef.EnvIds.Size() != ModuleConstructor.Defs.Size() - 1) {
-			throw TempLambdaDef.EnvIds.ToStream(
-			).Where(
-				_ => !_.StartsWith("d_")
-			).TryFirst(
-			).ThenDo(
-				_ => mError.Error($"Unknown symbol '{_}'")
-			).ElseDo(
-				() => mError.Error($"unknown error in " + mStd.FileLine())
+		var FistNonDef = TempLambdaDef.EnvIds.ToStream().Where(_ => !_.StartsWith("d_")).TryFirst();
+		if (FistNonDef.IsSome(out var FirstNonDefId)) {
+			throw mError.Error(
+				$"expected definition symbol but was '{FirstNonDefId}'"
 			);
+		}
+		
+		if (TempLambdaDef.EnvIds.Size() != ModuleConstructor.Defs.Size()) {
+			throw mError.Error($"expected {ModuleConstructor.Defs.Size()} definitions but was {TempLambdaDef.EnvIds.Size()}");
 		}
 		
 		var EnvIds = TempLambdaDef.EnvIds.ToStream();
 		TempLambdaDef.EnvIds = mStream.NatStartWith(
 			0
 		).Take(
-			TempLambdaDef.EnvIds.Size() - 1
+			TempLambdaDef.EnvIds.Size()
 		).Reverse( // TODO: remove
 		).Map(
 			aNr => EnvIds.Where(
@@ -1495,15 +1502,15 @@ mSPO2IL {
 		);
 		
 		// TODO: set proper Def type ?
-		var DefSymbols = mArrayList.List<(tText Id, tPos Pos)>();
-		foreach (var (I, Def) in ModuleConstructor.Defs.ToLazyList().MapWithIndex().Skip(1)) {
-			DefSymbols.Push(
-				(
-					GetDefId(I),
-					aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)
-				)
-			);
-		}
+		//var DefSymbols = mArrayList.List<(tText Id, tPos Pos)>();
+		//foreach (var (I, Def) in ModuleConstructor.Defs.ToLazyList().MapWithIndex().Skip(1)) {
+		//	DefSymbols.Push(
+		//		(
+		//			GetDefId(I),
+		//			aMergePos(Def.Commands.Get(0).Pos, Def.Commands.Get(Def.Commands.Size() - 1).Pos)
+		//		)
+		//	);
+		//}
 		TempLambdaDef.FinishMapProc(
 			aModuleNode.Pos,
 			ModuleConstructor,

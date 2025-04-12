@@ -108,7 +108,13 @@ mIL_GenerateOpcodes {
 			var NextIndex = Module.Count();
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
 			
-			var DefType = TypeMap.TryGet(TypeName).ThenTry(Types_.TryGet).ElseThrow(() => $"type '{TypeName}' not found");
+			var DefType = TypeMap.TryGet(
+				TypeName
+			).ThenTry(
+				Types_.TryGet
+			).ElseThrow(
+				() => $"type '{TypeName}' not found"
+			);
 			
 			if (DefType.IsRecursive(out var FreeVar, out var TempType)) {
 				DefType = TempType;

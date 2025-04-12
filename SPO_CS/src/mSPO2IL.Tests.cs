@@ -833,85 +833,78 @@ mSPO2IL_Tests {
 						aStreamOut,
 						Module.Defs.ToStream(),
 						[
-							// d_0
-							"""
-							d_1 := §2ND ENV
-							t_9 := §1ST ENV
-							d_2 := §2ND t_9
-							t_10 := §1ST t_9
-							d_3 := §2ND t_10
-							t_11 := §1ST t_10
-							d_4 := §2ND t_11
-							t_12 := §1ST t_11
-							d_5 := §2ND t_12
-							t_13 := §1ST t_12
-							d_6 := §2ND t_13
-							t_14 := §1ST t_13
-							t_1 := +#_Bla... EMPTY
-							_X := t_1
-							t_2 := EMPTY, d_3
-							t_3 := t_2, d_2
-							t_4 := t_3, d_5
-							t_5 := t_4, d_4
-							t_6 := t_5, d_6
-							t_7 := .d_1 t_6
-							t_8 := .t_7 _X
-							§RETURN t_8 IF TRUE
-							""",
-							// d_1
-							"""
-							d_6 := §2ND ENV
-							t_7 := §1ST ENV
-							d_4 := §2ND t_7
-							t_8 := §1ST t_7
-							d_5 := §2ND t_8
-							t_9 := §1ST t_8
-							d_2 := §2ND t_9
-							t_10 := §1ST t_9
-							d_3 := §2ND t_10
-							t_11 := §1ST t_10
-							t_1 := .d_2 d_3
-							t_2 := .t_1 ARG
-							§RETURN t_2 IF_NOT_EMPTY
-							t_3 := .d_4 d_5
-							t_4 := .t_3 ARG
-							§RETURN t_4 IF_NOT_EMPTY
-							t_5 := .d_6 EMPTY
-							t_6 := .t_5 ARG
-							§RETURN t_6 IF_NOT_EMPTY
-							§RETURN EMPTY IF TRUE
-							""",
-							// d_2
-							"""
-							d_3 := ENV
-							t_1 := .d_3 EMPTY
-							t_2 := §TRY_REMOVE #_Blub... FROM ARG
-							t_3 := .t_1 t_2
-							§RETURN t_3 IF TRUE
-							""",
-							// d_3
 							"""
 							t_1 := 1
 							§RETURN t_1 IF TRUE
 							""",
-							// d_4
 							"""
-							d_5 := ENV
-							t_1 := .d_5 EMPTY
-							t_2 := §TRY_REMOVE #_Bla... FROM ARG
+							d_0 := ENV
+							t_1 := .d_0 EMPTY
+							t_2 := §TRY_REMOVE #_Blub... FROM ARG
 							t_3 := .t_1 t_2
 							§RETURN t_3 IF TRUE
 							""",
-							// d_5
 							"""
 							t_1 := 2
 							§RETURN t_1 IF TRUE
 							""",
-							// d_6
+							"""
+							d_2 := ENV
+							t_1 := .d_2 EMPTY
+							t_2 := §TRY_REMOVE #_Bla... FROM ARG
+							t_3 := .t_1 t_2
+							§RETURN t_3 IF TRUE
+							""",
 							"""
 							t_1 := 3
 							§RETURN t_1 IF TRUE
+							""",
 							"""
+							d_4 := §2ND ENV
+							t_7 := §1ST ENV
+							d_3 := §2ND t_7
+							t_8 := §1ST t_7
+							d_2 := §2ND t_8
+							t_9 := §1ST t_8
+							d_1 := §2ND t_9
+							t_10 := §1ST t_9
+							d_0 := §2ND t_10
+							t_11 := §1ST t_10
+							t_1 := .d_1 d_0
+							t_2 := .t_1 ARG
+							§RETURN t_2 IF_NOT_EMPTY
+							t_3 := .d_3 d_2
+							t_4 := .t_3 ARG
+							§RETURN t_4 IF_NOT_EMPTY
+							t_5 := .d_4 EMPTY
+							t_6 := .t_5 ARG
+							§RETURN t_6 IF_NOT_EMPTY
+							§RETURN EMPTY IF TRUE
+							""",
+							"""
+							d_0 := §2ND ENV
+							t_9 := §1ST ENV
+							d_1 := §2ND t_9
+							t_10 := §1ST t_9
+							d_2 := §2ND t_10
+							t_11 := §1ST t_10
+							d_3 := §2ND t_11
+							t_12 := §1ST t_11
+							d_4 := §2ND t_12
+							t_13 := §1ST t_12
+							d_5 := §2ND t_13
+							t_14 := §1ST t_13
+							t_1 := +#_Bla... EMPTY
+							_X := t_1
+							t_2 := EMPTY, d_0
+							t_3 := t_2, d_1
+							t_4 := t_3, d_2
+							t_5 := t_4, d_3
+							t_6 := t_5, d_4
+							t_7 := .d_5 t_6
+							t_8 := .t_7 _X
+							§RETURN t_8 IF TRUE
+							""",
 						]
 					);
 				}
@@ -1046,7 +1039,18 @@ mSPO2IL_Tests {
 						ModuleConstructor.Defs,
 						[
 							[
-								("d_1 := ENV", (1, 1), (10, 9)),
+								("_k := §2ND ENV", (7, 13), (7, 34)),
+								("t_4 := §1ST ENV", (7, 13), (7, 34)),
+								("_...*... := §2ND t_4", (7, 13), (7, 34)),
+								("t_5 := §1ST t_4", (7, 13), (7, 34)),
+								("_a := ARG", (7, 14), (7, 23)),
+								("t_1 := EMPTY, _k", (7, 29), (7, 34)),
+								("t_2 := t_1, _a", (7, 29), (7, 34)),
+								("t_3 := ._...*... t_2", (7, 29), (7, 34)),
+								("§RETURN t_3 IF TRUE", (7, 29), (7, 34)),
+							],
+							[
+								("d_0 := ENV", (1, 1), (10, 9)),
 								("t_1 := §2ND ARG", (1, 9), (5, 1)),
 								("_k := t_1", (4, 2), (4, 11)),
 								("t_2 := §1ST ARG", (1, 9), (5, 1)),
@@ -1058,23 +1062,12 @@ mSPO2IL_Tests {
 								("t_6 := §1ST t_4", (1, 9), (5, 1)),
 								("t_7 := EMPTY, _...*...", (7, 13), (7, 34)),
 								("t_8 := t_7, _k", (7, 13), (7, 34)),
-								("t_9 := .d_1 t_8", (7, 13), (7, 34)),
+								("t_9 := .d_0 t_8", (7, 13), (7, 34)),
 								("_x... := t_9", (7, 1), (7, 9)),
 								("t_10 := ._x... _k", (8, 10), (8, 13)),
 								("_y := t_10", (8, 1), (8, 6)),
 								("§RETURN _y IF TRUE", (10, 1), (10, 9)),
 							],
-							[
-								("_k := §2ND ENV", (7, 13), (7, 34)),
-								("t_4 := §1ST ENV", (7, 13), (7, 34)),
-								("_...*... := §2ND t_4", (7, 13), (7, 34)),
-								("t_5 := §1ST t_4", (7, 13), (7, 34)),
-								("_a := ARG", (7, 14), (7, 23)),
-								("t_1 := EMPTY, _k", (7, 29), (7, 34)),
-								("t_2 := t_1, _a", (7, 29), (7, 34)),
-								("t_3 := ._...*... t_2", (7, 29), (7, 34)),
-								("§RETURN t_3 IF TRUE", (7, 29), (7, 34)),
-							]
 						]	
 					);
 				}
