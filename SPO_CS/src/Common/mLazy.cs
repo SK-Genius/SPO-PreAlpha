@@ -1,4 +1,5 @@
-public static class mLazy {
+public static class
+mLazy {
 	[Pure]
 	public sealed class
 	tLazy<t> {

@@ -163,6 +163,34 @@ mAssert {
 	public static t
 	IsNotIn<t>(
 		t a1,
+		System.ReadOnlySpan<t> a2
+	) {
+		foreach (var Element in a2) {
+			if (Equals(a1, Element)) {
+				Fail($"{a1} not in {a2.ToString()}");
+			}
+		}
+		return a1;
+	}
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static t
+	IsNotIn<t>(
+		t a1,
+		mStream.tStream<t>? a2
+	) {
+		foreach (var Element in a2) {
+			if (Equals(a1, Element)) {
+				Fail($"{a1} not in {a2}");
+			}
+		}
+		return a1;
+	}
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static t
+	IsNotIn<t>(
+		t a1,
 		t[] a2
 	) {
 		foreach (var Element in a2) {

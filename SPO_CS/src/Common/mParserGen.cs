@@ -703,7 +703,10 @@ mParserGen {
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tUnknown>? aInfiniteLoopDetectionSet
 	) {
-		const tBool HasToLogIfFailed = !true;
+		#if MY_TRACE
+			const tBool HasToLogIfFailed = !true;
+		#endif
+		
 		var HasToLog = false;
 		var Trace = mStream.Stream<tText>([]);
 		void AppendToTrace(tText a) {
@@ -792,7 +795,7 @@ mParserGen {
 		mStd.tFunc<tBool, t> aTest,
 		mStd.tFunc<(tPos Pos, tError Message), (mSpan.tSpan<tPos> Span, t Value)> aCreateErrorFunc,
 		mStd.tFunc<tInt32, tPos, tPos> aComparePos
-	) => new(aComparePos){
+	) => new(aComparePos) {
 		_ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => (
 			aStream.Is(out var Head, out var Tail) && aTest(Head.Value)
 			? mResult.OK(ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>([])))

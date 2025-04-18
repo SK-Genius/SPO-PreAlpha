@@ -27,7 +27,7 @@ mVM_Type {
 		public tKind Kind;
 		public tText? Id;
 		public tText? Prefix;
-		public tType[] Refs = System.Array.Empty<tType>();
+		public tType[] Refs = [];
 		
 		public override tBool
 		Equals(
@@ -206,7 +206,7 @@ mVM_Type {
 		tType? aType
 	) => new() {
 		Kind = tKind.Type,
-		Refs = aType is null ? new tType[0] : [aType]
+		Refs = aType is null ? [] : [aType]
 	};
 	
 	public static tType

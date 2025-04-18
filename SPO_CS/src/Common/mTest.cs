@@ -155,39 +155,22 @@ mTest {
 					);
 					var ClocksEnd = mPerf.ThreadCycles();
 					
-					var Value_00 = (ClocksEnd - ClocksStart) * 100;
-					tText E;
-					switch (Value_00) {
-						case >= 1_000_000_000_00: {
-							E = "G";
-							Value_00 /= 1_000_000_000;
-							break;
-						}
-						case >= 1_000_000_00: {
-							E = "M";
-							Value_00 /= 1_000_000;
-							break;
-						}
-						case >= 1_000_00: {
-							E = "k";
-							Value_00 /= 1_000;
-							break;
-						}
-						default: {
-							E = "";
-							Value_00 /= 1;
-							break;
-						}
-					}
-					var Value = Value_00 / 100;
-					var SubValue = "";
-					if (Value < 100) {
-						SubValue += "." + ((Value_00 / 10) % 10);
-					}
-					if (Value < 10) {
-						SubValue += Value_00 % 10;
-					}
-					aDebugStream($"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")} ({Value}{SubValue} {E}Clocks)");
+					var Clocks = (ClocksEnd - ClocksStart);
+					
+					var (_100xValue, Unit) = Clocks switch {
+						>= 1_000_000_000 => (100 * Clocks / 1_000_000_000, "G"),
+						>= 1_000_000 => (100 * Clocks / 1_000_000, "M"),
+						>= 1_000 => (100 * Clocks / 1_000, "k"),
+						_ => (100 * Clocks, "")
+					};
+					
+					aDebugStream(
+						tText.Concat(
+							$"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")}",
+							$" ({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit}Clocks)"
+						)
+					);
+					
 					aDebugStream("");
 					return (tResult.OK, 0, 0, 1);
 				} catch (System.Exception Exception) {
@@ -260,11 +243,11 @@ mTest {
 				}
 				StopWatch.Stop();
 				var MSec = StopWatch.ElapsedMilliseconds;
-				var (Value_00, E) = MSec switch {
-					>= 60 * 60 * 1000 => (MSec / 60 * 60 * 1000, "Hour"),
-					>= 60 * 1000 => (MSec / 60 * 1000, "Min"),
-					>= 1000 => (MSec / 1000, "Sec"),
-					_ => (MSec, "mSec")
+				var (_100xValue, Unit) = MSec switch {
+					>= 60 * 60_000 => (100 * MSec / (60 * 60_000), "Hour"),
+					>= 60_000 => (100 * MSec / 60_000, "Min"),
+					>= 1000 => (100 * MSec / 1000, "Sec"),
+					_ => (100 * MSec, "mSec")
 				};
 				
 				aDebugStream(
@@ -284,7 +267,7 @@ mTest {
 							SkipCount == SkipCountSum ? mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount} ") :
 							mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount}|{SkipCountSum} ")
 						), (
-							$"({Value_00/100}.{(Value_00/10)%10}{Value_00%10} {E})"
+							$"({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit})"
 						)
 					)
 				);

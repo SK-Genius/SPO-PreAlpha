@@ -203,7 +203,7 @@ mStdLib_Tests {
 							mAssert.IsTrue(aObj.MatchVar(out var Stream));
 							mAssert.IsTrue(Stream._Value.Match(out System.IO.TextReader Reader));
 							var Line = Reader.ReadLine();
-							return mVM_Data.Prefix("Text", new mVM_Data.tData{ _Value = mAny.Any(Line) });
+							return mVM_Data.Prefix("Text", new mVM_Data.tData { _Value = mAny.Any(Line) });
 						},
 						mVM_Data.Empty()
 					);
@@ -238,9 +238,9 @@ mStdLib_Tests {
 						_ => aDebugStream(_())
 					);
 					
-					var Reference = new byte[]{ 44, 55, 66, (int)'\n' };
+					var Reference = new byte[] { 44, 55, 66, (int)'\n' };
 					var StreamIn = mVM_Data.Var(
-						new mVM_Data.tData{
+						new mVM_Data.tData {
 							_Value = mAny.Any(
 								new System.IO.StreamReader(
 									new System.IO.MemoryStream(
@@ -252,7 +252,7 @@ mStdLib_Tests {
 					);
 					var Result = new System.IO.MemoryStream();
 					var StreamOut = mVM_Data.Var(
-						new mVM_Data.tData{
+						new mVM_Data.tData {
 							_Value = mAny.Any(
 								new System.IO.StreamWriter(Result)
 							)

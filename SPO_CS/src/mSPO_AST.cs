@@ -221,7 +221,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tRecLambdaItemNode<tPos> : tNode<tPos>{
+	tRecLambdaItemNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchFreeIdNode<tPos> Id = default!;

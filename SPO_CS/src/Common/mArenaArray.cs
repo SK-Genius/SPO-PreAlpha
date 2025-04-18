@@ -87,7 +87,7 @@ mArenaArray {
 		public readonly unsafe mArenaRef.tArenaRef<t>
 		Current {
 			[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-			get => new mArenaRef.tArenaRef<t>(
+			get => new (
 				_Span._Offset + _Index * sizeof(t)
 			);
 		}
@@ -106,7 +106,7 @@ mArenaArray {
 	GetEnumerator<t>(
 		this in tArenaArray<t> aSpan
 	) where t : unmanaged
-	=> new tIterator<t> {
+	=> new () {
 		_Span = aSpan,
 		_Index = -1,
 	};

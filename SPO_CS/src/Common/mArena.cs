@@ -12,7 +12,7 @@ mArena {
 	public static tArena
 	NewArena(
 		tInt32 aBufferSize
-	) => new tArena {
+	) => new () {
 		_Buffer = Marshal.AllocHGlobal(aBufferSize),
 		_BufferSize = aBufferSize,
 		_NextOffset = 0,
@@ -22,7 +22,7 @@ mArena {
 	public static tArena
 	New(
 		tInt32 aBufferSize
-	) => new tArena {
+	) => new () {
 		_Buffer = Marshal.AllocHGlobal(aBufferSize),
 		_BufferSize = aBufferSize,
 		_NextOffset = 0,
@@ -32,7 +32,7 @@ mArena {
 	public static tArena
 	TempArena(
 		this tArena aArena
-	) => new tArena {
+	) => new () {
 		_Buffer = aArena._Buffer + aArena._NextOffset,
 		_BufferSize = aArena._BufferSize - aArena._NextOffset,
 		_NextOffset = 0,

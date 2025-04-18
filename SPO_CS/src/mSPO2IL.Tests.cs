@@ -98,7 +98,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.UpdateExpressionTypes(ExpressionNode, Scope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Def = Module.NewDefConstructor();
+					var Def = mSPO2IL.NewDefConstructor<tSpan>();
 					mAssert.AreEquals(Def.MapExpression(Module, ExpressionNode), mSPO2IL.GetRegId(11));
 					
 					mAssert.AreEquals(
@@ -134,7 +134,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(
@@ -165,8 +165,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor(
-					);
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(
@@ -211,7 +210,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					mAssert.AreEquals(
@@ -253,7 +252,7 @@ mSPO2IL_Tests {
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
 					DefConstructor.MapDef(Module, DefNode);
 					
@@ -334,7 +333,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					
 					DefConstructor.FinishMapProc(
@@ -342,16 +341,39 @@ mSPO2IL_Tests {
 						Module,
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							InitScope.TryFirst().ElseThrow().Type,
-							mVM_Type.Empty()
+							mVM_Type.Pair(
+								mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+									mVM_Type.Empty(),
+									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+									mVM_Type.Int()
+								),
+								mVM_Type.Proc( // d_0 € [[[§INT, §INT] => §INT] => [§INT => §INT]]
+									mVM_Type.Empty(),
+									mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+										mVM_Type.Empty(),
+										mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+										mVM_Type.Int()
+									),
+									mVM_Type.Proc( // _x € §INT => §INT
+										mVM_Type.Empty(),
+										mVM_Type.Int(), // _a
+										mVM_Type.Int()
+									)
+								)
+							),
+							mVM_Type.Proc( // not defied now
+								mVM_Type.Empty(),
+								mVM_Type.Empty(),
+								mVM_Type.Empty()
+							)
 						)
 					);
 					
-					foreach (var Def in Module.Defs.ToStream()) {
+					foreach (var (DefTypeId, DefCommands) in Module.Defs.ToStream()) {
+						aStreamOut("==================");
+						aStreamOut(DefTypeId);
 						aStreamOut("------------------");
-						aStreamOut(Def.TypeId);
-						aStreamOut("------------------");
-						foreach (var Command in Def.Commands.ToStream()) {
+						foreach (var Command in DefCommands.ToStream()) {
 							aStreamOut(Command.ToText());
 						}
 					}
@@ -449,23 +471,60 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							mVM_Type.Tuple(InitScope.Map(_ => _.Type)),
-							mVM_Type.Empty()
+							mVM_Type.Pair(
+								mVM_Type.Proc( // _...+... € [§INT, §INT] => §INT
+									mVM_Type.Empty(),
+									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+									mVM_Type.Int()
+								),
+								mVM_Type.Pair(
+									mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+										mVM_Type.Empty(),
+										mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+										mVM_Type.Int()
+									),
+									mVM_Type.Proc( // d_0 € [[[[§INT, §INT] => §INT]; [[§INT, §INT] => §INT]] => [§INT => §INT]]
+										mVM_Type.Empty(),
+										mVM_Type.Pair(
+											mVM_Type.Proc( // _...+... € [§INT, §INT] => §INT
+												mVM_Type.Empty(),
+												mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+												mVM_Type.Int()
+											),
+											mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+												mVM_Type.Empty(),
+												mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+												mVM_Type.Int()
+											)
+										),
+										mVM_Type.Proc( // _...*...+... € [§INT, §INT, §INT] => §INT
+											mVM_Type.Empty(),
+											mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), // (_a, _b, _c)
+											mVM_Type.Int()
+										)
+									)
+								)
+							),
+							mVM_Type.Proc( // not defied now
+								mVM_Type.Empty(),
+								mVM_Type.Empty(),
+								mVM_Type.Empty()
+							)
 						)
 					);
 					
-					foreach (var Def in Module.Defs.ToStream()) {
+					foreach (var (DefTypeId, DefCommands) in Module.Defs.ToStream()) {
 						aStreamOut("------------------");
-						aStreamOut(Def.TypeId);
+						aStreamOut(DefTypeId);
 						aStreamOut("------------------");
-						foreach (var Command in Def.Commands.ToStream()) {
+						foreach (var Command in DefCommands.ToStream()) {
 							aStreamOut(Command.ToText());
 						}
 					}
@@ -579,15 +638,52 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					DefConstructor.MapDef(Module, DefNode);
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							mVM_Type.Tuple(InitScope.Map(_ => _.Type)),
-							mVM_Type.Empty()
+							mVM_Type.Pair(
+								mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+									mVM_Type.Empty(),
+									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+									mVM_Type.Int()
+								),
+								mVM_Type.Pair(
+									mVM_Type.Proc( // _...>... € [§INT, §INT] => §BOOL
+										mVM_Type.Empty(),
+										mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+										mVM_Type.Bool()
+									),
+									mVM_Type.Proc( // d_0 € [[[[§INT, §INT] => §INT]; [[§INT, §INT] => §BOOL]] => [§INT => §INT]]
+										mVM_Type.Empty(),
+										mVM_Type.Pair(
+											mVM_Type.Proc( // _...*... € [§INT, §INT] => §INT
+												mVM_Type.Empty(),
+												mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+												mVM_Type.Int()
+											),
+											mVM_Type.Proc( // _...>... € [§INT, §INT] => §BOOL
+												mVM_Type.Empty(),
+												mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+												mVM_Type.Bool()
+											)
+										),
+										mVM_Type.Proc( // TestTest... € [§INT, §INT, §INT] => §BOOL
+											mVM_Type.Empty(),
+											mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), // (_a, _b, _c)
+											mVM_Type.Int()
+										)
+									)
+								)
+							),
+							mVM_Type.Proc( // not defied now
+								mVM_Type.Empty(),
+								mVM_Type.Empty(),
+								mVM_Type.Empty()
+							)
 						)
 					);
 					
@@ -685,7 +781,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = Module.NewDefConstructor();
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
 					DefConstructor.MapDef(Module, DefNode);
 					DefConstructor.FinishMapProc(
@@ -694,7 +790,11 @@ mSPO2IL_Tests {
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
 							mVM_Type.Empty(),
-							mVM_Type.Empty()
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Empty(),
+								mVM_Type.Empty()
+							)
 						)
 					);
 					
@@ -882,17 +982,17 @@ mSPO2IL_Tests {
 							§RETURN EMPTY IF TRUE
 							""",
 							"""
-							d_0 := §2ND ENV
+							d_5 := §2ND ENV
 							t_9 := §1ST ENV
-							d_1 := §2ND t_9
+							d_4 := §2ND t_9
 							t_10 := §1ST t_9
-							d_2 := §2ND t_10
+							d_3 := §2ND t_10
 							t_11 := §1ST t_10
-							d_3 := §2ND t_11
+							d_2 := §2ND t_11
 							t_12 := §1ST t_11
-							d_4 := §2ND t_12
+							d_1 := §2ND t_12
 							t_13 := §1ST t_12
-							d_5 := §2ND t_13
+							d_0 := §2ND t_13
 							t_14 := §1ST t_13
 							t_1 := +#_Bla... EMPTY
 							_X := t_1

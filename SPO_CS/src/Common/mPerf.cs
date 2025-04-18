@@ -95,25 +95,6 @@ mPerf {
 		out tNat64 aCycles
 	);
 	
-	//private struct tTimeQueryResult {
-	//	public tNat64 Sec;
-	//	public tNat64 NanoSec;
-	//}
-	//
-	//private enum tClockId {
-	//	CLOCK_REALTIME = 1,
-	//	CLOCK_MONOTONIC,
-	//	CLOCK_PROCESS_CPUTIME_ID,
-	//	CLOCK_THREAD_CPUTIME_ID,
-	//}
-	//
-	//[DllImport("libc.so")]
-	//private static extern void
-	//clock_gettime(
-	//	tClockId clk_id,
-	//	out tTimeQueryResult tp
-	//);
-	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tNat64
 	ThreadCycles(

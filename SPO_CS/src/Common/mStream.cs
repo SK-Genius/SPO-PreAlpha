@@ -5,7 +5,7 @@ mStream {
 	[DebuggerTypeProxy(typeof(tStream<>.tDebuggerProxy))]
 	public sealed class
 	tStream<t> {
-		internal readonly t _Head = default!;
+		internal t _Head = default!;
 		internal readonly mLazy.tLazy<tStream<t>?> _Tail;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -52,7 +52,8 @@ mStream {
 			")"
 		).ToString();
 		
-		private readonly struct tDebuggerProxy(tStream<t> aStream) {
+		private readonly struct
+		tDebuggerProxy(tStream<t>? aStream) {
 			
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public t[] Text {
@@ -73,25 +74,31 @@ mStream {
 	}
 	
 	[method: Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public struct
+	public ref struct
 	tStreamIterator<t>(
-		tStream<t> aStream
-	) : System.Collections.Generic.IEnumerator<t> {
-		private t _Head = default!;
-		private tStream<t>? _Tail = aStream;
+		tStream<t>? aStream
+	) {
+		private tStream<t>? _Curr = null;
+		private tStream<t>? _Next = aStream;
 		
-		public void Reset() => throw new System.NotImplementedException();
+		public void
+		Reset(
+		) => throw new System.NotImplementedException();
 		
-		readonly System.Object? System.Collections.IEnumerator.Current {
-			get { return this.Current; }
-		}
-		
-		public readonly t Current => this._Head;
+		public readonly ref t Current => ref this._Curr._Head;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
 		MoveNext(
-		) => this._Tail.Is(out this._Head, out this._Tail);
+		) {
+			if (this._Next is null) {
+				return false;
+			} else {
+				this._Curr = this._Next;
+				this._Next = this._Next._Tail.Value;
+				return true;
+			}
+		}
 		
 		public readonly void
 		Dispose(
@@ -206,7 +213,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
 	Match<tIn, tOut>(
-		this tStream<tIn> aStream,
+		this tStream<tIn>? aStream,
 		mStd.tFunc<tOut> aOnNone,
 		mStd.tFunc<tOut, tStream<tIn>> aOnAny
 	) => (
@@ -218,8 +225,8 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tOut
 	Match<tIn, tOut>(
-		this tStream<tIn> aStream,
-		mStd.tFunc<tOut, tIn, tStream<tIn>> aOnAny,
+		this tStream<tIn>? aStream,
+		mStd.tFunc<tOut, tIn, tStream<tIn>?> aOnAny,
 		mStd.tFunc<tOut> aOnNone
 	) => aStream.Match(aOnNone, aOnAny);
 	
@@ -232,7 +239,7 @@ mStream {
 	) {
 		if (aStream.IsEmpty()) {
 			aHead = default!;
-			aTail = default;
+			aTail = mStd.cEmpty;
 			return false;
 		} else {
 			aHead = aStream._Head;
@@ -304,7 +311,7 @@ mStream {
 		: aInitialAggregate
 	);
 	#else
-	){
+	) {
 		var Result = aInitialAggregate;
 		foreach (var Item in aStream) {
 			Result = aAggregatorFunc(Result, Item);
@@ -426,7 +433,7 @@ mStream {
 				return Stream(Head, aStream);
 			}
 		}
-		return default;
+		return mStd.cEmpty;
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
