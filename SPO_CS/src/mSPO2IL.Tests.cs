@@ -1059,7 +1059,12 @@ mSPO2IL_Tests {
 						mAssert.Fail(Error);
 					}
 					
-					var (DefIndex, EnvIds) = ModuleConstructor.MapLambda(LambdaNode);
+					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					
+					var (DefIndex, DefType) = DefConstructor.MapLambda(
+						ModuleConstructor,
+						LambdaNode
+					);
 					
 					mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1u);
 					mAssert.AreEquals(DefIndex, 0u);
@@ -1096,7 +1101,7 @@ mSPO2IL_Tests {
 					);
 					
 					mAssert.AreEquals(
-						EnvIds.Map(_ => _.Id),
+						DefConstructor.EnvIds.ToStream(),
 						mStream.Stream([mSPO2IL.GetId("...*...")])
 					);
 				}
@@ -1330,6 +1335,48 @@ mSPO2IL_Tests {
 							]
 						]
 					);
+				}
+			),
+			mTest.Test("MapRecursion2",
+				aStreamOut => {
+					var ModuleNode = mSPO_Parser.Module.ParseText(
+						//        1         2         3         4         5         6         7         8
+						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						"""
+						§IMPORT (
+							§DEF ...+... € [[§INT, §INT] => §INT]
+							§DEF ...-... € [[§INT, §INT] => §INT]
+						)
+						
+						§RECURSIVE {
+							§DEF Fib1... = (§DEF a € §INT) => §IF a MATCH {
+								0 => 0
+								§DEF b => (.Fib2(b .- 2)) .+ (.Fib2(b .- 1))
+							}
+							
+							§DEF Fib2... = (§DEF a € §INT) => §IF a MATCH {
+								0 => 0
+								§DEF b => (.Fib1(b .- 2)) .+ (.Fib1(b .- 1))
+							}
+						}
+						
+						§EXPORT Fib1...
+						""",
+						"",
+						_ => aStreamOut(_())
+					);
+					
+					var InitScope = mSPO_AST_Types.UpdateMatchTypes(
+						ModuleNode.Import.Match,
+						mStd.cEmpty,
+						mSPO_AST_Types.tTypeRelation.Sub,
+						mStd.cEmpty
+					).Then(
+						_ => _.Scope
+					).ElseThrow(
+					);
+					
+					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
 				}
 			)
 		]

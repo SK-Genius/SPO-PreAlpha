@@ -380,7 +380,7 @@ mVM {
 	) {
 		var (VMModule, ModuleMap) = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace);
 		var Res = mVM_Data.Empty();
-		var Defs = VMModule.Skip(1).Reverse();
+		var Defs = VMModule.Reverse().Skip(1);
 		
 		var DefTuple = Defs.Take(2).Count() switch {
 			0 => mVM_Data.Empty(),
@@ -393,7 +393,7 @@ mVM {
 				)
 			),
 		};
-		var InitProc = VMModule.TryFirst().ElseThrow();
+		var InitProc = VMModule.TryLast().ElseThrow();
 		
 		#if MY_TRACE
 			var TraceOut = aTrace;

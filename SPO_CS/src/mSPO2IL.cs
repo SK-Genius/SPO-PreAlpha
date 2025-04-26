@@ -27,6 +27,8 @@ mSPO2IL {
 		tText aId,
 		mVM_Type.tType aType
 	) {
+		mAssert.IsFalse(aDefConstructor.ArgIds.ToStream().Any(_ => _ == aId));
+		mAssert.IsFalse(aDefConstructor.LocalIds.ToStream().Any(_ => _ == aId));
 		aDefConstructor.EnvIds.Push(aId);
 		aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(aId, aType);
 	}
@@ -230,18 +232,14 @@ mSPO2IL {
 	}
 	
 	public static mVM_Type.tType
-	CreateDefType<tPos>(
+	CreateEnvType<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
-		tModuleConstructor<tPos> aModuleConstructor,
-		mVM_Type.tType aProcType
+		tModuleConstructor<tPos> aModuleConstructor
 	) {
+		var TypeDict = aDefConstructor.TypeDict;
 		var EnvIds = aDefConstructor.EnvIds;
 		
-		var Defs = aModuleConstructor.Defs;
-		var DefTypes = aModuleConstructor.Types; // TypeName to TypeDef
-		var TypeDict = aDefConstructor.TypeDict;
-		
-		var EnvType = EnvIds.ToStream(
+		return EnvIds.ToStream(
 		).Reduce(
 			mStream.Stream<mVM_Type.tType>([]),
 			(aRes, aEnvId) => mStream.Stream(TypeDict.TryGet(aEnvId).ElseThrow(), aRes)
@@ -254,8 +252,8 @@ mSPO2IL {
 						if (!_.StartsWith("d_")) {
 							throw new System.Exception();
 						}
-						var TypeName = Defs.Get(tNat32.Parse(_[1..])).TypeId;
-						return DefTypes.TryGet(
+						var TypeName = aModuleConstructor.Defs.Get(tNat32.Parse(_[1..])).TypeId;
+						return aModuleConstructor.Types.TryGet(
 							TypeName
 						).ElseThrow(
 							() => $"can't find type '{TypeName}'"
@@ -264,20 +262,20 @@ mSPO2IL {
 				)
 			)
 		);
-		
+	}
+	
+	public static mVM_Type.tType
+	CreateDefType<tPos>(
+		this ref tDefConstructor<tPos> aDefConstructor,
+		tModuleConstructor<tPos> aModuleConstructor,
+		mVM_Type.tType aProcType
+	) {
 		var Type = mVM_Type.Proc(
 			mVM_Type.Empty(),
-			EnvType,
+			aDefConstructor.CreateEnvType(
+				aModuleConstructor
+			),
 			aProcType
-		);
-		
-		var TypeId = aModuleConstructor.MapType(
-			Type
-		);
-		
-		aModuleConstructor.Types = aModuleConstructor.Types.Set(
-			TypeId,
-			Type
 		);
 		
 		return Type;
@@ -363,24 +361,6 @@ mSPO2IL {
 		);
 		
 		return aModuleConstructor.Defs.Size() - 1;
-	}
-	
-	public static (tNat32 DefIndex, tScope? EnvList)
-	MapLambda<tPos>(
-		this tModuleConstructor<tPos> aModuleConstructor,
-		mSPO_AST.tLambdaNode<tPos> aLambdaNode
-	) {
-		var TempLambdaDef = NewDefConstructor<tPos>();
-		var DefIndex = TempLambdaDef.MapLambda(aModuleConstructor, aLambdaNode).DefIndex;
-		var EnvList = TempLambdaDef.EnvIds.ToStream(
-		).Map(
-			_ => (
-				_,
-				TempLambdaDef.TypeDict.TryGet(_).ElseThrow()
-			)
-		);
-		
-		return (DefIndex, EnvList);
 	}
 	
 	public static (tNat32 Index, tScope? EnvList)
@@ -581,26 +561,42 @@ mSPO2IL {
 				return TailReg;
 			}
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
-				var (DefId, EnvList) = aModuleConstructor.MapLambda(
+				var LambdaDef = NewDefConstructor<tPos>();
+				
+				var (LambdaDefId, LambdaDefType) = LambdaDef.MapLambda(
+					aModuleConstructor,
 					LambdaNode
 				);
 				
-				var LambdaDefType = aDefConstructor.CreateDefType(
-					aModuleConstructor,
-					LambdaNode.TypeAnnotation.ElseThrow()
+				var LambdaEnvs = LambdaDef.EnvIds.ToStream(
+				).Map(
+					_ => (
+						Id: _,
+						Type: LambdaDef.TypeDict.TryGet(_).ElseThrow()
+					)
 				);
+				
+				foreach (var (EnvId, EnvType) in LambdaEnvs) {
+					if (
+						!aDefConstructor.LocalIds.ToStream().Any(_ => _ == EnvId) &&
+						!aDefConstructor.ArgIds.ToStream().Any(_ => _ == EnvId)
+					) {
+						aDefConstructor.AddEnv(EnvId, EnvType);
+					}
+				}
 				
 				return aDefConstructor.InitProc(
 					LambdaNode.Pos,
-					DefId,
+					LambdaDefId,
 					LambdaDefType,
-					EnvList
+					LambdaEnvs
 				);
 			}
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
 				var (NewDefIndex, EnvList) = aModuleConstructor.MapMethod(
 					MethodNode
 				);
+				
 				return aDefConstructor.InitProc(
 					MethodNode.Pos,
 					NewDefIndex,
@@ -1342,14 +1338,18 @@ mSPO2IL {
 				)
 			);
 		}
-			
+		
+		var EnvType = aDefConstructor.CreateEnvType(
+			aModuleConstructor
+		);
+		
 		aDefConstructor.FinishMapProc(
 			aRecLambdasNode.Pos,
 			aModuleConstructor,
 			mVM_Type.Proc(
 				mVM_Type.Empty(),
-				mVM_Type.Empty(),
-				mVM_Type.Empty()
+				EnvType,
+				mVM_Type.Empty() // TODO
 			)
 		);
 	}
