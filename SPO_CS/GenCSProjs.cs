@@ -20,7 +20,8 @@ foreach (
 		_ => _.Name.EndsWith(".cs")
 	)
 ) {
-	var ProjFolder = ProjBaseFolder / (SrcBaseFolder >> CS_FilePath).AssertNotEmpty() / new mFS.tPath("..");
+	var ProjName = System.IO.Path.GetFileNameWithoutExtension(CS_FilePath.Name);
+	var ProjFolder = ProjBaseFolder / (SrcBaseFolder >> CS_FilePath).AssertNotEmpty() / new mFS.tPath("..") / ProjName;
 	
 	var ProjDep = FS.ReadAllLines(
 		CS_FilePath
@@ -32,13 +33,12 @@ foreach (
 	
 	var ProjectReferences = ProjDep.Map(
 		_ => $"""
-					<ProjectReference Include="{_ + ".csproj"}" />
+					<ProjectReference Include="{"../" + _ + '/' + _.Split('/')[^1] + ".csproj"}" />
 			"""
 	);
 	
-	var ProjName = System.IO.Path.GetFileNameWithoutExtension(CS_FilePath.Name);
 	var CSProjPath = ProjFolder / (ProjName + ".csproj");
-	var FullProjName = (ProjBaseFolder >> ProjFolder / ProjName).AssertNotEmpty().ToText();
+	var FullProjName = (ProjBaseFolder >> ProjFolder).AssertNotEmpty().ToText();
 	
 	// build csproj content
 	var CSProjContent = $"""
@@ -48,7 +48,6 @@ foreach (
 				{(ProjName == "mRunTests" ? "<OutputType>Exe</OutputType>" : "")}
 				<OutputPath>{BinBaseFolder}</OutputPath>
 				<Deterministic>true</Deterministic>
-				<!--BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath-->
 			</PropertyGroup>
 			
 			<ItemGroup>
@@ -57,8 +56,6 @@ foreach (
 			</ItemGroup>
 			
 			<ItemGroup>
-				<Compile Remove="**\*.AssemblyAttributes.cs"/>
-				<Compile Remove="**\*.AssemblyInfo.cs"/>
 		{tText.Join("\n", ProjectReferences.ToArrayList().ToArray())}
 			</ItemGroup>
 			

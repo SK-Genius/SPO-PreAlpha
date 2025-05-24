@@ -1,5 +1,8 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mAssert
+// IMPORT Common/mError
+// IMPORT Common/mMaybe
+// IMPORT Common/mStream
 // IMPORT mVM_Type
 // IMPORT mSPO_AST
 // IMPORT mIL_GenerateOpcodes

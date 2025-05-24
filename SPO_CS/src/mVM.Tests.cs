@@ -1,6 +1,7 @@
 ﻿// IMPORT Common/mStd
-// IMPORT Common/mAssert
 // IMPORT Common/mTest
+// IMPORT Common/mAssert
+// IMPORT Common/mStream
 // IMPORT mVM_Type
 // IMPORT mVM_Data
 // IMPORT mVM

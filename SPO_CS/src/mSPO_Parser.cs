@@ -3,6 +3,8 @@
 // IMPORT Common/mTextStream
 // IMPORT Common/mTextParser
 // IMPORT Common/mSpan
+// IMPORT Common/mMaybe
+// IMPORT Common/mStream
 // IMPORT mTokenizer
 // IMPORT mSPO_AST
 

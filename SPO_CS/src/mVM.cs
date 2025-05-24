@@ -1,10 +1,12 @@
 ﻿// IMPORT Common/mStd
+// IMPORT Common/mAssert
+// IMPORT Common/mError
+// IMPORT Common/mPerf
 // IMPORT Common/mMaybe
 // IMPORT Common/mStream
 // IMPORT Common/mAny
 // IMPORT Common/mArrayList
 // IMPORT Common/mTreeMap
-// IMPORT Common/mAssert
 // IMPORT mVM_Data
 // IMPORT mIL_AST
 // IMPORT mIL_GenerateOpcodes

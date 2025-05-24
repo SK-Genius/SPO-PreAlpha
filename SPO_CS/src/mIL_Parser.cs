@@ -1,6 +1,8 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mSpan
 // IMPORT Common/mTextStream
+// IMPORT Common/mParserGen
+// IMPORT Common/mStream
 // IMPORT mTokenizer
 // IMPORT mIL_AST
 
