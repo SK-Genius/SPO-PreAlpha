@@ -1,4 +1,9 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mTest
+// IMPORT mAny
+// IMPORT mAssert
+
+public static class
 mAny_Tests {
 	
 	public static readonly mTest.tTest

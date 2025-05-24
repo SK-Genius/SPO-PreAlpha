@@ -1,3 +1,5 @@
+// IMPORT mStd
+
 public static class
 mArenaMaybeRef {
 	

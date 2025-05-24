@@ -1,4 +1,10 @@
-﻿using tToken = mTokenizer.tToken;
+﻿// IMPORT Common/mStd
+// IMPORT Common/mSpan
+// IMPORT Common/mTextStream
+// IMPORT mTokenizer
+// IMPORT mIL_AST
+
+using tToken = mTokenizer.tToken;
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -277,11 +283,11 @@ mIL_Parser {
 	)
 	.SetDebugName([nameof(Command)]);
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>, tError>
 	Block = mParserGen.Seq(Command, -NL, (-mTokenizer.SpaceToken[..] -NL)[..]).Modify((a, _, _) => a)[1..]
 	.SetDebugName([nameof(Block)]);
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>?, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mIL_AST.tCommandNode<tSpan>>, tError>
 	Types = (-KeyWord("TYPES") -NL +Block)
 	.SetDebugName([nameof(Types)]);
 	

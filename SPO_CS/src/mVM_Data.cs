@@ -1,4 +1,12 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mAny
+// IMPORT Common/mArrayList
+// IMPORT Common/mAssert
+// IMPORT Common/mMaybe
+// IMPORT Common/mStream
+// IMPORT mVM_Type
+
+public static class
 mVM_Data {
 	
 	public enum
@@ -107,7 +115,7 @@ mVM_Data {
 		
 		public tNat32 _LastReg = cResReg;
 		
-		public tText FirstPosText => "" + this.PosList.ToStream().TryFirst()._Value;
+		public tText FirstPosText => "" + this.PosList.ToStream().TryFirst().AssertNotEmpty();
 		
 		public tProcDef(
 			mVM_Type.tType aDefType

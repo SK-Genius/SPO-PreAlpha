@@ -1,4 +1,16 @@
-﻿// TODO: create a function that generate a call stack output
+﻿// IMPORT mStd
+// IMPORT mTextStream
+// IMPORT mMath
+// IMPORT mPerf
+// IMPORT mStream
+// IMPORT mParserGen
+// IMPORT mSpan
+// IMPORT mError
+// IMPORT mAssert
+// IMPORT mResult
+// IMPORT mMaybe
+
+// TODO: create a function that generate a call stack output
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -41,7 +53,7 @@ mTextParser {
 			).ToText(aText.Split('\n'))
 		);
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().ElseThrow().Span.Start;
+			var Pos = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start;
 			var Line = aText.Split('\n')[Pos.Row - 1];
 			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
 			throw mError.Error(

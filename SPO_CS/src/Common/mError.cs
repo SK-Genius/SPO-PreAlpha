@@ -1,4 +1,6 @@
-﻿public static class
+﻿// IMPORT mStd
+
+public static class
 mError {
 	public sealed class
 	tError : System.Exception {

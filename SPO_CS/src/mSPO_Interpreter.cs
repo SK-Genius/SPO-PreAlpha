@@ -1,4 +1,20 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mSpan
+// IMPORT Common/mResult
+// IMPORT Common/mStream
+// IMPORT Common/mTextStream
+// IMPORT Common/mArrayList
+// IMPORT mTokenizer
+// IMPORT mVM_Type
+// IMPORT mVM_Data
+// IMPORT mVM
+// IMPORT mIL_AST
+// IMPORT mSPO2IL
+// IMPORT mSPO_AST
+// IMPORT mSPO_AST_Types
+// IMPORT mSPO_Parser
+
+public static class
 mSPO_Interpreter {
 	// TODO: return tResult
 	public static mVM_Data.tData

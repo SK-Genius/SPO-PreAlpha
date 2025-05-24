@@ -1,4 +1,9 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mTest
+// IMPORT mStream
+// IMPORT mAssert
+
+public static class
 mStream_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(

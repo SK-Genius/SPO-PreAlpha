@@ -1,4 +1,15 @@
-﻿using tPos = mTextStream.tPos;
+﻿// IMPORT Common/mStd
+// IMPORT Common/mStream
+// IMPORT Common/mTextStream
+// IMPORT Common/mTextParser
+// IMPORT Common/mMaybe
+// IMPORT Common/mSpan
+// IMPORT Common/mResult
+// IMPORT Common/mParserGen
+// IMPORT Common/mError
+// IMPORT Common/mParserGen
+
+using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 using tError = System.String;
@@ -14,7 +25,7 @@ mTokenizer {
 	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, tError>, tText> Text = mTextParser.GetToken;
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
-	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>?, tError> __ = _[0..];
+	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>, tError> __ = _[0..];
 	
 	public static readonly tText SpacialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
@@ -114,7 +125,7 @@ mTokenizer {
 		]
 	);
 	
-	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>?, tError>
+	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>, tError>
 	Tokenizer = (Token +-__)[0..];
 	
 	public static tOut
@@ -139,8 +150,8 @@ mTokenizer {
 		);
 		
 		if (!Result.RemainingStream.IsEmpty()) {
-			var Row = Result.RemainingStream.TryFirst().ElseThrow().Span.Start.Row;
-			var Col = Result.RemainingStream.TryFirst().ElseThrow().Span.Start.Col;
+			var Row = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Row;
+			var Col = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Col;
 			var Lines = aText.Split('\n');
 			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
 			var Line = Lines[Row - 1];

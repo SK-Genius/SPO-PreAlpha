@@ -1,29 +1,14 @@
-﻿var Tests = mTest.Tests(
+﻿// IMPORT Common/mStd
+// IMPORT Common/mTest
+// IMPORT Common/mStream
+// IMPORT Common/mCommon.Tests
+// IMPORT mSPO.Tests
+
+var Tests = mTest.Tests(
 	"All",
 	[
-		mAny_Tests.Tests,
-		mMaybe_Tests.Tests,
-		mResult_Tests.Tests,
-		mStream_Tests.Tests,
-		mMap_Tests.Tests,
-		mTreeMap_Tests.Tests,
-		//mMath_Test.Test,
-		mArrayList_Tests.Tests,
-		mParserGen_Tests.Tests,
-		//mTextParser_Test.Test,
-		//mVM_Data_Test.Test,
-		//mIL_AST_Test.Test, 
-		mTokenizer_Tests.Tests,
-		mIL_Parser_Tests.Tests,
-		mVM_Type_Tests.Tests,
-		mVM_Tests.Tests,
-		mIL_GenerateOpcodes_Tests.Tests, 
-		//mSPO_AST_Test.Test,
-		mSPO_AST_Types_Tests.Tests,
-		mSPO_Parser_Tests.Tests,
-		mSPO2IL_Tests.Tests,
-		mSPO_Interpreter_Tests.Tests,
-		mStdLib_Tests.Tests
+		mCommon_Tests.Tests,
+		mSPO_Tests.Tests,
 	]
 );
 
@@ -59,8 +44,11 @@ const tText cListCommandShort = "-l";
 const tText cShowSkippedTestsCommand = "--showSkippedTests";
 const tText cShowSkippedTestsCommandShort = "-s";
 
-const tText cFilterCommand = "--filter";
-const tText cFilterCommandShort = "-f";
+const tText cMatchAllCommand = "--matchAll";
+const tText cMatchAllCommandShort = "-&";
+
+const tText cMatchAnyCommand = "--matchOne";
+const tText cMatchAnyCommandShort = "-|";
 
 const tText cOutputLevelCommand = "--outputLevel";
 const tText cOutputLevelCommandShort = "-o";
@@ -102,19 +90,26 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cHelpCommandShort} {cHelpCommand}
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
-		{cFilterCommandShort} <filter text> {cFilterCommand} <filter text>
 		{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level>
 		{cTreeLevelCommandShort} <level> {cTreeLevelCommand} <level>
 		{cStopOnFirstFailShort} {cStopOnFirstFail}
 		{cDebuggerShort} {cDebugger}
 		{cPlainTextShort} {cPlainText}
+		{cMatchAllCommandShort} <filter text> {cMatchAllCommand} <filter text>
+		{cMatchAnyCommandShort} <filter text> {cMatchAnyCommand} <filter text>
 		"""
 	);
 	return 0;
 }
 
-var Filter = Args.SkipUntil(
-	_ => _ is cFilterCommand or cFilterCommandShort
+var MatchAll = Args.SkipUntil(
+	_ => _ is cMatchAllCommand or cMatchAllCommandShort
+).Skip(
+	1
+);
+
+var MatchAny = Args.SkipUntil(
+	_ => _ is cMatchAnyCommand or cMatchAnyCommandShort
 ).Skip(
 	1
 );
@@ -122,7 +117,8 @@ var Filter = Args.SkipUntil(
 if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	Tests.List(
 		PrintLn,
-		Filter
+		MatchAll.IsEmpty() ? MatchAny : MatchAll,
+		!MatchAll.IsEmpty()
 	);
 	return 0;
 }
@@ -155,7 +151,8 @@ var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailSho
 
 return Tests.Run(
 	PlainText ? PrintLnNoFormat : PrintLn,
-	Filter,
+	MatchAll.IsEmpty() ? MatchAny : MatchAll,
+	!MatchAll.IsEmpty(),
 	HideSkippedTests,
 	OutputLevel,
 	TreeLevel,

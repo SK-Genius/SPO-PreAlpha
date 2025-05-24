@@ -1,3 +1,6 @@
+// IMPORT mStd
+// IMPORT mArenaRef
+
 public static class
 mArenaArray {
 	

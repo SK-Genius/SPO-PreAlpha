@@ -1,4 +1,10 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mStream
+// IMPORT mConsole
+// IMPORT mPerf
+// IMPORT mError
+
+public static class
 mTest {
 	private const tText cTab = "|  ";
 	
@@ -59,14 +65,42 @@ mTest {
 	
 	[DebuggerHidden]
 	public static tBool
-	HasAnyMatch(
+	IsMatchingAny(
 		this tTest aTest,
-		mStream.tStream<tText>? aFilters
+		mStream.tStream<tText> aFilters
 	) => aFilters.IsEmpty() || aTest switch {
 		tTestRun Run => aFilters.Any(Run.Name.Contains),
 		tTestCollection Collection => (
 			aFilters.Any(Collection.Name.Contains) ||
-			System.MemoryExtensions.AsSpan(Collection.Tests).AsStream().Any(_ => _.HasAnyMatch(aFilters))
+			System.MemoryExtensions.AsSpan(
+				Collection.Tests
+			).AsStream(
+			).Any(
+				_ => _.IsMatchingAny(aFilters)
+			)
+		),
+		_ => throw new System.NotImplementedException(aTest.GetType().FullName),
+	};
+	
+	[DebuggerHidden]
+	public static tBool
+	IsMatchingAll(
+		this tTest aTest,
+		mStream.tStream<tText> aFilters
+	) => aFilters.IsEmpty() || aTest switch {
+		tTestRun Run => aFilters.All(Run.Name.Contains),
+		tTestCollection Collection => (
+			aFilters.All(Collection.Name.Contains) ||
+			System.MemoryExtensions.AsSpan(
+				Collection.Tests
+			).AsStream(
+			).Any(
+				_ => _.IsMatchingAll(
+					aFilters.Where(
+						_ => !Collection.Name.Contains(_)
+					)
+				)
+			)
 		),
 		_ => throw new System.NotImplementedException(aTest.GetType().FullName),
 	};
@@ -76,22 +110,33 @@ mTest {
 	List(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<tText>? aFilters
+		mStream.tStream<tText> aFilters,
+		tBool aHasToMatchAll
 	) {
-		if (!aTest.HasAnyMatch(aFilters)) {
-			return;
+		if (aHasToMatchAll) {
+			if (!aTest.IsMatchingAll(aFilters)) {
+				return;
+			}
+		} else {
+			if (!aTest.IsMatchingAny(aFilters)) {
+				return;
+			}
 		}
 		
 		var TestName = aTest.Name();
 		aDebugStream(TestName);
-		if (aFilters.Any(TestName.Contains)) {
-			aFilters = default;
+		if (aHasToMatchAll) {
+			aFilters = aFilters.Where(_ => !TestName.Contains(_));
+		} else {
+			if (aFilters.Any(TestName.Contains)) {
+				aFilters = mStd.cEmpty;
+			}
 		}
 		switch (aTest) {
 			case tTestCollection Collection: {
 				var PrintLn = mStd.Action((tText aLine) => aDebugStream(cTab + aLine));
 				foreach (var Test in Collection.Tests) {
-					Test.List(PrintLn, aFilters);
+					Test.List(PrintLn, aFilters, aHasToMatchAll);
 				}
 				break;
 			}
@@ -111,7 +156,8 @@ mTest {
 	Run(
 		this tTest aTest,
 		mStd.tAction<tText> aDebugStream,
-		mStream.tStream<tText>? aFilters,
+		mStream.tStream<tText> aFilters,
+		tBool aHasToMatchAll,
 		tBool aHideSkippedTests,
 		tInt32 aOutputLevel,
 		tInt32 aTreeLevel,
@@ -125,7 +171,7 @@ mTest {
 		
 		if (
 			aTreeLevel <= 0 ||
-			(aHideSkippedTests && !aTest.HasAnyMatch(aFilters))
+			(aHideSkippedTests && !(aHasToMatchAll ? aTest.IsMatchingAll(aFilters) : aTest.IsMatchingAny(aFilters)))
 		) {
 			aDebugStream = _ => {};
 		}
@@ -187,9 +233,14 @@ mTest {
 				}
 			}
 			case tTestCollection Collection: {
-				if (aFilters.IsEmpty() || aFilters.Any(Collection.Name.Contains)) {
-					aFilters = null;
+				if (aHasToMatchAll) {
+					aFilters = aFilters.Where(_ => !Collection.Name.Contains(_));
+				} else {
+					if (aFilters.Any(Collection.Name.Contains)) {
+						aFilters = mStd.cEmpty;
+					}
 				}
+				
 				var Result = tResult.Skip;
 				var OK_Count = 0;
 				var SkipCount = 0;
@@ -205,6 +256,7 @@ mTest {
 					var SubResult = Test.Run(
 						LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + _)),
 						aFilters,
+						aHasToMatchAll,
 						aHideSkippedTests,
 						aOutputLevel,
 						aTreeLevel - 1,

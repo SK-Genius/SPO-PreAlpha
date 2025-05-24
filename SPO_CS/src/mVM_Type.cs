@@ -1,4 +1,11 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mResult
+// IMPORT Common/mStream
+// IMPORT Common/mError
+// IMPORT Common/mAssert
+// IMPORT Common/mMaybe
+
+public static class
 mVM_Type {
 	
 	public enum
@@ -22,7 +29,7 @@ mVM_Type {
 		Interface, // Existential
 	}
 	
-	public class
+	public sealed class
 	tType {
 		public tKind Kind;
 		public tText? Id;
@@ -262,10 +269,10 @@ mVM_Type {
 	
 	public static tType
 	Tuple(
-		mStream.tStream<tType>? aTypes
+		mStream.tStream<tType> aTypes
 	) => aTypes.Take(2).Count() switch {
 		0 => Empty(),
-		1 => aTypes.TryFirst().ElseThrow(),
+		1 => aTypes.TryFirst().AssertNotEmpty(),
 		_ => aTypes.Reduce(Empty(), Pair),
 	};
 	
@@ -655,11 +662,11 @@ mVM_Type {
 		
 		""";
 	
-	public static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>?, tText>
+	public static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>, tText>
 	IsSubType(
 		this tType aSubType,
 		tType aSupType,
-		mStream.tStream<(tType Free, tType Ref)>? aTypeMappings
+		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
 	) {
 		if (aSubType.Kind == tKind.Free) {
 			aSubType = aSubType.Refs[0];
@@ -673,26 +680,22 @@ mVM_Type {
 		aSupType = aSupType.Normalize();
 		
 		if (aSubType == aSupType) {
-			return mResult.OK(aTypeMappings);
+			return aTypeMappings;
 		}
 		
 		var SubBaseType = aSubType.BaseType();
 		
 		if (aSupType.Kind is tKind.Free) {
-			return mResult.OK(
-				mStream.Stream(
-					(Free: aSupType, Ref: aSubType),
-					aTypeMappings
-				)
+			return mStream.Stream(
+				(Free: aSupType, Ref: aSubType),
+				aTypeMappings
 			);
 		}
 		
 		if (aSubType.Kind is tKind.Free) {
-			return mResult.OK(
-				mStream.Stream(
-					(Free: aSubType, Ref: aSupType),
-					aTypeMappings
-				)
+			return mStream.Stream(
+				(Free: aSubType, Ref: aSupType),
+				aTypeMappings
 			);
 		}
 		
@@ -709,7 +712,7 @@ mVM_Type {
 			case tKind.Int:
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
-					? mResult.OK(aTypeMappings)
+					? aTypeMappings
 					: mResult.Fail(ExtendError("", aSubType, aSupType));
 			}
 			case tKind.Pair: {
@@ -779,7 +782,7 @@ mVM_Type {
 						return mResult.Fail(ExtendError("", aSubType, aSupType));
 					}
 				}
-				return mResult.OK(aTypeMappings);
+				return aTypeMappings;
 			}
 			case tKind.Proc: {
 				if (
@@ -873,7 +876,7 @@ mVM_Type {
 		}
 		mAssert.AreEquals(aObj, ObjType);
 		
-		return mResult.OK(ResType);
+		return ResType;
 	}
 	
 	public static tText

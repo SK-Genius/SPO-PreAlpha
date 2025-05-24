@@ -1,4 +1,10 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mStream
+// IMPORT mError
+// IMPORT mConsole
+// IMPORT mMaybe
+
+public static class
 mAssert {
 	private static readonly tText cErrorPrefix = "FAIL: ";
 	
@@ -75,6 +81,7 @@ mAssert {
 			Text1 = aToText(a1);
 			Text2 = aToText(a2);
 		}
+		
 		Fail(
 			mStream.ZipExtend(
 				System.MemoryExtensions.AsSpan(Text1.Split('\n')).AsStream(),
@@ -177,7 +184,7 @@ mAssert {
 	public static t
 	IsNotIn<t>(
 		t a1,
-		mStream.tStream<t>? a2
+		mStream.tStream<t> a2
 	) {
 		foreach (var Element in a2) {
 			if (Equals(a1, Element)) {

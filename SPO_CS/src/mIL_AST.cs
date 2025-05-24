@@ -1,29 +1,34 @@
-﻿//#define MY_TRACE
+﻿// IMPORT Common/mStd
+// IMPORT Common/mStream
+// IMPORT Common/mMaybe
+// IMPORT Common/mAssert
+
+//#define MY_TRACE
 
 public static class
 mIL_AST {
 	public record tDef<tPos>(
 		tText Id,
 		tText Type,
-		mStream.tStream<tCommandNode<tPos>>? Commands
+		mStream.tStream<tCommandNode<tPos>> Commands
 	);
 	
 	public static tDef<tPos>
 	Def<tPos>(
 		tText Id,
 		tText Type,
-		mStream.tStream<tCommandNode<tPos>>? Commands
+		mStream.tStream<tCommandNode<tPos>> Commands
 	) => new(Id, Type, Commands);
 	
 	public record tModule<tPos>(
-		mStream.tStream<tCommandNode<tPos>>? TypeDef,
-		mStream.tStream<tDef<tPos>>? Defs
+		mStream.tStream<tCommandNode<tPos>> TypeDef,
+		mStream.tStream<tDef<tPos>> Defs
 	);
 	
 	public static tModule<tPos>
 	Module<tPos>(
-		mStream.tStream<tCommandNode<tPos>>? aTypeDef,
-		mStream.tStream<tDef<tPos>>? aDefs
+		mStream.tStream<tCommandNode<tPos>> aTypeDef,
+		mStream.tStream<tDef<tPos>> aDefs
 	) => new(aTypeDef, aDefs);
 	
 	public enum
@@ -206,7 +211,7 @@ mIL_AST {
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
 	) => (aNode.NodeType < tCommandNodeType._BeginCommands_)
-		? mMaybe.Some(aNode._1)
+		? aNode._1
 		: mStd.cEmpty;
 	
 	public static tCommandNode<tPos>
@@ -294,7 +299,7 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2.ElseThrow();
+			aId2 = aNode._2.AssertNotEmpty();
 			return true;
 		} else {
 			aId1 = default!;
@@ -315,8 +320,8 @@ mIL_AST {
 		aPos = aNode.Pos;
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
-			aId2 = aNode._2.ElseThrow();
-			aId3 = aNode._3.ElseThrow();
+			aId2 = aNode._2.AssertNotEmpty();
+			aId3 = aNode._3.AssertNotEmpty();
 			return true;
 		} else {
 			aId1 = default!;

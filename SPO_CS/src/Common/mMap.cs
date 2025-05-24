@@ -1,13 +1,17 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mStream
+// IMPORT mMaybe
+
+public static class
 mMap {
 	public readonly struct
 	tMap<tKey, tValue> {
-		internal readonly mStream.tStream<(tKey, tValue)>? _KeyValuePairs;
+		internal readonly mStream.tStream<(tKey, tValue)> _KeyValuePairs;
 		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tMap(
-			mStream.tStream<(tKey, tValue)>? aKeyValuePairs,
+			mStream.tStream<(tKey, tValue)> aKeyValuePairs,
 			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
 		) {
 			this._KeyValuePairs = aKeyValuePairs;

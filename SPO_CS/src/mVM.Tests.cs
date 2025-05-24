@@ -1,4 +1,11 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mAssert
+// IMPORT Common/mTest
+// IMPORT mVM_Type
+// IMPORT mVM_Data
+// IMPORT mVM
+
+public static class
 mVM_Tests {
 	
 	private static

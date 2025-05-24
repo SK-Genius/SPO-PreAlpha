@@ -1,4 +1,15 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mTest
+// IMPORT Common/mAssert
+// IMPORT Common/mSpan
+// IMPORT Common/mTextStream
+// IMPORT mVM_Type
+// IMPORT mTokenizer
+// IMPORT mSPO_AST
+// IMPORT mSPO_AST_Types
+// IMPORT mSPO_Parser
+
+public static class
 mSPO_AST_Types_Tests {
 	#if true
 	
@@ -12,11 +23,11 @@ mSPO_AST_Types_Tests {
 				aDebugStream => {
 					mAssert.AreEquals(
 						mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.Int(cNoPos, 1), default),
-						mResult.OK(mVM_Type.Int())
+						mVM_Type.Int()
 					);
 					mAssert.AreEquals(
 						mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
-						mResult.OK(mVM_Type.Bool())
+						mVM_Type.Bool()
 					);
 				}
 			),
@@ -33,15 +44,13 @@ mSPO_AST_Types_Tests {
 							),
 							default
 						),
-						mResult.OK(
-							mVM_Type.Tuple(
-								[mVM_Type.Int(), mVM_Type.Bool()]
-							)
+						mVM_Type.Tuple(
+							[mVM_Type.Int(), mVM_Type.Bool()]
 						)
 					);
 					mAssert.AreEquals(
 						mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
-						mResult.OK(mVM_Type.Bool())
+						mVM_Type.Bool()
 					);
 				}
 			),
@@ -69,12 +78,10 @@ mSPO_AST_Types_Tests {
 							),
 							default
 						),
-						mResult.OK(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
-								mVM_Type.Bool()
-							)
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
+							mVM_Type.Bool()
 						)
 					);
 					
@@ -82,18 +89,16 @@ mSPO_AST_Types_Tests {
 					var Type = mSPO_AST_Types.UpdateExpressionTypes(AST, default);
 					mAssert.AreEquals(
 						Type,
-						mResult.OK(
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
-								mVM_Type.Bool()
-							)
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
+							mVM_Type.Bool()
 						)
 					);
 					
 					mAssert.AreEquals(
 						mSPO_AST_Types.UpdateExpressionTypes(mSPO_AST.False(cNoPos), default),
-						mResult.OK(mVM_Type.Bool())
+						mVM_Type.Bool()
 					);
 				}
 			)

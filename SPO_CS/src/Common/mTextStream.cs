@@ -1,4 +1,7 @@
-﻿using tError = System.String;
+﻿// IMPORT mStd
+// IMPORT mStream
+
+using tError = System.String;
 
 public static class
 mTextStream {
@@ -55,7 +58,7 @@ mTextStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tText
 	ToText(
-		this mStream.tStream<(tPos Pos, tError Message)>? aErrors,
+		this mStream.tStream<(tPos Pos, tError Message)> aErrors,
 		tText[] aSrcLines
 	) => aErrors.Reverse(
 	).Map(
@@ -66,7 +69,7 @@ mTextStream {
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mStream.tStream<(tPos Pos, tChar Char)>?
+	public static mStream.tStream<(tPos Pos, tChar Char)>
 	ToStream(
 		this tText aText,
 		tText aId

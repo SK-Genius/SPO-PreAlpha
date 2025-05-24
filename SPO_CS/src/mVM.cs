@@ -1,4 +1,15 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mMaybe
+// IMPORT Common/mStream
+// IMPORT Common/mAny
+// IMPORT Common/mArrayList
+// IMPORT Common/mTreeMap
+// IMPORT Common/mAssert
+// IMPORT mVM_Data
+// IMPORT mIL_AST
+// IMPORT mIL_GenerateOpcodes
+
+public static class
 mVM {
 	
 	public sealed class
@@ -329,7 +340,7 @@ mVM {
 	
 	public static mVM_Data.tData
 	GetModuleFactory<tPos>(
-		mStream.tStream<mVM_Data.tProcDef<tPos>>? aDefs
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aDefs
 	) {
 		var Env = mVM_Data.Empty();
 		mAssert.IsTrue(aDefs.Is(out var LastDef, out aDefs));
@@ -384,7 +395,7 @@ mVM {
 		
 		var DefTuple = Defs.Take(2).Count() switch {
 			0 => mVM_Data.Empty(),
-			1 => mVM_Data.Def(Defs.TryFirst().ElseThrow()),
+			1 => mVM_Data.Def(Defs.TryFirst().AssertNotEmpty()),
 			_ => Defs.Reduce(
 				mVM_Data.Empty(),
 				(aTuple, aDef) => mVM_Data.Pair(
@@ -393,7 +404,7 @@ mVM {
 				)
 			),
 		};
-		var InitProc = VMModule.TryLast().ElseThrow();
+		var InitProc = VMModule.TryLast().AssertNotEmpty();
 		
 		#if MY_TRACE
 			var TraceOut = aTrace;

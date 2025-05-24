@@ -1,4 +1,8 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mError
+// IMPORT mAssert
+
+public static class
 mAny {
 	public readonly struct
 	tAny {
@@ -32,7 +36,7 @@ mAny {
 	) => new(a);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	internal static tBool
+	public static tBool
 	Is<t>(
 		this tAny a,
 		out t aValue
@@ -55,7 +59,7 @@ mAny {
 	} 
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	internal static tBool
+	public static tBool
 	Is(
 		this tAny a
 	) => a._Value is null;

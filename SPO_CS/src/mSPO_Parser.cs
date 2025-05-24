@@ -1,4 +1,12 @@
-﻿using tToken = mTokenizer.tToken;
+﻿// IMPORT Common/mStd
+// IMPORT Common/mParserGen
+// IMPORT Common/mTextStream
+// IMPORT Common/mTextParser
+// IMPORT Common/mSpan
+// IMPORT mTokenizer
+// IMPORT mSPO_AST
+
+using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
 
 using tPos = mTextStream.tPos;
@@ -166,7 +174,7 @@ mSPO_Parser {
 	Command = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tCommandNode<tSpan>, tError>(mTextParser.ComparePos)
 	.SetName(nameof(Command));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tCommandNode<tSpan>>?, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tCommandNode<tSpan>>, tError>
 	Commands = Command[0..]
 	.SetName(nameof(Commands));
 	
@@ -182,7 +190,7 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Children), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -203,7 +211,7 @@ mSPO_Parser {
 		)
 	);
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild>? Children), tError>
+	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
 	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -535,7 +543,7 @@ mSPO_Parser {
 	)
 	.SetName(nameof(MethodCall));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>?, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>, tError>
 	MethodCalls = mParserGen.Seq(
 		MethodCall,
 		((-SpecialToken(",")|-NLs_Token) +MethodCall)[0..],

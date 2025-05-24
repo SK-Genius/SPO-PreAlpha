@@ -1,11 +1,23 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mTest
+// IMPORT Common/mStream
+// IMPORT Common/mSpan
+// IMPORT Common/mTextStream
+// IMPORT Common/mArrayList
+// IMPORT mTokenizer
+// IMPORT mVM_Type
+// IMPORT mSPO_AST_Types
+// IMPORT mSPO_AST
+// IMPORT mSPO_Parser
+
+public static class
 mVM_Type_Tests {
 	private static tText
 	Id(
 		tText aId
 	) => "_" + aId;
 	
-	private static readonly mStream.tStream<(tText Id, mVM_Type.tType)>? cTestScope = mStream.Stream(
+	private static readonly mStream.tStream<(tText Id, mVM_Type.tType)> cTestScope = mStream.Stream(
 		[
 			(
 				Id: "_...+...",

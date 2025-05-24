@@ -1,0 +1,15 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<LangVersion>13.0</LangVersion>
+		<OutputType>Library</OutputType>
+		
+		<DefineConstants>noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN</DefineConstants>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<Nullable>enable</Nullable>
+		<Deterministic>true</Deterministic>
+		<AnalysisLevel>preview-all</AnalysisLevel>
+		<NoWarn>659,661,8604,8618</NoWarn>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+</Project>

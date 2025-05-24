@@ -1,4 +1,16 @@
-﻿//#define MY_TRACE
+﻿// IMPORT Common/mStd
+// IMPORT Common/mAssert
+// IMPORT Common/mError
+// IMPORT Common/mMaybe
+// IMPORT Common/mStream
+// IMPORT Common/mTreeMap
+// IMPORT Common/mPerf
+// IMPORT Common/mArrayList
+// IMPORT mIL_AST
+// IMPORT mVM_Type
+// IMPORT mVM_Data
+
+//#define MY_TRACE
 
 public static class
 mIL_GenerateOpcodes {
@@ -10,7 +22,7 @@ mIL_GenerateOpcodes {
 	
 	// TODO: return tResult
 	public static (
-		mStream.tStream<mVM_Data.tProcDef<tPos>>? Module,
+		mStream.tStream<mVM_Data.tProcDef<tPos>> Module,
 		mTreeMap.tTree<tText, tNat32> ModuleMap
 	)
 	GenerateOpcodes<tPos>(
@@ -53,41 +65,41 @@ mIL_GenerateOpcodes {
 			var Type = TypeDef.NodeType switch {
 				mIL_AST.tCommandNodeType.TypeFunc => mVM_Type.Proc(
 					mVM_Type.Empty(),
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypePair => mVM_Type.Pair(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeSet => mVM_Type.Set(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypePrefix => mVM_Type.Prefix(
-					TypeDef._2.ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeRecord => mVM_Type.Record(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeFree => mVM_Type.Free(TypeDef._1), // TODO
 				mIL_AST.tCommandNodeType.TypeGeneric => mVM_Type.Generic(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeRecursive => mVM_Type.Recursive(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeVar => mVM_Type.Var(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO") // TODO
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeMethod => mStd.Call(
 					() => {
-						var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"); // TODO
-						var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(Types_.TryGet).ElseThrow(() => "TODO"); // TODO
+						var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"); // TODO
+						var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"); // TODO
 						
 						mAssert.IsTrue(FuncType.IsProc(out var EmptyType, out var ArgType, out var ResType));
 						mAssert.IsTrue(EmptyType.IsEmpty());
@@ -111,8 +123,8 @@ mIL_GenerateOpcodes {
 			var DefType = TypeMap.TryGet(
 				TypeName
 			).ThenTry(
-				Types_.TryGet
-			).ElseThrow(
+				_ => Types_.TryGet(_)
+			).AssertNotEmpty(
 				() => $"type '{TypeName}' not found"
 			);
 			
@@ -140,7 +152,7 @@ mIL_GenerateOpcodes {
 			.Set(mIL_AST.cOne, mVM_Data.cOneReg)
 			.Set(mIL_AST.cFalse, mVM_Data.cFalseReg)
 			.Set(mIL_AST.cTrue, mVM_Data.cTrueReg)
-			//.Set(mIL_AST.cSelfFunc, TypeMap.TryGet(TypeName).ElseThrow(Fail_))
+			//.Set(mIL_AST.cSelfFunc, TypeMap.TryGet(TypeName).AssertNotEmpty(Fail_))
 			.Set(mIL_AST.cEmptyType, mVM_Data.cEmptyTypeReg)
 			.Set(mIL_AST.cBoolType, mVM_Data.cBoolTypeReg)
 			.Set(mIL_AST.cIntType, mVM_Data.cIntTypeReg)
@@ -215,7 +227,7 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.Int, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						Regs = Regs.Set(RegId1, NewProc.Int(Span, tInt32.Parse(RegId2.ElseThrow())));
+						Regs = Regs.Set(RegId1, NewProc.Int(Span, tInt32.Parse(RegId2.AssertNotEmpty())));
 						Types.Push(mVM_Type.Int());
 						break;
 					}
@@ -323,14 +335,14 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ApplyPrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-						var Prefix = RegId2.ElseThrow();
+						var Prefix = RegId2.AssertNotEmpty();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.AddPrefix(Span, (tNat32)Prefix.GetHashCode(), Reg)); // TODO: avoid Hash collisions
 						Types.Push(mVM_Type.Prefix(Prefix, Types.Get(Reg)));
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.RemovePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-						var Prefix = RegId2.ElseThrow();
+						var Prefix = RegId2.AssertNotEmpty();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
 						mAssert.IsTrue(Types.Get(Reg).IsPrefix(Prefix, out var ResType));
 						Regs = Regs.Set(RegId1, NewProc.DelPrefix(Span, (tNat32)Prefix.GetHashCode(), Reg)); // TODO: avoid Hash collisions
@@ -481,7 +493,7 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-						var Prefix = RegId2.ElseThrow();
+						var Prefix = RegId2.AssertNotEmpty();
 						var TypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypePrefix(Span, (tNat32)Prefix.GetHashCode(), TypeReg)); // TODO: avoid Hash collisions
 						Types.Push(
@@ -528,7 +540,7 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TypeRecursive, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.ElseThrow())), null, _ => _.ToText());
+						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.AssertNotEmpty())), null, _ => _.ToText());
 						Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
 						Types.Push(
 							mVM_Type.Type(
@@ -598,7 +610,7 @@ mIL_GenerateOpcodes {
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		mMaybe.tMaybe<tText> aRegId,
 		mIL_AST.tCommandNode<tPos> aCommand
-	) => aRegs.TryGet(aRegId.ElseThrow()).ElseThrow(
+	) => aRegs.TryGet(aRegId.AssertNotEmpty()).AssertNotEmpty(
 		() => $"""
 		no '{aRegId}' defined
 		{aCommand.Pos}: {aCommand.ToText()}
@@ -609,7 +621,7 @@ mIL_GenerateOpcodes {
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		tText aRegId,
 		mIL_AST.tCommandNode<tPos> aCommand
-	) => aRegs.TryGet(aRegId).ElseThrow(
+	) => aRegs.TryGet(aRegId).AssertNotEmpty(
 		() => $"""
 		no '{aRegId}' defined
 		{aCommand.Pos}: {aCommand.ToText()}
@@ -618,8 +630,8 @@ mIL_GenerateOpcodes {
 	
 	public static void
 	PrintILModule<tPos>(
-		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>?)>? aDefs,
-		mStream.tStream<mVM_Data.tProcDef<tPos>>? aModule,
+		mStream.tStream<(tText, mVM_Type.tType, mStream.tStream<mIL_AST.tCommandNode<tPos>>)> aDefs,
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
 		mStd.tAction<tText> aTrace
 	) {
 		foreach (var ((Name, _, Commands), VM_Def) in mStream.ZipShort(aDefs, aModule)) {

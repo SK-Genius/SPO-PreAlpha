@@ -1,4 +1,9 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mTest
+// IMPORT mAssert
+// IMPORT mResult
+
+public static class
 mResult_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -6,8 +11,8 @@ mResult_Tests {
 		[
 			mTest.Test("tResult.Equals()",
 				aStreamOut => {
-					mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.OK(1), mResult.OK(1));
-					mAssert.AreEquals<mResult.tResult<tText, tText>>(mResult.OK("1"), mResult.OK("1"));
+					mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.OK(1), 1);
+					mAssert.AreEquals<mResult.tResult<tText, tText>>(mResult.OK("1"), "1");
 					mAssert.AreEquals<mResult.tResult<tInt32, tText>>(mResult.Fail("Bla"), mResult.Fail("Bla"));
 				}
 			)

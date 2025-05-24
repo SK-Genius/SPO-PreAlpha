@@ -6,6 +6,7 @@
 		<OutputType>Exe</OutputType>
 		<!-- Exe | Library | Module | Winexe -->
 		
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<DefineConstants>noMY_TRACE;DISABLE_DEBUGGER_HIDDEN</DefineConstants>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
@@ -16,14 +17,9 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<Compile Remove="GenCSProjs.cs" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<TestSrc Include="**\*.Tests.cs" />
-		<Compile Update="@(TestSrc)">
-			<DependentUpon>$([System.String]::new('%(Filename)').Replace('.Tests', '')).cs</DependentUpon>
-		</Compile>
+		<Compile Include="GenCSProjs.cs" />
+		<Compile Include="src\_GlobalUsings.cs" />
+		<Compile Include="src\Common\*.cs" />
 	</ItemGroup>
 	
 </Project>

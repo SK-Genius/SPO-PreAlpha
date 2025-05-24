@@ -1,4 +1,11 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mTest
+// IMPORT Common/mAssert
+// IMPORT mVM_Data
+// IMPORT mStdLib
+// IMPORT mSPO_Interpreter
+
+public static class
 mStdLib_Tests {
 	
 	public static readonly mTest.tTest

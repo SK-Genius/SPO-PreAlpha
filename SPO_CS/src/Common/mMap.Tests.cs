@@ -1,4 +1,11 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mTest
+// IMPORT mAssert
+// IMPORT mArrayList
+// IMPORT mMap
+// IMPORT mMaybe
+
+public static class
 mMap_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(

@@ -1,4 +1,10 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mTest
+// IMPORT Common/mAssert
+// IMPORT mVM_Data
+// IMPORT mSPO_Interpreter
+
+public static class
 mSPO_Interpreter_Tests {
 	private static mVM_Data.tData
 	Mul(

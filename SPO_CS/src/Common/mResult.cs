@@ -1,4 +1,9 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mStream
+// IMPORT mMaybe
+// IMPORT mError
+
+public static class
 mResult {
 	public readonly struct
 	tResultFail<tError> {
@@ -53,6 +58,15 @@ mResult {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public static
 		implicit operator tResult<tOK, tError>(
+			tOK aOK
+		) => new() {
+			_IsOK = true,
+			_Value = aOK
+		};
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public static
+		implicit operator tResult<tOK, tError>(
 			tResultFail<tError> aFail
 		) => new() {
 			_IsOK = false,
@@ -84,6 +98,25 @@ mResult {
 	public static tResultFail<mStd.tEmpty>
 	Fail(
 	) => new(mStd.cEmpty);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tBool
+	IsFail<t, tError>(
+		this tResult<t, tError> aRes,
+		out tResultFail<tError> aError,
+		out t aValue
+		
+	) {
+		if (aRes._IsOK) {
+			aError = default!;
+			aValue = aRes._Value;
+			return false;
+		} else {
+			aError = new(aRes._Error);
+			aValue = default!;
+			return true;
+		}
+	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool
@@ -148,8 +181,8 @@ mResult {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<tOut, tError>
 	WhenAllThen<tIn, tOut, tError>(
-		this mStream.tStream<tResult<tIn, tError>>? aResults,
-		mStd.tFunc<tOut, mStream.tStream<tIn>?> aOnSucceed
+		this mStream.tStream<tResult<tIn, tError>> aResults,
+		mStd.tFunc<tOut, mStream.tStream<tIn>> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>([]);
 		foreach (var Result in aResults) {
@@ -159,7 +192,7 @@ mResult {
 				return Fail(Error);
 			}
 		}
-		return OK(aOnSucceed(List.Reverse()));
+		return aOnSucceed(List.Reverse());
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -169,7 +202,7 @@ mResult {
 		mStd.tFunc<tOut, tIn> aMod
 	) => (
 		aRes.Match(out var Value, out var Error)
-		? OK(aMod(Value))
+		? aMod(Value)
 		: Fail(Error)
 	);
 	
@@ -205,7 +238,7 @@ mResult {
 	) => aRes.ThenTry(
 		[DebuggerHidden] (a) => (
 			aCond(a)
-			? (tResult<t, tError>)OK(a)
+			? OK(a).AsResult<tError>()
 			: Fail(aOnFail(a))
 		)
 	);
@@ -228,7 +261,7 @@ mResult {
 		mStd.tFunc<tResult<t, tError>, tError> aOnError
 	) => (
 		aRes.Match(out var Value, out var Error)
-		? OK(Value)
+		? Value
 		: aOnError(Error)
 	);
 	
@@ -238,7 +271,7 @@ mResult {
 		this mMaybe.tMaybe<t> aRes,
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
-		[DebuggerHidden] (aValue) => (tResult<t, tError>)OK(aValue),
+		[DebuggerHidden] (aValue) => OK(aValue).AsResult<tError>(),
 		[DebuggerHidden] () => Fail(aOnFail())
 	);
 	

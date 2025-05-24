@@ -1,9 +1,14 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mStream
+// IMPORT mMath
+// IMPORT mAssert
+
+public static class
 mArrayList {
 	public sealed class
 	tArrayList<t> {
 		internal tNat32 _CurrSize;
-		internal t[] _Items = [];
+		public t[] _Items = []; // TODO: internal
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
@@ -156,13 +161,13 @@ mArrayList {
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mStream.tStream<t>?
+	public static mStream.tStream<t>
 	ToLazyList<t>(
 		this tArrayList<t> aList
 	) => aList.ToStream(0);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mStream.tStream<t>?
+	public static mStream.tStream<t>
 	ToStream<t>(
 		this tArrayList<t> aList,
 		tInt32 aStartIndex
@@ -176,7 +181,7 @@ mArrayList {
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mStream.tStream<t>?
+	public static mStream.tStream<t>
 	ToStream<t>(
 		this tArrayList<t> aList
 	) => aList.ToStream(0);
@@ -184,7 +189,7 @@ mArrayList {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tArrayList<t>
 	ToArrayList<t>(
-		this mStream.tStream<t>? aList
+		this mStream.tStream<t> aList
 	) => aList.Reduce(List<t>(), Push);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

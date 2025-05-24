@@ -1,4 +1,12 @@
-﻿public static class
+﻿// IMPORT Common/mStd
+// IMPORT Common/mArrayList
+// IMPORT Common/mAssert
+// IMPORT Common/mStream
+// IMPORT Common/mMaybe
+// IMPORT Common/mError
+// IMPORT mVM_Type
+
+public static class
 mSPO_AST {
 	private const tText cDebuggerDisplay = "{this.ToText()}";
 	
@@ -119,7 +127,7 @@ mSPO_AST {
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tMatchNode<tPos>>? Items;
+		public mStream.tStream<tMatchNode<tPos>> Items;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -145,7 +153,7 @@ mSPO_AST {
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)>? Elements;
+		public mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -153,7 +161,7 @@ mSPO_AST {
 	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdNode<tPos> Id, tMatchNode<tPos> Match)>? Elements;
+		public mStream.tStream<(tIdNode<tPos> Id, tMatchNode<tPos> Match)> Elements;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -199,7 +207,7 @@ mSPO_AST {
 	tBlockNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tCommandNode<tPos>>? Commands;
+		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -232,7 +240,7 @@ mSPO_AST {
 	public sealed record
 	tRecLambdasNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public mStream.tStream<tRecLambdaItemNode<tPos>>? List;
+		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -248,7 +256,7 @@ mSPO_AST {
 	tIfNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)>? Cases;
+		public mStream.tStream<(tExpressionNode<tPos> Cond, tExpressionNode<tPos> Result)> Cases;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -257,7 +265,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression = default!;
-		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)>? Cases;
+		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)> Cases;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -266,7 +274,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tIdNode<tPos> Prefix = default!;
-		public mStream.tStream<tTypeNode<tPos>>? Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -282,7 +290,7 @@ mSPO_AST {
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tTypeNode<tPos>>? Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -290,7 +298,7 @@ mSPO_AST {
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tTypeNode<tPos>>? Expressions;
+		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -336,7 +344,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public tIdNode<tPos> Id = default!;
 		public tExpressionNode<tPos> Expression = default!;
-		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
+		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -361,7 +369,7 @@ mSPO_AST {
 	tMethodCallsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
 		public tExpressionNode<tPos> Object = default!;
-		public mStream.tStream<tMethodCallNode<tPos>>? MethodCalls;
+		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -387,7 +395,7 @@ mSPO_AST {
 	tTupleNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tExpressionNode<tPos>>? Items;
+		public mStream.tStream<tExpressionNode<tPos>> Items;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -410,7 +418,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public tImportNode<tPos> Import = default!;
 		public tExportNode<tPos> Export = default!;
-		public mStream.tStream<tCommandNode<tPos>>? Commands;
+		public mStream.tStream<tCommandNode<tPos>> Commands;
 	}
 	
 	public static tEmptyNode<tPos>
@@ -514,7 +522,7 @@ mSPO_AST {
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
-		mStream.tStream<tExpressionNode<tPos>>? aItems
+		mStream.tStream<tExpressionNode<tPos>> aItems
 	) => aItems.Take(2).ToArrayList().Size() switch {
 		0 => Empty(aPos),
 		1 => mStd.Call(
@@ -533,7 +541,7 @@ mSPO_AST {
 	PrefixType<tPos>(
 		tPos aPos,
 		tIdNode<tPos> aPrefix,
-		mStream.tStream<tTypeNode<tPos>>? aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix,
@@ -552,7 +560,7 @@ mSPO_AST {
 	public static tTupleTypeNode<tPos>
 	TupleType<tPos>(
 		tPos aPos,
-		mStream.tStream<tTypeNode<tPos>>? aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new() {
 		Pos = aPos,
 		Expressions = aTypes,
@@ -561,7 +569,7 @@ mSPO_AST {
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
 		tPos aPos,
-		mStream.tStream<tTypeNode<tPos>>? aTypes
+		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new() {
 		Pos = aPos,
 		Expressions = aTypes
@@ -655,7 +663,7 @@ mSPO_AST {
 	public static tRecordNode<tPos>
 	Record<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)>? aRecordItems
+		mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems
 	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -664,7 +672,7 @@ mSPO_AST {
 	public static tMatchRecordNode<tPos>
 	MatchRecord<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdNode<tPos> Key, tMatchNode<tPos> Match)>? aRecordItems
+		mStream.tStream<(tIdNode<tPos> Key, tMatchNode<tPos> Match)> aRecordItems
 	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
@@ -721,7 +729,7 @@ mSPO_AST {
 	public static tRecLambdasNode<tPos>
 	RecLambdas<tPos>(
 		tPos aPos,
-		mStream.tStream<tRecLambdaItemNode<tPos>>? aList
+		mStream.tStream<tRecLambdaItemNode<tPos>> aList
 	) => new() {
 		Pos = aPos,
 		List = aList
@@ -730,10 +738,10 @@ mSPO_AST {
 	public static tMatchItemNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
-		mStream.tStream<tMatchNode<tPos>>? aItems
+		mStream.tStream<tMatchNode<tPos>> aItems
 	) => aItems.Take(2).Count() switch {
 		0 => throw mError.Error("impossible"),
-		1 => aItems.TryFirst().ElseThrow(),
+		1 => aItems.TryFirst().AssertNotEmpty(),
 		_ => new tMatchTupleNode<tPos> {
 			Pos = aPos,
 			Items = aItems
@@ -783,7 +791,7 @@ mSPO_AST {
 	public static tIfNode<tPos>
 	If<tPos>(
 		tPos aPos,
-		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)>? aCases
+		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
 	) => new() {
 		Pos = aPos,
 		Cases = aCases
@@ -793,7 +801,7 @@ mSPO_AST {
 	IfMatch<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aExpression,
-		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)>? aCases
+		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
 	) => new() {
 		Pos = aPos,
 		Expression = aExpression,
@@ -805,7 +813,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdNode<tPos> aVar,
 		tExpressionNode<tPos> aExpression,
-		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
 	) => new() {
 		Pos = aPos,
 		Id = aVar,
@@ -826,7 +834,7 @@ mSPO_AST {
 	MethodCallStatement<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aObject,
-		mStream.tStream<tMethodCallNode<tPos>>? aMethodCalls
+		mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
 	) => new() {
 		Pos = aPos,
 		Object = aObject,
@@ -871,7 +879,7 @@ mSPO_AST {
 	public static tBlockNode<tPos>
 	Block<tPos>(
 		tPos aPos,
-		mStream.tStream<tCommandNode<tPos>>? aCommands
+		mStream.tStream<tCommandNode<tPos>> aCommands
 	) => new() {
 		Pos = aPos,
 		Commands = aCommands,
@@ -881,7 +889,7 @@ mSPO_AST {
 	Module<tPos>(
 		tPos aPos,
 		tImportNode<tPos> aImport,
-		mStream.tStream<tCommandNode<tPos>>? aCommands,
+		mStream.tStream<tCommandNode<tPos>> aCommands,
 		tExportNode<tPos> aExport
 	) => new() {
 		Pos = aPos,

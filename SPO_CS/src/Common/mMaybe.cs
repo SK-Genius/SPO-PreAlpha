@@ -1,4 +1,7 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mError
+
+public static class
 mMaybe {
 	public readonly struct
 	tMaybe<t> {
@@ -146,19 +149,19 @@ mMaybe {
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
-	ElseThrow<t>(
+	AssertNotEmpty<t>(
 		this tMaybe<t> a,
 		mStd.tFunc<tText> aOnThrow
 	) => a.IsSome(out var Value) ? Value : throw mError.Error(aOnThrow());
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
-	ElseThrow<t>(
+	AssertNotEmpty<t>(
 		this tMaybe<t> a,
-		[CallerLineNumber] tInt32 aLine = 0,
+		[CallerArgumentExpression(nameof(a))] tText aExpr = "",
 		[CallerMemberName] tText aCaller = "",
 		[CallerFilePath] tText aFile = "",
-		[CallerArgumentExpression(nameof(a))] tText aExpr = ""
+		[CallerLineNumber] tInt32 aLine = 0
 	) => (
 		a.IsSome(out var Value)
 		? Value

@@ -1,11 +1,18 @@
-﻿public static class
+﻿// IMPORT mStd
+// IMPORT mTest
+// IMPORT mAssert
+// IMPORT mTreeMap
+// IMPORT mMaybe
+// IMPORT mMath
+
+public static class
 mTreeMap_Tests {
 	private static readonly mStd.tFunc<tInt32, tInt32, tInt32>
 	Int32Compare = (a1, a2) => mMath.Sign(a1 - a2);
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mTokenizer),
+		nameof(mTreeMap),
 		[
 			mTest.Test("Create",
 				aDebugStream => {
