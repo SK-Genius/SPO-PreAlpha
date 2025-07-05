@@ -157,6 +157,11 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.VarGet))
 			.SetDebugName([nameof(mIL_AST.VarGet)]),
 			
+			mParserGen.Seq(-KeyWord("REC"), Id, -SpecialToken(":") -Token("=") -SpecialToken("."), Id, Id)
+			.Modify((_, a1, _, a2, a3) => (a1, a2, a3))
+			.ModifyS(mTokenizer.X(mIL_AST.DefRecProcs))
+			.SetDebugName([nameof(mIL_AST.DefRecProcs)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("VAR"), Id)
 			.Modify((a1, _, _, a2) => (a1, a2))
 			.ModifyS(mTokenizer.X(mIL_AST.VarDef))

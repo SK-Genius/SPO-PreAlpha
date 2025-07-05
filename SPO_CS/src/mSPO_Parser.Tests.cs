@@ -1,8 +1,11 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mTest
 // IMPORT Common/mAssert
+// IMPORT Common/mMaybe
 // IMPORT Common/mSpan
+// IMPORT Common/mStream
 // IMPORT Common/mTextStream
+// IMPORT Common/mParserGen
 // IMPORT mTokenizer
 // IMPORT mSPO_AST
 // IMPORT mSPO_Parser

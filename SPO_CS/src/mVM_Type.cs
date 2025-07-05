@@ -344,6 +344,17 @@ mVM_Type {
 		}
 	}
 	
+	public static tType
+	Record(
+		(tText Prefix, tType InnerType)[] aFieldTypes
+	) {
+		var Result = Empty();
+		foreach (var FieldType in aFieldTypes) {
+			Result = Record(Result, Prefix(FieldType.Prefix, FieldType.InnerType));
+		}
+		return Result;
+	}
+	
 	public static tBool
 	IsRecord(
 		this tType aType,

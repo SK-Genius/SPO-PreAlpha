@@ -1,7 +1,8 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mAssert
-// IMPORT Common/mError
 // IMPORT Common/mMaybe
+// IMPORT Common/mResult
+// IMPORT Common/mError
 // IMPORT Common/mStream
 // IMPORT mVM_Type
 // IMPORT mSPO_AST
@@ -292,17 +293,23 @@ mSPO_AST_Types {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				var NewScope = aScope;
 				if (aType.IsSome(out var TypeTail)) {
-					foreach (var Item in MatchTuple.Items.Reverse()) {
-						if (!TypeTail.IsPair(out TypeTail!, out var Type1)) {
+					var TypeStack = mStream.Stream<mVM_Type.tType>();
+					while (TypeTail.IsPair(out var TypeTail_, out var Type_)) {
+						TypeTail = TypeTail_;
+						TypeStack = mStream.Stream(Type_, TypeStack);
+					}
+					mAssert.IsTrue(TypeTail.IsEmpty());
+					
+					foreach (var Item in MatchTuple.Items) {
+						if (!TypeStack.Is(out var Type1, out TypeStack)) {
 							return mResult.Fail($"{Item.Pos}: ERROR expected pair");
 						}
-						
-						if (UpdateMatchTypes(Item, Type1, aTypeRelation, NewScope).Match(out var Type_, out var Error)) {
-							Types = mStream.Stream(Type_.Type, Types);
-							NewScope = Type_.Scope; // TODO NOW
-						} else {
+						if (!UpdateMatchTypes(Item, Type1, aTypeRelation, NewScope).Match(out var Type_, out var Error)) {
 							return mResult.Fail(Error);
 						}
+						
+						Types = mStream.Stream(Type_.Type, Types);
+						NewScope = Type_.Scope; // TODO NOW
 					}
 				} else {
 					foreach (var Item in MatchTuple.Items) {

@@ -86,7 +86,7 @@ System.Console.WriteLine("END");
 
 static mStream.tStream<tText> UpdateDeps(
 	ref mTreeMap.tTree<tText, mStream.tStream<tText>> aTree,
-	string aProj,
+	tText aProj,
 	mStream.tStream<tText> aDepPath
 ) {
 	var Deps = aTree.TryGet(aProj).AssertNotEmpty();

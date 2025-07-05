@@ -25,6 +25,78 @@ mSPO_Interpreter_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_Interpreter),
 		[
+			mTest.Tests("PatternMatching",
+				mStream.Stream(
+					[
+						(
+							mStd.FileLine(),
+							"(§DEF A, §DEF B, _) = (1, 2, 3)",
+							"(A, B)",
+							mVM_Data.Tuple([mVM_Data.Int(1), mVM_Data.Int(2)])
+						),
+						(
+							mStd.FileLine(),
+							"(§DEF A, §DEF B, _) = (1, 2, (3, 4))",
+							"(A, B)",
+							mVM_Data.Tuple([mVM_Data.Int(1), mVM_Data.Int(2)])
+						),
+						(
+							mStd.FileLine(),
+							"((§DEF A, §DEF B), §DEF C) = ((1, 2), 3)",
+							"(A, B, C)",
+							mVM_Data.Tuple([mVM_Data.Int(1), mVM_Data.Int(2), mVM_Data.Int(3)])
+						),
+						(
+							mStd.FileLine(),
+							"(§DEF A, §DEF B, §DEF C) = (1, 2, 3)",
+							"(A, B, C)",
+							mVM_Data.Tuple([mVM_Data.Int(1), mVM_Data.Int(2), mVM_Data.Int(3)])
+						),
+						(
+							mStd.FileLine(),
+							"{C: §DEF X, A: §DEF Y} = {A: 1, B: 2, C: 3}",
+							"(X, Y)",
+							mVM_Data.Tuple([mVM_Data.Int(3), mVM_Data.Int(1)])
+						),
+						(
+							mStd.FileLine(),
+							"(#Bla §DEF A) = #Bla 1",
+							"(X, Y)",
+							mVM_Data.Int(1)
+						),
+					]
+				).Map(
+					a => {
+						var Groups = System.Text.RegularExpressions.Regex.Match(a.Item1, @"^(.*)\:(\d+)$").Groups;
+						var FilePath = Groups[1].Value;
+						var LineNr = tInt32.Parse(Groups[2].Value);
+						
+						return mTest.Test(a.Item2,
+							aDebugStream => {
+								mAssert.AreEquals(
+									mSPO_Interpreter.Run(
+										$"""
+										§IMPORT ()
+										
+										{a.Item2}
+										
+										§EXPORT {a.Item3}
+										""",
+										"",
+										mVM_Data.Empty(),
+										_ => aDebugStream(_())
+									),
+									a.Item4
+								);
+							},
+							FilePath,
+							LineNr
+						);
+					}
+				).ToArrayList(
+				).ToArray(
+				)
+			),
 			mTest.Test("Run1",
 				aDebugStream => {
 					mAssert.AreEquals(
@@ -230,25 +302,6 @@ mSPO_Interpreter_Tests {
 					);
 				}
 			),
-			mTest.Test("Run8",
-				aDebugStream => {
-					mAssert.AreEquals(
-						mSPO_Interpreter.Run(
-							"""
-							§IMPORT ()
-							
-							{C: §DEF X, A: §DEF Y} = {A: 1, B: 2, C: 3}
-							
-							§EXPORT (X, Y)
-							""",
-							"",
-							mVM_Data.Empty(),
-							_ => aDebugStream(_())
-						),
-						mVM_Data.Tuple([mVM_Data.Int(3), mVM_Data.Int(1)])
-					);
-				}
-			)
 		]
 	);
 }

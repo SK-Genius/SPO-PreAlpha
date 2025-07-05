@@ -1,10 +1,12 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mSpan
+// IMPORT Common/mMaybe
 // IMPORT Common/mStream
 // IMPORT Common/mTreeMap
 // IMPORT Common/mAssert
 // IMPORT Common/mTest
 // IMPORT Common/mTextStream
+// IMPORT Common/mParserGen
 // IMPORT mTokenizer
 // IMPORT mIL_GenerateOpcodes
 // IMPORT mIL_AST

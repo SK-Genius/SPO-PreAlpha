@@ -1,10 +1,12 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mSpan
 // IMPORT Common/mTest
+// IMPORT Common/mStream
 // IMPORT Common/mTextStream
 // IMPORT Common/mAssert
 // IMPORT Common/mTextParser
 // IMPORT Common/mArrayList
+// IMPORT Common/mParserGen
 // IMPORT mIL_AST
 // IMPORT mIL_Parser
 // IMPORT mTokenizer
@@ -36,6 +38,18 @@ mIL_Parser_Tests {
 	Tests = mTest.Tests(
 		nameof(mIL_Parser),
 		new (tText Expr, mIL_AST.tCommandNode<tSpan> Command)[] {
+			("a := [b, c]", mIL_AST.TypePair(Span((1, 1), (1, 11)), "a", "b", "c")),
+			("a := [#b c]", mIL_AST.TypePrefix(Span((1, 1), (1, 11)), "a", "b", "c")),
+			("a := [{b} + c]", mIL_AST.TypeRecord(Span((1, 1), (1, 14)), "a", "b", "c")),
+			("a := [b => c]", mIL_AST.TypeFunc(Span((1, 1), (1, 13)), "a", "b", "c")),
+			("a := [b : c]", mIL_AST.TypeMethod(Span((1, 1), (1, 12)), "a", "b", "c")),
+			("a := [b | c]", mIL_AST.TypeSet(Span((1, 1), (1, 12)), "a", "b", "c")),
+			("a := [b & c]", mIL_AST.TypeCond(Span((1, 1), (1, 12)), "a", "b", "c")),
+			("a := [§VAR b]", mIL_AST.TypeVar(Span((1, 1), (1, 13)), "a", "b")),
+			("a := [§REC b => c]", mIL_AST.TypeRecursive(Span((1, 1), (1, 18)), "a", "b", "c")),
+			("a := [§ANY b => c]", mIL_AST.TypeInterface(Span((1, 1), (1, 18)), "a", "b", "c")),
+			("a := [§ALL b => c]", mIL_AST.TypeGeneric(Span((1, 1), (1, 18)), "a", "b", "c")),
+			
 			("a := b", mIL_AST.Alias(Span((1, 1), (1, 6)), "a", "b")),
 			("a := 1", mIL_AST.CreateInt(Span((1, 1), (1, 6)), "a", "1")),
 			("a := §INT b == c", mIL_AST.IntsAreEq(Span((1, 1), (1, 16)), "a", "b", "c")),
@@ -58,18 +72,7 @@ mIL_Parser_Tests {
 			("a := §OBJ:b c", mIL_AST.CallProc(Span((1, 1), (1, 13)), "a", "b", "c")),
 			("a := §VAR b", mIL_AST.VarDef(Span((1, 1), (1, 11)), "a", "b")),
 			("a := §VAR b ->", mIL_AST.VarGet(Span((1, 1), (1, 14)), "a", "b")),
-			
-			("a := [b, c]", mIL_AST.TypePair(Span((1, 1), (1, 11)), "a", "b", "c")),
-			("a := [#b c]", mIL_AST.TypePrefix(Span((1, 1), (1, 11)), "a", "b", "c")),
-			("a := [{b} + c]", mIL_AST.TypeRecord(Span((1, 1), (1, 14)), "a", "b", "c")),
-			("a := [b => c]", mIL_AST.TypeFunc(Span((1, 1), (1, 13)), "a", "b", "c")),
-			("a := [b : c]", mIL_AST.TypeMethod(Span((1, 1), (1, 12)), "a", "b", "c")),
-			("a := [b | c]", mIL_AST.TypeSet(Span((1, 1), (1, 12)), "a", "b", "c")),
-			("a := [b & c]", mIL_AST.TypeCond(Span((1, 1), (1, 12)), "a", "b", "c")),
-			("a := [§VAR b]", mIL_AST.TypeVar(Span((1, 1), (1, 13)), "a", "b")),
-			("a := [§REC b => c]", mIL_AST.TypeRecursive(Span((1, 1), (1, 18)), "a", "b", "c")),
-			("a := [§ANY b => c]", mIL_AST.TypeInterface(Span((1, 1), (1, 18)), "a", "b", "c")),
-			("a := [§ALL b => c]", mIL_AST.TypeGeneric(Span((1, 1), (1, 18)), "a", "b", "c")),
+			("§REC a := .b c", mIL_AST.DefRecProcs(Span((1, 1), (1, 14)), "a", "b", "c")),
 			
 			("§VAR a <- b", mIL_AST.VarSet(Span((1, 1), (1, 11)), "a", "b")),
 			("§RETURN a IF b", mIL_AST.ReturnIf(Span((1, 1), (1, 14)), "b", "a")),

@@ -101,5 +101,14 @@
 		return a;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static t
+	With<t>(
+		this t a,
+		tFunc<t, t> aModifier
+	) where t : struct {
+		return aModifier(a);
+	}
+	
 	public static readonly tEmpty cEmpty = new();
 }

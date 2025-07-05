@@ -6,13 +6,14 @@
 		<OutputType>Exe</OutputType>
 		<!-- Exe | Library | Module | Winexe -->
 		
-		<DefineConstants>noMY_TRACE;DISABLE_DEBUGGER_HIDDEN</DefineConstants>
+		<DefineConstants>MY_TRACE;noDISABLE_DEBUGGER_HIDDEN</DefineConstants>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>
 		<AnalysisLevel>preview-all</AnalysisLevel>
 		<NoWarn>659,661,8604,8618</NoWarn>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 	
 	<ItemGroup>

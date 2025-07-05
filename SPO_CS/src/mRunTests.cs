@@ -1,5 +1,6 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mTest
+// IMPORT Common/mMaybe
 // IMPORT Common/mStream
 // IMPORT Common/mCommon.Tests
 // IMPORT mSPO.Tests
@@ -44,6 +45,12 @@ const tText cListCommandShort = "-l";
 const tText cShowSkippedTestsCommand = "--showSkippedTests";
 const tText cShowSkippedTestsCommandShort = "-s";
 
+const tText cShowPassedGroupsCommand = "--showPassedGroups";
+const tText cShowPassedGroupsCommandShort = "-p";
+
+const tText cShowPassedTestsCommand = "--showPassedTests";
+const tText cShowPassedTestsCommandShort = "-t";
+
 const tText cMatchAllCommand = "--matchAll";
 const tText cMatchAllCommandShort = "-&";
 
@@ -54,7 +61,7 @@ const tText cOutputLevelCommand = "--outputLevel";
 const tText cOutputLevelCommandShort = "-o";
 
 const tText cTreeLevelCommand = "--treeLevel";
-const tText cTreeLevelCommandShort = "-t";
+const tText cTreeLevelCommandShort = "-d";
 
 const tText cStopOnFirstFail = "--stopOnFirstFail";
 const tText cStopOnFirstFailShort = "-1";
@@ -90,6 +97,8 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cHelpCommandShort} {cHelpCommand}
 		{cListCommandShort} {cListCommand}
 		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
+		{cShowPassedGroupsCommandShort} {cShowPassedGroupsCommand}
+		{cShowPassedTestsCommandShort} {cShowPassedTestsCommand}
 		{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level>
 		{cTreeLevelCommandShort} <level> {cTreeLevelCommand} <level>
 		{cStopOnFirstFailShort} {cStopOnFirstFail}
@@ -123,39 +132,33 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	return 0;
 }
 
-var OutputLevel = GetArgParam(
-	Args,
-	cOutputLevelCommandShort,
-	cOutputLevelCommand
-).Match(
-	tInt32.Parse,
-	() => tInt32.MaxValue
-);
-
-var TreeLevel = GetArgParam(
-	Args,
-	cTreeLevelCommandShort,
-	cTreeLevelCommand
-).Match(
-	tInt32.Parse,
-	() => tInt32.MaxValue
-);
-
-var HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
-
-var PlainText = Args.Any(_ => _ is cPlainText or cPlainTextShort);
-
-var DebuggerBreak = Args.Any(_ => _ is cDebugger or cDebuggerShort);
-
-var StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort);
-
 return Tests.Run(
-	PlainText ? PrintLnNoFormat : PrintLn,
-	MatchAll.IsEmpty() ? MatchAny : MatchAll,
-	!MatchAll.IsEmpty(),
-	HideSkippedTests,
-	OutputLevel,
-	TreeLevel,
-	DebuggerBreak,
-	StopOnFirstFail
-).Result == mTest.tResult.Fail ? -1 : 0;
+	Args.Any(_ => _ is cPlainText or cPlainTextShort) ? PrintLnNoFormat : PrintLn,
+	new mTest.tTestSettings {
+		Filters = MatchAll.IsEmpty() ? MatchAny : MatchAll,
+		HasToMatchAll = !MatchAll.IsEmpty(),
+		HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort),
+		HidePassedGroups = !Args.Any(_ => _ is cShowPassedGroupsCommand or cShowPassedGroupsCommandShort),
+		HidePassedTests = !Args.Any(_ => _ is cShowPassedTestsCommand or cShowPassedTestsCommandShort),
+		OutputLevel = GetArgParam(
+			Args,
+			cOutputLevelCommandShort,
+			cOutputLevelCommand
+		).Match(
+			tInt32.Parse,
+			() => tInt32.MaxValue
+		),
+		TreeLevel = GetArgParam(
+			Args,
+			cTreeLevelCommandShort,
+			cTreeLevelCommand
+		).Match(
+			tInt32.Parse,
+			() => tInt32.MaxValue
+		),
+		DebuggerBreak = Args.Any(_ => _ is cDebugger or cDebuggerShort),
+		StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort),
+	}
+).Result is mTest.tResult.Fail
+? -1
+: 0;

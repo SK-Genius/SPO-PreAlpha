@@ -3,6 +3,7 @@
 // IMPORT Common/mError
 // IMPORT Common/mPerf
 // IMPORT Common/mMaybe
+// IMPORT Common/mMath
 // IMPORT Common/mStream
 // IMPORT Common/mAny
 // IMPORT Common/mArrayList
@@ -247,6 +248,87 @@ mVM {
 			case mVM_Data.tOpCode.VarGet: {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mVM_Data.tData X));
 				aCallStack._Regs.Push(X);
+				break;
+			}
+			case mVM_Data.tOpCode.DefRecProcs_1:
+			case mVM_Data.tOpCode.DefRecProcs_2:
+			case mVM_Data.tOpCode.DefRecProcs_3:
+			case mVM_Data.tOpCode.DefRecProcs_4: {
+				var Func = aCallStack._Regs.Get(Arg1);
+				var Arg = aCallStack._Regs.Get(Arg2);
+				
+				mAssert.IsTrue(Func._DataType is mVM_Data.tDataType.Proc);
+				var RecProcList = mStream.Stream<mVM_Data.tData>();
+				
+				var Count = OpCode switch {
+					mVM_Data.tOpCode.DefRecProcs_1 => 1,
+					mVM_Data.tOpCode.DefRecProcs_2 => 2,
+					mVM_Data.tOpCode.DefRecProcs_3 => 3,
+					mVM_Data.tOpCode.DefRecProcs_4 => 4,
+					_ => throw mError.Error("impossible: " + OpCode),
+				};
+				
+				var RecProcs = mVM_Data.Empty();
+				if (Count is 1) {
+					RecProcList = mStream.Stream(RecProcs, RecProcList);
+				} else {
+					for (var I = 0; I < Count; I += 1) {
+						var Temp = mVM_Data.Empty();
+						RecProcs = mVM_Data.Pair(
+							RecProcs,
+							Temp
+						);
+						RecProcList = mStream.Stream(Temp, RecProcList);
+					}
+				}
+				aCallStack._Regs.Push(RecProcs);
+				
+				Arg = mVM_Data.Pair(Arg, RecProcs);
+				
+				mVM_Data.tData Res;
+				switch (0) {
+					case 0 when Func.IsExternDef(out var ExternDef): {
+						Res = mVM_Data.ExternProc(ExternDef, Arg);
+						break;
+					}
+					case 0 when Func.IsExternProc(out var ExternDef, out var Env): {
+						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+						break;
+					}
+					case 0 when Func.IsDef<tPos>(out var Def): {
+						Res = mVM_Data.Proc(Def, Arg);
+						break;
+					}
+					case 0 when Func.IsProc<tPos>(out var Def_, out var Env): {
+						throw mError.Error("not implemented");
+						//Res = mVM_Data.Empty();
+						//aCallStack._Regs.Push(Res);
+						//return NewCallStack(
+						//	aCallStack,
+						//	Def_,
+						//	Env,
+						//	mVM_Data.Empty(),
+						//	Arg,
+						//	Res,
+						//	aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						//);
+					}
+					default: {
+						throw mError.Error("impossible: " + Func._DataType);
+					}
+				}
+				
+				if (Count is 1) {
+					RecProcs._Value = Res._Value;
+				} else {
+					var Pair = Res;
+					for (var I = 0; I < Count; I += 1) {
+						mAssert.IsTrue(Res.IsPair(out var RecProc, out Pair));
+						mAssert.IsTrue(RecProcList.Is(out var RecProc_, out RecProcList));
+						RecProc_._Value = RecProc._Value;
+					}
+					mAssert.IsTrue(Pair.IsEmpty());
+				}
 				break;
 			}
 			case mVM_Data.tOpCode.CallFunc: {

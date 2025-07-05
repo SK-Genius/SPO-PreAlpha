@@ -2,8 +2,10 @@
 // IMPORT Common/mTest
 // IMPORT Common/mStream
 // IMPORT Common/mSpan
+// IMPORT Common/mResult
 // IMPORT Common/mTextStream
 // IMPORT Common/mArrayList
+// IMPORT Common/mParserGen
 // IMPORT mTokenizer
 // IMPORT mVM_Type
 // IMPORT mSPO_AST_Types

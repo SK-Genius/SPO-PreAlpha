@@ -8,8 +8,8 @@ using System.Linq;
 
 public static class
 mFS {
-	public static readonly tPath cIdentPath = new tPath(".");
-	public static readonly tPath cBackPath = new tPath("..");
+	public static readonly tPath cIdentPath = new (".");
+	public static readonly tPath cBackPath = new ("..");
 	
 	public readonly struct
 	tPath {

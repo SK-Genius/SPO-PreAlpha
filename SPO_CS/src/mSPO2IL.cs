@@ -1,7 +1,12 @@
 ﻿// IMPORT Common/mStd
-// IMPORT Common/mTreeMap
-// IMPORT Common/mArrayList
 // IMPORT Common/mAssert
+// IMPORT Common/mError
+// IMPORT Common/mTreeMap
+// IMPORT Common/mMath
+// IMPORT Common/mMaybe
+// IMPORT Common/mResult
+// IMPORT Common/mArrayList
+// IMPORT Common/mStream
 // IMPORT Common/mPerf
 // IMPORT mVM_Type
 // IMPORT mIL_AST
@@ -398,7 +403,8 @@ mSPO2IL {
 		tPos aPos,
 		tNat32 aDefIndex,
 		mVM_Type.tType aDefType,
-		tScope aEnvList
+		tScope aEnvList,
+		tBool aIsRecursiveFactory = false
 	) {
 		mAssert.IsTrue(aDefType.IsProc(out _, out _, out var FuncType));
 		//mAssert.IsTrue(FuncType.IsProc(out _, out _, out _));
@@ -423,7 +429,11 @@ mSPO2IL {
 		}
 		var DefId = GetDefId(aDefIndex);
 		var ProcReg = aCallerDefConstructor.CreateTempReg();
-		aCallerDefConstructor.Commands.Push(mIL_AST.CallFunc(aPos, ProcReg, DefId, EnvReg));
+		aCallerDefConstructor.Commands.Push(
+			aIsRecursiveFactory
+			? mIL_AST.DefRecProcs(aPos, ProcReg, DefId, EnvReg)
+			: mIL_AST.CallFunc(aPos, ProcReg, DefId, EnvReg)
+		);
 		aCallerDefConstructor.AddEnv(DefId, aDefType);
 		return ProcReg;
 	}
@@ -1112,7 +1122,44 @@ mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tMatchTupleNode<tPos> p: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
+				var LazyCaseDef = NewDefConstructor<tPos>();
+				
+				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
+				LazyCaseDef.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
+				);
+				
+				var DefType = LazyCaseDef.CreateDefType(
+					aModuleConstructor,
+					mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Tuple(p.Items.Map(_ => _.TypeAnnotation.AssertNotEmpty())),
+						aCase.Match.TypeAnnotation.AssertNotEmpty()
+					)
+				);
+				
+				var DefIndex = LazyCaseDef.FinishMapProc(aCasePos, aModuleConstructor, DefType);
+				
+				var LazyCaseDefId = aTestAndCallCaseFunc.InitProc(
+					p.Pos,
+					DefIndex,
+					DefType,
+					LazyCaseDef.EnvIds.ToStream(
+					).Map(
+						_ => (
+							_,
+							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
+						)
+					)
+				);
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					[
+						mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, mIL_AST.cArg),
+						mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+					]
+				);
+				break;
 			}
 			case mSPO_AST.tMatchNode<tPos> p: {
 				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
@@ -1138,10 +1185,11 @@ mSPO2IL {
 		
 		switch (PatternNode) {
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
+				// TODO: check left side
 				break;
 			}
 			case mSPO_AST.tIntNode<tPos> IntNode: {
-				// TODO: ???
+				// TODO: check left side
 				break;
 			}
 			case mSPO_AST.tMatchFreeIdNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
@@ -1278,175 +1326,143 @@ mSPO2IL {
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode
 	) {
-		// TODO NOW: i think i need a REC_DEFS operator in the IL
-		// §REC r = .f (n, r)
-		// f: factory
-		// n: non rec. args (incl. defs for rec. lambdas & methods)
-		// r: rec. args, same as results
-		//
-		// !!! maybe this will challenge the reference counting memory management approach !!!
-		// maybe restrict the result to methods and functions ???
-		// than it's only equals to while (unlimited) loops
-		//
-		// but $VAR already has the same problem for mutable data types.
-		// is it an issue to have the same problem also for the immutable data types?
-		// or in other words, is it an benefit to not have this issue for immutable data types?
-		//
-		// i don't have the answer yet. :,(
-		//
-		// so i have to start with the restriction to methods and functions.
-		// and maybe later remove the restriction if i know more about the memory management.
+		var IsSingle = aRecLambdasNode.List.Count() is 1;
 		
-		var TempDefConstructor = NewDefConstructor<tPos>();
+		var RecFactoryFunc = NewDefConstructor<tPos>();
 		
-		var RecFuncs = aRecLambdasNode.List.Map(
-			_ => (
-				SPO_Node: _,
-				DefConstructor: NewDefConstructor<tPos>()
-			)
-		);
-		
-		var MapIdAndType = mTreeMap.Tree<tText, (tNat32 Index, mVM_Type.tType Type)>(
-			(a1, a2) => a1.CompareTo(a2),
-			[]
-		);
-		
-		// create all rec. func. in each rec. func.
-		foreach (ref var RecFunc1 in RecFuncs) {
-			foreach (ref var RecFunc2 in RecFuncs) {
-				RecFunc1.DefConstructor.AddLocal(
-					RecFunc2.SPO_Node.Id.Id,
-					RecFunc2.SPO_Node.Lambda.TypeAnnotation.AssertNotEmpty()
+		if (IsSingle) {
+			var RecProc = aRecLambdasNode.List.TryFirst().AssertNotEmpty();
+			RecFactoryFunc.AddArg(
+				RecProc.Id.Id,
+				RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+			);
+			RecFactoryFunc.Commands.Push(
+				mIL_AST.Alias(RecProc.Pos, RecProc.Id.Id, mIL_AST.cArg)
+			);
+		} else {
+			var Arg = mIL_AST.cArg;
+			foreach (var RecProc in aRecLambdasNode.List) {
+				RecFactoryFunc.AddArg(
+					RecProc.Id.Id,
+					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
 				);
+				RecFactoryFunc.Commands.Push(
+					mIL_AST.GetSecond(RecProc.Pos, RecProc.Id.Id, Arg),
+					mIL_AST.GetSecond(RecProc.Pos, RecFactoryFunc.CreateTempReg(out var TempReg), Arg)
+				);
+				Arg = TempReg;
 			}
-			
-			var (DefIndex, DefType) = RecFunc1.DefConstructor.MapLambda(
-				aModuleConstructor,
-				RecFunc1.SPO_Node.Lambda
-			);
-			
-			MapIdAndType = MapIdAndType.Set(
-				RecFunc1.SPO_Node.Id.Id,
-				(DefIndex, DefType)
-			);
-			
-			var DefId = GetDefId(DefIndex);
-			TempDefConstructor.AddEnv(DefId, DefType);
-			
-			RecFunc1.DefConstructor.Commands.Push(
-				mIL_AST.CallFunc(default(tPos), RecFunc1.SPO_Node.Id.Id, DefId, mIL_AST.cEnv)
-			);
 		}
 		
-		foreach (ref var RecFunc1 in RecFuncs) {
-			var EnvReg = mIL_AST.cEmpty;
-			foreach (ref var RecFunc2 in RecFuncs) {
-				var RecFunc2Index = MapIdAndType.TryGet(
-					RecFunc2.SPO_Node.Id.Id
-				).AssertNotEmpty(
-				).Index;
-				
-				TempDefConstructor.Commands.Push(
-					mIL_AST.CreatePair(
-						RecFunc1.SPO_Node.Pos,
-						TempDefConstructor.CreateTempReg(out var NewEnvReg),
-						EnvReg,
-						GetDefId(RecFunc2Index)
-					)
-				);
-				
-				EnvReg = NewEnvReg;
-			}
+		var ResultTupleReg = mIL_AST.cEmpty;
+		
+		foreach (var RecProc in aRecLambdasNode.List) {
+			var RecProcConstructor = NewDefConstructor<tPos>();
+			var (DefIndex, DefType) = RecProcConstructor.MapLambda(
+				aModuleConstructor,
+				RecProc.Lambda
+			);
 			
-			TempDefConstructor.Commands.Push(
-				mIL_AST.CallFunc(
-					RecFunc1.SPO_Node.Pos,
-					RecFunc1.SPO_Node.Id.Id,
-					GetDefId(MapIdAndType.TryGet(RecFunc1.SPO_Node.Id.Id).AssertNotEmpty().Index),
-					EnvReg
+			var RecProcReg = RecFactoryFunc.InitProc(
+				RecProc.Pos,
+				DefIndex,
+				DefType,
+				RecProcConstructor.EnvIds.ToStream(
+				).Map(
+					_ => (
+						Id: _,
+						Type: RecProcConstructor.TypeDict.TryGet(_).AssertNotEmpty()
+					)
 				)
 			);
 			
-			var TypeDict = RecFunc1.DefConstructor.TypeDict;
-			foreach (var (Id, Type) in RecFunc1.DefConstructor.EnvIds.ToStream().Map(_ => (_, TypeDict.TryGet(_).AssertNotEmpty()))) {
-				if (
-					!TempDefConstructor.EnvIds.ToStream().Any(_ => _ == Id) &&
-					!TempDefConstructor.LocalIds.ToStream().Any(_ => _ == Id) &&
-					!TempDefConstructor.ArgIds.ToStream().Any(_ => _ == Id)
-				) {
-					TempDefConstructor.AddEnv(Id, Type);
-				}
+			if (IsSingle) {
+				ResultTupleReg = RecProcReg;
+			} else {
+				RecFactoryFunc.Commands.Push(
+					mIL_AST.CreatePair(
+						RecProc.Pos,
+						RecFactoryFunc.CreateTempReg(out var TempReg),
+						ResultTupleReg,
+						RecProcReg
+					)
+				);
+				ResultTupleReg = TempReg;
 			}
 		}
-		
-		var EnvType = TempDefConstructor.CreateEnvType(
-			aModuleConstructor
-		);
-		
-		var ResType = mVM_Type.Tuple(
-			aRecLambdasNode.List.Map(
-				_ => _.Lambda.TypeAnnotation.AssertNotEmpty()
+		RecFactoryFunc.Commands.Push(
+			mIL_AST.ReturnIf(
+				aRecLambdasNode.Pos,
+				mIL_AST.cTrue,
+				ResultTupleReg
 			)
 		);
 		
-		var TempDefType = mVM_Type.Proc(
-			mVM_Type.Empty(),
-			EnvType,
-			ResType
+		var RecProcsType = (
+			IsSingle
+			? aRecLambdasNode.List.TryFirst().AssertNotEmpty().Lambda.TypeAnnotation.AssertNotEmpty()
+			: aRecLambdasNode.List.Reduce(
+				mVM_Type.Empty(),
+				(Acc, RecProc) => mVM_Type.Pair(
+					Acc,
+					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+				)
+			)
 		);
 		
-		var TempDefIndex = TempDefConstructor.FinishMapProc(
+		var RecFactoryDefType = RecFactoryFunc.CreateDefType(
+			aModuleConstructor,
+			mVM_Type.Proc(
+				mVM_Type.Empty(),
+				RecProcsType,
+				RecProcsType
+			)
+		);
+		
+		var RecFactoryDefIndex = RecFactoryFunc.FinishMapProc(
 			aRecLambdasNode.Pos,
 			aModuleConstructor,
-			TempDefType
+			RecFactoryDefType
 		);
 		
-		var RecLambdaTupleReg = aDefConstructor.InitProc(
+		var RecProcsTupleReg = aDefConstructor.InitProc(
 			aRecLambdasNode.Pos,
-			TempDefIndex,
-			TempDefType,
-			TempDefConstructor.EnvIds.ToStream().Map(_ => (_, TempDefConstructor.TypeDict.TryGet(_).AssertNotEmpty()))
+			RecFactoryDefIndex,
+			RecFactoryDefType,
+			RecFactoryFunc.EnvIds.ToStream(
+			).Map(
+				_ => (
+					Id: _,
+					Type: RecFactoryFunc.TypeDict.TryGet(_).AssertNotEmpty()
+				)
+			),
+			true
 		);
 		
-		switch (RecFuncs.Count()) {
-			case 0: {
-				throw mError.Error("no rec. func. found");
-			}
-			case 1: {
-				var RecFunc = RecFuncs.TryFirst().AssertNotEmpty();
-				var RecFuncId = RecFunc.SPO_Node.Id.Id;
-				aDefConstructor.AddLocal(RecFuncId, RecFunc.SPO_Node.Lambda.TypeAnnotation.AssertNotEmpty());
-				
+		if (IsSingle) {
+			var RecProc = aRecLambdasNode.List.TryFirst().AssertNotEmpty();
+			aDefConstructor.Commands.Push(
+				mIL_AST.Alias(
+					RecProc.Pos,
+					RecProc.Id.Id,
+					RecProcsTupleReg
+				)
+			);
+		} else {
+			foreach (var RecProc in aRecLambdasNode.List) {
 				aDefConstructor.Commands.Push(
-					mIL_AST.Alias(RecFunc.SPO_Node.Pos, RecFuncId, RecLambdaTupleReg)
+					mIL_AST.GetSecond(
+						RecProc.Pos,
+						RecProc.Id.Id,
+						RecProcsTupleReg
+					),
+					mIL_AST.GetFirst(
+						RecProc.Pos,
+						aDefConstructor.CreateTempReg(out var TempReg),
+						RecProcsTupleReg
+					)
 				);
-				
-				break;
-			}
-			default: {
-				var RemainingTupleReg = RecLambdaTupleReg;
-				foreach (ref var RecFunc in RecFuncs) {
-					var RecFuncId = RecFunc.SPO_Node.Id.Id;
-					aDefConstructor.AddLocal(RecFuncId, RecFunc.SPO_Node.Lambda.TypeAnnotation.AssertNotEmpty());
-					
-					aDefConstructor.Commands.Push(
-						[
-							mIL_AST.GetSecond(
-								RecFunc.SPO_Node.Pos,
-								RecFuncId,
-								RemainingTupleReg
-							),
-							mIL_AST.GetFirst(
-								RecFunc.SPO_Node.Pos,
-								aDefConstructor.CreateTempReg(out var NewRemainingTupleReg),
-								RemainingTupleReg
-							),
-						]
-					);
-					RemainingTupleReg = NewRemainingTupleReg;
-				}
-				
-				break;
+				RecProcsTupleReg = TempReg;
 			}
 		}
 	}

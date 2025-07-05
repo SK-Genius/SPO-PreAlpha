@@ -1,7 +1,9 @@
 ﻿// IMPORT Common/mStd
 // IMPORT Common/mAssert
 // IMPORT Common/mError
+// IMPORT Common/mMath
 // IMPORT Common/mMaybe
+// IMPORT Common/mResult
 // IMPORT Common/mStream
 // IMPORT Common/mTreeMap
 // IMPORT Common/mPerf
@@ -133,15 +135,13 @@ mIL_GenerateOpcodes {
 				FreeVar.Refs[0] = TempType;
 			}
 			
-			if (!DefType.IsProc(out var NullType, out var DefEnvType, out var DefProcType)) {
-				throw mError.Error("impossible");
-			}
+			mAssert.IsTrue(DefType.IsProc(out var NullType, out var DefEnvType, out var DefProcType));
+			
 			if (DefProcType.IsGeneric(out var FreeType, out var InnerType)) {
 				DefProcType = InnerType;
 			}
-			if (!DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType)) {
-				throw mError.Error("impossible");
-			}
+			
+			mAssert.IsTrue(DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType));
 			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			
@@ -377,7 +377,8 @@ mIL_GenerateOpcodes {
 						
 						var ResType = Types.Get(ResReg);
 						
-						ResType.IsSubType(DefResType, mStd.cEmpty)
+						// ResType.IsSubType(DefResType, mStd.cEmpty)
+						ResType.IsSubType(mVM_Type.Set(DefResType, mVM_Type.Empty()), mStd.cEmpty) // TODO: remove workaround; see line above
 						.ElseThrow(
 							_ => (
 								$"""
@@ -443,10 +444,33 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.TypeCond, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.DefRecProcs, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
+						var FuncReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgReg = Regs.GetOrThrow(RegId3, Command);
+						var ArgType = Types.Get(ArgReg);
+						mAssert.IsTrue(Types.Get(FuncReg).IsProc(out var EmptyType, out var EnvType, out var RecTypeInOut));
+						mAssert.IsTrue(RecTypeInOut.IsProc(out var EmptyType_, out var RecTypeIn, out var RecTypeOut));
+						mAssert.AreEquals(RecTypeIn, RecTypeOut);
+						mAssert.IsTrue(EmptyType_.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
+						mAssert.IsTrue(EmptyType.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
+						mAssert.AreEquals(ArgType, EnvType);
+						if (!RecTypeOut.IsProc(out _, out _, out _)) {
+							var PairType = RecTypeInOut;
+							while (!PairType.IsEmpty()) {
+								mAssert.IsTrue(PairType.IsPair(out var ProcType, out PairType));
+								mAssert.IsTrue(ProcType.IsProc(out _, out _, out _));
+								mAssert.AreEquals(RecTypeIn, RecTypeOut);
+							}
+						}
+						
+						Regs = Regs.Set(RegId1, NewProc.DefRecProcs(Span, FuncReg, ArgReg));
+						Types.Push(RecTypeOut);
+						break;
+					}
+					case { NodeType: mIL_AST.tCommandNodeType.TypeCond, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TypeCond));
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.TypeFunc, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.TypeFunc, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						var ArgTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var ResTypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeFunc(Span, ArgTypeReg, ResTypeReg));

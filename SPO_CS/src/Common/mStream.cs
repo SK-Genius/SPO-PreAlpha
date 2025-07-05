@@ -396,6 +396,12 @@ mStream {
 			Res[I] = Item;
 			I += 1;
 		}
+		System.Array.Sort(
+			Res,
+			System.Collections.Generic.Comparer<t>.Create(
+				(a1, a2) => aCompare(a1, a2)
+			)
+		);
 		return Stream(System.MemoryExtensions.AsSpan(Res));
 	}
 	

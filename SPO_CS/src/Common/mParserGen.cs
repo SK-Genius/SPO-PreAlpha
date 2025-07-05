@@ -780,7 +780,7 @@ mParserGen {
 				aParser._LastTrace = Trace;
 				HasToLog = true;
 			} else {
-				AppendToTrace($"}} -> FAIL ({Error_.Match(aOnNone: () => "", aOnAny: (_) => "")})");
+				AppendToTrace($"}} -> FAIL ({Error_.Match(() => "", (_, _) => "")})");
 				HasToLog = HasToLogIfFailed;
 			}
 		#endif

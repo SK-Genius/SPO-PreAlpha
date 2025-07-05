@@ -26,13 +26,19 @@ mStdLib_Tests {
 								§DEF n € §INT
 							)
 							
-							§DEF If...Then...Else... = (§DEF c € §BOOL, §DEF i € [[] => §INT], §DEF e € [[] => §INT]) => {
+							§DEF If...Then...Else... = (
+								§DEF c € §BOOL
+								§DEF i € [[] => §INT]
+								§DEF e € [[] => §INT]
+							) => {
 								§RETURN (.i) IF c
 								§RETURN (.e)
 							}
 							
 							§RECURSIVE {
-								§DEF Fib... = §DEF a € §INT => .If (a .< 2) Then (
+								§DEF Fib... = (
+									§DEF a € §INT
+								) => .If (a .< 2) Then (
 									() => a
 								) Else (
 									() => (.Fib(a .- 2)) .+ (.Fib(a .- 1))

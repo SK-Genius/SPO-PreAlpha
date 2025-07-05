@@ -2,6 +2,7 @@
 // IMPORT Common/mStream
 // IMPORT Common/mMaybe
 // IMPORT Common/mAssert
+// IMPORT Common/mError
 
 //#define MY_TRACE
 
@@ -34,7 +35,22 @@ mIL_AST {
 	public enum
 	tCommandNodeType {
 		_, // unused
-		_BeginExpressions_,
+		_BeginTypes_,
+		TypePair = _BeginTypes_,    // T := [T, T]
+		TypePrefix,                 // T := [#N T]
+		TypeRecord,                 // T := [{T} +T]
+		TypeFunc,                   // T := [T -> T]
+		TypeMethod,                 // T := [T : T]
+		TypeSet,                    // T := [T | T]
+		TypeCond,                   // T := [T & P]
+		TypeVar,                    // T := [§VAR T]
+		TypeFree,                   // T := t in T (see type definitions below)
+		TypeRecursive,              // T := [§RECURSIVE t => T]
+		TypeInterface,              // T := [§ANY t => T]
+		TypeGeneric,                // T := [§ALL t => T]
+		_EndTypes_,
+		
+		_BeginExpressions_ = _EndTypes_,
 		Alias = _BeginExpressions_, // X := X
 		Int,                        // X := §INT I
 		IntsAreEq,                  // X := §INT X == X
@@ -57,29 +73,19 @@ mIL_AST {
 		CallProc,                   // X := :X X
 		VarDef,                     // X := §VAR X
 		VarGet,                     // X := §VAR X ->
+		DefRecProcs,                // §REC X := .X X
+		                            //    §REC (r1, r2, ..., rn) := .D (a1, a2, ..., am, (r1, r2, ..., rn))
+		                            //      (r1, r2,  ..., rn) implicit arguments
+		                            //      with rx € [T : T -> T]
+		                            //      =>   D € [[T, ..., [[T : T -> T], ...]] -> [[T : T -> T], ...]
 		_EndExpressions_,
 		
-		_BeginTypes_ = _EndExpressions_,
-		TypePair = _BeginTypes_,  // T := [T, T]
-		TypePrefix,               // T := [#N T]
-		TypeRecord,               // T := [{T} +T]
-		TypeFunc,                 // T := [T -> T]
-		TypeMethod,               // T := [T : T]
-		TypeSet,                  // T := [T | T]
-		TypeCond,                 // T := [T & P]
-		TypeVar,                  // T := [§VAR T]
-		TypeFree,                 // T := t in T (see type definitions below)
-		TypeRecursive,            // T := [§RECURSIVE t => T]
-		TypeInterface,            // T := [§ANY t => T]
-		TypeGeneric,              // T := [§ALL t => T]
-		_EndTypes_,
-		
-		_BeginCommands_ = _EndTypes_,
+		_BeginCommands_ = _EndExpressions_,
 		VarSet = _BeginCommands_,   // §VAR X <- X
 		ReturnIf,                   // §RETURN X IF X
 		ReturnIfNotEmpty,           // §RETURN x IF_NOT_EMPTY
 		TryAsInt,                   // X := §TRY X AS_INT
-		TryAsBool,                   // X := §TRY X AS_BOOL
+		TryAsBool,                  // X := §TRY X AS_BOOL
 		TryAsPair,                  // X := §TRY X AS_PAIR
 		TryAsRecord,                // X := §TRY X AS_RECORD
 		TryAsVar,                   // X := §TRY X AS_VAR
@@ -99,19 +105,19 @@ mIL_AST {
 		_EndCommands_,
 	}
 	
-	public static readonly tText cEmpty = "EMPTY";
-	public static readonly tText cOne = "ONE";
-	public static readonly tText cTrue = "TRUE";
-	public static readonly tText cFalse = "FALSE";
-	public static readonly tText cEnv = "ENV";
-	public static readonly tText cObj = "OBJ";
-	public static readonly tText cArg = "ARG";
-	public static readonly tText cRes = "RES";
-	public static readonly tText cSelfFunc = "SELF";
+	public static readonly tText cEmpty     = "EMPTY";
+	public static readonly tText cOne       = "ONE";
+	public static readonly tText cTrue      = "TRUE";
+	public static readonly tText cFalse     = "FALSE";
+	public static readonly tText cEnv       = "ENV";
+	public static readonly tText cObj       = "OBJ";
+	public static readonly tText cArg       = "ARG";
+	public static readonly tText cRes       = "RES";
+	public static readonly tText cSelfFunc  = "SELF";
 	public static readonly tText cEmptyType = "EMPTY_TYPE";
-	public static readonly tText cBoolType = "BOOL_TYPE";
-	public static readonly tText cIntType = "INT_TYPE";
-	public static readonly tText cTypeType = "Type_TYPE";
+	public static readonly tText cBoolType  = "BOOL_TYPE";
+	public static readonly tText cIntType   = "INT_TYPE";
+	public static readonly tText cTypeType  = "Type_TYPE";
 	
 	[DebuggerDisplay("{ToText(this)}")]
 	public struct
@@ -172,6 +178,7 @@ mIL_AST {
 		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
 		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
 		tCommandNodeType.VarGet => $"{a._1} := §VAR {a._2} ->",
+		tCommandNodeType.DefRecProcs => $"§REC {a._1} := .{a._2} {a._3}",
 		
 		tCommandNodeType.TypePair => $"{a._1} := [{a._2}, {a._3}]",
 		tCommandNodeType.TypePrefix => $"{a._1} := [#{a._2} {a._3}]",
@@ -199,6 +206,9 @@ mIL_AST {
 		tCommandNodeType.TryAsPair => $"{a._1} := §TRY {a._2} AS_PAIR",
 		tCommandNodeType.TryAsRecord => $"{a._1} := §TRY {a._2} AS_RECORD",
 		tCommandNodeType.TryRemovePrefixFrom => $"{a._1} := §TRY_REMOVE #{a._3} FROM {a._2}",
+		
+		tCommandNodeType._ => throw mError.Error("Impossible"),
+		tCommandNodeType._EndCommands_ => throw mError.Error("Impossible"),
 		_ => $"{a._1} := {a._2} {a._3}"
 	};
 	
@@ -506,6 +516,14 @@ mIL_AST {
 		tText aValueReg,
 		tText aVarReg
 	) => CommandNode(tCommandNodeType.VarGet, aPos, aValueReg, aVarReg);
+	
+	public static tCommandNode<tPos>
+	DefRecProcs<tPos>(
+		tPos aPos,
+		tText aRecProcs,
+		tText aFuncId,
+		tText aArgs
+	) => CommandNode(tCommandNodeType.DefRecProcs, aPos, aRecProcs, aFuncId, aArgs);
 	
 	public static tCommandNode<tPos>
 	Assert<tPos>(

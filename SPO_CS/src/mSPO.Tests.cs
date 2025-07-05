@@ -17,16 +17,16 @@ mSPO_Tests {
 	Tests = mTest.Tests(
 		"mSPO",
 		[
-			mIL_GenerateOpcodes_Tests.Tests,
-			mIL_Parser_Tests.Tests,
-			mSPO_AST_Types_Tests.Tests,
-			mSPO_Interpreter_Tests.Tests,
-			mSPO_Parser_Tests.Tests,
-			mSPO2IL_Tests.Tests,
-			mStdLib_Tests.Tests,
 			mTokenizer_Tests.Tests,
+			mIL_Parser_Tests.Tests,
+			mIL_GenerateOpcodes_Tests.Tests,
 			mVM_Type_Tests.Tests,
 			mVM_Tests.Tests,
+			mSPO_AST_Types_Tests.Tests,
+			mSPO_Parser_Tests.Tests,
+			mSPO2IL_Tests.Tests,
+			mSPO_Interpreter_Tests.Tests,
+			mStdLib_Tests.Tests,
 		]
 	);
 }
