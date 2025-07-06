@@ -61,7 +61,7 @@ mSPO_Interpreter_Tests {
 						(
 							mStd.FileLine(),
 							"(#Bla §DEF A) = #Bla 1",
-							"(X, Y)",
+							"(A)",
 							mVM_Data.Int(1)
 						),
 					]
