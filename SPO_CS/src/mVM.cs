@@ -77,7 +77,7 @@ mVM {
 	public static mMaybe.tMaybe<tCallStack<tPos>>
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
-		mStd.tFunc<tText, tPos> aPosToText
+		mStd.tFunc<tPos, tText> aPosToText
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
 		tText CommandLine() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
@@ -442,7 +442,7 @@ mVM {
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mVM_Data.tData aRes,
-		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		using var _ = mPerf.Measure();
@@ -470,7 +470,7 @@ mVM {
 	Run<tPos>(
 		mIL_AST.tModule<tPos> aModule,
 		mVM_Data.tData aImport,
-		mStd.tFunc<tText, tPos> aPosToText,
+		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		var (VMModule, ModuleMap) = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace);

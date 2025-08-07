@@ -883,7 +883,7 @@ mVM_Data {
 	
 	public static tData
 	ExternProc(
-		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> aExternDef,
+		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		tData aEnv
 	) {
 		mAssert.IsFalse(aEnv._IsMutable);
@@ -893,7 +893,7 @@ mVM_Data {
 	public static tBool
 	IsExternProc(
 		this tData aData,
-		out mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> aExternDef,
+		out mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		out tData aEnv
 	) => aData.Is(tDataType.ExternProc, out aExternDef, out aEnv);
 	
@@ -927,13 +927,13 @@ mVM_Data {
 	
 	public static tData
 	ExternDef(
-		mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> a
+		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a
 	) => Data(tDataType.ExternDef, false, a);
 	
 	public static tBool
 	IsExternDef(
 		this tData aData,
-		out mStd.tFunc<tData, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>> a
+		out mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a
 	) => aData.Is(tDataType.ExternDef, out a);
 	
 	public static tData

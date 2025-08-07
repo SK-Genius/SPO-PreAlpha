@@ -30,16 +30,16 @@ mSPO_Parser {
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	IdToken = mTokenizer.IdToken;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	private static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	SpecialToken = mTokenizer.SpecialToken;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tChar>
+	private static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	SpecialId = mTokenizer.SpecialId;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tChar, tText>
+	private static readonly mStd.tFunc<tChar, tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	SpecialId_ = mTokenizer.SpecialId;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	private static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	Token = mTokenizer.Token_;
 	
 	private static mParserGen.tParser<tPos, tToken, tToken, tError>

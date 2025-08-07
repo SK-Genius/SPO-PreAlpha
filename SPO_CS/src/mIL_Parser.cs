@@ -27,16 +27,16 @@ mIL_Parser {
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	Id = mTokenizer.IdToken;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	private static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	SpecialToken = mTokenizer.SpecialToken;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tChar>
+	private static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	SpecialId = mTokenizer.SpecialId;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	private static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	Token = mTokenizer.Token_;
 	
-	private static readonly mStd.tFunc<mParserGen.tParser<tPos, tToken, tToken, tError>, tText>
+	private static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tToken, tToken, tError>>
 	KeyWord = mTokenizer.KeyWord;
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>

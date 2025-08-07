@@ -67,7 +67,7 @@ mArenaMaybeRef {
 	public static tOut
 	Match<tIn, tOut>(
 		this tArenaMaybeRef<tIn> aMaybeRef,
-		mStd.tFunc<tOut, mArenaRef.tArenaRef<tIn>> aOnSomeRef,
+		mStd.tFunc<mArenaRef.tArenaRef<tIn>, tOut> aOnSomeRef,
 		mStd.tFunc<tOut> aOnNoneRef
 	) where tIn : unmanaged where tOut : unmanaged
 	=> aMaybeRef.Match(out var Ref)

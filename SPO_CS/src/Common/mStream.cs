@@ -205,7 +205,7 @@ mStream {
 	Eq<t>(
 		this tStream<t> a1,
 		tStream<t> a2,
-		mStd.tFunc<tBool, t, t> aEq
+		mStd.tFunc<t, t, tBool> aEq
 	) => a1.Match(
 		[DebuggerHidden] () => a2.IsEmpty(),
 		[DebuggerHidden] (aHead1, aTail1) => a2.Match(
@@ -214,9 +214,9 @@ mStream {
 		)
 	);
 	
-	public static mStd.tFunc<tBool, tStream<t>, tStream<t>>
+	public static mStd.tFunc<tStream<t>, tStream<t>, tBool>
 	Eq<t>(
-		mStd.tFunc<tBool, t, t> aEq
+		mStd.tFunc<t, t, tBool> aEq
 	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEq);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -224,7 +224,7 @@ mStream {
 	Match<tIn, tOut>(
 		this tStream<tIn> aStream,
 		mStd.tFunc<tOut> aOnNone,
-		mStd.tFunc<tOut, tIn, tStream<tIn>> aOnAny
+		mStd.tFunc<tIn, tStream<tIn>, tOut> aOnAny
 	) => (
 		aStream.Is(out var Head, out var Tail)
 		? aOnAny(Head, Tail)
@@ -235,7 +235,7 @@ mStream {
 	public static tOut
 	Match<tIn, tOut>(
 		this tStream<tIn> aStream,
-		mStd.tFunc<tOut, tIn, tStream<tIn>> aOnAny,
+		mStd.tFunc<tIn, tStream<tIn>, tOut> aOnAny,
 		mStd.tFunc<tOut> aOnNone
 	) => aStream.Match(aOnNone, aOnAny);
 	
@@ -288,7 +288,7 @@ mStream {
 	public static tStream<tRes>
 	Map<tRes, tElem>(
 		this tStream<tElem> aStream,
-		mStd.tFunc<tRes, tElem> aMapFunc
+		mStd.tFunc<tElem, tRes> aMapFunc
 	) => (
 		aStream.Is(out var Head, out var Tail)
 		? Stream(aMapFunc(Head), [DebuggerHidden] () => Tail.Map(aMapFunc))
@@ -299,7 +299,7 @@ mStream {
 	public static tStream<tRes>
 	MapWithIndex<tRes, tElem>(
 		this tStream<tElem> aStream,
-		mStd.tFunc<tRes, tNat32, tElem> aMapFunc
+		mStd.tFunc<tNat32, tElem, tRes> aMapFunc
 	) => aStream.MapWithIndex().Map([DebuggerHidden] (a) => aMapFunc(a.Index, a.Item));
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -313,7 +313,7 @@ mStream {
 	Reduce<tRes, tElem>(
 		this tStream<tElem> aStream,
 		tRes aInitialAggregate,
-		mStd.tFunc<tRes, tRes, tElem> aAggregatorFunc
+		mStd.tFunc<tRes, tElem, tRes> aAggregatorFunc
 	#if TAIL_RECURSIVE
 	) => (
 		aStream.Match(out var Head, out var Tail)
@@ -347,7 +347,7 @@ mStream {
 		: mStd.cEmpty
 	);
 	
-	private sealed class tGenComp<t>(mStd.tFunc<tInt32, t, t> aComp) : System.Collections.Generic.IComparer<t> {
+	private sealed class tGenComp<t>(mStd.tFunc<t, t, tInt32> aComp) : System.Collections.Generic.IComparer<t> {
 		public System.Int32 Compare(t? a1, t? a2) => aComp(a1, a2);
 	}
 	
@@ -388,7 +388,7 @@ mStream {
 	public static tStream<t>
 	Sort<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tInt32, t, t> aCompare
+		mStd.tFunc<t, t, tInt32> aCompare
 	) {
 		var Res = new t[aStream.Count()];
 		var I = 0;
@@ -432,7 +432,7 @@ mStream {
 	public static tStream<t>
 	TakeWhile<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aCond
+		mStd.tFunc<t, tBool> aCond
 	) => (
 		aStream.Is(out var Head, out var Tail) && aCond(Head)
 		? Stream(Head, () => Tail.TakeWhile(aCond))
@@ -443,7 +443,7 @@ mStream {
 	public static tStream<t>
 	TakeUntil<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aCond
+		mStd.tFunc<t, tBool> aCond
 	) => (
 		aStream.Is(out var Head, out var Tail) && !aCond(Head)
 		? Stream(Head, () => Tail.TakeWhile(aCond))
@@ -473,7 +473,7 @@ mStream {
 	public static tStream<t>
 	SkipUntil<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aCond
+		mStd.tFunc<t, tBool> aCond
 	) {
 		while (aStream.Is(out var Head, out aStream)) {
 			if (aCond(Head)) {
@@ -487,7 +487,7 @@ mStream {
 	public static tStream<t>
 	SkipWhile<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aCond
+		mStd.tFunc<t, tBool> aCond
 	) => aStream.SkipUntil([DebuggerHidden] (a) => !aCond(a));
 	
 	[Pure, DebuggerHidden]
@@ -511,7 +511,7 @@ mStream {
 	public static tStream<t>
 	Where<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aPredicate
+		mStd.tFunc<t, tBool> aPredicate
 	) {
 		#if TAIL_RECURSIVE
 		return (
@@ -581,7 +581,7 @@ mStream {
 	public static tBool
 	Any<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aPrefix
+		mStd.tFunc<t, tBool> aPrefix
 	) => aStream.Map(aPrefix).Any();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -594,7 +594,7 @@ mStream {
 	public static tBool
 	All<t>(
 		this tStream<t> aStream,
-		mStd.tFunc<tBool, t> aPrefix
+		mStd.tFunc<t, tBool> aPrefix
 	) => aStream.Map(aPrefix).All();
 	
 	[Pure, DebuggerHidden]

@@ -135,7 +135,7 @@ mIL_AST {
 	Eq<tPos>(
 		this tCommandNode<tPos> a1,
 		tCommandNode<tPos> a2,
-		mStd.tFunc<tBool, tPos, tPos> aEqPos
+		mStd.tFunc<tPos, tPos, tBool> aEqPos
 	) {
 		var res = (
 			a1.NodeType == a2.NodeType &&
@@ -147,9 +147,9 @@ mIL_AST {
 		return res;
 	}
 	
-	public static mStd.tFunc<tBool, tCommandNode<tPos>, tCommandNode<tPos>>
+	public static mStd.tFunc<tCommandNode<tPos>, tCommandNode<tPos>, tBool>
 	Eq_<tPos>(
-		mStd.tFunc<tBool, tPos, tPos> aEqPos
+		mStd.tFunc<tPos, tPos, tBool> aEqPos
 	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEqPos);
 	
 	public static tText

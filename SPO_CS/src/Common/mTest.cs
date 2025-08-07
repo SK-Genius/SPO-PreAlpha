@@ -285,8 +285,9 @@ mTest {
 				foreach (var Test in Collection.Tests) {
 					var SubResult = Test.Run(
 						LineByLine(_ => { DebugStream(cTab + _); }),
-						aSettings.With(
-							_ => {
+						mStd.With(
+							aSettings,
+							static _ => {
 								_.TreeLevel -= 1;
 								return _;
 							}

@@ -146,8 +146,8 @@ mResult {
 	public static tRes
 	Match<t, tFail, tRes>(
 		this tResult<t, tFail> aRes,
-		mStd.tFunc<tRes, t> aOnSuccess,
-		mStd.tFunc<tRes, tFail> aOnFail
+		mStd.tFunc<t, tRes> aOnSuccess,
+		mStd.tFunc<tFail, tRes> aOnFail
 	) => (
 		aRes._IsOK
 		? aOnSuccess(aRes._Value)
@@ -159,7 +159,7 @@ mResult {
 	public static tRes
 	Match<t, tRes>(
 		this tResult<t, mStd.tEmpty> aRes,
-		mStd.tFunc<tRes, t> aOnSuccess,
+		mStd.tFunc<t, tRes> aOnSuccess,
 		mStd.tFunc<tRes> aOnFail
 	) => (
 		aRes._IsOK
@@ -171,7 +171,7 @@ mResult {
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
-		mStd.tFunc<tResult<tOut, tError>, tIn> aMod
+		mStd.tFunc<tIn, tResult<tOut, tError>> aMod
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? aMod(Value)
@@ -182,7 +182,7 @@ mResult {
 	public static tResult<tOut, tError>
 	WhenAllThen<tIn, tOut, tError>(
 		this mStream.tStream<tResult<tIn, tError>> aResults,
-		mStd.tFunc<tOut, mStream.tStream<tIn>> aOnSucceed
+		mStd.tFunc<mStream.tStream<tIn>, tOut> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>([]);
 		foreach (var Result in aResults) {
@@ -199,7 +199,7 @@ mResult {
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
-		mStd.tFunc<tOut, tIn> aMod
+		mStd.tFunc<tIn, tOut> aMod
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? aMod(Value)
@@ -210,7 +210,7 @@ mResult {
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
-		mStd.tFunc<tResultFail<tError>, tIn> aMod
+		mStd.tFunc<tIn, tResultFail<tError>> aMod
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? aMod(Value)
@@ -233,8 +233,8 @@ mResult {
 	public static tResult<t, tError>
 	ThenAssert<t, tError>(
 		this tResult<t, tError> aRes,
-		mStd.tFunc<tBool, t> aCond,
-		mStd.tFunc<tError, t> aOnFail
+		mStd.tFunc<t, tBool> aCond,
+		mStd.tFunc<t, tError> aOnFail
 	) => aRes.ThenTry(
 		[DebuggerHidden] (a) => (
 			aCond(a)
@@ -247,7 +247,7 @@ mResult {
 	public static t
 	Else<t, tError>(
 		this tResult<t, tError> aRes,
-		mStd.tFunc<t, tError> aOnError
+		mStd.tFunc<tError, t> aOnError
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? Value
@@ -258,7 +258,7 @@ mResult {
 	public static tResult<t, tError>
 	ElseTry<t, tError>(
 		this tResult<t, tError> aRes,
-		mStd.tFunc<tResult<t, tError>, tError> aOnError
+		mStd.tFunc<tError, tResult<t, tError>> aOnError
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? Value
@@ -279,7 +279,7 @@ mResult {
 	public static t
 	ElseThrow<t, tError>(
 		this tResult<t, tError> aRes,
-		mStd.tFunc<tText, tError> aModifyError
+		mStd.tFunc<tError, tText> aModifyError
 	) => (
 		aRes.Match(out var Value, out var Error)
 		? Value

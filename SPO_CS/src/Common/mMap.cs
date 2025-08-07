@@ -7,12 +7,12 @@ mMap {
 	public readonly struct
 	tMap<tKey, tValue> {
 		internal readonly mStream.tStream<(tKey, tValue)> _KeyValuePairs;
-		internal readonly mStd.tFunc<tBool, tKey, tKey> _EqualsFunc;
+		internal readonly mStd.tFunc<tKey, tKey, tBool> _EqualsFunc;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tMap(
 			mStream.tStream<(tKey, tValue)> aKeyValuePairs,
-			mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
+			mStd.tFunc<tKey, tKey, tBool> aEqualsFunc
 		) {
 			this._KeyValuePairs = aKeyValuePairs;
 			this._EqualsFunc = aEqualsFunc;
@@ -22,7 +22,7 @@ mMap {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMap<tKey, tValue>
 	Map<tKey, tValue>(
-		mStd.tFunc<tBool, tKey, tKey> aEqualsFunc
+		mStd.tFunc<tKey, tKey, tBool> aEqualsFunc
 	) => new(
 		aKeyValuePairs: mStd.cEmpty,
 		aEqualsFunc: aEqualsFunc

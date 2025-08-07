@@ -17,12 +17,12 @@ using tError = System.String;
 public static class
 mTokenizer {
 	
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tChar> Char = mTextParser.GetChar;
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tChar> NotChar = mTextParser.GetNotChar;
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tText> CharIn = mTextParser.GetCharIn;
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tText> CharNotIn = mTextParser.GetCharNotIn;
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tChar, tError>, tChar, tChar> CharInRange = mTextParser.GetCharInRange;
-	public static readonly mStd.tFunc<mParserGen.tParser<tPos, tChar, tText, tError>, tText> Text = mTextParser.GetToken;
+	public static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tChar, tChar, tError>> Char = mTextParser.GetChar;
+	public static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tChar, tChar, tError>> NotChar = mTextParser.GetNotChar;
+	public static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tChar, tChar, tError>> CharIn = mTextParser.GetCharIn;
+	public static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tChar, tChar, tError>> CharNotIn = mTextParser.GetCharNotIn;
+	public static readonly mStd.tFunc<tChar, tChar, mParserGen.tParser<tPos, tChar, tChar, tError>> CharInRange = mTextParser.GetCharInRange;
+	public static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tChar, tText, tError>> Text = mTextParser.GetToken;
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>, tError> __ = _[0..];
@@ -259,23 +259,23 @@ mTokenizer {
 		tText aId
 	) => SpecialId('§', aId);
 	
-	public static mStd.tFunc<tRes, tSpan>
+	public static mStd.tFunc<tSpan, tRes>
 	X<tRes>(
-		mStd.tFunc<tRes, tSpan> aFunc
+		mStd.tFunc<tSpan, tRes> aFunc
 	) => aSpan => aFunc(aSpan);
 	
-	public static mStd.tFunc<tRes, tSpan, tToken>
+	public static mStd.tFunc<tSpan, tToken, tRes>
 	X<tRes>(
-		mStd.tFunc<tRes, tSpan, tText> aFunc
+		mStd.tFunc<tSpan, tText, tRes> aFunc
 	) => (aSpan, a1) => aFunc(aSpan, a1.Text);
 	
-	public static mStd.tFunc<tRes, tSpan, tToken, tToken>
+	public static mStd.tFunc<tSpan, tToken, tToken, tRes>
 	X<tRes>(
-		mStd.tFunc<tRes, tSpan, tText, tText> aFunc
+		mStd.tFunc<tSpan, tText, tText, tRes> aFunc
 	) => (aSpan, a1, a2) => aFunc(aSpan, a1.Text, a2.Text);
 	
-	public static mStd.tFunc<tRes, tSpan, tToken, tToken, tToken>
+	public static mStd.tFunc<tSpan, tToken, tToken, tToken, tRes>
 	X<tRes>(
-		mStd.tFunc<tRes, tSpan, tText, tText, tText> aFunc
+		mStd.tFunc<tSpan, tText, tText, tText, tRes> aFunc
 	) => (aSpan, a1, a2, a3) => aFunc(aSpan, a1.Text, a2.Text, a3.Text);
 }

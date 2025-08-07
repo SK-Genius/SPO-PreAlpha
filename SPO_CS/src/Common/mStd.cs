@@ -4,39 +4,39 @@
 	// TODO: move tRes to the end
 	
 	public delegate tRes tFunc<out tRes>();
-	public delegate tRes tFunc<out tRes, in tArg>(tArg a);
-	public delegate tRes tFunc<out tRes, in tArg1, in tArg2>(tArg1 a1, tArg2 a2);
-	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3>(tArg1 a1, tArg2 a2, tArg3 a3);
-	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
-	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4, in tArg5>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5);
-	public delegate tRes tFunc<out tRes, in tArg1, in tArg2, in tArg3, in tArg4, in tArg5, in tArg6>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5, tArg6 a6);
+	public delegate tRes tFunc<in tArg, out tRes>(tArg a);
+	public delegate tRes tFunc<in tArg1, in tArg2, out tRes>(tArg1 a1, tArg2 a2);
+	public delegate tRes tFunc<in tArg1, in tArg2, in tArg3, out tRes>(tArg1 a1, tArg2 a2, tArg3 a3);
+	public delegate tRes tFunc<in tArg1, in tArg2, in tArg3, in tArg4, out tRes>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4);
+	public delegate tRes tFunc<in tArg1, in tArg2, in tArg3, in tArg4, in tArg5, out tRes>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5);
+	public delegate tRes tFunc<in tArg1, in tArg2, in tArg3, in tArg4, in tArg5, in tArg6, out tRes>(tArg1 a1, tArg2 a2, tArg3 a3, tArg4 a4, tArg5 a5, tArg6 a6);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tFunc<tRes> Func<tRes>(tFunc<tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg> Func<tRes, tArg>(tFunc<tRes, tArg> a) => a;
+	public static tFunc<tArg, tRes> Func<tArg, tRes>(tFunc<tArg, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg1, tArg2> Func<tRes, tArg1, tArg2>(tFunc<tRes, tArg1, tArg2> a) => a;
+	public static tFunc<tArg1, tArg2, tRes> Func<tArg1, tArg2, tRes>(tFunc<tArg1, tArg2, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg1, tArg2, tArg3> Func<tRes, tArg1, tArg2, tArg3>(tFunc<tRes, tArg1, tArg2, tArg3> a) => a;
+	public static tFunc<tArg1, tArg2, tArg3, tRes> Func<tRes, tArg1, tArg2, tArg3>(tFunc<tArg1, tArg2, tArg3, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4> Func<tRes, tArg1, tArg2, tArg3, tArg4>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4> a) => a;
+	public static tFunc<tArg1, tArg2, tArg3, tArg4, tRes> Func<tArg1, tArg2, tArg3, tArg4, tRes>(tFunc<tArg1, tArg2, tArg3, tArg4, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5> a) => a;
+	public static tFunc<tArg1, tArg2, tArg3, tArg4, tArg5, tRes> Func<tArg1, tArg2, tArg3, tArg4, tArg5, tRes>(tFunc<tArg1, tArg2, tArg3, tArg4, tArg5, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> Func<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6>(tFunc<tRes, tArg1, tArg2, tArg3, tArg4, tArg5, tArg6> a) => a;
+	public static tFunc<tArg1, tArg2, tArg3, tArg4, tArg5, tArg6, tRes> Func<tArg1, tArg2, tArg3, tArg4, tArg5, tArg6, tRes>(tFunc<tArg1, tArg2, tArg3, tArg4, tArg5, tArg6, tRes> a) => a;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tRes Call<tRes>(tFunc<tRes> aFunc) => aFunc();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tRes With<tRes, tArg>(tArg a, tFunc<tRes, tArg> aFunc)
+	public static tRes With<tRes, tArg>(tArg a, tFunc<tArg, tRes> aFunc)
 	=> aFunc(a);
 	
 	public delegate void tAction();
@@ -99,15 +99,6 @@
 	) where t : class {
 		aDo(a);
 		return a;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static t
-	With<t>(
-		this t a,
-		tFunc<t, t> aModifier
-	) where t : struct {
-		return aModifier(a);
 	}
 	
 	public static readonly tEmpty cEmpty = new();

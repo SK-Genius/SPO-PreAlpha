@@ -62,8 +62,8 @@ mAssert {
 	AreEquals<t>(
 		t a1,
 		t a2,
-		mStd.tFunc<tBool, t, t>? aAreEqual = null,
-		mStd.tFunc<tText, t>? aToText = null
+		mStd.tFunc<t, t, tBool>? aAreEqual = null,
+		mStd.tFunc<t, tText>? aToText = null
 	) {
 		if (
 			ReferenceEquals(a1, a2) ||

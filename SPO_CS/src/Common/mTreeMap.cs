@@ -12,13 +12,13 @@ mTreeMap {
 	[DebuggerTypeProxy(typeof(tTree<,>.tDebuggerProxy))]
 	public readonly struct
 	tTree<tKey, tValue> {
-		internal readonly mStd.tFunc<tInt32, tKey, tKey> KeyCompare;
+		internal readonly mStd.tFunc<tKey, tKey, tInt32> KeyCompare;
 		internal readonly mRef.tRef<tNode<tKey, tValue>> Root;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tTree(
-			mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
+			mStd.tFunc<tKey, tKey, tInt32> aKeyCompare,
 			mRef.tRef<tNode<tKey, tValue>> aRoot
 		) {
 			this.KeyCompare = aKeyCompare;
@@ -60,7 +60,7 @@ mTreeMap {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tKey, tValue>
 	Tree<tKey, tValue>(
-		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare,
+		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare,
 		System.Span<(tKey Key, tValue Value)> aItems
 	) => aItems.AsStream(
 	).Reduce(
@@ -85,7 +85,7 @@ mTreeMap {
 		this mRef.tRef<tNode<tKey, tValue>> aNode,
 		tKey aKey,
 		tValue aValue,
-		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
+		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare
 	) => aNode.Is(out var Node_)
 	? aKeyCompare(Node_.Key, aKey) switch {
 		0 => Node(
@@ -128,7 +128,7 @@ mTreeMap {
 	TryGet<tKey, tValue>(
 		this mRef.tRef<tNode<tKey, tValue>> aNode,
 		tKey aKey,
-		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
+		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare
 	) => aNode.Is(out var Node)
 	? aKeyCompare(aKey, Node.Key) switch {
 		0 => Node.Value,
@@ -152,7 +152,7 @@ mTreeMap {
 	Remove<tKey, tValue>(
 		this mRef.tRef<tNode<tKey, tValue>> aNode,
 		tKey aKey,
-		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
+		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare
 	) {
 		if (aNode.Is(out var Node)) {
 			return Node.Remove(aKey, aKeyCompare);
@@ -166,7 +166,7 @@ mTreeMap {
 	Remove<tKey, tValue>(
 		this tNode<tKey, tValue> aNode,
 		tKey aKey,
-		mStd.tFunc<tInt32, tKey, tKey> aKeyCompare
+		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare
 	) {
 		var Key = aNode.Key;
 		var Value = aNode.Value;

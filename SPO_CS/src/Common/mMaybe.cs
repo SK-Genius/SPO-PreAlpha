@@ -75,7 +75,7 @@ mMaybe {
 	Match<tIn, tOut>( // nice but slow
 		this tMaybe<tIn> a,
 		mStd.tFunc<tOut> aOnNone,
-		mStd.tFunc<tOut, tIn> aOnSome
+		mStd.tFunc<tIn, tOut> aOnSome
 	) => (
 		a.IsSome(out var Value)
 		? aOnSome(Value)
@@ -86,7 +86,7 @@ mMaybe {
 	public static tOut
 	Match<tIn, tOut>( // nice but slow
 		this tMaybe<tIn> a,
-		mStd.tFunc<tOut, tIn> aOnSome,
+		mStd.tFunc<tIn, tOut> aOnSome,
 		mStd.tFunc<tOut> aOnNone
 	) => (
 	a.IsSome(out var Value)
@@ -98,7 +98,7 @@ mMaybe {
 	Eq<t>(
 		this tMaybe<t> a1,
 		tMaybe<t> a2,
-		mStd.tFunc<tBool, t, t> aEq
+		mStd.tFunc<t, t, tBool> aEq
 	) => a1.Match(
 		[DebuggerHidden] () => a2.IsNone(),
 		[DebuggerHidden] (_1) => a2.Match(
@@ -107,23 +107,23 @@ mMaybe {
 		)
 	);
 	
-	public static mStd.tFunc<tBool, tMaybe<t>, tMaybe<t>>
+	public static mStd.tFunc<tMaybe<t>, tMaybe<t>, tBool>
 	Eq<t>(
-		mStd.tFunc<tBool, t, t> aEq
+		mStd.tFunc<t, t, tBool> aEq
 	) => [DebuggerHidden] (a1, a2) => a1.Eq(a2, aEq);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ThenDo<tIn, tOut>(
 		this tMaybe<tIn> a,
-		mStd.tFunc<tOut, tIn> aMap
+		mStd.tFunc<tIn, tOut> aMap
 	) => a.IsSome(out var Value) ? Some(aMap(Value)) : mStd.cEmpty;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
 	ThenTry<tIn, tOut>(
 		this tMaybe<tIn> a,
-		mStd.tFunc<tMaybe<tOut>, tIn> aMap
+		mStd.tFunc<tIn, tMaybe<tOut>> aMap
 	) => a.IsSome(out var Value) ? aMap(Value) : mStd.cEmpty;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
