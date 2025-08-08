@@ -94,11 +94,11 @@ mTokenizer {
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
 	Token = mParserGen.OneOf(
-		mParserGen.Seq(Char('"'), CharNotIn("\"")[0..], Char('"'))
-		.ModifyS((aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan })
-		.SetName(nameof(tTokenType.Text)),
-		
 		[
+			mParserGen.Seq(Char('"'), CharNotIn("\"")[0..], Char('"'))
+			.ModifyS((aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan })
+			.SetName(nameof(tTokenType.Text)),
+			
 			Text("=>")
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken)),

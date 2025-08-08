@@ -492,7 +492,7 @@ mParserGen {
 							mStream.Stream<(tPos Pos, tError Message)>([])
 						);
 					} else if (!RestStream.Is(out var Head, out RestStream)) {
-						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massage)>([])); // TODO
+						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massage)>([]));
 					} else {
 						Span = mSpan.Merge(Span, Head.Span);
 						List = mStream.Concat(List, mStream.Stream([Head.Value]));
@@ -630,24 +630,21 @@ mParserGen {
 		mStream.tStream<(tPos Pos, tError Message)> a2,
 		mStd.tFunc<tPos, tPos, tInt32> aComparePos,
 		mStd.tFunc<tError, tError, tBool> aAreErrorsEqual
-	) {
-		// TODO: review (First vs Last ???)
-		return a1.Match(
-			() => a2,
-			(Head1, Tail1) => a2.Match(
-				() => a1,
-				(Head2, Tail2) => aComparePos(Head1.Pos, Head2.Pos) switch {
-					> 0 => a1,
-					< 0 => a2,
-					_ => (
-						aAreErrorsEqual(Head1.Message, Head2.Message) ? mStream.Stream(Head1, Merge(Tail1, Tail2, aComparePos, aAreErrorsEqual)) :
-						Comp(Tail1, Tail2, aComparePos) <= 0 ? mStream.Concat(a1, a2) :
-						mStream.Concat(a2, a1)
-					)
-				}
-			)
-		);
-	}
+	) => a1.Match(
+		() => a2,
+		(Head1, Tail1) => a2.Match(
+			() => a1,
+			(Head2, Tail2) => aComparePos(Head1.Pos, Head2.Pos) switch {
+				> 0 => a1,
+				< 0 => a2,
+				_ => (
+					aAreErrorsEqual(Head1.Message, Head2.Message) ? mStream.Stream(Head1, Merge(Tail1, Tail2, aComparePos, aAreErrorsEqual)) :
+					Comp(Tail1, Tail2, aComparePos) <= 0 ? mStream.Concat(a1, a2) :
+					mStream.Concat(a2, a1)
+				)
+			}
+		)
+	);
 	
 	[Pure, DebuggerHidden]
 	public static tInt32
@@ -672,7 +669,6 @@ mParserGen {
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tOut, tError>
 	OneOf<tPos, tIn, tOut, tError>(
-		tParser<tPos, tIn, tOut, tError> aP1, // TODO: combine aP1 and aPs
 		System.Span<tParser<tPos, tIn, tOut, tError>> aPs
 	) {
 		var I = aPs.Length - 1;
@@ -680,7 +676,7 @@ mParserGen {
 		while (I --> 0) {
 			P = aPs[I] | P;
 		}
-		return aP1 | P;
+		return P;
 	}
 	
 	[Pure, DebuggerHidden]

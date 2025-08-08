@@ -1,8 +1,6 @@
 ﻿public static class mStd {
 	#region tFunc & tAction
 	
-	// TODO: move tRes to the end
-	
 	public delegate tRes tFunc<out tRes>();
 	public delegate tRes tFunc<in tArg, out tRes>(tArg a);
 	public delegate tRes tFunc<in tArg1, in tArg2, out tRes>(tArg1 a1, tArg2 a2);

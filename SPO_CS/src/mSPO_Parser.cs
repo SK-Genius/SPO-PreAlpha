@@ -94,16 +94,14 @@ mSPO_Parser {
 	.SetName(nameof(Text));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLiteralNode<tSpan>, tError>
-	Literal = (
-		mParserGen.OneOf(
+	Literal = mParserGen.OneOf(
+		[
 			Empty.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
-			[
-				True.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
-				False.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
-				Number.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
-				Text.Cast<mSPO_AST.tLiteralNode<tSpan>>()
-			]
-		)
+			True.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			False.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			Number.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			Text.Cast<mSPO_AST.tLiteralNode<tSpan>>()
+		]
 	)
 	.SetName(nameof(Literal));
 	
@@ -611,8 +609,8 @@ mSPO_Parser {
 	static mSPO_Parser() {
 		Type.Def(
 			mParserGen.OneOf(
-				Id.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				[
+					Id.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					EmptyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					BoolType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
@@ -631,8 +629,8 @@ mSPO_Parser {
 		
 		UnTypedMatch.Def(
 			mParserGen.OneOf(
-				MatchFreeId.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				[
+					MatchFreeId.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					C( mParserGen.Seq(Match, ((-SpecialToken(",") | -NLs_Token) +Match)[0..]) )
 						.Modify(mStream.Stream)
 						.ModifyS(mSPO_AST.MatchTuple)
@@ -649,8 +647,8 @@ mSPO_Parser {
 		
 		Expression.Def(
 			mParserGen.OneOf(
-				If.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				[
+					If.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					IfMatch.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Lambda.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
@@ -670,8 +668,8 @@ mSPO_Parser {
 		
 		ExpressionInCall.Def(
 			mParserGen.OneOf(
-				Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				[
+					Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
@@ -695,8 +693,8 @@ mSPO_Parser {
 		// TODO: Macros, Streaming, Block, ...
 		Command.Def(
 			mParserGen.OneOf(
-				Def.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 				[
+					Def.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					DefVar.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					MethodCallStatement.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					RecLambda.Cast<mSPO_AST.tCommandNode<tSpan>>(),

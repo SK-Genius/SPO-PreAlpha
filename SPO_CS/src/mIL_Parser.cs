@@ -46,12 +46,12 @@ mIL_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>
 	Command = mParserGen.OneOf(
-		mParserGen.Seq(Id, -SpecialToken(":") -Token("="), Number)
-		.Modify((aId, _, aNumber) => (aId, aNumber))
-		.ModifyS(mTokenizer.X(mIL_AST.CreateInt))
-		.SetDebugName([nameof(mIL_AST.CreateInt)]),
-		
 		[
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), Number)
+			.Modify((aId, _, aNumber) => (aId, aNumber))
+			.ModifyS(mTokenizer.X(mIL_AST.CreateInt))
+			.SetDebugName([nameof(mIL_AST.CreateInt)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Id, -Token("&") +Id)
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
 			.ModifyS(mTokenizer.X(mIL_AST.And))
