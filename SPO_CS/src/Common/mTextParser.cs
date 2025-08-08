@@ -30,6 +30,13 @@ mTextParser {
 		: (System.Int32)a1.Col - (System.Int32)a2.Col
 	);
 	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tBool
+	AreErrorsEqual(
+		tError a1,
+		tError a2
+	) => a1 == a2;
+	
 	[Pure, DebuggerHidden]
 	public static (tSpan Span, tOut Result)
 	ParseText<tOut>(
@@ -74,7 +81,8 @@ mTextParser {
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		_ => _ == aRefChar,
 		_ => (_.Span.Start, $"expect {aRefChar}"),
-		ComparePos
+		ComparePos,
+		AreErrorsEqual
 	)
 	.SetDebugName(["'", aRefChar, "'"]);
 	
@@ -85,7 +93,8 @@ mTextParser {
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		_ => _ != aRefChar,
 		_ => (_.Span.Start, $"expect not {aRefChar}"),
-		ComparePos
+		ComparePos,
+		AreErrorsEqual
 	)
 	.SetDebugName(["'^", aRefChar, "'"]);
 	
@@ -96,7 +105,8 @@ mTextParser {
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).Any(_ => _ == aChar),
 		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
-		ComparePos
+		ComparePos,
+		AreErrorsEqual
 	)
 	.SetDebugName(["[", aRefChars, "]"]);
 	
@@ -107,7 +117,8 @@ mTextParser {
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).All(_ => _ != aChar),
 		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
-		ComparePos
+		ComparePos,
+		AreErrorsEqual
 	)
 	.SetDebugName(["[^", aRefChars, "]"]);
 	
@@ -119,7 +130,8 @@ mTextParser {
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		_ => aMinChar <= _ && _ <= aMaxChar,
 		_ => (_.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
-		ComparePos
+		ComparePos,
+		AreErrorsEqual
 	)
 	.SetDebugName(["[", aMinChar, "..", aMaxChar, "]"]);
 	

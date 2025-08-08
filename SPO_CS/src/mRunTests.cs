@@ -46,7 +46,7 @@ const tText cShowSkippedTestsCommand = "--showSkippedTests";
 const tText cShowSkippedTestsCommandShort = "-s";
 
 const tText cShowPassedGroupsCommand = "--showPassedGroups";
-const tText cShowPassedGroupsCommandShort = "-p";
+const tText cShowPassedGroupsCommandShort = "-g";
 
 const tText cShowPassedTestsCommand = "--showPassedTests";
 const tText cShowPassedTestsCommandShort = "-t";
