@@ -109,6 +109,11 @@ mIL_GenerateOpcodes {
 						return mVM_Type.Proc(ObjType, ArgType, ResType);
 					}
 				),
+				mIL_AST.tCommandNodeType.TypeInterface => mVM_Type.Interface(
+					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+				),
+				mIL_AST.tCommandNodeType.TypeCond => throw new System.NotImplementedException(),
 				_ => throw mError.Error("not implemented: " + TypeDef.NodeType),
 			};
 			Types_ = mStream.Concat(Types_, mStream.Stream([Type]));

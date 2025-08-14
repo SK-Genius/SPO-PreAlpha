@@ -230,46 +230,45 @@ mSPO_Interpreter_Tests {
 							"""
 							§IMPORT (§DEF ...*... € [[§INT, §INT] => §INT])
 							
-							§DEF EmptyStack = #Empty ()
-							
-							§DEF tStack... = [[t] =>> [§RECURSIVE tStack_ = [[#Empty []] | [#Stack [t, tStack_]]]]]
-							
-							§RECURSIVE §TYPE tStack... = t => [#Empty | #Stack[t, tStack[t]]]	
+							§RECURSIVE {
+								§DEF tStack... = [[t] => [[] | [t, §REF [.tStack t]]]]
+							}
 							
 							§DEF Push...To... = [
-								t
+								§DEF t
 							] <=> (
-								§DEF Head € t
-								§DEF Tail € [.tStack t]
-							) => #Stack (Head, Tail)
+								§DEF aHead € t
+								§DEF aTail € [§REF [.tStack t]]
+							) => (aHead, aTail)
 							
 							§RECURSIVE {
-								§DEF Map...With... = (§DEF Stack, §DEF Func...) => §IF Stack MATCH {
-									(#Stack (§DEF Head, §DEF Tail)) => .Push (.Func Head) To (.Map Tail With Func...)
-									(#Empty ()) => EmptyStack
+								§DEF Map...With... = [
+									§DEF tIn,
+									§DEF tOut
+								] <=> (
+									§DEF aStack € [§REF tStack[tIn]],
+									§DEF aFunc... € [tIn => tOut]
+								) => §IF aStack MATCH {
+									(§DEF Head, §DEF Tail) => .Push (.aFunc Head) To (.Map Tail With aFunc...)
+									() => ()
 								}
 							}
 							
-							§EXPORT .Map (.Push 3 To (.Push 2 To (.Push 1 To EmptyStack))) With (§DEF x => x .* x)
+							§EXPORT .Map (.Push 3 To §< Push 2 To §< Push 1 To ()) With (§DEF x => x .* x)
 							""",
 							"",
 							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
 							_ => aDebugStream(_())
 						),
-						mVM_Data.Prefix(
-							"_Stack...",
-							mVM_Data.Tuple(
-								mVM_Data.Int(9),
-								mVM_Data.Prefix(
-									"_Stack...",
-									mVM_Data.Tuple(
-										mVM_Data.Int(4),
-										mVM_Data.Prefix(
-											"_Stack...",
-											mVM_Data.Tuple(
-												mVM_Data.Int(1),
-												mVM_Data.Prefix("_Empty...", mVM_Data.Empty())
-											)
+						mVM_Data.Tuple(
+							mVM_Data.Int(9),
+							mVM_Data.Ref(
+								mVM_Data.Tuple(
+									mVM_Data.Int(4),
+									mVM_Data.Ref(
+										mVM_Data.Tuple(
+											mVM_Data.Int(1),
+											mVM_Data.Empty()
 										)
 									)
 								)

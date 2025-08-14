@@ -6,7 +6,7 @@
 		<OutputType>Exe</OutputType>
 		<!-- Exe | Library | Module | Winexe -->
 		
-		<DefineConstants>MY_TRACE;noDISABLE_DEBUGGER_HIDDEN</DefineConstants>
+		<DefineConstants>noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN</DefineConstants>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<Nullable>enable</Nullable>
 		<Deterministic>true</Deterministic>

@@ -1081,6 +1081,7 @@ mSPO2IL {
 				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> p: {
+				//mAssert.Fail("TODO");
 				var LazyCaseDef = NewDefConstructor<tPos>();
 				
 				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
@@ -1124,6 +1125,9 @@ mSPO2IL {
 			case mSPO_AST.tMatchTupleNode<tPos> p: {
 				var LazyCaseDef = NewDefConstructor<tPos>();
 				
+				//mAssert.Fail("TODO");
+				// TODO NOW: get matches from §ARG
+				
 				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
 				LazyCaseDef.Commands.Push(
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
@@ -1134,7 +1138,7 @@ mSPO2IL {
 					mVM_Type.Proc(
 						mVM_Type.Empty(),
 						mVM_Type.Tuple(p.Items.Map(_ => _.TypeAnnotation.AssertNotEmpty())),
-						aCase.Match.TypeAnnotation.AssertNotEmpty()
+						aCase.Expression.TypeAnnotation.AssertNotEmpty()
 					)
 				);
 				
@@ -1181,7 +1185,7 @@ mSPO2IL {
 		mVM_Type.tType aRegType
 	) {
 		var PatternNode = aMatchNode.Pattern;
-		var TypeNode = aMatchNode.Type;
+		var TypeNode = aMatchNode.TypeExpression;
 		
 		switch (PatternNode) {
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
@@ -1277,7 +1281,7 @@ mSPO2IL {
 			}
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
 				if (TypeNode.IsSome(out var TypeNode_)) {
-					if (MatchNode.Type.IsSome(out var MatchTypeNode)) {
+					if (MatchNode.TypeExpression.IsSome(out var MatchTypeNode)) {
 						throw mError.Error("not implemented"); //TODO: Unify MatchTypeNode & TypeNode_
 					}
 					
@@ -1315,8 +1319,8 @@ mSPO2IL {
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tReturnIfNode<tPos> aReturnNode
 	) {
-		var ResReg = aDefConstructor.MapExpression(aModuleConstructor, aReturnNode.Result);
 		var CondReg = aDefConstructor.MapExpression(aModuleConstructor, aReturnNode.Condition);
+		var ResReg = aDefConstructor.MapExpression(aModuleConstructor, aReturnNode.Result);
 		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aReturnNode.Pos, CondReg, ResReg));
 	}
 	

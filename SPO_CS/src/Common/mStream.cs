@@ -68,9 +68,10 @@ mStream {
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public t[] Text {
 				get {
-					var Count = aStream.Take(100).Count();
-					return aStream.Take(100).MapWithIndex(
-						[DebuggerHidden] (aIndex, aItem) => (Index: aIndex, Value: aItem)
+					var LimitedStream = aStream.Take(100);
+					var Count = LimitedStream.Count();
+					return LimitedStream.MapWithIndex(
+						[DebuggerHidden] (aIndex, aItem) => (Index: Count - 1 - aIndex, Value: aItem)
 					).Reduce(
 						new t[Count],
 						[DebuggerHidden] (aArray, a) => {

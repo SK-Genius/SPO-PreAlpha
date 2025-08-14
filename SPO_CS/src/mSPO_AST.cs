@@ -136,7 +136,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchItemNode<tPos> Pattern = default!;
-		public mMaybe.tMaybe<tExpressionNode<tPos>> Type;
+		public mMaybe.tMaybe<tExpressionNode<tPos>> TypeExpression;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -756,7 +756,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Pattern = aMatch,
-		Type = aType,
+		TypeExpression = aType,
 		TypeAnnotation = aMatch.TypeAnnotation,
 	};
 	
@@ -982,12 +982,12 @@ mSPO_AST {
 					a2 is tMatchNode<tPos> Node2 &&
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
-						Node1.Type.Match(
-							Type1 => Node2.Type.Match(
+						Node1.TypeExpression.Match(
+							Type1 => Node2.TypeExpression.Match(
 								Type2 => AreEqual(Type1, Type2),
 								() => false
 							),
-							() => Node2.Type.IsNone()
+							() => Node2.TypeExpression.IsNone()
 						)
 					)
 				);
@@ -1225,7 +1225,7 @@ mSPO_AST {
 			),
 			
 			// Matches
-			tMatchNode<t> Node => Node.Type.Match(
+			tMatchNode<t> Node => Node.TypeExpression.Match(
 				Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
 				() => Node.Pattern.ToText(____)
 			),
@@ -1239,6 +1239,11 @@ mSPO_AST {
 			tEmptyTypeNode<t> Node => "[]",
 			tBoolTypeNode<t> Node => "§BOOL",
 			tIntTypeNode<t> Node => "§INT",
+			tLambdaTypeNode<t> Node => (Node.EnvType, Node.ArgType, Node.ResType) switch {
+				(tEmptyTypeNode<t> _, tEmptyTypeNode<t> _, var ResType) => $"[=> {ResType.ToText(____)}]]",
+				(tEmptyTypeNode<t> _, var ArgType, var ResType) => $"[{____}{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]",
+				(var EnvType, var ArgType, var ResType) => $"[{____}{EnvType.ToText(____)} => [{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]]",
+			},
 			tTypeTypeNode<t> Node => "§TYPE",
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
@@ -1257,6 +1262,8 @@ mSPO_AST {
 				{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
 				}}
 				""",
+			
+			// Fallback
 			_ => throw new System.NotImplementedException(aNode.GetType().Name),
 		};
 	}

@@ -178,7 +178,14 @@ mTest {
 		
 		if (
 			aSettings.TreeLevel <= 0 ||
-			(aSettings.HideSkippedTests && !(aSettings.HasToMatchAll ? aTest.IsMatchingAll(aSettings.Filters) : aTest.IsMatchingAny(aSettings.Filters)))
+			(
+				aSettings.HideSkippedTests &&
+				!(
+					aSettings.HasToMatchAll
+					? aTest.IsMatchingAll(aSettings.Filters)
+					: aTest.IsMatchingAny(aSettings.Filters)
+				)
+			)
 		) {
 			aDebugStream = _ => {};
 		}
@@ -195,7 +202,7 @@ mTest {
 				if (!aSettings.HidePassedTests) {
 					DebugStream = aDebugStream;
 					foreach (var Line in BufferedLines) {
-						aDebugStream(Line);
+						DebugStream(Line);
 					}
 					BufferedLines = mStd.cEmpty;
 				}
@@ -277,7 +284,11 @@ mTest {
 				var FailCountSum = 0;
 				
 				if (!aSettings.HidePassedGroups && !aSettings.HidePassedTests) {
-					DebugStream = DebugStream;
+					DebugStream = aDebugStream;
+					foreach (var Line in BufferedLines) {
+						DebugStream(Line);
+					}
+					BufferedLines = mStd.cEmpty;
 				}
 				
 				var StopWatch = new Stopwatch();

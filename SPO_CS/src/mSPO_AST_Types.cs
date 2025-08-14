@@ -230,7 +230,7 @@ mSPO_AST_Types {
 		mResult.tResult<(mVM_Type.tType Type, tScope Scope), tText> Result;
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
-				Result = Match.Type.Match(
+				Result = Match.TypeExpression.Match(
 					aType_ => mStd.Call(
 						() => ResolveTypeExpression(aType_, aScope).ThenTry(
 							aType => UpdateMatchTypes(
@@ -247,15 +247,25 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tMatchFreeIdNode<tPos> MatchFreeId: {
 				Result = aType.ThenDo(
-					_ => mStd.Call(
+					a => mStd.Call(
 						() => {
-							if (_.IsType(out var OfType)) {
-								_ = OfType.Match(
+							if (a.IsType(out var OfType)) {
+								a = OfType.Match(
 									() => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
-									aType => _
+									aType => a
 								);
 							}
-							return (_, mStream.Stream((MatchFreeId.Id, _), aScope));
+							
+							return aScope.Where(
+								_ => _.Id == MatchFreeId.Id
+							).TryFirst(
+							).Match(
+								() => (a, mStream.Stream((MatchFreeId.Id, a), aScope)),
+								_ => {
+									mAssert.AreEquals(_.Type, a);
+									return (a, aScope);
+								}
+							);
 						}
 					)
 				).ElseFail(
@@ -309,7 +319,7 @@ mSPO_AST_Types {
 						}
 						
 						Types = mStream.Stream(Type_.Type, Types);
-						NewScope = Type_.Scope; // TODO NOW
+						NewScope = Type_.Scope;
 					}
 				} else {
 					foreach (var Item in MatchTuple.Items) {

@@ -53,7 +53,7 @@ mSPO_Interpreter {
 		).ElseThrow(
 		);
 		
-		ModuleNode.Commands.Reduce(
+		var NewScope = ModuleNode.Commands.Reduce(
 			mResult.OK(InitScope).AsResult<tText>(),
 			(aResultScope, aCommand) => aResultScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
@@ -61,7 +61,7 @@ mSPO_Interpreter {
 		).ElseThrow(
 		);
 		
-		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
+		var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, NewScope);
 		
 		return mVM.Run(
 			mIL_AST.Module(

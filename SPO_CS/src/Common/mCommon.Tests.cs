@@ -25,6 +25,7 @@ mCommon_Tests {
 			mTreeMap_Tests.Tests,
 			mParserGen_Tests.Tests,
 			mFS_Tests.Tests,
+			mTextParser_Tests.Tests,
 		]
 	);
 }
