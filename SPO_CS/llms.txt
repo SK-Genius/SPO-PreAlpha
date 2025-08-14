@@ -15,6 +15,30 @@
   - **Test files**: Named `*.Tests.cs`, included via custom `<TestSrc>` in `.csproj`
 - **Std.ILT**: Standard library in custom IL format, loaded at runtime
 
+## Core source modules (src/):
+
+- **Language pipeline**
+  - Tokenizer, parser, abstract syntax tree (AST), intermediate language (IL) generator, and virtual machine reside directly under src (e.g., mTokenizer.cs, mSPO_Parser.cs, mSPO_AST.cs, mSPO2IL.cs, mVM.cs).
+- **Standard library**
+  - Implemented in mStdLib.cs, providing basic language functions and utilities.
+- **Testing infrastructure**
+  - mRunTests.cs plus numerous *.Tests.cs files for unit testing each module, alongside .SPO test programs in src/Tests/ such as Echo.SPO and IfThenElse.SPO.
+
+## Common utilities (src/Common/):
+
+Reusable functional-style helpers (e.g., option types, result handling, parser combinators, collections) are grouped under Common (mMaybe.cs, mResult.cs, mParserGen.cs, etc.). These components underpin the language implementation with generic data structures, error handling, and stream parsing facilities.
+
+## Usage flow
+
+Typical execution follows this chain:
+
+1. Tokenization (mTokenizer.cs)
+2. Parsing and AST construction (mSPO_Parser.cs, mSPO_AST.cs)
+3. IL generation (mIL_AST.cs, mSPO2IL.cs)
+4. Virtual machine execution (mVM.cs, mSPO_Interpreter.cs)
+
+The tests and .SPO samples demonstrate how the language components interact and provide examples for experimentation.
+
 ## Coding Style
 - **Identifier Placement:**  
   - Type and identifier are split across lines for readability:
@@ -39,6 +63,30 @@
   - Many methods are static, use of tuples, and functional constructs (Map, Where, etc.).
 - **Error Handling:**  
   - Custom error types and assertions (e.g., `mAssert`, `mError.Error`).
+
+## Common Module Guidelines
+
+Use tabs for indentation.
+- Declare dependencies with `// IMPORT <module>` comments instead of `using`.
+- Module layout:
+  public static class
+  ModuleName {
+    ...
+  }
+- Break method signatures so the return type and method name are on separate lines; each parameter occupies its own line.
+- Prefix modules with `m` (e.g., mStd) and types with `t` (e.g., tBool, tNat32).
+- For pure or frequently‑called functions, include attributes:
+  [Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+- Prefer expression-bodied members (`=>`) where practical.
+- Avoid trailing whitespace and keep comments concise.
+
+Types in this directory intentionally avoid the standard `object` methods such as `Equals`, `GetHashCode`, and `ToString`.
+
+- Use `ToText` for string representations.
+- Provide explicit comparers and hash functions when working with collections.
+- Add dedicated equality or hashing helpers rather than relying on default `object` implementations.
+
+Apply these rules when creating new types to keep behavior consistent with existing structures like `tAny`.
 
 ## Test Framework
 - **Custom Test Framework:**  
