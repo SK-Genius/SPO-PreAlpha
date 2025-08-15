@@ -6,7 +6,10 @@
 // IMPORT Common/mMaybe
 // IMPORT Common/mStream
 // IMPORT mTokenizer
+// IMPORT mVM_Type
+// IMPORT mIL_AST
 // IMPORT mSPO_AST
+// IMPORT mSPO2IL
 
 using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
@@ -318,23 +321,31 @@ mSPO_Parser {
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchRecordNode<tSpan>, tError>
-	MatchRecord = mParserGen.Seq(
-		SpecialToken("{") +-NLs_Token[0..1],
+	MatchRecord = (
 		mParserGen.Seq(
-			Id,
-			SpecialToken(":"),
-			Match
-		).Modify((aId, _, aExpression) => (Key: aId, Match: aExpression)),
+			SpecialToken("{") +-NLs_Token[0..1],
+			mParserGen.Seq(
+				Id,
+				SpecialToken(":"),
+				Match
+			).Modify((aId, _, aExpression) => (Key: aId, Match: aExpression)),
+			mParserGen.Seq(
+				-SpecialToken(",") | -NLs_Token,
+				Id,
+				SpecialToken(":"),
+				Match
+			).Modify((_, aId, _, aExpression) => (Key: aId, Match: aExpression))[0..],
+			-NLs_Token[0..1] +SpecialToken("}")
+		)
+		.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
+		.ModifyS(mSPO_AST.MatchRecord) |
 		mParserGen.Seq(
-			-SpecialToken(",") | -NLs_Token,
-			Id,
-			SpecialToken(":"),
-			Match
-		).Modify((_, aId, _, aExpression) => (Key: aId, Match: aExpression))[0..],
-		-NLs_Token[0..1] +SpecialToken("}")
+			SpecialToken("{"),
+			NLs_Token[0..1],
+			SpecialToken("}")
+		)
+		.ModifyS((aSpan, _) => mSPO_AST.MatchRecord(aSpan, mStd.cEmpty))
 	)
-	.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
-	.ModifyS(mSPO_AST.MatchRecord)
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchGuardNode<tSpan>, tError>
@@ -597,12 +608,27 @@ mSPO_Parser {
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tModuleNode<tSpan>, tError>
 	Module = mParserGen.Seq(
 		NLs_Token[0..1],
-		Import,
+		Import[0..1],
 		Commands,
 		Export,
 		NLs_Token[0..1]
 	)
-	.Modify((_, aImport, aCommands, aExports, _) => (aImport, aCommands, aExports))
+	.Modify(
+		(_, aImport, aCommands, aExports, _) => (
+			aImport.Match(
+				() => mSPO_AST.Import(
+					default,
+					mSPO_AST.UnTypedMatch(
+						default,
+						mSPO_AST.MatchRecord<tSpan>(default, mStd.cEmpty)
+					)
+				),
+				(aHead, aTail) => aHead
+			),
+			aCommands,
+			aExports
+		)
+	)
 	.ModifyS(mSPO_AST.Module)
 	.SetName(nameof(Module));
 	
@@ -703,5 +729,67 @@ mSPO_Parser {
 				]
 			) +- NLs_Token
 		);
+	}
+	
+	public static tText
+	ToText(
+		this mSPO_AST.tModuleNode<tSpan> aModule
+	) {
+		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
+			aModule.Import.Match,
+			mStd.cEmpty,
+			mSPO_AST_Types.tTypeRelation.Sub,
+			mStd.cEmpty
+		).Then(_ => _.Scope).ElseThrow();
+		
+		var Scope = aModule.Commands.Reduce(
+			mResult.OK(InitScope).AsResult<tText>(),
+			(aResScope, aCommand) => aResScope.ThenTry(
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+			)
+		).ElseThrow();
+		
+		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope);
+		var SB = new System.Text.StringBuilder();
+		var DefIndex = 0u;
+		SB.AppendLine("§TYPES");
+		
+		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+		var TypeIndex = 0u;
+		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
+			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
+			mAssert.IsTrue(TypeCommand.NodeType < mIL_AST.tCommandNodeType._EndTypes_);
+			
+			Map = Map.Set(TypeCommand._1, TypeIndex);
+			
+			var TypeCommand_ = TypeCommand;
+			TypeCommand_._1 = mSPO2IL.GetTypeId(TypeIndex);
+			TypeCommand_._2 = TypeCommand_._2.ThenDo(
+				_ => Map.TryGet(_).Match(
+					() => _,
+					mSPO2IL.GetTypeId
+				)
+			);
+			TypeCommand_._3 = TypeCommand_._3.ThenDo(
+				_ => Map.TryGet(_).Match(
+					() => _,
+					mSPO2IL.GetTypeId
+				)
+			);
+			
+			SB.AppendLine("\t" + TypeCommand_.ToText());
+			TypeIndex += 1;
+		}
+		
+		foreach (var (TypeId, Commands) in Module.Defs.ToStream()) {
+			SB.AppendLine();
+			SB.AppendLine($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}");
+			foreach (var Cmd in Commands.ToStream()) {
+				SB.AppendLine("\t" + Cmd.ToText());
+			}
+			DefIndex += 1;
+		}
+		
+		return SB.ToString();
 	}
 }

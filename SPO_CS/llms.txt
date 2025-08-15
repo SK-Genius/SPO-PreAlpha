@@ -52,13 +52,13 @@ The tests and .SPO samples demonstrate how the language components interact and 
 - **Collection Initializer:**  
   - Uses C# 12+ collection expressions: `[ ... ]` instead of `new[] { ... }`
 - **Tabs:**  
-  - Tabs are used for indentation, including on empty lines.
+  - Use tabs for indentation, including on empty lines.
 - **Line Length:**  
   - Lines are kept reasonably short for side-by-side diff readability.
 - **Grouping:**  
   - Blank lines are used for logical grouping, and are indented to match code blocks.
 - **Pattern Matching:**  
-  - Extensive use of C# pattern matching in `switch` statements.
+  - Prefer C# switch expressions with pattern matching to reduce boilerplate and improve readability.
 - **Functional Style:**  
   - Many methods are static, use of tuples, and functional constructs (Map, Where, etc.).
 - **Error Handling:**  
@@ -66,7 +66,6 @@ The tests and .SPO samples demonstrate how the language components interact and 
 
 ## Common Module Guidelines
 
-Use tabs for indentation.
 - Declare dependencies with `// IMPORT <module>` comments instead of `using`.
 - Module layout:
   public static class

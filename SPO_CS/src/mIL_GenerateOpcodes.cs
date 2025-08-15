@@ -391,7 +391,7 @@ mIL_GenerateOpcodes {
 								{ResType.ToText()}
 								!<
 								{DefResType.ToText()}
-								{Command}
+								{Command.ToText()}
 								"""
 							)
 						);

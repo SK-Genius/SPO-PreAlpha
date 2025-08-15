@@ -9,6 +9,7 @@
 // IMPORT mTreeMap.Tests
 // IMPORT mArrayList.Tests
 // IMPORT mParserGen.Tests
+// IMPORT mLazy.Tests
 
 public static class
 mCommon_Tests {
@@ -24,6 +25,7 @@ mCommon_Tests {
 			mMap_Tests.Tests,
 			mTreeMap_Tests.Tests,
 			mParserGen_Tests.Tests,
+			mLazy_Tests.Tests,
 			mFS_Tests.Tests,
 			mTextParser_Tests.Tests,
 		]

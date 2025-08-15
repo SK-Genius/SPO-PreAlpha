@@ -167,7 +167,7 @@ mTokenizer {
 			);
 			throw mError.Error(
 				$"""
-				:{Row} expected end of text
+				{aId}:{Row} expected end of text
 				{PrevLine}
 				{Line}
 				{MarkerLine}^

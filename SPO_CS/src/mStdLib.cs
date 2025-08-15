@@ -22,10 +22,12 @@ mStdLib {
 			return Data;
 		}
 		
+		var Std_ILT_Path = System.IO.Path.Combine(System.IO.Directory.GetParent(mStd.File()).FullName, "Std.ILT");
+		
 		var ImportData = mVM.Run(
 			mIL_Parser.Module.ParseText(
-				System.IO.File.ReadAllText("src/Std.ILT"), // TODO Update to new pair structure
-				System.IO.Path.Combine(System.IO.Directory.GetParent(mStd.File()).FullName, "Std.ILT"),
+				System.IO.File.ReadAllText(Std_ILT_Path), // TODO Update to new pair structure
+				Std_ILT_Path,
 				aDebugStream
 			),
 			mVM_Data.Empty(),

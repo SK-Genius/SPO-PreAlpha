@@ -1,0 +1,9 @@
+§TYPES
+	t_0 := [#_Test EMPTY]
+	t_1 := [EMPTY => t_0]
+	t_2 := [EMPTY => t_1]
+
+§DEF d_0 € t_2
+	r_1 := +#_Test EMPTY
+	_x := r_1
+	§RETURN _x IF TRUE

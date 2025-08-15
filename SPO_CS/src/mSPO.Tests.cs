@@ -10,6 +10,7 @@
 // IMPORT mSPO_Interpreter.Tests
 // IMPORT mTokenizer.Tests
 // IMPORT mStdLib.Tests
+// IMPORT mRegression.Tests
 
 public static class
 mSPO_Tests {
@@ -27,6 +28,7 @@ mSPO_Tests {
 			mSPO2IL_Tests.Tests,
 			mSPO_Interpreter_Tests.Tests,
 			mStdLib_Tests.Tests,
+			mRegression_Tests.Tests,
 		]
 	);
 }

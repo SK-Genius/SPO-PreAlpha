@@ -1,0 +1,43 @@
+# SPO_CS/src – Module Overview
+
+A quick reference for each m*.cs file in this directory.
+
+For shared utility modules, see [Common/llms.txt](Common/llms.txt).
+
+## Core Compiler & VM
+
+- mIL_AST.cs
+  - Defines the intermediate‑language AST nodes and command structures.
+- mIL_GenerateOpcodes.cs
+  - Converts IL AST to VM opcodes; tests verify opcode generation.
+- mIL_Parser.cs
+  - Parses IL text into IL AST structures.
+- mTokenizer.cs
+  - Tokenizer turning raw text into tokens for both SPO and IL parsers.
+- mVM_Data.cs
+  - Opcode enumeration and runtime data representations.
+- mVM_Type.cs
+  - VM type system (kinds, constructors, unification helpers).
+- mVM.cs
+  - Stack‑based virtual machine executing opcode streams.
+
+## SPO Language Front‑End
+
+- mSPO_AST.cs
+  - Abstract syntax tree for the SPO language.
+- mSPO_AST_Types.cs
+  - Type inference and relationship logic over SPO AST.
+- mSPO_Parser.cs
+  - Parser from tokens to SPO AST.
+- mSPO2IL.cs
+  - Compiler: SPO AST → IL.
+- mSPO_Interpreter.cs
+  - Orchestrates parsing, type analysis, IL generation, and VM execution.
+- mStdLib.cs
+  - Loads and exercises the standard library.
+- mSPO.Tests.cs
+  - Aggregates individual SPO module tests into a single suite.
+
+## Miscellaneous
+
+- mRunTests.cs – Entry point that collects and runs all tests across modules.

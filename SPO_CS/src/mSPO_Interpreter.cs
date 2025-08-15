@@ -29,6 +29,7 @@ mSPO_Interpreter {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
 		
 		var TypeArg = mVM_Type.Free();
+		
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
 			ModuleNode.Import.Match,
 			mStd.cEmpty,

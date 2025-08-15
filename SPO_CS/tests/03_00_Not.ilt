@@ -1,0 +1,14 @@
+§TYPES
+	t_0 := [BOOL => BOOL]
+	t_1 := [#_!... t_0]
+	t_2 := [{EMPTY} + t_1]
+	t_3 := [t_2 => BOOL]
+	t_4 := [EMPTY => t_3]
+
+§DEF d_0 € t_4
+	r_1 := {ARG} /
+	r_2 := §2ND r_1
+	r_3 := -#_!... r_2
+	_!... := r_3
+	r_4 := ._!... TRUE
+	§RETURN r_4 IF TRUE

@@ -89,8 +89,9 @@ mSPO2IL {
 		TypeDict = mTreeMap.Tree<tText, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)), []),
 	};
 	
-	public static tText GetRegId(tNat32 a) => "t_" + a;
+	public static tText GetRegId(tNat32 a) => "r_" + a;
 	public static tText GetDefId(tNat32 a) => "d_" + a;
+	public static tText GetTypeId(tNat32 a) => "t_" + a;
 	public static tText GetId(tText a) => "_" + a;
 	
 	public static tText

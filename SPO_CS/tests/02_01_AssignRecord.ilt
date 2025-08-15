@@ -1,0 +1,16 @@
+§TYPES
+	t_0 := [#_First EMPTY]
+	t_1 := [{EMPTY} + t_0]
+	t_2 := [#_Second INT]
+	t_3 := [{t_1} + t_2]
+	t_4 := [EMPTY => t_3]
+	t_5 := [EMPTY => t_4]
+
+§DEF d_0 € t_5
+	r_1 := +#_First EMPTY
+	r_2 := {EMPTY} + r_1
+	r_3 := 1
+	r_4 := +#_Second r_3
+	r_5 := {r_2} + r_4
+	_x := r_5
+	§RETURN _x IF TRUE
