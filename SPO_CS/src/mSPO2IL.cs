@@ -154,7 +154,7 @@ mSPO2IL {
 		this tModuleConstructor<tPos> aModuleConstructor,
 		mVM_Type.tType aType
 	) {
-		switch (aType.Normalize()) {
+		switch (aType) {
 			case var a when a.IsType(out _): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cTypeType, a);
 				return mIL_GenerateOpcodes.cTypeType;
@@ -200,7 +200,7 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.IsPair(out var Type1, out var Type2) && !Type2.IsEmpty(): {
+			case var a when a.IsPair(out var Type1, out var Type2): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
 				var NewId = $"[{Id1};{Id2}]";

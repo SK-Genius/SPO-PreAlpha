@@ -25,14 +25,14 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:2 OK:5|10 (99.00 mSec)
+|  |  > Fail:2 OK:5|10 (82.00 mSec)
 |  |  
 |  |  mStdLib
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:15 ]
 |  |  |  IfThenElse
 |  |  |  |  tError: FAIL: 
-|  |  |  |  <1: 2922576593
-|  |  |  |  >1: 2479774182
+|  |  |  |  <1: 1201407029
+|  |  |  |  >1: 234670653
 |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:203
 |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:453
 |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:499
@@ -44,8 +44,8 @@ All
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:63 ]
 |  |  |  If2
 |  |  |  |  tError: FAIL: 
-|  |  |  |  <1: 1818406159
-|  |  |  |  >1: 2479774182
+|  |  |  |  <1: 2404055511
+|  |  |  |  >1: 234670653
 |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:203
 |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:453
 |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:499
@@ -96,67 +96,15 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:5 (392.00 mSec)
+|  |  > Fail:5 (306.00 mSec)
 |  |  
 |  |  mRegression_Tests
-|  |  |  02_02_AssignPair
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Tests\02_02_AssignPair.spo:1 ]
-|  |  |  |  .spo == .result.spo
-|  |  |  |  |  tError: 
-|  |  |  |  |  in:
-|  |  |  |  |    [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |    [ §INT ]
-|  |  |  |  |  
-|  |  |  |  |  
-|  |  |  |  |  in:
-|  |  |  |  |    [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |    []
-|  |  |  |  |  
-|  |  |  |  |  [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |  [ §INT ]
-|  |  |  |  |  §RETURN _x IF TRUE
-|  |  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:386
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:476
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, tData aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:80
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Tests\02_02_AssignPair.ilt:1 ]
-|  |  |  |  .ilt == .result.spo
-|  |  |  |  |  tError: 
-|  |  |  |  |  in:
-|  |  |  |  |    [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |    [ §INT ]
-|  |  |  |  |  
-|  |  |  |  |  
-|  |  |  |  |  in:
-|  |  |  |  |    [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |    []
-|  |  |  |  |  
-|  |  |  |  |  [ [], §INT ]
-|  |  |  |  |  !<
-|  |  |  |  |  [ §INT ]
-|  |  |  |  |  §RETURN _x IF TRUE
-|  |  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:386
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:476
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:115
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  > Fail:2 OK:1 (16.00 mSec)
-|  |  |  
 |  |  |  03_00_Not
 |  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Tests\03_00_Not.spo:1 ]
 |  |  |  |  .spo == .result.spo
 |  |  |  |  |  tError: FAIL: 
-|  |  |  |  |  <1: 3849412028
-|  |  |  |  |  >1: 960183875
+|  |  |  |  |  <1: 847029302
+|  |  |  |  |  >1: 256638611
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:203
 |  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:453
 |  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:499
@@ -175,14 +123,14 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:2 OK:1 (17.00 mSec)
+|  |  |  > Fail:2 OK:1 (15.00 mSec)
 |  |  |  
 |  |  |  03_01_Or
 |  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Tests\03_01_Or.spo:1 ]
 |  |  |  |  .spo == .result.spo
 |  |  |  |  |  tError: FAIL: 
-|  |  |  |  |  <1: 3849412028
-|  |  |  |  |  >1: 3043138283
+|  |  |  |  |  <1: 847029302
+|  |  |  |  |  >1: 1342789027
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:203
 |  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:453
 |  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, tData aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:499
@@ -201,11 +149,11 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:2 OK:1 (52.00 mSec)
+|  |  |  > Fail:2 OK:1 (39.00 mSec)
 |  |  |  
-|  |  > Fail:3|6 OK:6|21 (167.00 mSec)
+|  |  > Fail:2|4 OK:7|23 (135.00 mSec)
 |  |  
-|  > Fail:3|13 OK:8|179 (1.78 Sec)
+|  > Fail:3|11 OK:8|181 (1.23 Sec)
 |  
-> Fail:1|13 OK:1|269 (2.11 Sec)
+> Fail:1|11 OK:1|271 (1.34 Sec)
 

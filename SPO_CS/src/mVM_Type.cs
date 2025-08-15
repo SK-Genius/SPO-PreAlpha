@@ -239,26 +239,18 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aType1,
 		[MaybeNullWhen(false)] out tType aType2
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		switch (aType.Kind) {
-			case tKind.Pair: {
-				aType1 = aType.Refs[0];
-				aType2 = aType.Refs[1];
-				return true;
-			}
-			case tKind.Empty: {
-				aType1 = default!;
-				aType2 = default!;
-				return false;
-			}
-			default: {
-				aType1 = aType;
-				aType2 = Empty();
-				return true;
-			}
+		if (aType.Kind is tKind.Pair) {
+			aType1 = aType.Refs[0];
+			aType2 = aType.Refs[1];
+			return true;
+		} else {
+			aType1 = default!;
+			aType2 = default!;
+			return false;
 		}
 	}
 	
@@ -650,15 +642,6 @@ mVM_Type {
 		}
 	}
 	
-	public static tType
-	Normalize(
-		this tType a
-	) => (
-		a.Kind == tKind.Pair && a.Refs[1].IsEmpty()
-		? a.Refs[0].Normalize()
-		: a
-	);
-	
 	private static tText
 	ExtendError(
 		tText aError,
@@ -686,9 +669,6 @@ mVM_Type {
 		if (aSupType.Kind == tKind.Free) {
 			aSupType = aSupType.Refs[0];
 		}
-		
-		aSubType = aSubType.Normalize();
-		aSupType = aSupType.Normalize();
 		
 		if (aSubType == aSupType) {
 			return aTypeMappings;

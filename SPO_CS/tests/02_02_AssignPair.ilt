@@ -1,9 +1,10 @@
 §TYPES
-	t_0 := [EMPTY, INT]
-	t_1 := [EMPTY => t_0]
+	t_0 := [EMPTY, EMPTY]
+	t_1 := [t_0, INT]
 	t_2 := [EMPTY => t_1]
+	t_3 := [EMPTY => t_2]
 
-§DEF d_0 € t_2
+§DEF d_0 € t_3
 	r_1 := EMPTY, EMPTY
 	r_2 := 1
 	r_3 := r_1, r_2
