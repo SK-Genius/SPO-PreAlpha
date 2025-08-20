@@ -354,21 +354,22 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.ExtendRec, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
-						var OldRecordReg = Regs.GetOrThrow(RegId2, Command);
-						var NewElementReg = Regs.GetOrThrow(RegId3, Command);
-						Regs = Regs.Set(RegId1, NewProc.ExtendRec(Span, OldRecordReg, NewElementReg));
-						Types.Push(mVM_Type.Record(Types.Get(OldRecordReg), Types.Get(NewElementReg)));
-						break;
-					}
-					case { NodeType: mIL_AST.tCommandNodeType.DivideRec, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						var RecordReg = Regs.GetOrThrow(RegId2, Command);
-						var RecordType = Types.Get(RecordReg);
-						mAssert.AreNotEquals(RecordType.Kind, mVM_Type.tKind.Empty);
-						Regs = Regs.Set(RegId1, NewProc.DivideRec(Span, RecordReg));
-						Types.Push(mVM_Type.Pair(RecordType.Refs[0], RecordType.Refs[1]));
-						break;
-					}
+                                        case { NodeType: mIL_AST.tCommandNodeType.ExtendRec, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+                                                var OldRecordReg = Regs.GetOrThrow(RegId2, Command);
+                                                var NewElementReg = Regs.GetOrThrow(RegId3, Command);
+                                                Regs = Regs.Set(RegId1, NewProc.ExtendRec(Span, OldRecordReg, NewElementReg));
+                                                Types.Push(mVM_Type.Record(Types.Get(OldRecordReg), Types.Get(NewElementReg)));
+                                                break;
+                                        }
+                                        case { NodeType: mIL_AST.tCommandNodeType.GetRec, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+                                                var RecordReg = Regs.GetOrThrow(RegId2, Command);
+                                                var Key = RegId3.AssertNotEmpty();
+                                                var RecordType = Types.Get(RecordReg);
+                                                mAssert.IsTrue(RecordType.IsRecord(Key, out var ValueType), $"{Span} Unknown field '{Key}' in record");
+                                                Regs = Regs.Set(RegId1, NewProc.GetRec(Span, (tNat32)Key.GetHashCode(), RecordReg));
+                                                Types.Push(ValueType);
+                                                break;
+                                        }
 					case { NodeType: mIL_AST.tCommandNodeType.Assert, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var Reg1 = Regs.GetOrThrow(RegId1, Command);
 						var Reg2 = Regs.GetOrThrow(RegId2, Command);

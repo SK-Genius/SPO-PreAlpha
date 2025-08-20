@@ -65,13 +65,13 @@ mIL_AST {
 		Pair,                       // X := X, X
 		First,                      // X := §1ST X
 		Second,                     // X := §2ND X
-		ApplyPrefix,                // X := +#N X
-		RemovePrefix,               // X := -#N X
-		ExtendRec,                  // X := {X} +X
-		DivideRec,                  // X := {X} /
-		CallFunc,                   // X := .X X
-		CallProc,                   // X := :X X
-		VarDef,                     // X := §VAR X
+                ApplyPrefix,                // X := +#N X
+                RemovePrefix,               // X := -#N X
+                ExtendRec,                  // X := {X} +X
+                GetRec,                     // X := {X} #N
+                CallFunc,                   // X := .X X
+                CallProc,                   // X := :X X
+                VarDef,                     // X := §VAR X
 		VarGet,                     // X := §VAR X ->
 		DefRecProcs,                // §REC X := .X X
 		                            //    §REC (r1, r2, ..., rn) := .D (a1, a2, ..., am, (r1, r2, ..., rn))
@@ -172,9 +172,9 @@ mIL_AST {
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
 		tCommandNodeType.ApplyPrefix => $"{a._1} := +#{a._2} {a._3}",
 		tCommandNodeType.RemovePrefix => $"{a._1} := -#{a._2} {a._3}",
-		tCommandNodeType.ExtendRec => $"{a._1} := {{{a._2}}} + {a._3}",
-		tCommandNodeType.DivideRec => $"{a._1} := {{{a._2}}} /",
-		tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
+                tCommandNodeType.ExtendRec => $"{a._1} := {{{a._2}}} + {a._3}",
+                tCommandNodeType.GetRec => $"{a._1} := {{{a._2}}} #{a._3}",
+                tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
 		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
 		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
 		tCommandNodeType.VarGet => $"{a._1} := §VAR {a._2} ->",
@@ -474,11 +474,13 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.ExtendRec, aPos, aResReg, aRecord, aPrefix);
 	
 	public static tCommandNode<tPos>
-	DivideRec<tPos>(
-		tPos aPos,
-		tText aResReg,
-		tText aRecord
-	) => CommandNode(tCommandNodeType.DivideRec, aPos, aResReg, aRecord);
+        public static tCommandNode<tPos>
+        GetRec<tPos>(
+                tPos aPos,
+                tText aResReg,
+                tText aRecord,
+                tText aPrefix
+        ) => CommandNode(tCommandNodeType.GetRec, aPos, aResReg, aRecord, aPrefix);
 	
 	public static tCommandNode<tPos>
 	CallFunc<tPos>(

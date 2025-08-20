@@ -336,29 +336,24 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tMatchRecordNode<tPos> MatchRecord: {
 				Result = (mVM_Type.Empty(), aScope);
-				foreach (var Item in MatchRecord.Elements) {
-					var Type = mMaybe.None<mVM_Type.tType>();
-					if (aType.IsSome(out var RecordType)) { 
-						while (RecordType.IsRecord(out var Id, out var Type_, out RecordType!)) {
-							Type = Type_;
-							if (Id == Item.Id.Id) {
-								break;
-							}
-						}
-						Type.AssertNotEmpty();
-					}
-					
-					Result = Result.ThenTry(
-						a1 => UpdateMatchTypes(
-							Item.Match,
-							Type,
-							aTypeRelation,
-							a1.Scope
-						).Then(
-							a2 => (mVM_Type.Record(a1.Type, mVM_Type.Prefix(Item.Id.Id, a2.Type)), a2.Scope)
-						)
-					);
-				}
+                                foreach (var Item in MatchRecord.Elements) {
+                                        var Type = mMaybe.None<mVM_Type.tType>();
+                                        if (aType.IsSome(out var RecordType) && RecordType.IsRecord(Item.Id.Id, out var T_)) {
+                                                Type = T_;
+                                        }
+                                        Type.AssertNotEmpty();
+
+                                        Result = Result.ThenTry(
+                                                a1 => UpdateMatchTypes(
+                                                        Item.Match,
+                                                        Type,
+                                                        aTypeRelation,
+                                                        a1.Scope
+                                                ).Then(
+                                                        a2 => (mVM_Type.Record(a1.Type, mVM_Type.Prefix(Item.Id.Id, a2.Type)), a2.Scope)
+                                                )
+                                        );
+                                }
 				break;
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> MatchGuard: {

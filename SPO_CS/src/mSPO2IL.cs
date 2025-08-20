@@ -1226,37 +1226,17 @@ mSPO2IL {
 				);
 				break;
 			}
-			case mSPO_AST.tMatchRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
-				var Type = aRegType;
-				foreach (var (IdNode, Match) in Elements) {
-					var Pos = IdNode.Pos;
-					
-					var Reg = aRegId;
-					var Found = false;
-					var RecType = Type;
-					while (RecType.IsRecord(out var HeadId, out var HeadType, out RecType!)) {
-						var HeadTailReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
-						if (HeadId == IdNode.Id) {
-							aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(Reg, TypeAnnotation.AssertNotEmpty());
-							var TempValueReg_ = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.GetSecond(Pos, TempValueReg_, HeadTailReg));
-							var TempValueReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, IdNode.Id, TempValueReg_));
-							aDefConstructor.MapMatch(Match, TempValueReg, RecType);
-							Found = true;
-							break;
-						} else {
-							Reg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.GetFirst(Pos, Reg, HeadTailReg));
-						}
-					}
-					if (!Found) {
-						throw mError.Error($"{Pos} ERROR: can't match type '{TypeAnnotation}'");
-					}
-				}
-				break;
-			}
+                        case mSPO_AST.tMatchRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
+foreach (var (IdNode, Match) in Elements) {
+var Pos = IdNode.Pos;
+mAssert.IsTrue(aRegType.IsRecord(IdNode.Id, out var FieldType), $"{Pos} ERROR: can't match type '{TypeAnnotation}'");
+var TempValueReg = aDefConstructor.CreateTempReg();
+aDefConstructor.Commands.Push(mIL_AST.GetRec(Pos, TempValueReg, aRegId, IdNode.Id));
+aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(TempValueReg, TypeAnnotation.AssertNotEmpty());
+aDefConstructor.MapMatch(Match, TempValueReg, FieldType);
+}
+break;
+}
 			case mSPO_AST.tMatchTupleNode<tPos> { Items: var Items }: {
 				var RemainingReg = aRegId;
 				var RemainingTypes = aRegType;

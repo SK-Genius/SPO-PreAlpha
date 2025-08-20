@@ -211,26 +211,24 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
 				break;
 			}
-			case mVM_Data.tOpCode.ExtendRec: {
-				aCallStack._Regs.Push(
-					mVM_Data.Record(
-						aCallStack._Regs.Get(Arg1),
-						aCallStack._Regs.Get(Arg2)
-					)
-				);
-				break;
-			}
-			case mVM_Data.tOpCode.DivideRec: {
-				var Arg = aCallStack._Regs.Get(Arg1);
-				mAssert.IsTrue(Arg.IsRecord(out var Record, out var Prefix));
-				aCallStack._Regs.Push(
-					mVM_Data.Pair(
-						Record,
-						Prefix
-					)
-				);
-				break;
-			}
+                        case mVM_Data.tOpCode.ExtendRec: {
+                                var RecordData = aCallStack._Regs.Get(Arg1);
+                                mAssert.IsTrue(RecordData.IsRecord(out var Fields));
+                                var Prefix = aCallStack._Regs.Get(Arg2);
+                                mAssert.IsTrue(Prefix.IsPrefix(out var Key, out var Value));
+                                mAssert.IsTrue(Fields.TryGet(Key).IsNone());
+                                var NewFields = Fields.Set(Key, Value);
+                                aCallStack._Regs.Push(mVM_Data.Record(NewFields));
+                                break;
+                        }
+                        case mVM_Data.tOpCode.GetRec: {
+                                var RecordData = aCallStack._Regs.Get(Arg2);
+                                mAssert.IsTrue(RecordData.IsRecord(out var Fields));
+                                aCallStack._Regs.Push(
+                                        Fields.TryGet(Arg1).AssertNotEmpty(() => "unknown field")
+                                );
+                                break;
+                        }
 			case mVM_Data.tOpCode.Assert: {
 				if (aCallStack._Regs.Get(Arg1).IsBool(out var Bool) && Bool) {
 					mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsBool(out Bool) && Bool);

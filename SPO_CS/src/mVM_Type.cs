@@ -4,6 +4,8 @@
 // IMPORT Common/mError
 // IMPORT Common/mAssert
 // IMPORT Common/mMaybe
+// IMPORT Common/mTreeMap
+// IMPORT Common/mMath
 
 public static class
 mVM_Type {
@@ -29,12 +31,13 @@ mVM_Type {
 		Interface, // Existential
 	}
 	
-	public sealed class
-	tType {
-		public tKind Kind;
-		public tText? Id;
-		public tText? Prefix;
-		public tType[] Refs = [];
+        public sealed class
+        tType {
+                public tKind Kind;
+                public tText? Id;
+                public tText? Prefix;
+                public tType[] Refs = [];
+                public mTreeMap.tTree<tText, tType> Fields = default!;
 		
 		public override tBool
 		Equals(
@@ -58,27 +61,43 @@ mVM_Type {
 				return false;
 			}
 			
-			if (
-				a1.Kind != a2.Kind ||
-				a1.Id != a2.Id ||
-				a1.Prefix != a2.Prefix ||
-				a1.Refs.Length != a2.Refs.Length
-			) {
-				return false;
-			}
-			
-			if (a1.Kind == tKind.Free) {
-				return true;
-			}
-			
-			for (var I = a1.Refs.Length; I --> 0;) {
-				if (!a1.Refs[I].Equals(a2.Refs[I])) {
-					return false;
-				}
-			}
-			
-			return true;
-		}
+                        if (
+                                a1.Kind != a2.Kind ||
+                                a1.Id != a2.Id ||
+                                a1.Prefix != a2.Prefix ||
+                                a1.Refs.Length != a2.Refs.Length
+                        ) {
+                                return false;
+                        }
+
+                        if (a1.Kind == tKind.Free) {
+                                return true;
+                        }
+
+                        if (a1.Kind == tKind.Record) {
+                                var L1 = a1.Fields.ToStream().ToArrayList();
+                                var L2 = a2.Fields.ToStream().ToArrayList();
+                                if (L1.Size() != L2.Size()) {
+                                        return false;
+                                }
+                                for (var I = 0u; I < L1.Size(); I += 1) {
+                                        var It1 = L1.Get(I);
+                                        var It2 = L2.Get(I);
+                                        if (It1.Key != It2.Key || It1.Value != It2.Value) {
+                                                return false;
+                                        }
+                                }
+                                return true;
+                        }
+
+                        for (var I = a1.Refs.Length; I --> 0;) {
+                                if (!a1.Refs[I].Equals(a2.Refs[I])) {
+                                        return false;
+                                }
+                        }
+
+                        return true;
+                }
 		
 		public override tText
 		ToString(
@@ -312,29 +331,24 @@ mVM_Type {
 		return aType.IsPrefix(out var Prefix, out aTypeOut!) && Prefix == aPrefix;
 	}
 	
-	public static tType
-	Record(
-		tType aTailType,
-		tType aHeadType
-	) {
-		mAssert.IsIn(aTailType.Kind, [tKind.Record, tKind.Empty]);
-		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
-		AssertNotIn(aHeadType.Prefix!, aTailType);
-		
-		return new tType {
-			Kind = tKind.Record,
-			Refs = [aTailType, aHeadType]
-		};
-		
-		static void
-		AssertNotIn(tText aPrefix, tType aRecord) {
-			if (aRecord.Kind == tKind.Empty) {
-				return;
-			}
-			mAssert.AreNotEquals(aPrefix, aRecord.Prefix);
-			AssertNotIn(aPrefix, aRecord.Refs[0]);
-		}
-	}
+        public static tType
+        Record(
+                tType aTailType,
+                tType aHeadType
+        ) {
+                mAssert.IsIn(aTailType.Kind, [tKind.Record, tKind.Empty]);
+                mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
+                mAssert.IsTrue(aHeadType.IsPrefix(out var Prefix, out var InnerType));
+
+                var Map = aTailType.Kind == tKind.Record
+                        ? aTailType.Fields
+                        : mTreeMap.Tree<tText, tType>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+                mAssert.IsTrue(Map.TryGet(Prefix).IsNone());
+                return new tType {
+                        Kind = tKind.Record,
+                        Fields = Map.Set(Prefix, InnerType)
+                };
+        }
 	
 	public static tType
 	Record(
@@ -347,28 +361,78 @@ mVM_Type {
 		return Result;
 	}
 	
-	public static tBool
-	IsRecord(
-		this tType aType,
-		[MaybeNullWhen(false)] out tText aHeadKey,
-		[MaybeNullWhen(false)] out tType aHeadType,
-		[MaybeNullWhen(false)] out tType aTailRecord
-	) {
-		if (aType.Kind == tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		if (aType.Kind == tKind.Record) {
-			mAssert.IsTrue(aType.Refs[1].IsPrefix(out aHeadKey!, out aHeadType!));
-			aTailRecord = aType.Refs[0];
-			return true;
-		} else {
-			aHeadKey = default!;
-			aHeadType = default!;
-			aTailRecord = default!;
-			return false;
-		}
-	}
+        public static tBool
+        IsRecord(
+                this tType aType,
+                [MaybeNullWhen(false)] out mTreeMap.tTree<tText, tType> aFields
+        ) {
+                if (aType.Kind == tKind.Free) {
+                        aType = aType.Refs[0];
+                }
+
+                if (aType.Kind == tKind.Record) {
+                        aFields = aType.Fields;
+                        return true;
+                } else {
+                        aFields = default!;
+                        return false;
+                }
+        }
+
+        public static tBool
+        IsRecord(
+                this tType aType,
+                tText aKey,
+                [MaybeNullWhen(false)] out tType aFieldType
+        ) {
+                if (aType.Kind == tKind.Free) {
+                        aType = aType.Refs[0];
+                }
+
+                if (aType.Kind == tKind.Record) {
+                        return aType.Fields.TryGet(aKey).IsSome(out aFieldType!);
+                } else {
+                        aFieldType = default!;
+                        return false;
+                }
+        }
+
+        public static tBool
+        IsRecord(
+                this tType aType,
+                [MaybeNullWhen(false)] out tText aHeadKey,
+                [MaybeNullWhen(false)] out tType aHeadType,
+                [MaybeNullWhen(false)] out tType aTailRecord
+        ) {
+                if (aType.Kind == tKind.Free) {
+                        aType = aType.Refs[0];
+                }
+
+                if (aType.Kind == tKind.Record) {
+                        var List = aType.Fields.ToStream().ToArrayList();
+                        if (List.Size() == 0u) {
+                                aHeadKey = default!;
+                                aHeadType = default!;
+                                aTailRecord = default!;
+                                return false;
+                        }
+                        var First = List.Get(0);
+                        aHeadKey = First.Key;
+                        aHeadType = First.Value;
+                        var Map = mTreeMap.Tree<tText, tType>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+                        for (var I = 1u; I < List.Size(); I += 1) {
+                                var Item = List.Get(I);
+                                Map = Map.Set(Item.Key, Item.Value);
+                        }
+                        aTailRecord = Map.Deep() == 0 ? Empty() : new tType { Kind = tKind.Record, Fields = Map };
+                        return true;
+                } else {
+                        aHeadKey = default!;
+                        aHeadType = default!;
+                        aTailRecord = default!;
+                        return false;
+                }
+        }
 	
 	public static tType
 	Proc(
@@ -749,32 +813,22 @@ mVM_Type {
 					return mResult.Fail(ExtendError("", aSubType, aSupType));
 				}
 			}
-			case tKind.Record: {
-				var SupTailType = aSupType;
-				while (SupTailType.IsRecord(out var SupHeadKey, out var SupHeadType, out SupTailType)) {
-					var SubTailType = aSubType;
-					var HasFound = false;
-					while (SubTailType.IsRecord(out var SubHeadKey, out var SubHeadType, out SubTailType)) {
-						if (SubHeadKey == SupHeadKey) {
-							if (
-								SubHeadType.IsSubType(SupHeadType, aTypeMappings).Match(
-									out aTypeMappings,
-									out var Error
-								)
-							) {
-								HasFound = true;
-								break;
-							} else {
-								return mResult.Fail(ExtendError(Error, aSubType, aSupType));
-							}
-						}
-					}
-					if (!HasFound) {
-						return mResult.Fail(ExtendError("", aSubType, aSupType));
-					}
-				}
-				return aTypeMappings;
-			}
+                        case tKind.Record: {
+                                mAssert.IsTrue(aSupType.IsRecord(out var SupMap));
+                                mAssert.IsTrue(aSubType.IsRecord(out var SubMap));
+                                var SupList = SupMap.ToStream().ToArrayList();
+                                for (var I = 0u; I < SupList.Size(); I += 1) {
+                                        var SupItem = SupList.Get(I);
+                                        if (SubMap.TryGet(SupItem.Key).IsSome(out var SubField)) {
+                                                if (!SubField.IsSubType(SupItem.Value, aTypeMappings).Match(out aTypeMappings, out var Error)) {
+                                                        return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+                                                }
+                                        } else {
+                                                return mResult.Fail(ExtendError("", aSubType, aSupType));
+                                        }
+                                }
+                                return aTypeMappings;
+                        }
 			case tKind.Proc: {
 				if (
 					!aSubType.IsProc(out var SubObj, out var SubArg, out var SubRes) ||
@@ -897,20 +951,17 @@ mVM_Type {
 			tKind.Type => "[[]]",
 			tKind.Free => "?" + aType.Id,
 			tKind.Prefix => $"[{____}#{aType.Prefix} {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Record => mStd.Call(
-				() => {
-					var Text = "";
-					var Type = aType;
-					while (Type.Kind == tKind.Record) {
-						Text += $"{____}, {Type.Refs[1].ToText(____)}";
-						Type = Type.Refs[0];
-					}
-					if (Type.Kind != tKind.Empty) {
-						Text += $"{____}; {Type.ToText(____)}";
-					}
-					return "[{" + Text + __ + "}]";
-				}
-			),
+                        tKind.Record => mStd.Call(
+                                () => {
+                                        var List = aType.Fields.ToStream().ToArrayList();
+                                        var Text = "";
+                                        for (var I = 0u; I < List.Size(); I += 1) {
+                                                var Item = List.Get(I);
+                                                Text += (I == 0u ? ____ : "," + ____ ) + $"#{Item.Key} {Item.Value.ToText(____)}";
+                                        }
+                                        return "[{" + Text + __ + "}]";
+                                }
+                        ),
 			tKind.Pair => mStd.Call(
 				() => {
 					var Result = aType.Refs[1].ToText(____);

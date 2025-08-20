@@ -122,15 +122,16 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.SubPrefix))
 			.SetDebugName([nameof(mIL_AST.SubPrefix)]),
 			
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, -SpecialToken("}") -Token("+"), Id)
-			.Modify((a1, _, a2, _, a3) => (a1, a2, a3))
-			.ModifyS(mTokenizer.X(mIL_AST.ExtendRec))
-			.SetDebugName([nameof(mIL_AST.ExtendRec)]),
-			
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, (-SpecialToken("}") -Token("/")))
-			.Modify((a1, _, a2, _) => (a1, a2))
-			.ModifyS(mTokenizer.X(mIL_AST.DivideRec))
-			.SetDebugName([nameof(mIL_AST.DivideRec)]),
+                        mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, -SpecialToken("}") -Token("+"), Id)
+                        .Modify((a1, _, a2, _, a3) => (a1, a2, a3))
+                        .ModifyS(mTokenizer.X(mIL_AST.ExtendRec))
+                        .SetDebugName([nameof(mIL_AST.ExtendRec)]),
+
+                        mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, -SpecialToken("}"), Prefix)
+                        .Modify((a1, _, a2, _, a3) => (a1, a2, a3))
+                        .ModifyS(mTokenizer.X(mIL_AST.GetRec))
+                        .SetDebugName([nameof(mIL_AST.GetRec)]),
+
 			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), SpecialToken("."), Id, Id)
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))

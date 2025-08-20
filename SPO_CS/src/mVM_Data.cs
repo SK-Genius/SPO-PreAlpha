@@ -4,6 +4,8 @@
 // IMPORT Common/mAssert
 // IMPORT Common/mMaybe
 // IMPORT Common/mStream
+// IMPORT Common/mTreeMap
+// IMPORT Common/mMath
 // IMPORT mVM_Type
 
 public static class
@@ -35,9 +37,9 @@ mVM_Data {
 		DelPrefix,
 		HasPrefix,
 		
-		// RECORD
-		ExtendRec,
-		DivideRec,
+                // RECORD
+                ExtendRec,
+                GetRec,
 		
 		// VAR
 		VarDef,
@@ -314,24 +316,19 @@ mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.ExtendRec, aRecReg, aPrefixReg);
 	
 	public static tNat32
-	DivideRec<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aRecReg
-	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
+        public static tNat32
+        GetRec<tPos>(
+                this tProcDef<tPos> aDef,
+                tPos aPos,
+                tNat32 aPrefixId,
+                tNat32 aRecReg
+        ) => aDef._AddReg(aPos, tOpCode.GetRec, aPrefixId, aRecReg);
 	
-	public static tNat32
-	ExtendRec<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aRecReg
-	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
-	
-	public static tNat32
-	VarDef<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aValueReg
+        public static tNat32
+        VarDef<tPos>(
+                this tProcDef<tPos> aDef,
+                tPos aPos,
+                tNat32 aValueReg
 	) => aDef._AddReg(aPos, tOpCode.VarDef, aValueReg);
 	
 	public static void
@@ -824,38 +821,30 @@ mVM_Data {
 		out tData aValue
 	) => aData.IsPrefix((tNat32)aPrefix.GetHashCode(), out aValue);
 	
-	public static tData
-	Record(
-		tData aRecord,
-		tData aPrefix
-	) {
-		mAssert.IsTrue(aPrefix.IsPrefix(out var PrefixHash, out _));
-		var Record = aRecord;
-		while (!Record.IsEmpty()) {
-			mAssert.IsTrue(Record.IsRecord(out Record, out var Prefix));
-			mAssert.IsTrue(Prefix.IsPrefix(out var PrefixHash_, out _));
-			mAssert.AreNotEquals(PrefixHash, PrefixHash_);
-		}
-		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
-	}
-	
-	public static tData
-	Record(
-		(tText Key, tData Value)[] aFields
-	) => aFields.AsStream(
-	).Map(
-		_ => Prefix(_.Key, _.Value)
-	).Reduce(
-		Empty(),
-		Record
-	);
-	
-	public static tBool
-	IsRecord(
-		this tData aData,
-		out tData aRecord,
-		out tData aPrefix
-	) => aData.Is(tDataType.Record, out aRecord, out aPrefix);
+        public static tData
+        Record(
+                mTreeMap.tTree<tNat32, tData> aFields
+        ) => Data(
+                tDataType.Record,
+                aFields.ToStream().Any(_ => _.Value._IsMutable),
+                aFields
+        );
+
+        public static tData
+        Record(
+                (tText Key, tData Value)[] aFields
+        ) => Record(
+                aFields.AsStream().Reduce(
+                        mTreeMap.Tree<tNat32, tData>((a1, a2) => mMath.Sign(a1.CompareTo(a2)), []),
+                        (Map, _) => Map.Set((tNat32)_.Key.GetHashCode(), _.Value)
+                )
+        );
+
+        public static tBool
+        IsRecord(
+                this tData aData,
+                out mTreeMap.tTree<tNat32, tData> aFields
+        ) => aData.Is(tDataType.Record, out aFields);
 	
 	public static tData
 	Proc<tPos>(
@@ -983,17 +972,20 @@ mVM_Data {
 			_ when a.IsPrefix(out var Prefix, out var Value)
 			=> $"(#{Prefix} {Value.ToText(NextLimit)})",
 			
-			_ when a.IsRecord(out var SubRecord, out var KeyValue)
-			=> mStd.Call(() => {
-				mAssert.IsTrue(KeyValue.IsPrefix(out var Key, out var Value));
-				var Result = $"{{ {Key}: {Value.ToText(NextLimit)}";
-				while (SubRecord.IsRecord(out var Temp, out KeyValue)) {
-					mAssert.IsTrue(KeyValue.IsPrefix(out var Key_, out var Value_));
-					Result += $", {Key_}: {Value_.ToText(NextLimit)}";
-					SubRecord = Temp;
-				}
-				return Result + "}";
-			}),
+                        _ when a.IsRecord(out var Fields)
+                        => mStd.Call(() => {
+                                var List = Fields.ToStream().ToArrayList();
+                                if (List.Size() == 0u) {
+                                        return "{}";
+                                }
+                                var First = List.Get(0);
+                                var Result = $"{{ {First.Key}: {First.Value.ToText(NextLimit)}";
+                                for (var I = 1u; I < List.Size(); I += 1) {
+                                        var Item = List.Get(I);
+                                        Result += $", {Item.Key}: {Item.Value.ToText(NextLimit)}";
+                                }
+                                return Result + "}";
+                        }),
 			
 			_ when a.IsVar(out var Value)
 				=> $"(§VAR {Value.ToText(NextLimit)})",
