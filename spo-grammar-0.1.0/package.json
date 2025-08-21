@@ -1,0 +1,15 @@
+{
+	"name": "spo-grammar",
+	"displayName": "SPO Grammar",
+	"version": "0.0.1",
+	"publisher": "local",
+	"engines": { "vscode": "^1.90.0" },
+	"contributes": {
+		"languages": [
+			{ "id": "spo", "aliases": ["SPO","spo"], "extensions": [".spo", ".ilt"], "configuration": "./SPO.configuration.json" }
+		],
+		"grammars": [
+			{ "language": "spo", "scopeName": "source.spo", "path": "./SPO.tmLanguage.json" }
+		]
+	}
+}

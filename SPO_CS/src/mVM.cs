@@ -159,7 +159,12 @@ mVM {
 				var IntData2 = aCallStack._Regs.Get(Arg2);
 				mAssert.IsTrue(IntData1.IsInt(out var Int1));
 				mAssert.IsTrue(IntData2.IsInt(out var Int2));
-				aCallStack._Regs.Push(mVM_Data.Pair(mVM_Data.Int(Int1 / Int2), mVM_Data.Int(Int1 % Int2)));
+				aCallStack._Regs.Push(
+					mVM_Data.Pair(
+						mVM_Data.Int(Int1 / Int2),
+						mVM_Data.Int(Int1 % Int2)
+					)
+				);
 				break;
 			}
 			case mVM_Data.tOpCode.NewPair: {
@@ -254,7 +259,11 @@ mVM {
 				var Func = aCallStack._Regs.Get(Arg1);
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
-				mAssert.IsTrue(Func._DataType is mVM_Data.tDataType.Proc);
+				mAssert.IsTrue(
+					Func._DataType is mVM_Data.tDataType.Proc,
+					() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
+				);
+				
 				var RecProcList = mStream.Stream<mVM_Data.tData>();
 				
 				var Count = OpCode switch {
@@ -265,12 +274,12 @@ mVM {
 					_ => throw mError.Error("impossible: " + OpCode),
 				};
 				
-				var RecProcs = mVM_Data.Empty();
+				var RecProcs = mVM_Data.Empty(); // first place holder
 				if (Count is 1) {
 					RecProcList = mStream.Stream(RecProcs, RecProcList);
 				} else {
 					for (var I = 0; I < Count; I += 1) {
-						var Temp = mVM_Data.Empty();
+						var Temp = mVM_Data.Empty(); // next placeholder
 						RecProcs = mVM_Data.Pair(
 							RecProcs,
 							Temp
@@ -289,7 +298,12 @@ mVM {
 						break;
 					}
 					case 0 when Func.IsExternProc(out var ExternDef, out var Env): {
-						Res = ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+						Res = ExternDef(
+							Env,
+							mVM_Data.Empty(),
+							Arg,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
 						break;
 					}
 					case 0 when Func.IsDef<tPos>(out var Def): {
@@ -338,7 +352,14 @@ mVM {
 						break;
 					}
 					case 0 when Proc.IsExternProc(out var ExternDef, out var Env): {
-						aCallStack._Regs.Push(ExternDef(Env, mVM_Data.Empty(), Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
+						aCallStack._Regs.Push(
+							ExternDef(
+								Env,
+								mVM_Data.Empty(),
+								Arg,
+								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							)
+						);
 						break;
 					}
 					case 0 when Proc.IsDef<tPos>(out var Def): {
@@ -376,7 +397,14 @@ mVM {
 						break;
 					}
 					case 0 when Proc.IsExternProc(out var ExternDef, out var Env): {
-						aCallStack._Regs.Push(ExternDef(Env, Obj, Arg, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())));
+						aCallStack._Regs.Push(
+							ExternDef(
+								Env,
+								Obj,
+								Arg,
+								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							)
+						);
 						break;
 					}
 					case 0 when Proc.IsDef<tPos>(out var Def): {
@@ -386,7 +414,15 @@ mVM {
 					case 0 when Proc.IsProc<tPos>(out var Def, out var Env): {
 						var Res = mVM_Data.Empty();
 						aCallStack._Regs.Push(Res);
-						return NewCallStack(aCallStack, Def, Env, Obj, Arg, Res, aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine()));
+						return NewCallStack(
+							aCallStack,
+							Def,
+							Env,
+							Obj,
+							Arg,
+							Res,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
 					}
 					default: {
 						throw mError.Error("impossible: " + Proc._DataType);
@@ -417,7 +453,9 @@ mVM {
 				throw mError.Error("TODO " + OpCode);
 			}
 		}
-		aCallStack._TraceOut(() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}");
+		aCallStack._TraceOut(
+			() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}"
+		);
 		return aCallStack;
 	}
 	
@@ -504,8 +542,19 @@ mVM {
 			TraceOut
 		);
 		
-		mAssert.IsTrue(VMModule.TryLast().AssertNotEmpty().DefType.IsProc(out _, out _, out var FuncType));
-		mAssert.IsTrue(FuncType.IsProc(out _, out _, out var ResType), $"{mStd.FileLine()}: {FuncType.ToText()}");
+		mAssert.IsTrue(
+			VMModule.TryLast(
+			).AssertNotEmpty(
+			).DefType.IsProc(
+				out _,
+				out _,
+				out var FuncType
+			)
+		);
+		mAssert.IsTrue(
+			FuncType.IsProc(out _, out _, out var ResType),
+			$"{mStd.FileLine()}: {FuncType.ToText()}"
+		);
 		return (Res, ResType);
 	}
 	

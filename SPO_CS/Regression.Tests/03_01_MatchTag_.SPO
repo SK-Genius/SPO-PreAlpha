@@ -1,0 +1,2 @@
+(#Test §DEF x) = #Test 1
+§EXPORT x

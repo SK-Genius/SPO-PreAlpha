@@ -1,0 +1,14 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	r_1 := EMPTY, EMPTY
+	r_2 := 1
+	r_3 := r_1, r_2
+	r_4 := §2ND r_3
+	_x := r_4
+	r_5 := §1ST r_3
+	r_6 := §2ND r_5
+	r_7 := §1ST r_5
+	§RETURN _x IF TRUE

@@ -24,7 +24,7 @@ mRegression_Tests {
 		System.IO.Path.Combine(
 			System.IO.Directory.GetParent(mStd.File()).FullName,
 			"..",
-			"Tests"
+			"Regression.Tests"
 		)
 	);
 	
@@ -39,22 +39,22 @@ mRegression_Tests {
 				}
 				
 				var Tests = mArrayList.List<mTest.tTest>();
-				foreach (var SpoPath in System.IO.Directory.GetFiles(cTestFolder.FullName, "*.spo")) {
-					var BaseName = System.IO.Path.GetFileNameWithoutExtension(SpoPath);
-					var ResPath = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".result.spo");
-					var IlPath = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".ilt");
+				foreach (var SPO_Path in System.IO.Directory.GetFiles(cTestFolder.FullName, "*.SPO")) {
+					var BaseName = System.IO.Path.GetFileNameWithoutExtension(SPO_Path);
+					var ResPath = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".result.SPO");
+					var IL_Path = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".ILT");
 					if (
 						BaseName.StartsWith("_") ||
-						SpoPath.EndsWith(".result.spo") ||
+						SPO_Path.EndsWith(".result.SPO") ||
 						!System.IO.File.Exists(ResPath) ||
-						!System.IO.File.Exists(IlPath)
+						!System.IO.File.Exists(IL_Path)
 					) {
 						continue;
 					}
 					
-					var SpoText = mLazy.Lazy(() => System.IO.File.ReadAllText(SpoPath));
-					var ResText = mLazy.Lazy(() => System.IO.File.ReadAllText(ResPath));
-					var IlText = mLazy.Lazy(() => System.IO.File.ReadAllText(IlPath));
+					var SPO_Text = mLazy.Lazy(() => System.IO.File.ReadAllText(SPO_Path));
+					var SPO_ResText = mLazy.Lazy(() => System.IO.File.ReadAllText(ResPath));
+					var IL_Text = mLazy.Lazy(() => System.IO.File.ReadAllText(IL_Path));
 					
 					var ResRes = mLazy.Lazy(
 						() => {
@@ -63,8 +63,8 @@ mRegression_Tests {
 								Log +="\n" + aGetLine();
 							};
 							var Result = mSPO_Interpreter.Run(
-								ResText.Value,
-								SpoPath,
+								SPO_ResText.Value,
+								SPO_Path,
 								(mVM_Data.Empty(), mVM_Type.Empty()),
 								_ => WriteToLog(_)
 							);
@@ -77,11 +77,11 @@ mRegression_Tests {
 							BaseName,
 							[
 								mTest.Test(
-									".spo == .result.spo",
+									".SPO == .result.SPO",
 									aDebug => {
 										var SpoRes = mSPO_Interpreter.Run(
-											SpoText.Value,
-											SpoPath,
+											SPO_Text.Value,
+											SPO_Path,
 											mStdLib.GetImportData(_ => aDebug(_())),
 											_ => aDebug(_())
 										);
@@ -89,43 +89,51 @@ mRegression_Tests {
 										mAssert.AreEquals(SpoRes.Type.ToText(), ResRes.Value.Result.Type.ToText());
 										mAssert.AreEquals(SpoRes.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									SpoPath,
+									SPO_Path,
 									1
 								),
 								mTest.Test(
-									".spo -> .ilt",
+									".SPO -> .ILT",
 									aDebug => {
-										mAssert.AreEquals(
-											mSPO_Parser.Module.ParseText(
-												SpoText.Value,
-												SpoPath,
+										var IL_TextNew = mSPO_Parser.Module.ParseText(
+												SPO_Text.Value,
+												SPO_Path,
 												_ => aDebug(_())
-											).ToText(),
-											IlText.Value
+											).ToText();
+										
+										if (IL_TextNew != IL_Text.Value) {
+											System.IO.File.WriteAllText(
+												IL_Path + ".new",
+												IL_TextNew
+											);
+										}
+										mAssert.AreEquals(
+											IL_TextNew,
+											IL_Text.Value
 										);
 									},
-									IlPath,
+									IL_Path,
 									1
 								),
 								mTest.Test(
-									".ilt == .result.spo",
+									".ILT == .result.SPO",
 									aDebug => {
 										var IlModule = mIL_Parser.Module.ParseText(
-											IlText.Value,
-											IlPath,
+											IL_Text.Value,
+											IL_Path,
 											_ => aDebug(_())
 										);
-										var IlRes = mVM.Run(
+										var IL_Res = mVM.Run(
 											IlModule,
 											mStdLib.GetImportData(_ => aDebug(_())),
-											p => $"{p.Start.Id}({p.Start.Row}:{p.Start.Col} .. {p.End.Row}:{p.End.Col})",
+											_ => $"{_.Start.Id}({_.Start.Row}:{_.Start.Col} .. {_.End.Row}:{_.End.Col})",
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
-										mAssert.AreEquals(IlRes.Type.ToText(), ResRes.Value.Result.Type.ToText());
-										mAssert.AreEquals(IlRes.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
+										mAssert.AreEquals(IL_Res.Type.ToText(), ResRes.Value.Result.Type.ToText());
+										mAssert.AreEquals(IL_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									IlPath,
+									IL_Path,
 									1
 								),
 							]

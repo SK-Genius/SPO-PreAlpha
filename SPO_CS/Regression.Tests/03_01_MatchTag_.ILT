@@ -1,0 +1,10 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	r_1 := 1
+	r_2 := +#_Test... r_1
+	r_3 := -#_Test... r_2
+	_x := r_3
+	§RETURN _x IF TRUE
