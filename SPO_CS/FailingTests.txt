@@ -1,3 +1,8 @@
+C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mRef.cs(13,2): warning CS0660: "mRef.tRef<t>" definiert den Operator == oder !=, aber überschreibt Object.Equals(object o) nicht. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
+C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mFS.cs(15,2): warning CS0660: "mFS.tPath" definiert den Operator == oder !=, aber überschreibt Object.Equals(object o) nicht. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
+C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mStream.cs(45,3): warning CS8765: Die NULL-Zulässigkeit des Typs des Parameters "a" entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem überschriebenen Member. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
+C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs(25,4): warning CS8602: Dereferenzierung eines möglichen Nullverweises. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
+C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.cs(25,45): warning CS8602: Dereferenzierung eines möglichen Nullverweises. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
 All
 |  mSPO
 |  |  mSPO_Interpreter
@@ -25,7 +30,7 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:2 OK:5|10 (82.00 mSec)
+|  |  > Fail:2 OK:5|10 (88.00 mSec)
 |  |  
 |  |  mStdLib
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:21 ]
@@ -92,11 +97,11 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:5 (307.00 mSec)
+|  |  > Fail:5 (292.00 mSec)
 |  |  
 |  |  mRegression_Tests
-|  |  |  06_01_Fib_If_
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If_.SPO:1 ]
+|  |  |  06_01_Fib_If
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
 |  |  |  |  |  tError: FAIL: Proc != Def
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
@@ -107,7 +112,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
 |  |  |  |  |  tError: FAIL: Proc != Def
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
@@ -117,10 +122,10 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:2 OK:1 (444.00 mSec)
+|  |  |  > Fail:2 OK:1 (454.00 mSec)
 |  |  |  
-|  |  |  06_02_Fib_IfThenElse_
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse_.SPO:1 ]
+|  |  |  06_02_Fib_IfThenElse
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
 |  |  |  |  |  tError: FAIL: Proc != Def
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
@@ -131,7 +136,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
 |  |  |  |  |  tError: FAIL: Proc != Def
 |  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
@@ -143,8 +148,8 @@ All
 |  |  |  |  
 |  |  |  > Fail:2 OK:1 (437.00 mSec)
 |  |  |  
-|  |  |  06_03_Fib_IfMatch_
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch_.SPO:1 ]
+|  |  |  06_03_Fib_IfMatch
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
@@ -160,7 +165,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
 |  |  |  |  .SPO -> .ILT
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
@@ -176,7 +181,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
 |  |  |  |  |  IndexOutOfRangeException: Index was outside the bounds of the array.
 |  |  |  |  |  |     at mTextStream.<>c__DisplayClass3_0.<ToText>b__0(ValueTuple`2 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTextStream.cs:65
@@ -187,10 +192,10 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (42.00 mSec)
+|  |  |  > Fail:3 (41.00 mSec)
 |  |  |  
-|  |  |  06_04_Fib_IfMatch2_
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2_.SPO:1 ]
+|  |  |  06_04_Fib_IfMatch2
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
@@ -206,7 +211,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
 |  |  |  |  .SPO -> .ILT
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
@@ -222,7 +227,7 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2_.ILT:1 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
 |  |  |  |  |  IndexOutOfRangeException: Index was outside the bounds of the array.
 |  |  |  |  |  |     at mTextStream.<>c__DisplayClass3_0.<ToText>b__0(ValueTuple`2 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTextStream.cs:65
@@ -233,11 +238,11 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (38.00 mSec)
+|  |  |  > Fail:3 (37.00 mSec)
 |  |  |  
-|  |  > Fail:4|10 OK:14|44 (1.26 Sec)
+|  |  > Fail:4|10 OK:14|44 (1.27 Sec)
 |  |  
-|  > Fail:3|17 OK:8|202 (2.34 Sec)
+|  > Fail:3|17 OK:8|202 (2.38 Sec)
 |  
-> Fail:1|17 OK:1|292 (2.45 Sec)
+> Fail:1|17 OK:1|292 (2.51 Sec)
 
