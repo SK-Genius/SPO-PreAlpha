@@ -1,6 +1,6 @@
 §TYPES
-	t_0 := [EMPTY => INT]
-	t_1 := [EMPTY => t_0]
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
 
 §DEF d_0 € t_1
 	r_1 := 1

@@ -1,35 +1,33 @@
 §TYPES
-	t_0 := [EMPTY, BOOL]
+	t_0 := [EMPTY_TYPE, BOOL]
 	t_1 := [t_0, BOOL]
 	t_2 := [t_1 => BOOL]
 	t_3 := [#_...&... t_2]
-	t_4 := [{EMPTY} + t_3]
-	t_5 := [EMPTY, BOOL]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [EMPTY_TYPE, BOOL]
 	t_6 := [t_5, BOOL]
 	t_7 := [t_6, BOOL]
 	t_8 := [t_7, BOOL]
 	t_9 := [t_4 => t_8]
-	t_10 := [EMPTY => t_9]
+	t_10 := [EMPTY_TYPE => t_9]
 
 §DEF d_0 € t_10
-	r_1 := {ARG} /
-	r_2 := §2ND r_1
-	r_3 := -#_...&... r_2
-	_...&... := r_3
-	r_4 := EMPTY, FALSE
-	r_5 := r_4, FALSE
-	r_6 := ._...&... r_5
-	r_7 := EMPTY, r_6
-	r_8 := EMPTY, FALSE
-	r_9 := r_8, TRUE
-	r_10 := ._...&... r_9
-	r_11 := r_7, r_10
-	r_12 := EMPTY, TRUE
-	r_13 := r_12, FALSE
-	r_14 := ._...&... r_13
-	r_15 := r_11, r_14
-	r_16 := EMPTY, TRUE
-	r_17 := r_16, TRUE
-	r_18 := ._...&... r_17
-	r_19 := r_15, r_18
-	§RETURN r_19 IF TRUE
+	r_1 := {ARG} #_...&...
+	_...&... := r_1
+	r_2 := EMPTY, FALSE
+	r_3 := r_2, FALSE
+	r_4 := ._...&... r_3
+	r_5 := EMPTY, r_4
+	r_6 := EMPTY, FALSE
+	r_7 := r_6, TRUE
+	r_8 := ._...&... r_7
+	r_9 := r_5, r_8
+	r_10 := EMPTY, TRUE
+	r_11 := r_10, FALSE
+	r_12 := ._...&... r_11
+	r_13 := r_9, r_12
+	r_14 := EMPTY, TRUE
+	r_15 := r_14, TRUE
+	r_16 := ._...&... r_15
+	r_17 := r_13, r_16
+	§RETURN r_17 IF TRUE

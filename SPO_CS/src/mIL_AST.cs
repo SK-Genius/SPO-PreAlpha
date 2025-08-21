@@ -65,10 +65,10 @@ mIL_AST {
 		Pair,                       // X := X, X
 		First,                      // X := §1ST X
 		Second,                     // X := §2ND X
-		ApplyPrefix,                // X := +#N X
-		RemovePrefix,               // X := -#N X
-		ExtendRec,                  // X := {X} +X
-		DivideRec,                  // X := {X} /
+		PrefixApply,                // X := +#N X
+		PrefixRemove,               // X := -#N X
+		AddField,                   // X := {X} +X
+		GetField,                   // X := {X} #N
 		CallFunc,                   // X := .X X
 		CallProc,                   // X := :X X
 		VarDef,                     // X := §VAR X
@@ -105,19 +105,19 @@ mIL_AST {
 		_EndCommands_,
 	}
 	
-	public static readonly tText cEmpty     = "EMPTY";
-	public static readonly tText cOne       = "ONE";
-	public static readonly tText cTrue      = "TRUE";
-	public static readonly tText cFalse     = "FALSE";
-	public static readonly tText cEnv       = "ENV";
-	public static readonly tText cObj       = "OBJ";
-	public static readonly tText cArg       = "ARG";
-	public static readonly tText cRes       = "RES";
-	public static readonly tText cSelfFunc  = "SELF";
-	public static readonly tText cEmptyType = "EMPTY_TYPE";
-	public static readonly tText cBoolType  = "BOOL_TYPE";
-	public static readonly tText cIntType   = "INT_TYPE";
-	public static readonly tText cTypeType  = "Type_TYPE";
+	public static readonly tText cEmptyValue = "EMPTY";
+	public static readonly tText cOne        = "ONE";
+	public static readonly tText cTrue       = "TRUE";
+	public static readonly tText cFalse      = "FALSE";
+	public static readonly tText cEnv        = "ENV";
+	public static readonly tText cObj        = "OBJ";
+	public static readonly tText cArg        = "ARG";
+	public static readonly tText cRes        = "RES";
+	public static readonly tText cSelfFunc   = "SELF";
+	public static readonly tText cEmptyType  = "EMPTY_TYPE";
+	public static readonly tText cBoolType   = "BOOL_TYPE";
+	public static readonly tText cIntType    = "INT_TYPE";
+	public static readonly tText cTypeType   = "Type_TYPE";
 	
 	[DebuggerDisplay("{ToText(this)}")]
 	public struct
@@ -170,10 +170,10 @@ mIL_AST {
 		tCommandNodeType.Pair => $"{a._1} := {a._2}, {a._3}",
 		tCommandNodeType.First => $"{a._1} := §1ST {a._2}",
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
-		tCommandNodeType.ApplyPrefix => $"{a._1} := +#{a._2} {a._3}",
-		tCommandNodeType.RemovePrefix => $"{a._1} := -#{a._2} {a._3}",
-		tCommandNodeType.ExtendRec => $"{a._1} := {{{a._2}}} + {a._3}",
-		tCommandNodeType.DivideRec => $"{a._1} := {{{a._2}}} /",
+		tCommandNodeType.PrefixApply => $"{a._1} := +#{a._2} {a._3}",
+		tCommandNodeType.PrefixRemove => $"{a._1} := -#{a._2} {a._3}",
+		tCommandNodeType.AddField => $"{a._1} := {{{a._2}}} + {a._3}",
+		tCommandNodeType.GetField => $"{a._1} := {{{a._2}}} #{a._3}",
 		tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
 		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
 		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
@@ -455,7 +455,7 @@ mIL_AST {
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.ApplyPrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.PrefixApply, aPos, aResReg, aPrefix, aArgReg);
 	
 	public static tCommandNode<tPos>
 	SubPrefix<tPos>(
@@ -463,22 +463,23 @@ mIL_AST {
 		tText aResReg,
 		tText aPrefix,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.RemovePrefix, aPos, aResReg, aPrefix, aArgReg);
+	) => CommandNode(tCommandNodeType.PrefixRemove, aPos, aResReg, aPrefix, aArgReg);
 	
 	public static tCommandNode<tPos>
-	ExtendRec<tPos>(
+	AddField<tPos>(
 		tPos aPos,
 		tText aResReg,
 		tText aRecord,
 		tText aPrefix
-	) => CommandNode(tCommandNodeType.ExtendRec, aPos, aResReg, aRecord, aPrefix);
+	) => CommandNode(tCommandNodeType.AddField, aPos, aResReg, aRecord, aPrefix);
 	
 	public static tCommandNode<tPos>
-	DivideRec<tPos>(
+	GetField<tPos>(
 		tPos aPos,
 		tText aResReg,
-		tText aRecord
-	) => CommandNode(tCommandNodeType.DivideRec, aPos, aResReg, aRecord);
+		tText aRecord,
+		tText aPrefix
+	) => CommandNode(tCommandNodeType.GetField, aPos, aResReg, aRecord, aPrefix);
 	
 	public static tCommandNode<tPos>
 	CallFunc<tPos>(
@@ -551,7 +552,7 @@ mIL_AST {
 	ReturnIfNotEmpty<tPos>(
 		tPos aPos,
 		tText aArgReg
-	) => CommandNode(tCommandNodeType.ReturnIfNotEmpty, aPos, cEmpty, aArgReg);
+	) => CommandNode(tCommandNodeType.ReturnIfNotEmpty, aPos, cEmptyValue, aArgReg);
 	
 	public static tCommandNode<tPos>
 	TryAsBool<tPos>(

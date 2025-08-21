@@ -80,7 +80,7 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText
 	) {
 		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		tText CommandLine() => $"{aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
+		tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
 		aCallStack._TraceOut(CommandLine);
 		aCallStack._CodePointer += 1;
 		
@@ -211,7 +211,7 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
 				break;
 			}
-			case mVM_Data.tOpCode.ExtendRec: {
+			case mVM_Data.tOpCode.AddField: {
 				aCallStack._Regs.Push(
 					mVM_Data.Record(
 						aCallStack._Regs.Get(Arg1),
@@ -220,14 +220,11 @@ mVM {
 				);
 				break;
 			}
-			case mVM_Data.tOpCode.DivideRec: {
+			case mVM_Data.tOpCode.GetField: {
 				var Arg = aCallStack._Regs.Get(Arg1);
-				mAssert.IsTrue(Arg.IsRecord(out var Record, out var Prefix));
+				mAssert.IsTrue(Arg.IsRecord(out var Fields));
 				aCallStack._Regs.Push(
-					mVM_Data.Pair(
-						Record,
-						Prefix
-					)
+					Fields.TryGet(Arg2).AssertNotEmpty()
 				);
 				break;
 			}
@@ -404,6 +401,8 @@ mVM {
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
+					Des._Fields = Res._Fields;
+					Des._IsMutable = Res._IsMutable;
 					aCallStack._TraceOut(() => "====================================");
 					return aCallStack._Parent;
 				}
@@ -466,10 +465,10 @@ mVM {
 		}
 	}
 	
-	public static mVM_Data.tData
+	public static (mVM_Data.tData Data, mVM_Type.tType Type)
 	Run<tPos>(
 		mIL_AST.tModule<tPos> aModule,
-		mVM_Data.tData aImport,
+		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
@@ -499,13 +498,15 @@ mVM {
 		Run(
 			mVM_Data.Proc(InitProc, DefTuple),
 			mVM_Data.Empty(),
-			aImport,
+			aImport.Data,
 			Res,
 			aPosToText,
 			TraceOut
 		);
 		
-		return Res;
+		mAssert.IsTrue(VMModule.TryLast().AssertNotEmpty().DefType.IsProc(out _, out _, out var FuncType));
+		mAssert.IsTrue(FuncType.IsProc(out _, out _, out var ResType), $"{mStd.FileLine()}: {FuncType.ToText()}");
+		return (Res, ResType);
 	}
 	
 //	public static mVM_Data.tData

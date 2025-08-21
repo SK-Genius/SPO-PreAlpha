@@ -7,6 +7,12 @@
 
 public static class
 mStdLib_Tests {
+	private static tText StdLibImportLog = "";
+	
+	private static readonly mLazy.tLazy<(mVM_Data.tData Data, mVM_Type.tType Type)>
+	StdLibImport = mLazy.Lazy(
+		() => mStdLib.GetImportData(_ => { StdLibImportLog += _(); })
+	);
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -14,6 +20,11 @@ mStdLib_Tests {
 		[
 			mTest.Test("IfThenElse",
 				aDebugStream => {
+					var Import = StdLibImport.Value;
+					if (StdLibImportLog is not "") {
+						aDebugStream(StdLibImportLog);
+					}
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
@@ -48,20 +59,33 @@ mStdLib_Tests {
 							§EXPORT .Fib n
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mStdLib.GetImportData(_ => aDebugStream(_())),
-									mVM_Data.Int(8)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										Import.Data,
+										mVM_Data.Int(8)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										Import.Type,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(21)
 					);
 				}
 			),
 			mTest.Test("If2",
 				aDebugStream => {
+					var Import = StdLibImport.Value;
+					if (StdLibImportLog is not "") {
+						aDebugStream(StdLibImportLog);
+					}
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
@@ -85,20 +109,33 @@ mStdLib_Tests {
 							§EXPORT .Fib n
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mStdLib.GetImportData(_ => aDebugStream(_())),
-									mVM_Data.Int(8)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										Import.Data,
+										mVM_Data.Int(8)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										Import.Type,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(21)
 					);
 				}
 			),
 			mTest.Test("IfMatch1",
 				aDebugStream => {
+					var Import = StdLibImport.Value;
+					if (StdLibImportLog is not "") {
+						aDebugStream(StdLibImportLog);
+					}
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
@@ -122,20 +159,33 @@ mStdLib_Tests {
 							§EXPORT .Fib n
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mStdLib.GetImportData(_ => aDebugStream(_())),
-									mVM_Data.Int(8)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										Import.Data,
+										mVM_Data.Int(8)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										Import.Type,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(21)
 					);
 				}
 			),
 			mTest.Test("IfMatch2",
 				aDebugStream => {
+					var Import = StdLibImport.Value;
+					if (StdLibImportLog is not "") {
+						aDebugStream(StdLibImportLog);
+					}
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
@@ -158,20 +208,33 @@ mStdLib_Tests {
 							§EXPORT .Fib n
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mStdLib.GetImportData(_ => aDebugStream(_())),
-									mVM_Data.Int(8)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										Import.Data,
+										mVM_Data.Int(8)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										Import.Type,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(21)
 					);
 				}
 			),
 			mTest.Test("VAR",
 				aDebugStream => {
+					var Import = StdLibImport.Value;
+					if (StdLibImportLog is not "") {
+						aDebugStream(StdLibImportLog);
+					}
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
@@ -200,9 +263,9 @@ mStdLib_Tests {
 							§EXPORT x
 							""",
 							"",
-							mStdLib.GetImportData(_ => aDebugStream(_())),
+							Import,
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Var(mVM_Data.Int(22))
 					);
 				}

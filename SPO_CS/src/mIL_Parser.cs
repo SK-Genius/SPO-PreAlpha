@@ -124,13 +124,13 @@ mIL_Parser {
 			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, -SpecialToken("}") -Token("+"), Id)
 			.Modify((a1, _, a2, _, a3) => (a1, a2, a3))
-			.ModifyS(mTokenizer.X(mIL_AST.ExtendRec))
-			.SetDebugName([nameof(mIL_AST.ExtendRec)]),
+			.ModifyS(mTokenizer.X(mIL_AST.AddField))
+			.SetDebugName([nameof(mIL_AST.AddField)]),
 			
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, (-SpecialToken("}") -Token("/")))
-			.Modify((a1, _, a2, _) => (a1, a2))
-			.ModifyS(mTokenizer.X(mIL_AST.DivideRec))
-			.SetDebugName([nameof(mIL_AST.DivideRec)]),
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("{"), Id, (-SpecialToken("}")), Prefix)
+			.Modify((a1, _, a2, _, a3) => (a1, a2, a3))
+			.ModifyS(mTokenizer.X(mIL_AST.GetField))
+			.SetDebugName([nameof(mIL_AST.GetField)]),
 			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), SpecialToken("."), Id, Id)
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))

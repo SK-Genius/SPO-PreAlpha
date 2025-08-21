@@ -36,8 +36,8 @@ mVM_Data {
 		HasPrefix,
 		
 		// RECORD
-		ExtendRec,
-		DivideRec,
+		AddField,
+		GetField,
 		
 		// VAR
 		VarDef,
@@ -311,21 +311,22 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aRecReg,
 		tNat32 aPrefixReg
-	) => aDef._AddReg(aPos, tOpCode.ExtendRec, aRecReg, aPrefixReg);
+	) => aDef._AddReg(aPos, tOpCode.AddField, aRecReg, aPrefixReg);
 	
 	public static tNat32
-	DivideRec<tPos>(
+	GetField<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aRecReg,
+		tNat32 aFieldId
+	) => aDef._AddReg(aPos, tOpCode.GetField, aRecReg, aFieldId);
+	
+	public static tNat32
+	AddField<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aRecReg
-	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
-	
-	public static tNat32
-	ExtendRec<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aRecReg
-	) => aDef._AddReg(aPos, tOpCode.DivideRec, aRecReg);
+	) => aDef._AddReg(aPos, tOpCode.AddField, aRecReg);
 	
 	public static tNat32
 	VarDef<tPos>(
@@ -611,6 +612,7 @@ mVM_Data {
 	tData {
 		public tDataType _DataType;
 		public mAny.tAny _Value;
+		public mTreeMap.tTree<tNat32, tData> _Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
 		public tBool _IsMutable;
 		
 		public tBool
@@ -620,6 +622,7 @@ mVM_Data {
 			a is not null
 			&& this._DataType.Equals(a._DataType)
 			&& this._Value.Equals(a._Value)
+			&& this._Fields.Equals(a._Fields)
 		);
 		
 		public override tBool
@@ -637,6 +640,17 @@ mVM_Data {
 		_DataType = aType,
 		_IsMutable = aIsMutable,
 		_Value = mAny.Any(aValue)
+	};
+	
+	private static tData
+	Data(
+		tDataType aType,
+		tBool aIsMutable,
+		mTreeMap.tTree<tNat32, tData> aFields
+	) => new() {
+		_DataType = aType,
+		_IsMutable = aIsMutable,
+		_Fields = aFields,
 	};
 	
 	private static tData
@@ -815,28 +829,37 @@ mVM_Data {
 	Prefix(
 		tText aPrefix,
 		tData aData
-	) => Data(tDataType.Prefix, aData._IsMutable, (tNat32)aPrefix.GetHashCode(), aData);
+	) => Data(tDataType.Prefix, aData._IsMutable, aPrefix.PrefixHash(), aData);
 	
 	public static tBool
 	IsPrefix(
 		this tData aData,
 		tText aPrefix,
 		out tData aValue
-	) => aData.IsPrefix((tNat32)aPrefix.GetHashCode(), out aValue);
+	) => aData.IsPrefix(aPrefix.PrefixHash(), out aValue);
 	
 	public static tData
 	Record(
 		tData aRecord,
 		tData aPrefix
 	) {
-		mAssert.IsTrue(aPrefix.IsPrefix(out var PrefixHash, out _));
-		var Record = aRecord;
-		while (!Record.IsEmpty()) {
-			mAssert.IsTrue(Record.IsRecord(out Record, out var Prefix));
-			mAssert.IsTrue(Prefix.IsPrefix(out var PrefixHash_, out _));
-			mAssert.AreNotEquals(PrefixHash, PrefixHash_);
+		if (aRecord.IsEmpty()) {
+			aRecord = Data(
+				tDataType.Record,
+				aPrefix._IsMutable,
+				mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), [])
+			);
 		}
-		return Data(tDataType.Record, aRecord._IsMutable || aPrefix._IsMutable, aRecord, aPrefix);
+		
+		mAssert.IsTrue(aPrefix.IsPrefix(out var PrefixHash, out var Data_));
+		mAssert.IsTrue(aRecord.IsRecord(out var Fields));
+		mAssert.IsTrue(Fields.TryGet(PrefixHash).IsNone());
+		
+		return Data(
+			tDataType.Record,
+			aRecord._IsMutable || aPrefix._IsMutable,
+			Fields.Set(PrefixHash, Data_)
+		);
 	}
 	
 	public static tData
@@ -853,9 +876,25 @@ mVM_Data {
 	public static tBool
 	IsRecord(
 		this tData aData,
-		out tData aRecord,
-		out tData aPrefix
-	) => aData.Is(tDataType.Record, out aRecord, out aPrefix);
+		[NotNullWhen(true)]out mTreeMap.tTree<tNat32, tData> aFields
+	) {
+		if (aData._DataType is tDataType.Record) {
+			aFields =  aData._Fields;
+			return true;
+		} else {
+			aFields = default!;
+			return false;
+		}
+	}
+	
+	public static tData
+	GetField(
+		tData aRecord,
+		tText aFieldName
+	) {
+		mAssert.Fail(); // TODO
+		return default;
+	}
 	
 	public static tData
 	Proc<tPos>(
@@ -983,16 +1022,13 @@ mVM_Data {
 			_ when a.IsPrefix(out var Prefix, out var Value)
 			=> $"(#{Prefix} {Value.ToText(NextLimit)})",
 			
-			_ when a.IsRecord(out var SubRecord, out var KeyValue)
+			_ when a.IsRecord(out var Fields)
 			=> mStd.Call(() => {
-				mAssert.IsTrue(KeyValue.IsPrefix(out var Key, out var Value));
-				var Result = $"{{ {Key}: {Value.ToText(NextLimit)}";
-				while (SubRecord.IsRecord(out var Temp, out KeyValue)) {
-					mAssert.IsTrue(KeyValue.IsPrefix(out var Key_, out var Value_));
-					Result += $", {Key_}: {Value_.ToText(NextLimit)}";
-					SubRecord = Temp;
+				var Result = $"{{ ";
+				foreach (var (Key, Value) in Fields.ToStream()) {
+					Result += $", {Key}: {Value.ToText(NextLimit)}";
 				}
-				return Result + "}";
+				return Result + " }";
 			}),
 			
 			_ when a.IsVar(out var Value)
@@ -1019,5 +1055,26 @@ mVM_Data {
 			_
 			=> $"(?{a._DataType}?)",
 		};
+	}
+	
+	public static tNat32
+	PrefixHash(
+		this tText a
+	) {
+		if (a is null) {
+			return 0;
+		}
+		
+		unchecked {
+			var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
+			foreach (var ch in a) {
+				Hash ^= ch;
+				var Shift = Hash & 31;
+				var Rot = (Hash << (tInt32)Shift) | (Hash << ((tInt32)Shift - 32));
+				Hash ^= Rot;
+			}
+			Hash ^= Hash >> 16;
+			return Hash;
+		}
 	}
 }

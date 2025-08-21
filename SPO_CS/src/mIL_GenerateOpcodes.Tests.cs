@@ -136,7 +136,7 @@ mIL_GenerateOpcodes_Tests {
 						§TYPES
 							pre := [#PRE INT]
 							pre->pre := [pre => pre]
-							->pre->pre := [EMPTY => pre->pre]
+							->pre->pre := [EMPTY_TYPE => pre->pre]
 						§DEF ...++ € ->pre->pre
 							_1 := 1
 							arg := -#PRE ARG
@@ -178,7 +178,7 @@ mIL_GenerateOpcodes_Tests {
 						§TYPES
 							IntInt := [INT, INT]
 							IntInt->Bool := [IntInt => BOOL]
-							Env := [EMPTY => IntInt->Bool]
+							Env := [EMPTY_TYPE => IntInt->Bool]
 							Int->Bool := [INT => BOOL]
 							Env-->Int->Bool := [Env => Int->Bool]
 						§DEF ...=1 € Env-->Int->Bool
@@ -243,14 +243,14 @@ mIL_GenerateOpcodes_Tests {
 						§TYPES
 							IntInt := [INT, INT]
 							IntInt->Int := [IntInt => INT]
-							_IntInt->Int := [EMPTY => IntInt->Int]
+							_IntInt->Int := [EMPTY_TYPE => IntInt->Int]
 							IntInt->Bool := [IntInt => BOOL]
-							_IntInt->Bool := [EMPTY => IntInt->Bool]
-							Env1 := [EMPTY, _IntInt->Int]
+							_IntInt->Bool := [EMPTY_TYPE => IntInt->Bool]
+							Env1 := [EMPTY_TYPE, _IntInt->Int]
 							Env2 := [Env1, _IntInt->Int]
 							Env3 := [Env2, _IntInt->Int]
 							Env4 := [Env3, _IntInt->Bool]
-							->Int := [EMPTY => INT]
+							->Int := [EMPTY_TYPE => INT]
 							tBla := [Env4 => ->Int]
 						§DEF bla € tBla
 							_1 := 1

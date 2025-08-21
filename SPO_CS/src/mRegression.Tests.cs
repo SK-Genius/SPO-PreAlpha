@@ -19,7 +19,8 @@
 
 public static class
 mRegression_Tests {
-	private static readonly System.IO.DirectoryInfo cTestFolder = new System.IO.DirectoryInfo(
+	private static readonly System.IO.DirectoryInfo
+	cTestFolder = new System.IO.DirectoryInfo(
 		System.IO.Path.Combine(
 			System.IO.Directory.GetParent(mStd.File()).FullName,
 			"..",
@@ -27,7 +28,8 @@ mRegression_Tests {
 		)
 	);
 	
-	public static readonly mTest.tTest Tests = mTest.Tests(
+	public static readonly mTest.tTest
+	Tests = mTest.Tests(
 		nameof(mRegression_Tests),
 		mStd.Call(
 			() => {
@@ -63,7 +65,7 @@ mRegression_Tests {
 							var Result = mSPO_Interpreter.Run(
 								ResText.Value,
 								SpoPath,
-								mStdLib.GetImportData(_ => { WriteToLog(_); }),
+								(mVM_Data.Empty(), mVM_Type.Empty()),
 								_ => WriteToLog(_)
 							);
 							return (Result, Log);
@@ -84,7 +86,8 @@ mRegression_Tests {
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
-										mAssert.AreEquals(SpoRes, ResRes.Value.Result);
+										mAssert.AreEquals(SpoRes.Type.ToText(), ResRes.Value.Result.Type.ToText());
+										mAssert.AreEquals(SpoRes.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
 									SpoPath,
 									1
@@ -114,12 +117,13 @@ mRegression_Tests {
 										);
 										var IlRes = mVM.Run(
 											IlModule,
-											mVM_Data.Empty(),
+											mStdLib.GetImportData(_ => aDebug(_())),
 											p => $"{p.Start.Id}({p.Start.Row}:{p.Start.Col} .. {p.End.Row}:{p.End.Col})",
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
-										mAssert.AreEquals(IlRes, ResRes.Value.Result);
+										mAssert.AreEquals(IlRes.Type.ToText(), ResRes.Value.Result.Type.ToText());
+										mAssert.AreEquals(IlRes.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
 									IlPath,
 									1

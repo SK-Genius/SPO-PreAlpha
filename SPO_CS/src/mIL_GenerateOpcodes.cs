@@ -16,7 +16,7 @@
 
 public static class
 mIL_GenerateOpcodes {
-	public static readonly tText cEmptyType = "EMPTY";
+	public static readonly tText cEmptyType = "EMPTY_TYPE";
 	public static readonly tText cBoolType = "BOOL";
 	public static readonly tText cIntType = "INT";
 	public static readonly tText cAnyType = "ANY";
@@ -153,7 +153,7 @@ mIL_GenerateOpcodes {
 			Module = mStream.Concat(Module, mStream.Stream([NewProc]));
 			
 			var Regs = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), [])
-			.Set(mIL_AST.cEmpty, mVM_Data.cEmptyReg)
+			.Set(mIL_AST.cEmptyValue, mVM_Data.cEmptyReg)
 			.Set(mIL_AST.cOne, mVM_Data.cOneReg)
 			.Set(mIL_AST.cFalse, mVM_Data.cFalseReg)
 			.Set(mIL_AST.cTrue, mVM_Data.cTrueReg)
@@ -339,34 +339,42 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.ApplyPrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.PrefixApply, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Prefix = RegId2.AssertNotEmpty();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
-						Regs = Regs.Set(RegId1, NewProc.AddPrefix(Span, (tNat32)Prefix.GetHashCode(), Reg)); // TODO: avoid Hash collisions
+						Regs = Regs.Set(RegId1, NewProc.AddPrefix(Span, Prefix.PrefixHash(), Reg)); // TODO: avoid Hash collisions
 						Types.Push(mVM_Type.Prefix(Prefix, Types.Get(Reg)));
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.RemovePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.PrefixRemove, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Prefix = RegId2.AssertNotEmpty();
 						var Reg = Regs.GetOrThrow(RegId3, Command);
 						mAssert.IsTrue(Types.Get(Reg).IsPrefix(Prefix, out var ResType));
-						Regs = Regs.Set(RegId1, NewProc.DelPrefix(Span, (tNat32)Prefix.GetHashCode(), Reg)); // TODO: avoid Hash collisions
+						Regs = Regs.Set(RegId1, NewProc.DelPrefix(Span, Prefix.PrefixHash(), Reg)); // TODO: avoid Hash collisions
 						Types.Push(ResType);
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.ExtendRec, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.AddField, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var OldRecordReg = Regs.GetOrThrow(RegId2, Command);
 						var NewElementReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.ExtendRec(Span, OldRecordReg, NewElementReg));
 						Types.Push(mVM_Type.Record(Types.Get(OldRecordReg), Types.Get(NewElementReg)));
 						break;
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.DivideRec, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
+					case { NodeType: mIL_AST.tCommandNodeType.GetField, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var RecordReg = Regs.GetOrThrow(RegId2, Command);
+						var Key = RegId3.AssertNotEmpty();
 						var RecordType = Types.Get(RecordReg);
-						mAssert.AreNotEquals(RecordType.Kind, mVM_Type.tKind.Empty);
-						Regs = Regs.Set(RegId1, NewProc.DivideRec(Span, RecordReg));
-						Types.Push(mVM_Type.Pair(RecordType.Refs[0], RecordType.Refs[1]));
+						mAssert.IsTrue(RecordType.IsRecord(out var Fields));
+						mAssert.IsTrue(
+							Fields.TryGet(Key).IsSome(out var FieldType),
+							$"""
+							{Span} Unknown field '{Key}' in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
+							]
+							"""
+						);
+						Regs = Regs.Set(RegId1, NewProc.GetField(Span, RecordReg, Key.PrefixHash()));
+						Types.Push(FieldType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.Assert, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -400,31 +408,31 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef));
+						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var Reg = Regs.GetOrThrow(RegId2, Command);
@@ -524,7 +532,7 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TypePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Prefix = RegId2.AssertNotEmpty();
 						var TypeReg = Regs.GetOrThrow(RegId3, Command);
-						Regs = Regs.Set(RegId1, NewProc.TypePrefix(Span, (tNat32)Prefix.GetHashCode(), TypeReg)); // TODO: avoid Hash collisions
+						Regs = Regs.Set(RegId1, NewProc.TypePrefix(Span, Prefix.PrefixHash(), TypeReg)); // TODO: avoid Hash collisions
 						Types.Push(
 							mVM_Type.Type(
 								mVM_Type.Prefix(

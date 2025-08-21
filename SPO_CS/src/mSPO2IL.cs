@@ -187,19 +187,6 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
-			case var a when a.IsRecord(out var Key, out var HeadType, out var TailType): {
-				var IdHead = aModuleConstructor.MapType(HeadType);
-				var IdTail = aModuleConstructor.MapType(TailType);
-				
-				var TempId = $"[#{Key}:{IdHead}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), TempId, Key, IdHead));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(TempId, mVM_Type.Prefix(Key, HeadType));
-				
-				var NewId = $"[{{{Key}:{IdHead};{IdTail}}}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecord(default(tPos), NewId, IdTail, TempId));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
-				return NewId;
-			}
 			case var a when a.IsPair(out var Type1, out var Type2): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
@@ -207,6 +194,19 @@ mSPO2IL {
 				aModuleConstructor.TypeDef.Push(mIL_AST.TypePair(default(tPos), NewId, Id1, Id2));
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
+			}
+			case var a when a.IsRecord(out var Fields): {
+				var RecTypeId = mIL_AST.cEmptyType;
+				foreach (var Field in Fields.ToStream()) {
+					var FieldTypeId = aModuleConstructor.MapType(Field.Value);
+					var PrefixedFieldTypeId = $"[#{Field.Key} {FieldTypeId}]";
+					aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), PrefixedFieldTypeId, Field.Key.ToString(), FieldTypeId)); // TODO: remove .ToString() ???
+					var NewRecTypeId = $"[{RecTypeId}, {PrefixedFieldTypeId}]";
+					aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecord(default(tPos), NewRecTypeId, RecTypeId, PrefixedFieldTypeId));
+					RecTypeId = NewRecTypeId;
+				}
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(RecTypeId, a);
+				return RecTypeId;
 			}
 			case var a when a.IsSet(out var Type1, out var Type2): {
 				var Id1 = aModuleConstructor.MapType(Type1);
@@ -305,7 +305,7 @@ mSPO2IL {
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
 	) {
-		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg, aLambdaNode.Head.TypeAnnotation.AssertNotEmpty());
+		aDefConstructor.MapMatch(aLambdaNode.Head, mIL_AST.cArg);
 		
 		var ResultReg = aDefConstructor.MapExpression(aModuleConstructor, aLambdaNode.Body);
 		if (aLambdaNode.Body is not mSPO_AST.tBlockNode<tPos>) {
@@ -335,8 +335,8 @@ mSPO2IL {
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	) {
-		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg, aMethodNode.Arg.TypeAnnotation.AssertNotEmpty());
-		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj, aMethodNode.Obj.TypeAnnotation.AssertNotEmpty());
+		aDefConstructor.MapMatch(aMethodNode.Arg, mIL_AST.cArg);
+		aDefConstructor.MapMatch(aMethodNode.Obj, mIL_AST.cObj);
 		
 		var ResultReg = aDefConstructor.MapExpression(aModuleConstructor, aMethodNode.Body);
 		aDefConstructor.Commands.Push(
@@ -410,7 +410,7 @@ mSPO2IL {
 		mAssert.IsTrue(aDefType.IsProc(out _, out _, out var FuncType));
 		//mAssert.IsTrue(FuncType.IsProc(out _, out _, out _));
 		
-		var EnvReg = mIL_AST.cEmpty;
+		var EnvReg = mIL_AST.cEmptyValue;
 		if (!aEnvList.IsEmpty()) {
 			foreach (var (EnvId, EnvType) in aEnvList) {
 				if (aCallerDefConstructor.TypeDict.TryGet(EnvId).IsNone()) {
@@ -449,7 +449,7 @@ mSPO2IL {
 		
 		switch (aExpressionNode) {
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
-				return mIL_AST.cEmpty;
+				return mIL_AST.cEmptyValue;
 			}
 			case mSPO_AST.tFalseNode<tPos> FalseNode: {
 				return mIL_AST.cFalse;
@@ -517,7 +517,7 @@ mSPO2IL {
 					}
 					default: {
 						mAssert.IsTrue(Items.Is(out var Head, out var _));
-						var TailReg = mIL_AST.cEmpty;
+						var TailReg = mIL_AST.cEmptyValue;
 						foreach (var Item in Items) {
 							var HeadReg = aDefConstructor.MapExpression(aModuleConstructor, Item);
 							var TupleReg = aDefConstructor.CreateTempReg();
@@ -551,20 +551,20 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var Type }: {
-				var ResultReg = mIL_AST.cEmpty;
+				var ResultReg = mIL_AST.cEmptyValue;
 				foreach (var (Key, Value) in Elements) {
 					var Expression = aDefConstructor.MapExpression(aModuleConstructor, Value);
 					var PrefixReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.AddPrefix(Key.Pos, PrefixReg, Key.Id, Expression));
 					var NewResultReg = aDefConstructor.CreateTempReg();
-					aDefConstructor.Commands.Push(mIL_AST.ExtendRec(Key.Pos, NewResultReg, ResultReg, PrefixReg));
+					aDefConstructor.Commands.Push(mIL_AST.AddField(Key.Pos, NewResultReg, ResultReg, PrefixReg));
 					ResultReg = NewResultReg;
 				}
 				aDefConstructor.AddLocal(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
 			case mSPO_AST.tTextNode<tPos> { Pos: var Pos, Value: var Value }: {
-				var TailReg = mIL_AST.cEmpty;
+				var TailReg = mIL_AST.cEmptyValue;
 				var Index = Value.Length;
 				while (Index --> 0) {
 					var Char = Value[Index];
@@ -631,7 +631,7 @@ mSPO2IL {
 					aDefConstructor.MapCommand(aModuleConstructor, Command);
 				}
 				// TODO: remove created symbols from unknown symbols
-				return mIL_AST.cEmpty;
+				return mIL_AST.cEmptyValue;
 			}
 			case mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases }: {
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
@@ -746,7 +746,7 @@ mSPO2IL {
 				}
 				
 				SwitchDef.Commands.Push(
-					mIL_AST.ReturnIf(Pos, mIL_AST.cTrue, mIL_AST.cEmpty)
+					mIL_AST.ReturnIf(Pos, mIL_AST.cTrue, mIL_AST.cEmptyValue)
 				);
 				// TODO NOW: put expression and else/remaining cases as args into the case test
 				
@@ -1071,7 +1071,7 @@ mSPO2IL {
 						mIL_AST.CreateInt(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Int), "" + p.Value),
 						mIL_AST.IntsAreEq(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Eq), IntArg, Int),
 						mIL_AST.XOr(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var NotEq), Eq, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(aCasePos, NotEq, mIL_AST.cEmpty),
+						mIL_AST.ReturnIf(aCasePos, NotEq, mIL_AST.cEmptyValue),
 						mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, IntArg),
 						mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
 					]
@@ -1167,13 +1167,13 @@ mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tMatchNode<tPos> p: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
+				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> p: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
+				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
 			}
 			default: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
+				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
 			}
 		}
 	}
@@ -1182,8 +1182,7 @@ mSPO2IL {
 	MapMatch<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		mSPO_AST.tMatchNode<tPos> aMatchNode,
-		tText aRegId,
-		mVM_Type.tType aRegType
+		tText aRegId
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.TypeExpression;
@@ -1217,67 +1216,34 @@ mSPO2IL {
 					)
 				);
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
-				mAssert.IsTrue(aRegType.IsPrefix(Prefix, out var ResType));
-				
-				aDefConstructor.MapMatch(
-					Match,
-					ResultReg,
-					ResType
-				);
+				aDefConstructor.MapMatch(Match, ResultReg);
 				break;
 			}
 			case mSPO_AST.tMatchRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
-				var Type = aRegType;
 				foreach (var (IdNode, Match) in Elements) {
-					var Pos = IdNode.Pos;
-					
-					var Reg = aRegId;
-					var Found = false;
-					var RecType = Type;
-					while (RecType.IsRecord(out var HeadId, out var HeadType, out RecType!)) {
-						var HeadTailReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(mIL_AST.DivideRec(Pos, HeadTailReg, Reg));
-						if (HeadId == IdNode.Id) {
-							aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(Reg, TypeAnnotation.AssertNotEmpty());
-							var TempValueReg_ = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.GetSecond(Pos, TempValueReg_, HeadTailReg));
-							var TempValueReg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.SubPrefix(Pos, TempValueReg, IdNode.Id, TempValueReg_));
-							aDefConstructor.MapMatch(Match, TempValueReg, RecType);
-							Found = true;
-							break;
-						} else {
-							Reg = aDefConstructor.CreateTempReg();
-							aDefConstructor.Commands.Push(mIL_AST.GetFirst(Pos, Reg, HeadTailReg));
-						}
-					}
-					if (!Found) {
-						throw mError.Error($"{Pos} ERROR: can't match type '{TypeAnnotation}'");
-					}
+					aDefConstructor.Commands.Push(mIL_AST.GetField(IdNode.Pos, aDefConstructor.CreateTempReg(out var FieldReg), aRegId, IdNode.Id));
+					aDefConstructor.MapMatch(Match, FieldReg);
 				}
 				break;
 			}
 			case mSPO_AST.tMatchTupleNode<tPos> { Items: var Items }: {
 				var RemainingReg = aRegId;
-				var RemainingTypes = aRegType;
 				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2u);
 				foreach (var Item in Items.Reverse()) {
-					mAssert.IsTrue(RemainingTypes.IsPair(out RemainingTypes, out var ItemType));
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetSecond(PatternNode.Pos, ItemReg, RemainingReg));
 					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ItemReg, Item.TypeAnnotation.AssertNotEmpty());
-					aDefConstructor.MapMatch(Item, ItemReg, ItemType);
+					aDefConstructor.MapMatch(Item, ItemReg);
 					
 					var NewRestReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetFirst(PatternNode.Pos, NewRestReg, RemainingReg));
 					RemainingReg = NewRestReg;
 				}
-				mAssert.IsTrue(RemainingTypes.IsEmpty());
 				break;
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> { Match: var Match, Guard: var Guard }: {
 				// TODO: ASSERT Guard
-				aDefConstructor.MapMatch(Match, aRegId, aRegType);
+				aDefConstructor.MapMatch(Match, aRegId);
 				break;
 			}
 			case mSPO_AST.tMatchNode<tPos> MatchNode: {
@@ -1288,11 +1254,10 @@ mSPO2IL {
 					
 					aDefConstructor.MapMatch(
 						mSPO_AST.Match(aMatchNode.Pos, MatchNode.Pattern, TypeNode),
-						aRegId,
-						aRegType
+						aRegId
 					);
 				} else {
-					aDefConstructor.MapMatch(MatchNode, aRegId, aRegType);
+					aDefConstructor.MapMatch(MatchNode, aRegId);
 				}
 				break;
 			}
@@ -1311,7 +1276,7 @@ mSPO2IL {
 		mSPO_AST.tDefNode<tPos> aDefNode
 	) {
 		var ValueReg = aDefConstructor.MapExpression(aModuleConstructor, aDefNode.Src);
-		aDefConstructor.MapMatch(aDefNode.Des, ValueReg, aDefNode.Src.TypeAnnotation.AssertNotEmpty());
+		aDefConstructor.MapMatch(aDefNode.Des, ValueReg);
 	}
 	
 	public static void
@@ -1359,7 +1324,7 @@ mSPO2IL {
 			}
 		}
 		
-		var ResultTupleReg = mIL_AST.cEmpty;
+		var ResultTupleReg = mIL_AST.cEmptyValue;
 		
 		foreach (var RecProc in aRecLambdasNode.List) {
 			var RecProcConstructor = NewDefConstructor<tPos>();
@@ -1508,7 +1473,7 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}
-			var Result = Call.Result.IsNone() ? mIL_AST.cEmpty : aDefConstructor.CreateTempReg();
+			var Result = Call.Result.IsNone() ? mIL_AST.cEmptyValue : aDefConstructor.CreateTempReg();
 			var ResultType = Call.Result.ThenDo(_ => _.TypeAnnotation.AssertNotEmpty()).Else(mVM_Type.Empty());
 			var MethodReg = aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
@@ -1518,7 +1483,7 @@ mSPO2IL {
 				]
 			);
 			if (Call.Result.IsSome(out var Result_)) {
-				aDefConstructor.MapMatch(Result_, Result, ResultType);
+				aDefConstructor.MapMatch(Result_, Result);
 			}
 		}
 	}

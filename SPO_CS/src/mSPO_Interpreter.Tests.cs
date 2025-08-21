@@ -21,6 +21,18 @@ mSPO_Interpreter_Tests {
 		return mVM_Data.Int(IntArg1 * IntArg2);
 	}
 	
+	private static readonly mVM_Type.tType
+	MulType = mVM_Type.Proc(
+		mVM_Type.Empty(),
+		mVM_Type.Tuple(
+			[
+				mVM_Type.Int(),
+				mVM_Type.Int()
+			]
+		),
+		mVM_Type.Int()
+	);
+	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mSPO_Interpreter),
@@ -83,9 +95,9 @@ mSPO_Interpreter_Tests {
 										§EXPORT {a.Item3}
 										""",
 										"",
-										mVM_Data.Empty(),
+										(mVM_Data.Empty(), mVM_Type.Empty()),
 										_ => aDebugStream(_())
-									),
+									).Data,
 									a.Item4
 								);
 							},
@@ -113,14 +125,22 @@ mSPO_Interpreter_Tests {
 							§EXPORT y
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-									mVM_Data.Int(2)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+										mVM_Data.Int(2)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										MulType,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(10)
 					);
 				}
@@ -140,14 +160,22 @@ mSPO_Interpreter_Tests {
 							§EXPORT y
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-									mVM_Data.Int(2)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+										mVM_Data.Int(2)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										MulType,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(10)
 					);
 				}
@@ -165,14 +193,22 @@ mSPO_Interpreter_Tests {
 							§EXPORT .(§DEF a € §INT => (k .* a)) 5
 							""",
 							"",
-							mVM_Data.Tuple(
-								[
-									mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
-									mVM_Data.Int(2)
-								]
+							(
+								mVM_Data.Tuple(
+									[
+										mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+										mVM_Data.Int(2)
+									]
+								),
+								mVM_Type.Tuple(
+									[
+										MulType,
+										mVM_Type.Int()
+									]
+								)
 							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(10)
 					);
 				}
@@ -189,9 +225,12 @@ mSPO_Interpreter_Tests {
 							§EXPORT .((§DEF a € §INT, _ € §INT, _ € §INT) => (2 .* a)) (3, 5, 7)
 							""",
 							"",
-							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+							(
+								mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+								MulType
+							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(6)
 					);
 				}
@@ -213,9 +252,12 @@ mSPO_Interpreter_Tests {
 							) (2, 3)
 							""",
 							"",
-							mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+							(
+								mVM_Data.ExternProc(Mul, mVM_Data.Empty()),
+								MulType
+							),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(4),
 						null,
 						(a) => mVM_Data.ToText(a, 20)
@@ -294,9 +336,9 @@ mSPO_Interpreter_Tests {
 							}
 							""",
 							"",
-							mVM_Data.Empty(),
+							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => aDebugStream(_())
-						),
+						).Data,
 						mVM_Data.Int(2)
 					);
 				}

@@ -12,13 +12,13 @@
 public static class
 mStdLib {
 	
-	private static mMaybe.tMaybe<mVM_Data.tData> _ImportData;
+	private static mMaybe.tMaybe<(mVM_Data.tData Data, mVM_Type.tType Type)> _Import;
 	
-	public static mVM_Data.tData
+	public static (mVM_Data.tData Data, mVM_Type.tType Type)
 	GetImportData(
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		if (_ImportData.IsSome(out var Data)) {
+		if (_Import.IsSome(out var Data)) {
 			return Data;
 		}
 		
@@ -30,11 +30,11 @@ mStdLib {
 				Std_ILT_Path,
 				aDebugStream
 			),
-			mVM_Data.Empty(),
+			(mVM_Data.Empty(), mVM_Type.Empty()),
 			_ => $"{_.Start.Id}({_.Start.Row}:{_.Start.Col} .. {_.End.Row}:{_.End.Col})",
 			aDebugStream
 		);
-		_ImportData = ImportData;
+		_Import = ImportData;
 		return ImportData;
 	}
 }

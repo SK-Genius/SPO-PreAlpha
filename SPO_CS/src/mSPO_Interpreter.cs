@@ -19,11 +19,11 @@
 public static class
 mSPO_Interpreter {
 	// TODO: return tResult
-	public static mVM_Data.tData
+	public static (mVM_Data.tData Data, mVM_Type.tType Type)
 	Run(
 		tText aCode,
 		tText aId,
-		mVM_Data.tData aImport,
+		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
@@ -69,7 +69,11 @@ mSPO_Interpreter {
 				ModuleConstructor.TypeDef.ToStream(),
 				ModuleConstructor.Defs.ToStream(
 				).MapWithIndex(
-					(aIndex, aDef) => mIL_AST.Def(mSPO2IL.GetDefId(aIndex), aDef.TypeId, aDef.Commands.ToStream())
+					(aIndex, aDef) => mIL_AST.Def(
+						mSPO2IL.GetDefId(aIndex),
+						aDef.TypeId,
+						aDef.Commands.ToStream()
+					)
 				)
 			),
 			aImport,

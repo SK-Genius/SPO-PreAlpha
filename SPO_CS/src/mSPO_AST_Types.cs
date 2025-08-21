@@ -338,14 +338,8 @@ mSPO_AST_Types {
 				Result = (mVM_Type.Empty(), aScope);
 				foreach (var Item in MatchRecord.Elements) {
 					var Type = mMaybe.None<mVM_Type.tType>();
-					if (aType.IsSome(out var RecordType)) { 
-						while (RecordType.IsRecord(out var Id, out var Type_, out RecordType!)) {
-							Type = Type_;
-							if (Id == Item.Id.Id) {
-								break;
-							}
-						}
-						Type.AssertNotEmpty();
+					if (aType.IsSome(out var RecordType)) {
+						Type = RecordType.GetFieldType(Item.Id.Id);
 					}
 					
 					Result = Result.ThenTry(

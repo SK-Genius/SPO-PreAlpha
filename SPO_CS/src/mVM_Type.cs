@@ -35,6 +35,7 @@ mVM_Type {
 		public tText? Id;
 		public tText? Prefix;
 		public tType[] Refs = [];
+		public mTreeMap.tTree<tText, tType> Fields;
 		
 		public override tBool
 		Equals(
@@ -255,6 +256,27 @@ mVM_Type {
 	}
 	
 	public static tType
+	GetFieldType(
+		this tType aType,
+		tText aKey
+	) {
+		if (aType.Kind == tKind.Free) {
+			aType = aType.Refs[0];
+		}
+		
+		mAssert.IsTrue(aType.IsRecord(out var Fields));
+		mAssert.IsTrue(
+			Fields.TryGet(aKey).IsSome(out var FieldType),
+			$"""
+			Unknown field '{aKey}' in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
+			]
+			"""
+		);
+		
+		return FieldType;
+	}
+	
+	public static tType
 	Tuple(
 		System.Span<tType> aTypes
 	) => Tuple(mStream.Stream(aTypes));
@@ -318,22 +340,22 @@ mVM_Type {
 		tType aHeadType
 	) {
 		mAssert.IsIn(aTailType.Kind, [tKind.Record, tKind.Empty]);
-		mAssert.AreEquals(aHeadType.Kind, tKind.Prefix);
-		AssertNotIn(aHeadType.Prefix!, aTailType);
+		mAssert.IsTrue(aHeadType.IsPrefix(out var Prefix, out var Type));
+		
+		mTreeMap.tTree<tText, tType> Fields;
+		if (aTailType.IsEmpty()) {;
+			Fields = mTreeMap.Tree<tText, tType>((a1, a2) => a1.CompareTo(a2).Sign(), []);
+		} else {
+			mAssert.IsTrue(aTailType.IsRecord(out Fields));
+		}
+		mAssert.IsTrue(Fields.TryGet(Prefix).IsNone(),
+			$"Field '{Prefix}' already exists in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}]"
+		);
 		
 		return new tType {
 			Kind = tKind.Record,
-			Refs = [aTailType, aHeadType]
+			Fields = Fields.Set(Prefix, Type)
 		};
-		
-		static void
-		AssertNotIn(tText aPrefix, tType aRecord) {
-			if (aRecord.Kind == tKind.Empty) {
-				return;
-			}
-			mAssert.AreNotEquals(aPrefix, aRecord.Prefix);
-			AssertNotIn(aPrefix, aRecord.Refs[0]);
-		}
 	}
 	
 	public static tType
@@ -350,22 +372,17 @@ mVM_Type {
 	public static tBool
 	IsRecord(
 		this tType aType,
-		[MaybeNullWhen(false)] out tText aHeadKey,
-		[MaybeNullWhen(false)] out tType aHeadType,
-		[MaybeNullWhen(false)] out tType aTailRecord
+		[NotNullWhen(true)]out mTreeMap.tTree<tText, tType> aFields
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Record) {
-			mAssert.IsTrue(aType.Refs[1].IsPrefix(out aHeadKey!, out aHeadType!));
-			aTailRecord = aType.Refs[0];
+		if (aType.Kind is tKind.Record) {
+			aFields = aType.Fields;
 			return true;
 		} else {
-			aHeadKey = default!;
-			aHeadType = default!;
-			aTailRecord = default!;
+			aFields = default!;
 			return false;
 		}
 	}
@@ -750,27 +767,44 @@ mVM_Type {
 				}
 			}
 			case tKind.Record: {
-				var SupTailType = aSupType;
-				while (SupTailType.IsRecord(out var SupHeadKey, out var SupHeadType, out SupTailType)) {
-					var SubTailType = aSubType;
-					var HasFound = false;
-					while (SubTailType.IsRecord(out var SubHeadKey, out var SubHeadType, out SubTailType)) {
-						if (SubHeadKey == SupHeadKey) {
-							if (
-								SubHeadType.IsSubType(SupHeadType, aTypeMappings).Match(
-									out aTypeMappings,
-									out var Error
-								)
-							) {
-								HasFound = true;
-								break;
-							} else {
-								return mResult.Fail(ExtendError(Error, aSubType, aSupType));
-							}
-						}
+				if (!aSupType.IsRecord(out var SupFields)) {
+					return mResult.Fail(
+						ExtendError(
+							$"Expected Record but is {aSupType}",
+							aSubType,
+							aSupType
+						)
+					);
+				}
+				
+				if (!aSubType.IsRecord(out var SubFields)) {
+					return mResult.Fail(
+						ExtendError(
+							$"Expected Record but is {aSubType}",
+							aSubType,
+							aSupType
+						)
+					);
+				}
+				
+				foreach (var SupField in SupFields.ToStream()) {
+					if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
+						return mResult.Fail(
+							ExtendError(
+								$"Missing field '{SupField.Key}' in {aSubType}",
+								aSubType,
+								aSupType
+							)
+						);
 					}
-					if (!HasFound) {
-						return mResult.Fail(ExtendError("", aSubType, aSupType));
+					
+					if (
+						!SubField.IsSubType(SupField.Value, aTypeMappings).Match(
+							out aTypeMappings,
+							out var Error
+						)
+					) {
+						return mResult.Fail(ExtendError(Error, aSubType, aSupType));
 					}
 				}
 				return aTypeMappings;
@@ -901,12 +935,10 @@ mVM_Type {
 				() => {
 					var Text = "";
 					var Type = aType;
-					while (Type.Kind == tKind.Record) {
-						Text += $"{____}, {Type.Refs[1].ToText(____)}";
-						Type = Type.Refs[0];
-					}
-					if (Type.Kind != tKind.Empty) {
-						Text += $"{____}; {Type.ToText(____)}";
+					mAssert.IsTrue(Type.IsRecord(out var Fields));
+					foreach (var Field in Fields.ToStream()) {
+						Text += $"{____}{Field.Key} : {Field.Value.ToText(____)}";
+						Text += ", ";
 					}
 					return "[{" + Text + __ + "}]";
 				}

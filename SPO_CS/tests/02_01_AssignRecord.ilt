@@ -1,10 +1,10 @@
 §TYPES
-	t_0 := [#_First EMPTY]
-	t_1 := [{EMPTY} + t_0]
+	t_0 := [#_First EMPTY_TYPE]
+	t_1 := [{EMPTY_TYPE} + t_0]
 	t_2 := [#_Second INT]
 	t_3 := [{t_1} + t_2]
-	t_4 := [EMPTY => t_3]
-	t_5 := [EMPTY => t_4]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [EMPTY_TYPE => t_4]
 
 §DEF d_0 € t_5
 	r_1 := +#_First EMPTY

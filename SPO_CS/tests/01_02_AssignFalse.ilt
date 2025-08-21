@@ -1,6 +1,6 @@
 §TYPES
-	t_0 := [EMPTY => BOOL]
-	t_1 := [EMPTY => t_0]
+	t_0 := [EMPTY_TYPE => BOOL]
+	t_1 := [EMPTY_TYPE => t_0]
 
 §DEF d_0 € t_1
 	_x := TRUE
