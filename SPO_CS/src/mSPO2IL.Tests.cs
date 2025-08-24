@@ -17,7 +17,6 @@
 // IMPORT mSPO_Parser
 // IMPORT mSPO2IL
 
-
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
@@ -156,7 +155,10 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(
+						DefConstructor.MapDef(Module, DefNode, out var Error),
+						Error.ToText()
+					);
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -188,7 +190,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -234,7 +236,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -277,7 +279,7 @@ mSPO2IL_Tests {
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -338,7 +340,7 @@ mSPO2IL_Tests {
 						]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					
 					mAssert.AreEquals(
 						Scope,
@@ -357,7 +359,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					DefConstructor.FinishMapProc(
 						default,
@@ -479,7 +481,7 @@ mSPO2IL_Tests {
 						]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					var ExpScope = mStream.Stream(
 						(
 							Id: mSPO2IL.GetId("...*...+..."),
@@ -495,7 +497,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -646,7 +648,7 @@ mSPO2IL_Tests {
 							)]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					var ExpScope = mStream.Stream(
 						(
 							Id: mSPO2IL.GetId("TestTest..."),
@@ -662,7 +664,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -791,7 +793,7 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream<(tText Id, mVM_Type.tType Type)>([]);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow();
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
@@ -806,7 +808,7 @@ mSPO2IL_Tests {
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -938,17 +940,19 @@ mSPO2IL_Tests {
 					).Then(
 						_ => _.Scope
 					).ElseThrow(
+						_ => _.ToText()
 					);
 					
 					var Scope = ModuleNode.Commands.Reduce(
-						mResult.OK(InitScope).WithErrorType<tText>(),
+						mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 						(aResultScope, aCommand) => aResultScope.ThenTry(
 							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 						)
 					).ElseThrow(
+						_ => _.ToText()
 					);
 					
-					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).ElseThrow();
+					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).ElseThrow(_ => _.ToText());
 					
 					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
 					
@@ -1080,7 +1084,7 @@ mSPO2IL_Tests {
 							(a1, a2) => a1 == a2
 						);
 					} else {
-						mAssert.Fail(Error);
+						mAssert.Fail(Error.ToText());
 					}
 					
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
@@ -1088,7 +1092,9 @@ mSPO2IL_Tests {
 					var (DefIndex, DefType) = DefConstructor.MapLambda(
 						ModuleConstructor,
 						LambdaNode
-					).ElseThrow();
+					).ElseThrow(
+						_ => _.ToText()
+					);
 					
 					mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1u);
 					mAssert.AreEquals(DefIndex, 0u);
@@ -1168,9 +1174,16 @@ mSPO2IL_Tests {
 					).Then(
 						_ => _.Scope
 					).ElseThrow(
+						_ => _.ToText()
 					);
 					
-					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty).ElseThrow();
+					var ModuleConstructor = mSPO2IL.MapModule(
+						ModuleNode,
+						mSpan.Merge,
+						mStd.cEmpty
+					).ElseThrow(
+						_ => _.ToText()
+					);
 				}
 			)
 		]

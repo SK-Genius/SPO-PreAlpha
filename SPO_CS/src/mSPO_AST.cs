@@ -340,6 +340,15 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tGenericApplyTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> GenericType = default!;
+		public tTypeNode<tPos> ArgType = default!;
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tDefVarNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
 		public tIdNode<tPos> Id = default!;
@@ -619,6 +628,17 @@ mSPO_AST {
 		Pos = aPos,
 		HeadType = aHeadType,
 		BodyType = aBodyType
+	};
+	
+	public static tGenericApplyTypeNode<tPos>
+	GenericApplyType<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aGenericType,
+		tTypeNode<tPos> aArgType
+	) => new() {
+		Pos = aPos,
+		GenericType = aGenericType,
+		ArgType = aArgType
 	};
 	
 	public static tCallNode<tPos>
@@ -1249,6 +1269,9 @@ mSPO_AST {
 			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
+			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",
+			tGenericApplyTypeNode<t> Node => $"[{____}.{Node.GenericType.ToText(____)} {Node.ArgType.ToText(____)}{__}]",
+			tRecursiveTypeNode<t> Node => $"[{____}§RECURSIVE {Node.HeadType.ToText(____)} {Node.BodyType.ToText(____)}{__}]",
 			
 			// Commands
 			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",

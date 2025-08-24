@@ -17,7 +17,7 @@ mStream_Tests {
 					mAssert.AreNotEquals(mStream.Stream([1]), mStream.Stream([2]));
 					mAssert.AreNotEquals(mStream.Stream([1]), mStream.Stream([1, 2]));
 					mAssert.AreEquals(
-						mStream.Int(1).Take(4),
+						mStream.Int32StartWith(1).Take(4),
 						mStream.Stream([1, 2, 3, 4])
 					);
 				}
@@ -104,7 +104,7 @@ mStream_Tests {
 			mTest.Test("foreach",
 				sStreamOut => {
 					var Sum = 0;
-					foreach (var Value in mStream.Int(3).Take(3)) {
+					foreach (var Value in mStream.Int32StartWith(3).Take(3)) {
 						Sum += Value;
 					}
 					mAssert.AreEquals(Sum, 3 + 4 + 5);

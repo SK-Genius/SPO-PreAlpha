@@ -93,8 +93,7 @@ mRegression_Tests {
 										);
 										mAssert.AreEquals(SPO_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									SPO_Path,
-									1
+									SPO_Path + ", " + mStd.File()
 								),
 								mTest.Test(
 									".SPO -> .ILT",
@@ -116,8 +115,7 @@ mRegression_Tests {
 											IL_Text.Value
 										);
 									},
-									IL_Path,
-									1
+									SPO_Path + ", " + IL_Path + ", " + mStd.File()
 								),
 								mTest.Test(
 									".ILT == .result.SPO",
@@ -142,8 +140,7 @@ mRegression_Tests {
 										
 										mAssert.AreEquals(IL_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									IL_Path,
-									1
+									IL_Path + ", " + mStd.File()
 								),
 							]
 						)

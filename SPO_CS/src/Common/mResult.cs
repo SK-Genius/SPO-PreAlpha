@@ -226,7 +226,7 @@ mResult {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<t, tError>
-	ThenAssert<t, tError>(
+	FailIfNot<t, tError>(
 		this tResult<t, tError> aRes,
 		mStd.tFunc<t, tBool> aCond,
 		mStd.tFunc<t, tError> aOnFail
@@ -302,4 +302,44 @@ mResult {
 	) => aRes.Match(out var Value, out var Error)
 	? OK(Value)
 	: Fail(aModError(Error));
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tText
+	ToText<t, tError>(
+		this tResult<t, tError> a,
+		mStd.tFunc<t, tText> aOnOK,
+		mStd.tFunc<tError, tText> aOnFail
+	) => a.Match(out var Value, out var Error)
+	? aOnOK(Value)
+	: aOnFail(Error);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static mStd.tFunc<tResult<t, tError>, tText>
+	ToText_<t, tError>(
+		mStd.tFunc<t, tText> aOnOK,
+		mStd.tFunc<tError, tText> aOnFail
+	) => [DebuggerHidden](
+		a
+	) => a.Match(out var Value, out var Error)
+	? aOnOK(Value)
+	: aOnFail(Error);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tBool
+	Eq<t, tError>(
+		tResult<t, tError> a1,
+		tResult<t, tError> a2,
+		mStd.tFunc<t, t, tBool> aValueEq,
+		mStd.tFunc<tError, tError, tBool> aErrorEq
+	) => a1.Match(out var V1, out var E1)
+	? (a2.Match(out var V2, out var E2) && aValueEq(V1, V2))
+	: (!a2.Match(out V2, out E2) && aErrorEq(E1, E2));
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static mStd.tFunc<tResult<t, tError>, tResult<t, tError>, tBool>
+	Eq_<t, tError>(
+		mStd.tFunc<t, t, tBool> aValueEq,
+		mStd.tFunc<tError, tError, tBool> aErrorEq
+	) => (a1, a2) => Eq(a1, a2, aValueEq, aErrorEq);
+	
 }

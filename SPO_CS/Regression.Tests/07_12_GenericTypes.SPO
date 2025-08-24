@@ -1,0 +1,13 @@
+§DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
+
+§DEF Push...To... = (
+	§DEF t € [[]]
+) <=> (
+	§DEF aHead € §INT
+	§DEF aTail € [.tStack t]
+) => (aHead, aTail)
+
+§EXPORT (
+	(.Push 3 To (.Push 2 To (.Push 1 To ())))
+	(.Push §TRUE To (.Push §FALSE To ()))
+)

@@ -444,7 +444,29 @@ mIL_GenerateOpcodes {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsInt)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var Found = false;
+						if (ArgType.IsInt()) {
+							Found = true;
+						} else {
+							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
+								if (Type1.IsInt() || Type2.IsInt()) {
+									Found = true;
+									break;
+								}
+							}
+						}
+						
+						mAssert.IsTrue(
+							Found,
+							() => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}"
+						);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsInt(Span, ArgReg));
+						Types.Push(mVM_Type.Int());
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType)); // TODO

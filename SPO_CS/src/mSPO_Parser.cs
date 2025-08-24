@@ -193,6 +193,12 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchItemNode<tSpan>, tError>
+	MatchTuple = C( mParserGen.Seq(Match, ((-SpecialToken(",") | -NLs_Token) +Match)[0..]) )
+	.Modify(mStream.Stream)
+	.ModifyS(mSPO_AST.MatchTuple)
+	.SetName(nameof(MatchTuple));
+	
 	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
@@ -657,10 +663,7 @@ mSPO_Parser {
 			mParserGen.OneOf(
 				[
 					MatchFreeId.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					C( mParserGen.Seq(Match, ((-SpecialToken(",") | -NLs_Token) +Match)[0..]) )
-						.Modify(mStream.Stream)
-						.ModifyS(mSPO_AST.MatchTuple)
-						.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+					MatchTuple.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					IgnoreMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					MatchPrefix.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					MatchRecord.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
@@ -740,16 +743,16 @@ mSPO_Parser {
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
-		).Then(_ => _.Scope).ElseThrow();
+		).Then(_ => _.Scope).ElseThrow(_ => _.ErrorText);
 		
 		var Scope = aModule.Commands.Reduce(
-			mResult.OK(InitScope).WithErrorType<tText>(),
+			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
-		).ElseThrow();
+		).ElseThrow(_ => _.ErrorText);
 		
-		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow();
+		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow(_ => _.ErrorText);
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.AppendLine("§TYPES");

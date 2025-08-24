@@ -1,0 +1,102 @@
+§TYPES
+	t_0 := [INT => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [INT => INT]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [INT => INT]
+	t_5 := [t_3 => t_4]
+	t_6 := [INT => INT]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [INT => INT]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [EMPTY_TYPE, t_9]
+	t_11 := [INT => INT]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [INT => INT]
+	t_14 := [t_12 => t_13]
+	t_15 := [t_10, t_14]
+	t_16 := [INT => INT]
+	t_17 := [EMPTY_TYPE => t_16]
+	t_18 := [t_15, t_17]
+	t_19 := [INT => INT]
+	t_20 := [t_18 => t_19]
+	t_21 := [INT => INT]
+	t_22 := [EMPTY_TYPE => t_21]
+	t_23 := [EMPTY_TYPE, t_22]
+	t_24 := [INT => INT]
+	t_25 := [EMPTY_TYPE => t_24]
+	t_26 := [INT => INT]
+	t_27 := [t_25 => t_26]
+	t_28 := [t_23, t_27]
+	t_29 := [INT => INT]
+	t_30 := [EMPTY_TYPE => t_29]
+	t_31 := [t_28, t_30]
+	t_32 := [INT => INT]
+	t_33 := [EMPTY_TYPE => t_32]
+	t_34 := [EMPTY_TYPE, t_33]
+	t_35 := [INT => INT]
+	t_36 := [EMPTY_TYPE => t_35]
+	t_37 := [INT => INT]
+	t_38 := [t_36 => t_37]
+	t_39 := [t_34, t_38]
+	t_40 := [INT => INT]
+	t_41 := [EMPTY_TYPE => t_40]
+	t_42 := [t_39, t_41]
+	t_43 := [INT => INT]
+	t_44 := [t_42 => t_43]
+	t_45 := [t_42, t_44]
+	t_46 := [EMPTY_TYPE => INT]
+	t_47 := [t_45 => t_46]
+
+§DEF d_0 € t_41
+	r_1 := 0
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_38
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	r_2 := §TRY ARG AS_INT
+	r_3 := 1
+	r_4 := §INT r_2 == r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := .r_1 r_2
+	§RETURN r_6 IF TRUE
+
+§DEF d_2 € t_41
+	_b := ARG
+	§RETURN _b IF TRUE
+
+§DEF d_3 € t_44
+	d_2 := §2ND ENV
+	r_5 := §1ST ENV
+	d_1 := §2ND r_5
+	r_6 := §1ST r_5
+	d_0 := §2ND r_6
+	r_7 := §1ST r_6
+	r_1 := .d_1 d_0
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	r_3 := .d_2 EMPTY
+	r_4 := .r_3 ARG
+	§RETURN r_4 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_47
+	d_3 := §2ND ENV
+	r_7 := §1ST ENV
+	d_2 := §2ND r_7
+	r_8 := §1ST r_7
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	r_1 := 1
+	_a := r_1
+	r_2 := EMPTY, d_0
+	r_3 := r_2, d_1
+	r_4 := r_3, d_2
+	r_5 := .d_3 r_4
+	r_6 := .r_5 _a
+	_x := r_6
+	§RETURN _x IF TRUE

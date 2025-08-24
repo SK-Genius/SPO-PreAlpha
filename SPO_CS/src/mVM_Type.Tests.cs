@@ -88,7 +88,7 @@ mVM_Type_Tests {
 					var Type = mSPO_AST_Types.UpdateExpressionTypes(
 						AST,
 						cTestScope
-					).ElseThrow();
+					).ElseThrow(_ => _.ErrorText);
 					
 					var Type_ = mSPO_AST_Types.ResolveTypeExpression(
 						mSPO_Parser.Type.ParseText(
@@ -97,7 +97,7 @@ mVM_Type_Tests {
 							_ => { aStreamOut(_()); }
 						),
 						cTestScope
-					).ElseThrow();
+					).ElseThrow(_ => _.ErrorText);
 					
 					Type.IsSubType(Type_, mStd.cEmpty)
 					.ElseThrow(_ => Type.ToText() + " != " + Type_.ToText());

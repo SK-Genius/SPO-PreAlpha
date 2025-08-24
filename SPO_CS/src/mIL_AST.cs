@@ -47,6 +47,7 @@ mIL_AST {
 		TypeRecursive,              // T := [§RECURSIVE t => T]
 		TypeInterface,              // T := [§ANY t => T]
 		TypeGeneric,                // T := [§ALL t => T]
+		TypeGenericApply,           // T := [.T T]
 		_EndTypes_,
 		
 		_BeginExpressions_ = _EndTypes_,
@@ -198,6 +199,7 @@ mIL_AST {
 		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
 		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
 		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",
+		tCommandNodeType.TypeGenericApply => $"{a._1} := [.{a._2} {a._3}]",
 		
 		tCommandNodeType.Assert => $"§ASSERT {a._1} => {a._2}",
 		tCommandNodeType.Proof => $"§PROOF {a._2} => {a._3}",
@@ -710,4 +712,12 @@ mIL_AST {
 		tText aId2,
 		tText aId3
 	) => CommandNode(tCommandNodeType.TypeGeneric, aPos, aId1, aId2, aId3);
+	
+	public static tCommandNode<tPos>
+	TypeGenericApply<tPos>(
+		tPos aPos,
+		tText aId1,
+		tText aId2,
+		tText aId3
+	) => CommandNode(tCommandNodeType.TypeGenericApply, aPos, aId1, aId2, aId3);
 }

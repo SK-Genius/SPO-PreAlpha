@@ -26,9 +26,9 @@ mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
-
+		
 		var TypeArg = mVM_Type.Free();
-
+		
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
 			ModuleNode.Import.Match,
 			mStd.cEmpty,
@@ -78,6 +78,26 @@ mSPO_Interpreter {
 					aDebugStream
 				);
 			}
+		).ModifyError(
+			_ => {
+				var Lines = aCode.Split("\n");
+				return (
+					_.ToText() +
+					"\n" +
+					mStream.Nat32StartWith(
+						_.Pos.Start.Row
+					).Take(
+						_.Pos.End.Row - _.Pos.Start.Row + 1
+					).Map(
+						_ => $"  {_:2}: {Lines[_].TrimEnd()}"
+					).Join((a1, a2) => a1 + "\n" + a2, "")
+				);
+			}
 		);
 	}
+	
+	public static tText
+	ToText(
+		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
+	) => $"{a.Pos.Start.Id}:{a.Pos.Start.Row},{a.Pos.Start.Col}..{a.Pos.End.Row},{a.Pos.End.Col}: {a.ErrorText}";
 }

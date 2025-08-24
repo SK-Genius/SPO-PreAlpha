@@ -384,46 +384,33 @@ mVM_Data {
 		aDef._AddCommand(aPos, tOpCode.ReturnIfNotEmpty, aResReg);
 	}
 	
-	public static void
+	public static tNat32
 	TryAsNotEmpty<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsNotEmpty, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsNotEmpty, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsBool<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsBool, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsBool, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsInt<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsInt, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsInt, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsType<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsType, aFuncReg, aArgReg);
-	}
-	
+	) => aDef._AddReg(aPos, tOpCode.TryAsType, aArgReg);
 	
 	public static tNat32
 	TryRemovePrefixFrom<tPos>(

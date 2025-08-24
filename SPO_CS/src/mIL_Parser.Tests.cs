@@ -49,6 +49,7 @@ mIL_Parser_Tests {
 			("a := [§REC b => c]", mIL_AST.TypeRecursive(Span((1, 1), (1, 18)), "a", "b", "c")),
 			("a := [§ANY b => c]", mIL_AST.TypeInterface(Span((1, 1), (1, 18)), "a", "b", "c")),
 			("a := [§ALL b => c]", mIL_AST.TypeGeneric(Span((1, 1), (1, 18)), "a", "b", "c")),
+			("a := [.b c]", mIL_AST.TypeGenericApply(Span((1, 1), (1, 11)), "a", "b", "c")),
 			
 			("a := b", mIL_AST.Alias(Span((1, 1), (1, 6)), "a", "b")),
 			("a := 1", mIL_AST.CreateInt(Span((1, 1), (1, 6)), "a", "1")),

@@ -138,20 +138,20 @@ mStream {
 	public static tStream<t>
 	Stream<t>(
 		t aHead,
-		mStd.tFunc<tStream<t>> aTailFunc
-	) => new(
+		tStream<t> aTail
+	) => new tStream<t>(
 		aHead,
-		mLazy.Lazy(aTailFunc)
+		aTail
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>
 	Stream<t>(
 		t aHead,
-		tStream<t> aTail
-	) => new tStream<t>(
+		mStd.tFunc<tStream<t>> aTailFunc
+	) => new(
 		aHead,
-		aTail
+		mLazy.Lazy(aTailFunc)
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -180,6 +180,20 @@ mStream {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>
+	Stream<t, tAccu>(
+		tAccu aInitAccu,
+		mStd.tFunc<tAccu, t> aGetHead,
+		mStd.tFunc<tAccu, mMaybe.tMaybe<tAccu>> aGetNextAccu
+	) => Stream(
+		aGetHead(aInitAccu),
+		[DebuggerHidden]() => aGetNextAccu(aInitAccu).Match(
+			[DebuggerHidden](aNextAccu) => Stream<t, tAccu>(aNextAccu, aGetHead, aGetNextAccu),
+			[DebuggerHidden]() => mStd.cEmpty
+		)
+	);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tStream<t>
 	AsStream<t>(
 		this t[] a
 	) => System.MemoryExtensions.AsSpan(a).AsStream();
@@ -189,18 +203,54 @@ mStream {
 	AsStream<t>(
 		this System.Span<t> a
 	) => Stream(a);
+		
+	[Pure, DebuggerHidden]
+	public static tStream<tInt8>
+	Int8StartWith(
+		tInt8 aStart
+	) => Stream(aStart, () => Int8StartWith((tInt8)(aStart + 1)));
 	
 	[Pure, DebuggerHidden]
-	public static tStream<tNat32>
-	NatStartWith(
-		tNat32 aStart
-	) => Stream(aStart, () => NatStartWith(aStart + 1));
+	public static tStream<tInt16>
+	Int16StartWith(
+		tInt16 aStart
+	) => Stream(aStart, () => Int16StartWith((tInt16)(aStart + 1)));
 	
 	[Pure, DebuggerHidden]
 	public static tStream<tInt32>
-	Int(
+	Int32StartWith(
 		tInt32 aStart
-	) => Stream(aStart, () => Int(aStart + 1));
+	) => Stream(aStart, () => Int32StartWith(aStart + 1));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tInt64>
+	Int64StartWith(
+		tInt64 aStart
+	) => Stream(aStart, () => Int64StartWith(aStart + 1));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tNat8>
+	Nat8StartWith(
+		tNat8 aStart
+	) => Stream(aStart, () => Nat8StartWith((tNat8)(aStart + 1)));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tNat16>
+	Nat16StartWith(
+		tNat16 aStart
+	) => Stream(aStart, () => Nat16StartWith((tNat16)(aStart + 1)));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tNat32>
+	Nat32StartWith(
+		tNat32 aStart
+	) => Stream(aStart, () => Nat32StartWith(aStart + 1));
+	
+	[Pure, DebuggerHidden]
+	public static tStream<tNat64>
+	Nat64StartWith(
+		tNat64 aStart
+	) => Stream(aStart, () => Nat64StartWith(aStart + 1));
 	
 	public static tBool
 	Eq<t>(
@@ -307,7 +357,7 @@ mStream {
 	public static tStream<(tNat32 Index, t Item)>
 	MapWithIndex<t>(
 		this tStream<t> aStream
-	) => ZipShort(NatStartWith(0), aStream);
+	) => ZipShort(Nat32StartWith(0), aStream);
 	
 	[Pure, DebuggerHidden]
 	public static tRes

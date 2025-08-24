@@ -285,7 +285,12 @@ mIL_Parser {
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -SpecialToken("[") -KeyWord("ALL"), Id, -SpecialToken("=>") +Id +-SpecialToken("]"))
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
 			.ModifyS(mTokenizer.X(mIL_AST.TypeGeneric))
-			.SetDebugName([nameof(mIL_AST.TypeGeneric)])
+			.SetDebugName([nameof(mIL_AST.TypeGeneric)]),
+			
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -SpecialToken("[") -SpecialToken("."), Id, Id +-SpecialToken("]"))
+			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
+			.ModifyS(mTokenizer.X(mIL_AST.TypeGenericApply))
+			.SetDebugName([nameof(mIL_AST.TypeGenericApply)]),
 		]
 	)
 	.SetDebugName([nameof(Command)]);

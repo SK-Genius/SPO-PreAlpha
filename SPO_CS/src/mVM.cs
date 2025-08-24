@@ -566,7 +566,16 @@ mVM {
 				);
 				break;
 			}
-			
+			case mVM_Data.tOpCode.TryAsInt: {
+				var Data = aCallStack._Regs.Get(Arg1);
+				if (Data.IsInt(out _)) {
+					aCallStack._Regs.Push(Data);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
 			// TODO: missing IL Command
 			// - Create Process
 			// - Send Message
