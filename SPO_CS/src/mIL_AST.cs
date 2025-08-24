@@ -4,8 +4,6 @@
 // IMPORT Common/mAssert
 // IMPORT Common/mError
 
-//#define MY_TRACE
-
 public static class
 mIL_AST {
 	public record tDef<tPos>(

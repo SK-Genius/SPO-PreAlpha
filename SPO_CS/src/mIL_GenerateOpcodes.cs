@@ -12,7 +12,7 @@
 // IMPORT mVM_Type
 // IMPORT mVM_Data
 
-//#define MY_TRACE
+//#define MY_TRACE_IL
 
 public static class
 mIL_GenerateOpcodes {
@@ -32,7 +32,7 @@ mIL_GenerateOpcodes {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		using var _m_ = mPerf.Measure();
-		#if MY_TRACE
+		#if MY_TRACE_IL
 			aTrace(() => nameof(GenerateOpcodes));
 		#endif
 		var ModuleMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
@@ -146,7 +146,10 @@ mIL_GenerateOpcodes {
 				DefProcType = InnerType;
 			}
 			
-			mAssert.IsTrue(DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType));
+			mAssert.IsTrue(
+				DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType),
+				$"expected proc but is: {DefProcType.ToText()}"
+			);
 			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			
@@ -626,7 +629,7 @@ mIL_GenerateOpcodes {
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
 		}
-		#if MY_TRACE
+		#if MY_TRACE_IL
 		//PrintILModule(aDefs, Module, _ => { aTrace(() => _); });
 		#endif
 		

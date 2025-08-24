@@ -29,7 +29,7 @@ mVM_Tests {
 		[
 			mTest.Test("ExternDef",
 				aDebugStream => {
-					#if MY_TRACE
+					#if MY_TRACE_VM
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
@@ -73,7 +73,7 @@ mVM_Tests {
 			),
 			mTest.Test("InternDef",
 				aDebugStream => {
-					#if MY_TRACE
+					#if MY_TRACE_VM
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);

@@ -77,7 +77,7 @@ mSPO_Interpreter {
 				)
 			),
 			aImport,
-			_ => $"{_.Start.Id}({_.Start.Row}:{_.Start.Col} .. {_.Start.Row}:{_.Start.Col})",
+			_ => $"{_.Start.Id}:{_.Start.Row}|{_.Start.Col}..{_.Start.Row}|{_.Start.Col}",
 			aDebugStream
 		);
 	}

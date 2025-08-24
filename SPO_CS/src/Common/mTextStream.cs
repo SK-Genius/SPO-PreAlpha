@@ -34,7 +34,10 @@ mTextStream {
 		this (tPos Pos, tError Message) aError,
 		tText[] aSrcLines
 	) {
-		var Line = aSrcLines[aError.Pos.Row - 1];
+		var Line = aSrcLines.Length > 0 && aError.Pos.Row > 0
+			? aSrcLines[aError.Pos.Row - 1]
+			: "";
+		
 		var MarkerLine = mStream.Stream(
 			System.MemoryExtensions.AsSpan(Line)
 		).Take(
@@ -45,6 +48,7 @@ mTextStream {
 			"",
 			(aString, aChar) => aString + aChar
 		);
+		
 		return (
 			$"""
 			{aError.Pos.Id}:{aError.Pos.Row} ERROR: {aError.Message}

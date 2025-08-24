@@ -1,13 +1,9 @@
-C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mRef.cs(13,2): warning CS0660: "mRef.tRef<t>" definiert den Operator == oder !=, aber überschreibt Object.Equals(object o) nicht. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
-C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mFS.cs(15,2): warning CS0660: "mFS.tPath" definiert den Operator == oder !=, aber überschreibt Object.Equals(object o) nicht. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
-C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mStream.cs(45,3): warning CS8765: Die NULL-Zulässigkeit des Typs des Parameters "a" entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem überschriebenen Member. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
-C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs(25,4): warning CS8602: Dereferenzierung eines möglichen Nullverweises. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
-C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.cs(25,45): warning CS8602: Dereferenzierung eines möglichen Nullverweises. [C:\Projekte\SPO-PreAlpha\SPO_CS\SPO_CS.csproj]
+Die Starteinstellungen von C:\Projekte\SPO-PreAlpha\SPO_CS\Properties\launchSettings.json werden verwendet…
 All
 |  mSPO
 |  |  mSPO_Interpreter
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:238 ]
 |  |  |  Run5
+|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:238 ]
 |  |  |  |  tError: expected definition symbol but was '_b'
 |  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1571
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
@@ -15,8 +11,8 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:323 ]
 |  |  |  Run7
+|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:323 ]
 |  |  |  |  NotImplementedException: tMatchNode`1
 |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1171
 |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -30,33 +26,11 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:2 OK:5|10 (88.00 mSec)
+|  |  > Fail:2 OK:5|10 (171.00 mSec)
 |  |  
 |  |  mStdLib
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:21 ]
-|  |  |  IfThenElse
-|  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_1(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:28
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:82 ]
-|  |  |  If2
-|  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_2(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:89
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:132 ]
 |  |  |  IfMatch1
+|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:132 ]
 |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -71,8 +45,8 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:182 ]
 |  |  |  IfMatch2
+|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:182 ]
 |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -87,70 +61,22 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
 |  |  |  VAR
-|  |  |  |  tError: FAIL: DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType)
+|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
+|  |  |  |  tError: FAIL: expected proc but is: []
 |  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:149
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:513
+|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:542
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
 |  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:238
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:5 (292.00 mSec)
+|  |  > Fail:3 OK:2 (592.00 mSec)
 |  |  
 |  |  mRegression_Tests
-|  |  |  06_01_Fib_If
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If.SPO:1 ]
-|  |  |  |  .SPO == .result.SPO
-|  |  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:82
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_01_Fib_If.ILT:1 ]
-|  |  |  |  .ILT == .result.SPO
-|  |  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:126
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  > Fail:2 OK:1 (454.00 mSec)
-|  |  |  
-|  |  |  06_02_Fib_IfThenElse
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse.SPO:1 ]
-|  |  |  |  .SPO == .result.SPO
-|  |  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:82
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_02_Fib_IfThenElse.ILT:1 ]
-|  |  |  |  .ILT == .result.SPO
-|  |  |  |  |  tError: FAIL: Proc != Def
-|  |  |  |  |  |     at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:262
-|  |  |  |  |  |     at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:490
-|  |  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:536
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:126
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  > Fail:2 OK:1 (437.00 mSec)
-|  |  |  
 |  |  |  06_03_Fib_IfMatch
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.SPO:1 ]
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -165,8 +91,8 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
 |  |  |  |  .SPO -> .ILT
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -181,22 +107,23 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
-|  |  |  |  |  IndexOutOfRangeException: Index was outside the bounds of the array.
-|  |  |  |  |  |     at mTextStream.<>c__DisplayClass3_0.<ToText>b__0(ValueTuple`2 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTextStream.cs:65
-|  |  |  |  |  |     at mStream.Map[tRes,tElem](tStream`1 aStream, tFunc`2 aMapFunc) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mStream.cs:293
-|  |  |  |  |  |     at mTokenizer.<>c__DisplayClass21_0`1.<ParseText>b__1(tStream`1 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:141
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
+|  |  |  |  |  tError: 
+|  |  |  |  |  :0 ERROR: expect '§TYPES'
+|  |  |  |  |  
+|  |  |  |  |  ^
+|  |  |  |  |  
 |  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
 |  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:121
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (41.00 mSec)
+|  |  |  > Fail:3 (73.00 mSec)
 |  |  |  
 |  |  |  06_04_Fib_IfMatch2
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.SPO:1 ]
 |  |  |  |  .SPO == .result.SPO
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.SPO:1 ]
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -211,8 +138,8 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
 |  |  |  |  .SPO -> .ILT
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
 |  |  |  |  |  NotImplementedException: tMatchGuardNode`1
 |  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
 |  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
@@ -227,22 +154,23 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
 |  |  |  |  .ILT == .result.SPO
-|  |  |  |  |  IndexOutOfRangeException: Index was outside the bounds of the array.
-|  |  |  |  |  |     at mTextStream.<>c__DisplayClass3_0.<ToText>b__0(ValueTuple`2 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTextStream.cs:65
-|  |  |  |  |  |     at mStream.Map[tRes,tElem](tStream`1 aStream, tFunc`2 aMapFunc) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mStream.cs:293
-|  |  |  |  |  |     at mTokenizer.<>c__DisplayClass21_0`1.<ParseText>b__1(tStream`1 _) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:141
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
+|  |  |  |  |  tError: 
+|  |  |  |  |  :0 ERROR: expect '§TYPES'
+|  |  |  |  |  
+|  |  |  |  |  ^
+|  |  |  |  |  
 |  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
 |  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:121
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (37.00 mSec)
+|  |  |  > Fail:3 (69.00 mSec)
 |  |  |  
-|  |  > Fail:4|10 OK:14|44 (1.27 Sec)
+|  |  > Fail:2|6 OK:16|48 (2.23 Sec)
 |  |  
-|  > Fail:3|17 OK:8|202 (2.38 Sec)
+|  > Fail:3|11 OK:8|208 (4.19 Sec)
 |  
-> Fail:1|17 OK:1|292 (2.51 Sec)
+> Fail:1|11 OK:1|298 (4.36 Sec)
 

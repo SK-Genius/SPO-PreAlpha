@@ -47,10 +47,7 @@ mVM_Data {
 		// JUMP
 		CallFunc,
 		CallProc,
-		DefRecProcs_1,
-		DefRecProcs_2,
-		DefRecProcs_3,
-		DefRecProcs_4,
+		DefRecProcs,
 		ReturnIf,
 		TryAsNotEmpty,
 		TryAsBool,
@@ -106,8 +103,8 @@ mVM_Data {
 	[DebuggerDisplay("{this.DefType.ToText()}")]
 	public sealed class
 	tProcDef<tPos> : tProcDef {
-		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32)>
-			Commands = mArrayList.List<(tOpCode, tNat32, tNat32)>();
+		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32, tNat64)>
+			Commands = mArrayList.List<(tOpCode, tNat32, tNat32, tNat64)>();
 		
 		public readonly mArrayList.tArrayList<tPos>
 			PosList = mArrayList.List<tPos>();
@@ -149,7 +146,7 @@ mVM_Data {
 		tNat32 aReg2
 	) { 
 		aDef.PosList.Push(aPos);
-		aDef.Commands.Push((aCommand, aReg1, aReg2));
+		aDef.Commands.Push((aCommand, aReg1, aReg2, mStd.NewDebugId()));
 	}
 	
 	internal static tNat32
@@ -358,7 +355,7 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) => aDef._AddReg(aPos, tOpCode.TypeRecursive, aFuncReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.DefRecProcs, aFuncReg, aArgReg);
 	
 	public static tNat32
 	Call<tPos>(
@@ -614,6 +611,8 @@ mVM_Data {
 		public mAny.tAny _Value;
 		public mTreeMap.tTree<tNat32, tData> _Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
 		public tBool _IsMutable;
+		
+		public tNat64 _DebugId = mStd.NewDebugId();
 		
 		public tBool
 		Equals(
@@ -905,13 +904,24 @@ mVM_Data {
 		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
-	
+
 	public static tBool
 	IsProc(
 		this tData aData,
 		out tProcDef aDef,
 		out tData aEnv
-	) => aData.Is(tDataType.Proc, out aDef, out aEnv);
+	) {
+		if (aData._DataType != tDataType.Proc) {
+			aDef = default!;
+			aEnv = default!;
+			return false;
+		}
+		
+		var Data = (dynamic)aData._Value._Value;
+		aDef = Data.Item1 as tProcDef;
+		aEnv = Data.Item2;
+		return true;
+	}
 	
 	public static tBool
 	IsProc<tPos>(
@@ -945,7 +955,16 @@ mVM_Data {
 	IsDef(
 		this tData aData,
 		out tProcDef aDef
-	) => aData.Is(tDataType.Def, out aDef);
+	) {
+		if (aData._DataType != tDataType.Def) {
+			aDef = default!;
+			return false;
+		}
+		
+		var Data = (dynamic)aData._Value._Value;
+		aDef = Data as tProcDef;
+		return true;
+	}
 	
 	public static tBool
 	IsDef<tPos>(

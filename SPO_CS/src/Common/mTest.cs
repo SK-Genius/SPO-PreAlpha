@@ -201,7 +201,7 @@ mTest {
 			case tTestRun Run: {
 				if (!aSettings.HidePassedTests) {
 					DebugStream = aDebugStream;
-					foreach (var Line in BufferedLines) {
+					foreach (var Line in BufferedLines.Reverse()) {
 						DebugStream(Line);
 					}
 					BufferedLines = mStd.cEmpty;
@@ -249,7 +249,7 @@ mTest {
 					DebugStream("");
 					return (tResult.OK, 0, 0, 1);
 				} catch (System.Exception Exception) {
-					foreach (var Line in BufferedLines) {
+					foreach (var Line in BufferedLines.Reverse()) {
 						aDebugStream(Line);
 					}
 					
@@ -285,7 +285,7 @@ mTest {
 				
 				if (!aSettings.HidePassedGroups && !aSettings.HidePassedTests) {
 					DebugStream = aDebugStream;
-					foreach (var Line in BufferedLines) {
+					foreach (var Line in BufferedLines.Reverse()) {
 						DebugStream(Line);
 					}
 					BufferedLines = mStd.cEmpty;

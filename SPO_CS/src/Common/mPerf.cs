@@ -1,4 +1,4 @@
-﻿//#define MY_TRACE
+﻿//#define MY_TRACE_PERF
 
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
@@ -44,7 +44,7 @@ mPerf {
 		gStackIndex += 1;
 	}
 	
-	#if MY_TRACE
+	#if MY_TRACE_PERF
 	private static readonly tText[] cUnits = {"", "K", "M", "G", "T", "P"};
 	#endif
 	
@@ -56,7 +56,7 @@ mPerf {
 		gLog[gNextLogIndex] = (ThreadCycles(), null, null);
 		gNextLogIndex += 1;
 		if (gStackIndex == 0) {
-			#if MY_TRACE
+			#if MY_TRACE_PERF
 				var Stack = new (tNat64 Time, tText File, tText Name)[1 << 16];
 				var StackIndex = 0;
 				for (var I = 0; I < gNextLogIndex; I += 1) {

@@ -79,9 +79,10 @@ mVM {
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tPos, tText> aPosToText
 	) {
-		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
+		var (OpCode, Arg1, Arg2, DebugId) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
+		tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // CommandDebugId:{DebugId} // {aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer)}";
 		aCallStack._TraceOut(CommandLine);
+		aCallStack._TraceOut(() => $"{mStd.NewDebugId()}");
 		aCallStack._CodePointer += 1;
 		
 		switch (OpCode) {
@@ -116,8 +117,8 @@ mVM {
 			case mVM_Data.tOpCode.IntsAreEq: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				mAssert.IsTrue(IntData1.IsInt(out var Int1), () => $"{IntData1.ToText(100)}//DebugId:{IntData1._DebugId}");
+				mAssert.IsTrue(IntData2.IsInt(out var Int2), () => $"{IntData2.ToText(100)}//DebugId:{IntData2._DebugId}");
 				aCallStack._Regs.Push(mVM_Data.Bool(Int1 == Int2));
 				break;
 			}
@@ -252,27 +253,19 @@ mVM {
 				aCallStack._Regs.Push(X);
 				break;
 			}
-			case mVM_Data.tOpCode.DefRecProcs_1:
-			case mVM_Data.tOpCode.DefRecProcs_2:
-			case mVM_Data.tOpCode.DefRecProcs_3:
-			case mVM_Data.tOpCode.DefRecProcs_4: {
+			case mVM_Data.tOpCode.DefRecProcs: {
 				var Func = aCallStack._Regs.Get(Arg1);
-				var Arg = aCallStack._Regs.Get(Arg2);
+				var Env = aCallStack._Regs.Get(Arg2);
 				
-				mAssert.IsTrue(
-					Func._DataType is mVM_Data.tDataType.Proc,
-					() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
-				);
+				//mAssert.IsTrue(
+				//	Func._DataType is mVM_Data.tDataType.Proc,
+				//	() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
+				//);
 				
 				var RecProcList = mStream.Stream<mVM_Data.tData>();
 				
-				var Count = OpCode switch {
-					mVM_Data.tOpCode.DefRecProcs_1 => 1,
-					mVM_Data.tOpCode.DefRecProcs_2 => 2,
-					mVM_Data.tOpCode.DefRecProcs_3 => 3,
-					mVM_Data.tOpCode.DefRecProcs_4 => 4,
-					_ => throw mError.Error("impossible: " + OpCode),
-				};
+				//mAssert.Fail();
+				var Count = 1; // TODO: count rec procs
 				
 				var RecProcs = mVM_Data.Empty(); // first place holder
 				if (Count is 1) {
@@ -289,29 +282,62 @@ mVM {
 				}
 				aCallStack._Regs.Push(RecProcs);
 				
-				Arg = mVM_Data.Pair(Arg, RecProcs);
 				
 				mVM_Data.tData Res;
 				switch (0) {
 					case 0 when Func.IsExternDef(out var ExternDef): {
-						Res = mVM_Data.ExternProc(ExternDef, Arg);
+						Res = mVM_Data.Empty();
+						Run(
+							mVM_Data.ExternProc(ExternDef, Env),
+							mVM_Data.Empty(),
+							RecProcs,
+							Res,
+							aPosToText,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
 						break;
 					}
-					case 0 when Func.IsExternProc(out var ExternDef, out var Env): {
-						Res = ExternDef(
-							Env,
+					case 0 when Func.IsExternProc(out var ExternDef, out var Env_): {
+						Res = mVM_Data.Empty();
+						Run(
+							ExternDef(
+								Env_,
+								mVM_Data.Empty(),
+								Env,
+								aTraceLine => aCallStack._TraceOut(() => "\t" + aTraceLine())
+							),
 							mVM_Data.Empty(),
-							Arg,
+							RecProcs,
+							Res,
+							aPosToText,
 							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
 						);
 						break;
 					}
 					case 0 when Func.IsDef<tPos>(out var Def): {
-						Res = mVM_Data.Proc(Def, Arg);
+						Res = mVM_Data.Empty();
+						Run(
+							mVM_Data.Proc(Def, Env),
+							mVM_Data.Empty(),
+							RecProcs,
+							Res,
+							aPosToText,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
 						break;
 					}
-					case 0 when Func.IsProc<tPos>(out var Def_, out var Env): {
-						throw mError.Error("not implemented");
+					case 0 when Func.IsProc<tPos>(out var Def_, out var Env_): {
+						throw mError.Error("need Env as Argument");
+						Res = mVM_Data.Empty();
+						Run(
+							mVM_Data.Proc(Def_, Env_),
+							mVM_Data.Empty(),
+							RecProcs,
+							Res,
+							aPosToText,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
+						break;
 						//Res = mVM_Data.Empty();
 						//aCallStack._Regs.Push(Res);
 						//return NewCallStack(
@@ -330,7 +356,10 @@ mVM {
 				}
 				
 				if (Count is 1) {
+					RecProcs._DataType = Res._DataType;
 					RecProcs._Value = Res._Value;
+					RecProcs._Fields = Res._Fields;
+					RecProcs._IsMutable = Res._IsMutable;
 				} else {
 					var Pair = Res;
 					for (var I = 0; I < Count; I += 1) {
@@ -380,7 +409,7 @@ mVM {
 						);
 					}
 					default: {
-						throw mError.Error("impossible: " + Proc._DataType);
+						throw mError.Error("expected proc or def but is: " + Proc._DataType);
 					}
 				}
 				break;
@@ -512,7 +541,7 @@ mVM {
 	) {
 		var (VMModule, ModuleMap) = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace);
 		var Res = mVM_Data.Empty();
-		var Defs = VMModule.Reverse().Skip(1);
+		var Defs = VMModule.Reverse().Skip(1).Reverse();
 		
 		var DefTuple = Defs.Take(2).Count() switch {
 			0 => mVM_Data.Empty(),
@@ -527,7 +556,7 @@ mVM {
 		};
 		var InitProc = VMModule.TryLast().AssertNotEmpty();
 		
-		#if MY_TRACE
+		#if MY_TRACE_VM
 			var TraceOut = aTrace;
 		#else
 			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });

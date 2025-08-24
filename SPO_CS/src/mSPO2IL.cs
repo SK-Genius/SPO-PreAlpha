@@ -1128,6 +1128,7 @@ mSPO2IL {
 				
 				//mAssert.Fail("TODO");
 				// TODO NOW: get matches from §ARG
+				//LazyCaseDef.MapMatch(aCase.Match, mIL_AST.cArg);
 				
 				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
 				LazyCaseDef.Commands.Push(
@@ -1318,7 +1319,7 @@ mSPO2IL {
 				);
 				RecFactoryFunc.Commands.Push(
 					mIL_AST.GetSecond(RecProc.Pos, RecProc.Id.Id, Arg),
-					mIL_AST.GetSecond(RecProc.Pos, RecFactoryFunc.CreateTempReg(out var TempReg), Arg)
+					mIL_AST.GetFirst(RecProc.Pos, RecFactoryFunc.CreateTempReg(out var TempReg), Arg)
 				);
 				Arg = TempReg;
 			}

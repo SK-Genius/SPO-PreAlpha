@@ -70,7 +70,10 @@ const tText cPlainText = "--plainText";
 const tText cPlainTextShort = "-p";
 
 const tText cDebugger = "--debugger";
-const tText cDebuggerShort = "-d";
+const tText cDebuggerShort = "-D";
+
+const tText cDebugId = "--debugId";
+const tText cDebugIdShort = "-d";
 
 static mMaybe.tMaybe<tText>
 GetArgParam(
@@ -106,6 +109,7 @@ if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 		{cPlainTextShort} {cPlainText}
 		{cMatchAllCommandShort} <filter text> {cMatchAllCommand} <filter text>
 		{cMatchAnyCommandShort} <filter text> {cMatchAnyCommand} <filter text>
+		{cDebugIdShort} <DebugId> {cDebugId} <DebugId>
 		"""
 	);
 	return 0;
@@ -131,6 +135,15 @@ if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
 	);
 	return 0;
 }
+
+mStd.gDebugId = GetArgParam(
+	Args,
+	cDebugIdShort,
+	cDebugId
+).Match(
+	tNat64.Parse,
+	() => 0u
+);
 
 return Tests.Run(
 	Args.Any(_ => _ is cPlainText or cPlainTextShort) ? PrintLnNoFormat : PrintLn,

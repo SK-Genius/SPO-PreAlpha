@@ -7,7 +7,7 @@
 // IMPORT mMath
 // IMPORT mMaybe
 
-//#define MY_TRACE
+//#define MY_TRACE_PARSER
 //#define INF_LOOP_DETECTION
 
 public static class
@@ -304,7 +304,7 @@ mParserGen {
 		internal mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> _LastInput;
 		internal mResult.tResult<tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos Pos, tError Message)>> _LastOutput;
 		
-		#if MY_TRACE
+		#if MY_TRACE_PARSER
 		internal mStream.tStream<tText> _LastTrace;
 		#endif
 		
@@ -319,23 +319,23 @@ mParserGen {
 		internal readonly mStd.tFunc<tPos, tPos, tInt32> _ComparePos;
 		internal readonly mStd.tFunc<tError, tError, tBool> _AreErrorsEqual;
 		
-		#if DEBUG || MY_TRACE
+		#if DEBUG || MY_TRACE_PARSER
 			public tText? _DebugName = null;
 			public tText _DebugDef = "";
 		#endif
 		
 		public tText? DebugName
-		#if DEBUG || MY_TRACE
-		 => this._DebugName;
+		#if DEBUG || MY_TRACE_PARSER
+		=> this._DebugName;
 		#else
-		 => null;
+		=> null;
 		#endif
 		
 		public tText DebugDef
-		#if DEBUG || MY_TRACE
-		 => this._DebugDef;
+		#if DEBUG || MY_TRACE_PARSER
+		=> this._DebugDef;
 		#else
-		 => null;
+		=> null;
 		#endif
 		
 		[Pure, DebuggerHidden]
@@ -517,7 +517,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		System.Span<tUnknown?> aDebugNameParts
 	) {
-		#if DEBUG || MY_TRACE
+		#if DEBUG || MY_TRACE_PARSER
 			var Def = "";
 			foreach (var Part in mStream.Stream(aDebugNameParts)) {
 				Def += Part?.ToString() ?? "";
@@ -533,7 +533,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		System.Span<tUnknown> aDebugNameParts
 	) {
-		#if DEBUG || MY_TRACE
+		#if DEBUG || MY_TRACE_PARSER
 			var Name = "";
 			foreach (var Part in mStream.Stream(aDebugNameParts)) {
 				Name += Part?.ToString() ?? "";
@@ -731,7 +731,7 @@ mParserGen {
 		mStd.tAction<tText> aDebugStream,
 		mStream.tStream<tUnknown> aInfiniteLoopDetectionSet
 	) {
-		#if MY_TRACE
+		#if MY_TRACE_PARSER
 			const tBool HasToLogIfFailed = !true;
 		#endif
 		
@@ -745,14 +745,14 @@ mParserGen {
 		
 		#if INF_LOOP_DETECTION
 		if (!aInfiniteLoopDetectionSet.All(_ => !ReferenceEquals(_, aParser))) {
-			#if MY_TRACE
+			#if MY_TRACE_PARSER
 				aDebugStream($"!!! INFINITE LOOP !!! ({aParser._DebugName??aParser._DebugDef})");
 			#endif
 			return mResult.Fail(mList.List<tError>());
 		}
 		#endif
 		
-		#if MY_TRACE
+		#if MY_TRACE_PARSER
 			
 			if (aParser._DebugName is not null) {
 				AppendToTrace(aParser._DebugName+" = "+aParser._DebugDef+" -> {");
@@ -765,7 +765,7 @@ mParserGen {
 		
 		if (aParser._LastInput.IsRefEqual(aStream) && !aStream.IsEmpty()) {
 			var Result_ = aParser._LastOutput;
-			#if MY_TRACE
+			#if MY_TRACE_PARSER
 				if (Result_.Match(out var _, out var __)) {
 					AppendToTrace($"}} -> Cached OK{(tText.IsNullOrWhiteSpace(aParser._DebugName) ? "" : $" : {aParser._DebugName}")}");
 					Trace = aParser._LastTrace;
@@ -791,7 +791,7 @@ mParserGen {
 			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().Else(default)));
 		}
 		
-		#if MY_TRACE
+		#if MY_TRACE_PARSER
 			if (Result.Match(out var PResult, out var Error_)) {
 				AppendToTrace(
 					$$"""

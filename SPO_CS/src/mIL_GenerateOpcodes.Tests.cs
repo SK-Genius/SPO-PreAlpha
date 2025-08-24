@@ -21,7 +21,7 @@ mIL_GenerateOpcodes_Tests {
 	private static tText
 	SpanToText(
 		tSpan a
-	) => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
+	) => $"{a.Start.Id}:{a.Start.Row}|{a.Start.Col}..{a.End.Row}|{a.End.Col}";
 	
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>> Defs, mTreeMap.tTree<tText, tNat32> DefLookup)
 	CompileModule(
@@ -106,7 +106,7 @@ mIL_GenerateOpcodes_Tests {
 						_ => aDebugStream(_())
 					);
 					
-					#if MY_TRACE
+					#if MY_TRACE_IL
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
@@ -149,7 +149,7 @@ mIL_GenerateOpcodes_Tests {
 						_ => aDebugStream(_())
 					);
 					
-					#if MY_TRACE
+					#if MY_TRACE_IL
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
@@ -198,7 +198,7 @@ mIL_GenerateOpcodes_Tests {
 					var Env = mVM_Data.ExternDef(Eq);
 					var Res = mVM_Data.Empty();
 					
-					#if MY_TRACE
+					#if MY_TRACE_IL
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
@@ -301,7 +301,7 @@ mIL_GenerateOpcodes_Tests {
 							mVM_Data.ExternDef(Eq)
 						]
 					);
-					#if MY_TRACE
+					#if MY_TRACE_IL
 						var TraceOut = mStd.Action(
 							(mStd.tFunc<tText> aLazyText) => aDebugStream(aLazyText())
 						);
