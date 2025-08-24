@@ -21,7 +21,7 @@ mIL_GenerateOpcodes_Tests {
 	private static tText
 	SpanToText(
 		tSpan a
-	) => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})";
+	) => $"{a.Start.Id}:{a.Start.Row}|{a.Start.Col}..{a.End.Row}|{a.End.Col}";
 	
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>> Defs, mTreeMap.tTree<tText, tNat32> DefLookup)
 	CompileModule(

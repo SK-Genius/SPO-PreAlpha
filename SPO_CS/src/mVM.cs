@@ -252,27 +252,19 @@ mVM {
 				aCallStack._Regs.Push(X);
 				break;
 			}
-			case mVM_Data.tOpCode.DefRecProcs_1:
-			case mVM_Data.tOpCode.DefRecProcs_2:
-			case mVM_Data.tOpCode.DefRecProcs_3:
-			case mVM_Data.tOpCode.DefRecProcs_4: {
+			case mVM_Data.tOpCode.DefRecProcs: {
 				var Func = aCallStack._Regs.Get(Arg1);
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
-				mAssert.IsTrue(
-					Func._DataType is mVM_Data.tDataType.Proc,
-					() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
-				);
+				//mAssert.IsTrue(
+				//	Func._DataType is mVM_Data.tDataType.Proc,
+				//	() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
+				//);
 				
 				var RecProcList = mStream.Stream<mVM_Data.tData>();
 				
-				var Count = OpCode switch {
-					mVM_Data.tOpCode.DefRecProcs_1 => 1,
-					mVM_Data.tOpCode.DefRecProcs_2 => 2,
-					mVM_Data.tOpCode.DefRecProcs_3 => 3,
-					mVM_Data.tOpCode.DefRecProcs_4 => 4,
-					_ => throw mError.Error("impossible: " + OpCode),
-				};
+				//mAssert.Fail();
+				var Count = 1; // TODO: count rec procs
 				
 				var RecProcs = mVM_Data.Empty(); // first place holder
 				if (Count is 1) {
@@ -311,7 +303,16 @@ mVM {
 						break;
 					}
 					case 0 when Func.IsProc<tPos>(out var Def_, out var Env): {
-						throw mError.Error("not implemented");
+						Res = mVM_Data.Empty();
+						Run<tPos>(
+							mVM_Data.Proc(Def_, Env),
+							mVM_Data.Empty(),
+							Arg,
+							Res,
+							aPosToText,
+							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						);
+						break;
 						//Res = mVM_Data.Empty();
 						//aCallStack._Regs.Push(Res);
 						//return NewCallStack(
@@ -330,7 +331,10 @@ mVM {
 				}
 				
 				if (Count is 1) {
+					RecProcs._DataType = Res._DataType;
 					RecProcs._Value = Res._Value;
+					RecProcs._Fields = Res._Fields;
+					RecProcs._IsMutable = Res._IsMutable;
 				} else {
 					var Pair = Res;
 					for (var I = 0; I < Count; I += 1) {
@@ -380,7 +384,7 @@ mVM {
 						);
 					}
 					default: {
-						throw mError.Error("impossible: " + Proc._DataType);
+						throw mError.Error("expected proc or def but is: " + Proc._DataType);
 					}
 				}
 				break;

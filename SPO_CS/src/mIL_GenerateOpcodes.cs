@@ -146,7 +146,10 @@ mIL_GenerateOpcodes {
 				DefProcType = InnerType;
 			}
 			
-			mAssert.IsTrue(DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType));
+			mAssert.IsTrue(
+				DefProcType.IsProc(out var DefObjType, out var DefArgType, out var DefResType),
+				$"expected proc but is: {DefProcType.ToText()}"
+			);
 			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			

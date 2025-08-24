@@ -47,10 +47,7 @@ mVM_Data {
 		// JUMP
 		CallFunc,
 		CallProc,
-		DefRecProcs_1,
-		DefRecProcs_2,
-		DefRecProcs_3,
-		DefRecProcs_4,
+		DefRecProcs,
 		ReturnIf,
 		TryAsNotEmpty,
 		TryAsBool,
@@ -358,7 +355,7 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) => aDef._AddReg(aPos, tOpCode.TypeRecursive, aFuncReg, aArgReg);
+	) => aDef._AddReg(aPos, tOpCode.DefRecProcs, aFuncReg, aArgReg);
 	
 	public static tNat32
 	Call<tPos>(

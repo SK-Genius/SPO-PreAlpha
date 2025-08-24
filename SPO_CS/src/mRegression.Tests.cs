@@ -126,7 +126,7 @@ mRegression_Tests {
 										var IL_Res = mVM.Run(
 											IlModule,
 											mStdLib.GetImportData(_ => aDebug(_())),
-											_ => $"{_.Start.Id}({_.Start.Row}:{_.Start.Col} .. {_.End.Row}:{_.End.Col})",
+											_ => $"{_.Start.Id}:{_.Start.Row}|{_.Start.Col}..{_.End.Row}|{_.End.Col}",
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
