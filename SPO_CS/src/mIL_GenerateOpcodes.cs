@@ -187,8 +187,9 @@ mIL_GenerateOpcodes {
 			
 			mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			
-			foreach (var Command in Commands) {
-				tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
+				foreach (var Command in Commands) {
+					NewProc._CurrDebug = Command.ToText();
+					tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
 				
 				aTrace(() => Command.ToText());
 				aTrace(
@@ -628,6 +629,7 @@ mIL_GenerateOpcodes {
 				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
+			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.DebugList.Size());
 		}
 		#if MY_TRACE
 		//PrintILModule(aDefs, Module, _ => { aTrace(() => _); });

@@ -79,8 +79,10 @@ mVM {
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tPos, tText> aPosToText
 	) {
-		var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {aPosToText(aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer))}";
+			var (OpCode, Arg1, Arg2) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
+			var Pos = aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer);
+			var Dbg = aCallStack._ProcDef.DebugList.Get(aCallStack._CodePointer);
+			tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // {Dbg} @ {aPosToText(Pos)}";
 		aCallStack._TraceOut(CommandLine);
 		aCallStack._CodePointer += 1;
 		

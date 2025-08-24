@@ -101,13 +101,18 @@ mVM_Data {
 	public static readonly tNat32 cResReg = 11;
 	
 	[DebuggerDisplay("{this.DefType.ToText()}")]
-	public sealed class
-	tProcDef<tPos> : tProcDef {
-		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32)>
-			Commands = mArrayList.List<(tOpCode, tNat32, tNat32)>();
-		
-		public readonly mArrayList.tArrayList<tPos>
-			PosList = mArrayList.List<tPos>();
+public sealed class
+tProcDef<tPos> : tProcDef {
+public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32)>
+Commands = mArrayList.List<(tOpCode, tNat32, tNat32)>();
+
+public readonly mArrayList.tArrayList<tPos>
+PosList = mArrayList.List<tPos>();
+
+public readonly mArrayList.tArrayList<tText>
+DebugList = mArrayList.List<tText>();
+
+internal tText _CurrDebug = "";
 		
 		public readonly mVM_Type.tType DefType;
 		
@@ -137,17 +142,19 @@ mVM_Data {
 		tNat32 aReg1
 	) => aDef._AddCommand(aPos, aCommand, aReg1, 0);
 	
-	internal static void
-	_AddCommand<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tOpCode aCommand,
-		tNat32 aReg1,
-		tNat32 aReg2
-	) { 
-		aDef.PosList.Push(aPos);
-		aDef.Commands.Push((aCommand, aReg1, aReg2));
-	}
+internal static void
+_AddCommand<tPos>(
+this tProcDef<tPos> aDef,
+tPos aPos,
+tOpCode aCommand,
+tNat32 aReg1,
+tNat32 aReg2
+) {
+aDef.PosList.Push(aPos);
+aDef.Commands.Push((aCommand, aReg1, aReg2));
+aDef.DebugList.Push(aDef._CurrDebug);
+aDef._CurrDebug = "";
+}
 	
 	internal static tNat32
 	_AddReg<tPos>(
