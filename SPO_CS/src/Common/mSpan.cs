@@ -46,4 +46,19 @@ mSpan {
 		a2.Equals(default(tSpan<tPos>)) ? a1 :
 		Span(a1.Start, a2.End)
 	);
+	
+	public static tBool
+	Eq<tPos>(
+		tSpan<tPos> a1,
+		tSpan<tPos> a2,
+		mStd.tFunc<tPos, tPos, tBool> aEqPos
+	) => aEqPos(a1.Start, a2.Start) && aEqPos(a1.End, a2.End);
+	
+	public static mStd.tFunc<tSpan<tPos>, tSpan<tPos>, tBool>
+	Eq_<tPos>(
+		mStd.tFunc<tPos, tPos, tBool> aEqPos
+	) => (
+		a1,
+		a2
+	) => Eq(a1, a2, aEqPos);
 }

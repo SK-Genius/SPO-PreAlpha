@@ -36,6 +36,7 @@ mVM_Type {
 		public tText? Prefix;
 		public tType[] Refs = [];
 		public mTreeMap.tTree<tText, tType> Fields;
+		public tNat64 DebugId = mStd.NewDebugId();
 		
 		public override tBool
 		Equals(

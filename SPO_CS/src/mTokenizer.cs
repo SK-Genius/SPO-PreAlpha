@@ -80,7 +80,7 @@ mTokenizer {
 		SpecialId,
 		SpecialToken,
 	}
-	
+
 	public struct
 	tToken {
 		public tTokenType Type;

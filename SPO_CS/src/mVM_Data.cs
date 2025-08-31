@@ -49,6 +49,7 @@ mVM_Data {
 		CallProc,
 		DefRecProcs,
 		ReturnIf,
+		ReturnIfNotEmpty,
 		TryAsNotEmpty,
 		TryAsBool,
 		TryAsInt,
@@ -381,6 +382,15 @@ mVM_Data {
 		tNat32 aResReg
 	) {
 		aDef._AddCommand(aPos, tOpCode.ReturnIf, aCondReg, aResReg);
+	}
+	
+	public static void
+	ReturnIfNotEmpty<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aResReg
+	) {
+		aDef._AddCommand(aPos, tOpCode.ReturnIfNotEmpty, aResReg);
 	}
 	
 	public static void
@@ -904,7 +914,7 @@ mVM_Data {
 		// In the end this is the place where the compiler will called !!!
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
-
+	
 	public static tBool
 	IsProc(
 		this tData aData,

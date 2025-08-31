@@ -72,6 +72,12 @@ mTextStream {
 		(a1, a2) => a1 + "\n" + a2
 	);
 	
+	public static tBool
+	Eq(
+		tPos a1,
+		tPos a2
+	) => a1.Id == a2.Id && a1.Row == a2.Row && a1.Col == a2.Col;
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mStream.tStream<(tPos Pos, tChar Char)>
 	ToStream(

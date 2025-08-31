@@ -1,1 +1,843 @@
-﻿
+﻿§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => BOOL]
+	t_3 := [INT => INT]
+	t_4 := [t_2 => t_3]
+	t_5 := [EMPTY_TYPE, INT]
+	t_6 := [t_5, INT]
+	t_7 := [t_6 => BOOL]
+	t_8 := [INT => INT]
+	t_9 := [t_7 => t_8]
+	t_10 := [EMPTY_TYPE, INT]
+	t_11 := [t_10, INT]
+	t_12 := [t_11 => INT]
+	t_13 := [EMPTY_TYPE, t_12]
+	t_14 := [INT => INT]
+	t_15 := [t_13, t_14]
+	t_16 := [EMPTY_TYPE, INT]
+	t_17 := [t_16, INT]
+	t_18 := [t_17 => INT]
+	t_19 := [t_15, t_18]
+	t_20 := [INT => INT]
+	t_21 := [t_19 => t_20]
+	t_22 := [EMPTY_TYPE, INT]
+	t_23 := [t_22, INT]
+	t_24 := [t_23 => BOOL]
+	t_25 := [EMPTY_TYPE, t_24]
+	t_26 := [EMPTY_TYPE, INT]
+	t_27 := [t_26, INT]
+	t_28 := [t_27 => BOOL]
+	t_29 := [INT => INT]
+	t_30 := [t_28 => t_29]
+	t_31 := [t_25, t_30]
+	t_32 := [EMPTY_TYPE, INT]
+	t_33 := [t_32, INT]
+	t_34 := [t_33 => BOOL]
+	t_35 := [INT => INT]
+	t_36 := [t_34 => t_35]
+	t_37 := [t_31, t_36]
+	t_38 := [EMPTY_TYPE, INT]
+	t_39 := [t_38, INT]
+	t_40 := [t_39 => INT]
+	t_41 := [t_37, t_40]
+	t_42 := [INT => INT]
+	t_43 := [t_41, t_42]
+	t_44 := [EMPTY_TYPE, INT]
+	t_45 := [t_44, INT]
+	t_46 := [t_45 => INT]
+	t_47 := [t_43, t_46]
+	t_48 := [EMPTY_TYPE, INT]
+	t_49 := [t_48, INT]
+	t_50 := [t_49 => INT]
+	t_51 := [EMPTY_TYPE, t_50]
+	t_52 := [INT => INT]
+	t_53 := [t_51, t_52]
+	t_54 := [EMPTY_TYPE, INT]
+	t_55 := [t_54, INT]
+	t_56 := [t_55 => INT]
+	t_57 := [t_53, t_56]
+	t_58 := [INT => INT]
+	t_59 := [t_57 => t_58]
+	t_60 := [t_47, t_59]
+	t_61 := [INT => INT]
+	t_62 := [t_60 => t_61]
+	t_63 := [EMPTY_TYPE, INT]
+	t_64 := [t_63, INT]
+	t_65 := [t_64 => BOOL]
+	t_66 := [EMPTY_TYPE, t_65]
+	t_67 := [EMPTY_TYPE, INT]
+	t_68 := [t_67, INT]
+	t_69 := [t_68 => BOOL]
+	t_70 := [INT => INT]
+	t_71 := [t_69 => t_70]
+	t_72 := [t_66, t_71]
+	t_73 := [EMPTY_TYPE, INT]
+	t_74 := [t_73, INT]
+	t_75 := [t_74 => BOOL]
+	t_76 := [INT => INT]
+	t_77 := [t_75 => t_76]
+	t_78 := [t_72, t_77]
+	t_79 := [EMPTY_TYPE, INT]
+	t_80 := [t_79, INT]
+	t_81 := [t_80 => INT]
+	t_82 := [t_78, t_81]
+	t_83 := [INT => INT]
+	t_84 := [t_82, t_83]
+	t_85 := [EMPTY_TYPE, INT]
+	t_86 := [t_85, INT]
+	t_87 := [t_86 => INT]
+	t_88 := [t_84, t_87]
+	t_89 := [EMPTY_TYPE, INT]
+	t_90 := [t_89, INT]
+	t_91 := [t_90 => INT]
+	t_92 := [EMPTY_TYPE, t_91]
+	t_93 := [INT => INT]
+	t_94 := [t_92, t_93]
+	t_95 := [EMPTY_TYPE, INT]
+	t_96 := [t_95, INT]
+	t_97 := [t_96 => INT]
+	t_98 := [t_94, t_97]
+	t_99 := [INT => INT]
+	t_100 := [t_98 => t_99]
+	t_101 := [t_88, t_100]
+	t_102 := [EMPTY_TYPE, INT]
+	t_103 := [t_102, INT]
+	t_104 := [t_103 => BOOL]
+	t_105 := [EMPTY_TYPE, t_104]
+	t_106 := [EMPTY_TYPE, INT]
+	t_107 := [t_106, INT]
+	t_108 := [t_107 => BOOL]
+	t_109 := [INT => INT]
+	t_110 := [t_108 => t_109]
+	t_111 := [t_105, t_110]
+	t_112 := [EMPTY_TYPE, INT]
+	t_113 := [t_112, INT]
+	t_114 := [t_113 => BOOL]
+	t_115 := [INT => INT]
+	t_116 := [t_114 => t_115]
+	t_117 := [t_111, t_116]
+	t_118 := [EMPTY_TYPE, INT]
+	t_119 := [t_118, INT]
+	t_120 := [t_119 => INT]
+	t_121 := [t_117, t_120]
+	t_122 := [INT => INT]
+	t_123 := [t_121, t_122]
+	t_124 := [EMPTY_TYPE, INT]
+	t_125 := [t_124, INT]
+	t_126 := [t_125 => INT]
+	t_127 := [t_123, t_126]
+	t_128 := [EMPTY_TYPE, INT]
+	t_129 := [t_128, INT]
+	t_130 := [t_129 => INT]
+	t_131 := [EMPTY_TYPE, t_130]
+	t_132 := [INT => INT]
+	t_133 := [t_131, t_132]
+	t_134 := [EMPTY_TYPE, INT]
+	t_135 := [t_134, INT]
+	t_136 := [t_135 => INT]
+	t_137 := [t_133, t_136]
+	t_138 := [INT => INT]
+	t_139 := [t_137 => t_138]
+	t_140 := [t_127, t_139]
+	t_141 := [INT => INT]
+	t_142 := [t_140 => t_141]
+	t_143 := [t_140, t_142]
+	t_144 := [INT => INT]
+	t_145 := [t_143 => t_144]
+	t_146 := [EMPTY_TYPE, INT]
+	t_147 := [t_146, INT]
+	t_148 := [t_147 => BOOL]
+	t_149 := [EMPTY_TYPE, t_148]
+	t_150 := [EMPTY_TYPE, INT]
+	t_151 := [t_150, INT]
+	t_152 := [t_151 => BOOL]
+	t_153 := [INT => INT]
+	t_154 := [t_152 => t_153]
+	t_155 := [t_149, t_154]
+	t_156 := [EMPTY_TYPE, INT]
+	t_157 := [t_156, INT]
+	t_158 := [t_157 => BOOL]
+	t_159 := [INT => INT]
+	t_160 := [t_158 => t_159]
+	t_161 := [t_155, t_160]
+	t_162 := [EMPTY_TYPE, INT]
+	t_163 := [t_162, INT]
+	t_164 := [t_163 => INT]
+	t_165 := [t_161, t_164]
+	t_166 := [EMPTY_TYPE, INT]
+	t_167 := [t_166, INT]
+	t_168 := [t_167 => INT]
+	t_169 := [t_165, t_168]
+	t_170 := [EMPTY_TYPE, INT]
+	t_171 := [t_170, INT]
+	t_172 := [t_171 => INT]
+	t_173 := [EMPTY_TYPE, t_172]
+	t_174 := [INT => INT]
+	t_175 := [t_173, t_174]
+	t_176 := [EMPTY_TYPE, INT]
+	t_177 := [t_176, INT]
+	t_178 := [t_177 => INT]
+	t_179 := [t_175, t_178]
+	t_180 := [INT => INT]
+	t_181 := [t_179 => t_180]
+	t_182 := [t_169, t_181]
+	t_183 := [EMPTY_TYPE, INT]
+	t_184 := [t_183, INT]
+	t_185 := [t_184 => BOOL]
+	t_186 := [EMPTY_TYPE, t_185]
+	t_187 := [EMPTY_TYPE, INT]
+	t_188 := [t_187, INT]
+	t_189 := [t_188 => BOOL]
+	t_190 := [INT => INT]
+	t_191 := [t_189 => t_190]
+	t_192 := [t_186, t_191]
+	t_193 := [EMPTY_TYPE, INT]
+	t_194 := [t_193, INT]
+	t_195 := [t_194 => BOOL]
+	t_196 := [INT => INT]
+	t_197 := [t_195 => t_196]
+	t_198 := [t_192, t_197]
+	t_199 := [EMPTY_TYPE, INT]
+	t_200 := [t_199, INT]
+	t_201 := [t_200 => INT]
+	t_202 := [t_198, t_201]
+	t_203 := [INT => INT]
+	t_204 := [t_202, t_203]
+	t_205 := [EMPTY_TYPE, INT]
+	t_206 := [t_205, INT]
+	t_207 := [t_206 => INT]
+	t_208 := [t_204, t_207]
+	t_209 := [EMPTY_TYPE, INT]
+	t_210 := [t_209, INT]
+	t_211 := [t_210 => INT]
+	t_212 := [EMPTY_TYPE, t_211]
+	t_213 := [INT => INT]
+	t_214 := [t_212, t_213]
+	t_215 := [EMPTY_TYPE, INT]
+	t_216 := [t_215, INT]
+	t_217 := [t_216 => INT]
+	t_218 := [t_214, t_217]
+	t_219 := [INT => INT]
+	t_220 := [t_218 => t_219]
+	t_221 := [t_208, t_220]
+	t_222 := [INT => INT]
+	t_223 := [t_221 => t_222]
+	t_224 := [t_182, t_223]
+	t_225 := [EMPTY_TYPE, INT]
+	t_226 := [t_225, INT]
+	t_227 := [t_226 => BOOL]
+	t_228 := [EMPTY_TYPE, t_227]
+	t_229 := [EMPTY_TYPE, INT]
+	t_230 := [t_229, INT]
+	t_231 := [t_230 => BOOL]
+	t_232 := [INT => INT]
+	t_233 := [t_231 => t_232]
+	t_234 := [t_228, t_233]
+	t_235 := [EMPTY_TYPE, INT]
+	t_236 := [t_235, INT]
+	t_237 := [t_236 => BOOL]
+	t_238 := [INT => INT]
+	t_239 := [t_237 => t_238]
+	t_240 := [t_234, t_239]
+	t_241 := [EMPTY_TYPE, INT]
+	t_242 := [t_241, INT]
+	t_243 := [t_242 => INT]
+	t_244 := [t_240, t_243]
+	t_245 := [INT => INT]
+	t_246 := [t_244, t_245]
+	t_247 := [EMPTY_TYPE, INT]
+	t_248 := [t_247, INT]
+	t_249 := [t_248 => INT]
+	t_250 := [t_246, t_249]
+	t_251 := [EMPTY_TYPE, INT]
+	t_252 := [t_251, INT]
+	t_253 := [t_252 => INT]
+	t_254 := [EMPTY_TYPE, t_253]
+	t_255 := [INT => INT]
+	t_256 := [t_254, t_255]
+	t_257 := [EMPTY_TYPE, INT]
+	t_258 := [t_257, INT]
+	t_259 := [t_258 => INT]
+	t_260 := [t_256, t_259]
+	t_261 := [INT => INT]
+	t_262 := [t_260 => t_261]
+	t_263 := [t_250, t_262]
+	t_264 := [EMPTY_TYPE, INT]
+	t_265 := [t_264, INT]
+	t_266 := [t_265 => BOOL]
+	t_267 := [EMPTY_TYPE, t_266]
+	t_268 := [EMPTY_TYPE, INT]
+	t_269 := [t_268, INT]
+	t_270 := [t_269 => BOOL]
+	t_271 := [INT => INT]
+	t_272 := [t_270 => t_271]
+	t_273 := [t_267, t_272]
+	t_274 := [EMPTY_TYPE, INT]
+	t_275 := [t_274, INT]
+	t_276 := [t_275 => BOOL]
+	t_277 := [INT => INT]
+	t_278 := [t_276 => t_277]
+	t_279 := [t_273, t_278]
+	t_280 := [EMPTY_TYPE, INT]
+	t_281 := [t_280, INT]
+	t_282 := [t_281 => INT]
+	t_283 := [t_279, t_282]
+	t_284 := [INT => INT]
+	t_285 := [t_283, t_284]
+	t_286 := [EMPTY_TYPE, INT]
+	t_287 := [t_286, INT]
+	t_288 := [t_287 => INT]
+	t_289 := [t_285, t_288]
+	t_290 := [EMPTY_TYPE, INT]
+	t_291 := [t_290, INT]
+	t_292 := [t_291 => INT]
+	t_293 := [EMPTY_TYPE, t_292]
+	t_294 := [INT => INT]
+	t_295 := [t_293, t_294]
+	t_296 := [EMPTY_TYPE, INT]
+	t_297 := [t_296, INT]
+	t_298 := [t_297 => INT]
+	t_299 := [t_295, t_298]
+	t_300 := [INT => INT]
+	t_301 := [t_299 => t_300]
+	t_302 := [t_289, t_301]
+	t_303 := [INT => INT]
+	t_304 := [t_302 => t_303]
+	t_305 := [t_302, t_304]
+	t_306 := [INT => INT]
+	t_307 := [t_305 => t_306]
+	t_308 := [t_224, t_307]
+	t_309 := [INT => INT]
+	t_310 := [INT => INT]
+	t_311 := [t_310 => t_310]
+	t_312 := [t_308 => t_311]
+	t_313 := [EMPTY_TYPE, INT]
+	t_314 := [t_313, INT]
+	t_315 := [t_314 => BOOL]
+	t_316 := [INT => INT]
+	t_317 := [t_315 => t_316]
+	t_318 := [EMPTY_TYPE, t_317]
+	t_319 := [EMPTY_TYPE, INT]
+	t_320 := [t_319, INT]
+	t_321 := [t_320 => BOOL]
+	t_322 := [INT => INT]
+	t_323 := [t_321 => t_322]
+	t_324 := [t_318, t_323]
+	t_325 := [EMPTY_TYPE, INT]
+	t_326 := [t_325, INT]
+	t_327 := [t_326 => INT]
+	t_328 := [EMPTY_TYPE, t_327]
+	t_329 := [INT => INT]
+	t_330 := [t_328, t_329]
+	t_331 := [EMPTY_TYPE, INT]
+	t_332 := [t_331, INT]
+	t_333 := [t_332 => INT]
+	t_334 := [t_330, t_333]
+	t_335 := [INT => INT]
+	t_336 := [t_334 => t_335]
+	t_337 := [t_324, t_336]
+	t_338 := [EMPTY_TYPE, INT]
+	t_339 := [t_338, INT]
+	t_340 := [t_339 => BOOL]
+	t_341 := [EMPTY_TYPE, t_340]
+	t_342 := [EMPTY_TYPE, INT]
+	t_343 := [t_342, INT]
+	t_344 := [t_343 => BOOL]
+	t_345 := [INT => INT]
+	t_346 := [t_344 => t_345]
+	t_347 := [t_341, t_346]
+	t_348 := [EMPTY_TYPE, INT]
+	t_349 := [t_348, INT]
+	t_350 := [t_349 => BOOL]
+	t_351 := [INT => INT]
+	t_352 := [t_350 => t_351]
+	t_353 := [t_347, t_352]
+	t_354 := [EMPTY_TYPE, INT]
+	t_355 := [t_354, INT]
+	t_356 := [t_355 => INT]
+	t_357 := [t_353, t_356]
+	t_358 := [INT => INT]
+	t_359 := [t_357, t_358]
+	t_360 := [EMPTY_TYPE, INT]
+	t_361 := [t_360, INT]
+	t_362 := [t_361 => INT]
+	t_363 := [t_359, t_362]
+	t_364 := [EMPTY_TYPE, INT]
+	t_365 := [t_364, INT]
+	t_366 := [t_365 => INT]
+	t_367 := [EMPTY_TYPE, t_366]
+	t_368 := [INT => INT]
+	t_369 := [t_367, t_368]
+	t_370 := [EMPTY_TYPE, INT]
+	t_371 := [t_370, INT]
+	t_372 := [t_371 => INT]
+	t_373 := [t_369, t_372]
+	t_374 := [INT => INT]
+	t_375 := [t_373 => t_374]
+	t_376 := [t_363, t_375]
+	t_377 := [INT => INT]
+	t_378 := [t_376 => t_377]
+	t_379 := [t_337, t_378]
+	t_380 := [EMPTY_TYPE, INT]
+	t_381 := [t_380, INT]
+	t_382 := [t_381 => BOOL]
+	t_383 := [EMPTY_TYPE, t_382]
+	t_384 := [EMPTY_TYPE, INT]
+	t_385 := [t_384, INT]
+	t_386 := [t_385 => BOOL]
+	t_387 := [INT => INT]
+	t_388 := [t_386 => t_387]
+	t_389 := [t_383, t_388]
+	t_390 := [EMPTY_TYPE, INT]
+	t_391 := [t_390, INT]
+	t_392 := [t_391 => BOOL]
+	t_393 := [INT => INT]
+	t_394 := [t_392 => t_393]
+	t_395 := [t_389, t_394]
+	t_396 := [EMPTY_TYPE, INT]
+	t_397 := [t_396, INT]
+	t_398 := [t_397 => INT]
+	t_399 := [t_395, t_398]
+	t_400 := [INT => INT]
+	t_401 := [t_399, t_400]
+	t_402 := [EMPTY_TYPE, INT]
+	t_403 := [t_402, INT]
+	t_404 := [t_403 => INT]
+	t_405 := [t_401, t_404]
+	t_406 := [EMPTY_TYPE, INT]
+	t_407 := [t_406, INT]
+	t_408 := [t_407 => INT]
+	t_409 := [EMPTY_TYPE, t_408]
+	t_410 := [INT => INT]
+	t_411 := [t_409, t_410]
+	t_412 := [EMPTY_TYPE, INT]
+	t_413 := [t_412, INT]
+	t_414 := [t_413 => INT]
+	t_415 := [t_411, t_414]
+	t_416 := [INT => INT]
+	t_417 := [t_415 => t_416]
+	t_418 := [t_405, t_417]
+	t_419 := [EMPTY_TYPE, INT]
+	t_420 := [t_419, INT]
+	t_421 := [t_420 => BOOL]
+	t_422 := [EMPTY_TYPE, t_421]
+	t_423 := [EMPTY_TYPE, INT]
+	t_424 := [t_423, INT]
+	t_425 := [t_424 => BOOL]
+	t_426 := [INT => INT]
+	t_427 := [t_425 => t_426]
+	t_428 := [t_422, t_427]
+	t_429 := [EMPTY_TYPE, INT]
+	t_430 := [t_429, INT]
+	t_431 := [t_430 => BOOL]
+	t_432 := [INT => INT]
+	t_433 := [t_431 => t_432]
+	t_434 := [t_428, t_433]
+	t_435 := [EMPTY_TYPE, INT]
+	t_436 := [t_435, INT]
+	t_437 := [t_436 => INT]
+	t_438 := [t_434, t_437]
+	t_439 := [INT => INT]
+	t_440 := [t_438, t_439]
+	t_441 := [EMPTY_TYPE, INT]
+	t_442 := [t_441, INT]
+	t_443 := [t_442 => INT]
+	t_444 := [t_440, t_443]
+	t_445 := [EMPTY_TYPE, INT]
+	t_446 := [t_445, INT]
+	t_447 := [t_446 => INT]
+	t_448 := [EMPTY_TYPE, t_447]
+	t_449 := [INT => INT]
+	t_450 := [t_448, t_449]
+	t_451 := [EMPTY_TYPE, INT]
+	t_452 := [t_451, INT]
+	t_453 := [t_452 => INT]
+	t_454 := [t_450, t_453]
+	t_455 := [INT => INT]
+	t_456 := [t_454 => t_455]
+	t_457 := [t_444, t_456]
+	t_458 := [INT => INT]
+	t_459 := [t_457 => t_458]
+	t_460 := [t_457, t_459]
+	t_461 := [INT => INT]
+	t_462 := [t_460 => t_461]
+	t_463 := [t_379, t_462]
+	t_464 := [EMPTY_TYPE, INT]
+	t_465 := [t_464, INT]
+	t_466 := [t_465 => BOOL]
+	t_467 := [EMPTY_TYPE, t_466]
+	t_468 := [EMPTY_TYPE, INT]
+	t_469 := [t_468, INT]
+	t_470 := [t_469 => BOOL]
+	t_471 := [INT => INT]
+	t_472 := [t_470 => t_471]
+	t_473 := [t_467, t_472]
+	t_474 := [EMPTY_TYPE, INT]
+	t_475 := [t_474, INT]
+	t_476 := [t_475 => BOOL]
+	t_477 := [INT => INT]
+	t_478 := [t_476 => t_477]
+	t_479 := [t_473, t_478]
+	t_480 := [EMPTY_TYPE, INT]
+	t_481 := [t_480, INT]
+	t_482 := [t_481 => INT]
+	t_483 := [t_479, t_482]
+	t_484 := [EMPTY_TYPE, INT]
+	t_485 := [t_484, INT]
+	t_486 := [t_485 => INT]
+	t_487 := [t_483, t_486]
+	t_488 := [EMPTY_TYPE, INT]
+	t_489 := [t_488, INT]
+	t_490 := [t_489 => INT]
+	t_491 := [EMPTY_TYPE, t_490]
+	t_492 := [INT => INT]
+	t_493 := [t_491, t_492]
+	t_494 := [EMPTY_TYPE, INT]
+	t_495 := [t_494, INT]
+	t_496 := [t_495 => INT]
+	t_497 := [t_493, t_496]
+	t_498 := [INT => INT]
+	t_499 := [t_497 => t_498]
+	t_500 := [t_487, t_499]
+	t_501 := [EMPTY_TYPE, INT]
+	t_502 := [t_501, INT]
+	t_503 := [t_502 => BOOL]
+	t_504 := [EMPTY_TYPE, t_503]
+	t_505 := [EMPTY_TYPE, INT]
+	t_506 := [t_505, INT]
+	t_507 := [t_506 => BOOL]
+	t_508 := [INT => INT]
+	t_509 := [t_507 => t_508]
+	t_510 := [t_504, t_509]
+	t_511 := [EMPTY_TYPE, INT]
+	t_512 := [t_511, INT]
+	t_513 := [t_512 => BOOL]
+	t_514 := [INT => INT]
+	t_515 := [t_513 => t_514]
+	t_516 := [t_510, t_515]
+	t_517 := [EMPTY_TYPE, INT]
+	t_518 := [t_517, INT]
+	t_519 := [t_518 => INT]
+	t_520 := [t_516, t_519]
+	t_521 := [INT => INT]
+	t_522 := [t_520, t_521]
+	t_523 := [EMPTY_TYPE, INT]
+	t_524 := [t_523, INT]
+	t_525 := [t_524 => INT]
+	t_526 := [t_522, t_525]
+	t_527 := [EMPTY_TYPE, INT]
+	t_528 := [t_527, INT]
+	t_529 := [t_528 => INT]
+	t_530 := [EMPTY_TYPE, t_529]
+	t_531 := [INT => INT]
+	t_532 := [t_530, t_531]
+	t_533 := [EMPTY_TYPE, INT]
+	t_534 := [t_533, INT]
+	t_535 := [t_534 => INT]
+	t_536 := [t_532, t_535]
+	t_537 := [INT => INT]
+	t_538 := [t_536 => t_537]
+	t_539 := [t_526, t_538]
+	t_540 := [INT => INT]
+	t_541 := [t_539 => t_540]
+	t_542 := [t_500, t_541]
+	t_543 := [EMPTY_TYPE, INT]
+	t_544 := [t_543, INT]
+	t_545 := [t_544 => BOOL]
+	t_546 := [EMPTY_TYPE, t_545]
+	t_547 := [EMPTY_TYPE, INT]
+	t_548 := [t_547, INT]
+	t_549 := [t_548 => BOOL]
+	t_550 := [INT => INT]
+	t_551 := [t_549 => t_550]
+	t_552 := [t_546, t_551]
+	t_553 := [EMPTY_TYPE, INT]
+	t_554 := [t_553, INT]
+	t_555 := [t_554 => BOOL]
+	t_556 := [INT => INT]
+	t_557 := [t_555 => t_556]
+	t_558 := [t_552, t_557]
+	t_559 := [EMPTY_TYPE, INT]
+	t_560 := [t_559, INT]
+	t_561 := [t_560 => INT]
+	t_562 := [t_558, t_561]
+	t_563 := [INT => INT]
+	t_564 := [t_562, t_563]
+	t_565 := [EMPTY_TYPE, INT]
+	t_566 := [t_565, INT]
+	t_567 := [t_566 => INT]
+	t_568 := [t_564, t_567]
+	t_569 := [EMPTY_TYPE, INT]
+	t_570 := [t_569, INT]
+	t_571 := [t_570 => INT]
+	t_572 := [EMPTY_TYPE, t_571]
+	t_573 := [INT => INT]
+	t_574 := [t_572, t_573]
+	t_575 := [EMPTY_TYPE, INT]
+	t_576 := [t_575, INT]
+	t_577 := [t_576 => INT]
+	t_578 := [t_574, t_577]
+	t_579 := [INT => INT]
+	t_580 := [t_578 => t_579]
+	t_581 := [t_568, t_580]
+	t_582 := [EMPTY_TYPE, INT]
+	t_583 := [t_582, INT]
+	t_584 := [t_583 => BOOL]
+	t_585 := [EMPTY_TYPE, t_584]
+	t_586 := [EMPTY_TYPE, INT]
+	t_587 := [t_586, INT]
+	t_588 := [t_587 => BOOL]
+	t_589 := [INT => INT]
+	t_590 := [t_588 => t_589]
+	t_591 := [t_585, t_590]
+	t_592 := [EMPTY_TYPE, INT]
+	t_593 := [t_592, INT]
+	t_594 := [t_593 => BOOL]
+	t_595 := [INT => INT]
+	t_596 := [t_594 => t_595]
+	t_597 := [t_591, t_596]
+	t_598 := [EMPTY_TYPE, INT]
+	t_599 := [t_598, INT]
+	t_600 := [t_599 => INT]
+	t_601 := [t_597, t_600]
+	t_602 := [INT => INT]
+	t_603 := [t_601, t_602]
+	t_604 := [EMPTY_TYPE, INT]
+	t_605 := [t_604, INT]
+	t_606 := [t_605 => INT]
+	t_607 := [t_603, t_606]
+	t_608 := [EMPTY_TYPE, INT]
+	t_609 := [t_608, INT]
+	t_610 := [t_609 => INT]
+	t_611 := [EMPTY_TYPE, t_610]
+	t_612 := [INT => INT]
+	t_613 := [t_611, t_612]
+	t_614 := [EMPTY_TYPE, INT]
+	t_615 := [t_614, INT]
+	t_616 := [t_615 => INT]
+	t_617 := [t_613, t_616]
+	t_618 := [INT => INT]
+	t_619 := [t_617 => t_618]
+	t_620 := [t_607, t_619]
+	t_621 := [INT => INT]
+	t_622 := [t_620 => t_621]
+	t_623 := [t_620, t_622]
+	t_624 := [INT => INT]
+	t_625 := [t_623 => t_624]
+	t_626 := [t_542, t_625]
+	t_627 := [INT => INT]
+	t_628 := [INT => INT]
+	t_629 := [t_628 => t_628]
+	t_630 := [t_626 => t_629]
+	t_631 := [t_463, t_630]
+	t_632 := [EMPTY_TYPE, INT]
+	t_633 := [t_632, INT]
+	t_634 := [t_633 => INT]
+	t_635 := [#_...+... t_634]
+	t_636 := [{EMPTY_TYPE} + t_635]
+	t_637 := [EMPTY_TYPE, INT]
+	t_638 := [t_637, INT]
+	t_639 := [t_638 => INT]
+	t_640 := [#_...-... t_639]
+	t_641 := [{t_636} + t_640]
+	t_642 := [EMPTY_TYPE, INT]
+	t_643 := [t_642, INT]
+	t_644 := [t_643 => BOOL]
+	t_645 := [#_...==... t_644]
+	t_646 := [{t_641} + t_645]
+	t_647 := [EMPTY_TYPE, INT]
+	t_648 := [t_647, INT]
+	t_649 := [t_648, INT]
+	t_650 := [t_649, INT]
+	t_651 := [t_650, INT]
+	t_652 := [t_651, INT]
+	t_653 := [t_652, INT]
+	t_654 := [t_646 => t_653]
+	t_655 := [t_631 => t_654]
+
+§DEF d_0 € t_596
+	_...==... := ENV
+	_a := ARG
+	r_1 := EMPTY, _a
+	r_2 := 0
+	r_3 := r_1, r_2
+	r_4 := ._...==... r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 0
+	§RETURN r_6 IF TRUE
+
+§DEF d_1 € t_596
+	_...==... := ENV
+	_a := ARG
+	r_1 := EMPTY, _a
+	r_2 := 1
+	r_3 := r_1, r_2
+	r_4 := ._...==... r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 1
+	§RETURN r_6 IF TRUE
+
+§DEF d_2 € t_619
+	_...-... := §2ND ENV
+	r_14 := §1ST ENV
+	_Fib... := §2ND r_14
+	r_15 := §1ST r_14
+	_...+... := §2ND r_15
+	r_16 := §1ST r_15
+	_a := ARG
+	r_1 := EMPTY, _a
+	r_2 := 2
+	r_3 := r_1, r_2
+	r_4 := ._...-... r_3
+	r_5 := ._Fib... r_4
+	r_6 := EMPTY, r_5
+	r_7 := EMPTY, _a
+	r_8 := 1
+	r_9 := r_7, r_8
+	r_10 := ._...-... r_9
+	r_11 := ._Fib... r_10
+	r_12 := r_6, r_11
+	r_13 := ._...+... r_12
+	§RETURN r_13 IF TRUE
+
+§DEF d_3 € t_622
+	d_2 := §2ND ENV
+	r_10 := §1ST ENV
+	_...-... := §2ND r_10
+	r_11 := §1ST r_10
+	_Fib... := §2ND r_11
+	r_12 := §1ST r_11
+	_...+... := §2ND r_12
+	r_13 := §1ST r_12
+	d_1 := §2ND r_13
+	r_14 := §1ST r_13
+	d_0 := §2ND r_14
+	r_15 := §1ST r_14
+	_...==... := §2ND r_15
+	r_16 := §1ST r_15
+	r_1 := .d_0 _...==...
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	r_3 := .d_1 _...==...
+	r_4 := .r_3 ARG
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _...+...
+	r_6 := r_5, _Fib...
+	r_7 := r_6, _...-...
+	r_8 := .d_2 r_7
+	r_9 := .r_8 ARG
+	§RETURN r_9 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_625
+	d_3 := §2ND ENV
+	r_10 := §1ST ENV
+	d_2 := §2ND r_10
+	r_11 := §1ST r_10
+	_...-... := §2ND r_11
+	r_12 := §1ST r_11
+	_Fib... := §2ND r_12
+	r_13 := §1ST r_12
+	_...+... := §2ND r_13
+	r_14 := §1ST r_13
+	d_1 := §2ND r_14
+	r_15 := §1ST r_14
+	d_0 := §2ND r_15
+	r_16 := §1ST r_15
+	_...==... := §2ND r_16
+	r_17 := §1ST r_16
+	_a := ARG
+	r_1 := EMPTY, _...==...
+	r_2 := r_1, d_0
+	r_3 := r_2, d_1
+	r_4 := r_3, _...+...
+	r_5 := r_4, _Fib...
+	r_6 := r_5, _...-...
+	r_7 := r_6, d_2
+	r_8 := .d_3 r_7
+	r_9 := .r_8 _a
+	§RETURN r_9 IF TRUE
+
+§DEF d_5 € t_630
+	d_4 := §2ND ENV
+	r_10 := §1ST ENV
+	d_3 := §2ND r_10
+	r_11 := §1ST r_10
+	d_2 := §2ND r_11
+	r_12 := §1ST r_11
+	_...-... := §2ND r_12
+	r_13 := §1ST r_12
+	_...+... := §2ND r_13
+	r_14 := §1ST r_13
+	d_1 := §2ND r_14
+	r_15 := §1ST r_14
+	d_0 := §2ND r_15
+	r_16 := §1ST r_15
+	_...==... := §2ND r_16
+	r_17 := §1ST r_16
+	_Fib... := ARG
+	r_1 := EMPTY, _...==...
+	r_2 := r_1, d_0
+	r_3 := r_2, d_1
+	r_4 := r_3, _...+...
+	r_5 := r_4, _Fib...
+	r_6 := r_5, _...-...
+	r_7 := r_6, d_2
+	r_8 := r_7, d_3
+	r_9 := .d_4 r_8
+	§RETURN r_9 IF TRUE
+
+§DEF d_6 € t_655
+	d_5 := §2ND ENV
+	r_34 := §1ST ENV
+	d_4 := §2ND r_34
+	r_35 := §1ST r_34
+	d_3 := §2ND r_35
+	r_36 := §1ST r_35
+	d_2 := §2ND r_36
+	r_37 := §1ST r_36
+	d_1 := §2ND r_37
+	r_38 := §1ST r_37
+	d_0 := §2ND r_38
+	r_39 := §1ST r_38
+	r_1 := {ARG} #_...==...
+	_...==... := r_1
+	r_2 := {ARG} #_...+...
+	_...+... := r_2
+	r_3 := {ARG} #_...-...
+	_...-... := r_3
+	r_4 := EMPTY, _...==...
+	r_5 := r_4, d_0
+	r_6 := r_5, d_1
+	r_7 := r_6, _...+...
+	r_8 := r_7, _...-...
+	r_9 := r_8, d_2
+	r_10 := r_9, d_3
+	r_11 := r_10, d_4
+	§REC r_12 := .d_5 r_11
+	_Fib... := r_12
+	r_13 := 0
+	r_14 := ._Fib... r_13
+	r_15 := EMPTY, r_14
+	r_16 := 1
+	r_17 := ._Fib... r_16
+	r_18 := r_15, r_17
+	r_19 := 2
+	r_20 := ._Fib... r_19
+	r_21 := r_18, r_20
+	r_22 := 3
+	r_23 := ._Fib... r_22
+	r_24 := r_21, r_23
+	r_25 := 4
+	r_26 := ._Fib... r_25
+	r_27 := r_24, r_26
+	r_28 := 5
+	r_29 := ._Fib... r_28
+	r_30 := r_27, r_29
+	r_31 := 6
+	r_32 := ._Fib... r_31
+	r_33 := r_30, r_32
+	§RETURN r_33 IF TRUE

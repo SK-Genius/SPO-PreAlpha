@@ -137,7 +137,8 @@ mSPO2IL_Tests {
 								mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(9)),
 								mIL_AST.CallFunc(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(11), mSPO2IL.GetId("...<...<..."), mSPO2IL.GetRegId(10))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
 			),
@@ -168,7 +169,8 @@ mSPO2IL_Tests {
 								
 								mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(4))
 							]
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
 			),
@@ -213,7 +215,8 @@ mSPO2IL_Tests {
 								
 								mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(13)) // [13]:(1) => [14]:()
 							]
-						)
+						),
+						aAreEqual: mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
 			),
@@ -1073,7 +1076,8 @@ mSPO2IL_Tests {
 									]
 								),
 								mVM_Type.Int()
-							)
+							),
+							(a1, a2) => a1 == a2
 						);
 					} else {
 						mAssert.Fail(Error);
@@ -1117,7 +1121,8 @@ mSPO2IL_Tests {
 							]
 						).Map(
 							_ => ParseCommand(_.Command, Span(_.Start, _.End), aStreamOut)
-						)
+						),
+						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 					
 					mAssert.AreEquals(
@@ -1193,7 +1198,7 @@ mSPO2IL_Tests {
 								("_y := r_10", (8, 1), (8, 6)),
 								("§RETURN _y IF TRUE", (10, 1), (10, 9)),
 							],
-						]	
+						]
 					);
 				}
 			),
@@ -1453,7 +1458,8 @@ mSPO2IL_Tests {
 			aDebugStream($"Def {I}:");
 			mAssert.AreEquals(
 				aDefs1.Get(I).Commands.ToStream(),
-				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream))
+				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream)),
+				mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 			);
 		}
 	}

@@ -680,7 +680,7 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tIfMatchNode<tPos> { Pos: var Pos, Expression: var MatchExpression, Cases: var Cases, TypeAnnotation: var Type }: {
+			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases, TypeAnnotation: var Type }: {
 				var InputReg = aDefConstructor.MapExpression(aModuleConstructor, MatchExpression);
 				
 				var SwitchDef = NewDefConstructor<tPos>();
@@ -704,17 +704,17 @@ mSPO2IL {
 					
 					var TestAndCallCaseFunc = NewDefConstructor<tPos>();
 					
-					var CaseDefType = TestAndCallCaseFunc.CreateDefType(
-						aModuleConstructor,
-						CaseType
-					);
-					
 					aModuleConstructor.MapIfCase(
 						ref TestAndCallCaseFunc,
 						ref SwitchDef,
 						Case,
-						CaseDefType,
+						CaseType,
 						CasePos
+					);
+					
+					var CaseDefType = TestAndCallCaseFunc.CreateDefType(
+						aModuleConstructor,
+						CaseType
 					);
 					
 					var TestAndCallDefIndex = TestAndCallCaseFunc.FinishMapProc(
@@ -723,17 +723,13 @@ mSPO2IL {
 						CaseDefType
 					);
 					
-					var TestDefType = mVM_Type.Proc(
-						mVM_Type.Empty(),
-						mVM_Type.Empty(), // TODO: add env type
-						TestType
-					);
+					mAssert.IsTrue(CaseDefType.IsProc(out _, out var EnvType, out _));
 					
 					var TypeDict_ = TestAndCallCaseFunc.TypeDict;
 					var ProcId = SwitchDef.InitProc(
 						Pos,
 						TestAndCallDefIndex,
-						TestDefType,
+						CaseDefType,
 						TestAndCallCaseFunc.EnvIds.ToStream().Map(_ => (_, TypeDict_.TryGet(_).AssertNotEmpty()))
 					);
 					
@@ -969,7 +965,8 @@ mSPO2IL {
 				aTestAndCallCaseFunc.Commands.Push(
 					mIL_AST.Alias(aCasePos, p.Id, mIL_AST.cArg)
 				);
-				aTestAndCallCaseFunc.AddLocal(p.Id, aCaseType);
+				mAssert.IsTrue(aCaseType.IsProc(out _, out var ArgType, out var ReturnType));
+				aTestAndCallCaseFunc.AddLocal(p.Id, ArgType);
 				
 				var Res__ = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression);
 				aTestAndCallCaseFunc.Commands.Push(
@@ -1045,7 +1042,7 @@ mSPO2IL {
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
 				);
 				
-				var DefType =  LazyCaseDef.CreateDefType(
+				var DefType = LazyCaseDef.CreateDefType(
 					aModuleConstructor,
 					aCaseType
 				);
@@ -1171,7 +1168,22 @@ mSPO2IL {
 				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> p: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
+				aTestAndCallCaseFunc.MapMatch(p.Match, mIL_AST.cArg);
+				
+				var GuardRes = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, p.Guard);
+				aTestAndCallCaseFunc.Commands.Push(
+					[
+						mIL_AST.XOr(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var NotGuard), GuardRes, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(aCasePos, NotGuard, mIL_AST.cEmptyValue)
+					]
+				);
+				
+				var Res__ = aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression);
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
 			}
 			default: {
 				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO

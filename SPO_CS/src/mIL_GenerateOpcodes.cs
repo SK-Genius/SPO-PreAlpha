@@ -35,15 +35,22 @@ mIL_GenerateOpcodes {
 		#if MY_TRACE_IL
 			aTrace(() => nameof(GenerateOpcodes));
 		#endif
-		var ModuleMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+		var ModuleMap = mTreeMap.Tree<tText, tNat32>(
+			(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
+			[]
+		);
 		var Module = mStream.Stream<mVM_Data.tProcDef<tPos>>([]);
 		
-		var TypeMap = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), [])
-		.Set(cEmptyType, 0u)
-		.Set(cAnyType, 1u)
-		.Set(cBoolType, 2u)
-		.Set(cIntType, 3u)
-		.Set(cTypeType, 4u);
+		var TypeMap = mTreeMap.Tree<tText, tNat32>(
+			(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
+			[
+				(cEmptyType, 0u),
+				(cAnyType, 1u),
+				(cBoolType, 2u),
+				(cIntType, 3u),
+				(cTypeType, 4u),
+			]
+		);
 		
 		var Types_ = mStream.Stream(
 			[
@@ -121,7 +128,7 @@ mIL_GenerateOpcodes {
 			NextTypeIndex += 1;
 		}
 		
-		foreach (var (DefName, TypeName, Commands) in aModule.Defs) {
+		foreach (var (DefName, TypeName, Commands, _) in aModule.Defs) {
 			aTrace(() => "§DEF " + DefName);
 			// TODO: set type if it known
 			var NextIndex = Module.Count();
@@ -411,7 +418,27 @@ mIL_GenerateOpcodes {
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.ReturnIfNotEmpty)); // TODO
+						var ResReg = Regs.GetOrThrow(RegId2, Command);
+						
+						var ResType = Types.Get(ResReg);
+						
+						// ResType.IsSubType(DefResType, mStd.cEmpty)
+						ResType.IsSubType(mVM_Type.Set(DefResType, mVM_Type.Empty()), mStd.cEmpty) // TODO: remove workaround; see line above
+						.ElseThrow(
+							_ => (
+								$"""
+								{Command.Pos}
+								{_}
+								{ResType.ToText()}
+								!<
+								{DefResType.ToText()}
+								{Command.ToText()}
+								"""
+							)
+						);
+						
+						NewProc.ReturnIfNotEmpty(Span, ResReg);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool)); // TODO

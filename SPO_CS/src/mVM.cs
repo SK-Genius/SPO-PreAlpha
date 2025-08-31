@@ -405,7 +405,9 @@ mVM {
 							mVM_Data.Empty(),
 							Arg,
 							Res,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								//aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 					}
 					default: {
@@ -463,6 +465,19 @@ mVM {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
 				if (Cond) {
 					var Res = aCallStack._Regs.Get(Arg2);
+					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
+					Des._DataType = Res._DataType;
+					Des._Value = Res._Value;
+					Des._Fields = Res._Fields;
+					Des._IsMutable = Res._IsMutable;
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
+			case mVM_Data.tOpCode.ReturnIfNotEmpty: {
+				var Res = aCallStack._Regs.Get(Arg1);
+				if (Res._DataType is not mVM_Data.tDataType.Empty) {
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;

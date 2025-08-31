@@ -71,7 +71,7 @@ mStream {
 					var LimitedStream = aStream.Take(100);
 					var Count = LimitedStream.Count();
 					return LimitedStream.MapWithIndex(
-						[DebuggerHidden] (aIndex, aItem) => (Index: Count - 1 - aIndex, Value: aItem)
+						[DebuggerHidden] (aIndex, aItem) => (Index: aIndex, Value: aItem)
 					).Reduce(
 						new t[Count],
 						[DebuggerHidden] (aArray, a) => {

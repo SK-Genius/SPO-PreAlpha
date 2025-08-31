@@ -5,7 +5,7 @@ All
 |  |  |  Run5
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:238 ]
 |  |  |  |  tError: expected definition symbol but was '_b'
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1571
+|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1583
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
 |  |  |  |  |     at mSPO_Interpreter_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:240
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
@@ -14,163 +14,34 @@ All
 |  |  |  Run7
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:323 ]
 |  |  |  |  NotImplementedException: tMatchNode`1
-|  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1171
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |     at mSPO2IL.MapReturnIf[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tReturnIfNode`1 aReturnNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1290
-|  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1508
+|  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1168
+|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:707
+|  |  |  |  |     at mSPO2IL.MapReturnIf[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tReturnIfNode`1 aReturnNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1302
+|  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1520
 |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
 |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
+|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1574
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
 |  |  |  |  |     at mSPO_Interpreter_Tests.<>c.<.cctor>b__3_6(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:325
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:2 OK:5|10 (171.00 mSec)
+|  |  > Fail:2 OK:5|10 (312.00 mSec)
 |  |  
 |  |  mStdLib
-|  |  |  IfMatch1
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:132 ]
-|  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_3(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:139
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  |  IfMatch2
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:182 ]
-|  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_4(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:189
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
 |  |  |  VAR
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
 |  |  |  |  tError: FAIL: expected proc but is: []
-|  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:149
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:542
+|  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:156
+|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:557
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
 |  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:238
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:3 OK:2 (592.00 mSec)
+|  |  > Fail:1 OK:4 (1.63 Sec)
 |  |  
-|  |  mRegression_Tests
-|  |  |  06_03_Fib_IfMatch
-|  |  |  |  .SPO == .result.SPO
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.SPO:1 ]
-|  |  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:82
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  .SPO -> .ILT
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
-|  |  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |  |     at mSPO_Parser.ToText(tModuleNode`1 aModule) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Parser.cs:752
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__6(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:98
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  .ILT == .result.SPO
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_03_Fib_IfMatch.ILT:1 ]
-|  |  |  |  |  tError: 
-|  |  |  |  |  :0 ERROR: expect '§TYPES'
-|  |  |  |  |  
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:121
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  > Fail:3 (73.00 mSec)
-|  |  |  
-|  |  |  06_04_Fib_IfMatch2
-|  |  |  |  .SPO == .result.SPO
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.SPO:1 ]
-|  |  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:82
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  .SPO -> .ILT
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
-|  |  |  |  |  NotImplementedException: tMatchGuardNode`1
-|  |  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1174
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:712
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapRecursiveLambdas[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tRecLambdasNode`1 aRecLambdasNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1332
-|  |  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1504
-|  |  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1562
-|  |  |  |  |  |     at mSPO_Parser.ToText(tModuleNode`1 aModule) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Parser.cs:752
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__6(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:98
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  |  .ILT == .result.SPO
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\06_04_Fib_IfMatch2.ILT:1 ]
-|  |  |  |  |  tError: 
-|  |  |  |  |  :0 ERROR: expect '§TYPES'
-|  |  |  |  |  
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:121
-|  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  |  > Fail
-|  |  |  |  
-|  |  |  > Fail:3 (69.00 mSec)
-|  |  |  
-|  |  > Fail:2|6 OK:16|48 (2.23 Sec)
-|  |  
-|  > Fail:3|11 OK:8|208 (4.19 Sec)
+|  > Fail:2|3 OK:9|216 (14.34 Sec)
 |  
-> Fail:1|11 OK:1|298 (4.36 Sec)
+> Fail:1|3 OK:1|306 (14.72 Sec)
 

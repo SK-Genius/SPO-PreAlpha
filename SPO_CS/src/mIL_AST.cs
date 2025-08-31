@@ -9,7 +9,8 @@ mIL_AST {
 	public record tDef<tPos>(
 		tText Id,
 		tText Type,
-		mStream.tStream<tCommandNode<tPos>> Commands
+		mStream.tStream<tCommandNode<tPos>> Commands,
+		tNat64 _DebugId
 	);
 	
 	public static tDef<tPos>
@@ -17,7 +18,7 @@ mIL_AST {
 		tText Id,
 		tText Type,
 		mStream.tStream<tCommandNode<tPos>> Commands
-	) => new(Id, Type, Commands);
+	) => new(Id, Type, Commands, mStd.NewDebugId());
 	
 	public record tModule<tPos>(
 		mStream.tStream<tCommandNode<tPos>> TypeDef,
@@ -116,7 +117,7 @@ mIL_AST {
 	public static readonly tText cBoolType   = "BOOL_TYPE";
 	public static readonly tText cIntType    = "INT_TYPE";
 	public static readonly tText cTypeType   = "Type_TYPE";
-	
+
 	[DebuggerDisplay("{ToText(this)}")]
 	public struct
 	tCommandNode<tPos> {
@@ -125,8 +126,15 @@ mIL_AST {
 		public tText _1;
 		public mMaybe.tMaybe<tText> _2;
 		public mMaybe.tMaybe<tText> _3;
+		public tNat64 _DebugId;
+		public override readonly tText
+		ToString(
+		) => $"{this.ToText()}  // {this.Pos}";
 		
-		public override readonly tText ToString() => ToText(this) + $"  // {this.Pos}";
+		public override readonly tBool
+		Equals(
+			System.Object? obj
+		) => throw mError.Error("Use mIL_AST.Eq");
 	}
 	
 	public static tBool
@@ -276,7 +284,8 @@ mIL_AST {
 		Pos = aPos,
 		_1 = a1,
 		_2 = a2,
-		_3 = a3
+		_3 = a3,
+		_DebugId = mStd.NewDebugId()
 	};
 	
 	public static tBool

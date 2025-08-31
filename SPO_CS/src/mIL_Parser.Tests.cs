@@ -94,7 +94,8 @@ mIL_Parser_Tests {
 						aStreamOut => {
 							mAssert.AreEquals(
 								mIL_Parser.Command.ParseText(aTestCase.Expr, "", _ => aStreamOut(_())),
-								aTestCase.Command
+								aTestCase.Command,
+								mIL_AST.Eq_(mSpan.Eq_<tPos>(mTextStream.Eq))
 							);
 						}
 					),
