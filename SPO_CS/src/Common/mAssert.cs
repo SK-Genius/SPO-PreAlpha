@@ -56,7 +56,7 @@ mAssert {
 			Fail(aMsg);
 		}
 	}
-
+	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
 	AreEquals<t>(

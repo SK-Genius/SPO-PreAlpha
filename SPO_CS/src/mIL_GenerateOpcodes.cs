@@ -449,8 +449,34 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType)); // TODO
 					}
-					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryRemovePrefixFrom)); // TODO
+					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var Prefix = RegId3.AssertNotEmpty();
+						var ArgType = Types.Get(ArgReg);
+						
+						mMaybe.tMaybe<mVM_Type.tType> SubType = mStd.cEmpty;
+						
+						if (ArgType.IsPrefix(Prefix, out var Inner)) {
+							SubType = Inner;
+						} else {
+							var Found = false;
+							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
+								if (Type1.IsPrefix(Prefix, out Inner) || Type2.IsPrefix(Prefix, out Inner)) {
+									SubType = Inner;
+									Found = true;
+									break;
+								}
+							}
+							
+							mAssert.IsTrue(
+								Found,
+								() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
+							);
+						}
+						
+						Regs = Regs.Set(RegId1, NewProc.TryRemovePrefixFrom(Span, Prefix.PrefixHash(), ArgReg));
+						Types.Push(SubType.AssertNotEmpty());
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord)); // TODO

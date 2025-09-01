@@ -5,43 +5,28 @@ All
 |  |  |  Run5
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:238 ]
 |  |  |  |  tError: expected definition symbol but was '_b'
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1583
+|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1596
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
 |  |  |  |  |     at mSPO_Interpreter_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:240
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  |  Run7
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:323 ]
-|  |  |  |  NotImplementedException: tMatchNode`1
-|  |  |  |  |     at mSPO2IL.MapIfCase[tPos](tModuleConstructor`1 aModuleConstructor, tDefConstructor`1& aTestAndCallCaseFunc, tDefConstructor`1& aSwitchDef, ValueTuple`2 aCase, tType aCaseType, tPos aCasePos) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1168
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:707
-|  |  |  |  |     at mSPO2IL.MapReturnIf[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tReturnIfNode`1 aReturnNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1302
-|  |  |  |  |     at mSPO2IL.MapCommand[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tCommandNode`1 aCommandNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1520
-|  |  |  |  |     at mSPO2IL.MapExpression[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tExpressionNode`1 aExpressionNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:631
-|  |  |  |  |     at mSPO2IL.MapLambda[tPos](tDefConstructor`1& aDefConstructor, tModuleConstructor`1 aModuleConstructor, tLambdaNode`1 aLambdaNode) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:310
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1574
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |     at mSPO_Interpreter_Tests.<>c.<.cctor>b__3_6(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:325
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  > Fail:2 OK:5|10 (312.00 mSec)
+|  |  > Fail:1 OK:6|11 (160.00 mSec)
 |  |  
 |  |  mStdLib
 |  |  |  VAR
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
 |  |  |  |  tError: FAIL: expected proc but is: []
 |  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:156
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:557
+|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:576
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
 |  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:238
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:1 OK:4 (1.63 Sec)
+|  |  > Fail:1 OK:4 (758.00 mSec)
 |  |  
-|  > Fail:2|3 OK:9|216 (14.34 Sec)
+|  > Fail:2 OK:9|217 (6.19 Sec)
 |  
-> Fail:1|3 OK:1|306 (14.72 Sec)
+> Fail:1|2 OK:1|307 (6.33 Sec)
 

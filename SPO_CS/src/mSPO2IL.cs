@@ -1079,7 +1079,6 @@ mSPO2IL {
 				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name);
 			}
 			case mSPO_AST.tMatchPrefixNode<tPos> p: {
-				//mAssert.Fail("TODO");
 				var LazyCaseDef = NewDefConstructor<tPos>();
 				
 				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
@@ -1091,8 +1090,8 @@ mSPO2IL {
 					aModuleConstructor,
 					mVM_Type.Proc(
 						mVM_Type.Empty(),
-						mVM_Type.Prefix(p.Prefix, p.Match.TypeAnnotation.AssertNotEmpty()),
-						aCase.Match.TypeAnnotation.AssertNotEmpty()
+						p.Match.TypeAnnotation.AssertNotEmpty(),
+						aCase.Expression.TypeAnnotation.AssertNotEmpty()
 					)
 				);
 				
@@ -1165,7 +1164,21 @@ mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tMatchNode<tPos> p: {
-				throw new System.NotImplementedException(aCase.Match.Pattern.GetType().Name); // TODO
+				var InnerMatch = p;
+				if (aCase.Match.TypeExpression.IsSome(out var TypeNode)) {
+					if (p.TypeExpression.IsSome(out var _)) {
+						throw mError.Error("not implemented"); // TODO: unify p.TypeExpression and OuterTypeExpr
+					}
+					InnerMatch = mSPO_AST.Match(aCase.Match.Pos, p.Pattern, mMaybe.Some(TypeNode));
+				}
+				aModuleConstructor.MapIfCase(
+					ref aTestAndCallCaseFunc,
+					ref aSwitchDef,
+					(p, aCase.Expression),
+					aCaseType,
+					aCasePos
+				);
+				break;
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> p: {
 				aTestAndCallCaseFunc.MapMatch(p.Match, mIL_AST.cArg);

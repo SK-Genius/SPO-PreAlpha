@@ -33,7 +33,6 @@ mVM_Data {
 		// PREFIX
 		AddPrefix,
 		DelPrefix,
-		HasPrefix,
 		
 		// RECORD
 		AddField,
@@ -296,14 +295,6 @@ mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.DelPrefix, aPrefixId, aReg);
 	
 	public static tNat32
-	HasPrefix<tPos>(
-		this tProcDef<tPos> aDef,
-		tPos aPos,
-		tNat32 aPrefixId,
-		tNat32 aDataReg
-	) => aDef._AddReg(aPos, tOpCode.HasPrefix, aPrefixId, aDataReg);
-	
-	public static tNat32
 	ExtendRec<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -433,15 +424,14 @@ mVM_Data {
 		aDef._AddCommand(aPos, tOpCode.TryAsType, aFuncReg, aArgReg);
 	}
 	
-	public static void
+	
+	public static tNat32
 	TryRemovePrefixFrom<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
+		tNat32 aPrefixId,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryRemovePrefixFrom, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryRemovePrefixFrom, aPrefixId, aArgReg);
 	
 	public static void
 	TryAsRecord<tPos>(

@@ -85,7 +85,7 @@ mVM {
 		aCallStack._TraceOut(() => $"{mStd.NewDebugId()}");
 		aCallStack._CodePointer += 1;
 		
-		switch (OpCode) {
+			switch (OpCode) {
 			case mVM_Data.tOpCode.NewInt: {
 				aCallStack._Regs.Push(mVM_Data.Int((tInt32)Arg1));
 				break;
@@ -210,11 +210,14 @@ mVM {
 				aCallStack._Regs.Push(Data_);
 				break;
 			}
-			case mVM_Data.tOpCode.HasPrefix: {
-				mAssert.IsTrue(
-					aCallStack._Regs.Get(Arg2).IsPrefix(out var PrefixId, out var Data)
-				);
-				aCallStack._Regs.Push(mVM_Data.Bool(PrefixId.Equals(Arg1)));
+			case mVM_Data.tOpCode.TryRemovePrefixFrom: {
+				var Data = aCallStack._Regs.Get(Arg2);
+				if (Data.IsPrefix(out var PrefixId, out var Inner) && PrefixId == Arg1) {
+					aCallStack._Regs.Push(Inner);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
 				break;
 			}
 			case mVM_Data.tOpCode.AddField: {
@@ -293,7 +296,9 @@ mVM {
 							RecProcs,
 							Res,
 							aPosToText,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 						break;
 					}
@@ -304,13 +309,17 @@ mVM {
 								Env_,
 								mVM_Data.Empty(),
 								Env,
-								aTraceLine => aCallStack._TraceOut(() => "\t" + aTraceLine())
+								aTraceLine => {
+									aCallStack._TraceOut(() => "\t" + aTraceLine());
+								}
 							),
 							mVM_Data.Empty(),
 							RecProcs,
 							Res,
 							aPosToText,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 						break;
 					}
@@ -322,7 +331,9 @@ mVM {
 							RecProcs,
 							Res,
 							aPosToText,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 						break;
 					}
@@ -335,7 +346,9 @@ mVM {
 							RecProcs,
 							Res,
 							aPosToText,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 						break;
 						//Res = mVM_Data.Empty();
@@ -347,7 +360,7 @@ mVM {
 						//	mVM_Data.Empty(),
 						//	Arg,
 						//	Res,
-						//	aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+						//	aTraceLine => aCallStack._TraceOut(() => "\t" + aTraceLine())
 						//);
 					}
 					default: {
@@ -386,7 +399,9 @@ mVM {
 								Env,
 								mVM_Data.Empty(),
 								Arg,
-								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+								aTraceLine => {
+									aCallStack._TraceOut(() => "\t" + aTraceLine());
+								}
 							)
 						);
 						break;
@@ -406,7 +421,7 @@ mVM {
 							Arg,
 							Res,
 							aTraceLine => {
-								//aCallStack._TraceOut(() => "\t" + aTraceLine());
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
 							}
 						);
 					}
@@ -433,7 +448,9 @@ mVM {
 								Env,
 								Obj,
 								Arg,
-								aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+								aTraceLine => {
+									aCallStack._TraceOut(() => "\t" + aTraceLine());
+								}
 							)
 						);
 						break;
@@ -452,7 +469,9 @@ mVM {
 							Obj,
 							Arg,
 							Res,
-							aTraceLine => aCallStack._TraceOut(() => "\t"+aTraceLine())
+							aTraceLine => {
+								aCallStack._TraceOut(() => "\t" + aTraceLine());
+							}
 						);
 					}
 					default: {
