@@ -1122,9 +1122,7 @@ mSPO2IL {
 			case mSPO_AST.tMatchTupleNode<tPos> p: {
 				var LazyCaseDef = NewDefConstructor<tPos>();
 				
-				//mAssert.Fail("TODO");
-				// TODO NOW: get matches from §ARG
-				//LazyCaseDef.MapMatch(aCase.Match, mIL_AST.cArg);
+				LazyCaseDef.MapMatch(aCase.Match, mIL_AST.cArg);
 				
 				var Res = LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression);
 				LazyCaseDef.Commands.Push(

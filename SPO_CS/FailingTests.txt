@@ -1,18 +1,6 @@
 Die Starteinstellungen von C:\Projekte\SPO-PreAlpha\SPO_CS\Properties\launchSettings.json werden verwendet…
 All
 |  mSPO
-|  |  mSPO_Interpreter
-|  |  |  Run5
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:238 ]
-|  |  |  |  tError: expected definition symbol but was '_b'
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1596
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
-|  |  |  |  |     at mSPO_Interpreter_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.Tests.cs:240
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  > Fail:1 OK:6|11 (160.00 mSec)
-|  |  
 |  |  mStdLib
 |  |  |  VAR
 |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
@@ -24,9 +12,9 @@ All
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:1 OK:4 (758.00 mSec)
+|  |  > Fail:1 OK:4 (793.00 mSec)
 |  |  
-|  > Fail:2 OK:9|217 (6.19 Sec)
+|  > Fail:1 OK:10|218 (6.81 Sec)
 |  
-> Fail:1|2 OK:1|307 (6.33 Sec)
+> Fail:1 OK:1|308 (6.98 Sec)
 
