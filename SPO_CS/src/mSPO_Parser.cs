@@ -145,16 +145,16 @@ mSPO_Parser {
 	Match = (TypedMatch | UnTypedMatch)
 	.SetName(nameof(Match));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
-	.SetName(nameof(PipeToRight));
+	//public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
+	//PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
+	//.SetName(nameof(PipeToRight));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
 	PipeToLeft = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
 	.SetName(nameof(PipeToLeft));
 
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	PipeExpression = PipeToRight | PipeToLeft;
+	PipeExpression = PipeToLeft; // | PipeToRight;
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefNode<tSpan>, tError>
 	Def = mParserGen.Seq(Match, Token("="), PipeExpression | Expression)
@@ -706,10 +706,10 @@ mSPO_Parser {
 			)
 		);
 		
-		PipeToRight.Def(
-			(Expression +-KeyWord(">") +(PipeToRight | Expression))
-			.ModifyS(mSPO_AST.PipeToRight)
-		);
+		//PipeToRight.Def(
+		//	((PipeToRight | Expression) +-KeyWord(">") +Expression)
+		//	.ModifyS(mSPO_AST.PipeToRight)
+		//);
 		
 		PipeToLeft.Def(
 			(Expression +-KeyWord("<") +(PipeToLeft | Expression))

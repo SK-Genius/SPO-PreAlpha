@@ -604,8 +604,8 @@ mSPO_AST_Types {
 					() => $"{IdNode.Pos}: unknown type of Identifier '{IdNode.Id}'"
 				).ThenTry(
 					_ => _.Type.IsType(out var OfType)
-					? OfType.ElseFail(() => "TODO")
-					: mResult.Fail("TODO")
+					? OfType.ElseFail(() => $"{IdNode.Pos}: missing type for '{IdNode.Id}'")
+					: mResult.Fail($"{IdNode.Pos}: '{IdNode.Id}' is not a type")
 				);
 				break;
 			}
