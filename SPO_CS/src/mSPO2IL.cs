@@ -328,7 +328,7 @@ mSPO2IL {
 		return (DefIndex, Type);
 	}
 	
-	public static tNat32
+	public static (tNat32 DefIndex, mVM_Type.tType DefType)
 	MapMethod<tPos>(
 		// maps argument, object and body but not the environment, this is done in FinishMapProc(...)
 		this ref tDefConstructor<tPos> aDefConstructor,
@@ -343,11 +343,16 @@ mSPO2IL {
 			mIL_AST.ReturnIf(aMethodNode.Pos, mIL_AST.cTrue, ResultReg)
 		);
 		
-		return aDefConstructor.FinishMapProc(
-			aMethodNode.Pos,
+		var Type = aDefConstructor.CreateDefType(
 			aModuleConstructor,
 			aMethodNode.TypeAnnotation.AssertNotEmpty()
 		);
+		var DefIndex = aDefConstructor.FinishMapProc(
+			aMethodNode.Pos,
+			aModuleConstructor,
+			Type
+		);
+		return (DefIndex, Type);
 	}
 	
 	public static tNat32
@@ -380,13 +385,13 @@ mSPO2IL {
 		return aModuleConstructor.Defs.Size() - 1;
 	}
 	
-	public static (tNat32 Index, tScope EnvList)
+	public static (tNat32 Index, tScope EnvList, mVM_Type.tType Type)
 	MapMethod<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	) {
 		var TempMethodDef = NewDefConstructor<tPos>();
-		var DefIndex = TempMethodDef.MapMethod(aModuleConstructor, aMethodNode);
+		var (DefIndex, Type) = TempMethodDef.MapMethod(aModuleConstructor, aMethodNode);
 		var EnvList = TempMethodDef.EnvIds.ToStream(
 		).Map(
 			_ => (
@@ -395,7 +400,7 @@ mSPO2IL {
 			)
 		);
 		
-		return (DefIndex, EnvList);
+		return (DefIndex, EnvList, Type);
 	}
 	
 	public static tText
@@ -409,7 +414,7 @@ mSPO2IL {
 	) {
 		mAssert.IsTrue(aDefType.IsProc(out _, out _, out var FuncType));
 		//mAssert.IsTrue(FuncType.IsProc(out _, out _, out _));
-		
+
 		var EnvReg = mIL_AST.cEmptyValue;
 		if (!aEnvList.IsEmpty()) {
 			foreach (var (EnvId, EnvType) in aEnvList) {
@@ -417,7 +422,7 @@ mSPO2IL {
 					aCallerDefConstructor.AddEnv(EnvId, EnvType);
 				}
 			}
-			
+
 			if (aEnvList.Count() is 1) {
 				EnvReg = aEnvList.TryFirst().AssertNotEmpty().Id;
 			} else {
@@ -615,14 +620,14 @@ mSPO2IL {
 				);
 			}
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
-				var (NewDefIndex, EnvList) = aModuleConstructor.MapMethod(
+				var (NewDefIndex, EnvList, MethodDefType) = aModuleConstructor.MapMethod(
 					MethodNode
 				);
 				
 				return aDefConstructor.InitProc(
 					MethodNode.Pos,
 					NewDefIndex,
-					MethodNode.TypeAnnotation.AssertNotEmpty(),
+					MethodDefType,
 					EnvList
 				);
 			}

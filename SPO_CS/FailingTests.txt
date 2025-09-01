@@ -1,19 +1,6 @@
 Die Starteinstellungen von C:\Projekte\SPO-PreAlpha\SPO_CS\Properties\launchSettings.json werden verwendet…
 All
 |  mSPO
-|  |  mStdLib
-|  |  |  VAR
-|  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:231 ]
-|  |  |  |  tError: FAIL: expected proc but is: []
-|  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:156
-|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:576
-|  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:67
-|  |  |  |  |     at mStdLib_Tests.<>c.<.cctor>b__3_5(tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mStdLib.Tests.cs:238
-|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
-|  |  |  > Fail
-|  |  |  
-|  |  > Fail:1 OK:4 (889.00 mSec)
-|  |  
 |  |  mRegression_Tests
 |  |  |  07_01_RecursiveTypes
 |  |  |  |  .SPO == .result.SPO
@@ -74,11 +61,11 @@ All
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (32.00 mSec)
+|  |  |  > Fail:3 (41.00 mSec)
 |  |  |  
-|  |  > Fail:1|3 OK:18|54 (4.88 Sec)
+|  |  > Fail:1|3 OK:18|54 (4.39 Sec)
 |  |  
-|  > Fail:2|4 OK:9|218 (7.01 Sec)
+|  > Fail:1|3 OK:10|219 (6.32 Sec)
 |  
-> Fail:1|4 OK:1|308 (7.19 Sec)
+> Fail:1|3 OK:1|309 (6.47 Sec)
 
