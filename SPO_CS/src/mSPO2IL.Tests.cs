@@ -156,7 +156,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -188,7 +188,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -234,7 +234,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -277,7 +277,7 @@ mSPO2IL_Tests {
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
@@ -357,7 +357,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					
 					DefConstructor.FinishMapProc(
 						default,
@@ -495,7 +495,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -662,7 +662,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -806,7 +806,7 @@ mSPO2IL_Tests {
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
 					
-					DefConstructor.MapDef(Module, DefNode);
+					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error);
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -948,7 +948,7 @@ mSPO2IL_Tests {
 					).ElseThrow(
 					);
 					
-					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope);
+					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).ElseThrow();
 					
 					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
 					
@@ -1088,7 +1088,7 @@ mSPO2IL_Tests {
 					var (DefIndex, DefType) = DefConstructor.MapLambda(
 						ModuleConstructor,
 						LambdaNode
-					);
+					).ElseThrow();
 					
 					mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1u);
 					mAssert.AreEquals(DefIndex, 0u);
@@ -1170,7 +1170,7 @@ mSPO2IL_Tests {
 					).ElseThrow(
 					);
 					
-					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty);
+					var ModuleConstructor = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, mStd.cEmpty).ElseThrow();
 				}
 			)
 		]

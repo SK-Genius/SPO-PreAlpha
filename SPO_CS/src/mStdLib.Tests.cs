@@ -55,7 +55,10 @@ mStdLib_Tests {
 							"",
 							Import,
 							_ => aDebugStream(_())
-						).Data,
+						).Then(
+							_ => _.Data
+						).ElseThrow(
+						),
 						mVM_Data.Var(mVM_Data.Int(22))
 					);
 				}

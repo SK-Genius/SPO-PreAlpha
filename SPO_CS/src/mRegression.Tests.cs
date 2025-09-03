@@ -68,7 +68,7 @@ mRegression_Tests {
 								SPO_Path,
 								(mVM_Data.Empty(), mVM_Type.Empty()),
 								_ => WriteToLog(_)
-							);
+							).ElseThrow();
 							return (Result, Log);
 						}
 					);
@@ -85,7 +85,7 @@ mRegression_Tests {
 											SPO_Path,
 											mStdLib.GetImportData(_ => aDebug(_())),
 											_ => aDebug(_())
-										);
+										).ElseThrow();
 										aDebug(ResRes.Value.Log);
 										mAssert.IsTrue(
 											ResRes.Value.Result.Type.IsSubType(SPO_Res.Type, mStd.cEmpty).Match(out _, out var Error),

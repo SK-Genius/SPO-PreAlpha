@@ -749,7 +749,7 @@ mSPO_Parser {
 			)
 		).ElseThrow();
 		
-		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope);
+		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow();
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.AppendLine("§TYPES");
