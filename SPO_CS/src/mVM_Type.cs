@@ -91,6 +91,58 @@ mVM_Type {
 	
 	private static tInt32 NextPlaceholderId = 1; // TODO: remove static var
 	
+	private static tType
+	Substitute(
+		this tType aType,
+		tText aFreeId,
+		tType aReplacement
+	) {
+		switch (aType.Kind) {
+			case tKind.Free: {
+				return aType.Id == aFreeId
+				? aReplacement
+				: aType;
+			}
+			case tKind.Empty:
+			case tKind.Bool:
+			case tKind.Int: {
+				return aType;
+			}
+			case tKind.Pair:
+			case tKind.Prefix:
+			case tKind.Proc:
+			case tKind.Ref:
+			case tKind.Var:
+			case tKind.Set: {
+				return new tType {
+					Prefix = aType.Prefix,
+					Kind = aType.Kind,
+					Refs = System.Array.ConvertAll(aType.Refs, _ => _.Substitute(aFreeId, aReplacement))
+				};
+			}
+			case tKind.Record: {
+				mAssert.IsTrue(aType.IsRecord(out var Fields));
+				return Record(
+					Fields.ToStream(
+					).Map(
+						_ => (_.Key, _.Value.Substitute(aFreeId, aReplacement))
+					).ToArrayList(
+					).ToArray(
+					)
+				);
+			}
+			case tKind.Recursive: {
+				mAssert.IsTrue(aType.IsRecursive(out var Head, out var Body));
+				return Head.Id == aFreeId
+					? aType
+					: Recursive(Head, Body.Substitute(aFreeId, aReplacement));
+			}
+			default: {
+				throw new System.NotImplementedException($"aType.Kind '{aType.Kind}'"); // TODO
+			}
+		}
+	}
+	
 	public static tType
 	Free(
 		tText aId
@@ -684,7 +736,7 @@ mVM_Type {
 			aSubType = aSubType.Refs[0];
 		}
 		
-		if (aSupType.Kind == tKind.Free) {
+		if (aSupType.Kind is tKind.Free) {
 			aSupType = aSupType.Refs[0];
 		}
 		
@@ -708,6 +760,14 @@ mVM_Type {
 			);
 		}
 		
+		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
+			return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
+				_ => SubType2.IsSubType(aSupType, _)
+			).ModifyError(
+				_ => ExtendError(_, aSubType, aSupType)
+			);
+		}
+		
 		// TODO: implement
 		switch (aSupType.Kind) {
 			case tKind.Free: {
@@ -727,29 +787,17 @@ mVM_Type {
 			case tKind.Pair: {
 				var TailSubType = SubBaseType;
 				var TailSupType = aSupType;
-				while (TailSubType.Kind is not tKind.Empty) {
-					if (
-						!TailSubType.IsPair(out TailSubType, out var HeadSubType) ||
-						!TailSupType.IsPair(out TailSupType, out var HeadSupType)
-					) {
-						return mResult.Fail(ExtendError("", aSubType, aSupType));
-					}
-					
-					if (
-						!HeadSubType.IsSubType(
-							HeadSupType,
-							aTypeMappings
-						).Match(out aTypeMappings, out var Error)
-					) {
-						return mResult.Fail(ExtendError(Error, aSubType, aSupType));
-					}
+				var Error = "";
+				if (
+					TailSubType.IsPair(out TailSubType, out var HeadSubType) &&
+					TailSupType.IsPair(out TailSupType, out var HeadSupType) &&
+					HeadSubType.IsSubType(HeadSupType, aTypeMappings).Match(out aTypeMappings, out Error) &&
+					TailSubType.IsSubType(TailSupType, aTypeMappings).Match(out aTypeMappings, out Error)
+				) {
+					return aTypeMappings;
+				} else {
+					return mResult.Fail(ExtendError(Error, aSubType, aSupType));
 				}
-				return TailSubType.IsSubType(
-					TailSupType,
-					aTypeMappings
-				).ElseTry(
-					_ => mResult.Fail(ExtendError(_, aSubType, aSupType))
-				);
 			}
 			case tKind.Prefix: {
 				if (
@@ -777,7 +825,7 @@ mVM_Type {
 						)
 					);
 				}
-				
+
 				if (!aSubType.IsRecord(out var SubFields)) {
 					return mResult.Fail(
 						ExtendError(
@@ -787,7 +835,7 @@ mVM_Type {
 						)
 					);
 				}
-				
+
 				foreach (var SupField in SupFields.ToStream()) {
 					if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
 						return mResult.Fail(
@@ -798,7 +846,7 @@ mVM_Type {
 							)
 						);
 					}
-					
+
 					if (
 						!SubField.IsSubType(SupField.Value, aTypeMappings).Match(
 							out aTypeMappings,
@@ -817,7 +865,7 @@ mVM_Type {
 				) {
 					return mResult.Fail(mStd.FileLine());
 				}
-				
+
 				return SubObj.IsSubType(SupObj, aTypeMappings)
 				.ThenTry(_ => SupObj.IsSubType(SubObj, _))
 				.ThenTry(_ => SubArg.IsSubType(SupArg, _))
@@ -831,25 +879,33 @@ mVM_Type {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Set: {
-				if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
-					return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
-						_ => SubType2.IsSubType(aSupType, _)
-					);
-				} else if (aSupType.IsSet(out var SupType1, out var SupType2)) {
-					return SubBaseType.IsSubType(SupType1, aTypeMappings).ElseTry(
-						aError1 => SubBaseType.IsSubType(SupType2, aTypeMappings).ElseTry(
-							aError2 => mResult.Fail(aError1 + "\n" + aError2)
-						)
-					);
-				} else {
-					return mResult.Fail(ExtendError("TODO: Good Error Msg", aSubType, aSupType));
-				}
+				mAssert.IsTrue(aSupType.IsSet(out var SupType1, out var SupType2));
+				return SubBaseType.IsSubType(SupType1, aTypeMappings).ElseTry(
+					aError1 => SubBaseType.IsSubType(SupType2, aTypeMappings).ElseTry(
+						aError2 => mResult.Fail(aError1 + "\n" + aError2)
+					)
+				);
 			}
 			case tKind.Cond: {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Recursive: {
-				throw new System.NotImplementedException();
+				mAssert.IsTrue(aSupType.IsRecursive(out var SupHead, out var SupBody));
+				if (aSubType.IsRecursive(out var SubHead, out var SubBody)) {
+					if (SubHead.Id != SupHead.Id) {
+						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
+					}
+					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				} else {
+					return aSubType.IsSubType(
+						SupBody.Substitute(SupHead.Id, aSupType),
+						aTypeMappings
+					).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				}
 			}
 			case tKind.Generic: {
 				throw new System.NotImplementedException();
@@ -868,7 +924,7 @@ mVM_Type {
 	BaseType(
 		this tType a
 	) {
-		if (a.Kind == tKind.Cond) {
+		if (a.Kind is tKind.Cond) {
 			if (a.IsCond(out var Sup)) {
 				return BaseType(Sup);
 			} else {

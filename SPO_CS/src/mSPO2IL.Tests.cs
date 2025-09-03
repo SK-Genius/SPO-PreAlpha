@@ -941,7 +941,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Scope = ModuleNode.Commands.Reduce(
-						mResult.OK(InitScope).AsResult<tText>(),
+						mResult.OK(InitScope).WithErrorType<tText>(),
 						(aResultScope, aCommand) => aResultScope.ThenTry(
 							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 						)

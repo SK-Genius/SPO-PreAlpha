@@ -172,9 +172,9 @@ mSPO2IL {
 				return mIL_GenerateOpcodes.cIntType;
 			}
 			case var a when a.IsFree(out var Id_, out var Ref): {
-				if (Ref.Kind == mVM_Type.tKind.Free) {
+				if (Ref.Kind is mVM_Type.tKind.Free) {
 					aModuleConstructor.Types = aModuleConstructor.Types.Set(Id_, a);
-					// TODO: aModuleConstructor.TypeDef.Push(...) ???
+					aModuleConstructor.TypeDef.Push(mIL_AST.TypeFree(default(tPos), Id_));
 					return Id_;
 				} else {
 					return aModuleConstructor.MapType(Ref);
@@ -240,6 +240,14 @@ mSPO2IL {
 				aModuleConstructor.TypeDef.Push(mIL_AST.TypeVar(default(tPos), NewId, InnerId));
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);				
 				
+				return NewId;
+			}
+			case var a when a.IsRecursive(out var HeadType, out var BodyType): {
+				var HeadId = aModuleConstructor.MapType(HeadType);
+				var BodyId = aModuleConstructor.MapType(BodyType);
+				var NewId = $"[§REC {HeadId} => {BodyId}]";
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecursive(default(tPos), NewId, HeadId, BodyId));
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
 			default: {

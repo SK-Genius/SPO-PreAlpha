@@ -554,13 +554,13 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aObjTypeReg,
 		tNat32 aFuncTypeReg
-	) => aDef._AddReg(aPos, tOpCode.TypeFunc, aObjTypeReg, aFuncTypeReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeMeth, aObjTypeReg, aFuncTypeReg);
 	
 	public static tNat32
 	TypeFree<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos
-	) => aDef._AddReg(aPos, tOpCode.TypeRecursive);
+	) => aDef._AddReg(aPos, tOpCode.TypeFree);
 	
 	public static tNat32
 	TypeRecursive<tPos>(

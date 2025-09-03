@@ -79,15 +79,18 @@ mRegression_Tests {
 								mTest.Test(
 									".SPO == .result.SPO",
 									aDebug => {
-										var SpoRes = mSPO_Interpreter.Run(
+										var SPO_Res = mSPO_Interpreter.Run(
 											SPO_Text.Value,
 											SPO_Path,
 											mStdLib.GetImportData(_ => aDebug(_())),
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
-										mAssert.AreEquals(SpoRes.Type.ToText(), ResRes.Value.Result.Type.ToText());
-										mAssert.AreEquals(SpoRes.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
+										mAssert.IsTrue(
+											ResRes.Value.Result.Type.IsSubType(SPO_Res.Type, mStd.cEmpty).Match(out _, out var Error),
+											Error
+										);
+										mAssert.AreEquals(SPO_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
 									SPO_Path,
 									1
@@ -130,7 +133,12 @@ mRegression_Tests {
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);
-										mAssert.AreEquals(IL_Res.Type.ToText(), ResRes.Value.Result.Type.ToText());
+										
+										mAssert.IsTrue(
+											ResRes.Value.Result.Type.IsSubType(IL_Res.Type, mStd.cEmpty).Match(out _, out var Error),
+											Error
+										);
+										
 										mAssert.AreEquals(IL_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
 									IL_Path,

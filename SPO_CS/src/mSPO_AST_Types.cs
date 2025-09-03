@@ -40,7 +40,7 @@ mSPO_AST_Types {
 							_ => _.Id == IdNode.Id
 						).TryFirst(
 						).ElseFail(
-							() => default(tText) ?? throw new System.Exception() // $"No Identifier '{IdNode.Id}' in scope"
+							() => default(tText) ?? throw new System.Exception($"No Identifier '{IdNode.Id}' in scope") // $"No Identifier '{IdNode.Id}' in scope"
 						).Then(
 							_ => _.Type
 						)
@@ -140,18 +140,25 @@ mSPO_AST_Types {
 						aScope
 					).ThenTry(
 						aFuncType => (
-							aFuncType.IsProc(out var ObjType, out var ArgType, out var ResType)
-							? mResult.OK((ObjType, ArgType, ResType)).AsResult<tText>()
+							aFuncType.IsProc(out var FuncObjType, out var FuncArgType, out var FuncResType)
+							? mResult.OK((FuncObjType, FuncArgType, FuncResType)).WithErrorType<tText>()
 							: mResult.Fail(mStd.FileLine())
+						).ThenTry(
+							_ => aArgType.IsSubType(_.FuncArgType, mStd.cEmpty).Match(
+								aOnSuccess: aMatch => mResult.OK(_.FuncResType).WithErrorType<tText>(),
+								aOnFail: aError => mResult.Fail(
+									$"""
+									Can't convert
+									  {aArgType.ToText()}
+									to
+									  {_.FuncArgType.ToText()}
+									because in {Call.Pos}:
+									  {aError}
+									"""
+								)
+							)
 						)
-					).Then(
-						aFuncType => (ArgType: aArgType, FuncType: aFuncType)
 					)
-				).ThenAssert(
-					a => a.ArgType.IsSubType(a.FuncType.ArgType, mStd.cEmpty).Match(out _, out _),
-					_ => $"Can't convert {_.ArgType.ToText()} to {_.FuncType.ArgType.ToText()}"
-				).Then(
-					_ => _.FuncType.ResType
 				)
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
@@ -397,7 +404,7 @@ mSPO_AST_Types {
 		aArgType => UpdateExpressionTypes(aMethodCall.Method, aScope).ThenTry(
 			aMethodType => (
 				aMethodType.IsProc(out var MethObjType, out var MethArgType, out var MethResType)
-				? mResult.OK((MethObjType, MethArgType, MethResType)).AsResult<tText>()
+				? mResult.OK((MethObjType, MethArgType, MethResType)).WithErrorType<tText>()
 				: mResult.Fail(mStd.FileLine())
 			)
 		).ThenTry(
@@ -435,14 +442,20 @@ mSPO_AST_Types {
 					Def.Src,
 					aScope
 				).ThenTry(
-					aSrcType => UpdateMatchTypes(
-						Def.Des,
-						aSrcType,
-						tTypeRelation.Equal,
-						aScope
-					).ThenTry(
-						_ => aSrcType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _.Scope)
-					)
+					aSrcType => {
+						var BoundType = Def.Src is mSPO_AST.tTypeNode<tPos>
+							? mVM_Type.Type(aSrcType)
+							: aSrcType;
+						
+						return UpdateMatchTypes(
+							Def.Des,
+							BoundType,
+							tTypeRelation.Equal,
+							aScope
+						).ThenTry(
+							_ => BoundType.IsSubType(_.Type, mStd.cEmpty).Then(__ => _.Scope)
+						);
+					}
 				);
 			}
 			case mSPO_AST.tReturnIfNode<tPos> ReturnIf: {
@@ -461,7 +474,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tDefVarNode<tPos> DefVar: {
 				return UpdateExpressionTypes(DefVar.Expression, aScope).ThenTry(
 					aValueType => DefVar.MethodCalls.Reduce(
-						mResult.OK(aScope).AsResult<tText>(),
+						mResult.OK(aScope).WithErrorType<tText>(),
 						(Scope, MethodCall) => Scope.ThenTry(a => UpdateMethodCallTypes(MethodCall, a))
 					).Then(
 						aScope => {
@@ -534,7 +547,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
 				return UpdateExpressionTypes(MethodCalls.Object, aScope).ThenTry(
 					aObjType => MethodCalls.MethodCalls.Reduce(
-						mResult.OK(aScope).AsResult<tText>(),
+						mResult.OK(aScope).WithErrorType<tText>(),
 						(Scope, MethodCall) => Scope.ThenTry(_ => UpdateMethodCallTypes(MethodCall, _))
 					)
 				);
@@ -586,7 +599,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
-				foreach (var Expression in TupleType.Expressions) {
+				foreach (var Expression in TupleType.Expressions.Reverse()) {
 					if (ResolveTypeExpression(Expression, aScope).Match(out var Type, out var Error)) {
 						Types = mStream.Stream(Type, Types);
 					} else {
@@ -625,7 +638,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveType: {
 				var Name = RecursiveType.HeadType.Id;
 				var RecursiveVar = mVM_Type.Free(Name);
-				var TempScope = mStream.Stream((Name, RecursiveVar), aScope);
+				var TempScope = mStream.Stream((Name, mVM_Type.Type(RecursiveVar)), aScope);
 				
 				Result = UpdateExpressionTypes(RecursiveType.BodyType, TempScope).Then(
 					_ => mVM_Type.Recursive(RecursiveVar, _)

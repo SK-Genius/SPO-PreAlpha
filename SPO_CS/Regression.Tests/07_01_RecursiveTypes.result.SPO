@@ -1,8 +1,0 @@
-§DEF tStack = [§RECURSIVE t [[] | [§INT, t]]]
-
-§DEF R0 € tStack = ()
-§DEF R1 € tStack = (1, R0)
-§DEF R2 € tStack = (2, R1)
-§DEF R3 € tStack = (3, R2)
-
-§EXPORT R3

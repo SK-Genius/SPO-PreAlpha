@@ -85,7 +85,7 @@ mVM {
 		aCallStack._TraceOut(() => $"{mStd.NewDebugId()}");
 		aCallStack._CodePointer += 1;
 		
-			switch (OpCode) {
+		switch (OpCode) {
 			case mVM_Data.tOpCode.NewInt: {
 				aCallStack._Regs.Push(mVM_Data.Int((tInt32)Arg1));
 				break;
@@ -507,6 +507,65 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.TypeFree: {
+				// create a fresh free type variable
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Free())
+					}
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypePair: {
+				var Type1 = aCallStack._Regs.Get(Arg1);
+				var Type2 = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(Type1._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(Type2._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(Type1._Value.Is(out mVM_Type.tType T1));
+				mAssert.IsTrue(Type2._Value.Is(out mVM_Type.tType T2));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Pair(T1, T2))
+					}
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeSet: {
+				var Type1 = aCallStack._Regs.Get(Arg1);
+				var Type2 = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(Type1._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(Type2._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(Type1._Value.Is(out mVM_Type.tType T1));
+				mAssert.IsTrue(Type2._Value.Is(out mVM_Type.tType T2));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Set(T1, T2))
+					}
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeRecursive: {
+				var HeadType = aCallStack._Regs.Get(Arg1);
+				var BodyType = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(HeadType._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(BodyType._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(HeadType._Value.Is(out mVM_Type.tType Head));
+				mAssert.IsTrue(BodyType._Value.Is(out mVM_Type.tType Body));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Recursive(Head, Body))
+					}
+				);
+				break;
+			}
 			
 			// TODO: missing IL Command
 			// - Create Process
@@ -517,7 +576,7 @@ mVM {
 			}
 		}
 		aCallStack._TraceOut(
-			() => $@"    \ {aCallStack._Regs.Size()-1} = {aCallStack._Regs.Get(aCallStack._Regs.Size()-1).ToText(20)}"
+			() => $@"    \ {aCallStack._Regs.Size() - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size() - 1).ToText(20)}"
 		);
 		return aCallStack;
 	}

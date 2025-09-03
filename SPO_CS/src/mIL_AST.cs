@@ -194,7 +194,7 @@ mIL_AST {
 		tCommandNodeType.TypeSet => $"{a._1} := [{a._2} | {a._3}]",
 		tCommandNodeType.TypeCond => $"{a._1} := [{a._2} & {a._3}]",
 		tCommandNodeType.TypeVar => $"{a._1} := [§VAR {a._2}]",
-		tCommandNodeType.TypeFree => $"{a._1} := [{a._2}]",
+		tCommandNodeType.TypeFree => $"{a._1} := [§FREE]",
 		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
 		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
 		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",

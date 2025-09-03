@@ -743,7 +743,7 @@ mSPO_Parser {
 		).Then(_ => _.Scope).ElseThrow();
 		
 		var Scope = aModule.Commands.Reduce(
-			mResult.OK(InitScope).AsResult<tText>(),
+			mResult.OK(InitScope).WithErrorType<tText>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)

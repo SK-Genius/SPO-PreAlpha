@@ -1,0 +1,24 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_1 := [t_0, BOOL]
+	t_2 := [t_1, BOOL]
+	t_3 := [t_2, INT]
+	t_4 := [#_Bla... EMPTY_TYPE]
+	t_5 := [t_3, t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+
+§DEF d_0 € t_7
+	_A_0 := EMPTY
+	_A_1 := TRUE
+	_A_2 := FALSE
+	r_1 := 0
+	_A_3 := r_1
+	r_2 := +#_Bla... EMPTY
+	_A_4 := r_2
+	r_3 := EMPTY, _A_0
+	r_4 := r_3, _A_1
+	r_5 := r_4, _A_2
+	r_6 := r_5, _A_3
+	r_7 := r_6, _A_4
+	§RETURN r_7 IF TRUE

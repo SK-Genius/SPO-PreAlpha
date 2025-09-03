@@ -35,7 +35,7 @@ mResult {
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tResult<tOK, tError>
-		AsResult<tError>(
+		WithErrorType<tError>(
 		) => this;
 	}
 	
@@ -105,7 +105,6 @@ mResult {
 		this tResult<t, tError> aRes,
 		out tResultFail<tError> aError,
 		out t aValue
-		
 	) {
 		if (aRes._IsOK) {
 			aError = default!;
@@ -155,19 +154,6 @@ mResult {
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	[System.Obsolete]
-	public static tRes
-	Match<t, tRes>(
-		this tResult<t, mStd.tEmpty> aRes,
-		mStd.tFunc<t, tRes> aOnSuccess,
-		mStd.tFunc<tRes> aOnFail
-	) => (
-		aRes._IsOK
-		? aOnSuccess(aRes._Value)
-		: aOnFail()
-	);
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<tOut, tError>
 	ThenTry<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
@@ -207,6 +193,15 @@ mResult {
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tResult<(t Value, tContext Context), (tError Error, tContext Context)>
+	AddContext<t, tError, tContext>(
+		this tResult<t, tError> a,
+		tContext aContext
+	) => a.Match(out var Value, out var Error)
+	? OK((Value: Value, Context: aContext))
+	: Fail((Error: Error, Context: aContext));
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResult<tOut, tError>
 	Then<tIn, tOut, tError>(
 		this tResult<tIn, tError> aRes,
@@ -238,7 +233,7 @@ mResult {
 	) => aRes.ThenTry(
 		[DebuggerHidden] (a) => (
 			aCond(a)
-			? OK(a).AsResult<tError>()
+			? OK(a).WithErrorType<tError>()
 			: Fail(aOnFail(a))
 		)
 	);
@@ -271,7 +266,7 @@ mResult {
 		this mMaybe.tMaybe<t> aRes,
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
-		[DebuggerHidden] (aValue) => OK(aValue).AsResult<tError>(),
+		[DebuggerHidden] (aValue) => OK(aValue).WithErrorType<tError>(),
 		[DebuggerHidden] () => Fail(aOnFail())
 	);
 	
@@ -298,4 +293,13 @@ mResult {
 	ElseThrow<t>(
 		this tResult<t, tText> aRes
 	) => aRes.ElseThrow(_ => _);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tResult<t, tErrorOut>
+	ModifyError<t, tErrorIn, tErrorOut>(
+		this tResult<t, tErrorIn> aRes,
+		mStd.tFunc<tErrorIn, tErrorOut> aModError
+	) => aRes.Match(out var Value, out var Error)
+	? OK(Value)
+	: Fail(aModError(Error));
 }

@@ -1,0 +1,44 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_1 := [t_0, BOOL]
+	t_2 := [EMPTY_TYPE, t_1]
+	t_3 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_4 := [t_3, BOOL]
+	t_5 := [t_4, INT]
+	t_6 := [t_2, t_5]
+	t_7 := [EMPTY_TYPE, INT]
+	t_8 := [t_7, BOOL]
+	t_9 := [#_BLA...BLUB... t_8]
+	t_10 := [t_6, t_9]
+	t_11 := [EMPTY_TYPE, INT]
+	t_12 := [t_11, INT]
+	t_13 := [#_...<... t_12]
+	t_14 := [t_10, t_13]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [EMPTY_TYPE => t_15]
+
+§DEF d_0 € t_16
+	r_1 := EMPTY, EMPTY
+	r_2 := r_1, TRUE
+	_A_0 := r_2
+	r_3 := EMPTY, EMPTY
+	r_4 := r_3, TRUE
+	r_5 := 1
+	r_6 := r_4, r_5
+	_A_1 := r_6
+	r_7 := 1
+	r_8 := EMPTY, r_7
+	r_9 := r_8, TRUE
+	r_10 := +#_BLA...BLUB... r_9
+	_A_2 := r_10
+	r_11 := 1
+	r_12 := EMPTY, r_11
+	r_13 := 2
+	r_14 := r_12, r_13
+	r_15 := +#_...<... r_14
+	_A_3 := r_15
+	r_16 := EMPTY, _A_0
+	r_17 := r_16, _A_1
+	r_18 := r_17, _A_2
+	r_19 := r_18, _A_3
+	§RETURN r_19 IF TRUE
