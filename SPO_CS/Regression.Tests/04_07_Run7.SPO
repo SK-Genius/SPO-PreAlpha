@@ -1,0 +1,9 @@
+§IMPORT ()
+
+§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
+
+§EXPORT §IF X MATCH {
+	(#Blub ()) => 1
+	(#Bla ()) => 2
+	(_) => 3
+}

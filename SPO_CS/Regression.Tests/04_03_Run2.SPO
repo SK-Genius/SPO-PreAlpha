@@ -1,0 +1,8 @@
+§IMPORT (
+	§DEF ...*... € [[§INT, §INT] => §INT]
+	§DEF k € §INT
+)
+
+§DEF y = (.(§DEF a € §INT => (k .* a)) 5)
+
+§EXPORT y

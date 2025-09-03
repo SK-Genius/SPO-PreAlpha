@@ -1,0 +1,10 @@
+§IMPORT (
+	§DEF ...*... € [[§INT, §INT] => §INT]
+)
+
+§EXPORT .(
+	§DEF a € [§INT, §INT] => §IF a MATCH {
+		(§DEF b, _) => (b .* b)
+		_ => 0
+	}
+) (2, 3)
