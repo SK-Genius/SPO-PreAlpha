@@ -1,0 +1,14 @@
+§IMPORT {
+	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+}
+
+§DEF k = 3
+
+§EXPORT (
+	(.(§DEF a € §INT => (k .* a)) 0)
+	(.(§DEF a € §INT => (k .* a)) 1)
+	(.(§DEF a € §INT => (k .* a)) 2)
+	(.(§DEF a € §INT => (k .* a)) 3)
+	(.(§DEF a € §INT => (k .* a)) 4)
+	(.(§DEF a € §INT => (k .* a)) 5)
+)

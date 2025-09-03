@@ -1,0 +1,69 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => INT]
+	t_3 := [EMPTY_TYPE, t_2]
+	t_4 := [t_3, INT]
+	t_5 := [INT => INT]
+	t_6 := [t_4 => t_5]
+	t_7 := [EMPTY_TYPE, INT]
+	t_8 := [t_7, INT]
+	t_9 := [t_8 => INT]
+	t_10 := [EMPTY_TYPE, t_9]
+	t_11 := [t_10, INT]
+	t_12 := [INT => INT]
+	t_13 := [t_11 => t_12]
+	t_14 := [EMPTY_TYPE, INT]
+	t_15 := [t_14, INT]
+	t_16 := [t_15 => INT]
+	t_17 := [#_...*... t_16]
+	t_18 := [{EMPTY_TYPE} + t_17]
+	t_19 := [EMPTY_TYPE, INT]
+	t_20 := [t_19, INT]
+	t_21 := [t_20, INT]
+	t_22 := [t_21, INT]
+	t_23 := [t_22, INT]
+	t_24 := [t_23, INT]
+	t_25 := [t_18 => t_24]
+	t_26 := [t_13 => t_25]
+
+§DEF d_0 € t_13
+	_k := §2ND ENV
+	r_4 := §1ST ENV
+	_...*... := §2ND r_4
+	r_5 := §1ST r_4
+	_a := ARG
+	r_1 := EMPTY, _k
+	r_2 := r_1, _a
+	r_3 := ._...*... r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_1 € t_26
+	d_0 := ENV
+	r_1 := {ARG} #_...*...
+	_...*... := r_1
+	r_2 := 3
+	_k := r_2
+	r_3 := EMPTY, _...*...
+	r_4 := r_3, _k
+	r_5 := .d_0 r_4
+	_x... := r_5
+	r_6 := 0
+	r_7 := ._x... r_6
+	r_8 := EMPTY, r_7
+	r_9 := 1
+	r_10 := ._x... r_9
+	r_11 := r_8, r_10
+	r_12 := 2
+	r_13 := ._x... r_12
+	r_14 := r_11, r_13
+	r_15 := 3
+	r_16 := ._x... r_15
+	r_17 := r_14, r_16
+	r_18 := 4
+	r_19 := ._x... r_18
+	r_20 := r_17, r_19
+	r_21 := 5
+	r_22 := ._x... r_21
+	r_23 := r_20, r_22
+	§RETURN r_23 IF TRUE

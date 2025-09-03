@@ -46,15 +46,16 @@ mRegression_Tests {
 					if (
 						BaseName.StartsWith("_") ||
 						SPO_Path.EndsWith(".result.SPO") ||
-						!System.IO.File.Exists(ResPath) ||
-						!System.IO.File.Exists(IL_Path)
+						!System.IO.File.Exists(ResPath)
 					) {
 						continue;
 					}
 					
 					var SPO_Text = mLazy.Lazy(() => System.IO.File.ReadAllText(SPO_Path));
 					var SPO_ResText = mLazy.Lazy(() => System.IO.File.ReadAllText(ResPath));
-					var IL_Text = mLazy.Lazy(() => System.IO.File.ReadAllText(IL_Path));
+					var IL_Text = System.IO.File.Exists(IL_Path)
+						? mLazy.Lazy(() => System.IO.File.ReadAllText(IL_Path))
+						: "";
 					
 					var ResRes = mLazy.Lazy(
 						() => {

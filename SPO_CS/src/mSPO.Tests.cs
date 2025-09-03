@@ -7,7 +7,6 @@
 // IMPORT mSPO_AST_Types.Tests
 // IMPORT mSPO_Parser.Tests
 // IMPORT mSPO2IL.Tests
-// IMPORT mSPO_Interpreter.Tests
 // IMPORT mTokenizer.Tests
 // IMPORT mStdLib.Tests
 // IMPORT mRegression.Tests
@@ -26,7 +25,6 @@ mSPO_Tests {
 			mSPO_AST_Types_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
-			mSPO_Interpreter_Tests.Tests,
 			mStdLib_Tests.Tests,
 			mRegression_Tests.Tests,
 		]

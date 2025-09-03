@@ -1,0 +1,11 @@
+§IMPORT {
+	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+}
+
+§DEF F... = (
+	§DEF a € §INT
+	_ € §INT
+	_ € §INT
+) => (2 .* a)
+
+§EXPORT (.F (3, 5, 7))

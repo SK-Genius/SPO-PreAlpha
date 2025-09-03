@@ -1,0 +1,94 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, BOOL]
+	t_1 := [t_0, BOOL]
+	t_2 := [t_1 => BOOL]
+	t_3 := [EMPTY_TYPE, t_2]
+	t_4 := [EMPTY_TYPE, INT]
+	t_5 := [t_4, INT]
+	t_6 := [t_5 => BOOL]
+	t_7 := [t_3, t_6]
+	t_8 := [EMPTY_TYPE, INT]
+	t_9 := [t_8, INT]
+	t_10 := [t_9, INT]
+	t_11 := [t_10 => BOOL]
+	t_12 := [t_7 => t_11]
+	t_13 := [EMPTY_TYPE, BOOL]
+	t_14 := [t_13, BOOL]
+	t_15 := [t_14 => BOOL]
+	t_16 := [EMPTY_TYPE, t_15]
+	t_17 := [EMPTY_TYPE, INT]
+	t_18 := [t_17, INT]
+	t_19 := [t_18 => BOOL]
+	t_20 := [t_16, t_19]
+	t_21 := [EMPTY_TYPE, INT]
+	t_22 := [t_21, INT]
+	t_23 := [t_22, INT]
+	t_24 := [t_23 => BOOL]
+	t_25 := [t_20 => t_24]
+	t_26 := [EMPTY_TYPE, BOOL]
+	t_27 := [t_26, BOOL]
+	t_28 := [t_27 => BOOL]
+	t_29 := [#_...&... t_28]
+	t_30 := [{EMPTY_TYPE} + t_29]
+	t_31 := [EMPTY_TYPE, INT]
+	t_32 := [t_31, INT]
+	t_33 := [t_32 => BOOL]
+	t_34 := [#_...<=... t_33]
+	t_35 := [{t_30} + t_34]
+	t_36 := [EMPTY_TYPE, BOOL]
+	t_37 := [t_36, BOOL]
+	t_38 := [t_35 => t_37]
+	t_39 := [t_25 => t_38]
+
+§DEF d_0 € t_25
+	_...<=... := §2ND ENV
+	r_16 := §1ST ENV
+	_...&... := §2ND r_16
+	r_17 := §1ST r_16
+	r_1 := §2ND ARG
+	_aMax := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aVal := r_3
+	r_4 := §1ST r_2
+	r_5 := §2ND r_4
+	_aMin := r_5
+	r_6 := §1ST r_4
+	r_7 := EMPTY, _aMin
+	r_8 := r_7, _aVal
+	r_9 := ._...<=... r_8
+	r_10 := EMPTY, r_9
+	r_11 := EMPTY, _aVal
+	r_12 := r_11, _aMax
+	r_13 := ._...<=... r_12
+	r_14 := r_10, r_13
+	r_15 := ._...&... r_14
+	§RETURN r_15 IF TRUE
+
+§DEF d_1 € t_39
+	d_0 := ENV
+	r_1 := {ARG} #_...<=...
+	_...<=... := r_1
+	r_2 := {ARG} #_...&...
+	_...&... := r_2
+	r_3 := EMPTY, _...&...
+	r_4 := r_3, _...<=...
+	r_5 := .d_0 r_4
+	_...<=...<=... := r_5
+	r_6 := 3
+	r_7 := EMPTY, r_6
+	r_8 := 5
+	r_9 := r_7, r_8
+	r_10 := 7
+	r_11 := r_9, r_10
+	r_12 := ._...<=...<=... r_11
+	r_13 := EMPTY, r_12
+	r_14 := 3
+	r_15 := EMPTY, r_14
+	r_16 := 1
+	r_17 := r_15, r_16
+	r_18 := 7
+	r_19 := r_17, r_18
+	r_20 := ._...<=...<=... r_19
+	r_21 := r_13, r_20
+	§RETURN r_21 IF TRUE
