@@ -158,6 +158,10 @@ mIL_GenerateOpcodes {
 				$"expected proc but is: {DefProcType.ToText()}"
 			);
 			
+			while (DefType.IsGeneric(out _, out var BodyType)) {
+				DefType = BodyType;	
+			}
+			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			
 			Module = mStream.Concat(Module, mStream.Stream([NewProc]));

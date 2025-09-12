@@ -250,6 +250,14 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
 				return NewId;
 			}
+			case var a when a.IsGeneric(out var HeadType, out var BodyType): {
+				var HeadId = aModuleConstructor.MapType(HeadType);
+				var BodyId = aModuleConstructor.MapType(BodyType);
+				var NewId = $"[$ALL {HeadId} => {BodyId}]";
+				aModuleConstructor.TypeDef.Push(mIL_AST.TypeGeneric(default(tPos), NewId, HeadId, BodyId));
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				return NewId;
+			}
 			default: {
 				throw new System.NotImplementedException("" + aType.Kind);
 			}
@@ -921,9 +929,47 @@ mSPO2IL {
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
-			case mSPO_AST.tGenericTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type}: {
-				// TODO
-				throw new System.NotImplementedException();
+			case mSPO_AST.tGenericTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
+				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _ == HeadType.Id));
+				aDefConstructor.Commands.Push(
+					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
+				);
+				
+				if (!aDefConstructor.MapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				var ResultReg = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(
+					mIL_AST.TypeGeneric(
+						Pos,
+						ResultReg,
+						HeadType.Id,
+						BodyTypeReg
+					)
+				);
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
+				return ResultReg;
+			}
+			case mSPO_AST.tGenericApplyTypeNode<tPos> { Pos: var Pos, GenericType: var GenericType, ArgType: var ArgType, TypeAnnotation: var Type }: {
+				if (!aDefConstructor.MapExpression(aModuleConstructor, GenericType).Match(out var GenericTypeReg, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				
+				if (!aDefConstructor.MapExpression(aModuleConstructor, ArgType).Match(out var ArgTypeReg, out Error)) {
+					return mResult.Fail(Error);
+				}
+				
+				var ResultReg = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(
+					mIL_AST.TypeGenericApply(
+						Pos,
+						ResultReg,
+						GenericTypeReg,
+						ArgTypeReg
+					)
+				);
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
+				return ResultReg;
 			}
 			case mSPO_AST.tPipeToRightNode<tPos> { Pos: var Pos, Left: var Left, Right: var Right, TypeAnnotation: var Type }: {
 				switch (Right) {

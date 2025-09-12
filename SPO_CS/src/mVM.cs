@@ -576,6 +576,22 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.TypeGeneric: {
+				var HeadType = aCallStack._Regs.Get(Arg1);
+				var BodyType = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(HeadType._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(BodyType._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(HeadType._Value.Is(out mVM_Type.tType Head));
+				mAssert.IsTrue(BodyType._Value.Is(out mVM_Type.tType Body));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Generic(Head, Body))
+					}
+				);
+				break;
+			}
 			// TODO: missing IL Command
 			// - Create Process
 			// - Send Message

@@ -1,0 +1,113 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [§FREE]
+	t_2 := [EMPTY_TYPE, t_1]
+	t_3 := [§FREE]
+	t_4 := [§FREE]
+	t_5 := [EMPTY_TYPE, t_4]
+	t_6 := [§FREE]
+	t_7 := [t_5, t_6]
+	t_8 := [t_7 | EMPTY_TYPE]
+	t_9 := [§REC t_6 => t_8]
+	t_10 := [t_5, t_9]
+	t_11 := [§FREE]
+	t_12 := [EMPTY_TYPE, t_11]
+	t_13 := [§FREE]
+	t_14 := [§FREE]
+	t_15 := [EMPTY_TYPE, t_14]
+	t_16 := [§FREE]
+	t_17 := [t_15, t_16]
+	t_18 := [t_17 | EMPTY_TYPE]
+	t_19 := [§REC t_16 => t_18]
+	t_20 := [t_15, t_19]
+	t_21 := [t_20 => t_20]
+	t_22 := [§ALL t_14 => t_21]
+	t_23 := [EMPTY_TYPE => t_22]
+	t_24 := [§FREE]
+	t_25 := [§FREE]
+	t_26 := [EMPTY_TYPE, t_25]
+	t_27 := [§FREE]
+	t_28 := [§FREE]
+	t_29 := [EMPTY_TYPE, t_28]
+	t_30 := [§FREE]
+	t_31 := [t_29, t_30]
+	t_32 := [t_31 | EMPTY_TYPE]
+	t_33 := [§REC t_30 => t_32]
+	t_34 := [t_29, t_33]
+	t_35 := [§FREE]
+	t_36 := [EMPTY_TYPE, t_35]
+	t_37 := [§FREE]
+	t_38 := [§FREE]
+	t_39 := [EMPTY_TYPE, t_38]
+	t_40 := [§FREE]
+	t_41 := [t_39, t_40]
+	t_42 := [t_41 | EMPTY_TYPE]
+	t_43 := [§REC t_40 => t_42]
+	t_44 := [t_39, t_43]
+	t_45 := [t_44 => t_44]
+	t_46 := [§ALL t_38 => t_45]
+	t_47 := [EMPTY_TYPE => t_46]
+	t_48 := [EMPTY_TYPE, INT]
+	t_49 := [§FREE]
+	t_50 := [EMPTY_TYPE, INT]
+	t_51 := [§FREE]
+	t_52 := [t_50, t_51]
+	t_53 := [t_52 | EMPTY_TYPE]
+	t_54 := [§REC t_51 => t_53]
+	t_55 := [t_50, t_54]
+	t_56 := [EMPTY_TYPE, t_55]
+	t_57 := [EMPTY_TYPE, BOOL]
+	t_58 := [§FREE]
+	t_59 := [EMPTY_TYPE, BOOL]
+	t_60 := [§FREE]
+	t_61 := [t_59, t_60]
+	t_62 := [t_61 | EMPTY_TYPE]
+	t_63 := [§REC t_60 => t_62]
+	t_64 := [t_59, t_63]
+	t_65 := [t_56, t_64]
+	t_66 := [EMPTY_TYPE => t_65]
+	t_67 := [t_47 => t_66]
+
+§DEF d_0 € t_47
+	r_1 := §2ND ARG
+	_aTail := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aHead := r_3
+	r_4 := §1ST r_2
+	r_5 := EMPTY, _aHead
+	r_6 := r_5, _aTail
+	§RETURN r_6 IF TRUE
+
+§DEF d_1 € t_67
+	d_0 := ENV
+	_t := [§FREE]
+	_tStack := [§FREE]
+	r_1 := [_t, _tStack]
+	r_2 := [r_1 | EMPTY_TYPE]
+	r_3 := [§REC _tStack => r_2]
+	r_4 := [§ALL _t => r_3]
+	_tStack := r_4
+	r_5 := .d_0 EMPTY
+	_Push...To... := r_5
+	r_6 := 3
+	r_7 := EMPTY, r_6
+	r_8 := 2
+	r_9 := EMPTY, r_8
+	r_10 := 1
+	r_11 := EMPTY, r_10
+	r_12 := r_11, EMPTY
+	r_13 := ._Push...To... r_12
+	r_14 := r_9, r_13
+	r_15 := ._Push...To... r_14
+	r_16 := r_7, r_15
+	r_17 := ._Push...To... r_16
+	r_18 := EMPTY, r_17
+	r_19 := EMPTY, TRUE
+	r_20 := EMPTY, FALSE
+	r_21 := r_20, EMPTY
+	r_22 := ._Push...To... r_21
+	r_23 := r_19, r_22
+	r_24 := ._Push...To... r_23
+	r_25 := r_18, r_24
+	§RETURN r_25 IF TRUE

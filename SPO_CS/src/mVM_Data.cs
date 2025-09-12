@@ -123,7 +123,14 @@ mVM_Data {
 		) {
 			mAssert.IsTrue(aDefType.IsProc(out var Empty, out var Env, out var Proc));
 			mAssert.AreEquals(Empty.Kind, mVM_Type.tKind.Empty);
-			mAssert.AreEquals(Proc.Kind, mVM_Type.tKind.Proc);
+			
+			while (Proc.IsGeneric(out _, out var Body)) {
+				Proc = Body;
+			}
+			
+			if (Proc.Kind is not mVM_Type.tKind.Proc) {
+				mAssert.Fail($"expected proc type but is:\n{Proc.ToText()}");
+			}
 			
 			this.DefType = aDefType;
 		}

@@ -69,7 +69,7 @@ mVM_Type {
 				return false;
 			}
 			
-			if (a1.Kind == tKind.Free) {
+			if (a1.Kind is tKind.Free) {
 				return true;
 			}
 			
@@ -169,7 +169,7 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tText aId,
 		[MaybeNullWhen(false)] out tType aRef
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aId = aType.Id!;
 			aRef = aType.Refs[0];
 			return true;
@@ -188,11 +188,11 @@ mVM_Type {
 	IsAny(
 		this tType aType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		return aType.Kind == tKind.Any;
+		return aType.Kind is tKind.Any;
 	}
 	
 	public static tType
@@ -203,11 +203,11 @@ mVM_Type {
 	IsEmpty(
 		this tType aType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		return aType.Kind == tKind.Empty;
+		return aType.Kind is tKind.Empty;
 	}
 	
 	public static tType
@@ -218,11 +218,11 @@ mVM_Type {
 	IsBool(
 		this tType aType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		return aType.Kind == tKind.Bool;
+		return aType.Kind is tKind.Bool;
 	}
 	
 	public static tType
@@ -233,11 +233,11 @@ mVM_Type {
 	IsInt(
 		this tType aType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		return aType.Kind == tKind.Int;
+		return aType.Kind is tKind.Int;
 	}
 	
 	public static tType
@@ -249,16 +249,16 @@ mVM_Type {
 		this tType aType,
 		out mMaybe.tMaybe<tType> aOfType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind != tKind.Type) {
+		if (aType.Kind is not tKind.Type) {
 			aOfType = mStd.cEmpty;
 			return false;
 		}
 		
-		aOfType = aType.Refs.Length == 0 ? mStd.cEmpty : aType.Refs[0];
+		aOfType = aType.Refs.Length is 0 ? mStd.cEmpty : aType.Refs[0];
 		return true;
 	}
 	
@@ -313,7 +313,7 @@ mVM_Type {
 		this tType aType,
 		tText aKey
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
@@ -359,11 +359,11 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Prefix) {
+		if (aType.Kind is tKind.Prefix) {
 			aPrefix = aType.Prefix!;
 			aTypeOut = aType.Refs[0];
 			return true;
@@ -380,7 +380,7 @@ mVM_Type {
 		tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
@@ -462,11 +462,11 @@ mVM_Type {
 			aType = Body;
 		}
 		
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Proc) {
+		if (aType.Kind is tKind.Proc) {
 			aObjType = aType.Refs[0];
 			aArgType = aType.Refs[1];
 			aResType = aType.Refs[2];
@@ -493,7 +493,7 @@ mVM_Type {
 		this tType aType,
 		tText aPrefix
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
@@ -513,11 +513,11 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Ref) {
+		if (aType.Kind is tKind.Ref) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
@@ -539,11 +539,11 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Var) {
+		if (aType.Kind is tKind.Var) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
@@ -571,11 +571,11 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aType1,
 		[MaybeNullWhen(false)] out tType aType2
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Set) {
+		if (aType.Kind is tKind.Set) {
 			aType1 = aType.Refs[0];
 			aType2 = aType.Refs[1];
 			return true;
@@ -604,12 +604,12 @@ mVM_Type {
 		out tType aSuperType
 		// aCond
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
 		mAssert.IsTrue(false); // TODO
-		if (aType.Kind == tKind.Cond) {
+		if (aType.Kind is tKind.Cond) {
 			aSuperType = aType.Refs[0];
 			return true;
 		} else {
@@ -634,11 +634,11 @@ mVM_Type {
 		out tType aBodyType
 		// aCond
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Recursive) {
+		if (aType.Kind is tKind.Recursive) {
 			aHeadType = aType.Refs[0];
 			mAssert.AreEquals(aHeadType.Kind, tKind.Free);
 			aBodyType = aType.Refs[1];
@@ -666,11 +666,11 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aBodyType
 		// aCond
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Interface) {
+		if (aType.Kind is tKind.Interface) {
 			aHeadType = aType.Refs[0];
 			aBodyType = aType.Refs[1];
 			return true;
@@ -697,11 +697,11 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aBodyType
 		// aCond
 	) {
-		if (aType.Kind == tKind.Free) {
+		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
 		}
 		
-		if (aType.Kind == tKind.Generic ) {
+		if (aType.Kind is tKind.Generic ) {
 			aHeadType = aType.Refs[0];
 			aBodyType = aType.Refs[1];
 			return true;
@@ -732,7 +732,7 @@ mVM_Type {
 		tType aSupType,
 		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
 	) {
-		if (aSubType.Kind == tKind.Free) {
+		if (aSubType.Kind is tKind.Free) {
 			aSubType = aSubType.Refs[0];
 		}
 		
@@ -988,7 +988,7 @@ mVM_Type {
 	) {
 		tText __;
 		tText ____;
-		if (aIndent.Length == 0 || aIndent[0] is not '\n') {
+		if (aIndent.Length is 0 || aIndent[0] is not '\n') {
 			__ = " ";
 			____ = " ";
 		} else {
@@ -1025,11 +1025,11 @@ mVM_Type {
 					var Result = aType.Refs[1].ToText(____);
 					
 					var Temp = aType.Refs[0];
-					while (Temp.Kind == tKind.Pair) {
+					while (Temp.Kind is tKind.Pair) {
 						Result = Temp.Refs[1].ToText(____) + "," + ____ + Result;
 						Temp = Temp.Refs[0];
 					}
-					if (Temp.Kind != tKind.Empty) {
+					if (Temp.Kind is not tKind.Empty) {
 						Result = Temp.ToText(____) + ";" + ____ + Result;
 					}
 					
@@ -1039,13 +1039,13 @@ mVM_Type {
 			tKind.Proc => mStd.Call(
 				() => {
 					var Result = "";
-					if (aType.Refs[0].Kind != tKind.Empty) {
+					if (aType.Refs[0].Kind is not tKind.Empty) {
 						Result += ____ + aType.Refs[0].ToText(____) + " :";
 					}
-					if (aType.Refs[1].Kind != tKind.Empty) {
+					if (aType.Refs[1].Kind is not tKind.Empty) {
 						Result += ____ + aType.Refs[1].ToText(____);
 					}
-					if (aType.Refs[2].Kind != tKind.Empty) {
+					if (aType.Refs[2].Kind is not tKind.Empty) {
 						Result += ____ + "-> " + aType.Refs[2].ToText(____);
 					}
 					return "[" + Result + __ + "]";
