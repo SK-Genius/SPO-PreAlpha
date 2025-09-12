@@ -921,6 +921,10 @@ mSPO2IL {
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
+			case mSPO_AST.tGenericTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type}: {
+				// TODO
+				throw new System.NotImplementedException();
+			}
 			case mSPO_AST.tPipeToRightNode<tPos> { Pos: var Pos, Left: var Left, Right: var Right, TypeAnnotation: var Type }: {
 				switch (Right) {
 					case mSPO_AST.tPipeToRightNode<tPos> { Left: var RightLeft, Right: var RightRight }: {

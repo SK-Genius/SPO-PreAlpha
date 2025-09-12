@@ -176,27 +176,13 @@ mSPO_AST_Types {
 					aArgType => Call.Func.UpdateAndGetVM_Type(
 						aScope
 					).ThenTry(
-						aFuncType => (
-							aFuncType.IsProc(out var FuncObjType, out var FuncArgType, out var FuncResType)
-							? mResult.OK((FuncObjType, FuncArgType, FuncResType)).WithErrorType<(tPos Pos, tText ErrorText)>()
-							: mResult.Fail((Call.Func.Pos, $"expected proc type but is:\n{aFuncType.ToText()}"))
-						).ThenTry(
-							_ => aArgType.IsSubType(_.FuncArgType, mStd.cEmpty).Match(
-								aOnSuccess: aMatch => mResult.OK(_.FuncResType).WithErrorType<(tPos Pos, tText ErrorText)>(),
-								aOnFail: aError => mResult.Fail(
-									(
-										Call.Pos,
-										$"""
-										can't convert:
-										{aArgType.ToText()}
-										to:
-										{_.FuncArgType.ToText()}
-										because:
-										{aError}
-										"""
-									)
-								)
-							)
+						aFuncType => mVM_Type.Infer(
+							aFuncType,
+							mVM_Type.Empty(),
+							aArgType,
+							_ => {} // no Tracing
+						).ModifyError(
+							_ => (Call.Func.Pos, _)
 						)
 					)
 				)

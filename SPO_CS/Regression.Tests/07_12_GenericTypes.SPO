@@ -3,7 +3,7 @@
 §DEF Push...To... = (
 	§DEF t € [[]]
 ) <=> (
-	§DEF aHead € §INT
+	§DEF aHead € t
 	§DEF aTail € [.tStack t]
 ) => (aHead, aTail)
 

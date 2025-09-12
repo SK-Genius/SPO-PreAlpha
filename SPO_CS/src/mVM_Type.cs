@@ -947,16 +947,36 @@ mVM_Type {
 			return Infer(InnerType, aObj, aArg, aTrace);
 		}
 		
-		mAssert.IsTrue(
-			aProc.IsProc(out var ObjType, out var ArgType, out var ResType),
-			() => $"expect Proc but is {aProc}"
-		);
-		
-		
-		if (!aArg.IsSubType(ArgType, mStd.cEmpty).Match(out _, out var Error)) {
-			return mResult.Fail(ExtendError(Error, aArg, ArgType));
+		if (!aProc.IsProc(out var ObjType, out var ArgType, out var ResType)) {
+			return mResult.Fail($"expect proc but is:\n{aProc.ToText()}");
 		}
-		mAssert.AreEquals(aObj, ObjType);
+		
+		// TODO:
+		//if (aObj != ObjType) {
+		//	return mResult.Fail($"{aObj.ToText()} != {ObjType.ToText()}");
+		//}
+		
+		if (!aArg.IsSubType(ArgType, mStd.cEmpty).Match(out var TypeMappings, out var Error)) {
+			return mResult.Fail(
+				ExtendError(
+					$"""
+					can't convert:
+					{aArg.ToText()}
+					to:
+					{ArgType.ToText()}
+					because:
+					{Error}
+					""",
+					aArg,
+					ArgType
+				)
+			);
+		}
+		
+		foreach (var Mapping in TypeMappings) {
+			mAssert.IsTrue(Mapping.Free.IsFree(out var Id, out _));
+			ResType = ResType.Substitute(Id, Mapping.Ref);
+		}
 		
 		return ResType;
 	}
