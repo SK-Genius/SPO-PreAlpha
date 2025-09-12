@@ -31,7 +31,7 @@ mStdLib {
 				aDebugStream
 			),
 			(mVM_Data.Empty(), mVM_Type.Empty()),
-			_ => $"{_.Start.Id}:{_.Start.Row}|{_.Start.Col}..{_.End.Row}|{_.End.Col}",
+			mTextParser.ToText,
 			aDebugStream
 		);
 		_Import = ImportData;

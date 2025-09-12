@@ -91,7 +91,7 @@ mVM_Type {
 	
 	private static tInt32 NextPlaceholderId = 1; // TODO: remove static var
 	
-	private static tType
+	public static tType
 	Substitute(
 		this tType aType,
 		tText aFreeId,
@@ -686,7 +686,7 @@ mVM_Type {
 		tType aTypeHead,
 		tType aTypeBody
 	) => new() {
-		Kind = tKind.Generic ,
+		Kind = tKind.Generic,
 		Refs = [aTypeHead, aTypeBody],
 	};
 	
@@ -720,9 +720,9 @@ mVM_Type {
 	) => $"""
 		{aError}
 		in:
-		  {aSubType.ToText("\n  ")}
+		{"  " + aSubType.ToText("\n  ")}
 		!<
-		  {aSupType.ToText("\n  ")}
+		{"  " + aSupType.ToText("\n  ")}
 		
 		""";
 	
@@ -825,7 +825,7 @@ mVM_Type {
 						)
 					);
 				}
-
+				
 				if (!aSubType.IsRecord(out var SubFields)) {
 					return mResult.Fail(
 						ExtendError(
@@ -835,7 +835,7 @@ mVM_Type {
 						)
 					);
 				}
-
+				
 				foreach (var SupField in SupFields.ToStream()) {
 					if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
 						return mResult.Fail(
@@ -846,7 +846,7 @@ mVM_Type {
 							)
 						);
 					}
-
+					
 					if (
 						!SubField.IsSubType(SupField.Value, aTypeMappings).Match(
 							out aTypeMappings,
@@ -865,7 +865,7 @@ mVM_Type {
 				) {
 					return mResult.Fail(mStd.FileLine());
 				}
-
+				
 				return SubObj.IsSubType(SupObj, aTypeMappings)
 				.ThenTry(_ => SupObj.IsSubType(SubObj, _))
 				.ThenTry(_ => SubArg.IsSubType(SupArg, _))

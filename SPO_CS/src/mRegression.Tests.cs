@@ -91,7 +91,10 @@ mRegression_Tests {
 											ResRes.Value.Result.Type.IsSubType(SPO_Res.Type, mStd.cEmpty).Match(out _, out var Error),
 											Error
 										);
-										mAssert.AreEquals(SPO_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
+										mAssert.AreEquals(
+											SPO_Res.Data.ToText(1000),
+											ResRes.Value.Result.Data.ToText(1000)
+										);
 									},
 									SPO_Path + ", " + mStd.File()
 								),
@@ -128,7 +131,7 @@ mRegression_Tests {
 										var IL_Res = mVM.Run(
 											IlModule,
 											mStdLib.GetImportData(_ => aDebug(_())),
-											_ => $"{_.Start.Id}:{_.Start.Row}|{_.Start.Col}..{_.End.Row}|{_.End.Col}",
+											mTextParser.ToText,
 											_ => aDebug(_())
 										);
 										aDebug(ResRes.Value.Log);

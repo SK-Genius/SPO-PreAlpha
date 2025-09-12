@@ -18,11 +18,6 @@ using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mIL_GenerateOpcodes_Tests {
-	private static tText
-	SpanToText(
-		tSpan a
-	) => $"{a.Start.Id}:{a.Start.Row}|{a.Start.Col}..{a.End.Row}|{a.End.Col}";
-	
 	public static (mStream.tStream<mVM_Data.tProcDef<tSpan>> Defs, mTreeMap.tTree<tText, tNat32> DefLookup)
 	CompileModule(
 		tText aSourceCode,
@@ -123,7 +118,7 @@ mIL_GenerateOpcodes_Tests {
 						mVM_Data.Empty(),
 						mVM_Data.Int(5),
 						Res,
-						SpanToText,
+						mTextParser.ToText,
 						TraceOut
 					);
 					mAssert.AreEquals(Res, mVM_Data.Int(6));
@@ -165,7 +160,7 @@ mIL_GenerateOpcodes_Tests {
 						mVM_Data.Empty(),
 						mVM_Data.Prefix("PRE", mVM_Data.Int(12)),
 						Res,
-						SpanToText,
+						mTextParser.ToText,
 						TraceOut
 					);
 					mAssert.AreEquals(Res, mVM_Data.Prefix("PRE", mVM_Data.Int(13)));
@@ -229,7 +224,7 @@ mIL_GenerateOpcodes_Tests {
 								mVM_Data.Empty(),
 								mVM_Data.Int(2),
 								Res,
-								SpanToText,
+								mTextParser.ToText,
 								TraceOut
 							);
 						}
@@ -317,7 +312,7 @@ mIL_GenerateOpcodes_Tests {
 							mVM_Data.Empty(),
 							mVM_Data.Empty(),
 							Res,
-							SpanToText,
+							mTextParser.ToText,
 							TraceOut
 						);
 						mAssert.AreEquals(Res, mVM_Data.Int(2));
@@ -329,7 +324,7 @@ mIL_GenerateOpcodes_Tests {
 							mVM_Data.Empty(),
 							mVM_Data.Empty(),
 							Res,
-							SpanToText,
+							mTextParser.ToText,
 							TraceOut
 						);
 						mAssert.AreEquals(Res, mVM_Data.Int(12));

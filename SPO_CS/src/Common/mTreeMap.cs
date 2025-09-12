@@ -377,4 +377,23 @@ mTreeMap {
 		)
 		: mStd.cEmpty
 	);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tTree<tGroup, mStream.tStream<t>>
+	GroupBy<t, tGroup>(
+		this mStream.tStream<t> aStream,
+		mStd.tFunc<t, tGroup> aDefineGroup,
+		mStd.tFunc<tGroup, tGroup, tInt32> aCompGroup
+	) => aStream.Reduce(
+		Tree<tGroup, mStream.tStream<t>>(aCompGroup, []),
+		(aTree, aItem) => mStd.With(
+			aDefineGroup(aItem),
+			aGroup => aTree.TryGet(
+				aGroup
+			).Match(
+				_ => aTree.Set(aGroup, mStream.Stream(aItem, _)),
+				() => aTree.Set(aGroup, mStream.Stream([aItem]))
+			)
+		)
+	);
 }

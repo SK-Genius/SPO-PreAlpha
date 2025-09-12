@@ -523,7 +523,10 @@ mSPO2IL {
 						)
 					)
 				) {
-					aDefConstructor.AddEnv(Id, Type.AssertNotEmpty()); // TODO
+					if (!Type.IsSome(out var Type_)) {
+						throw mError.Error($"type not set for '{Id}'");
+					}
+					aDefConstructor.AddEnv(Id, Type_);
 				}
 				return Id;
 			}
@@ -1741,7 +1744,7 @@ mSPO2IL {
 			)
 		);
 		
-		if (!mSPO_AST_Types.UpdateExpressionTypes(Lambda, aScope).Match(out _, out var Error)) {
+		if (!mSPO_AST_Types.UpdateAndGetVM_Type(Lambda, aScope).Match(out _, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		

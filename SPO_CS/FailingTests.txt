@@ -4,118 +4,51 @@ All
 |  |  |  07_12_GenericTypes
 |  |  |  |  .SPO == .result.SPO
 |  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO, C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:80 ]
-|  |  |  |  |  tError: 
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:1 ERROR: invalid Module
-|  |  |  |  |  §DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid Command
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid PipeToLeft
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |                      ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid Expression
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |                      ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid Match
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid UnTypedMatch
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid TypedMatch
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect ','
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect space
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect line break
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
-|  |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:28
+|  |  |  |  |  tError: C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:11,28..11,39: expected proc type but is:
+|  |  |  |  |  [
+|  |  |  |  |    ?_t => [
+|  |  |  |  |      [ §INT, [ §RECURSIVE ?_tStack = [ [ ?_t, ?_tStack ] | [] ] ] ]
+|  |  |  |  |      -> [ §INT, [ §RECURSIVE ?_tStack = [ [ ?_t, ?_tStack ] | [] ] ] ]
+|  |  |  |  |    ]
+|  |  |  |  |  ]
+|  |  |  |  |    11:  (.Push 3 To (.Push 2 To (.Push 1 To ())))
+|  |  |  |  |                                   ~~~~~~~~~~~~
 |  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__5(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:83
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
 |  |  |  |  .SPO -> .ILT
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO, C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.ILT, C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:98 ]
-|  |  |  |  |  tError: 
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:1 ERROR: invalid Module
-|  |  |  |  |  §DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid Command
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |  ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid PipeToLeft
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |                      ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:3 ERROR: invalid Expression
-|  |  |  |  |  §DEF Push...To... = (
-|  |  |  |  |                      ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid Match
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid UnTypedMatch
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:5 ERROR: invalid TypedMatch
-|  |  |  |  |  ) <=> (
-|  |  |  |  |        ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect ','
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect space
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:7 ERROR: expect line break
-|  |  |  |  |    §DEF aTail € [.tStack... t]
-|  |  |  |  |               ^
-|  |  |  |  |  
-|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__6(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:101
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO, C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.ILT, C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:101 ]
+|  |  |  |  |  tError: C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.SPO:11,28..11,39: expected proc type but is:
+|  |  |  |  |  [
+|  |  |  |  |    ?_t => [
+|  |  |  |  |      [ §INT, [ §RECURSIVE ?_tStack = [ [ ?_t, ?_tStack ] | [] ] ] ]
+|  |  |  |  |      -> [ §INT, [ §RECURSIVE ?_tStack = [ [ ?_t, ?_tStack ] | [] ] ] ]
+|  |  |  |  |    ]
+|  |  |  |  |  ]
+|  |  |  |  |  |     at mSPO_Parser.ToText(tModuleNode`1 aModule) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Parser.cs:768
+|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__6(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:104
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
 |  |  |  |  .ILT == .result.SPO
-|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.ILT, C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:120 ]
+|  |  |  |  [ C:\Projekte\SPO-PreAlpha\SPO_CS\Regression.Tests\07_12_GenericTypes.ILT, C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:123 ]
 |  |  |  |  |  tError: 
-|  |  |  |  |  :0 ERROR: expect '§TYPES'
 |  |  |  |  |  
-|  |  |  |  |  ^
+|  |  |  |  |  0: 
+|  |  |  |  |   ┌^
+|  |  |  |  |   ├ expect '§TYPES'
 |  |  |  |  |  
-|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:140
-|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:123
+|  |  |  |  |  |     at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mTokenizer.cs:141
+|  |  |  |  |  |     at mRegression_Tests.<>c__DisplayClass2_1.<.cctor>b__7(tAction`1 aDebug) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\mRegression.Tests.cs:126
 |  |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in C:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:226
 |  |  |  |  > Fail
 |  |  |  |  
-|  |  |  > Fail:3 (45.00 mSec)
+|  |  |  > Fail:3 (44.00 mSec)
 |  |  |  
 |  |  > Fail:1|3 OK:27|81 (3.64 Sec)
 |  |  
-|  > Fail:1|3 OK:9|230 (4.51 Sec)
+|  > Fail:1|3 OK:9|230 (4.45 Sec)
 |  
-> Fail:1|3 OK:1|320 (4.61 Sec)
+> Fail:1|3 OK:1|320 (4.56 Sec)
 

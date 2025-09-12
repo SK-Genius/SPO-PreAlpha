@@ -114,7 +114,7 @@ mSPO2IL_Tests {
 						]
 					);
 					
-					mSPO_AST_Types.UpdateExpressionTypes(ExpressionNode, Scope);
+					ExpressionNode.UpdateAndGetVM_Type(Scope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var Def = mSPO2IL.NewDefConstructor<tSpan>();
@@ -1060,7 +1060,7 @@ mSPO2IL_Tests {
 					);
 					
 					var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Type = mSPO_AST_Types.UpdateExpressionTypes(LambdaNode, InitScope);
+					var Type = LambdaNode.UpdateAndGetVM_Type(InitScope);
 					if (Type.Match(out var Type_, out var Error)) {
 						mAssert.AreEquals(
 							Type_,

@@ -85,19 +85,17 @@ mVM_Type_Tests {
 						_ => aStreamOut(_())
 					);
 					
-					var Type = mSPO_AST_Types.UpdateExpressionTypes(
-						AST,
+					var Type = AST.UpdateAndGetVM_Type(
 						cTestScope
-					).ElseThrow(_ => _.ErrorText);
+					).ElseThrow(_ => _.ToText());
 					
-					var Type_ = mSPO_AST_Types.ResolveTypeExpression(
-						mSPO_Parser.Type.ParseText(
-							a.Type,
-							"",
-							_ => { aStreamOut(_()); }
-						),
+					var Type_ = mSPO_Parser.Type.ParseText(
+						a.Type,
+						"",
+						_ => { aStreamOut(_()); }
+					).AsVM_Type(
 						cTestScope
-					).ElseThrow(_ => _.ErrorText);
+					).ElseThrow(_ => _.ToText());
 					
 					Type.IsSubType(Type_, mStd.cEmpty)
 					.ElseThrow(_ => Type.ToText() + " != " + Type_.ToText());

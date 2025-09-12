@@ -52,8 +52,8 @@ mTextStream {
 		return (
 			$"""
 			{aError.Pos.Id}:{aError.Pos.Row} ERROR: {aError.Message}
-			{Line}
-			{MarkerLine}^
+			{aError.Pos.Row}: {Line}
+			{new tText(' ', ("" + aError.Pos.Row).Length + 2)}{MarkerLine}^
 			
 			"""
 		);
@@ -64,13 +64,48 @@ mTextStream {
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Message)> aErrors,
 		tText[] aSrcLines
-	) => aErrors.Reverse(
+	) => aErrors.GroupBy(
+		_ => _.Pos.Id,
+		tText.CompareOrdinal
+	).ToStream(
 	).Map(
-		_ => _.ToText(aSrcLines)
-	).Reduce(
-		"",
-		(a1, a2) => a1 + "\n" + a2
+		aFile => aFile.Key + "\n" + aFile.Value.GroupBy(
+			_ => _.Pos.Row,
+			(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
+		).ToStream(
+		).Map(
+			aRow => aRow.Value.GroupBy(
+				_ => _.Pos.Col,
+				(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
+			).ToStream(
+			).Map(
+				aCol => $"""
+				
+				{aRow.Key}: {aSrcLines[((tInt32)aRow.Key - 1).Clamp(0, aSrcLines.Length - 1)].TrimEnd().Replace('\t', ' ')}
+				{" ┌" + new tText('─', ("" + aRow.Key).Length + (tInt32)aCol.Key - 1)}^
+				
+				""" + aCol.Value.Sort(
+					(a1, a2) => tText.CompareOrdinal(a1.Message, a2.Message)
+				).DontRepeat(
+				).Map(
+					_ => " ├ " + _.Message + "\n"
+				).Join(
+					(a1, a2) => a1 + a2,
+					""
+				)
+			).Join(
+				(a1, a2) => a1 + a2,
+				""
+			)
+		).Join(
+			(a1, a2) => a1 + a2,
+			""
+		)
+	).Join(
+		(a1, a2) => a1 + a2,
+		""
 	);
+	
 	
 	public static tBool
 	Eq(

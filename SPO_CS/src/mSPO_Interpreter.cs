@@ -74,22 +74,26 @@ mSPO_Interpreter {
 						)
 					),
 					aImport,
-					_ => $"{_.Start.Id}:{_.Start.Row}|{_.Start.Col}..{_.Start.Row}|{_.Start.Col}",
+					mTextParser.ToText,
 					aDebugStream
 				);
 			}
 		).ModifyError(
-			_ => {
+			aError => {
 				var Lines = aCode.Split("\n");
 				return (
-					_.ToText() +
+					aError.ToText() +
 					"\n" +
 					mStream.Nat32StartWith(
-						_.Pos.Start.Row
+						aError.Pos.Start.Row
 					).Take(
-						_.Pos.End.Row - _.Pos.Start.Row + 1
+						aError.Pos.End.Row - aError.Pos.Start.Row + 1
 					).Map(
-						_ => $"  {_:2}: {Lines[_].TrimEnd()}"
+						aRow => $"  {aRow}: {Lines[aRow - 1].Replace('\t', ' ').TrimEnd()}" + (
+							aError.Pos.End.Row == aError.Pos.Start.Row
+							? $"\n{new tText(' ', ("" + aRow).Length + (tInt32)aError.Pos.Start.Col + 3)}{new tText('~', (tInt32)aError.Pos.End.Col - (tInt32)aError.Pos.Start.Col + 1)}"
+							: ""
+						)
 					).Join((a1, a2) => a1 + "\n" + a2, "")
 				);
 			}
@@ -99,5 +103,5 @@ mSPO_Interpreter {
 	public static tText
 	ToText(
 		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
-	) => $"{a.Pos.Start.Id}:{a.Pos.Start.Row},{a.Pos.Start.Col}..{a.Pos.End.Row},{a.Pos.End.Col}: {a.ErrorText}";
+	) => $"{mTextParser.ToText(a.Pos)}: {a.ErrorText}";
 }

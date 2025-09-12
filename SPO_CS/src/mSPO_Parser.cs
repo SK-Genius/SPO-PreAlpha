@@ -476,6 +476,18 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.GenericType)
 	.SetName(nameof(GenericType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tGenericApplyTypeNode<tSpan>, tError>
+	GenericApplyType = E(
+		mParserGen.Seq(
+			SpecialToken("."),
+			Type,
+			Type
+		)
+	)
+	.Modify((_, aGenericType, aArgType) => (aGenericType, aArgType))
+	.ModifyS(mSPO_AST.GenericApplyType)
+	.SetName(nameof(GenericApplyType));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
 		mParserGen.Seq(Match, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(_ => mMaybe.Some(_.Item1))),
@@ -654,7 +666,8 @@ mSPO_Parser {
 					LambdaType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					RecursiveType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					InterfaceType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
-					GenericType.Cast<mSPO_AST.tTypeNode<tSpan>>()
+					GenericType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					GenericApplyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				]
 			)
 		);
@@ -669,7 +682,7 @@ mSPO_Parser {
 					MatchRecord.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					MatchGuard.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					Id.Cast<mSPO_AST.tMatchItemNode<tSpan>>()
+					Id.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 				]
 			).ModifyS(mSPO_AST.UnTypedMatch)
 		);
@@ -690,7 +703,7 @@ mSPO_Parser {
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Id.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-					Type.Cast<mSPO_AST.tExpressionNode<tSpan>>()
+					Type.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				]
 			)
 		);
@@ -704,7 +717,7 @@ mSPO_Parser {
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Id.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
-					Type.Cast<mSPO_AST.tExpressionNode<tSpan>>()
+					Type.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 				]
 			)
 		);
@@ -743,16 +756,16 @@ mSPO_Parser {
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
-		).Then(_ => _.Scope).ElseThrow(_ => _.ErrorText);
+		).Then(_ => _.Scope).ElseThrow(_ => _.ToText());
 		
 		var Scope = aModule.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
-		).ElseThrow(_ => _.ErrorText);
+		).ElseThrow(_ => _.ToText());
 		
-		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow(_ => _.ErrorText);
+		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow(_ => _.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.AppendLine("§TYPES");

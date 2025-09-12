@@ -89,7 +89,7 @@ mTokenizer {
 		
 		public override readonly tText
 		ToString(
-		) => $"'{this.Text}'::{this.Type}@({this.Span.Start.Row}:{this.Span.Start.Col}..{this.Span.End.Row}:{this.Span.End.Col})";
+		) => $"'{this.Text}'::{this.Type}@({mTextParser.ToText(this.Span)})";
 	}
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
@@ -137,22 +137,14 @@ mTokenizer {
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aId, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(_ => (_.Span, _)), aDebugStream);
+		var Lines = aText.Split("\n");
 		var Result = MaybeResult.ElseThrow(
-			_ => _.Sort(
-				(a1, a2) => {
-					var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
-					return RowComp != 0
-						? RowComp
-						: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
-				}
-			).DontRepeat(
-			).ToText(aText.Split('\n'))
+			_ => mTextStream.ToText(_, Lines)
 		);
 		
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Row = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Row;
 			var Col = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Col;
-			var Lines = aText.Split('\n');
 			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
 			var Line = Lines[Row - 1];
 			var MarkerLine = mStream.Stream(

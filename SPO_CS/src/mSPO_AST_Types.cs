@@ -19,8 +19,8 @@ mSPO_AST_Types {
 	}
 	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
-	UpdateExpressionTypes<tPos>(
-		mSPO_AST.tExpressionNode<tPos> aNode,
+	UpdateAndGetVM_Type<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aNode,
 		tScope aScope
 	) => (
 		aNode switch {
@@ -48,18 +48,17 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tTypeNode<tPos> Type => (
-				ResolveTypeExpression(Type, aScope)
+				Type.AsVM_Type(aScope)
 			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Map(
-					_ => UpdateExpressionTypes(_, aScope)
+					_ => _.UpdateAndGetVM_Type(aScope)
 				).WhenAllThen(
 					mVM_Type.Tuple
 				)
 			),
 			mSPO_AST.tPrefixNode<tPos> Prefix => (
-				UpdateExpressionTypes(
-					Prefix.Element,
+				Prefix.Element.UpdateAndGetVM_Type(
 					aScope
 				).Then(
 					_ => mVM_Type.Prefix(Prefix.Prefix, _)
@@ -67,8 +66,7 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (
 				Record.Elements.Map(
-					_ => UpdateExpressionTypes(
-						_.Value,
+					_ => _.Value.UpdateAndGetVM_Type(
 						aScope
 					).Then(
 						aType => mVM_Type.Prefix(_.Key.Id, aType)
@@ -91,8 +89,7 @@ mSPO_AST_Types {
 								tTypeRelation.Sub,
 								aGen.Scope
 							).ThenTry(
-								aArg => UpdateExpressionTypes(
-									Lambda.Body,
+								aArg => Lambda.Body.UpdateAndGetVM_Type(
 									aArg.Scope
 								).Then(
 									aRes => {
@@ -115,8 +112,7 @@ mSPO_AST_Types {
 						tTypeRelation.Sub,
 						aScope
 					).ThenTry(
-						aArg => UpdateExpressionTypes(
-							Lambda.Body,
+						aArg => Lambda.Body.UpdateAndGetVM_Type(
 							aArg.Scope
 						).Then(
 							aRes => mVM_Type.Proc(
@@ -141,8 +137,7 @@ mSPO_AST_Types {
 						tTypeRelation.Sub,
 						aObj.Scope
 					).ThenTry(
-						aArg => UpdateExpressionTypes(
-							Method.Body,
+						aArg => Method.Body.UpdateAndGetVM_Type(
 							aArg.Scope
 						).Then(
 							aResType => mVM_Type.Proc(aObj.Type, aArg.Type, aResType)
@@ -175,12 +170,10 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tCallNode<tPos> Call => (
-				UpdateExpressionTypes(
-					Call.Arg,
+				Call.Arg.UpdateAndGetVM_Type(
 					aScope
 				).ThenTry(
-					aArgType => UpdateExpressionTypes(
-						Call.Func,
+					aArgType => Call.Func.UpdateAndGetVM_Type(
 						aScope
 					).ThenTry(
 						aFuncType => (
@@ -209,7 +202,7 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
-				UpdateExpressionTypes(IfMatch.Expression, aScope).ThenTry(
+				IfMatch.Expression.UpdateAndGetVM_Type(aScope).ThenTry(
 					aMatchType => IfMatch.Cases.Map(
 						aCase => UpdateMatchTypes(
 							aCase.Match,
@@ -217,10 +210,7 @@ mSPO_AST_Types {
 							tTypeRelation.Super,
 							aScope
 						).ThenTry(
-							_ => UpdateExpressionTypes(
-								aCase.Expression,
-								_.Scope
-							)
+							_ => aCase.Expression.UpdateAndGetVM_Type(_.Scope)
 						)
 					).WhenAllThen(
 						aCaseTypes => aCaseTypes.Reduce(
@@ -235,8 +225,7 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tVarToValNode<tPos> VarToVal => (
 				mStd.Call(
-					() => UpdateExpressionTypes(
-						VarToVal.Obj,
+					() => VarToVal.Obj.UpdateAndGetVM_Type(
 						aScope
 					).ThenTry<mVM_Type.tType, mVM_Type.tType, (tPos Pos, tText ErrorText)>(
 						_ => (
@@ -249,14 +238,13 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIfNode<tPos> If => (
 				If.Cases.Map(
-					aCase => UpdateExpressionTypes(
-						aCase.Cond,
+					aCase => aCase.Cond.UpdateAndGetVM_Type(
 						aScope
 					).FailIfNot(
 						_ => _ == mVM_Type.Bool(),
 						_ => (aCase.Cond.Pos, $"condition '{aCase.Cond.ToText()}' has to be {mVM_Type.Bool().ToText()} but is of type:\n  {_.ToText()}")
 					).ThenTry(
-						_ => UpdateExpressionTypes(aCase.Result, aScope)
+						_ => aCase.Result.UpdateAndGetVM_Type(aScope)
 					)
 				).WhenAllThen(
 					a => {
@@ -296,7 +284,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = Match.TypeExpression.Match(
 					aType_ => mStd.Call(
-						() => ResolveTypeExpression(aType_, aScope).ThenTry(
+						() => aType_.AsVM_Type(aScope).ThenTry(
 							aType => UpdateMatchTypes(
 								Match.Pattern,
 								aType,
@@ -423,7 +411,7 @@ mSPO_AST_Types {
 				Result = UpdateMatchTypes(MatchGuard.Match, aType, tTypeRelation.Super, aScope);
 				if (Result.IsFail(out var Error, out var Result_)) { return Error; }
 				mAssert.AreEquals(
-					UpdateExpressionTypes(MatchGuard.Guard, Result_.Scope),
+					MatchGuard.Guard.UpdateAndGetVM_Type(Result_.Scope),
 					mVM_Type.Bool()
 				);
 				// TODO: Result = mVM_Type.Guard(Result, ...);
@@ -443,7 +431,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tExpressionNode<tPos> Expression: {
-				Result = UpdateExpressionTypes(Expression, aScope).Then(_ => (_, aScope));
+				Result = Expression.UpdateAndGetVM_Type(aScope).Then(_ => (_, aScope));
 				break;
 			}
 			default: {
@@ -457,8 +445,8 @@ mSPO_AST_Types {
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
 		tScope aScope
-	) => UpdateExpressionTypes(aMethodCall.Argument, aScope).ThenTry(
-		aArgType => UpdateExpressionTypes(aMethodCall.Method, aScope).ThenTry(
+	) => aMethodCall.Argument.UpdateAndGetVM_Type(aScope).ThenTry(
+		aArgType => aMethodCall.Method.UpdateAndGetVM_Type(aScope).ThenTry(
 			aMethodType => (
 				aMethodType.IsProc(out var MethObjType, out var MethArgType, out var MethResType)
 				? mResult.OK((MethObjType, MethArgType, MethResType)).WithErrorType<(tPos, tText)>()
@@ -494,8 +482,7 @@ mSPO_AST_Types {
 	) {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
-				return UpdateExpressionTypes(
-					Def.Src,
+				return Def.Src.UpdateAndGetVM_Type(
 					aScope
 				).ThenTry(
 					aSrcType => {
@@ -522,20 +509,19 @@ mSPO_AST_Types {
 				);
 			}
 			case mSPO_AST.tReturnIfNode<tPos> ReturnIf: {
-				return UpdateExpressionTypes(
-					ReturnIf.Condition,
+				return ReturnIf.Condition.UpdateAndGetVM_Type(
 					aScope
 				).FailIfNot(
 					aConditionType => aConditionType == mVM_Type.Bool(),
 					_ => (ReturnIf.Pos, $"{_.ToText()} != {mIL_GenerateOpcodes.cBoolType}")
 				).ThenTry(
-					_ => UpdateExpressionTypes(ReturnIf.Result, aScope)
+					_ => ReturnIf.Result.UpdateAndGetVM_Type(aScope)
 				).Then(
 					_ => aScope
 				);
 			}
 			case mSPO_AST.tDefVarNode<tPos> DefVar: {
-				return UpdateExpressionTypes(DefVar.Expression, aScope).ThenTry(
+				return DefVar.Expression.UpdateAndGetVM_Type(aScope).ThenTry(
 					aValueType => DefVar.MethodCalls.Reduce(
 						mResult.OK(aScope).WithErrorType<(tPos Pos, tText ErrorText)>(),
 						(Scope, MethodCall) => Scope.ThenTry(a => UpdateMethodCallTypes(MethodCall, a))
@@ -543,7 +529,7 @@ mSPO_AST_Types {
 						aScope => {
 							var Type = mVM_Type.Var(aValueType);
 							var NewScope = mStream.Stream((DefVar.Id.Id, Type), aScope);
-							UpdateExpressionTypes(DefVar.Id, NewScope);
+							DefVar.Id.UpdateAndGetVM_Type(NewScope);
 							return NewScope;
 						}
 					)
@@ -579,7 +565,7 @@ mSPO_AST_Types {
 						).Then(
 							_ => _.Type
 						).ThenTry(
-							DesType => UpdateExpressionTypes(Item.Lambda, NewScope).ThenDo(
+							DesType => Item.Lambda.UpdateAndGetVM_Type(NewScope).ThenDo(
 								SrcType => {
 									DesType.Kind = SrcType.Kind;
 									DesType.Id = SrcType.Id;
@@ -595,7 +581,7 @@ mSPO_AST_Types {
 				
 				foreach (var Item in RecLambdas.List) {
 					if (
-						!UpdateExpressionTypes(Item.Lambda, NewScope).Then(
+						!Item.Lambda.UpdateAndGetVM_Type(NewScope).Then(
 							Type => mStream.Stream(
 								(
 									Item.Id.Id,
@@ -612,7 +598,7 @@ mSPO_AST_Types {
 				return NewScope;
 			}
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
-				return UpdateExpressionTypes(MethodCalls.Object, aScope).ThenTry(
+				return MethodCalls.Object.UpdateAndGetVM_Type(aScope).ThenTry(
 					aObjType => MethodCalls.MethodCalls.Reduce(
 						mResult.OK(aScope).WithErrorType<(tPos Pos, tText ErrorText)>(),
 						(Scope, MethodCall) => Scope.ThenTry(_ => UpdateMethodCallTypes(MethodCall, _))
@@ -641,8 +627,8 @@ mSPO_AST_Types {
 	};
 	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
-	ResolveTypeExpression<tPos>(
-		mSPO_AST.tExpressionNode<tPos> aExpression,
+	AsVM_Type<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aExpression,
 		tScope aScope
 	) {
 		mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)> Result;
@@ -667,7 +653,7 @@ mSPO_AST_Types {
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				foreach (var Expression in TupleType.Expressions.Reverse()) {
-					if (ResolveTypeExpression(Expression, aScope).Match(out var Type, out var Error)) {
+					if (Expression.AsVM_Type(aScope).Match(out var Type, out var Error)) {
 						Types = mStream.Stream(Type, Types);
 					} else {
 						return mResult.Fail(Error);
@@ -690,16 +676,11 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tLambdaTypeNode<tPos> LambdaType: {
-				Result = ResolveTypeExpression(LambdaType.ArgType, aScope).ThenTry(            // §DEF ArgType = §TRY ResolveTypeExpression(LambdaType.ArgType, aScope)
-					aArgType => ResolveTypeExpression(LambdaType.ResType, aScope).Then(        // §DEF ResType = §TRY ResolveTypeExpression(LambdaType.ResType, aScope)
-						aResType => mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType)        // Result = mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType)
+				Result = LambdaType.ArgType.AsVM_Type(aScope).ThenTry(
+					aArgType => LambdaType.ResType.AsVM_Type(aScope).Then(
+						aResType => mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType)
 					)
 				);
-				// Result = mVM_Type.Proc(
-				//   mVM_Type.Empty()
-				//   §TRY ResolveTypeExpression(LambdaType.ArgType, aScope)
-				//   §TRY ResolveTypeExpression(LambdaType.ResType, aScope)
-				// )
 				break;
 			}
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveType: {
@@ -707,14 +688,14 @@ mSPO_AST_Types {
 				var RecursiveVar = mVM_Type.Free(Name);
 				var TempScope = mStream.Stream((Name, mVM_Type.Type(RecursiveVar)), aScope);
 				
-				Result = UpdateExpressionTypes(RecursiveType.BodyType, TempScope).Then(
+				Result = RecursiveType.BodyType.UpdateAndGetVM_Type(TempScope).Then(
 					_ => mVM_Type.Recursive(RecursiveVar, _)
 				);
 				break;
 			}
 			case mSPO_AST.tSetTypeNode<tPos> SetType: {
 				Result = SetType.Expressions.Map(
-					_ => ResolveTypeExpression(_, aScope)
+					_ => _.AsVM_Type(aScope)
 				).WhenAllThen(
 					_ => _.Reduce(
 						mStream.Stream<mVM_Type.tType>([]),
@@ -734,14 +715,14 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tPrefixTypeNode<tPos> PrefixType: {
 				Result = PrefixType.Expressions.Map(
-					_ => ResolveTypeExpression(_, aScope)
+					_ => _.AsVM_Type(aScope)
 				).WhenAllThen(
 					_ => mVM_Type.Prefix(PrefixType.Prefix.Id, mVM_Type.Tuple(_))
 				);
 				break;
 			}
 			case mSPO_AST.tVarTypeNode<tPos> VarType: {
-				Result = ResolveTypeExpression(VarType.Type, aScope).Then(
+				Result = VarType.Type.AsVM_Type(aScope).Then(
 					mVM_Type.Var
 				);
 				break;
@@ -751,19 +732,20 @@ mSPO_AST_Types {
 				var GenericVar = mVM_Type.Free(Name);
 				var TempScope = mStream.Stream((Name, mVM_Type.Type(GenericVar)), aScope);
 				
-				Result = UpdateExpressionTypes(GenericType.BodyType, TempScope).Then(
+				Result = GenericType.BodyType.UpdateAndGetVM_Type(TempScope).Then(
 					_ => mVM_Type.Generic(GenericVar, _)
 				);
 				break;
 			}
 			case mSPO_AST.tGenericApplyTypeNode<tPos> GenericApplyType: {
-				var ArgType = GenericApplyType.ArgType;
-				if (GenericApplyType.GenericType is mSPO_AST.tGenericTypeNode<tPos> GenericType) {
-					// TODO: implement substitution
-					throw new System.NotImplementedException();
-				} else {
-					return mResult.Fail((GenericApplyType.GenericType.Pos, $"{GenericApplyType.GenericType.ToText()} is not generic"));
-				}
+				Result = GenericApplyType.GenericType.AsVM_Type(aScope).ThenTry(
+					aGenericType => GenericApplyType.ArgType.AsVM_Type(aScope).ThenTry(
+						aArgType => aGenericType.IsGeneric(out var Head, out var Body)
+						? mResult.OK(Body.Substitute(Head.Id, aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
+						: mResult.Fail((GenericApplyType.GenericType.Pos, $"expected generic type but '{GenericApplyType.GenericType.ToText()}'"))
+					)
+				);
+				break;
 			}
 			default: {
 				throw mError.Error("not implemented: " + aExpression.GetType().Name);

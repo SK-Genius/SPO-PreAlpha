@@ -153,7 +153,7 @@ mTextParser {
 		.SetDebugName(["\"", aToken, "\""]);
 	}
 	
-	[Pure, DebuggerHidden]
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static mParserGen.tParser<tPos, tChar, tOut, tError>
 	SetName<tOut>(
 		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
@@ -162,4 +162,10 @@ mTextParser {
 		_ => (_.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName([aName]);
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tText
+	ToText(
+		tSpan a
+	) => $"{a.Start.Id}:{a.Start.Row},{a.Start.Col}..{a.End.Row},{a.End.Col}";
 }
