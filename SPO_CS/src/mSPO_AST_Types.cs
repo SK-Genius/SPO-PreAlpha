@@ -341,32 +341,45 @@ mSPO_AST_Types {
 			case mSPO_AST.tMatchTupleNode<tPos> MatchTuple: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				var NewScope = aScope;
-				if (aType.IsSome(out var TypeTail)) {
-					var TypeStack = mStream.Stream<mVM_Type.tType>();
-					while (TypeTail.IsPair(out var TypeTail_, out var Type_)) {
-						TypeTail = TypeTail_;
-						TypeStack = mStream.Stream(Type_, TypeStack);
-					}
-					mAssert.IsTrue(TypeTail.IsEmpty());
-					
-					foreach (var Item in MatchTuple.Items) {
-						if (!TypeStack.Is(out var Type1, out TypeStack)) {
-							return mResult.Fail((Item.Pos, $"expected pair but is '{MatchTuple.ToText()}'"));
-						}
-						if (!UpdateMatchTypes(Item, Type1, aTypeRelation, NewScope).Match(out var Type_, out var Error)) {
+				if (!aType.IsSome(out var Type)) {
+					foreach (var Match in MatchTuple.Items) {
+						if (!UpdateMatchTypes(Match, mStd.cEmpty, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
 							return mResult.Fail(Error);
 						}
 						
-						Types = mStream.Stream(Type_.Type, Types);
-						NewScope = Type_.Scope;
+						NewScope = TS.Scope;
+						Types = mStream.Stream(TS.Type, Types);
 					}
 				} else {
-					foreach (var Item in MatchTuple.Items) {
-						if (UpdateMatchTypes(Item, mStd.cEmpty, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
-							NewScope = TS.Scope;
+					var WalkType = Type;
+					var TypeStack = mStream.Stream<mVM_Type.tType>();
+					while (WalkType.IsPair(out var Tail_, out var Head_)) {
+						TypeStack = mStream.Stream(Head_, TypeStack);
+						WalkType = Tail_;
+					}
+					if (TypeStack.IsEmpty()) {
+						// TODO: this part looks wrong. i expect TypeStack is never empty.
+						//   and why should i use aType for each item in the list?
+						foreach (var Match in MatchTuple.Items) {
+							if (!UpdateMatchTypes(Match, Type, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+								return mResult.Fail(Error);
+							}
+							
 							Types = mStream.Stream(TS.Type, Types);
-						} else {
-							return mResult.Fail(Error);
+							NewScope = TS.Scope;
+						}
+					} else {
+						if (!WalkType.IsEmpty() || TypeStack.Count() != MatchTuple.Items.Count()) {
+							mResult.Fail((MatchTuple.Pos, $"cant unify '{MatchTuple.ToText()} and '{Type.ToText()}'"));
+						}
+						
+						foreach (var (Match, ItemType) in mStream.ZipShort(MatchTuple.Items, TypeStack)) {
+							if (!UpdateMatchTypes(Match, ItemType, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+								return mResult.Fail(Error);
+							}
+							
+							Types = mStream.Stream(TS.Type, Types);
+							NewScope = TS.Scope;
 						}
 					}
 				}
@@ -395,26 +408,28 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tMatchGuardNode<tPos> MatchGuard: {
-				Result = UpdateMatchTypes(MatchGuard.Match, aType, tTypeRelation.Super, aScope);
-				if (Result.IsFail(out var Error, out var Result_)) { return Error; }
-				mAssert.AreEquals(
-					MatchGuard.Guard.UpdateTypes(Result_.Scope),
-					mVM_Type.Bool()
-				);
+				if (
+					!UpdateMatchTypes(MatchGuard.Match, aType, tTypeRelation.Super, aScope).Match(out var Res, out var Error) ||
+					!MatchGuard.Guard.UpdateTypes(Res.Scope).Match(out var BoolRes, out Error)
+				) {
+					return mResult.Fail(Error);
+				}
+				
+				if (!BoolRes.IsBool()) {
+					return mResult.Fail((MatchGuard.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
+				}
+				
+				Result = Res;
 				// TODO: Result = mVM_Type.Guard(Result, ...);
 				break;
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
-				// mResult.tResult<(mVM_Type.tType Type, tScope Scope), tText> Result;
-				Result = aType.Then(
-					_ => (
-						Type: _,
-						Scope: mStream.Stream(
-							(Id: Id.Id, Type: _),
-							aScope
-						)
-					)
-				).ElseFail(() => (Id.Pos, $"unknown type for '{Id.Id}'"));
+				var Type = aType.IsSome(out var T) ? T : mVM_Type.Free(Id.Id);
+				
+				Result = (
+					Type,
+					mStream.Stream((Id: Id.Id, Type: Type), aScope)
+				);
 				break;
 			}
 			case mSPO_AST.tExpressionNode<tPos> Expression: {
@@ -469,9 +484,7 @@ mSPO_AST_Types {
 	) {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
-				return Def.Src.UpdateTypes(
-					aScope
-				).ThenTry(
+				return Def.Src.UpdateTypes(aScope).ThenTry(
 					aSrcType => {
 						var BoundType = Def.Src is mSPO_AST.tTypeNode<tPos>
 							? mVM_Type.Type(aSrcType)
@@ -525,14 +538,22 @@ mSPO_AST_Types {
 			case mSPO_AST.tRecLambdasNode<tPos> RecLambdas: {
 				var NewScope = aScope;
 				foreach (var Item in RecLambdas.List) {
-					if (!UpdateMatchTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, NewScope).Match(out var Result, out var Error)) {
+					var HeadScope = NewScope;
+					if (Item.Lambda.Generic.IsSome(out var GenericMatch)) {
+						if (!UpdateMatchTypes(GenericMatch, mVM_Type.Type(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
+							return mResult.Fail(GenError);
+						}
+						HeadScope = GenScope.Scope;
+					}
+					
+					if (!UpdateMatchTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, HeadScope).Match(out var Result, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					
 					NewScope = mStream.Stream(
 						(
-							Id: Item.Id.Id,
-							Type: mVM_Type.Proc(
+							Item.Id.Id,
+							mVM_Type.Proc(
 								mVM_Type.Free("__" + Item.Id.Id + "_Obj__"),
 								Result.Type,
 								mVM_Type.Free("__" + Item.Id.Id + "_Res__")

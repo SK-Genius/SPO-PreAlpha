@@ -508,7 +508,29 @@ mIL_GenerateOpcodes {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord)); // TODO
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsPair)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						if (ArgType.IsRecursive(out var _, out var Body_)) {
+							ArgType = Body_;
+						}
+						
+						while (ArgType.IsSet(out var Type1, out var Type2)) {
+							if (Type1.IsPair(out _, out _)) {
+								ArgType = Type1;
+								break;
+							}
+							
+							ArgType = Type2;
+						}
+						
+						mAssert.IsTrue(
+							ArgType.IsPair(out _, out _),
+							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
+						);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
+						Types.Push(ArgType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar)); // TODO
@@ -548,7 +570,8 @@ mIL_GenerateOpcodes {
 						mAssert.AreEquals(RecTypeIn, RecTypeOut);
 						mAssert.IsTrue(EmptyType_.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
 						mAssert.IsTrue(EmptyType.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
-						mAssert.AreEquals(ArgType, EnvType);
+						ArgType.IsSubType(EnvType, mStd.cEmpty).ElseThrow();
+						EnvType.IsSubType(ArgType, mStd.cEmpty).ElseThrow();
 						if (!RecTypeOut.IsProc(out _, out _, out _)) {
 							var PairType = RecTypeInOut;
 							while (!PairType.IsEmpty()) {

@@ -437,15 +437,12 @@ mVM_Data {
 		aDef._AddCommand(aPos, tOpCode.TryAsRecord, aFuncReg, aArgReg);
 	}
 	
-	public static void
+	public static tNat32
 	TryAsPair<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsPair, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsPair, aArgReg);
 	
 	public static void
 	TryAsVar<tPos>(

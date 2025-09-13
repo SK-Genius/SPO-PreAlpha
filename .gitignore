@@ -5,6 +5,7 @@ obj/
 TestResults/
 Report/
 
+.*
 *.dll
 *.exe
 *.pdb

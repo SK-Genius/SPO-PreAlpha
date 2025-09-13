@@ -105,7 +105,7 @@
 		
 		CALL:
 			x x -> x
-			: x x -> x   
+			: x x -> x
 		
 		COND:
 			RETURN x IF x
@@ -153,8 +153,8 @@
 				ASSERT x  ==  ASSERT TRUE => x
 	
 	
-	MODUL:
-	======
+	MODULE:
+	=======
 		
 		DEF
 			<COMMAND>

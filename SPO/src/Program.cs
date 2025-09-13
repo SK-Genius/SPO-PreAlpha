@@ -22,7 +22,7 @@ mProgram {
 		);
 		try {
 			var StdLib = mStdLib.GetImportData(DebugOut);
-
+			
 			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),
 				ProjectFile.FullName,
@@ -35,7 +35,7 @@ mProgram {
 								(aDef, aObj, aArg, _) => {
 									mAssert.IsTrue(aObj.IsPrefix("IO", out var X));
 									mAssert.IsTrue(X.IsEmpty());
-
+									
 									var File = "";
 									var RestText = aArg;
 									while (RestText.IsPair(out var Char, out RestText)) {
@@ -43,7 +43,7 @@ mProgram {
 										mAssert.IsTrue(Int.IsInt(out var Ord));
 										File += (char)Ord;
 									}
-
+									
 									var Path = System.IO.Path.Combine(Folder, File);
 									return mVM_Data.ExternProc(
 										(aDef2, aObj2, aArg2, aDebugOut) => mSPO_Interpreter.Run(
@@ -66,7 +66,7 @@ mProgram {
 				),
 				DebugOut
 			).ElseThrow();
-
+			
 			var Result = mVM_Data.Empty();
 			mVM.Run<mSpan.tSpan<mTextStream.tPos>>(
 				Method.Data,

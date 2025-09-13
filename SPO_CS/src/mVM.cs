@@ -507,6 +507,16 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.TryAsPair: {
+				var Arg = aCallStack._Regs.Get(Arg1);
+				if (Arg.IsPair(out _, out _)) {
+					aCallStack._Regs.Push(Arg);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
 			case mVM_Data.tOpCode.TypeFree: {
 				// create a fresh free type variable
 				aCallStack._Regs.Push(

@@ -997,10 +997,35 @@ mSPO2IL {
 		out (tPos, tText) aError
 	) {
 		switch (aCase.Match.Pattern) {
+			case mSPO_AST.tEmptyNode<tPos> Node: {
+				//aTestAndCallCaseFunc.Commands.Push(
+				//	mIL_AST.ReturnIfNotEmpty(aCasePos, mIL_AST.cArg)
+				//);
+				//
+				//if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)) {
+				//	return false;
+				//}
+				//
+				//aTestAndCallCaseFunc.Commands.Push(
+				//	mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
+				//);
+				//break;
+				
+				// TODO: this code is the same as tIgnoreMatchNode. there is no check is the value is really the empty value.
+				if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res__, out aError)) {
+					return false;
+				}
+				
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+				);
+				break;
+			}
 			case mSPO_AST.tIgnoreMatchNode<tPos> Node: {
 				if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res__, out aError)) {
 					return false;
 				}
+				
 				aTestAndCallCaseFunc.Commands.Push(
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
 				);
@@ -1016,6 +1041,7 @@ mSPO2IL {
 				if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res__, out aError)) {
 					return false;
 				}
+				
 				aTestAndCallCaseFunc.Commands.Push(
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
 				);
@@ -1195,6 +1221,7 @@ mSPO2IL {
 				) {
 					return false;
 				}
+				
 				LazyCaseDef.Commands.Push(
 					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
 				);
@@ -1230,8 +1257,9 @@ mSPO2IL {
 				
 				aTestAndCallCaseFunc.Commands.Push(
 					[
-						mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var Res__), LazyCaseDefId, mIL_AST.cArg),
-						mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+						mIL_AST.TryAsPair(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var PairArgReg), mIL_AST.cArg),
+						mIL_AST.CallFunc(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var ResReg), LazyCaseDefId, PairArgReg),
+						mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, ResReg),
 					]
 				);
 				break;
@@ -1284,7 +1312,7 @@ mSPO2IL {
 		aError = default;
 		return true;
 	}
-
+	
 	public static tBool
 	MapMatch<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
@@ -1294,8 +1322,14 @@ mSPO2IL {
 	) {
 		var PatternNode = aMatchNode.Pattern;
 		var TypeNode = aMatchNode.TypeExpression;
-
+		
 		switch (PatternNode) {
+			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
+				mAssert.AreNotEquals(Name, "_");
+				aDefConstructor.Commands.Push(mIL_AST.Alias(aMatchNode.Pos, Name, aRegId));
+				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
+				break;
+			}
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
 				// TODO: check left side
 				break;
@@ -1570,7 +1604,7 @@ mSPO2IL {
 		aError = default;
 		return true;
 	}
-
+	
 	public static tBool
 	MapDefVar<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,

@@ -1,0 +1,31 @@
+§IMPORT {
+	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+}
+
+§DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
+
+§DEF Push...To... = (
+	§DEF t € [[]]
+) <=> (
+	§DEF aHead € t
+	§DEF aTail € [.tStack t]
+) => (aHead, aTail)
+
+§RECURSIVE {
+	§DEF Map...With... = (
+		§DEF tIn € [[]]
+		§DEF tOut € [[]]
+	) <=> (
+		§DEF aStack € [.tStack tIn]
+		§DEF aF... € [tIn => tOut]
+	) => §IF aStack MATCH {
+		() => ()
+		(§DEF aHead, aTail) => .Push (.aF aHead) To (.Map aTail With aF...)
+	}
+}
+
+§EXPORT .Map (
+	.Push 3 To §<.Push 2 To §<.Push 1 To ()
+) With (
+	§DEF a € §INT => 2 .* a
+)

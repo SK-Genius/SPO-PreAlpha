@@ -58,7 +58,7 @@ mSPO2IL_Tests {
 			aSPO_Commands.Map(
 				mIL_AST.ToText
 			).Join(
-				(a1, a2) => a1 + "\r\n" + a2,
+				(a1, a2) => a1 + "\n" + a2,
 				""
 			),
 			aIL_Commands

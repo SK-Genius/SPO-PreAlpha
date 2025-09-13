@@ -908,10 +908,34 @@ mVM_Type {
 				}
 			}
 			case tKind.Generic: {
-				throw new System.NotImplementedException();
+				mAssert.IsTrue(aSupType.IsGeneric(out var SupHead, out var SupBody));
+				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
+					if (SubHead.Id != SupHead.Id) {
+						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
+					}
+					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				} else {
+					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				}
 			}
 			case tKind.Interface: {
-				throw new System.NotImplementedException();
+				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
+				if (aSubType.IsInterface(out var SubHead, out var SubBody)) {
+					if (SubHead.Id != SupHead.Id) {
+						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
+					}
+					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				} else {
+					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
+						_ => ExtendError(_, aSubType, aSupType)
+					);
+				}
 			}
 			default: {
 				mAssert.Impossible();
