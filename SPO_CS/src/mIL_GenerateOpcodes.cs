@@ -204,8 +204,8 @@ mIL_GenerateOpcodes {
 				aTrace(() => Command.ToText());
 				aTrace(
 					() => ("  :: " +
-						Command._2.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("") + " ; " + 
-						Command._3.ThenTry(_ => Regs.TryGet(_)).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("")
+						Command._2.ThenTry(_ => Regs.TryGet(_)).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("") + " ; " + 
+						Command._3.ThenTry(_ => Regs.TryGet(_)).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("")
 					)
 				);
 				switch (Command) {
@@ -703,7 +703,7 @@ mIL_GenerateOpcodes {
 						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 				}
-				aTrace(() => "  => " + Regs.TryGet(Command._1).ThenDo(_ => Types.Get(_).ToText("\n  ")).Else("???"));
+				aTrace(() => "  => " + Regs.TryGet(Command._1).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("???"));
 				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
 			}
 			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());

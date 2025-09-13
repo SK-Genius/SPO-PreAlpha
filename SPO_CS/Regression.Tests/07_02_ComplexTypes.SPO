@@ -1,7 +1,7 @@
 §DEF A_0 € [[], §BOOL] = ((), §TRUE)
 §DEF A_1 € [[], §BOOL, §INT] = ((), §TRUE, 1)
-§DEF A_2 € [#BLA §INT BLUB §BOOL] = (#BLA 1 BLUB §TRUE)
-§DEF A_3 € [§INT #< §INT] = (1 #< 2)
+§DEF A_2 € [#BLA §INT BLUB §BOOL] = #BLA 1 BLUB §TRUE
+§DEF A_3 € [§INT #< §INT] = 1 #< 2
 
 §EXPORT (
 	A_0

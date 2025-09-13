@@ -46,7 +46,7 @@ mMaybe_Tests {
 			mTest.Test("Using Else with a None Maybe to get a default value",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mMaybe.None<tInt32>().Else(5),
+						mMaybe.None<tInt32>().ElseUse(5),
 						5
 					);
 				}
@@ -54,25 +54,25 @@ mMaybe_Tests {
 			mTest.Test("Using Else with a Some Maybe returns the contained value",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mMaybe.Some(1).Else(5),
+						mMaybe.Some(1).ElseUse(5),
 						1
 					);
 				}
 			),
-			mTest.Test("Applying a function using ThenDo on a Some Maybe",
+			mTest.Test("Applying a function using Then on a Some Maybe",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mMaybe.Some(1).ThenDo(
+						mMaybe.Some(1).Then(
 							i => i.ToString()
 						),
 						"1"
 					);
 				}
 			),
-			mTest.Test("Applying a function using ThenDo on a None Maybe",
+			mTest.Test("Applying a function using Then on a None Maybe",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mMaybe.None<tInt32>().ThenDo(
+						mMaybe.None<tInt32>().Then(
 							i => i.ToString()
 						),
 						mStd.cEmpty

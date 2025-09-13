@@ -26,11 +26,11 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Literals",
 				aDebugStream => {
 					mAssert.AreEquals(
-						mSPO_AST.Int(cNoPos, 1).UpdateAndGetVM_Type(mStd.cEmpty),
+						mSPO_AST.Int(cNoPos, 1).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Int()
 					);
 					mAssert.AreEquals(
-						mSPO_AST.False(cNoPos).UpdateAndGetVM_Type(mStd.cEmpty),
+						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Bool()
 					);
 				}
@@ -44,13 +44,13 @@ mSPO_AST_Types_Tests {
 								mSPO_AST.Int(cNoPos, 1),
 								mSPO_AST.True(cNoPos)
 							]
-						).UpdateAndGetVM_Type(mStd.cEmpty),
+						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Tuple(
 							[mVM_Type.Int(), mVM_Type.Bool()]
 						)
 					);
 					mAssert.AreEquals(
-						mSPO_AST.False(cNoPos).UpdateAndGetVM_Type(mStd.cEmpty),
+						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Bool()
 					);
 				}
@@ -75,7 +75,7 @@ mSPO_AST_Types_Tests {
 								mStd.cEmpty
 							),
 							mSPO_AST.Id(cNoPos, "a")
-						).UpdateAndGetVM_Type(mStd.cEmpty),
+						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
 							mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
@@ -88,7 +88,7 @@ mSPO_AST_Types_Tests {
 							"(#Bla (§DEF a € §BOOL)) => a",
 							"",
 							_ => { aDebugStream(_()); }
-						).UpdateAndGetVM_Type(mStd.cEmpty),
+						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
 							mVM_Type.Prefix("_Bla...", mVM_Type.Bool()),
@@ -97,7 +97,7 @@ mSPO_AST_Types_Tests {
 					);
 					
 					mAssert.AreEquals(
-						mSPO_AST.False(cNoPos).UpdateAndGetVM_Type(mStd.cEmpty),
+						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Bool()
 					);
 				}
@@ -169,7 +169,7 @@ mSPO_AST_Types_Tests {
 										a.Code,
 										"",
 										_ => { aDebugStream(_()); }
-									).UpdateAndGetVM_Type(mStd.cEmpty),
+									).UpdateTypes(mStd.cEmpty),
 									a.Type
 								);
 							},

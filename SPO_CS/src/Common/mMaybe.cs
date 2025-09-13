@@ -114,7 +114,7 @@ mMaybe {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tMaybe<tOut>
-	ThenDo<tIn, tOut>(
+	Then<tIn, tOut>(
 		this tMaybe<tIn> a,
 		mStd.tFunc<tIn, tOut> aMap
 	) => a.IsSome(out var Value) ? Some(aMap(Value)) : mStd.cEmpty;
@@ -128,14 +128,14 @@ mMaybe {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
-	Else<t>(
+	ElseUse<t>(
 		this tMaybe<t> a,
 		t aFallback
 	) => a.IsSome(out var Value) ? Value : aFallback;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
-	ElseDo<t>(
+	Else<t>(
 		this tMaybe<t> a,
 		mStd.tFunc<t> aOnNone
 	) => a.IsSome(out var Value) ? Value : aOnNone();

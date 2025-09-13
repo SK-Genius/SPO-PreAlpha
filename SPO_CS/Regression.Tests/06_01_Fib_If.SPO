@@ -10,16 +10,16 @@
 		§DEF a € §INT
 	) => §IF {
 		a .< 2 => a
-		1 .== 1 => ((.Fib(a .- 2)) .+ (.Fib(a .- 1)))
+		1 .== 1 => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 	}
 }
 
 §EXPORT (
-	(.Fib 0)
-	(.Fib 1)
-	(.Fib 2)
-	(.Fib 3)
-	(.Fib 4)
-	(.Fib 5)
-	(.Fib 6)
+	.Fib 0
+	.Fib 1
+	.Fib 2
+	.Fib 3
+	.Fib 4
+	.Fib 5
+	.Fib 6
 )	

@@ -15,6 +15,7 @@
 // IMPORT mSPO_AST
 // IMPORT mSPO_AST_Types
 // IMPORT mSPO_Parser
+// IMPORT mSPO_Lowering
 
 public static class
 mSPO_Interpreter {
@@ -26,11 +27,14 @@ mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
+		if (!mSPO_Lowering.LowerModule(ModuleNode).Match(out var LoweredModule, out var Error)) {
+			return mResult.Fail(Error.ToText());
+		}
 		
 		var TypeArg = mVM_Type.Free();
 		
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
-			ModuleNode.Import.Match,
+			LoweredModule.Import.Match,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(
@@ -52,13 +56,13 @@ mSPO_Interpreter {
 			_ => _.Scope
 		);
 		
-		return ModuleNode.Commands.Reduce(
+		return LoweredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
 		).ThenTry(
-			aNewScope => mSPO2IL.MapModule(ModuleNode, mSpan.Merge, aNewScope)
+			aNewScope => mSPO2IL.MapModule(LoweredModule, mSpan.Merge, aNewScope)
 		).Then(
 			aModule => {
 				return mVM.Run(

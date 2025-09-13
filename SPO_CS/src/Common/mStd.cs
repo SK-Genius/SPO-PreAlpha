@@ -91,7 +91,7 @@
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
-	_<t>(
+	Do<t>(
 		this t a,
 		tAction<t> aDo
 	) where t : class {

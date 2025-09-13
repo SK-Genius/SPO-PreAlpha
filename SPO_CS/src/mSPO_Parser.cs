@@ -10,6 +10,7 @@
 // IMPORT mIL_AST
 // IMPORT mSPO_AST
 // IMPORT mSPO2IL
+// IMPORT mSPO_Lowering
 
 using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
@@ -145,16 +146,16 @@ mSPO_Parser {
 	Match = (TypedMatch | UnTypedMatch)
 	.SetName(nameof(Match));
 	
-	//public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	//PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
-	//.SetName(nameof(PipeToRight));
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
+	PipeToRight = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
+	.SetName(nameof(PipeToRight));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
 	PipeToLeft = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
 	.SetName(nameof(PipeToLeft));
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	PipeExpression = PipeToLeft; // | PipeToRight;
+	PipeExpression = PipeToLeft | PipeToRight;
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefNode<tSpan>, tError>
 	Def = mParserGen.Seq(Match, Token("="), PipeExpression | Expression)
@@ -188,7 +189,7 @@ mSPO_Parser {
 	.SetName(nameof(Block));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
-	Tuple = C( mParserGen.Seq(PipeExpression | ExpressionInCall, ((-SpecialToken(",") | -NLs_Token) +(PipeExpression | ExpressionInCall))[1..]) )
+	Tuple = C( mParserGen.Seq(PipeExpression | Expression, ((-SpecialToken(",") | -NLs_Token) +(PipeExpression | Expression))[1..]) )
 	.Modify(mStream.Stream)
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
@@ -278,7 +279,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixNode<tSpan>, tError>
 	Prefix = InfixPrefix(ExpressionInCall)
-	.ModifyS((aSpan, aId, aChildren) => mSPO_AST.Prefix(aSpan, aId, mSPO_AST.Tuple(aSpan, aChildren)))
+	.ModifyS((aSpan, aId, aChildren) => mSPO_AST.Prefix(aSpan, aId.Id, mSPO_AST.Tuple(aSpan, aChildren)))
 	.SetName(nameof(Prefix));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchFreeIdNode<tSpan>, tError>
@@ -722,13 +723,14 @@ mSPO_Parser {
 			)
 		);
 		
-		//PipeToRight.Def(
-		//	((PipeToRight | Expression) +-KeyWord(">") +Expression)
-		//	.ModifyS(mSPO_AST.PipeToRight)
-		//);
+		PipeToRight.Def(
+			mParserGen.Seq(Expression, (-KeyWord(">") +Expression)[1..])
+			.ModifyS(mSPO_AST.PipeToRight)
+		);
 		
 		PipeToLeft.Def(
-			(Expression +-KeyWord("<") +(PipeToLeft | Expression))
+			mParserGen.Seq((Expression +-KeyWord("<"))[1..], Expression)
+			.Modify((aPipe, aHead) => (aPipe.Reverse(), aHead))
 			.ModifyS(mSPO_AST.PipeToLeft)
 		);
 		
@@ -747,25 +749,28 @@ mSPO_Parser {
 		);
 	}
 	
+	// TODO: should not do lowering and SPO to IL mapping
 	public static tText
-	ToText(
+	ToILT(
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
+		var Lowered = mSPO_Lowering.LowerModule(aModule).ElseThrow(_ => _.ToText());
+		
 		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
-			aModule.Import.Match,
+			Lowered.Import.Match,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
 		).Then(_ => _.Scope).ElseThrow(_ => _.ToText());
 		
-		var Scope = aModule.Commands.Reduce(
+		var Scope = Lowered.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
 		).ElseThrow(_ => _.ToText());
 		
-		var Module = mSPO2IL.MapModule(aModule, mSpan.Merge, Scope).ElseThrow(_ => _.ToText());
+		var Module = mSPO2IL.MapModule(Lowered, mSpan.Merge, Scope).ElseThrow(_ => _.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.AppendLine("§TYPES");
@@ -780,13 +785,13 @@ mSPO_Parser {
 			
 			var TypeCommand_ = TypeCommand;
 			TypeCommand_._1 = mSPO2IL.GetTypeId(TypeIndex);
-			TypeCommand_._2 = TypeCommand_._2.ThenDo(
+			TypeCommand_._2 = TypeCommand_._2.Then(
 				_ => Map.TryGet(_).Match(
 					() => _,
 					mSPO2IL.GetTypeId
 				)
 			);
-			TypeCommand_._3 = TypeCommand_._3.ThenDo(
+			TypeCommand_._3 = TypeCommand_._3.Then(
 				_ => Map.TryGet(_).Match(
 					() => _,
 					mSPO2IL.GetTypeId

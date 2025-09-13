@@ -971,114 +971,11 @@ mSPO2IL {
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
-			case mSPO_AST.tPipeToRightNode<tPos> { Pos: var Pos, Left: var Left, Right: var Right, TypeAnnotation: var Type }: {
-				switch (Right) {
-					case mSPO_AST.tPipeToRightNode<tPos> { Left: var RightLeft, Right: var RightRight }: {
-						return aDefConstructor.MapExpression(
-							aModuleConstructor,
-							mSPO_AST.PipeToRight(
-								Pos,
-								mSPO_AST.PipeToRight(
-									Left.Pos, //TODO: mStd.Merge(PipeToRightNode.Left.Pos, PipeToRightNode_.Left.Pos),
-									Left,
-									RightLeft
-								),
-								Right
-							)
-						);
-					}
-					case mSPO_AST.tCallNode<tPos> { Pos: var Pos_, Func: var Func_, Arg: var Arg_ }: {
-						var Func = (
-							Func_ is mSPO_AST.tIdNode<tPos> IdNode
-							? mSPO_AST.Id(IdNode.Pos, "..." + IdNode.Id[1..])
-							: Func_
-						);
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Func).Match(out var FuncReg, out var Error)) {
-							return mResult.Fail(Error);
-						}
-						var Arg = (
-							Arg_ is mSPO_AST.tTupleNode<tPos> Tuple
-							? mSPO_AST.Tuple(
-								Tuple.Pos,
-								mStream.Stream(Right, Tuple.Items)
-							)
-							: mSPO_AST.Tuple(
-								Arg_.Pos,
-								mStream.Stream(Right, mStream.Stream([Arg_]))
-							)
-						);
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Arg).Match(out var ArgReg, out Error)) {
-							return mResult.Fail(Error);
-						}
-						var ResultReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(Pos_, ResultReg, FuncReg, ArgReg)
-						);
-						aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
-						return ResultReg;
-					}
-					default: {
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Left).Match(out var FirstArgReg, out var Error)) {
-							return mResult.Fail(Error);
-						}
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Right).Match(out var FuncReg, out Error)) {
-							return mResult.Fail(Error);
-						}
-						var ResultReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
-						);
-						aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
-						return ResultReg;
-					}
-				}
+			case mSPO_AST.tPipeToRightNode<tPos>: {
+				throw mError.Error("Pipe should be lowered at this point!");
 			}
-			case mSPO_AST.tPipeToLeftNode<tPos> { Pos: var Pos, Left: var Left, Right: var Right }: {
-				switch (Left) {
-					case mSPO_AST.tCallNode<tPos> { Pos: var LeftPos, Func: var LeftFunc, Arg: var LeftArg }: {
-						var Func = (
-							(LeftFunc is mSPO_AST.tIdNode<tPos> IdNode)
-							? mSPO_AST.Id(IdNode.Pos, IdNode.Id[1..] + "...")
-							: LeftFunc
-						);
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Func).Match(out var FuncReg, out var Error)) {
-							return mResult.Fail(Error);
-						}
-						var Arg = (
-							LeftArg is mSPO_AST.tTupleNode<tPos> Tuple
-							? mSPO_AST.Tuple(
-								Tuple.Pos,
-								mStream.Concat(Tuple.Items, mStream.Stream([Right]))
-							)
-							: mSPO_AST.Tuple(
-								LeftArg.Pos,
-								mStream.Stream(LeftArg, mStream.Stream([Right]))
-							)
-						);
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Arg).Match(out var ArgReg, out Error)) {
-							return mResult.Fail(Error);
-						}
-						var ResultReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(LeftPos, ResultReg, FuncReg, ArgReg)
-						);
-						return ResultReg;
-					}
-					default: {
-						if (
-							!aDefConstructor.MapExpression(aModuleConstructor, Right).Match(out var FirstArgReg, out var Error) ||
-							!aDefConstructor.MapExpression(aModuleConstructor, Left).Match(out var FuncReg, out Error)
-						) {
-							return mResult.Fail(Error);
-						}
-						
-						var ResultReg = aDefConstructor.CreateTempReg();
-						aDefConstructor.Commands.Push(
-							mIL_AST.CallFunc(Pos, ResultReg, FuncReg, FirstArgReg)
-						);
-						return ResultReg;
-					}
-				}
+			case mSPO_AST.tPipeToLeftNode<tPos>: {
+				throw mError.Error("Pipe should be lowered at this point!");
 			}
 			default: {
 				throw mError.Error(
@@ -1723,7 +1620,7 @@ mSPO2IL {
 				continue;
 			}
 			var Result = Call.Result.IsNone() ? mIL_AST.cEmptyValue : aDefConstructor.CreateTempReg();
-			var ResultType = Call.Result.ThenDo(_ => _.TypeAnnotation.AssertNotEmpty()).Else(mVM_Type.Empty());
+			var ResultType = Call.Result.Then(_ => _.TypeAnnotation.AssertNotEmpty()).ElseUse(mVM_Type.Empty());
 			var MethodReg = aDefConstructor.CreateTempReg();
 			aDefConstructor.Commands.Push(
 				[
@@ -1776,7 +1673,7 @@ mSPO2IL {
 			aModuleNode.Import.Match,
 			mSPO_AST.Block(
 				aMergePos(
-					aModuleNode.Commands.TryFirst().ThenDo(_ => _.Pos).Else(default),
+					aModuleNode.Commands.TryFirst().Then(_ => _.Pos).ElseUse(default),
 					aModuleNode.Export.Pos
 				),
 				mStream.Concat(
@@ -1794,7 +1691,7 @@ mSPO2IL {
 			)
 		);
 		
-		if (!mSPO_AST_Types.UpdateAndGetVM_Type(Lambda, aScope).Match(out _, out var Error)) {
+		if (!Lambda.UpdateTypes(aScope).Match(out _, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		

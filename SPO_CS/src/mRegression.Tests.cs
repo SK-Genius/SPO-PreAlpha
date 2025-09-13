@@ -105,7 +105,7 @@ mRegression_Tests {
 												SPO_Text.Value,
 												SPO_Path,
 												_ => aDebug(_())
-											).ToText();
+											).ToILT();
 										
 										if (IL_TextNew != IL_Text.Value) {
 											System.IO.File.WriteAllText(

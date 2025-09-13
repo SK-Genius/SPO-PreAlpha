@@ -6,6 +6,6 @@
 	§DEF a € §INT
 	_ € §INT
 	_ € §INT
-) => (2 .* a)
+) => 2 .* a
 
-§EXPORT (.F (3, 5, 7))
+§EXPORT .F (3, 5, 7)

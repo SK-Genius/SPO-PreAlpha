@@ -2,7 +2,7 @@
 §DEF A_1 € §BOOL = §TRUE
 §DEF A_2 € §BOOL = §FALSE
 §DEF A_3 € §INT = 0
-§DEF A_4 € [#Bla []] = (#Bla ())
+§DEF A_4 € [#Bla []] = #Bla ()
 
 §EXPORT (
 	A_0

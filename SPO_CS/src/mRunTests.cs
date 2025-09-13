@@ -89,7 +89,7 @@ GetArgParam(
 	() => aArgs.Where(
 		_ => _.StartsWith(aShortArgName)
 	).TryFirst(
-	).ThenDo(
+	).Then(
 		_ => _[aShortArgName.Length..]
 	)
 );

@@ -56,17 +56,26 @@
 	t_54 := [§REC t_51 => t_53]
 	t_55 := [t_50, t_54]
 	t_56 := [EMPTY_TYPE, t_55]
-	t_57 := [EMPTY_TYPE, BOOL]
+	t_57 := [EMPTY_TYPE, INT]
 	t_58 := [§FREE]
-	t_59 := [EMPTY_TYPE, BOOL]
+	t_59 := [EMPTY_TYPE, INT]
 	t_60 := [§FREE]
 	t_61 := [t_59, t_60]
 	t_62 := [t_61 | EMPTY_TYPE]
 	t_63 := [§REC t_60 => t_62]
 	t_64 := [t_59, t_63]
 	t_65 := [t_56, t_64]
-	t_66 := [EMPTY_TYPE => t_65]
-	t_67 := [t_47 => t_66]
+	t_66 := [EMPTY_TYPE, BOOL]
+	t_67 := [§FREE]
+	t_68 := [EMPTY_TYPE, BOOL]
+	t_69 := [§FREE]
+	t_70 := [t_68, t_69]
+	t_71 := [t_70 | EMPTY_TYPE]
+	t_72 := [§REC t_69 => t_71]
+	t_73 := [t_68, t_72]
+	t_74 := [t_65, t_73]
+	t_75 := [EMPTY_TYPE => t_74]
+	t_76 := [t_47 => t_75]
 
 §DEF d_0 € t_47
 	r_1 := §2ND ARG
@@ -79,7 +88,7 @@
 	r_6 := r_5, _aTail
 	§RETURN r_6 IF TRUE
 
-§DEF d_1 € t_67
+§DEF d_1 € t_76
 	d_0 := ENV
 	_t := [§FREE]
 	_tStack := [§FREE]
@@ -103,11 +112,24 @@
 	r_16 := r_7, r_15
 	r_17 := ._Push...To... r_16
 	r_18 := EMPTY, r_17
-	r_19 := EMPTY, TRUE
-	r_20 := EMPTY, FALSE
-	r_21 := r_20, EMPTY
-	r_22 := ._Push...To... r_21
-	r_23 := r_19, r_22
-	r_24 := ._Push...To... r_23
-	r_25 := r_18, r_24
-	§RETURN r_25 IF TRUE
+	r_19 := 3
+	r_20 := EMPTY, r_19
+	r_21 := 2
+	r_22 := EMPTY, r_21
+	r_23 := 1
+	r_24 := EMPTY, r_23
+	r_25 := r_24, EMPTY
+	r_26 := ._Push...To... r_25
+	r_27 := r_22, r_26
+	r_28 := ._Push...To... r_27
+	r_29 := r_20, r_28
+	r_30 := ._Push...To... r_29
+	r_31 := r_18, r_30
+	r_32 := EMPTY, TRUE
+	r_33 := EMPTY, FALSE
+	r_34 := r_33, EMPTY
+	r_35 := ._Push...To... r_34
+	r_36 := r_32, r_35
+	r_37 := ._Push...To... r_36
+	r_38 := r_31, r_37
+	§RETURN r_38 IF TRUE

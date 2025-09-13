@@ -386,8 +386,8 @@ mSPO_AST {
 	tPipeToRightNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Left = default!;
-		public tExpressionNode<tPos> Right = default!;
+		public tExpressionNode<tPos> Head = default!;
+		public mStream.tStream<tExpressionNode<tPos>> Pipe = mStd.cEmpty;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -395,8 +395,8 @@ mSPO_AST {
 	tPipeToLeftNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tExpressionNode<tPos> Left = default!;
-		public tExpressionNode<tPos> Right = default!;
+		public mStream.tStream<tExpressionNode<tPos>> Pipe = mStd.cEmpty;
+		public tExpressionNode<tPos> Head = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -655,11 +655,11 @@ mSPO_AST {
 	public static tPrefixNode<tPos>
 	Prefix<tPos>(
 		tPos aPos,
-		tIdNode<tPos> aPrefix,
+		tText aPrefix,
 		tExpressionNode<tPos> aElement
 	) => new() {
 		Pos = aPos,
-		Prefix = aPrefix.Id,
+		Prefix = aPrefix,
 		Element = aElement
 	};
 	
@@ -864,23 +864,23 @@ mSPO_AST {
 	public static tExpressionNode<tPos>
 	PipeToRight<tPos>(
 		tPos aPos,
-		tExpressionNode<tPos> aLeft,
-		tExpressionNode<tPos> aRight
+		tExpressionNode<tPos> aHead,
+		mStream.tStream<tExpressionNode<tPos>> aPipe
 	) => new tPipeToRightNode<tPos> {
 		Pos = aPos,
-		Left = aLeft,
-		Right = aRight,
+		Head = aHead,
+		Pipe = aPipe,
 	};
 	
 	public static tExpressionNode<tPos>
 	PipeToLeft<tPos>(
 		tPos aPos,
-		tExpressionNode<tPos> aLeft,
-		tExpressionNode<tPos> aRight
+		mStream.tStream<tExpressionNode<tPos>> aPipe,
+		tExpressionNode<tPos> aHead
 	) => new tPipeToLeftNode<tPos> {
 		Pos = aPos,
-		Left = aLeft,
-		Right = aRight,
+		Pipe = aPipe,
+		Head = aHead,
 	};
 	
 	public static tMethodCallNode<tPos>
@@ -1243,6 +1243,7 @@ mSPO_AST {
 					(a1, a2) => a1 + "; " + a2
 				)
 			),
+			tPipeToLeftNode<t> Node => $"({____} {Node.Pipe.Map(_ => $"{_.ToText()} §<")}{Node.Head.ToText()}{__})",
 			
 			// Matches
 			tMatchNode<t> Node => Node.TypeExpression.Match(

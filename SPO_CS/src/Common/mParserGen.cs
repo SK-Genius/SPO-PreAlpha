@@ -788,7 +788,7 @@ mParserGen {
 			!Result.Match(out var Value, out var Error) &&
 			aParser._ModifyErrorsFunc is not null
 		) {
-			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().Else(default)));
+			Result = mResult.Fail(aParser._ModifyErrorsFunc(Error, aStream.TryFirst().ElseUse(default)));
 		}
 		
 		#if MY_TRACE_PARSER

@@ -85,7 +85,7 @@ mVM_Type_Tests {
 						_ => aStreamOut(_())
 					);
 					
-					var Type = AST.UpdateAndGetVM_Type(
+					var Type = AST.UpdateTypes(
 						cTestScope
 					).ElseThrow(_ => _.ToText());
 					

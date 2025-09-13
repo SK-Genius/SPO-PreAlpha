@@ -91,7 +91,7 @@ mFS {
 				return (
 					aSrcPath.Parent.IsEmpty()
 					? cBackPath
-					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).ThenDo(_ => cBackPath / _)
+					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).Then(_ => cBackPath / _)
 				);
 			}
 			
@@ -99,7 +99,7 @@ mFS {
 				return aSrcPath[1..].AssertNotEmpty() >> aDesPath[1..].AssertNotEmpty();
 			}
 			
-			var ParentSrcPath = aSrcPath.Parent.Deref.Else(cIdentPath);
+			var ParentSrcPath = aSrcPath.Parent.Deref.ElseUse(cIdentPath);
 			var RemindingPath = ParentSrcPath >> aDesPath;
 			
 			return RemindingPath.Match(
@@ -179,7 +179,7 @@ mFS {
 						1 => new tPath(this.Name),
 						> 1 => (
 							this.Parent.Is(out var Parent)
-							? Parent[^(StartFromEnd - 1)..].ThenDo(_ => _ / Name_)
+							? Parent[^(StartFromEnd - 1)..].Then(_ => _ / Name_)
 							: cIdentPath
 						),
 					},
