@@ -149,6 +149,21 @@ mSPO2IL {
 		return ExtractEnv;
 	}
 	
+	public static void
+	EnsureTypeDefinition<tPos>(
+		this tModuleConstructor<tPos> aModuleConstructor,
+		tText aTypeId,
+		mVM_Type.tType aType,
+		mStd.tFunc<mIL_AST.tCommandNode<tPos>> aCreateDefinition
+	) {
+		if (aModuleConstructor.Types.TryGet(aTypeId).IsSome(out var ExistingType)) {
+			mAssert.AreEquals(ExistingType, aType);
+			return;
+		}
+		aModuleConstructor.TypeDef.Push(aCreateDefinition());
+		aModuleConstructor.Types = aModuleConstructor.Types.Set(aTypeId, aType);
+	}
+
 	public static tText
 	MapType<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
@@ -173,8 +188,7 @@ mSPO2IL {
 			}
 			case var a when a.IsFree(out var Id_, out var Ref): {
 				if (Ref.Kind is mVM_Type.tKind.Free) {
-					aModuleConstructor.Types = aModuleConstructor.Types.Set(Id_, a);
-					aModuleConstructor.TypeDef.Push(mIL_AST.TypeFree(default(tPos), Id_));
+					aModuleConstructor.EnsureTypeDefinition(Id_, a, () => mIL_AST.TypeFree(default(tPos), Id_));
 					return Id_;
 				} else {
 					return aModuleConstructor.MapType(Ref);
@@ -183,16 +197,14 @@ mSPO2IL {
 			case var a when a.IsPrefix(out var Prefix, out var Type): {
 				var Id = aModuleConstructor.MapType(Type);
 				var NewId = $"[#{Prefix}:{Id}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), NewId, Prefix, Id));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypePrefix(default(tPos), NewId, Prefix, Id));
 				return NewId;
 			}
 			case var a when a.IsPair(out var Type1, out var Type2): {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
 				var NewId = $"[{Id1};{Id2}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypePair(default(tPos), NewId, Id1, Id2));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypePair(default(tPos), NewId, Id1, Id2));
 				return NewId;
 			}
 			case var a when a.IsRecord(out var Fields): {
@@ -212,33 +224,30 @@ mSPO2IL {
 				var Id1 = aModuleConstructor.MapType(Type1);
 				var Id2 = aModuleConstructor.MapType(Type2);
 				var NewId = $"[{Id1}|{Id2}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeSet(default(tPos), NewId, Id1, Id2));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeSet(default(tPos), NewId, Id1, Id2));
 				return NewId;
 			}
 			case var a when a.IsProc(out var EnvType, out var ArgType, out var ResType): {
 				var IdArg = aModuleConstructor.MapType(ArgType);
 				var IdRes = aModuleConstructor.MapType(ResType);
 				var IdFunc = $"[{IdArg}->{IdRes}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeFunc(default(tPos), IdFunc, IdArg, IdRes));
+				var FuncType = mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType);
+				aModuleConstructor.EnsureTypeDefinition(IdFunc, FuncType, () => mIL_AST.TypeFunc(default(tPos), IdFunc, IdArg, IdRes));
 				
 				if (EnvType.IsEmpty()) {
-					aModuleConstructor.Types = aModuleConstructor.Types.Set(IdFunc, a);
 					return IdFunc;
 				}
 				
 				var IdEnv = aModuleConstructor.MapType(EnvType);
 				var IdEnvFunc = $"[{IdEnv}:{IdFunc}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeMethod(default(tPos), IdEnvFunc, IdEnv, IdFunc));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(IdEnvFunc, a);
+				aModuleConstructor.EnsureTypeDefinition(IdEnvFunc, a, () => mIL_AST.TypeMethod(default(tPos), IdEnvFunc, IdEnv, IdFunc));
 				return IdEnvFunc;
 			}
 			case var a when a.IsVar(out var InnerType): {
 				var InnerId = aModuleConstructor.MapType(InnerType);
 				var NewId = $"[§VAR {InnerId}]";
 				
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeVar(default(tPos), NewId, InnerId));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeVar(default(tPos), NewId, InnerId));
 				
 				return NewId;
 			}
@@ -246,16 +255,14 @@ mSPO2IL {
 				var HeadId = aModuleConstructor.MapType(HeadType);
 				var BodyId = aModuleConstructor.MapType(BodyType);
 				var NewId = $"[§REC {HeadId} => {BodyId}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecursive(default(tPos), NewId, HeadId, BodyId));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeRecursive(default(tPos), NewId, HeadId, BodyId));
 				return NewId;
 			}
 			case var a when a.IsGeneric(out var HeadType, out var BodyType): {
 				var HeadId = aModuleConstructor.MapType(HeadType);
 				var BodyId = aModuleConstructor.MapType(BodyType);
 				var NewId = $"[$ALL {HeadId} => {BodyId}]";
-				aModuleConstructor.TypeDef.Push(mIL_AST.TypeGeneric(default(tPos), NewId, HeadId, BodyId));
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(NewId, a);
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeGeneric(default(tPos), NewId, HeadId, BodyId));
 				return NewId;
 			}
 			default: {

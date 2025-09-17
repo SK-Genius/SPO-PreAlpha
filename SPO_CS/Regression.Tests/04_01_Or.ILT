@@ -4,14 +4,12 @@
 	t_2 := [t_1 => BOOL]
 	t_3 := [#_...&... t_2]
 	t_4 := [{EMPTY_TYPE} + t_3]
-	t_5 := [EMPTY_TYPE, BOOL]
+	t_5 := [t_1, BOOL]
 	t_6 := [t_5, BOOL]
-	t_7 := [t_6, BOOL]
-	t_8 := [t_7, BOOL]
-	t_9 := [t_4 => t_8]
-	t_10 := [EMPTY_TYPE => t_9]
+	t_7 := [t_4 => t_6]
+	t_8 := [EMPTY_TYPE => t_7]
 
-§DEF d_0 € t_10
+§DEF d_0 € t_8
 	r_1 := {ARG} #_...&...
 	_...&... := r_1
 	r_2 := EMPTY, FALSE

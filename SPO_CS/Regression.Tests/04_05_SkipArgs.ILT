@@ -2,28 +2,15 @@
 	t_0 := [EMPTY_TYPE, INT]
 	t_1 := [t_0, INT]
 	t_2 := [t_1 => INT]
-	t_3 := [EMPTY_TYPE, INT]
-	t_4 := [t_3, INT]
-	t_5 := [t_4, INT]
-	t_6 := [t_5 => INT]
-	t_7 := [t_2 => t_6]
-	t_8 := [EMPTY_TYPE, INT]
-	t_9 := [t_8, INT]
-	t_10 := [t_9 => INT]
-	t_11 := [EMPTY_TYPE, INT]
-	t_12 := [t_11, INT]
-	t_13 := [t_12, INT]
-	t_14 := [t_13 => INT]
-	t_15 := [t_10 => t_14]
-	t_16 := [EMPTY_TYPE, INT]
-	t_17 := [t_16, INT]
-	t_18 := [t_17 => INT]
-	t_19 := [#_...*... t_18]
-	t_20 := [{EMPTY_TYPE} + t_19]
-	t_21 := [t_20 => INT]
-	t_22 := [t_15 => t_21]
+	t_3 := [t_1, INT]
+	t_4 := [t_3 => INT]
+	t_5 := [t_2 => t_4]
+	t_6 := [#_...*... t_2]
+	t_7 := [{EMPTY_TYPE} + t_6]
+	t_8 := [t_7 => INT]
+	t_9 := [t_5 => t_8]
 
-§DEF d_0 € t_15
+§DEF d_0 € t_5
 	_...*... := ENV
 	r_1 := §2ND ARG
 	r_2 := §1ST ARG
@@ -38,7 +25,7 @@
 	r_10 := ._...*... r_9
 	§RETURN r_10 IF TRUE
 
-§DEF d_1 € t_22
+§DEF d_1 € t_9
 	d_0 := ENV
 	r_1 := {ARG} #_...*...
 	_...*... := r_1

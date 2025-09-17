@@ -37,7 +37,7 @@ mTokenizer_Tests {
 			mTest.Test("TwoLines",
 				aDebugStream => {
 					var TokenList = mTokenizer.Tokenizer.ParseText(
-						"a := §INT b <=> c \n a := [#b c]",
+						"a := §INT b <=> c \n a := [#b c d \"Text\"]",
 						"",
 						_ => aDebugStream(_())
 					).Result;
@@ -59,7 +59,9 @@ mTokenizer_Tests {
 								new mTokenizer.tToken { Span = Span((2, 7), (2, 7)), Text = "[", Type = mTokenizer.tTokenType.SpecialToken },
 								new mTokenizer.tToken { Span = Span((2, 8), (2, 9)), Text = "#b", Type = mTokenizer.tTokenType.SpecialId },
 								new mTokenizer.tToken { Span = Span((2, 11), (2, 11)), Text = "c", Type = mTokenizer.tTokenType.Id },
-								new mTokenizer.tToken { Span = Span((2, 12), (2, 12)), Text = "]", Type = mTokenizer.tTokenType.SpecialToken }
+								new mTokenizer.tToken { Span = Span((2, 13), (2, 13)), Text = "d", Type = mTokenizer.tTokenType.Id },
+								new mTokenizer.tToken { Span = Span((2, 15), (2, 20)), Text = "Text", Type = mTokenizer.tTokenType.Text },
+								new mTokenizer.tToken { Span = Span((2, 21), (2, 21)), Text = "]", Type = mTokenizer.tTokenType.SpecialToken },
 							]
 						)
 					);

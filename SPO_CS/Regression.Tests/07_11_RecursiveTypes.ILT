@@ -1,52 +1,16 @@
 §TYPES
 	t_0 := [EMPTY_TYPE, INT]
 	t_1 := [§FREE]
-	t_2 := [EMPTY_TYPE, INT]
-	t_3 := [§FREE]
-	t_4 := [t_2, t_3]
-	t_5 := [t_4 | EMPTY_TYPE]
-	t_6 := [§REC t_3 => t_5]
-	t_7 := [t_2, t_6]
-	t_8 := [EMPTY_TYPE, INT]
-	t_9 := [§FREE]
-	t_10 := [EMPTY_TYPE, INT]
-	t_11 := [§FREE]
-	t_12 := [t_10, t_11]
-	t_13 := [t_12 | EMPTY_TYPE]
-	t_14 := [§REC t_11 => t_13]
-	t_15 := [t_10, t_14]
-	t_16 := [t_15 => t_15]
-	t_17 := [EMPTY_TYPE => t_16]
-	t_18 := [EMPTY_TYPE, INT]
-	t_19 := [§FREE]
-	t_20 := [EMPTY_TYPE, INT]
-	t_21 := [§FREE]
-	t_22 := [t_20, t_21]
-	t_23 := [t_22 | EMPTY_TYPE]
-	t_24 := [§REC t_21 => t_23]
-	t_25 := [t_20, t_24]
-	t_26 := [EMPTY_TYPE, INT]
-	t_27 := [§FREE]
-	t_28 := [EMPTY_TYPE, INT]
-	t_29 := [§FREE]
-	t_30 := [t_28, t_29]
-	t_31 := [t_30 | EMPTY_TYPE]
-	t_32 := [§REC t_29 => t_31]
-	t_33 := [t_28, t_32]
-	t_34 := [t_33 => t_33]
-	t_35 := [EMPTY_TYPE => t_34]
-	t_36 := [EMPTY_TYPE, INT]
-	t_37 := [§FREE]
-	t_38 := [EMPTY_TYPE, INT]
-	t_39 := [§FREE]
-	t_40 := [t_38, t_39]
-	t_41 := [t_40 | EMPTY_TYPE]
-	t_42 := [§REC t_39 => t_41]
-	t_43 := [t_38, t_42]
-	t_44 := [EMPTY_TYPE => t_43]
-	t_45 := [t_35 => t_44]
+	t_2 := [t_0, t_1]
+	t_3 := [t_2 | EMPTY_TYPE]
+	t_4 := [§REC t_1 => t_3]
+	t_5 := [t_0, t_4]
+	t_6 := [t_5 => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE => t_5]
+	t_9 := [t_7 => t_8]
 
-§DEF d_0 € t_35
+§DEF d_0 € t_7
 	r_1 := §2ND ARG
 	_aTail := r_1
 	r_2 := §1ST ARG
@@ -57,7 +21,7 @@
 	r_6 := r_5, _aTail
 	§RETURN r_6 IF TRUE
 
-§DEF d_1 € t_45
+§DEF d_1 € t_9
 	d_0 := ENV
 	_t := [§FREE]
 	r_1 := [INT_TYPE, _t]

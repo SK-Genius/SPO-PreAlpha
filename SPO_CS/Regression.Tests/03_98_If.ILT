@@ -7,23 +7,12 @@
 	t_5 := [INT | EMPTY_TYPE]
 	t_6 := [EMPTY_TYPE => t_5]
 	t_7 := [t_4 => t_6]
-	t_8 := [EMPTY_TYPE, INT]
-	t_9 := [t_8, INT]
-	t_10 := [t_9 => BOOL]
-	t_11 := [EMPTY_TYPE, t_10]
-	t_12 := [t_11, INT]
-	t_13 := [INT | EMPTY_TYPE]
-	t_14 := [EMPTY_TYPE => t_13]
-	t_15 := [t_12 => t_14]
-	t_16 := [EMPTY_TYPE, INT]
-	t_17 := [t_16, INT]
-	t_18 := [t_17 => BOOL]
-	t_19 := [#_...==... t_18]
-	t_20 := [{EMPTY_TYPE} + t_19]
-	t_21 := [t_20 => INT]
-	t_22 := [t_15 => t_21]
+	t_8 := [#_...==... t_2]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [t_9 => INT]
+	t_11 := [t_7 => t_10]
 
-§DEF d_0 € t_15
+§DEF d_0 € t_7
 	_a := §2ND ENV
 	r_11 := §1ST ENV
 	_...==... := §2ND r_11
@@ -42,7 +31,7 @@
 	§RETURN r_10 IF r_9
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_22
+§DEF d_1 € t_11
 	d_0 := ENV
 	r_1 := {ARG} #_...==...
 	_...==... := r_1
