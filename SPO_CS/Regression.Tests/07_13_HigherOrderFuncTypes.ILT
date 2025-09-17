@@ -1,101 +1,102 @@
 §TYPES
 	t_0 := [§FREE]
-	t_1 := [EMPTY_TYPE, t_0]
-	t_2 := [§FREE]
-	t_3 := [t_1, t_2]
+	t_1 := [§FREE]
+	t_2 := [EMPTY_TYPE, t_0]
+	t_3 := [t_2, t_1]
 	t_4 := [t_3 | EMPTY_TYPE]
-	t_5 := [§REC t_2 => t_4]
-	t_6 := [t_1, t_5]
-	t_7 := [t_6 => t_6]
-	t_8 := [§ALL t_0 => t_7]
-	t_9 := [EMPTY_TYPE => t_8]
-	t_10 := [§FREE]
-	t_11 := [EMPTY_TYPE, t_10]
-	t_12 := [t_11, t_2]
-	t_13 := [t_12 | EMPTY_TYPE]
-	t_14 := [§REC t_2 => t_13]
-	t_15 := [§FREE]
-	t_16 := [EMPTY_TYPE, t_15]
-	t_17 := [t_16, t_2]
-	t_18 := [t_17 | EMPTY_TYPE]
-	t_19 := [§REC t_2 => t_18]
-	t_20 := [t_16, t_19]
-	t_21 := [EMPTY_TYPE | t_20]
-	t_22 := [t_14 => t_21]
-	t_23 := [EMPTY_TYPE => t_22]
-	t_24 := [EMPTY_TYPE, t_8]
-	t_25 := [t_10 => t_15]
-	t_26 := [t_24, t_25]
-	t_27 := [EMPTY_TYPE, t_14]
-	t_28 := [t_27, t_25]
-	t_29 := [t_28 => t_21]
-	t_30 := [t_26, t_29]
-	t_31 := [t_27, t_14]
-	t_32 := [t_31 => t_20]
-	t_33 := [t_30 => t_32]
-	t_34 := [t_30, t_33]
-	t_35 := [t_34 => t_22]
-	t_36 := [EMPTY_TYPE, t_23]
-	t_37 := [t_36, t_8]
-	t_38 := [t_37, t_25]
-	t_39 := [t_38, t_29]
-	t_40 := [t_39, t_33]
-	t_41 := [t_40, t_35]
-	t_42 := [t_41 => t_22]
-	t_43 := [t_37, t_29]
-	t_44 := [t_43, t_33]
-	t_45 := [t_44, t_35]
-	t_46 := [t_45, t_42]
-	t_47 := [t_46 => t_29]
-	t_48 := [t_37, t_33]
-	t_49 := [t_48, t_35]
-	t_50 := [t_49, t_42]
-	t_51 := [t_50, t_47]
-	t_52 := [t_29 => t_29]
-	t_53 := [t_51 => t_52]
-	t_54 := [EMPTY_TYPE, INT]
-	t_55 := [t_54, INT]
-	t_56 := [t_55 => INT]
-	t_57 := [INT => INT]
-	t_58 := [t_56 => t_57]
-	t_59 := [EMPTY_TYPE, t_9]
-	t_60 := [t_59, t_23]
-	t_61 := [t_60, t_33]
+	t_5 := [§REC t_1 => t_4]
+	t_6 := [EMPTY_TYPE, t_5]
+	t_7 := [t_6, t_0]
+	t_8 := [t_2, t_5]
+	t_9 := [t_7 => t_8]
+	t_10 := [§ALL t_0 => t_9]
+	t_11 := [EMPTY_TYPE => t_10]
+	t_12 := [§FREE]
+	t_13 := [EMPTY_TYPE, t_12]
+	t_14 := [t_13, t_1]
+	t_15 := [t_14 | EMPTY_TYPE]
+	t_16 := [§REC t_1 => t_15]
+	t_17 := [§FREE]
+	t_18 := [EMPTY_TYPE, t_17]
+	t_19 := [t_18, t_1]
+	t_20 := [t_19 | EMPTY_TYPE]
+	t_21 := [§REC t_1 => t_20]
+	t_22 := [t_18, t_21]
+	t_23 := [EMPTY_TYPE | t_22]
+	t_24 := [t_16 => t_23]
+	t_25 := [EMPTY_TYPE => t_24]
+	t_26 := [EMPTY_TYPE, t_10]
+	t_27 := [EMPTY_TYPE, t_16]
+	t_28 := [t_12 => t_17]
+	t_29 := [t_27, t_28]
+	t_30 := [t_29 => t_23]
+	t_31 := [t_26, t_30]
+	t_32 := [t_31, t_28]
+	t_33 := [t_27, t_16]
+	t_34 := [t_33 => t_22]
+	t_35 := [t_32 => t_34]
+	t_36 := [t_32, t_35]
+	t_37 := [t_36 => t_24]
+	t_38 := [EMPTY_TYPE, t_25]
+	t_39 := [t_38, t_10]
+	t_40 := [t_39, t_30]
+	t_41 := [t_40, t_28]
+	t_42 := [t_41, t_35]
+	t_43 := [t_42, t_37]
+	t_44 := [t_43 => t_24]
+	t_45 := [t_40, t_35]
+	t_46 := [t_45, t_37]
+	t_47 := [t_46, t_44]
+	t_48 := [t_47 => t_30]
+	t_49 := [t_39, t_35]
+	t_50 := [t_49, t_37]
+	t_51 := [t_50, t_44]
+	t_52 := [t_51, t_48]
+	t_53 := [t_30 => t_30]
+	t_54 := [t_52 => t_53]
+	t_55 := [EMPTY_TYPE, INT]
+	t_56 := [t_55, INT]
+	t_57 := [t_56 => INT]
+	t_58 := [INT => INT]
+	t_59 := [t_57 => t_58]
+	t_60 := [EMPTY_TYPE, t_11]
+	t_61 := [t_60, t_25]
 	t_62 := [t_61, t_35]
-	t_63 := [t_62, t_42]
-	t_64 := [t_63, t_47]
-	t_65 := [t_64, t_53]
-	t_66 := [t_65, t_58]
-	t_67 := [#_...*... t_56]
-	t_68 := [{EMPTY_TYPE} + t_67]
-	t_69 := [t_54, t_2]
-	t_70 := [t_69 | EMPTY_TYPE]
-	t_71 := [§REC t_2 => t_70]
-	t_72 := [t_54, t_71]
-	t_73 := [EMPTY_TYPE | t_72]
-	t_74 := [t_68 => t_73]
-	t_75 := [t_66 => t_74]
+	t_63 := [t_62, t_37]
+	t_64 := [t_63, t_44]
+	t_65 := [t_64, t_48]
+	t_66 := [t_65, t_54]
+	t_67 := [t_66, t_59]
+	t_68 := [#_...*... t_57]
+	t_69 := [{EMPTY_TYPE} + t_68]
+	t_70 := [t_55, t_1]
+	t_71 := [t_70 | EMPTY_TYPE]
+	t_72 := [§REC t_1 => t_71]
+	t_73 := [t_55, t_72]
+	t_74 := [EMPTY_TYPE | t_73]
+	t_75 := [t_69 => t_74]
+	t_76 := [t_67 => t_75]
 
-§DEF d_0 € t_9
+§DEF d_0 € t_11
 	r_1 := §2ND ARG
-	_aTail := r_1
+	_aHead := r_1
 	r_2 := §1ST ARG
 	r_3 := §2ND r_2
-	_aHead := r_3
+	_aTail := r_3
 	r_4 := §1ST r_2
 	r_5 := EMPTY, _aHead
 	r_6 := r_5, _aTail
 	§RETURN r_6 IF TRUE
 
-§DEF d_1 € t_23
+§DEF d_1 € t_25
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_33
-	_Map...With... := §2ND ENV
+§DEF d_2 € t_35
+	_aMap... := §2ND ENV
 	r_12 := §1ST ENV
-	_aF... := §2ND r_12
+	_...MapEachWith... := §2ND r_12
 	r_13 := §1ST r_12
-	_Push...To... := §2ND r_13
+	_...Append... := §2ND r_13
 	r_14 := §1ST r_13
 	r_1 := §2ND ARG
 	_aTail := r_1
@@ -103,87 +104,87 @@
 	r_3 := §2ND r_2
 	_aHead := r_3
 	r_4 := §1ST r_2
-	r_5 := ._aF... _aHead
-	r_6 := EMPTY, r_5
-	r_7 := EMPTY, _aTail
-	r_8 := r_7, _aF...
-	r_9 := ._Map...With... r_8
-	r_10 := r_6, r_9
-	r_11 := ._Push...To... r_10
+	r_5 := EMPTY, _aTail
+	r_6 := r_5, _aMap...
+	r_7 := ._...MapEachWith... r_6
+	r_8 := EMPTY, r_7
+	r_9 := ._aMap... _aHead
+	r_10 := r_8, r_9
+	r_11 := ._...Append... r_10
 	§RETURN r_11 IF TRUE
 
-§DEF d_3 € t_35
+§DEF d_3 € t_37
 	d_2 := §2ND ENV
 	r_7 := §1ST ENV
-	_Map...With... := §2ND r_7
+	_aMap... := §2ND r_7
 	r_8 := §1ST r_7
-	_aF... := §2ND r_8
+	_...MapEachWith... := §2ND r_8
 	r_9 := §1ST r_8
-	_Push...To... := §2ND r_9
+	_...Append... := §2ND r_9
 	r_10 := §1ST r_9
-	r_1 := EMPTY, _Push...To...
-	r_2 := r_1, _aF...
-	r_3 := r_2, _Map...With...
+	r_1 := EMPTY, _...Append...
+	r_2 := r_1, _...MapEachWith...
+	r_3 := r_2, _aMap...
 	r_4 := .d_2 r_3
 	r_5 := §TRY ARG AS_PAIR
 	r_6 := .r_4 r_5
 	§RETURN r_6 IF TRUE
 
-§DEF d_4 € t_42
+§DEF d_4 € t_44
 	d_3 := §2ND ENV
 	r_9 := §1ST ENV
 	d_2 := §2ND r_9
 	r_10 := §1ST r_9
-	_Map...With... := §2ND r_10
+	_aMap... := §2ND r_10
 	r_11 := §1ST r_10
-	_aF... := §2ND r_11
+	_...MapEachWith... := §2ND r_11
 	r_12 := §1ST r_11
-	_Push...To... := §2ND r_12
+	_...Append... := §2ND r_12
 	r_13 := §1ST r_12
 	d_1 := §2ND r_13
 	r_14 := §1ST r_13
 	r_1 := .d_1 EMPTY
 	r_2 := .r_1 ARG
 	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := EMPTY, _Push...To...
-	r_4 := r_3, _aF...
-	r_5 := r_4, _Map...With...
+	r_3 := EMPTY, _...Append...
+	r_4 := r_3, _...MapEachWith...
+	r_5 := r_4, _aMap...
 	r_6 := r_5, d_2
 	r_7 := .d_3 r_6
 	r_8 := .r_7 ARG
 	§RETURN r_8 IF_NOT_EMPTY
 	§RETURN EMPTY IF TRUE
 
-§DEF d_5 € t_47
+§DEF d_5 € t_48
 	d_4 := §2ND ENV
 	r_13 := §1ST ENV
 	d_3 := §2ND r_13
 	r_14 := §1ST r_13
 	d_2 := §2ND r_14
 	r_15 := §1ST r_14
-	_Map...With... := §2ND r_15
+	_...MapEachWith... := §2ND r_15
 	r_16 := §1ST r_15
-	_Push...To... := §2ND r_16
+	_...Append... := §2ND r_16
 	r_17 := §1ST r_16
 	d_1 := §2ND r_17
 	r_18 := §1ST r_17
 	r_1 := §2ND ARG
-	_aF... := r_1
+	_aMap... := r_1
 	r_2 := §1ST ARG
 	r_3 := §2ND r_2
 	_aStack := r_3
 	r_4 := §1ST r_2
 	r_5 := EMPTY, d_1
-	r_6 := r_5, _Push...To...
-	r_7 := r_6, _aF...
-	r_8 := r_7, _Map...With...
+	r_6 := r_5, _...Append...
+	r_7 := r_6, _...MapEachWith...
+	r_8 := r_7, _aMap...
 	r_9 := r_8, d_2
 	r_10 := r_9, d_3
 	r_11 := .d_4 r_10
 	r_12 := .r_11 _aStack
 	§RETURN r_12 IF TRUE
 
-§DEF d_6 € t_53
+§DEF d_6 € t_54
 	d_5 := §2ND ENV
 	r_8 := §1ST ENV
 	d_4 := §2ND r_8
@@ -192,21 +193,21 @@
 	r_10 := §1ST r_9
 	d_2 := §2ND r_10
 	r_11 := §1ST r_10
-	_Push...To... := §2ND r_11
+	_...Append... := §2ND r_11
 	r_12 := §1ST r_11
 	d_1 := §2ND r_12
 	r_13 := §1ST r_12
-	_Map...With... := ARG
+	_...MapEachWith... := ARG
 	r_1 := EMPTY, d_1
-	r_2 := r_1, _Push...To...
-	r_3 := r_2, _Map...With...
+	r_2 := r_1, _...Append...
+	r_3 := r_2, _...MapEachWith...
 	r_4 := r_3, d_2
 	r_5 := r_4, d_3
 	r_6 := r_5, d_4
 	r_7 := .d_5 r_6
 	§RETURN r_7 IF TRUE
 
-§DEF d_7 € t_58
+§DEF d_7 € t_59
 	_...*... := ENV
 	_a := ARG
 	r_1 := 2
@@ -215,7 +216,7 @@
 	r_4 := ._...*... r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_8 € t_75
+§DEF d_8 € t_76
 	d_7 := §2ND ENV
 	r_30 := §1ST ENV
 	d_6 := §2ND r_30
@@ -242,29 +243,29 @@
 	r_5 := [§ALL _t => r_4]
 	_tStack := r_5
 	r_6 := .d_0 EMPTY
-	_Push...To... := r_6
+	_...Append... := r_6
 	r_7 := EMPTY, d_1
-	r_8 := r_7, _Push...To...
+	r_8 := r_7, _...Append...
 	r_9 := r_8, d_2
 	r_10 := r_9, d_3
 	r_11 := r_10, d_4
 	r_12 := r_11, d_5
 	§REC r_13 := .d_6 r_12
-	_Map...With... := r_13
-	r_14 := 3
-	r_15 := EMPTY, r_14
-	r_16 := 2
-	r_17 := EMPTY, r_16
-	r_18 := 1
-	r_19 := EMPTY, r_18
-	r_20 := r_19, EMPTY
-	r_21 := ._Push...To... r_20
-	r_22 := r_17, r_21
-	r_23 := ._Push...To... r_22
-	r_24 := r_15, r_23
-	r_25 := ._Push...To... r_24
+	_...MapEachWith... := r_13
+	r_14 := EMPTY, EMPTY
+	r_15 := 1
+	r_16 := r_14, r_15
+	r_17 := ._...Append... r_16
+	r_18 := EMPTY, r_17
+	r_19 := 2
+	r_20 := r_18, r_19
+	r_21 := ._...Append... r_20
+	r_22 := EMPTY, r_21
+	r_23 := 3
+	r_24 := r_22, r_23
+	r_25 := ._...Append... r_24
 	r_26 := EMPTY, r_25
 	r_27 := .d_7 _...*...
 	r_28 := r_26, r_27
-	r_29 := ._Map...With... r_28
+	r_29 := ._...MapEachWith... r_28
 	§RETURN r_29 IF TRUE
