@@ -105,7 +105,8 @@ mVM_Type {
 			}
 			case tKind.Empty:
 			case tKind.Bool:
-			case tKind.Int: {
+			case tKind.Int:
+			case tKind.Any: {
 				return aType;
 			}
 			case tKind.Pair:

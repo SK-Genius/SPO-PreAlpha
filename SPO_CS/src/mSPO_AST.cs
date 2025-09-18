@@ -78,6 +78,13 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tAnyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -467,6 +474,13 @@ mSPO_AST {
 	
 	public static tIntTypeNode<tPos>
 	IntType<tPos>(
+		tPos aPos
+	) => new() {
+		Pos = aPos
+	};
+	
+	public static tAnyTypeNode<tPos>
+	AnyType<tPos>(
 		tPos aPos
 	) => new() {
 		Pos = aPos

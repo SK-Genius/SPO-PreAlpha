@@ -186,6 +186,10 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cIntType, a);
 				return mIL_GenerateOpcodes.cIntType;
 			}
+			case var a when a.IsAny(): {
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cAnyType, a);
+				return mIL_GenerateOpcodes.cAnyType;
+			}
 			case var a when a.IsFree(out var Id_, out var Ref): {
 				if (Ref.Kind is mVM_Type.tKind.Free) {
 					aModuleConstructor.EnsureTypeDefinition(Id_, a, () => mIL_AST.TypeFree(default(tPos), Id_));

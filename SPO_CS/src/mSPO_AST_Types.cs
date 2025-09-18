@@ -658,6 +658,10 @@ mSPO_AST_Types {
 				Result = mVM_Type.Type();
 				break;
 			}
+			case mSPO_AST.tAnyTypeNode<tPos>: {
+				Result = mVM_Type.Any();
+				break;
+			}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				foreach (var Expression in TupleType.Expressions.Reverse()) {
@@ -764,3 +768,4 @@ mSPO_AST_Types {
 		);
 	}
 }
+

@@ -380,6 +380,11 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.IntType)
 	.SetName(nameof(IntType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tAnyTypeNode<tSpan>, tError>
+	AnyType = (-KeyWord("ANY"))
+	.ModifyS(mSPO_AST.AnyType)
+	.SetName(nameof(TypeType));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypeTypeNode<tSpan>, tError>
 	TypeType = (-SpecialToken("[") -SpecialToken("[") -SpecialToken("]") -SpecialToken("]") )
 	.ModifyS(mSPO_AST.TypeType)
@@ -659,6 +664,7 @@ mSPO_Parser {
 					EmptyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					BoolType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					AnyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					PrefixType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					VarType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
