@@ -1,0 +1,11 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	r_1 := 1
+	_x := §VAR r_1
+	r_2 := 2
+	§VAR _x <- r_2
+	r_3 := §VAR _x ->
+	§RETURN r_3 IF TRUE

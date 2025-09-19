@@ -131,6 +131,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tMatchVarNode<tPos> : tMatchItemNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tText Id = default!;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -536,6 +544,15 @@ mSPO_AST {
 		Id = "_" + aId
 	};
 	
+	public static tMatchVarNode<tPos>
+	MatchVar<tPos>(
+		tPos aPos,
+		tText aId
+	) => new() {
+		Pos = aPos,
+		Id = "_" + aId
+	};
+
 	public static tExpressionNode<tPos>
 	Tuple<tPos>(
 		tPos aPos,
@@ -999,6 +1016,9 @@ mSPO_AST {
 			case tMatchFreeIdNode<tPos> Node1: {
 				return a2 is tMatchFreeIdNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
+			case tMatchVarNode<tPos> Node1: {
+				return a2 is tMatchVarNode<tPos> Node2 && Node1.Id == Node2.Id;
+			}
 			case tMatchTupleNode<tPos> Node1: {
 				return (
 					a2 is tMatchTupleNode<tPos> Node2 &&
@@ -1266,6 +1286,7 @@ mSPO_AST {
 			),
 			tIgnoreMatchNode<t> Node => "_",
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
+			tMatchVarNode<t> Node => "§VAR " + Node.Id,
 			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
 			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",

@@ -1355,6 +1355,12 @@ mSPO2IL {
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
 			}
+			case mSPO_AST.tMatchVarNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
+				mAssert.AreNotEquals(Name, "_");
+				aDefConstructor.Commands.Push(mIL_AST.Alias(aMatchNode.Pos, Name, aRegId));
+				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
+				break;
+			}
 			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatchNode: {
 				break;
 			}
@@ -1640,7 +1646,15 @@ mSPO2IL {
 			mVM_Type.Var(aDefVarNode.Expression.TypeAnnotation.AssertNotEmpty())
 		);
 		
-		return true;
+		return aDefConstructor.MapMethodCalls(
+			aModuleConstructor,
+			mSPO_AST.MethodCallStatement(
+				aDefVarNode.Pos,
+				aDefVarNode.Id,
+				aDefVarNode.MethodCalls
+			),
+			out aError
+		);
 	}
 	
 	public static tBool
@@ -1659,8 +1673,14 @@ mSPO2IL {
 			if (!aDefConstructor.MapExpression(aModuleConstructor, Call.Argument).Match(out var Arg, out aError)) {
 				return false;
 			}
+			if (Call.Argument.TypeAnnotation.IsSome(out var ArgType) && ArgType.IsVar(out var ArgInnerType)) {
+				var ArgValue = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(mIL_AST.VarGet(Call.Argument.Pos, ArgValue, Arg));
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ArgValue, ArgInnerType);
+				Arg = ArgValue;
+			}
 			var MethodId = Call.Method.Id;
-			if (MethodId == "_=...") {
+			if (MethodId is "_=...") {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}

@@ -300,10 +300,11 @@ mSPO_AST_Types {
 							).TryFirst(
 							).Match(
 								() => (a, mStream.Stream((MatchFreeId.Id, a), aScope)),
-								_ => {
-									mAssert.AreEquals(_.Type, a);
-									return (a, aScope);
-								}
+								_ => (
+									_.Type.ToText() == a.ToText()
+									? (a, aScope)
+									: (a, mStream.Stream((MatchFreeId.Id, a), aScope))
+								)
 							);
 						}
 					)
@@ -312,6 +313,40 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+			
+			case mSPO_AST.tMatchVarNode<tPos> MatchVar: {
+				Result = aType.Then(
+					a => mStd.Call(
+						() => {
+							var NewTypeScope = aScope.Where(
+								_ => _.Id == MatchVar.Id
+							).TryFirst(
+							).Match(
+								() => {
+									var NewType = mVM_Type.Var(a);
+									return (Type: NewType, Scope: mStream.Stream((MatchVar.Id, NewType), aScope));
+								},
+								aScopeItem => {
+									var ExistingType = aScopeItem.Type;
+									mAssert.IsTrue(
+										ExistingType.IsVar(out _),
+										() => $"'{ExistingType.ToText()}' is not a var type"
+									);
+									return (Type: ExistingType, Scope: aScope);
+								}
+							);
+							
+							MatchVar.TypeAnnotation = NewTypeScope.Type;
+							
+							return NewTypeScope;
+						}
+					)
+				).ElseFail(
+					() => (MatchVar.Pos, $"missing type for '{MatchVar.Id}'")
+				);
+				break;
+			}
+			
 			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatch: {
 				Result = aType.Then(_ => (_, aScope)).ElseFail(() => (IgnoreMatch.Pos, "unknown type"));
 				break;

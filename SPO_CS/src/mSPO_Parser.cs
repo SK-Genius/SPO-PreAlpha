@@ -288,6 +288,12 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.MatchFreeId)
 	.SetName(nameof(MatchFreeId));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchVarNode<tSpan>, tError>
+	MatchVar = (-KeyWord("VAR") +Id)
+	.Modify(_ => _.Id[1..])
+	.ModifyS(mSPO_AST.MatchVar)
+	.SetName(nameof(MatchVar));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchPrefixNode<tSpan>, tError>
 	MatchPrefix = C( InfixPrefix(UnTypedMatch) )
 	.ModifyS(
@@ -683,6 +689,7 @@ mSPO_Parser {
 			mParserGen.OneOf(
 				[
 					MatchFreeId.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+					MatchVar.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					MatchTuple.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					IgnoreMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
 					MatchPrefix.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
