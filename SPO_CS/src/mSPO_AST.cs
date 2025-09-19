@@ -377,6 +377,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Obj = default!;
+		public mStream.tStream<tMethodCallNode<tPos>> MethodCalls = mStd.cEmpty;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -872,14 +873,16 @@ mSPO_AST {
 		MethodCalls = aMethodCalls
 	};
 	
-	public static tVarToValNode<tPos>
-	VarToVal<tPos>(
-		tPos aPos,
-		tExpressionNode<tPos> aObj
-	) => new() {
-		Pos = aPos,
-		Obj = aObj,
-	};
+public static tVarToValNode<tPos>
+VarToVal<tPos>(
+ tPos aPos,
+ tExpressionNode<tPos> aObj,
+ mStream.tStream<tMethodCallNode<tPos>> aMethodCalls
+) => new() {
+Pos = aPos,
+Obj = aObj,
+MethodCalls = aMethodCalls,
+};
 	
 	public static tMethodCallsNode<tPos>
 	MethodCallStatement<tPos>(
@@ -1173,7 +1176,14 @@ mSPO_AST {
 			case tVarToValNode<tPos> Node1: {
 				return (
 					a2 is tVarToValNode<tPos> Node2 &&
-					AreEqual(Node1.Obj, Node2.Obj)
+					AreEqual(Node1.Obj, Node2.Obj) &&
+					mStream.ZipExtend(Node1.MethodCalls, Node2.MethodCalls).All(
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
 				);
 			}
 			case tMethodCallNode<tPos> Node1: {
@@ -1264,7 +1274,11 @@ mSPO_AST {
 			tIntNode<t> Node => "" + Node.Value,
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
-			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
+			tVarToValNode<t> Node => Node.MethodCalls.Match(
+				() => $"({____}{Node.Obj.ToText(____)} :=>{__})",
+				(aHead, aTail) =>
+					$"({____}{Node.Obj.ToText(____)} : {mStream.Stream(aHead, aTail).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}, =>{__})"
+			),
 			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",

@@ -584,15 +584,23 @@ mSPO_Parser {
 	)
 	.SetName(nameof(MethodCall));
 	
+public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>, tError>
+MethodCalls = mParserGen.Seq(
+MethodCall,
+((-SpecialToken(",")|-NLs_Token) +MethodCall)[0..],
+NLs_Token[0..1],
+SpecialToken(".")
+)
+.Modify((aFirst, aRest, _, _) => mStream.Stream(aFirst, aRest))
+.SetName(nameof(MethodCalls));
+
 	public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>, tError>
-	MethodCalls = mParserGen.Seq(
+	MethodCallList = mParserGen.Seq(
 		MethodCall,
-		((-SpecialToken(",")|-NLs_Token) +MethodCall)[0..],
-		NLs_Token[0..1],
-		SpecialToken(".")
+		((-SpecialToken(",") | -NLs_Token) +MethodCall)[0..]
 	)
-	.Modify((aFirst, aRest, _, _) => mStream.Stream(aFirst, aRest))
-	.SetName(nameof(MethodCalls));
+	.Modify((aFirst, aRest) => mStream.Stream(aFirst, aRest))
+	.SetName(nameof(MethodCallList));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tDefVarNode<tSpan>, tError>
 	DefVar = mParserGen.Seq(
@@ -610,8 +618,28 @@ mSPO_Parser {
 	.SetName(nameof(DefVar));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarToValNode<tSpan>, tError>
-	VarToVal = (-KeyWord("TO_VAL") +Expression)
-	.ModifyS(mSPO_AST.VarToVal)
+	VarToVal = mParserGen.Seq(
+		SpecialToken("("),
+		ExpressionInCall,
+		SpecialToken(":"),
+		NLs_Token[0..1],
+		MethodCallList[0..1],
+		((-SpecialToken(",") | -NLs_Token))[0..],
+		SpecialToken("=>"),
+		NLs_Token[0..1],
+		SpecialToken(")")
+	)
+	.Modify((_, aObj, _, _, aCalls, _, _, _, _) => (aObj, aCalls))
+	.ModifyS(
+		(aSpan, aObj, aMaybeCalls) => mSPO_AST.VarToVal(
+				aSpan,
+				aObj,
+				aMaybeCalls.Match(
+					() => mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>([]),
+					aCalls => aCalls
+				)
+			)
+	)
 	.SetName(nameof(VarToVal));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallsNode<tSpan>, tError>

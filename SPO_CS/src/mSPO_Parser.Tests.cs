@@ -424,7 +424,7 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Command.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"o := ((§TO_VAL o) .+ i) .\n",
+"o := ((o :=>) .+ i) .\n",
 							"",
 							_ => { aStreamOut(_()); }
 						),
@@ -442,10 +442,11 @@ mSPO_Parser_Tests {
 											mSPO_AST.Tuple(
 												Span((1, 7), (1, 22)), 
 												[
-													mSPO_AST.VarToVal(
-														Span((1, 8), (1, 16)),
-														mSPO_AST.Id(Span((1, 16), (1, 16)), "o")
-													),
+mSPO_AST.VarToVal(
+Span((1, 8), (1, 16)),
+mSPO_AST.Id(Span((1, 16), (1, 16)), "o"),
+mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>([])
+),
 													mSPO_AST.Id(Span((1, 22), (1, 22)), "i")
 												]
 											)

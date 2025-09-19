@@ -214,13 +214,17 @@ mSPO_AST_Types {
 					() => VarToVal.Obj.UpdateTypes(
 						aScope
 					).ThenTry<mVM_Type.tType, mVM_Type.tType, (tPos Pos, tText ErrorText)>(
-						_ => (
-							_.IsVar(out var ValType)
-							? ValType
-							: mResult.Fail((VarToVal.Pos, $"the type '{_}' in not from type '[§VAR ...]'"))
+						ObjType => VarToVal.MethodCalls.Reduce(
+							mResult.OK(aScope).WithErrorType<(tPos Pos, tText ErrorText)>(),
+							(Scope, MethodCall) => Scope.ThenTry(_ => UpdateMethodCallTypes(MethodCall, _))
+						).ThenTry(
+							_ => (
+								ObjType.IsVar(out var ValType)
+								? ValType
+								: mResult.Fail((VarToVal.Pos, $"the type '{ObjType}' in not from type '[§VAR ..]'"))
+							)
 						)
 					)
-				)
 			),
 			mSPO_AST.tIfNode<tPos> If => (
 				If.Cases.Map(

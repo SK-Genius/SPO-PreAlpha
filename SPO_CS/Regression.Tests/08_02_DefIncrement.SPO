@@ -7,7 +7,7 @@
 ) : (
 	§DEF Y € §INT
 ) {
-	X := ((§TO_VAL X) .+ Y).
+	X := ((X :=>) .+ Y).
 }
 
 §VAR X := 1, + 2 .
@@ -17,4 +17,4 @@
 	+ 4
 .
 
-§EXPORT (§TO_VAL X, §TO_VAL Y)
+§EXPORT ((X :=>), (Y :=>))
