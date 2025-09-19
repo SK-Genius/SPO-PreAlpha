@@ -683,16 +683,14 @@ mSPO2IL {
 				);
 			}
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
-				var Def = aDefConstructor;
-				return aModuleConstructor.MapMethod(
-					MethodNode
-				).Then(
-					aDef => Def.InitProc(
-						MethodNode.Pos,
-						aDef.Index,
-						aDef.Type,
-						aDef.EnvList
-					)
+				if (!aModuleConstructor.MapMethod(MethodNode).Match(out var MethodDef, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				return aDefConstructor.InitProc(
+					MethodNode.Pos,
+					MethodDef.Index,
+					MethodDef.Type,
+					MethodDef.EnvList
 				);
 			}
 			case mSPO_AST.tBlockNode<tPos> { Commands: var Commands }: {

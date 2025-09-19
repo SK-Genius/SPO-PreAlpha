@@ -28,18 +28,18 @@
 	_...+... := r_1
 	r_2 := .d_0 _...+...
 	_+... := r_2
-	r_2 := 1
-	_X := §VAR r_2
-	r_3 := 2
-	r_4 := _X, _+...
-	EMPTY := §OBJ:r_4 r_3
-	r_5 := 3
-	_Y := §VAR r_5
-	r_6 := 4
-	r_7 := _Y, _+...
-	EMPTY := §OBJ:r_7 r_6
-	r_8 := §VAR _X ->
-	r_9 := EMPTY, r_8
-	r_10 := §VAR _Y ->
-	r_11 := r_9, r_10
-	§RETURN r_11 IF TRUE
+	r_3 := 1
+	_X := §VAR r_3
+	r_4 := 2
+	r_5 := _X, _+...
+	EMPTY := §OBJ:r_5 r_4
+	r_6 := 3
+	_Y := §VAR r_6
+	r_7 := 4
+	r_8 := _Y, _+...
+	EMPTY := §OBJ:r_8 r_7
+	r_9 := §VAR _X ->
+	r_10 := EMPTY, r_9
+	r_11 := §VAR _Y ->
+	r_12 := r_10, r_11
+	§RETURN r_12 IF TRUE
