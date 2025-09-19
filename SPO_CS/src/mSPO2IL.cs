@@ -858,16 +858,48 @@ mSPO2IL {
 				aDefConstructor.AddLocal(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
-			case mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Obj).Match(out var ObjReg, out var Error)) {
+			case mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, MethodCalls: var MethodCalls, TypeAnnotation: var Type }: {
+				if (!aDefConstructor.MapExpression(aModuleConstructor, Obj).Match(out var CurrentReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
-				var ResultReg = aDefConstructor.CreateTempReg();
-				aDefConstructor.Commands.Push(mIL_AST.VarGet(Pos, ResultReg, ObjReg));
-				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
-				return ResultReg;
+				foreach (var MethodCall in MethodCalls) {
+					if (!aDefConstructor.MapExpression(aModuleConstructor, MethodCall.Argument).Match(out var ArgReg, out Error)) {
+						return mResult.Fail(Error);
+					}
+					if (MethodCall.Argument.TypeAnnotation.IsSome(out var ArgType) && ArgType.IsVar(out var ArgInnerType)) {
+						var ArgValue = aDefConstructor.CreateTempReg();
+						aDefConstructor.Commands.Push(mIL_AST.VarGet(MethodCall.Argument.Pos, ArgValue, ArgReg));
+						aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ArgValue, ArgInnerType);
+						ArgReg = ArgValue;
+					}
+					var MethodId = MethodCall.Method.Id;
+					if (MethodId is "_=...") {
+						aDefConstructor.Commands.Push(mIL_AST.VarSet(MethodCall.Pos, CurrentReg, ArgReg));
+						continue;
+					}
+					var MethodReg = aDefConstructor.CreateTempReg();
+					var ResultReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(
+						mIL_AST.CreatePair(Obj.Pos, MethodReg, CurrentReg, MethodId),
+						mIL_AST.CallProc(MethodCall.Pos, ResultReg, MethodReg, ArgReg)
+					);
+					var MethodType = MethodCall.Method.TypeAnnotation.AssertNotEmpty();
+					if (MethodType.IsProc(out var _, out var _, out var MethResType)) {
+						aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, MethResType);
+					}
+					if (MethodCall.Result.IsSome(out var ResultMatch)) {
+						if (!aDefConstructor.MapMatch(ResultMatch, ResultReg, out var MatchError)) {
+							return mResult.Fail(MatchError);
+						}
+					}
+					CurrentReg = ResultReg;
+				}
+				var ValueReg = aDefConstructor.CreateTempReg();
+				aDefConstructor.Commands.Push(mIL_AST.VarGet(Pos, ValueReg, CurrentReg));
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ValueReg, Type.AssertNotEmpty());
+				return ValueReg;
 			}
-			case mSPO_AST.tRecursiveTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
+                       case mSPO_AST.tRecursiveTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
 				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _ == HeadType.Id));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)

@@ -609,10 +609,31 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.DefVar)
 	.SetName(nameof(DefVar));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarToValNode<tSpan>, tError>
-	VarToVal = (-KeyWord("TO_VAL") +Expression)
-	.ModifyS(mSPO_AST.VarToVal)
-	.SetName(nameof(VarToVal));
+        public static readonly mParserGen.tParser<tPos, tToken, mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>>, tError>
+        MethodCallsInVarToVal = mParserGen.Seq(
+        	MethodCall,
+        	((-SpecialToken(",") | -NLs_Token) +MethodCall)[0..],
+        	(-SpecialToken(",") | -NLs_Token)[0..]
+        )
+        .Modify((aFirst, aRest, _) => mStream.Stream(aFirst, aRest))
+        .SetName(nameof(MethodCallsInVarToVal));
+
+        public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarToValNode<tSpan>, tError>
+        VarToVal = mParserGen.Seq(
+        	SpecialToken("("),
+        	ExpressionInCall,
+        	SpecialToken(":"),
+        	NLs_Token[0..1],
+        	MethodCallsInVarToVal[0..1]
+        	.Modify(aCalls => aCalls.TryFirst().ElseUse(mStream.Stream<mSPO_AST.tMethodCallNode<tSpan>>([]))),
+        	SpecialToken("=>"),
+        	NLs_Token[0..1],
+        	SpecialToken(")")
+        )
+        .Modify((_, aObj, _, _, aCalls, _, _, _) => (aObj, aCalls))
+        .ModifyS(mSPO_AST.VarToVal)
+        .SetName(nameof(VarToVal));
+
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallsNode<tSpan>, tError>
 	MethodCallStatement = mParserGen.Seq(

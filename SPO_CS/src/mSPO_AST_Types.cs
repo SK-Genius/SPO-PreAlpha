@@ -209,19 +209,31 @@ mSPO_AST_Types {
 					)
 				)
 			),
-			mSPO_AST.tVarToValNode<tPos> VarToVal => (
-				mStd.Call(
-					() => VarToVal.Obj.UpdateTypes(
-						aScope
-					).ThenTry<mVM_Type.tType, mVM_Type.tType, (tPos Pos, tText ErrorText)>(
-						_ => (
-							_.IsVar(out var ValType)
-							? ValType
-							: mResult.Fail((VarToVal.Pos, $"the type '{_}' in not from type '[§VAR ...]'"))
-						)
-					)
-				)
-			),
+                        mSPO_AST.tVarToValNode<tPos> VarToVal => (
+                                VarToVal.Obj.UpdateTypes(
+                                        aScope
+                                ).ThenTry(
+                                        aObjType => VarToVal.MethodCalls.Reduce(
+                                                mResult.OK((Scope: aScope, ObjType: aObjType)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+                                                (State, MethodCall) => State.ThenTry(
+                                                        aState => UpdateMethodCallTypes(MethodCall, aState.Scope).ThenTry(
+                                                                aScopeAfter => {
+                                                                        var MethodType = MethodCall.Method.TypeAnnotation.AssertNotEmpty();
+                                                                        return MethodType.IsProc(out var _, out var _, out var MethResType)
+                                                                                ? mResult.OK((Scope: aScopeAfter, ObjType: MethResType)).WithErrorType<(tPos Pos, tText ErrorText)>()
+                                                                                : mResult.Fail((MethodCall.Pos, $"'{MethodType.ToText()}' is not a Proc"));
+                                                                }
+                                                        )
+                                                )
+                                        ).ThenTry(
+                                                aState => (
+                                                        aState.ObjType.IsVar(out var ValType)
+                                                        ? mResult.OK(ValType).WithErrorType<(tPos Pos, tText ErrorText)>()
+                                                        : mResult.Fail((VarToVal.Pos, $"the type '{aState.ObjType.ToText()}' in not from type '[§VAR ..]'"))
+                                                )
+                                        )
+                                )
+                        ),
 			mSPO_AST.tIfNode<tPos> If => (
 				If.Cases.Map(
 					aCase => aCase.Cond.UpdateTypes(

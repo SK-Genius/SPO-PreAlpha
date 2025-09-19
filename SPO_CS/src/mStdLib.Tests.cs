@@ -34,11 +34,11 @@ mStdLib_Tests {
 							}
 							
 							§DEF +... = §DEF o € [§VAR §INT] : §DEF i € §INT {
-								o := ((§TO_VAL o) .+ i) .
+								o := ((o :=>) .+ i) .
 							}
 							
 							§DEF *... = §DEF o € [§VAR §INT] : §DEF i € §INT {
-								o := ((§TO_VAL o) .* i) .
+								o := ((o :=>) .* i) .
 							}
 							
 							§VAR x := 1 .

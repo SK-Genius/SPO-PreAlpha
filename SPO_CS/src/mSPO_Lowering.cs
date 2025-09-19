@@ -30,12 +30,32 @@ mSPO_Lowering {
 				Body = (mSPO_AST.tBlockNode<tPos>)aBody
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
-		mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }
-		=> LowerExpression(Obj).Then(
-			aObj => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.VarToVal(
-				Pos,
-				aObj
-			).Do(_ => { _.TypeAnnotation = Type; })
+		mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, MethodCalls: var Calls, TypeAnnotation: var Type }
+		=> LowerExpression(Obj).ThenTry(
+				aObj => Calls.Map(
+					aCall => LowerExpression(aCall.Argument).Then(
+						aCallArg => mSPO_AST.MethodCall(
+							aCall.Pos,
+							aCall.Method,
+							aCallArg,
+							aCall.Result.Then(
+								aCallResult => mSPO_AST.Match(
+									aCallResult.Pos,
+									aCallResult.Pattern,
+									aCallResult.TypeExpression.Then(
+										aCallResultTypeExpression => LowerExpression(aCallResultTypeExpression).ElseThrow("") // TODO: remove ElseThrow()
+									)
+								)
+							)
+						)
+					)
+				).WhenAllThen(
+					aCalls => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.VarToVal(
+						Pos,
+						aObj,
+						aCalls
+				).Do(_ => { _.TypeAnnotation = Type; })
+				)
 		),
 		mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }
 		=> LowerExpression(Func).ThenTry(
