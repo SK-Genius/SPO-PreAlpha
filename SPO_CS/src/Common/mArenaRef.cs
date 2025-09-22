@@ -16,38 +16,38 @@ mArenaRef {
 		}
 	}
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe tArenaRef<t>
-	Alloc<t>(
-		this mArena.tArena aArena,
-		in t aValue
-	) where t : unmanaged {
-		var Des = (t*)(aArena._Buffer + aArena._NextOffset);
-		*Des = aValue;
-		var Ref = new tArenaRef<t>(aArena._NextOffset);
-		aArena._NextOffset += sizeof(t);
-		return Ref;
+	extension (mArena.tArena aArena) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe tArenaRef<t>
+		Alloc<t>(
+			in t aValue
+		)  where t : unmanaged {
+			var Des = (t*)(aArena._Buffer + aArena._NextOffset);
+			*Des = aValue;
+			var Ref = new tArenaRef<t>(aArena._NextOffset);
+			aArena._NextOffset += sizeof(t);
+			return Ref;
+		}
 	}
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe void
-	DeRef<t>(
-		this in tArenaRef<t> aRef,
-		mArena.tArena aArena,
-		out t aValue
-	) where t : unmanaged {
-		var Src = (t*)(aArena._Buffer + aRef._Offset);
-		aValue = *Src;
+	extension<t> (in tArenaRef<t> aRef) where t : unmanaged {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe void
+		DeRef(
+			mArena.tArena aArena,
+			out t aValue
+		) {
+			var Src = (t*)(aArena._Buffer + aRef._Offset);
+			aValue = *Src;
+		}
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe t
+		DeRef(
+			mArena.tArena aArena
+		) {
+			aRef.DeRef(aArena, out var Result);
+			return Result;
+		}
 	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe t
-	DeRef<t>(
-		this in tArenaRef<t> aRef,
-		mArena.tArena aArena
-	) where t : unmanaged {
-		aRef.DeRef(aArena, out var Result);
-		return Result;
-	}
-	
 }

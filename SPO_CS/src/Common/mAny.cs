@@ -35,42 +35,41 @@ mAny {
 		t a
 	) => new(a);
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	Is<t>(
-		this tAny a,
-		out t aValue
-	) {
-		#if DEBUG
-			if (typeof(t) == typeof(tAny)) {
-				throw mError.Error("");
-			}
-		#endif
-		
-		mAssert.IsNotNull(a._Value);
-		
-		if (a._Value is t Value) {
-			aValue = Value;
-			return true;
-		} else {
-			aValue = default!;
-			return false;
+	extension (tAny a) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		Is<t>(
+			out t aValue
+		) {
+			#if DEBUG
+				if (typeof(t) == typeof(tAny)) {
+					throw mError.Error("");
+				}
+			#endif
+			
+			mAssert.IsNotNull(a._Value);
+			
+			if (a._Value is t Value) {
+				aValue = Value;
+				return true;
+			} else {
+				aValue = default!;
+				return false;
+			} 
 		} 
-	} 
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	Is(
-		this tAny a
-	) => a._Value is null;
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static t
-	To<t>(
-		this tAny a
-	) => (
-		a.Is(out t Result)
-		? Result
-		: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
-	);
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		Is(
+		) => a._Value is null;
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public t
+		To<t>(
+		) => (
+			a.Is(out t Result)
+			? Result
+			: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
+		);
+	}
 }

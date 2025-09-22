@@ -43,106 +43,96 @@ mArrayList {
 		_Items = aArray.ToArray()
 	};
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tNat32
-	Size<t>(
-		this tArrayList<t> aList
-	) => aList._CurrSize;
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	IsEmpty<t>(
-		this tArrayList<t> aList
-	) => aList.Size() == 0;
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	private static void
-	Resize<t>(
-		this tArrayList<t> aList
-	) {
-		var NewArray = new t[mMath.Max(8, 3 * (aList._CurrSize >> 1))];
-		System.Array.Copy(aList._Items, NewArray, aList._CurrSize);
-		aList._Items = NewArray;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tArrayList<t>
-	Push<t>(
-		this tArrayList<t> aList,
-		t aNewItem
-	) {
-		if (aList._CurrSize == aList._Items.Length) {
-			aList.Resize();
+	extension<t> (tArrayList<t> aList) {
+		[Pure, DebuggerHidden]
+		public tNat32
+		Size => aList._CurrSize;
+		
+		[Pure, DebuggerHidden]
+		public tBool
+		IsEmpty => aList.Size == 0;
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		private void
+		Resize(
+		) {
+			var NewArray = new t[mMath.Max(8, 3 * (aList._CurrSize >> 1))];
+			System.Array.Copy(aList._Items, NewArray, aList._CurrSize);
+			aList._Items = NewArray;
 		}
-		aList._Items[aList._CurrSize] = aNewItem;
-		aList._CurrSize += 1;
-		return aList;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tArrayList<t>
-	Push<t>(
-		this tArrayList<t> aList,
-		params System.Span<t> aNewItems
-	) {
-		foreach (var NewItem in aNewItems) {
-			aList = aList.Push(NewItem);
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tArrayList<t>
+		Push(
+			t aNewItem
+		) {
+			if (aList._CurrSize == aList._Items.Length) {
+				aList.Resize();
+			}
+			aList._Items[aList._CurrSize] = aNewItem;
+			aList._CurrSize += 1;
+			return aList;
 		}
-		return aList;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static t
-	Pop<t>(
-		this tArrayList<t> aList
-	) {
-		var Item = aList._Items[aList._CurrSize - 1];
-		aList._CurrSize -= 1;
-		if (aList._CurrSize < (aList._Items.Length >> 1)) {
-			aList.Resize();
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tArrayList<t>
+		Push(
+			params System.Span<t> aNewItems
+		) {
+			foreach (var NewItem in aNewItems) {
+				aList = aList.Push(NewItem);
+			}
+			return aList;
 		}
-		return Item;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tArrayList<t>
-	Pop<t>(
-		this tArrayList<t> aList,
-		out t aItem
-	) {
-		aItem = aList.Pop();
-		return aList;
-	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static t
-	Get<t>(
-		this tArrayList<t> aList,
-		tNat32 aIndex
-	) {
-		mAssert.IsTrue(aIndex < aList._CurrSize);
-		return aList._Items[aIndex];
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static void
-	Set<t>(
-		this tArrayList<t> aList,
-		tNat32 aIndex,
-		t aValue
-	) {
-		aList._Items[aIndex] = aValue;
-	}
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static void
-	Update<t>(
-		this tArrayList<t> aList,
-		tNat32 aIndex,
-		mStd.tFunc<t, t> aOnUpdate
-	) {
-		ref var Item = ref aList._Items[aIndex];
-		Item = aOnUpdate(Item);
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public t
+		Pop(
+		) {
+			var Item = aList._Items[aList._CurrSize - 1];
+			aList._CurrSize -= 1;
+			if (aList._CurrSize < (aList._Items.Length >> 1)) {
+				aList.Resize();
+			}
+			return Item;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tArrayList<t>
+		Pop(
+			out t aItem
+		) {
+			aItem = aList.Pop();
+			return aList;
+		}
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public t
+		Get(
+			tNat32 aIndex
+		) {
+			mAssert.IsTrue(aIndex < aList._CurrSize);
+			return aList._Items[aIndex];
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public void
+		Set(
+			tNat32 aIndex,
+			t aValue
+		) {
+			aList._Items[aIndex] = aValue;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public void
+		Update(
+			tNat32 aIndex,
+			mStd.tFunc<t, t> aOnUpdate
+		) {
+			ref var Item = ref aList._Items[aIndex];
+			Item = aOnUpdate(Item);
+		}
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

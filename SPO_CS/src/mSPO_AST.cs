@@ -563,7 +563,7 @@ mSPO_AST {
 	Tuple<tPos>(
 		tPos aPos,
 		mStream.tStream<tExpressionNode<tPos>> aItems
-	) => aItems.Take(2).ToArrayList().Size() switch {
+	) => aItems.Take(2).ToArrayList().Size switch {
 		0 => Empty(aPos),
 		1 => mStd.Call(
 			() => {

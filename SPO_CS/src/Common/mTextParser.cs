@@ -37,41 +37,51 @@ mTextParser {
 		tError a2
 	) => a1 == a2;
 	
-	[Pure, DebuggerHidden]
-	public static (tSpan Span, tOut Result)
-	ParseText<tOut>(
-		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
-		tText aText,
-		tText aId,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	) {
-		using var _ = mPerf.Measure();
-		var Stream = aText.ToStream(aId).Map(_ => (mSpan.Span(_.Pos), _.Char));
-		var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-		var Result = MaybeResult.ElseThrow(
-			_ => _.Sort(
-				(a1, a2) => {
-					var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;
-					return RowComp != 0
-						? RowComp
-						: (System.Int32)a2.Pos.Col - (System.Int32)a1.Pos.Col;
-				}
-			).DontRepeat(
-			).ToText(aText.Split('\n'))
-		);
-		if (!Result.RemainingStream.IsEmpty()) {
-			var Pos = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start;
-			var Line = aText.Split('\n')[Pos.Row - 1];
-			var StartSpacesCount = Line.Length - Line.TrimStart().Length;
-			throw mError.Error(
-				$"""
-				{Pos.Id}:{Pos.Row} expected end of text
-				{Line}
-				{Line[..StartSpacesCount] + new tText(' ', (System.Int32)Pos.Col - StartSpacesCount - 1)}^
-				"""
+	extension<tOut> (mParserGen.tParser<tPos, tChar, tOut, tError> aParser) {
+		[Pure, DebuggerHidden]
+		public (tSpan Span, tOut Result)
+		ParseText(
+			tText aText,
+			tText aId,
+			mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		) {
+			using var _ = mPerf.Measure();
+			var Stream = aText.ToStream(aId).Map(_ => (mSpan.Span(_.Pos), _.Char));
+			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
+			var Result = MaybeResult.ElseThrow(
+				_ => _.Sort(
+					(a1, a2) => {
+						var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;
+						return RowComp != 0
+							? RowComp
+							: (System.Int32)a2.Pos.Col - (System.Int32)a1.Pos.Col;
+					}
+				).DontRepeat(
+				).ToText(aText.Split('\n'))
 			);
+			if (!Result.RemainingStream.IsEmpty()) {
+				var Pos = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start;
+				var Line = aText.Split('\n')[Pos.Row - 1];
+				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
+				throw mError.Error(
+					$"""
+					{Pos.Id}:{Pos.Row} expected end of text
+					{Line}
+					{Line[..StartSpacesCount] + new tText(' ', (System.Int32)Pos.Col - StartSpacesCount - 1)}^
+					"""
+				);
+			}
+			return Result.Result;
 		}
-		return Result.Result;
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public mParserGen.tParser<tPos, tChar, tOut, tError>
+		SetName(
+			tText aName
+		) => aParser.AddError(
+			_ => (_.Span.Start, $"invalid {aName}")
+		)
+		.SetDebugName([aName]);
 	}
 	
 	[Pure, DebuggerHidden]
@@ -152,16 +162,6 @@ mTextParser {
 		.ModifyErrors((_, a) => mStream.Stream([(a.Span.Start, $"expect '{aToken}'")]))
 		.SetDebugName(["\"", aToken, "\""]);
 	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mParserGen.tParser<tPos, tChar, tOut, tError>
-	SetName<tOut>(
-		this mParserGen.tParser<tPos, tChar, tOut, tError> aParser,
-		tText aName
-	) => aParser.AddError(
-		_ => (_.Span.Start, $"invalid {aName}")
-	)
-	.SetDebugName([aName]);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tText

@@ -57,10 +57,10 @@ mParserGen {
 			aStream,
 			aDebugStream,
 			mStream.Stream(Parser, aPath)
-		).ThenTry<tParserResult<tPos, tIn, tOut, tError>, tParserResult<tPos, tIn, tOut, tError>, mStream.tStream<(tPos, tError)>>(
+		).ThenTry(
 			[DebuggerHidden] (aResult) => (
 				aIsValid(aResult.Result.Value)
-				? aResult
+				? mResult.OK(aResult).WithErrorType<mStream.tStream<(tPos Pos, tError Message)>>()
 				: mResult.Fail(mStream.Stream([aErrorMessage(aResult.Result)]))
 			)
 		);
@@ -284,7 +284,14 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStd.tFunc<mStream.tStream<(tPos Pos, tError Message)>, (mSpan.tSpan<tPos> Span, tIn Input), mStream.tStream<(tPos Pos, tError Message)>> aModifyFunc
 	) {
-		aParser._ModifyErrorsFunc = aModifyFunc;
+		var PrevModifyErrorsFunc = aParser._ModifyErrorsFunc;
+		
+		aParser._ModifyErrorsFunc = PrevModifyErrorsFunc is null
+		? aModifyFunc
+		: [DebuggerHidden] (aErrors, aInput) => aModifyFunc(
+			PrevModifyErrorsFunc(aErrors, aInput),
+			aInput
+		);
 		
 		return aParser;
 	}
@@ -319,24 +326,14 @@ mParserGen {
 		internal readonly mStd.tFunc<tPos, tPos, tInt32> _ComparePos;
 		internal readonly mStd.tFunc<tError, tError, tBool> _AreErrorsEqual;
 		
-		#if DEBUG || MY_TRACE_PARSER
-			public tText? _DebugName = null;
-			public tText _DebugDef = "";
-		#endif
+		public tText? _DebugName = null;
+		public tText _DebugDef = "";
 		
 		public tText? DebugName
-		#if DEBUG || MY_TRACE_PARSER
 		=> this._DebugName;
-		#else
-		=> null;
-		#endif
 		
 		public tText DebugDef
-		#if DEBUG || MY_TRACE_PARSER
 		=> this._DebugDef;
-		#else
-		=> null;
-		#endif
 		
 		[Pure, DebuggerHidden]
 		internal
@@ -351,7 +348,7 @@ mParserGen {
 		
 		[Pure, DebuggerHidden]
 		public static tParser<tPos, tIn, mStd.tEmpty, tError>
-		operator-(
+		operator -(
 			tParser<tPos, tIn, tOut, tError> aParser
 		) => aParser
 			.ModifyS(aSpan => mStd.cEmpty)
@@ -533,13 +530,11 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		System.Span<tUnknown> aDebugNameParts
 	) {
-		#if DEBUG || MY_TRACE_PARSER
-			var Name = "";
-			foreach (var Part in mStream.Stream(aDebugNameParts)) {
-				Name += Part?.ToString() ?? "";
-			}
-			aParser._DebugName = Name.Replace("\n", @"\n").Replace("\r", @"\r").Replace("\t", @"\t");
-		#endif
+		var Name = "";
+		foreach (var Part in mStream.Stream(aDebugNameParts)) {
+			Name += Part?.ToString() ?? "";
+		}
+		aParser._DebugName = Name.Replace("\n", @"\n").Replace("\r", @"\r").Replace("\t", @"\t");
 		return aParser;
 	}
 	
@@ -602,17 +597,17 @@ mParserGen {
 						(aResult1.Result.Value, aResult2.Result.Value)
 					),
 					aResult2.RemainingStream,
-					Merge(aResult1.MaybeError, aResult2.MaybeError, aP1._ComparePos, aP1._AreErrorsEqual)
+					Merge(
+						aResult1.MaybeError,
+						aResult2.MaybeError,
+						aP1._ComparePos,
+						aP1._AreErrorsEqual
+					)
 				)
 			).ElseTry(
 				[DebuggerHidden] (aErrorList) => mResult.Fail(
 					Merge(
-						Merge(
-							aResult1.MaybeError,
-							aErrorList,
-							aP1._ComparePos,
-							aP1._AreErrorsEqual
-						),
+						aResult1.MaybeError,
 						aErrorList,
 						aP1._ComparePos,
 						aP1._AreErrorsEqual
@@ -630,21 +625,22 @@ mParserGen {
 		mStream.tStream<(tPos Pos, tError Message)> a2,
 		mStd.tFunc<tPos, tPos, tInt32> aComparePos,
 		mStd.tFunc<tError, tError, tBool> aAreErrorsEqual
-	) => a1.Match(
-		() => a2,
-		(Head1, Tail1) => a2.Match(
-			() => a1,
-			(Head2, Tail2) => aComparePos(Head1.Pos, Head2.Pos) switch {
-				> 0 => a1,
-				< 0 => a2,
-				_ => (
-					aAreErrorsEqual(Head1.Message, Head2.Message) ? mStream.Stream(Head1, Merge(Tail1, Tail2, aComparePos, aAreErrorsEqual)) :
-					Comp(Tail1, Tail2, aComparePos) <= 0 ? mStream.Concat(a1, a2) :
-					mStream.Concat(a2, a1)
-				)
-			}
-		)
-	);
+	) => mStream.Concat(a1, a2);
+	// a1.Match(
+	//	() => a2,
+	//	(Head1, Tail1) => a2.Match(
+	//		() => a1,
+	//		(Head2, Tail2) => aComparePos(Head1.Pos, Head2.Pos) switch {
+	//			> 0 => a1,
+	//			< 0 => a2,
+	//			_ => (
+	//				aAreErrorsEqual(Head1.Message, Head2.Message) ? mStream.Stream(Head1, Merge(Tail1, Tail2, aComparePos, aAreErrorsEqual)) :
+	//				Comp(Tail1, Tail2, aComparePos) <= 0 ? mStream.Concat(a1, a2) :
+	//				mStream.Concat(a2, a1)
+	//			)
+	//		}
+	//	)
+	//);
 	
 	[Pure, DebuggerHidden]
 	public static tInt32

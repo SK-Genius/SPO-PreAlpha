@@ -31,57 +31,54 @@ mArenaMaybeRef {
 	) where t : unmanaged
 	=> new (-1);
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe tBool
-	TryDeRef<t>(
-		this in tArenaMaybeRef<t> aRef,
-		mArena.tArena aArena,
-		out t aValue
-	) where t : unmanaged {
-		if (aRef._Offset < 0) {
-			aValue = default;
-			return false;
-		} else {
-			var Src = (t*)(aArena._Buffer + aRef._Offset);
-			aValue = *Src;
-			return true;
+	extension<t> (in tArenaMaybeRef<t> aRef) where t : unmanaged {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe tBool
+		TryDeRef(
+			mArena.tArena aArena,
+			out t aValue
+		) {
+			if (aRef._Offset < 0) {
+				aValue = default;
+				return false;
+			} else {
+				var Src = (t*)(aArena._Buffer + aRef._Offset);
+				aValue = *Src;
+				return true;
+			}
 		}
 	}
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	Match<t>(
-		this tArenaMaybeRef<t> aMaybeRef,
-		out mArenaRef.tArenaRef<t> aRef
-	) where t : unmanaged {
-		if (aMaybeRef._Offset >= 0) {
-			aRef = new mArenaRef.tArenaRef<t>(aMaybeRef._Offset);
-			return true;
-		} else {
-			aRef = default;
-			return false;
+	extension<t> (tArenaMaybeRef<t> aMaybeRef) where t : unmanaged {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		Match(
+			out mArenaRef.tArenaRef<t> aRefOut
+		) {
+			if (aMaybeRef._Offset >= 0) {
+				aRefOut = new mArenaRef.tArenaRef<t>(aMaybeRef._Offset);
+				return true;
+			} else {
+				aRefOut = default;
+				return false;
+			}
 		}
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tOut
+		Match<tOut>(
+			mStd.tFunc<mArenaRef.tArenaRef<t>, tOut> aOnSomeRef,
+			mStd.tFunc<tOut> aOnNoneRef
+		) where tOut : unmanaged
+		=> aMaybeRef.Match(out var Ref)
+		? aOnSomeRef(Ref)
+		: aOnNoneRef();
+		
+		[Pure, DebuggerHidden]
+		public mMaybe.tMaybe<mArenaRef.tArenaRef<t>>
+		AsMaybe => aMaybeRef.Match(
+			aOnSomeRef: mMaybe.Some,
+			aOnNoneRef: mMaybe.None<mArenaRef.tArenaRef<t>>
+		);
 	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tOut
-	Match<tIn, tOut>(
-		this tArenaMaybeRef<tIn> aMaybeRef,
-		mStd.tFunc<mArenaRef.tArenaRef<tIn>, tOut> aOnSomeRef,
-		mStd.tFunc<tOut> aOnNoneRef
-	) where tIn : unmanaged where tOut : unmanaged
-	=> aMaybeRef.Match(out var Ref)
-	? aOnSomeRef(Ref)
-	: aOnNoneRef();
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mMaybe.tMaybe<mArenaRef.tArenaRef<t>>
-	AsMaybe<t>(
-		this tArenaMaybeRef<t> aMaybeRef
-	) where t : unmanaged
-	=> aMaybeRef.Match(
-		aOnSomeRef: mMaybe.Some,
-		aOnNoneRef: mMaybe.None<mArenaRef.tArenaRef<t>>
-	);
-	
 }

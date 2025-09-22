@@ -30,14 +30,14 @@ mArena {
 		_NextOffset = 0,
 	};
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tArena
-	TempArena(
-		this tArena aArena
-	) => new () {
-		_Buffer = aArena._Buffer + aArena._NextOffset,
-		_BufferSize = aArena._BufferSize - aArena._NextOffset,
-		_NextOffset = 0,
-	};
-	
+	extension (tArena aArena) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tArena
+		TempArena(
+		) => new () {
+			_Buffer = aArena._Buffer + aArena._NextOffset,
+			_BufferSize = aArena._BufferSize - aArena._NextOffset,
+			_NextOffset = 0,
+		};
+	}
 }

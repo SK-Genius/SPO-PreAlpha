@@ -53,13 +53,6 @@ mRef {
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	IsRefEqual<t>(
-		this tRef<t> a1,
-		tRef<t> a2
-	) => ReferenceEquals(a1._Box, a2._Box);
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tRef<t>
 	Ref<t>(
 		t a
@@ -70,25 +63,30 @@ mRef {
 	NullRef<t>(
 	) => new();
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	Is<t>(
-		this tRef<t> a,
-		out t aValue
-	) {
-		if (a._Box is null) {
-			aValue = default!;
-			return false;
-		} else {
-			aValue = a._Box._Value;
-			return true;
+	extension<t> (tRef<t> a) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		IsRefEqual(
+			tRef<t> a2
+		) => ReferenceEquals(a._Box, a2._Box);
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		Is(
+			out t aValue
+		) {
+			if (a._Box is null) {
+				aValue = default!;
+				return false;
+			} else {
+				aValue = a._Box._Value;
+				return true;
+			}
 		}
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tBool
+		IsEmpty(
+		) => a._Box is null;
 	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tBool
-	IsEmpty<t>(
-		this tRef<t> a
-	) => a._Box is null;
-	
 }

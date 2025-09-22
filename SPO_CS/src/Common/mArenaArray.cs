@@ -52,37 +52,37 @@ mArenaArray {
 		}
 	}
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe tArenaArray<t>
-	NewArray<t>(
-		this mArena.tArena aArena,
-		tInt32 aCount,
-		in t aValue
-	) where t : unmanaged {
-		var Array = new tArenaArray<t>(aArena._NextOffset, aCount);
-		while (aCount --> 0) {
-			var Des = (t*)(aArena._NextOffset);
-			*Des = aValue;
-			aArena._NextOffset += sizeof(t);
+	extension (mArena.tArena aArena) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe tArenaArray<t>
+		NewArray<t>(
+			tInt32 aCount,
+			in t aValue
+		) where t : unmanaged {
+			var Array = new tArenaArray<t>(aArena._NextOffset, aCount);
+			while (aCount --> 0) {
+				var Des = (t*)(aArena._NextOffset);
+				*Des = aValue;
+				aArena._NextOffset += sizeof(t);
+			}
+			return Array;
 		}
-		return Array;
-	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe tArenaArray<t>
-	NewArray<t>(
-		this mArena.tArena aArena,
-		params System.Span<t> aValues
-	) where t : unmanaged {
-		var Array = new tArenaArray<t>(aArena._NextOffset, aValues.Length);
-		foreach (var Value in aValues) {
-			var Des = (t*)(aArena._Buffer + aArena._NextOffset);
-			*Des = Value;
-			aArena._NextOffset += sizeof(t);
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public unsafe tArenaArray<t>
+		NewArray<t>(
+			params System.Span<t> aValues
+		) where t : unmanaged {
+			var Array = new tArenaArray<t>(aArena._NextOffset, aValues.Length);
+			foreach (var Value in aValues) {
+				var Des = (t*)(aArena._Buffer + aArena._NextOffset);
+				*Des = Value;
+				aArena._NextOffset += sizeof(t);
+			}
+			return Array;
 		}
-		return Array;
 	}
-	
+		
 	public struct
 	tIterator<t> where t : unmanaged {
 		internal tArenaArray<t> _Span;
@@ -105,14 +105,13 @@ mArenaArray {
 		}
 	}
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tIterator<t>
-	GetEnumerator<t>(
-		this in tArenaArray<t> aSpan
-	) where t : unmanaged
-	=> new () {
-		_Span = aSpan,
-		_Index = -1,
-	};
-	
+	extension<t> (in tArenaArray<t> aSpan) where t : unmanaged{
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tIterator<t>
+		GetEnumerator(
+		) => new () {
+			_Span = aSpan,
+			_Index = -1,
+		};
+	}
 }

@@ -403,7 +403,7 @@ mSPO2IL_Tests {
 						}
 					}
 					
-					mAssert.AreEquals(Module.Defs.Size(), 2u);
+					mAssert.AreEquals(Module.Defs.Size, 2u);
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -554,7 +554,7 @@ mSPO2IL_Tests {
 						}
 					}
 					
-					mAssert.AreEquals(Module.Defs.Size(), 2u);
+					mAssert.AreEquals(Module.Defs.Size, 2u);
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -712,7 +712,7 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					mAssert.AreEquals(Module.Defs.Size(), 2u);
+					mAssert.AreEquals(Module.Defs.Size, 2u);
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -1096,7 +1096,7 @@ mSPO2IL_Tests {
 						_ => _.ToText()
 					);
 					
-					mAssert.AreEquals(ModuleConstructor.Defs.Size(), 1u);
+					mAssert.AreEquals(ModuleConstructor.Defs.Size, 1u);
 					mAssert.AreEquals(DefIndex, 0u);
 					mAssert.AreEquals(
 						ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
@@ -1207,7 +1207,7 @@ mSPO2IL_Tests {
 		(tText Command, (tNat32, tNat32) From, (tNat32, tNat32) To)[][] aDefs2
 	) {
 		var Count = (tNat32)aDefs2.Length;
-		mAssert.AreEquals(aDefs1.Size(), Count);
+		mAssert.AreEquals(aDefs1.Size, Count);
 		for (var I = 0u; I < Count; I += 1) {
 			aDebugStream($"Def {I}:");
 			mAssert.AreEquals(

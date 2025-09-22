@@ -129,7 +129,12 @@ mIL_GenerateOpcodes {
 		}
 		
 		foreach (var (DefName, TypeName, Commands, _) in aModule.Defs) {
+			#if MY_TRACE_IL
+			
 			aTrace(() => "§DEF " + DefName);
+			
+			#endif
+			
 			// TODO: set type if it known
 			var NextIndex = Module.Count();
 			ModuleMap = ModuleMap.Set(DefName, NextIndex);
@@ -196,10 +201,12 @@ mIL_GenerateOpcodes {
 			.Push(DefArgType)
 			.Push(DefResType);
 			
-			mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
+			mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			
 			foreach (var Command in Commands) {
 				tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
+				
+				#if MY_TRACE_IL
 				
 				aTrace(() => Command.ToText());
 				aTrace(
@@ -208,6 +215,9 @@ mIL_GenerateOpcodes {
 						Command._3.ThenTry(_ => Regs.TryGet(_)).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("")
 					)
 				);
+				
+				#endif
+				
 				switch (Command) {
 					case { NodeType: mIL_AST.tCommandNodeType.Alias, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						Regs = Regs.Set(RegId1, Regs.GetOrThrow(RegId2, Command));
@@ -726,10 +736,15 @@ mIL_GenerateOpcodes {
 						throw mError.Error($"impossible  (missing: {Command.NodeType})");
 					}
 				}
+				#if MY_TRACE_IL
+				
 				aTrace(() => "  => " + Regs.TryGet(Command._1).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("???"));
-				mAssert.AreEquals(Types.Size() - 1, NewProc._LastReg);
+				
+				#endif
+				
+				mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			}
-			mAssert.AreEquals(NewProc.Commands.Size(), NewProc.PosList.Size());
+			mAssert.AreEquals(NewProc.Commands.Size, NewProc.PosList.Size);
 		}
 		#if MY_TRACE_IL
 		//PrintILModule(aDefs, Module, _ => { aTrace(() => _); });

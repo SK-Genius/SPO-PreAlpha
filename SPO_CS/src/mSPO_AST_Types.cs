@@ -210,15 +210,13 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tVarToValNode<tPos> VarToVal => (
-				mStd.Call(
-					() => VarToVal.Obj.UpdateTypes(
-						aScope
-					).ThenTry<mVM_Type.tType, mVM_Type.tType, (tPos Pos, tText ErrorText)>(
-						_ => (
-							_.IsVar(out var ValType)
-							? ValType
-							: mResult.Fail((VarToVal.Pos, $"the type '{_}' in not from type '[§VAR ...]'"))
-						)
+				VarToVal.Obj.UpdateTypes(
+					aScope
+				).ThenTry(
+					_ => (
+						_.IsVar(out var ValType)
+						? mResult.OK(ValType).WithErrorType<(tPos Pos, tText ErrorText)>()
+						: mResult.Fail((VarToVal.Pos, $"the type '{_}' in not from type '[§VAR ...]'"))
 					)
 				)
 			),
@@ -803,4 +801,5 @@ mSPO_AST_Types {
 		);
 	}
 }
+
 

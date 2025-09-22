@@ -12,8 +12,8 @@ mArrayList_Tests {
 		[
 			mTest.Test("tArrayList.IsEmpty(...)",
 				aStreamOut => {
-					mAssert.IsTrue(mArrayList.List<tInt32>().IsEmpty());
-					mAssert.IsFalse(mArrayList.List(1).IsEmpty());
+					mAssert.IsTrue(mArrayList.List<tInt32>().IsEmpty);
+					mAssert.IsFalse(mArrayList.List(1).IsEmpty);
 				}
 			),
 			mTest.Test("tArrayList.Equals(...)",
@@ -75,13 +75,13 @@ mArrayList_Tests {
 					mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 					
 					tInt32 _;
-					while (L.Size() > Slots/2) {
+					while (L.Size > Slots/2) {
 						L.Pop(out _);
 					}
 					mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 					
 					L.Pop(out _);
-					Slots = L.Size() * 3 / 2;
+					Slots = L.Size * 3 / 2;
 					mAssert.AreEquals((tNat32)L._Items.Length, Slots);
 				}
 			),

@@ -69,12 +69,13 @@ mTextStream {
 		tText.CompareOrdinal
 	).ToStream(
 	).Map(
-		aFile => aFile.Key + "\n" + aFile.Value.GroupBy(
+		aFile => "" + aFile.Key + aFile.Value.GroupBy(
 			_ => _.Pos.Row,
 			(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 		).ToStream(
-		).Map(
-			aRow => aRow.Value.GroupBy(
+		).TryLast(
+		).Then(
+			aRow => ":" + aRow.Key + " ERROR" + aRow.Value.GroupBy(
 				_ => _.Pos.Col,
 				(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 			).ToStream(
@@ -97,8 +98,7 @@ mTextStream {
 				(a1, a2) => a1 + a2,
 				""
 			)
-		).Join(
-			(a1, a2) => a1 + a2,
+		).ElseUse(
 			""
 		)
 	).Join(

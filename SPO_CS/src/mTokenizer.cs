@@ -27,7 +27,7 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>, tError> __ = _[0..];
 	
-	public static readonly tText SpacialChars = "#$§€\".:,;()[]{} \t\n\r";
+	public static readonly tText SpecialChars = "#$§€\".:,;()[]{} \t\n\r";
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	Digit = CharInRange('0', '9')
@@ -69,7 +69,7 @@ mTokenizer {
 	.SetName(nameof(Number));
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tText, tError>
-	Id = (CharNotIn(SpacialChars).Modify(aChar => "" + aChar) | Text("..."))[1..]
+	Id = (CharNotIn(SpecialChars).Modify(aChar => "" + aChar) | Text("..."))[1..]
 	.Modify(aTextList => aTextList.Join((a1, a2) => a1 + a2, ""));
 	
 	public enum
@@ -113,7 +113,7 @@ mTokenizer {
 			
 			CharIn("#§").__(Id)
 			.ModifyS((aSpan, aChar, aText) => new tToken { Type = tTokenType.SpecialId, Text = aChar + aText, Span = aSpan })
-			.SetName(nameof(tTokenType.Id)),
+			.SetName(nameof(tTokenType.SpecialId)),
 			
 			Text("..")
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
@@ -242,7 +242,7 @@ mTokenizer {
 		_ => (_.Span.Start, $"expect '{aPrefix}...'"),
 		mTextParser.ComparePos,
 		mTextParser.AreErrorsEqual
-	).SetDebugName([$"{nameof(SpecialToken)}('{aPrefix}...')"]);
+	).SetDebugName([$"{nameof(SpecialId)}('{aPrefix}...')"]);
 	
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	SpecialId(
@@ -253,7 +253,7 @@ mTokenizer {
 		_ => (_.Span.Start, $"expect '{aPrefix}{aId}'"),
 		mTextParser.ComparePos,
 		mTextParser.AreErrorsEqual
-	).SetDebugName([$"{nameof(SpecialToken)}('{aPrefix}{aId}')"]);
+	).SetDebugName([$"{nameof(SpecialId)}('{aPrefix}{aId}')"]);
 	
 	public static mParserGen.tParser<tPos, tToken, tToken, tError>
 	KeyWord(

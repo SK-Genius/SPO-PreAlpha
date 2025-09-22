@@ -424,7 +424,7 @@ mSPO2IL {
 			)
 		);
 		
-		return aModuleConstructor.Defs.Size() - 1;
+		return aModuleConstructor.Defs.Size - 1;
 	}
 	
 	public static mResult.tResult<(tNat32 Index, tScope EnvList, mVM_Type.tType Type), (tPos Pos, tText ErrorText)>
@@ -565,7 +565,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tTupleNode<tPos> { Items: var Items, TypeAnnotation: var Type }: {
-				switch (Items.Take(2).ToArrayList().Size()) {
+				switch (Items.Take(2).ToArrayList().Size) {
 					case 0: {
 						throw mError.Error("impossible");
 					}
@@ -841,7 +841,7 @@ mSPO2IL {
 					return mResult.Fail((Pos, Error_));
 				}
 				
-				var SwitchDefId = GetDefId(aModuleConstructor.Defs.Size());
+				var SwitchDefId = GetDefId(aModuleConstructor.Defs.Size);
 				
 				var DefIndex = SwitchDef.FinishMapProc(aExpressionNode.Pos, aModuleConstructor, SwitchDefType);
 				var SwitchProc = aDefConstructor.InitProc(
@@ -1386,7 +1386,7 @@ mSPO2IL {
 			}
 			case mSPO_AST.tMatchTupleNode<tPos> { Items: var Items }: {
 				var RemainingReg = aRegId;
-				mAssert.AreEquals(Items.Take(2).ToArrayList().Size(), 2u);
+				mAssert.AreEquals(Items.Take(2).ToArrayList().Size, 2u);
 				foreach (var Item in Items.Reverse()) {
 					var ItemReg = aDefConstructor.CreateTempReg();
 					aDefConstructor.Commands.Push(mIL_AST.GetSecond(PatternNode.Pos, ItemReg, RemainingReg));
@@ -1775,9 +1775,9 @@ mSPO2IL {
 			throw mError.Error($"expected definition symbol but was '{FirstNonDefId}'");
 		}
 		
-		if (TempLambdaDef.EnvIds.Size() != ModuleConstructor.Defs.Size() - 1) {
+		if (TempLambdaDef.EnvIds.Size != ModuleConstructor.Defs.Size - 1) {
 			throw mError.Error(
-				$"expected {ModuleConstructor.Defs.Size() - 1} definitions but was {TempLambdaDef.EnvIds.Size()}"
+				$"expected {ModuleConstructor.Defs.Size - 1} definitions but was {TempLambdaDef.EnvIds.Size}"
 			);
 		}
 		

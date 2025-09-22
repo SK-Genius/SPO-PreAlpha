@@ -28,45 +28,44 @@ mMap {
 		aEqualsFunc: aEqualsFunc
 	);
 	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static mMaybe.tMaybe<tValue>
-	TryGet<tKey, tValue>(
-		this tMap<tKey, tValue> aMap,
-		tKey aKey
-	) {
-		foreach (var (Key, Value) in aMap._KeyValuePairs) {
-			if (aMap._EqualsFunc(Key, aKey)) {
-				return Value;
+	extension<tKey, tValue> (tMap<tKey, tValue> aMap) {
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public mMaybe.tMaybe<tValue>
+		TryGet(
+			tKey aKey
+		) {
+			foreach (var (Key, Value) in aMap._KeyValuePairs) {
+				if (aMap._EqualsFunc(Key, aKey)) {
+					return Value;
+				}
 			}
+			return mStd.cEmpty;
 		}
-		return mStd.cEmpty;
-	}
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tMap<tKey, tValue>
-	Remove<tKey, tValue>(
-		this tMap<tKey, tValue> aMap,
-		tKey aKey
-	) => new(
-		aEqualsFunc: aMap._EqualsFunc,
-		aKeyValuePairs: aMap._KeyValuePairs.Where(
-			[DebuggerHidden] ((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
-		)
-	);
-	
-	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static tMap<tKey, tValue>
-	Set<tKey, tValue>(
-		this tMap<tKey, tValue> aMap,
-		tKey aKey,
-		tValue aValue
-	) => new(
-		aEqualsFunc: aMap._EqualsFunc,
-		aKeyValuePairs: mStream.Stream(
-			(aKey, aValue),
-			aMap._KeyValuePairs.Where(
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tMap<tKey, tValue>
+		Remove(
+			tKey aKey
+		) => new(
+			aEqualsFunc: aMap._EqualsFunc,
+			aKeyValuePairs: aMap._KeyValuePairs.Where(
 				[DebuggerHidden] ((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
 			)
-		)
-	);
+		);
+		
+		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		public tMap<tKey, tValue>
+		Set(
+			tKey aKey,
+			tValue aValue
+		) => new(
+			aEqualsFunc: aMap._EqualsFunc,
+			aKeyValuePairs: mStream.Stream(
+				(aKey, aValue),
+				aMap._KeyValuePairs.Where(
+					[DebuggerHidden] ((tKey Key, tValue) a) => !aMap._EqualsFunc(a.Key, aKey)
+				)
+			)
+		);
+	}
 }

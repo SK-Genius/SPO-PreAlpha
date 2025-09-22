@@ -80,7 +80,7 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText
 	) {
 		var (OpCode, Arg1, Arg2, DebugId) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
-		tText CommandLine() => $">>>   {aCallStack._Regs.Size():#0} := {OpCode} {Arg1} {Arg2} // CommandDebugId:{DebugId} // {aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer)}";
+		tText CommandLine() => $">>>   {aCallStack._Regs.Size:#0} := {OpCode} {Arg1} {Arg2} // CommandDebugId:{DebugId} // {aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer)}";
 		aCallStack._TraceOut(CommandLine);
 		aCallStack._TraceOut(() => $"{mStd.NewDebugId()}");
 		aCallStack._CodePointer += 1;
@@ -611,7 +611,7 @@ mVM {
 			}
 		}
 		aCallStack._TraceOut(
-			() => $@"    \ {aCallStack._Regs.Size() - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size() - 1).ToText(20)}"
+			() => $@"    \ {aCallStack._Regs.Size - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size - 1).ToText(20)}"
 		);
 		return aCallStack;
 	}
