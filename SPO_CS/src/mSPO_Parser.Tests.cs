@@ -98,6 +98,40 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
+			mTest.Test("Pair",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"(1; \"BLA\")",
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						mSPO_AST.Pair(
+							Span((1, 1), (1, 10)),
+							mSPO_AST.Int(Span((1, 2), (1, 2)), 1),
+							mSPO_AST.Text(Span((1, 5), (1, 9)), "BLA")
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
+			mTest.Test("MatchPair",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Match.ParseText("(Xs; X)", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.Match(
+							Span((1, 1), (1, 7)),
+							mSPO_AST.MatchPair(
+								Span((1, 1), (1, 7)),
+								mSPO_AST.Match(Span((1, 2), (1, 3)), mSPO_AST.Id(Span((1, 2), (1, 3)), "Xs"), mStd.cEmpty),
+								mSPO_AST.Match(Span((1, 6), (1, 6)), mSPO_AST.Id(Span((1, 6), (1, 6)), "X"), mStd.cEmpty)
+							),
+							mStd.cEmpty
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
 			mTest.Test("Match1",
 				aStreamOut => {
 					mAssert.AreEquals(

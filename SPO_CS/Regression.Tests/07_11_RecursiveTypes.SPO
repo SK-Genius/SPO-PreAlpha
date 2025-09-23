@@ -1,8 +1,8 @@
-§DEF tStack = [§RECURSIVE t [[] | [§INT, t]]]
+§DEF tIntArray = [§RECURSIVE tIntArray [[] | [tIntArray; §INT]]]
 
-§DEF Push...To... = (
+§DEF ...Append... = (
+	§DEF aTail € tIntArray
 	§DEF aHead € §INT
-	§DEF aTail € tStack
-) => (aHead, aTail)
+) => (aTail; aHead)
 
-§EXPORT .Push 3 To ( .Push 2 To ( .Push 1 To ()))
+§EXPORT (() .Append 1 §> .Append 2 §> .Append 3)

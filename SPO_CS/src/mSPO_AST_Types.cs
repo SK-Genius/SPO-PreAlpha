@@ -18,6 +18,43 @@ mSPO_AST_Types {
 		Super,
 	}
 	
+	static tBool
+	TryExtractPairType(
+		mVM_Type.tType aType,
+		out mVM_Type.tType aTailType,
+		out mVM_Type.tType aHeadType
+	) {
+		var ToVisit = new System.Collections.Generic.Stack<mVM_Type.tType>();
+		var Visited = new System.Collections.Generic.HashSet<tNat64>();
+		ToVisit.Push(aType);
+		while (ToVisit.Count > 0) {
+			var Current = ToVisit.Pop();
+			if (!Visited.Add(Current.DebugId)) {
+				continue;
+			}
+			if (Current.IsPair(out aTailType, out aHeadType)) {
+				return true;
+			}
+			if (Current.IsRecursive(out var RecHead, out var RecBody)) {
+				mAssert.IsNotNull(RecHead.Id);
+				ToVisit.Push(RecBody.Substitute(RecHead.Id, Current));
+				continue;
+			}
+			if (Current.IsSet(out var SetHead, out var SetTail)) {
+				ToVisit.Push(SetHead);
+				ToVisit.Push(SetTail);
+				continue;
+			}
+			if (Current.IsFree(out _, out var RefType)) {
+				ToVisit.Push(RefType);
+				continue;
+			}
+		}
+		aTailType = default!;
+		aHeadType = default!;
+		return false;
+	}
+	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
@@ -55,6 +92,15 @@ mSPO_AST_Types {
 					_ => _.UpdateTypes(aScope)
 				).WhenAllThen(
 					mVM_Type.Tuple
+				)
+			),
+			mSPO_AST.tPairNode<tPos> Pair => (
+				Pair.Tail.UpdateTypes(
+					aScope
+				).ThenTry(
+					aTail => Pair.Head.UpdateTypes(aScope).Then(
+						aHead => mVM_Type.Pair(aTail, aHead)
+					)
 				)
 			),
 			mSPO_AST.tPrefixNode<tPos> Prefix => (
@@ -417,7 +463,7 @@ mSPO_AST_Types {
 						}
 					} else {
 						if (!WalkType.IsEmpty() || TypeStack.Count() != MatchTuple.Items.Count()) {
-							mResult.Fail((MatchTuple.Pos, $"cant unify '{MatchTuple.ToText()} and '{Type.ToText()}'"));
+							mResult.Fail((MatchTuple.Pos, $"can't unify '{MatchTuple.ToText()} and '{Type.ToText()}'"));
 						}
 						
 						foreach (var (Match, ItemType) in mStream.ZipShort(MatchTuple.Items, TypeStack)) {
@@ -431,6 +477,29 @@ mSPO_AST_Types {
 					}
 				}
 				Result = (mVM_Type.Tuple(Types.Reverse()), NewScope);
+				break;
+			}
+			case mSPO_AST.tMatchPairNode<tPos> MatchPair: {
+				var TailType = mMaybe.None<mVM_Type.tType>();
+				var HeadType = mMaybe.None<mVM_Type.tType>();
+				if (aType.IsSome(out var Type)) {
+					if (!TryExtractPairType(Type, out var Tail, out var Head)) {
+						return mResult.Fail((MatchPair.Pos, $"cant unify '{MatchPair.ToText()}' and '{Type.ToText()}'"));
+					}
+					
+					TailType = Tail;
+					HeadType = Head;
+				}
+				
+				if (!UpdateMatchTypes(MatchPair.Tail, TailType, aTypeRelation, aScope).Match(out var TailRes, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				
+				if (!UpdateMatchTypes(MatchPair.Head, HeadType, aTypeRelation, TailRes.Scope).Match(out var HeadRes, out Error)) {
+					return mResult.Fail(Error);
+				}
+				
+				Result = (mVM_Type.Pair(TailRes.Type, HeadRes.Type), HeadRes.Scope);
 				break;
 			}
 			case mSPO_AST.tMatchRecordNode<tPos> MatchRecord: {
@@ -721,6 +790,18 @@ mSPO_AST_Types {
 				Result = mVM_Type.Tuple(Types);
 				break;
 			}
+			case mSPO_AST.tPairTypeNode<tPos> PairType: {
+				Result = PairType.TailType.AsVM_Type(
+					aScope
+				).ThenTry(
+					aTail => PairType.HeadType.AsVM_Type(
+						aScope
+					).Then(
+						aHead => mVM_Type.Pair(aTail, aHead)
+					)
+				);
+				break;
+			}
 			case mSPO_AST.tIdNode<tPos> IdNode: {
 				Result = aScope.Where(
 					_ => _.Id == IdNode.Id
@@ -815,5 +896,3 @@ mSPO_AST_Types {
 		);
 	}
 }
-
-

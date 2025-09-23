@@ -1,45 +1,45 @@
 §TYPES
-	t_0 := [EMPTY_TYPE, INT]
-	t_1 := [§FREE]
-	t_2 := [t_0, t_1]
-	t_3 := [t_2 | EMPTY_TYPE]
-	t_4 := [§REC t_1 => t_3]
-	t_5 := [t_0, t_4]
-	t_6 := [t_5 => t_5]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [EMPTY_TYPE => t_5]
-	t_9 := [t_7 => t_8]
+	t_0 := [§FREE]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 | EMPTY_TYPE]
+	t_3 := [§REC t_0 => t_2]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [t_4, INT]
+	t_6 := [t_3, INT]
+	t_7 := [t_5 => t_6]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [EMPTY_TYPE => t_6]
+	t_10 := [t_8 => t_9]
 
-§DEF d_0 € t_7
+§DEF d_0 € t_8
 	r_1 := §2ND ARG
-	_aTail := r_1
+	_aHead := r_1
 	r_2 := §1ST ARG
 	r_3 := §2ND r_2
-	_aHead := r_3
+	_aTail := r_3
 	r_4 := §1ST r_2
-	r_5 := EMPTY, _aHead
-	r_6 := r_5, _aTail
-	§RETURN r_6 IF TRUE
+	r_5 := _aTail, _aHead
+	§RETURN r_5 IF TRUE
 
-§DEF d_1 € t_9
+§DEF d_1 € t_10
 	d_0 := ENV
-	_t := [§FREE]
-	r_1 := [INT_TYPE, _t]
+	_tIntArray := [§FREE]
+	r_1 := [_tIntArray, INT_TYPE]
 	r_2 := [r_1 | EMPTY_TYPE]
-	r_3 := [§REC _t => r_2]
-	_tStack := r_3
+	r_3 := [§REC _tIntArray => r_2]
+	_tIntArray := r_3
 	r_4 := .d_0 EMPTY
-	_Push...To... := r_4
-	r_5 := 3
-	r_6 := EMPTY, r_5
-	r_7 := 2
-	r_8 := EMPTY, r_7
-	r_9 := 1
-	r_10 := EMPTY, r_9
-	r_11 := r_10, EMPTY
-	r_12 := ._Push...To... r_11
-	r_13 := r_8, r_12
-	r_14 := ._Push...To... r_13
-	r_15 := r_6, r_14
-	r_16 := ._Push...To... r_15
+	_...Append... := r_4
+	r_5 := EMPTY, EMPTY
+	r_6 := 1
+	r_7 := r_5, r_6
+	r_8 := ._...Append... r_7
+	r_9 := EMPTY, r_8
+	r_10 := 2
+	r_11 := r_9, r_10
+	r_12 := ._...Append... r_11
+	r_13 := EMPTY, r_12
+	r_14 := 3
+	r_15 := r_13, r_14
+	r_16 := ._...Append... r_15
 	§RETURN r_16 IF TRUE

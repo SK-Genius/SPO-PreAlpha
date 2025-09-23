@@ -2,30 +2,23 @@
 	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 }
 
-§DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
-
-§DEF ...Append... = (
-	§DEF t € [[]]
-) <=> (
-	§DEF aTail € [.tStack t]
-	§DEF aHead € t
-) => (aHead, aTail)
+§DEF tArray = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
 
 §RECURSIVE {
 	§DEF ...MapEachWith... = (
 		§DEF tIn € [[]]
 		§DEF tOut € [[]]
 	) <=> (
-		§DEF aStack € [.tStack tIn]
+		§DEF aArray € [.tArray tIn]
 		§DEF aMap... € [tIn => tOut]
-	) => §IF aStack MATCH {
+	) => §IF aArray MATCH {
 		() => ()
-		(§DEF aHead, aTail) => (aTail .MapEachWith aMap...) .Append (.aMap aHead)
+		(aTail € [.tArray tIn]; §DEF aHead € tIn) => (aTail .MapEachWith aMap...; .aMap aHead)
 	}
 }
 
 §EXPORT (
-	() .Append 1 §>.Append 2 §>.Append 3 §>.MapEachWith (
+	(1, 2, 3) .MapEachWith (
 		§DEF a € §INT => 2 .* a
 	)
 )
