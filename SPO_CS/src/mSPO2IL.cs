@@ -564,6 +564,18 @@ mSPO2IL {
 				);
 				return ResultReg;
 			}
+				case mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }: {
+					if (!aDefConstructor.MapExpression(aModuleConstructor, Tail).Match(out var TailReg, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!aDefConstructor.MapExpression(aModuleConstructor, Head).Match(out var HeadReg, out Error)) {
+						return mResult.Fail(Error);
+					}
+					var ResultReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.CreatePair(Pos, ResultReg, TailReg, HeadReg));
+					aDefConstructor.AddLocal(ResultReg, Type.AssertNotEmpty());
+					return ResultReg;
+				}
 			case mSPO_AST.tTupleNode<tPos> { Items: var Items, TypeAnnotation: var Type }: {
 				switch (Items.Take(2).ToArrayList().Size) {
 					case 0: {
@@ -1384,6 +1396,21 @@ mSPO2IL {
 				}
 				break;
 			}
+				case mSPO_AST.tMatchPairNode<tPos> { Tail: var Tail, Head: var Head }: {
+					var HeadReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.GetSecond(PatternNode.Pos, HeadReg, aRegId));
+					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(HeadReg, Head.TypeAnnotation.AssertNotEmpty());
+					if (!aDefConstructor.MapMatch(Head, HeadReg, out aError)) {
+						return false;
+					}
+					var TailReg = aDefConstructor.CreateTempReg();
+					aDefConstructor.Commands.Push(mIL_AST.GetFirst(PatternNode.Pos, TailReg, aRegId));
+					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(TailReg, Tail.TypeAnnotation.AssertNotEmpty());
+					if (!aDefConstructor.MapMatch(Tail, TailReg, out aError)) {
+						return false;
+					}
+					break;
+				}
 			case mSPO_AST.tMatchTupleNode<tPos> { Items: var Items }: {
 				var RemainingReg = aRegId;
 				mAssert.AreEquals(Items.Take(2).ToArrayList().Size, 2u);

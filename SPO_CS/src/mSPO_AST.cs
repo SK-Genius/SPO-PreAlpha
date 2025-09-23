@@ -144,6 +144,15 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>> Items;
 	}
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tMatchPairNode<tPos> : tMatchItemNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tMatchNode<tPos> Tail = default!;
+		public tMatchNode<tPos> Head = default!;
+	}
+	
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -307,6 +316,15 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tPairTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> TailType = default!;
+		public tTypeNode<tPos> HeadType = default!;
+	}
+	
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -421,6 +439,15 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tExpressionNode<tPos>> Items;
 	}
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tPairNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Tail = default!;
+		public tExpressionNode<tPos> Head = default!;
+	}
+	
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -576,6 +603,17 @@ mSPO_AST {
 			Items = aItems
 		},
 	};
+	public static tPairNode<tPos>
+	Pair<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aTail,
+		tExpressionNode<tPos> aHead
+	) => new() {
+		Pos = aPos,
+		Tail = aTail,
+		Head = aHead
+	};
+
 	
 	public static tPrefixTypeNode<tPos>
 	PrefixType<tPos>(
@@ -605,6 +643,17 @@ mSPO_AST {
 		Pos = aPos,
 		Expressions = aTypes,
 	};
+	public static tPairTypeNode<tPos>
+	PairType<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aTailType,
+		tTypeNode<tPos> aHeadType
+	) => new() {
+		Pos = aPos,
+		TailType = aTailType,
+		HeadType = aHeadType
+	};
+
 	
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
@@ -798,6 +847,17 @@ mSPO_AST {
 			Items = aItems
 		},
 	};
+	public static tMatchPairNode<tPos>
+	MatchPair<tPos>(
+		tPos aPos,
+		tMatchNode<tPos> aTail,
+		tMatchNode<tPos> aHead
+	) => new() {
+		Pos = aPos,
+		Tail = aTail,
+		Head = aHead
+	};
+
 	
 	public static tMatchNode<tPos>
 	Match<tPos>(
@@ -1019,6 +1079,13 @@ mSPO_AST {
 			case tMatchVarNode<tPos> Node1: {
 				return a2 is tMatchVarNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
+			case tMatchPairNode<tPos> Node1: {
+				return (
+					a2 is tMatchPairNode<tPos> Node2 &&
+					AreEqual(Node1.Tail, Node2.Tail) &&
+					AreEqual(Node1.Head, Node2.Head)
+				);
+			}
 			case tMatchTupleNode<tPos> Node1: {
 				return (
 					a2 is tMatchTupleNode<tPos> Node2 &&
@@ -1207,6 +1274,13 @@ mSPO_AST {
 			case tPipeToLeftNode<tPos>: {
 				break;
 			}
+			case tPairNode<tPos> Node1: {
+				return (
+					a2 is tPairNode<tPos> Node2 &&
+					AreEqual(Node1.Tail, Node2.Tail) &&
+					AreEqual(Node1.Head, Node2.Head)
+				);
+			}
 			case tTupleNode<tPos> Node1: {
 				return (
 					a2 is tTupleNode<tPos> Node2 &&
@@ -1265,6 +1339,7 @@ mSPO_AST {
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
+			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
@@ -1288,6 +1363,7 @@ mSPO_AST {
 			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
 			tMatchVarNode<t> Node => "§VAR " + Node.Id,
 			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
+			tMatchPairNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",
 			
@@ -1303,6 +1379,7 @@ mSPO_AST {
 			tTypeTypeNode<t> Node => "§TYPE",
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",

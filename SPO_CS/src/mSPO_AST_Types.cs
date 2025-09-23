@@ -50,6 +50,11 @@ mSPO_AST_Types {
 			mSPO_AST.tTypeNode<tPos> Type => (
 				Type.AsVM_Type(aScope)
 			),
+					mSPO_AST.tPairNode<tPos> Pair => Pair.Tail.UpdateTypes(aScope).ThenTry(
+						aTail => Pair.Head.UpdateTypes(aScope).Then(
+							aHead => mVM_Type.Pair(aTail, aHead)
+						)
+					),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Map(
 					_ => _.UpdateTypes(aScope)
@@ -371,6 +376,25 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+				case mSPO_AST.tMatchPairNode<tPos> MatchPair: {
+					var TailType = mStd.cEmpty;
+					var HeadType = mStd.cEmpty;
+					if (aType.IsSome(out var Type)) {
+						if (!Type.IsPair(out var Tail, out var Head)) {
+							return mResult.Fail((MatchPair.Pos, $"cant unify '{MatchPair.ToText()}' and '{Type.ToText()}'"));
+						}
+						TailType = Tail;
+						HeadType = Head;
+					}
+					if (!UpdateMatchTypes(MatchPair.Tail, TailType, aTypeRelation, aScope).Match(out var TailRes, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!UpdateMatchTypes(MatchPair.Head, HeadType, aTypeRelation, TailRes.Scope).Match(out var HeadRes, out Error)) {
+						return mResult.Fail(Error);
+					}
+					Result = (mVM_Type.Pair(TailRes.Type, HeadRes.Type), HeadRes.Scope);
+					break;
+				}
 			case mSPO_AST.tMatchTupleNode<tPos> MatchTuple: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				var NewScope = aScope;
@@ -695,6 +719,14 @@ mSPO_AST_Types {
 				Result = mVM_Type.Any();
 				break;
 			}
+				case mSPO_AST.tPairTypeNode<tPos> PairType: {
+					Result = PairType.TailType.AsVM_Type(aScope).ThenTry(
+						Tail => PairType.HeadType.AsVM_Type(aScope).Then(
+							Head => mVM_Type.Pair(Tail, Head)
+						)
+					);
+					break;
+				}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				foreach (var Expression in TupleType.Expressions.Reverse()) {

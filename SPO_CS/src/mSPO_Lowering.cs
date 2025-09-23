@@ -55,6 +55,17 @@ mSPO_Lowering {
 				aElement
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
+			mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }
+			=> LowerExpression(Tail).ThenTry(
+				aTail => LowerExpression(Head).Then(
+					aHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Pair(
+						Pos,
+						aTail,
+						aHead
+					).Do(_ => { _.TypeAnnotation = Type; })
+				)
+			),
+
 		mSPO_AST.tTupleNode<tPos> { Pos: var Pos, Items: var Items, TypeAnnotation: var Type }
 		=> Items.Map(LowerExpression).WhenAllThen(
 			aItems => mSPO_AST.Tuple(

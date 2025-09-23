@@ -98,6 +98,23 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
+			mTest.Test("Pair",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"[1;"BLA"]",
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						mSPO_AST.Pair(
+							Span((1, 1), (1, 9)),
+							mSPO_AST.Int(Span((1, 2), (1, 2)), 1),
+							mSPO_AST.Text(Span((1, 4), (1, 8)), "BLA")
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
 			mTest.Test("Match1",
 				aStreamOut => {
 					mAssert.AreEquals(
@@ -130,6 +147,23 @@ mSPO_Parser_Tests {
 										mSPO_AST.Match(Span((1, 6), (1, 6)), mSPO_AST.Id(Span((1, 6), (1, 6)), "x"), mStd.cEmpty)
 									]
 								)
+							),
+							mStd.cEmpty
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
+			mTest.Test("MatchPair",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Match.ParseText("(xs;x)", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.Match(
+							Span((1, 1), (1, 6)),
+							mSPO_AST.MatchPair(
+								Span((1, 1), (1, 6)),
+								mSPO_AST.Match(Span((1, 2), (1, 3)), mSPO_AST.Id(Span((1, 2), (1, 3)), "xs"), mStd.cEmpty),
+								mSPO_AST.Match(Span((1, 5), (1, 5)), mSPO_AST.Id(Span((1, 5), (1, 5)), "x"), mStd.cEmpty)
 							),
 							mStd.cEmpty
 						),
@@ -177,6 +211,19 @@ mSPO_Parser_Tests {
 									mSPO_AST.Id(Span((1, 6), (1, 6)), "x")
 								]
 							)
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
+			mTest.Test("PairType",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Type.ParseText("[INT;INT]", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.PairType(
+							Span((1, 1), (1, 9)),
+							mSPO_AST.IntType(Span((1, 2), (1, 4))),
+							mSPO_AST.IntType(Span((1, 6), (1, 8)))
 						),
 						mSPO_AST.AreEqual
 					);
