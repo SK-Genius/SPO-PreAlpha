@@ -209,6 +209,16 @@ mSPO_AST_Types {
 					)
 				)
 			),
+			mSPO_AST.tIsNode<tPos> Is => (
+				Is.Value.UpdateTypes(aScope).ThenTry(
+					aValueType => UpdateMatchTypes(
+						Is.Pattern,
+						aValueType,
+						tTypeRelation.Super,
+						aScope
+					).Then(_ => mVM_Type.Bool())
+				)
+			),
 			mSPO_AST.tVarToValNode<tPos> VarToVal => (
 				VarToVal.Obj.UpdateTypes(
 					aScope

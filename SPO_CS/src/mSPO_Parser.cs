@@ -567,6 +567,15 @@ mSPO_Parser {
 	.Modify((_, aExpression, _, aBranches, _) => (aExpression, aBranches))
 	.ModifyS(mSPO_AST.IfMatch)
 	.SetName(nameof(IfMatch));
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIsNode<tSpan>, tError>
+	Is = mParserGen.Seq(
+		ExpressionInCall,
+		KeyWord("IS"),
+		Match
+	)
+	.Modify((aValue, _, aPattern) => (aValue, aPattern))
+	.ModifyS(mSPO_AST.Is)
+	.SetName(nameof(Is));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallNode<tSpan>, tError>
 	MethodCall = mParserGen.Seq(
@@ -710,6 +719,7 @@ mSPO_Parser {
 					Lambda.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Method.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Call.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					Is.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Prefix.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

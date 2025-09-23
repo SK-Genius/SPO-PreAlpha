@@ -100,6 +100,17 @@ mSPO_Lowering {
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
+		mSPO_AST.tIsNode<tPos> { Pos: var Pos, Value: var Value, Pattern: var Pattern, TypeAnnotation: var Type }
+		=> LowerExpression(Value).Then(
+			aValue => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.IfMatch(
+				Pos,
+				aValue,
+				mStream.Stream(new (mSPO_AST.tMatchNode<tPos>, mSPO_AST.tExpressionNode<tPos>)[] {
+					(Pattern, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.True(Pos)),
+					(mSPO_AST.Match(Pos, mSPO_AST.IgnoreMatch(Pos), mStd.cEmpty), (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.False(Pos))
+				})
+			).Do(_ => { _.TypeAnnotation = Type; })
+		),
 		mSPO_AST.tPipeToRightNode<tPos> Pipe
 		=> mStd.Call(
 			() => {

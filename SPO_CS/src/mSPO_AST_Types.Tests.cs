@@ -55,6 +55,22 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("Is",
+				aDebugStream => {
+					mAssert.AreEquals(
+						mSPO_AST.Is(
+							cNoPos,
+							mSPO_AST.Int(cNoPos, 1),
+							mSPO_AST.Match(
+								cNoPos,
+								mSPO_AST.Int(cNoPos, 1),
+								mStd.cEmpty
+							)
+						).UpdateTypes(mStd.cEmpty),
+						mVM_Type.Bool()
+					);
+				}
+			),
 			mTest.Test("Lambda",
 				aDebugStream => {
 					mAssert.AreEquals(

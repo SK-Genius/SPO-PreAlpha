@@ -285,6 +285,15 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tIsNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Value = default!;
+		public tMatchNode<tPos> Pattern = default!;
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tPrefixTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -859,6 +868,17 @@ mSPO_AST {
 		Cases = aCases
 	};
 	
+	public static tIsNode<tPos>
+	Is<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aValue,
+		tMatchNode<tPos> aPattern
+	) => new() {
+		Pos = aPos,
+		Value = aValue,
+		Pattern = aPattern
+	};
+	
 	public static tDefVarNode<tPos>
 	DefVar<tPos>(
 		tPos aPos,
@@ -1146,6 +1166,13 @@ mSPO_AST {
 			case tIfMatchNode<tPos>: {
 				break;
 			}
+			case tIsNode<tPos> Node1: {
+				return (
+					 a2 is tIsNode<tPos> Node2 &&
+					 AreEqual(Node1.Value, Node2.Value) &&
+					 AreEqual(Node1.Pattern, Node2.Pattern)
+				);
+			}
 			case tPrefixTypeNode<tPos>: {
 				break;
 			}
@@ -1277,6 +1304,7 @@ mSPO_AST {
 					(a1, a2) => a1 + "; " + a2
 				)
 			),
+			tIsNode<t> Node => $"({____}{Node.Value.ToText(____)} §IS {Node.Pattern.ToText(____)}{__})",
 			tPipeToLeftNode<t> Node => $"({____} {Node.Pipe.Map(_ => $"{_.ToText()} §<")}{Node.Head.ToText()}{__})",
 			
 			// Matches
