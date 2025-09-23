@@ -568,6 +568,16 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.IfMatch)
 	.SetName(nameof(IfMatch));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIsNode<tSpan>, tError>
+	Is = mParserGen.Seq(
+		ExpressionInCall,
+		KeyWord("IS"),
+		Match
+	)
+	.Modify((aValue, _, aPattern) => (aValue, aPattern))
+	.ModifyS(mSPO_AST.Is)
+	.SetName(nameof(Is));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodCallNode<tSpan>, tError>
 	MethodCall = mParserGen.Seq(
 		Id,
@@ -706,6 +716,7 @@ mSPO_Parser {
 				[
 					If.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					IfMatch.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					Is.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Lambda.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Method.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

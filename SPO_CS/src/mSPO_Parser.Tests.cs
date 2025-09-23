@@ -137,6 +137,27 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
+			mTest.Test("Is",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"X §IS 12",
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						mSPO_AST.Is(
+							Span((1, 1), (1, 8)),
+							mSPO_AST.Id(Span((1, 1), (1, 1)), "X"),
+							mSPO_AST.Match(
+								Span((1, 7), (1, 8)),
+								mSPO_AST.Int(Span((1, 7), (1, 8)), 12),
+								mStd.cEmpty
+							)
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
 			mTest.Test("FunctionCall",
 				aStreamOut => {
 					mAssert.AreEquals(

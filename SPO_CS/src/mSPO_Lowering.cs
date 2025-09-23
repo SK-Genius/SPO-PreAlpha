@@ -1,4 +1,4 @@
-// IMPORT Common/mStd
+﻿// IMPORT Common/mStd
 // IMPORT Common/mStream
 // IMPORT Common/mMaybe
 // IMPORT Common/mError
@@ -100,6 +100,18 @@ mSPO_Lowering {
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
+		mSPO_AST.tIsNode<tPos> { Pos: var Pos, Expression: var Expression, Match: var Match, TypeAnnotation: var Type }
+		=> Expression.LowerExpression(
+		).Then(
+			aExpr => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.IfMatch(
+				Pos,
+				aExpr,
+				mStream.Stream([
+					(Match, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.True(Pos)),
+					(mSPO_AST.Match(Pos, mSPO_AST.IgnoreMatch(Pos), mStd.cEmpty), mSPO_AST.False(Pos))
+				])
+			)
+		).ThenDo(_ => { _.TypeAnnotation = Type; }),
 		mSPO_AST.tPipeToRightNode<tPos> Pipe
 		=> mStd.Call(
 			() => {

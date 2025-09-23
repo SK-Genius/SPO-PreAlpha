@@ -1,0 +1,11 @@
+﻿§DEF Value = 12
+§DEF Pair = (1, 2)
+§DEF TagValue = #Foo 12
+
+§EXPORT (
+	Value §IS 12
+	Value §IS 13
+	Pair §IS (1, §DEF Right)
+	TagValue §IS (#Foo _)
+)
+
