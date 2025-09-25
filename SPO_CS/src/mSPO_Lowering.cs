@@ -208,6 +208,8 @@ mSPO_Lowering {
 		mSPO_AST.tTrueNode<tPos> Node => Node, 
 		mSPO_AST.tFalseNode<tPos> Node => Node, 
 		mSPO_AST.tIntNode<tPos> Node => Node, 
+		mSPO_AST.tCharNode<tPos> Node => Node,
+		mSPO_AST.tTextNode<tPos> Node => Node,
 		mSPO_AST.tIntTypeNode<tPos> Node => Node, 
 		mSPO_AST.tTypeTypeNode<tPos> Node => Node, 
 		mSPO_AST.tSetTypeNode<tPos> Node => Node, 

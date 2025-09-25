@@ -26,6 +26,9 @@ mSPO_Parser {
 	NLs_Token = mTokenizer.NLs_Token;
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
+	CharToken = mTokenizer.CharToken;
+	
+	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	TextToken = mTokenizer.TextToken;
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
@@ -92,6 +95,12 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.False)
 	.SetName(nameof(False));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCharNode<tSpan>, tError>
+	Char = CharToken
+	.Modify(_ => _.Text[1])
+	.ModifyS(mSPO_AST.Char)
+	.SetName(nameof(Char));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTextNode<tSpan>, tError>
 	Text = TextToken
 	.ModifyS(mTokenizer.X(mSPO_AST.Text))
@@ -104,6 +113,7 @@ mSPO_Parser {
 			True.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
 			False.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
 			Number.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
+			Char.Cast<mSPO_AST.tLiteralNode<tSpan>>(),
 			Text.Cast<mSPO_AST.tLiteralNode<tSpan>>()
 		]
 	)

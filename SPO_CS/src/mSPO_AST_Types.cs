@@ -65,6 +65,8 @@ mSPO_AST_Types {
 			mSPO_AST.tTrueNode<tPos> => mVM_Type.Bool(),
 			mSPO_AST.tFalseNode<tPos> => mVM_Type.Bool(),
 			mSPO_AST.tIntNode<tPos> => mVM_Type.Int(),
+			mSPO_AST.tTextNode<tPos> => mVM_Type.Text(),
+			mSPO_AST.tCharNode<tPos> => mVM_Type.Char(),
 			mSPO_AST.tIdNode<tPos> IdNode => (
 				IdNode.TypeAnnotation.Match(
 					_ => _,

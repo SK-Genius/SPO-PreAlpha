@@ -92,6 +92,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tCharNode<tPos> : tLiteralNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tChar Value = default!;
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tTextNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -541,6 +549,15 @@ mSPO_AST {
 	Int<tPos>(
 		tPos aPos,
 		tInt32 aValue
+	) => new() {
+		Pos = aPos,
+		Value = aValue
+	};
+	
+	public static tCharNode<tPos>
+	Char<tPos>(
+		tPos aPos,
+		tChar aValue
 	) => new() {
 		Pos = aPos,
 		Value = aValue
@@ -1091,6 +1108,9 @@ mSPO_AST {
 					AreEqual(Node1.Head, Node2.Head)
 				);
 			}
+			case tCharNode<tPos> Node1: {
+				return a2 is tCharNode<tPos> Node2 && Node1.Value == Node2.Value;
+			}
 			case tTextNode<tPos> Node1: {
 				return a2 is tTextNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
@@ -1363,6 +1383,7 @@ mSPO_AST {
 			tTrueNode<t> Node => "#TRUE",
 			tFalseNode<t> Node => "#FALSE",
 			tIntNode<t> Node => "" + Node.Value,
+			tCharNode<t> Node => $"§{Node.Value}",
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",

@@ -242,6 +242,28 @@ mVM_Type {
 	}
 	
 	public static tType
+	Char(
+	) => Prefix("_Char...", Int());
+	
+	public static tBool
+	IsChar(
+		this tType aType
+	) => aType.IsPrefix("_Char...", out var CharType) && CharType.IsInt();
+	
+	public static tType
+	Text(
+	) => mStd.With(
+		Free("tText"),
+		_ => Recursive(
+			_,
+			Set(
+				Pair(_, Char()),
+				Empty()
+			)
+		)
+	);
+	
+	public static tType
 	Type(
 	) => new() { Kind = tKind.Type };
 	
