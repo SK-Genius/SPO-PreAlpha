@@ -1207,7 +1207,10 @@ mSPO2IL {
 			case mSPO_AST.tMatchPrefixNode<tPos> Node: {
 				var LazyCaseDef = NewDefConstructor<tPos>();
 				
-				if (!LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)) {
+				if (
+					!LazyCaseDef.MapMatch(Node.Match, mIL_AST.cArg, out aError) ||
+					!LazyCaseDef.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)
+				) {
 					return false;
 				}
 				
@@ -1426,12 +1429,26 @@ mSPO2IL {
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
 			}
-			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
-				// TODO: check left side
+			case mSPO_AST.tEmptyNode<tPos> { Pos: var Pos }: {
+				aDefConstructor.Commands.Push(
+					mIL_AST.ReturnIfNotEmpty(Pos, aRegId)
+				);
 				break;
 			}
-			case mSPO_AST.tIntNode<tPos> IntNode: {
-				// TODO: check left side
+			case mSPO_AST.tIntNode<tPos> { Pos: var Pos, Value: var Value }: {
+				aDefConstructor.Commands.Push(
+					[
+						mIL_AST.TryAsInt(Pos, aDefConstructor.CreateTempReg(out var IntReg), aRegId),
+						mIL_AST.CreateInt(Pos, aDefConstructor.CreateTempReg(out var ExpectedIntReg), "" + Value),
+						mIL_AST.IntsAreEq(Pos, aDefConstructor.CreateTempReg(out var EqReg), IntReg, ExpectedIntReg),
+						mIL_AST.XOr(Pos, aDefConstructor.CreateTempReg(out var NotEqReg), EqReg, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(Pos, NotEqReg, mIL_AST.cEmptyValue)
+					]
+				);
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(IntReg, mVM_Type.Int());
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ExpectedIntReg, mVM_Type.Int());
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(EqReg, mVM_Type.Bool());
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(NotEqReg, mVM_Type.Bool());
 				break;
 			}
 			case mSPO_AST.tMatchFreeIdNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
@@ -1700,6 +1717,10 @@ mSPO2IL {
 					RecProcsTupleReg
 				)
 			);
+			aDefConstructor.AddLocal(
+				RecProc.Id.Id,
+				RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+			);
 		} else {
 			foreach (var RecProc in aRecLambdasNode.List) {
 				aDefConstructor.Commands.Push(
@@ -1715,6 +1736,10 @@ mSPO2IL {
 					)
 				);
 				RecProcsTupleReg = TempReg;
+				aDefConstructor.AddLocal(
+					RecProc.Id.Id,
+					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+				);
 			}
 		}
 		

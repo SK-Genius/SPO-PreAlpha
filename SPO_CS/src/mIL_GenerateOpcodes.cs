@@ -203,6 +203,8 @@ mIL_GenerateOpcodes {
 			
 			mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			
+			var ReturnType = Types.Get(mVM_Data.cResReg);
+			
 			foreach (var Command in Commands) {
 				tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
 				
@@ -433,119 +435,183 @@ mIL_GenerateOpcodes {
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ResReg = Regs.GetOrThrow(RegId2, Command);
-						
 						var ResType = Types.Get(ResReg);
 						
-						DefResType.IsSubType(ResType, mStd.cEmpty)
-						.ElseThrow(
-							_ => (
-								$"""
-								{Command.Pos}
-								{_}
-								{DefResType.ToText()}
-								!<
-								{ResType.ToText()}
-								{Command.ToText()}
-								"""
-							)
-						);
+						//ResType.IsSubType(DefResType, mStd.cEmpty)
+						//.ElseThrow(
+						//	_ => (
+						//		$"""
+						//		{Command.Pos}
+						//		{_}
+						//		{ResType.ToText()}
+						//		!<
+						//		{DefResType.ToText()}
+						//		{Command.ToText()}
+						//		"""
+						//	)
+						//);
 						
+						var (_, ReturnSubset) = ResType.SplitBy(
+							_ => _.IsEmpty()
+						);
+						ReturnType = Union(ReturnType, ReturnSubset);
 						NewProc.ReturnIfNotEmpty(Span, ResReg);
+						Types.Set(ResReg, mVM_Type.Empty());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var (SuccessType, FailureType) = ArgType.SplitBy(
+							_ => _.IsBool()
+						);
+						
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_BOOL expects type with BOOL but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = Union(ReturnType, FailureType);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsBool(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
 						
-						var Found = false;
-						if (ArgType.IsInt()) {
-							Found = true;
-						} else {
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsInt() || Type2.IsInt()) {
-									Found = true;
-									break;
-								}
-							}
-						}
+						var (MatchedType, RestType) = ArgType.SplitBy(
+							_ => _.IsInt()
+						);
 						
 						mAssert.IsTrue(
-							Found,
+							!MatchedType.IsEmpty(),
 							() => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}"
 						);
 						
+						ReturnType = Union(ReturnType, RestType);
+						
 						Regs = Regs.Set(RegId1, NewProc.TryAsInt(Span, ArgReg));
-						Types.Push(mVM_Type.Int());
+						Types.Push(MatchedType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var (SuccessType, FailureType) = ArgType.SplitBy(
+							_ => _.IsType()
+						);
+						
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_TYPE expects type with TYPE but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = Union(ReturnType, FailureType);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsType(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var Prefix = RegId3.AssertNotEmpty();
 						var ArgType = Types.Get(ArgReg);
 						
-						mMaybe.tMaybe<mVM_Type.tType> SubType = mStd.cEmpty;
+						var (PrefixType, RestType) = ArgType.SplitBy(
+							_ => _.IsPrefix(Prefix, out _)
+						);
 						
-						if (ArgType.IsPrefix(Prefix, out var Inner)) {
-							SubType = Inner;
-						} else {
-							var Found = false;
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsPrefix(Prefix, out Inner) || Type2.IsPrefix(Prefix, out Inner)) {
-									SubType = Inner;
-									Found = true;
-									break;
-								}
-							}
-							
-							mAssert.IsTrue(
-								Found,
-								() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
-							);
-						}
+						mAssert.IsTrue(
+							PrefixType.IsPrefix(Prefix, out var InnerType_),
+							() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = Union(ReturnType, RestType);
 						
 						Regs = Regs.Set(RegId1, NewProc.TryRemovePrefixFrom(Span, Prefix.PrefixHash(), ArgReg));
-						Types.Push(SubType.AssertNotEmpty());
+						Types.Push(InnerType_);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var (SuccessType, FailureType) = ArgType.SplitBy(
+							_ => _.IsRecord(out var _)
+						);
+						
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_RECORD expects type with RECORD but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = Union(ReturnType, FailureType);;
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsRecord(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						if (ArgType.IsRecursive(out var _, out var Body_)) {
-							ArgType = Body_;
-						}
 						
-						while (ArgType.IsSet(out var Type1, out var Type2)) {
-							if (Type1.IsPair(out _, out _)) {
-								ArgType = Type1;
-								break;
-							}
-							
-							ArgType = Type2;
-						}
+						var (PairType, OtherType) = ArgType.SplitBy(
+							_ => _.IsPair(out _, out _)
+						);
 						
 						mAssert.IsTrue(
-							ArgType.IsPair(out _, out _),
+							!PairType.IsEmpty(),
 							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
 						);
-
+						
+						ReturnType = Union(ReturnType, OtherType);
+						
 						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
-						Types.Push(ArgType);
+						Types.Push(PairType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var (SuccessType, FailureType) = ArgType.SplitBy(
+							_ => _.IsVar(out _)
+						);
+						
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_VAR expects type with VAR but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = Union(ReturnType, FailureType);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsVar(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+						
+						var (SuccessType, FailureType) = ArgType.SplitBy(
+							_ => _.IsRef(out _)
+						);
+						
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_REF expects type with REF but is {ArgType.ToText()}"
+						);
+						
+						DefResType = Union(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+						
+						Regs = Regs.Set(RegId1, NewProc.TryAsRef(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var Reg = Regs.GetOrThrow(RegId2, Command);
@@ -679,6 +745,7 @@ mIL_GenerateOpcodes {
 				
 				mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			}
+			Types.Set(mVM_Data.cResReg, ReturnType);
 			mAssert.AreEquals(NewProc.Commands.Size, NewProc.PosList.Size);
 		}
 		#if MY_TRACE_IL
@@ -698,15 +765,68 @@ mIL_GenerateOpcodes {
 		return (Module, ModuleMap);
 	}
 	
+	private static (mVM_Type.tType Matched, mVM_Type.tType Remainder)
+	SplitBy(
+		this mVM_Type.tType aType,
+		mStd.tFunc<mVM_Type.tType, tBool> aIsMatching
+	) {
+		if (aType.IsEmpty()) {
+			return (mVM_Type.Empty(), mVM_Type.Empty());
+		}
+		
+		if (aType.IsRecursive(out var Head, out var Body)) {
+			return Body.Substitute(Head.Id, Body).SplitBy(aIsMatching);
+		}
+		
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			var (Matched1, Remainder1) = Type1.SplitBy(aIsMatching);
+			var (Matched2, Remainder2) = Type2.SplitBy(aIsMatching);
+			
+			return (
+				Union(Matched1, Matched2),
+				Union(Remainder1, Remainder2)
+			);
+		}
+		
+		return aIsMatching(aType)
+		? (aType, mVM_Type.Empty())
+		: (mVM_Type.Empty(), aType);
+	}
+	
+	private static mVM_Type.tType
+	Union(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		if (aType1.IsEmpty()) {
+			return aType2;
+		}
+		
+		if (aType2.IsEmpty()) {
+			return aType1;
+		}
+		
+		if (aType1 == aType2) {
+			// TODO: special cases for UnionTypes
+			return aType1;
+		}
+		
+		return mVM_Type.Set(aType1, aType2);
+	}
+	
 	public static tNat32 GetOrThrow<tPos>(
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		mMaybe.tMaybe<tText> aRegId,
 		mIL_AST.tCommandNode<tPos> aCommand
-	) => aRegs.TryGet(aRegId.AssertNotEmpty()).AssertNotEmpty(
-		() => $"""
-		no '{aRegId}' defined
-		{aCommand.Pos}: {aCommand.ToText()}
-		"""
+	) => aRegs.TryGet(
+		aRegId.AssertNotEmpty()
+	).AssertNotEmpty(
+		() => (
+			$"""
+			no '{aRegId}' defined
+			{aCommand.Pos}: {aCommand.ToText()}
+			"""
+		)
 	);
 	
 	public static tNat32 GetOrThrow<tPos>(
@@ -714,10 +834,12 @@ mIL_GenerateOpcodes {
 		tText aRegId,
 		mIL_AST.tCommandNode<tPos> aCommand
 	) => aRegs.TryGet(aRegId).AssertNotEmpty(
-		() => $"""
-		no '{aRegId}' defined
-		{aCommand.Pos}: {aCommand.ToText()}
-		"""
+		() => (
+			$"""
+			no '{aRegId}' defined
+			{aCommand.Pos}: {aCommand.ToText()}
+			"""
+		)
 	);
 	
 	public static void
@@ -744,4 +866,4 @@ mIL_GenerateOpcodes {
 			}
 		}
 	}
-			}
+}

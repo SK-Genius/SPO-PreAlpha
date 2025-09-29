@@ -773,6 +773,19 @@ mVM_Type {
 			);
 		}
 		
+		if (
+			aSupType.Kind is not tKind.Recursive &&
+			SubBaseType.IsRecursive(out var Head, out var Body)
+		) {
+			return Body.Substitute(
+				Head.Id,
+				Body
+			).IsSubType(
+				aSupType,
+				aTypeMappings
+			);
+		}
+		
 		// TODO: implement
 		switch (aSupType.Kind) {
 			case tKind.Free: {

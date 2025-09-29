@@ -427,15 +427,12 @@ mVM_Data {
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.TryRemovePrefixFrom, aPrefixId, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsRecord<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsRecord, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsRecord, aArgReg);
 	
 	public static tNat32
 	TryAsPair<tPos>(
@@ -444,25 +441,19 @@ mVM_Data {
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.TryAsPair, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsVar<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsVar, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsVar, aArgReg);
 	
-	public static void
+	public static tNat32
 	TryAsRef<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aFuncReg,
 		tNat32 aArgReg
-	) {
-		aDef._AddCommand(aPos, tOpCode.TryAsRef, aFuncReg, aArgReg);
-	}
+	) => aDef._AddReg(aPos, tOpCode.TryAsRef, aArgReg);
 	
 	public static void
 	Assert<tPos>(
