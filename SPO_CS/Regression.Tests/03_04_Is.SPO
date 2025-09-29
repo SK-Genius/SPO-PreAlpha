@@ -5,7 +5,14 @@
 §EXPORT (
 	Value §IS 12
 	Value §IS 13
-	Pair §IS (1, §DEF Right)
+	Pair §IS (_, _)
+	Pair §IS (1, _)
+	Pair §IS (_, 2)
+	Pair §IS (1, 2)
+	Pair §IS (2, _)
+	Pair §IS (_, 3)
 	TagValue §IS (#Foo _)
+	TagValue §IS (#Foo 12)
+	TagValue §IS (#Foo 13)
 )
 

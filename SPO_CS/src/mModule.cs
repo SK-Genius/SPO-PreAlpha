@@ -74,7 +74,7 @@ mModule {
 				var SPO_Path = aModuleSetup.ModulePath.ToText();
 				var SPO_Text = System.IO.File.ReadAllText(SPO_Path);
 				
-				#if !true
+				#if true
 				{
 					var IL_Path = SPO_Path.Replace(".SPO", ".ILT");
 					var IL_Text = System.IO.File.Exists(IL_Path)

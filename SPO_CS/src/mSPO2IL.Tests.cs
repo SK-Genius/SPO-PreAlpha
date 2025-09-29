@@ -961,6 +961,7 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
+							§RETURN ARG IF_NOT_EMPTY
 							r_1 := 1
 							§RETURN r_1 IF TRUE
 							""",
@@ -972,6 +973,7 @@ mSPO2IL_Tests {
 							§RETURN r_3 IF TRUE
 							""",
 							"""
+							§RETURN ARG IF_NOT_EMPTY
 							r_1 := 2
 							§RETURN r_1 IF TRUE
 							""",
@@ -1021,6 +1023,7 @@ mSPO2IL_Tests {
 							r_13 := §1ST r_12
 							d_0 := §2ND r_13
 							r_14 := §1ST r_13
+							§RETURN ARG IF_NOT_EMPTY
 							r_1 := +#_Bla... EMPTY
 							_X := r_1
 							r_2 := EMPTY, d_0
