@@ -1,4 +1,4 @@
-﻿§TYPES
+§TYPES
 	t_0 := [EMPTY_TYPE, BOOL]
 	t_1 := [EMPTY_TYPE => INT]
 	t_2 := [t_0, t_1]
@@ -58,6 +58,7 @@
 	r_5 := §2ND r_4
 	_c := r_5
 	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
 	r_7 := ._i EMPTY
 	§RETURN r_7 IF _c
 	r_8 := ._e EMPTY
@@ -65,6 +66,7 @@
 
 §DEF d_1 € t_6
 	_a := ENV
+	§RETURN ARG IF_NOT_EMPTY
 	§RETURN _a IF TRUE
 
 §DEF d_2 € t_15
@@ -76,6 +78,7 @@
 	r_16 := §1ST r_15
 	_...+... := §2ND r_16
 	r_17 := §1ST r_16
+	§RETURN ARG IF_NOT_EMPTY
 	r_1 := EMPTY, _a
 	r_2 := 2
 	r_3 := r_1, r_2

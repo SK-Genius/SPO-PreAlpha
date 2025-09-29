@@ -12,7 +12,7 @@
 		§DEF aArray € [.tArray tIn]
 		§DEF aMap... € [tIn => tOut]
 	) => §IF aArray MATCH {
-		(aTail € [.tArray tIn]; §DEF aHead € tIn) : (aTail .MapEachWith aMap...; .aMap aHead)
+		(§DEF aTail; §DEF aHead) : (aTail .MapEachWith aMap...; .aMap aHead)
 		() : ()
 	}
 }

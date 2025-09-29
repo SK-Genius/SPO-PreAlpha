@@ -147,13 +147,13 @@ mSPO_Parser {
 	UnTypedMatch = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
 	.SetName(nameof(UnTypedMatch));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
-	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(), (-SpecialToken("€") +Expression).Modify(mMaybe.Some))
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypedMatchNode<tSpan>, tError>
+	TypedMatch = mParserGen.Seq(UnTypedMatch.Cast<mSPO_AST.tMatchNode<tSpan>>(), (-SpecialToken("€") +Expression).Modify(mMaybe.Some))
 	.ModifyS(mSPO_AST.Match)
 	.SetName(nameof(TypedMatch));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
-	Match = (TypedMatch | UnTypedMatch)
+	Match = (TypedMatch.Modify(_ => (mSPO_AST.tMatchNode<tSpan>)_) | UnTypedMatch)
 	.SetName(nameof(Match));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
@@ -204,7 +204,7 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Tuple)
 	.SetName(nameof(Tuple));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchItemNode<tSpan>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMatchNode<tSpan>, tError>
 	MatchTuple = C( mParserGen.Seq(Match, ((-SpecialToken(",") | -NLs_Token) +Match)[0..]) )
 	.Modify(mStream.Stream)
 	.ModifyS(mSPO_AST.MatchTuple)
@@ -337,8 +337,8 @@ mSPO_Parser {
 	.ModifyS(
 		(aSpan, aId, aChildren) => mSPO_AST.MatchPrefix(
 			aSpan,
-			aId,
-			mSPO_AST.Match(aSpan, mSPO_AST.MatchTuple(aSpan, aChildren), mStd.cEmpty)
+			aId.Id,
+			mSPO_AST.MatchTuple(aSpan, aChildren)
 		)
 	)
 	.SetName(nameof(MatchPrefix));
@@ -764,18 +764,18 @@ mSPO_Parser {
 		UnTypedMatch.Def(
 			mParserGen.OneOf(
 				[
-					MatchFreeId.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchVar.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchTuple.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchPair.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					IgnoreMatch.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchPrefix.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchRecord.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					MatchGuard.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					Literal.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
-					Id.Cast<mSPO_AST.tMatchItemNode<tSpan>>(),
+					MatchFreeId.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchVar.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchTuple.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchPair.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					IgnoreMatch.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchPrefix.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchRecord.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					MatchGuard.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					Literal.Cast<mSPO_AST.tMatchNode<tSpan>>(),
+					Id.Cast<mSPO_AST.tMatchNode<tSpan>>(),
 				]
-			).ModifyS(mSPO_AST.UnTypedMatch)
+			)
 		);
 		
 		Expression.Def(

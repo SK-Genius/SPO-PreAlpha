@@ -576,6 +576,26 @@ mVM {
 				);
 				break;
 			}
+			case mVM_Data.tOpCode.TryAsEmpty: {
+				var Data = aCallStack._Regs.Get(Arg1);
+				if (Data.IsEmpty()) {
+					aCallStack._Regs.Push(Data);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
+			case mVM_Data.tOpCode.TryAsBool: {
+				var Data = aCallStack._Regs.Get(Arg1);
+				if (Data.IsBool(out _)) {
+					aCallStack._Regs.Push(Data);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
 			case mVM_Data.tOpCode.TryAsInt: {
 				var Data = aCallStack._Regs.Get(Arg1);
 				if (Data.IsInt(out _)) {

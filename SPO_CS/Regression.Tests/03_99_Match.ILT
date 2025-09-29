@@ -1,64 +1,59 @@
 §TYPES
-	t_0 := [INT => INT]
-	t_1 := [EMPTY_TYPE => t_0]
-	t_2 := [t_1 => t_0]
-	t_3 := [EMPTY_TYPE, t_1]
-	t_4 := [t_3, t_2]
-	t_5 := [t_4, t_1]
-	t_6 := [t_5 => t_0]
-	t_7 := [t_5, t_6]
-	t_8 := [EMPTY_TYPE => INT]
+	t_0 := [#Result INT]
+	t_1 := [EMPTY_TYPE | t_0]
+	t_2 := [INT => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [INT => INT]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE, t_5]
+	t_7 := [t_6, t_5]
+	t_8 := [INT => t_0]
 	t_9 := [t_7 => t_8]
+	t_10 := [t_7, t_9]
+	t_11 := [EMPTY_TYPE => INT]
+	t_12 := [t_10 => t_11]
 
-§DEF d_0 € t_1
-	r_1 := 0
-	§RETURN r_1 IF TRUE
-
-§DEF d_1 € t_2
-	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	r_2 := §TRY ARG AS_INT
-	r_3 := 1
-	r_4 := §INT r_2 == r_3
-	r_5 := §BOOL r_4 ^ TRUE
-	§RETURN EMPTY IF r_5
-	r_6 := .r_1 r_2
+§DEF d_0 € t_3
+	r_1 := §TRY ARG AS_INT
+	r_2 := 1
+	r_3 := §INT r_1 == r_2
+	r_4 := §BOOL r_3 ^ TRUE
+	§RETURN EMPTY IF r_4
+	r_5 := 0
+	r_6 := +#Result r_5
 	§RETURN r_6 IF TRUE
 
-§DEF d_2 € t_1
+§DEF d_1 € t_3
 	_b := ARG
-	§RETURN _b IF TRUE
+	r_1 := +#Result _b
+	§RETURN r_1 IF TRUE
 
-§DEF d_3 € t_6
-	d_2 := §2ND ENV
+§DEF d_2 € t_9
+	d_1 := §2ND ENV
 	r_5 := §1ST ENV
-	d_1 := §2ND r_5
+	d_0 := §2ND r_5
 	r_6 := §1ST r_5
-	d_0 := §2ND r_6
-	r_7 := §1ST r_6
-	r_1 := .d_1 d_0
+	r_1 := .d_0 EMPTY
 	r_2 := .r_1 ARG
 	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_2 EMPTY
+	r_3 := .d_1 EMPTY
 	r_4 := .r_3 ARG
 	§RETURN r_4 IF_NOT_EMPTY
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_9
-	d_3 := §2ND ENV
+§DEF d_3 € t_12
+	d_2 := §2ND ENV
 	r_7 := §1ST ENV
-	d_2 := §2ND r_7
+	d_1 := §2ND r_7
 	r_8 := §1ST r_7
-	d_1 := §2ND r_8
+	d_0 := §2ND r_8
 	r_9 := §1ST r_8
-	d_0 := §2ND r_9
-	r_10 := §1ST r_9
 	r_1 := 1
 	_a := r_1
 	r_2 := EMPTY, d_0
 	r_3 := r_2, d_1
-	r_4 := r_3, d_2
-	r_5 := .d_3 r_4
-	r_6 := .r_5 _a
+	r_4 := .d_2 r_3
+	r_5 := .r_4 _a
+	r_6 := -#Result r_5
 	_x := r_6
 	§RETURN _x IF TRUE

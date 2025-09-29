@@ -100,28 +100,26 @@ mModule_Tests {
 					).ElseThrow(
 					);
 					
-//								...==...: §DEF ...==... € [[§TEXT, §TEXT] => §BOOL]
-//								...ToUpper: §DEF ...ToUpper € [§TEXT => §TEXT]
-//								...ToLower: §DEF ...ToLower € [§TEXT => §TEXT]
-//								...Trim: §DEF ...Trim € [§TEXT => §TEXT]
-//								...TrimStart: §DEF ...TrimStart € [§TEXT => §TEXT]
-//								...TrimEnd: §DEF ...TrimEnd € [§TEXT => §TEXT]
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							"""
 							§IMPORT {
 								...==...: §DEF ...==... € [[§TEXT, §TEXT] => §BOOL]
+								...ToUpper: §DEF ...ToUpper € [§TEXT => §TEXT]
+								...ToLower: §DEF ...ToLower € [§TEXT => §TEXT]
+								...Trim: §DEF ...Trim € [§TEXT => §TEXT]
+								...TrimStart: §DEF ...TrimStart € [§TEXT => §TEXT]
+								...TrimEnd: §DEF ...TrimEnd € [§TEXT => §TEXT]
 							}
 							
-							§EXPORT ()
+							§EXPORT (
+								("abc" .ToUpper) .== "ABC"
+								("ABC" .ToLower) .== "abc"
+								("  hello  " .Trim) .== "hello"
+								("  hello  " .TrimStart) .== "hello  "
+								("  hello  " .TrimEnd) .== "  hello"
+							)
 							""",
-//								("abc" .ToUpper) .== "ABC"
-//								("ABC" .ToLower) .== "abc"
-//								("  hello  " .Trim) .== "hello"
-//								("  hello  " .TrimStart) .== "hello  "
-//								("  hello  " .TrimEnd) .== "  hello"
-//							)
-//							""",
 							"",
 							(Module_Text.Data, Module_Text.Type),
 							_ => aDebugStream(_())
@@ -137,7 +135,9 @@ mModule_Tests {
 								mVM_Data.Bool(true),
 								mVM_Data.Bool(true),
 							]
-						)
+						),
+						default,
+						_ => _.ToText(20)
 					);
 				}
 			),

@@ -133,6 +133,23 @@ mResult {
 				return Fail(Error);
 			}
 		}
+		return OK(aOnSucceed(List.Reverse()));
+	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static tResult<tOut, tError>
+	WhenAllThenTry<tIn, tOut, tError>(
+		this mStream.tStream<tResult<tIn, tError>> aResults,
+		mStd.tFunc<mStream.tStream<tIn>, tResult<tOut, tError>> aOnSucceed
+	) {
+		var List = mStream.Stream<tIn>([]);
+		foreach (var Result in aResults) {
+			if (Result.Match(out var Value, out var Error)) {
+				List = mStream.Stream(Value, List);
+			} else {
+				return Fail(Error);
+			}
+		}
 		return aOnSucceed(List.Reverse());
 	}
 	

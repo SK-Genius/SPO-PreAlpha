@@ -19,6 +19,7 @@
 	r_5 := §2ND r_4
 	_a := r_5
 	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
 	r_7 := 2
 	r_8 := EMPTY, r_7
 	r_9 := r_8, _a

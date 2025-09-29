@@ -17,6 +17,7 @@
 	r_11 := §1ST ENV
 	_...==... := §2ND r_11
 	r_12 := §1ST r_11
+	§RETURN ARG IF_NOT_EMPTY
 	r_1 := EMPTY, _a
 	r_2 := 1
 	r_3 := r_1, r_2

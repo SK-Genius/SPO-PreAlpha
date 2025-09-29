@@ -1,20 +1,19 @@
 §TYPES
-	t_0 := [§FREE]
-	t_1 := [#_Char... INT]
-	t_2 := [t_0, t_1]
-	t_3 := [t_2 | EMPTY_TYPE]
-	t_4 := [§REC t_0 => t_3]
+	t_0 := [#_Char... INT]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [t_1, t_0]
+	t_3 := [t_2, t_0]
+	t_4 := [EMPTY_TYPE => t_3]
 	t_5 := [EMPTY_TYPE => t_4]
-	t_6 := [EMPTY_TYPE => t_5]
 
-§DEF d_0 € t_6
-	r_1 := 97
+§DEF d_0 € t_5
+	r_1 := 66
 	r_2 := +#_Char... r_1
 	r_3 := EMPTY, r_2
 	r_4 := 108
 	r_5 := +#_Char... r_4
 	r_6 := r_3, r_5
-	r_7 := 66
+	r_7 := 97
 	r_8 := +#_Char... r_7
 	r_9 := r_6, r_8
 	_X := r_9

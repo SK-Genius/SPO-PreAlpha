@@ -773,6 +773,19 @@ mVM_Type {
 			);
 		}
 		
+		if (
+			aSupType.Kind is not tKind.Recursive &&
+			SubBaseType.IsRecursive(out var Head, out var Body)
+		) {
+			return Body.Substitute(
+				Head.Id,
+				Body
+			).IsSubType(
+				aSupType,
+				aTypeMappings
+			);
+		}
+		
 		// TODO: implement
 		switch (aSupType.Kind) {
 			case tKind.Free: {
@@ -949,6 +962,18 @@ mVM_Type {
 		}
 	}
 	
+	public static mMaybe.tMaybe<tType>
+	SubSet(
+		this tType aType,
+		mStd.tFunc<tType, mMaybe.tMaybe<tType>> aSelect
+	) => (
+		aSelect(aType).IsSome(out var Res) ? Res :
+		!aType.IsSet(out var T1, out var T2) ? mStd.cEmpty :
+		!T1.SubSet(aSelect).IsSome(out var T1_) ? T2.SubSet(aSelect) :
+		!T2.SubSet(aSelect).IsSome(out var T2_) ? T1_ :
+		Set(T1_, T2_)
+	);
+	
 	public static tType
 	BaseType(
 		this tType a
@@ -1010,6 +1035,55 @@ mVM_Type {
 		return ResType;
 	}
 	
+	public static (mMaybe.tMaybe<mVM_Type.tType> Matched, mMaybe.tMaybe<mVM_Type.tType> Remainder)
+	SplitBy(
+		this mVM_Type.tType aType,
+		mStd.tFunc<mVM_Type.tType, tBool> aIsMatching
+	) {
+		if (aType.IsRecursive(out var Head, out var Body)) {
+			return Body.Substitute(Head.Id, Body).SplitBy(aIsMatching);
+		}
+		
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			var (Matched1, Remainder1) = Type1.SplitBy(aIsMatching);
+			var (Matched2, Remainder2) = Type2.SplitBy(aIsMatching);
+			
+			return (
+				!Matched1.IsSome(out var Matched1_) ? Matched2 :
+				!Matched2.IsSome(out var Matched2_) ? Matched1 :
+				Union(Matched1_, Matched2_),
+				!Remainder1.IsSome(out var Remainder1_) ? Matched2 :
+				!Remainder2.IsSome(out var Remainder2_) ? Matched1 :
+				Union(Remainder1_, Remainder2_)
+			);
+		}
+		
+		return aIsMatching(aType)
+		? (aType, mStd.cEmpty)
+		: (mStd.cEmpty, aType);
+	}
+	
+	public static mVM_Type.tType
+	Union(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		if (aType1.IsEmpty()) {
+			return aType2;
+		}
+		
+		if (aType2.IsEmpty()) {
+			return aType1;
+		}
+		
+		if (aType1 == aType2) {
+			// TODO: special cases for UnionTypes
+			return aType1;
+		}
+		
+		return mVM_Type.Set(aType1, aType2);
+	}
+	
 	public static tText
 	ToText(
 		this tType aType,
@@ -1054,14 +1128,18 @@ mVM_Type {
 					var Result = aType.Refs[1].ToText(____);
 					
 					var Temp = aType.Refs[0];
-					while (Temp.Kind is tKind.Pair) {
-						Result = Temp.Refs[1].ToText(____) + "," + ____ + Result;
-						Temp = Temp.Refs[0];
-					}
-					if (Temp.Kind is not tKind.Empty) {
-						Result = Temp.ToText(____) + ";" + ____ + Result;
-					}
 					
+					if (Temp.Kind is tKind.Empty) {
+						Result = Temp.ToText(____) + ";" + ____ + Result;
+					} else {
+						while (Temp.Kind is tKind.Pair) {
+							Result = Temp.Refs[1].ToText(____) + "," + ____ + Result;
+							Temp = Temp.Refs[0];
+						}
+						if (Temp.Kind is not tKind.Empty) {
+							Result = Temp.ToText(____) + ";" + ____ + Result;
+						}
+					}
 					return "[" + ____ + Result + __ + "]";
 				}
 			),

@@ -1,0 +1,17 @@
+﻿§RECURSIVE {
+	§DEF ...TrimStart = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ""
+		((); (#Char 32)) : ""
+		((); §DEF Char) : (""; Char)
+		(§DEF SubText; §DEF Char) : §IF (SubText .TrimStart, Char) MATCH {
+			((), (#Char 32)) : ""
+			(§DEF TrimmedSubText, _) : (TrimmedSubText; Char)
+		}
+	}
+}
+
+§EXPORT (
+	"  Bla" .TrimStart
+)

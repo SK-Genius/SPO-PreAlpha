@@ -18,6 +18,7 @@
 	r_3 := §2ND r_2
 	_aTail := r_3
 	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
 	r_5 := _aTail, _aHead
 	§RETURN r_5 IF TRUE
 

@@ -353,14 +353,14 @@ mSPO_AST_Types {
 	
 	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
 	UpdateMatchTypes<tPos>(
-		mSPO_AST.tMatchItemNode<tPos> aMatch,
+		mSPO_AST.tMatchNode<tPos> aMatch,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
 		mStream.tStream<tScopeItem> aScope
 	) {
 		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)> Result;
 		switch (aMatch) {
-			case mSPO_AST.tMatchNode<tPos> Match: {
+			case mSPO_AST.tTypedMatchNode<tPos> Match: {
 				Result = Match.TypeExpression.Match(
 					aType_ => mStd.Call(
 						() => aType_.AsVM_Type(aScope).ThenTry(
@@ -767,16 +767,16 @@ mSPO_AST_Types {
 	
 	public static mMaybe.tMaybe<tText>
 	TryGetId<tPos>(
-		this mSPO_AST.tMatchNode<tPos> aMatch
+		this mSPO_AST.tTypedMatchNode<tPos> aMatch
 	) => TryGetId(aMatch.Pattern);
 	
 	public static mMaybe.tMaybe<tText>
 	TryGetId<tPos>(
-		this mSPO_AST.tMatchItemNode<tPos> aMatch
+		this mSPO_AST.tMatchNode<tPos> aMatch
 	) => aMatch switch {
 		mSPO_AST.tMatchFreeIdNode<tPos> Free => Free.Id,
 		mSPO_AST.tIdNode<tPos> IdNode => IdNode.Id,
-		mSPO_AST.tMatchNode<tPos> Match => TryGetId(Match),
+		mSPO_AST.tTypedMatchNode<tPos> Match => TryGetId(Match),
 		_ => mStd.cEmpty,
 	};
 	
@@ -831,7 +831,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tTupleTypeNode<tPos> TupleType: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
-				foreach (var Expression in TupleType.Expressions.Reverse()) {
+				foreach (var Expression in TupleType.ItemTypes.Reverse()) {
 					if (Expression.AsVM_Type(aScope).Match(out var Type, out var Error)) {
 						Types = mStream.Stream(Type, Types);
 					} else {

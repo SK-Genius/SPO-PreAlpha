@@ -1,17 +1,11 @@
 ﻿NEXT:
 =====
-	o more compile time type checks
-		- type conditions (dependent types ???)
-
-	o type definition of an SPO_IL module
-	
 	o maybe rename operators:
-		- §<    (|
-		- §>    |)
+		- §<    (:
+		- §>    :)
 	
 	o types
 		- arrays ??? [v1, v2, ...]
-		- strings & chars
 	
 	o lambdas with "..." notation
 		- (=> ... .+ ...)  ==  ((a, b) => a .+ b)

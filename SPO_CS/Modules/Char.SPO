@@ -14,9 +14,9 @@
 	§DEF a1 € §INT
 	§DEF a2 € §INT
 ) => §IF {
-	a1 .== a2 : 0
-	a1 .<= a2 : -1
-	§TRUE : 1
+	a1 .== a2: 0
+	a1 .<= a2: -1
+	§TRUE: 1
 }
 
 §DEF ...Ord = (
@@ -51,76 +51,84 @@
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	0 : §TRUE
-	_ : §FALSE
+	0: §TRUE
+	_: §FALSE
 }
 
 §DEF ...Char!=... = (
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	0 : §FALSE
-	_ : §TRUE
+	0: §FALSE
+	_: §TRUE
 }
 
 §DEF ...Char>... = (
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	1 : §TRUE
-	_ : §FALSE
+	1: §TRUE
+	_: §FALSE
 }
 
 §DEF ...Char<... = (
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	-1 : §TRUE
-	_ : §FALSE
+	-1: §TRUE
+	_: §FALSE
 }
 
 §DEF ...Char>=... = (
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	-1 : §FALSE
-	_ : §TRUE
+	-1: §FALSE
+	_: §TRUE
 }
 
 §DEF ...Char<=... = (
 	§DEF a1 € §CHAR
 	§DEF a2 € §CHAR
 ) => §IF (a1 .Char<=> a2) MATCH {
-	1 : §FALSE
-	_ : §TRUE
+	1: §FALSE
+	_: §TRUE
 }
 
 §DEF ...IsSpace = (
 	§DEF a € §CHAR
 ) => §IF (a .Ord) MATCH {
-	0 : §TRUE
-	9 : §TRUE
-	10 : §TRUE
-	11 : §TRUE
-	12 : §TRUE
-	13 : §TRUE
-	32 : §TRUE
-	127 : §TRUE
-	_ : §FALSE
+	0: §TRUE
+	9: §TRUE
+	10: §TRUE
+	11: §TRUE
+	12: §TRUE
+	13: §TRUE
+	32: §TRUE
+	127: §TRUE
+	_: §FALSE
 }
 
 §DEF ...ToUpper = (
 	§DEF a € §CHAR
 ) => §IF {
-	§a .Char<= a <= §z : (((a .Ord) .+ (§A.Ord)) .- (§a.Ord)) .AsChar
-	§TRUE : a
+	§a .Char<= a <= §z: (
+		(((a .Ord) .+ (§A.Ord)) .- (§a.Ord)) .AsChar
+	)
+	§TRUE: (
+		a
+	)
 }
 
 §DEF ...ToLower = (
 	§DEF a € §CHAR
 ) => §IF {
-	§A .Char<= a <= §Z : (((a .Ord) .+ (§a.Ord)) .- (§A.Ord)) .AsChar
-	§TRUE : a
+	§A .Char<= a <= §Z: (
+		(((a .Ord) .+ (§a.Ord)) .- (§A.Ord)) .AsChar
+	)
+	§TRUE: (
+		a
+	)
 }
 
 §EXPORT {

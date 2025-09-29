@@ -100,8 +100,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapExpression",
 				aStreamOut => {
 					var ExpressionNode = mSPO_Parser.Expression.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"0 .< (1 .+ 2) < 4",
 						"",
 						_ => aStreamOut(_())
@@ -144,8 +144,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapDef1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF a = (1, 2)",
 						"",
 						_ => aStreamOut(_())
@@ -179,8 +179,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapDefMatch",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 						"",
 						_ => aStreamOut(_())
@@ -225,8 +225,8 @@ mSPO2IL_Tests {
 			mTest.Test("MatchTuple",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 						"",
 						_ => aStreamOut(_())
@@ -267,8 +267,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapMatchPrefix",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 						"",
 						_ => aStreamOut(_())
@@ -320,8 +320,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapLambda1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF x = §DEF a € §INT => 2 .* a",
 						"",
 						_ => aStreamOut(_())
@@ -410,7 +410,7 @@ mSPO2IL_Tests {
 							[
 								mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv), // ENV == ...*...
 								
-								mIL_AST.Alias(Span((1, 10), (1, 22)), mSPO2IL.GetId("a"), mIL_AST.cArg), // ARG == a
+								mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("a"), mIL_AST.cArg), // ARG == a
 								
 								mIL_AST.CreateInt(Span((1, 27), (1, 27)), mSPO2IL.GetRegId(1), "2"), // 2 => [1]:2
 								mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:2 => [2]:(2)
@@ -453,8 +453,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapLambda2",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF ...*...+... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .+ c",
 						"",
 						_ => aStreamOut(_())
@@ -565,13 +565,13 @@ mSPO2IL_Tests {
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
 								
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
-								mIL_AST.Alias(Span((1, 51), (1, 63)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
+								mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 36), (1, 48)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
+								mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.Alias(Span((1, 21), (1, 33)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
+								mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
 								
 								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
@@ -621,8 +621,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapLambda3",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF TestTest... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .> c",
 						"",
 						_ => aStreamOut(_())
@@ -723,13 +723,13 @@ mSPO2IL_Tests {
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
 								
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
-								mIL_AST.Alias(Span((1, 51), (1, 63)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
+								mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 36), (1, 48)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
+								mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.Alias(Span((1, 21), (1, 33)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
+								mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
 								
 								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
@@ -779,8 +779,8 @@ mSPO2IL_Tests {
 			mTest.Test("MapIfMatch_1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.ParseText(
-						//    1     2     3     4     5     6     7     8
-						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
+						//       1         2         3         4         5         6         7         8
+						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
 						§DEF x = §IF 1 MATCH {
 							0 : 2
@@ -830,83 +830,65 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := 2
-							§RETURN r_1 IF TRUE
-							""",
-							"""
-							d_0 := ENV
-							r_1 := .d_0 EMPTY
-							r_2 := §TRY ARG AS_INT
-							r_3 := 0
-							r_4 := §INT r_2 == r_3
-							r_5 := §BOOL r_4 ^ TRUE
-							§RETURN EMPTY IF r_5
-							r_6 := .r_1 r_2
+							r_1 := §TRY ARG AS_INT
+							r_2 := 0
+							r_3 := §INT r_1 == r_2
+							r_4 := §BOOL r_3 ^ TRUE
+							§RETURN EMPTY IF r_4
+							r_5 := 2
+							r_6 := +#Result r_5
 							§RETURN r_6 IF TRUE
 							""",
 							"""
-							r_1 := 4
-							§RETURN r_1 IF TRUE
-							""",
-							"""
-							d_2 := ENV
-							r_1 := .d_2 EMPTY
-							r_2 := §TRY ARG AS_INT
-							r_3 := 1
-							r_4 := §INT r_2 == r_3
-							r_5 := §BOOL r_4 ^ TRUE
-							§RETURN EMPTY IF r_5
-							r_6 := .r_1 r_2
+							r_1 := §TRY ARG AS_INT
+							r_2 := 1
+							r_3 := §INT r_1 == r_2
+							r_4 := §BOOL r_3 ^ TRUE
+							§RETURN EMPTY IF r_4
+							r_5 := 4
+							r_6 := +#Result r_5
 							§RETURN r_6 IF TRUE
 							""",
 							"""
 							r_1 := 6
-							§RETURN r_1 IF TRUE
+							r_2 := +#Result r_1
+							§RETURN r_2 IF TRUE
 							""",
 							"""
-							d_4 := §2ND ENV
+							d_2 := §2ND ENV
 							r_7 := §1ST ENV
-							d_3 := §2ND r_7
+							d_1 := §2ND r_7
 							r_8 := §1ST r_7
+							d_0 := §2ND r_8
+							r_9 := §1ST r_8
+							r_1 := .d_0 EMPTY
+							r_2 := .r_1 ARG
+							§RETURN r_2 IF_NOT_EMPTY
+							r_3 := .d_1 EMPTY
+							r_4 := .r_3 ARG
+							§RETURN r_4 IF_NOT_EMPTY
+							r_5 := .d_2 EMPTY
+							r_6 := .r_5 ARG
+							§RETURN r_6 IF_NOT_EMPTY
+							§RETURN EMPTY IF TRUE
+							""",
+							"""
+							d_3 := §2ND ENV
+							r_8 := §1ST ENV
 							d_2 := §2ND r_8
 							r_9 := §1ST r_8
 							d_1 := §2ND r_9
 							r_10 := §1ST r_9
 							d_0 := §2ND r_10
 							r_11 := §1ST r_10
-							r_1 := .d_1 d_0
-							r_2 := .r_1 ARG
-							§RETURN r_2 IF_NOT_EMPTY
-							r_3 := .d_3 d_2
-							r_4 := .r_3 ARG
-							§RETURN r_4 IF_NOT_EMPTY
-							r_5 := .d_4 EMPTY
-							r_6 := .r_5 ARG
-							§RETURN r_6 IF_NOT_EMPTY
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_5 := §2ND ENV
-							r_9 := §1ST ENV
-							d_4 := §2ND r_9
-							r_10 := §1ST r_9
-							d_3 := §2ND r_10
-							r_11 := §1ST r_10
-							d_2 := §2ND r_11
-							r_12 := §1ST r_11
-							d_1 := §2ND r_12
-							r_13 := §1ST r_12
-							d_0 := §2ND r_13
-							r_14 := §1ST r_13
 							r_1 := 1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
 							r_4 := r_3, d_2
-							r_5 := r_4, d_3
-							r_6 := r_5, d_4
-							r_7 := .d_5 r_6
-							r_8 := .r_7 r_1
-							_x := r_8
+							r_5 := .d_3 r_4
+							r_6 := .r_5 r_1
+							r_7 := -#Result r_6
+							_x := r_7
 							""",
 						]
 					);
@@ -915,7 +897,7 @@ mSPO2IL_Tests {
 			mTest.Test("MapIfMatch_2_WithSet",
 				aStreamOut => {
 					var ModuleNode = mSPO_Parser.Module.ParseText(
-						//    1     2     3     4     5     6     7     8
+						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
 						§IMPORT ()
@@ -961,76 +943,61 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := 1
-							§RETURN r_1 IF TRUE
+							r_1 := §TRY_REMOVE #_Blub... FROM ARG
+							r_2 := §TRY r_1 AS_EMPTY
+							r_3 := 1
+							r_4 := +#Result r_3
+							§RETURN r_4 IF TRUE
 							""",
 							"""
-							d_0 := ENV
-							r_1 := .d_0 EMPTY
-							r_2 := §TRY_REMOVE #_Blub... FROM ARG
-							r_3 := .r_1 r_2
-							§RETURN r_3 IF TRUE
-							""",
-							"""
-							r_1 := 2
-							§RETURN r_1 IF TRUE
-							""",
-							"""
-							d_2 := ENV
-							r_1 := .d_2 EMPTY
-							r_2 := §TRY_REMOVE #_Bla... FROM ARG
-							r_3 := .r_1 r_2
-							§RETURN r_3 IF TRUE
+							r_1 := §TRY_REMOVE #_Bla... FROM ARG
+							r_2 := §TRY r_1 AS_EMPTY
+							r_3 := 2
+							r_4 := +#Result r_3
+							§RETURN r_4 IF TRUE
 							""",
 							"""
 							r_1 := 3
-							§RETURN r_1 IF TRUE
+							r_2 := +#Result r_1
+							§RETURN r_2 IF TRUE
 							""",
 							"""
-							d_4 := §2ND ENV
+							d_2 := §2ND ENV
 							r_7 := §1ST ENV
-							d_3 := §2ND r_7
+							d_1 := §2ND r_7
 							r_8 := §1ST r_7
+							d_0 := §2ND r_8
+							r_9 := §1ST r_8
+							r_1 := .d_0 EMPTY
+							r_2 := .r_1 ARG
+							§RETURN r_2 IF_NOT_EMPTY
+							r_3 := .d_1 EMPTY
+							r_4 := .r_3 ARG
+							§RETURN r_4 IF_NOT_EMPTY
+							r_5 := .d_2 EMPTY
+							r_6 := .r_5 ARG
+							§RETURN r_6 IF_NOT_EMPTY
+							§RETURN EMPTY IF TRUE
+							""",
+							"""
+							d_3 := §2ND ENV
+							r_8 := §1ST ENV
 							d_2 := §2ND r_8
 							r_9 := §1ST r_8
 							d_1 := §2ND r_9
 							r_10 := §1ST r_9
 							d_0 := §2ND r_10
 							r_11 := §1ST r_10
-							r_1 := .d_1 d_0
-							r_2 := .r_1 ARG
-							§RETURN r_2 IF_NOT_EMPTY
-							r_3 := .d_3 d_2
-							r_4 := .r_3 ARG
-							§RETURN r_4 IF_NOT_EMPTY
-							r_5 := .d_4 EMPTY
-							r_6 := .r_5 ARG
-							§RETURN r_6 IF_NOT_EMPTY
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_5 := §2ND ENV
-							r_9 := §1ST ENV
-							d_4 := §2ND r_9
-							r_10 := §1ST r_9
-							d_3 := §2ND r_10
-							r_11 := §1ST r_10
-							d_2 := §2ND r_11
-							r_12 := §1ST r_11
-							d_1 := §2ND r_12
-							r_13 := §1ST r_12
-							d_0 := §2ND r_13
-							r_14 := §1ST r_13
+							§RETURN ARG IF_NOT_EMPTY
 							r_1 := +#_Bla... EMPTY
 							_X := r_1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
 							r_4 := r_3, d_2
-							r_5 := r_4, d_3
-							r_6 := r_5, d_4
-							r_7 := .d_5 r_6
-							r_8 := .r_7 _X
-							§RETURN r_8 IF TRUE
+							r_5 := .d_3 r_4
+							r_6 := .r_5 _X
+							r_7 := -#Result r_6
+							§RETURN r_7 IF TRUE
 							""",
 						]
 					);
@@ -1039,7 +1006,7 @@ mSPO2IL_Tests {
 			mTest.Test("MapNestedMatch",
 				aStreamOut => {
 					var LambdaNode = mSPO_Parser.Lambda.ParseText(
-						//    1     2     3     4     5     6     7     8
+						//        1         2         3         4         5         6         7         8
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a € §INT, §DEF b € §INT, (§DEF x € §INT, §DEF y € §INT, §DEF z € §INT)) => a .* z",
 						"",
@@ -1105,20 +1072,20 @@ mSPO2IL_Tests {
 								("_...*... := ENV", (1, 1), (1, 87)),
 								("r_1 := §2ND ARG", (1, 1), (1, 77)),
 								("r_2 := §2ND r_1", (1, 32), (1, 76)),
-								("_z := r_2", (1, 63), (1, 75)),
+								("_z := r_2", (1, 63), (1, 68)),
 								("r_3 := §1ST r_1", (1, 32), (1, 76)),
 								("r_4 := §2ND r_3", (1, 32), (1, 76)),
-								("_y := r_4", (1, 48), (1, 60)),
+								("_y := r_4", (1, 48), (1, 53)),
 								("r_5 := §1ST r_3", (1, 32), (1, 76)),
 								("r_6 := §2ND r_5", (1, 32), (1, 76)),
-								("_x := r_6", (1, 33), (1, 45)),
+								("_x := r_6", (1, 33), (1, 38)),
 								("r_7 := §1ST r_5", (1, 32), (1, 76)),
 								("r_8 := §1ST ARG", (1, 1), (1, 77)),
 								("r_9 := §2ND r_8", (1, 1), (1, 77)),
-								("_b := r_9", (1, 17), (1, 29)),
+								("_b := r_9", (1, 17), (1, 22)),
 								("r_10 := §1ST r_8", (1, 1), (1, 77)),
 								("r_11 := §2ND r_10", (1, 1), (1, 77)),
-								("_a := r_11", (1, 2), (1, 14)),
+								("_a := r_11", (1, 2), (1, 7)),
 								("r_12 := §1ST r_10", (1, 1), (1, 77)),
 								("r_13 := EMPTY, _a", (1, 82), (1, 87)),
 								("r_14 := r_13, _z", (1, 82), (1, 87)),

@@ -83,7 +83,7 @@ mSPO_AST_Types_Tests {
 								cNoPos,
 								mSPO_AST.MatchPrefix(
 									cNoPos,
-									mSPO_AST.Id(cNoPos, "Bla..."),
+									"_Bla...",
 									mSPO_AST.Match(
 										cNoPos,
 										mSPO_AST.MatchFreeId(cNoPos, "a"),

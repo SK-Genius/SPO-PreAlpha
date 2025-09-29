@@ -84,8 +84,9 @@ mIL_AST {
 		VarSet = _BeginCommands_,   // §VAR X <- X
 		ReturnIf,                   // §RETURN X IF X
 		ReturnIfNotEmpty,           // §RETURN x IF_NOT_EMPTY
-		TryAsInt,                   // X := §TRY X AS_INT
+		TryAsEmpty,                   // X := §TRY X AS_INT
 		TryAsBool,                  // X := §TRY X AS_BOOL
+		TryAsInt,                   // X := §TRY X AS_INT
 		TryAsPair,                  // X := §TRY X AS_PAIR
 		TryAsRecord,                // X := §TRY X AS_RECORD
 		TryAsVar,                   // X := §TRY X AS_VAR
@@ -206,8 +207,9 @@ mIL_AST {
 		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
 		tCommandNodeType.ReturnIf => $"§RETURN {a._2} IF {a._1}",
 		tCommandNodeType.ReturnIfNotEmpty => $"§RETURN {a._2} IF_NOT_EMPTY",
-		tCommandNodeType.TryAsInt => $"{a._1} := §TRY {a._2} AS_INT",
+		tCommandNodeType.TryAsEmpty => $"{a._1} := §TRY {a._2} AS_EMPTY",
 		tCommandNodeType.TryAsBool => $"{a._1} := §TRY {a._2} AS_BOOL",
+		tCommandNodeType.TryAsInt => $"{a._1} := §TRY {a._2} AS_INT",
 		tCommandNodeType.TryAsRef => $"{a._1} := §TRY {a._2} AS_REF",
 		tCommandNodeType.TryAsVar => $"{a._1} := §TRY {a._2} AS_VAR",
 		tCommandNodeType.TryAsType => $"{a._1} := §TRY {a._2} AS_TYPE",
@@ -562,6 +564,13 @@ mIL_AST {
 		tPos aPos,
 		tText aArgReg
 	) => CommandNode(tCommandNodeType.ReturnIfNotEmpty, aPos, cEmptyValue, aArgReg);
+	
+	public static tCommandNode<tPos>
+	TryAsEmpty<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.TryAsEmpty, aPos, aResReg, aArgReg);
 	
 	public static tCommandNode<tPos>
 	TryAsBool<tPos>(

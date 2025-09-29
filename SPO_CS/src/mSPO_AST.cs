@@ -16,7 +16,7 @@ mSPO_AST {
 	}
 	
 	public interface
-	tMatchItemNode<tPos> : tNode<tPos> {
+	tMatchNode<tPos> : tNode<tPos> {
 		mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
@@ -26,7 +26,7 @@ mSPO_AST {
 	}
 	
 	public interface
-	tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchItemNode<tPos> {}
+	tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchNode<tPos> {}
 	
 	public interface
 	tTypeNode<tPos> : tExpressionNode<tPos> {}
@@ -128,22 +128,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIgnoreMatchNode<tPos> : tMatchItemNode<tPos> {
+	tIgnoreMatchNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchItemNode<tPos> {
-		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tText Id = default!;
-	}
-	
-	[DebuggerDisplay(cDebuggerDisplay)]
-	public sealed record
-	tMatchFreeIdNode<tPos> : tMatchItemNode<tPos> {
+	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
@@ -151,7 +143,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchVarNode<tPos> : tMatchItemNode<tPos> {
+	tMatchFreeIdNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
@@ -159,7 +151,15 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchTupleNode<tPos> : tMatchItemNode<tPos> {
+	tMatchVarNode<tPos> : tMatchNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tText Id = default!;
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tMatchTupleNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tMatchNode<tPos>> Items;
@@ -167,7 +167,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchPairNode<tPos> : tMatchItemNode<tPos> {
+	tMatchPairNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Tail = default!;
@@ -176,10 +176,10 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchNode<tPos> : tMatchItemNode<tPos> {
+	tTypedMatchNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchItemNode<tPos> Pattern = default!;
+		public tMatchNode<tPos> Pattern = default!;
 		public mMaybe.tMaybe<tExpressionNode<tPos>> TypeExpression;
 	}
 	
@@ -202,7 +202,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchRecordNode<tPos> : tMatchItemNode<tPos> {
+	tMatchRecordNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdNode<tPos> Id, tMatchNode<tPos> Match)> Elements;
@@ -210,7 +210,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchPrefixNode<tPos> : tMatchItemNode<tPos> {
+	tMatchPrefixNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
@@ -219,7 +219,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchGuardNode<tPos> : tMatchItemNode<tPos> {
+	tMatchGuardNode<tPos> : tMatchNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tMatchNode<tPos> Match = default!;
@@ -343,7 +343,7 @@ mSPO_AST {
 	tTupleTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tTypeNode<tPos>> Expressions;
+		public mStream.tStream<tTypeNode<tPos>> ItemTypes;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -693,7 +693,7 @@ mSPO_AST {
 		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new() {
 		Pos = aPos,
-		Expressions = aTypes,
+		ItemTypes = aTypes,
 	};
 	
 	public static tPairTypeNode<tPos>
@@ -798,11 +798,11 @@ mSPO_AST {
 	public static tMatchPrefixNode<tPos>
 	MatchPrefix<tPos>(
 		tPos aPos,
-		tIdNode<tPos>aPrefix,
+		tText aPrefix,
 		tMatchNode<tPos> aMatch
 	) => new() {
 		Pos = aPos,
-		Prefix = aPrefix.Id,
+		Prefix = aPrefix,
 		Match = aMatch
 	};
 	
@@ -887,7 +887,7 @@ mSPO_AST {
 		List = aList
 	};
 	
-	public static tMatchItemNode<tPos>
+	public static tMatchNode<tPos>
 	MatchTuple<tPos>(
 		tPos aPos,
 		mStream.tStream<tMatchNode<tPos>> aItems
@@ -911,10 +911,10 @@ mSPO_AST {
 		Head = aHead
 	};
 	
-	public static tMatchNode<tPos>
+	public static tTypedMatchNode<tPos>
 	Match<tPos>(
 		tPos aPos,
-		tMatchItemNode<tPos> aMatch,
+		tMatchNode<tPos> aMatch,
 		mMaybe.tMaybe<tExpressionNode<tPos>> aType
 	) => new() {
 		Pos = aPos,
@@ -923,10 +923,10 @@ mSPO_AST {
 		TypeAnnotation = aMatch.TypeAnnotation,
 	};
 	
-	public static tMatchNode<tPos>
+	public static tTypedMatchNode<tPos>
 	UnTypedMatch<tPos>(
 		tPos aPos,
-		tMatchItemNode<tPos> aMatch
+		tMatchNode<tPos> aMatch
 	) => Match(aPos, aMatch, mStd.cEmpty);
 	
 	public static tDefNode<tPos>
@@ -1170,9 +1170,9 @@ mSPO_AST {
 					)
 				);
 			}
-			case tMatchNode<tPos> Node1: {
+			case tTypedMatchNode<tPos> Node1: {
 				return (
-					a2 is tMatchNode<tPos> Node2 &&
+					a2 is tTypedMatchNode<tPos> Node2 &&
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
 						Node1.TypeExpression.Match(
@@ -1445,7 +1445,7 @@ mSPO_AST {
 			tPipeToLeftNode<t> Node => $"({____} {Node.Pipe.Map(_ => $"{_.ToText()} §<")}{Node.Head.ToText()}{__})",
 			
 			// Matches
-			tMatchNode<t> Node => Node.TypeExpression.Match(
+			tTypedMatchNode<t> Node => Node.TypeExpression.Match(
 				Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
 				() => Node.Pattern.ToText(____)
 			),
@@ -1455,6 +1455,14 @@ mSPO_AST {
 			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
 			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",
+			tMatchRecordNode<t> Node => @$"{{ {
+				Node.Elements.Map(
+					_ => $"{_.Id}: {_.Match.ToText(____)}"
+				).Join(
+					(a1, a2) => a1 + "\n" + a2,
+					""
+				)
+			} }}",
 			
 			// Types
 			tEmptyTypeNode<t> Node => "[]",
@@ -1469,7 +1477,7 @@ mSPO_AST {
 			},
 			tTypeTypeNode<t> Node => "§TYPE",
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
-			tTupleTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
 			tMatchPairNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
@@ -1486,10 +1494,23 @@ mSPO_AST {
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",
 			tRecLambdasNode<t> Node => $@"""
-				§REC {{
-				{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
-				}}
-				""",
+			§REC {{
+			{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
+			}}
+			""",
+				
+			// Module
+			tImportNode<t> Node => $"§IMPORT {Node.Match.ToText(____)}",
+			tExportNode<t> Node => $"§EXPORT {Node.Expression.ToText(____)}",
+			tModuleNode<t> Node => $"""
+			{Node.Import.ToText(____)}
+			
+			{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "\n" + a2, "")}
+			
+			{Node.Export.ToText(____)}
+			""",
+			
+			t
 			
 			// Fallback
 			_ => throw new System.NotImplementedException(aNode.GetType().Name),

@@ -35,6 +35,7 @@
 	r_5 := §2ND r_4
 	_aMin := r_5
 	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
 	r_7 := EMPTY, _aMin
 	r_8 := r_7, _aVal
 	r_9 := ._...<=... r_8

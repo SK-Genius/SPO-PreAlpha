@@ -177,6 +177,11 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.ReturnIfNotEmpty))
 			.SetDebugName([nameof(mIL_AST.ReturnIfNotEmpty)]),
 			
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_EMPTY"))
+			.Modify((a1, _, _, a2, _) => (a1, a2))
+			.ModifyS(mTokenizer.X(mIL_AST.TryAsEmpty))
+			.SetDebugName([nameof(mIL_AST.TryAsEmpty)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_BOOL"))
 			.Modify((a1, _, _, a2, _) => (a1, a2))
 			.ModifyS(mTokenizer.X(mIL_AST.TryAsBool))

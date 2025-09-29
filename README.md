@@ -5,3 +5,5 @@
 
 # SPO-PreAlpha
 This is a programming language for security and safety.
+
+**Example**: SPO_CS\Modules\Text.SPO

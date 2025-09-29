@@ -15,7 +15,7 @@
 		PAIR: [t; t]
 		SET: [t | t]
 		REC: [{t; t}]  // t € [[{t; t}] | [#n t] | []]
-		ARRAY [n * t]
+		ARRAY [n * t]  // ???
 		COND: [t & p]
 		VAR: [VAR t]
 		FUNC: [t -> t]
@@ -126,7 +126,7 @@
 			... see TYPES
 		
 		
-		SEMANTIC SUGER:
+		SEMANTIC SUGAR:
 		---------------
 			
 			PAIR:
@@ -153,8 +153,8 @@
 				ASSERT x  ==  ASSERT TRUE => x
 	
 	
-	MODULE:
-	=======
+	IL-MODULE:
+	==========
 		
 		DEF
 			<COMMAND>

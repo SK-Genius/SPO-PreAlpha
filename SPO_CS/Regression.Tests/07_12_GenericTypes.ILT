@@ -32,6 +32,7 @@
 	r_3 := §2ND r_2
 	_aHead := r_3
 	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
 	r_5 := EMPTY, _aHead
 	r_6 := r_5, _aTail
 	§RETURN r_6 IF TRUE
