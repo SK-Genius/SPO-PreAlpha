@@ -436,15 +436,15 @@ mIL_GenerateOpcodes {
 						
 						var ResType = Types.Get(ResReg);
 						
-						ResType.IsSubType(DefResType, mStd.cEmpty)
+						DefResType.IsSubType(ResType, mStd.cEmpty)
 						.ElseThrow(
 							_ => (
 								$"""
 								{Command.Pos}
 								{_}
-								{ResType.ToText()}
-								!<
 								{DefResType.ToText()}
+								!<
+								{ResType.ToText()}
 								{Command.ToText()}
 								"""
 							)
