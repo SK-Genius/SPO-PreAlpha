@@ -8,10 +8,35 @@
 // IMPORT mSPO_AST
 // IMPORT mIL_GenerateOpcodes
 
-using tScope = mStream.tStream<(System.String Id, mVM_Type.tType Type)>;
-
 public static class
 mSPO_AST_Types {
+	public struct tScopeItem {
+		public System.String Id;
+		public mMaybe.tMaybe<mVM_Type.tType> FreeType;
+		public mVM_Type.tType Type;
+	}
+	
+	public static tScopeItem
+	ScopeItem(
+		tText aId,
+		mVM_Type.tType aType,
+		mMaybe.tMaybe<mVM_Type.tType> aFreeType
+	) => new () {
+		Id = aId,
+		FreeType = aFreeType,
+		Type = aType,
+	};
+	
+	public static tScopeItem
+	ScopeItem(
+		tText aId,
+		mVM_Type.tType aType
+	) => new () {
+		Id = aId,
+		FreeType = mStd.cEmpty,
+		Type = aType,
+	};
+	
 	public enum tTypeRelation {
 		Sub,
 		Equal,
@@ -58,7 +83,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
-		tScope aScope
+		mStream.tStream<tScopeItem> aScope
 	) => (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
@@ -131,20 +156,27 @@ mSPO_AST_Types {
 					if (Lambda.Generic.IsSome(out var GenericMatch)) {
 						// TODO: AI generated code has to be reviewed
 						return UpdateMatchTypes(GenericMatch, mVM_Type.Type(), tTypeRelation.Equal, aScope).ThenTry(
-							aGen => UpdateMatchTypes(
+							aGenTypeScope => UpdateMatchTypes(
 								Lambda.Head,
 								mStd.cEmpty,
 								tTypeRelation.Sub,
-								aGen.Scope
+								aGenTypeScope.Scope
 							).ThenTry(
-								aArg => Lambda.Body.UpdateTypes(
-									aArg.Scope
+								aArgTypeScope => Lambda.Body.UpdateTypes(
+									aArgTypeScope.Scope
 								).Then(
-									aRes => {
-										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArg.Type, aRes);
+									aResTypeScope => {
+										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope);
 										
-										if (aGen.Type.IsType(out var OfType) && OfType.IsSome(out var FreeType)) {
-											return mVM_Type.Generic(FreeType, Proc);
+										if (aGenTypeScope.Type.IsType()) {
+											var T = aGenTypeScope.Scope.Where(
+												_ => _.Id == GenericMatch.TryGetId().AssertNotEmpty()
+											).TryFirst(
+											).AssertNotEmpty(
+											).FreeType.AssertNotEmpty(
+											);
+											
+											return mVM_Type.Generic(T, Proc);
 										} else {
 											return Proc;
 										}
@@ -319,14 +351,14 @@ mSPO_AST_Types {
 		_ => { aNode.TypeAnnotation = _; }
 	);
 	
-	public static mResult.tResult<(mVM_Type.tType Type, tScope Scope), (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
 	UpdateMatchTypes<tPos>(
 		mSPO_AST.tMatchItemNode<tPos> aMatch,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
-		tScope aScope
+		mStream.tStream<tScopeItem> aScope
 	) {
-		mResult.tResult<(mVM_Type.tType Type, tScope Scope), (tPos Pos, tText ErrorText)> Result;
+		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)> Result;
 		switch (aMatch) {
 			case mSPO_AST.tMatchNode<tPos> Match: {
 				Result = Match.TypeExpression.Match(
@@ -346,27 +378,29 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tMatchFreeIdNode<tPos> MatchFreeId: {
 				Result = aType.Then(
-					a => mStd.Call(
-						() => {
-							if (a.IsType(out var OfType)) {
-								a = OfType.Match(
-									() => mVM_Type.Type(mVM_Type.Free(MatchFreeId.Id)),
-									aType => a
-								);
-							}
-							
-							return aScope.Where(
-								_ => _.Id == MatchFreeId.Id
-							).TryFirst(
-							).Match(
-								() => (a, mStream.Stream((MatchFreeId.Id, a), aScope)),
-								_ => (
-									_.Type.ToText() == a.ToText()
-									? (a, aScope)
-									: (a, mStream.Stream((MatchFreeId.Id, a), aScope))
-								)
-							);
-						}
+					a => (
+						a.IsType()
+						? (
+							a,
+							mStream.Stream(
+								ScopeItem(
+									MatchFreeId.Id,
+									a,
+									mVM_Type.Free(MatchFreeId.Id)
+								),
+								aScope
+							)
+						)
+						: (
+							a,
+							mStream.Stream(
+								ScopeItem(
+									MatchFreeId.Id,
+									a
+								),
+								aScope
+							)
+						)
 					)
 				).ElseFail(
 					() => (MatchFreeId.Pos, $"missing type for '{MatchFreeId.Id}'")
@@ -384,7 +418,7 @@ mSPO_AST_Types {
 							).Match(
 								() => {
 									var NewType = mVM_Type.Var(a);
-									return (Type: NewType, Scope: mStream.Stream((MatchVar.Id, NewType), aScope));
+									return (Type: NewType, Scope: mStream.Stream(ScopeItem(MatchVar.Id, NewType), aScope));
 								},
 								aScopeItem => {
 									var ExistingType = aScopeItem.Type;
@@ -542,11 +576,11 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
-				var Type = aType.IsSome(out var T) ? T : mVM_Type.Free(Id.Id);
+				var Type = aType.IsSome(out var T) ? T : mVM_Type.Free();
 				
 				Result = (
 					Type,
-					mStream.Stream((Id: Id.Id, Type: Type), aScope)
+					mStream.Stream(ScopeItem(Id.Id, Type), aScope)
 				);
 				break;
 			}
@@ -561,10 +595,10 @@ mSPO_AST_Types {
 		return Result.ThenDo(_ => { aMatch.TypeAnnotation = _.Type; });
 	}
 	
-	public static mResult.tResult<tScope, (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
-		tScope aScope
+		mStream.tStream<tScopeItem> aScope
 	) => aMethodCall.Argument.UpdateTypes(aScope).ThenTry(
 		aArgType => aMethodCall.Method.UpdateTypes(aScope).ThenTry(
 			aMethodType => (
@@ -595,35 +629,29 @@ mSPO_AST_Types {
 		)
 	);
 	
-	public static mResult.tResult<tScope, (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
 	UpdateCommandTypes<tPos>(
 		mSPO_AST.tCommandNode<tPos> aCommand,
-		tScope aScope
+		mStream.tStream<tScopeItem> aScope
 	) {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
 				return Def.Src.UpdateTypes(aScope).ThenTry(
-					aSrcType => {
-						var BoundType = Def.Src is mSPO_AST.tTypeNode<tPos>
-							? mVM_Type.Type(aSrcType)
-							: aSrcType;
-						
-						return UpdateMatchTypes(
-							Def.Des,
-							BoundType,
-							tTypeRelation.Equal,
-							aScope
-						).ThenTry(
-							aType => BoundType.IsSubType(
-								aType.Type,
-								mStd.cEmpty
-							).Then(
-								_ => aType.Scope
-							).ModifyError(
-								_ => (Def.Src.Pos, _)
-							)
-						);
-					}
+					aSrcType => UpdateMatchTypes(
+						Def.Des,
+						aSrcType,
+						tTypeRelation.Equal,
+						aScope
+					).ThenTry(
+						aType => aSrcType.IsSubType(
+							aType.Type,
+							mStd.cEmpty
+						).Then(
+							_ => aType.Scope
+						).ModifyError(
+							_ => (Def.Src.Pos, _)
+						)
+					)
 				);
 			}
 			case mSPO_AST.tReturnIfNode<tPos> ReturnIf: {
@@ -646,7 +674,7 @@ mSPO_AST_Types {
 					).Then(
 						aScope => {
 							var Type = mVM_Type.Var(aValueType);
-							var NewScope = mStream.Stream((DefVar.Id.Id, Type), aScope);
+							var NewScope = mStream.Stream(ScopeItem(DefVar.Id.Id, Type), aScope);
 							DefVar.Id.UpdateTypes(NewScope);
 							return NewScope;
 						}
@@ -669,7 +697,7 @@ mSPO_AST_Types {
 					}
 					
 					NewScope = mStream.Stream(
-						(
+						ScopeItem(
 							Item.Id.Id,
 							mVM_Type.Proc(
 								mVM_Type.Free("__" + Item.Id.Id + "_Obj__"),
@@ -709,7 +737,7 @@ mSPO_AST_Types {
 					if (
 						!Item.Lambda.UpdateTypes(NewScope).Then(
 							Type => mStream.Stream(
-								(
+								ScopeItem(
 									Item.Id.Id,
 									Type
 								),
@@ -755,7 +783,7 @@ mSPO_AST_Types {
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	AsVM_Type<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aExpression,
-		tScope aScope
+		mStream.tStream<tScopeItem> aScope
 	) {
 		mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)> Result;
 		
@@ -770,6 +798,27 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIntTypeNode<tPos>: {
 				Result = mVM_Type.Int();
+				break;
+			}
+			case mSPO_AST.tCharTypeNode<tPos>: {
+				Result = mVM_Type.Prefix("_Char...", mVM_Type.Int());
+				break;
+			}
+			case mSPO_AST.tTextTypeNode<tPos>: {
+				var FreeType = mVM_Type.Free();
+				Result = mVM_Type.Recursive(
+					FreeType,
+					mVM_Type.Set(
+						mVM_Type.Empty(),
+						mVM_Type.Pair(
+							FreeType,
+							mVM_Type.Prefix(
+								"_Char...",
+								mVM_Type.Int()
+							)
+						)
+					)
+				);
 				break;
 			}
 			case mSPO_AST.tTypeTypeNode<tPos>: {
@@ -811,9 +860,9 @@ mSPO_AST_Types {
 				).ElseFail(
 					() => (IdNode.Pos, $"unknown type of Identifier '{IdNode.Id}'")
 				).ThenTry(
-					_ => _.Type.IsType(out var OfType)
-					? OfType.ElseFail(() => (IdNode.Pos, $"missing type for '{IdNode.Id}'"))
-					: mResult.Fail((IdNode.Pos, $"'{IdNode.Id}' is not a type"))
+					_ => _.Type.IsType()
+					? _.FreeType.ElseFail(() => (IdNode.Pos, "impossible ???"))
+					: _.Type
 				);
 				break;
 			}
@@ -828,9 +877,13 @@ mSPO_AST_Types {
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveType: {
 				var Name = RecursiveType.HeadType.Id;
 				var RecursiveVar = mVM_Type.Free(Name);
-				var TempScope = mStream.Stream((Name, mVM_Type.Type(RecursiveVar)), aScope);
 				
-				Result = RecursiveType.BodyType.UpdateTypes(TempScope).Then(
+				Result = RecursiveType.BodyType.UpdateTypes(
+					mStream.Stream(
+						ScopeItem(Name, RecursiveVar),
+						aScope
+					)
+				).Then(
 					_ => mVM_Type.Recursive(RecursiveVar, _)
 				);
 				break;
@@ -872,9 +925,13 @@ mSPO_AST_Types {
 			case mSPO_AST.tGenericTypeNode<tPos> GenericType: {
 				var Name = GenericType.HeadType.Id;
 				var GenericVar = mVM_Type.Free(Name);
-				var TempScope = mStream.Stream((Name, mVM_Type.Type(GenericVar)), aScope);
 				
-				Result = GenericType.BodyType.UpdateTypes(TempScope).Then(
+				Result = GenericType.BodyType.UpdateTypes(
+					mStream.Stream(
+						ScopeItem(Name, GenericVar),
+						aScope
+					)
+				).Then(
 					_ => mVM_Type.Generic(GenericVar, _)
 				);
 				break;

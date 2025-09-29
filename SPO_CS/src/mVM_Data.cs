@@ -987,7 +987,7 @@ mVM_Data {
 	
 	public static tData
 	TypeType(
-	) => Data(tDataType.Type, false, mVM_Type.Type(null));
+	) => Data(tDataType.Type, false, mVM_Type.Type());
 	
 	// TODO: Matches for Types ???
 	

@@ -106,6 +106,7 @@ mVM_Type {
 			case tKind.Empty:
 			case tKind.Bool:
 			case tKind.Int:
+			case tKind.Type:
 			case tKind.Any: {
 				return aType;
 			}
@@ -265,33 +266,14 @@ mVM_Type {
 	
 	public static tType
 	Type(
-	) => new() { Kind = tKind.Type };
+	) => new() {
+		Kind = tKind.Type,
+	};
 	
 	public static tBool
 	IsType(
-		this tType aType,
-		out mMaybe.tMaybe<tType> aOfType
-	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		if (aType.Kind is not tKind.Type) {
-			aOfType = mStd.cEmpty;
-			return false;
-		}
-		
-		aOfType = aType.Refs.Length is 0 ? mStd.cEmpty : aType.Refs[0];
-		return true;
-	}
-	
-	public static tType
-	Type(
-		tType? aType
-	) => new() {
-		Kind = tKind.Type,
-		Refs = aType is null ? [] : [aType]
-	};
+		this tType aType
+	) => aType.Kind is tKind.Type;
 	
 	public static tType
 	Value(
@@ -1052,7 +1034,7 @@ mVM_Type {
 			tKind.Bool => "§BOOL",
 			tKind.Int => "§INT",
 			tKind.Any => "§ANY",
-			tKind.Type => "[[]]",
+			tKind.Type => "§TYPE",
 			tKind.Free => "?" + aType.Id,
 			tKind.Prefix => $"[{____}#{aType.Prefix} {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Record => mStd.Call(

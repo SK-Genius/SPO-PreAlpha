@@ -75,6 +75,18 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tCharTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+	}
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tTextTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -526,6 +538,20 @@ mSPO_AST {
 	
 	public static tIntTypeNode<tPos>
 	IntType<tPos>(
+		tPos aPos
+	) => new() {
+		Pos = aPos
+	};
+
+	public static tCharTypeNode<tPos>
+	CharType<tPos>(
+		tPos aPos
+	) => new() {
+		Pos = aPos
+	};
+
+	public static tTextTypeNode<tPos>
+	TextType<tPos>(
 		tPos aPos
 	) => new() {
 		Pos = aPos
@@ -1098,6 +1124,12 @@ mSPO_AST {
 			case tIntTypeNode<tPos>: {
 				return a2 is tIntTypeNode<tPos>;
 			}
+			case tCharTypeNode<tPos>: {
+				return a2 is tCharTypeNode<tPos>;
+			}
+			case tTextTypeNode<tPos>: {
+				return a2 is tTextTypeNode<tPos>;
+			}
 			case tTypeTypeNode<tPos>: {
 				return a2 is tTypeTypeNode<tPos>;
 			}
@@ -1388,17 +1420,26 @@ mSPO_AST {
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
 			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tRecordNode<t> Node => $"{{ {Node.Elements.Map(_ => ____ + _.Key.Id + ": " + _.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
 			tMethodNode<t> Node => $"({____}{Node.Obj.ToText(____)} : {Node.Arg.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tIfMatchNode<t> Node => (
-				$"§IF {Node.Expression} MATCH " + Node.Cases.Map(
-					_ => _.Match.ToText(____) + " => " + _.Expression.ToText(____)
+				$"§IF {Node.Expression} MATCH {{" + ____ + Node.Cases.Map(
+					_ => _.Match.ToText(____) + " : " + _.Expression.ToText(____)
 				).Reduce(
 					"",
 					(a1, a2) => a1 + "; " + a2
-				)
+				) + ____ + "}"
+			),
+			tIfNode<t> Node => (
+				$"§IF {{" + ____ + Node.Cases.Map(
+					_ => _.Cond.ToText(____) + " : " + _.Result.ToText(____)
+				).Reduce(
+					"",
+					(a1, a2) => a1 + "; " + a2
+				) + ____ + "}"
 			),
 			tIsNode<t> Node => $"({____}{Node.Expression.ToText(____)} §IS {Node.Match.ToText(____)}{__})",
 			tPipeToLeftNode<t> Node => $"({____} {Node.Pipe.Map(_ => $"{_.ToText()} §<")}{Node.Head.ToText()}{__})",
@@ -1419,6 +1460,8 @@ mSPO_AST {
 			tEmptyTypeNode<t> Node => "[]",
 			tBoolTypeNode<t> Node => "§BOOL",
 			tIntTypeNode<t> Node => "§INT",
+			tCharTypeNode<t> Node => "§CHAR",
+			tTextTypeNode<t> Node => "§TEXT",
 			tLambdaTypeNode<t> Node => (Node.EnvType, Node.ArgType, Node.ResType) switch {
 				(tEmptyTypeNode<t> _, tEmptyTypeNode<t> _, var ResType) => $"[=> {ResType.ToText(____)}]]",
 				(tEmptyTypeNode<t> _, var ArgType, var ResType) => $"[{____}{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]",

@@ -192,10 +192,10 @@ mIL_GenerateOpcodes {
 			.Push(mVM_Type.Bool())
 			.Push(mVM_Type.Bool())
 			// self type
-			.Push(mVM_Type.Type(mVM_Type.Empty()))
-			.Push(mVM_Type.Type(mVM_Type.Bool()))
-			.Push(mVM_Type.Type(mVM_Type.Int()))
-			.Push(mVM_Type.Type(mVM_Type.Type()))
+			.Push(mVM_Type.Type()) // mVM_Type.Empty()
+			.Push(mVM_Type.Type()) // mVM_Type.Bool()
+			.Push(mVM_Type.Type()) // mVM_Type.Int()
+			.Push(mVM_Type.Type()) // mVM_Type.Type()
 			.Push(DefEnvType)
 			.Push(DefObjType)
 			.Push(DefArgType)
@@ -436,8 +436,7 @@ mIL_GenerateOpcodes {
 						
 						var ResType = Types.Get(ResReg);
 						
-						// ResType.IsSubType(DefResType, mStd.cEmpty)
-						ResType.IsSubType(mVM_Type.Set(DefResType, mVM_Type.Empty()), mStd.cEmpty) // TODO: remove workaround; see line above
+						ResType.IsSubType(DefResType, mStd.cEmpty)
 						.ElseThrow(
 							_ => (
 								$"""
@@ -537,7 +536,7 @@ mIL_GenerateOpcodes {
 							ArgType.IsPair(out _, out _),
 							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
 						);
-						
+
 						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
 						Types.Push(ArgType);
 						break;
@@ -602,15 +601,7 @@ mIL_GenerateOpcodes {
 						var ArgTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var ResTypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeFunc(Span, ArgTypeReg, ResTypeReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									Types.Get(ArgTypeReg).Value(),
-									Types.Get(ResTypeReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeMethod, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
@@ -619,117 +610,61 @@ mIL_GenerateOpcodes {
 						mAssert.IsTrue(Types.Get(FuncTypeReg).IsProc(out var EmptyType, out var ArgType, out var ResType));
 						mAssert.AreEquals(EmptyType, mVM_Type.Empty());
 						Regs = Regs.Set(RegId1, NewProc.TypeMeth(Span, ObjTypeReg, FuncTypeReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Proc(
-									Types.Get(ObjTypeReg).Value(),
-									ArgType,
-									ResType
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypePair, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Type1Reg = Regs.GetOrThrow(RegId2, Command);
 						var Type2Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypePair(Span, Type1Reg, Type2Reg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Pair(
-									Types.Get(Type1Reg).Value(),
-									Types.Get(Type2Reg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypePrefix, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Prefix = RegId2.AssertNotEmpty();
 						var TypeReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypePrefix(Span, Prefix.PrefixHash(), TypeReg)); // TODO: avoid Hash collisions
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Prefix(
-									Prefix,
-									Types.Get(TypeReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeSet, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Type1Reg = Regs.GetOrThrow(RegId2, Command);
 						var Type2Reg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeSet(Span, Type1Reg, Type2Reg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Set(
-									Types.Get(Type1Reg).Value(),
-									Types.Get(Type2Reg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var TypeReg = Regs.GetOrThrow(RegId2, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeVar(Span, TypeReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Var(
-									Types.Get(TypeReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeFree, Pos: var Span, _1: var RegId1 }: {
 						Regs = Regs.Set(RegId1, NewProc.TypeFree(Span));
-						Types.Push(mVM_Type.Type(mVM_Type.Free(RegId1)));
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeRecursive, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(mVM_Type.Free(RegId2.AssertNotEmpty())), null, _ => _.ToText());
+						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(), null, _ => _.ToText());
 						Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Recursive(
-									Types.Get(FreeTypeReg).Value(),
-									Types.Get(TypeBodyReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeInterface, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeInterface(Span, FreeTypeReg, TypeBodyReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Interface(
-									Types.Get(FreeTypeReg).Value(),
-									Types.Get(TypeBodyReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TypeGeneric, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeGeneric(Span, FreeTypeReg, TypeBodyReg));
-						Types.Push(
-							mVM_Type.Type(
-								mVM_Type.Generic(
-									Types.Get(FreeTypeReg).Value(),
-									Types.Get(TypeBodyReg).Value()
-								)
-							)
-						);
+						Types.Push(mVM_Type.Type());
 						break;
 					}
 					default: {
@@ -809,4 +744,4 @@ mIL_GenerateOpcodes {
 			}
 		}
 	}
-}
+			}

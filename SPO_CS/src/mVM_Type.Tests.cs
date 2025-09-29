@@ -19,11 +19,11 @@ mVM_Type_Tests {
 		tText aId
 	) => "_" + aId;
 	
-	private static readonly mStream.tStream<(tText Id, mVM_Type.tType)> cTestScope = mStream.Stream(
+	private static readonly mStream.tStream<mSPO_AST_Types.tScopeItem> cTestScope = mStream.Stream(
 		[
-			(
-				Id: "_...+...",
-				Type: mVM_Type.Proc(
+			mSPO_AST_Types.ScopeItem(
+				"_...+...",
+				mVM_Type.Proc(
 					mVM_Type.Empty(),
 					mVM_Type.Tuple(
 						[mVM_Type.Int(), mVM_Type.Int()]
@@ -50,9 +50,9 @@ mVM_Type_Tests {
 				(
 					"""
 					§IF (1, 2) MATCH {
-						(1, 1) => 1
-						(1, _) => 2
-						(2, §DEF a) => a
+						(1, 1) : 1
+						(1, _) : 2
+						(2, §DEF a) : a
 					}
 					""",
 					"§INT"
@@ -60,8 +60,8 @@ mVM_Type_Tests {
 				(
 					"""
 					§IF 1 MATCH {
-						1 => 1
-						_ => ()
+						1 : 1
+						_ : ()
 					}
 					""",
 					"[§INT | []]"
@@ -69,8 +69,8 @@ mVM_Type_Tests {
 				(
 					"""
 					§IF 1 MATCH {
-						1 => 1
-						_ => ()
+						1 : 1
+						_ : ()
 					}
 					""",
 					"[[] | §INT]"

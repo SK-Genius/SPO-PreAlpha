@@ -15,7 +15,7 @@
 
 §RECURSIVE {
 	§DEF StackEq... = (
-		t € [[]]
+		t € §TYPE
 	) <=> (
 		§DEF ...a==... € [[t, t] => §BOOL]
 	) => {

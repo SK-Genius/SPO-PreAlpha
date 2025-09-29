@@ -100,7 +100,7 @@ mSPO_AST_Types_Tests {
 							mVM_Type.Bool()
 						)
 					);
-
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.ParseText(
 							"(#Bla (§DEF a € §BOOL)) => a",

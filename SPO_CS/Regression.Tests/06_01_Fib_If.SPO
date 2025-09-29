@@ -9,8 +9,8 @@
 	§DEF Fib... = (
 		§DEF a € §INT
 	) => §IF {
-		a .< 2 => a
-		1 .== 1 => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+		a .< 2 : a
+		§TRUE : (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 	}
 }
 

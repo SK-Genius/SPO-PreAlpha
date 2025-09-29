@@ -80,10 +80,17 @@ mRegression_Tests {
 								mTest.Test(
 									".SPO == .result.SPO",
 									aDebug => {
+										var Module_Std = mModule_Tests.Module_Std.Value.ElseThrow(
+											_ => {
+												aDebug(_.Log);
+												return _.Error;
+											}
+										);
+										
 										var SPO_Res = mSPO_Interpreter.Run(
 											SPO_Text.Value,
 											SPO_Path,
-											mStdLib.GetImportData(_ => aDebug(_())),
+											(Module_Std.Data, Module_Std.Type),
 											_ => aDebug(_())
 										).ElseThrow();
 										aDebug(ResRes.Value.Log);
@@ -112,17 +119,26 @@ mRegression_Tests {
 												IL_Path + ".new",
 												IL_TextNew
 											);
+											mAssert.Fail(
+												mAssert.DiffText(
+													IL_TextNew,
+													IL_Text.Value
+												)
+											);
 										}
-										mAssert.AreEquals(
-											IL_TextNew,
-											IL_Text.Value
-										);
 									},
 									SPO_Path + ", " + IL_Path + ", " + mStd.File()
 								),
 								mTest.Test(
 									".ILT == .result.SPO",
 									aDebug => {
+										var Module_Std = mModule_Tests.Module_Std.Value.ElseThrow(
+											_ => {
+												aDebug(_.Log);
+												return _.Error;
+											}
+										);
+										
 										var IlModule = mIL_Parser.Module.ParseText(
 											IL_Text.Value,
 											IL_Path,
@@ -130,7 +146,7 @@ mRegression_Tests {
 										);
 										var IL_Res = mVM.Run(
 											IlModule,
-											mStdLib.GetImportData(_ => aDebug(_())),
+											(Module_Std.Data, Module_Std.Type),
 											mTextParser.ToText,
 											_ => aDebug(_())
 										);

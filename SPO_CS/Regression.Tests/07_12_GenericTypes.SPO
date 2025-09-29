@@ -1,7 +1,7 @@
 §DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
 
 §DEF Push...To... = (
-	§DEF t € [[]]
+	§DEF t € §TYPE
 ) <=> (
 	§DEF aHead € t
 	§DEF aTail € [.tStack t]

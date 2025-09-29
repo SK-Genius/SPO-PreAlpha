@@ -233,7 +233,7 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Arg.IsRecord(out var Fields));
 				aCallStack._Regs.Push(
-					Fields.TryGet(Arg2).AssertNotEmpty()
+					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {Arg2} {Arg.ToText(3)}").ElseThrow()
 				);
 				break;
 			}

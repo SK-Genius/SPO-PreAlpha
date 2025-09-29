@@ -8,8 +8,8 @@
 	§DEF Fib... = (
 		§DEF x € §INT
 	) => §IF x MATCH {
-		(§DEF a & a .< 2) => a
-		§DEF a => (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+		(§DEF a & a .< 2) : a
+		§DEF a : (.Fib(a .- 2)) .+ (.Fib(a .- 1))
 	}
 }
 

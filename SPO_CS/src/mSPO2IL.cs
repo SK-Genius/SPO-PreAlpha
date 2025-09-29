@@ -14,8 +14,6 @@
 // IMPORT mSPO_AST
 // IMPORT mSPO_AST_Types
 
-using tScope = mStream.tStream<(System.String Id, mVM_Type.tType Type)>;
-
 public static class
 mSPO2IL {
 	public sealed class
@@ -173,7 +171,7 @@ mSPO2IL {
 		mVM_Type.tType aType
 	) {
 		switch (aType) {
-			case var a when a.IsType(out _): {
+			case var a when a.IsType(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cTypeType, a);
 				return mIL_GenerateOpcodes.cTypeType;
 			}
@@ -430,7 +428,17 @@ mSPO2IL {
 		return aModuleConstructor.Defs.Size - 1;
 	}
 	
-	public static mResult.tResult<(tNat32 Index, tScope EnvList, mVM_Type.tType Type), (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<
+		(
+			tNat32 Index,
+			mStream.tStream<mSPO_AST_Types.tScopeItem> EnvList,
+			mVM_Type.tType Type
+		),
+		(
+			tPos Pos,
+			tText ErrorText
+		)
+	>
 	MapMethod<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tMethodNode<tPos> aMethodNode
@@ -440,7 +448,7 @@ mSPO2IL {
 			aDef => {
 				var EnvList = TempMethodDef.EnvIds.ToStream(
 				).Map(
-					_ => (
+					_ => mSPO_AST_Types.ScopeItem(
 						_,
 						TempMethodDef.TypeDict.TryGet(_).AssertNotEmpty()
 					)
@@ -457,7 +465,7 @@ mSPO2IL {
 		tPos aPos,
 		tNat32 aDefIndex,
 		mVM_Type.tType aDefType,
-		tScope aEnvList,
+		mStream.tStream<mSPO_AST_Types.tScopeItem> aEnvList,
 		tBool aIsRecursiveFactory = false
 	) {
 		mAssert.IsTrue(aDefType.IsProc(out _, out _, out var FuncType));
@@ -465,18 +473,18 @@ mSPO2IL {
 		
 		var EnvReg = mIL_AST.cEmptyValue;
 		if (!aEnvList.IsEmpty()) {
-			foreach (var (EnvId, EnvType) in aEnvList) {
-				if (aCallerDefConstructor.TypeDict.TryGet(EnvId).IsNone()) {
-					aCallerDefConstructor.AddEnv(EnvId, EnvType);
+			foreach (var Env in aEnvList) {
+				if (aCallerDefConstructor.TypeDict.TryGet(Env.Id).IsNone()) {
+					aCallerDefConstructor.AddEnv(Env.Id, Env.Type);
 				}
 			}
 			
 			if (aEnvList.Count() is 1) {
 				EnvReg = aEnvList.TryFirst().AssertNotEmpty().Id;
 			} else {
-				foreach (var (EnvId_, _) in aEnvList) {
+				foreach (var Env in aEnvList) {
 					var NewArgReg = aCallerDefConstructor.CreateTempReg();
-					aCallerDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, EnvReg, EnvId_));
+					aCallerDefConstructor.Commands.Push(mIL_AST.CreatePair(aPos, NewArgReg, EnvReg, Env.Id));
 					EnvReg = NewArgReg;
 				}
 			}
@@ -518,6 +526,12 @@ mSPO2IL {
 			}
 			case mSPO_AST.tIntTypeNode<tPos> IntTypeNode: {
 				return mIL_AST.cIntType;
+			}
+			case mSPO_AST.tCharTypeNode<tPos> CharTypeNode: {
+				return aModuleConstructor.MapType(mVM_Type.Char());
+			}
+			case mSPO_AST.tTextTypeNode<tPos> TextTypeNode: {
+				return aModuleConstructor.MapType(mVM_Type.Text());
 			}
 			case mSPO_AST.tTypeTypeNode<tPos> TypeTypeNode: {
 				return mIL_AST.cTypeType;
@@ -676,18 +690,18 @@ mSPO2IL {
 				
 				var LambdaEnvs = LambdaDef.EnvIds.ToStream(
 				).Map(
-					_ => (
-						Id: _,
-						Type: LambdaDef.TypeDict.TryGet(_).AssertNotEmpty()
+					_ => mSPO_AST_Types.ScopeItem(
+						_,
+						LambdaDef.TypeDict.TryGet(_).AssertNotEmpty()
 					)
 				);
 				
-				foreach (var (EnvId, EnvType) in LambdaEnvs) {
+				foreach (var LambdaEnv in LambdaEnvs) {
 					if (
-						!aDefConstructor.LocalIds.ToStream().Any(_ => _ == EnvId) &&
-						!aDefConstructor.ArgIds.ToStream().Any(_ => _ == EnvId)
+						!aDefConstructor.LocalIds.ToStream().Any(_ => _ == LambdaEnv.Id) &&
+						!aDefConstructor.ArgIds.ToStream().Any(_ => _ == LambdaEnv.Id)
 					) {
-						aDefConstructor.AddEnv(EnvId, EnvType);
+						aDefConstructor.AddEnv(LambdaEnv.Id, LambdaEnv.Type);
 					}
 				}
 				
@@ -822,7 +836,13 @@ mSPO2IL {
 						Pos,
 						TestAndCallDefIndex,
 						CaseDefType,
-						TestAndCallCaseFunc.EnvIds.ToStream().Map(_ => (_, TypeDict_.TryGet(_).AssertNotEmpty()))
+						TestAndCallCaseFunc.EnvIds.ToStream(
+						).Map(
+							_ => mSPO_AST_Types.ScopeItem(
+								_,
+								TypeDict_.TryGet(_).AssertNotEmpty()
+							)
+						)
 					);
 					
 					SwitchDef.Commands.Push(
@@ -839,7 +859,7 @@ mSPO2IL {
 				// TODO NOW: put expression and else/remaining cases as args into the case test
 				
 				// §DEF MyResult = §IF MyMaybeIntValue MATCH {
-				//   §DEF MyIntValue € §INT => MyIntValue .* 2
+				//   §DEF MyIntValue € §INT : MyIntValue .* 2
 				//   () => 0
 				// }
 				//
@@ -864,7 +884,13 @@ mSPO2IL {
 					aExpressionNode.Pos,
 					DefIndex,
 					SwitchDefType,
-					SwitchDef.EnvIds.ToStream().Map(_ => (_, SwitchDef.TypeDict.TryGet(_).AssertNotEmpty()))
+					SwitchDef.EnvIds.ToStream(
+					).Map(
+						_ => mSPO_AST_Types.ScopeItem(
+							_,
+							SwitchDef.TypeDict.TryGet(_).AssertNotEmpty()
+						)
+					)
 				);
 				aDefConstructor.Commands.Push(
 					mIL_AST.CallFunc(Pos, aDefConstructor.CreateTempReg(out var ResultReg), SwitchProc, InputReg)
@@ -1019,26 +1045,17 @@ mSPO2IL {
 	) {
 		switch (aCase.Match.Pattern) {
 			case mSPO_AST.tEmptyNode<tPos> Node: {
-				//aTestAndCallCaseFunc.Commands.Push(
-				//	mIL_AST.ReturnIfNotEmpty(aCasePos, mIL_AST.cArg)
-				//);
-				//
-				//if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)) {
-				//	return false;
-				//}
-				//
-				//aTestAndCallCaseFunc.Commands.Push(
-				//	mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
-				//);
-				//break;
+				// Check if the argument is actually empty - if not empty, return (no match)
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.ReturnIfNotEmpty(aCasePos, mIL_AST.cArg)
+				);
 				
-				// TODO: this code is the same as tIgnoreMatchNode. there is no check is the value is really the empty value.
-				if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res__, out aError)) {
+				if (!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)) {
 					return false;
 				}
 				
 				aTestAndCallCaseFunc.Commands.Push(
-					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res__)
+					mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, Res)
 				);
 				break;
 			}
@@ -1097,7 +1114,7 @@ mSPO2IL {
 					DefType,
 					LazyCaseDef.EnvIds.ToStream(
 					).Map(
-						_ => (
+						_ => mSPO_AST_Types.ScopeItem(
 							_,
 							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
 						)
@@ -1161,7 +1178,7 @@ mSPO2IL {
 					DefType,
 					LazyCaseDef.EnvIds.ToStream(
 					).Map(
-						_ => (
+						_ => mSPO_AST_Types.ScopeItem(
 							_,
 							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
 						)
@@ -1220,7 +1237,7 @@ mSPO2IL {
 					DefType,
 					LazyCaseDef.EnvIds.ToStream(
 					).Map(
-						_ => (
+						_ => mSPO_AST_Types.ScopeItem(
 							_,
 							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
 						)
@@ -1272,7 +1289,7 @@ mSPO2IL {
 					DefType,
 					LazyCaseDef.EnvIds.ToStream(
 					).Map(
-						_ => (
+						_ => mSPO_AST_Types.ScopeItem(
 							_,
 							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
 						)
@@ -1327,7 +1344,7 @@ mSPO2IL {
 					DefType,
 					LazyCaseDef.EnvIds.ToStream(
 					).Map(
-						_ => (
+						_ => mSPO_AST_Types.ScopeItem(
 							_,
 							LazyCaseDef.TypeDict.TryGet(_).AssertNotEmpty()
 						)
@@ -1599,9 +1616,9 @@ mSPO2IL {
 				Def.DefType,
 				RecProcConstructor.EnvIds.ToStream(
 				).Map(
-					_ => (
-						Id: _,
-						Type: RecProcConstructor.TypeDict.TryGet(_).AssertNotEmpty()
+					_ => mSPO_AST_Types.ScopeItem(
+						_,
+						RecProcConstructor.TypeDict.TryGet(_).AssertNotEmpty()
 					)
 				)
 			);
@@ -1666,9 +1683,9 @@ mSPO2IL {
 			RecFactoryDefType,
 			RecFactoryFunc.EnvIds.ToStream(
 			).Map(
-				_ => (
-					Id: _,
-					Type: RecFactoryFunc.TypeDict.TryGet(_).AssertNotEmpty()
+				_ => mSPO_AST_Types.ScopeItem(
+					_,
+					RecFactoryFunc.TypeDict.TryGet(_).AssertNotEmpty()
 				)
 			),
 			true
@@ -1812,7 +1829,7 @@ mSPO2IL {
 	MapModule<tPos>(
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos,
-		tScope aScope
+		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope
 	) {
 		using var __Perf = mPerf.Measure();
 		
@@ -1851,13 +1868,13 @@ mSPO2IL {
 			return mResult.Fail(Error_);
 		}
 		
-		var FistNonDef = TempLambdaDef.EnvIds.ToStream(
+		var FirstNonDef = TempLambdaDef.EnvIds.ToStream(
 		).Where(
 			_ => !_.StartsWith("d_")
 		).TryFirst(
 		);
 		
-		if (FistNonDef.IsSome(out var FirstNonDefId)) {
+		if (FirstNonDef.IsSome(out var FirstNonDefId)) {
 			throw mError.Error($"expected definition symbol but was '{FirstNonDefId}'");
 		}
 		

@@ -57,6 +57,7 @@
 	t_55 := [t_47 => t_54]
 
 §DEF d_0 € t_12
+	§RETURN ARG IF_NOT_EMPTY
 	§RETURN EMPTY IF TRUE
 
 §DEF d_1 € t_21

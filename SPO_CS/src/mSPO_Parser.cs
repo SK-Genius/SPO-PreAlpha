@@ -424,13 +424,23 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.IntType)
 	.SetName(nameof(IntType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCharTypeNode<tSpan>, tError>
+	CharType = (-KeyWord("CHAR"))
+	.ModifyS(mSPO_AST.CharType)
+	.SetName(nameof(CharType));
+	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTextTypeNode<tSpan>, tError>
+	TextType = (-KeyWord("TEXT"))
+	.ModifyS(mSPO_AST.TextType)
+	.SetName(nameof(TextType));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tAnyTypeNode<tSpan>, tError>
 	AnyType = (-KeyWord("ANY"))
 	.ModifyS(mSPO_AST.AnyType)
 	.SetName(nameof(TypeType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypeTypeNode<tSpan>, tError>
-	TypeType = (-SpecialToken("[") -SpecialToken("[") -SpecialToken("]") -SpecialToken("]") )
+	TypeType = (-KeyWord("TYPE"))
 	.ModifyS(mSPO_AST.TypeType)
 	.SetName(nameof(TypeType));
 	
@@ -593,7 +603,7 @@ mSPO_Parser {
 		NLs_Token,
 		mParserGen.Seq(
 			Expression,
-			SpecialToken("=>"),
+			SpecialToken(":"),
 			Expression,
 			NLs_Token
 		).Modify((aCond, _, aRes, _) => (aCond, aRes))[0..],
@@ -610,7 +620,7 @@ mSPO_Parser {
 		Token("MATCH") +-(SpecialToken("{") +-NLs_Token),
 		mParserGen.Seq(
 			Match,
-			SpecialToken("=>"),
+			SpecialToken(":"),
 			Expression,
 			NLs_Token
 		).Modify((aMatch, _, aExpression, _) => (aMatch, aExpression))[0..],
@@ -732,6 +742,8 @@ mSPO_Parser {
 					EmptyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					BoolType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					CharType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					TextType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					AnyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					PairType.Cast<mSPO_AST.tTypeNode<tSpan>>(),

@@ -52,10 +52,10 @@ const tText cShowPassedTestsCommand = "--showPassedTests";
 const tText cShowPassedTestsCommandShort = "-t";
 
 const tText cMatchAllCommand = "--matchAll";
-const tText cMatchAllCommandShort = "-&";
+const tText cMatchAllCommandShort = "-M";
 
-const tText cMatchAnyCommand = "--matchOne";
-const tText cMatchAnyCommandShort = "-|";
+const tText cMatchAnyCommand = "--matchAny";
+const tText cMatchAnyCommandShort = "-m";
 
 const tText cOutputLevelCommand = "--outputLevel";
 const tText cOutputLevelCommandShort = "-o";
@@ -79,9 +79,9 @@ static mMaybe.tMaybe<tText>
 GetArgParam(
 	mStream.tStream<tText> aArgs,
 	tText aShortArgName,
-	tText aLongArgNAme
+	tText aLongArgName
 ) => aArgs.SkipUntil(
-	_ => _ == aLongArgNAme || _ == aShortArgName
+	_ => _ == aLongArgName || _ == aShortArgName
 ).Skip(
 	1
 ).TryFirst(
@@ -97,19 +97,19 @@ GetArgParam(
 if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
 	System.Console.WriteLine(
 		$"""
-		{cHelpCommandShort} {cHelpCommand}
-		{cListCommandShort} {cListCommand}
-		{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand}
-		{cShowPassedGroupsCommandShort} {cShowPassedGroupsCommand}
-		{cShowPassedTestsCommandShort} {cShowPassedTestsCommand}
-		{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level>
-		{cTreeLevelCommandShort} <level> {cTreeLevelCommand} <level>
-		{cStopOnFirstFailShort} {cStopOnFirstFail}
-		{cDebuggerShort} {cDebugger}
-		{cPlainTextShort} {cPlainText}
-		{cMatchAllCommandShort} <filter text> {cMatchAllCommand} <filter text>
-		{cMatchAnyCommandShort} <filter text> {cMatchAnyCommand} <filter text>
-		{cDebugIdShort} <DebugId> {cDebugId} <DebugId>
+			{cHelpCommandShort} {cHelpCommand} - show this help
+			{cListCommandShort} {cListCommand} - list all tests without executing them
+			{cShowPassedGroupsCommandShort} {cShowPassedGroupsCommand} - shows passed groups (works only in combination with {cShowPassedTestsCommand} for now)
+			{cShowPassedTestsCommandShort} {cShowPassedTestsCommand} - shows also passed tests (but only if not all tests in the group passed)
+			{cShowSkippedTestsCommandShort} {cShowSkippedTestsCommand} - shows skipped tests
+			{cOutputLevelCommandShort} <level> {cOutputLevelCommand} <level> - 0=none, 1=errors, 2=summary, 3=details, 4=all (default: all)
+			{cTreeLevelCommandShort} <level> {cTreeLevelCommand} <level> - 1=root (default: all)
+			{cStopOnFirstFailShort} {cStopOnFirstFail} - stop on first failed test
+			{cDebuggerShort} {cDebugger} - launch debugger
+			{cPlainTextShort} {cPlainText} - do not use colors or other formatting in output
+			{cDebugIdShort} <DebugId> {cDebugId} <DebugId> - breaks when DebugId is created (debugIds are shown in the traces)
+			{cMatchAllCommandShort} <filter text> {cMatchAllCommand} <filter text> - must be the last argument
+			{cMatchAnyCommandShort} <filter text> {cMatchAnyCommand} <filter text> - must be the last argument
 		"""
 	);
 	return 0;
@@ -170,7 +170,17 @@ return Tests.Run(
 			() => tInt32.MaxValue
 		),
 		DebuggerBreak = Args.Any(_ => _ is cDebugger or cDebuggerShort),
-		StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort),
+		StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
+		: Args.Any(_ => _ is "-1") ? 1
+		: Args.Any(_ => _ is "-2") ? 2
+		: Args.Any(_ => _ is "-3") ? 3
+		: Args.Any(_ => _ is "-4") ? 4
+		: Args.Any(_ => _ is "-5") ? 5
+		: Args.Any(_ => _ is "-6") ? 6
+		: Args.Any(_ => _ is "-7") ? 7
+		: Args.Any(_ => _ is "-8") ? 7
+		: Args.Any(_ => _ is "-9") ? 8
+		: tInt32.MaxValue,
 	}
 ).Result is mTest.tResult.Fail
 ? -1

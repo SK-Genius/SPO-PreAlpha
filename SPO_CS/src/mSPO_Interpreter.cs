@@ -39,7 +39,7 @@ mSPO_Interpreter {
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(
 				[
-					(
+					mSPO_AST_Types.ScopeItem(
 						"_=...",
 						mVM_Type.Generic(
 							TypeArg,

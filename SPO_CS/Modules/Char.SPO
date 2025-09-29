@@ -1,0 +1,138 @@
+﻿§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+	...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+	...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+	...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+	...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
+	!...: §DEF !... € [§BOOL => §BOOL]
+}
+
+§DEF ...<=>... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF {
+	a1 .== a2 : 0
+	a1 .<= a2 : -1
+	§TRUE : 1
+}
+
+§DEF ...Ord = (
+	§DEF a € §CHAR
+) => {
+	(#Char §DEF Ord) = a
+	§RETURN Ord
+}
+
+§DEF ...AsChar = (
+	§DEF a € §INT
+) => #Char a
+
+§DEF ...<=...<=... = (
+	§DEF aMin € §INT
+	§DEF a € §INT
+	§DEF aMax € §INT
+) => (aMin .<= a) .& (a .<= aMax)
+
+§DEF ...Char<=...<=... = (
+	§DEF aMin € §CHAR
+	§DEF a € §CHAR
+	§DEF aMax € §CHAR
+) => (aMin .Ord) .<= (a .Ord) <= (aMax .Ord)
+
+§DEF ...Char<=>... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => (a1 .Ord) .<=> (a2 .Ord)
+
+§DEF ...Char==... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	0 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Char!=... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	0 : §FALSE
+	_ : §TRUE
+}
+
+§DEF ...Char>... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	1 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Char<... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	-1 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Char>=... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	-1 : §FALSE
+	_ : §TRUE
+}
+
+§DEF ...Char<=... = (
+	§DEF a1 € §CHAR
+	§DEF a2 € §CHAR
+) => §IF (a1 .Char<=> a2) MATCH {
+	1 : §FALSE
+	_ : §TRUE
+}
+
+§DEF ...IsSpace = (
+	§DEF a € §CHAR
+) => §IF (a .Ord) MATCH {
+	0 : §TRUE
+	9 : §TRUE
+	10 : §TRUE
+	11 : §TRUE
+	12 : §TRUE
+	13 : §TRUE
+	32 : §TRUE
+	127 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...ToUpper = (
+	§DEF a € §CHAR
+) => §IF {
+	§a .Char<= a <= §z : (((a .Ord) .+ (§A.Ord)) .- (§a.Ord)) .AsChar
+	§TRUE : a
+}
+
+§DEF ...ToLower = (
+	§DEF a € §CHAR
+) => §IF {
+	§A .Char<= a <= §Z : (((a .Ord) .+ (§a.Ord)) .- (§A.Ord)) .AsChar
+	§TRUE : a
+}
+
+§EXPORT {
+	...<=...<=...: ...Char<=...<=...
+	...<=>...: ...Char<=>...
+	...==...: ...Char==...
+	...!=...: ...Char!=...
+	...>...: ...Char>...
+	...<...: ...Char<...
+	...>=...: ...Char>=...
+	...<=...: ...Char<=...
+	...Ord: ...Ord
+	...AsChar: ...AsChar
+	...ToUpper: ...ToUpper
+	...ToLower: ...ToLower
+	...IsSpace: ...IsSpace
+}

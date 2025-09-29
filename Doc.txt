@@ -6,7 +6,7 @@
 	TYPES:
 	======
 		
-		META: [[]]
+		META: §TYPE
 		EMPTY: []
 		BOOL: §BOOL // == [[#FALSE []] | [#TRUE []]] == [#FALSE | #TRUE] ???
 		INT: §INT
@@ -21,12 +21,12 @@
 		FUNC: [t -> t]
 		PROC: [t : [t -> t]]
 		MSG_OUT: [t >>]
-		GENERIC: [§ALL t [...]]  // or ( (t € [[]]) => [...] ) ???
+		GENERIC: [§ALL t [...]]  // or ( (t € §TYPE) => [...] ) ???
 		INTERFACE: [§ANY t [...]]
 		RECURSIVE: [§REC t [...]]
 		
-		SEMANTIC SUCCER:
-		-----------------
+		SEMANTIC SUGAR:
+		---------------
 			
 			Tuple:
 				[t, t]  ==  [[[]; t]; t] 

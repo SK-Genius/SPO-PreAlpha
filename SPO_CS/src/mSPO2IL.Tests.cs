@@ -109,8 +109,8 @@ mSPO2IL_Tests {
 					
 					var Scope = mStream.Stream(
 						[
-							(Id: "_...+...", Type: mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Int())),
-							(Id: "_...<...<...", Type: mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Bool()))
+							mSPO_AST_Types.ScopeItem("_...+...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Int())),
+							mSPO_AST_Types.ScopeItem("_...<...<...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Bool()))
 						]
 					);
 					
@@ -329,9 +329,9 @@ mSPO2IL_Tests {
 					
 					var InitScope = mStream.Stream(
 						[
-							(
-								Id: mSPO2IL.GetId("...*..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...*..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Int()
@@ -345,9 +345,9 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
-							(
-								Id: mSPO2IL.GetId("x"),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("x"),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Int(),
 									mVM_Type.Int()
@@ -462,17 +462,17 @@ mSPO2IL_Tests {
 					
 					var InitScope = mStream.Stream(
 						[
-							(
-								Id: mSPO2IL.GetId("...*..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...*..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Int()
 								)
 							),
-							(
-								Id: mSPO2IL.GetId("...+..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...+..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Int()
@@ -483,9 +483,9 @@ mSPO2IL_Tests {
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					var ExpScope = mStream.Stream(
-						(
-							Id: mSPO2IL.GetId("...*...+..."),
-							Type: mVM_Type.Proc(
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...*...+..."),
+							mVM_Type.Proc(
 								mVM_Type.Empty(),
 								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]),
 								mVM_Type.Int()
@@ -630,17 +630,17 @@ mSPO2IL_Tests {
 					
 					var InitScope = mStream.Stream(
 						[
-							(
-								Id: mSPO2IL.GetId("...*..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...*..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Int()
 								)
 							),
-							(
-								Id: mSPO2IL.GetId("...>..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...>..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Bool()
@@ -650,9 +650,9 @@ mSPO2IL_Tests {
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					var ExpScope = mStream.Stream(
-						(
-							Id: mSPO2IL.GetId("TestTest..."),
-							Type: mVM_Type.Proc(
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("TestTest..."),
+							mVM_Type.Proc(
 								mVM_Type.Empty(),
 								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]),
 								mVM_Type.Bool()
@@ -783,23 +783,23 @@ mSPO2IL_Tests {
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
 						§DEF x = §IF 1 MATCH {
-							0 => 2
-							1 => 4
-							_ => 6
+							0 : 2
+							1 : 4
+							_ : 6
 						}
 						""",
 						"",
 						_ => aStreamOut(_())
 					);
 					
-					var InitScope = mStream.Stream<(tText Id, mVM_Type.tType Type)>([]);
+					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
-							(
-								Id: mSPO2IL.GetId("x"),
-								Type: mVM_Type.Int()
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("x"),
+								mVM_Type.Int()
 							),
 							InitScope
 						)
@@ -923,9 +923,9 @@ mSPO2IL_Tests {
 						§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
 						
 						§EXPORT §IF X MATCH {
-							(#Blub ()) => 1
-							(#Bla ()) => 2
-							_ => 3
+							(#Blub ()) : 1
+							(#Bla ()) : 2
+							_ : 3
 						}
 						""",
 						"",
@@ -1048,9 +1048,9 @@ mSPO2IL_Tests {
 					
 					var InitScope = mStream.Stream(
 						[
-							(
-								Id: mSPO2IL.GetId("...*..."),
-								Type: mVM_Type.Proc(
+							mSPO_AST_Types.ScopeItem(
+								mSPO2IL.GetId("...*..."),
+								mVM_Type.Proc(
 									mVM_Type.Empty(),
 									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
 									mVM_Type.Int()
@@ -1150,13 +1150,13 @@ mSPO2IL_Tests {
 						
 						§RECURSIVE {
 							§DEF Fib1... = (§DEF a € §INT) => §IF a MATCH {
-								0 => 0
-								§DEF b => (.Fib2(b .- 2)) .+ (.Fib2(b .- 1))
+								0 : 0
+								§DEF b : (.Fib2(b .- 2)) .+ (.Fib2(b .- 1))
 							}
 							
 							§DEF Fib2... = (§DEF a € §INT) => §IF a MATCH {
-								0 => 0
-								§DEF b => (.Fib1(b .- 2)) .+ (.Fib1(b .- 1))
+								0 : 0
+								§DEF b : (.Fib1(b .- 2)) .+ (.Fib1(b .- 1))
 							}
 						}
 						

@@ -21,7 +21,7 @@ mProgram {
 			}
 		);
 		try {
-			var StdLib = mStdLib.GetImportData(DebugOut);
+			var StdLib = mModule_Tests.Module_Std.Value.ElseThrow("");
 			
 			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),

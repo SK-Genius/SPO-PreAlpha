@@ -25,7 +25,7 @@ mTest {
 		public tInt32 OutputLevel;
 		public tInt32 TreeLevel;
 		public tBool DebuggerBreak;
-		public tBool StopOnFirstFail;
+		public tInt32 StopOnFirstFail;
 	}
 	
 	public interface
@@ -333,7 +333,7 @@ mTest {
 							}
 						}
 						
-						if (aSettings.StopOnFirstFail && FailCount > 0) {
+						if (FailCountSum >= aSettings.StopOnFirstFail) {
 							break;
 						}
 					}

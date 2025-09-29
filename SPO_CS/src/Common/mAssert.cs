@@ -83,9 +83,21 @@ mAssert {
 		}
 		
 		Fail(
-			mStream.ZipExtend(
-				System.MemoryExtensions.AsSpan(Text1.Split('\n')).AsStream(),
-				System.MemoryExtensions.AsSpan(Text2.Split('\n')).AsStream()
+			DiffText(
+				Text1,
+				Text2
+			)
+		);
+		return a1;
+	}
+	
+	public static tText
+	DiffText(
+		tText a1,
+		tText a2
+	) =>			mStream.ZipExtend(
+				System.MemoryExtensions.AsSpan(a1.Split('\n')).AsStream(),
+				System.MemoryExtensions.AsSpan(a2.Split('\n')).AsStream()
 			).MapWithIndex(
 				(aIndex, Line) => {
 					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
@@ -116,10 +128,7 @@ mAssert {
 			).Join(
 				(a1, a2) => a1 + '\n' + a2,
 				""
-			).Replace("\r", "") ?? ""
-		);
-		return a1;
-	}
+			).Replace("\r", "") ?? "";
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t

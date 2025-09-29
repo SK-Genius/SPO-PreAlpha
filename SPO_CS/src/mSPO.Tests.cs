@@ -25,8 +25,8 @@ mSPO_Tests {
 			mSPO_AST_Types_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
-			mStdLib_Tests.Tests,
 			mRegression_Tests.Tests,
+			mModule_Tests.Tests,
 		]
 	);
 }

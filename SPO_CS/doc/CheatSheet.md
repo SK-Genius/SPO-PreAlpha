@@ -76,8 +76,8 @@ foo x bar y => ... // Methoden mit Pattern-Match
 ## Kontrollstrukturen
 
 ```spo
-§IF { cond => expr ... }
-§IF expr §MATCH { pat => expr ... }
+§IF { cond : expr ... }
+§IF expr §MATCH { pat : expr ... }
 §RETURN expr
 §RETURN expr §IF cond
 ```

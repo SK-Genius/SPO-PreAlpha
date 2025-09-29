@@ -1,0 +1,153 @@
+﻿§IMPORT {
+	Std: {
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+		...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
+		!...: §DEF !... € [§BOOL => §BOOL]
+	}
+	Char: {
+		...<=>...: §DEF ...Char<=>... € [[§CHAR, §CHAR] => §INT]
+		...Ord: §DEF ...Ord € [§CHAR => §INT]
+		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
+		...ToUpper: §DEF ...ToUpperChar € [§CHAR => §CHAR]
+		...ToLower: §DEF ...ToLowerChar € [§CHAR => §CHAR]
+		...IsSpace: §DEF ...IsSpace € [§CHAR => §BOOL]
+	}
+}
+
+§RECURSIVE {
+	§DEF ...ToUpper = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ()
+		(§DEF SubText; §DEF Char) : (SubText .ToUpper; Char .ToUpperChar)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...ToLower = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ()
+		(§DEF SubText; §DEF Char) : (SubText .ToLower; Char .ToLowerChar)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Text<=>... = (
+		§DEF a1 € §TEXT
+		§DEF a2 € §TEXT
+	) => §IF (a1, a2) MATCH {
+		((), ()) : 0
+		((), _) : -1
+		(_, ()) : 1
+		((§DEF SubText1; §DEF Char1), (§DEF SubText2; §DEF Char2)) : §IF (SubText1 .Text<=> SubText2) MATCH {
+			0 : Char1 .Char<=> Char2
+			§DEF Res : Res
+		}
+	}
+}
+
+§DEF ...Text==... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	0 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Text!=... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	0 : §FALSE
+	_ : §TRUE
+}
+
+§DEF ...Text>... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	1 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Text<... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	-1 : §TRUE
+	_ : §FALSE
+}
+
+§DEF ...Text>=... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	-1 : §FALSE
+	_ : §TRUE
+}
+
+§DEF ...Text<=... = (
+	§DEF a1 € §TEXT
+	§DEF a2 € §TEXT
+) => §IF (a1 .Text<=> a2) MATCH {
+	1 : §FALSE
+	_ : §TRUE
+}
+
+§RECURSIVE {
+	§DEF ...TrimStart = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ()
+		(§DEF SubText; §DEF Char) : §IF (SubText .TrimStart) MATCH {
+			() : §IF {
+				Char .IsSpace : ()
+				§TRUE : ((); Char)
+			}
+			_ : a
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF ...TrimEnd = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ()
+		(§DEF SubText; §DEF Char) : §IF {
+			Char .IsSpace : SubText .TrimEnd
+			§TRUE : a
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Trim = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		() : ()
+		(§DEF SubText; §DEF Char) : §IF {
+			Char .IsSpace : SubText .Trim
+			§TRUE : a .TrimStart
+		}
+	}
+}
+
+§EXPORT {
+	...<=>...: ...Text<=>...
+	...==...: ...Text==...
+	...!=...: ...Text!=...
+	...>...: ...Text>...
+	...<...: ...Text<...
+	...>=...: ...Text>=...
+	...<=...: ...Text<=...
+	...ToUpper: ...ToUpper
+	...ToLower: ...ToLower
+	...IsSpace: ...IsSpace
+	...TrimStart: ...TrimStart
+	...TrimEnd: ...TrimEnd
+	...Trim: ...Trim
+}

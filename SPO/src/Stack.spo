@@ -3,7 +3,7 @@
 §DEF tStack... = [§GENERIC t [§RECURSIVE tStack_ [[] | [t, tStack_]]]
 
 §DEF Push...To... = (
-	t € [[]]
+	t € §TYPE
 ) <=> (
 	§DEF aHead € t
 	§DEF aTail € [.tStack t]
@@ -11,8 +11,8 @@
 
 §RECURSIVE {
 	§DEF Map...With... = (
-		tIn € [[]]
-		tOut € [[]]
+		tIn € §TYPE
+		tOut € §TYPE
 	) <=> (
 		§DEF aStack € [.tStack tIn]
 		§DEF aFunc... € [tIn => tOut]

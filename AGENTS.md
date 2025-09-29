@@ -12,8 +12,8 @@ Concise repository rules for coding agents working on this project.
 ## Tests
 - **Authoritative failing tests file:** `SPO_CS/SPO_CS/FailedTests.txt`
   - Treat this file as the source of truth for the latest failing tests.
-  - the test are runnin from the folder SPO_CS with the command: dotnet run --no-restore -- -o3 -p > FailingTests.txt
-  - it is expected the the agent can not run the test by it's own because he is missing .net9.0 for now.
+  - the test are running from the folder SPO_CS with the command: dotnet run --no-restore -- -p > FailingTests.txt
+  - it is expected the the agent can not run the test on a remote VM by it's own because the VM is missing .net9.0 for now. On the local PC of the developer it will work.
 
 ## Operational Notes
 - Prefer small, self-contained changes.

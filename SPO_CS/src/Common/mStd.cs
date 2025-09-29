@@ -99,6 +99,16 @@
 		return a;
 	}
 	
+	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static t
+	Break<t>(
+		this t a
+	) {
+		System.Diagnostics.Debugger.Break();
+		
+		return a;
+	}
+	
 	public static readonly tEmpty cEmpty = new();
 	
 	public static tNat64 gDebugId = 0;
