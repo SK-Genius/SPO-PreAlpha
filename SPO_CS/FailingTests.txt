@@ -3,18 +3,49 @@ All
 |  |  mModule_Tests
 |  |  |  Text
 |  |  |  [ D:\Projekte\SPO-PreAlpha\SPO_CS\src\mModule.Tests.cs:96 ]
-|  |  |  |  tError: expected definition symbol but was '_...Text<=>...'
-|  |  |  |  |     at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO2IL.cs:1878
-|  |  |  |  |     at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__2(tStream`1 aNewScope) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:65
+|  |  |  |  tError: D:/Projekte/SPO-PreAlpha/SPO_CS/Modules/Text.SPO(42:3)..D:/Projekte/SPO-PreAlpha/SPO_CS/Modules/Text.SPO(42:14): r_3 := .r_1 r_2
+|  |  |  |  can't convert:
+|  |  |  |  [
+|  |  |  |    [ §RECURSIVE ??93 = [ [] | [ ??93; [ #_Char... §INT ] ] ] ],
+|  |  |  |    [ §RECURSIVE ??94 = [ [] | [ ??94; [ #_Char... §INT ] ] ] ]
+|  |  |  |  ]
+|  |  |  |  to:
+|  |  |  |  [ [], [] ]
+|  |  |  |  because:
+|  |  |  |  
+|  |  |  |  in:
+|  |  |  |    [ §RECURSIVE ??94 = [ [] | [ ??94; [ #_Char... §INT ] ] ] ]
+|  |  |  |  !<
+|  |  |  |    []
+|  |  |  |  
+|  |  |  |  in:
+|  |  |  |    [
+|  |  |  |      [ §RECURSIVE ??93 = [ [] | [ ??93; [ #_Char... §INT ] ] ] ],
+|  |  |  |      [ §RECURSIVE ??94 = [ [] | [ ??94; [ #_Char... §INT ] ] ] ]
+|  |  |  |    ]
+|  |  |  |  !<
+|  |  |  |    [ [], [] ]
+|  |  |  |  
+|  |  |  |  in:
+|  |  |  |    [
+|  |  |  |      [ §RECURSIVE ??93 = [ [] | [ ??93; [ #_Char... §INT ] ] ] ],
+|  |  |  |      [ §RECURSIVE ??94 = [ [] | [ ??94; [ #_Char... §INT ] ] ] ]
+|  |  |  |    ]
+|  |  |  |  !<
+|  |  |  |    [ [], [] ]
+|  |  |  |  
+|  |  |  |  |     at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mIL_GenerateOpcodes.cs:229
+|  |  |  |  |     at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mVM.cs:670
+|  |  |  |  |     at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__3(tModuleConstructor`1 aModule) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:68
 |  |  |  |  |     at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mSPO_Interpreter.cs:59
 |  |  |  |  |     at mModule.Init(tModuleSetup aModuleSetup, tAction`1 aLogger) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mModule.cs:105
 |  |  |  |  |     at mModule_Tests.<>c.<.cctor>b__1_2(tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mModule.Tests.cs:98
 |  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:222
 |  |  |  > Fail
 |  |  |  
-|  |  > Fail:1 OK:2 (286.00 mSec)
+|  |  > Fail:1 OK:2 (314.00 mSec)
 |  |  
-|  > Fail:1 OK:9|253 (2.83 Sec)
+|  > Fail:1 OK:9|253 (2.91 Sec)
 |  
-> Fail:1 OK:1|343 (2.96 Sec)
+> Fail:1 OK:1|343 (3.04 Sec)
 

@@ -1700,6 +1700,10 @@ mSPO2IL {
 					RecProcsTupleReg
 				)
 			);
+			aDefConstructor.AddLocal(
+				RecProc.Id.Id,
+				RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+			);
 		} else {
 			foreach (var RecProc in aRecLambdasNode.List) {
 				aDefConstructor.Commands.Push(
@@ -1715,6 +1719,10 @@ mSPO2IL {
 					)
 				);
 				RecProcsTupleReg = TempReg;
+				aDefConstructor.AddLocal(
+					RecProc.Id.Id,
+					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+				);
 			}
 		}
 		
