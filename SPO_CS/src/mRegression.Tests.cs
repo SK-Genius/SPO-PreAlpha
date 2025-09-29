@@ -80,12 +80,7 @@ mRegression_Tests {
 								mTest.Test(
 									".SPO == .result.SPO",
 									aDebug => {
-										var Module_Std = mModule_Tests.Module_Std.Value.ElseThrow(
-											_ => {
-												aDebug(_.Log);
-												return _.Error;
-											}
-										);
+										var Module_Std = mModule.Module_Std.Init(aDebug).ElseThrow();
 										
 										var SPO_Res = mSPO_Interpreter.Run(
 											SPO_Text.Value,
@@ -132,12 +127,7 @@ mRegression_Tests {
 								mTest.Test(
 									".ILT == .result.SPO",
 									aDebug => {
-										var Module_Std = mModule_Tests.Module_Std.Value.ElseThrow(
-											_ => {
-												aDebug(_.Log);
-												return _.Error;
-											}
-										);
+										var Module_Std = mModule.Module_Std.Init(aDebug).ElseThrow();
 										
 										var IlModule = mIL_Parser.Module.ParseText(
 											IL_Text.Value,

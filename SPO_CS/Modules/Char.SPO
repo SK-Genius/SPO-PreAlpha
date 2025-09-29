@@ -1,11 +1,13 @@
 ﻿§IMPORT {
-	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-	...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-	...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
-	...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-	...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
-	!...: §DEF !... € [§BOOL => §BOOL]
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+		...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
+		!...: §DEF !... € [§BOOL => §BOOL]
+	}
 }
 
 §DEF ...<=>... = (

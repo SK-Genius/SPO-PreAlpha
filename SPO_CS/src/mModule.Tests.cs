@@ -8,146 +8,15 @@
 public static class
 mModule_Tests {
 	
-	private static tText ModuleFolder = System.IO.Path.Combine(
-		System.IO.Directory.GetParent(
-			System.IO.Path.GetDirectoryName(
-				mStd.File()
-			)!
-		).FullName,
-		"Modules"
-	);
-	
-	public static mLazy.tLazy<
-		mResult.tResult<
-			(mVM_Data.tData Data, mVM_Type.tType Type, tText Log),
-			(tText Error, tText Log)
-		>
-	>
-	Module_Std = mLazy.Lazy(
-		() => {
-			var Log = "";
-			var WriteToLog = (mStd.tFunc<tText> aGetLine) => {
-				Log +="\n" + aGetLine();
-			};
-			
-			var Std_ILT_Path = System.IO.Path.Combine(ModuleFolder, "Std.ILT");
-			
-			try {
-				var Res = mVM.Run(
-					mIL_Parser.Module.ParseText(
-						System.IO.File.ReadAllText(Std_ILT_Path),
-						Std_ILT_Path,
-						_ => WriteToLog(_)
-					),
-					(mVM_Data.Empty(), mVM_Type.Empty()),
-					mTextParser.ToText,
-					_ => WriteToLog(_)
-				);
-				
-				return mResult.OK(
-					(
-						Res.Data,
-						Res.Type,
-						Log
-					)
-				).WithErrorType<(tText Error, tText Log)>();
-			} catch	(System.Exception e) {
-				return mResult.Fail(
-					(
-						e.ToString(),
-						Log
-					)
-				);
-			}
-		}
-	);
-	
-	public static mLazy.tLazy<
-		mResult.tResult<
-			(mVM_Data.tData Data, mVM_Type.tType Type, tText Log),
-			(tText Error, tText Log)
-		>
-	>
-	Module_Char = mLazy.Lazy(
-		() => Module_Std.Value.ThenTry(
-			aModule_Std => {
-				var Log = "";
-				var WriteToLog = (mStd.tFunc<tText> aGetLine) => {
-					Log +="\n" + aGetLine();
-				};
-				
-				var ModulePath_Char = System.IO.Path.Combine(ModuleFolder, "Char.SPO");
-				
-				return mSPO_Interpreter.Run(
-					System.IO.File.ReadAllText(ModulePath_Char),
-					ModulePath_Char,
-					(aModule_Std.Data, aModule_Std.Type),
-					_ => WriteToLog(_)
-				).Then(
-					_ => (_.Data, _.Type, Log)
-				).ModifyError(
-					_ => (""+_, Log)
-				);
-			}
-		)
-	);
-	
-	public static  mLazy.tLazy<
-		mResult.tResult<
-			(mVM_Data.tData Data, mVM_Type.tType Type, tText Log),
-			(tText Error, tText Log)
-		>
-	>
-	Module_Text = mLazy.Lazy(
-		() => Module_Std.Value.ThenTry(
-			aModule_Std => Module_Char.Value.ThenTry(
-				aModule_Char => {
-					var Log = "";
-					var WriteToLog = (mStd.tFunc<tText> aGetLine) => {
-						Log +="\n" + aGetLine();
-					};
-					
-					var ModulePath_Text = System.IO.Path.Combine(ModuleFolder, "Text.SPO");
-					
-					return mSPO_Interpreter.Run(
-						System.IO.File.ReadAllText(ModulePath_Text),
-						ModulePath_Text,
-						(
-							mVM_Data.Record(
-								[
-									("Std", aModule_Std.Data),
-									("Char", aModule_Char.Data),
-								]
-							),
-							mVM_Type.Record(
-								[
-									("Std", aModule_Std.Type),
-									("Char", aModule_Char.Type),
-								]
-							)
-						),
-						_ => WriteToLog(_)
-					).Then(
-						_ => (_.Data, _.Type, Log)
-					).ModifyError(
-						_ => (""+_, Log)
-					);
-				}
-			)
-		)
-	);
-	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mModule_Tests),
 		[
 			mTest.Test("Std",
 				aDebugStream => {
-					var Module_Std_ = Module_Std.Value.ElseThrow(
-						_ => {
-							aDebugStream(_.Log);
-							return _.Error;
-						}
+					var Module_Std = mModule.Module_Std.Init(
+						aDebugStream
+					).ElseThrow(
 					);
 					
 					mAssert.AreEquals(
@@ -168,7 +37,7 @@ mModule_Tests {
 							)
 							""",
 							"",
-							(Module_Std_.Data, Module_Std_.Type),
+							(Module_Std.Data, Module_Std.Type),
 							_ => aDebugStream(_())
 						).Then(
 							_ => _.Data
@@ -187,11 +56,9 @@ mModule_Tests {
 			),
 			mTest.Test("Char",
 				aDebugStream => {
-					var Module_Char_ = Module_Char.Value.ElseThrow(
-						_ => {
-							aDebugStream(_.Log);
-							return _.Error;
-						}
+					var Module_Char = mModule.Module_Char.Init(
+						aDebugStream
+					).ElseThrow(
 					);
 					
 					mAssert.AreEquals(
@@ -209,7 +76,7 @@ mModule_Tests {
 							)
 							""",
 							"",
-							(Module_Char_.Data, Module_Char_.Type),
+							(Module_Char.Data, Module_Char.Type),
 							_ => aDebugStream(_())
 						).Then(
 							_ => _.Data
@@ -228,11 +95,9 @@ mModule_Tests {
 			),
 			mTest.Test("Text",
 				aDebugStream => {
-					var Module_Text_ = Module_Text.Value.ElseThrow(
-						_ => {
-							aDebugStream(_.Log);
-							return _.Error;
-						}
+					var Module_Text = mModule.Module_Text.Init(
+						aDebugStream
+					).ElseThrow(
 					);
 					
 //								...==...: §DEF ...==... € [[§TEXT, §TEXT] => §BOOL]
@@ -258,7 +123,7 @@ mModule_Tests {
 //							)
 //							""",
 							"",
-							(Module_Text_.Data, Module_Text_.Type),
+							(Module_Text.Data, Module_Text.Type),
 							_ => aDebugStream(_())
 						).Then(
 							_ => _.Data
