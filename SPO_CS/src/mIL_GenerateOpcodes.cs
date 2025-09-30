@@ -203,6 +203,8 @@ mIL_GenerateOpcodes {
 			
 			mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			
+			var ReturnType = Types.Get(mVM_Data.cResReg);
+			
 			foreach (var Command in Commands) {
 				tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
 				
@@ -450,6 +452,15 @@ mIL_GenerateOpcodes {
 							)
 						);
 						
+						var (ReturnSubset, ContinueSubset) = _SplitType(
+							ResType,
+							_ => _.IsEmpty() ? mStd.cEmpty : _
+						);
+						
+						ReturnType = _UnionType(ReturnType, ReturnSubset);
+						
+						Types.Set(ResReg, ContinueSubset.IsEmpty() ? mVM_Type.Empty() : ContinueSubset);
+						
 						NewProc.ReturnIfNotEmpty(Span, ResReg);
 						break;
 					}
@@ -458,27 +469,23 @@ mIL_GenerateOpcodes {
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						
 						var ArgType = Types.Get(ArgReg);
 						
-						var Found = false;
-						if (ArgType.IsInt()) {
-							Found = true;
-						} else {
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsInt() || Type2.IsInt()) {
-									Found = true;
-									break;
-								}
-							}
-						}
+						var (MatchedType, RestType) = _SplitType(
+							ArgType,
+							_ => _.IsInt() ? mVM_Type.Int() : mStd.cEmpty
+						);
 						
 						mAssert.IsTrue(
-							Found,
+							!MatchedType.IsEmpty(),
 							() => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}"
 						);
 						
+						ReturnType = _UnionType(ReturnType, RestType);
+						
 						Regs = Regs.Set(RegId1, NewProc.TryAsInt(Span, ArgReg));
-						Types.Push(mVM_Type.Int());
+						Types.Push(MatchedType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -487,30 +494,23 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var Prefix = RegId3.AssertNotEmpty();
+						
 						var ArgType = Types.Get(ArgReg);
 						
-						mMaybe.tMaybe<mVM_Type.tType> SubType = mStd.cEmpty;
+						var (InnerType, RestType) = _SplitType(
+							ArgType,
+							_ => _.IsPrefix(Prefix, out var Inner) ? Inner : mStd.cEmpty
+						);
 						
-						if (ArgType.IsPrefix(Prefix, out var Inner)) {
-							SubType = Inner;
-						} else {
-							var Found = false;
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsPrefix(Prefix, out Inner) || Type2.IsPrefix(Prefix, out Inner)) {
-									SubType = Inner;
-									Found = true;
-									break;
-								}
-							}
-							
-							mAssert.IsTrue(
-								Found,
-								() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
-							);
-						}
+						mAssert.IsTrue(
+							!InnerType.IsEmpty(),
+							() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
+						);
+						
+						ReturnType = _UnionType(ReturnType, RestType);
 						
 						Regs = Regs.Set(RegId1, NewProc.TryRemovePrefixFrom(Span, Prefix.PrefixHash(), ArgReg));
-						Types.Push(SubType.AssertNotEmpty());
+						Types.Push(InnerType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -518,27 +518,23 @@ mIL_GenerateOpcodes {
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
-						var ArgType = Types.Get(ArgReg);
-						if (ArgType.IsRecursive(out var _, out var Body_)) {
-							ArgType = Body_;
-						}
 						
-						while (ArgType.IsSet(out var Type1, out var Type2)) {
-							if (Type1.IsPair(out _, out _)) {
-								ArgType = Type1;
-								break;
-							}
-							
-							ArgType = Type2;
-						}
+						var ArgType = Types.Get(ArgReg);
+						
+						var (PairType, RestType) = _SplitType(
+							ArgType,
+							_ => _.IsPair(out _, out _) ? _ : mStd.cEmpty
+						);
 						
 						mAssert.IsTrue(
-							ArgType.IsPair(out _, out _),
+							!PairType.IsEmpty(),
 							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
 						);
-
+						
+						ReturnType = _UnionType(ReturnType, RestType);
+						
 						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
-						Types.Push(ArgType);
+						Types.Push(PairType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -679,6 +675,7 @@ mIL_GenerateOpcodes {
 				
 				mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			}
+			Types.Set(mVM_Data.cResReg, ReturnType);
 			mAssert.AreEquals(NewProc.Commands.Size, NewProc.PosList.Size);
 		}
 		#if MY_TRACE_IL
@@ -698,6 +695,47 @@ mIL_GenerateOpcodes {
 		return (Module, ModuleMap);
 	}
 	
+	private static (mVM_Type.tType Matched, mVM_Type.tType Remainder)
+	_SplitType(
+		mVM_Type.tType aType,
+		mStd.tFunc<mVM_Type.tType, mMaybe.tMaybe<mVM_Type.tType>> aMatch
+	) {
+		if (aType.IsEmpty()) {
+			return (mVM_Type.Empty(), mVM_Type.Empty());
+		}
+
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			var (Matched1, Remainder1) = _SplitType(Type1, aMatch);
+			var (Matched2, Remainder2) = _SplitType(Type2, aMatch);
+
+			return (
+				_UnionType(Matched1, Matched2),
+				_UnionType(Remainder1, Remainder2)
+			);
+		}
+
+		return aMatch(aType).Match(
+			aMatched => (aMatched, mVM_Type.Empty()),
+			() => (mVM_Type.Empty(), aType)
+		);
+	}
+
+	private static mVM_Type.tType
+	_UnionType(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		if (aType1.IsEmpty()) {
+			return aType2;
+		}
+
+		if (aType2.IsEmpty()) {
+			return aType1;
+		}
+
+		return mVM_Type.Set(aType1, aType2);
+	}
+
 	public static tNat32 GetOrThrow<tPos>(
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		mMaybe.tMaybe<tText> aRegId,
