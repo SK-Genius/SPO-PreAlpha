@@ -433,119 +433,195 @@ mIL_GenerateOpcodes {
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ResReg = Regs.GetOrThrow(RegId2, Command);
-						
+
 						var ResType = Types.Get(ResReg);
-						
-						DefResType.IsSubType(ResType, mStd.cEmpty)
-						.ElseThrow(
-							_ => (
-								$"""
-								{Command.Pos}
-								{_}
-								{DefResType.ToText()}
-								!<
-								{ResType.ToText()}
-								{Command.ToText()}
-								"""
-							)
+
+						var (NotEmptyType, EmptyType) = SplitType(
+							ResType,
+							Candidate => Candidate.IsEmpty() ? mStd.cEmpty : Candidate
 						);
-						
+
+						mAssert.IsTrue(
+							!NotEmptyType.IsEmpty(),
+							() => $"{Span} RETURN_IF_NOT_EMPTY expects non empty branch but is {ResType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, NotEmptyType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Types.Set(ResReg, EmptyType);
+
 						NewProc.ReturnIfNotEmpty(Span, ResReg);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsBool, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsBool)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsBool() ? Candidate : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_BOOL expects type with BOOL but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Regs = Regs.Set(RegId1, NewProc.TryAsBool(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						
-						var Found = false;
-						if (ArgType.IsInt()) {
-							Found = true;
-						} else {
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsInt() || Type2.IsInt()) {
-									Found = true;
-									break;
-								}
-							}
-						}
-						
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsInt() ? Candidate : mStd.cEmpty
+						);
+
 						mAssert.IsTrue(
-							Found,
+							!SuccessType.IsEmpty(),
 							() => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}"
 						);
-						
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
 						Regs = Regs.Set(RegId1, NewProc.TryAsInt(Span, ArgReg));
-						Types.Push(mVM_Type.Int());
+						Types.Push(SuccessType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsType)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsType() ? Candidate : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_TYPE expects type with TYPE but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Regs = Regs.Set(RegId1, NewProc.TryAsType(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryRemovePrefixFrom, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var Prefix = RegId3.AssertNotEmpty();
 						var ArgType = Types.Get(ArgReg);
-						
-						mMaybe.tMaybe<mVM_Type.tType> SubType = mStd.cEmpty;
-						
-						if (ArgType.IsPrefix(Prefix, out var Inner)) {
-							SubType = Inner;
-						} else {
-							var Found = false;
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsPrefix(Prefix, out Inner) || Type2.IsPrefix(Prefix, out Inner)) {
-									SubType = Inner;
-									Found = true;
-									break;
-								}
-							}
-							
-							mAssert.IsTrue(
-								Found,
-								() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
-							);
-						}
-						
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsPrefix(Prefix, out var Inner) ? Inner : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
 						Regs = Regs.Set(RegId1, NewProc.TryRemovePrefixFrom(Span, Prefix.PrefixHash(), ArgReg));
-						Types.Push(SubType.AssertNotEmpty());
+						Types.Push(SuccessType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRecord)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsRecord(out _) ? Candidate : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_RECORD expects type with RECORD but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Regs = Regs.Set(RegId1, NewProc.TryAsRecord(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						if (ArgType.IsRecursive(out var _, out var Body_)) {
-							ArgType = Body_;
-						}
-						
-						while (ArgType.IsSet(out var Type1, out var Type2)) {
-							if (Type1.IsPair(out _, out _)) {
-								ArgType = Type1;
-								break;
-							}
-							
-							ArgType = Type2;
-						}
-						
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsPair(out _, out _) ? Candidate : mStd.cEmpty
+						);
+
 						mAssert.IsTrue(
-							ArgType.IsPair(out _, out _),
+							!SuccessType.IsEmpty(),
 							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
 						);
 
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
 						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
-						Types.Push(ArgType);
+						Types.Push(SuccessType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsVar)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsVar(out _) ? Candidate : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_VAR expects type with VAR but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Regs = Regs.Set(RegId1, NewProc.TryAsVar(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
-						throw new System.NotImplementedException(nameof(mIL_AST.tCommandNodeType.TryAsRef)); // TODO
+						var ArgReg = Regs.GetOrThrow(RegId2, Command);
+						var ArgType = Types.Get(ArgReg);
+
+						var (SuccessType, FailureType) = SplitType(
+							ArgType,
+							Candidate => Candidate.IsRef(out _) ? Candidate : mStd.cEmpty
+						);
+
+						mAssert.IsTrue(
+							!SuccessType.IsEmpty(),
+							() => $"{Span} TRY_AS_REF expects type with REF but is {ArgType.ToText()}"
+						);
+
+						DefResType = MergeTypes(DefResType, FailureType);
+						Types.Set(mVM_Data.cResReg, DefResType);
+
+						Regs = Regs.Set(RegId1, NewProc.TryAsRef(Span, ArgReg));
+						Types.Push(SuccessType);
+						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.VarDef, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var Reg = Regs.GetOrThrow(RegId2, Command);
@@ -698,6 +774,65 @@ mIL_GenerateOpcodes {
 		return (Module, ModuleMap);
 	}
 	
+	private static mVM_Type.tType
+	MergeTypes(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		aType1 = ResolveFreeType(aType1);
+		aType2 = ResolveFreeType(aType2);
+		if (aType1.IsEmpty()) {
+			return aType2;
+		}
+		if (aType2.IsEmpty()) {
+			return aType1;
+		}
+		if (aType1 == aType2) {
+			return aType1;
+		}
+		return mVM_Type.Set(aType1, aType2);
+	}
+
+	private static mVM_Type.tType
+	ResolveFreeType(
+		mVM_Type.tType aType
+	) {
+		while (aType.Kind is mVM_Type.tKind.Free) {
+			var Next = aType.Refs[0];
+			if (ReferenceEquals(Next, aType)) {
+				break;
+			}
+			aType = Next;
+		}
+		return aType;
+	}
+
+	private static (mVM_Type.tType SuccessType, mVM_Type.tType FailureType)
+	SplitType(
+		mVM_Type.tType aType,
+		System.Func<mVM_Type.tType, mMaybe.tMaybe<mVM_Type.tType>> aProject
+	) {
+		var Type = ResolveFreeType(aType);
+		if (Type.IsSet(out var HeadType, out var TailType)) {
+			var (headSuccess, headFailure) = SplitType(HeadType, aProject);
+			var (tailSuccess, tailFailure) = SplitType(TailType, aProject);
+			return (
+				MergeTypes(headSuccess, tailSuccess),
+				MergeTypes(headFailure, tailFailure)
+			);
+		}
+		if (Type.IsRecursive(out var _, out var BodyType)) {
+			return SplitType(BodyType, aProject);
+		}
+		if (Type.IsEmpty()) {
+			return (mVM_Type.Empty(), mVM_Type.Empty());
+		}
+		if (aProject(Type).IsSome(out var SuccessType)) {
+			return (SuccessType, mVM_Type.Empty());
+		}
+		return (mVM_Type.Empty(), Type);
+	}
+
 	public static tNat32 GetOrThrow<tPos>(
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		mMaybe.tMaybe<tText> aRegId,
