@@ -433,9 +433,9 @@ mIL_GenerateOpcodes {
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIfNotEmpty, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ResReg = Regs.GetOrThrow(RegId2, Command);
-						
+
 						var ResType = Types.Get(ResReg);
-						
+
 						DefResType.IsSubType(ResType, mStd.cEmpty)
 						.ElseThrow(
 							_ => (
@@ -449,7 +449,39 @@ mIL_GenerateOpcodes {
 								"""
 							)
 						);
-						
+
+						var ReturnTypeBefore = Types.Get(mVM_Data.cResReg);
+
+						var Components = new System.Collections.Generic.List<mVM_Type.tType>();
+						CollectTypeComponents(ResType, Components);
+
+						var EmptyComponents = new System.Collections.Generic.List<mVM_Type.tType>();
+						var NonEmptyComponents = new System.Collections.Generic.List<mVM_Type.tType>();
+
+						foreach (var Component in Components) {
+							if (Component.IsEmpty()) {
+								EmptyComponents.Add(Component);
+							} else {
+								NonEmptyComponents.Add(Component);
+							}
+						}
+
+						var EmptyType = CombineTypeComponents(EmptyComponents);
+						var NonEmptyType = CombineTypeComponents(NonEmptyComponents);
+
+						var ContinuationType = EmptyType.Match(
+							() => mVM_Type.Empty(),
+							_ => _
+						);
+
+						Types.Set(ResReg, ContinuationType);
+
+						var NewReturnType = ReturnTypeBefore;
+						if (NonEmptyType.IsSome(out var NonEmptySubset)) {
+							NewReturnType = mVM_Type.Set(NewReturnType, NonEmptySubset);
+						}
+						Types.Set(mVM_Data.cResReg, NewReturnType);
+
 						NewProc.ReturnIfNotEmpty(Span, ResReg);
 						break;
 					}
@@ -459,26 +491,28 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsInt, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						
-						var Found = false;
-						if (ArgType.IsInt()) {
-							Found = true;
-						} else {
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsInt() || Type2.IsInt()) {
-									Found = true;
-									break;
-								}
-							}
-						}
-						
-						mAssert.IsTrue(
-							Found,
-							() => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}"
+						var ReturnTypeBefore = Types.Get(mVM_Data.cResReg);
+
+						var (Continuation, Result, Failure) = SplitTypeForTry(
+							ArgType,
+							_ => _.IsInt()
+								? mMaybe.Some((_, _))
+								: mStd.cEmpty
 						);
-						
+
+						var Error = () => $"{Span} TRY_AS_INT expects type with INT but is {ArgType.ToText()}";
+						var ResultType = Result.AssertNotEmpty(Error);
+						var ContinuationType = Continuation.AssertNotEmpty(Error);
+
+						Types.Set(ArgReg, ContinuationType);
 						Regs = Regs.Set(RegId1, NewProc.TryAsInt(Span, ArgReg));
-						Types.Push(mVM_Type.Int());
+						Types.Push(ResultType);
+
+						var NewReturnType = ReturnTypeBefore;
+						if (Failure.IsSome(out var FailureType)) {
+							NewReturnType = mVM_Type.Set(NewReturnType, FailureType);
+						}
+						Types.Set(mVM_Data.cResReg, NewReturnType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsType, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -488,29 +522,28 @@ mIL_GenerateOpcodes {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var Prefix = RegId3.AssertNotEmpty();
 						var ArgType = Types.Get(ArgReg);
-						
-						mMaybe.tMaybe<mVM_Type.tType> SubType = mStd.cEmpty;
-						
-						if (ArgType.IsPrefix(Prefix, out var Inner)) {
-							SubType = Inner;
-						} else {
-							var Found = false;
-							for (var Type = ArgType; Type.IsSet(out var Type1, out var Type2); Type = Type2) {
-								if (Type1.IsPrefix(Prefix, out Inner) || Type2.IsPrefix(Prefix, out Inner)) {
-									SubType = Inner;
-									Found = true;
-									break;
-								}
-							}
-							
-							mAssert.IsTrue(
-								Found,
-								() => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}"
-							);
-						}
-						
+						var ReturnTypeBefore = Types.Get(mVM_Data.cResReg);
+
+						var (Continuation, Result, Failure) = SplitTypeForTry(
+							ArgType,
+							_ => _.IsPrefix(Prefix, out var Inner)
+								? mMaybe.Some((_, Inner))
+								: mStd.cEmpty
+						);
+
+						var Error = () => $"{Span} TRY_REMOVE expects type with prefix #{Prefix} but is {ArgType.ToText()}";
+						var ContinuationType = Continuation.AssertNotEmpty(Error);
+						var ResultType = Result.AssertNotEmpty(Error);
+
+						Types.Set(ArgReg, ContinuationType);
 						Regs = Regs.Set(RegId1, NewProc.TryRemovePrefixFrom(Span, Prefix.PrefixHash(), ArgReg));
-						Types.Push(SubType.AssertNotEmpty());
+						Types.Push(ResultType);
+
+						var NewReturnType = ReturnTypeBefore;
+						if (Failure.IsSome(out var FailureType)) {
+							NewReturnType = mVM_Type.Set(NewReturnType, FailureType);
+						}
+						Types.Set(mVM_Data.cResReg, NewReturnType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsRecord, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -519,26 +552,34 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsPair, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						if (ArgType.IsRecursive(out var _, out var Body_)) {
-							ArgType = Body_;
-						}
-						
-						while (ArgType.IsSet(out var Type1, out var Type2)) {
-							if (Type1.IsPair(out _, out _)) {
-								ArgType = Type1;
-								break;
+						var ReturnTypeBefore = Types.Get(mVM_Data.cResReg);
+
+						var (Continuation, Result, Failure) = SplitTypeForTry(
+							ArgType,
+							_ => {
+								var Candidate = _;
+								if (Candidate.IsRecursive(out var __, out var Body_)) {
+									Candidate = Body_;
+								}
+								return Candidate.IsPair(out _, out _)
+									? mMaybe.Some((_, Candidate))
+									: mStd.cEmpty;
 							}
-							
-							ArgType = Type2;
-						}
-						
-						mAssert.IsTrue(
-							ArgType.IsPair(out _, out _),
-							() => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}"
 						);
 
+						var Error = () => $"{Span} TRY_AS_PAIR expects type with PAIR but is {ArgType.ToText()}";
+						var ResultType = Result.AssertNotEmpty(Error);
+						var ContinuationType = Continuation.AssertNotEmpty(Error);
+
+						Types.Set(ArgReg, ContinuationType);
 						Regs = Regs.Set(RegId1, NewProc.TryAsPair(Span, ArgReg));
-						Types.Push(ArgType);
+						Types.Push(ResultType);
+
+						var NewReturnType = ReturnTypeBefore;
+						if (Failure.IsSome(out var FailureType)) {
+							NewReturnType = mVM_Type.Set(NewReturnType, FailureType);
+						}
+						Types.Set(mVM_Data.cResReg, NewReturnType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.TryAsVar, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
@@ -698,6 +739,73 @@ mIL_GenerateOpcodes {
 		return (Module, ModuleMap);
 	}
 	
+	private static void
+	CollectTypeComponents(
+		mVM_Type.tType aType,
+		System.Collections.Generic.List<mVM_Type.tType> aComponents
+	) {
+		var Type = aType;
+		while (Type.Kind is mVM_Type.tKind.Free && !System.Object.ReferenceEquals(Type, Type.Refs[0])) {
+			Type = Type.Refs[0];
+		}
+
+		if (Type.Kind is mVM_Type.tKind.Set) {
+			CollectTypeComponents(Type.Refs[0], aComponents);
+			CollectTypeComponents(Type.Refs[1], aComponents);
+		} else {
+			aComponents.Add(Type);
+		}
+	}
+
+	private static mMaybe.tMaybe<mVM_Type.tType>
+	CombineTypeComponents(
+		System.Collections.Generic.List<mVM_Type.tType> aComponents
+	) {
+		if (aComponents.Count is 0) {
+			return mStd.cEmpty;
+		}
+
+		var Combined = aComponents[0];
+		for (var I = 1; I < aComponents.Count; I += 1) {
+			Combined = mVM_Type.Set(Combined, aComponents[I]);
+		}
+
+		return mMaybe.Some(Combined);
+	}
+
+	private static (
+		mMaybe.tMaybe<mVM_Type.tType> Continuation,
+		mMaybe.tMaybe<mVM_Type.tType> Result,
+		mMaybe.tMaybe<mVM_Type.tType> Failure
+	)
+	SplitTypeForTry(
+		mVM_Type.tType aType,
+		System.Func<mVM_Type.tType, mMaybe.tMaybe<(mVM_Type.tType Continuation, mVM_Type.tType Result)>> aSelector
+	) {
+		var Components = new System.Collections.Generic.List<mVM_Type.tType>();
+		CollectTypeComponents(aType, Components);
+
+		var ContinuationComponents = new System.Collections.Generic.List<mVM_Type.tType>();
+		var ResultComponents = new System.Collections.Generic.List<mVM_Type.tType>();
+		var FailureComponents = new System.Collections.Generic.List<mVM_Type.tType>();
+
+		foreach (var Component in Components) {
+			if (aSelector(Component).IsSome(out var Selection)) {
+				var (ContinuationComponent, ResultComponent) = Selection;
+				ContinuationComponents.Add(ContinuationComponent);
+				ResultComponents.Add(ResultComponent);
+			} else {
+				FailureComponents.Add(Component);
+			}
+		}
+
+		return (
+			CombineTypeComponents(ContinuationComponents),
+			CombineTypeComponents(ResultComponents),
+			CombineTypeComponents(FailureComponents)
+		);
+	}
+
 	public static tNat32 GetOrThrow<tPos>(
 		this mTreeMap.tTree<tText, tNat32> aRegs,
 		mMaybe.tMaybe<tText> aRegId,
