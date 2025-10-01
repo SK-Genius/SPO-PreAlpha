@@ -215,9 +215,10 @@ mSPO2IL_Tests {
 								mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)), // [13]:(1) => [14]:1
 								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(14)), // [14]:1 == a
 								
-								mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(13)) // [13]:(1) => [14]:()
-							]
-						),
+mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(13)), // [13]:(1) => [14]:()
+mIL_AST.Alias(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(16), mSPO2IL.GetRegId(7))
+]
+),
 						aAreEqual: mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
@@ -257,9 +258,10 @@ mSPO2IL_Tests {
 								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(1, 2) => [10]:(1)
 								mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(1) => [11]:1
 								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(11)), // [11]:1 == a
-								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)) // [10]:(1) => [12]:()
-							]
-						),
+mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)), // [10]:(1) => [12]:()
+mIL_AST.Alias(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(13), mSPO2IL.GetRegId(6))
+]
+),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
@@ -310,9 +312,10 @@ mSPO2IL_Tests {
 								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(19), mSPO2IL.GetRegId(17)), // [17]:(1, 2) => [19]:(1)
 								mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(20), mSPO2IL.GetRegId(19)), // [19]:(1) => [20]:1
 								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(20)), // [20]:1 == a
-								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(21), mSPO2IL.GetRegId(19)) // [19]:(1) => [21]:()
-							]
-						),
+mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(21), mSPO2IL.GetRegId(19)), // [19]:(1) => [21]:()
+mIL_AST.Alias(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(22), mSPO2IL.GetRegId(10))
+]
+),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
 				}
