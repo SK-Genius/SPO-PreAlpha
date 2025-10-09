@@ -180,4 +180,10 @@ mModule {
 			]
 		)
 	);
+	
+	public static tModuleSetup
+	Module_Maybe = ModuleSetup(
+		ModuleFolder / "Maybe.SPO",
+		mStd.cEmpty
+	);
 }

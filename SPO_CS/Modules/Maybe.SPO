@@ -1,0 +1,52 @@
+§IMPORT {
+	
+}
+
+§DEF ...>>... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF a € [tIn | []]
+	§DEF aOnValue... € [[tIn | []] => tOut]
+) => §IF a MATCH {
+	(): ()
+	§DEF Value: .aOnValue Value
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF a € [tIn | []]
+	§DEF aOnValue... € [[tIn | []] => [tOut | []]]
+) => §IF a MATCH {
+	(): ()
+	§DEF Value: .aOnValue Value
+}
+
+§DEF ...|... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [t | []]
+	§DEF aFallBack € t
+) => §IF a MATCH {
+	(): aFallBack
+	§DEF Value: Value
+}
+
+§DEF ...||... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [t | []]
+	§DEF aOnEmpty € [[] => t]
+) => §IF a MATCH {
+	(): .aOnEmpty
+	§DEF Value: Value
+}
+
+§EXPORT {
+	...>>...: ...>>...
+	...>>?...: ...>>?...
+	...|...: ...|...
+	...||...: ...||...
+}

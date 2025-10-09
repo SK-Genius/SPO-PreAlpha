@@ -141,6 +141,67 @@ mModule_Tests {
 					);
 				}
 			),
+			mTest.Test("Maybe",
+				aDebugStream => {
+					var Module_Maybe = mModule.Module_Maybe.Init(
+						aDebugStream
+					).ElseThrow(
+					);
+					
+					mAssert.AreEquals(
+						mSPO_Interpreter.Run(
+							"""
+							§IMPORT {
+								...>>...: §DEF ...>>... € [
+									§GENERIC tIn [
+										§GENERIC tOut [
+											[
+												[tIn | []]
+												[tIn => tOut]
+											] => [tOut | []]
+										]
+									]
+								]
+								...|...: §DEF ...|... € [
+									§GENERIC t [
+										[
+											[t | []]
+											t
+										] => t
+									]
+								]
+							}
+							
+							§DEF X € [§INT | []] = 1
+							§DEF Y € [§INT | []] = ()
+							
+							§EXPORT (
+								X §>.>> (§DEF a € [§INT | []] => §TRUE) §>.| §FALSE
+								Y §>.>> (§DEF a € [§INT | []] => §TRUE) §>.| §FALSE
+								X .| 0
+								Y .| 0
+							)
+							""",
+							"",
+							(Module_Maybe.Data, Module_Maybe.Type),
+							_ => aDebugStream(_())
+						).Then(
+							_ => _.Data
+						).ElseThrow(
+						),
+						mVM_Data.Tuple(
+							[
+								mVM_Data.Bool(true),
+								mVM_Data.Bool(false),
+								mVM_Data.Int(1),
+								mVM_Data.Int(0),
+							]
+						),
+						default,
+						_ => _.ToText(20)
+					);
+				}
+			),
 		]
 	);
 }
