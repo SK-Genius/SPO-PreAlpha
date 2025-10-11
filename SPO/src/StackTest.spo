@@ -1,6 +1,4 @@
-﻿§DEF tStack... = [§GENERIC t [§RECURSIVE tStack_ [[] | [t, tStack_]]]
-
-§IMPORT {
+﻿§IMPORT {
 	Std: {
 		...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
@@ -8,8 +6,18 @@
 		...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
 	}
 	Stack: {
-		Push...To...: §DEF Push...To... € [§GENERIC t [[t, .tStack t] => [.tStack t]]]
-		Map...With...: §DEF Map...With... € [§GENERIC tIn, tOut [.tStack tIn, tIn => tOut] => [.Stack tOut]]
+		tStack: §DEF tStack € §TYPE
+		Push...To...: §DEF Push...To... € [§GENERIC t [[t, [.tStack t]] => [.tStack t]]]
+		Map...With...: §DEF Map...With... € [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					[
+						[.tStack tIn]
+						[tIn => tOut]
+					] => [.Stack tOut]
+				]
+			]
+		]
 	}
 }
 
@@ -25,15 +33,15 @@
 			§DEF a1 € [.tStack t]
 			§DEF a2 € [.tStack t]
 		) => §IF (a1, a2) MATCH {
-			(
-				(§DEF Head1, §DEF Tail1)
-				(§DEF Head2, §DEF Tail2)
-			) => (Head1 .== Head2) .& (Tail1 .== Tail2)
-			(
-				()
-				()
-			) => §TRUE
-			_ => §FALSE
+			((§DEF Head1, §DEF Tail1), (§DEF Head2, §DEF Tail2)): (
+				(Head1 .== Head2) .& (Tail1 .== Tail2)
+			)
+			((), ()): (
+				§TRUE
+			)
+			_: (
+				§FALSE
+			)
 		}
 	}
 }

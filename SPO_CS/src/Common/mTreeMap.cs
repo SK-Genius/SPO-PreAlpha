@@ -380,7 +380,7 @@ mTreeMap {
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTree<tGroup, mStream.tStream<t>>
-	GroupBy<t, tGroup>(
+	GroupAndSortBy<t, tGroup>(
 		this mStream.tStream<t> aStream,
 		mStd.tFunc<t, tGroup> aDefineGroup,
 		mStd.tFunc<tGroup, tGroup, tInt32> aCompGroup

@@ -41,7 +41,7 @@ mParserGen_Tests {
 	) => a1 == a2;
 	
 	private static readonly mStream.tStream<(mStd.tEmpty Pos, tText Message)>
-	cNoError = default;
+	cNoError = mStd.cEmpty;
 	
 	private static mResult.tResultFail<mStream.tStream<(mStd.tEmpty Pos, tText Message)>>
 	Fail(
@@ -269,11 +269,11 @@ mParserGen_Tests {
 					
 					mAssert.AreEquals(
 						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), _ => aDebugStream(_())),
-						mParserGen.ParserResult((cTestSpan, 2u), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
+						mParserGen.ParserResult((cTestSpan, 2u), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream([(mStd.cEmpty, "miss A")]))
 					);
 					mAssert.AreEquals(
 						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAAAA_")), _ => aDebugStream(_())),
-						mParserGen.ParserResult((cTestSpan, 5u), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
+						mParserGen.ParserResult((cTestSpan, 5u), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream([(mStd.cEmpty, "miss A")]))
 					);
 					mAssert.AreEquals(
 						A2_.StartParse(mStd.cEmpty, _ => aDebugStream(_())),

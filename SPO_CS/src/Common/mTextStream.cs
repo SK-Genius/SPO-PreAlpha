@@ -64,18 +64,19 @@ mTextStream {
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Message)> aErrors,
 		tText[] aSrcLines
-	) => aErrors.GroupBy(
+	//) => aErrors.Reduce("", (aOut, aError) => aOut + "\n" + aError.ToText(aSrcLines));
+	) => aErrors.GroupAndSortBy(
 		_ => _.Pos.Id,
 		tText.CompareOrdinal
 	).ToStream(
 	).Map(
-		aFile => "" + aFile.Key + aFile.Value.GroupBy(
+		aFile => "" + aFile.Key + aFile.Value.GroupAndSortBy(
 			_ => _.Pos.Row,
 			(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 		).ToStream(
 		).TryLast(
 		).Then(
-			aRow => ":" + aRow.Key + " ERROR" + aRow.Value.GroupBy(
+			aRow => $":{aRow.Key} ERROR " + aRow.Value.GroupAndSortBy(
 				_ => _.Pos.Col,
 				(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 			).ToStream(
@@ -89,14 +90,12 @@ mTextStream {
 					(a1, a2) => tText.CompareOrdinal(a1.Message, a2.Message)
 				).DontRepeat(
 				).Map(
-					_ => " ├ " + _.Message + "\n"
+					_ => $" ├ {_.Message}\n"
 				).Join(
 					(a1, a2) => a1 + a2,
 					""
 				)
-			).Join(
-				(a1, a2) => a1 + a2,
-				""
+			).TryLast(
 			)
 		).ElseUse(
 			""
@@ -105,7 +104,6 @@ mTextStream {
 		(a1, a2) => a1 + a2,
 		""
 	);
-	
 	
 	public static tBool
 	Eq(

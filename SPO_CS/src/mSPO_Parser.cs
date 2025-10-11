@@ -549,18 +549,26 @@ mSPO_Parser {
 	.Modify((_, aId, aExpression) => (aId, aExpression))
 	.ModifyS(mSPO_AST.GenericType)
 	.SetName(nameof(GenericType));
+	public static readonly mParserGen.tParser<tPos, tToken, (mSPO_AST.tTypeNode<tSpan> GenericType, mSPO_AST.tTypeNode<tSpan> ArgType), tError>
+	GenericApplyTypeCore = mParserGen.Seq(
+		SpecialToken("."),
+		Type,
+		Type
+	)
+	.Modify((_, aGenericType, aArgType) => (GenericType: aGenericType, ArgType: aArgType))
+	.SetName(nameof(GenericApplyType) + "Core");
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tGenericApplyTypeNode<tSpan>, tError>
-	GenericApplyType = E(
-		mParserGen.Seq(
-			SpecialToken("."),
-			Type,
-			Type
-		)
+	GenericApplyType = mParserGen.OneOf(
+		[
+			E(GenericApplyTypeCore),
+			C(GenericApplyTypeCore),
+			GenericApplyTypeCore
+		]
 	)
-	.Modify((_, aGenericType, aArgType) => (aGenericType, aArgType))
-	.ModifyS(mSPO_AST.GenericApplyType)
+	.ModifyS((aSpan, aTypes) => mSPO_AST.GenericApplyType(aSpan, aTypes.GenericType, aTypes.ArgType))
 	.SetName(nameof(GenericApplyType));
+	
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
@@ -757,6 +765,7 @@ mSPO_Parser {
 					InterfaceType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					GenericType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					GenericApplyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					C( Type ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				]
 			)
 		);
@@ -891,7 +900,7 @@ mSPO_Parser {
 				)
 			);
 			
-			SB.Append("\t" + TypeCommand_.ToText()).Append("\n");
+			SB.Append("	" + TypeCommand_.ToText()).Append("\n");
 			TypeIndex += 1;
 		}
 		
@@ -899,7 +908,7 @@ mSPO_Parser {
 			SB.Append("\n");
 			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append("\n");
 			foreach (var Cmd in Commands.ToStream()) {
-				SB.Append("\t" + Cmd.ToText()).Append("\n");
+				SB.Append("	" + Cmd.ToText()).Append("\n");
 			}
 			DefIndex += 1;
 		}
@@ -907,3 +916,5 @@ mSPO_Parser {
 		return SB.ToString();
 	}
 }
+
+

@@ -1,0 +1,49 @@
+§DEF ...OrErrorType... = (
+	tValue € §TYPE
+	tError € §TYPE
+) => [
+	[#Value tValue]
+	[#Error tError]
+]
+
+§DEF OK... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € t
+) => (#Value a)
+
+§DEF Fail... = (
+	§DEF tError € §TYPE
+) <=> (
+	§DEF aError € tError
+) => (#Error aError)
+
+§DEF ...>>... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF a € tIn .OrErrorType tError
+	§DEF aOnValue... € [tn => tOut]
+) => §IF a MATCH {
+	(#Error §DEF Error): .Fail Error
+	(#Value §DEF Value): .aOnValue Value
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF a € tIn .OrErrorType tError
+	§DEF aOnValue... € [tn => tOut]
+) => §IF a MATCH {
+	(#Error §DEF Error): .Fail Error
+	(#Value §DEF Value): .aOnValue Value
+}
+
+§EXPORT {
+	OK...: OK...
+	Fail...: Fail...
+	...>>...: ...>>...
+}

@@ -115,7 +115,9 @@ mModule_Tests {
 							§EXPORT (
 								("abc" .ToUpper) .== "ABC"
 								("ABC" .ToLower) .== "abc"
-								("  hello  " .Trim) .== "hello"
+								("
+								|  hello  
+								" .Trim) .== "hello"
 								("  hello  " .TrimStart) .== "hello  "
 								("  hello  " .TrimEnd) .== "  hello"
 							)
@@ -205,4 +207,3 @@ mModule_Tests {
 		]
 	);
 }
-

@@ -1,13 +1,13 @@
-§IMPORT {
-	
-}
+§DEF Maybe... = (
+	§DEF t € §TYPE
+) => [t | []]
 
 §DEF ...>>... = (
 	§DEF tIn € §TYPE
 	§DEF tOut € §TYPE
 ) <=> (
 	§DEF a € [tIn | []]
-	§DEF aOnValue... € [[tIn | []] => tOut]
+	§DEF aOnValue... € [(.Maybe tIn) => tOut]
 ) => §IF a MATCH {
 	(): ()
 	§DEF Value: .aOnValue Value
@@ -45,6 +45,7 @@
 }
 
 §EXPORT {
+	Maybe...: Maybe...
 	...>>...: ...>>...
 	...>>?...: ...>>?...
 	...|...: ...|...
