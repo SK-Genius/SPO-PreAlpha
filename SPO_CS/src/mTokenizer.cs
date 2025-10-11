@@ -95,9 +95,28 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
 	Token = mParserGen.OneOf(
 		[
-			mParserGen.Seq(Char('"'), CharNotIn("\"")[0..], Char('"'))
-			.ModifyS((aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan })
-			.SetName(nameof(tTokenType.Text)),
+			(
+				(
+					mParserGen.Seq(
+						-Char('"') -Char('\n'),
+						(-CharIn(" \t\r") -Char('|') +(~Char('\n')).Modify(
+							_ => _.Item1.Reduce("", (aLine, aChar) => aLine + aChar)
+						))[0..].Modify(
+							aLines => aLines.Join((aLines, aLine) => aLines + '\n' + aLine, "")
+						),
+						-__ -Char('"')
+					)
+					.ModifyS((aSpan, _, aLines, _) => new tToken { Type = tTokenType.Text, Text = aLines, Span = aSpan })
+				) | (
+					mParserGen.Seq(
+						Char('"'),
+						CharNotIn("\"")[0..],
+						Char('"')
+					).ModifyS(
+						(aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan }
+					)
+				)
+			).SetName(nameof(tTokenType.Text)),
 			
 			Text("=>")
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
@@ -119,7 +138,7 @@ mTokenizer {
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken)),
 			
-			CharIn(".,:;()[]{}€\n").Modify(aChar => "" + aChar)
+			CharIn(".,:;()[]{}?€\n").Modify(aChar => "" + aChar)
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken))
 		]
