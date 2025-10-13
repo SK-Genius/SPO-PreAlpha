@@ -3,7 +3,7 @@
 	t_1 := [t_0, BOOL]
 	t_2 := [t_1, BOOL]
 	t_3 := [t_2, INT]
-	t_4 := [#_Bla... EMPTY_TYPE]
+	t_4 := [#_Bla EMPTY_TYPE]
 	t_5 := [t_3, t_4]
 	t_6 := [EMPTY_TYPE => t_5]
 	t_7 := [EMPTY_TYPE => t_6]
@@ -14,7 +14,7 @@
 	_A_2 := FALSE
 	r_1 := 0
 	_A_3 := r_1
-	r_2 := +#_Bla... EMPTY
+	r_2 := +#_Bla EMPTY
 	_A_4 := r_2
 	r_3 := EMPTY, _A_0
 	r_4 := r_3, _A_1

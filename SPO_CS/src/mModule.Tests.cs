@@ -154,20 +154,21 @@ mModule_Tests {
 						mSPO_Interpreter.Run(
 							"""
 							§IMPORT {
+								tMaybe: §DEF tMaybe € §TYPE
 								...>>...: §DEF ...>>... € [
 									§GENERIC tIn [
 										§GENERIC tOut [
 											[
-												[tIn | []]
-												[tIn => tOut]
-											] => [tOut | []]
+												.tMaybe tIn
+												tIn => tOut
+											] => [.tMaybe tOut]
 										]
 									]
 								]
-								...|...: §DEF ...|... € [
+								...Or...: §DEF ...Or... € [
 									§GENERIC t [
 										[
-											[t | []]
+											t | []
 											t
 										] => t
 									]
@@ -178,10 +179,10 @@ mModule_Tests {
 							§DEF Y € [§INT | []] = ()
 							
 							§EXPORT (
-								X §>.>> (§DEF a € [§INT | []] => §TRUE) §>.| §FALSE
-								Y §>.>> (§DEF a € [§INT | []] => §TRUE) §>.| §FALSE
-								X .| 0
-								Y .| 0
+								X §>.>> (§DEF a € [§INT | []] => §TRUE) §>.Or §FALSE
+								Y §>.>> (§DEF a € [§INT | []] => §TRUE) §>.Or §FALSE
+								X .Or 0
+								Y .Or 0
 							)
 							""",
 							"",

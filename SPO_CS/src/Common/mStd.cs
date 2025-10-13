@@ -34,6 +34,12 @@
 	public static tRes Call<tRes>(tFunc<tRes> aFunc) => aFunc();
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	public static t Def<t>(this t a, out t aOut) {
+		aOut = a;
+		return a;
+	}
+	
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tRes With<tRes, tArg>(tArg a, tFunc<tArg, tRes> aFunc)
 	=> aFunc(a);
 	

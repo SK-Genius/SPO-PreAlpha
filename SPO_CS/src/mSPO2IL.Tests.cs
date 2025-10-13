@@ -894,7 +894,7 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapIfMatch_2_WithSet",
+ 			mTest.Test("MapIfMatch_2_WithSet",
 				aStreamOut => {
 					var ModuleNode = mSPO_Parser.Module.ParseText(
 						//       1         2         3         4         5         6         7         8
@@ -902,11 +902,11 @@ mSPO2IL_Tests {
 						"""
 						§IMPORT ()
 						
-						§DEF X € [[#Bla []] | [#Blub []]] = #Bla ()
+						§DEF X € [#Bla | #Blub] = #Bla
 						
 						§EXPORT §IF X MATCH {
-							(#Blub ()) : 1
-							(#Bla ()) : 2
+							(#Blub) : 1
+							(#Bla) : 2
 							_ : 3
 						}
 						""",
@@ -943,14 +943,14 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := §TRY_REMOVE #_Blub... FROM ARG
+							r_1 := §TRY_REMOVE #_Blub FROM ARG
 							r_2 := §TRY r_1 AS_EMPTY
 							r_3 := 1
 							r_4 := +#Result r_3
 							§RETURN r_4 IF TRUE
 							""",
 							"""
-							r_1 := §TRY_REMOVE #_Bla... FROM ARG
+							r_1 := §TRY_REMOVE #_Bla FROM ARG
 							r_2 := §TRY r_1 AS_EMPTY
 							r_3 := 2
 							r_4 := +#Result r_3
@@ -989,7 +989,7 @@ mSPO2IL_Tests {
 							d_0 := §2ND r_10
 							r_11 := §1ST r_10
 							§RETURN ARG IF_NOT_EMPTY
-							r_1 := +#_Bla... EMPTY
+							r_1 := +#_Bla EMPTY
 							_X := r_1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1

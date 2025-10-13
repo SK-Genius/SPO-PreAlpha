@@ -5,8 +5,7 @@
 		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
 		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
 		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-		...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
-		!...: §DEF !... € [§BOOL => §BOOL]
+		...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
 	}
 }
 
@@ -34,7 +33,7 @@
 	§DEF aMin € §INT
 	§DEF a € §INT
 	§DEF aMax € §INT
-) => (aMin .<= a) .& (a .<= aMax)
+) => (aMin .<= a) .And (a .<= aMax)
 
 §DEF ...Char<=...<=... = (
 	§DEF aMin € §CHAR

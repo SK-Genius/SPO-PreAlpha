@@ -1,0 +1,9 @@
+§IMPORT {
+	...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
+}
+§EXPORT (
+	§FALSE .And §FALSE
+	§FALSE .And §TRUE
+	§TRUE .And §FALSE
+	§TRUE .And §TRUE
+)

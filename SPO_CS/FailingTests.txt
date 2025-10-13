@@ -1,0 +1,18 @@
+All
+|  mSPO
+|  |  mModule_Tests
+|  |  |  Maybe
+|  |  |  [ D:\Projekte\SPO-PreAlpha\SPO_CS\src\mModule.Tests.cs:146 ]
+|  |  |  |  tError: :7,7..7,12: expected generic type but '_tMaybe'
+|  |  |  |    7:      .tMaybe tIn
+|  |  |  |             ~~~~~~
+|  |  |  |  |     at mModule_Tests.<>c.<.cctor>b__1_3(tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\mModule.Tests.cs:153
+|  |  |  |  |     at mTest.Run(tTest aTest, tAction`1 aDebugStream, tTestSettings aSettings) in D:\Projekte\SPO-PreAlpha\SPO_CS\src\Common\mTest.cs:222
+|  |  |  > Fail
+|  |  |  
+|  |  > Fail:1 OK:3 (1.09 Sec)
+|  |  
+|  > Fail:1 OK:9|260 (5.43 Sec)
+|  
+> Fail:1 OK:1|350 (5.58 Sec)
+

@@ -1,13 +1,11 @@
-§DEF Maybe... = (
-	§DEF t € §TYPE
-) => [t | []]
+§DEF tMaybe = [§GENERIC t [t | []]]
 
 §DEF ...>>... = (
 	§DEF tIn € §TYPE
 	§DEF tOut € §TYPE
 ) <=> (
 	§DEF a € [tIn | []]
-	§DEF aOnValue... € [(.Maybe tIn) => tOut]
+	§DEF aOnValue... € [[.tMaybe tIn] => tOut]
 ) => §IF a MATCH {
 	(): ()
 	§DEF Value: .aOnValue Value
@@ -24,7 +22,7 @@
 	§DEF Value: .aOnValue Value
 }
 
-§DEF ...|... = (
+§DEF ...Or... = (
 	§DEF t € §TYPE
 ) <=> (
 	§DEF a € [t | []]
@@ -34,7 +32,7 @@
 	§DEF Value: Value
 }
 
-§DEF ...||... = (
+§DEF ...OrDo... = (
 	§DEF t € §TYPE
 ) <=> (
 	§DEF a € [t | []]
@@ -45,9 +43,9 @@
 }
 
 §EXPORT {
-	Maybe...: Maybe...
+	tMaybe: tMaybe
 	...>>...: ...>>...
 	...>>?...: ...>>?...
-	...|...: ...|...
-	...||...: ...||...
+	...Or...: ...Or...
+	...OrDo...: ...OrDo...
 }

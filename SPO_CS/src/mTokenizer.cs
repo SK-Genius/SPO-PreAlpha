@@ -27,7 +27,9 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, tChar, tError> _ = CharIn(" \t\r");
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tChar>, tError> __ = _[0..];
 	
-	public static readonly tText SpecialChars = "#$§€\".:,;()[]{} \t\n\r";
+	public static readonly tText PrefixChars = "#§";
+	public static readonly tText ReservedChars = "€\".:,;|()[]{} \t\n\r";
+	public static readonly tText SpecialChars = PrefixChars + ReservedChars;
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tInt32, tError>
 	Digit = CharInRange('0', '9')
@@ -130,7 +132,7 @@ mTokenizer {
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.Id, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.Id)),
 			
-			CharIn("#§").__(Id)
+			CharIn(PrefixChars).__(Id)
 			.ModifyS((aSpan, aChar, aText) => new tToken { Type = tTokenType.SpecialId, Text = aChar + aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialId)),
 			
@@ -138,7 +140,7 @@ mTokenizer {
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken)),
 			
-			CharIn(".,:;()[]{}?€\n").Modify(aChar => "" + aChar)
+			CharIn(ReservedChars).Modify(aChar => "" + aChar)
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken))
 		]

@@ -1,13 +1,13 @@
 §IMPORT {
 	...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-	...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
+	...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
 }
 
 §DEF ...<=...<=... = (
 	§DEF aMin € §INT
 	§DEF aVal € §INT
 	§DEF aMax € §INT
-) => (aMin .<= aVal) .& (aVal .<= aMax)
+) => (aMin .<= aVal) .And (aVal .<= aMax)
 
 §EXPORT (
 	1 .<= 1 <= 1

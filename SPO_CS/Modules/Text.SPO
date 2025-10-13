@@ -3,8 +3,6 @@
 		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
 		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
 		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-		...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
-		!...: §DEF !... € [§BOOL => §BOOL]
 	}
 	Char: {
 		...<=>...: §DEF ...Char<=>... € [[§CHAR, §CHAR] => §INT]

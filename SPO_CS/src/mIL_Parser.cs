@@ -57,7 +57,7 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.And))
 			.SetDebugName([nameof(mIL_AST.And)]),
 			
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Id, -Token("|") +Id)
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("BOOL"), Id, -SpecialToken("|") +Id)
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
 			.ModifyS(mTokenizer.X(mIL_AST.Or))
 			.SetDebugName([nameof(mIL_AST.Or)]),
@@ -262,7 +262,7 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.TypeRecord))
 			.SetDebugName([nameof(mIL_AST.TypeRecord)]),
 			
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), SpecialToken("["), Id, -Token("|") +Id +-SpecialToken("]"))
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), SpecialToken("["), Id, -SpecialToken("|") +Id +-SpecialToken("]"))
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
 			.ModifyS(mTokenizer.X(mIL_AST.TypeSet))
 			.SetDebugName([nameof(mIL_AST.TypeSet)]),

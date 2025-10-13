@@ -1,9 +1,0 @@
-§IMPORT {
-	...&...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
-}
-§EXPORT (
-	§FALSE .& §FALSE
-	§FALSE .& §TRUE
-	§TRUE .& §FALSE
-	§TRUE .& §TRUE
-)

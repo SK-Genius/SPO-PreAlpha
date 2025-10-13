@@ -1,4 +1,4 @@
 §IMPORT {
-	!...: §DEF !... € [§BOOL => §BOOL]
+	Not...: §DEF Not... € [§BOOL => §BOOL]
 }
-§EXPORT .! §TRUE
+§EXPORT .Not §TRUE

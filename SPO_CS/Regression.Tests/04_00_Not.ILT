@@ -1,12 +1,12 @@
 §TYPES
 	t_0 := [BOOL => BOOL]
-	t_1 := [#_!... t_0]
+	t_1 := [#_Not... t_0]
 	t_2 := [{EMPTY_TYPE} + t_1]
 	t_3 := [t_2 => BOOL]
 	t_4 := [EMPTY_TYPE => t_3]
 
 §DEF d_0 € t_4
-	r_1 := {ARG} #_!...
-	_!... := r_1
-	r_2 := ._!... TRUE
+	r_1 := {ARG} #_Not...
+	_Not... := r_1
+	r_2 := ._Not... TRUE
 	§RETURN r_2 IF TRUE
