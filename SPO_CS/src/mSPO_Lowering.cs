@@ -38,95 +38,95 @@ mSPO_Lowering {
 		_ => throw new System.NotImplementedException(aType.GetType().Name)
 	};
 	
-	public static mResult.tResult<mSPO_AST.tTypedMatchNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerTypedMatch<tPos>(
-		this mSPO_AST.tTypedMatchNode<tPos> aTypedMatch
-	) => aTypedMatch.Pattern.LowerMatch().Then(
-		aLoweredMatch => mSPO_AST.Match(
-			aTypedMatch.Pos,
-			aLoweredMatch,
-			aTypedMatch.TypeExpression
+	public static mResult.tResult<mSPO_AST.tTypedPatternNode<tPos>, (tPos Pos, tText ErrorText)>
+	LowerTypedPattern<tPos>(
+		this mSPO_AST.tTypedPatternNode<tPos> aTypedPattern
+	) => aTypedPattern.Pattern.LowerPattern().Then(
+		aLoweredPattern => mSPO_AST.Pattern(
+			aTypedPattern.Pos,
+			aLoweredPattern,
+			aTypedPattern.TypeExpression
 		).Do(
-			_ => { _.TypeAnnotation = aTypedMatch.TypeAnnotation; }
+			_ => { _.TypeAnnotation = aTypedPattern.TypeAnnotation; }
 		)
 	);
 	
-	public static mResult.tResult<mSPO_AST.tMatchNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerMatch<tPos>(
-		this mSPO_AST.tMatchNode<tPos> aMatch
-	) => aMatch switch {
-		mSPO_AST.tTypedMatchNode<tPos> Match
-		=> Match.LowerTypedMatch().Then(_ => (mSPO_AST.tMatchNode<tPos>)_),
-		mSPO_AST.tMatchGuardNode<tPos> Match
-		=> Match.Match.LowerMatch().ThenTry(
-			aLoweredMatch => Match.Guard.LowerExpression().Then(
-				aLoweredGuard => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchGuard(
-					Match.Pos,
-					aLoweredMatch,
+	public static mResult.tResult<mSPO_AST.tPatternNode<tPos>, (tPos Pos, tText ErrorText)>
+	LowerPattern<tPos>(
+		this mSPO_AST.tPatternNode<tPos> aPattern
+	) => aPattern switch {
+		mSPO_AST.tTypedPatternNode<tPos> Pattern
+		=> Pattern.LowerTypedPattern().Then(_ => (mSPO_AST.tPatternNode<tPos>)_),
+		mSPO_AST.tGuardPatternNode<tPos> Pattern
+		=> Pattern.Pattern.LowerPattern().ThenTry(
+			aLoweredPattern => Pattern.Guard.LowerExpression().Then(
+				aLoweredGuard => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.GuardPattern(
+					Pattern.Pos,
+					aLoweredPattern,
 					aLoweredGuard
-				).Do(_ => { _.TypeAnnotation = Match.TypeAnnotation; })
+				).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
-		mSPO_AST.tMatchPairNode<tPos> Match
-		=> Match.Tail.LowerMatch().ThenTry(
-			aLoweredTail => Match.Head.LowerMatch().Then(
-				aLoweredHead => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchPair(
-					Match.Pos,
+		mSPO_AST.tPairPatternNode<tPos> Pattern
+		=> Pattern.Tail.LowerPattern().ThenTry(
+			aLoweredTail => Pattern.Head.LowerPattern().Then(
+				aLoweredHead => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(
+					Pattern.Pos,
 					aLoweredTail,
 					aLoweredHead
-				).Do(_ => { _.TypeAnnotation = Match.TypeAnnotation; })
+				).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
-		mSPO_AST.tMatchPrefixNode<tPos> Match 
-		=> Match.Match.LowerMatch().Then(
-			aLoweredMatch => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchPrefix(
-				Match.Pos,
-				Match.Prefix,
-				aLoweredMatch
-			).Do(_ => { _.TypeAnnotation = Match.TypeAnnotation; })
+		mSPO_AST.tPrefixPatternNode<tPos> Pattern 
+		=> Pattern.Pattern.LowerPattern().Then(
+			aLoweredPattern => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(
+				Pattern.Pos,
+				Pattern.Prefix,
+				aLoweredPattern
+			).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
-		mSPO_AST.tMatchRecordNode<tPos> Match
-		=> Match.Elements.Map(
-			aElement => aElement.Match.LowerMatch().Then(
-				aLoweredMatch => (aElement.Id, aLoweredMatch)
+		mSPO_AST.tRecordPatternNode<tPos> Pattern
+		=> Pattern.Elements.Map(
+			aElement => aElement.Pattern.LowerPattern().Then(
+				aLoweredPattern => (aElement.Id, aLoweredPattern)
 			)
 		).WhenAllThen(
-			aLoweredElements => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchRecord(
-				Match.Pos,
+			aLoweredElements => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.RecordPattern(
+				Pattern.Pos,
 				aLoweredElements
-			).Do(_ => { _.TypeAnnotation = Match.TypeAnnotation; })
+			).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
-		mSPO_AST.tMatchTupleNode<tPos> Match
-		=> Match.Items.Map(
-			LowerMatch
+		mSPO_AST.tTuplePatternNode<tPos> Pattern
+		=> Pattern.Items.Map(
+			LowerPattern
 		).WhenAllThen(
-			aLoweredItems => (mSPO_AST.tMatchNode<tPos>)aLoweredItems.Reduce(
-				(mSPO_AST.tMatchNode<tPos>)mSPO_AST.Empty(Match.Pos),
-				(aAccu, aLoweredItem) => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchPair(Match.Pos, aAccu, aLoweredItem)
+			aLoweredItems => (mSPO_AST.tPatternNode<tPos>)aLoweredItems.Reduce(
+				(mSPO_AST.tPatternNode<tPos>)mSPO_AST.Empty(Pattern.Pos),
+				(aAccu, aLoweredItem) => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(Pattern.Pos, aAccu, aLoweredItem)
 			).Do(
-				_ => { _.TypeAnnotation = Match.TypeAnnotation; }
+				_ => { _.TypeAnnotation = Pattern.TypeAnnotation; }
 			)
 		),
-		mSPO_AST.tTextNode<tPos> Match
-		=> mSPO_AST.MatchTuple(
-			Match.Pos,
+		mSPO_AST.tTextNode<tPos> Pattern
+		=> mSPO_AST.TuplePattern(
+			Pattern.Pos,
 			mStream.Stream(
-				Match.Value.ToCharArray()
+				Pattern.Value.ToCharArray()
 			).Map(
-				_ => (mSPO_AST.tMatchNode<tPos>)mSPO_AST.MatchPrefix(Match.Pos, "_Char...", mSPO_AST.Int(Match.Pos, (tInt32)_))
+				_ => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(Pattern.Pos, "_Char...", mSPO_AST.Int(Pattern.Pos, (tInt32)_))
 			)
 		).Do(
-			_ => { _.TypeAnnotation = Match.TypeAnnotation; }
-		).LowerMatch(
+			_ => { _.TypeAnnotation = Pattern.TypeAnnotation; }
+		).LowerPattern(
 		),
-		mSPO_AST.tLiteralNode<tPos> Match
+		mSPO_AST.tLiteralNode<tPos> Pattern
 		=> mResult.OK(
-			(mSPO_AST.tMatchNode<tPos>)Match
+			(mSPO_AST.tPatternNode<tPos>)Pattern
 		),
-		mSPO_AST.tMatchFreeIdNode<tPos> Match => Match,
-		mSPO_AST.tMatchVarNode<tPos> Match => Match,
-		mSPO_AST.tIgnoreMatchNode<tPos> Match => Match,
-		_ => throw new System.NotImplementedException(aMatch.GetType().FullName),
+		mSPO_AST.tFreeIdPatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tVarPatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tIgnorePatternNode<tPos> Pattern => Pattern,
+		_ => throw new System.NotImplementedException(aPattern.GetType().FullName),
 	};
 	
 	public static mResult.tResult<mSPO_AST.tExpressionNode<tPos>, (tPos Pos, tText ErrorText)>
@@ -135,7 +135,7 @@ mSPO_Lowering {
 	) => aExpr switch {
 		mSPO_AST.tLambdaNode<tPos> { Pos: var Pos, Generic: var Generic, Head: var Head, Body: var Body, TypeAnnotation: var Type }
 		=> Body.LowerExpression().ThenTry(
-			aLoweredBody => Head.LowerMatch().Then(
+			aLoweredBody => Head.LowerPattern().Then(
 				aLoweredHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Lambda(
 					Pos,
 					Generic,
@@ -146,8 +146,8 @@ mSPO_Lowering {
 		),
 		mSPO_AST.tMethodNode<tPos> { Pos: var Pos, Obj: var Obj, Arg: var Arg, Body: var Body, TypeAnnotation: var Type }
 		=> Body.LowerExpression().ThenTry(
-			aLoweredBody => Obj.LowerMatch().ThenTry(
-				aLoweredObj => Arg.LowerMatch().Then(
+			aLoweredBody => Obj.LowerPattern().ThenTry(
+				aLoweredObj => Arg.LowerPattern().Then(
 					aLoweredArg => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Method(
 						Pos,
 						aLoweredObj,
@@ -227,8 +227,8 @@ mSPO_Lowering {
 		=> Expr.LowerExpression().ThenTry(
 			aLoweredExpr => Cases.Map(
 				aCase => aCase.Expression.LowerExpression().ThenTry(
-					aLoweredCaseExpression => aCase.Match.LowerMatch().Then(
-						aLoweredCaseMatch => (aLoweredCaseMatch, aLoweredCaseExpression)
+					aLoweredCaseExpression => aCase.Pattern.LowerPattern().Then(
+						aLoweredCasePattern => (aLoweredCasePattern, aLoweredCaseExpression)
 					)
 				)
 			).WhenAllThen(
@@ -239,13 +239,13 @@ mSPO_Lowering {
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
-		mSPO_AST.tIsNode<tPos> { Pos: var Pos, Expression: var Expression, Match: var Match, TypeAnnotation: var Type }
+		mSPO_AST.tIsNode<tPos> { Pos: var Pos, Expression: var Expression, Pattern: var Pattern, TypeAnnotation: var Type }
 		=> mSPO_AST.IfMatch(
 			Pos,
 			Expression,
 			mStream.Stream([
-				(Match, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.True(Pos)),
-				(mSPO_AST.Match(Pos, mSPO_AST.IgnoreMatch(Pos), mStd.cEmpty), mSPO_AST.False(Pos))
+				(Pattern, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.True(Pos)),
+				(mSPO_AST.Pattern(Pos, mSPO_AST.IgnorePattern(Pos), mStd.cEmpty), mSPO_AST.False(Pos))
 			])
 		).Do(
 			_ => { _.TypeAnnotation = Type; }
@@ -414,10 +414,10 @@ mSPO_Lowering {
 		this mSPO_AST.tModuleNode<tPos> aModule
 	) => aModule.Export.Expression.LowerExpression().ThenTry(
 		aLoweredExpr => aModule.Commands.Map(LowerCommand).WhenAllThenTry(
-			aLoweredCommands => aModule.Import.Match.LowerMatch().Then(
-				aLoweredMatch => mSPO_AST.Module(
+			aLoweredCommands => aModule.Import.Pattern.LowerPattern().Then(
+				aLoweredPattern => mSPO_AST.Module(
 					aModule.Pos,
-					mSPO_AST.Import(aModule.Import.Pos, aLoweredMatch),
+					mSPO_AST.Import(aModule.Import.Pos, aLoweredPattern),
 					aLoweredCommands,
 					mSPO_AST.Export(aModule.Export.Pos, aLoweredExpr)
 				)

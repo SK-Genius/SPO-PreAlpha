@@ -33,8 +33,8 @@ mSPO_Interpreter {
 		
 		var TypeArg = mVM_Type.Free();
 		
-		var InitScope = mSPO_AST_Types.UpdateMatchTypes(
-			LoweredModule.Import.Match,
+		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
+			LoweredModule.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(

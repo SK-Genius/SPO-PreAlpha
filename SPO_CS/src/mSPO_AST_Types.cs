@@ -153,10 +153,10 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tLambdaNode<tPos> Lambda => mStd.Call(
 				() => {
-					if (Lambda.Generic.IsSome(out var GenericMatch)) {
+					if (Lambda.Generic.IsSome(out var GenericPattern)) {
 						// TODO: AI generated code has to be reviewed
-						return UpdateMatchTypes(GenericMatch, mVM_Type.Type(), tTypeRelation.Equal, aScope).ThenTry(
-							aGenTypeScope => UpdateMatchTypes(
+						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope).ThenTry(
+							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
 								mStd.cEmpty,
 								tTypeRelation.Sub,
@@ -170,7 +170,7 @@ mSPO_AST_Types {
 										
 										if (aGenTypeScope.Type.IsType()) {
 											var T = aGenTypeScope.Scope.Where(
-												_ => _.Id == GenericMatch.TryGetId().AssertNotEmpty()
+												_ => _.Id == GenericPattern.TryGetId().AssertNotEmpty()
 											).TryFirst(
 											).AssertNotEmpty(
 											).FreeType.AssertNotEmpty(
@@ -186,7 +186,7 @@ mSPO_AST_Types {
 						);
 					}
 					
-					return UpdateMatchTypes(
+					return UpdatePatternTypes(
 						Lambda.Head,
 						mStd.cEmpty,
 						tTypeRelation.Sub,
@@ -205,13 +205,13 @@ mSPO_AST_Types {
 				}
 			),
 			mSPO_AST.tMethodNode<tPos> Method => (
-				UpdateMatchTypes(
+				UpdatePatternTypes(
 					Method.Obj,
 					mStd.cEmpty,
 					tTypeRelation.Equal,
 					aScope
 				).ThenTry(
-					aObj => UpdateMatchTypes(
+					aObj => UpdatePatternTypes(
 						Method.Arg,
 						mStd.cEmpty,
 						tTypeRelation.Sub,
@@ -269,10 +269,10 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
 				IfMatch.Expression.UpdateTypes(aScope).ThenTry(
-					aMatchType => IfMatch.Cases.Map(
-						aCase => UpdateMatchTypes(
-							aCase.Match,
-							aMatchType,
+					aTypePattern => IfMatch.Cases.Map(
+						aCase => UpdatePatternTypes(
+							aCase.Pattern,
+							aTypePattern,
 							tTypeRelation.Super,
 							aScope
 						).ThenTry(
@@ -293,8 +293,8 @@ mSPO_AST_Types {
 				Is.Expression.UpdateTypes(
 					aScope
 				).ThenTry(
-					aValueType => UpdateMatchTypes(
-						Is.Match,
+					aValueType => UpdatePatternTypes(
+						Is.Pattern,
 						aValueType,
 						tTypeRelation.Super,
 						aScope
@@ -352,31 +352,31 @@ mSPO_AST_Types {
 	);
 	
 	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
-	UpdateMatchTypes<tPos>(
-		mSPO_AST.tMatchNode<tPos> aMatch,
+	UpdatePatternTypes<tPos>(
+		mSPO_AST.tPatternNode<tPos> aPattern,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
 		mStream.tStream<tScopeItem> aScope
 	) {
 		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)> Result;
-		switch (aMatch) {
-			case mSPO_AST.tTypedMatchNode<tPos> Match: {
-				Result = Match.TypeExpression.Match(
+		switch (aPattern) {
+			case mSPO_AST.tTypedPatternNode<tPos> Pattern: {
+				Result = Pattern.TypeExpression.Match(
 					aType_ => mStd.Call(
 						() => aType_.AsVM_Type(aScope).ThenTry(
-							aType => UpdateMatchTypes(
-								Match.Pattern,
+							aType => UpdatePatternTypes(
+								Pattern.Pattern,
 								aType,
 								aTypeRelation,
 								aScope
 							)
 						)
 					),
-					() => UpdateMatchTypes(Match.Pattern, aType, aTypeRelation, aScope)
+					() => UpdatePatternTypes(Pattern.Pattern, aType, aTypeRelation, aScope)
 				);
 				break;
 			}
-			case mSPO_AST.tMatchFreeIdNode<tPos> MatchFreeId: {
+			case mSPO_AST.tFreeIdPatternNode<tPos> FreePatternId: {
 				Result = aType.Then(
 					a => (
 						a.IsType()
@@ -384,9 +384,9 @@ mSPO_AST_Types {
 							a,
 							mStream.Stream(
 								ScopeItem(
-									MatchFreeId.Id,
+									FreePatternId.Id,
 									a,
-									mVM_Type.Free(MatchFreeId.Id)
+									mVM_Type.Free(FreePatternId.Id)
 								),
 								aScope
 							)
@@ -395,7 +395,7 @@ mSPO_AST_Types {
 							a,
 							mStream.Stream(
 								ScopeItem(
-									MatchFreeId.Id,
+									FreePatternId.Id,
 									a
 								),
 								aScope
@@ -403,22 +403,22 @@ mSPO_AST_Types {
 						)
 					)
 				).ElseFail(
-					() => (MatchFreeId.Pos, $"missing type for '{MatchFreeId.Id}'")
+					() => (FreePatternId.Pos, $"missing type for '{FreePatternId.Id}'")
 				);
 				break;
 			}
 			
-			case mSPO_AST.tMatchVarNode<tPos> MatchVar: {
+			case mSPO_AST.tVarPatternNode<tPos> VarPattern: {
 				Result = aType.Then(
 					a => mStd.Call(
 						() => {
 							var NewTypeScope = aScope.Where(
-								_ => _.Id == MatchVar.Id
+								_ => _.Id == VarPattern.Id
 							).TryFirst(
 							).Match(
 								() => {
 									var NewType = mVM_Type.Var(a);
-									return (Type: NewType, Scope: mStream.Stream(ScopeItem(MatchVar.Id, NewType), aScope));
+									return (Type: NewType, Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope));
 								},
 								aScopeItem => {
 									var ExistingType = aScopeItem.Type;
@@ -430,26 +430,26 @@ mSPO_AST_Types {
 								}
 							);
 							
-							MatchVar.TypeAnnotation = NewTypeScope.Type;
+							VarPattern.TypeAnnotation = NewTypeScope.Type;
 							
 							return NewTypeScope;
 						}
 					)
 				).ElseFail(
-					() => (MatchVar.Pos, $"missing type for '{MatchVar.Id}'")
+					() => (VarPattern.Pos, $"missing type for '{VarPattern.Id}'")
 				);
 				break;
 			}
 			
-			case mSPO_AST.tIgnoreMatchNode<tPos> IgnoreMatch: {
-				Result = aType.Then(_ => (_, aScope)).ElseFail(() => (IgnoreMatch.Pos, "unknown type"));
+			case mSPO_AST.tIgnorePatternNode<tPos> IgnorePattern: {
+				Result = aType.Then(_ => (_, aScope)).ElseFail(() => (IgnorePattern.Pos, "unknown type"));
 				break;
 			}
-			case mSPO_AST.tMatchPrefixNode<tPos> MatchPrefix: {
+			case mSPO_AST.tPrefixPatternNode<tPos> PrefixPattern: {
 				var SubType = mMaybe.None<mVM_Type.tType>();
 				if (aType.IsSome(out var Type_)) {
 					while (Type_.IsSet(out var Type, out var Types)) {
-						if (Type.IsPrefix(out var Prefix, out var SubType_) && Prefix == MatchPrefix.Prefix) {
+						if (Type.IsPrefix(out var Prefix, out var SubType_) && Prefix == PrefixPattern.Prefix) {
 							SubType = SubType_;
 							Type_ = Type;
 							break;
@@ -459,20 +459,20 @@ mSPO_AST_Types {
 					{
 						mAssert.IsTrue(Type_.IsPrefix(out var Prefix, out var SubType__));
 						SubType = SubType__;
-						mAssert.AreEquals(Prefix, MatchPrefix.Prefix);
+						mAssert.AreEquals(Prefix, PrefixPattern.Prefix);
 					}
 				}
-				Result = UpdateMatchTypes(MatchPrefix.Match, SubType, aTypeRelation, aScope).Then(
-					_ => (mVM_Type.Prefix(MatchPrefix.Prefix, _.Type), _.Scope)
+				Result = UpdatePatternTypes(PrefixPattern.Pattern, SubType, aTypeRelation, aScope).Then(
+					_ => (mVM_Type.Prefix(PrefixPattern.Prefix, _.Type), _.Scope)
 				);
 				break;
 			}
-			case mSPO_AST.tMatchTupleNode<tPos> MatchTuple: {
+			case mSPO_AST.tTuplePatternNode<tPos> TuplePattern: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
 				var NewScope = aScope;
 				if (!aType.IsSome(out var Type)) {
-					foreach (var Match in MatchTuple.Items) {
-						if (!UpdateMatchTypes(Match, mStd.cEmpty, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+					foreach (var Pattern in TuplePattern.Items) {
+						if (!UpdatePatternTypes(Pattern, mStd.cEmpty, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
 							return mResult.Fail(Error);
 						}
 						
@@ -489,8 +489,8 @@ mSPO_AST_Types {
 					if (TypeStack.IsEmpty()) {
 						// TODO: this part looks wrong. i expect TypeStack is never empty.
 						//   and why should i use aType for each item in the list?
-						foreach (var Match in MatchTuple.Items) {
-							if (!UpdateMatchTypes(Match, Type, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+						foreach (var Pattern in TuplePattern.Items) {
+							if (!UpdatePatternTypes(Pattern, Type, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
@@ -498,12 +498,12 @@ mSPO_AST_Types {
 							NewScope = TS.Scope;
 						}
 					} else {
-						if (!WalkType.IsEmpty() || TypeStack.Count() != MatchTuple.Items.Count()) {
-							mResult.Fail((MatchTuple.Pos, $"can't unify '{MatchTuple.ToText()} and '{Type.ToText()}'"));
+						if (!WalkType.IsEmpty() || TypeStack.Count() != TuplePattern.Items.Count()) {
+							mResult.Fail((TuplePattern.Pos, $"can't unify '{TuplePattern.ToText()} and '{Type.ToText()}'"));
 						}
 						
-						foreach (var (Match, ItemType) in mStream.ZipShort(MatchTuple.Items, TypeStack)) {
-							if (!UpdateMatchTypes(Match, ItemType, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+						foreach (var (Pattern, ItemType) in mStream.ZipShort(TuplePattern.Items, TypeStack)) {
+							if (!UpdatePatternTypes(Pattern, ItemType, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
@@ -515,40 +515,40 @@ mSPO_AST_Types {
 				Result = (mVM_Type.Tuple(Types.Reverse()), NewScope);
 				break;
 			}
-			case mSPO_AST.tMatchPairNode<tPos> MatchPair: {
+			case mSPO_AST.tPairPatternNode<tPos> PairPattern: {
 				var TailType = mMaybe.None<mVM_Type.tType>();
 				var HeadType = mMaybe.None<mVM_Type.tType>();
 				if (aType.IsSome(out var Type)) {
 					if (!TryExtractPairType(Type, out var Tail, out var Head)) {
-						return mResult.Fail((MatchPair.Pos, $"cant unify '{MatchPair.ToText()}' and '{Type.ToText()}'"));
+						return mResult.Fail((PairPattern.Pos, $"cant unify '{PairPattern.ToText()}' and '{Type.ToText()}'"));
 					}
 					
 					TailType = Tail;
 					HeadType = Head;
 				}
 				
-				if (!UpdateMatchTypes(MatchPair.Tail, TailType, aTypeRelation, aScope).Match(out var TailRes, out var Error)) {
+				if (!UpdatePatternTypes(PairPattern.Tail, TailType, aTypeRelation, aScope).Match(out var TailRes, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				
-				if (!UpdateMatchTypes(MatchPair.Head, HeadType, aTypeRelation, TailRes.Scope).Match(out var HeadRes, out Error)) {
+				if (!UpdatePatternTypes(PairPattern.Head, HeadType, aTypeRelation, TailRes.Scope).Match(out var HeadRes, out Error)) {
 					return mResult.Fail(Error);
 				}
 				
 				Result = (mVM_Type.Pair(TailRes.Type, HeadRes.Type), HeadRes.Scope);
 				break;
 			}
-			case mSPO_AST.tMatchRecordNode<tPos> MatchRecord: {
+			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
 				Result = (mVM_Type.Empty(), aScope);
-				foreach (var Item in MatchRecord.Elements) {
+				foreach (var Item in RecordPattern.Elements) {
 					var Type = mMaybe.None<mVM_Type.tType>();
 					if (aType.IsSome(out var RecordType)) {
 						Type = RecordType.GetFieldType(Item.Id.Id);
 					}
 					
 					Result = Result.ThenTry(
-						a1 => UpdateMatchTypes(
-							Item.Match,
+						a1 => UpdatePatternTypes(
+							Item.Pattern,
 							Type,
 							aTypeRelation,
 							a1.Scope
@@ -559,16 +559,16 @@ mSPO_AST_Types {
 				}
 				break;
 			}
-			case mSPO_AST.tMatchGuardNode<tPos> MatchGuard: {
+			case mSPO_AST.tGuardPatternNode<tPos> GuardPattern: {
 				if (
-					!UpdateMatchTypes(MatchGuard.Match, aType, tTypeRelation.Super, aScope).Match(out var Res, out var Error) ||
-					!MatchGuard.Guard.UpdateTypes(Res.Scope).Match(out var BoolRes, out Error)
+					!UpdatePatternTypes(GuardPattern.Pattern, aType, tTypeRelation.Super, aScope).Match(out var Res, out var Error) ||
+					!GuardPattern.Guard.UpdateTypes(Res.Scope).Match(out var BoolRes, out Error)
 				) {
 					return mResult.Fail(Error);
 				}
 				
 				if (!BoolRes.IsBool()) {
-					return mResult.Fail((MatchGuard.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
+					return mResult.Fail((GuardPattern.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
 				}
 				
 				Result = Res;
@@ -589,10 +589,10 @@ mSPO_AST_Types {
 				break;
 			}
 			default: {
-				throw mError.Error("not implemented: " + aMatch.GetType().Name);
+				throw mError.Error("not implemented: " + aPattern.GetType().Name);
 			}
 		}
-		return Result.ThenDo(_ => { aMatch.TypeAnnotation = _.Type; });
+		return Result.ThenDo(_ => { aPattern.TypeAnnotation = _.Type; });
 	}
 	
 	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
@@ -619,7 +619,7 @@ mSPO_AST_Types {
 			_ => (
 				!aMethodCall.Result.IsSome(out var T)
 				? aScope
-				: UpdateMatchTypes(
+				: UpdatePatternTypes(
 					T,
 					_.MethResType,
 					tTypeRelation.Sub,
@@ -637,7 +637,7 @@ mSPO_AST_Types {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
 				return Def.Src.UpdateTypes(aScope).ThenTry(
-					aSrcType => UpdateMatchTypes(
+					aSrcType => UpdatePatternTypes(
 						Def.Des,
 						aSrcType,
 						tTypeRelation.Equal,
@@ -685,14 +685,14 @@ mSPO_AST_Types {
 				var NewScope = aScope;
 				foreach (var Item in RecLambdas.List) {
 					var HeadScope = NewScope;
-					if (Item.Lambda.Generic.IsSome(out var GenericMatch)) {
-						if (!UpdateMatchTypes(GenericMatch, mVM_Type.Type(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
+					if (Item.Lambda.Generic.IsSome(out var GenericPattern)) {
+						if (!UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
 							return mResult.Fail(GenError);
 						}
 						HeadScope = GenScope.Scope;
 					}
 					
-					if (!UpdateMatchTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, HeadScope).Match(out var Result, out var Error)) {
+					if (!UpdatePatternTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, HeadScope).Match(out var Result, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					
@@ -767,16 +767,16 @@ mSPO_AST_Types {
 	
 	public static mMaybe.tMaybe<tText>
 	TryGetId<tPos>(
-		this mSPO_AST.tTypedMatchNode<tPos> aMatch
-	) => TryGetId(aMatch.Pattern);
+		this mSPO_AST.tTypedPatternNode<tPos> aPattern
+	) => TryGetId(aPattern.Pattern);
 	
 	public static mMaybe.tMaybe<tText>
 	TryGetId<tPos>(
-		this mSPO_AST.tMatchNode<tPos> aMatch
-	) => aMatch switch {
-		mSPO_AST.tMatchFreeIdNode<tPos> Free => Free.Id,
+		this mSPO_AST.tPatternNode<tPos> aPattern
+	) => aPattern switch {
+		mSPO_AST.tFreeIdPatternNode<tPos> Free => Free.Id,
 		mSPO_AST.tIdNode<tPos> IdNode => IdNode.Id,
-		mSPO_AST.tTypedMatchNode<tPos> Match => TryGetId(Match),
+		mSPO_AST.tTypedPatternNode<tPos> Pattern => TryGetId(Pattern),
 		_ => mStd.cEmpty,
 	};
 	

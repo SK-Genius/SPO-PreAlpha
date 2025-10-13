@@ -118,8 +118,8 @@ mSPO_Parser_Tests {
 			mTest.Test("MatchPair",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mSPO_Parser.Match.ParseText("(Xs; X)", "", _ => { aStreamOut(_()); }),
-						mSPO_AST.MatchPair(
+						mSPO_Parser.Pattern.ParseText("(Xs; X)", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.PairPattern(
 							Span((1, 1), (1, 7)),
 							mSPO_AST.Id(Span((1, 2), (1, 3)), "Xs"),
 							mSPO_AST.Id(Span((1, 6), (1, 6)), "X")
@@ -131,20 +131,20 @@ mSPO_Parser_Tests {
 			mTest.Test("Match1",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mSPO_Parser.Match.ParseText("12", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("12", "", _ => { aStreamOut(_()); }),
 						mSPO_AST.Int(Span((1, 1), (1, 2)), 12),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Match.ParseText("x", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("x", "", _ => { aStreamOut(_()); }),
 						mSPO_AST.Id(Span((1, 1), (1, 1)), "x"),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Match.ParseText("(12, x)", "", _ => { aStreamOut(_()); }),
-						mSPO_AST.MatchTuple(
+						mSPO_Parser.Pattern.ParseText("(12, x)", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.TuplePattern(
 							Span((1, 1), (1, 7)),
-							mStream.Stream<mSPO_AST.tMatchNode<tSpan>>(
+							mStream.Stream<mSPO_AST.tPatternNode<tSpan>>(
 								[
 									mSPO_AST.Int(Span((1, 2), (1, 3)), 12),
 									mSPO_AST.Id(Span((1, 6), (1, 6)), "x"),
@@ -260,7 +260,7 @@ mSPO_Parser_Tests {
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 22)),
 							mStd.cEmpty,
-							mSPO_AST.Match(
+							mSPO_AST.Pattern(
 								Span((1, 2), (1, 11)),
 								mSPO_AST.Id(Span((1, 2), (1, 2)), "x"),
 								mSPO_AST.Id(Span((1, 6), (1, 11)), "MyType")
@@ -330,15 +330,15 @@ mSPO_Parser_Tests {
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 27)),
 							mStd.cEmpty,
-							mSPO_AST.MatchTuple(
+							mSPO_AST.TuplePattern(
 								Span((1, 1), (1, 17)),
-								mStream.Stream<mSPO_AST.tMatchNode<tSpan>>(
+								mStream.Stream<mSPO_AST.tPatternNode<tSpan>>(
 									[
 										mSPO_AST.Id(Span((1, 2), (1, 2)), "a"),
 										mSPO_AST.Id(Span((1, 5), (1, 5)), "b"),
-										mSPO_AST.MatchTuple(
+										mSPO_AST.TuplePattern(
 											Span((1, 8), (1, 16)),
-											mStream.Stream<mSPO_AST.tMatchNode<tSpan>>(
+											mStream.Stream<mSPO_AST.tPatternNode<tSpan>>(
 												[
 													mSPO_AST.Id(Span((1, 9), (1, 9)), "x"),
 													mSPO_AST.Id(Span((1, 12), (1, 12)), "y"),
@@ -378,12 +378,12 @@ mSPO_Parser_Tests {
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 13)),
 							mStd.cEmpty,
-							mSPO_AST.MatchPrefix(
+							mSPO_AST.PrefixPattern(
 								Span((1, 1), (1, 8)),
 								"_...*...",
-								mSPO_AST.MatchTuple(
+								mSPO_AST.TuplePattern(
 									Span((1, 1), (1, 8)),
-									mStream.Stream<mSPO_AST.tMatchNode<tSpan>>(
+									mStream.Stream<mSPO_AST.tPatternNode<tSpan>>(
 										[
 											mSPO_AST.Int(Span((1, 2), (1, 2)), 1),
 											mSPO_AST.Id(Span((1, 7), (1, 7)), "a"),
@@ -450,16 +450,16 @@ mSPO_Parser_Tests {
 						),
 						mSPO_AST.Def(
 							Span((1, 1), (1, 37)),
-							mSPO_AST.MatchRecord(
+							mSPO_AST.RecordPattern(
 								Span((1, 1), (1, 22)),
-								mStream.Stream<(mSPO_AST.tIdNode<tSpan> Key, mSPO_AST.tMatchNode<tSpan> Match)>(
+								mStream.Stream<(mSPO_AST.tIdNode<tSpan> Key, mSPO_AST.tPatternNode<tSpan> Pattern)>(
 									[
 										(
 											mSPO_AST.Id(Span((1, 2), (1, 2)), "a"),
-											mSPO_AST.MatchFreeId(Span((1, 5), (1, 10)), "x")
+											mSPO_AST.FreeIdPattern(Span((1, 5), (1, 10)), "x")
 										), (
 											mSPO_AST.Id(Span((1, 13), (1, 13)), "b"),
-											mSPO_AST.MatchFreeId(Span((1, 16), (1, 21)), "y")
+											mSPO_AST.FreeIdPattern(Span((1, 16), (1, 21)), "y")
 										)
 									]
 								)

@@ -61,7 +61,7 @@ mSPO_AST_Types_Tests {
 						mSPO_AST.Is(
 							cNoPos,
 							mSPO_AST.Int(cNoPos, 1),
-							mSPO_AST.Match(
+							mSPO_AST.Pattern(
 								cNoPos,
 								mSPO_AST.Int(cNoPos, 1),
 								mStd.cEmpty
@@ -79,14 +79,14 @@ mSPO_AST_Types_Tests {
 						mSPO_AST.Lambda(
 							cNoPos,
 							mStd.cEmpty,
-							mSPO_AST.Match(
+							mSPO_AST.Pattern(
 								cNoPos,
-								mSPO_AST.MatchPrefix(
+								mSPO_AST.PrefixPattern(
 									cNoPos,
 									"_Bla...",
-									mSPO_AST.Match(
+									mSPO_AST.Pattern(
 										cNoPos,
-										mSPO_AST.MatchFreeId(cNoPos, "a"),
+										mSPO_AST.FreeIdPattern(cNoPos, "a"),
 										mSPO_AST.BoolType(cNoPos)
 									)
 								),

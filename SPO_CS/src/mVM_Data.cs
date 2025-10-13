@@ -568,7 +568,7 @@ mVM_Data {
 		tNat32 aBodyTypeReg
 	) => aDef._AddReg(aPos, tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
 	
-	// TODO: Match Types
+	// TODO: Pattern Types
 	
 	public enum
 	tDataType {

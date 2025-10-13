@@ -16,7 +16,7 @@ mSPO_AST {
 	}
 	
 	public interface
-	tMatchNode<tPos> : tNode<tPos> {
+	tPatternNode<tPos> : tNode<tPos> {
 		mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
@@ -26,7 +26,7 @@ mSPO_AST {
 	}
 	
 	public interface
-	tLiteralNode<tPos> : tExpressionNode<tPos>, tMatchNode<tPos> {}
+	tLiteralNode<tPos> : tExpressionNode<tPos>, tPatternNode<tPos> {}
 	
 	public interface
 	tTypeNode<tPos> : tExpressionNode<tPos> {}
@@ -128,14 +128,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIgnoreMatchNode<tPos> : tMatchNode<tPos> {
+	tIgnorePatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tMatchNode<tPos> {
+	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
@@ -143,7 +143,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchFreeIdNode<tPos> : tMatchNode<tPos> {
+	tFreeIdPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
@@ -151,7 +151,7 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchVarNode<tPos> : tMatchNode<tPos> {
+	tVarPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
@@ -159,27 +159,27 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchTupleNode<tPos> : tMatchNode<tPos> {
+	tTuplePatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<tMatchNode<tPos>> Items;
+		public mStream.tStream<tPatternNode<tPos>> Items;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchPairNode<tPos> : tMatchNode<tPos> {
+	tPairPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Tail = default!;
-		public tMatchNode<tPos> Head = default!;
+		public tPatternNode<tPos> Tail = default!;
+		public tPatternNode<tPos> Head = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tTypedMatchNode<tPos> : tMatchNode<tPos> {
+	tTypedPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Pattern = default!;
+		public tPatternNode<tPos> Pattern = default!;
 		public mMaybe.tMaybe<tExpressionNode<tPos>> TypeExpression;
 	}
 	
@@ -202,27 +202,27 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchRecordNode<tPos> : tMatchNode<tPos> {
+	tRecordPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mStream.tStream<(tIdNode<tPos> Id, tMatchNode<tPos> Match)> Elements;
+		public mStream.tStream<(tIdNode<tPos> Id, tPatternNode<tPos> Pattern)> Elements;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchPrefixNode<tPos> : tMatchNode<tPos> {
+	tPrefixPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Prefix = default!;
-		public tMatchNode<tPos> Match = default!;
+		public tPatternNode<tPos> Pattern = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tMatchGuardNode<tPos> : tMatchNode<tPos> {
+	tGuardPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Match = default!;
+		public tPatternNode<tPos> Pattern = default!;
 		public tExpressionNode<tPos> Guard = default!;
 	}
 	
@@ -231,8 +231,8 @@ mSPO_AST {
 	tLambdaNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public mMaybe.tMaybe<tMatchNode<tPos>> Generic;
-		public tMatchNode<tPos> Head = default!;
+		public mMaybe.tMaybe<tPatternNode<tPos>> Generic;
+		public tPatternNode<tPos> Head = default!;
 		public tExpressionNode<tPos> Body = default!;
 	}
 	
@@ -241,8 +241,8 @@ mSPO_AST {
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchNode<tPos> Obj = default!;
-		public tMatchNode<tPos> Arg = default!;
+		public tPatternNode<tPos> Obj = default!;
+		public tPatternNode<tPos> Arg = default!;
 		public tBlockNode<tPos> Body = default!;
 	}
 	
@@ -267,7 +267,7 @@ mSPO_AST {
 	public sealed record
 	tDefNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public tMatchNode<tPos> Des = default!;
+		public tPatternNode<tPos> Des = default!;
 		public tExpressionNode<tPos> Src = default!;
 	}
 	
@@ -276,7 +276,7 @@ mSPO_AST {
 	tRecLambdaItemNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tMatchFreeIdNode<tPos> Id = default!;
+		public tFreeIdPatternNode<tPos> Id = default!;
 		public tLambdaNode<tPos> Lambda = default!;
 	}
 	
@@ -309,7 +309,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression = default!;
-		public mStream.tStream<(tMatchNode<tPos> Match, tExpressionNode<tPos> Expression)> Cases;
+		public mStream.tStream<(tPatternNode<tPos> Pattern, tExpressionNode<tPos> Expression)> Cases;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -318,7 +318,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tExpressionNode<tPos> Expression = default!;
-		public tMatchNode<tPos> Match = default!;
+		public tPatternNode<tPos> Pattern = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -432,7 +432,7 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public tIdNode<tPos> Method = default!;
 		public tExpressionNode<tPos> Argument = default!;
-		public mMaybe.tMaybe<tMatchNode<tPos>> Result;
+		public mMaybe.tMaybe<tPatternNode<tPos>> Result;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -482,7 +482,7 @@ mSPO_AST {
 	public sealed record
 	tImportNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
-		public tMatchNode<tPos> Match = default!;
+		public tPatternNode<tPos> Pattern = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -598,8 +598,8 @@ mSPO_AST {
 		Value = aValue
 	};
 	
-	public static tIgnoreMatchNode<tPos>
-	IgnoreMatch<tPos>(
+	public static tIgnorePatternNode<tPos>
+	IgnorePattern<tPos>(
 		tPos aPos
 	) => new() {
 		Pos = aPos
@@ -614,8 +614,8 @@ mSPO_AST {
 		Id = "_" + aId
 	};
 	
-	public static tMatchFreeIdNode<tPos>
-	MatchFreeId<tPos>(
+	public static tFreeIdPatternNode<tPos>
+	FreeIdPattern<tPos>(
 		tPos aPos,
 		tText aId
 	) => new() {
@@ -623,8 +623,8 @@ mSPO_AST {
 		Id = "_" + aId
 	};
 	
-	public static tMatchVarNode<tPos>
-	MatchVar<tPos>(
+	public static tVarPatternNode<tPos>
+	VarPattern<tPos>(
 		tPos aPos,
 		tText aId
 	) => new() {
@@ -795,15 +795,15 @@ mSPO_AST {
 		Element = aElement
 	};
 	
-	public static tMatchPrefixNode<tPos>
-	MatchPrefix<tPos>(
+	public static tPrefixPatternNode<tPos>
+	PrefixPattern<tPos>(
 		tPos aPos,
 		tText aPrefix,
-		tMatchNode<tPos> aMatch
+		tPatternNode<tPos> aPattern
 	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix,
-		Match = aMatch
+		Pattern = aPattern
 	};
 	
 	public static tRecordNode<tPos>
@@ -821,56 +821,56 @@ mSPO_AST {
 		Elements = aRecordItems
 	};
 	
-	public static tMatchRecordNode<tPos>
-	MatchRecord<tPos>(
+	public static tRecordPatternNode<tPos>
+	RecordPattern<tPos>(
 		tPos aPos,
-		mStream.tStream<(tIdNode<tPos> Key, tMatchNode<tPos> Match)> aRecordItems
+		mStream.tStream<(tIdNode<tPos> Key, tPatternNode<tPos> Pattern)> aRecordItems
 	) => new() {
 		Pos = aPos,
 		Elements = aRecordItems
 	};
 	
-	public static tMatchGuardNode<tPos>
-	MatchGuard<tPos>(
+	public static tGuardPatternNode<tPos>
+	GuardPattern<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aMatch,
+		tPatternNode<tPos> aPattern,
 		tExpressionNode<tPos> aGuard
 	) => new() {
 		Pos = aPos,
-		Match = aMatch,
+		Pattern = aPattern,
 		Guard = aGuard
 	};
 	
 	public static tLambdaNode<tPos>
 	Lambda<tPos>(
 		tPos aPos,
-		mMaybe.tMaybe<tMatchNode<tPos>> aStaticMatch,
-		tMatchNode<tPos> aMatch,
+		mMaybe.tMaybe<tPatternNode<tPos>> aStaticPattern,
+		tPatternNode<tPos> aPattern,
 		tExpressionNode<tPos> aBody
 	) => new() {
 		Pos = aPos,
-		Generic = aStaticMatch,
-		Head = aMatch,
+		Generic = aStaticPattern,
+		Head = aPattern,
 		Body = aBody
 	};
 	
 	public static tMethodNode<tPos>
 	Method<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aObjMatch,
-		tMatchNode<tPos> aArgMatch,
+		tPatternNode<tPos> aObjPattern,
+		tPatternNode<tPos> aArgPattern,
 		tBlockNode<tPos> aBody
 	) => new() {
 		Pos = aPos,
-		Obj = aObjMatch,
-		Arg = aArgMatch,
+		Obj = aObjPattern,
+		Arg = aArgPattern,
 		Body = aBody
 	};
 	
 	public static tRecLambdaItemNode<tPos>
 	RecLambdaItem<tPos>(
 		tPos aPos,
-		tMatchFreeIdNode<tPos> aId,
+		tFreeIdPatternNode<tPos> aId,
 		tLambdaNode<tPos> aLambda
 	) => new() {
 		Pos = aPos,
@@ -887,56 +887,56 @@ mSPO_AST {
 		List = aList
 	};
 	
-	public static tMatchNode<tPos>
-	MatchTuple<tPos>(
+	public static tPatternNode<tPos>
+	TuplePattern<tPos>(
 		tPos aPos,
-		mStream.tStream<tMatchNode<tPos>> aItems
+		mStream.tStream<tPatternNode<tPos>> aItems
 	) => aItems.Take(2).Count() switch {
 		0 => throw mError.Error("impossible"),
 		1 => aItems.TryFirst().AssertNotEmpty(),
-		_ => new tMatchTupleNode<tPos> {
+		_ => new tTuplePatternNode<tPos> {
 			Pos = aPos,
 			Items = aItems
 		},
 	};
 	
-	public static tMatchPairNode<tPos>
-	MatchPair<tPos>(
+	public static tPairPatternNode<tPos>
+	PairPattern<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aTail,
-		tMatchNode<tPos> aHead
+		tPatternNode<tPos> aTail,
+		tPatternNode<tPos> aHead
 	) => new() {
 		Pos = aPos,
 		Tail = aTail,
 		Head = aHead
 	};
 	
-	public static tTypedMatchNode<tPos>
-	Match<tPos>(
+	public static tTypedPatternNode<tPos>
+	Pattern<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aMatch,
+		tPatternNode<tPos> aPattern,
 		mMaybe.tMaybe<tExpressionNode<tPos>> aType
 	) => new() {
 		Pos = aPos,
-		Pattern = aMatch,
+		Pattern = aPattern,
 		TypeExpression = aType,
-		TypeAnnotation = aMatch.TypeAnnotation,
+		TypeAnnotation = aPattern.TypeAnnotation,
 	};
 	
-	public static tTypedMatchNode<tPos>
-	UnTypedMatch<tPos>(
+	public static tTypedPatternNode<tPos>
+	UnTypedPattern<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aMatch
-	) => Match(aPos, aMatch, mStd.cEmpty);
+		tPatternNode<tPos> aPattern
+	) => Pattern(aPos, aPattern, mStd.cEmpty);
 	
 	public static tDefNode<tPos>
 	Def<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aMatch,
+		tPatternNode<tPos> aPattern,
 		tExpressionNode<tPos> aExpression
 	) => new() {
 		Pos = aPos,
-		Des = aMatch,
+		Des = aPattern,
 		Src = aExpression
 	};
 	
@@ -964,7 +964,7 @@ mSPO_AST {
 	IfMatch<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aExpression,
-		mStream.tStream<(tMatchNode<tPos>, tExpressionNode<tPos>)> aCases
+		mStream.tStream<(tPatternNode<tPos>, tExpressionNode<tPos>)> aCases
 	) => new() {
 		Pos = aPos,
 		Expression = aExpression,
@@ -975,11 +975,11 @@ mSPO_AST {
 	Is<tPos>(
 		tPos aPos,
 		tExpressionNode<tPos> aValue,
-		tMatchNode<tPos> aPattern
+		tPatternNode<tPos> aPattern
 	) => new() {
 		Pos = aPos,
 		Expression = aValue,
-		Match = aPattern
+		Pattern = aPattern
 	};
 	
 	public static tDefVarNode<tPos>
@@ -1042,7 +1042,7 @@ mSPO_AST {
 		tPos aPos,
 		tIdNode<tPos> aMethod,
 		tExpressionNode<tPos> aArgument,
-		mMaybe.tMaybe<tMatchNode<tPos>> aResult
+		mMaybe.tMaybe<tPatternNode<tPos>> aResult
 	) => new() {
 		Pos = aPos,
 		Method = aMethod,
@@ -1075,10 +1075,10 @@ mSPO_AST {
 	public static tImportNode<tPos>
 	Import<tPos>(
 		tPos aPos,
-		tMatchNode<tPos> aMatch
+		tPatternNode<tPos> aPattern
 	) => new() {
 		Pos = aPos,
-		Match = aMatch,
+		Pattern = aPattern,
 	};
 	
 	public static tExportNode<tPos>
@@ -1133,9 +1133,9 @@ mSPO_AST {
 			case tTypeTypeNode<tPos>: {
 				return a2 is tTypeTypeNode<tPos>;
 			}
-			case tMatchPairNode<tPos> Node1: {
+			case tPairPatternNode<tPos> Node1: {
 				return (
-					a2 is tMatchPairNode<tPos> Node2 &&
+					a2 is tPairPatternNode<tPos> Node2 &&
 					AreEqual(Node1.Tail, Node2.Tail) &&
 					AreEqual(Node1.Head, Node2.Head)
 				);
@@ -1146,21 +1146,21 @@ mSPO_AST {
 			case tTextNode<tPos> Node1: {
 				return a2 is tTextNode<tPos> Node2 && Node1.Value == Node2.Value;
 			}
-			case tIgnoreMatchNode<tPos>: {
-				return a2 is tIgnoreMatchNode<tPos>;
+			case tIgnorePatternNode<tPos>: {
+				return a2 is tIgnorePatternNode<tPos>;
 			}
 			case tIdNode<tPos> Node1: {
 				return a2 is tIdNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
-			case tMatchFreeIdNode<tPos> Node1: {
-				return a2 is tMatchFreeIdNode<tPos> Node2 && Node1.Id == Node2.Id;
+			case tFreeIdPatternNode<tPos> Node1: {
+				return a2 is tFreeIdPatternNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
-			case tMatchVarNode<tPos> Node1: {
-				return a2 is tMatchVarNode<tPos> Node2 && Node1.Id == Node2.Id;
+			case tVarPatternNode<tPos> Node1: {
+				return a2 is tVarPatternNode<tPos> Node2 && Node1.Id == Node2.Id;
 			}
-			case tMatchTupleNode<tPos> Node1: {
+			case tTuplePatternNode<tPos> Node1: {
 				return (
-					a2 is tMatchTupleNode<tPos> Node2 &&
+					a2 is tTuplePatternNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.Items, Node2.Items).All(
 						_ => (
 							_._1.IsSome(out var a1) &&
@@ -1170,9 +1170,9 @@ mSPO_AST {
 					)
 				);
 			}
-			case tTypedMatchNode<tPos> Node1: {
+			case tTypedPatternNode<tPos> Node1: {
 				return (
-					a2 is tTypedMatchNode<tPos> Node2 &&
+					a2 is tTypedPatternNode<tPos> Node2 &&
 					AreEqual(Node1.Pattern, Node2.Pattern) &&
 					(
 						Node1.TypeExpression.Match(
@@ -1204,9 +1204,9 @@ mSPO_AST {
 					)
 				);
 			}
-			case tMatchRecordNode<tPos> Node1: {
+			case tRecordPatternNode<tPos> Node1: {
 				return (
-					a2 is tMatchRecordNode<tPos> Node2 &&
+					a2 is tRecordPatternNode<tPos> Node2 &&
 					mStream.ZipExtend(
 						Node1.Elements,
 						Node2.Elements
@@ -1215,19 +1215,19 @@ mSPO_AST {
 							_._1.IsSome(out var a1) &&
 							_._2.IsSome(out var a2) &&
 							AreEqual(a1.Id, a2.Id) &&
-							AreEqual(a1.Match, a2.Match)
+							AreEqual(a1.Pattern, a2.Pattern)
 						)
 					)
 				);
 			}
-			case tMatchPrefixNode<tPos> Node1: {
+			case tPrefixPatternNode<tPos> Node1: {
 				return (
-					a2 is tMatchPrefixNode<tPos> Node2 &&
+					a2 is tPrefixPatternNode<tPos> Node2 &&
 					Node1.Prefix == Node2.Prefix &&
-					AreEqual(Node1.Match, Node2.Match)
+					AreEqual(Node1.Pattern, Node2.Pattern)
 				);
 			}
-			case tMatchGuardNode<tPos>: {
+			case tGuardPatternNode<tPos>: {
 				break;
 			}
 			case tLambdaNode<tPos> Node1: {
@@ -1289,7 +1289,7 @@ mSPO_AST {
 				return (
 					a2 is tIsNode<tPos> Node2 &&
 					AreEqual(Node1.Expression, Node2.Expression) &&
-					AreEqual(Node1.Match, Node2.Match)
+					AreEqual(Node1.Pattern, Node2.Pattern)
 				);
 			}
 			case tPrefixTypeNode<tPos>: {
@@ -1427,7 +1427,7 @@ mSPO_AST {
 			tMethodNode<t> Node => $"({____}{Node.Obj.ToText(____)} : {Node.Arg.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tIfMatchNode<t> Node => (
 				$"§IF {Node.Expression} MATCH {{" + ____ + Node.Cases.Map(
-					_ => _.Match.ToText(____) + " : " + _.Expression.ToText(____)
+					_ => _.Pattern.ToText(____) + " : " + _.Expression.ToText(____)
 				).Reduce(
 					"",
 					(a1, a2) => a1 + "; " + a2
@@ -1441,23 +1441,23 @@ mSPO_AST {
 					(a1, a2) => a1 + "; " + a2
 				) + ____ + "}"
 			),
-			tIsNode<t> Node => $"({____}{Node.Expression.ToText(____)} §IS {Node.Match.ToText(____)}{__})",
+			tIsNode<t> Node => $"({____}{Node.Expression.ToText(____)} §IS {Node.Pattern.ToText(____)}{__})",
 			tPipeToLeftNode<t> Node => $"({____} {Node.Pipe.Map(_ => $"{_.ToText()} §<")}{Node.Head.ToText()}{__})",
 			
 			// Matches
-			tTypedMatchNode<t> Node => Node.TypeExpression.Match(
+			tTypedPatternNode<t> Node => Node.TypeExpression.Match(
 				Type => $"({____}{Node.Pattern.ToText(____)} € {Type.ToText(____)}{__})",
 				() => Node.Pattern.ToText(____)
 			),
-			tIgnoreMatchNode<t> Node => "_",
-			tMatchFreeIdNode<t> Node => "§DEF " + Node.Id,
-			tMatchVarNode<t> Node => "§VAR " + Node.Id,
-			tMatchPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Match.ToText(____)}{__})",
-			tMatchTupleNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
-			tMatchGuardNode<t> Node => $"({____}{Node.Match.ToText(____)} & {Node.Guard.ToText(____)}{__})",
-			tMatchRecordNode<t> Node => @$"{{ {
+			tIgnorePatternNode<t> Node => "_",
+			tFreeIdPatternNode<t> Node => "§DEF " + Node.Id,
+			tVarPatternNode<t> Node => "§VAR " + Node.Id,
+			tPrefixPatternNode<t> Node => $"({____}#{Node.Prefix} {Node.Pattern.ToText(____)}{__})",
+			tTuplePatternNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tGuardPatternNode<t> Node => $"({____}{Node.Pattern.ToText(____)} & {Node.Guard.ToText(____)}{__})",
+			tRecordPatternNode<t> Node => @$"{{ {
 				Node.Elements.Map(
-					_ => $"{_.Id}: {_.Match.ToText(____)}"
+					_ => $"{_.Id}: {_.Pattern.ToText(____)}"
 				).Join(
 					(a1, a2) => a1 + "\n" + a2,
 					""
@@ -1479,7 +1479,7 @@ mSPO_AST {
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
-			tMatchPairNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
+			tPairPatternNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",
@@ -1500,7 +1500,7 @@ mSPO_AST {
 			""",
 				
 			// Module
-			tImportNode<t> Node => $"§IMPORT {Node.Match.ToText(____)}",
+			tImportNode<t> Node => $"§IMPORT {Node.Pattern.ToText(____)}",
 			tExportNode<t> Node => $"§EXPORT {Node.Expression.ToText(____)}",
 			tModuleNode<t> Node => $"""
 			{Node.Import.ToText(____)}
