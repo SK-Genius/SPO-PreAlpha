@@ -24,6 +24,13 @@ mSPO2IL {
 		internal mStd.tFunc<tPos, tPos, tPos> MergePos;
 	}
 	
+	private sealed class
+	tGenericBinder {
+		public mVM_Type.tType HeadType = default!;
+		public tText HeadTypeId = default!;
+		public tText? VarTypeId;
+	}
+	
 	public struct
 	tDefConstructor<tPos> {
 		// TODO: add SubDefs
@@ -168,8 +175,11 @@ mSPO2IL {
 	public static tText
 	MapType<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
-		mVM_Type.tType aType
+		mVM_Type.tType aType,
+		System.Collections.Generic.Dictionary<tNat64, tGenericBinder>? aGenericScope = null
 	) {
+		aGenericScope ??= new System.Collections.Generic.Dictionary<tNat64, tGenericBinder>();
+
 		switch (aType) {
 			case var a when a.IsType(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cTypeType, a);
@@ -192,22 +202,42 @@ mSPO2IL {
 				return mIL_GenerateOpcodes.cAnyType;
 			}
 			case var a when a.IsFree(out var Id_, out var Ref): {
+				if (
+					aGenericScope.TryGetValue(a.DebugId, out var Binder) ||
+					aGenericScope.TryGetValue(Ref.DebugId, out Binder)
+				) {
+					var VarId = Binder.VarTypeId;
+					if (VarId is null) {
+						VarId = "[§VAR {Binder.HeadTypeId}]";
+						var VarType = mVM_Type.Var(Binder.HeadType);
+						aModuleConstructor.EnsureTypeDefinition(
+							VarId,
+							VarType,
+							() => mIL_AST.TypeVar(default(tPos), VarId, Binder.HeadTypeId)
+						);
+						Binder.VarTypeId = VarId;
+					}
+					return VarId;
+				}
+
+
+
 				if (Ref.Kind is mVM_Type.tKind.Free) {
 					aModuleConstructor.EnsureTypeDefinition(Id_, a, () => mIL_AST.TypeFree(default(tPos), Id_));
 					return Id_;
 				} else {
-					return aModuleConstructor.MapType(Ref);
+					return aModuleConstructor.MapType(Ref, aGenericScope);
 				}
 			}
 			case var a when a.IsPrefix(out var Prefix, out var Type): {
-				var Id = aModuleConstructor.MapType(Type);
+				var Id = aModuleConstructor.MapType(Type, aGenericScope);
 				var NewId = $"[#{Prefix}:{Id}]";
 				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypePrefix(default(tPos), NewId, Prefix, Id));
 				return NewId;
 			}
 			case var a when a.IsPair(out var Type1, out var Type2): {
-				var Id1 = aModuleConstructor.MapType(Type1);
-				var Id2 = aModuleConstructor.MapType(Type2);
+				var Id1 = aModuleConstructor.MapType(Type1, aGenericScope);
+				var Id2 = aModuleConstructor.MapType(Type2, aGenericScope);
 				var NewId = $"[{Id1};{Id2}]";
 				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypePair(default(tPos), NewId, Id1, Id2));
 				return NewId;
@@ -215,7 +245,7 @@ mSPO2IL {
 			case var a when a.IsRecord(out var Fields): {
 				var RecTypeId = mIL_AST.cEmptyType;
 				foreach (var Field in Fields.ToStream()) {
-					var FieldTypeId = aModuleConstructor.MapType(Field.Value);
+					var FieldTypeId = aModuleConstructor.MapType(Field.Value, aGenericScope);
 					var PrefixedFieldTypeId = $"[#{Field.Key} {FieldTypeId}]";
 					aModuleConstructor.TypeDef.Push(mIL_AST.TypePrefix(default(tPos), PrefixedFieldTypeId, Field.Key.ToString(), FieldTypeId)); // TODO: remove .ToString() ???
 					var NewRecTypeId = $"[{RecTypeId}, {PrefixedFieldTypeId}]";
@@ -226,48 +256,75 @@ mSPO2IL {
 				return RecTypeId;
 			}
 			case var a when a.IsSet(out var Type1, out var Type2): {
-				var Id1 = aModuleConstructor.MapType(Type1);
-				var Id2 = aModuleConstructor.MapType(Type2);
+				var Id1 = aModuleConstructor.MapType(Type1, aGenericScope);
+				var Id2 = aModuleConstructor.MapType(Type2, aGenericScope);
 				var NewId = $"[{Id1}|{Id2}]";
 				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeSet(default(tPos), NewId, Id1, Id2));
 				return NewId;
 			}
 			case var a when a.IsProc(out var EnvType, out var ArgType, out var ResType): {
-				var IdArg = aModuleConstructor.MapType(ArgType);
-				var IdRes = aModuleConstructor.MapType(ResType);
+				var IdArg = aModuleConstructor.MapType(ArgType, aGenericScope);
+				var IdRes = aModuleConstructor.MapType(ResType, aGenericScope);
 				var IdFunc = $"[{IdArg}->{IdRes}]";
 				var FuncType = mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResType);
-				aModuleConstructor.EnsureTypeDefinition(IdFunc, FuncType, () => mIL_AST.TypeFunc(default(tPos), IdFunc, IdArg, IdRes));
-				
+				aModuleConstructor.EnsureTypeDefinition(IdFunc, FuncType, () => mIL_AST.TypeFunc(default(tPos),IdFunc, IdArg, IdRes));
+
 				if (EnvType.IsEmpty()) {
 					return IdFunc;
 				}
-				
-				var IdEnv = aModuleConstructor.MapType(EnvType);
+
+				var IdEnv = aModuleConstructor.MapType(EnvType, aGenericScope);
 				var IdEnvFunc = $"[{IdEnv}:{IdFunc}]";
 				aModuleConstructor.EnsureTypeDefinition(IdEnvFunc, a, () => mIL_AST.TypeMethod(default(tPos), IdEnvFunc, IdEnv, IdFunc));
 				return IdEnvFunc;
 			}
 			case var a when a.IsVar(out var InnerType): {
-				var InnerId = aModuleConstructor.MapType(InnerType);
+				var InnerId = aModuleConstructor.MapType(InnerType, aGenericScope);
 				var NewId = $"[§VAR {InnerId}]";
-				
+
 				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeVar(default(tPos), NewId, InnerId));
-				
+
 				return NewId;
 			}
 			case var a when a.IsRecursive(out var HeadType, out var BodyType): {
-				var HeadId = aModuleConstructor.MapType(HeadType);
-				var BodyId = aModuleConstructor.MapType(BodyType);
+				var HeadId = aModuleConstructor.MapType(HeadType, aGenericScope);
+				var BodyId = aModuleConstructor.MapType(BodyType, aGenericScope);
 				var NewId = $"[§REC {HeadId} => {BodyId}]";
 				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeRecursive(default(tPos), NewId, HeadId, BodyId));
 				return NewId;
 			}
 			case var a when a.IsGeneric(out var HeadType, out var BodyType): {
-				var HeadId = aModuleConstructor.MapType(HeadType);
-				var BodyId = aModuleConstructor.MapType(BodyType);
-				var NewId = $"[$ALL {HeadId} => {BodyId}]";
-				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeGeneric(default(tPos), NewId, HeadId, BodyId));
+				var HeadId = aModuleConstructor.MapType(HeadType, aGenericScope);
+				var Binder = new tGenericBinder {
+					HeadType = HeadType,
+					HeadTypeId = HeadId,
+				};
+				var HeadKey = HeadType.DebugId;
+				tGenericBinder? PreviousBinder = default;
+				var HasPrevious = aGenericScope.TryGetValue(HeadKey, out PreviousBinder);
+				aGenericScope[HeadKey] = Binder;
+				var CanonicalKey = HeadType.Refs.Length > 0 ? HeadType.Refs[0].DebugId : HeadKey;
+				tGenericBinder? PreviousCanonical = default;
+				var HasCanonical = CanonicalKey != HeadKey && aGenericScope.TryGetValue(CanonicalKey, out PreviousCanonical);
+				if (CanonicalKey != HeadKey) {
+					aGenericScope[CanonicalKey] = Binder;
+				}
+				var BodyId = aModuleConstructor.MapType(BodyType, aGenericScope);
+				if (HasPrevious) {
+					aGenericScope[HeadKey] = PreviousBinder!;
+				} else {
+					aGenericScope.Remove(HeadKey);
+				}
+				if (CanonicalKey != HeadKey) {
+					if (HasCanonical) {
+						aGenericScope[CanonicalKey] = PreviousCanonical!;
+					} else {
+						aGenericScope.Remove(CanonicalKey);
+					}
+				}
+				var HeadBinderId = Binder.VarTypeId ?? HeadId;
+				var NewId = $"[$ALL {HeadBinderId} => {BodyId}]";
+				aModuleConstructor.EnsureTypeDefinition(NewId, a, () => mIL_AST.TypeGeneric(default(tPos), NewId, HeadBinderId, BodyId));
 				return NewId;
 			}
 			default: {
@@ -275,7 +332,6 @@ mSPO2IL {
 			}
 		}
 	}
-
 	public static mResult.tResult<mVM_Type.tType, tText>
 	CreateEnvType<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
@@ -1031,10 +1087,16 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
-				
+
+				var PreviousTypeDict = aDefConstructor.TypeDict;
+				var BinderType = mVM_Type.Var(mVM_Type.Free(HeadType.Id));
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(HeadType.Id, BinderType);
+
 				if (!aDefConstructor.MapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
+					aDefConstructor.TypeDict = PreviousTypeDict;
 					return mResult.Fail(Error);
 				}
+				aDefConstructor.TypeDict = PreviousTypeDict;
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeGeneric(Pos, aDefConstructor.CreateTempReg(out var ResultReg), HeadType.Id, BodyTypeReg)
 				);
