@@ -340,7 +340,7 @@ mSPO2IL_Tests {
 						]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(_ => _.ToText());
 					
 					mAssert.AreEquals(
 						Scope,
@@ -481,7 +481,7 @@ mSPO2IL_Tests {
 						]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(_ => _.ToText());
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("...*...+..."),
@@ -561,7 +561,7 @@ mSPO2IL_Tests {
 							[
 								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(13)), // TODO
+								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(13)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
 								
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
@@ -648,7 +648,7 @@ mSPO2IL_Tests {
 							)]
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(_ => _.ToText());
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("TestTest..."),
@@ -719,7 +719,7 @@ mSPO2IL_Tests {
 							[
 								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(13)), // TODO
+								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(13)),
 								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
 								
 								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
@@ -793,7 +793,7 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).ElseThrow(_ => _.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(_ => _.ToText());
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
@@ -921,7 +921,7 @@ mSPO2IL_Tests {
 						mStd.cEmpty
 					).Then(
 						_ => _.Scope
-					).ElseThrow(
+					).AssertNotError(
 						_ => _.ToText()
 					);
 					
@@ -930,11 +930,11 @@ mSPO2IL_Tests {
 						(aResultScope, aCommand) => aResultScope.ThenTry(
 							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 						)
-					).ElseThrow(
+					).AssertNotError(
 						_ => _.ToText()
 					);
 					
-					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).ElseThrow(_ => _.ToText());
+					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).AssertNotError(_ => _.ToText());
 					
 					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
 					
@@ -1059,7 +1059,7 @@ mSPO2IL_Tests {
 					var (DefIndex, DefType) = DefConstructor.MapLambda(
 						ModuleConstructor,
 						LambdaNode
-					).ElseThrow(
+					).AssertNotError(
 						_ => _.ToText()
 					);
 					
@@ -1140,7 +1140,7 @@ mSPO2IL_Tests {
 						mStd.cEmpty
 					).Then(
 						_ => _.Scope
-					).ElseThrow(
+					).AssertNotError(
 						_ => _.ToText()
 					);
 					
@@ -1148,7 +1148,7 @@ mSPO2IL_Tests {
 						ModuleNode,
 						mSpan.Merge,
 						mStd.cEmpty
-					).ElseThrow(
+					).AssertNotError(
 						_ => _.ToText()
 					);
 				}

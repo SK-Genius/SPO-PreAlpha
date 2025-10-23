@@ -1,4 +1,6 @@
-﻿public static class
+﻿// IMPORT mStd
+
+public static class
 mSpan {
 	public readonly struct
 	tSpan<tPos> {

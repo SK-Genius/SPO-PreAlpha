@@ -233,7 +233,7 @@ mIL_GenerateOpcodes {
 							mVM_Type.Empty(),
 							Types.Get(ArgReg),
 							aTrace
-						).ElseThrow(
+						).AssertNotError(
 							Fail_
 						);
 						Regs = Regs.Set(RegId1, NewProc.Call(Span, ProcReg, ArgReg));
@@ -250,7 +250,7 @@ mIL_GenerateOpcodes {
 							ObjType,
 							Types.Get(ArgReg),
 							aTrace
-						).ElseThrow(
+						).AssertNotError(
 							Fail_
 						);
 						Regs = Regs.Set(RegId1, NewProc.Exec(Span, ObjMethodPair, ArgReg));
@@ -418,7 +418,7 @@ mIL_GenerateOpcodes {
 						
 						// ResType.IsSubType(DefResType, mStd.cEmpty)
 						ResType.IsSubType(mVM_Type.Set(DefResType, mVM_Type.Empty()), mStd.cEmpty) // TODO: remove workaround; see line above
-						.ElseThrow(
+						.AssertNotError(
 							_ => (
 								$"""
 								{Span}: {_}
@@ -691,8 +691,8 @@ mIL_GenerateOpcodes {
 						mAssert.AreEquals(RecTypeIn, RecTypeOut);
 						mAssert.IsTrue(EmptyType_.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
 						mAssert.IsTrue(EmptyType.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
-						ArgType.IsSubType(EnvType, mStd.cEmpty).ElseThrow(_ => $"{Span}: {_}");
-						EnvType.IsSubType(ArgType, mStd.cEmpty).ElseThrow(_ => $"{Span}: {_}");
+						ArgType.IsSubType(EnvType, mStd.cEmpty).AssertNotError(_ => $"{Span}: {_}");
+						EnvType.IsSubType(ArgType, mStd.cEmpty).AssertNotError(_ => $"{Span}: {_}");
 						if (!RecTypeOut.IsProc(out _, out _, out _)) {
 							var PairType = RecTypeInOut;
 							while (!PairType.IsEmpty()) {

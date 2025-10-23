@@ -4,6 +4,7 @@
 // IMPORT Common/mError
 // IMPORT Common/mAssert
 // IMPORT Common/mMaybe
+// IMPORT Common/mTreeMap
 
 public static class
 mVM_Type {

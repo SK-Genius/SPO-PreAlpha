@@ -899,7 +899,7 @@ mVM_Data {
 			return false;
 		}
 		
-		var Data = (dynamic)aData._Value._Value;
+		aData._Value.Is(out dynamic Data);
 		aDef = Data.Item1 as tProcDef;
 		aEnv = Data.Item2;
 		return true;
@@ -943,7 +943,7 @@ mVM_Data {
 			return false;
 		}
 		
-		var Data = (dynamic)aData._Value._Value;
+		aData._Value.Is(out dynamic Data);
 		aDef = Data as tProcDef;
 		return true;
 	}

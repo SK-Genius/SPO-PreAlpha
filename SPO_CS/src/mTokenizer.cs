@@ -159,7 +159,7 @@ mTokenizer {
 		var Tokens = Tokenizer.ParseText(aText, aId, aDebugStream).Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(_ => (_.Span, _)), aDebugStream);
 		var Lines = aText.Split("\n");
-		var Result = MaybeResult.ElseThrow(
+		var Result = MaybeResult.AssertNotError(
 			_ => _.ToText(Lines)
 		);
 		

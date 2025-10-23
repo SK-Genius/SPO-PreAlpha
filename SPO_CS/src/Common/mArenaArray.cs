@@ -28,7 +28,7 @@ mArenaArray {
 				var Start = aRange.Start.IsFromEnd ? _Count - aRange.Start.Value : aRange.Start.Value;
 				var End = aRange.End.IsFromEnd ? _Count - aRange.End.Value : aRange.End.Value;
 				return new tArenaArray<t>(
-					_Offset + Start * sizeof(t),
+					this._Offset + Start * sizeof(t),
 					End - Start
 				);
 			}
@@ -46,7 +46,7 @@ mArenaArray {
 				}
 				
 				return new mArenaRef.tArenaRef<t>(
-					_Offset + Index * sizeof(t)
+					this._Offset + Index * sizeof(t)
 				);
 			}
 		}
@@ -92,7 +92,7 @@ mArenaArray {
 		Current {
 			[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 			get => new (
-				_Span._Offset + _Index * sizeof(t)
+				this._Span._Offset + this._Index * sizeof(t)
 			);
 		}
 		
@@ -100,8 +100,8 @@ mArenaArray {
 		public tBool
 		MoveNext(
 		) {
-			_Index += 1;
-			return _Index <= _Span._Count;
+			this._Index += 1;
+			return this._Index <= this._Span._Count;
 		}
 	}
 	

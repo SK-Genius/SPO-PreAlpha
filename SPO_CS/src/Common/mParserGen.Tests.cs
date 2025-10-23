@@ -385,7 +385,7 @@ mParserGen_Tests {
 							TestStream(System.MemoryExtensions.AsSpan(aExpr)),
 							_ => aDebugStream(_())
 						);
-						return X.ElseThrow("").Result.Value;
+						return X.AssertNotError("").Result.Value;
 					}
 					
 					mAssert.AreEquals(Eval("1"), 1, AreEqual_Int);

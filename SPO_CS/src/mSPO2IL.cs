@@ -1055,10 +1055,10 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tPipeToRightNode<tPos>: {
-				throw mError.Error("Pipe should be lowered at this point!");
+				throw mError.Error("Pipe should be desugared at this point!");
 			}
 			case mSPO_AST.tPipeToLeftNode<tPos>: {
-				throw mError.Error("Pipe should be lowered at this point!");
+				throw mError.Error("Pipe should be desugared at this point!");
 			}
 			default: {
 				throw mError.Error(
@@ -1114,7 +1114,7 @@ mSPO2IL {
 		switch (aMatch) {
 			case mSPO_AST.tCharNode<tPos>:
 			case mSPO_AST.tTuplePatternNode<tPos>: {
-				throw mError.Error($"{aMatch.GetType().Name} should already be lowered");
+				throw mError.Error($"{aMatch.GetType().Name} should already be desugared");
 			}
 			case mSPO_AST.tFreeIdPatternNode<tPos> Node: {
 				aTestAndCallCaseFunc.Commands.Push(

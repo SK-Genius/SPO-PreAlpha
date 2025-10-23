@@ -10,7 +10,7 @@
 // IMPORT mIL_AST
 // IMPORT mSPO_AST
 // IMPORT mSPO2IL
-// IMPORT mSPO_Lowering
+// IMPORT mSPO_Desugar
 
 using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;
@@ -880,28 +880,28 @@ mSPO_Parser {
 		);
 	}
 	
-	// TODO: should not do lowering and SPO to IL mapping
+	// TODO: should not do desugaring and SPO to IL mapping
 	public static tText
 	ToILT(
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
-		var Lowered = mSPO_Lowering.LowerModule(aModule).ElseThrow(_ => _.ToText());
+		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(_ => _.ToText());
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
-			Lowered.Import.Pattern,
+			Desugared.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
-		).Then(_ => _.Scope).ElseThrow(_ => _.ToText());
+		).Then(_ => _.Scope).AssertNotError(_ => _.ToText());
 		
-		var Scope = Lowered.Commands.Reduce(
+		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
-		).ElseThrow(_ => _.ToText());
+		).AssertNotError(_ => _.ToText());
 		
-		var Module = mSPO2IL.MapModule(Lowered, mSpan.Merge, Scope).ElseThrow(_ => _.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(_ => _.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append("\n");
@@ -944,6 +944,12 @@ mSPO_Parser {
 		
 		return SB.ToString();
 	}
+	
+	
+	public static tText
+	ToText(
+		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
+	) => $"{mTextParser.ToText(a.Pos)}: {a.ErrorText}";
 }
 
 

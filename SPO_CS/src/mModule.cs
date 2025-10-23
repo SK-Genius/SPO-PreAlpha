@@ -1,9 +1,15 @@
 // IMPORT Common/mStd
 // IMPORT Common/mTest
+// IMPORT Common/mStream
+// IMPORT Common/mResult
 // IMPORT Common/mAssert
+// IMPORT Common/mLazy
+// IMPORT Common/mFS
 // IMPORT mVM_Data
-// IMPORT mStdLib
+// IMPORT mVM_Type
+// IMPORT mIL_Parser
 // IMPORT mSPO_Interpreter
+// IMPORT mSPO_Parser
 
 public static class
 mModule {
@@ -68,28 +74,33 @@ mModule {
 			);
 		}
 		
+		var Folder = mFS.Folder(aModuleSetup.ModulePath.Parent.Deref.AssertNotEmpty());
 		var FileExtension = mStream.Stream(aModuleSetup.ModulePath.ToText().Split('.')).TryLast().AssertNotEmpty();
 		switch (FileExtension) {
 			case "SPO": {
-				var SPO_Path = aModuleSetup.ModulePath.ToText();
-				var SPO_Text = System.IO.File.ReadAllText(SPO_Path);
+				var SPO_File = mFS.File(aModuleSetup.ModulePath);
+				var SPO_Text = SPO_File.TryReadText().ElseThrow();
 				
 				#if true
 				{
-					var IL_Path = SPO_Path.Replace(".SPO", ".ILT");
-					var IL_Text = System.IO.File.Exists(IL_Path)
-					? mLazy.Lazy(() => System.IO.File.ReadAllText(IL_Path))
+					var ILT_File = Folder.GetFile(
+						SPO_File.Name.Replace(".SPO", ".ILT")
+					);
+					
+					var IL_Text = ILT_File.Exists()
+					? mLazy.Lazy(() => ILT_File.TryReadText().ElseThrow())
 					: "";
 					
 					var IL_TextNew = mSPO_Parser.Module.ParseText(
 						SPO_Text,
-						SPO_Path,
+						(Folder._Path / SPO_File.Name).ToText(),
 						_ => aLogger(_())
 					).ToILT();
 					
 					if (IL_TextNew != IL_Text.Value) {
-						System.IO.File.WriteAllText(
-							IL_Path + ".new",
+						Folder.GetFile(
+							ILT_File.Name + ".new"
+						).TryCreate(
 							IL_TextNew
 						);
 						mAssert.Fail(
@@ -104,7 +115,7 @@ mModule {
 				
 				var Y = mSPO_Interpreter.Run(
 					SPO_Text,
-					SPO_Path,
+					(Folder._Path / SPO_File.Name).ToText(),
 					(Data, Type),
 					_ => aLogger(_())
 				).Then(
@@ -118,11 +129,11 @@ mModule {
 			}
 			case "ILT": {
 				try {
-					var ILT_Path = aModuleSetup.ModulePath.ToText();
+					var ILT_File = mFS.File(aModuleSetup.ModulePath);
 					var Res = mVM.Run(
 						mIL_Parser.Module.ParseText(
-							System.IO.File.ReadAllText(ILT_Path),
-							ILT_Path,
+							ILT_File.TryReadText().ElseThrow(),
+							(Folder._Path / ILT_File.Name).ToText(),
 							_ => aLogger(_())
 						),
 						(Data, Type),
@@ -147,12 +158,8 @@ mModule {
 	
 	private static mFS.tPath
 	ModuleFolder = mFS.Path(
-		System.IO.Directory.GetParent(
-			System.IO.Path.GetDirectoryName(
-				mStd.File()
-			)
-		).FullName
-	) / "Modules";
+		mStd.File()
+	).Parent.Deref.AssertNotEmpty() / "../Modules";
 	
 	public static tModuleSetup
 	Module_Std = ModuleSetup(

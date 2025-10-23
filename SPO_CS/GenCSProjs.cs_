@@ -1,30 +1,29 @@
-var FS = mFS.FSFromCWD() / mFS.Path(args.Length > 0 ? args[0] : ".");
-var SrcBaseFolder = mFS.Path("src");
-var ProjBaseFolder = mFS.Path(".proj");
-var BinBaseFolder = mFS.Path("bin");
+var BaseFolder = mFS.CWD() / mFS.Path(args.Length > 0 ? args[0] : ".");
+var SrcBaseFolder = BaseFolder / "src";
+var ProjBaseFolder = BaseFolder / ".proj";
+var BinBaseFolder = BaseFolder / "bin";
 
 var ProjectDependenciesMap = mTreeMap.Tree<tText, mStream.tStream<tText>>(
 	(a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)),
 	[]
 );
 
-if (FS.FolderExists(ProjBaseFolder)) {
-	System.IO.Directory.Delete(ProjBaseFolder.ToText(), recursive: true);
-	FS.NewFolder(ProjBaseFolder);
+if (ProjBaseFolder.Exists()) {
+	ProjBaseFolder.TryRemove();
+	ProjBaseFolder.TryCreate();
 }
 
 foreach (
-	var CS_FilePath in FS.GetFiles(
-		SrcBaseFolder
+	var                                       CS_File in SrcBaseFolder.GetFiles(
 	).Where(
 		_ => _.Name.EndsWith(".cs")
 	)
 ) {
-	var ProjName = System.IO.Path.GetFileNameWithoutExtension(CS_FilePath.Name);
-	var ProjFolder = ProjBaseFolder / (SrcBaseFolder >> CS_FilePath).AssertNotEmpty() / new mFS.tPath("..") / ProjName;
+	var ProjName = System.IO.Path.GetFileNameWithoutExtension(CS_File.Name);
+	var ProjFolder = ProjBaseFolder / (SrcBaseFolder >> CS_File).AssertNotEmpty() / ".." / ProjName;
 	
-	var ProjDep = FS.ReadAllLines(
-		CS_FilePath
+	var ProjDep = CS_File.TryReadLines(
+	).ElseThrow(
 	).TakeWhile(
 		_ => _.StartsWith("// IMPORT ")
 	).Map(
@@ -36,8 +35,16 @@ foreach (
 					<ProjectReference Include="{"../" + _ + '/' + _.Split('/')[^1] + ".csproj"}" />
 			"""
 	);
-	
-	var CSProjPath = ProjFolder / (ProjName + ".csproj");
+	if (!ProjFolder._Path.ToText().Contains("Common")) {
+		ProjectReferences = mStream.Stream(
+			$"""
+					<ProjectReference Include="{(ProjFolder >> BaseFolder).AssertNotEmpty().ToText()}/../TestRunner/FakeTestAdapter/FakeTestAdapter.csproj" />
+					<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+			""",
+			ProjectReferences
+		);
+	}
+	var CSProjFile = ProjFolder.GetFile(ProjName + ".csproj");
 	var FullProjName = (ProjBaseFolder >> ProjFolder).AssertNotEmpty().ToText();
 	
 	// build csproj content
@@ -51,8 +58,8 @@ foreach (
 			</PropertyGroup>
 			
 			<ItemGroup>
-				<Compile Include="{(ProjFolder >> CS_FilePath).AssertNotEmpty($"{ProjFolder.ToText()} >> {CS_FilePath.ToText()}").ToText()}" />
-				<Compile Include="{(ProjFolder >> SrcBaseFolder / "_GlobalUsings.cs").AssertNotEmpty($"{ProjFolder.ToText()} >> {SrcBaseFolder.ToText()} / _GlobalUsings.cs").ToText()}" />
+				<Compile Include="{(ProjFolder >> CS_File).AssertNotEmpty($"{ProjFolder._Path.ToText()} >> {(ProjBaseFolder._Path / CS_File.Name).ToText()}").ToText()}" />
+				<Compile Include="{(ProjFolder >> SrcBaseFolder / "_GlobalUsings.cs").AssertNotEmpty($"{ProjFolder._Path.ToText()} >> {SrcBaseFolder._Path.ToText()} / _GlobalUsings.cs").ToText()}" />
 			</ItemGroup>
 			
 			<ItemGroup>
@@ -70,12 +77,12 @@ foreach (
 		ProjDep.Map(_ => DepPrefix + _)
 	);
 	
-	if (!ProjFolder.IsIdent()) {
-		FS.NewFolder(ProjFolder);
+	if (!ProjFolder.Exists()) {
+		ProjFolder.TryCreate();
 	}
 	
-	System.Console.WriteLine($"  Project: {CSProjPath.ToText()}");
-	System.IO.File.WriteAllText(CSProjPath.ToText(), CSProjContent);
+	System.Console.WriteLine($"  Project: {(ProjFolder._Path / CSProjFile.Name).ToText()}");
+	CSProjFile.TryCreate(CSProjContent);
 }
 
 foreach (var Proj in ProjectDependenciesMap.ToStream()) {
@@ -89,7 +96,7 @@ static mStream.tStream<tText> UpdateDeps(
 	tText aProj,
 	mStream.tStream<tText> aDepPath
 ) {
-	var Deps = aTree.TryGet(aProj).AssertNotEmpty();
+	var Deps = aTree.TryGet(aProj).AssertNotEmpty(aProj);
 	var NewDepPath = mStream.Stream(aProj, aDepPath);
 	
 	foreach (var Dep in Deps) {

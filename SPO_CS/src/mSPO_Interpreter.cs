@@ -15,7 +15,7 @@
 // IMPORT mSPO_AST
 // IMPORT mSPO_AST_Types
 // IMPORT mSPO_Parser
-// IMPORT mSPO_Lowering
+// IMPORT mSPO_Desugar
 
 public static class
 mSPO_Interpreter {
@@ -27,14 +27,14 @@ mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
-		if (!mSPO_Lowering.LowerModule(ModuleNode).Match(out var LoweredModule, out var Error)) {
+		if (!mSPO_Desugar.DesugarModule(ModuleNode).Match(out var DesugaredModule, out var Error)) {
 			return mResult.Fail(Error.ToText());
 		}
 		
 		var TypeArg = mVM_Type.Free();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
-			LoweredModule.Import.Pattern,
+			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(
@@ -56,13 +56,13 @@ mSPO_Interpreter {
 			_ => _.Scope
 		);
 		
-		return LoweredModule.Commands.Reduce(
+		return DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
 		).ThenTry(
-			aNewScope => mSPO2IL.MapModule(LoweredModule, mSpan.Merge, aNewScope)
+			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope)
 		).Then(
 			aModule => {
 				return mVM.Run(
@@ -103,9 +103,4 @@ mSPO_Interpreter {
 			}
 		);
 	}
-	
-	public static tText
-	ToText(
-		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
-	) => $"{mTextParser.ToText(a.Pos)}: {a.ErrorText}";
 }

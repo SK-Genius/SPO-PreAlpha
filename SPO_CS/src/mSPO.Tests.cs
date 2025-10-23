@@ -8,8 +8,8 @@
 // IMPORT mSPO_Parser.Tests
 // IMPORT mSPO2IL.Tests
 // IMPORT mTokenizer.Tests
-// IMPORT mStdLib.Tests
 // IMPORT mRegression.Tests
+// IMPORT mModule.Tests
 
 public static class
 mSPO_Tests {

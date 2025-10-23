@@ -344,7 +344,7 @@ mSPO_AST_Types {
 					}
 				)
 			),
-			mSPO_AST.tPipeToLeftNode<tPos> Pipe => throw mError.Error($"'{aNode.GetType().Name}' should be lowered at this point!"),
+			mSPO_AST.tPipeToLeftNode<tPos> Pipe => throw mError.Error($"'{aNode.GetType().Name}' should be desugared at this point!"),
 			_ => throw mError.Error("not implemented: " + aNode.GetType().Name),
 		}
 	).ThenDo(

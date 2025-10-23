@@ -48,7 +48,7 @@ mTextParser {
 			using var _ = mPerf.Measure();
 			var Stream = aText.ToStream(aId).Map(_ => (mSpan.Span(_.Pos), _.Char));
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-			var Result = MaybeResult.ElseThrow(
+			var Result = MaybeResult.AssertNotError(
 				_ => _.Sort(
 					(a1, a2) => {
 						var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;

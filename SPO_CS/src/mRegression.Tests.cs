@@ -7,6 +7,7 @@
 // IMPORT Common/mArrayList
 // IMPORT Common/mSpan
 // IMPORT Common/mTextStream
+// IMPORT Common/mFS
 // IMPORT mVM_Data
 // IMPORT mVM
 // IMPORT mIL_AST
@@ -16,45 +17,39 @@
 // IMPORT mSPO_AST_Types
 // IMPORT mSPO_Parser
 // IMPORT mSPO_Interpreter
+// IMPORT mModule
 
 public static class
 mRegression_Tests {
-	private static readonly System.IO.DirectoryInfo
-	cTestFolder = new System.IO.DirectoryInfo(
-		System.IO.Path.Combine(
-			System.IO.Directory.GetParent(mStd.File()).FullName,
-			"..",
-			"Regression.Tests"
-		)
-	);
+	private static readonly mFS.tFolder
+	cTestFolder = mFS.CWD() / "Regression.Tests";
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mRegression_Tests),
 		mStd.Call(
 			() => {
-				if (!cTestFolder.Exists) {
+				if (!cTestFolder.Exists()) {
 					System.Console.WriteLine("Folder not found: " + cTestFolder);
 					return [];
 				}
 				
 				var Tests = mArrayList.List<mTest.tTest>();
-				foreach (var SPO_Path in System.IO.Directory.GetFiles(cTestFolder.FullName, "*.SPO")) {
-					var BaseName = System.IO.Path.GetFileNameWithoutExtension(SPO_Path);
-					var ResPath = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".result.SPO");
-					var IL_Path = System.IO.Path.Combine(cTestFolder.FullName, BaseName + ".ILT");
+				foreach (var SPO_File in cTestFolder.GetFiles().Where(_ => _.Name.EndsWith(".SPO"))) {
+					var ResFile = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".result.SPO"));
+					var ILT_File = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".ILT"));
 					if (
-						BaseName.StartsWith("_") ||
-						SPO_Path.EndsWith(".result.SPO") ||
-						!System.IO.File.Exists(ResPath)
+						SPO_File.Name.StartsWith("_") ||
+						SPO_File.Name.EndsWith(".result.SPO") ||
+						!SPO_File.Exists()
 					) {
 						continue;
 					}
 					
-					var SPO_Text = mLazy.Lazy(() => System.IO.File.ReadAllText(SPO_Path));
-					var SPO_ResText = mLazy.Lazy(() => System.IO.File.ReadAllText(ResPath));
-					var IL_Text = System.IO.File.Exists(IL_Path)
-						? mLazy.Lazy(() => System.IO.File.ReadAllText(IL_Path))
+					var SPO_Text = mLazy.Lazy(() => SPO_File.TryReadText().ElseThrow());
+					var SPO_ResText = mLazy.Lazy(() => ResFile.TryReadText().ElseThrow());
+					var IL_Text = ILT_File.Exists()
+						? mLazy.Lazy(() => ILT_File.TryReadText().ElseThrow())
 						: "";
 					
 					var ResRes = mLazy.Lazy(
@@ -65,7 +60,7 @@ mRegression_Tests {
 							};
 							var Result = mSPO_Interpreter.Run(
 								SPO_ResText.Value,
-								SPO_Path,
+								(cTestFolder._Path / SPO_File.Name).ToText(),
 								(mVM_Data.Empty(), mVM_Type.Empty()),
 								_ => WriteToLog(_)
 							).ElseThrow();
@@ -75,7 +70,7 @@ mRegression_Tests {
 					
 					Tests.Push(
 						mTest.Tests(
-							BaseName,
+							SPO_File.Name.Replace(".SPO", ""),
 							[
 								mTest.Test(
 									".SPO == .result.SPO",
@@ -84,7 +79,7 @@ mRegression_Tests {
 										
 										var SPO_Res = mSPO_Interpreter.Run(
 											SPO_Text.Value,
-											SPO_Path,
+											(cTestFolder._Path / SPO_File.Name).ToText(),
 											(Module_Std.Data, Module_Std.Type),
 											_ => aDebug(_())
 										).ElseThrow();
@@ -98,20 +93,21 @@ mRegression_Tests {
 											ResRes.Value.Result.Data.ToText(1000)
 										);
 									},
-									SPO_Path + ", " + mStd.File()
+									SPO_File + ", " + mStd.File()
 								),
 								mTest.Test(
 									".SPO -> .ILT",
 									aDebug => {
 										var IL_TextNew = mSPO_Parser.Module.ParseText(
 												SPO_Text.Value,
-												SPO_Path,
+												(cTestFolder._Path / SPO_File.Name).ToText(),
 												_ => aDebug(_())
 											).ToILT();
 										
 										if (IL_TextNew != IL_Text.Value) {
-											System.IO.File.WriteAllText(
-												IL_Path + ".new",
+											cTestFolder.GetFile(
+												ILT_File.Name + ".new"
+											).TryCreate(
 												IL_TextNew
 											);
 											mAssert.Fail(
@@ -122,7 +118,7 @@ mRegression_Tests {
 											);
 										}
 									},
-									SPO_Path + ", " + IL_Path + ", " + mStd.File()
+									SPO_File + ", " + ILT_File + ", " + mStd.File()
 								),
 								mTest.Test(
 									".ILT == .result.SPO",
@@ -131,7 +127,7 @@ mRegression_Tests {
 										
 										var IlModule = mIL_Parser.Module.ParseText(
 											IL_Text.Value,
-											IL_Path,
+											(cTestFolder._Path / ILT_File.Name).ToText(),
 											_ => aDebug(_())
 										);
 										var IL_Res = mVM.Run(
@@ -149,7 +145,7 @@ mRegression_Tests {
 										
 										mAssert.AreEquals(IL_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									IL_Path + ", " + mStd.File()
+									ILT_File + ", " + mStd.File()
 								),
 							]
 						)

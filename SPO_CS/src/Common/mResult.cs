@@ -157,7 +157,7 @@ mResult {
 	public static t
 	ElseThrow<t>(
 		this tResult<t, tText> aRes
-	) => aRes.ElseThrow(_ => _);
+	) => aRes.AssertNotError(_ => _);
 	
 	extension<t, tError> (tResult<t, tError> aRes) {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -284,7 +284,7 @@ mResult {
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public t
-		ElseThrow(
+		AssertNotError(
 			mStd.tFunc<tError, tText> aModifyError
 		) => (
 			aRes.Match(out var Value, out var Error)
@@ -294,17 +294,17 @@ mResult {
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public t
-		ElseThrow(
+		AssertNotError(
 			tText aErrorMsg
-		) => aRes.ElseThrow(_ => aErrorMsg);
+		) => aRes.AssertNotError(_ => aErrorMsg);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tResult<t, tErrorOut>
 		ModifyError<tErrorOut>(
-			mStd.tFunc<tError, tErrorOut> aModError
+			mStd.tFunc<tError, tErrorOut> aModifyError
 		) => aRes.Match(out var Value, out var Error)
 		? OK(Value)
-		: Fail(aModError(Error));
+		: Fail(aModifyError(Error));
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tText

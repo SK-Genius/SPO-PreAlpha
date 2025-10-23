@@ -7,25 +7,26 @@
 // IMPORT mSPO_AST
 
 public static class
-mSPO_Lowering {
+mSPO_Desugar {
 	
 	public static mSPO_AST.tTypeNode<tPos>
-	LowerType<tPos>(
+	DesugarType<tPos>(
 		this mSPO_AST.tTypeNode<tPos> aType
 	) => aType switch {
 		mSPO_AST.tTupleTypeNode<tPos> Node
 		=> Node.ItemTypes.Map(
-				LowerType
+				DesugarType
 		).Reduce(
 			(mSPO_AST.tTypeNode<tPos>)mSPO_AST.EmptyType(Node.Pos),
-			(aAccu, aLoweredItem) => mSPO_AST.PairType(Node.Pos, aAccu, aLoweredItem)
+			(aAccu, aDesugaredItem) => mSPO_AST.PairType(Node.Pos, aAccu, aDesugaredItem)
 		),
 		mSPO_AST.tTextTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tSetTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tVarTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tLambdaTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tPrefixTypeNode<tPos> Node => Node, // TODO
-		mSPO_AST.tGenericTypeNode<tPos> Node => Node, // TODO
+		mSPO_AST.tGenericTypeNode<tPos> Node => Node,
+		 // TODO
 		mSPO_AST.tInterfaceTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecursiveTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericApplyTypeNode<tPos> Node => Node, // TODO
@@ -39,12 +40,12 @@ mSPO_Lowering {
 	};
 	
 	public static mResult.tResult<mSPO_AST.tTypedPatternNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerTypedPattern<tPos>(
+	DesugarTypedPattern<tPos>(
 		this mSPO_AST.tTypedPatternNode<tPos> aTypedPattern
-	) => aTypedPattern.Pattern.LowerPattern().Then(
-		aLoweredPattern => mSPO_AST.Pattern(
+	) => aTypedPattern.Pattern.DesugarPattern().Then(
+		aDesugaredPattern => mSPO_AST.Pattern(
 			aTypedPattern.Pos,
-			aLoweredPattern,
+			aDesugaredPattern,
 			aTypedPattern.TypeExpression
 		).Do(
 			_ => { _.TypeAnnotation = aTypedPattern.TypeAnnotation; }
@@ -52,57 +53,57 @@ mSPO_Lowering {
 	);
 	
 	public static mResult.tResult<mSPO_AST.tPatternNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerPattern<tPos>(
+	DesugarPattern<tPos>(
 		this mSPO_AST.tPatternNode<tPos> aPattern
 	) => aPattern switch {
 		mSPO_AST.tTypedPatternNode<tPos> Pattern
-		=> Pattern.LowerTypedPattern().Then(_ => (mSPO_AST.tPatternNode<tPos>)_),
+		=> Pattern.DesugarTypedPattern().Then(_ => (mSPO_AST.tPatternNode<tPos>)_),
 		mSPO_AST.tGuardPatternNode<tPos> Pattern
-		=> Pattern.Pattern.LowerPattern().ThenTry(
-			aLoweredPattern => Pattern.Guard.LowerExpression().Then(
-				aLoweredGuard => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.GuardPattern(
+		=> Pattern.Pattern.DesugarPattern().ThenTry(
+			aDesugaredPattern => Pattern.Guard.DesugarExpression().Then(
+				aDesugaredGuard => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.GuardPattern(
 					Pattern.Pos,
-					aLoweredPattern,
-					aLoweredGuard
+					aDesugaredPattern,
+					aDesugaredGuard
 				).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
 		mSPO_AST.tPairPatternNode<tPos> Pattern
-		=> Pattern.Tail.LowerPattern().ThenTry(
-			aLoweredTail => Pattern.Head.LowerPattern().Then(
-				aLoweredHead => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(
+		=> Pattern.Tail.DesugarPattern().ThenTry(
+			aDesugaredTail => Pattern.Head.DesugarPattern().Then(
+				aDesugaredHead => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(
 					Pattern.Pos,
-					aLoweredTail,
-					aLoweredHead
+					aDesugaredTail,
+					aDesugaredHead
 				).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
 		mSPO_AST.tPrefixPatternNode<tPos> Pattern 
-		=> Pattern.Pattern.LowerPattern().Then(
-			aLoweredPattern => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(
+		=> Pattern.Pattern.DesugarPattern().Then(
+			aDesugaredPattern => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(
 				Pattern.Pos,
 				Pattern.Prefix,
-				aLoweredPattern
+				aDesugaredPattern
 			).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
 		mSPO_AST.tRecordPatternNode<tPos> Pattern
 		=> Pattern.Elements.Map(
-			aElement => aElement.Pattern.LowerPattern().Then(
-				aLoweredPattern => (aElement.Id, aLoweredPattern)
+			aElement => aElement.Pattern.DesugarPattern().Then(
+				aDesugaredPattern => (aElement.Id, aDesugaredPattern)
 			)
 		).WhenAllThen(
-			aLoweredElements => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.RecordPattern(
+			aDesugaredElements => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.RecordPattern(
 				Pattern.Pos,
-				aLoweredElements
+				aDesugaredElements
 			).Do(_ => { _.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
 		mSPO_AST.tTuplePatternNode<tPos> Pattern
 		=> Pattern.Items.Map(
-			LowerPattern
+			DesugarPattern
 		).WhenAllThen(
-			aLoweredItems => (mSPO_AST.tPatternNode<tPos>)aLoweredItems.Reduce(
+			aDesugaredItems => (mSPO_AST.tPatternNode<tPos>)aDesugaredItems.Reduce(
 				(mSPO_AST.tPatternNode<tPos>)mSPO_AST.Empty(Pattern.Pos),
-				(aAccu, aLoweredItem) => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(Pattern.Pos, aAccu, aLoweredItem)
+				(aAccu, aDesugaredItem) => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(Pattern.Pos, aAccu, aDesugaredItem)
 			).Do(
 				_ => { _.TypeAnnotation = Pattern.TypeAnnotation; }
 			)
@@ -117,7 +118,7 @@ mSPO_Lowering {
 			)
 		).Do(
 			_ => { _.TypeAnnotation = Pattern.TypeAnnotation; }
-		).LowerPattern(
+		).DesugarPattern(
 		),
 		mSPO_AST.tLiteralNode<tPos> Pattern
 		=> mResult.OK(
@@ -130,112 +131,112 @@ mSPO_Lowering {
 	};
 	
 	public static mResult.tResult<mSPO_AST.tExpressionNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerExpression<tPos>(
+	DesugarExpression<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aExpr
 	) => aExpr switch {
 		mSPO_AST.tLambdaNode<tPos> { Pos: var Pos, Generic: var Generic, Head: var Head, Body: var Body, TypeAnnotation: var Type }
-		=> Body.LowerExpression().ThenTry(
-			aLoweredBody => Head.LowerPattern().Then(
-				aLoweredHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Lambda(
+		=> Body.DesugarExpression().ThenTry(
+			aDesugaredBody => Head.DesugarPattern().Then(
+				aDesugaredHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Lambda(
 					Pos,
 					Generic,
-					aLoweredHead,
-					aLoweredBody
+					aDesugaredHead,
+					aDesugaredBody
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
 		mSPO_AST.tMethodNode<tPos> { Pos: var Pos, Obj: var Obj, Arg: var Arg, Body: var Body, TypeAnnotation: var Type }
-		=> Body.LowerExpression().ThenTry(
-			aLoweredBody => Obj.LowerPattern().ThenTry(
-				aLoweredObj => Arg.LowerPattern().Then(
-					aLoweredArg => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Method(
+		=> Body.DesugarExpression().ThenTry(
+			aDesugaredBody => Obj.DesugarPattern().ThenTry(
+				aDesugaredObj => Arg.DesugarPattern().Then(
+					aDesugaredArg => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Method(
 						Pos,
-						aLoweredObj,
-						aLoweredArg,
-						(mSPO_AST.tBlockNode<tPos>)aLoweredBody
+						aDesugaredObj,
+						aDesugaredArg,
+						(mSPO_AST.tBlockNode<tPos>)aDesugaredBody
 					).Do(_ => { _.TypeAnnotation = Type; })
 				)
 			)
 		),
 		mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }
-		=> Obj.LowerExpression().Then(
-			aLoweredObj => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.VarToVal(
+		=> Obj.DesugarExpression().Then(
+			aDesugaredObj => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.VarToVal(
 				Pos,
-				aLoweredObj
+				aDesugaredObj
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }
-		=> Func.LowerExpression().ThenTry(
-			aLoweredFunc => Arg.LowerExpression().Then(
-				aLoweredArg => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Call(
+		=> Func.DesugarExpression().ThenTry(
+			aDesugaredFunc => Arg.DesugarExpression().Then(
+				aDesugaredArg => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Call(
 					Pos,
-					aLoweredFunc,
-					aLoweredArg
+					aDesugaredFunc,
+					aDesugaredArg
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
 		mSPO_AST.tPrefixNode<tPos> { Pos: var Pos, Prefix: var Prefix, Element: var Element, TypeAnnotation: var Type }
-		=> Element.LowerExpression().Then(
-			aLoweredElement => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Prefix(
+		=> Element.DesugarExpression().Then(
+			aDesugaredElement => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Prefix(
 				Pos,
 				Prefix,
-				aLoweredElement
+				aDesugaredElement
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tTupleNode<tPos> { Pos: var Pos, Items: var Items, TypeAnnotation: var Type }
-		=> Items.Map(LowerExpression).WhenAllThen(
-			aLoweredItems => mSPO_AST.Tuple(
+		=> Items.Map(DesugarExpression).WhenAllThen(
+			aDesugaredItems => mSPO_AST.Tuple(
 				Pos,
-				aLoweredItems
+				aDesugaredItems
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }
-		=> Tail.LowerExpression().ThenTry(
-			aLoweredTail => Head.LowerExpression().Then(
-				aLoweredHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Pair(
+		=> Tail.DesugarExpression().ThenTry(
+			aDesugaredTail => Head.DesugarExpression().Then(
+				aDesugaredHead => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Pair(
 					Pos,
-					aLoweredTail,
-					aLoweredHead
+					aDesugaredTail,
+					aDesugaredHead
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
 		mSPO_AST.tRecordNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }
 		=> Elements.Map(
-			aElement => aElement.Value.LowerExpression().Then(
-				aLoweredValue => (Key: aElement.Key, Value: aLoweredValue)
+			aElement => aElement.Value.DesugarExpression().Then(
+				aDesugaredValue => (Key: aElement.Key, Value: aDesugaredValue)
 			)
 		).WhenAllThen(
-			aLoweredElements => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Record(
+			aDesugaredElements => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Record(
 				Pos,
-				aLoweredElements
+				aDesugaredElements
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases, TypeAnnotation: var Type }
 		=> Cases.Map(
-			aCase => aCase.Cond.LowerExpression().ThenTry(
-				aLoweredCond => aCase.Result.LowerExpression().Then(
-					aLoweredResult => (aLoweredCond, aLoweredResult)
+			aCase => aCase.Cond.DesugarExpression().ThenTry(
+				aDesugaredCond => aCase.Result.DesugarExpression().Then(
+					aDesugaredResult => (aDesugaredCond, aDesugaredResult)
 				)
 			)
 		).WhenAllThen(
-			aLoweredCases => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.If(
+			aDesugaredCases => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.If(
 				Pos,
-				aLoweredCases
+				aDesugaredCases
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tIfMatchNode<tPos> { Pos: var Pos, Expression: var Expr, Cases: var Cases, TypeAnnotation: var Type }
-		=> Expr.LowerExpression().ThenTry(
-			aLoweredExpr => Cases.Map(
-				aCase => aCase.Expression.LowerExpression().ThenTry(
-					aLoweredCaseExpression => aCase.Pattern.LowerPattern().Then(
-						aLoweredCasePattern => (aLoweredCasePattern, aLoweredCaseExpression)
+		=> Expr.DesugarExpression().ThenTry(
+			aDesugaredExpr => Cases.Map(
+				aCase => aCase.Expression.DesugarExpression().ThenTry(
+					aDesugaredCaseExpression => aCase.Pattern.DesugarPattern().Then(
+						aDesugaredCasePattern => (aDesugaredCasePattern, aDesugaredCaseExpression)
 					)
 				)
 			).WhenAllThen(
-				aLoweredCases => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.IfMatch(
+				aDesugaredCases => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.IfMatch(
 					Pos,
-					aLoweredExpr,
-					aLoweredCases
+					aDesugaredExpr,
+					aDesugaredCases
 				).Do(_ => { _.TypeAnnotation = Type; })
 			)
 		),
@@ -249,7 +250,7 @@ mSPO_Lowering {
 			])
 		).Do(
 			_ => { _.TypeAnnotation = Type; }
-		).LowerExpression(
+		).DesugarExpression(
 		),
 		mSPO_AST.tPipeToRightNode<tPos> { Pos: var Pos, Head: var Head, Pipe: var Pipe, TypeAnnotation: var TypeAnnotation }
 		=> mStd.Call(
@@ -288,7 +289,7 @@ mSPO_Lowering {
 						).Do(_ => { _.TypeAnnotation = Call.TypeAnnotation; });
 					}
 				}
-				return Result.LowerExpression();
+				return Result.DesugarExpression();
 			}
 		),
 		mSPO_AST.tPipeToLeftNode<tPos> { Pos: var Pos, Head: var Head, Pipe: var Pipe, TypeAnnotation: var TypeAnnotation }
@@ -325,14 +326,14 @@ mSPO_Lowering {
 						).Do(_ => { _.TypeAnnotation = Call.TypeAnnotation; });
 					}
 				}
-				return Result.LowerExpression();
+				return Result.DesugarExpression();
 			}
 		),
 		mSPO_AST.tBlockNode<tPos> { Pos: var Pos, Commands: var Commands, TypeAnnotation: var Type }
-		=> Commands.Map(LowerCommand).WhenAllThen(
-			aLoweredCommands => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Block(
+		=> Commands.Map(DesugarCommand).WhenAllThen(
+			aDesugaredCommands => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Block(
 				Pos,
-				aLoweredCommands
+				aDesugaredCommands
 			).Do(_ => { _.TypeAnnotation = Type; })
 		),
 		mSPO_AST.tTextNode<tPos> Node
@@ -356,28 +357,28 @@ mSPO_Lowering {
 		mSPO_AST.tFalseNode<tPos> Node => Node,
 		mSPO_AST.tIntNode<tPos> Node => Node,
 		mSPO_AST.tCharNode<tPos> Node => Node,
-		mSPO_AST.tTypeNode<tPos> Node => mResult.OK((mSPO_AST.tExpressionNode<tPos>)Node.LowerType()),
+		mSPO_AST.tTypeNode<tPos> Node => mResult.OK((mSPO_AST.tExpressionNode<tPos>)Node.DesugarType()),
 		_ => throw new System.NotImplementedException(aExpr.GetType().Name)
 	};
 	
 	public static mResult.tResult<mSPO_AST.tCommandNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerCommand<tPos>(
+	DesugarCommand<tPos>(
 		this mSPO_AST.tCommandNode<tPos> aCmd
 	) => aCmd switch {
 		mSPO_AST.tDefNode<tPos> { Pos: var Pos, Des: var Des, Src: var Src }
-		=> LowerExpression(Src).Then(
+		=> DesugarExpression(Src).Then(
 			aSrc => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.Def(Pos, Des, aSrc)
 		),
 		mSPO_AST.tReturnIfNode<tPos> { Pos: var Pos, Condition: var Cond, Result: var Res }
-		=> LowerExpression(Cond).ThenTry(
-			aCond => LowerExpression(Res).Then(
+		=> DesugarExpression(Cond).ThenTry(
+			aCond => DesugarExpression(Res).Then(
 				aRes => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.ReturnIf(Pos, aCond, aRes)
 			)
 		),
 		mSPO_AST.tMethodCallsNode<tPos> { Pos: var Pos, Object: var Obj, MethodCalls: var Calls }
-		=> LowerExpression(Obj).ThenTry(
+		=> DesugarExpression(Obj).ThenTry(
 			NewObj => Calls.Map(
-				aCall => LowerExpression(aCall.Argument).Then(
+				aCall => DesugarExpression(aCall.Argument).Then(
 					aCallArg => mSPO_AST.MethodCall(
 						aCall.Pos,
 						aCall.Method,
@@ -391,18 +392,18 @@ mSPO_Lowering {
 		),
 		mSPO_AST.tRecLambdasNode<tPos> { Pos: var Pos, List: var List }
 		=> List.Map(
-			aListItem => aListItem.Lambda.LowerExpression(
+			aListItem => aListItem.Lambda.DesugarExpression(
 			).Then(
-				aLoweredLambda => mSPO_AST.RecLambdaItem(
+				aDesugaredLambda => mSPO_AST.RecLambdaItem(
 					aListItem.Pos,
 					aListItem.Id,
-					(mSPO_AST.tLambdaNode<tPos>)aLoweredLambda
+					(mSPO_AST.tLambdaNode<tPos>)aDesugaredLambda
 				)
 			)
 		).WhenAllThen(
-			aLoweredList => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.RecLambdas(
+			aDesugaredList => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.RecLambdas(
 				Pos,
-				aLoweredList
+				aDesugaredList
 			)
 		),
 		mSPO_AST.tDefVarNode<tPos> => mResult.OK(aCmd),
@@ -410,16 +411,16 @@ mSPO_Lowering {
 	};
 	
 	public static mResult.tResult<mSPO_AST.tModuleNode<tPos>, (tPos Pos, tText ErrorText)>
-	LowerModule<tPos>(
+	DesugarModule<tPos>(
 		this mSPO_AST.tModuleNode<tPos> aModule
-	) => aModule.Export.Expression.LowerExpression().ThenTry(
-		aLoweredExpr => aModule.Commands.Map(LowerCommand).WhenAllThenTry(
-			aLoweredCommands => aModule.Import.Pattern.LowerPattern().Then(
-				aLoweredPattern => mSPO_AST.Module(
+	) => aModule.Export.Expression.DesugarExpression().ThenTry(
+		aDesugaredExpr => aModule.Commands.Map(DesugarCommand).WhenAllThenTry(
+			aDesugaredCommands => aModule.Import.Pattern.DesugarPattern().Then(
+				aDesugaredPattern => mSPO_AST.Module(
 					aModule.Pos,
-					mSPO_AST.Import(aModule.Import.Pos, aLoweredPattern),
-					aLoweredCommands,
-					mSPO_AST.Export(aModule.Export.Pos, aLoweredExpr)
+					mSPO_AST.Import(aModule.Import.Pos, aDesugaredPattern),
+					aDesugaredCommands,
+					mSPO_AST.Export(aModule.Export.Pos, aDesugaredExpr)
 				)
 			)
 		)

@@ -2,8 +2,8 @@
 // IMPORT Common/mTest
 // IMPORT Common/mAssert
 // IMPORT mVM_Data
-// IMPORT mStdLib
 // IMPORT mSPO_Interpreter
+// IMPORT mModule
 
 public static class
 mModule_Tests {

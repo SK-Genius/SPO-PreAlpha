@@ -3,13 +3,15 @@
 // IMPORT mStream
 // IMPORT mMaybe
 // IMPORT mError
+// IMPORT mResult
+// IMPORT mArrayList
 
 using System.Linq;
 
 public static class
 mFS {
 	public static readonly tPath cIdentPath = new (".");
-	public static readonly tPath cBackPath = new ("..");
+	public static readonly tPath cParentPath = new ("..");
 	
 	public readonly struct
 	tPath {
@@ -36,47 +38,13 @@ mFS {
 			tPath aBasePath,
 			tPath aChild
 		) => (
-			aChild.IsIdent                  	? aBasePath :
-			aChild.Parent.Is(out var Parent)	? aBasePath / Parent / aChild.Name :
-			aBasePath / aChild.Name
+			aBasePath == cIdentPath ? aChild :
+			aChild == cIdentPath ? aBasePath :
+			aChild == cParentPath && aBasePath == cParentPath ? new (aBasePath, "..") :
+			aChild == cParentPath ? aBasePath.Parent.Deref.ElseUse(cIdentPath) :
+			aChild.Parent.Is(out var Parent) ? (aBasePath / Parent) / aChild.Name :
+			new (aBasePath, aChild.Name)
 		);
-		
-		public static tPath
-		operator /(
-			tPath aBasePath,
-			tText aChild
-		) => aBasePath / aChild.Split(['/', '\\']);
-		
-		public static tPath
-		operator /(
-			tPath aBasePath,
-			System.ReadOnlySpan<tText> aChildren
-		) {
-			if (aChildren.Length is 0) {
-				return aBasePath;
-			}
-			if (aBasePath.IsIdent) {
-				return new tPath(aChildren[0]) / aChildren[1..];
-			}
-			
-			var First = aChildren[0];
-			
-			if (First is ".") {
-				return aBasePath / aChildren[1..];
-			} else if (First is "..") {;
-				if (aBasePath.Name is "..") {
-					return new tPath(aBasePath, "..") / aChildren[1..];
-				} else if (aBasePath.Parent.Is(out var Parent)) {
-					return Parent / aChildren[1..];
-				} else {
-					return cIdentPath / aChildren[1..];
-				}
-			} else if (First.IsAbsoluteRootName()) {
-				throw mError.Error($"can't append absolute path '{First}'");
-			} else {
-				return new tPath(aBasePath, aChildren[0]) / aChildren[1..];
-			}
-		}
 		
 		public static mMaybe.tMaybe<tPath>
 		operator >>(
@@ -90,8 +58,8 @@ mFS {
 			if (aDesPath.IsIdent) {
 				return (
 					aSrcPath.Parent.IsEmpty()
-					? cBackPath
-					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).Then(_ => cBackPath / _)
+					? cParentPath
+					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).Then(_ => cParentPath / _)
 				);
 			}
 			
@@ -104,7 +72,7 @@ mFS {
 			
 			return RemindingPath.Match(
 				_ => {
-					return mMaybe.Some(cBackPath / _);
+					return mMaybe.Some(cParentPath / _);
 				},
 				() => mStd.cEmpty
 			);
@@ -114,12 +82,11 @@ mFS {
 		operator ==(
 			tPath aPath1,
 			tPath aPath2
-		) {
-			return (
-				aPath1.Name == aPath2.Name &&
-				aPath1.Parent == aPath2.Parent
-			);
-		}
+		) => (
+			aPath1.Name == aPath2.Name &&
+			aPath1.Parent.Deref.IsSome(out var val1) == aPath2.Parent.Deref.IsSome(out var val2) &&
+			(aPath1.Parent.IsEmpty() || val1 == val2)
+		);
 		
 		public static tBool
 		operator !=(
@@ -192,6 +159,10 @@ mFS {
 			}
 		}
 		
+		public static implicit operator tPath(
+			tText aPath
+		) => Path(aPath);
+		
 		public override tText
 		ToString(
 		) => (
@@ -202,21 +173,50 @@ mFS {
 	}
 	
 	public readonly struct
-	tFS {
-		internal readonly tPath
-		_BasePath;
+	tFolder {
+		public readonly tPath
+		_Path;
 		
-		internal tFS(
-			tPath aBasePath
+		internal tFolder(
+			tPath aPath
 		) {
-			this._BasePath = aBasePath;
+			this._Path = aPath;
 		}
 		
-		public static tFS
+		public static tFolder
 		operator /(
-			tFS aFS,
+			tFolder aFolder,
 			tPath aPath
-		) => new tFS(aFS._BasePath / aPath);
+		) => new (aFolder._Path / aPath);
+		
+		public static mMaybe.tMaybe<tPath>
+		operator >> (
+			tFolder aFolder1,
+			tFolder aFolder2
+		) => aFolder1._Path >> aFolder2._Path;
+		
+		public static mMaybe.tMaybe<tPath>
+		operator >> (
+			tFolder aFolder,
+			tFile aFile
+		) => aFolder._Path >> aFile.Path;
+	}
+	
+	public readonly struct
+	tFile {
+		internal readonly mRef.tRef<tFolder>
+		_Folder;
+		
+		public readonly tText
+		Name;
+		
+		internal tFile(
+			tFolder aFolder,
+			tText aName
+		) {
+			this._Folder = aFolder;
+			this.Name = aName;
+		}
 	}
 	
 	public static readonly tPath?
@@ -225,13 +225,52 @@ mFS {
 	public static tPath
 	Path(
 		tText aPath
-	) => cIdentPath / aPath.Split(['/', '\\']);
+	) {
+		if (aPath is [_, ':']) {
+			return new (aPath);
+		}
+		
+		//System.Console.WriteLine($"=== {aPath} ==");
+		
+		if (aPath is [_, ':', '/' or '\\', ..]) {
+			var Parts = aPath.Split(['/', '\\'], 2);
+			return (new tPath(Parts[0]) / Parts[1]);
+		}
+		
+		if (aPath is not ['.', '/' or '\\', ..]) {
+			aPath = "./" + aPath;
+		}
+		
+		var Path = cIdentPath;
+		
+		foreach (var Child in aPath.Split(['/', '\\'])) {
+			//System.Console.WriteLine($"  {Path} / {Child}");
+			
+			Path = Child switch {
+				"." => Path,
+				".." => Path.Name == ".." ? new (Path, "..") : Path.Parent.Deref.ElseUse(cParentPath),
+				var X when X.IsAbsoluteRootName() => throw mError.Error($"can't append absolute path '{X}'"),
+				_ => Path == cIdentPath ? new(Child) : new(Path, Child),
+			};
+		}
+		//System.Console.WriteLine($"  {Path}");
+		
+		return Path;
+	}
 	
-	public static tFS
-	FSFromCWD(
-	) => CreateFS(
-		Path(System.IO.Directory.GetCurrentDirectory())
-	);
+	public static tFolder
+	Folder(
+		tPath aPath
+	) => new (aPath);
+	
+	public static tFile
+	File(
+		tPath aPath
+	) => new (mFS.Folder(aPath.Parent.Deref.AssertNotEmpty()), aPath.Name);
+	
+	public static tFolder
+	CWD(
+	) => new tFolder(System.IO.Directory.GetCurrentDirectory());
 	
 	public static tBool
 	IsAbsoluteRootName(
@@ -286,13 +325,10 @@ mFS {
 		public tText
 		ToText(
 		) => (
-			aPath.Parent.Is(out var Parent) ? $"{Parent.ToText()}/{aPath.Name}" :
-			aPath.Name
+			aPath.Parent.Is(out var Parent)
+			? $"{Parent.ToText()}/{aPath.Name}"
+			: aPath.Name
 		);
-		
-		public tFS
-		CreateFS(
-		) => new tFS(aPath);
 		
 		public tBool
 		IsIdent => aPath.Name is "." && aPath.Parent.IsEmpty();
@@ -309,82 +345,131 @@ mFS {
 		IsAbsolutePath => aPath.GetRootName().IsAbsoluteRootName();
 	}
 	
-	extension (tFS aFS) {
+	extension (tFolder aFolder) {
 		public tBool
-		FolderExists(
-			tPath aPath
+		Exists(
 		) => System.IO.Directory.Exists(
-			(aFS._BasePath / aPath).ToText()
+			aFolder._Path.ToText()
 		);
 		
 		public tBool
 		FileExists(
 			tPath aPath
 		) => System.IO.File.Exists(
-			(aFS._BasePath / aPath).ToText()
+			(aFolder._Path / aPath).ToText()
 		);
 		
-		public mStream.tStream<tPath>
+		public tFile
+		GetFile(
+			tText aName
+		) => new (aFolder, aName);
+		
+		public mStream.tStream<tFile>
 		GetFiles(
-			tPath aPAth
 		) => System.IO.Directory.GetFiles(
-			(aFS._BasePath / aPAth).ToText(),
+			aFolder._Path.ToText(),
 			"*",
 			System.IO.SearchOption.AllDirectories
 		).ToArray(
 		).AsStream(
 		).Map(
-			_ => (aFS._BasePath >> Path(_)).AssertNotEmpty()
+			_ => new tFile(aFolder, (aFolder._Path >> Path(_)).AssertNotEmpty().ToText())
 		);
 		
-		public mStream.tStream<tPath>
+		public mStream.tStream<tFolder>
 		GetFolders(
-			tPath aPAth
 		) => System.IO.Directory.GetDirectories(
-			(aFS._BasePath / aPAth).ToText(),
+			aFolder._Path.ToText(),
 			"*",
 			System.IO.SearchOption.AllDirectories
 		).ToArray(
 		).AsStream(
 		).Map(
-			_ => (aFS._BasePath >> Path(_)).AssertNotEmpty()
+			_ => aFolder / _
 		);
 		
-		public tText
-		ReadAllText(
-			tPath aPath
+		public tBool
+		TryCreate(
+		) {
+			if (!aFolder.Exists()) {
+				System.IO.Directory.CreateDirectory(
+					aFolder._Path.ToText()
+				);
+			}
+			
+			return aFolder.Exists();
+		}
+		
+		public tBool
+		TryRemove(
+		) {
+			if (aFolder.Exists()) {
+				System.IO.Directory.Delete(
+					aFolder._Path.ToText(),
+					true
+				);
+			}
+			
+			return !aFolder.Exists();
+		}
+	}
+	
+	extension (tFile aFile) {
+		private tText Path => System.IO.Path.Combine(aFile._Folder.Deref.AssertNotEmpty()._Path.ToText(), aFile.Name);
+		
+		public tBool
+		Exists(
+		) => System.IO.File.Exists(
+			aFile.Path
+		);
+		
+		public tBool
+		TryRemove(
+		) {
+			if (aFile.Exists()) {
+				System.IO.File.Delete(
+					aFile.Path
+				);
+			}
+			
+			return !aFile.Exists();
+		}
+		
+		public mResult.tResult<tText, tText>
+		TryReadText(
 		) => System.IO.File.ReadAllText(
-			(aFS._BasePath / aPath).ToText()
+			aFile.Path
 		);
 		
-		public mStream.tStream<tText>
-		ReadAllLines(
-			tPath aPath
+		public mResult.tResult<mStream.tStream<tText>, tText>
+		TryReadLines(
 		) => System.IO.File.ReadAllLines(
-			(aFS._BasePath / aPath).ToText()
+			aFile.Path
 		).AsStream(
 		);
 		
-		public void
-		NewFolder(
-			tPath aPath
+		public tBool
+		TryCreate(
+			tText aText
 		) {
-			if (!aFS.FolderExists(aPath)) {
-				System.IO.Directory.CreateDirectory(
-					(aFS._BasePath / aPath).ToText()
-				);
-			}
+			System.IO.File.WriteAllText(
+				aFile.Path,
+				aText
+			);
+			
+			return true;
 		}
 		
-		public void
-		RemoveFolder(
-			tPath aPath
+		public tBool
+		TryCreate(
+			mStream.tStream<tText> aLines
 		) {
-			if (aFS.FolderExists(aPath)) {
-				System.IO.Directory.Delete(
-					(aFS._BasePath / aPath).ToText()
-				);
-			}
+			System.IO.File.WriteAllLines(
+				aFile.Path,
+				aLines.ToArrayList().ToArray()
+			);
+			
+			return true;
 		}
-	}	
+	}
 }
