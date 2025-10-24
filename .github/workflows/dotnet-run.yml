@@ -1,10 +1,13 @@
-name: .NET Run SPO_CS
+name: .NET CI + Coverage + SonarCloud
 
 on:
   push:
     branches: [ Main ]
   
   workflow_dispatch:
+
+env:
+  BUILD_VERSION: 0.0.0-PreAlpha.${{ github.run_number }}
 
 jobs:
   run:
@@ -19,5 +22,55 @@ jobs:
         with:
           dotnet-version: 10.0.100-rc.1.25451.107
       
-      - name: Run
-        run: dotnet run --project SPO_CS/SPO_CS.csproj
+      - name: Install global tools
+        shell: pwsh
+        run: |
+          dotnet tool install --global "dotnet-coverage"
+          dotnet tool install --global "dotnet-sonarscanner"
+          $env:PATH += ";${env:USERPROFILE}\.dotnet\tools"
+      
+      - name: NuGet restore
+        run: dotnet restore SPO_CS/SPO_CS.csproj
+      
+      - name: sonarscanner begin
+        run: >
+          dotnet sonarscanner begin
+          /k:"SK-Genius_SPO-PreAlpha"
+          /d:sonar.token="{{ secrets.SONAR_TOKEN }}"
+          /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+      
+      - name: Build
+        run: >
+          dotnet build SPO_CS/SPO_CS.csproj
+          --no-incremental
+          --configuration Debug
+      
+      - name: dotnet-coverage xml for SonarCloud
+        continue-on-error: true
+        run: >
+          dotnet-coverage collect
+          "SPO_CS\bin\Debug\net10.0\SPO_CS.exe"
+          -f xml
+          -o coverage.xml
+      
+      - name: sonarscanner end
+        continue-on-error: true
+        run: >
+          dotnet sonarscanner end
+          /d:sonar.token="{{ secrets.SONAR_TOKEN }}"
+      
+      - name: dotnet-coverage dotnet-coverage for Codecov
+        continue-on-error: true
+        run: >
+          dotnet-coverage collect
+          "SPO_CS\bin\Debug\net10.0\SPO_CS.exe"
+          -f c
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: output.cobertura.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ env.BUILD_VERSION }}
+        env:
+          CI: true
