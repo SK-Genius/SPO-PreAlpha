@@ -128,7 +128,7 @@ mAssert {
 			).Join(
 				(a1, a2) => a1 + '\n' + a2,
 				""
-			).Replace("\r", "") ?? "";
+			).Replace("\r", "");
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
