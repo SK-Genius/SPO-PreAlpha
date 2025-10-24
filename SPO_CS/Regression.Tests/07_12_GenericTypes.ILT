@@ -45,7 +45,7 @@
 	r_2 := [r_1 | EMPTY_TYPE]
 	r_3 := [§REC _tStack => r_2]
 	r_4 := [§ALL _t => r_3]
-	_tStack := r_4
+	_tStack... := r_4
 	r_5 := .d_0 EMPTY
 	_Push...To... := r_5
 	r_6 := 3

@@ -794,12 +794,12 @@ mSPO2IL {
 					
 				// TODO: add gard command for the case that no case matched the argument
 				
-				var Error_ = default(tText);
 				foreach (var Case in Cases) {
 					var CasePos = aModuleConstructor.MergePos(Case.Pattern.Pos, Case.Expression.Pos);
 					
 					var TestAndCallCaseFunc = NewDefConstructor<tPos>();
 					
+					var ErrorText_ = default(tText?);
 					if (
 						!aModuleConstructor.MapIfCase(
 							ref TestAndCallCaseFunc,
@@ -811,9 +811,9 @@ mSPO2IL {
 						!TestAndCallCaseFunc.CreateDefType(
 							aModuleConstructor,
 							CaseType
-						).Match(out var CaseDefType, out Error_)
+						).Match(out var CaseDefType, out ErrorText_)
 					) {
-						return mResult.Fail((CasePos, Error_));
+						return mResult.Fail((CasePos, ErrorText_ ?? Error.ErrorText));
 					}
 					
 					var TestAndCallDefIndex = TestAndCallCaseFunc.FinishMapProc(
@@ -902,9 +902,9 @@ mSPO2IL {
 							MatchExpression.TypeAnnotation.AssertNotEmpty(),
 							mVM_Type.Prefix("Result", aExpressionNode.TypeAnnotation.AssertNotEmpty())
 						)
-					).Match(out var SwitchDefType, out Error_)
+					).Match(out var SwitchDefType, out var ErrorText)
 				) {
-					return mResult.Fail((Pos, Error_));
+					return mResult.Fail((Pos, ErrorText));
 				}
 				
 				var SwitchDefId = GetDefId(aModuleConstructor.Defs.Size);
@@ -1076,7 +1076,7 @@ mSPO2IL {
 		(mSPO_AST.tPatternNode<tPos> Match, mSPO_AST.tExpressionNode<tPos> Expression) aCase,
 		mVM_Type.tType aArgType,
 		tPos aCasePos,
-		out (tPos, tText) aError
+		[MaybeNullWhen(false)]out (tPos, tText) aError
 	) {
 		if (
 			!aTestAndCallCaseFunc.MapIfCaseRecursive(
@@ -1211,7 +1211,7 @@ mSPO2IL {
 					]
 				);
 				
-				var (T, NotT) = aArgType.SplitBy(_ => _.IsPair(out _, out _));
+				var (T, NotT) = aArgType.SplitBy(__ => __.IsPair(out _, out _));
 				
 				if (
 					!T.IsSome(out var T_)

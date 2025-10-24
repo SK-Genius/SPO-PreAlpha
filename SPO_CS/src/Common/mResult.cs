@@ -180,8 +180,8 @@ mResult {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool
 		Match(
-			out t aValue,
-			out tError aError
+			[MaybeNullWhen(false)]out t aValue,
+			[MaybeNullWhen(true)]out tError aError
 		) {
 			aValue = aRes._Value;
 			aError = aRes._Error;

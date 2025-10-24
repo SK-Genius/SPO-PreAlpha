@@ -2,7 +2,7 @@
 	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 }
 
-§DEF tArray = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
+§DEF tArray... = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
 
 §RECURSIVE {
 	§DEF ...MapEachWith... = (

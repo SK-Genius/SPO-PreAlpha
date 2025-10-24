@@ -84,8 +84,8 @@ mFS {
 			tPath aPath2
 		) => (
 			aPath1.Name == aPath2.Name &&
-			aPath1.Parent.Deref.IsSome(out var val1) == aPath2.Parent.Deref.IsSome(out var val2) &&
-			(aPath1.Parent.IsEmpty() || val1 == val2)
+			aPath1.Parent.Deref.IsSome(out var Parent1) == aPath2.Parent.Deref.IsSome(out var Parent2) &&
+			(aPath1.Parent.IsEmpty() || Parent1 == Parent2)
 		);
 		
 		public static tBool

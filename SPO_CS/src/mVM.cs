@@ -339,18 +339,20 @@ mVM {
 					}
 					case 0 when Func.IsProc<tPos>(out var Def_, out var Env_): {
 						throw mError.Error("need Env as Argument");
-						Res = mVM_Data.Empty();
-						Run(
-							mVM_Data.Proc(Def_, Env_),
-							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
-						);
-						break;
+						// TODO:
+						//Res = mVM_Data.Empty();
+						//Run(
+						//	mVM_Data.Proc(Def_, Env_),
+						//	mVM_Data.Empty(),
+						//	RecProcs,
+						//	Res,
+						//	aPosToText,
+						//	aTraceLine => {
+						//		aCallStack._TraceOut(() => "\t" + aTraceLine());
+						//	}
+						//);
+						//break;
+						
 						//Res = mVM_Data.Empty();
 						//aCallStack._Regs.Push(Res);
 						//return NewCallStack(

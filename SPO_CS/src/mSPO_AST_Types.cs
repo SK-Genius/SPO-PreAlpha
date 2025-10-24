@@ -46,8 +46,8 @@ mSPO_AST_Types {
 	static tBool
 	TryExtractPairType(
 		mVM_Type.tType aType,
-		out mVM_Type.tType aTailType,
-		out mVM_Type.tType aHeadType
+		[MaybeNullWhen(false)]out mVM_Type.tType aTailType,
+		[MaybeNullWhen(false)]out mVM_Type.tType aHeadType
 	) {
 		var ToVisit = new System.Collections.Generic.Stack<mVM_Type.tType>();
 		var Visited = new System.Collections.Generic.HashSet<tNat64>();

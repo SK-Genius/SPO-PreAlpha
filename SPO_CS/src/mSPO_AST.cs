@@ -1510,8 +1510,6 @@ mSPO_AST {
 			{Node.Export.ToText(____)}
 			""",
 			
-			t
-			
 			// Fallback
 			_ => throw new System.NotImplementedException(aNode.GetType().Name),
 		};

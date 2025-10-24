@@ -169,7 +169,7 @@
 	r_3 := [r_2 | EMPTY_TYPE]
 	r_4 := [§REC _tArray => r_3]
 	r_5 := [§ALL _t => r_4]
-	_tArray := r_5
+	_tArray... := r_5
 	r_6 := EMPTY, d_0
 	r_7 := r_6, d_1
 	r_8 := r_7, d_2

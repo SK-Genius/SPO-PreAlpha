@@ -890,8 +890,8 @@ mVM_Data {
 	public static tBool
 	IsProc(
 		this tData aData,
-		out tProcDef aDef,
-		out tData aEnv
+		[MaybeNullWhen(false)]out tProcDef aDef,
+		[MaybeNullWhen(false)]out tData aEnv
 	) {
 		if (aData._DataType != tDataType.Proc) {
 			aDef = default!;
@@ -900,7 +900,7 @@ mVM_Data {
 		}
 		
 		aData._Value.Is(out dynamic Data);
-		aDef = Data.Item1 as tProcDef;
+		aDef = Data.Item1 as tProcDef ?? throw mError.Error("impossibles");
 		aEnv = Data.Item2;
 		return true;
 	}
@@ -944,7 +944,7 @@ mVM_Data {
 		}
 		
 		aData._Value.Is(out dynamic Data);
-		aDef = Data as tProcDef;
+		aDef = Data as tProcDef ?? throw mError.Error("impossibles");
 		return true;
 	}
 	

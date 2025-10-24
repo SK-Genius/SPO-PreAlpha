@@ -238,7 +238,7 @@ mSPO_Parser {
 	.ModifyS((aSpan, aPair) => mSPO_AST.PairPattern(aSpan, aPair.Tail, aPair.Head))
 	.SetName(nameof(PairPattern));
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
+	private static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
 	Infix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -259,7 +259,37 @@ mSPO_Parser {
 		)
 	);
 	
-	public static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
+	private static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
+	InfixCall<tChild>(
+		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
+	) => (
+		mParserGen.Seq(
+			SpecialToken("."), Id, Infix(aChildParser)
+		).ModifyS(
+			(aSpan, _, aFirstId, aInfix) => (
+				Id: mSPO_AST.Id(aSpan, aFirstId.Id[1..] + aInfix.Id.Id[1..]),
+				Children: aInfix.Children
+			)
+		)
+	) | (
+		mParserGen.Seq(aChildParser, SpecialToken("."), Id, Infix(aChildParser))
+		.ModifyS(
+			(aSpan, aFirstChild, _, aFirstId, aInfix) => (
+				Id: mSPO_AST.Id(aSpan, "..." + aFirstId.Id[1..] + aInfix.Id.Id[1..]),
+				Children: mStream.Stream(aFirstChild, aInfix.Children)
+			)
+		)
+	) | (
+		(-SpecialToken(".") +Id)
+		.ModifyS(
+			(aSpan, aId) => (
+				Id: mSPO_AST.Id(aSpan, aId.Id[1..]),
+				Children: mStream.Stream<tChild>([])
+			)
+		)
+	);
+	
+	private static mParserGen.tParser<tPos, tToken, (mSPO_AST.tIdNode<tSpan> Id, mStream.tStream<tChild> Children), tError>
 	InfixPrefix<tChild>(
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
@@ -289,38 +319,15 @@ mSPO_Parser {
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCallNode<tSpan>, tError>
-	Call = (
-		(
-			(
-				mParserGen.Seq(
-					SpecialToken("."), Id, Infix(ExpressionInCall)
-				).ModifyS(
-					(aSpan, _, aFirst, aInfix) => (
-						Id: mSPO_AST.Id(
-							mSpan.Span(
-								mTextStream.Pos(aSpan.Start.Id, aSpan.Start.Row, aSpan.Start.Col + 1),
-								aSpan.End
-							),
-							aFirst.Id[1..] + aInfix.Id.Id[1..]
-						),
-						Children: aInfix.Children
-					)
-				)
-			) | (
-				mParserGen.Seq(ExpressionInCall, SpecialToken("."), Id, Infix(ExpressionInCall))
-				.ModifyS(
-					(aSpan, aFirstChild, _, aFirst, aInfix) => (
-						Id: mSPO_AST.Id(aSpan, "..." + aFirst.Id[1..] + aInfix.Id.Id[1..]),
-						Children: mStream.Stream(aFirstChild, aInfix.Children)
-					)
-				)
+	Call = mParserGen.OneOf(
+		[
+			InfixCall(ExpressionInCall).Modify((aId, aArgs) => ((mSPO_AST.tExpressionNode<tSpan>)aId, aArgs)),
+			mParserGen.Seq(
+				-SpecialToken(".") +C(Expression), Expression.Modify(_ => mStream.Stream([_]))
 			)
-		).ModifyS(
-			(aSpan, a) => mSPO_AST.Call(aSpan, a.Id, mSPO_AST.Tuple(aSpan, a.Children))
-		) | (
-			-SpecialToken(".") +(ExpressionInCall +ExpressionInCall).ModifyS(mSPO_AST.Call)
-		)
+		]
 	)
+	.ModifyS((aSpan, aId, aArgs) => mSPO_AST.Call(aSpan, aId, mSPO_AST.Tuple(aSpan, aArgs)))
 	.SetName(nameof(Call));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixNode<tSpan>, tError>
@@ -573,14 +580,17 @@ mSPO_Parser {
 	.Modify((_, aId, aExpression) => (aId, aExpression))
 	.ModifyS(mSPO_AST.GenericType)
 	.SetName(nameof(GenericType));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tGenericApplyTypeNode<tSpan>, tError>
-	GenericApplyType = mParserGen.Seq(
-		SpecialToken("."),
-		Type,
-		Type
+	GenericApplyType = mParserGen.OneOf(
+		[
+			InfixCall(Type).Modify((aId, aTypes) => ((mSPO_AST.tTypeNode<tSpan>)aId, aTypes)),
+			mParserGen.Seq(
+				-SpecialToken(".") +C(Type), Type.Modify(_ => mStream.Stream([_]))
+			)
+		]
 	)
-	.Modify((_, aGenericType, aArgType) => (GenericType: aGenericType, ArgType: aArgType))
-	.ModifyS((aSpan, aTypes) => mSPO_AST.GenericApplyType(aSpan, aTypes.GenericType, aTypes.ArgType))
+	.ModifyS((aSpan, aGenericType, aTypes) => mSPO_AST.GenericApplyType(aSpan, aGenericType, mSPO_AST.TupleType(aSpan, aTypes)))
 	.SetName(nameof(GenericApplyType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>

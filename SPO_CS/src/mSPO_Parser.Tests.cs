@@ -205,7 +205,7 @@ mSPO_Parser_Tests {
 						),
 						mSPO_AST.Call(
 							Span((1, 1), (1, 6)),
-							mSPO_AST.Id(Span((1, 2), (1, 6)), "sin..."),
+							mSPO_AST.Id(Span((1, 1), (1, 6)), "sin..."),
 							mSPO_AST.Tuple(
 								Span((1, 1), (1, 6)),
 								[

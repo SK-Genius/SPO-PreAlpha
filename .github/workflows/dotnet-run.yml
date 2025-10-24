@@ -1,0 +1,23 @@
+name: .NET Run SPO_CS
+
+on:
+  push:
+    branches: [ Main ]
+  
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.100-rc.1.25451.107
+      
+      - name: Run
+        run: dotnet run --project SPO_CS/SPO_CS.csproj

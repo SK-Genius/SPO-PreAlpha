@@ -146,7 +146,7 @@ mStd.gDebugId = GetArgParam(
 );
 
 return Tests.Run(
-	Args.Any(_ => _ is cPlainText or cPlainTextShort) ? PrintLnNoFormat : PrintLn,
+	Args.Any(_ => _ is cPlainText or cPlainTextShort) || System.Console.IsOutputRedirected ? PrintLnNoFormat : PrintLn,
 	new mTest.tTestSettings {
 		Filters = MatchAll.IsEmpty() ? MatchAny : MatchAll,
 		HasToMatchAll = !MatchAll.IsEmpty(),

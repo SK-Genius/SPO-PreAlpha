@@ -37,17 +37,19 @@ mVM_Type_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
 		nameof(mVM_Type),
-		mStream.Stream<(tText Expr, tText Type)>(
+		mStream.Stream<(tText File, tInt32 LineNr, tText Expr, tText Type)>(
 			[
-				("()", "[]"),
-				("§TRUE", "§BOOL"),
-				("§FALSE", "§BOOL"),
-				("1", "§INT"),
-				("...+...", "[[§INT, §INT] => §INT]"),
-				("1 .+ 1", "§INT"),
-				("a € §INT => a .+ a", "[§INT => §INT]"),
-				(".((a1 € §INT, a2 € §INT, a3 € §INT) => (a1 .+ a2) .+ a3)(1, 2, 3)", "§INT"),
+				(mStd.File(), mStd.LineNr(), "()", "[]"),
+				(mStd.File(), mStd.LineNr(), "§TRUE", "§BOOL"),
+				(mStd.File(), mStd.LineNr(), "§FALSE", "§BOOL"),
+				(mStd.File(), mStd.LineNr(), "1", "§INT"),
+				(mStd.File(), mStd.LineNr(), "...+...", "[[§INT, §INT] => §INT]"),
+				(mStd.File(), mStd.LineNr(), "1 .+ 1", "§INT"),
+				(mStd.File(), mStd.LineNr(), "a € §INT => a .+ a", "[§INT => §INT]"),
+				(mStd.File(), mStd.LineNr(), ".((a1 € §INT, a2 € §INT, a3 € §INT) => (a1 .+ a2) .+ a3)(1, 2, 3)", "§INT"),
 				(
+					mStd.File(),
+					mStd.LineNr(),
 					"""
 					§IF (1, 2) MATCH {
 						(1, 1) : 1
@@ -58,6 +60,8 @@ mVM_Type_Tests {
 					"§INT"
 				),
 				(
+					mStd.File(),
+					mStd.LineNr(),
 					"""
 					§IF 1 MATCH {
 						1 : 1
@@ -67,6 +71,8 @@ mVM_Type_Tests {
 					"[§INT | []]"
 				),
 				(
+					mStd.File(),
+					mStd.LineNr(),
 					"""
 					§IF 1 MATCH {
 						1 : 1
@@ -102,7 +108,9 @@ mVM_Type_Tests {
 					
 					Type_.IsSubType(Type, mStd.cEmpty)
 					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
-				}
+				},
+				a.File,
+				a.LineNr
 			)
 		).ToArrayList(
 		).ToArray(

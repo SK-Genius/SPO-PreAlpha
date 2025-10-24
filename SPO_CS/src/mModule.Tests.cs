@@ -154,7 +154,7 @@ mModule_Tests {
 						mSPO_Interpreter.Run(
 							"""
 							§IMPORT {
-								tMaybe: §DEF tMaybe € §TYPE
+								tMaybe...: §DEF tMaybe... € [§TYPE => §TYPE]
 								...>>...: §DEF ...>>... € [
 									§GENERIC tIn [
 										§GENERIC tOut [

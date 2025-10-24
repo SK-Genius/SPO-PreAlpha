@@ -72,7 +72,7 @@
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32
-	Line(
+	LineNr(
 		[CallerLineNumber] tInt32 aLine = 0
 	) => aLine;
 	

@@ -1,4 +1,4 @@
-§DEF tStack = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
+§DEF tStack... = [§GENERIC t [§RECURSIVE tStack [[] | [t, tStack]]]]
 
 §DEF Push...To... = (
 	§DEF t € §TYPE

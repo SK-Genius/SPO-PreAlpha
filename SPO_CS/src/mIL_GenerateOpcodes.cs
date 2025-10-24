@@ -553,7 +553,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (PrefixType, RestType) = ArgType.SplitBy(
-							_ => _.IsPrefix(Prefix, out _)
+							__ => __.IsPrefix(Prefix, out _)
 						);
 						
 						mAssert.IsTrue(
@@ -599,7 +599,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (PairType, OtherType) = ArgType.SplitBy(
-							_ => _.IsPair(out _, out _)
+							__ => __.IsPair(out _, out _)
 						);
 						
 						mAssert.IsTrue(
@@ -620,7 +620,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsVar(out _)
+							__ => __.IsVar(out _)
 						);
 						
 						mAssert.IsTrue(
@@ -641,7 +641,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsRef(out _)
+							__ => __.IsRef(out _)
 						);
 						
 						mAssert.IsTrue(
