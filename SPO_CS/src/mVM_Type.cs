@@ -8,7 +8,6 @@
 
 public static class
 mVM_Type {
-	
 	public enum
 	tKind {
 		Free,
@@ -402,7 +401,7 @@ mVM_Type {
 		mAssert.IsTrue(aHeadType.IsPrefix(out var Prefix, out var Type));
 		
 		mTreeMap.tTree<tText, tType> Fields;
-		if (aTailType.IsEmpty()) {;
+		if (aTailType.IsEmpty()) {
 			Fields = mTreeMap.Tree<tText, tType>((a1, a2) => a1.CompareTo(a2).Sign(), []);
 		} else {
 			mAssert.IsTrue(aTailType.IsRecord(out Fields));

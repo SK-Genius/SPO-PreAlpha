@@ -1395,7 +1395,7 @@ mSPO_AST {
 	) {
 		tText __;
 		tText ____;
-		if (aIndent.StartsWith("\n")) {
+		if (aIndent.StartsWith('\n')) {
 			var OneLiner = aNode.ToText("");
 			if (OneLiner.Length <= 80) {
 				return OneLiner;

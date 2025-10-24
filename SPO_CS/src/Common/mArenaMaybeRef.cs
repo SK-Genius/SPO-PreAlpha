@@ -5,7 +5,6 @@
 
 public static class
 mArenaMaybeRef {
-	
 	public readonly struct
 	tArenaMaybeRef<t> where t : unmanaged {
 		internal readonly tInt32 _Offset;

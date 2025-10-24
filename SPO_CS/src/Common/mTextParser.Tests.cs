@@ -10,7 +10,6 @@ using tPos = mTextStream.tPos;
 
 public static class
 mTextParser_Tests {
-
 	private static mSpan.tSpan<tPos>
 	Span(
 		(tNat32 Row, tNat32 Col) aStart,

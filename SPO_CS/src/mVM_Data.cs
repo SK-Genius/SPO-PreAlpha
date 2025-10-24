@@ -8,7 +8,6 @@
 
 public static class
 mVM_Data {
-	
 	public enum
 	tOpCode {
 		// BOOL

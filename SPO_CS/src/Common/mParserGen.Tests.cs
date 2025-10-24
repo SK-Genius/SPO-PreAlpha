@@ -8,7 +8,6 @@
 
 public static class
 mParserGen_Tests {
-	
 	private static tBool
 	AreEqual_Int(
 		tInt32 a1,

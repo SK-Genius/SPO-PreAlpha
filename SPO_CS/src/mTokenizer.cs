@@ -16,7 +16,6 @@ using tError = System.String;
 
 public static class
 mTokenizer {
-	
 	public static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tChar, tChar, tError>> Char = mTextParser.GetChar;
 	public static readonly mStd.tFunc<tChar, mParserGen.tParser<tPos, tChar, tChar, tError>> NotChar = mTextParser.GetNotChar;
 	public static readonly mStd.tFunc<tText, mParserGen.tParser<tPos, tChar, tChar, tError>> CharIn = mTextParser.GetCharIn;

@@ -914,7 +914,7 @@ mSPO_Parser {
 		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(_ => _.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
-		SB.Append("§TYPES").Append("\n");
+		SB.Append("§TYPES").Append('\n');
 		
 		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var TypeIndex = 0u;
@@ -939,15 +939,15 @@ mSPO_Parser {
 				)
 			);
 			
-			SB.Append("	" + TypeCommand_.ToText()).Append("\n");
+			SB.Append("	" + TypeCommand_.ToText()).Append('\n');
 			TypeIndex += 1;
 		}
 		
 		foreach (var (TypeId, Commands) in Module.Defs.ToStream()) {
-			SB.Append("\n");
-			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append("\n");
+			SB.Append('\n');
+			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
 			foreach (var Cmd in Commands.ToStream()) {
-				SB.Append("	" + Cmd.ToText()).Append("\n");
+				SB.Append("	" + Cmd.ToText()).Append('\n');
 			}
 			DefIndex += 1;
 		}

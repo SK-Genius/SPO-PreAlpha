@@ -4,7 +4,6 @@
 
 public static class
 mArenaArray {
-	
 	public readonly struct
 	tArenaArray<t> where t : unmanaged {
 		internal readonly tInt32 _Offset;

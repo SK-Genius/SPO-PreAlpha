@@ -3,7 +3,6 @@
 
 public static class
 mArenaRef {
-	
 	public readonly struct
 	tArenaRef<t> where t : unmanaged {
 		internal readonly tInt32 _Offset;

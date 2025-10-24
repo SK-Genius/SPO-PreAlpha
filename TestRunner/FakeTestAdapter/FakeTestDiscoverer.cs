@@ -76,7 +76,6 @@ FakeTestDiscoverer : ITestDiscoverer {
 								}
 							);
 						}
-						
 					}
 				}
 			}

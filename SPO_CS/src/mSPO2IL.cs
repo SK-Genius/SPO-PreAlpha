@@ -1406,7 +1406,6 @@ mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tPairPatternNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head }: {
-				
 				aDefConstructor.Commands.Push(
 					mIL_AST.GetSecond(Pos, aDefConstructor.CreateTempReg(out var HeadReg), aRegId)
 				);

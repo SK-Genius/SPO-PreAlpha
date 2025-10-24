@@ -8,7 +8,6 @@
 
 public static class
 mSPO_Desugar {
-	
 	public static mSPO_AST.tTypeNode<tPos>
 	DesugarType<tPos>(
 		this mSPO_AST.tTypeNode<tPos> aType

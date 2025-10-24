@@ -6,7 +6,6 @@
 
 public static class
 mArenaStack {
-	
 	public readonly struct
 	tArenaStack<t> where t : unmanaged {
 		internal readonly t _Head;
@@ -66,5 +65,4 @@ mArenaStack {
 			(t Head, mArenaMaybeRef.tArenaMaybeRef<tArenaStack<t>> Tail)
 		>()
 	);
-	
 }

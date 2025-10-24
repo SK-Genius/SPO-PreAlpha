@@ -2,7 +2,6 @@
 
 public static class
 mArena {
-	
 	public sealed class
 	tArena {
 		internal tCPtr _Buffer;

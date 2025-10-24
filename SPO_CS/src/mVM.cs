@@ -14,7 +14,6 @@
 
 public static class
 mVM {
-	
 	public sealed class
 	tCallStack<tPos> {
 		internal mMaybe.tMaybe<tCallStack<tPos>> _Parent;

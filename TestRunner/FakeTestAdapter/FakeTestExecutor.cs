@@ -59,7 +59,6 @@ FakeTestExecutor : ITestExecutor {
 					Outcome = TestOutcome.Failed,
 					ErrorMessage = InnerException.Message,
 					ErrorStackTrace = InnerException.StackTrace,
-					
 				};
 			}
 			

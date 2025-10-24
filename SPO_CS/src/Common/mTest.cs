@@ -214,7 +214,6 @@ mTest {
 					}
 					
 					try {
-						
 						var ClocksStart = mPerf.ThreadCycles();
 						if (aSettings.DebuggerBreak) {
 							Debugger.Launch();

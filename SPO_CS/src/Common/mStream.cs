@@ -64,7 +64,6 @@ mStream {
 		
 		private readonly struct
 		tDebuggerProxy(tStream<t> aStream) {
-			
 			[DebuggerBrowsable(DebuggerBrowsableState.RootHidden), DebuggerHidden]
 			public t[] Text {
 				get {

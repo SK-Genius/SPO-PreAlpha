@@ -12,7 +12,6 @@ using tPos = mTextStream.tPos;
 
 public static class
 mTokenizer_Tests {
-	
 	private static mSpan.tSpan<tPos>
 	Span(
 		(tNat32 Row, tNat32 Col) aStart,

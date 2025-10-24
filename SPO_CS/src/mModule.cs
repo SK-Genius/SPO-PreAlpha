@@ -13,7 +13,6 @@
 
 public static class
 mModule {
-	
 	public class tModuleSetup {
 		public mFS.tPath ModulePath;
 		public mStream.tStream<(tText Key, tModuleSetup Module)> Dependencies;

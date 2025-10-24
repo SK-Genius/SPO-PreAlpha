@@ -3,7 +3,6 @@
 
 public static class
 mRef {
-	
 	public sealed class
 	tRefBox<t> {
 		public t _Value;

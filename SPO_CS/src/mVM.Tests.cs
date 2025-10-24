@@ -8,7 +8,6 @@
 
 public static class
 mVM_Tests {
-	
 	private static
 	mVM_Data.tData
 	Add (
