@@ -96,8 +96,8 @@ mAssert {
 		tText a1,
 		tText a2
 	) =>			mStream.ZipExtend(
-				System.MemoryExtensions.AsSpan(a1.Split('\n')).AsStream(),
-				System.MemoryExtensions.AsSpan(a2.Split('\n')).AsStream()
+				System.MemoryExtensions.AsSpan(a1.Replace("\r", "").Split('\n')).AsStream(),
+				System.MemoryExtensions.AsSpan(a2.Replace("\r", "").Split('\n')).AsStream()
 			).MapWithIndex(
 				(aIndex, Line) => {
 					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;

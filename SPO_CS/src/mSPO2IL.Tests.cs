@@ -60,8 +60,8 @@ mSPO2IL_Tests {
 			).Join(
 				(a1, a2) => a1 + "\n" + a2,
 				""
-			),
-			aIL_Commands
+			).Replace("\r", ""),
+			aIL_Commands.Replace("\r", "")
 		);
 	}
 	
