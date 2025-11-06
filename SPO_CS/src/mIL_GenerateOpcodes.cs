@@ -531,7 +531,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsType()
+							_ => _.IsType() || _.IsTypeFunc()
 						);
 						
 						mAssert.IsTrue(
@@ -776,7 +776,7 @@ mIL_GenerateOpcodes {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
 						Regs = Regs.Set(RegId1, NewProc.TypeGeneric(Span, FreeTypeReg, TypeBodyReg));
-						Types.Push(mVM_Type.Type());
+                                                Types.Push(mVM_Type.TypeFunc());
 						break;
 					}
 					default: {
