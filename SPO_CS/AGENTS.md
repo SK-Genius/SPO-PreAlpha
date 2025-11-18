@@ -100,6 +100,10 @@ Apply these rules when creating new types to keep behavior consistent with exist
 - **Standard Library**
   - Loaded from `Modules/Std.ILT` at runtime.
 
+## Language Semantics for Assistants
+- Bindings are **immutable by default**. Only constructs with `§VAR` explicitly mark mutable bindings or types.
+- When mutations are necessary, apply the `§VAR` prefix intentionally and treat all other bindings as read-only.
+
 ---
 
 **This file is intended to help AI assistants understand the project's conventions, structure, and philosophy for more effective code suggestions and reviews.**
