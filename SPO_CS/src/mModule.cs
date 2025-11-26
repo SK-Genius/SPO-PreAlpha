@@ -96,7 +96,7 @@ mModule {
 						_ => aLogger(_())
 					).ToILT();
 					
-					if (IL_TextNew != IL_Text.Value) {
+					if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
 						Folder.GetFile(
 							ILT_File.Name + ".new"
 						).TryCreate(
@@ -155,7 +155,7 @@ mModule {
 		}
 	}
 	
-	private static mFS.tPath
+	private static readonly mFS.tPath
 	ModuleFolder = mFS.Path(
 		mStd.File()
 	).Parent.Deref.AssertNotEmpty() / "../Modules";

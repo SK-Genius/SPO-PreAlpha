@@ -95,40 +95,40 @@ mAssert {
 	DiffText(
 		tText a1,
 		tText a2
-	) =>			mStream.ZipExtend(
-				System.MemoryExtensions.AsSpan(a1.Replace("\r", "").Split('\n')).AsStream(),
-				System.MemoryExtensions.AsSpan(a2.Replace("\r", "").Split('\n')).AsStream()
-			).MapWithIndex(
-				(aIndex, Line) => {
-					var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
-					var Line2 = Line._1.IsSome(out var Temp1) ? Temp1 : null;
-					return (
-						Line2 is null ? $"""
-							
-							{Gray($">{aIndex + 1}:")} {Green(Line1)}
-							""" :
-						
-						Line1 is null ? $"""
-							
-							{Gray($"<{aIndex + 1}:")} {Red(Line2)}
-							""" :
-						
-						Line2 == Line1 ? $"""
-							
-							{Gray($"={aIndex + 1}:{Line1}")}
-							""" :
-						
-						$"""
-							
-							{Gray($"<{aIndex + 1}:")} {Red(Line2)}
-							{Gray($">{aIndex + 1}:")} {Green(Line1)}
-							"""
-					);
-				}
-			).Join(
-				(a1, a2) => a1 + '\n' + a2,
-				""
-			).Replace("\r", "");
+	) => mStream.ZipExtend(
+		System.MemoryExtensions.AsSpan(a1.Replace("\r", "").Split('\n')).AsStream(),
+		System.MemoryExtensions.AsSpan(a2.Replace("\r", "").Split('\n')).AsStream()
+	).MapWithIndex(
+		(aIndex, Line) => {
+			var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
+			var Line2 = Line._1.IsSome(out var Temp1) ? Temp1 : null;
+			return (
+				Line2 is null ? $"""
+					
+					{Gray($">{aIndex + 1}:")} {Green(Line1)}
+					""" :
+				
+				Line1 is null ? $"""
+					
+					{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+					""" :
+				
+				Line2 == Line1 ? $"""
+					
+					{Gray($"={aIndex + 1}:{Line1}")}
+					""" :
+				
+				$"""
+					
+					{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+					{Gray($">{aIndex + 1}:")} {Green(Line1)}
+					"""
+			);
+		}
+	).Join(
+		(a1, a2) => a1 + '\n' + a2,
+		""
+	).Replace("\r", "");
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static t
@@ -224,6 +224,7 @@ mAssert {
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "by design")]
 	public static void
 	ThrowsError(
 		mStd.tAction a

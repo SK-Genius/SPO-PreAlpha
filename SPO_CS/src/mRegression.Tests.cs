@@ -104,7 +104,7 @@ mRegression_Tests {
 												_ => aDebug(_())
 											).ToILT();
 										
-										if (IL_TextNew != IL_Text.Value) {
+										if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
 											cTestFolder.GetFile(
 												ILT_File.Name + ".new"
 											).TryCreate(
