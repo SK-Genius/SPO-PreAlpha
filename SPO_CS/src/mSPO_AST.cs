@@ -505,70 +505,70 @@ mSPO_AST {
 	Empty<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tFalseNode<tPos>
 	False<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tTrueNode<tPos>
 	True<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tEmptyTypeNode<tPos>
 	EmptyType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tBoolTypeNode<tPos>
 	BoolType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tIntTypeNode<tPos>
 	IntType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
-
+	
 	public static tCharTypeNode<tPos>
 	CharType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
-
+	
 	public static tTextTypeNode<tPos>
 	TextType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tAnyTypeNode<tPos>
 	AnyType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tTypeTypeNode<tPos>
 	TypeType<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tIntNode<tPos>
@@ -577,7 +577,7 @@ mSPO_AST {
 		tInt32 aValue
 	) => new() {
 		Pos = aPos,
-		Value = aValue
+		Value = aValue,
 	};
 	
 	public static tCharNode<tPos>
@@ -586,7 +586,7 @@ mSPO_AST {
 		tChar aValue
 	) => new() {
 		Pos = aPos,
-		Value = aValue
+		Value = aValue,
 	};
 	
 	public static tTextNode<tPos>
@@ -595,14 +595,14 @@ mSPO_AST {
 		tText aValue
 	) => new() {
 		Pos = aPos,
-		Value = aValue
+		Value = aValue,
 	};
 	
 	public static tIgnorePatternNode<tPos>
 	IgnorePattern<tPos>(
 		tPos aPos
 	) => new() {
-		Pos = aPos
+		Pos = aPos,
 	};
 	
 	public static tIdNode<tPos>
@@ -611,7 +611,7 @@ mSPO_AST {
 		tText aId
 	) => new() {
 		Pos = aPos,
-		Id = "_" + aId
+		Id = "_" + aId,
 	};
 	
 	public static tFreeIdPatternNode<tPos>
@@ -620,7 +620,7 @@ mSPO_AST {
 		tText aId
 	) => new() {
 		Pos = aPos,
-		Id = "_" + aId
+		Id = "_" + aId,
 	};
 	
 	public static tVarPatternNode<tPos>
@@ -629,7 +629,7 @@ mSPO_AST {
 		tText aId
 	) => new() {
 		Pos = aPos,
-		Id = "_" + aId
+		Id = "_" + aId,
 	};
 	
 	public static tExpressionNode<tPos>
@@ -664,7 +664,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Tail = aTail,
-		Head = aHead
+		Head = aHead,
 	};
 	
 	public static tPrefixTypeNode<tPos>
@@ -704,7 +704,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		TailType = aTailType,
-		HeadType = aHeadType
+		HeadType = aHeadType,
 	};
 	
 	public static tSetTypeNode<tPos>
@@ -713,7 +713,7 @@ mSPO_AST {
 		mStream.tStream<tTypeNode<tPos>> aTypes
 	) => new() {
 		Pos = aPos,
-		Expressions = aTypes
+		Expressions = aTypes,
 	};
 	
 	public static tLambdaTypeNode<tPos>
@@ -726,7 +726,7 @@ mSPO_AST {
 		Pos = aPos,
 		EnvType = aEnvType,
 		ArgType = aArgType,
-		ResType = aResType
+		ResType = aResType,
 	};
 	
 	public static tRecursiveTypeNode<tPos>
@@ -737,7 +737,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
-		BodyType = aBodyType
+		BodyType = aBodyType,
 	};
 	
 	public static tInterfaceTypeNode<tPos>
@@ -748,7 +748,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
-		BodyType = aBodyType
+		BodyType = aBodyType,
 	};
 	
 	public static tGenericTypeNode<tPos>
@@ -759,7 +759,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		HeadType = aHeadType,
-		BodyType = aBodyType
+		BodyType = aBodyType,
 	};
 	
 	public static tGenericApplyTypeNode<tPos>
@@ -770,7 +770,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		GenericType = aGenericType,
-		ArgType = aArgType
+		ArgType = aArgType,
 	};
 	
 	public static tCallNode<tPos>
@@ -781,7 +781,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Func = aFunc,
-		Arg = aArg
+		Arg = aArg,
 	};
 	
 	public static tPrefixNode<tPos>
@@ -792,7 +792,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix,
-		Element = aElement
+		Element = aElement,
 	};
 	
 	public static tPrefixPatternNode<tPos>
@@ -803,7 +803,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Prefix = aPrefix,
-		Pattern = aPattern
+		Pattern = aPattern,
 	};
 	
 	public static tRecordNode<tPos>
@@ -818,7 +818,7 @@ mSPO_AST {
 		mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems
 	) => new() {
 		Pos = aPos,
-		Elements = aRecordItems
+		Elements = aRecordItems,
 	};
 	
 	public static tRecordPatternNode<tPos>
@@ -827,7 +827,7 @@ mSPO_AST {
 		mStream.tStream<(tIdNode<tPos> Key, tPatternNode<tPos> Pattern)> aRecordItems
 	) => new() {
 		Pos = aPos,
-		Elements = aRecordItems
+		Elements = aRecordItems,
 	};
 	
 	public static tGuardPatternNode<tPos>
@@ -838,7 +838,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Pattern = aPattern,
-		Guard = aGuard
+		Guard = aGuard,
 	};
 	
 	public static tLambdaNode<tPos>
@@ -851,7 +851,7 @@ mSPO_AST {
 		Pos = aPos,
 		Generic = aStaticPattern,
 		Head = aPattern,
-		Body = aBody
+		Body = aBody,
 	};
 	
 	public static tMethodNode<tPos>
@@ -864,7 +864,7 @@ mSPO_AST {
 		Pos = aPos,
 		Obj = aObjPattern,
 		Arg = aArgPattern,
-		Body = aBody
+		Body = aBody,
 	};
 	
 	public static tRecLambdaItemNode<tPos>
@@ -875,7 +875,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Id = aId,
-		Lambda = aLambda
+		Lambda = aLambda,
 	};
 	
 	public static tRecLambdasNode<tPos>
@@ -884,7 +884,7 @@ mSPO_AST {
 		mStream.tStream<tRecLambdaItemNode<tPos>> aList
 	) => new() {
 		Pos = aPos,
-		List = aList
+		List = aList,
 	};
 	
 	public static tPatternNode<tPos>
@@ -896,7 +896,7 @@ mSPO_AST {
 		1 => aItems.TryFirst().AssertNotEmpty(),
 		_ => new tTuplePatternNode<tPos> {
 			Pos = aPos,
-			Items = aItems
+			Items = aItems,
 		},
 	};
 	
@@ -908,7 +908,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Tail = aTail,
-		Head = aHead
+		Head = aHead,
 	};
 	
 	public static tTypedPatternNode<tPos>
@@ -937,7 +937,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Des = aPattern,
-		Src = aExpression
+		Src = aExpression,
 	};
 	
 	public static tReturnIfNode<tPos>
@@ -948,7 +948,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Result = aResult,
-		Condition = aCondition
+		Condition = aCondition,
 	};
 	
 	public static tIfNode<tPos>
@@ -957,7 +957,7 @@ mSPO_AST {
 		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases
 	) => new() {
 		Pos = aPos,
-		Cases = aCases
+		Cases = aCases,
 	};
 	
 	public static tIfMatchNode<tPos>
@@ -968,7 +968,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Expression = aExpression,
-		Cases = aCases
+		Cases = aCases,
 	};
 	
 	public static tIsNode<tPos>
@@ -979,7 +979,7 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Expression = aValue,
-		Pattern = aPattern
+		Pattern = aPattern,
 	};
 	
 	public static tDefVarNode<tPos>
@@ -992,7 +992,7 @@ mSPO_AST {
 		Pos = aPos,
 		Id = aVar,
 		Expression = aExpression,
-		MethodCalls = aMethodCalls
+		MethodCalls = aMethodCalls,
 	};
 	
 	public static tVarToValNode<tPos>

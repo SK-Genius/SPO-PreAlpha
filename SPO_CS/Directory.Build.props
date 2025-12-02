@@ -11,5 +11,6 @@
 		<AnalysisLevel>preview-all</AnalysisLevel>
 		<NoWarn>659,661,8604,8618</NoWarn>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
 	</PropertyGroup>
 </Project>

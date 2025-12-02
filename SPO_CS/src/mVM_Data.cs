@@ -892,16 +892,17 @@ mVM_Data {
 		[MaybeNullWhen(false)]out tProcDef aDef,
 		[MaybeNullWhen(false)]out tData aEnv
 	) {
-		if (aData._DataType != tDataType.Proc) {
+		if (aData._DataType is tDataType.Proc) {
+			mAssert.IsTrue(aData._Value.Is(out ITuple Data));
+			mAssert.AreEquals(Data.Length, 2);
+			aDef = (tProcDef)Data[0];
+			aEnv = (tData)Data[1];
+			return true;
+		} else {
 			aDef = default!;
 			aEnv = default!;
 			return false;
 		}
-		
-		aData._Value.Is(out dynamic Data);
-		aDef = Data.Item1 as tProcDef ?? throw mError.Error("impossibles");
-		aEnv = Data.Item2;
-		return true;
 	}
 	
 	public static tBool
@@ -937,14 +938,13 @@ mVM_Data {
 		this tData aData,
 		out tProcDef aDef
 	) {
-		if (aData._DataType != tDataType.Def) {
+		if (aData._DataType is tDataType.Def) {
+			mAssert.IsTrue(aData._Value.Is(out aDef));
+			return true;
+		} else {
 			aDef = default!;
 			return false;
 		}
-		
-		aData._Value.Is(out dynamic Data);
-		aDef = Data as tProcDef ?? throw mError.Error("impossibles");
-		return true;
 	}
 	
 	public static tBool
