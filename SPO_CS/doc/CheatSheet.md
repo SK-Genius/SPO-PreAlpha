@@ -1,47 +1,49 @@
 # SPO Cheat Sheet
 
-> **Hinweis:**  
-> Alle Schlüsselwörter haben den Präfix `§` (z.B. `§IF`, `§VAR`, `§DEF`, ...).
+> **Note:**
+> All keywords are prefixed with `§` (e.g., `§IF`, `§VAR`, `§DEF`, ...).
 
 ---
 
-## Literale & Basis
+## Literals & Basics
 
 ```spo
-42           // Zahl
+42           // Number
 "abc"        // Text
 §TRUE, §FALSE  // Bool
-()           // Leeres Literal
-_            // Ignoriertes Pattern
+()           // Empty literal
+_            // Ignored pattern
 ```
 
 ---
 
-## Variablen & Definitionen
+## Variables & Definitions
+
+> Bindings in SPO are immutable by default. Use `§VAR` to explicitly mark a binding as mutable.
 
 ```spo
-§DEF foo      // Pattern-Bindung
+§DEF foo      // Pattern binding
 §VAR x : = 42 .
 x : foo y, bar z .
 ```
 
 ---
 
-## Funktionen & Methoden (Mixfix)
+## Functions & Methods (Mixfix)
 
 ```spo
-foo x bar y        // Mixfix-Aufruf: abwechselnd Id und Argument
-#foo x bar y       // Präfix-Mixfix
-foo x bar y => ... // Methoden mit Pattern-Match
+foo x bar y        // Mixfix call: alternating id and argument
+#foo x bar y       // Prefix mixfix
+foo x bar y => ... // Methods with pattern match
 ```
 
 ---
 
-## Blöcke & Sequenzen
+## Blocks & Sequences
 
 ```spo
 { 
-    ... // Befehle/Definitionen
+    ... // Commands/definitions
 }
 ```
 
@@ -50,30 +52,30 @@ foo x bar y => ... // Methoden mit Pattern-Match
 ## Pattern Matching
 
 ```spo
-(foo, bar)         // Tupel-Pattern
-{ a: foo, b: bar } // Record-Pattern
-(foo & cond)       // Guard-Pattern
-§DEF id            // Freies Pattern
+(foo, bar)         // Tuple pattern
+{ a: foo, b: bar } // Record pattern
+(foo & cond)       // Guard pattern
+§DEF id            // Free pattern
 ```
 
 ---
 
-## Typen
+## Types
 
 ```spo
-[§INT]              // Int-Typ
-[§BOOL]             // Bool-Typ
-[#foo bar]          // Mixfix-Typ (Präfix)
-[VAR T]             // Typvariable
-[T, U]              // Tupel-Typ
-[| T | U |]         // Set-Typ
-[T : U => V]        // Lambda-Typ
-[§RECURSIVE T ...]  // Rekursiver Typ
+[§INT]              // Int type
+[§BOOL]             // Bool type
+[#foo bar]          // Mixfix type (prefix)
+[VAR T]             // Type variable
+[T, U]              // Tuple type
+[| T | U |]         // Set type
+[T : U => V]        // Lambda type
+[§RECURSIVE T ...]  // Recursive type
 ```
 
 ---
 
-## Kontrollstrukturen
+## Control Structures
 
 ```spo
 §IF { cond : expr ... }
@@ -84,36 +86,36 @@ foo x bar y => ... // Methoden mit Pattern-Match
 
 ---
 
-## Module
+## Modules
 
 ```spo
 §IMPORT pat
-... // Befehle
+... // Commands
 §EXPORT expr
 ```
 
 ---
 
-## Methodenaufruf & Mixfix
+## Method Call & Mixfix
 
 ```spo
 .foo x bar y baz    // Id: foo...bar...baz, Children: [x, y, baz]
-#foo x bar y       // Präfix-Mixfix
-x: foo x bar z => pat // Methodenaufruf mit Pattern
+#foo x bar y       // Prefix mixfix
+x: foo x bar z => pat // Method call with pattern
 ```
 
 ---
 
-## Tupel & Records
+## Tuples & Records
 
 ```spo
-(a, b, c)          // Tupel
+(a, b, c)          // Tuple
 { a: 1, b: 2 }     // Record
 ```
 
 ---
 
-**Tipp:**  
-- Mixfix-Operatoren: Immer abwechselnd Id und Argument, optional Präfix mit `#`.
-- Blöcke und Listen: Immer mit `{ ... }`, `[ ... ]` oder `( ... )`.
-- Schlüsselwörter immer mit `§`-Präfix schreiben!
+**Tip:**
+- Mixfix operators: Always alternate id and argument; optional prefix with `#`.
+- Blocks and lists: Always use `{ ... }`, `[ ... ]`, or `( ... )`.
+- Always write keywords with the `§` prefix!
