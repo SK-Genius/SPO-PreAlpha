@@ -113,7 +113,7 @@ mTextParser {
 	GetCharIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).Any(_ => _ == aChar),
+		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).Any(__ => __ == aChar),
 		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos,
 		AreErrorsEqual
@@ -125,7 +125,7 @@ mTextParser {
 	GetCharNotIn(
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).All(_ => _ != aChar),
+		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).All(__ => __ != aChar),
 		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos,
 		AreErrorsEqual

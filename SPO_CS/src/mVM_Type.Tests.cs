@@ -93,7 +93,7 @@ mVM_Type_Tests {
 					
 					var Type = AST.UpdateTypes(
 						cTestScope
-					).AssertNotError(_ => _.ToText());
+					).AssertNotError(__ => __.ToText());
 					
 					var Type_ = mSPO_Parser.Type.ParseText(
 						a.Type,
@@ -101,7 +101,7 @@ mVM_Type_Tests {
 						_ => { aStreamOut(_()); }
 					).AsVM_Type(
 						cTestScope
-					).AssertNotError(_ => _.ToText());
+					).AssertNotError(__ => __.ToText());
 					
 					Type.IsSubType(Type_, mStd.cEmpty)
 					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());

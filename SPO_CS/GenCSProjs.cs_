@@ -100,7 +100,7 @@ static mStream.tStream<tText> UpdateDeps(
 	var NewDepPath = mStream.Stream(aProj, aDepPath);
 	
 	foreach (var Dep in Deps) {
-		if (NewDepPath.Any(_ => _ == Dep)) {
+		if (NewDepPath.Any(__ => __ == Dep)) {
 			throw mError.Error(
 				tText.Join(" -> ", mStream.Stream(Dep, NewDepPath).Reverse().ToArrayList().ToArray())
 			);
@@ -121,7 +121,7 @@ static mStream.tStream<tText> Merge(
 ) {
 	if (a2.Is(out var Head, out var Tail)) {
 		return Merge(
-			a1.Any(_ => _ == Head) ? a1 : mStream.Stream(Head, a1),
+			a1.Any(__ => __ == Head) ? a1 : mStream.Stream(Head, a1),
 			Tail
 		);
 	} else {

@@ -281,7 +281,7 @@ mSPO_AST_Types {
 					).WhenAllThen(
 						aCaseTypes => aCaseTypes.Reduce(
 							mStream.Stream<mVM_Type.tType>([]),
-							(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
+							(aList, aItem) => aList.All(__ => __ != aItem) ? mStream.Stream(aItem, aList) : aList
 						).Reduce(
 							(mVM_Type.tType)null!,
 							(aTypeSet, aType) => aTypeSet is null ? aType : mVM_Type.Set(aType, aTypeSet)
@@ -328,7 +328,7 @@ mSPO_AST_Types {
 					a => {
 						var X = a.Reduce(
 							mStream.Stream<mVM_Type.tType>([]),
-							(aList, aItem) => aList.All(_ => _ != aItem)
+							(aList, aItem) => aList.All(__ => __ != aItem)
 							? mStream.Stream(aItem, aList)
 							: aList
 						);
@@ -624,7 +624,7 @@ mSPO_AST_Types {
 					_.MethResType,
 					tTypeRelation.Sub,
 					aScope
-				).Then(_ => _.Scope)
+				).Then(__ => __.Scope)
 			)
 		)
 	);
@@ -894,7 +894,7 @@ mSPO_AST_Types {
 				).WhenAllThen(
 					_ => _.Reduce(
 						mStream.Stream<mVM_Type.tType>([]),
-						(aList, aItem) => aList.All(_ => _ != aItem) ? mStream.Stream(aItem, aList) : aList
+						(aList, aItem) => aList.All(__ => __ != aItem) ? mStream.Stream(aItem, aList) : aList
 					).Match(
 						() => mVM_Type.Empty(),
 						(aHead1, aTail1) => aTail1.Match(

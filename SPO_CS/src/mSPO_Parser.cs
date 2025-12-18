@@ -70,7 +70,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIgnorePatternNode<tSpan>, tError>
 	IgnorePattern = IdToken
-	.Assert(_ => _.Type == tTokenType.Id && _.Text == "_", _ => (_.Span.Start, "expect _"))
+	.Assert(__ => __.Type == tTokenType.Id && __.Text == "_", _ => (_.Span.Start, "expect _"))
 	.ModifyS(mSPO_AST.IgnorePattern)
 	.SetName(nameof(IgnorePattern));
 	
@@ -97,7 +97,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCharNode<tSpan>, tError>
 	Char = CharToken
-	.Modify(_ => _.Text[1])
+	.Modify(__ => __.Text[1])
 	.ModifyS(mSPO_AST.Char)
 	.SetName(nameof(Char));
 	
@@ -254,7 +254,7 @@ mSPO_Parser {
 						(a1, a2) => $"{a1}...{a2}"
 					) + (aLastChild.IsEmpty() ? "" : "...")
 				),
-				mStream.Concat(aList.Map(_ => _.Item1), aLastChild)
+				mStream.Concat(aList.Map(__ => __.Item1), aLastChild)
 			)
 		)
 	);
@@ -337,13 +337,13 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tFreeIdPatternNode<tSpan>, tError>
 	FreeIdPattern = (-KeyWord("DEF") +Id)
-	.Modify(_ => _.Id[1..])
+	.Modify(__ => __.Id[1..])
 	.ModifyS(mSPO_AST.FreeIdPattern)
 	.SetName(nameof(FreeIdPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarPatternNode<tSpan>, tError>
 	VarPattern = (-KeyWord("VAR") +Id)
-	.Modify(_ => _.Id[1..])
+	.Modify(__ => __.Id[1..])
 	.ModifyS(mSPO_AST.VarPattern)
 	.SetName(nameof(VarPattern));
 	
@@ -895,23 +895,23 @@ mSPO_Parser {
 	ToILT(
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
-		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(_ => _.ToText());
+		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
-		).Then(_ => _.Scope).AssertNotError(_ => _.ToText());
+		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 			)
-		).AssertNotError(_ => _.ToText());
+		).AssertNotError(__ => __.ToText());
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(_ => _.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(__ => __.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');

@@ -35,7 +35,7 @@ mRegression_Tests {
 				}
 				
 				var Tests = mArrayList.List<mTest.tTest>();
-				foreach (var SPO_File in cTestFolder.GetFiles().Where(_ => _.Name.EndsWith(".SPO"))) {
+				foreach (var SPO_File in cTestFolder.GetFiles().Where(__ => __.Name.EndsWith(".SPO"))) {
 					var ResFile = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".result.SPO"));
 					var ILT_File = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".ILT"));
 					if (

@@ -1419,8 +1419,8 @@ mSPO_AST {
 			tTextNode<t> Node => $"\"{Node.Value}\"",
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
-			tTupleNode<t> Node => $"({Node.Items.Map(_ => ____ + _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
-			tRecordNode<t> Node => $"{{ {Node.Elements.Map(_ => ____ + _.Key.Id + ": " + _.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
+			tTupleNode<t> Node => $"({Node.Items.Map(aChild => ____ + aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
@@ -1453,7 +1453,7 @@ mSPO_AST {
 			tFreeIdPatternNode<t> Node => "§DEF " + Node.Id,
 			tVarPatternNode<t> Node => "§VAR " + Node.Id,
 			tPrefixPatternNode<t> Node => $"({____}#{Node.Prefix} {Node.Pattern.ToText(____)}{__})",
-			tTuplePatternNode<t> Node => $"({____}{Node.Items.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
+			tTuplePatternNode<t> Node => $"({____}{Node.Items.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tGuardPatternNode<t> Node => $"({____}{Node.Pattern.ToText(____)} & {Node.Guard.ToText(____)}{__})",
 			tRecordPatternNode<t> Node => @$"{{ {
 				Node.Elements.Map(
@@ -1476,20 +1476,20 @@ mSPO_AST {
 				(var EnvType, var ArgType, var ResType) => $"[{____}{EnvType.ToText(____)} => [{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]]",
 			},
 			tTypeTypeNode<t> Node => "§TYPE",
-			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
-			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
+			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
 			tPairPatternNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
-			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
+			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",
 			tGenericApplyTypeNode<t> Node => $"[{____}.{Node.GenericType.ToText(____)} {Node.ArgType.ToText(____)}{__}]",
 			tRecursiveTypeNode<t> Node => $"[{____}§RECURSIVE {Node.HeadType.ToText(____)} {Node.BodyType.ToText(____)}{__}]",
 			
 			// Commands
-			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
-			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
-			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(_ => _.ToText(____), () => "()")}",
+			tBlockNode<t> Node => $"{{{____}{Node.Commands.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}}}",
+			tMethodCallsNode<t> Node => $"{Node.Object.ToText(____)} :{____ + Node.MethodCalls.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + "," + ____ + a2, "")}{__}.",
+			tMethodCallNode<t> Node => $"{Node.Method.ToText(____)} {Node.Argument.ToText(____)} => {Node.Result.Match(aChild => aChild.ToText(____), () => "()")}",
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",
@@ -1505,7 +1505,7 @@ mSPO_AST {
 			tModuleNode<t> Node => $"""
 			{Node.Import.ToText(____)}
 			
-			{Node.Commands.Map(_ => _.ToText(____)).Join((a1, a2) => a1 + "\n" + a2, "")}
+			{Node.Commands.Map(__ => __.ToText(____)).Join((a1, a2) => a1 + "\n" + a2, "")}
 			
 			{Node.Export.ToText(____)}
 			""",

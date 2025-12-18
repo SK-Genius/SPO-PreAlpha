@@ -41,8 +41,8 @@ mSPO2IL {
 		tText aId,
 		mVM_Type.tType aType
 	) {
-		mAssert.IsFalse(aDefConstructor.ArgIds.ToStream().Any(_ => _ == aId));
-		mAssert.IsFalse(aDefConstructor.LocalIds.ToStream().Any(_ => _ == aId));
+		mAssert.IsFalse(aDefConstructor.ArgIds.ToStream().Any(__ => __ == aId));
+		mAssert.IsFalse(aDefConstructor.LocalIds.ToStream().Any(__ => __ == aId));
 		aDefConstructor.EnvIds.Push(aId);
 		aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(aId, aType);
 	}
@@ -545,7 +545,7 @@ mSPO2IL {
 			}
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id, TypeAnnotation: var Type }: {
 				if (
-					!aDefConstructor.TypeDict.ToStream().Any(_ => _.Key == Id) &&
+					!aDefConstructor.TypeDict.ToStream().Any(__ => __.Key == Id) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
 						_ => _.GetResultReg().Match(
@@ -698,8 +698,8 @@ mSPO2IL {
 				
 				foreach (var LambdaEnv in LambdaEnvs) {
 					if (
-						!aDefConstructor.LocalIds.ToStream().Any(_ => _ == LambdaEnv.Id) &&
-						!aDefConstructor.ArgIds.ToStream().Any(_ => _ == LambdaEnv.Id)
+						!aDefConstructor.LocalIds.ToStream().Any(__ => __ == LambdaEnv.Id) &&
+						!aDefConstructor.ArgIds.ToStream().Any(__ => __ == LambdaEnv.Id)
 					) {
 						aDefConstructor.AddEnv(LambdaEnv.Id, LambdaEnv.Type);
 					}
@@ -945,7 +945,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tRecursiveTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
-				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _ == HeadType.Id));
+				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(__ => __ == HeadType.Id));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
@@ -1027,7 +1027,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tGenericTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
-				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(_ => _ == HeadType.Id));
+				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(__ => __ == HeadType.Id));
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
@@ -1703,7 +1703,7 @@ mSPO2IL {
 				continue;
 			}
 			var Result = Call.Result.IsNone() ? mIL_AST.cEmptyValue : aDefConstructor.CreateTempReg();
-			var ResultType = Call.Result.Then(_ => _.TypeAnnotation.AssertNotEmpty()).ElseUse(mVM_Type.Empty());
+			var ResultType = Call.Result.Then(__ => __.TypeAnnotation.AssertNotEmpty()).ElseUse(mVM_Type.Empty());
 			
 			aDefConstructor.Commands.Push(
 				[
@@ -1756,7 +1756,7 @@ mSPO2IL {
 			aModuleNode.Import.Pattern,
 			mSPO_AST.Block(
 				aMergePos(
-					aModuleNode.Commands.TryFirst().Then(_ => _.Pos).ElseUse(default),
+					aModuleNode.Commands.TryFirst().Then(__ => __.Pos).ElseUse(default),
 					aModuleNode.Export.Pos
 				),
 				mStream.Concat(

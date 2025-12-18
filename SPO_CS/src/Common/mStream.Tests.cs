@@ -32,8 +32,8 @@ mStream_Tests {
 			),
 			mTest.Test("Map()",
 				aStreamOut => {
-					mAssert.AreEquals(mStream.Stream([1, 2, 3, 4]).Map(_ => _ * _), mStream.Stream([1, 4, 9, 16]));
-					mAssert.AreEquals(mStream.Stream<tInt32>([]).Map(_ => _ * _), mStream.Stream<tInt32>([]));
+					mAssert.AreEquals(mStream.Stream([1, 2, 3, 4]).Map(__ => __ * __), mStream.Stream([1, 4, 9, 16]));
+					mAssert.AreEquals(mStream.Stream<tInt32>([]).Map(__ => __ * __), mStream.Stream<tInt32>([]));
 				}
 			),
 			mTest.Test("MapWithIndex()",
@@ -89,8 +89,8 @@ mStream_Tests {
 					mAssert.IsFalse(mStream.Stream([false, false, false]).Any());
 					mAssert.IsTrue(mStream.Stream([true, true, true]).Any());
 					mAssert.IsTrue(mStream.Stream([false, false, true, false]).Any());
-					mAssert.IsTrue(mStream.Stream([1, 2, 3, 4]).Map(_ => _ == 2).Any());
-					mAssert.IsFalse(mStream.Stream([1, 3, 4]).Map(_ => _ == 2).Any());
+					mAssert.IsTrue(mStream.Stream([1, 2, 3, 4]).Map(__ => __ == 2).Any());
+					mAssert.IsFalse(mStream.Stream([1, 3, 4]).Map(__ => __ == 2).Any());
 				}
 			),
 			mTest.Test("Every()",

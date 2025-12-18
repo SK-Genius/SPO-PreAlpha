@@ -157,7 +157,7 @@ mResult {
 	public static t
 	ElseThrow<t>(
 		this tResult<t, tText> aRes
-	) => aRes.AssertNotError(_ => _);
+	) => aRes.AssertNotError(__ => __);
 	
 	extension<t, tError> (tResult<t, tError> aRes) {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

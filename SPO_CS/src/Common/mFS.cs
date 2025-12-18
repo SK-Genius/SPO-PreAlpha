@@ -146,7 +146,7 @@ mFS {
 						1 => new tPath(this.Name),
 						> 1 => (
 							this.Parent.Is(out var Parent)
-							? Parent[^(StartFromEnd - 1)..].Then(_ => _ / Name_)
+							? Parent[^(StartFromEnd - 1)..].Then(__ => __ / Name_)
 							: cIdentPath
 						),
 					},

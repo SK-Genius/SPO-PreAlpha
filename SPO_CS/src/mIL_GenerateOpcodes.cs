@@ -395,7 +395,7 @@ mIL_GenerateOpcodes {
 						mAssert.IsTrue(
 							Fields.TryGet(Key).IsSome(out var FieldType),
 							$"""
-							{Span} Unknown field '{Key}' in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
+							{Span} Unknown field '{Key}' in record [{Fields.ToStream().Map(__ => __.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
 							]
 							"""
 						);
@@ -452,7 +452,7 @@ mIL_GenerateOpcodes {
 						//);
 						
 						var (_, ReturnSubset) = ResType.SplitBy(
-							_ => _.IsEmpty()
+							__ => __.IsEmpty()
 						);
 						
 						if (ReturnSubset.IsSome(out var T)) {
@@ -468,7 +468,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType ) = ArgType.SplitBy(
-							_ => _.IsEmpty()
+							__ => __.IsEmpty()
 						);
 						
 						mAssert.IsTrue(

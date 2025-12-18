@@ -94,7 +94,7 @@ GetArgParam(
 	)
 );
 
-if (Args.Any(_ => _ is cHelpCommand or cHelpCommandShort)) {
+if (Args.Any(__ => __ is cHelpCommand or cHelpCommandShort)) {
 	System.Console.WriteLine(
 		$"""
 			{cHelpCommandShort} {cHelpCommand} - show this help
@@ -127,7 +127,7 @@ var MatchAny = Args.SkipUntil(
 	1
 );
 
-if (Args.Any(_ => _ is cListCommand or cListCommandShort)) {
+if (Args.Any(__ => __ is cListCommand or cListCommandShort)) {
 	Tests.List(
 		PrintLn,
 		MatchAll.IsEmpty() ? MatchAny : MatchAll,
@@ -146,13 +146,13 @@ mStd.gDebugId = GetArgParam(
 );
 
 return Tests.Run(
-	Args.Any(_ => _ is cPlainText or cPlainTextShort) || System.Console.IsOutputRedirected ? PrintLnNoFormat : PrintLn,
+	Args.Any(__ => __ is cPlainText or cPlainTextShort) || System.Console.IsOutputRedirected ? PrintLnNoFormat : PrintLn,
 	new mTest.tTestSettings {
 		Filters = MatchAll.IsEmpty() ? MatchAny : MatchAll,
 		HasToMatchAll = !MatchAll.IsEmpty(),
-		HideSkippedTests = !Args.Any(_ => _ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort),
-		HidePassedGroups = !Args.Any(_ => _ is cShowPassedGroupsCommand or cShowPassedGroupsCommandShort),
-		HidePassedTests = !Args.Any(_ => _ is cShowPassedTestsCommand or cShowPassedTestsCommandShort),
+		HideSkippedTests = !Args.Any(__ => __ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort),
+		HidePassedGroups = !Args.Any(__ => __ is cShowPassedGroupsCommand or cShowPassedGroupsCommandShort),
+		HidePassedTests = !Args.Any(__ => __ is cShowPassedTestsCommand or cShowPassedTestsCommandShort),
 		OutputLevel = GetArgParam(
 			Args,
 			cOutputLevelCommandShort,
@@ -169,17 +169,17 @@ return Tests.Run(
 			tInt32.Parse,
 			() => tInt32.MaxValue
 		),
-		DebuggerBreak = Args.Any(_ => _ is cDebugger or cDebuggerShort),
-		StopOnFirstFail = Args.Any(_ => _ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
-		: Args.Any(_ => _ is "-1") ? 1
-		: Args.Any(_ => _ is "-2") ? 2
-		: Args.Any(_ => _ is "-3") ? 3
-		: Args.Any(_ => _ is "-4") ? 4
-		: Args.Any(_ => _ is "-5") ? 5
-		: Args.Any(_ => _ is "-6") ? 6
-		: Args.Any(_ => _ is "-7") ? 7
-		: Args.Any(_ => _ is "-8") ? 7
-		: Args.Any(_ => _ is "-9") ? 8
+		DebuggerBreak = Args.Any(__ => __ is cDebugger or cDebuggerShort),
+		StopOnFirstFail = Args.Any(__ => __ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
+		: Args.Any(__ => __ is "-1") ? 1
+		: Args.Any(__ => __ is "-2") ? 2
+		: Args.Any(__ => __ is "-3") ? 3
+		: Args.Any(__ => __ is "-4") ? 4
+		: Args.Any(__ => __ is "-5") ? 5
+		: Args.Any(__ => __ is "-6") ? 6
+		: Args.Any(__ => __ is "-7") ? 7
+		: Args.Any(__ => __ is "-8") ? 7
+		: Args.Any(__ => __ is "-9") ? 8
 		: tInt32.MaxValue,
 	}
 ).Result is mTest.tResult.Fail

@@ -326,7 +326,7 @@ mVM_Type {
 		mAssert.IsTrue(
 			Fields.TryGet(aKey).IsSome(out var FieldType),
 			$"""
-			Unknown field '{aKey}' in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
+			Unknown field '{aKey}' in record [{Fields.ToStream().Map(__ => __.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}
 			]
 			"""
 		);
@@ -407,7 +407,7 @@ mVM_Type {
 			mAssert.IsTrue(aTailType.IsRecord(out Fields));
 		}
 		mAssert.IsTrue(Fields.TryGet(Prefix).IsNone(),
-			$"Field '{Prefix}' already exists in record [{Fields.ToStream().Map(_ => _.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}]"
+			$"Field '{Prefix}' already exists in record [{Fields.ToStream().Map(__ => __.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}]"
 		);
 		
 		return new tType {
@@ -1159,7 +1159,7 @@ mVM_Type {
 				}
 			),
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(_ => _.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
+			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
