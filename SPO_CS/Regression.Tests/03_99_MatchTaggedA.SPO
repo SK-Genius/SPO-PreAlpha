@@ -1,0 +1,7 @@
+§DEF MatchInput = #Box ((), 2)
+
+§DEF x = §IF MatchInput MATCH {
+                (#Box ((), §DEF value)) : value
+}
+
+§EXPORT x
