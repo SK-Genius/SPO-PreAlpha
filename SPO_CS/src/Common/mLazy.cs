@@ -19,7 +19,7 @@ mLazy {
 			}
 		}
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tLazy(
 			t a
@@ -28,7 +28,7 @@ mLazy {
 			this._Func = null;
 		}
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tLazy(
 			mStd.tFunc<t> a

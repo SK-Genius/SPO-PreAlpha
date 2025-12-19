@@ -15,7 +15,7 @@ mTreeMap {
 		internal readonly mStd.tFunc<tKey, tKey, tInt32> KeyCompare;
 		internal readonly mRef.tRef<tNode<tKey, tValue>> Root;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tTree(
 			mStd.tFunc<tKey, tKey, tInt32> aKeyCompare,

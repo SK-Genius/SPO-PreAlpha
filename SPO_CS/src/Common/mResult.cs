@@ -9,7 +9,7 @@ mResult {
 	tResultFail<tError> {
 		internal readonly tError _Error;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tResultFail(
 			tError aError
 		) {

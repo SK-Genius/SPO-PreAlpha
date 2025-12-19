@@ -179,3 +179,5 @@ dotnet_diagnostic.IDE0047.severity = none # Parentheses can be removed
 
 dotnet_diagnostic.SA1131.severity = none # Constant values should appear on the right-hand side of comparisons !!! not true for "<" and "<=" in speacel for ranges "0 <= X && X < 10"
 dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence !!! hmm ..., just no
+
+dotnet_diagnostic.S3903.severity = none # Types should be defined in named namespaces

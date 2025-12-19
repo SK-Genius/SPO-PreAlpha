@@ -12,7 +12,7 @@ mStream {
 	tStream<t> {
 		internal mRef.tRef<(t Head, mLazy.tLazy<tStream<t>> Tail)> _HeadTail;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tStream(
 			t aHead,
@@ -21,7 +21,7 @@ mStream {
 			this._HeadTail = mRef.Ref((aHead, aTail));
 		}
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public
 		tStream(
 		) {
@@ -83,7 +83,7 @@ mStream {
 		}
 	}
 	
-	[method: Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+	[method: MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public ref struct
 	tStreamIterator<t>(
 		tStream<t> aStream

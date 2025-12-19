@@ -12,13 +12,13 @@ mRef {
 	tRef<t> {
 		public readonly tRefBox<t>? _Box;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tRef(
 		) {
 			this._Box = null;
 		}
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tRef(
 			t aValue
 		) {

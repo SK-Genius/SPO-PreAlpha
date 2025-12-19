@@ -499,7 +499,7 @@ mSPO_AST_Types {
 						}
 					} else {
 						if (!WalkType.IsEmpty() || TypeStack.Count() != TuplePattern.Items.Count()) {
-							mResult.Fail((TuplePattern.Pos, $"can't unify '{TuplePattern.ToText()} and '{Type.ToText()}'"));
+							return mResult.Fail((TuplePattern.Pos, $"can't unify '{TuplePattern.ToText()} and '{Type.ToText()}'"));
 						}
 						
 						foreach (var (Pattern, ItemType) in mStream.ZipShort(TuplePattern.Items, TypeStack)) {

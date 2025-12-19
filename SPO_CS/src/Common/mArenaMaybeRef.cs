@@ -9,7 +9,7 @@ mArenaMaybeRef {
 	tArenaMaybeRef<t> where t : unmanaged {
 		internal readonly tInt32 _Offset;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tArenaMaybeRef(
 			tInt32 aOffset

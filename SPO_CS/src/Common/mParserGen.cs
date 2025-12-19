@@ -21,7 +21,7 @@ mParserGen {
 		public readonly mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> RemainingStream;
 		public readonly mStream.tStream<(tPos Pos, tError Message)> MaybeError;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tParserResult(
 			(mSpan.tSpan<tPos> Span, tOut Value) aResult,
 			mStream.tStream<(mSpan.tSpan<tPos> Span, tIn Value)> aRemainingStream,
@@ -335,7 +335,7 @@ mParserGen {
 		public tText DebugDef
 		=> this._DebugDef;
 		
-		[Pure, DebuggerHidden]
+		[DebuggerHidden]
 		internal
 		tParser(
 			mStd.tFunc<tPos, tPos, tInt32> aComparePos,
@@ -695,7 +695,7 @@ mParserGen {
 		mStd.tFunc<tError, tError, tBool> aAreErrorsEqual
 	) => new(aComparePos, aAreErrorsEqual);
 	
-	[Pure, DebuggerHidden]
+	[DebuggerHidden]
 	public static void
 	Def<tPos, tIn, tOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> a1,

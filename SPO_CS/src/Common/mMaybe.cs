@@ -8,7 +8,7 @@ mMaybe {
 		internal readonly tBool _HasValue;
 		internal readonly t _Value;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tMaybe(
 			tBool aHasValue,
 			t aValue

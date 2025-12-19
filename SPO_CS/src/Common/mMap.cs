@@ -9,7 +9,7 @@ mMap {
 		internal readonly mStream.tStream<(tKey, tValue)> _KeyValuePairs;
 		internal readonly mStd.tFunc<tKey, tKey, tBool> _EqualsFunc;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tMap(
 			mStream.tStream<(tKey, tValue)> aKeyValuePairs,
 			mStd.tFunc<tKey, tKey, tBool> aEqualsFunc

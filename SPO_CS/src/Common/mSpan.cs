@@ -7,7 +7,7 @@ mSpan {
 		public readonly tPos Start;
 		public readonly tPos End;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tSpan(
 			tPos aStart,
 			tPos aEnd

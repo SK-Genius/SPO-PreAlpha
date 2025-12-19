@@ -11,7 +11,7 @@ mArenaStack {
 		internal readonly t _Head;
 		internal readonly mArenaMaybeRef.tArenaMaybeRef<tArenaStack<t>> _Tail;
 		
-		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
+		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tArenaStack(
 			t aHead,
 			mArenaMaybeRef.tArenaMaybeRef<tArenaStack<t>> aTail
