@@ -109,11 +109,6 @@ mStream {
 				return false;
 			}
 		}
-		
-		public readonly void
-		Dispose(
-		) {
-		}
 	}
 	
 	private sealed class
@@ -149,7 +144,7 @@ mStream {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tStream<t>
 	Stream<t>(
-		System.ReadOnlySpan<t> aStream
+		params System.ReadOnlySpan<t> aStream
 	) {
 		var Result = Stream<t>();
 		for (var I = aStream.Length; I --> 0;) {

@@ -28,15 +28,15 @@ mArrayList_Tests {
 			),
 			mTest.Test("tArrayList.ToArrayList()",
 				aStreamOut => {
-					mAssert.AreEquals(mStream.Stream([1, 2, 3]).ToArrayList(), mArrayList.List(1, 2, 3));
-					mAssert.AreEquals(mStream.Stream<tInt32>([]).ToArrayList(), mArrayList.List<tInt32>());
+					mAssert.AreEquals(mStream.Stream(1, 2, 3).ToArrayList(), mArrayList.List(1, 2, 3));
+					mAssert.AreEquals(mStream.Stream<tInt32>().ToArrayList(), mArrayList.List<tInt32>());
 				}
 			),
 			mTest.Test("tArrayList.ToLazyList()",
 				aStreamOut => {
-					mAssert.AreEquals(mArrayList.List<tInt32>([]).ToStream(), mStream.Stream<tInt32>([]));
-					mAssert.AreEquals(mArrayList.List([1]).ToStream(), mStream.Stream([1]));
-					mAssert.AreEquals(mArrayList.List([1, 2, 3]).ToStream(), mStream.Stream([1, 2, 3]));
+					mAssert.AreEquals(mArrayList.List<tInt32>().ToStream(), mStream.Stream<tInt32>());
+					mAssert.AreEquals(mArrayList.List(1).ToStream(), mStream.Stream(1));
+					mAssert.AreEquals(mArrayList.List(1, 2, 3).ToStream(), mStream.Stream(1, 2, 3));
 				}
 			),
 			mTest.Test("tArrayList.Push(...)",

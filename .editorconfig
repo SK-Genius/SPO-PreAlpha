@@ -180,4 +180,12 @@ dotnet_diagnostic.IDE0047.severity = none # Parentheses can be removed
 dotnet_diagnostic.SA1131.severity = none # Constant values should appear on the right-hand side of comparisons !!! not true for "<" and "<=" in speacel for ranges "0 <= X && X < 10"
 dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence !!! hmm ..., just no
 
+dotnet_diagnostic.S101.severity = none # Rename record to match pascal case naming rules
+dotnet_diagnostic.S1104.severity = none # Make this field 'private' and encapsulate it in a 'public' property
+dotnet_diagnostic.S1199.severity = none # Nested code blocks should not be used
+dotnet_diagnostic.S2342.severity = none # Enumeration types should comply with a naming convention
+dotnet_diagnostic.S2436.severity = none # Types and methods should not have too many generic parameters
+dotnet_diagnostic.S3218.severity = none # Inner class members should not shadow outer class "static" or type members
+dotnet_diagnostic.S3358.severity = none # Ternary operators should not be nested
+dotnet_diagnostic.S3776.severity = none # Cognitive Complexity of methods should not be too high
 dotnet_diagnostic.S3903.severity = none # Types should be defined in named namespaces

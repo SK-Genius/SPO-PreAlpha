@@ -108,10 +108,8 @@ mSPO2IL_Tests {
 					);
 					
 					var Scope = mStream.Stream(
-						[
-							mSPO_AST_Types.ScopeItem("_...+...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Int())),
-							mSPO_AST_Types.ScopeItem("_...<...<...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Bool()))
-						]
+						mSPO_AST_Types.ScopeItem("_...+...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Int())),
+						mSPO_AST_Types.ScopeItem("_...<...<...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Bool()))
 					);
 					
 					ExpressionNode.UpdateTypes(Scope);
@@ -123,19 +121,17 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Def.Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.CreateInt(Span((1, 1), (1, 1)), mSPO2IL.GetRegId(1), "0"),
-								mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)),
-								mIL_AST.CreateInt(Span((1, 7), (1, 7)), mSPO2IL.GetRegId(3), "1"),
-								mIL_AST.CreatePair(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(4), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(3)),
-								mIL_AST.CreateInt(Span((1, 12), (1, 12)), mSPO2IL.GetRegId(5), "2"),
-								mIL_AST.CreatePair(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)),
-								mIL_AST.CallFunc(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(7), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(6)),
-								mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(7)),
-								mIL_AST.CreateInt(Span((1, 17), (1, 17)), mSPO2IL.GetRegId(9), "4"),
-								mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(9)),
-								mIL_AST.CallFunc(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(11), mSPO2IL.GetId("...<...<..."), mSPO2IL.GetRegId(10))
-							]
+							mIL_AST.CreateInt(Span((1, 1), (1, 1)), mSPO2IL.GetRegId(1), "0"),
+							mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)),
+							mIL_AST.CreateInt(Span((1, 7), (1, 7)), mSPO2IL.GetRegId(3), "1"),
+							mIL_AST.CreatePair(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(4), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(3)),
+							mIL_AST.CreateInt(Span((1, 12), (1, 12)), mSPO2IL.GetRegId(5), "2"),
+							mIL_AST.CreatePair(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)),
+							mIL_AST.CallFunc(Span((1, 7), (1, 12)), mSPO2IL.GetRegId(7), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(6)),
+							mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(7)),
+							mIL_AST.CreateInt(Span((1, 17), (1, 17)), mSPO2IL.GetRegId(9), "4"),
+							mIL_AST.CreatePair(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(9)),
+							mIL_AST.CallFunc(Span((1, 1), (1, 17)), mSPO2IL.GetRegId(11), mSPO2IL.GetId("...<...<..."), mSPO2IL.GetRegId(10))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -163,14 +159,12 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.CreateInt(Span((1, 11), (1, 11)), mSPO2IL.GetRegId(1), "1"),
-								mIL_AST.CreatePair(Span((1, 10), (1, 15)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)),
-								mIL_AST.CreateInt(Span((1, 14), (1, 14)), mSPO2IL.GetRegId(3), "2"),
-								mIL_AST.CreatePair(Span((1, 10), (1, 15)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)),
-								
-								mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(4))
-							]
+							mIL_AST.CreateInt(Span((1, 11), (1, 11)), mSPO2IL.GetRegId(1), "1"),
+							mIL_AST.CreatePair(Span((1, 10), (1, 15)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)),
+							mIL_AST.CreateInt(Span((1, 14), (1, 14)), mSPO2IL.GetRegId(3), "2"),
+							mIL_AST.CreatePair(Span((1, 10), (1, 15)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)),
+							
+							mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(4))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -195,28 +189,26 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.CreateInt(Span((1, 31), (1, 31)), mSPO2IL.GetRegId(1), "1"), // [1]:1
-								mIL_AST.CreatePair(Span((1, 30), (1, 40)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:1 => [2]:(1)
-								mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.GetRegId(3), "2"), // [3]:2
-								mIL_AST.CreatePair(Span((1, 34), (1, 39)), mSPO2IL.GetRegId(4), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(3)), // (); [4]:2 => [3]:(2)
-								mIL_AST.CreateInt(Span((1, 38), (1, 38)), mSPO2IL.GetRegId(5), "3"), // [5]:3
-								mIL_AST.CreatePair(Span((1, 34), (1, 39)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)), // [4]:(2); [5]:3 => (2, 3)
-								mIL_AST.CreatePair(Span((1, 30), (1, 40)), mSPO2IL.GetRegId(7), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(6)), // [2]:(1); [6]:(2, 3) => [7]:(1, (2, 3))
-								
-								mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7)), // [7]:(1, (2, 3)) => [8]:(2, 3)
-								mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(9), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [9]:3
-								mIL_AST.Alias(Span((1, 19), (1, 24)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(9)), // [9]:3 == c
-								mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [10]:(2)
-								mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(2) => [11]:2
-								mIL_AST.Alias(Span((1, 11), (1, 16)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(11)), // [11]:2 == b
-								mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)), // [10]:(2) => [12]:()
-								mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(13), mSPO2IL.GetRegId(7)), // [7]:(1, (2, 3)) => [13]:(1)
-								mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)), // [13]:(1) => [14]:1
-								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(14)), // [14]:1 == a
-								
-								mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(13)) // [13]:(1) => [14]:()
-							]
+							mIL_AST.CreateInt(Span((1, 31), (1, 31)), mSPO2IL.GetRegId(1), "1"), // [1]:1
+							mIL_AST.CreatePair(Span((1, 30), (1, 40)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:1 => [2]:(1)
+							mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.GetRegId(3), "2"), // [3]:2
+							mIL_AST.CreatePair(Span((1, 34), (1, 39)), mSPO2IL.GetRegId(4), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(3)), // (); [4]:2 => [3]:(2)
+							mIL_AST.CreateInt(Span((1, 38), (1, 38)), mSPO2IL.GetRegId(5), "3"), // [5]:3
+							mIL_AST.CreatePair(Span((1, 34), (1, 39)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)), // [4]:(2); [5]:3 => (2, 3)
+							mIL_AST.CreatePair(Span((1, 30), (1, 40)), mSPO2IL.GetRegId(7), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(6)), // [2]:(1); [6]:(2, 3) => [7]:(1, (2, 3))
+							
+							mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7)), // [7]:(1, (2, 3)) => [8]:(2, 3)
+							mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(9), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [9]:3
+							mIL_AST.Alias(Span((1, 19), (1, 24)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(9)), // [9]:3 == c
+							mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(2, 3) => [10]:(2)
+							mIL_AST.GetSecond(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(2) => [11]:2
+							mIL_AST.Alias(Span((1, 11), (1, 16)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(11)), // [11]:2 == b
+							mIL_AST.GetFirst(Span((1, 10), (1, 25)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)), // [10]:(2) => [12]:()
+							mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(13), mSPO2IL.GetRegId(7)), // [7]:(1, (2, 3)) => [13]:(1)
+							mIL_AST.GetSecond(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)), // [13]:(1) => [14]:1
+							mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(14)), // [14]:1 == a
+							
+							mIL_AST.GetFirst(Span((1, 1), (1, 26)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(13)) // [13]:(1) => [14]:()
 						),
 						aAreEqual: mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -241,24 +233,22 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.CreateInt(Span((1, 29), (1, 29)), mSPO2IL.GetRegId(1), "1"), // [1]:1
-								mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]1 => [2]:(1)
-								mIL_AST.CreateInt(Span((1, 32), (1, 32)), mSPO2IL.GetRegId(3), "2"), // [3]:2
-								mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)), // [2]:(1); [3]:2 => [4]:(1, 2)
-								mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.GetRegId(5), "3"), // [5]:3
-								mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)), // [4]:(1, 2); [5]:3 => [6]:(1, 2, 3)
-								
-								mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(7), mSPO2IL.GetRegId(6)), // [6]:(1, 2, 3) => [7]:3
-								mIL_AST.Alias(Span((1, 18), (1, 23)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(7)), // [7]:3 == c
-								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(6)), // [6]:(1, 2, 3) => [8]:(1, 2)
-								mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(9), mSPO2IL.GetRegId(8)), // [8]:(1, 2) => [9]:2
-								mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(9)), // [9]:2 == b
-								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(1, 2) => [10]:(1)
-								mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(1) => [11]:1
-								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(11)), // [11]:1 == a
-								mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)) // [10]:(1) => [12]:()
-							]
+							mIL_AST.CreateInt(Span((1, 29), (1, 29)), mSPO2IL.GetRegId(1), "1"), // [1]:1
+							mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]1 => [2]:(1)
+							mIL_AST.CreateInt(Span((1, 32), (1, 32)), mSPO2IL.GetRegId(3), "2"), // [3]:2
+							mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)), // [2]:(1); [3]:2 => [4]:(1, 2)
+							mIL_AST.CreateInt(Span((1, 35), (1, 35)), mSPO2IL.GetRegId(5), "3"), // [5]:3
+							mIL_AST.CreatePair(Span((1, 28), (1, 36)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(5)), // [4]:(1, 2); [5]:3 => [6]:(1, 2, 3)
+							
+							mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(7), mSPO2IL.GetRegId(6)), // [6]:(1, 2, 3) => [7]:3
+							mIL_AST.Alias(Span((1, 18), (1, 23)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(7)), // [7]:3 == c
+							mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(6)), // [6]:(1, 2, 3) => [8]:(1, 2)
+							mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(9), mSPO2IL.GetRegId(8)), // [8]:(1, 2) => [9]:2
+							mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(9)), // [9]:2 == b
+							mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(8)), // [8]:(1, 2) => [10]:(1)
+							mIL_AST.GetSecond(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(1) => [11]:1
+							mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(11)), // [11]:1 == a
+							mIL_AST.GetFirst(Span((1, 1), (1, 24)), mSPO2IL.GetRegId(12), mSPO2IL.GetRegId(10)) // [10]:(1) => [12]:()
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -284,34 +274,32 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.CreateInt(Span((1, 47), (1, 47)), mSPO2IL.GetRegId(1), "1"), // 1 => [1]:1
-								mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:1 => [2]:(1)
-								mIL_AST.CreateInt(Span((1, 50), (1, 50)), mSPO2IL.GetRegId(3), "2"), // 2 => [3]:2
-								mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)), // [2]:(1); [3]:2 => [4]:(1, 2)
-								mIL_AST.CreateInt(Span((1, 60), (1, 60)), mSPO2IL.GetRegId(5), "3"), // 3 => [5]:3
-								mIL_AST.CreatePair(Span((1, 59), (1, 64)), mSPO2IL.GetRegId(6), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(5)), // (); [5]:3 => [6]:(3)
-								mIL_AST.CreateInt(Span((1, 63), (1, 63)), mSPO2IL.GetRegId(7), "4"), // 4 => [7]:4
-								mIL_AST.CreatePair(Span((1, 59), (1, 64)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(7)), // [6]:(3); [7]:4 => [8]:(3, 4)
-								mIL_AST.AddPrefix(Span((1, 54), (1, 64)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("bla..."), mSPO2IL.GetRegId(8)), // #bla[8]:(3, 4) => [9]:#bla(3, 4)
-								mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(9)), // [4]:(1, 2); [8]:(#bla(3, 4)) => [10]:(1, 2, #bla(3, 4))
-								
-								mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(1, 2, #bla(3, 4)) => [11]:#bla(3, 4)
-								mIL_AST.SubPrefix(Span((1, 18), (1, 41)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("bla..."), mSPO2IL.GetRegId(11)), // [11]:#bla(3, 4) => [12]:(3, 4)
-								mIL_AST.GetSecond(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(13), mSPO2IL.GetRegId(12)), // [12]:(3, 4) => [13]:4
-								mIL_AST.Alias(Span((1, 34), (1, 39)), mSPO2IL.GetId("d"), mSPO2IL.GetRegId(13)), // [13]:4 == d
-								mIL_AST.GetFirst(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(12)), // [12]:(3, 4) => [14]:(3)
-								mIL_AST.GetSecond(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(14)), // [14]:(3) => [15]:3
-								mIL_AST.Alias(Span((1, 25), (1, 30)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(15)), // [15]:3 == c
-								mIL_AST.GetFirst(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(16), mSPO2IL.GetRegId(14)), // [14]:(3) => [16]:()
-								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(17), mSPO2IL.GetRegId(10)), // [10]:(1, 2, #bla(3, 4)) => [17]:(1, 2)
-								mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(18), mSPO2IL.GetRegId(17)), // [17]:(1, 2) => [18]:2
-								mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(18)), // [18]:2 == b
-								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(19), mSPO2IL.GetRegId(17)), // [17]:(1, 2) => [19]:(1)
-								mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(20), mSPO2IL.GetRegId(19)), // [19]:(1) => [20]:1
-								mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(20)), // [20]:1 == a
-								mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(21), mSPO2IL.GetRegId(19)) // [19]:(1) => [21]:()
-							]
+							mIL_AST.CreateInt(Span((1, 47), (1, 47)), mSPO2IL.GetRegId(1), "1"), // 1 => [1]:1
+							mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:1 => [2]:(1)
+							mIL_AST.CreateInt(Span((1, 50), (1, 50)), mSPO2IL.GetRegId(3), "2"), // 2 => [3]:2
+							mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(3)), // [2]:(1); [3]:2 => [4]:(1, 2)
+							mIL_AST.CreateInt(Span((1, 60), (1, 60)), mSPO2IL.GetRegId(5), "3"), // 3 => [5]:3
+							mIL_AST.CreatePair(Span((1, 59), (1, 64)), mSPO2IL.GetRegId(6), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(5)), // (); [5]:3 => [6]:(3)
+							mIL_AST.CreateInt(Span((1, 63), (1, 63)), mSPO2IL.GetRegId(7), "4"), // 4 => [7]:4
+							mIL_AST.CreatePair(Span((1, 59), (1, 64)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(7)), // [6]:(3); [7]:4 => [8]:(3, 4)
+							mIL_AST.AddPrefix(Span((1, 54), (1, 64)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("bla..."), mSPO2IL.GetRegId(8)), // #bla[8]:(3, 4) => [9]:#bla(3, 4)
+							mIL_AST.CreatePair(Span((1, 46), (1, 66)), mSPO2IL.GetRegId(10), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(9)), // [4]:(1, 2); [8]:(#bla(3, 4)) => [10]:(1, 2, #bla(3, 4))
+							
+							mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10)), // [10]:(1, 2, #bla(3, 4)) => [11]:#bla(3, 4)
+							mIL_AST.SubPrefix(Span((1, 18), (1, 41)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("bla..."), mSPO2IL.GetRegId(11)), // [11]:#bla(3, 4) => [12]:(3, 4)
+							mIL_AST.GetSecond(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(13), mSPO2IL.GetRegId(12)), // [12]:(3, 4) => [13]:4
+							mIL_AST.Alias(Span((1, 34), (1, 39)), mSPO2IL.GetId("d"), mSPO2IL.GetRegId(13)), // [13]:4 == d
+							mIL_AST.GetFirst(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(12)), // [12]:(3, 4) => [14]:(3)
+							mIL_AST.GetSecond(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(15), mSPO2IL.GetRegId(14)), // [14]:(3) => [15]:3
+							mIL_AST.Alias(Span((1, 25), (1, 30)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(15)), // [15]:3 == c
+							mIL_AST.GetFirst(Span((1, 24), (1, 40)), mSPO2IL.GetRegId(16), mSPO2IL.GetRegId(14)), // [14]:(3) => [16]:()
+							mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(17), mSPO2IL.GetRegId(10)), // [10]:(1, 2, #bla(3, 4)) => [17]:(1, 2)
+							mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(18), mSPO2IL.GetRegId(17)), // [17]:(1, 2) => [18]:2
+							mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(18)), // [18]:2 == b
+							mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(19), mSPO2IL.GetRegId(17)), // [17]:(1, 2) => [19]:(1)
+							mIL_AST.GetSecond(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(20), mSPO2IL.GetRegId(19)), // [19]:(1) => [20]:1
+							mIL_AST.Alias(Span((1, 2), (1, 7)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(20)), // [20]:1 == a
+							mIL_AST.GetFirst(Span((1, 1), (1, 42)), mSPO2IL.GetRegId(21), mSPO2IL.GetRegId(19)) // [19]:(1) => [21]:()
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -328,16 +316,14 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream(
-						[
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...*..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Int()
-								)
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...*..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Int()
 							)
-						]
+						)
 					);
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
@@ -407,18 +393,16 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv), // ENV == ...*...
-								
-								mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("a"), mIL_AST.cArg), // ARG == a
-								
-								mIL_AST.CreateInt(Span((1, 27), (1, 27)), mSPO2IL.GetRegId(1), "2"), // 2 => [1]:2
-								mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:2 => [2]:(2)
-								mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2), mSPO2IL.GetId("a")), // [2]:(2); a => (2, a)
-								
-								mIL_AST.CallFunc(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(4), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(3)), // ...*... (2, a) => [4]
-								mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mIL_AST.cTrue, mSPO2IL.GetRegId(4)), // [4] TRUE
-							]
+							mIL_AST.Alias(Span((1, 10), (1, 32)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv), // ENV == ...*...
+							
+							mIL_AST.Alias(Span((1, 10), (1, 15)), mSPO2IL.GetId("a"), mIL_AST.cArg), // ARG == a
+							
+							mIL_AST.CreateInt(Span((1, 27), (1, 27)), mSPO2IL.GetRegId(1), "2"), // 2 => [1]:2
+							mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(2), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(1)), // (); [1]:2 => [2]:(2)
+							mIL_AST.CreatePair(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2), mSPO2IL.GetId("a")), // [2]:(2); a => (2, a)
+							
+							mIL_AST.CallFunc(Span((1, 27), (1, 32)), mSPO2IL.GetRegId(4), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(3)), // ...*... (2, a) => [4]
+							mIL_AST.ReturnIf(Span((1, 27), (1, 32)), mIL_AST.cTrue, mSPO2IL.GetRegId(4)) // [4] TRUE
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -426,15 +410,13 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(2), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(2)),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
-								
-								mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
-								mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1)),
-							]
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(2), mIL_AST.cEnv),
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(2)),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
+							
+							mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
+							mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -442,10 +424,8 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.EnvIds.ToStream(),
 						mStream.Stream(
-							[
-								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(0)
-							]
+							mSPO2IL.GetId("...*..."),
+							mSPO2IL.GetDefId(0)
 						)
 					);
 				}
@@ -461,24 +441,22 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream(
-						[
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...*..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Int()
-								)
-							),
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...+..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Int()
-								)
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...*..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Int()
 							)
-						]
+						),
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...+..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Int()
+							)
+						)
 					);
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
@@ -558,30 +536,28 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
-								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(13)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
-								
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
-								mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
-								
-								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
-								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7), mSPO2IL.GetId("b")),
-								mIL_AST.CallFunc(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(8)),
-								mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(10), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(9)),
-								mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10), mSPO2IL.GetId("c")),
-								mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(11)),
-								mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
-							]
+							mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
+							mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
+							mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(13)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
+							
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
+							mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
+							mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+							mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
+							
+							mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
+							mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7), mSPO2IL.GetId("b")),
+							mIL_AST.CallFunc(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(8)),
+							mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(10), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(9)),
+							mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10), mSPO2IL.GetId("c")),
+							mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(11)),
+							mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -589,19 +565,17 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(5)),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
-								
-								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...+...")),
-								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("...*...+..."), mSPO2IL.GetRegId(3))
-							]
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...+..."), mSPO2IL.GetRegId(5)),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
+							
+							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...+...")),
+							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
+							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("...*...+..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -609,11 +583,9 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.EnvIds.ToStream(),
 						mStream.Stream(
-							[
-								mSPO2IL.GetId("...+..."),
-								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(0)
-							]
+							mSPO2IL.GetId("...+..."),
+							mSPO2IL.GetId("...*..."),
+							mSPO2IL.GetDefId(0)
 						)
 					);
 				}
@@ -629,23 +601,22 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream(
-						[
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...*..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Int()
-								)
-							),
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...>..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Bool()
-								)
-							)]
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...*..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Int()
+							)
+						),
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...>..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Bool()
+							)
+						)
 					);
 					
 					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
@@ -716,30 +687,28 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
-								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(13)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
-								
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
-								mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
-								mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
-								mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
-								
-								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
-								mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7), mSPO2IL.GetId("b")),
-								mIL_AST.CallFunc(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(8)),
-								mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(10), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(9)),
-								mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10), mSPO2IL.GetId("c")),
-								mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(11)),
-								mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
-							]
+							mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...*..."), mIL_AST.cEnv),
+							mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(13), mIL_AST.cEnv),
+							mIL_AST.GetSecond(Span((1, 20), (1, 81)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(13)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(14), mSPO2IL.GetRegId(13)),
+							
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(1), mIL_AST.cArg),
+							mIL_AST.Alias(Span((1, 51), (1, 56)), mSPO2IL.GetId("c"), mSPO2IL.GetRegId(1)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(2), mIL_AST.cArg),
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
+							mIL_AST.Alias(Span((1, 36), (1, 41)), mSPO2IL.GetId("b"), mSPO2IL.GetRegId(3)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(4), mSPO2IL.GetRegId(2)),
+							mIL_AST.GetSecond(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+							mIL_AST.Alias(Span((1, 21), (1, 26)), mSPO2IL.GetId("a"), mSPO2IL.GetRegId(5)),
+							mIL_AST.GetFirst(Span((1, 20), (1, 64)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(4)),
+							
+							mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(7), mIL_AST.cEmptyValue, mSPO2IL.GetId("a")),
+							mIL_AST.CreatePair(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(8), mSPO2IL.GetRegId(7), mSPO2IL.GetId("b")),
+							mIL_AST.CallFunc(Span((1, 70), (1, 75)), mSPO2IL.GetRegId(9), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(8)),
+							mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(10), mIL_AST.cEmptyValue, mSPO2IL.GetRegId(9)),
+							mIL_AST.CreatePair(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(11), mSPO2IL.GetRegId(10), mSPO2IL.GetId("c")),
+							mIL_AST.CallFunc(Span((1, 69), (1, 81)), mSPO2IL.GetRegId(12), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(11)),
+							mIL_AST.ReturnIf(Span((1, 69), (1, 81)), mIL_AST.cTrue, mSPO2IL.GetRegId(12))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -747,19 +716,17 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						Module.Defs.Get(1).Commands.ToStream(),
 						mStream.Stream(
-							[
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
-								mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(5)),
-								mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
-								
-								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...>...")),
-								mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-								mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
-								mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("TestTest..."), mSPO2IL.GetRegId(3))
-							]
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetDefId(0), mIL_AST.cEnv),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(4), mIL_AST.cEnv),
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(4)),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(5), mSPO2IL.GetRegId(4)),
+							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...>..."), mSPO2IL.GetRegId(5)),
+							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(6), mSPO2IL.GetRegId(5)),
+							
+							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...>...")),
+							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
+							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("TestTest..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -767,11 +734,9 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(
 						DefConstructor.EnvIds.ToStream(),
 						mStream.Stream(
-							[
-								mSPO2IL.GetId("...>..."),
-								mSPO2IL.GetId("...*..."),
-								mSPO2IL.GetDefId(0)
-							]
+							mSPO2IL.GetId("...>..."),
+							mSPO2IL.GetId("...*..."),
+							mSPO2IL.GetDefId(0)
 						)
 					);
 				}
@@ -1014,16 +979,14 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream(
-						[
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("...*..."),
-								mVM_Type.Proc(
-									mVM_Type.Empty(),
-									mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-									mVM_Type.Int()
-								)
+						mSPO_AST_Types.ScopeItem(
+							mSPO2IL.GetId("...*..."),
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
+								mVM_Type.Int()
 							)
-						]
+						)
 					);
 					
 					var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -1100,7 +1063,7 @@ mSPO2IL_Tests {
 					
 					mAssert.AreEquals(
 						DefConstructor.EnvIds.ToStream(),
-						mStream.Stream([mSPO2IL.GetId("...*...")])
+						mStream.Stream(mSPO2IL.GetId("...*..."))
 					);
 				}
 			),

@@ -160,34 +160,30 @@ mModule {
 		mStd.File()
 	).Parent.Deref.AssertNotEmpty() / "../Modules";
 	
-	public static tModuleSetup
+	public static readonly tModuleSetup
 	Module_Std = ModuleSetup(
 		ModuleFolder / "Std.ILT",
 		mStd.cEmpty
 	);
 	
-	public static tModuleSetup
+	public static readonly tModuleSetup
 	Module_Char = ModuleSetup(
 		ModuleFolder / "Char.SPO",
 		mStream.Stream(
-			[
-				("Std", Module_Std),
-			]
+			("Std", Module_Std)
 		)
 	);
 	
-	public static tModuleSetup
+	public static readonly tModuleSetup
 	Module_Text = ModuleSetup(
 		ModuleFolder / "Text.SPO",
 		mStream.Stream(
-			[
-				("Std", Module_Std),
-				("Char", Module_Char),
-			]
+			("Std", Module_Std),
+			("Char", Module_Char)
 		)
 	);
 	
-	public static tModuleSetup
+	public static readonly tModuleSetup
 	Module_Maybe = ModuleSetup(
 		ModuleFolder / "Maybe.SPO",
 		mStd.cEmpty

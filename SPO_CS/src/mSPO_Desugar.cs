@@ -243,10 +243,10 @@ mSPO_Desugar {
 		=> mSPO_AST.IfMatch(
 			Pos,
 			Expression,
-			mStream.Stream([
+			mStream.Stream(
 				(Pattern, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.True(Pos)),
 				(mSPO_AST.Pattern(Pos, mSPO_AST.IgnorePattern(Pos), mStd.cEmpty), mSPO_AST.False(Pos))
-			])
+			)
 		).Do(
 			_ => { _.TypeAnnotation = Type; }
 		).DesugarExpression(
@@ -283,7 +283,7 @@ mSPO_Desugar {
 							Func,
 							mSPO_AST.Tuple(
 								Pos,
-								mStream.Stream([Result, Call.Arg])
+								mStream.Stream(Result, Call.Arg)
 							)
 						).Do(_ => { _.TypeAnnotation = Call.TypeAnnotation; });
 					}
@@ -311,7 +311,7 @@ mSPO_Desugar {
 							Func,
 							mSPO_AST.Tuple(
 								Pos,
-								mStream.Concat(Args.Items, mStream.Stream([Result]))
+								mStream.Concat(Args.Items, mStream.Stream(Result))
 							)
 						).Do(_ => { _.TypeAnnotation = Call.TypeAnnotation; });
 					} else {
@@ -320,7 +320,7 @@ mSPO_Desugar {
 							Func,
 							mSPO_AST.Tuple(
 								Pos,
-								mStream.Stream([Call.Arg, Result])
+								mStream.Stream(Call.Arg, Result)
 							)
 						).Do(_ => { _.TypeAnnotation = Call.TypeAnnotation; });
 					}

@@ -323,7 +323,7 @@ mSPO_Parser {
 		[
 			InfixCall(ExpressionInCall).Modify((aId, aArgs) => ((mSPO_AST.tExpressionNode<tSpan>)aId, aArgs)),
 			mParserGen.Seq(
-				-SpecialToken(".") +C(Expression), Expression.Modify(_ => mStream.Stream([_]))
+				-SpecialToken(".") +C(Expression), Expression.Modify(__ => mStream.Stream(__))
 			)
 		]
 	)
@@ -586,7 +586,7 @@ mSPO_Parser {
 		[
 			InfixCall(Type).Modify((aId, aTypes) => ((mSPO_AST.tTypeNode<tSpan>)aId, aTypes)),
 			mParserGen.Seq(
-				-SpecialToken(".") +C(Type), Type.Modify(_ => mStream.Stream([_]))
+				-SpecialToken(".") +C(Type), Type.Modify(__ => mStream.Stream(__))
 			)
 		]
 	)
@@ -939,7 +939,7 @@ mSPO_Parser {
 				)
 			);
 			
-			SB.Append("	" + TypeCommand_.ToText()).Append('\n');
+			SB.Append("\t" + TypeCommand_.ToText()).Append('\n');
 			TypeIndex += 1;
 		}
 		
@@ -947,7 +947,7 @@ mSPO_Parser {
 			SB.Append('\n');
 			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
 			foreach (var Cmd in Commands.ToStream()) {
-				SB.Append("	" + Cmd.ToText()).Append('\n');
+				SB.Append("\t" + Cmd.ToText()).Append('\n');
 			}
 			DefIndex += 1;
 		}

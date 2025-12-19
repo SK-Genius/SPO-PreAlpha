@@ -371,7 +371,7 @@ mTreeMap {
 		? mStream.Concat(
 			Node.SubTree1.ToStream(),
 			mStream.Concat(
-				mStream.Stream([(Node.Key, Node.Value)]),
+				mStream.Stream((Node.Key, Node.Value)),
 				Node.SubTree2.ToStream()
 			)
 		)
@@ -392,7 +392,7 @@ mTreeMap {
 				aGroup
 			).Match(
 				_ => aTree.Set(aGroup, mStream.Stream(aItem, _)),
-				() => aTree.Set(aGroup, mStream.Stream([aItem]))
+				() => aTree.Set(aGroup, mStream.Stream(aItem))
 			)
 		)
 	);

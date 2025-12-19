@@ -20,18 +20,16 @@ mVM_Type_Tests {
 	) => "_" + aId;
 	
 	private static readonly mStream.tStream<mSPO_AST_Types.tScopeItem> cTestScope = mStream.Stream(
-		[
-			mSPO_AST_Types.ScopeItem(
-				"_...+...",
-				mVM_Type.Proc(
-					mVM_Type.Empty(),
-					mVM_Type.Tuple(
-						[mVM_Type.Int(), mVM_Type.Int()]
-					),
-					mVM_Type.Int()
-				)
+		mSPO_AST_Types.ScopeItem(
+			"_...+...",
+			mVM_Type.Proc(
+				mVM_Type.Empty(),
+				mVM_Type.Tuple(
+					[mVM_Type.Int(), mVM_Type.Int()]
+				),
+				mVM_Type.Int()
 			)
-		]
+		)
 	);
 	
 	public static readonly mTest.tTest

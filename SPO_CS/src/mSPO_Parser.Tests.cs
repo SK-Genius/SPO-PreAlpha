@@ -411,27 +411,25 @@ mSPO_Parser_Tests {
 							Span((1, 1), (1, 25)),
 							mSPO_AST.Id(Span((1, 1), (1, 1)), "o"),
 							mStream.Stream(
-								[
-									mSPO_AST.MethodCall(
-										Span((1, 4), (1, 23)),
-										mSPO_AST.Id(Span((1, 4), (1, 23)), "=..."),
-										mSPO_AST.Call(
-											Span((1, 7), (1, 22)),
-											mSPO_AST.Id(Span((1, 7), (1, 22)), "...+..."),
-											mSPO_AST.Tuple(
-												Span((1, 7), (1, 22)), 
-												[
-													mSPO_AST.VarToVal(
-														Span((1, 8), (1, 16)),
-														mSPO_AST.Id(Span((1, 16), (1, 16)), "o")
-													),
-													mSPO_AST.Id(Span((1, 22), (1, 22)), "i")
-												]
-											)
-										),
-										mStd.cEmpty
-									)
-								]
+								mSPO_AST.MethodCall(
+									Span((1, 4), (1, 23)),
+									mSPO_AST.Id(Span((1, 4), (1, 23)), "=..."),
+									mSPO_AST.Call(
+										Span((1, 7), (1, 22)),
+										mSPO_AST.Id(Span((1, 7), (1, 22)), "...+..."),
+										mSPO_AST.Tuple(
+											Span((1, 7), (1, 22)), 
+											[
+												mSPO_AST.VarToVal(
+													Span((1, 8), (1, 16)),
+													mSPO_AST.Id(Span((1, 16), (1, 16)), "o")
+												),
+												mSPO_AST.Id(Span((1, 22), (1, 22)), "i")
+											]
+										)
+									),
+									mStd.cEmpty
+								)
 							)
 						),
 						mSPO_AST.AreEqual

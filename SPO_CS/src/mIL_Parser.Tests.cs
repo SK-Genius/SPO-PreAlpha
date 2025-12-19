@@ -90,25 +90,23 @@ mIL_Parser_Tests {
 		}.AsStream(
 		).Map(
 			aTestCase => mStream.Stream(
-				[
-					mTest.Test($"{nameof(mTextParser.ParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
-						aStreamOut => {
-							mAssert.AreEquals(
-								mIL_Parser.Command.ParseText(aTestCase.Expr, "", _ => aStreamOut(_())),
-								aTestCase.Command,
-								mIL_AST.Eq_(mSpan.Eq_<tPos>(mTextStream.Eq))
-							);
-						}
-					),
-					mTest.Test($"{nameof(mIL_AST.ToText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
-						aStreamOut => {
-							mAssert.AreEquals(
-								aTestCase.Command.ToText(),
-								aTestCase.Expr
-							);
-						}
-					)
-				]
+				mTest.Test($"{nameof(mTextParser.ParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+					aStreamOut => {
+						mAssert.AreEquals(
+							mIL_Parser.Command.ParseText(aTestCase.Expr, "", _ => aStreamOut(_())),
+							aTestCase.Command,
+							mIL_AST.Eq_(mSpan.Eq_<tPos>(mTextStream.Eq))
+						);
+					}
+				),
+				mTest.Test($"{nameof(mIL_AST.ToText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+					aStreamOut => {
+						mAssert.AreEquals(
+							aTestCase.Command.ToText(),
+							aTestCase.Expr
+						);
+					}
+				)
 			)
 		).Flatt(
 		).ToArrayList(

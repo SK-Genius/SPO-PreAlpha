@@ -53,13 +53,11 @@ mIL_GenerateOpcodes {
 		);
 		
 		var Types_ = mStream.Stream(
-			[
-				mVM_Type.Empty(),
-				mVM_Type.Any(),
-				mVM_Type.Bool(),
-				mVM_Type.Int(),
-				mVM_Type.Type()
-			]
+			mVM_Type.Empty(),
+			mVM_Type.Any(),
+			mVM_Type.Bool(),
+			mVM_Type.Int(),
+			mVM_Type.Type()
 		);
 		
 		var NextTypeIndex = Types_.Count();
@@ -123,7 +121,7 @@ mIL_GenerateOpcodes {
 				mIL_AST.tCommandNodeType.TypeCond => throw new System.NotImplementedException(),
 				_ => throw mError.Error("not implemented: " + TypeDef.NodeType),
 			};
-			Types_ = mStream.Concat(Types_, mStream.Stream([Type]));
+			Types_ = mStream.Concat(Types_, mStream.Stream(Type));
 			TypeMap = TypeMap.Set(TypeDef._1, NextTypeIndex);
 			NextTypeIndex += 1;
 		}
@@ -169,7 +167,7 @@ mIL_GenerateOpcodes {
 			
 			var NewProc = new mVM_Data.tProcDef<tPos>(DefType);
 			
-			Module = mStream.Concat(Module, mStream.Stream([NewProc]));
+			Module = mStream.Concat(Module, mStream.Stream(NewProc));
 			
 			var Regs = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), [])
 			.Set(mIL_AST.cEmptyValue, mVM_Data.cEmptyReg)

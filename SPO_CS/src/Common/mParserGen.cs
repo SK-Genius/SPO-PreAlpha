@@ -61,7 +61,7 @@ mParserGen {
 			[DebuggerHidden] (aResult) => (
 				aIsValid(aResult.Result.Value)
 				? mResult.OK(aResult).WithErrorType<mStream.tStream<(tPos Pos, tError Message)>>()
-				: mResult.Fail(mStream.Stream([aErrorMessage(aResult.Result)]))
+				: mResult.Fail(mStream.Stream(aErrorMessage(aResult.Result)))
 			)
 		);
 		return Parser;
@@ -301,7 +301,7 @@ mParserGen {
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStd.tFunc<(mSpan.tSpan<tPos> Span, tIn Value), (tPos Pos, tError Message)> aCreateError
 	) => aParser.ModifyErrors(
-		[DebuggerHidden] (aErrors, a) => mStream.Concat(aErrors, mStream.Stream([aCreateError(a)]))
+		[DebuggerHidden] (aErrors, a) => mStream.Concat(aErrors, mStream.Stream(aCreateError(a)))
 	);
 	
 	#endregion
@@ -499,13 +499,13 @@ mParserGen {
 								(List, TempResult.Result.Value)
 							),
 							TempResult.RemainingStream,
-							mStream.Stream<(tPos Pos, tError Message)>([])
+							mStream.Stream<(tPos Pos, tError Message)>()
 						);
 					} else if (!RestStream.Is(out var Head, out RestStream)) {
-						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massage)>([]));
+						return mResult.Fail(mStream.Stream<(tPos Pos, tError Massage)>());
 					} else {
 						Span = mSpan.Merge(Span, Head.Span);
-						List = mStream.Concat(List, mStream.Stream([Head.Value]));
+						List = mStream.Concat(List, mStream.Stream(Head.Value));
 					}
 				}
 			};
@@ -836,10 +836,10 @@ mParserGen {
 	) => new(aComparePos, aAreErrorsEqual) {
 		_ParseFunc = [DebuggerHidden] (aStream, aDebugStream, aPath) => (
 			aStream.Is(out var Head, out var Tail) && aTest(Head.Value)
-			? ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>([]))
-			: mResult.Fail(mStream.Stream([aCreateErrorFunc(Head)]))
+			? ParserResult(Head, Tail, mStream.Stream<(tPos Pos, tError Message)>())
+			: mResult.Fail(mStream.Stream(aCreateErrorFunc(Head)))
 		),
-		_ModifyErrorsFunc = [DebuggerHidden] (_, a) => mStream.Stream([aCreateErrorFunc(a)]),
+		_ModifyErrorsFunc = [DebuggerHidden] (_, a) => mStream.Stream(aCreateErrorFunc(a)),
 	};
 	
 	[Pure, DebuggerHidden]
@@ -854,7 +854,7 @@ mParserGen {
 				mStd.cEmpty
 			),
 			aStream,
-			mStream.Stream<(tPos Pos, tError Message)>([])
+			mStream.Stream<(tPos Pos, tError Message)>()
 		),
 	};
 }
