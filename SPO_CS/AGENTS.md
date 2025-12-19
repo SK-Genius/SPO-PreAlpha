@@ -1,19 +1,19 @@
 # Project Guidance for AI Assistants
 
 ## Project Overview
-- **Project Name:** SPO_CS
+- **Project Name:** SPO
 - **Language:** C# (modern, .NET 10, C# 14 features)
-- **Paradigm:** Functional-inspired, modular, custom AST/VM/compiler
+- **Paradigm:** Functional-inspired, modular
 - **Domain:** Parser, Compiler, and Virtual Machine for a experimental secure and robust programming language
 
 ## Project Structure
-- **src/:** Main source code folder
-  - **Common/:** Core utilities (mStd, mMaybe, mSpan, mTextStream, mParserGen, etc.)
+- **src/:** Source code folder
+  - **Test files:** Named `*.Tests.cs`, included via custom `<TestSrc>` in `.csproj`
+  - **Common/:** Modules that are not specific to the SPO language (mStd, mMaybe, mSpan, mTextStream, mParserGen, etc.)
   - **mIL_AST.cs, mIL_Parser.cs, mTokenizer.cs, mVM_Data.cs, mVM.cs:** Core compiler/VM modules
   - **mStdLib.cs:** Standard library loader and runner
-  - **mSPO2IL.cs:** Main compiler logic (SPO AST -> IL)
-  - **Test files:** Named `*.Tests.cs`, included via custom `<TestSrc>` in `.csproj`
-- **Modules/:** Canonical compiled modules (`*.SPO` + generated `*.ILT`) used by `mModule_Tests` for standard-library validation.
+  - **mSPO2IL.cs:** Lowering SPO AST to IL
+- **Modules/:** Canonical compiled modules (`*.SPO` + generated `*.ILT`) tested by `mModule_Tests`.
 - **Regression.Tests/:** Scenario fixtures; each trio of `.SPO`, `.result.SPO`, and `.ILT` feeds `mRegression_Tests` regression harness.
 
 ## Core source modules (src/)
@@ -28,15 +28,12 @@
   - `mRunTests.cs` is the console entry point; run via `dotnet run --project SPO_CS.csproj --` with flags like `--list`, `--matchAll`, `--plainText`, or `--stopOnFirstFail`.
   - Unit suites live in `*.Tests.cs` modules and expose a static `mTest.tTest Tests` field registered through `mTest.Tests(...)`.
   - `mRegression_Tests` discovers fixtures in `Regression.Tests/`, executes each `.SPO`, compares against `.result.SPO`, and diffs generated `.ILT` output (writes `.ILT.new` on mismatch).
-  - `mModule_Tests` loads canonical modules from `Modules/` (`Std`, `Char`, `Text`) to verify interpreter + VM integration against known tuples.
-
-## Common utilities (src/Common/)
-Reusable functional-style helpers (e.g., option types, result handling, parser combinators, collections) are grouped under Common (mMaybe.cs, mResult.cs, mParserGen.cs, etc.). These components underpin the language implementation with generic data structures, error handling, and stream parsing facilities.
+  - `mModule_Tests` loads modules from `Modules/` (`Std`, `Char`, `Text`) to verify interpreter + VM integration.
 
 ## Coding Style
 - **Identifier Placement**
-  - Type and identifier are split across lines for readability:
-    ```csharp
+  - Type and identifier are split across lines to put the name at the begin of the line for readability:
+    ```cs
     public static class
     mAny_Tests {
       public static readonly mTest.tTest
@@ -63,16 +60,17 @@ Reusable functional-style helpers (e.g., option types, result handling, parser c
 - Module layout:
   ```cs
   public static class
-  ModuleName {
+  mModuleName {
     ...
   }
   ```
 - Break method signatures so the return type and method name are on separate lines; each parameter occupies its own line.
+- names/identifiers are PascalCase with maybe a single lower case letter prefix how indicates the kind (tType, mModule, aArgument, iInterface, cConstant, ...)
 - Prefix modules with `m` (e.g., `mStd`) and types with `t` (e.g., `tBool`, `tNat32`).
 - For pure or frequently-called functions, include attributes:
   [Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 - Prefer expression-bodied members (`=>`) where practical.
-- Avoid trailing whitespace and keep comments concise.
+- Avoid trailing whitespace (except for empty lines) and keep comments concise.
 
 Types in this directory intentionally avoid the standard `object` methods such as `Equals`, `GetHashCode`, and `ToString`.
 - Use `ToText` for string representations.
@@ -81,24 +79,8 @@ Types in this directory intentionally avoid the standard `object` methods such a
 
 Apply these rules when creating new types to keep behavior consistent with existing structures like `tAny`.
 
-## Test Framework
-- **Custom Test Framework**
-  - Tests are defined as static fields using `mTest.tTest` and registered via `mTest.Tests(...)`.
-  - Test files are named `*.Tests.cs` and linked in the `.csproj` via `<TestSrc>`.
-  - Assertions via `mAssert`.
-
-## Build & Run
-- **AOT Support**  
-  - `<PublishAot>true</PublishAot>` in `.csproj` for native builds.
-  - Use `dotnet publish -c Release -r win-x64` for AOT; run the resulting `.exe` directly.
-- **JIT for Development**  
-  - Use `dotnet run --no-restore` for fast edit/run cycles.
-
 ## Miscellaneous
-- **Imports**
-  - Custom `// IMPORT ...` comments at the top of files for dependency clarity.
-- **Standard Library**
-  - Loaded from `Modules/Std.ILT` at runtime.
+*.md files mostly generated by AI and not fully reviewed by humans. They can contain significant false information. Don't trust them, double check them against the sourcecode and tests to be sure they are accurate information,
 
 ---
 

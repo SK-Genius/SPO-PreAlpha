@@ -7,7 +7,7 @@ indent_style = tab
 insert_final_newline = false
 tab_width = 4
 
-[*.yml]
+[*.yml,*.md]
 indent_style = space
 indent_size = 2
 tab_width = 2
