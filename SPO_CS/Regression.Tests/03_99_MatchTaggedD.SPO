@@ -1,0 +1,4 @@
+§EXPORT §IF {
+	(#Box 7) §IS (#Box _) : 1
+	§TRUE : 0
+}

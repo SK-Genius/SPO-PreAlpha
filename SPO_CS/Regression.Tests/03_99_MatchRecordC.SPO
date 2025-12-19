@@ -1,0 +1,4 @@
+§EXPORT §IF { First: 0, Second: 5 } MATCH {
+	{First: 0, Second: §DEF Value} : Value
+	{First: §DEF Value, Second: _} : Value
+}

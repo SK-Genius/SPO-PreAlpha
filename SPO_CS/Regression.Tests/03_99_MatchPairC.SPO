@@ -1,0 +1,4 @@
+§EXPORT §IF (0, 5) MATCH {
+	(0, §DEF Second) : Second
+	(§DEF First, _) : First
+}

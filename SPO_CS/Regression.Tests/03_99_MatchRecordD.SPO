@@ -1,0 +1,4 @@
+§EXPORT §IF {
+	{First: (), Second: 7} §IS {First: (), Second: _} : 1
+	§TRUE : 0
+}

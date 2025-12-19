@@ -1,0 +1,5 @@
+§EXPORT (
+	.(
+		{ First: (), Second: §DEF Value € §INT } => Value
+	) { First: (), Second: 3 }
+)

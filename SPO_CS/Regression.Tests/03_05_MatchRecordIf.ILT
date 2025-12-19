@@ -1,0 +1,99 @@
+§TYPES
+	t_0 := [#_First INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [#_Second INT]
+	t_3 := [{t_1} + t_2]
+	t_4 := [#Result INT]
+	t_5 := [EMPTY_TYPE | t_4]
+	t_6 := [t_3 => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [#_First INT]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [#_Second INT]
+	t_11 := [{t_9} + t_10]
+	t_12 := [#_First INT]
+	t_13 := [{EMPTY_TYPE} + t_12]
+	t_14 := [#_Second INT]
+	t_15 := [{t_13} + t_14]
+	t_16 := [t_15 => INT]
+	t_17 := [EMPTY_TYPE => t_16]
+	t_18 := [EMPTY_TYPE, t_17]
+	t_19 := [#_First INT]
+	t_20 := [{EMPTY_TYPE} + t_19]
+	t_21 := [#_Second INT]
+	t_22 := [{t_20} + t_21]
+	t_23 := [t_18, t_17]
+	t_24 := [#_First INT]
+	t_25 := [{EMPTY_TYPE} + t_24]
+	t_26 := [#_Second INT]
+	t_27 := [{t_25} + t_26]
+	t_28 := [t_27 => t_4]
+	t_29 := [t_23 => t_28]
+	t_30 := [#_First INT]
+	t_31 := [{EMPTY_TYPE} + t_30]
+	t_32 := [#_Second INT]
+	t_33 := [{t_31} + t_32]
+	t_34 := [#_First INT]
+	t_35 := [{EMPTY_TYPE} + t_34]
+	t_36 := [#_Second INT]
+	t_37 := [{t_35} + t_36]
+	t_38 := [#_First INT]
+	t_39 := [{EMPTY_TYPE} + t_38]
+	t_40 := [#_Second INT]
+	t_41 := [{t_39} + t_40]
+	t_42 := [#_First INT]
+	t_43 := [{EMPTY_TYPE} + t_42]
+	t_44 := [#_Second INT]
+	t_45 := [{t_43} + t_44]
+	t_46 := [#_First INT]
+	t_47 := [{EMPTY_TYPE} + t_46]
+	t_48 := [#_Second INT]
+	t_49 := [{t_47} + t_48]
+	t_50 := [t_23, t_29]
+	t_51 := [EMPTY_TYPE => INT]
+	t_52 := [t_50 => t_51]
+
+§DEF d_0 € t_7
+	r_1 := §TRY ARG AS_RECORD
+	r_2 := {r_1} #_Second
+	_Value := r_2
+	r_3 := +#Result _Value
+	§RETURN r_3 IF TRUE
+
+§DEF d_1 € t_7
+	r_1 := 0
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_2 € t_29
+	d_1 := §2ND ENV
+	r_5 := §1ST ENV
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_0 EMPTY
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	r_3 := .d_1 EMPTY
+	r_4 := .r_3 ARG
+	§RETURN r_4 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_52
+	d_2 := §2ND ENV
+	r_12 := §1ST ENV
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := 1
+	r_2 := +#_First r_1
+	r_3 := {EMPTY} + r_2
+	r_4 := 2
+	r_5 := +#_Second r_4
+	r_6 := {r_3} + r_5
+	r_7 := EMPTY, d_0
+	r_8 := r_7, d_1
+	r_9 := .d_2 r_8
+	r_10 := .r_9 r_6
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE

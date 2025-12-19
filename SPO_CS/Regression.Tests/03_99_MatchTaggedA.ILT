@@ -1,0 +1,39 @@
+§TYPES
+	t_0 := [#_Box... INT]
+	t_1 := [#Result INT]
+	t_2 := [EMPTY_TYPE | t_1]
+	t_3 := [t_0 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_0 => INT]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_0 => t_1]
+	t_8 := [t_6 => t_7]
+	t_9 := [EMPTY_TYPE, t_6]
+	t_10 := [t_9, t_8]
+	t_11 := [EMPTY_TYPE => INT]
+	t_12 := [t_10 => t_11]
+
+§DEF d_0 € t_4
+	r_1 := §TRY_REMOVE #_Box... FROM ARG
+	_Value := r_1
+	r_2 := +#Result _Value
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_8
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_12
+	d_1 := §2ND ENV
+	r_6 := §1ST ENV
+	d_0 := §2ND r_6
+	r_7 := §1ST r_6
+	r_1 := 2
+	r_2 := +#_Box... r_1
+	r_3 := .d_1 d_0
+	r_4 := .r_3 r_2
+	r_5 := -#Result r_4
+	§RETURN r_5 IF TRUE

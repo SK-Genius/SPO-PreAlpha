@@ -1,0 +1,3 @@
+§EXPORT §IF ((), 2) MATCH {
+	((), §DEF Second) : Second
+}

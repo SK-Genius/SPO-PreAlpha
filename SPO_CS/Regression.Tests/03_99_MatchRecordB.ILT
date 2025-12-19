@@ -1,0 +1,31 @@
+§TYPES
+	t_0 := [#_First EMPTY_TYPE]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [#_Second INT]
+	t_3 := [{t_1} + t_2]
+	t_4 := [t_3 => INT]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [#_First EMPTY_TYPE]
+	t_7 := [{EMPTY_TYPE} + t_6]
+	t_8 := [#_Second INT]
+	t_9 := [{t_7} + t_8]
+	t_10 := [EMPTY_TYPE => INT]
+	t_11 := [t_5 => t_10]
+
+§DEF d_0 € t_5
+	r_1 := {ARG} #_First
+	§RETURN r_1 IF_NOT_EMPTY
+	r_2 := {ARG} #_Second
+	_Value := r_2
+	§RETURN _Value IF TRUE
+
+§DEF d_1 € t_11
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	r_2 := +#_First EMPTY
+	r_3 := {EMPTY} + r_2
+	r_4 := 3
+	r_5 := +#_Second r_4
+	r_6 := {r_3} + r_5
+	r_7 := .r_1 r_6
+	§RETURN r_7 IF TRUE

@@ -1253,6 +1253,47 @@ mSPO2IL {
 				
 				break;
 			}
+			case mSPO_AST.tRecordPatternNode<tPos> Node: {
+				aTestAndCallCaseFunc.Commands.Push(
+					mIL_AST.TryAsRecord(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var RecordReg), aInputReg)
+				);
+				
+				var (T, NotT) = aArgType.SplitBy(__ => __.IsRecord(out _));
+				
+				if (!T.IsSome(out var RecordType)) {
+					if (
+						Node.TypeAnnotation.AssertNotEmpty()
+						.IsSubType(aArgType, mStd.cEmpty)
+						.Match(out _, out var Error)
+					) {
+						throw mError.Error("Impossible");
+					} else {
+						aError = (Node.Pos, Error);
+						return false;
+					}
+				}
+				
+				foreach (var (IdNode, Pattern) in Node.Elements) {
+					var FieldType = RecordType.GetFieldType(IdNode.Id);
+					aTestAndCallCaseFunc.Commands.Push(
+						mIL_AST.GetField(IdNode.Pos, aTestAndCallCaseFunc.CreateTempReg(out var FieldReg), RecordReg, IdNode.Id)
+					);
+					
+					if (
+						!aTestAndCallCaseFunc.MapIfCaseRecursive(
+							aModuleConstructor,
+							Pattern,
+							FieldReg,
+							FieldType,
+							out aError
+						)
+					) {
+						return false;
+					}
+				}
+				
+				break;
+			}
 			case mSPO_AST.tGuardPatternNode<tPos> Node: {
 				if (
 					!aTestAndCallCaseFunc.MapIfCaseRecursive(

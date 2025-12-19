@@ -1,0 +1,79 @@
+§TYPES
+	t_0 := [#_Box... INT]
+	t_1 := [#Result BOOL]
+	t_2 := [EMPTY_TYPE | t_1]
+	t_3 := [t_0 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_0 => BOOL]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [EMPTY_TYPE, t_6]
+	t_8 := [t_7, t_6]
+	t_9 := [t_0 => t_1]
+	t_10 := [t_8 => t_9]
+	t_11 := [t_8, t_10]
+	t_12 := [INT | EMPTY_TYPE]
+	t_13 := [EMPTY_TYPE => t_12]
+	t_14 := [t_11 => t_13]
+	t_15 := [t_11, t_14]
+	t_16 := [EMPTY_TYPE => INT]
+	t_17 := [t_15 => t_16]
+
+§DEF d_0 € t_4
+	r_1 := §TRY_REMOVE #_Box... FROM ARG
+	r_2 := +#Result TRUE
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_4
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_2 € t_10
+	d_1 := §2ND ENV
+	r_5 := §1ST ENV
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_0 EMPTY
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	r_3 := .d_1 EMPTY
+	r_4 := .r_3 ARG
+	§RETURN r_4 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_14
+	d_2 := §2ND ENV
+	r_10 := §1ST ENV
+	d_1 := §2ND r_10
+	r_11 := §1ST r_10
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	r_2 := +#_Box... r_1
+	r_3 := EMPTY, d_0
+	r_4 := r_3, d_1
+	r_5 := .d_2 r_4
+	r_6 := .r_5 r_2
+	r_7 := -#Result r_6
+	r_8 := 1
+	§RETURN r_8 IF r_7
+	r_9 := 0
+	§RETURN r_9 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_17
+	d_3 := §2ND ENV
+	r_7 := §1ST ENV
+	d_2 := §2ND r_7
+	r_8 := §1ST r_7
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	r_2 := EMPTY, d_0
+	r_3 := r_2, d_1
+	r_4 := r_3, d_2
+	r_5 := .d_3 r_4
+	r_6 := .r_5 EMPTY
+	r_1 := r_6
+	§RETURN r_1 IF TRUE

@@ -1,0 +1,19 @@
+§TYPES
+	t_0 := [#_Box... INT]
+	t_1 := [t_0 => INT]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [EMPTY_TYPE => INT]
+	t_4 := [t_2 => t_3]
+
+§DEF d_0 € t_2
+	r_1 := -#_Box... ARG
+	_Value := r_1
+	§RETURN _Value IF TRUE
+
+§DEF d_1 € t_4
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	r_2 := 3
+	r_3 := +#_Box... r_2
+	r_4 := .r_1 r_3
+	§RETURN r_4 IF TRUE
