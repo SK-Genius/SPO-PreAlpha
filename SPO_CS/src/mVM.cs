@@ -518,10 +518,19 @@ mVM {
 				}
 				break;
 			}
-
 			case mVM_Data.tOpCode.TryAsRecord: {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				if (Arg.IsRecord(out var _)) {
+					aCallStack._Regs.Push(Arg);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
+			case mVM_Data.tOpCode.TryAsVar: {
+				var Arg = aCallStack._Regs.Get(Arg1);
+				if (Arg.IsVar(out var _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
 					aCallStack._TraceOut(() => "====================================");

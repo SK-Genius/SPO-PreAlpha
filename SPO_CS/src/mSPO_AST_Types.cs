@@ -417,7 +417,9 @@ mSPO_AST_Types {
 							).TryFirst(
 							).Match(
 								() => {
-									var NewType = mVM_Type.Var(a);
+									var NewType = a.IsVar(out _)
+										? a
+										: mVM_Type.Var(a);
 									return (Type: NewType, Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope));
 								},
 								aScopeItem => {
