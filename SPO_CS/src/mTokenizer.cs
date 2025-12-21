@@ -99,10 +99,16 @@ mTokenizer {
 			(
 				(
 					mParserGen.Seq(
-						-Char('"') -Char('\n'),
-						(-CharIn(" \t\r") -Char('|') +(~Char('\n')).Modify(
-							_ => _.Item1.Reduce("", (aLine, aChar) => aLine + aChar)
-						))[0..].Modify(
+						-Char('"') -Char('\r')[0..1] -Char('\n'),
+						(
+							mParserGen.Seq(
+								-__ -Char('|'),
+								CharNotIn("\r\n")[0..].Modify(
+									aChars => aChars.Reduce("", (aLine, aChar) => aLine + aChar)
+								),
+								-Char('\r')[0..1] -Char('\n')
+							).Modify((_, aLine, __) => aLine)
+						)[0..].Modify(
 							aLines => aLines.Join((aLines, aLine) => aLines + '\n' + aLine, "")
 						),
 						-__ -Char('"')
@@ -114,7 +120,11 @@ mTokenizer {
 						CharNotIn("\"")[0..],
 						Char('"')
 					).ModifyS(
-						(aSpan, _, aChars, __) => new tToken { Type = tTokenType.Text, Text = aChars.Reduce("", (aText, aChar) => aText + aChar), Span = aSpan }
+						(aSpan, _, aChars, __) => new tToken {
+							Type = tTokenType.Text,
+							Text = aChars.Reduce("", (aText, aChar) => aText + aChar),
+							Span = aSpan
+						}
 					)
 				)
 			).SetName(nameof(tTokenType.Text)),

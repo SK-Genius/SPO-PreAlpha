@@ -1,0 +1,5 @@
+§DEF X = "
+	|Line1
+	|Line2
+"
+§EXPORT X
