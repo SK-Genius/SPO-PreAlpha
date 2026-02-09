@@ -264,16 +264,35 @@ mVM_Type {
 		)
 	);
 	
-	public static tType
-	Type(
-	) => new() {
-		Kind = tKind.Type,
-	};
-	
-	public static tBool
-	IsType(
-		this tType aType
-	) => aType.Kind is tKind.Type;
+        public static tType
+        Type(
+        ) => new() {
+                Kind = tKind.Type,
+        };
+
+        public static tType
+        TypeFunc(
+        ) => Proc(
+                Empty(),
+                Type(),
+                Type()
+        );
+
+        public static tBool
+        IsType(
+                this tType aType
+        ) => aType.Kind is tKind.Type;
+
+        public static tBool
+        IsTypeFunc(
+                this tType aType
+        ) {
+                if (!aType.IsProc(out var ObjType, out var ArgType, out var ResType)) {
+                        return false;
+                }
+
+                return ObjType.IsEmpty() && ArgType.IsType() && ResType.IsType();
+        }
 	
 	public static tType
 	Value(

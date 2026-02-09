@@ -155,7 +155,7 @@ mSPO_AST_Types {
 				() => {
 					if (Lambda.Generic.IsSome(out var GenericPattern)) {
 						// TODO: AI generated code has to be reviewed
-						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope).ThenTry(
+                                               return UpdatePatternTypes(GenericPattern, mVM_Type.TypeFunc(), tTypeRelation.Equal, aScope).ThenTry(
 							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
 								mStd.cEmpty,
@@ -168,7 +168,7 @@ mSPO_AST_Types {
 									aResTypeScope => {
 										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope);
 										
-										if (aGenTypeScope.Type.IsType()) {
+if (aGenTypeScope.Type.IsType() || aGenTypeScope.Type.IsTypeFunc()) {
 											var T = aGenTypeScope.Scope.Where(
 												_ => _.Id == GenericPattern.TryGetId().AssertNotEmpty()
 											).TryFirst(
@@ -377,31 +377,36 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tFreeIdPatternNode<tPos> FreePatternId: {
-				Result = aType.Then(
-					a => (
-						a.IsType()
-						? (
+			Result = aType.Then(
+				a => {
+					if (a.IsType() || a.IsTypeFunc()) {
+						var FreeType = mVM_Type.Free(FreePatternId.Id);
+
+						return (
 							a,
 							mStream.Stream(
 								ScopeItem(
 									FreePatternId.Id,
 									a,
-									mVM_Type.Free(FreePatternId.Id)
+									mMaybe.Some(FreeType)
 								),
 								aScope
 							)
+						);
+					}
+
+					return (
+						a,
+						mStream.Stream(
+							ScopeItem(
+								FreePatternId.Id,
+								a
+							),
+							aScope
 						)
-						: (
-							a,
-							mStream.Stream(
-								ScopeItem(
-									FreePatternId.Id,
-									a
-								),
-								aScope
-							)
-						)
-					)
+					);
+				}
+			)
 				).ElseFail(
 					() => (FreePatternId.Pos, $"missing type for '{FreePatternId.Id}'")
 				);
@@ -688,7 +693,7 @@ mSPO_AST_Types {
 				foreach (var Item in RecLambdas.List) {
 					var HeadScope = NewScope;
 					if (Item.Lambda.Generic.IsSome(out var GenericPattern)) {
-						if (!UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
+                                                if (!UpdatePatternTypes(GenericPattern, mVM_Type.TypeFunc(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
 							return mResult.Fail(GenError);
 						}
 						HeadScope = GenScope.Scope;
@@ -862,7 +867,8 @@ mSPO_AST_Types {
 				).ElseFail(
 					() => (IdNode.Pos, $"unknown type of Identifier '{IdNode.Id}'")
 				).ThenTry(
-					_ => _.Type.IsType()
+					_
+					=> (_.Type.IsType() || _.Type.IsTypeFunc())
 					? _.FreeType.ElseFail(() => (IdNode.Pos, "impossible ???"))
 					: _.Type
 				);
