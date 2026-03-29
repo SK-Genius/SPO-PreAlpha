@@ -23,6 +23,7 @@ mVM_Type {
 		Var,
 		Ref,
 		Set,
+		Guard,
 		Cond,
 		Recursive,
 		Generic, // Universal
@@ -115,7 +116,8 @@ mVM_Type {
 			case tKind.Proc:
 			case tKind.Ref:
 			case tKind.Var:
-			case tKind.Set: {
+			case tKind.Set:
+			case tKind.Guard: {
 				return new tType {
 					Prefix = aType.Prefix,
 					Kind = aType.Kind,
@@ -590,6 +592,53 @@ mVM_Type {
 			return false;
 		}
 	}
+
+	public static tType
+	Guard(
+		tType aType,
+		tText aGuard
+	) => new() {
+		Kind = tKind.Guard,
+		Id = aGuard,
+		Refs = [aType],
+	};
+
+	public static tBool
+	IsGuard(
+		this tType aType,
+		[MaybeNullWhen(false)] out tType aBaseType,
+		[MaybeNullWhen(false)] out tText aGuard
+	) {
+		if (aType.Kind is tKind.Free) {
+			aType = aType.Refs[0];
+		}
+
+		if (aType.Kind is tKind.Guard) {
+			aBaseType = aType.Refs[0];
+			aGuard = aType.Id!;
+			return true;
+		}
+
+		aBaseType = default!;
+		aGuard = default!;
+		return false;
+	}
+
+	public static (tType BaseType, mStream.tStream<tText> Guards)
+	ExtractGuards(
+		this tType aType
+	) {
+		var Guards = mStream.Stream<tText>([]);
+
+		while (aType.IsGuard(out var BaseType, out var Guard)) {
+			Guards = Guards.All(_ => _ != Guard)
+				? mStream.Stream(Guard, Guards)
+				: Guards;
+			aType = BaseType;
+		}
+
+		return (aType, Guards);
+	}
 	
 	public static tType
 	Cond(
@@ -749,7 +798,22 @@ mVM_Type {
 			return aTypeMappings;
 		}
 		
-		var SubBaseType = aSubType.BaseType();
+		var (SubBaseType, SubGuards) = aSubType.ExtractGuards();
+		var (SupBaseType, SupGuards) = aSupType.ExtractGuards();
+		
+		foreach (var SupGuard in SupGuards) {
+			if (!SubGuards.Any(_ => _ == SupGuard)) {
+				return mResult.Fail(ExtendError("", aSubType, aSupType));
+			}
+		}
+		
+		if (SubGuards.Any(_ => true) || SupGuards.Any(_ => true)) {
+			return SubBaseType.IsSubType(SupBaseType, aTypeMappings).ModifyError(
+				_ => ExtendError(_, aSubType, aSupType)
+			);
+		}
+		
+		SubBaseType = aSubType.BaseType();
 		
 		if (aSupType.Kind is tKind.Free) {
 			return mStream.Stream(
@@ -896,6 +960,9 @@ mVM_Type {
 			case tKind.Ref: {
 				throw new System.NotImplementedException();
 			}
+			case tKind.Guard: {
+				throw new System.NotImplementedException();
+			}
 			case tKind.Set: {
 				mAssert.IsTrue(aSupType.IsSet(out var SupType1, out var SupType2));
 				return SubBaseType.IsSubType(SupType1, aTypeMappings).ElseTry(
@@ -985,6 +1052,8 @@ mVM_Type {
 				mAssert.Impossible();
 				return default;
 			}
+		} else if (a.IsGuard(out var BaseType, out _)) {
+			return BaseType(BaseType);
 		} else {
 			return a;
 		}
@@ -1161,6 +1230,7 @@ mVM_Type {
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
+			tKind.Guard => $"[{____}{aType.Refs[0].ToText(____)} & {aType.Id}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Interface => $"[{____}§LET {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",

@@ -573,8 +573,12 @@ mSPO_AST_Types {
 					return mResult.Fail((GuardPattern.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
 				}
 				
-				Result = Res;
-				// TODO: Result = mVM_Type.Guard(Result, ...);
+				var GuardId = GuardPattern.Guard switch {
+					mSPO_AST.tIdNode<tPos> GuardNode => GuardNode.Id,
+					_ => GuardPattern.Guard.ToText()
+				};
+				
+				Result = (mVM_Type.Guard(Res.Type, GuardId), Res.Scope);
 				break;
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
@@ -906,6 +910,15 @@ mSPO_AST_Types {
 								(aSet, aItem) => mVM_Type.Set(aItem, aSet)
 							)
 						)
+					)
+				);
+				break;
+			}
+			case mSPO_AST.tGuardedTypeNode<tPos> GuardType: {
+				Result = GuardType.BaseType.AsVM_Type(aScope).Then(
+					aBaseType => GuardType.Guards.Reduce(
+						aBaseType,
+						(aType, aGuard) => mVM_Type.Guard(aType, aGuard.Id)
 					)
 				);
 				break;

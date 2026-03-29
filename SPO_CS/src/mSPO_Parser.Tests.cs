@@ -155,6 +155,19 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
+			mTest.Test("GuardPattern",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Pattern.ParseText("(§DEF x & §TRUE)", "", _ => { aStreamOut(_()); }),
+						mSPO_AST.GuardPattern(
+							Span((1, 1), (1, 16)),
+							mSPO_AST.FreeIdPattern(Span((1, 2), (1, 7)), "x"),
+							mSPO_AST.True(Span((1, 11), (1, 15)))
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
 			mTest.Test("Is",
 				aStreamOut => {
 					mAssert.AreEquals(
@@ -429,6 +442,28 @@ mSPO_Parser_Tests {
 										)
 									),
 									mStd.cEmpty
+								)
+							)
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
+			mTest.Test("GuardedType",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Type.ParseText(
+							"[§INT & isPositive & isEven]",
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						mSPO_AST.GuardedType(
+							Span((1, 1), (1, 28)),
+							mSPO_AST.IntType(Span((1, 2), (1, 5))),
+							mStream.Stream(
+								mSPO_AST.Id(Span((1, 9), (1, 18)), "isPositive"),
+								mStream.Stream(
+									mSPO_AST.Id(Span((1, 22), (1, 27)), "isEven")
 								)
 							)
 						),

@@ -120,6 +120,47 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("GuardTypes",
+				aDebugStream => {
+					var GuardedType = mVM_Type.Guard(
+						mVM_Type.Guard(mVM_Type.Int(), "isPositive"),
+						"isEven"
+					);
+					
+					GuardedType.IsSubType(mVM_Type.Int(), mStd.cEmpty)
+					.AssertNotError(_ => _);
+					
+					GuardedType.IsSubType(
+						mVM_Type.Guard(mVM_Type.Int(), "isPositive"),
+						mStd.cEmpty
+					).AssertNotError(_ => _);
+					
+					mVM_Type.Int().IsSubType(
+						mVM_Type.Guard(mVM_Type.Int(), "isPositive"),
+						mStd.cEmpty
+					).AssertError();
+				}
+			),
+			mTest.Test("GuardPatternAddsGuardType",
+				aDebugStream => {
+					var Pattern = mSPO_AST.GuardPattern(
+						cNoPos,
+						mSPO_AST.Id(cNoPos, "a"),
+						mSPO_AST.True(cNoPos)
+					);
+					
+					var Result = mSPO_AST_Types.UpdatePatternTypes(
+						Pattern,
+						mVM_Type.Int(),
+						mSPO_AST_Types.tTypeRelation.Super,
+						mStd.cEmpty
+					).AssertNotError(__ => __.ToText());
+					
+					mAssert.IsTrue(Result.Type.IsGuard(out var BaseType, out var GuardId));
+					mAssert.AreEquals(BaseType, mVM_Type.Int());
+					mAssert.AreEquals(GuardId, "#TRUE");
+				}
+			),
 			mTest.Tests("Types",
 				mStream.Stream<(tText FileLine, tText Code, mVM_Type.tType Type)>(
 					[

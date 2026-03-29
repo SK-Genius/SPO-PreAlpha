@@ -362,6 +362,15 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<tTypeNode<tPos>> Expressions;
 	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tGuardedTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> BaseType = default!;
+		public mStream.tStream<tIdNode<tPos>> Guards;
+	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -714,6 +723,17 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Expressions = aTypes,
+	};
+
+	public static tGuardedTypeNode<tPos>
+	GuardedType<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aBaseType,
+		mStream.tStream<tIdNode<tPos>> aGuards
+	) => new() {
+		Pos = aPos,
+		BaseType = aBaseType,
+		Guards = aGuards,
 	};
 	
 	public static tLambdaTypeNode<tPos>
@@ -1227,8 +1247,12 @@ mSPO_AST {
 					AreEqual(Node1.Pattern, Node2.Pattern)
 				);
 			}
-			case tGuardPatternNode<tPos>: {
-				break;
+			case tGuardPatternNode<tPos> Node1: {
+				return (
+					a2 is tGuardPatternNode<tPos> Node2 &&
+					AreEqual(Node1.Pattern, Node2.Pattern) &&
+					AreEqual(Node1.Guard, Node2.Guard)
+				);
 			}
 			case tLambdaNode<tPos> Node1: {
 				return (
@@ -1300,6 +1324,19 @@ mSPO_AST {
 			}
 			case tSetTypeNode<tPos>: {
 				break;
+			}
+			case tGuardedTypeNode<tPos> Node1: {
+				return (
+					a2 is tGuardedTypeNode<tPos> Node2 &&
+					AreEqual(Node1.BaseType, Node2.BaseType) &&
+					mStream.ZipExtend(Node1.Guards, Node2.Guards).All(
+						_ => (
+							_._1.IsSome(out var a1) &&
+							_._2.IsSome(out var a2) &&
+							AreEqual(a1, a2)
+						)
+					)
+				);
 			}
 			case tLambdaTypeNode<tPos>: {
 				break;
@@ -1481,6 +1518,7 @@ mSPO_AST {
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
 			tPairPatternNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
+			tGuardedTypeNode<t> Node => $"[{____}{Node.BaseType.ToText(____)} & {Node.Guards.Map(aGuard => aGuard.ToText(____)).Join((a1, a2) => a1 + " & " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",
 			tGenericApplyTypeNode<t> Node => $"[{____}.{Node.GenericType.ToText(____)} {Node.ArgType.ToText(____)}{__}]",
