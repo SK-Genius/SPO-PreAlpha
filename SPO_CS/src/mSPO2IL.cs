@@ -328,7 +328,7 @@ mSPO2IL {
 		mSPO_AST.tLambdaNode<tPos> aLambdaNode
 	) {
 		if (
-			!aDefConstructor.MapPattern(aLambdaNode.Head, mIL_AST.cArg, out var Error) ||
+			!aDefConstructor.MapPattern(ref aModuleConstructor, aLambdaNode.Head, mIL_AST.cArg, out var Error) ||
 			!aDefConstructor.MapExpression(aModuleConstructor, aLambdaNode.Body).Match(out var ResultReg, out Error)
 		) {
 			return mResult.Fail(Error);
@@ -368,8 +368,8 @@ mSPO2IL {
 		mSPO_AST.tMethodNode<tPos> aMethodNode
 	) {
 		if (
-			!aDefConstructor.MapPattern(aMethodNode.Arg, mIL_AST.cArg, out var Error) ||
-			!aDefConstructor.MapPattern(aMethodNode.Obj, mIL_AST.cObj, out Error) ||
+			!aDefConstructor.MapPattern(ref aModuleConstructor, aMethodNode.Arg, mIL_AST.cArg, out var Error) ||
+			!aDefConstructor.MapPattern(ref aModuleConstructor, aMethodNode.Obj, mIL_AST.cObj, out Error) ||
 			!aDefConstructor.MapExpression(aModuleConstructor, aMethodNode.Body).Match(out var ResultReg, out Error)
 		) {
 			return mResult.Fail(Error);
@@ -1356,14 +1356,16 @@ mSPO2IL {
 	public static tBool
 	MapTypedPattern<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
+		ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tTypedPatternNode<tPos> aPatternNode,
 		tText aRegId,
 		out (tPos, tText) aError
-	) => aDefConstructor.MapPattern(aPatternNode.Pattern, aRegId, out aError);
+	) => aDefConstructor.MapPattern(ref aModuleConstructor, aPatternNode.Pattern, aRegId, out aError);
 	
 	public static tBool
 	MapPattern<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
+		ref tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tPatternNode<tPos> aPatternNode,
 		tText aRegId,
 		out (tPos, tText) aError
@@ -1417,12 +1419,12 @@ mSPO2IL {
 					mIL_AST.SubPrefix(Pos, aDefConstructor.CreateTempReg(out var ResultReg), Prefix, aRegId)
 				);
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
-				return aDefConstructor.MapPattern(Pattern, ResultReg, out aError);
+				return aDefConstructor.MapPattern(ref aModuleConstructor, Pattern, ResultReg, out aError);
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> { Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
 				foreach (var (IdNode, Pattern) in Elements) {
 					aDefConstructor.Commands.Push(mIL_AST.GetField(IdNode.Pos, aDefConstructor.CreateTempReg(out var FieldReg), aRegId, IdNode.Id));
-					if (!aDefConstructor.MapPattern(Pattern, FieldReg, out aError)) {
+					if (!aDefConstructor.MapPattern(ref aModuleConstructor, Pattern, FieldReg, out aError)) {
 						return false;
 					}
 				}
@@ -1436,7 +1438,7 @@ mSPO2IL {
 						mIL_AST.GetSecond(Pos, aDefConstructor.CreateTempReg(out var ItemReg), RemainingReg)
 					);
 					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ItemReg, Item.TypeAnnotation.AssertNotEmpty());
-					if (!aDefConstructor.MapPattern(Item, ItemReg, out aError)) {
+					if (!aDefConstructor.MapPattern(ref aModuleConstructor, Item, ItemReg, out aError)) {
 						return false;
 					}
 					aDefConstructor.Commands.Push(
@@ -1451,7 +1453,7 @@ mSPO2IL {
 					mIL_AST.GetSecond(Pos, aDefConstructor.CreateTempReg(out var HeadReg), aRegId)
 				);
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(HeadReg, Head.TypeAnnotation.AssertNotEmpty());
-				if (!aDefConstructor.MapPattern(Head, HeadReg, out aError)) {
+				if (!aDefConstructor.MapPattern(ref aModuleConstructor, Head, HeadReg, out aError)) {
 					return false;
 				}
 				
@@ -1459,18 +1461,30 @@ mSPO2IL {
 					mIL_AST.GetFirst(Pos, aDefConstructor.CreateTempReg(out var TailReg), aRegId)
 				);
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(TailReg, Tail.TypeAnnotation.AssertNotEmpty());
-				if (!aDefConstructor.MapPattern(Tail, TailReg, out aError)) {
+				if (!aDefConstructor.MapPattern(ref aModuleConstructor, Tail, TailReg, out aError)) {
 					return false;
 				}
 				
 				break;
 			}
 			case mSPO_AST.tGuardPatternNode<tPos> { Pattern: var Pattern, Guard: var Guard }: {
-				// TODO: ASSERT Guard
-				return aDefConstructor.MapPattern(Pattern, aRegId, out aError);
+				if (
+					!aDefConstructor.MapPattern(ref aModuleConstructor, Pattern, aRegId, out aError) ||
+					!aDefConstructor.MapExpression(aModuleConstructor, Guard).Match(out var TestReg, out aError)
+				) {
+					return false;
+				}
+				
+				aDefConstructor.Commands.Push(
+					[
+						mIL_AST.XOr(Guard.Pos, aDefConstructor.CreateTempReg(out var TestInvertReg), TestReg, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(Guard.Pos, TestInvertReg, mIL_AST.cEmptyValue),
+					]
+				);
+				break;
 			}
 			case mSPO_AST.tTypedPatternNode<tPos> PatternNode: {
-				return aDefConstructor.MapTypedPattern(PatternNode, aRegId, out aError);
+				return aDefConstructor.MapTypedPattern(ref aModuleConstructor, PatternNode, aRegId, out aError);
 			}
 			default: {
 				throw mError.Error(
@@ -1491,7 +1505,7 @@ mSPO2IL {
 		out (tPos Pos, tText ErrorText) aError
 	) => (
 		aDefConstructor.MapExpression(aModuleConstructor, aDefNode.Src).Match(out var ValueReg, out aError) &&
-		aDefConstructor.MapPattern(aDefNode.Des, ValueReg, out aError)
+		aDefConstructor.MapPattern(ref aModuleConstructor, aDefNode.Des, ValueReg, out aError)
 	);
 	
 	public static tBool
@@ -1753,7 +1767,7 @@ mSPO2IL {
 				]
 			);
 			if (Call.Result.IsSome(out var Result_)) {
-				if (!aDefConstructor.MapPattern(Result_, Result, out aError)) {
+				if (!aDefConstructor.MapPattern(ref aModuleConstructor, Result_, Result, out aError)) {
 					return false;
 				}
 			}
