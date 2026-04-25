@@ -17,6 +17,8 @@
 // IMPORT mSPO_Parser
 // IMPORT mSPO_Desugar
 
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
+
 public static class
 mSPO_Interpreter {
 	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
@@ -100,5 +102,69 @@ mSPO_Interpreter {
 				);
 			}
 		);
+	}
+	
+	public static tText
+	ToILT(
+		this mSPO_AST.tModuleNode<tSpan> aModule
+	) {
+		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
+		
+		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
+			Desugared.Import.Pattern,
+			mStd.cEmpty,
+			mSPO_AST_Types.tTypeRelation.Sub,
+			mStd.cEmpty
+		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
+		
+		var Scope = Desugared.Commands.Reduce(
+			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
+			(aResScope, aCommand) => aResScope.ThenTry(
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+			)
+		).AssertNotError(__ => __.ToText());
+		
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(__ => __.ToText());
+		var SB = new System.Text.StringBuilder();
+		var DefIndex = 0u;
+		SB.Append("§TYPES").Append('\n');
+		
+		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+		var TypeIndex = 0u;
+		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
+			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
+			mAssert.IsTrue(TypeCommand.NodeType < mIL_AST.tCommandNodeType._EndTypes_);
+			
+			Map = Map.Set(TypeCommand._1, TypeIndex);
+			
+			var TypeCommand_ = TypeCommand;
+			TypeCommand_._1 = mSPO2IL.GetTypeId(TypeIndex);
+			TypeCommand_._2 = TypeCommand_._2.Then(
+				_ => Map.TryGet(_).Match(
+					() => _,
+					mSPO2IL.GetTypeId
+				)
+			);
+			TypeCommand_._3 = TypeCommand_._3.Then(
+				_ => Map.TryGet(_).Match(
+					() => _,
+					mSPO2IL.GetTypeId
+				)
+			);
+			
+			SB.Append("\t" + TypeCommand_.ToText()).Append('\n');
+			TypeIndex += 1;
+		}
+		
+		foreach (var (TypeId, Commands) in Module.Defs.ToStream()) {
+			SB.Append('\n');
+			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
+			foreach (var Cmd in Commands.ToStream()) {
+				SB.Append("\t" + Cmd.ToText()).Append('\n');
+			}
+			DefIndex += 1;
+		}
+		
+		return SB.ToString();
 	}
 }

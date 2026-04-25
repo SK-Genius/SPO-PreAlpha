@@ -73,7 +73,7 @@ const tText cDebugger = "--debugger";
 const tText cDebuggerShort = "-D";
 
 const tText cDebugId = "--debugId";
-const tText cDebugIdShort = "-d";
+const tText cDebugIdShort = "-i";
 
 static mMaybe.tMaybe<tText>
 GetArgParam(
