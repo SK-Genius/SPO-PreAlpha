@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Wiki Viewer</title>
+		<style>
+			:root {
+				--paper: rgba(255, 250, 241, 0.9);
+				--paper-edge: rgba(125, 102, 78, 0.18);
+				--ink: #241d18;
+				--muted: #695a4d;
+				--accent: #7f4f24;
+				--line: rgba(127, 79, 36, 0.22);
+				--shadow: 0 24px 60px rgba(70, 49, 31, 0.14);
+				--object: #efe0ca;
+				--error: #7f1d1d;
+				--error-bg: rgba(202, 70, 70, 0.09);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				margin: 0;
+				min-height: 100%;
+			}
+
+			body {
+				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+				color: var(--ink);
+				background:
+					radial-gradient(circle at top, #fff9ef 0%, #f0e2cd 36%, #e1cfba 100%);
+				line-height: 1.65;
+			}
+
+			.shell {
+				width: min(860px, calc(100% - 2rem));
+				margin: clamp(1rem, 4vw, 3rem) auto;
+				padding: clamp(1rem, 3vw, 2.5rem);
+				background: var(--paper);
+				border: 1px solid var(--paper-edge);
+				border-radius: 22px;
+				box-shadow: var(--shadow);
+				backdrop-filter: blur(10px);
+			}
+
+			.masthead {
+				display: grid;
+				gap: 1rem;
+				align-items: end;
+				grid-template-columns: minmax(0, 1fr) minmax(250px, 320px);
+				padding-bottom: 1rem;
+				border-bottom: 1px solid var(--line);
+			}
+
+			.eyebrow {
+				margin: 0 0 0.35rem;
+				color: var(--muted);
+				font-size: 0.82rem;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+			}
+
+			.masthead h1 {
+				margin: 0;
+				font-size: clamp(2rem, 4vw, 3.2rem);
+				line-height: 1.05;
+				text-wrap: balance;
+			}
+
+			.file-form {
+				display: grid;
+				gap: 0.45rem;
+				justify-self: end;
+				width: min(100%, 320px);
+			}
+
+			.file-form label {
+				color: var(--muted);
+				font-size: 0.92rem;
+			}
+
+			.file-row {
+				display: flex;
+				gap: 0.6rem;
+			}
+
+			.file-row input {
+				width: 100%;
+				min-width: 0;
+				padding: 0.72rem 0.85rem;
+				border: 1px solid var(--paper-edge);
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.86);
+				color: inherit;
+				font: inherit;
+			}
+
+			.file-row button {
+				border: 0;
+				border-radius: 999px;
+				padding: 0.72rem 1rem;
+				background: var(--accent);
+				color: #fffaf4;
+				font: inherit;
+				cursor: pointer;
+			}
+
+			.file-row button:hover,
+			.file-row button:focus-visible {
+				filter: brightness(1.06);
+			}
+
+			.current-file {
+				margin: 0.9rem 0 0;
+				color: var(--muted);
+				font-size: 0.96rem;
+				word-break: break-word;
+			}
+
+			.wiki-article {
+				padding-top: 1.45rem;
+			}
+
+			.source-view {
+				padding-top: 1.45rem;
+			}
+
+			.source-card {
+				border: 1px solid var(--paper-edge);
+				border-radius: 18px;
+				overflow: hidden;
+				background: rgba(255, 252, 247, 0.88);
+				box-shadow: 0 10px 24px rgba(70, 49, 31, 0.08);
+			}
+
+			.source-bar {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+				padding: 0.9rem 1.1rem;
+				border-bottom: 1px solid var(--line);
+				background:
+					linear-gradient(180deg, rgba(247, 237, 219, 0.95), rgba(243, 230, 209, 0.74));
+			}
+
+			.source-language {
+				font-size: 0.8rem;
+				font-weight: 700;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				color: var(--accent);
+			}
+
+			.source-filename {
+				color: var(--muted);
+				font-size: 0.94rem;
+				word-break: break-word;
+				text-align: right;
+			}
+
+			.source-code {
+				margin: 0;
+				overflow: auto;
+				position: relative;
+				max-height: min(72vh, 46rem);
+				max-height: min(72dvh, 46rem);
+				overscroll-behavior: contain;
+				background:
+					linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(249, 243, 233, 0.92));
+				color: #211a15;
+				font-family: "Cascadia Code", Consolas, "SFMono-Regular", "Courier New", monospace;
+				font-size: 0.95rem;
+				line-height: 1.6;
+				tab-size: 4;
+			}
+
+			.source-lines,
+			.source-sticky {
+				min-width: 100%;
+				width: max-content;
+			}
+
+			.source-lines {
+				padding: 0.95rem 0 1.05rem;
+			}
+
+			.source-sticky {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 1;
+				pointer-events: none;
+				user-select: none;
+				will-change: transform;
+			}
+
+			.source-line {
+				display: grid;
+				grid-template-columns: var(--source-gutter-width, 4ch) minmax(0, 1fr);
+				gap: 1.1rem;
+				align-items: baseline;
+				padding: 0 1.2rem;
+				min-height: 1.6em;
+			}
+
+			.source-gutter {
+				color: rgba(105, 90, 77, 0.75);
+				text-align: right;
+				user-select: none;
+			}
+
+			.source-line-text {
+				display: block;
+				white-space: pre;
+				padding-right: 0.8rem;
+			}
+
+			.source-sticky .source-line {
+				background:
+					linear-gradient(180deg, rgba(247, 237, 219, 0.97), rgba(243, 230, 209, 0.92));
+				border-bottom: 1px solid rgba(127, 79, 36, 0.14);
+				box-shadow: 0 10px 16px rgba(70, 49, 31, 0.05);
+			}
+
+			.source-sticky .source-gutter {
+				color: var(--accent);
+				font-weight: 700;
+			}
+
+			.source-sticky::after {
+				content: "";
+				display: block;
+				height: 0.9rem;
+				background:
+					linear-gradient(180deg, rgba(249, 243, 233, 0.32), rgba(249, 243, 233, 0));
+			}
+
+			.source-code .tok-comment {
+				color: #7f756a;
+				font-style: italic;
+			}
+
+			.source-code .tok-string {
+				color: #0f766e;
+			}
+
+			.source-code .tok-number {
+				color: #1d4ed8;
+			}
+
+			.source-code .tok-keyword {
+				color: #9a3412;
+				font-weight: 700;
+			}
+
+			.source-code .tok-enum {
+				color: #166534;
+				font-weight: 700;
+			}
+
+			.source-code .tok-identifier {
+				color: #475569;
+			}
+
+			.source-code .tok-punctuation {
+				color: #8b5e34;
+			}
+
+			.upload-panel {
+				margin-top: 1.2rem;
+				padding: 1.2rem;
+				border: 1px solid var(--paper-edge);
+				border-radius: 18px;
+				background: rgba(255, 255, 255, 0.46);
+			}
+
+			.upload-panel[hidden] {
+				display: none;
+			}
+
+			.upload-panel h2 {
+				margin: 0 0 0.5rem;
+				font-size: 1.25rem;
+			}
+
+			.upload-panel p {
+				margin: 0;
+				color: var(--muted);
+			}
+
+			.dropzone {
+				display: grid;
+				gap: 0.35rem;
+				justify-items: center;
+				margin-top: 1rem;
+				padding: 1.5rem 1rem;
+				border: 2px dashed rgba(127, 79, 36, 0.35);
+				border-radius: 16px;
+				background:
+					linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(244, 232, 214, 0.72));
+				text-align: center;
+				cursor: pointer;
+				transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+			}
+
+			.dropzone:hover,
+			.dropzone:focus-visible,
+			.dropzone.is-dragover {
+				outline: none;
+				transform: translateY(-1px);
+				border-color: var(--accent);
+				background:
+					linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 224, 202, 0.86));
+			}
+
+			.dropzone strong {
+				font-size: 1.08rem;
+			}
+
+			.dropzone span {
+				color: var(--muted);
+				font-size: 0.95rem;
+			}
+
+			.upload-actions {
+				display: flex;
+				justify-content: center;
+				margin-top: 0.9rem;
+			}
+
+			.upload-actions button {
+				border: 0;
+				border-radius: 999px;
+				padding: 0.68rem 1rem;
+				background: rgba(127, 79, 36, 0.14);
+				color: var(--ink);
+				font: inherit;
+				cursor: pointer;
+			}
+
+			.upload-actions button:hover,
+			.upload-actions button:focus-visible {
+				filter: brightness(0.98);
+			}
+
+			.upload-note {
+				margin-top: 0.9rem;
+				font-size: 0.92rem;
+			}
+
+			.upload-note[data-tone="error"] {
+				color: var(--error);
+			}
+
+			.visually-hidden {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border: 0;
+			}
+
+			.wiki-article h1,
+			.wiki-article h2 {
+				margin: 1.7rem 0 0.7rem;
+				line-height: 1.15;
+			}
+
+			.wiki-article h1:first-child,
+			.wiki-article h2:first-child {
+				margin-top: 0;
+			}
+
+			.wiki-article h1 {
+				font-size: clamp(2rem, 3.8vw, 2.9rem);
+			}
+
+			.wiki-article h2 {
+				font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+				padding-top: 0.4rem;
+				border-top: 1px solid var(--line);
+			}
+
+			.wiki-paragraph {
+				margin: 0 0 0.85rem;
+				margin-inline-start: calc(var(--indent, 0) * 0.85ch);
+			}
+
+			.wiki-paragraph.has-marker {
+				display: flex;
+				gap: 0.7ch;
+				align-items: flex-start;
+			}
+
+			.wiki-paragraph .marker {
+				flex: 0 0 auto;
+				min-width: 1.2ch;
+				color: var(--muted);
+				font-weight: 700;
+			}
+
+			.wiki-paragraph .content {
+				min-width: 0;
+			}
+
+			.wiki-quote {
+				margin: 0 0 0.9rem;
+				margin-inline-start: calc(var(--indent, 0) * 0.85ch);
+				padding: 0.2rem 0 0.2rem 1rem;
+				border-left: 3px solid rgba(127, 79, 36, 0.35);
+				color: #3e3127;
+				font-style: italic;
+			}
+
+			.wiki-article hr {
+				margin: 1.3rem 0;
+				border: 0;
+				border-top: 1px solid var(--line);
+			}
+
+			.wiki-article a {
+				color: var(--accent);
+				text-decoration-thickness: 0.08em;
+				text-underline-offset: 0.16em;
+			}
+
+			.wiki-article u {
+				text-decoration-thickness: 0.09em;
+				text-underline-offset: 0.14em;
+			}
+
+			.wiki-article del {
+				text-decoration-thickness: 0.08em;
+			}
+
+			.wiki-object {
+				display: inline-block;
+				padding: 0.1rem 0.45rem;
+				border-radius: 0.45rem;
+				background: var(--object);
+				font-family: "Consolas", "SFMono-Regular", "Courier New", monospace;
+				font-size: 0.92em;
+			}
+
+			.status,
+			.error {
+				margin: 0;
+				padding: 1rem 1.1rem;
+				border-radius: 14px;
+				background: rgba(127, 79, 36, 0.08);
+				color: var(--muted);
+			}
+
+			.error {
+				background: var(--error-bg);
+				color: var(--error);
+				white-space: pre-wrap;
+			}
+
+			@media (max-width: 760px) {
+				.shell {
+					width: min(100% - 1rem, 860px);
+					border-radius: 18px;
+				}
+
+				.masthead {
+					grid-template-columns: 1fr;
+				}
+
+				.file-form {
+					justify-self: stretch;
+					width: 100%;
+				}
+
+				.file-row {
+					flex-direction: column;
+				}
+
+				.source-code {
+					max-height: min(68vh, 38rem);
+					max-height: min(68dvh, 38rem);
+				}
+			}
+
+			@media print {
+				body {
+					background: #ffffff;
+				}
+
+				.shell {
+					width: 100%;
+					margin: 0;
+					padding: 0;
+					border: 0;
+					border-radius: 0;
+					box-shadow: none;
+					backdrop-filter: none;
+					background: transparent;
+				}
+
+				.file-form {
+					display: none;
+				}
+
+				.upload-panel {
+					display: none;
+				}
+
+				.source-code {
+					max-height: none;
+					overflow: visible;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<main class="shell">
+			<header class="masthead">
+				<div>
+					<p class="eyebrow">Wiki Viewer</p>
+					<h1 id="page-title">Lade Wiki ...</h1>
+				</div>
+
+				<form id="file-form" class="file-form">
+					<label for="file-input">Datei</label>
+					<div class="file-row">
+						<input id="file-input" name="file" type="text" placeholder="index.wiki" autocomplete="off">
+						<button type="submit">Oeffnen</button>
+					</div>
+				</form>
+			</header>
+
+			<p id="current-file" class="current-file"></p>
+			<article id="article" class="wiki-article" aria-live="polite"></article>
+
+			<section id="upload-panel" class="upload-panel" hidden>
+				<h2>Lokale Datei laden</h2>
+				<p>Wenn der Browser die Datei nicht direkt lesen darf, kann sie hier lokal geladen werden.</p>
+
+				<div id="dropzone" class="dropzone" tabindex="0" role="button" aria-controls="upload-input">
+					<strong>Datei hier ablegen</strong>
+					<span>oder klicken, um eine `.wiki`- oder `.spo`-Datei auszuwaehlen</span>
+				</div>
+
+				<div class="upload-actions">
+					<button id="upload-button" type="button">Datei waehlen</button>
+				</div>
+
+				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,text/plain">
+				<p id="upload-note" class="upload-note">Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.
+				</p>
+			</section>
+		</main>
+
+		<script src="js/viewer.wiki.js"></script>
+		<script src="js/viewer.spo.js"></script>
+		<script>
+			const DEFAULT_FILE = "index.wiki";
+			const articleElement = document.getElementById("article");
+			const currentFileElement = document.getElementById("current-file");
+			const pageTitleElement = document.getElementById("page-title");
+			const fileFormElement = document.getElementById("file-form");
+			const fileInputElement = document.getElementById("file-input");
+			const uploadPanelElement = document.getElementById("upload-panel");
+			const dropzoneElement = document.getElementById("dropzone");
+			const uploadButtonElement = document.getElementById("upload-button");
+			const uploadInputElement = document.getElementById("upload-input");
+			const uploadNoteElement = document.getElementById("upload-note");
+
+			let currentWikiFile = DEFAULT_FILE;
+
+			fileFormElement.addEventListener("submit", (event) => {
+				event.preventDefault();
+
+				const request = normalizeRequestPath(fileInputElement.value);
+				if (!request.ok) {
+					renderError(request.reason, true);
+					return;
+				}
+
+				navigateToFile(request.path || DEFAULT_FILE);
+			});
+
+			uploadButtonElement.addEventListener("click", () => {
+				uploadInputElement.click();
+			});
+
+			uploadInputElement.addEventListener("change", async () => {
+				await openSelectedFiles(uploadInputElement.files);
+				uploadInputElement.value = "";
+			});
+
+			dropzoneElement.addEventListener("click", () => {
+				uploadInputElement.click();
+			});
+
+			dropzoneElement.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					uploadInputElement.click();
+				}
+			});
+
+			dropzoneElement.addEventListener("dragenter", (event) => {
+				event.preventDefault();
+				dropzoneElement.classList.add("is-dragover");
+			});
+
+			dropzoneElement.addEventListener("dragover", (event) => {
+				event.preventDefault();
+				dropzoneElement.classList.add("is-dragover");
+			});
+
+			dropzoneElement.addEventListener("dragleave", (event) => {
+				if (!dropzoneElement.contains(event.relatedTarget)) {
+					dropzoneElement.classList.remove("is-dragover");
+				}
+			});
+
+			dropzoneElement.addEventListener("drop", async (event) => {
+				event.preventDefault();
+				dropzoneElement.classList.remove("is-dragover");
+				await openSelectedFiles(event.dataTransfer ? event.dataTransfer.files : null);
+			});
+
+			void loadFromQuery();
+
+			async function loadFromQuery() {
+				const params = new URLSearchParams(window.location.search);
+				const rawFile = params.get("file");
+				const request = normalizeRequestPath(rawFile || DEFAULT_FILE);
+
+				if (!request.ok) {
+					renderError(request.reason, true);
+					return;
+				}
+
+				currentWikiFile = request.path || DEFAULT_FILE;
+				fileInputElement.value = currentWikiFile;
+				currentFileElement.textContent = "Datei: " + currentWikiFile;
+				renderStatus("Datei wird geladen ...");
+
+				try {
+					const source = await loadWikiFile(currentWikiFile);
+					renderSourceFile(source, currentWikiFile);
+				} catch (error) {
+					renderError(buildLoadError(error, currentWikiFile), true);
+				}
+			}
+
+			function normalizeRequestPath(rawPath) {
+				if (typeof rawPath !== "string" || rawPath.trim() === "") {
+					return { ok: true, path: DEFAULT_FILE };
+				}
+
+				const input = rawPath.trim().replace(/\\/g, "/");
+
+				if (/^[a-zA-Z]:/.test(input) || input.startsWith("/") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(input)) {
+					return { ok: false, reason: "Der Parameter file muss ein relativer Pfad sein." };
+				}
+
+				const segments = [];
+				for (const segment of input.split("/")) {
+					if (!segment || segment === ".") {
+						continue;
+					}
+
+					if (segment === "..") {
+						if (!segments.length) {
+							return { ok: false, reason: "Der Pfad verlaesst das Startverzeichnis von index.html." };
+						}
+
+						segments.pop();
+						continue;
+					}
+
+					segments.push(segment);
+				}
+
+				return { ok: true, path: segments.join("/") || DEFAULT_FILE };
+			}
+
+			function resolveRelativePath(baseFile, targetPath) {
+				const input = targetPath.trim().replace(/\\/g, "/");
+				const baseSegments = baseFile.split("/");
+				baseSegments.pop();
+
+				const segments = [...baseSegments];
+				for (const segment of input.split("/")) {
+					if (!segment || segment === ".") {
+						continue;
+					}
+
+					if (segment === "..") {
+						if (!segments.length) {
+							return null;
+						}
+
+						segments.pop();
+						continue;
+					}
+
+					segments.push(segment);
+				}
+
+				return segments.join("/") || DEFAULT_FILE;
+			}
+
+			function navigateToFile(path) {
+				const url = new URL(window.location.href);
+				if (path === DEFAULT_FILE) {
+					url.searchParams.delete("file");
+				} else {
+					url.searchParams.set("file", path);
+				}
+
+				window.location.assign(url.toString());
+			}
+
+			async function loadWikiFile(path) {
+				const response = await fetch(path, { cache: "no-store" });
+				if (!response.ok) {
+					throw new Error("HTTP " + response.status + " " + response.statusText);
+				}
+
+				const bytes = new Uint8Array(await response.arrayBuffer());
+				return decodeWikiText(bytes);
+			}
+
+			function decodeWikiText(bytes) {
+				try {
+					return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+				} catch {
+					return new TextDecoder("windows-1252").decode(bytes);
+				}
+			}
+
+			function renderSourceFile(source, filePath) {
+				const renderer = window.SpoViewer && window.SpoViewer.isSpoLikeFile(filePath)
+					? window.SpoViewer
+					: window.WikiViewer;
+
+				if (!renderer || typeof renderer.render !== "function") {
+					renderError("Der passende Renderer konnte nicht geladen werden.", true);
+					return;
+				}
+
+				renderer.render(source, createRenderContext(filePath));
+			}
+
+			function createRenderContext(filePath) {
+				return {
+					filePath,
+					articleElement,
+					appendNodes,
+					fileNameLabel,
+					resolveRelativePath,
+					createNavigationUrl,
+					hasKnownRenderableExtension,
+					isExternalLink,
+					normalizeExternalLink,
+					prepareArticle(className) {
+						currentWikiFile = filePath;
+						currentFileElement.textContent = "Datei: " + filePath;
+						fileInputElement.value = filePath;
+						articleElement.replaceChildren();
+						articleElement.className = className;
+						hideUploadPanel();
+					},
+					setPageTitle(title, suffix) {
+						pageTitleElement.textContent = title;
+						document.title = title + " - " + suffix;
+					}
+				};
+			}
+
+			function renderStatus(message) {
+				hideUploadPanel();
+				articleElement.className = "wiki-article";
+				const paragraph = document.createElement("p");
+				paragraph.className = "status";
+				paragraph.textContent = message;
+				articleElement.replaceChildren(paragraph);
+			}
+
+			function renderError(message, showUploader = false) {
+				articleElement.className = "wiki-article";
+				currentFileElement.textContent = "Datei: " + (fileInputElement.value.trim() || currentWikiFile || DEFAULT_FILE);
+				pageTitleElement.textContent = "Datei konnte nicht geladen werden";
+				document.title = "Datei Fehler";
+
+				const paragraph = document.createElement("p");
+				paragraph.className = "error";
+				paragraph.textContent = message;
+				articleElement.replaceChildren(paragraph);
+
+				if (showUploader) {
+					showUploadPanel();
+				} else {
+					hideUploadPanel();
+				}
+			}
+
+			function buildLoadError(error, filePath) {
+				const parts = [
+					"Die Datei konnte nicht geladen werden:",
+					filePath
+				];
+
+				if (error && error.message) {
+					parts.push("", error.message);
+				}
+
+				if (window.location.protocol === "file:") {
+					parts.push(
+						"",
+						"Hinweis: Browser blockieren lokale Datei-Zugriffe meist direkt ueber file://.",
+						"Nutze unten die Dropzone oder starte die Seite ueber einen lokalen HTTP-Server."
+					);
+				}
+
+				return parts.join("\n");
+			}
+
+			function createNavigationUrl(path) {
+				const url = new URL(window.location.href);
+				if (path === DEFAULT_FILE) {
+					url.searchParams.delete("file");
+				} else {
+					url.searchParams.set("file", path);
+				}
+
+				return url.toString();
+			}
+
+			async function openSelectedFiles(fileList) {
+				const file = fileList && fileList[0];
+				if (!file) {
+					return;
+				}
+
+				setUploadNote("Datei wird gelesen ...");
+
+				try {
+					const bytes = new Uint8Array(await file.arrayBuffer());
+					const source = decodeWikiText(bytes);
+					renderSourceFile(source, file.name);
+					currentFileElement.textContent = "Lokale Datei: " + file.name;
+					setUploadNote("Die lokale Datei wurde erfolgreich geladen.");
+				} catch (error) {
+					renderError("Die ausgewaehlte Datei konnte nicht gelesen werden.", true);
+					setUploadNote(error && error.message ? error.message : "Unbekannter Fehler beim Lesen der Datei.", "error");
+				}
+			}
+
+			function showUploadPanel() {
+				uploadPanelElement.hidden = false;
+				setUploadNote("Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.");
+			}
+
+			function hideUploadPanel() {
+				uploadPanelElement.hidden = true;
+				dropzoneElement.classList.remove("is-dragover");
+			}
+
+			function setUploadNote(message, tone = "default") {
+				uploadNoteElement.textContent = message;
+				uploadNoteElement.dataset.tone = tone;
+			}
+
+			function isExternalLink(target) {
+				return /^(https?:\/\/|ftp:\/\/|mailto:)/i.test(target) || /^www\./i.test(target);
+			}
+
+			function normalizeExternalLink(target) {
+				return /^www\./i.test(target) ? "https://" + target : target;
+			}
+
+			function hasKnownRenderableExtension(path) {
+				return /\.(wiki|spo|ilt)$/i.test(path);
+			}
+
+			function fileNameLabel(path) {
+				const normalized = path.replace(/\\/g, "/").split("/").pop() || path;
+				return normalized.replace(/\.[^.]+$/, "");
+			}
+
+			function appendNodes(parent, nodesOrResult) {
+				const nodes = Array.isArray(nodesOrResult) ? nodesOrResult : nodesOrResult.nodes;
+				for (const node of nodes) {
+					parent.append(node);
+				}
+			}
+		</script>
+	</body>
+</html>

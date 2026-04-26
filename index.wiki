@@ -1,0 +1,81 @@
+[=Vorwort=]
+ Beim Design der Seite wurde auf ein Drucker geeignetes Layout geachtet. Von daher wird das erstellen von bunte Seiten nicht begönstigt. Auserdem wurden nur die wichtigsten Gestalltungsfunktionen öbernommen um die Syntax einfach halten zu können und um ein einheitliches Bild zu bewerkstelligen.
+ Beim kreieren der Syntax wurde darauf Wert gelegt, das sie leicht zu erlernen ist, und möglichts intuitiv von der hand geht.
+
+[=Bugs=]
+ Momentan sind mir keine mehr bekannt.
+
+[=Formatierungssymbol=]
+ Zur Formatierung eines Artikels stehen mehrere Funktionen zur verfügung. [!Alle!] diese Funktionen beginnen mit der [/geöffneten eckigen Klammen/] ([[) gefolgt vom Symbol X und enden mit der dem selben Symbol X gefolt von der [/geschlossenen eckigen Klammer/] (]]).
+  [[X ... X]]
+
+ Welche Symbole für das X eingesetzt werden kann und wofür sie gut sind, ist in den folgenden Kapiteln beschrieben
+
+ Da die eckigen Klammern für die Formatierung des Textes vorbehalten sind, kann man auch im Text nicht einfach eckige Klammern verwenden. Da man aber denoch ab und zu diese benötigt gibt es eine Ausnahmmeregel welche die Klammern ermöglicht. Man muss die entsprechende Klammer doppelt schreiben damit sie einmal dargestellt wird.
+
+[=Kapitel=]
+ Die wichtigste Unterteilung eines Artikels ist in Kapitel. Die Einteilung findet mit den Kapitelüberschriften statt.
+  [_Syntax:_] [[=Kapitelüberschrift=]]
+
+ Das Istgleich (=) soll an die doppellinie der öberschrift erinnern.
+
+[=Absätze=]
+ Eine weitere Unterteilmöglichkeit sind die Absätze, welche man nach belieben einrücken kann. Dies geschiet mit Freizeichen am Zeilenanfang.
+
+ Um Absätze besonders hervorzuheben, kann man am Anfang folgende Zeichen (gefolgt von einem Leerzeichen) dem Absatz vorranstellen:
+ - ein Bindestrich (-)
+ o ein kleines o (o)
+ * ein Stern/Malzeichen (*)
+ # das Routezeichen (#)
+ > ein Grösseralszeichen (>)
+
+[=Unterstreichen=]
+ [_Syntax:_] [[_zu unterstreichender Text_]] => [_zu unterstreichender Text_]
+
+[=Durchstreichen=]
+ [_Syntax:_] [[-durchzustreichender Text-]] => [-durchzustreichender Text-]
+
+[=Kursiv=]
+ [_Syntax:_] [[/kursiver Text/]] => [/kursiver Text/]
+
+[=Fett=]
+ [_Syntax:_] [[*fetter Text*]] => [*fetter Text*]
+
+[=Rot=]
+ [_Syntax:_] [[!roter Text!]] => [roter Text!]
+
+[=Trennlinie=]
+ [_Syntax:_] [[---]] => [---]
+
+[---]
+
+ Eigentlich würde der Syntax bedeuten das man ein Bindestrich (-) durchstreichen will. Da dies aber nicht wirklich sinnvoll ist wurde diese Kombination für die Trennlinie missbraucht.
+
+[=Links (Verweise)=]
+ Eines der wichtigsten Funktionen ist das Verlinken (bzw Verweisen) zu anderen Artikeln oder Webseiten.
+  [_Syntax:_] [[<Link>]]
+  [_Bsp.:_] [[<www.google.de>]] => [<www.google.de>]
+
+ Als Link können die Namen der Artikel benutzt werden oder auch Internetseiten wenn sie mit "http://" , "ftp://" oder "www." beginnen. Auch eMailadressen sind möglich, jedoch muss vor die eMailadresse ein "mailto:" gesetzt werden.
+
+ Soll statt dem Link ein anderer Text eingeblendet werden, so gilt folgender
+  [_Syntax:_] [[Link|Text]]
+  [_Bsp.:_] [[<www.google.de|Google>]] => [<www.google.de|Google>]
+
+[=Bild=]
+  [_Syntax:_] [[#Image-Link#]]
+
+[=Objekte=]
+ Unter Objekte zählt alles was in ein viereckiges Feld passt.
+ Dach zeichen für ein Objekt ist das "Viereck".
+  [_Syntay:_]
+  [[.txt
+  |erste Zeile
+  |zweite Zeile
+  .]]
+  
+  Ist die Endung/Extension unbekannt ist der fallbach txt
+  das pipe symbol gehört nicht zum inhalt
+
+[=Geplantes=]
+ Es werden noch Nummerrieungen der Absätze folgen. Auch das Hoch und Tief stellen Text ist noch geplant. Das wichtigste sind jedoch die Zahlreichen Objekte welche man noch einfögen kann (zB: Tabellen, Bilder, Formeln, Notenblötter usw).
