@@ -104,7 +104,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"0 .< (1 .+ 2) < 4",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var Scope = mStream.Stream(
@@ -144,7 +144,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF a = (1, 2)",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
@@ -177,7 +177,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
@@ -221,7 +221,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
@@ -261,7 +261,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
@@ -312,7 +312,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF x = §DEF a € §INT => 2 .* a",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mStream.Stream(
@@ -437,7 +437,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF ...*...+... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .+ c",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mStream.Stream(
@@ -597,7 +597,7 @@ mSPO2IL_Tests {
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF TestTest... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .> c",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mStream.Stream(
@@ -754,7 +754,7 @@ mSPO2IL_Tests {
 						}
 						""",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
@@ -876,7 +876,7 @@ mSPO2IL_Tests {
 						}
 						""",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
@@ -885,9 +885,9 @@ mSPO2IL_Tests {
 						mSPO_AST_Types.tTypeRelation.Sub,
 						mStd.cEmpty
 					).Then(
-						_ => _.Scope
+						__ => __.Scope
 					).AssertNotError(
-						_ => _.ToText()
+						__ => __.ToText()
 					);
 					
 					var Scope = ModuleNode.Commands.Reduce(
@@ -896,7 +896,7 @@ mSPO2IL_Tests {
 							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
 						)
 					).AssertNotError(
-						_ => _.ToText()
+						__ => __.ToText()
 					);
 					
 					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).AssertNotError(__ => __.ToText());
@@ -975,7 +975,7 @@ mSPO2IL_Tests {
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a € §INT, §DEF b € §INT, (§DEF x € §INT, §DEF y € §INT, §DEF z € §INT)) => a .* z",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mStream.Stream(
@@ -1023,7 +1023,7 @@ mSPO2IL_Tests {
 						ModuleConstructor,
 						LambdaNode
 					).AssertNotError(
-						_ => _.ToText()
+						__ => __.ToText()
 					);
 					
 					mAssert.AreEquals(ModuleConstructor.Defs.Size, 1u);
@@ -1056,7 +1056,7 @@ mSPO2IL_Tests {
 								("§RETURN r_15 IF TRUE", (1, 82), (1, 87))
 							]
 						).Map(
-							_ => ParseCommand(_.Command, Span(_.Start, _.End), aStreamOut)
+							__ => ParseCommand(__.Command, Span(__.Start, __.End), aStreamOut)
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 					);
@@ -1093,7 +1093,7 @@ mSPO2IL_Tests {
 						§EXPORT Fib1...
 						""",
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
@@ -1102,9 +1102,9 @@ mSPO2IL_Tests {
 						mSPO_AST_Types.tTypeRelation.Sub,
 						mStd.cEmpty
 					).Then(
-						_ => _.Scope
+						__ => __.Scope
 					).AssertNotError(
-						_ => _.ToText()
+						__ => __.ToText()
 					);
 					
 					var ModuleConstructor = mSPO2IL.MapModule(
@@ -1112,7 +1112,7 @@ mSPO2IL_Tests {
 						mSpan.Merge,
 						mStd.cEmpty
 					).AssertNotError(
-						_ => _.ToText()
+						__ => __.ToText()
 					);
 				}
 			)
@@ -1125,7 +1125,7 @@ mSPO2IL_Tests {
 		tSpan aSpan,
 		mStd.tAction<tText> aDebugStream
 	) {
-		var Command = mIL_Parser.Command.ParseText(aCommand, "", _ => { aDebugStream(_()); });
+		var Command = mIL_Parser.Command.ParseText(aCommand, "", __ => { aDebugStream(__()); });
 		Command.Pos = aSpan;
 		return Command;
 	}
@@ -1142,7 +1142,7 @@ mSPO2IL_Tests {
 			aDebugStream($"Def {I}:");
 			mAssert.AreEquals(
 				aDefs1.Get(I).Commands.ToStream(),
-				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(_ => ParseCommand(_.Command, Span(_.From, _.To), aDebugStream)),
+				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(__ => ParseCommand(__.Command, Span(__.From, __.To), aDebugStream)),
 				mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
 			);
 		}

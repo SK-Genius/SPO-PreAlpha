@@ -41,7 +41,7 @@ mIL_Parser {
 	
 	private static readonly mParserGen.tParser<tPos, tToken, tToken, tError>
 	Prefix = SpecialId('#').Modify(
-		_ => _ with { Text = _.Text[1..] }
+		__ => __ with { Text = __.Text[1..] }
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mIL_AST.tCommandNode<tSpan>, tError>

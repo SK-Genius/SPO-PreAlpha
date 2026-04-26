@@ -46,10 +46,10 @@ mTextParser {
 			mStd.tAction<mStd.tFunc<tText>> aDebugStream
 		) {
 			using var _ = mPerf.Measure();
-			var Stream = aText.ToStream(aId).Map(_ => (mSpan.Span(_.Pos), _.Char));
+			var Stream = aText.ToStream(aId).Map(__ => (mSpan.Span(__.Pos), __.Char));
 			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
 			var Result = MaybeResult.AssertNotError(
-				_ => _.Sort(
+				__ => __.Sort(
 					(a1, a2) => {
 						var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;
 						return RowComp != 0
@@ -79,7 +79,7 @@ mTextParser {
 		SetName(
 			tText aName
 		) => aParser.AddError(
-			_ => (_.Span.Start, $"invalid {aName}")
+			__ => (__.Span.Start, $"invalid {aName}")
 		)
 		.SetDebugName([aName]);
 	}
@@ -89,8 +89,8 @@ mTextParser {
 	GetChar(
 		tChar aRefChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		_ => _ == aRefChar,
-		_ => (_.Span.Start, $"expect {aRefChar}"),
+		__ => __ == aRefChar,
+		__ => (__.Span.Start, $"expect {aRefChar}"),
 		ComparePos,
 		AreErrorsEqual
 	)
@@ -101,8 +101,8 @@ mTextParser {
 	GetNotChar(
 		tChar aRefChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		_ => _ != aRefChar,
-		_ => (_.Span.Start, $"expect not {aRefChar}"),
+		__ => __ != aRefChar,
+		__ => (__.Span.Start, $"expect not {aRefChar}"),
 		ComparePos,
 		AreErrorsEqual
 	)
@@ -114,7 +114,7 @@ mTextParser {
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).Any(__ => __ == aChar),
-		_ => (_.Span.Start, $"expect one of [{aRefChars}]"),
+		__ => (__.Span.Start, $"expect one of [{aRefChars}]"),
 		ComparePos,
 		AreErrorsEqual
 	)
@@ -126,7 +126,7 @@ mTextParser {
 		tText aRefChars
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
 		aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aRefChars)).All(__ => __ != aChar),
-		_ => (_.Span.Start, $"expect non of [{aRefChars}]"),
+		__ => (__.Span.Start, $"expect non of [{aRefChars}]"),
 		ComparePos,
 		AreErrorsEqual
 	)
@@ -138,8 +138,8 @@ mTextParser {
 		tChar aMinChar,
 		tChar aMaxChar
 	) => mParserGen.AtomParser<tPos, tChar, tError>(
-		_ => aMinChar <= _ && _ <= aMaxChar,
-		_ => (_.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
+		__ => aMinChar <= __ && __ <= aMaxChar,
+		__ => (__.Span.Start, $"expect one in [{aMinChar}...{aMaxChar}]"),
 		ComparePos,
 		AreErrorsEqual
 	)

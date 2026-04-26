@@ -59,7 +59,7 @@ mSPO_Parser {
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aName
 	) => aParser.AddError(
-		_ => (_.Span.Start, $"invalid {aName}")
+		__ => (__.Span.Start, $"invalid {aName}")
 	)
 	.SetDebugName([aName]);
 	
@@ -70,7 +70,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIgnorePatternNode<tSpan>, tError>
 	IgnorePattern = IdToken
-	.Assert(__ => __.Type == tTokenType.Id && __.Text == "_", _ => (_.Span.Start, "expect _"))
+	.Assert(__ => __.Type == tTokenType.Id && __.Text == "_", __ => (__.Span.Start, "expect _"))
 	.ModifyS(mSPO_AST.IgnorePattern)
 	.SetName(nameof(IgnorePattern));
 	
@@ -81,7 +81,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIntNode<tSpan>, tError>
 	Number = NumberToken
-	.Modify(_ => tInt32.Parse(_.Text))
+	.Modify(__ => tInt32.Parse(__.Text))
 	.ModifyS(mSPO_AST.Int)
 	.SetName(nameof(Number));
 	
@@ -153,7 +153,7 @@ mSPO_Parser {
 	.SetName(nameof(TypedPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPatternNode<tSpan>, tError>
-	Pattern = (TypedPattern.Modify(_ => (mSPO_AST.tPatternNode<tSpan>)_) | UnTypedPattern)
+	Pattern = (TypedPattern.Modify(__ => (mSPO_AST.tPatternNode<tSpan>)__) | UnTypedPattern)
 	.SetName(nameof(Pattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExpressionNode<tSpan>, tError>
@@ -248,7 +248,7 @@ mSPO_Parser {
 				mSPO_AST.Id(
 					aSpan,
 					aList.Map(
-						_ => _.Item2.Id[1..]
+						__ => __.Item2.Id[1..]
 					).Reduce(
 						"",
 						(a1, a2) => $"{a1}...{a2}"
@@ -595,7 +595,7 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
-		mParserGen.Seq(Pattern, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(_ => mMaybe.Some(_.Item1))),
+		mParserGen.Seq(Pattern, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(__ => mMaybe.Some(__.Item1))),
 		Pattern,
 		-SpecialToken("=>"),
 		Expression

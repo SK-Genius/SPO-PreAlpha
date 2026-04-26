@@ -119,7 +119,7 @@ mVM_Type {
 				return new tType {
 					Prefix = aType.Prefix,
 					Kind = aType.Kind,
-					Refs = System.Array.ConvertAll(aType.Refs, _ => _.Substitute(aFreeId, aReplacement))
+					Refs = System.Array.ConvertAll(aType.Refs, __ => __.Substitute(aFreeId, aReplacement))
 				};
 			}
 			case tKind.Record: {
@@ -127,7 +127,7 @@ mVM_Type {
 				return Record(
 					Fields.ToStream(
 					).Map(
-						_ => (_.Key, _.Value.Substitute(aFreeId, aReplacement))
+						__ => (__.Key, __.Value.Substitute(aFreeId, aReplacement))
 					).ToArrayList(
 					).ToArray(
 					)
@@ -255,10 +255,10 @@ mVM_Type {
 	Text(
 	) => mStd.With(
 		Free("tText"),
-		_ => Recursive(
-			_,
+		__ => Recursive(
+			__,
 			Set(
-				Pair(_, Char()),
+				Pair(__, Char()),
 				Empty()
 			)
 		)
@@ -767,9 +767,9 @@ mVM_Type {
 		
 		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
 			return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
-				_ => SubType2.IsSubType(aSupType, _)
+				__ => SubType2.IsSubType(aSupType, __)
 			).ModifyError(
-				_ => ExtendError(_, aSubType, aSupType)
+				__ => ExtendError(__, aSubType, aSupType)
 			);
 		}
 		
@@ -827,7 +827,7 @@ mVM_Type {
 						Sup,
 						aTypeMappings
 					).ElseTry(
-						_ => mResult.Fail(ExtendError(_, aSubType, aSupType))
+						__ => mResult.Fail(ExtendError(__, aSubType, aSupType))
 					);
 				} else {
 					return mResult.Fail(ExtendError("", aSubType, aSupType));
@@ -885,10 +885,10 @@ mVM_Type {
 				}
 				
 				return SubObj.IsSubType(SupObj, aTypeMappings)
-				.ThenTry(_ => SupObj.IsSubType(SubObj, _))
-				.ThenTry(_ => SubArg.IsSubType(SupArg, _))
-				.ThenTry(_ => SubRes.IsSubType(SupRes, _))
-				.ElseTry(_ => mResult.Fail(ExtendError(_, aSubType, aSupType)));
+				.ThenTry(__ => SupObj.IsSubType(SubObj, __))
+				.ThenTry(__ => SubArg.IsSubType(SupArg, __))
+				.ThenTry(__ => SubRes.IsSubType(SupRes, __))
+				.ElseTry(__ => mResult.Fail(ExtendError(__, aSubType, aSupType)));
 			}
 			case tKind.Var: {
 				throw new System.NotImplementedException();
@@ -914,14 +914,14 @@ mVM_Type {
 						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				} else {
 					return aSubType.IsSubType(
 						SupBody.Substitute(SupHead.Id, aSupType),
 						aTypeMappings
 					).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				}
 			}
@@ -932,11 +932,11 @@ mVM_Type {
 						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				} else {
 					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				}
 			}
@@ -947,11 +947,11 @@ mVM_Type {
 						SubBody = SubBody.Substitute(SubHead.Id, Free(SupHead.Id));
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				} else {
 					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
-						_ => ExtendError(_, aSubType, aSupType)
+						__ => ExtendError(__, aSubType, aSupType)
 					);
 				}
 			}

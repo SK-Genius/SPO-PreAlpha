@@ -59,7 +59,7 @@ mFS {
 				return (
 					aSrcPath.Parent.IsEmpty()
 					? cParentPath
-					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).Then(_ => cParentPath / _)
+					: (aSrcPath[1..].AssertNotEmpty() >> aDesPath).Then(__ => cParentPath / __)
 				);
 			}
 			
@@ -71,8 +71,8 @@ mFS {
 			var RemindingPath = ParentSrcPath >> aDesPath;
 			
 			return RemindingPath.Match(
-				_ => {
-					return mMaybe.Some(cParentPath / _);
+				__ => {
+					return mMaybe.Some(cParentPath / __);
 				},
 				() => mStd.cEmpty
 			);
@@ -312,10 +312,10 @@ mFS {
 						Path: aPath,
 						NormalizedParent: Parent.Normalize()
 					),
-					static _ => (
-						_.Path.Parent.IsRefEqual(_.NormalizedParent)
-						? _.Path
-						: _.NormalizedParent / _.Path.Name
+					static __ => (
+						__.Path.Parent.IsRefEqual(__.NormalizedParent)
+						? __.Path
+						: __.NormalizedParent / __.Path.Name
 					)
 				)
 				: aPath
@@ -373,7 +373,7 @@ mFS {
 		).ToArray(
 		).AsStream(
 		).Map(
-			_ => new tFile(aFolder, (aFolder._Path >> Path(_)).AssertNotEmpty().ToText())
+			__ => new tFile(aFolder, (aFolder._Path >> Path(__)).AssertNotEmpty().ToText())
 		);
 		
 		public mStream.tStream<tFolder>
@@ -385,7 +385,7 @@ mFS {
 		).ToArray(
 		).AsStream(
 		).Map(
-			_ => aFolder / _
+			__ => aFolder / __
 		);
 		
 		public tBool

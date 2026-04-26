@@ -171,7 +171,7 @@ mAssert {
 				return a1;
 			}
 		}
-		Fail($"{a1} in {a2.AsStream().Map(_ => "" + _).TryReduce((a1, a2) => a1 + ", " + a2).ElseUse("")}");
+		Fail($"{a1} in {a2.AsStream().Map(__ => "" + __).TryReduce((a1, a2) => a1 + ", " + a2).ElseUse("")}");
 		return a1;
 	}
 	

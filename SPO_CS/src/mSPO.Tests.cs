@@ -4,6 +4,8 @@
 // IMPORT mVM_Type.Tests
 // IMPORT mVM.Tests
 // IMPORT mIL_GenerateOpcodes.Tests
+// IMPORT mSPO_Diagnostics.Tests
+// IMPORT mSPO_Navigation.Tests
 // IMPORT mSPO_AST_Types.Tests
 // IMPORT mSPO_Parser.Tests
 // IMPORT mSPO2IL.Tests
@@ -22,6 +24,8 @@ mSPO_Tests {
 			mIL_GenerateOpcodes_Tests.Tests,
 			mVM_Type_Tests.Tests,
 			mVM_Tests.Tests,
+			mSPO_Diagnostics_Tests.Tests,
+			mSPO_Navigation_Tests.Tests,
 			mSPO_AST_Types_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,

@@ -64,7 +64,7 @@ mVM_Tests {
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
 						Res,
-						_ => "" + _,
+						__ => "" + __,
 						TraceOut
 					);
 					mAssert.AreEquals(Res, mVM_Data.Int(2));

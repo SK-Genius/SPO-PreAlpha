@@ -25,7 +25,7 @@ mParserGen_Tests {
 	private static mStream.tStream<(mSpan.tSpan<mStd.tEmpty>, t)>
 	TestStream<t>(
 		System.ReadOnlySpan<t> aList
-	) => mStream.Stream(aList).Map(_ => (cTestSpan, _));
+	) => mStream.Stream(aList).Map(__ => (cTestSpan, __));
 	
 	private static tInt32
 	ComparePos(
@@ -62,69 +62,69 @@ mParserGen_Tests {
 		[
 			mTest.Test("AtomParser",
 				aDebugStream => {
-					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
+					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
 					
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 'A'), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("B_")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("B_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 				}
 			),
 			mTest.Test("...+...",
 				aDebugStream => {
-					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
-					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', _ => (_.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
+					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
+					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', __ => (__.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
 					var AB = mParserGen.Seq(A, B);
 					
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, ('A', 'B')), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						Fail(["miss B"])
 					);
 				}
 			),
 			mTest.Test("...-...",
 				aDebugStream => {
-					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
-					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', _ => (_.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
+					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
+					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', __ => (__.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
 					var AB = A +-B;
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 'A'), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						Fail(["miss B"])
 					);
 				}
@@ -134,201 +134,201 @@ mParserGen_Tests {
 					var A = -mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "unexpected A"), ComparePos, AreErrorsEqual);
 					
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStd.cEmpty), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["unexpected A"])
 					);
 					mAssert.AreEquals(
-						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["unexpected A"])
 					);
 				}
 			),
 			mTest.Test("...|...",
 				aDebugStream => {
-					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
-					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', _ => (_.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
+					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
+					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', __ => (__.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
 					var AB = A | B;
 					
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 'A'), TestStream(['B']), cNoError)
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("BA")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("BA")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 'B'), TestStream(System.MemoryExtensions.AsSpan("A")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A", "miss B"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A", "miss B"])
 					);
 					mAssert.AreEquals(
-						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("__")), _ => aDebugStream(_())),
+						AB.StartParse(TestStream(System.MemoryExtensions.AsSpan("__")), __ => aDebugStream(__())),
 						Fail(["miss A", "miss B"])
 					);
 				}
 			),
 			mTest.Test("...[m, n]",
 				aDebugStream => {
-					var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..3];
+					var A2_3 = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..3];
 					
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AA"))), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAA_")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AAA"))), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAAA_")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAAA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AAA"))), TestStream(System.MemoryExtensions.AsSpan("A_")), cNoError)
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						A2_3.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 				}
 			),
 			mTest.Test("...[0, null]",
 				aDebugStream => {
-					var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[0..];
+					var A0_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[0..];
 					
 					mAssert.AreEquals(
-						A0_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), _ => aDebugStream(_())),
+						A0_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AA"))), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A0_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A0_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan(""))), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 				}
 			),
 			mTest.Test("...[n, null]",
 				aDebugStream => {
-					var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..];
+					var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..];
 					
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AA"))), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAA_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, mStream.Stream(System.MemoryExtensions.AsSpan("AAA"))), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 				}
 			),
 			mTest.Test("....Modify(...=>...)",
 				aDebugStream => {
-					var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..]
+					var A2_ = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual)[2..]
 					.Modify(aChars => aChars.Count());
 					
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 2u), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAAAA_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("AAAAA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, 5u), TestStream(System.MemoryExtensions.AsSpan("_")), mStream.Stream((mStd.cEmpty, "miss A")))
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(mStd.cEmpty, _ => aDebugStream(_())),
+						A2_.StartParse(mStd.cEmpty, __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 					mAssert.AreEquals(
-						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), _ => aDebugStream(_())),
+						A2_.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_")), __ => aDebugStream(__())),
 						Fail(["miss A"])
 					);
 				}
 			),
 			mTest.Test("~...",
 				aDebugStream => {
-					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', _ => (_.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
-					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', _ => (_.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
+					var A = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'A', __ => (__.Span.Start, "miss A"), ComparePos, AreErrorsEqual);
+					var B = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(__ => __ == 'B', __ => (__.Span.Start, "miss B"), ComparePos, AreErrorsEqual);
 					var AB = mParserGen.Seq(A, B).Modify(_ => "AB");
 					var NotAB = ~AB;
 					
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("AB_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, (mStream.Stream(System.MemoryExtensions.AsSpan("")), "AB")), TestStream(System.MemoryExtensions.AsSpan("_")), cNoError)
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("BAABA_")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("BAABA_")), __ => aDebugStream(__())),
 						mParserGen.ParserResult((cTestSpan, (mStream.Stream(System.MemoryExtensions.AsSpan("BA")), "AB")), TestStream(System.MemoryExtensions.AsSpan("A_")), cNoError)
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(mStd.cEmpty, _ => aDebugStream(_())),
+						NotAB.StartParse(mStd.cEmpty, __ => aDebugStream(__())),
 						Fail([])
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_")), __ => aDebugStream(__())),
 						Fail([])
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("_A")), __ => aDebugStream(__())),
 						Fail([])
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A")), __ => aDebugStream(__())),
 						Fail([])
 					);
 					mAssert.AreEquals(
-						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_BA")), _ => aDebugStream(_())),
+						NotAB.StartParse(TestStream(System.MemoryExtensions.AsSpan("A_BA")), __ => aDebugStream(__())),
 						Fail([])
 					);
 				}
@@ -344,10 +344,10 @@ mParserGen_Tests {
 					var Nat = Digit[1..]
 					.Modify(aDigits => aDigits.Reduce(0, (aNat, aDigit) => aNat*10 + aDigit));
 					
-					var PosSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '+', _ => (_.Span.Start, "miss +"), ComparePos, AreErrorsEqual))
+					var PosSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '+', __ => (__.Span.Start, "miss +"), ComparePos, AreErrorsEqual))
 					.Modify(() => +1);
 					
-					var NegSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '-', _ => (_.Span.Start, "miss -"), ComparePos, AreErrorsEqual))
+					var NegSignum = (-mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(aChar => aChar == '-', __ => (__.Span.Start, "miss -"), ComparePos, AreErrorsEqual))
 					.Modify(() => -1);
 					
 					var Signum = PosSignum | NegSignum;
@@ -382,7 +382,7 @@ mParserGen_Tests {
 					tInt32 Eval(tText aExpr) {
 						var X = Expression.StartParse(
 							TestStream(System.MemoryExtensions.AsSpan(aExpr)),
-							_ => aDebugStream(_())
+							__ => aDebugStream(__())
 						);
 						return X.AssertNotError("").Result.Value;
 					}
@@ -400,7 +400,7 @@ mParserGen_Tests {
 						tText aChars
 					) => mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
 						aChar => mStream.Stream(System.MemoryExtensions.AsSpan(aChars)).Any(__ => __ == aChar),
-						_ => (_.Span.Start, $"miss one of [{aChars}]"),
+						__ => (__.Span.Start, $"miss one of [{aChars}]"),
 						ComparePos,
 						AreErrorsEqual
 					);
@@ -410,8 +410,8 @@ mParserGen_Tests {
 						tText aToken
 					) {
 						var Parser = mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
-							_ => _ == aToken[0],
-							_ => (_.Span.Start, ""),
+							__ => __ == aToken[0],
+							__ => (__.Span.Start, ""),
 							ComparePos,
 							AreErrorsEqual
 						).Modify(aChar => "" + aChar);
@@ -420,7 +420,7 @@ mParserGen_Tests {
 								Parser,
 								mParserGen.AtomParser<mStd.tEmpty, tChar, tText>(
 									aChar => aChar == Char,
-									_ => (_.Span.Start, "miss {Char}"),
+									__ => (__.Span.Start, "miss {Char}"),
 									ComparePos,
 									AreErrorsEqual
 								)

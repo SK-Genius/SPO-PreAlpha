@@ -88,7 +88,7 @@ mTest {
 					Collection.Tests
 				).AsStream(
 				).Any(
-					_ => _.IsMatchingAny(aFilters)
+					__ => __.IsMatchingAny(aFilters)
 				)
 			),
 			_ => throw new System.NotImplementedException(aTest.GetType().FullName),
@@ -106,9 +106,9 @@ mTest {
 					Collection.Tests
 				).AsStream(
 				).Any(
-					_ => _.IsMatchingAll(
+					__ => __.IsMatchingAll(
 						aFilters.Where(
-							_ => !Collection.Name.Contains(_)
+							__ => !Collection.Name.Contains(__)
 						)
 					)
 				)
@@ -136,7 +136,7 @@ mTest {
 			var TestName = aTest.Name();
 			aDebugStream(TestName);
 			if (aHasToMatchAll) {
-				aFilters = aFilters.Where(_ => !TestName.Contains(_));
+				aFilters = aFilters.Where(__ => !TestName.Contains(__));
 			} else {
 				if (aFilters.Any(TestName.Contains)) {
 					aFilters = mStd.cEmpty;
@@ -262,7 +262,7 @@ mTest {
 				}
 				case tTestCollection Collection: {
 					if (aSettings.HasToMatchAll) {
-						aSettings.Filters = aSettings.Filters.Where(_ => !Collection.Name.Contains(_));
+						aSettings.Filters = aSettings.Filters.Where(__ => !Collection.Name.Contains(__));
 					} else {
 						if (aSettings.Filters.Any(Collection.Name.Contains)) {
 							aSettings.Filters = mStd.cEmpty;
@@ -290,12 +290,12 @@ mTest {
 					StopWatch.Start();
 					foreach (var Test in Collection.Tests) {
 						var SubResult = Test.Run(
-							LineByLine(_ => { DebugStream(cTab + _); }),
+							LineByLine(__ => { DebugStream(cTab + __); }),
 							mStd.With(
 								aSettings,
-								static _ => {
-									_.TreeLevel -= 1;
-									return _;
+								static __ => {
+									__.TreeLevel -= 1;
+									return __;
 								}
 							)
 						);

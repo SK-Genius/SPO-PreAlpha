@@ -86,7 +86,7 @@ mVM_Type_Tests {
 					var AST =  mSPO_Parser.Expression.ParseText(
 						a.Expr,
 						"",
-						_ => aStreamOut(_())
+						__ => aStreamOut(__())
 					);
 					
 					var Type = AST.UpdateTypes(
@@ -96,7 +96,7 @@ mVM_Type_Tests {
 					var Type_ = mSPO_Parser.Type.ParseText(
 						a.Type,
 						"",
-						_ => { aStreamOut(_()); }
+						__ => { aStreamOut(__()); }
 					).AsVM_Type(
 						cTestScope
 					).AssertNotError(__ => __.ToText());

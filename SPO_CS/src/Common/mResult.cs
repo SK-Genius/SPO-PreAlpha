@@ -75,9 +75,9 @@ mResult {
 		public override readonly tText
 		ToString(
 		) => this.Then(
-			_ => "" + _
+			__ => "" + __
 		).Else(
-			_ => $"Error: {_}"
+			__ => $"Error: {__}"
 		);
 	}
 	

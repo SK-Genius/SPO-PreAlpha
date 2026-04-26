@@ -391,7 +391,7 @@ mTreeMap {
 			aGroup => aTree.TryGet(
 				aGroup
 			).Match(
-				_ => aTree.Set(aGroup, mStream.Stream(aItem, _)),
+				__ => aTree.Set(aGroup, mStream.Stream(aItem, __)),
 				() => aTree.Set(aGroup, mStream.Stream(aItem))
 			)
 		)

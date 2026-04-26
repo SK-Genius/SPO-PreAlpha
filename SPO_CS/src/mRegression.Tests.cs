@@ -62,7 +62,7 @@ mRegression_Tests {
 								SPO_ResText.Value,
 								(cTestFolder._Path / SPO_File.Name).ToText(),
 								(mVM_Data.Empty(), mVM_Type.Empty()),
-								_ => WriteToLog(_)
+								__ => WriteToLog(__)
 							).ElseThrow();
 							return (Result, Log);
 						}
@@ -81,7 +81,7 @@ mRegression_Tests {
 											SPO_Text.Value,
 											(cTestFolder._Path / SPO_File.Name).ToText(),
 											(Module_Std.Data, Module_Std.Type),
-											_ => aDebug(_())
+											__ => aDebug(__())
 										).ElseThrow();
 										aDebug(ResRes.Value.Log);
 										mAssert.IsTrue(
@@ -101,7 +101,7 @@ mRegression_Tests {
 										var IL_TextNew = mSPO_Parser.Module.ParseText(
 												SPO_Text.Value,
 												(cTestFolder._Path / SPO_File.Name).ToText(),
-												_ => aDebug(_())
+												__ => aDebug(__())
 											).ToILT();
 										
 										if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
@@ -128,13 +128,13 @@ mRegression_Tests {
 										var IlModule = mIL_Parser.Module.ParseText(
 											IL_Text.Value,
 											(cTestFolder._Path / ILT_File.Name).ToText(),
-											_ => aDebug(_())
+											__ => aDebug(__())
 										);
 										var IL_Res = mVM.Run(
 											IlModule,
 											(Module_Std.Data, Module_Std.Type),
 											mTextParser.ToText,
-											_ => aDebug(_())
+											__ => aDebug(__())
 										);
 										aDebug(ResRes.Value.Log);
 										

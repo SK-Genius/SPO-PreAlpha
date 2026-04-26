@@ -286,15 +286,15 @@ mSPO2IL {
 		
 		return EnvIds.ToStream(
 		).Map(
-			_ => {
-				var MaybeType = TypeDict.TryGet(_);
+			__ => {
+				var MaybeType = TypeDict.TryGet(__);
 				if (MaybeType.IsSome(out var T)) {
 					return T;
 				}
-				if (!_.StartsWith("d_")) {
-					throw mError.Error($"'{_}' id not a Def");
+				if (!__.StartsWith("d_")) {
+					throw mError.Error($"'{__}' id not a Def");
 				}
-				var DefIndexText = _[2..];
+				var DefIndexText = __[2..];
 				var TypeName = aModuleConstructor.Defs.Get(tNat32.Parse(DefIndexText)).TypeId;
 				return aModuleConstructor.Types.TryGet(TypeName).ElseFail(
 					() => $"can't find type '{TypeName}'"
@@ -313,9 +313,9 @@ mSPO2IL {
 	) => aDefConstructor.CreateEnvType(
 		aModuleConstructor
 	).Then(
-		_ => mVM_Type.Proc(
+		__ => mVM_Type.Proc(
 			mVM_Type.Empty(),
-			_,
+			__,
 			aProcType
 		)
 	);
@@ -356,7 +356,7 @@ mSPO2IL {
 				return (DefIndex, aType);
 			}
 		).ModifyError(
-			_ => (aLambdaNode.Pos, _)
+			__ => (aLambdaNode.Pos, __)
 		);
 	}
 	
@@ -394,7 +394,7 @@ mSPO2IL {
 				return (DefIndex, aType);
 			}
 		).ModifyError(
-			_ => (aMethodNode.Pos, _)
+			__ => (aMethodNode.Pos, __)
 		);
 	}
 	
@@ -448,9 +448,9 @@ mSPO2IL {
 			aDef => {
 				var EnvList = TempMethodDef.EnvIds.ToStream(
 				).Map(
-					_ => mSPO_AST_Types.ScopeItem(
-						_,
-						TempMethodDef.TypeDict.TryGet(_).AssertNotEmpty()
+					__ => mSPO_AST_Types.ScopeItem(
+						__,
+						TempMethodDef.TypeDict.TryGet(__).AssertNotEmpty()
 					)
 				);
 				
@@ -548,7 +548,7 @@ mSPO2IL {
 					!aDefConstructor.TypeDict.ToStream().Any(__ => __.Key == Id) &&
 					!aDefConstructor.Commands.ToStream(
 					).Any(
-						_ => _.GetResultReg().Match(
+						__ => __.GetResultReg().Match(
 							aName => aName == Id,
 							() => false
 						)
@@ -655,7 +655,7 @@ mSPO2IL {
 					CharReg,
 					Type.Match(
 						() => mVM_Type.Char(),
-						_ => _
+						__ => __
 					)
 				);
 				return CharReg;
@@ -690,9 +690,9 @@ mSPO2IL {
 				
 				var LambdaEnvs = LambdaDef.EnvIds.ToStream(
 				).Map(
-					_ => mSPO_AST_Types.ScopeItem(
-						_,
-						LambdaDef.TypeDict.TryGet(_).AssertNotEmpty()
+					__ => mSPO_AST_Types.ScopeItem(
+						__,
+						LambdaDef.TypeDict.TryGet(__).AssertNotEmpty()
 					)
 				);
 				
@@ -864,9 +864,9 @@ mSPO2IL {
 						SwitchDefType_,
 						TestAndCallCaseFunc.EnvIds.ToStream(
 						).Map(
-							_ => mSPO_AST_Types.ScopeItem(
-								_,
-								TypeDict_.TryGet(_).AssertNotEmpty()
+							__ => mSPO_AST_Types.ScopeItem(
+								__,
+								TypeDict_.TryGet(__).AssertNotEmpty()
 							)
 						)
 					);
@@ -916,9 +916,9 @@ mSPO2IL {
 					SwitchDefType,
 					SwitchDef.EnvIds.ToStream(
 					).Map(
-						_ => mSPO_AST_Types.ScopeItem(
-							_,
-							SwitchDef.TypeDict.TryGet(_).AssertNotEmpty()
+						__ => mSPO_AST_Types.ScopeItem(
+							__,
+							SwitchDef.TypeDict.TryGet(__).AssertNotEmpty()
 						)
 					)
 				);
@@ -1173,7 +1173,7 @@ mSPO2IL {
 				
 				if (
 					!aArgType.SubSet(
-						_ => _.IsPrefix(Node.Prefix, out var T) ? mMaybe.Some(T) : mStd.cEmpty
+						__ => __.IsPrefix(Node.Prefix, out var T) ? mMaybe.Some(T) : mStd.cEmpty
 					).IsSome(out var Type)
 				) {
 					if (
@@ -1566,9 +1566,9 @@ mSPO2IL {
 				Def.DefType,
 				RecProcConstructor.EnvIds.ToStream(
 				).Map(
-					_ => mSPO_AST_Types.ScopeItem(
-						_,
-						RecProcConstructor.TypeDict.TryGet(_).AssertNotEmpty()
+					__ => mSPO_AST_Types.ScopeItem(
+						__,
+						RecProcConstructor.TypeDict.TryGet(__).AssertNotEmpty()
 					)
 				)
 			);
@@ -1633,9 +1633,9 @@ mSPO2IL {
 			RecFactoryDefType,
 			RecFactoryFunc.EnvIds.ToStream(
 			).Map(
-				_ => mSPO_AST_Types.ScopeItem(
-					_,
-					RecFactoryFunc.TypeDict.TryGet(_).AssertNotEmpty()
+				__ => mSPO_AST_Types.ScopeItem(
+					__,
+					RecFactoryFunc.TypeDict.TryGet(__).AssertNotEmpty()
 				)
 			),
 			true
@@ -1828,7 +1828,7 @@ mSPO2IL {
 		
 		var FirstNonDef = TempLambdaDef.EnvIds.ToStream(
 		).Where(
-			_ => !_.StartsWith("d_")
+			__ => !__.StartsWith("d_")
 		).TryFirst(
 		);
 		

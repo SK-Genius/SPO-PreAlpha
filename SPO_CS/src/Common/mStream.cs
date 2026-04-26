@@ -562,7 +562,7 @@ mStream {
 	public static tBool
 	All(
 		this tStream<tBool> aStream
-	) => !aStream.Map(_ => !_).Any();
+	) => !aStream.Map(__ => !__).Any();
 	
 	[Pure, DebuggerHidden]
 	public static tBool

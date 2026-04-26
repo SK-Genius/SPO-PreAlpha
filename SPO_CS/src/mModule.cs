@@ -93,7 +93,7 @@ mModule {
 					var IL_TextNew = mSPO_Parser.Module.ParseText(
 						SPO_Text,
 						(Folder._Path / SPO_File.Name).ToText(),
-						_ => aLogger(_())
+						__ => aLogger(__())
 					).ToILT();
 					
 					if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
@@ -116,11 +116,11 @@ mModule {
 					SPO_Text,
 					(Folder._Path / SPO_File.Name).ToText(),
 					(Data, Type),
-					_ => aLogger(_())
+					__ => aLogger(__())
 				).Then(
-					_ => (_.Data, _.Type)
+					__ => (__.Data, __.Type)
 				).ModifyError(
-					_ => "" + _
+					__ => "" + __
 				);
 				
 				aModuleSetup.Module = Y;
@@ -133,11 +133,11 @@ mModule {
 						mIL_Parser.Module.ParseText(
 							ILT_File.TryReadText().ElseThrow(),
 							(Folder._Path / ILT_File.Name).ToText(),
-							_ => aLogger(_())
+							__ => aLogger(__())
 						),
 						(Data, Type),
 						mTextParser.ToText,
-						_ => aLogger(_())
+						__ => aLogger(__())
 					);
 					
 					aModuleSetup.Module = mResult.OK(Res).WithErrorType<tText>();

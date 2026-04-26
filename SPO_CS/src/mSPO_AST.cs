@@ -1162,9 +1162,9 @@ mSPO_AST {
 				return (
 					a2 is tTuplePatternNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.Items, Node2.Items).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1195,9 +1195,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1.Key, a2.Key) &&
 							AreEqual(a1.Value, a2.Value)
 						)
@@ -1211,9 +1211,9 @@ mSPO_AST {
 						Node1.Elements,
 						Node2.Elements
 					).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1.Id, a2.Id) &&
 							AreEqual(a1.Pattern, a2.Pattern)
 						)
@@ -1268,9 +1268,9 @@ mSPO_AST {
 				return (
 					a2 is tRecLambdasNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.List, Node2.List).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1339,9 +1339,9 @@ mSPO_AST {
 					a2 is tMethodCallsNode<tPos> Node2 &&
 					AreEqual(Node1.Object, Node2.Object) &&
 					mStream.ZipExtend(Node1.MethodCalls, Node2.MethodCalls).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)
@@ -1357,9 +1357,9 @@ mSPO_AST {
 				return (
 					a2 is tTupleNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.Items, Node2.Items).All(
-						_ => (
-							_._1.IsSome(out var a1) &&
-							_._2.IsSome(out var a2) &&
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
 							AreEqual(a1, a2)
 						)
 					)

@@ -81,16 +81,16 @@ GetArgParam(
 	tText aShortArgName,
 	tText aLongArgName
 ) => aArgs.SkipUntil(
-	_ => _ == aLongArgName || _ == aShortArgName
+	__ => __ == aLongArgName || __ == aShortArgName
 ).Skip(
 	1
 ).TryFirst(
 ).ElseTry(
 	() => aArgs.Where(
-		_ => _.StartsWith(aShortArgName)
+		__ => __.StartsWith(aShortArgName)
 	).TryFirst(
 	).Then(
-		_ => _[aShortArgName.Length..]
+		__ => __[aShortArgName.Length..]
 	)
 );
 
@@ -116,13 +116,13 @@ if (Args.Any(__ => __ is cHelpCommand or cHelpCommandShort)) {
 }
 
 var MatchAll = Args.SkipUntil(
-	_ => _ is cMatchAllCommand or cMatchAllCommandShort
+	__ => __ is cMatchAllCommand or cMatchAllCommandShort
 ).Skip(
 	1
 );
 
 var MatchAny = Args.SkipUntil(
-	_ => _ is cMatchAnyCommand or cMatchAnyCommandShort
+	__ => __ is cMatchAnyCommand or cMatchAnyCommandShort
 ).Skip(
 	1
 );

@@ -105,7 +105,7 @@ mSPO_AST_Types_Tests {
 						mSPO_Parser.Expression.ParseText(
 							"(#Bla (§DEF a € §BOOL)) => a",
 							"",
-							_ => { aDebugStream(_()); }
+							__ => { aDebugStream(__()); }
 						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
@@ -186,7 +186,7 @@ mSPO_AST_Types_Tests {
 									mSPO_Parser.Expression.ParseText(
 										a.Code,
 										"",
-										_ => { aDebugStream(_()); }
+										__ => { aDebugStream(__()); }
 									).UpdateTypes(mStd.cEmpty),
 									a.Type
 								);

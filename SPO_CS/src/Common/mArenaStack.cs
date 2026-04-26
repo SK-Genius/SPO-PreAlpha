@@ -60,7 +60,7 @@ mArenaStack {
 		mArena.tArena aArena
 	) where t : unmanaged
 	=> aStack.Match(
-		aOnSomeRef: _ => mMaybe.Some(_.Pop(aArena)),
+		aOnSomeRef: __ => mMaybe.Some(__.Pop(aArena)),
 		aOnNoneRef: () => mMaybe.None<
 			(t Head, mArenaMaybeRef.tArenaMaybeRef<tArenaStack<t>> Tail)
 		>()

@@ -1,0 +1,173 @@
+﻿IL overview
+###########
+	see mIL_Parser
+	
+	
+	TYPES:
+	======
+		
+		META: §TYPE
+		EMPTY: []
+		BOOL: §BOOL // == [[#FALSE []] | [#TRUE []]] == [#FALSE | #TRUE] ???
+		INT: §INT
+		ANY: [_]
+		PREFIX: [#n t]  // public & private variant
+		PAIR: [t; t]
+		SET: [t | t]
+		REC: [{t; t}]  // t € [[{t; t}] | [#n t] | []]
+		ARRAY [n * t]  // ???
+		COND: [t & p]
+		VAR: [VAR t]
+		FUNC: [t -> t]
+		PROC: [t : [t -> t]]
+		MSG_OUT: [t >>]
+		GENERIC: [§ALL t [...]]  // or ( (t € §TYPE) => [...] ) ???
+		INTERFACE: [§ANY t [...]]
+		RECURSIVE: [§REC t [...]]
+		
+		SEMANTIC SUGAR:
+		---------------
+			
+			Tuple:
+				[t, t]  ==  [[[]; t]; t] 
+				[t, t, t]  ==  [[[[]; t]; t]; t]
+				[t, t,  ..., t]  ==  [...[[[]; t]; t]; ...; t]
+				
+			Rec:
+				[{#n t, #n t}]  ==  [{[{[]; [#n t]}]; [#n t]}] 
+				[{#n t, #n t, #n t}]  ==  [{[{[{[]; [#n t]}]; [#n t]}]; [#n t]}]
+				[{#n t, #n t,  ..., #n t]  ==  [{...[{[{[]; [#n t]}]; [#n t]}]; ...; [#n t]}]
+				
+			Prefix:
+				[#n]  ==  [#n []]
+				[#n t, t]  ==  [#n [t, t]]
+				[#n t, t, t]  ==  [#n [t, t, t]]
+				[#n t, t, ... ,t]  ==  [#n [t, t, ..., t]]
+			
+			Set:
+				[t | t | t]  ==  [[t | t] | t]  
+				[t | t | ... | t]  ==  [...[t | t] | ... | t]  
+			
+			Calls:
+				[T : T] == [T : T -> []]
+				[T : -> T] == [T : [] -> T]
+				[T : ] == [T : [] -> []]
+				
+				[T -> T] == [[] : T -> T]
+				[-> T] == [T] == [[] : [] -> T]
+	
+	COMMANDS:
+	=========
+		SPECIAL ELEMENTS:
+			() :: []
+			TRUE :: [#TRUE]
+			FALSE :: [#FALSE]
+			ARG
+			ENV
+		
+		BOOL:
+			BOOL x & x -> x
+			BOOL x | x -> x
+			BOOL x ^ x -> x
+		
+		INT:
+			INT i -> x
+			INT x <=> x -> x
+			INT x == x -> x
+			INT x + x -> x
+			INT x - x -> x
+			INT x * x -> x
+		
+		PAIR:
+			(x ; x) -> x
+			x -> (_ ; x)
+			x -> (x ; _)
+		
+		REC:
+			{x ; x} -> x
+			x -> {x ; _}
+			x -> {_ ; x}
+		
+		ARRAY:
+			n §* x -> x
+			x[x] -> x
+		
+		PREFIX:
+			(#n x) -> x
+			x -> (#n x)
+			(#n ? x) -> x
+		
+		VAR:
+			§VAR T -> x 
+		
+		SET_OBJ:
+			x :
+		
+		CALL:
+			x x -> x
+			: x x -> x
+		
+		COND:
+			RETURN x IF x
+			REPEAT WITH x IF x
+		
+		PROCESS:
+			CREATE T x -> x
+			x >> x
+		
+		CHECK:
+			ASSERT x => x
+			x IS T -> x ???
+		
+		TYPES: (Construction & Destruction) ???
+			TYPE_OF x -> T
+			[#n T] -> T
+			[T ; T] -> T
+			... see TYPES
+		
+		
+		SEMANTIC SUGAR:
+		---------------
+			
+			PAIR:
+				x -> (x ; x)  ==  x -> (x ; _)  &&  x -> (_ ; x)
+				x -> (x ; x) ?  ==  x -> (x ; _) ?  &&  x -> (_ ; x) ?
+			
+			TUPLE:
+				(x , x , ... , x) -> x
+				x -> (x , x , ... , x)
+				x -> (x , x , ... , x) ?
+				n x -> x
+				n x -> x ?
+			
+			PREFIX:
+				(#n x , x , ... , x ) -> x
+				x -> (#n x , x , ... , x)
+			
+			OBJ:
+				x : x x -> x , x x -> x  ==  x :  &&  : x x -> x  &&  : x x -> x
+			
+			???:
+				RETURN x  ==  RETURN x IF TRUE
+				REPEAT WITH x  == REPEAT WITH x IF TRUE
+				ASSERT x  ==  ASSERT TRUE => x
+	
+	
+	IL-MODULE:
+	==========
+		
+		DEF
+			<COMMAND>
+			<COMMAND>
+			...
+		
+		DEF
+			<COMMAND>
+			<COMMAND>
+			...
+		
+		...
+		
+		(.<DefN>(<Def1>, <Def2>, ..., <DefN-1>)) :: [[tA1, tA2, ..., tAM] -> [tR1, tR2, ..., tRL]]
+		((<AName1>, <AName2>, ..., <ANameM>), (<RName1>, <RName2>, ..., <RNameL>)) Separate Language File
+		

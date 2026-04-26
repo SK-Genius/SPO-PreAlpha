@@ -98,7 +98,7 @@ mIL_GenerateOpcodes_Tests {
 						
 						""",
 						"",
-						_ => aDebugStream(_())
+						__ => aDebugStream(__())
 					);
 					
 					#if MY_TRACE_IL
@@ -111,7 +111,7 @@ mIL_GenerateOpcodes_Tests {
 						);
 					#endif
 					
-					var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).AssertNotEmpty();
+					var Proc = DefLookup.TryGet("...++").ThenTry(__ => Defs.TryGet(__)).AssertNotEmpty();
 					var Res = mVM_Data.Empty();
 					mVM.Run<tSpan>(
 						mVM_Data.Proc(Proc, mVM_Data.Empty()),
@@ -141,7 +141,7 @@ mIL_GenerateOpcodes_Tests {
 						
 						""",
 						"",
-						_ => aDebugStream(_())
+						__ => aDebugStream(__())
 					);
 					
 					#if MY_TRACE_IL
@@ -152,7 +152,7 @@ mIL_GenerateOpcodes_Tests {
 						var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 					#endif
 					
-					var Proc = DefLookup.TryGet("...++").ThenTry(_ => Defs.TryGet(_)).AssertNotEmpty();
+					var Proc = DefLookup.TryGet("...++").ThenTry(__ => Defs.TryGet(__)).AssertNotEmpty();
 					var Env = mVM_Data.ExternDef(Add);
 					var Res = mVM_Data.Empty();
 					mVM.Run<tSpan>(
@@ -186,10 +186,10 @@ mIL_GenerateOpcodes_Tests {
 						
 						""",
 						"",
-						_ => aDebugStream(_())
+						__ => aDebugStream(__())
 					);
 					
-					var Proc = DefLookup.TryGet("...=1").ThenTry(_ => Defs.TryGet(_)).AssertNotEmpty();
+					var Proc = DefLookup.TryGet("...=1").ThenTry(__ => Defs.TryGet(__)).AssertNotEmpty();
 					var Env = mVM_Data.ExternDef(Eq);
 					var Res = mVM_Data.Empty();
 					
@@ -213,7 +213,7 @@ mIL_GenerateOpcodes_Tests {
 						TraceOut
 					);
 					while (CallStack.IsSome(out var CallStack_)) {
-						CallStack = CallStack_.Step(_ => "" + _);
+						CallStack = CallStack_.Step(__ => "" + __);
 					}
 					mAssert.AreEquals(Res, mVM_Data.Bool(true));
 					mAssert.ThrowsError(
@@ -282,11 +282,11 @@ mIL_GenerateOpcodes_Tests {
 							
 						""",
 						"",
-						_ => aDebugStream(_())
+						__ => aDebugStream(__())
 					);
 					
-					var Proc1 = DefLookup.TryGet("bla").ThenTry(_ => Defs.TryGet(_)).AssertNotEmpty();
-					var Proc2 = DefLookup.TryGet("bla2").ThenTry(_ => Defs.TryGet(_)).AssertNotEmpty();
+					var Proc1 = DefLookup.TryGet("bla").ThenTry(__ => Defs.TryGet(__)).AssertNotEmpty();
+					var Proc2 = DefLookup.TryGet("bla2").ThenTry(__ => Defs.TryGet(__)).AssertNotEmpty();
 					
 					var Env = mVM_Data.Tuple(
 						[

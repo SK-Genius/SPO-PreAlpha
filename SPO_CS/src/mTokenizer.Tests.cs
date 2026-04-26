@@ -45,7 +45,7 @@ mTokenizer_Tests {
 						"
 						""",
 						"",
-						_ => aDebugStream(_())
+						__ => aDebugStream(__())
 					).Result;
 					mAssert.AreEquals(
 						TokenList,

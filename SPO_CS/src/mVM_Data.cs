@@ -847,7 +847,7 @@ mVM_Data {
 		(tText Key, tData Value)[] aFields
 	) => aFields.AsStream(
 	).Map(
-		_ => Prefix(_.Key, _.Value)
+		__ => Prefix(__.Key, __.Value)
 	).Reduce(
 		Empty(),
 		Record

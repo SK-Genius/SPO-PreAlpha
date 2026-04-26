@@ -93,7 +93,7 @@ mIL_Parser_Tests {
 				mTest.Test($"{nameof(mTextParser.ParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
 					aStreamOut => {
 						mAssert.AreEquals(
-							mIL_Parser.Command.ParseText(aTestCase.Expr, "", _ => aStreamOut(_())),
+							mIL_Parser.Command.ParseText(aTestCase.Expr, "", __ => aStreamOut(__())),
 							aTestCase.Command,
 							mIL_AST.Eq_(mSpan.Eq_<tPos>(mTextStream.Eq))
 						);

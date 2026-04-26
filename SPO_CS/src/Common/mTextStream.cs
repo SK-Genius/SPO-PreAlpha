@@ -67,18 +67,18 @@ mTextStream {
 		tText[] aSrcLines
 	//) => aErrors.Reduce("", (aOut, aError) => aOut + "\n" + aError.ToText(aSrcLines));
 	) => aErrors.GroupAndSortBy(
-		_ => _.Pos.Id,
+		__ => __.Pos.Id,
 		tText.CompareOrdinal
 	).ToStream(
 	).Map(
 		aFile => "" + aFile.Key + aFile.Value.GroupAndSortBy(
-			_ => _.Pos.Row,
+			__ => __.Pos.Row,
 			(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 		).ToStream(
 		).TryLast(
 		).Then(
 			aRow => $":{aRow.Key} ERROR " + aRow.Value.GroupAndSortBy(
-				_ => _.Pos.Col,
+				__ => __.Pos.Col,
 				(a1, a2) => ((tInt32)a1 - (tInt32)a2).Sign()
 			).ToStream(
 			).Map(
@@ -91,7 +91,7 @@ mTextStream {
 					(a1, a2) => tText.CompareOrdinal(a1.Message, a2.Message)
 				).DontRepeat(
 				).Map(
-					_ => $" ├ {_.Message}\n"
+					__ => $" ├ {__.Message}\n"
 				).Join(
 					(a1, a2) => a1 + a2,
 					""
@@ -124,7 +124,7 @@ mTextStream {
 		return mStream.Stream(
 			System.MemoryExtensions.AsSpan(aText)
 		).Where(
-			_ => _ != '\r'
+			__ => __ != '\r'
 		).Map(
 			aChar => {
 				var Result = (Pos(aId, Row.Value, Col.Value), aChar);

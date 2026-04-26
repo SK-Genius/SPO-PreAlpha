@@ -39,39 +39,39 @@ mSPO_Parser_Tests {
 			mTest.Test("Atoms",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mSPO_Parser.Number.ParseText("+1_234", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Number.ParseText("+1_234", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Literal.ParseText("+1_234", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Literal.ParseText("+1_234", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.ExpressionInCall.ParseText("+1_234", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.ExpressionInCall.ParseText("+1_234", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
 						mSPO_AST.AreEqual
 					);
 					
 					mAssert.AreEquals(
-						mSPO_Parser.Text.ParseText("\"BLA\"", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Text.ParseText("\"BLA\"", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Literal.ParseText("\"BLA\"", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Literal.ParseText("\"BLA\"", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.ExpressionInCall.ParseText("\"BLA\"", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.ExpressionInCall.ParseText("\"BLA\"", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
 						mSPO_AST.AreEqual
 					);
 					
 					mAssert.AreEquals(
-						mSPO_Parser.ExpressionInCall.ParseText("BLA", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.ExpressionInCall.ParseText("BLA", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Id(Span((1, 1), (1, 3)), "BLA"),
 						mSPO_AST.AreEqual
 					);
@@ -83,9 +83,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.ExpressionInCall.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"(+1_234, \"BLA\")",
+							"""
+							(+1_234, "BLA")
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Tuple(
 							Span((1, 1), (1, 15)),
@@ -102,9 +104,11 @@ mSPO_Parser_Tests {
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.ParseText(
-							"(1; \"BLA\")",
+							"""
+							(1; "BLA")
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Pair(
 							Span((1, 1), (1, 10)),
@@ -118,7 +122,7 @@ mSPO_Parser_Tests {
 			mTest.Test("MatchPair",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mSPO_Parser.Pattern.ParseText("(Xs; X)", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("(Xs; X)", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.PairPattern(
 							Span((1, 1), (1, 7)),
 							mSPO_AST.Id(Span((1, 2), (1, 3)), "Xs"),
@@ -131,17 +135,17 @@ mSPO_Parser_Tests {
 			mTest.Test("Match1",
 				aStreamOut => {
 					mAssert.AreEquals(
-						mSPO_Parser.Pattern.ParseText("12", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("12", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Int(Span((1, 1), (1, 2)), 12),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Pattern.ParseText("x", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("x", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.Id(Span((1, 1), (1, 1)), "x"),
 						mSPO_AST.AreEqual
 					);
 					mAssert.AreEquals(
-						mSPO_Parser.Pattern.ParseText("(12, x)", "", _ => { aStreamOut(_()); }),
+						mSPO_Parser.Pattern.ParseText("(12, x)", "", __ => { aStreamOut(__()); }),
 						mSPO_AST.TuplePattern(
 							Span((1, 1), (1, 7)),
 							mStream.Stream<mSPO_AST.tPatternNode<tSpan>>(
@@ -159,9 +163,11 @@ mSPO_Parser_Tests {
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.ParseText(
-							"X §IS 12",
+							"""
+							X §IS 12
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Is(
 							Span((1, 1), (1, 8)),
@@ -178,9 +184,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"x .* x",
+							"""
+							x .* x
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Call(
 							Span((1, 1), (1, 6)),
@@ -199,9 +207,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							".sin x",
+							"""
+							.sin x
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Call(
 							Span((1, 1), (1, 6)),
@@ -223,9 +233,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"x => x .* x",
+							"""
+							x => x .* x
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 11)),
@@ -253,9 +265,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"(x € MyType) => x .* x",
+							"""
+							(x € MyType) => x .* x
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 22)),
@@ -287,9 +301,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"2 .< (4 .+ 3) < 3",
+							"""
+							2 .< (4 .+ 3) < 3
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Call(
 							Span((1, 1), (1, 17)),
@@ -323,9 +339,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"(a, b, (x, y, z)) => a .* z",
+							"""
+							(a, b, (x, y, z)) => a .* z
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 27)),
@@ -371,9 +389,11 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Expression.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"(1 #* a) => a",
+							"""
+							(1 #* a) => a
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Lambda(
 							Span((1, 1), (1, 13)),
@@ -403,9 +423,12 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Command.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"o := ((§TO_VAL o) .+ i) .\n",
+							"""
+							o := ((§TO_VAL o) .+ i) .
+							
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.MethodCallStatement(
 							Span((1, 1), (1, 25)),
@@ -442,9 +465,12 @@ mSPO_Parser_Tests {
 						mSPO_Parser.Command.ParseText(
 							//        1         2         3         4         5        6          7         8
 							//2345678901234567890123456789012345678901234567890123456789012345678901234567890
-							"{a: §DEF x, b: §DEF y} = {a: 1, b: 2}\n",
+							"""
+							{a: §DEF x, b: §DEF y} = {a: 1, b: 2}
+							
+							""",
 							"",
-							_ => { aStreamOut(_()); }
+							__ => { aStreamOut(__()); }
 						),
 						mSPO_AST.Def(
 							Span((1, 1), (1, 37)),

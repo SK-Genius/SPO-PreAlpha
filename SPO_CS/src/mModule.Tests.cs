@@ -37,9 +37,9 @@ mModule_Tests {
 							""",
 							"",
 							(Module_Std.Data, Module_Std.Type),
-							_ => aDebugStream(_())
+							__ => aDebugStream(__())
 						).Then(
-							_ => _.Data
+							__ => __.Data
 						).ElseThrow(
 						),
 						mVM_Data.Tuple(
@@ -76,9 +76,9 @@ mModule_Tests {
 							""",
 							"",
 							(Module_Char.Data, Module_Char.Type),
-							_ => aDebugStream(_())
+							__ => aDebugStream(__())
 						).Then(
-							_ => _.Data
+							__ => __.Data
 						).ElseThrow(
 						),
 						mVM_Data.Tuple(
@@ -88,7 +88,7 @@ mModule_Tests {
 							]
 						),
 						null,
-						_ => mVM_Data.ToText(_, 4)
+						__ => mVM_Data.ToText(__, 4)
 					);
 				}
 			),
@@ -123,9 +123,9 @@ mModule_Tests {
 							""",
 							"",
 							(Module_Text.Data, Module_Text.Type),
-							_ => aDebugStream(_())
+							__ => aDebugStream(__())
 						).Then(
-							_ => _.Data
+							__ => __.Data
 						).ElseThrow(
 						),
 						mVM_Data.Tuple(
@@ -138,7 +138,7 @@ mModule_Tests {
 							]
 						),
 						default,
-						_ => _.ToText(20)
+						__ => __.ToText(20)
 					);
 				}
 			),
@@ -186,9 +186,9 @@ mModule_Tests {
 							""",
 							"",
 							(Module_Maybe.Data, Module_Maybe.Type),
-							_ => aDebugStream(_())
+							__ => aDebugStream(__())
 						).Then(
-							_ => _.Data
+							__ => __.Data
 						).ElseThrow(
 						),
 						mVM_Data.Tuple(
@@ -200,7 +200,7 @@ mModule_Tests {
 							]
 						),
 						default,
-						_ => _.ToText(20)
+						__ => __.ToText(20)
 					);
 				}
 			),

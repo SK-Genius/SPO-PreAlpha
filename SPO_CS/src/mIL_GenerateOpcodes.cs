@@ -72,41 +72,41 @@ mIL_GenerateOpcodes {
 			var Type = TypeDef.NodeType switch {
 				mIL_AST.tCommandNodeType.TypeFunc => mVM_Type.Proc(
 					mVM_Type.Empty(),
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypePair => mVM_Type.Pair(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeSet => mVM_Type.Set(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypePrefix => mVM_Type.Prefix(
 					TypeDef._2.AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeRecord => mVM_Type.Record(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeFree => mVM_Type.Free(TypeDef._1), // TODO
 				mIL_AST.tCommandNodeType.TypeGeneric => mVM_Type.Generic(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeRecursive => mVM_Type.Recursive(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeVar => mVM_Type.Var(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeMethod => mStd.Call(
 					() => {
-						var ObjType = TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"); // TODO
-						var FuncType = TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"); // TODO
+						var ObjType = TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"); // TODO
+						var FuncType = TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"); // TODO
 						
 						mAssert.IsTrue(FuncType.IsProc(out var EmptyType, out var ArgType, out var ResType));
 						mAssert.IsTrue(EmptyType.IsEmpty());
@@ -115,8 +115,8 @@ mIL_GenerateOpcodes {
 					}
 				),
 				mIL_AST.tCommandNodeType.TypeInterface => mVM_Type.Interface(
-					TypeDef._2.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO"), // TODO
-					TypeDef._3.ThenTry(_ => TypeMap.TryGet(_)).ThenTry(_ => Types_.TryGet(_)).AssertNotEmpty(() => "TODO") // TODO
+					TypeDef._2.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO"), // TODO
+					TypeDef._3.ThenTry(__ => TypeMap.TryGet(__)).ThenTry(__ => Types_.TryGet(__)).AssertNotEmpty(() => "TODO") // TODO
 				),
 				mIL_AST.tCommandNodeType.TypeCond => throw new System.NotImplementedException(),
 				_ => throw mError.Error("not implemented: " + TypeDef.NodeType),
@@ -140,7 +140,7 @@ mIL_GenerateOpcodes {
 			var DefType = TypeMap.TryGet(
 				TypeName
 			).ThenTry(
-				_ => Types_.TryGet(_)
+				__ => Types_.TryGet(__)
 			).AssertNotEmpty(
 				() => $"type '{TypeName}' not found"
 			);
@@ -211,8 +211,8 @@ mIL_GenerateOpcodes {
 				aTrace(() => Command.ToText());
 				aTrace(
 					() => ("  :: " +
-						Command._2.ThenTry(_ => Regs.TryGet(_)).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("") + " ; " + 
-						Command._3.ThenTry(_ => Regs.TryGet(_)).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("")
+						Command._2.ThenTry(__ => Regs.TryGet(__)).Then(__ => Types.Get(__).ToText("\n  ")).ElseUse("") + " ; " + 
+						Command._3.ThenTry(__ => Regs.TryGet(__)).Then(__ => Types.Get(__).ToText("\n  ")).ElseUse("")
 					)
 				);
 				
@@ -417,9 +417,9 @@ mIL_GenerateOpcodes {
 						// ResType.IsSubType(DefResType, mStd.cEmpty)
 						ResType.IsSubType(mVM_Type.Set(DefResType, mVM_Type.Empty()), mStd.cEmpty) // TODO: remove workaround; see line above
 						.AssertNotError(
-							_ => (
+							__ => (
 								$"""
-								{Span}: {_}
+								{Span}: {__}
 								{ResType.ToText()}
 								!<
 								{DefResType.ToText()}
@@ -487,7 +487,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsBool()
+							__ => __.IsBool()
 						);
 						
 						mAssert.IsTrue(
@@ -508,7 +508,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (MatchedType, RestType) = ArgType.SplitBy(
-							_ => _.IsInt()
+							__ => __.IsInt()
 						);
 						
 						mAssert.IsTrue(
@@ -529,7 +529,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsType()
+							__ => __.IsType()
 						);
 						
 						mAssert.IsTrue(
@@ -576,7 +576,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							_ => _.IsRecord(out var _)
+							__ => __.IsRecord(out var _)
 						);
 						
 						mAssert.IsTrue(
@@ -689,8 +689,8 @@ mIL_GenerateOpcodes {
 						mAssert.AreEquals(RecTypeIn, RecTypeOut);
 						mAssert.IsTrue(EmptyType_.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
 						mAssert.IsTrue(EmptyType.IsEmpty(), () => $"{Span} {FuncReg} is not a Proc with Empty Env");
-						ArgType.IsSubType(EnvType, mStd.cEmpty).AssertNotError(_ => $"{Span}: {_}");
-						EnvType.IsSubType(ArgType, mStd.cEmpty).AssertNotError(_ => $"{Span}: {_}");
+						ArgType.IsSubType(EnvType, mStd.cEmpty).AssertNotError(__ => $"{Span}: {__}");
+						EnvType.IsSubType(ArgType, mStd.cEmpty).AssertNotError(__ => $"{Span}: {__}");
 						if (!RecTypeOut.IsProc(out _, out _, out _)) {
 							var PairType = RecTypeInOut;
 							while (!PairType.IsEmpty()) {
@@ -758,7 +758,7 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.TypeRecursive, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var FreeTypeReg = Regs.GetOrThrow(RegId2, Command);
 						var TypeBodyReg = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(), null, _ => _.ToText());
+						mAssert.AreEquals(Types.Get(FreeTypeReg), mVM_Type.Type(), null, __ => __.ToText());
 						Regs = Regs.Set(RegId1, NewProc.TypeRecursive(Span, FreeTypeReg, TypeBodyReg));
 						Types.Push(mVM_Type.Type());
 						break;
@@ -783,7 +783,7 @@ mIL_GenerateOpcodes {
 				}
 				#if MY_TRACE_IL
 				
-				aTrace(() => "  => " + Regs.TryGet(Command._1).Then(_ => Types.Get(_).ToText("\n  ")).ElseUse("???"));
+				aTrace(() => "  => " + Regs.TryGet(Command._1).Then(__ => Types.Get(__).ToText("\n  ")).ElseUse("???"));
 				
 				#endif
 				
@@ -793,7 +793,7 @@ mIL_GenerateOpcodes {
 			mAssert.AreEquals(NewProc.Commands.Size, NewProc.PosList.Size);
 		}
 		#if MY_TRACE_IL
-		//PrintILModule(aDefs, Module, _ => { aTrace(() => _); });
+		//PrintILModule(aDefs, Module, __ => { aTrace(() => __); });
 		#endif
 		
 		#if !true

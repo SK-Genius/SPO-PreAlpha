@@ -1,0 +1,45 @@
+{
+	"name": "spo-lang",
+	"publisher": "local",
+	"displayName": "SPO Language",
+	"description": "Syntax highlighting and language server for SPO.",
+	"version": "0.1.0",
+	"engines": {
+		"vscode": "^1.82.0"
+	},
+	"activationEvents": [
+		"onLanguage:spo"
+	],
+	"main": "./src/extension.js",
+	"files": [
+		"package.json",
+		"SPO.configuration.json",
+		"SPO.tmLanguage.json",
+		"src/**",
+		"server/**",
+		"node_modules/**"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "spo",
+				"extensions": [".SPO", ".spo", ".ILT", ".ilt"],
+				"aliases": ["SPO", "spo"],
+				"configuration": "./SPO.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "spo",
+				"scopeName": "source.spo",
+				"path": "./SPO.tmLanguage.json"
+			}
+		]
+	},
+	"dependencies": {
+		"vscode-languageclient": "^9.0.1"
+	},
+	"devDependencies": {
+		"vscode": "^1.82.0"
+	}
+}

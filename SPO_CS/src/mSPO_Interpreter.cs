@@ -53,7 +53,7 @@ mSPO_Interpreter {
 				)
 			)
 		).Then(
-			_ => _.Scope
+			__ => __.Scope
 		);
 		
 		return DesugaredModule.Commands.Reduce(
@@ -140,14 +140,14 @@ mSPO_Interpreter {
 			var TypeCommand_ = TypeCommand;
 			TypeCommand_._1 = mSPO2IL.GetTypeId(TypeIndex);
 			TypeCommand_._2 = TypeCommand_._2.Then(
-				_ => Map.TryGet(_).Match(
-					() => _,
+				__ => Map.TryGet(__).Match(
+					() => __,
 					mSPO2IL.GetTypeId
 				)
 			);
 			TypeCommand_._3 = TypeCommand_._3.Then(
-				_ => Map.TryGet(_).Match(
-					() => _,
+				__ => Map.TryGet(__).Match(
+					() => __,
 					mSPO2IL.GetTypeId
 				)
 			);
