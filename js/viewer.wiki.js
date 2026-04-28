@@ -23,14 +23,18 @@
 	};
 	const TEXT_TOKEN_PATTERN =
 		/(?:https?:\/\/|ftp:\/\/|www\.)[^\s<>\]]+|[A-Za-z0-9._-]+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,63}|\[>|<\]|\["|"\]/gi;
+	const ESCAPED_OPEN_BRACKET = "\uE000";
+	const ESCAPED_CLOSE_BRACKET = "\uE001";
+	const ESCAPED_PIPE = "\uE002";
 
 	function render(source, context) {
 		context.prepareArticle("wiki-article");
 
+		const normalizedSource = normalizeLegacyEscapes(source);
 		const fragment = document.createDocumentFragment();
-		const blocks = parseBlocks(source);
-		let headingCount = 0;
-		let title = context.fileNameLabel(context.filePath);
+		const blocks = parseBlocks(normalizedSource);
+		const title = resolveArticleTitle(context.filePath, context);
+		const headingState = describeHeadings(blocks, context, title);
 
 		if (!blocks.length) {
 			const paragraph = document.createElement("p");
@@ -41,24 +45,33 @@
 			return;
 		}
 
+		fragment.append(
+			createAnchorTarget("wiki-begin"),
+			createArticleHeader(title, context.filePath)
+		);
+
+		if (headingState.entries.length > 0) {
+			fragment.append(createTableOfContents(headingState.entries, context));
+		}
+
 		for (const block of blocks) {
 			if (block.type === "heading") {
-				headingCount += 1;
-				if (headingCount === 1) {
-					title = block.text || title;
-				}
-
-				fragment.append(createHeadingElement(block, headingCount, context));
+				fragment.append(createHeadingElement(block, context));
 				continue;
 			}
 
 			if (block.type === "rule") {
-				fragment.append(document.createElement("hr"));
+				fragment.append(createRuleElement());
 				continue;
 			}
 
 			if (block.type === "tableBlock") {
 				fragment.append(createTableElement(block, context));
+				continue;
+			}
+
+			if (block.type === "hashBlock") {
+				fragment.append(createHashBlockElement(block, context));
 				continue;
 			}
 
@@ -70,41 +83,253 @@
 			fragment.append(createParagraphElement(block, context));
 		}
 
+		fragment.append(createAnchorTarget("wiki-end"));
 		context.setPageTitle(title, "Wiki");
 		context.articleElement.append(fragment);
 	}
 
-	function createHeadingElement(block, headingCount, context) {
-		const resolvedLevel = headingCount === 1
-			? 1
-			: Math.max(2, Math.min(6, block.level || 2));
-		const heading = document.createElement("h" + resolvedLevel);
-		context.appendNodes(heading, parseInline(block.text, context));
+	function resolveArticleTitle(filePath, context) {
+		return context.fileNameLabel(filePath) || "Wiki";
+	}
+
+	function normalizeLegacyEscapes(source) {
+		return source
+			.replace(/\[\\/g, ESCAPED_OPEN_BRACKET)
+			.replace(/\\\]/g, ESCAPED_CLOSE_BRACKET);
+	}
+
+	function decodeLegacyEscapePlaceholders(text) {
+		return text
+			.replace(new RegExp(ESCAPED_OPEN_BRACKET, "g"), "[")
+			.replace(new RegExp(ESCAPED_PIPE, "g"), "|")
+			.replace(new RegExp(ESCAPED_CLOSE_BRACKET, "g"), "]");
+	}
+
+	function createAnchorTarget(id) {
+		const anchor = document.createElement("a");
+		anchor.id = id;
+		anchor.setAttribute("aria-hidden", "true");
+		anchor.style.display = "block";
+		anchor.style.position = "relative";
+		anchor.style.top = "-0.35rem";
+		return anchor;
+	}
+
+	function createArticleHeader(title, filePath) {
+		const header = document.createElement("header");
+		header.className = "wiki-article-header";
+		header.style.margin = "0 0 1rem";
+		header.style.padding = "0.85rem 1rem 0.95rem";
+		header.style.border = "1px solid rgba(36, 29, 24, 0.24)";
+		header.style.borderRadius = "0.45rem";
+		header.style.background =
+			"linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(243, 230, 209, 0.86))";
+		header.style.boxShadow = "0 8px 18px rgba(70, 49, 31, 0.05)";
+
+		const eyebrow = document.createElement("div");
+		eyebrow.textContent = "Artikel";
+		eyebrow.style.margin = "0 0 0.25rem";
+		eyebrow.style.color = "var(--muted)";
+		eyebrow.style.fontSize = "0.76rem";
+		eyebrow.style.fontWeight = "700";
+		eyebrow.style.letterSpacing = "0.12em";
+		eyebrow.style.textTransform = "uppercase";
+
+		const heading = document.createElement("div");
+		heading.style.fontSize = "clamp(1.55rem, 3vw, 2.15rem)";
+		heading.style.fontWeight = "700";
+		heading.style.lineHeight = "1.1";
+		heading.style.textDecoration = "underline";
+		heading.style.textDecorationThickness = "0.08em";
+		heading.style.textUnderlineOffset = "0.16em";
+		heading.textContent = title;
+
+		const meta = document.createElement("div");
+		meta.textContent = filePath;
+		meta.style.margin = "0.5rem 0 0";
+		meta.style.color = "var(--muted)";
+		meta.style.fontSize = "0.92rem";
+		meta.style.wordBreak = "break-word";
+
+		header.append(eyebrow, heading, meta);
+		return header;
+	}
+
+	function createHeadingElement(block, context) {
+		const heading = document.createElement("section");
+		heading.className = "wiki-section-heading";
+		if (block.anchorId) {
+			heading.id = block.anchorId;
+		}
+
+		heading.style.display = "grid";
+		heading.style.gridTemplateColumns = "auto minmax(0, 1fr) auto";
+		heading.style.alignItems = "center";
+		heading.style.gap = "0.75rem";
+		heading.style.margin = block.headingIndex === 1
+			? "1rem 0 0.7rem"
+			: "1.45rem 0 0.7rem";
+		heading.style.padding = "0.35rem 0.5rem 0.35rem 0.35rem";
+		heading.style.border = "1px solid rgba(36, 29, 24, 0.28)";
+		heading.style.borderRadius = "0.35rem";
+		heading.style.background =
+			"linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(239, 224, 202, 0.92))";
+
+		const controls = document.createElement("div");
+		controls.style.display = "inline-flex";
+		controls.style.alignItems = "center";
+		controls.style.gap = "0.32rem";
+		controls.style.fontFamily = "\"Cascadia Code\", Consolas, monospace";
+		controls.style.fontSize = "0.84rem";
+		controls.style.whiteSpace = "nowrap";
+
+		controls.append(
+			createSectionNavLink("#" + block.anchorId, "#" + block.headingIndex, "Direktlink"),
+			createSectionNavLink("#wiki-begin", "\u2191", "Zum Anfang"),
+			createSectionNavLink("#wiki-end", "\u2193", "Zum Ende")
+		);
+
+		const title = document.createElement("h2");
+		title.style.margin = "0";
+		title.style.minWidth = "0";
+		title.style.fontSize = "1.1rem";
+		title.style.lineHeight = "1.2";
+		title.style.border = "0";
+		title.style.padding = "0";
+
+		context.appendNodes(title, parseInline(block.text, context));
+
+		const meta = document.createElement("div");
+		meta.textContent = "Kapitel " + block.headingIndex;
+		meta.style.color = "var(--muted)";
+		meta.style.fontSize = "0.8rem";
+		meta.style.whiteSpace = "nowrap";
+
+		heading.append(controls, title, meta);
 		return heading;
 	}
 
+	function createSectionNavLink(href, text, title) {
+		const link = document.createElement("a");
+		link.href = href;
+		link.textContent = text;
+		link.title = title;
+		link.style.display = "inline-block";
+		link.style.minWidth = "2.1ch";
+		link.style.padding = "0.08rem 0.28rem";
+		link.style.border = "1px solid rgba(36, 29, 24, 0.18)";
+		link.style.borderRadius = "0.22rem";
+		link.style.background = "rgba(255, 255, 255, 0.72)";
+		link.style.color = "var(--ink)";
+		link.style.textDecoration = "none";
+		link.style.textAlign = "center";
+		return link;
+	}
+
 	function createParagraphElement(block, context) {
+		if (block.marker) {
+			return createMarkerParagraphElement(block, context);
+		}
+
 		const paragraph = document.createElement("p");
 		paragraph.className = "wiki-paragraph";
 		paragraph.style.setProperty("--indent", String(block.indent));
+		paragraph.style.marginInlineStart = indentToMargin(block.indent);
+		appendInlineLines(paragraph, block.lines, context);
+		return paragraph;
+	}
 
-		if (!block.marker) {
-			appendInlineLines(paragraph, block.lines, context);
-			return paragraph;
+	function createMarkerParagraphElement(block, context) {
+		const list = document.createElement("ul");
+		list.className = "wiki-paragraph has-marker";
+		list.style.display = "block";
+		list.style.margin = "0 0 0.85rem";
+		list.style.marginInlineStart = indentToMargin(block.indent);
+		list.style.paddingInlineStart = "1.45rem";
+
+		const item = document.createElement("li");
+		item.style.margin = "0";
+		item.style.padding = "0";
+
+		if (block.marker === "o") {
+			list.style.listStyleType = "circle";
+		} else if (block.marker === "*") {
+			list.style.listStyleType = "disc";
+		} else if (block.marker === "#") {
+			list.style.listStyleType = "square";
+		} else {
+			list.style.listStyleType = "none";
+			list.style.paddingInlineStart = "0";
+
+			const marker = document.createElement("span");
+			marker.className = "marker";
+			marker.textContent = block.marker === ">" ? "\u25b8" : "\u2013";
+			marker.style.display = "inline-block";
+			marker.style.minWidth = "1.1rem";
+			marker.style.marginInlineEnd = "0.45rem";
+			marker.style.color = "var(--muted)";
+			marker.style.fontWeight = "700";
+			item.append(marker);
 		}
-
-		paragraph.classList.add("has-marker");
-
-		const marker = document.createElement("span");
-		marker.className = "marker";
-		marker.textContent = block.marker;
 
 		const content = document.createElement("span");
 		content.className = "content";
 		appendInlineLines(content, block.lines, context);
-		paragraph.append(marker, content);
+		item.append(content);
+		list.append(item);
+		return list;
+	}
 
-		return paragraph;
+	function createTableOfContents(entries, context) {
+		const nav = document.createElement("nav");
+		nav.className = "wiki-toc";
+		nav.setAttribute("aria-label", "Inhaltsverzeichnis");
+		nav.style.margin = "0 0 1.25rem";
+		nav.style.padding = "0.85rem 1rem 0.95rem";
+		nav.style.border = "1px solid rgba(36, 29, 24, 0.24)";
+		nav.style.borderRadius = "0.45rem";
+		nav.style.background = "rgba(255, 252, 247, 0.88)";
+		nav.style.boxShadow = "0 8px 18px rgba(70, 49, 31, 0.05)";
+
+		const title = document.createElement("div");
+		title.textContent = "Inhalt";
+		title.style.margin = "0 0 0.55rem";
+		title.style.color = "var(--ink)";
+		title.style.fontSize = "0.92rem";
+		title.style.fontWeight = "700";
+
+		const list = document.createElement("ol");
+		list.style.margin = "0";
+		list.style.paddingInlineStart = "1.35rem";
+		list.style.columnGap = "1.8rem";
+		list.style.columnCount = String(Math.min(3, Math.max(1, Math.ceil(entries.length / 4))));
+
+		for (const entry of entries) {
+			const item = document.createElement("li");
+			item.style.breakInside = "avoid";
+			item.style.margin = "0 0 0.18rem";
+
+			const link = document.createElement("a");
+			link.href = "#" + entry.anchorId;
+			context.appendNodes(link, parseInline(entry.text, context));
+			item.append(link);
+			list.append(item);
+		}
+
+		nav.append(title, list);
+		return nav;
+	}
+
+	function createRuleElement() {
+		const rule = document.createElement("div");
+		rule.className = "wiki-rule";
+		rule.style.height = "0.65rem";
+		rule.style.margin = "1rem 0";
+		rule.style.border = "1px solid rgba(36, 29, 24, 0.18)";
+		rule.style.borderRadius = "999px";
+		rule.style.background =
+			"linear-gradient(90deg, rgba(127, 79, 36, 0.2), rgba(127, 79, 36, 0.08), rgba(127, 79, 36, 0.2))";
+		return rule;
 	}
 
 	function createTableElement(block, context) {
@@ -118,19 +343,17 @@
 		table.className = "wiki-table";
 		table.style.width = "100%";
 		table.style.borderCollapse = "collapse";
-		table.style.border = "1px solid rgba(36, 29, 24, 0.22)";
-		table.style.background = "rgba(255, 252, 247, 0.9)";
+		table.style.border = "1px solid #000000";
+		table.style.background = "#ffffff";
 
 		for (let rowIndex = 0; rowIndex < block.rows.length; rowIndex += 1) {
 			const row = document.createElement("tr");
-			row.style.background = rowIndex % 2 === 0
-				? "rgba(239, 224, 202, 0.55)"
-				: "rgba(255, 255, 255, 0.78)";
+			row.style.background = rowIndex % 2 === 0 ? "#ddddff" : "#ffffdd";
 
 			for (const cellText of block.rows[rowIndex]) {
 				const cell = document.createElement("td");
-				cell.style.padding = "0.65rem 0.8rem";
-				cell.style.border = "1px solid rgba(36, 29, 24, 0.16)";
+				cell.style.padding = "0.5rem 0.65rem";
+				cell.style.border = "1px solid #000000";
 				cell.style.verticalAlign = "top";
 				appendInlineLines(cell, splitCellLines(cellText), context);
 				row.append(cell);
@@ -144,28 +367,56 @@
 	}
 
 	function createObjectBlockElement(block, context) {
-		const lines = block.lines.filter((line, index, values) => {
-			return line !== "" || index !== values.length - 1 || values.length === 1;
-		});
+		const lines = normalizeBlockLines(block.lines);
 		const singleLine = lines.length === 1 ? lines[0].trim() : "";
 
 		if (singleLine && isImageTarget(singleLine)) {
-			const wrapper = document.createElement("div");
-			wrapper.className = "wiki-object-image";
-			wrapper.style.margin = "0 0 1rem";
-			wrapper.style.marginInlineStart = indentToMargin(block.indent);
-			wrapper.append(createImageNode(singleLine, context, false));
-			return wrapper;
+			return createImageBlockElement(singleLine, block.indent, context);
 		}
 
+		if (singleLine && isReferenceTarget(singleLine, context)) {
+			return createReferenceBlockElement(singleLine, block.indent, context, "." + block.kind);
+		}
+
+		return createCodeBlockElement("." + block.kind, lines.join("\n"), block.indent, block.kind);
+	}
+
+	function createHashBlockElement(block, context) {
+		const rawContent = decodeLegacyEscapePlaceholders(block.content).replace(/^\n/, "");
+		const content = rawContent.trim();
+		if (!content) {
+			return createCodeBlockElement("#", "", block.indent, "txt");
+		}
+
+		if (isImageTarget(content)) {
+			return createImageBlockElement(content, block.indent, context);
+		}
+
+		if (isReferenceTarget(content, context)) {
+			return createReferenceBlockElement(content, block.indent, context, "#");
+		}
+
+		return createCodeBlockElement("#", rawContent, block.indent, "txt");
+	}
+
+	function createImageBlockElement(target, indent, context) {
+		const wrapper = document.createElement("div");
+		wrapper.className = "wiki-object-image";
+		wrapper.style.margin = "0 0 1rem";
+		wrapper.style.marginInlineStart = indentToMargin(indent);
+		wrapper.append(createImageNode(target, context, false));
+		return wrapper;
+	}
+
+	function createCodeBlockElement(labelText, content, indent, kind = "txt") {
 		const wrapper = document.createElement("div");
 		wrapper.className = "wiki-object-block";
 		wrapper.style.margin = "0 0 1rem";
-		wrapper.style.marginInlineStart = indentToMargin(block.indent);
+		wrapper.style.marginInlineStart = indentToMargin(indent);
 
 		const label = document.createElement("div");
 		label.className = "wiki-object-block-label";
-		label.textContent = "." + block.kind;
+		label.textContent = labelText;
 		label.style.margin = "0 0 0.35rem";
 		label.style.color = "var(--muted)";
 		label.style.fontSize = "0.8rem";
@@ -176,20 +427,98 @@
 		const pre = document.createElement("pre");
 		pre.className = "wiki-object-block-content";
 		pre.style.margin = "0";
-		pre.style.padding = "0.85rem 1rem";
-		pre.style.borderRadius = "0.8rem";
-		pre.style.background = "var(--object)";
+		pre.style.padding = "0.75rem 0.9rem";
+		pre.style.border = "1px solid #000000";
+		pre.style.borderRadius = "0.2rem";
+		pre.style.background = "#ffffdd";
 		pre.style.overflowX = "auto";
 		pre.style.lineHeight = "1.55";
 		pre.style.fontFamily = "\"Cascadia Code\", Consolas, \"SFMono-Regular\", \"Courier New\", monospace";
 		pre.style.fontSize = "0.93rem";
 
 		const code = document.createElement("code");
-		code.dataset.kind = block.kind;
-		code.textContent = lines.join("\n");
+		code.dataset.kind = kind;
+		code.textContent = content;
 
 		pre.append(code);
 		wrapper.append(label, pre);
+		return wrapper;
+	}
+
+	function createReferenceBlockElement(target, indent, context, badgeText = "#") {
+		const wrapper = document.createElement("div");
+		wrapper.className = "wiki-reference-block";
+		wrapper.style.margin = "0 0 1rem";
+		wrapper.style.marginInlineStart = indentToMargin(indent);
+
+		const anchor = createReferenceAnchor(target, context);
+		anchor.className = "wiki-reference-link";
+		anchor.style.display = "grid";
+		anchor.style.gap = "0.2rem";
+		anchor.style.padding = "0.8rem 0.95rem";
+		anchor.style.border = "1px solid rgba(36, 29, 24, 0.14)";
+		anchor.style.borderRadius = "0.9rem";
+		anchor.style.background = "rgba(255, 252, 247, 0.84)";
+		anchor.style.boxShadow = "0 8px 20px rgba(70, 49, 31, 0.05)";
+		anchor.style.textDecoration = "none";
+
+		const badge = document.createElement("div");
+		badge.textContent = badgeText;
+		badge.style.color = "var(--muted)";
+		badge.style.fontSize = "0.75rem";
+		badge.style.fontWeight = "700";
+		badge.style.letterSpacing = "0.08em";
+		badge.style.textTransform = "uppercase";
+
+		const title = document.createElement("strong");
+		title.textContent = defaultAssetLabel(target, context);
+		title.style.color = "var(--ink)";
+		title.style.fontSize = "1rem";
+
+		const path = document.createElement("code");
+		path.textContent = target;
+		path.style.color = "var(--muted)";
+		path.style.fontSize = "0.88rem";
+		path.style.whiteSpace = "pre-wrap";
+		path.style.wordBreak = "break-word";
+
+		anchor.append(badge, title, path);
+		wrapper.append(anchor);
+		return wrapper;
+	}
+
+	function createCompactObjectNode(objectData) {
+		const wrapper = document.createElement("span");
+		wrapper.className = "wiki-object-inline";
+		wrapper.style.display = "inline-flex";
+		wrapper.style.verticalAlign = "middle";
+		wrapper.style.margin = "0.08rem 0";
+		wrapper.style.maxWidth = "100%";
+		wrapper.style.borderRadius = "0.55rem";
+		wrapper.style.background = "var(--object)";
+		wrapper.style.overflow = "hidden";
+
+		const label = document.createElement("span");
+		label.textContent = "." + objectData.kind;
+		label.style.flex = "0 0 auto";
+		label.style.padding = "0.22rem 0.42rem";
+		label.style.background = "rgba(36, 29, 24, 0.08)";
+		label.style.color = "var(--muted)";
+		label.style.fontSize = "0.78rem";
+		label.style.fontWeight = "700";
+		label.style.letterSpacing = "0.05em";
+		label.style.textTransform = "uppercase";
+
+		const code = document.createElement("code");
+		code.className = "wiki-object";
+		code.dataset.kind = objectData.kind;
+		code.textContent = objectData.value;
+		code.style.display = "block";
+		code.style.padding = "0.22rem 0.5rem";
+		code.style.background = "transparent";
+		code.style.whiteSpace = "pre-wrap";
+
+		wrapper.append(label, code);
 		return wrapper;
 	}
 
@@ -232,6 +561,14 @@
 				flushParagraph();
 				blocks.push(tableBlock.block);
 				index = tableBlock.nextIndex;
+				continue;
+			}
+
+			const hashBlock = readHashBlock(lines, index);
+			if (hashBlock) {
+				flushParagraph();
+				blocks.push(hashBlock.block);
+				index = hashBlock.nextIndex;
 				continue;
 			}
 
@@ -297,15 +634,7 @@
 		const rows = [];
 		let index = startIndex;
 
-		while (index < lines.length) {
-			while (index < lines.length && lines[index].trim() === "") {
-				index += 1;
-			}
-
-			if (index >= lines.length || !lines[index].trim().startsWith("[|")) {
-				break;
-			}
-
+		while (index < lines.length && lines[index].trim().startsWith("[|")) {
 			const rowBlock = readDelimitedBlock(lines, index, "[|", "|]");
 			if (!rowBlock) {
 				return null;
@@ -313,6 +642,10 @@
 
 			rows.push(parseTableRow(rowBlock.content));
 			index = rowBlock.nextIndex + 1;
+
+			if (index < lines.length && lines[index].trim() === "") {
+				break;
+			}
 		}
 
 		if (!rows.length) {
@@ -326,6 +659,22 @@
 				rows
 			},
 			nextIndex: index - 1
+		};
+	}
+
+	function readHashBlock(lines, startIndex) {
+		const blockData = readStandaloneDelimitedBlock(lines, startIndex, "[#", "#]");
+		if (!blockData) {
+			return null;
+		}
+
+		return {
+			block: {
+				type: "hashBlock",
+				indent: countIndent(lines[startIndex]),
+				content: blockData.content
+			},
+			nextIndex: blockData.nextIndex
 		};
 	}
 
@@ -381,6 +730,49 @@
 			const closeIndex = lineContent.indexOf(closingToken);
 
 			if (closeIndex !== -1) {
+				content += "\n" + lineContent.slice(0, closeIndex);
+				return {
+					content,
+					nextIndex: index
+				};
+			}
+
+			content += "\n" + lineContent;
+		}
+
+		return null;
+	}
+
+	function readStandaloneDelimitedBlock(lines, startIndex, openingToken, closingToken) {
+		const firstLine = lines[startIndex];
+		const baseWhitespace = firstLine.match(/^[ \t]*/)[0];
+		const firstContent = trimSharedIndent(firstLine, baseWhitespace).trimStart();
+		if (!firstContent.startsWith(openingToken)) {
+			return null;
+		}
+
+		let content = firstContent.slice(openingToken.length);
+		const firstCloseIndex = content.indexOf(closingToken);
+		if (firstCloseIndex !== -1) {
+			if (content.slice(firstCloseIndex + closingToken.length).trim() !== "") {
+				return null;
+			}
+
+			return {
+				content: content.slice(0, firstCloseIndex),
+				nextIndex: startIndex
+			};
+		}
+
+		for (let index = startIndex + 1; index < lines.length; index += 1) {
+			const lineContent = trimSharedIndent(lines[index], baseWhitespace);
+			const closeIndex = lineContent.indexOf(closingToken);
+
+			if (closeIndex !== -1) {
+				if (lineContent.slice(closeIndex + closingToken.length).trim() !== "") {
+					return null;
+				}
+
 				content += "\n" + lineContent.slice(0, closeIndex);
 				return {
 					content,
@@ -450,6 +842,47 @@
 		return normalized || "txt";
 	}
 
+	function normalizeBlockLines(lines) {
+		const decodedLines = lines.map((line) => decodeLegacyEscapePlaceholders(line));
+		return decodedLines.filter((line, index, values) => {
+			return line !== "" || index !== values.length - 1 || values.length === 1;
+		});
+	}
+
+	function parseCompactObjectData(content) {
+		const separatorIndex = findFirstUnescapedPipe(content);
+		if (separatorIndex === -1) {
+			return null;
+		}
+
+		return {
+			kind: normalizeObjectKind(content.slice(0, separatorIndex)),
+			value: decodeLegacyEscapePlaceholders(content.slice(separatorIndex + 1))
+		};
+	}
+
+	function findFirstUnescapedPipe(text) {
+		let index = 0;
+		while (index < text.length) {
+			if (
+				text.startsWith("[[", index) ||
+				text.startsWith("]]", index) ||
+				text.startsWith("[|]", index)
+			) {
+				index += text.startsWith("[|]", index) ? 3 : 2;
+				continue;
+			}
+
+			if (text[index] === "|") {
+				return index;
+			}
+
+			index += 1;
+		}
+
+		return -1;
+	}
+
 	function countIndent(line) {
 		let indent = 0;
 		for (const char of line) {
@@ -467,6 +900,50 @@
 		}
 
 		return indent;
+	}
+
+	function describeHeadings(blocks, context, fallbackTitle) {
+		const usedIds = new Map();
+		const entries = [];
+		let headingCount = 0;
+
+		for (const block of blocks) {
+			if (block.type !== "heading") {
+				continue;
+			}
+
+			headingCount += 1;
+			block.headingIndex = headingCount;
+
+			const plainText = extractInlineText(block.text, context) || fallbackTitle;
+			block.anchorId = createHeadingAnchorId(plainText || "abschnitt", usedIds);
+			entries.push({
+				anchorId: block.anchorId,
+				level: 1,
+				text: block.text
+			});
+		}
+
+		return { entries, title: fallbackTitle };
+	}
+
+	function extractInlineText(text, context) {
+		const probe = document.createElement("span");
+		context.appendNodes(probe, parseInline(text, context));
+		return probe.textContent.trim();
+	}
+
+	function createHeadingAnchorId(text, usedIds) {
+		const baseId = text
+			.toLowerCase()
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "")
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "") || "abschnitt";
+
+		const seenCount = usedIds.get(baseId) || 0;
+		usedIds.set(baseId, seenCount + 1);
+		return seenCount === 0 ? baseId : baseId + "-" + (seenCount + 1);
 	}
 
 	function parseInline(text, context, stopToken = null, startIndex = 0) {
@@ -490,13 +967,19 @@
 			}
 
 			if (text.startsWith("[[", index)) {
-				buffer += "[";
+				buffer += ESCAPED_OPEN_BRACKET;
 				index += 2;
 				continue;
 			}
 
+			if (text.startsWith("[|]", index)) {
+				buffer += ESCAPED_PIPE;
+				index += 3;
+				continue;
+			}
+
 			if (text.startsWith("]]", index)) {
-				buffer += "]";
+				buffer += ESCAPED_CLOSE_BRACKET;
 				index += 2;
 				continue;
 			}
@@ -530,6 +1013,17 @@
 					if (objectToken) {
 						flushBuffer();
 						nodes.push(createInlineObjectNode(objectToken.content, context));
+						index = objectToken.index;
+						continue;
+					}
+				}
+
+				if (marker === ".") {
+					const objectToken = readTokenContent(text, index + 2, ".]");
+					const objectData = objectToken ? parseCompactObjectData(objectToken.content) : null;
+					if (objectToken && objectData) {
+						flushBuffer();
+						nodes.push(createCompactObjectNode(objectData));
 						index = objectToken.index;
 						continue;
 					}
@@ -570,11 +1064,11 @@
 
 		while ((match = TEXT_TOKEN_PATTERN.exec(text))) {
 			if (match.index > lastIndex) {
-				nodes.push(document.createTextNode(text.slice(lastIndex, match.index)));
+				appendLiteralTextNodes(nodes, text.slice(lastIndex, match.index));
 			}
 
 			if (isLiteralWikiSyntaxToken(text, match.index, match[0].length)) {
-				nodes.push(document.createTextNode(match[0]));
+				appendLiteralTextNodes(nodes, match[0]);
 			} else {
 				nodes.push(...createTextTokenNodes(match[0], context));
 			}
@@ -582,8 +1076,62 @@
 		}
 
 		if (lastIndex < text.length) {
-			nodes.push(document.createTextNode(text.slice(lastIndex)));
+			appendLiteralTextNodes(nodes, text.slice(lastIndex));
 		}
+	}
+
+	function appendLiteralTextNodes(nodes, text) {
+		if (!text) {
+			return;
+		}
+
+		let buffer = "";
+
+		const flushBuffer = () => {
+			if (!buffer) {
+				return;
+			}
+
+			nodes.push(document.createTextNode(buffer));
+			buffer = "";
+		};
+
+		for (const char of text) {
+			if (char === ESCAPED_OPEN_BRACKET) {
+				buffer += "[";
+				continue;
+			}
+
+			if (char === ESCAPED_CLOSE_BRACKET) {
+				buffer += "]";
+				continue;
+			}
+
+			if (char === ESCAPED_PIPE) {
+				buffer += "|";
+				continue;
+			}
+
+			if (char === "[" || char === "]" || char === "|") {
+				flushBuffer();
+				nodes.push(createSyntaxErrorNode(char));
+				continue;
+			}
+
+			buffer += char;
+		}
+
+		flushBuffer();
+	}
+
+	function createSyntaxErrorNode(text) {
+		const marker = document.createElement("span");
+		marker.className = "wiki-syntax-error";
+		marker.textContent = text;
+		marker.style.padding = "0 0.08rem";
+		marker.style.background = "#ff3333";
+		marker.style.color = "#111111";
+		return marker;
 	}
 
 	function createTextTokenNodes(token, context) {
@@ -665,15 +1213,30 @@
 	}
 
 	function createInlineObjectNode(content, context) {
-		const value = decodeEscapedBrackets(content).trim();
+		const value = decodeLegacyEscapePlaceholders(content).trim();
 		if (value && isImageTarget(value)) {
 			return createImageNode(value, context, true);
+		}
+
+		if (value && isReferenceTarget(value, context)) {
+			return createInlineReferenceNode(value, context);
 		}
 
 		const code = document.createElement("code");
 		code.className = "wiki-object";
 		code.textContent = value;
 		return code;
+	}
+
+	function createInlineReferenceNode(target, context) {
+		const anchor = createReferenceAnchor(target, context);
+		anchor.className = "wiki-object";
+		anchor.textContent = defaultAssetLabel(target, context);
+		anchor.style.display = "inline-block";
+		anchor.style.textDecoration = "none";
+		anchor.style.whiteSpace = "nowrap";
+		anchor.title = target;
+		return anchor;
 	}
 
 	function createImageNode(target, context, inline) {
@@ -685,7 +1248,9 @@
 		image.decoding = "async";
 		image.style.maxWidth = "100%";
 		image.style.height = "auto";
-		image.style.borderRadius = "0.8rem";
+		image.style.border = "1px solid rgba(36, 29, 24, 0.24)";
+		image.style.borderRadius = "0.2rem";
+		image.style.background = "#ffffff";
 
 		if (inline) {
 			image.style.display = "inline-block";
@@ -714,6 +1279,48 @@
 
 	function isImageTarget(target) {
 		return IMAGE_TARGET_PATTERN.test(target);
+	}
+
+	function isReferenceTarget(target, context) {
+		return Boolean(target) && (
+			context.isExternalLink(target) ||
+			context.hasKnownRenderableExtension(target) ||
+			hasExplicitFileExtension(target) ||
+			/[\\/]/.test(target)
+		);
+	}
+
+	function createReferenceAnchor(target, context) {
+		const anchor = document.createElement("a");
+		const reference = resolveReferenceTarget(target, context);
+		anchor.href = reference.href;
+		if (reference.external) {
+			anchor.target = "_blank";
+			anchor.rel = "noreferrer noopener";
+		}
+		return anchor;
+	}
+
+	function resolveReferenceTarget(target, context) {
+		if (context.isExternalLink(target)) {
+			return {
+				href: context.normalizeExternalLink(target),
+				external: true
+			};
+		}
+
+		if (context.hasKnownRenderableExtension(target)) {
+			const resolvedPath = context.resolveRelativePath(context.filePath, target);
+			return {
+				href: resolvedPath ? context.createNavigationUrl(resolvedPath) : "#",
+				external: false
+			};
+		}
+
+		return {
+			href: resolveAssetUrl(target, context),
+			external: false
+		};
 	}
 
 	function parseLink(text, context, startIndex, marker) {
@@ -808,8 +1415,12 @@
 	function splitLinkTargetAndLabel(content) {
 		let index = 0;
 		while (index < content.length) {
-			if (content.startsWith("[[", index) || content.startsWith("]]", index)) {
-				index += 2;
+			if (
+				content.startsWith("[[", index) ||
+				content.startsWith("]]", index) ||
+				content.startsWith("[|]", index)
+			) {
+				index += content.startsWith("[|]", index) ? 3 : 2;
 				continue;
 			}
 
@@ -866,13 +1477,14 @@
 	}
 
 	function decodeEscapedBrackets(text) {
-		return text
+		return decodeLegacyEscapePlaceholders(text)
 			.replace(/\[\[/g, "[")
+			.replace(/\[\|\]/g, "|")
 			.replace(/\]\]/g, "]");
 	}
 
 	function indentToMargin(indent) {
-		return "calc(" + indent + " * 0.85ch)";
+		return "calc(" + indent + " * 1.6ch)";
 	}
 
 	window.WikiViewer = {

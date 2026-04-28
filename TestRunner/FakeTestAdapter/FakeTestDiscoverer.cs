@@ -46,7 +46,7 @@ FakeTestDiscoverer : ITestDiscoverer {
 		DebugLog($"> tests discovery started");
 		foreach (var TestDllPath in aTestDllPaths) {
 			DebugLog($">> Loading assembly: {TestDllPath}");
-			foreach (var Type in Assembly.LoadFrom(TestDllPath).GetTypes().Where(_ => _.IsClass && _.IsPublic)) {
+			foreach (var Type in Assembly.LoadFrom(TestDllPath).GetTypes().Where(__ => __.IsClass && __.IsPublic)) {
 				DebugLog($">>> Found type: {Type.FullName}");
 				foreach (var Field in Type.GetFields(BindingFlags.Static | BindingFlags.Public)) {
 					DebugLog($">>>> Found field: {Field.Name}");
@@ -69,7 +69,7 @@ FakeTestDiscoverer : ITestDiscoverer {
 									LocalExtensionData = (Func<tText>)(
 										() => {
 											var Log = new System.Text.StringBuilder();
-											Test.Run.TestFunc(_ => Log.AppendLine(_));
+											Test.Run.TestFunc(__ => Log.AppendLine(__));
 											return Log.ToString();
 										}
 									),

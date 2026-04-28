@@ -1,0 +1,41 @@
+﻿[=Syntax=]
+	o maybe rename operators:
+		- [.spo
+		  |§<    <|
+		  .]
+		- [.spo|§>    |>.]
+		- or just use | instead of . for pipe to the right and do not support pipe to the left
+			> [.spo|3 |+ 4 |* 10.]
+	
+	o lambdas with "..." notation
+		- [.spo|(=> ... .+ ...)  ==  ((a, b) => a .+ b).]
+	
+[=Types=]
+	o make types to first class citizen
+		- can't uses generic types through module boarders now (do i need high order types)
+	
+	o if lambda is used as argument in a other (higher order) function, infer the argument type
+		- Example: ListOfNumbers .Map (a => 2 .* a)
+	
+	o arrays ??? [v1, v2, ...]
+		- maybe i need numbers in type signature first (for fix size arrays)
+	
+[=Misc=]
+	o imperative
+		- §IF...THEN...ELSE...
+		- §LOOP...
+			- §BREAK
+			- §CONTINUE
+		
+		- ...§LOOP...
+			- §BREAK...
+			- §CONTINUE...
+
+	o runtime environment
+	
+[=ROAD MAP=]
+	o self hosted
+	o concurrency
+	
+[=NICE TO HAVE=]
+	o performance

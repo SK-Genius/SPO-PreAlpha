@@ -47,86 +47,12 @@
 				backdrop-filter: blur(10px);
 			}
 
-			.masthead {
-				display: grid;
-				gap: 1rem;
-				align-items: end;
-				grid-template-columns: minmax(0, 1fr) minmax(250px, 320px);
-				padding-bottom: 1rem;
-				border-bottom: 1px solid var(--line);
-			}
-
-			.eyebrow {
-				margin: 0 0 0.35rem;
-				color: var(--muted);
-				font-size: 0.82rem;
-				letter-spacing: 0.16em;
-				text-transform: uppercase;
-			}
-
-			.masthead h1 {
-				margin: 0;
-				font-size: clamp(2rem, 4vw, 3.2rem);
-				line-height: 1.05;
-				text-wrap: balance;
-			}
-
-			.file-form {
-				display: grid;
-				gap: 0.45rem;
-				justify-self: end;
-				width: min(100%, 320px);
-			}
-
-			.file-form label {
-				color: var(--muted);
-				font-size: 0.92rem;
-			}
-
-			.file-row {
-				display: flex;
-				gap: 0.6rem;
-			}
-
-			.file-row input {
-				width: 100%;
-				min-width: 0;
-				padding: 0.72rem 0.85rem;
-				border: 1px solid var(--paper-edge);
-				border-radius: 999px;
-				background: rgba(255, 255, 255, 0.86);
-				color: inherit;
-				font: inherit;
-			}
-
-			.file-row button {
-				border: 0;
-				border-radius: 999px;
-				padding: 0.72rem 1rem;
-				background: var(--accent);
-				color: #fffaf4;
-				font: inherit;
-				cursor: pointer;
-			}
-
-			.file-row button:hover,
-			.file-row button:focus-visible {
-				filter: brightness(1.06);
-			}
-
-			.current-file {
-				margin: 0.9rem 0 0;
-				color: var(--muted);
-				font-size: 0.96rem;
-				word-break: break-word;
-			}
-
 			.wiki-article {
-				padding-top: 1.45rem;
+				padding-top: 0;
 			}
 
 			.source-view {
-				padding-top: 1.45rem;
+				padding-top: 0;
 			}
 
 			.source-card {
@@ -472,19 +398,6 @@
 					border-radius: 18px;
 				}
 
-				.masthead {
-					grid-template-columns: 1fr;
-				}
-
-				.file-form {
-					justify-self: stretch;
-					width: 100%;
-				}
-
-				.file-row {
-					flex-direction: column;
-				}
-
 				.source-code {
 					max-height: min(68vh, 38rem);
 					max-height: min(68dvh, 38rem);
@@ -507,10 +420,6 @@
 					background: transparent;
 				}
 
-				.file-form {
-					display: none;
-				}
-
 				.upload-panel {
 					display: none;
 				}
@@ -524,22 +433,6 @@
 	</head>
 	<body>
 		<main class="shell">
-			<header class="masthead">
-				<div>
-					<p class="eyebrow">Wiki Viewer</p>
-					<h1 id="page-title">Lade Wiki ...</h1>
-				</div>
-
-				<form id="file-form" class="file-form">
-					<label for="file-input">Datei</label>
-					<div class="file-row">
-						<input id="file-input" name="file" type="text" placeholder="index.wiki" autocomplete="off">
-						<button type="submit">Oeffnen</button>
-					</div>
-				</form>
-			</header>
-
-			<p id="current-file" class="current-file"></p>
 			<article id="article" class="wiki-article" aria-live="polite"></article>
 
 			<section id="upload-panel" class="upload-panel" hidden>
@@ -566,10 +459,6 @@
 		<script>
 			const DEFAULT_FILE = "index.wiki";
 			const articleElement = document.getElementById("article");
-			const currentFileElement = document.getElementById("current-file");
-			const pageTitleElement = document.getElementById("page-title");
-			const fileFormElement = document.getElementById("file-form");
-			const fileInputElement = document.getElementById("file-input");
 			const uploadPanelElement = document.getElementById("upload-panel");
 			const dropzoneElement = document.getElementById("dropzone");
 			const uploadButtonElement = document.getElementById("upload-button");
@@ -577,18 +466,6 @@
 			const uploadNoteElement = document.getElementById("upload-note");
 
 			let currentWikiFile = DEFAULT_FILE;
-
-			fileFormElement.addEventListener("submit", (event) => {
-				event.preventDefault();
-
-				const request = normalizeRequestPath(fileInputElement.value);
-				if (!request.ok) {
-					renderError(request.reason, true);
-					return;
-				}
-
-				navigateToFile(request.path || DEFAULT_FILE);
-			});
 
 			uploadButtonElement.addEventListener("click", () => {
 				uploadInputElement.click();
@@ -645,8 +522,6 @@
 				}
 
 				currentWikiFile = request.path || DEFAULT_FILE;
-				fileInputElement.value = currentWikiFile;
-				currentFileElement.textContent = "Datei: " + currentWikiFile;
 				renderStatus("Datei wird geladen ...");
 
 				try {
@@ -715,17 +590,6 @@
 				return segments.join("/") || DEFAULT_FILE;
 			}
 
-			function navigateToFile(path) {
-				const url = new URL(window.location.href);
-				if (path === DEFAULT_FILE) {
-					url.searchParams.delete("file");
-				} else {
-					url.searchParams.set("file", path);
-				}
-
-				window.location.assign(url.toString());
-			}
-
 			async function loadWikiFile(path) {
 				const response = await fetch(path, { cache: "no-store" });
 				if (!response.ok) {
@@ -770,14 +634,11 @@
 					normalizeExternalLink,
 					prepareArticle(className) {
 						currentWikiFile = filePath;
-						currentFileElement.textContent = "Datei: " + filePath;
-						fileInputElement.value = filePath;
 						articleElement.replaceChildren();
 						articleElement.className = className;
 						hideUploadPanel();
 					},
 					setPageTitle(title, suffix) {
-						pageTitleElement.textContent = title;
 						document.title = title + " - " + suffix;
 					}
 				};
@@ -794,8 +655,6 @@
 
 			function renderError(message, showUploader = false) {
 				articleElement.className = "wiki-article";
-				currentFileElement.textContent = "Datei: " + (fileInputElement.value.trim() || currentWikiFile || DEFAULT_FILE);
-				pageTitleElement.textContent = "Datei konnte nicht geladen werden";
 				document.title = "Datei Fehler";
 
 				const paragraph = document.createElement("p");
@@ -854,7 +713,6 @@
 					const bytes = new Uint8Array(await file.arrayBuffer());
 					const source = decodeWikiText(bytes);
 					renderSourceFile(source, file.name);
-					currentFileElement.textContent = "Lokale Datei: " + file.name;
 					setUploadNote("Die lokale Datei wurde erfolgreich geladen.");
 				} catch (error) {
 					renderError("Die ausgewaehlte Datei konnte nicht gelesen werden.", true);

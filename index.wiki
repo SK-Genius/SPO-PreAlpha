@@ -1,81 +1,87 @@
-[=Vorwort=]
- Beim Design der Seite wurde auf ein Drucker geeignetes Layout geachtet. Von daher wird das erstellen von bunte Seiten nicht begönstigt. Auserdem wurden nur die wichtigsten Gestalltungsfunktionen öbernommen um die Syntax einfach halten zu können und um ein einheitliches Bild zu bewerkstelligen.
- Beim kreieren der Syntax wurde darauf Wert gelegt, das sie leicht zu erlernen ist, und möglichts intuitiv von der hand geht.
+[=Modules=]
+* [<SPO_CS/Modules/Char.SPO>]
+* [<SPO_CS/Modules/Maybe.SPO>]
+* [<SPO_CS/Modules/Result.SPO>]
+* [<SPO_CS/Modules/Text.SPO>]
 
-[=Bugs=]
- Momentan sind mir keine mehr bekannt.
+[=Tests=]
 
-[=Formatierungssymbol=]
- Zur Formatierung eines Artikels stehen mehrere Funktionen zur verfügung. [!Alle!] diese Funktionen beginnen mit der [/geöffneten eckigen Klammen/] ([[) gefolgt vom Symbol X und enden mit der dem selben Symbol X gefolt von der [/geschlossenen eckigen Klammer/] (]]).
-  [[X ... X]]
+[_Bla_]
 
- Welche Symbole für das X eingesetzt werden kann und wofür sie gut sind, ist in den folgenden Kapiteln beschrieben
+[# SPO_CS/Regression.Tests/00_00_Bla.SPO #]
+[# SPO_CS/Regression.Tests/00_01_Bla.SPO #]
 
- Da die eckigen Klammern für die Formatierung des Textes vorbehalten sind, kann man auch im Text nicht einfach eckige Klammern verwenden. Da man aber denoch ab und zu diese benötigt gibt es eine Ausnahmmeregel welche die Klammern ermöglicht. Man muss die entsprechende Klammer doppelt schreiben damit sie einmal dargestellt wird.
+[_1 Assign Literals_]
 
-[=Kapitel=]
- Die wichtigste Unterteilung eines Artikels ist in Kapitel. Die Einteilung findet mit den Kapitelüberschriften statt.
-  [_Syntax:_] [[=Kapitelüberschrift=]]
+[# SPO_CS/Regression.Tests/01_00_AssignEmpty.SPO #]
+[# SPO_CS/Regression.Tests/01_01_AssignTrue.SPO #]
+[# SPO_CS/Regression.Tests/01_02_AssignFalse.SPO #]
+[# SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
+[# SPO_CS/Regression.Tests/01_04_AssignTag.SPO #]
+[# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.SPO #]
+[# SPO_CS/Regression.Tests/01_06_AssignText.SPO #]
 
- Das Istgleich (=) soll an die doppellinie der öberschrift erinnern.
+[_2 Create Complex Elements_]
 
-[=Absätze=]
- Eine weitere Unterteilmöglichkeit sind die Absätze, welche man nach belieben einrücken kann. Dies geschiet mit Freizeichen am Zeilenanfang.
+[# SPO_CS/Regression.Tests/02_01_CreateTag.SPO #]
+[# SPO_CS/Regression.Tests/02_02_CreatePair.SPO #]
+[# SPO_CS/Regression.Tests/02_03_CreateRecord.SPO #]
 
- Um Absätze besonders hervorzuheben, kann man am Anfang folgende Zeichen (gefolgt von einem Leerzeichen) dem Absatz vorranstellen:
- - ein Bindestrich (-)
- o ein kleines o (o)
- * ein Stern/Malzeichen (*)
- # das Routezeichen (#)
- > ein Grösseralszeichen (>)
+[_3 Match Complex Elements_]
 
-[=Unterstreichen=]
- [_Syntax:_] [[_zu unterstreichender Text_]] => [_zu unterstreichender Text_]
+[# SPO_CS/Regression.Tests/03_01_MatchTag.SPO #]
+[# SPO_CS/Regression.Tests/03_02_MatchPair.SPO #]
+[# SPO_CS/Regression.Tests/03_03_MatchRecord.SPO #]
+[# SPO_CS/Regression.Tests/03_04_Is.SPO #]
+[# SPO_CS/Regression.Tests/03_05_MatchRecordIf.SPO #]
+[# SPO_CS/Regression.Tests/03_98_If.SPO #]
+[# SPO_CS/Regression.Tests/03_99_Match.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchPairA.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchPairB.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchPairC.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchPairD.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchRecordA.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchRecordB.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchRecordC.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchRecordD.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedA.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedB.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedC.SPO #]
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedD.SPO #]
 
-[=Durchstreichen=]
- [_Syntax:_] [[-durchzustreichender Text-]] => [-durchzustreichender Text-]
+[_4 Use Functions_]
 
-[=Kursiv=]
- [_Syntax:_] [[/kursiver Text/]] => [/kursiver Text/]
+[# SPO_CS/Regression.Tests/04_00_Not.SPO #]
+[# SPO_CS/Regression.Tests/04_01_And.SPO #]
+[# SPO_CS/Regression.Tests/04_02_CallLambda.SPO #]
+[# SPO_CS/Regression.Tests/04_03_DefFunc.SPO #]
+[# SPO_CS/Regression.Tests/04_04_MultiArgs.SPO #]
+[# SPO_CS/Regression.Tests/04_05_SkipArgs.SPO #]
 
-[=Fett=]
- [_Syntax:_] [[*fetter Text*]] => [*fetter Text*]
+[_5 Create Functions_]
 
-[=Rot=]
- [_Syntax:_] [[!roter Text!]] => [roter Text!]
+[# SPO_CS/Regression.Tests/05_01_InRange.SPO #]
 
-[=Trennlinie=]
- [_Syntax:_] [[---]] => [---]
+[_6 Recursion_]
 
-[---]
+[# SPO_CS/Regression.Tests/06_01_Fib_If.SPO #]
+[# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.SPO #]
+[# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.SPO #]
+[# SPO_CS/Regression.Tests/06_04_IfMatch2.SPO #]
 
- Eigentlich würde der Syntax bedeuten das man ein Bindestrich (-) durchstreichen will. Da dies aber nicht wirklich sinnvoll ist wurde diese Kombination für die Trennlinie missbraucht.
+[_7 Types_]
 
-[=Links (Verweise)=]
- Eines der wichtigsten Funktionen ist das Verlinken (bzw Verweisen) zu anderen Artikeln oder Webseiten.
-  [_Syntax:_] [[<Link>]]
-  [_Bsp.:_] [[<www.google.de>]] => [<www.google.de>]
+[# SPO_CS/Regression.Tests/07_01_AtomTypes.SPO #]
+[# SPO_CS/Regression.Tests/07_02_ComplexTypes.SPO #]
+[# SPO_CS/Regression.Tests/07_11_RecursiveTypes.SPO #]
+[# SPO_CS/Regression.Tests/07_12_GenericTypes.SPO #]
+[# SPO_CS/Regression.Tests/07_13_HigherOrderTypes.SPO #]
 
- Als Link können die Namen der Artikel benutzt werden oder auch Internetseiten wenn sie mit "http://" , "ftp://" oder "www." beginnen. Auch eMailadressen sind möglich, jedoch muss vor die eMailadresse ein "mailto:" gesetzt werden.
+[_8 Imperative_]
 
- Soll statt dem Link ein anderer Text eingeblendet werden, so gilt folgender
-  [_Syntax:_] [[Link|Text]]
-  [_Bsp.:_] [[<www.google.de|Google>]] => [<www.google.de|Google>]
+[# SPO_CS/Regression.Tests/08_01_Var.SPO #]
+[# SPO_CS/Regression.Tests/08_02_DefIncrement.SPO #]
 
-[=Bild=]
-  [_Syntax:_] [[#Image-Link#]]
+[=Misc=]
 
-[=Objekte=]
- Unter Objekte zählt alles was in ein viereckiges Feld passt.
- Dach zeichen für ein Objekt ist das "Viereck".
-  [_Syntay:_]
-  [[.txt
-  |erste Zeile
-  |zweite Zeile
-  .]]
-  
-  Ist die Endung/Extension unbekannt ist der fallbach txt
-  das pipe symbol gehört nicht zum inhalt
-
-[=Geplantes=]
- Es werden noch Nummerrieungen der Absätze folgen. Auch das Hoch und Tief stellen Text ist noch geplant. Das wichtigste sind jedoch die Zahlreichen Objekte welche man noch einfögen kann (zB: Tabellen, Bilder, Formeln, Notenblötter usw).
+* [<TODO.wiki>]
