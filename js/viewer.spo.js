@@ -53,7 +53,7 @@
 			
 			const filenameElement = document.createElement("div");
 			filenameElement.className = "source-filename";
-			filenameElement.textContent = context.filePath;
+			filenameElement.textContent = context.showSourceFilename ? context.filePath : "";
 			
 			const sourceElement = document.createElement("div");
 			sourceElement.className = "source-code";

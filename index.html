@@ -441,14 +441,14 @@
 
 				<div id="dropzone" class="dropzone" tabindex="0" role="button" aria-controls="upload-input">
 					<strong>Datei hier ablegen</strong>
-					<span>oder klicken, um eine `.wiki`- oder `.spo`-Datei auszuwaehlen</span>
+					<span>oder klicken, um eine Wiki-, Code-, Bild- oder Video-Datei auszuwaehlen</span>
 				</div>
 
 				<div class="upload-actions">
 					<button id="upload-button" type="button">Datei waehlen</button>
 				</div>
 
-				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,text/plain">
+				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,.text,.svg,.mermaid,.math,.png,.jpg,.jpeg,.gif,.webp,.bmp,.avif,.webm,.mp4,.ogv,text/plain,image/*,video/*">
 				<p id="upload-note" class="upload-note">Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.
 				</p>
 			</section>
@@ -464,8 +464,81 @@
 			const uploadButtonElement = document.getElementById("upload-button");
 			const uploadInputElement = document.getElementById("upload-input");
 			const uploadNoteElement = document.getElementById("upload-note");
+			const viewerRegistry = new Map();
+			const viewerScriptLoads = new Map();
+			const IMAGE_RESOURCE_EXTENSIONS = new Set([
+				"avif",
+				"bmp",
+				"gif",
+				"ico",
+				"jpeg",
+				"jpg",
+				"png",
+				"svg",
+				"webp"
+			]);
+			const VIDEO_RESOURCE_EXTENSIONS = new Set([
+				"mp4",
+				"ogv",
+				"webm"
+			]);
+			const BINARY_RESOURCE_EXTENSIONS = new Set([
+				"avif",
+				"bmp",
+				"gif",
+				"ico",
+				"jpeg",
+				"jpg",
+				"mp3",
+				"mp4",
+				"ogv",
+				"pdf",
+				"png",
+				"wav",
+				"webm",
+				"webp",
+				"zip"
+			]);
+			const MIME_TYPE_BY_EXTENSION = {
+				avif: "image/avif",
+				bmp: "image/bmp",
+				css: "text/css",
+				csv: "text/csv",
+				gif: "image/gif",
+				html: "text/html",
+				htm: "text/html",
+				ico: "image/x-icon",
+				jpeg: "image/jpeg",
+				jpg: "image/jpeg",
+				js: "text/javascript",
+				json: "application/json",
+				md: "text/markdown",
+				mermaid: "text/plain",
+				mjs: "text/javascript",
+				math: "text/plain",
+				mp4: "video/mp4",
+				ogv: "video/ogg",
+				png: "image/png",
+				spo: "text/plain",
+				svg: "image/svg+xml",
+				tex: "text/plain",
+				text: "text/plain",
+				ts: "text/plain",
+				txt: "text/plain",
+				webm: "video/webm",
+				webp: "image/webp",
+				wiki: "text/plain",
+				xml: "text/xml",
+				yaml: "text/yaml",
+				yml: "text/yaml"
+			};
 
 			let currentWikiFile = DEFAULT_FILE;
+			registerBuiltInViewers();
+
+			window.ViewerHost = {
+				registerViewer
+			};
 
 			uploadButtonElement.addEventListener("click", () => {
 				uploadInputElement.click();
@@ -525,8 +598,8 @@
 				renderStatus("Datei wird geladen ...");
 
 				try {
-					const source = await loadWikiFile(currentWikiFile);
-					renderSourceFile(source, currentWikiFile);
+					const source = await loadRenderableFile(currentWikiFile);
+					await renderSourceFile(source, currentWikiFile);
 				} catch (error) {
 					renderError(buildLoadError(error, currentWikiFile), true);
 				}
@@ -590,14 +663,17 @@
 				return segments.join("/") || DEFAULT_FILE;
 			}
 
-			async function loadWikiFile(path) {
+			async function loadFileBytes(path) {
 				const response = await fetch(path, { cache: "no-store" });
 				if (!response.ok) {
 					throw new Error("HTTP " + response.status + " " + response.statusText);
 				}
 
-				const bytes = new Uint8Array(await response.arrayBuffer());
-				return decodeWikiText(bytes);
+				return new Uint8Array(await response.arrayBuffer());
+			}
+
+			async function loadRenderableFile(path) {
+				return createRenderInput(await loadFileBytes(path), path);
 			}
 
 			function decodeWikiText(bytes) {
@@ -608,12 +684,45 @@
 				}
 			}
 
-			function renderSourceFile(source, filePath) {
-				const renderer = window.SpoViewer && window.SpoViewer.isSpoLikeFile(filePath)
-					? window.SpoViewer
-					: window.WikiViewer;
+			function createRenderInput(bytes, filePath) {
+				if (isTextResourceExtension(getFileExtension(filePath))) {
+					return decodeWikiText(bytes);
+				}
+
+				return createBinaryRenderInput(bytes, filePath);
+			}
+
+			function createBinaryRenderInput(bytes, filePath) {
+				const extension = getFileExtension(filePath);
+				const mimeType = getMimeTypeForExtension(extension);
+				return {
+					kind: "binary-resource",
+					bytes,
+					mimeType,
+					objectUrl: URL.createObjectURL(new Blob([bytes], { type: mimeType })),
+					filePath
+				};
+			}
+
+			async function renderSourceFile(source, filePath) {
+				const extension = getFileExtension(filePath);
+				const renderer =
+					resolveViewerForPath(filePath) ||
+					await ensureViewerLoaded(extension);
+
+				if (!renderer) {
+					if (tryRenderBasicResource(source, filePath)) {
+						return;
+					}
+				}
 
 				if (!renderer || typeof renderer.render !== "function") {
+					const fallbackRenderer = typeof source === "string" ? window.WikiViewer : null;
+					if (fallbackRenderer && typeof fallbackRenderer.render === "function") {
+						fallbackRenderer.render(source, createRenderContext(filePath));
+						return;
+					}
+
 					renderError("Der passende Renderer konnte nicht geladen werden.", true);
 					return;
 				}
@@ -621,10 +730,14 @@
 				renderer.render(source, createRenderContext(filePath));
 			}
 
-			function createRenderContext(filePath) {
+			function createRenderContext(filePath, targetElement = articleElement, options = {}) {
+				const suppressTitle = Boolean(options.suppressTitle);
+				const showSourceFilename = options.showSourceFilename !== false;
+				const isRootContext = targetElement === articleElement;
+
 				return {
 					filePath,
-					articleElement,
+					articleElement: targetElement,
 					appendNodes,
 					fileNameLabel,
 					resolveRelativePath,
@@ -632,16 +745,168 @@
 					hasKnownRenderableExtension,
 					isExternalLink,
 					normalizeExternalLink,
+					decodeTextBytes: decodeWikiText,
+					getFileExtension,
+					getMimeTypeForExtension,
+					isTextResourceExtension,
+					resolveViewerForExtension,
+					ensureViewerLoaded,
+					createChildContext(childFilePath, childTargetElement, childOptions = {}) {
+						return createRenderContext(
+							childFilePath,
+							childTargetElement,
+							{
+								suppressTitle: true,
+								showSourceFilename: false,
+								...childOptions
+							}
+						);
+					},
+					showSourceFilename,
+					async loadResourceBytes(targetPath) {
+						const normalizedTarget = typeof targetPath === "string"
+							? targetPath.trim()
+							: "";
+						if (!normalizedTarget) {
+							throw new Error("Die Ressource hat keinen gueltigen Pfad.");
+						}
+
+						const resolvedPath = isExternalLink(normalizedTarget)
+							? normalizeExternalLink(normalizedTarget)
+							: resolveRelativePath(filePath, normalizedTarget);
+						if (!resolvedPath) {
+							throw new Error("Der Pfad verlaesst das Startverzeichnis der aktuellen Datei.");
+						}
+
+						return {
+							path: resolvedPath,
+							bytes: await loadFileBytes(resolvedPath)
+						};
+					},
 					prepareArticle(className) {
-						currentWikiFile = filePath;
-						articleElement.replaceChildren();
-						articleElement.className = className;
-						hideUploadPanel();
+						if (isRootContext) {
+							currentWikiFile = filePath;
+						}
+
+						targetElement.replaceChildren();
+						targetElement.className = className;
+
+						if (isRootContext) {
+							hideUploadPanel();
+						}
 					},
 					setPageTitle(title, suffix) {
-						document.title = title + " - " + suffix;
+						if (!suppressTitle) {
+							document.title = title + " - " + suffix;
+						}
 					}
 				};
+			}
+
+			function registerBuiltInViewers() {
+				if (window.WikiViewer && typeof window.WikiViewer.render === "function") {
+					registerViewer("wiki", window.WikiViewer);
+				}
+
+				if (window.SpoViewer && typeof window.SpoViewer.render === "function") {
+					registerViewer(["spo", "ilt"], window.SpoViewer);
+				}
+			}
+
+			function registerViewer(extensions, viewer) {
+				if (!viewer || typeof viewer.render !== "function") {
+					return;
+				}
+
+				const extensionList = Array.isArray(extensions) ? extensions : [extensions];
+				for (const extension of extensionList) {
+					const normalizedExtension = normalizeExtension(extension);
+					if (!normalizedExtension) {
+						continue;
+					}
+
+					viewerRegistry.set(normalizedExtension, viewer);
+				}
+			}
+
+			function normalizeExtension(extension) {
+				return String(extension || "")
+					.trim()
+					.replace(/^\./, "")
+					.toLowerCase();
+			}
+
+			function getFileExtension(path) {
+				const cleanedPath = String(path || "")
+					.trim()
+					.replace(/[?#].*$/, "");
+				const lastSegment = cleanedPath.split(/[\\/]/).pop() || "";
+				const match = /\.([^.]+)$/.exec(lastSegment);
+				return match ? normalizeExtension(match[1]) : "";
+			}
+
+			function getMimeTypeForExtension(extension) {
+				const normalizedExtension = normalizeExtension(extension);
+				return MIME_TYPE_BY_EXTENSION[normalizedExtension] || "application/octet-stream";
+			}
+
+			function isBinaryResourceExtension(extension) {
+				return BINARY_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
+			}
+
+			function isTextResourceExtension(extension) {
+				const normalizedExtension = normalizeExtension(extension);
+				return !normalizedExtension || !isBinaryResourceExtension(normalizedExtension);
+			}
+
+			function isImageResourceExtension(extension) {
+				return IMAGE_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
+			}
+
+			function isVideoResourceExtension(extension) {
+				return VIDEO_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
+			}
+
+			function resolveViewerForExtension(extension) {
+				return viewerRegistry.get(normalizeExtension(extension)) || null;
+			}
+
+			function resolveViewerForPath(path) {
+				return resolveViewerForExtension(getFileExtension(path));
+			}
+
+			async function ensureViewerLoaded(extension) {
+				const normalizedExtension = normalizeExtension(extension);
+				const knownViewer = resolveViewerForExtension(normalizedExtension);
+				if (knownViewer) {
+					return knownViewer;
+				}
+
+				if (!normalizedExtension) {
+					return null;
+				}
+
+				if (!viewerScriptLoads.has(normalizedExtension)) {
+					viewerScriptLoads.set(
+						normalizedExtension,
+						loadViewerScript(normalizedExtension)
+							.then(() => resolveViewerForExtension(normalizedExtension))
+							.catch(() => null)
+					);
+				}
+
+				return viewerScriptLoads.get(normalizedExtension);
+			}
+
+			function loadViewerScript(extension) {
+				return new Promise((resolve, reject) => {
+					const script = document.createElement("script");
+					script.src = "js/viewer." + extension + ".js";
+					script.async = true;
+					script.onload = () => resolve();
+					script.onerror = () => reject(new Error("viewer." + extension + ".js konnte nicht geladen werden."));
+					document.head.append(script);
+				});
 			}
 
 			function renderStatus(message) {
@@ -690,6 +955,93 @@
 				return parts.join("\n");
 			}
 
+			function tryRenderBasicResource(source, filePath) {
+				const extension = getFileExtension(filePath);
+				const objectUrl = createRenderObjectUrl(source, filePath);
+				if (!objectUrl) {
+					return false;
+				}
+
+				if (isImageResourceExtension(extension)) {
+					renderMediaFile(filePath, createImageElement(objectUrl, filePath));
+					return true;
+				}
+
+				if (isVideoResourceExtension(extension)) {
+					renderMediaFile(filePath, createVideoElement(objectUrl));
+					return true;
+				}
+
+				return false;
+			}
+
+			function createRenderObjectUrl(source, filePath) {
+				if (source && typeof source === "object" && source.objectUrl) {
+					return source.objectUrl;
+				}
+
+				let bytes = null;
+				if (typeof source === "string") {
+					bytes = new TextEncoder().encode(source);
+				} else if (source && source.bytes instanceof Uint8Array) {
+					bytes = source.bytes;
+				}
+
+				if (!bytes) {
+					return "";
+				}
+
+				return URL.createObjectURL(
+					new Blob([bytes], { type: getMimeTypeForExtension(getFileExtension(filePath)) })
+				);
+			}
+
+			function renderMediaFile(filePath, mediaElement) {
+				hideUploadPanel();
+				articleElement.className = "wiki-article";
+				articleElement.replaceChildren();
+				document.title = fileNameLabel(filePath) + " - Resource";
+
+				const figure = document.createElement("figure");
+				figure.style.margin = "0";
+
+				const caption = document.createElement("figcaption");
+				caption.textContent = filePath;
+				caption.style.margin = "0 0 0.85rem";
+				caption.style.color = "var(--muted)";
+				caption.style.wordBreak = "break-word";
+
+				figure.append(caption, mediaElement);
+				articleElement.append(figure);
+			}
+
+			function createImageElement(objectUrl, filePath) {
+				const image = document.createElement("img");
+				image.src = objectUrl;
+				image.alt = fileNameLabel(filePath) || filePath;
+				image.loading = "lazy";
+				image.decoding = "async";
+				image.style.display = "block";
+				image.style.maxWidth = "100%";
+				image.style.height = "auto";
+				image.style.border = "1px solid rgba(125, 102, 78, 0.28)";
+				image.style.background = "#ffffff";
+				return image;
+			}
+
+			function createVideoElement(objectUrl) {
+				const video = document.createElement("video");
+				video.controls = true;
+				video.preload = "metadata";
+				video.src = objectUrl;
+				video.style.display = "block";
+				video.style.maxWidth = "100%";
+				video.style.height = "auto";
+				video.style.border = "1px solid rgba(125, 102, 78, 0.28)";
+				video.style.background = "#ffffff";
+				return video;
+			}
+
 			function createNavigationUrl(path) {
 				const url = new URL(window.location.href);
 				if (path === DEFAULT_FILE) {
@@ -711,8 +1063,8 @@
 
 				try {
 					const bytes = new Uint8Array(await file.arrayBuffer());
-					const source = decodeWikiText(bytes);
-					renderSourceFile(source, file.name);
+					const source = createRenderInput(bytes, file.name);
+					await renderSourceFile(source, file.name);
 					setUploadNote("Die lokale Datei wurde erfolgreich geladen.");
 				} catch (error) {
 					renderError("Die ausgewaehlte Datei konnte nicht gelesen werden.", true);

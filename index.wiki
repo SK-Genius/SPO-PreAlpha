@@ -19,7 +19,7 @@
 [# SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
 [# SPO_CS/Regression.Tests/01_04_AssignTag.SPO #]
 [# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.SPO #]
-[# SPO_CS/Regression.Tests/01_06_AssignText.SPO #]
+[# SPO_CS/Regression.Tests/01_05_AssignText.SPO #]
 
 [_2 Create Complex Elements_]
 
@@ -67,7 +67,7 @@
 [# SPO_CS/Regression.Tests/06_01_Fib_If.SPO #]
 [# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.SPO #]
 [# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.SPO #]
-[# SPO_CS/Regression.Tests/06_04_IfMatch2.SPO #]
+[# SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.SPO #]
 
 [_7 Types_]
 
@@ -75,7 +75,7 @@
 [# SPO_CS/Regression.Tests/07_02_ComplexTypes.SPO #]
 [# SPO_CS/Regression.Tests/07_11_RecursiveTypes.SPO #]
 [# SPO_CS/Regression.Tests/07_12_GenericTypes.SPO #]
-[# SPO_CS/Regression.Tests/07_13_HigherOrderTypes.SPO #]
+[# SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO #]
 
 [_8 Imperative_]
 
@@ -85,3 +85,4 @@
 [=Misc=]
 
 * [<TODO.wiki>]
+* [<doc/Wiki-Syntax.wiki>]

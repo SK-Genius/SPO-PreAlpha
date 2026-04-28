@@ -1,81 +1,285 @@
-[=Vorwort=]
- Beim Design der Seite wurde auf ein Drucker geeignetes Layout geachtet. Von daher wird das erstellen von bunte Seiten nicht begönstigt. Auserdem wurden nur die wichtigsten Gestalltungsfunktionen öbernommen um die Syntax einfach halten zu können und um ein einheitliches Bild zu bewerkstelligen.
- Beim kreieren der Syntax wurde darauf Wert gelegt, das sie leicht zu erlernen ist, und möglichts intuitiv von der hand geht.
+[=Wiki Syntax=]
+ This page describes the current state of the wiki renderer.
+ The authoritative reference is therefore the behavior of viewer.wiki.js and the connected viewers, not the historical tutorial text.
 
-[=Bugs=]
- Momentan sind mir keine mehr bekannt.
+[=Basic Principle=]
+ Many constructs follow the form [[X ... X]].
+ Block syntax on its own line creates separate elements. Inline syntax only affects running text.
 
-[=Formatierungssymbol=]
- Zur Formatierung eines Artikels stehen mehrere Funktionen zur verfügung. [!Alle!] diese Funktionen beginnen mit der [/geöffneten eckigen Klammen/] ([[) gefolgt vom Symbol X und enden mit der dem selben Symbol X gefolt von der [/geschlossenen eckigen Klammer/] (]]).
-  [[X ... X]]
+ Lines without markers and with the same indentation are grouped into a single paragraph.
+ An empty line ends the current paragraph.
 
- Welche Symbole für das X eingesetzt werden kann und wofür sie gut sind, ist in den folgenden Kapiteln beschrieben
+ Unescaped brackets or pipe characters are marked as syntax errors.
 
- Da die eckigen Klammern für die Formatierung des Textes vorbehalten sind, kann man auch im Text nicht einfach eckige Klammern verwenden. Da man aber denoch ab und zu diese benötigt gibt es eine Ausnahmmeregel welche die Klammern ermöglicht. Man muss die entsprechende Klammer doppelt schreiben damit sie einmal dargestellt wird.
+[_Escape Characters:_]
+[.txt
+|[[   -> [
+|]]   -> ]
+|[|]  -> |
+.]
 
-[=Kapitel=]
- Die wichtigste Unterteilung eines Artikels ist in Kapitel. Die Einteilung findet mit den Kapitelüberschriften statt.
-  [_Syntax:_] [[=Kapitelüberschrift=]]
+[=Headings=]
+ Headings start at the beginning of the line and appear in the table of contents.
 
- Das Istgleich (=) soll an die doppellinie der öberschrift erinnern.
+[.txt
+|[=Title=]
+.]
 
-[=Absätze=]
- Eine weitere Unterteilmöglichkeit sind die Absätze, welche man nach belieben einrücken kann. Dies geschiet mit Freizeichen am Zeilenanfang.
+[=Paragraphs and Indentation=]
+ Normal paragraphs may be indented.
+ Spaces and tabs at the beginning of the line determine the left margin. Lines with the same indentation stay in the same paragraph.
 
- Um Absätze besonders hervorzuheben, kann man am Anfang folgende Zeichen (gefolgt von einem Leerzeichen) dem Absatz vorranstellen:
- - ein Bindestrich (-)
- o ein kleines o (o)
- * ein Stern/Malzeichen (*)
- # das Routezeichen (#)
- > ein Grösseralszeichen (>)
+[.txt
+|This is a paragraph.
+|This line still belongs to it.
+|
+|  This paragraph is indented.
+|  This line as well.
+.]
 
-[=Unterstreichen=]
- [_Syntax:_] [[_zu unterstreichender Text_]] => [_zu unterstreichender Text_]
+[_Rendered Example:_]
+ This is a paragraph.
+ This line still belongs to it.
 
-[=Durchstreichen=]
- [_Syntax:_] [[-durchzustreichender Text-]] => [-durchzustreichender Text-]
+   This paragraph is indented.
+   This line as well.
 
-[=Kursiv=]
- [_Syntax:_] [[/kursiver Text/]] => [/kursiver Text/]
+[=Markers and Lists=]
+ There are five markers at the beginning of a line.
+ Each marked line becomes exactly one list item. Multi-line list items are currently not joined automatically.
 
-[=Fett=]
- [_Syntax:_] [[*fetter Text*]] => [*fetter Text*]
+[.txt
+|- Dash marker
+|o Circle marker
+|* Dot marker
+|# Square marker
+|> Arrow marker
+.]
 
-[=Rot=]
- [_Syntax:_] [[!roter Text!]] => [!roter Text!]
+[_Rendered Example:_]
+- Dash marker
+o Circle marker
+* Dot marker
+# Square marker
+> Arrow marker
 
-[=Trennlinie=]
- [_Syntax:_] [[---]] => [---]
+[=Inline Formatting=]
+ Inline formatting may be nested as long as the markers are closed properly.
+
+[.txt
+|[_underlined_]
+|[-struck through-]
+|[/italic/]
+|[*bold*]
+|[!red!]
+|Text and [(smaller Text)]
+|Text and ['superscript']
+|Text and [,subscript,]
+|[*Bold with [/italic/] inside*]
+.]
+
+[_Rendered Example:_]
+ [_underlined_]
+ [-struck through-]
+ [/italic/]
+ [*bold*]
+ [!red!]
+ Text and [(smaller Text)]
+ Text and ['superscript']
+ Text and [,subscript,]
+ [*Bold with [/italic/] inside*]
+
+[=Typographic Shortcuts=]
+ There are short text tokens for some characters.
+
+[.txt
+|[>Quote<]
+|["Quotation"]
+.]
+
+[_Rendered Example:_]
+ [>Quote<]
+ ["Quotation"]
+
+[=Links and References=]
+ The normal link syntax uses the less-than sign.
+ Without a file extension, .wiki is added internally automatically.
+
+[.txt
+|[<Article>]
+|[<Article|Custom Label>]
+|[<../TODO.wiki|TODO File>]
+|[<https://example.com|External Link>]
+|[<mailto:mail@example.com|Mail Link>]
+.]
+
+[_Rendered Example:_]
+ [<Article>]
+ [<Article|Custom Label>]
+ [<../TODO.wiki|TODO File>]
+ [<https://example.com|External Link>]
+ [<mailto:mail@example.com|Mail Link>]
+
+ Raw URLs and mail addresses are also linked automatically:
+ https://example.com, www.example.com, mail@example.com
+
+ Notes:
+ - Internal targets without an extension are treated as wiki pages.
+ - Targets with .wiki, .spo, or .ilt are opened in the viewer.
+ - Targets with a different explicit extension are linked directly as files or assets.
+
+[=Horizontal Rule=]
+ The following form is used for a visible separator:
+
+[.txt
+|[---]
+.]
 
 [---]
 
- Eigentlich würde der Syntax bedeuten das man ein Bindestrich (-) durchstreichen will. Da dies aber nicht wirklich sinnvoll ist wurde diese Kombination für die Trennlinie missbraucht.
+[=Tables=]
+ A table consists of consecutive lines, each beginning with the table syntax.
+ The separator between cells is a pipe character. For a literal pipe character inside a cell, write a double pipe character in table syntax.
 
-[=Links (Verweise)=]
- Eines der wichtigsten Funktionen ist das Verlinken (bzw Verweisen) zu anderen Artikeln oder Webseiten.
-  [_Syntax:_] [[<Link>]]
-  [_Bsp.:_] [[<www.google.de>]] => [<www.google.de>]
+[.txt
+|[| [*Name*]          | [*Value*]      |]
+|[| Alpha             | 1              |]
+|[| Text with || Pipe | 2              |]
+|[| Formatting        | [_underlined_] |]
+.]
 
- Als Link können die Namen der Artikel benutzt werden oder auch Internetseiten wenn sie mit "http://" , "ftp://" oder "www." beginnen. Auch eMailadressen sind möglich, jedoch muss vor die eMailadresse ein "mailto:" gesetzt werden.
+[_Rendered Example:_]
+ [| [*Name*]          | [*Value*]      |]
+ [| Alpha             | 1              |]
+ [| Text with || Pipe | 2              |]
+ [| Formatting        | [_underlined_] |]
 
- Soll statt dem Link ein anderer Text eingeblendet werden, so gilt folgender
-  [_Syntax:_] [[Link|Text]]
-  [_Bsp.:_] [[<www.google.de|Google>]] => [<www.google.de|Google>]
+[=External Resources as a Block=]
+ An external resource is written with the hash marker on its own line.
+ The file extension decides which viewer or fallback is used.
 
-[=Bild=]
-  [_Syntax:_] [[#Image-Link#]]
+[.txt
+|[# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
+|[# image.png #]
+|[# https://example.com/diagram.svg #]
+.]
 
-[=Objekte=]
- Unter Objekte zählt alles was in ein viereckiges Feld passt.
- Dach zeichen für ein Objekt ist das "Viereck".
-  [_Syntay:_]
-  [[.txt
-  |erste Zeile
-  |zweite Zeile
-  .]]
-  
-  Ist die Endung/Extension unbekannt ist der fallbach txt
-  das pipe symbol gehört nicht zum inhalt
+ Important rules:
+ - The path is relative to the current wiki file.
+ - HTTP, HTTPS, FTP, Mailto, and WWW targets are allowed.
+ - .wiki, .spo, and .ilt use dedicated viewers.
+ - Images and videos have built-in fallbacks.
+ - Text formats without a specialized viewer appear as a code block.
 
-[=Geplantes=]
- Es werden noch Nummerrieungen der Absätze folgen. Auch das Hoch und Tief stellen Text ist noch geplant. Das wichtigste sind jedoch die Zahlreichen Objekte welche man noch einfögen kann (zB: Tabellen, Bilder, Formeln, Notenblötter usw).
+[=Embedded Resources as a Block=]
+ An embedded resource starts with a dot plus file extension and ends with its own closing line.
+ This block form is rendered using the same file extension as the external hash form.
+
+[.txt
+|[.spo
+||x := 1
+||export x
+|.]
+|
+|[.txt
+||first line
+||second line
+|.]
+.]
+
+[_Embedded SPO Example:_]
+[.spo
+|x := 1
+|export x
+.]
+
+[_Embedded Text Example:_]
+[.txt
+|first line
+|second line
+.]
+
+ For text-based resources, each content line usually starts with a leading pipe character.
+ This pipe character is not part of the content and is removed. A single space directly after it is also removed.
+
+ For binary resources, Base64 is used. The Base64 may span multiple lines.
+ A leading pipe character is not required there.
+
+[.txt
+|[.png
+|iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv
+|8YQUAAAAJUExURf///wAAAP//AFPtYMIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YX
+|JlAFBhaW50Lk5FVCA1LjEuMTITAUd0AAAAuGVYSWZJSSoACAAAAAUAGgEFAAEAAABKAAAAGwEFAAEAA
+|ABSAAAAKAEDAAEAAAACAAAAMQECABEAAABaAAAAaYcEAAEAAABsAAAAAAAAAGAAAAABAAAAYAAAAAEA
+|AABQYWludC5ORVQgNS4xLjEyAAADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlgAAAAA
+|AAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAADZp5qVybcLXwAAAElJREFUGNNjYBANYWBgzF
+|rpwMC2atUEBqlVq5ZAiFAgYEgNDY1kSA2bCiSilkYyZK1atZIhK2vlSgapWcuA6pZGLYFoAxsAMgoA+
+|ucZ3eSmzVYAAAAASUVORK5CYII=
+|.]
+.]
+
+[.png
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv
+8YQUAAAAJUExURf///wAAAP//AFPtYMIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YX
+JlAFBhaW50Lk5FVCA1LjEuMTITAUd0AAAAuGVYSWZJSSoACAAAAAUAGgEFAAEAAABKAAAAGwEFAAEAA
+ABSAAAAKAEDAAEAAAACAAAAMQECABEAAABaAAAAaYcEAAEAAABsAAAAAAAAAGAAAAABAAAAYAAAAAEA
+AABQYWludC5ORVQgNS4xLjEyAAADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlgAAAAA
+AAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAADZp5qVybcLXwAAAElJREFUGNNjYBANYWBgzF
+rpwMC2atUEBqlVq5ZAiFAgYEgNDY1kSA2bCiSilkYyZK1atZIhK2vlSgapWcuA6pZGLYFoAxsAMgoA+
+ucZ3eSmzVYAAAAASUVORK5CYII=
+.]
+
+
+[=Text or Binary=]
+ The renderer distinguishes embedded resources by their file extension.
+
+ The following extensions in particular are currently treated as binary:
+ avif, bmp, gif, ico, jpeg, jpg, mp3, mp4, ogv, pdf, png, wav, webm, webp, zip
+
+ Everything else is treated as text for now.
+ This currently also includes svg, mermaid, math, as well as source code for a wide range of programming languages.
+
+[=Viewers by File Extension=]
+ The file extension controls the presentation.
+
+ There are currently specialized viewers for:
+ - wiki
+ - spo
+
+ There are built-in media fallbacks for:
+ - Images: avif, bmp, gif, ico, jpeg, jpg, png, svg, webp
+ - Videos: mp4, ogv, webm
+
+ Additional extensions can later be supported by adding a dedicated viewer named viewer.eee.js.
+ That viewer is then loaded and used automatically for .eee.
+
+ This makes it possible later to prepare, for example, mermaid, math or additional programming languages in a targeted way.
+
+[=Inline Objects and Short Forms=]
+ Within a running paragraph there are compact variants.
+ They look similar to the block forms, but they are not the same.
+
+[.txt
+|Text with [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] in the sentence.
+|Text with [.spo|x := 1.] in the sentence.
+.]
+
+[_Rendered Example:_]
+ Text with [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] in the sentence.
+ Text with [.spo|x := 1.] in the sentence.
+
+ Differences:
+ - An inline hash object is rendered as a compact image or a compact reference, not as a large block viewer.
+ - A compact dot object of the form [[.eee[|]... .]] is an inline code chip with a label, also without a large block viewer.
+ - If the same resource should appear large and with a file-specific renderer, the block form on its own line must be used.
+
+[=Practical Notes=]
+ - For raw syntax examples, an embedded .txt block is the easiest option.
+ - If actual brackets or pipes are needed in running text, they must be escaped.
+ - Relative paths may use .., but must not escape the allowed root directory.
+ - A link without an extension refers to a wiki page.
+ - For file extensions without a specialized viewer, the fallback is intentionally simple.
+
+[=Short Conclusion=]
+ For text, sections, lists, tables, and simple references, the classic wiki syntax is sufficient.
+ For files and embedded content, the file extension is currently the decisive switch, because it determines which viewer and fallback are selected.
