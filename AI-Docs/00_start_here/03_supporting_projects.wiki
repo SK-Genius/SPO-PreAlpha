@@ -1,0 +1,72 @@
+[=Supporting Projects=]
+
+[.txt|SPO_CS/.] is the architectural center of this repository, but it is not the whole repo. These sibling folders matter when you work on host integration, editor tooling, or test discovery.
+
+[==Repo Satellites==]
+
+[| [*Path*] | [*Verified role*] |]
+[| [.txt||SPO/.] | example host executable that references [.txt||SPO_CS.] and runs [.txt||.spo.] programs |]
+[| [.txt||LSP/.] | VS Code client package intended to start a [.txt||server/SPO-LSP-Server.exe.] process |]
+[| [.txt||spo-grammar-0.1.0/.] | TextMate grammar package for the [.txt||spo.] language id |]
+[| [.txt||TestRunner/FakeTestAdapter/.] | custom VSTest adapter that exposes [.txt||mTest.] tests to IDE tooling |]
+[| [.txt||doc/.] | older free-form notes, not wired into execution |]
+
+When you only need parser, lowering, VM, or module behavior, stay in [.txt|SPO_CS/.]. Move into these folders only for the corresponding integration.
+
+[==[.txt|SPO/.]: Example Host Embedding==]
+
+[.txt|SPO/SPO.csproj.] is a small [.txt|net10.0.] executable that references [.txt|../SPO_CS/SPO_CS.csproj.].
+
+[.txt|SPO/src/Program.cs.] shows the host contract concretely:
+
+- it loads [.txt|Module_Std.] first
+- it reads a source file from [.txt|aArgs[[0]].], defaulting to [.txt|src/_.spo.]
+- it injects two host-visible imports: [.txt|_StdLib.] and [.txt|_LoadModule....]
+- [.txt|_LoadModule....] is implemented as an [.txt|ExternProc.] that reads another [.txt|.spo.] file relative to the current project file
+- after [.txt|mSPO_Interpreter.Run(...).], the returned value is invoked through [.txt|mVM.Run(...).] with object [.txt|#IO ().], empty argument, and a mutable result slot
+- the process expects the final result to be [.txt|§TRUE.]
+
+[.txt|SPO/src/_.spo.] is the clearest example of how that host contract is consumed.
+It loads [.txt|Stack.spo.] and [.txt|StackTest.spo.] through [.txt|LoadModule....].
+
+[==Editor Tooling Split==]
+
+The repo currently has two separate VS Code-facing folders:
+
+- [.txt|spo-grammar-0.1.0/package.json.]
+  registers language id [.txt|spo.] for [.txt|.spo.] and [.txt|.ilt.]
+- [.txt|LSP/package.json.]
+  activates on language [.txt|spo.], but currently advertises only [.txt|.SPO.]
+
+That means file-extension handling is not uniform across the repo:
+
+- core compiler artifacts mostly use uppercase [.txt|.SPO.] and [.txt|.ILT.]
+- the sample app under [.txt|SPO/src/.] uses lowercase [.txt|.spo.]
+- the grammar package recognizes lowercase [.txt|.spo.] and [.txt|.ilt.]
+- the LSP package metadata currently mentions uppercase [.txt|.SPO.] only
+
+[.txt|LSP/src/extension.js.] also shows that the LSP bootstrap is unfinished in the current worktree: the [.txt|run.] / [.txt|debug.] command block is not assigned to a [.txt|serverOptions.] object before [.txt|LanguageClient.] construction.
+
+[==[.txt|TestRunner/FakeTestAdapter/.]==]
+
+This folder is the bridge from the repo's custom [.txt|mTest.] tree to the standard Visual Studio / VSTest world.
+
+From the code:
+
+- [.txt|FakeTestAdapter.csproj.] references [.txt|Microsoft.TestPlatform.ObjectModel.]
+- it also references [.txt|../../SPO_CS/.proj/Common/mTest/mTest.csproj.]
+- [.txt|FakeTestDiscoverer.] loads assemblies, scans public static fields of type [.txt|mTest.tTest.], and flattens nested [.txt|mTest.] collections into [.txt|TestCase.] instances
+- [.txt|FakeTestExecutor.] executes the stored test delegate from [.txt|Test.LocalExtensionData.] and reports the result back to the test platform
+
+If IDE test discovery looks odd, this folder is the first place to inspect.
+
+[==Secondary Text Guidance==]
+
+[.txt|SPO_CS/src/Common/llms.txt.] exists, but it should be treated as secondary guidance only.
+
+It is already stale relative to the current source tree in multiple places:
+
+- it says "C# 13" while [.txt|SPO_CS.csproj.] uses [.txt|LangVersion = 14.0.]
+- it says "Tabs for indentation (4 spaces)", which conflicts with the actual project guidance to use tabs
+
+For AI-facing instructions, prefer [.txt|SPO_CS/AGENTS.md.], then the code, then [.txt|AI-Doc/.]. Treat [.txt|llms.txt.] as a hint list, not as an authority.

@@ -1,0 +1,112 @@
+[=Known Limits and Extension Points=]
+
+This file documents no theoretical risks, only limits that are directly visible in the current code or in verified tests.
+
+The prioritized implementation order for those limits is documented in [<43_next_work.wiki>].
+
+[==Verified Limits==]
+
+[| [*Area*] | [*State in code*] | [*Practical impact*] |]
+[| Conditional types | [.txt||mVM_Type.Cond(...).], [.txt||IsCond(...).], and [.txt||mIL_GenerateOpcodes.] for [.txt||TypeCond.] are unfinished | [.txt||TypeCond.] exists syntactically, but not as a robust end-to-end feature |]
+[| Runtime type values | [.txt||mVM_Data.tOpCode.], [.txt||mIL_GenerateOpcodes.], and [.txt||mVM.Step(...).] are not aligned: the VM executes only [.txt||TypeFree.], [.txt||TypePair.], [.txt||TypeSet.], [.txt||TypeRecursive.], and [.txt||TypeGeneric.], while the generator already handles more cases and still throws on [.txt||TypeCond.] | type expressions as runtime values are only partially reliable |]
+[| Runtime match opcodes | [.txt||mIL_AST.], [.txt||mIL_Parser.], and [.txt||mIL_GenerateOpcodes.] all expose [.txt||TryAsType.] and [.txt||TryAsRef.], but [.txt||mVM.Step(...).] has no execution case for either one, and [.txt||mVM_Data.tDataType.] has no [.txt||Ref.] value kind | IL/runtime matching support is broader on paper than it is in the executing VM |]
+[| Generic type application across modules | [.txt||mModule_Tests.Maybe.] fails at [.txt||.tMaybe tIn.] while [.txt||mModule.Init(...).] is still compiling [.txt||Modules/Maybe.SPO.] through [.txt||mSPO_Parser.Module.ParseText(...).ToILT().] and [.txt||mSPO_AST_Types.AsVM_Type(GenericApplyType).] | successful generic support in regressions does not yet mean stable module libraries, and this specific failure is earlier than IL execution or VM runtime |]
+[| Regression test discovery | [.txt||mRegression_Tests.] resolves [.txt||Regression.Tests.] through [.txt||mFS.CWD().] and prints [.txt||Folder not found: mFS+tFolder.] on a miss | running [.txt||mRunTests.] from the repo root silently drops the regression suite unless the current working directory is changed to [.txt||SPO_CS/.] first |]
+[| Subtyping | [.txt||mVM_Type.IsSubType(...).] still throws [.txt||NotImplementedException.] for [.txt||Any.], [.txt||Var.], [.txt||Ref.], and [.txt||Cond.] | parts of the type system are parseable more broadly than they are actually decidable |]
+[| Recursive proc materialization | [.txt||mVM.Step(...).] currently uses [.txt||Count = 1.] for [.txt||DefRecProcs.] | mutual recursion between multiple values remains a risk area |]
+[| Prefix/field keys | prefixes and record fields are mapped to [.txt||tNat32.] via [.txt||PrefixHash().] | theoretical hash collisions are not yet ruled out |]
+[| Type desugaring | [.txt||mSPO_Desugar.DesugarType(...).] actively normalizes only tuple types | some type forms survive in their surface shape deep into the backend |]
+
+[==What the Tests Already Cover Cleanly==]
+
+- parser and printer for IL commands and IL type commands
+- SPO end-to-end for literals, records, match, recursion, and [.txt|§VAR.]
+- recursive and generic type syntax in regressions
+- library modules [.txt|Std.], [.txt|Char.], and [.txt|Text.]
+
+[==What Is Documented Cautiously on Purpose==]
+
+The following language and architecture forms are visible in the code, but
+should not be understood as broadly secured "finished features":
+
+- [.txt|§INTERFACE.] type syntax
+- runtime evaluation of all type literals
+- runtime execution of every emitted match opcode
+- multi-proc recursive groups as runtime values
+- generic library modules with type application across module boundaries
+
+[==Highest-Value Clarification==]
+
+The current [.txt|Maybe.] failure is important because it narrows the problem more
+than the short error message suggests:
+
+- verified fact: [.txt|07_12_GenericTypes.] passes all three regression checks
+- verified fact: [.txt|mModule_Tests.Maybe.] fails in [.txt|Modules/Maybe.SPO.] at [.txt|.tMaybe tIn.]
+- verified fact: that failure is raised during the [.txt|.SPO -> .ILT.] validation path before the module reaches [.txt|mVM.Run(...).]
+
+Inference from the source and error text, to verify during implementation:
+
+- because the failing code path is [.txt|mSPO_AST_Types.AsVM_Type(GenericApplyType).] and the message prints [.txt|_tMaybe....], the immediate issue is likely in how named generic type constructors are resolved or materialized during module compilation, not in opcode execution
+
+[==Concrete Extension Path==]
+
+[.mermaid
+|flowchart TD
+|	FEATURE["New language or runtime feature"] --> PARSE["Tokenizer / Parser"]
+|	FEATURE --> TYPE["mVM_Type + mSPO_AST_Types"]
+|	FEATURE --> DES["mSPO_Desugar"]
+|	FEATURE --> IL["mSPO2IL + mIL_AST"]
+|	FEATURE --> OPC["mIL_GenerateOpcodes"]
+|	FEATURE --> VM["mVM / mVM_Data"]
+|	FEATURE --> TEST["Tests + Regressions + Modules"]
+.]
+
+In this repository, a feature only truly exists once all affected layers have been carried through:
+
+o 1. Syntax
+o 2. Type analysis
+o 3. Lowering
+o 4. Opcode generation
+o 5. VM execution
+o 6. Regression or module tests
+
+For type-related features there is an additional practical rule: verify the opcode enum, the IL generator, and [.txt|mVM.Step(...).] together. In the current codebase those three layers do not automatically move in lockstep.
+
+[==Recommended Order for Extensions==]
+
+[===1. Stabilize Generic Modules===]
+
+The reproducible [.txt|Maybe.] gap is the best concrete place to harden generics across library boundaries.
+
+[===2. Complete the Type System===]
+
+If [.txt|Any.], [.txt|Var.], [.txt|Ref.], or [.txt|Cond.] should be presented as frontend features, then [.txt|mVM_Type.IsSubType(...).] needs a robust implementation first.
+
+[===3. Close the Runtime Type-Value Gap===]
+
+If type literals are supposed to be exportable or manipulable as runtime data, the missing [.txt|Type*.] cases in [.txt|mVM.Step(...).] need to be completed.
+
+[===4. Harden Recursion and Prefix Identity===]
+
+Multi-recursion and hash-based prefixes are currently the two clearest runtime risk areas below the language surface.
+
+[===5. Make Verification Less CWD-Sensitive===]
+
+The regression harness should resolve its fixture folder from a stable project anchor instead of [.txt|mFS.CWD().], and its missing-folder warning should print the resolved path rather than the type name [.txt|mFS+tFolder.].
+
+[==Good Extension Points in Code==]
+
+- [.txt|mSPO_Parser.]
+  when new surface syntax is added
+- [.txt|mSPO_Desugar.]
+  when sugar should be reduced to existing core forms
+- [.txt|mSPO_AST_Types.]
+  when new scope or type rules are needed
+- [.txt|mSPO2IL.]
+  when a feature exists in the AST but does not yet reach IL
+- [.txt|mIL_GenerateOpcodes.]
+  when IL already exists but still has no VM operation
+- [.txt|mVM.]
+  when runtime behavior or new type opcodes are missing
+- [.txt|mRegression_Tests.] and [.txt|mModule_Tests.]
+  when a feature should be secured with real artifacts
