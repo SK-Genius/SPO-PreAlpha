@@ -448,7 +448,7 @@
 					<button id="upload-button" type="button">Datei waehlen</button>
 				</div>
 
-				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,.text,.svg,.mermaid,.math,.png,.jpg,.jpeg,.gif,.webp,.bmp,.avif,.webm,.mp4,.ogv,text/plain,image/*,video/*">
+				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,.text,.svg,.mermaid,.mmd,.math,.png,.jpg,.jpeg,.gif,.webp,.bmp,.avif,.webm,.mp4,.ogv,text/plain,text/vnd.mermaid,image/*,video/*">
 				<p id="upload-note" class="upload-note">Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.
 				</p>
 			</section>
@@ -513,8 +513,9 @@
 				js: "text/javascript",
 				json: "application/json",
 				md: "text/markdown",
-				mermaid: "text/plain",
+				mermaid: "text/vnd.mermaid",
 				mjs: "text/javascript",
+				mmd: "text/vnd.mermaid",
 				math: "text/plain",
 				mp4: "video/mp4",
 				ogv: "video/ogg",
@@ -1096,7 +1097,7 @@
 			}
 
 			function hasKnownRenderableExtension(path) {
-				return /\.(wiki|spo|ilt)$/i.test(path);
+				return /\.(wiki|spo|ilt|mermaid|mmd)$/i.test(path);
 			}
 
 			function fileNameLabel(path) {

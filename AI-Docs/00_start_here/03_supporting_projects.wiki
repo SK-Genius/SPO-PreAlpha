@@ -13,7 +13,7 @@
 
 When you only need parser, lowering, VM, or module behavior, stay in [.txt|SPO_CS/.]. Move into these folders only for the corresponding integration.
 
-[==[.txt|SPO/.]: Example Host Embedding==]
+[==SPO/: Example Host Embedding==]
 
 [.txt|SPO/SPO.csproj.] is a small [.txt|net10.0.] executable that references [.txt|../SPO_CS/SPO_CS.csproj.].
 
@@ -47,7 +47,7 @@ That means file-extension handling is not uniform across the repo:
 
 [.txt|LSP/src/extension.js.] also shows that the LSP bootstrap is unfinished in the current worktree: the [.txt|run.] / [.txt|debug.] command block is not assigned to a [.txt|serverOptions.] object before [.txt|LanguageClient.] construction.
 
-[==[.txt|TestRunner/FakeTestAdapter/.]==]
+[==TestRunner/FakeTestAdapter/==]
 
 This folder is the bridge from the repo's custom [.txt|mTest.] tree to the standard Visual Studio / VSTest world.
 
