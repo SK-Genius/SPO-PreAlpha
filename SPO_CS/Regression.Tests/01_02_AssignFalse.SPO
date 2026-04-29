@@ -1,2 +1,2 @@
-§DEF x = §TRUE
+§DEF x = §FALSE
 §EXPORT x

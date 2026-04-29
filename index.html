@@ -28,6 +28,10 @@
 				min-height: 100%;
 			}
 
+			html {
+				scroll-behavior: smooth;
+			}
+
 			body {
 				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 				color: var(--ink);
@@ -37,7 +41,7 @@
 			}
 
 			.shell {
-				width: min(860px, calc(100% - 2rem));
+				width: min(1040px, calc(100% - 2rem));
 				margin: clamp(1rem, 4vw, 3rem) auto;
 				padding: clamp(1rem, 3vw, 2.5rem);
 				background: var(--paper);
@@ -45,6 +49,14 @@
 				border-radius: 22px;
 				box-shadow: var(--shadow);
 				backdrop-filter: blur(10px);
+			}
+
+			.shell-source-standalone {
+				height: 100vh;
+				height: 100dvh;
+				margin-block: 0;
+				padding: 0;
+				overflow: hidden;
 			}
 
 			.wiki-article {
@@ -61,6 +73,14 @@
 				overflow: hidden;
 				background: rgba(255, 252, 247, 0.88);
 				box-shadow: 0 10px 24px rgba(70, 49, 31, 0.08);
+			}
+
+			.source-card-standalone {
+				border: 0;
+				border-radius: inherit;
+				overflow: hidden;
+				background: transparent;
+				box-shadow: none;
 			}
 
 			.source-bar {
@@ -459,6 +479,7 @@
 		<script>
 			const DEFAULT_FILE = "index.wiki";
 			const articleElement = document.getElementById("article");
+			const shellElement = document.querySelector("main.shell");
 			const uploadPanelElement = document.getElementById("upload-panel");
 			const dropzoneElement = document.getElementById("dropzone");
 			const uploadButtonElement = document.getElementById("upload-button");
@@ -735,9 +756,13 @@
 				const suppressTitle = Boolean(options.suppressTitle);
 				const showSourceFilename = options.showSourceFilename !== false;
 				const isRootContext = targetElement === articleElement;
+				const isEmbedded = options.isEmbedded !== undefined
+					? Boolean(options.isEmbedded)
+					: !isRootContext;
 
 				return {
 					filePath,
+					isEmbedded,
 					articleElement: targetElement,
 					appendNodes,
 					fileNameLabel,
@@ -759,6 +784,7 @@
 							{
 								suppressTitle: true,
 								showSourceFilename: false,
+								isEmbedded: true,
 								...childOptions
 							}
 						);
@@ -787,6 +813,7 @@
 					prepareArticle(className) {
 						if (isRootContext) {
 							currentWikiFile = filePath;
+							setShellMode(className === "source-view" && !isEmbedded);
 						}
 
 						targetElement.replaceChildren();
@@ -911,6 +938,7 @@
 			}
 
 			function renderStatus(message) {
+				setShellMode();
 				hideUploadPanel();
 				articleElement.className = "wiki-article";
 				const paragraph = document.createElement("p");
@@ -920,6 +948,7 @@
 			}
 
 			function renderError(message, showUploader = false) {
+				setShellMode();
 				articleElement.className = "wiki-article";
 				document.title = "Datei Fehler";
 
@@ -998,6 +1027,7 @@
 			}
 
 			function renderMediaFile(filePath, mediaElement) {
+				setShellMode();
 				hideUploadPanel();
 				articleElement.className = "wiki-article";
 				articleElement.replaceChildren();
@@ -1081,6 +1111,23 @@
 			function hideUploadPanel() {
 				uploadPanelElement.hidden = true;
 				dropzoneElement.classList.remove("is-dragover");
+			}
+
+			function setShellMode(sourceStandalone = false) {
+				if (!sourceStandalone &&
+					window.SpoViewer &&
+					typeof window.SpoViewer.disposeStandaloneLayout === "function"
+				) {
+					window.SpoViewer.disposeStandaloneLayout();
+				}
+
+				if (!shellElement) {
+					return;
+				}
+
+				shellElement.className = sourceStandalone
+					? "shell shell-source-standalone"
+					: "shell";
 			}
 
 			function setUploadNote(message, tone = "default") {

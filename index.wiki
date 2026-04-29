@@ -7,80 +7,276 @@
 [=Tests=]
 
 [_Bla_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/00_00_Bla.SPO #]
+|
+[# SPO_CS/Regression.Tests/00_00_Bla.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/00_01_Bla.SPO #]
+|
+[# SPO_CS/Regression.Tests/00_01_Bla.result.SPO #]
+|]
 
 [_1 Assign Literals_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/01_00_AssignEmpty.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_00_AssignEmpty.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_01_AssignTrue.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_01_AssignTrue.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_02_AssignFalse.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_02_AssignFalse.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_03_AssignInt.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_04_AssignTag.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_04_AssignTag.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/01_05_AssignText.SPO #]
+|
+[# SPO_CS/Regression.Tests/01_05_AssignText.result.SPO #]
+|]
 
 [_2 Create Complex Elements_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/02_01_CreateTag.SPO #]
+|
+[# SPO_CS/Regression.Tests/02_01_CreateTag.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/02_02_CreatePair.SPO #]
+|
+[# SPO_CS/Regression.Tests/02_02_CreatePair.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/02_03_CreateRecord.SPO #]
+|
+[# SPO_CS/Regression.Tests/02_03_CreateRecord.result.SPO #]
+|]
 
 [_3 Match Complex Elements_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/03_01_MatchTag.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_01_MatchTag.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_02_MatchPair.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_02_MatchPair.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_03_MatchRecord.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_03_MatchRecord.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_04_Is.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_04_Is.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_05_MatchRecordIf.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_05_MatchRecordIf.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_98_If.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_98_If.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_Match.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_Match.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchPairA.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchPairA.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchPairB.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchPairB.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchPairC.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchPairC.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchPairD.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchPairD.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchRecordA.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchRecordA.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchRecordB.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchRecordB.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchRecordC.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchRecordC.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchRecordD.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchRecordD.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchTaggedA.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedA.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchTaggedB.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedB.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchTaggedC.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedC.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/03_99_MatchTaggedD.SPO #]
+|
+[# SPO_CS/Regression.Tests/03_99_MatchTaggedD.result.SPO #]
+|]
 
 [_4 Use Functions_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/04_00_Not.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_00_Not.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/04_01_And.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_01_And.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/04_02_CallLambda.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_02_CallLambda.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/04_03_DefFunc.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_03_DefFunc.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/04_04_MultiArgs.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_04_MultiArgs.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/04_05_SkipArgs.SPO #]
+|
+[# SPO_CS/Regression.Tests/04_05_SkipArgs.result.SPO #]
+|]
 
 [_5 Create Functions_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/05_01_InRange.SPO #]
+|
+[# SPO_CS/Regression.Tests/05_01_InRange.result.SPO #]
+|]
 
 [_6 Recursion_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/06_01_Fib_If.SPO #]
+|
+[# SPO_CS/Regression.Tests/06_01_Fib_If.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.SPO #]
+|
+[# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.SPO #]
+|
+[# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.SPO #]
+|
+[# SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.result.SPO #]
+|]
 
 [_7 Types_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/07_01_AtomTypes.SPO #]
+|
+[# SPO_CS/Regression.Tests/07_01_AtomTypes.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/07_02_ComplexTypes.SPO #]
+|
+[# SPO_CS/Regression.Tests/07_02_ComplexTypes.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/07_11_RecursiveTypes.SPO #]
+|
+[# SPO_CS/Regression.Tests/07_11_RecursiveTypes.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/07_12_GenericTypes.SPO #]
+|
+[# SPO_CS/Regression.Tests/07_12_GenericTypes.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO #]
+|
+[# SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.result.SPO #]
+|]
 
 [_8 Imperative_]
-
+[|Code|Result|]
+[|
 [# SPO_CS/Regression.Tests/08_01_Var.SPO #]
+|
+[# SPO_CS/Regression.Tests/08_01_Var.result.SPO #]
+|]
+[|
 [# SPO_CS/Regression.Tests/08_02_DefIncrement.SPO #]
+|
+[# SPO_CS/Regression.Tests/08_02_DefIncrement.result.SPO #]
+|]
 
 [=Misc=]
 

@@ -1,6 +1,4 @@
-[=Surface Language=]
-
-[==Shape==]
+[=Shape=]
 
 In this repository, SPO is an expression-oriented language with:
 
@@ -31,7 +29,7 @@ Many visible forms are sugar. Internally, the implementation reduces a lot of sy
 |	EXP --> TYPE["Type Literals"]
 .]
 
-[==Lexical Form==]
+[=Lexical Form=]
 
 From [.txt|mTokenizer.]:
 
@@ -50,7 +48,7 @@ Multi-line text has this form:
 |"
 .]
 
-[==Module Form==]
+[=Module Form=]
 
 A SPO module consists of:
 
@@ -78,7 +76,7 @@ Example:
 
 Important: [.txt|§IMPORT.] is a pattern, not just a name list. Modules are matched as structured values.
 
-[==Internal Names at the IL Boundary==]
+[=Internal Names at the IL Boundary=]
 
 The SPO surface does not show all internal names directly. In generated [.txt|.ILT.] and in VM traces, these additional forms appear:
 
@@ -88,7 +86,7 @@ The SPO surface does not show all internal names directly. In generated [.txt|.I
 
 This is not a second user-facing language layer, but it is a real architectural boundary when comparing [.txt|.SPO.], [.txt|.ILT.], and runtime traces.
 
-[==Commands==]
+[=Commands=]
 
 The command forms implemented by the parser are:
 
@@ -113,7 +111,7 @@ Examples from real tests:
 |}
 .]
 
-[===Blocks===]
+[=Blocks=]
 
 Blocks are expressions:
 
@@ -126,9 +124,9 @@ Blocks are expressions:
 
 There is no implicit "last expression wins". Returns happen through explicit [.txt|§RETURN.] commands.
 
-[==Expressions==]
+[=Expressions=]
 
-[===Literals===]
+[=Literals=]
 
 - [.txt|().]
 - [.txt|§TRUE.], [.txt|§FALSE.]
@@ -136,7 +134,7 @@ There is no implicit "last expression wins". Returns happen through explicit [.t
 - chars such as [.txt|§a.]
 - text such as [.txt|"abc".]
 
-[===Data Forms===]
+[=Data Forms=]
 
 [.spo
 |#Box 12
@@ -151,7 +149,7 @@ Semantically important:
 - records are internally built from prefixed fields
 - text values become recursive char lists
 
-[===Calls and Operator-Style Names===]
+[=Calls and Operator-Style Names=]
 
 SPO uses [.txt|....] inside names to create different call styles.
 
@@ -164,7 +162,7 @@ Examples from the repository:
 
 The parser helpers [.txt|Infix.], [.txt|InfixCall.], and [.txt|InfixPrefix.] in [.txt|mSPO_Parser.] generate these names systematically.
 
-[===Lambdas===]
+[=Lambdas=]
 
 Normal lambda:
 
@@ -180,7 +178,7 @@ Generic lambda:
 |) => X
 .]
 
-[===Methods===]
+[=Methods=]
 
 Methods have an object side and an argument side:
 
@@ -196,7 +194,7 @@ Methods have an object side and an argument side:
 
 Method calls can appear as statement-like chains and end with [.txt|..].
 
-[===Pipes===]
+[=Pipes=]
 
 Both directions are implemented:
 
@@ -207,7 +205,7 @@ Both directions are implemented:
 
 [.txt|mSPO_Desugar.] rewrites pipes into normal calls.
 
-[===Control and Matching===]
+[=Control and Matching=]
 
 If with conditions:
 
@@ -236,7 +234,7 @@ Pattern match:
 
 Internally, [.txt|§IS.] is desugared to [.txt|§IF ... MATCH.].
 
-[==Patterns==]
+[=Patterns=]
 
 Pattern forms supported by parser and AST:
 
@@ -262,9 +260,9 @@ Examples from [.txt|Regression.Tests.]:
 |}
 .]
 
-[==Type Language==]
+[=Type Language=]
 
-[===Atomic Types===]
+[=Atomic Types=]
 
 - [.txt|[[]].]
 - [.txt|§BOOL.]
@@ -274,7 +272,7 @@ Examples from [.txt|Regression.Tests.]:
 - [.txt|§ANY.]
 - [.txt|§TYPE.]
 
-[===Composite Types===]
+[=Composite Types=]
 
 - [.txt|[[A, B, C]].]
 - [.txt|[[A; B]].]
@@ -284,7 +282,7 @@ Examples from [.txt|Regression.Tests.]:
 - [.txt|[[Arg => Res]].]
 - [.txt|[[Obj : Arg => Res]].]
 
-[===Abstract Type Forms===]
+[=Abstract Type Forms=]
 
 - [.txt|[[§RECURSIVE t Body]].]
 - [.txt|[[§GENERIC t Body]].]
@@ -298,14 +296,14 @@ Architecturally important:
   [.txt|§REC.], [.txt|§ALL.], and [.txt|§ANY.]
 - when reading SPO and [.txt|.ILT.] side by side, that notation difference should not be confused with a semantic contradiction
 
-[==SPO Syntax vs IL Text==]
+[=SPO Syntax vs IL Text=]
 
 [| [*Concept*] | [*SPO*] | [*IL*] |]
-[| recursive type | [.txt||[[§RECURSIVE t T]].] | [.txt||[[§REC t => T]].] |]
-[| generic type | [.txt||[[§GENERIC t T]].] | [.txt||[[§ALL t => T]].] |]
-[| interface type | [.txt||[[§INTERFACE t T]].] | [.txt||[[§ANY t => T]].] |]
-[| function call in IL | surface syntax like [.txt||a .F b.] | [.txt||r := .f a.] |]
-[| method call in IL | surface syntax like [.txt||Obj : F Arg ..] | [.txt||r := §OBJ:f a.] |]
+[| recursive type | [.txt|[[§RECURSIVE t T]].] | [.txt|[[§REC t => T]].] |]
+[| generic type | [.txt|[[§GENERIC t T]].] | [.txt|[[§ALL t => T]].] |]
+[| interface type | [.txt|[[§INTERFACE t T]].] | [.txt|[[§ANY t => T]].] |]
+[| function call in IL | surface syntax like [.txt|a .F b.] | [.txt|r := .f a.] |]
+[| method call in IL | surface syntax like [.txt|Obj : F Arg ..] | [.txt|r := §OBJ:f a.] |]
 
 Examples from real regressions:
 
@@ -317,7 +315,7 @@ Examples from real regressions:
 |§DEF tArray... = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
 .]
 
-[==Internal Models Behind the Sugar==]
+[=Internal Models Behind the Sugar=]
 
 [.mermaid
 |flowchart LR
@@ -334,7 +332,7 @@ Especially important:
 - [.txt|§TEXT.] is internally a recursive type of [.txt|[[]].] or [.txt|[[Text; Char]].]
 - tuples and text values are heavily reduced before final lowering
 
-[==Real Tested Language Examples==]
+[=Real Tested Language Examples=]
 
 - [<../../SPO_CS/Modules/Char.SPO|SPO_CS/Modules/Char.SPO>]
   comparison, prefix values, [.txt|§IF.], [.txt|MATCH.], module export record
@@ -347,7 +345,7 @@ Especially important:
 - [<../../SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO|SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO>]
   higher-order functions over generic containers
 
-[==Language Limits That Should Not Be Hidden==]
+[=Language Limits That Should Not Be Hidden=]
 
 - [.txt|§INTERFACE.] is visible in parser, AST, and type analysis, but not broadly secured end-to-end
 - conditional types are not yet a finished feature

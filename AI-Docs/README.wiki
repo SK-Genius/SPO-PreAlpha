@@ -19,7 +19,7 @@ Complementary review documents live in [<../AI-Review/README.md|AI-Review/>].
 
 Treat this folder as a reading aid, not as the authority. When a claim matters, confirm it against the source tree and the test host.
 
-[==How To Use This Folder Safely==]
+[=How To Use This Folder Safely=]
 
 - Start here for code-map and pipeline orientation, not for final debugging decisions.
 - Use [<../AI-Review/README.md|AI-Review/>] for prioritized findings and active breakage.
@@ -63,7 +63,7 @@ Current verified state:
 - the current [.txt|Maybe.] failure is reached before VM execution:
   [.txt|mModule.Init(...).] first calls [.txt|mSPO_Parser.Module.ParseText(...).ToILT().], where [.txt|ToILT().] is the parsed-module extension currently defined in [.txt|mSPO_Interpreter.], and the failing source location is [.txt|SPO_CS/Modules/Maybe.SPO.] line 7 at [.txt|.tMaybe tIn.]
 
-[==Highest-Priority Breakage==]
+[=Highest-Priority Breakage=]
 
 The most important current limitation is not "generics are broken" in general, but a narrower module-compilation boundary:
 
@@ -78,7 +78,7 @@ Why this matters for triage:
 - first inspect module-source type analysis and type-constructor resolution in [.txt|mSPO_AST_Types.], plus the parsed-module [.txt|.ToILT().] helper in [<../SPO_CS/src/mSPO_Interpreter.cs|SPO_CS/src/mSPO_Interpreter.cs>] and the [.txt|.SPO -> .ILT.] verification path in [<../SPO_CS/src/mModule.cs|SPO_CS/src/mModule.cs>]
 - only if the failure moves past type analysis should the runtime documents in [.txt|30_runtime/.] become the next debugging layer
 
-[==High-Value Source Anchors==]
+[=High-Value Source Anchors=]
 
 When this folder and the code disagree, re-check these files first:
 
@@ -95,7 +95,7 @@ When this folder and the code disagree, re-check these files first:
 - [<../SPO_CS/src/mRegression.Tests.cs|SPO_CS/src/mRegression.Tests.cs>] and [<../SPO_CS/src/mModule.Tests.cs|SPO_CS/src/mModule.Tests.cs>]
   the executable contracts this folder claims to summarize
 
-[==Refreshing This Folder==]
+[=Refreshing This Folder=]
 
 When parser, lowering, type, VM, or module code changes, update this folder in this order:
 
@@ -105,7 +105,7 @@ o 3. For type-runtime changes, inspect all three layers before editing docs:
    [.txt|mVM_Data.tOpCode.], [.txt|mIL_GenerateOpcodes.GenerateOpcodes(...).], and [.txt|mVM.Step(...).].
 o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavior and unimplemented behavior clearly separated.
 
-[==Folder Layout==]
+[=Folder Layout=]
 
 [.txt
 |AI-Doc/
@@ -126,7 +126,7 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
 |    43_next_work.md
 .]
 
-[===00 Start Here===]
+[=00 Start Here=]
 
 - [<00_start_here/01_repo_overview.wiki|01_repo_overview.wiki>]
   Project scope, entry points, artifacts, and architectural contracts.
@@ -135,22 +135,22 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
 - [<00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>]
   Repo satellites outside [.txt|SPO_CS/.]: sample host app, editor tooling, and the custom test adapter.
 
-[===10 Language===]
+[=10 Language=]
 
 - [<10_language/11_surface_language.wiki|11_surface_language.wiki>]
   The SPO surface language, the IL-facing naming boundary, and real examples.
 
-[===20 Pipeline===]
+[=20 Pipeline=]
 
 - [<20_pipeline/21_compilation_pipeline.wiki|21_compilation_pipeline.wiki>]
   How [.txt|.SPO.] and [.txt|.ILT.] converge on [.txt|mIL_AST.tModule.] and hand off to the VM.
 
-[===30 Runtime===]
+[=30 Runtime=]
 
 - [<30_runtime/31_vm_and_modules.wiki|31_vm_and_modules.wiki>]
   Runtime value model, fixed registers, module loading, and module status.
 
-[===40 Verification===]
+[=40 Verification=]
 
 - [<40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>]
   Test host, regression harness, module tests, and generated artifacts.
@@ -159,7 +159,7 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
 - [<40_verification/43_next_work.wiki|43_next_work.wiki>]
   Prioritized follow-up work derived from code and reproducible failures.
 
-[==Read By Goal==]
+[=Read By Goal=]
 
 - Want the quickest repo orientation:
   [<00_start_here/01_repo_overview.wiki|01_repo_overview.wiki>] ->
@@ -175,7 +175,7 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
   [<40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] ->
   [<40_verification/43_next_work.wiki|43_next_work.wiki>]
 
-[==Big Picture==]
+[=Big Picture=]
 
 [.mermaid
 |flowchart LR
@@ -216,19 +216,19 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
 |	MOD --> VM
 .]
 
-[==Linear Reading Order==]
+[=Linear Reading Order=]
 
-[<00_start_here/01_repo_overview.wiki|01_repo_overview.wiki>]
-[<00_start_here/02_code_map.wiki|02_code_map.wiki>]
-[<00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>]
-[<10_language/11_surface_language.wiki|11_surface_language.wiki>]
-[<20_pipeline/21_compilation_pipeline.wiki|21_compilation_pipeline.wiki>]
-[<30_runtime/31_vm_and_modules.wiki|31_vm_and_modules.wiki>]
-[<40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>]
-[<40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>]
-[<40_verification/43_next_work.wiki|43_next_work.wiki>]
+o 1. [<00_start_here/01_repo_overview.wiki|01_repo_overview.wiki>]
+o 2. [<00_start_here/02_code_map.wiki|02_code_map.wiki>]
+o 3. [<00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>]
+o 4. [<10_language/11_surface_language.wiki|11_surface_language.wiki>]
+o 5. [<20_pipeline/21_compilation_pipeline.wiki|21_compilation_pipeline.wiki>]
+o 6. [<30_runtime/31_vm_and_modules.wiki|31_vm_and_modules.wiki>]
+o 7. [<40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>]
+o 8. [<40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>]
+o 9. [<40_verification/43_next_work.wiki|43_next_work.wiki>]
 
-[==Architecture Invariants==]
+[=Architecture Invariants=]
 
 - [.txt|SPO_CS/SPO_CS.csproj.] builds one [.txt|net10.0.] executable that contains production code and tests together.
 - [.txt|.SPO.] and [.txt|.ILT.] meet architecturally in [.txt|mIL_AST.tModule.].
@@ -238,7 +238,7 @@ o 4. Only then update the affected [.txt|AI-Doc.] file, keeping verified behavio
   [.txt|ImportPattern => { Commands; RETURN Export }.]
 - [.txt|mModule.] is both module loader and canonical [.txt|.ILT.] verification step
 
-[==Corrections Pulled Toward the Code==]
+[=Corrections Pulled Toward the Code=]
 
 - SPO surface syntax and IL text syntax are intentionally not identical.
   Generic, interface, and recursive type keywords differ across that boundary.

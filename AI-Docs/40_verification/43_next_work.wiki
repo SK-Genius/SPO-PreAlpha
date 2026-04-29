@@ -2,7 +2,7 @@
 
 This list is intentionally not a general wishlist. It prioritizes only tasks that can be derived directly from the current code, the existing tests, and reproducible runtime observations.
 
-[==Priority 1==]
+[=Priority 1=]
 
 o 1. Stabilize generic type application across module boundaries.
 	- Observation: [.txt|mModule_Tests.Maybe.] fails reproducibly with [.txt|expected generic type but '_tMaybe...'.].
@@ -15,10 +15,10 @@ o 1. Stabilize generic type application across module boundaries.
 		[<../../SPO_CS/Modules/Maybe.SPO|SPO_CS/Modules/Maybe.SPO>].
 	- Why first: This is currently the most painful real system boundary, because generics work in regressions, but are still not reliable in library modules.
 	- First debugging order:
-    	o 1. Re-run [.txt|dotnet run --project .\\SPO_CS.csproj -- --plainText --stopOnFirstFail --matchAny mModule_Tests.] from [.txt|SPO_CS/.].
-    	o 2. Inspect [.txt|.tMaybe tIn.] in [.txt|Modules/Maybe.SPO.].
-    	o 3. Inspect [.txt|mSPO_AST_Types.AsVM_Type(GenericApplyType).] and identifier/type lookup around it.
-    	o 4. Only after that, inspect IL/runtime layers if the failure moves downstream.
+	o 1. Re-run [.txt|dotnet run --project .\\SPO_CS.csproj -- --plainText --stopOnFirstFail --matchAny mModule_Tests.] from [.txt|SPO_CS/.].
+	o 2. Inspect [.txt|.tMaybe tIn.] in [.txt|Modules/Maybe.SPO.].
+	o 3. Inspect [.txt|mSPO_AST_Types.AsVM_Type(GenericApplyType).] and identifier/type lookup around it.
+	o 4. Only after that, inspect IL/runtime layers if the failure moves downstream.
 	- Inference to verify: the current error text suggests the head of the generic application is arriving as a named type reference ([.txt|_tMaybe....]) instead of an already materialized [.txt|mVM_Type.Generic.].
 
 o 2. Complete [.txt|mVM_Type.IsSubType(...).] for [.txt|Any.], [.txt|Var.], [.txt|Ref.], and [.txt|Cond.].
@@ -29,7 +29,7 @@ o 3. Bring runtime type construction into sync across enum, IL generator, and VM
 	- Observation: [<../../SPO_CS/src/mVM_Data.cs|SPO_CS/src/mVM_Data.cs>] defines a broader [.txt|Type*.] opcode family than [<../../SPO_CS/src/mVM.cs|SPO_CS/src/mVM.cs>] executes, and [<../../SPO_CS/src/mIL_GenerateOpcodes.cs|SPO_CS/src/mIL_GenerateOpcodes.cs>] already emits additional runtime type-building commands such as [.txt|TypeFunc.], [.txt|TypeMethod.], [.txt|TypePrefix.], [.txt|TypeVar.], and [.txt|TypeInterface.].
 	- Why now: The architecture uses [.txt|mVM_Type.] across all phases; once type values are moved around at runtime, partial support across these three layers becomes a real maintenance and correctness risk.
 
-[==Priority 2==]
+[=Priority 2=]
 
 o 4. Either implement [.txt|TryAsType.] / [.txt|TryAsRef.] end-to-end or stop presenting them as executable VM-facing IL.
 	- Observation: [<../../SPO_CS/src/mIL_AST.cs|SPO_CS/src/mIL_AST.cs>], [<../../SPO_CS/src/mIL_Parser.cs|SPO_CS/src/mIL_Parser.cs>], and [<../../SPO_CS/src/mIL_GenerateOpcodes.cs|SPO_CS/src/mIL_GenerateOpcodes.cs>] all know these opcodes, but [<../../SPO_CS/src/mVM.cs|SPO_CS/src/mVM.cs>] has no execution case for them, and [<../../SPO_CS/src/mVM_Data.cs|SPO_CS/src/mVM_Data.cs>] does not define a [.txt|Ref.] runtime value kind.
@@ -47,7 +47,7 @@ o 7. Harden hash-based prefix and record-field identity.
 	- Observation: [<../../SPO_CS/src/mIL_GenerateOpcodes.cs|SPO_CS/src/mIL_GenerateOpcodes.cs>] and [<../../SPO_CS/src/mVM_Data.cs|SPO_CS/src/mVM_Data.cs>] already mark collisions around [.txt|PrefixHash().] as TODOs.
 	- Why: The more modules and field names exist, the less acceptable it is for identity to depend only on a hash.
 
-[==Priority 3==]
+[=Priority 3=]
 
 o 8. Factor the parsed-module [.txt|ToILT().] helper out of [.txt|mSPO_Interpreter.].
    - Observation: [<../../SPO_CS/src/mSPO_Interpreter.cs|SPO_CS/src/mSPO_Interpreter.cs>] currently owns [.txt|ToILT().], and both [<../../SPO_CS/src/mModule.cs|SPO_CS/src/mModule.cs>] and [<../../SPO_CS/src/mRegression.Tests.cs|SPO_CS/src/mRegression.Tests.cs>] reach it through [.txt|mSPO_Parser.Module.ParseText(...).ToILT().].
@@ -65,7 +65,7 @@ o 11. Resolve regression fixtures relative to the project instead of the current
 	- Observation: [<../../SPO_CS/src/mRegression.Tests.cs|SPO_CS/src/mRegression.Tests.cs>] uses [.txt|mFS.CWD() / "Regression.Tests".] and prints [.txt|Folder not found: mFS+tFolder.] when launched from the repo root.
 	- Why: This makes verification brittle, silently removes the regression suite from discovery, and has already forced the AI docs to document a workdir-specific workaround.
 
-[==Recommended Order==]
+[=Recommended Order=]
 
 o 1. Fix the [.txt|Maybe.] failure.
 o 2. Close the subtyping gaps.

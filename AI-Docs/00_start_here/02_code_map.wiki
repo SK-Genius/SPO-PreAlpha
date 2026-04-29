@@ -1,33 +1,31 @@
-[=Code Map=]
-
-[==Core Modules==]
+[=Core Modules=]
 
 [| [*File*] | [*Role*] | [*Direct conceptual neighbors*] |]
-[| [.txt||SPO_CS/src/mTokenizer.cs.] | shared lexer for SPO and IL | [.txt||mSPO_Parser.], [.txt||mIL_Parser.] |]
-[| [.txt||SPO_CS/src/mSPO_AST.cs.] | surface AST for SPO | [.txt||mSPO_Parser.], [.txt||mSPO_Desugar.], [.txt||mSPO_AST_Types.], [.txt||mSPO2IL.] |]
-[| [.txt||SPO_CS/src/mSPO_Parser.cs.] | parser for SPO source | [.txt||mTokenizer.], [.txt||mSPO_AST.], [.txt||mSPO_Desugar.], [.txt||mSPO2IL.] |]
-[| [.txt||SPO_CS/src/mSPO_Desugar.cs.] | reduction of sugar to core forms | [.txt||mSPO_AST.] |]
-[| [.txt||SPO_CS/src/mSPO_AST_Types.cs.] | type analysis and scope propagation | [.txt||mSPO_AST.], [.txt||mVM_Type.] |]
-[| [.txt||SPO_CS/src/mSPO2IL.cs.] | lowering from SPO AST to IL | [.txt||mSPO_AST.], [.txt||mSPO_AST_Types.], [.txt||mIL_AST.], [.txt||mVM_Type.] |]
-[| [.txt||SPO_CS/src/mIL_AST.cs.] | shared IL model | [.txt||mIL_Parser.], [.txt||mSPO2IL.], [.txt||mIL_GenerateOpcodes.] |]
-[| [.txt||SPO_CS/src/mIL_Parser.cs.] | parser for [.txt||.ILT.] | [.txt||mTokenizer.], [.txt||mIL_AST.] |]
-[| [.txt||SPO_CS/src/mIL_GenerateOpcodes.cs.] | IL to [.txt||mVM_Data.tProcDef[[]].] | [.txt||mIL_AST.], [.txt||mVM_Type.], [.txt||mVM_Data.] |]
-[| [.txt||SPO_CS/src/mVM_Type.cs.] | shared type core | almost all compiler and runtime phases |]
-[| [.txt||SPO_CS/src/mVM_Data.cs.] | runtime values and opcode containers | [.txt||mVM.], [.txt||mIL_GenerateOpcodes.] |]
-[| [.txt||SPO_CS/src/mVM.cs.] | register-based VM | [.txt||mVM_Data.], [.txt||mIL_GenerateOpcodes.] |]
-[| [.txt||SPO_CS/src/mSPO_Interpreter.cs.] | SPO end-to-end orchestrator | parser, desugar, types, lowering, VM |]
-[| [.txt||SPO_CS/src/mModule.cs.] | file-based module loader | [.txt||mSPO_Interpreter.], [.txt||mIL_Parser.], [.txt||mVM.] |]
-[| [.txt||SPO_CS/src/mRunTests.cs.] | CLI test host | [.txt||mTest.], [.txt||mSPO_Tests.] |]
+[| [.txt|SPO_CS/src/mTokenizer.cs.] | shared lexer for SPO and IL | [.txt|mSPO_Parser.], [.txt|mIL_Parser.] |]
+[| [.txt|SPO_CS/src/mSPO_AST.cs.] | surface AST for SPO | [.txt|mSPO_Parser.], [.txt|mSPO_Desugar.], [.txt|mSPO_AST_Types.], [.txt|mSPO2IL.] |]
+[| [.txt|SPO_CS/src/mSPO_Parser.cs.] | parser for SPO source | [.txt|mTokenizer.], [.txt|mSPO_AST.], [.txt|mSPO_Desugar.], [.txt|mSPO2IL.] |]
+[| [.txt|SPO_CS/src/mSPO_Desugar.cs.] | reduction of sugar to core forms | [.txt|mSPO_AST.] |]
+[| [.txt|SPO_CS/src/mSPO_AST_Types.cs.] | type analysis and scope propagation | [.txt|mSPO_AST.], [.txt|mVM_Type.] |]
+[| [.txt|SPO_CS/src/mSPO2IL.cs.] | lowering from SPO AST to IL | [.txt|mSPO_AST.], [.txt|mSPO_AST_Types.], [.txt|mIL_AST.], [.txt|mVM_Type.] |]
+[| [.txt|SPO_CS/src/mIL_AST.cs.] | shared IL model | [.txt|mIL_Parser.], [.txt|mSPO2IL.], [.txt|mIL_GenerateOpcodes.] |]
+[| [.txt|SPO_CS/src/mIL_Parser.cs.] | parser for [.txt|.ILT.] | [.txt|mTokenizer.], [.txt|mIL_AST.] |]
+[| [.txt|SPO_CS/src/mIL_GenerateOpcodes.cs.] | IL to [.txt|mVM_Data.tProcDef[[]].] | [.txt|mIL_AST.], [.txt|mVM_Type.], [.txt|mVM_Data.] |]
+[| [.txt|SPO_CS/src/mVM_Type.cs.] | shared type core | almost all compiler and runtime phases |]
+[| [.txt|SPO_CS/src/mVM_Data.cs.] | runtime values and opcode containers | [.txt|mVM.], [.txt|mIL_GenerateOpcodes.] |]
+[| [.txt|SPO_CS/src/mVM.cs.] | register-based VM | [.txt|mVM_Data.], [.txt|mIL_GenerateOpcodes.] |]
+[| [.txt|SPO_CS/src/mSPO_Interpreter.cs.] | SPO end-to-end orchestrator | parser, desugar, types, lowering, VM |]
+[| [.txt|SPO_CS/src/mModule.cs.] | file-based module loader | [.txt|mSPO_Interpreter.], [.txt|mIL_Parser.], [.txt|mVM.] |]
+[| [.txt|SPO_CS/src/mRunTests.cs.] | CLI test host | [.txt|mTest.], [.txt|mSPO_Tests.] |]
 
-[==Supporting Folders Outside [.txt|SPO_CS.]==]
+[=Supporting Folders Outside SPO_CS=]
 
 [| [*Path*] | [*Why it exists*] |]
-[| [.txt||SPO/src/Program.cs.] | example host embedding of [.txt||mSPO_Interpreter.] and [.txt||mVM.] |]
-[| [.txt||LSP/src/extension.js.] | VS Code language-client bootstrap |]
-[| [.txt||spo-grammar-0.1.0/.] | syntax-highlighting package for [.txt||spo.] |]
-[| [.txt||TestRunner/FakeTestAdapter/.] | IDE test discovery and execution bridge |]
+[| [.txt|SPO/src/Program.cs.] | example host embedding of [.txt|mSPO_Interpreter.] and [.txt|mVM.] |]
+[| [.txt|LSP/src/extension.js.] | VS Code language-client bootstrap |]
+[| [.txt|spo-grammar-0.1.0/.] | syntax-highlighting package for [.txt|spo.] |]
+[| [.txt|TestRunner/FakeTestAdapter/.] | IDE test discovery and execution bridge |]
 
-[==Dependency View==]
+[=Dependency View=]
 
 [.mermaid
 |flowchart LR
@@ -67,7 +65,7 @@
 |	RUN --> SUITES["mSPO_Tests / mCommon_Tests"]
 .]
 
-[==Common Infrastructure That Is Actually Central==]
+[=Common Infrastructure That Is Actually Central=]
 
 [.txt|SPO_CS/src/Common/.] is large, but for the architecture of this codebase, these modules matter most:
 
@@ -84,7 +82,7 @@
 - [.txt|mTest.]
   test tree, execution, and CLI filtering
 
-[==Recommended Onboarding Order in Code==]
+[=Recommended Onboarding Order in Code=]
 
 If you want to understand the repository technically, this order is the most efficient:
 
@@ -103,15 +101,15 @@ o 6. [.txt|SPO_CS/src/mIL_GenerateOpcodes.cs.], [.txt|SPO_CS/src/mVM_Data.cs.], 
 o 7. [.txt|SPO_CS/src/mModule.cs.] and [.txt|SPO_CS/src/mRegression.Tests.cs.]
    show real artifacts and system integration
 
-[==Artifact Map==]
+[=Artifact Map=]
 
 [| [*Path*] | [*Role*] |]
-[| [.txt||SPO_CS/Modules/Std.ILT.] | canonical standard module directly in IL |]
-[| [.txt||SPO_CS/Modules/Char.SPO.] + [.txt||Char.ILT.] | SPO module built on [.txt||Std.] plus its checked canonical IL |]
-[| [.txt||SPO_CS/Modules/Text.SPO.] + [.txt||Text.ILT.] | SPO module built on [.txt||Std.] and [.txt||Char.] plus its checked canonical IL |]
-[| [.txt||SPO_CS/Modules/Maybe.SPO.] + [.txt||Maybe.ILT.] | generic SPO module plus canonical IL; module test still fails at [.txt||.tMaybe tIn.] |]
-[| [.txt||SPO_CS/Modules/Result.SPO.] | existing module artifact, currently not exposed as [.txt||ModuleSetup.] |]
-[| [.txt||SPO_CS/Regression.Tests/*.] | end-to-end cases for language, types, and IL |]
+[| [.txt|SPO_CS/Modules/Std.ILT.] | canonical standard module directly in IL |]
+[| [.txt|SPO_CS/Modules/Char.SPO.] + [.txt|Char.ILT.] | SPO module built on [.txt|Std.] plus its checked canonical IL |]
+[| [.txt|SPO_CS/Modules/Text.SPO.] + [.txt|Text.ILT.] | SPO module built on [.txt|Std.] and [.txt|Char.] plus its checked canonical IL |]
+[| [.txt|SPO_CS/Modules/Maybe.SPO.] + [.txt|Maybe.ILT.] | generic SPO module plus canonical IL; module test still fails at [.txt|.tMaybe tIn.] |]
+[| [.txt|SPO_CS/Modules/Result.SPO.] | existing module artifact, currently not exposed as [.txt|ModuleSetup.] |]
+[| [.txt|SPO_CS/Regression.Tests/*.] | end-to-end cases for language, types, and IL |]
 
 Important distinction:
 
@@ -119,7 +117,7 @@ Important distinction:
 - [.txt|Char.], [.txt|Text.], and [.txt|Maybe.] are loaded from [.txt|.SPO.] and checked against the sibling [.txt|.ILT.]
 - filesystem presence does not mean a module is registered in [.txt|mModule.]
 
-[==What This Map Makes Visible==]
+[=What This Map Makes Visible=]
 
 - [.txt|mVM_Type.] is the central node of the system.
 - [.txt|mIL_AST.] is the shared boundary between both frontends and the backend.

@@ -1,5 +1,4 @@
 (function () {
-	const HEADING_PATTERN = /^\[(=+)(.*)\1\]$/;
 	const RULE_PATTERN = /^\[-{3,}\]$/;
 	const MARKER_PATTERN = /^([-o*#>])\s+(.*)$/;
 	const IMAGE_TARGET_PATTERN =
@@ -93,38 +92,46 @@
 			fragment.append(createTableOfContents(headingState.entries, context));
 		}
 
-		for (const block of blocks) {
-			if (block.type === "heading") {
-				fragment.append(createHeadingElement(block, context));
-				continue;
-			}
-
-			if (block.type === "rule") {
-				fragment.append(createRuleElement());
-				continue;
-			}
-
-			if (block.type === "tableBlock") {
-				fragment.append(createTableElement(block, context));
-				continue;
-			}
-
-			if (block.type === "hashBlock") {
-				fragment.append(createHashBlockElement(block, context));
-				continue;
-			}
-
-			if (block.type === "objectBlock") {
-				fragment.append(createObjectBlockElement(block, context));
-				continue;
-			}
-
-			fragment.append(createParagraphElement(block, context));
-		}
+		appendRenderedBlocks(fragment, blocks, context);
 
 		fragment.append(createAnchorTarget("wiki-end"));
 		context.setPageTitle(articleInfo.fullTitle, "Wiki");
 		context.articleElement.append(fragment);
+	}
+
+	function appendRenderedBlocks(parent, blocks, context, compact = false) {
+		for (let index = 0; index < blocks.length; index += 1) {
+			const element = createBlockElement(blocks[index], context);
+			if (compact) {
+				element.style.marginBottom = index === blocks.length - 1 ? "0" : "0.35rem";
+			}
+
+			parent.append(element);
+		}
+	}
+
+	function createBlockElement(block, context) {
+		if (block.type === "heading") {
+			return createHeadingElement(block, context);
+		}
+
+		if (block.type === "rule") {
+			return createRuleElement();
+		}
+
+		if (block.type === "tableBlock") {
+			return createTableElement(block, context);
+		}
+
+		if (block.type === "hashBlock") {
+			return createHashBlockElement(block, context);
+		}
+
+		if (block.type === "objectBlock") {
+			return createObjectBlockElement(block, context);
+		}
+
+		return createParagraphElement(block, context);
 	}
 
 	function resolveArticleTitle(filePath, context) {
@@ -279,39 +286,51 @@
 		const controls = document.createElement("div");
 		controls.style.display = "inline-flex";
 		controls.style.alignItems = "center";
-		controls.style.gap = "0.28rem";
+		controls.style.gap = "0";
 		controls.style.marginInlineStart = "auto";
-		controls.style.padding = "0.4rem 0.5rem";
-		controls.style.background = LEGACY_CHROME.controlBackground;
+		controls.style.marginInlineEnd = "0";
+		controls.style.padding = "0.18rem 0.3rem 0.18rem 0.24rem";
+		controls.style.background =
+			"linear-gradient(180deg, rgba(247, 237, 219, 0.44), rgba(239, 224, 202, 0.3))";
 		controls.style.borderInlineStart = LEGACY_CHROME.dividerBorder;
 		controls.style.fontFamily = "inherit";
 		controls.style.fontSize = "0.9rem";
 		controls.style.whiteSpace = "nowrap";
 
-		controls.append(
-			createSectionNavLink("#" + block.anchorId, "\u00a7", "Direktlink"),
-			createSectionNavLink("#wiki-begin", "\u2191", "Zum Anfang"),
-			createSectionNavLink("#wiki-end", "\u2193", "Zum Ende")
-		);
+		const navTop = createSectionNavLink("#wiki-begin", "\u2191", "Zum Anfang");
+		const navBottom = createSectionNavLink("#wiki-end", "\u2193", "Zum Ende");
+		navBottom.style.borderInlineStart = "1px solid rgba(127, 79, 36, 0.08)";
+		controls.append(navTop, navBottom);
 
 		const title = document.createElement("h2");
 		title.style.flex = "1 1 auto";
 		title.style.margin = "0";
 		title.style.minWidth = "0";
-		title.style.padding = "0.5rem 0.75rem 0.55rem 1rem";
 		title.style.fontSize = "clamp(1.08rem, 2.1vw, 1.28rem)";
 		title.style.fontWeight = "700";
 		title.style.lineHeight = "1.2";
 		title.style.border = "0";
 		title.style.background = "transparent";
-		title.style.color = "var(--ink)";
 		title.style.letterSpacing = "-0.015em";
-		title.style.textDecoration = "underline";
-		title.style.textDecorationThickness = "0.06em";
-		title.style.textUnderlineOffset = "0.16em";
-		title.style.textDecorationColor = "rgba(127, 79, 36, 0.48)";
 
-		context.appendNodes(title, parseInline(block.text, context));
+		const titleLink = block.anchorId
+			? document.createElement("a")
+			: document.createElement("span");
+		if (block.anchorId) {
+			titleLink.href = "#" + block.anchorId;
+			titleLink.title = "Direktlink";
+			titleLink.setAttribute("aria-label", "Direktlink zu " + block.text);
+		}
+		titleLink.style.display = "block";
+		titleLink.style.padding = "0.5rem 0.75rem 0.55rem 1rem";
+		titleLink.style.color = "var(--ink)";
+		titleLink.style.textDecoration = "underline";
+		titleLink.style.textDecorationThickness = "0.06em";
+		titleLink.style.textUnderlineOffset = "0.16em";
+		titleLink.style.textDecorationColor = "rgba(127, 79, 36, 0.48)";
+
+		context.appendNodes(titleLink, parseInline(block.text, context));
+		title.append(titleLink);
 
 		const end = document.createElement("div");
 		end.style.width = "0.45rem";
@@ -330,18 +349,37 @@
 		link.textContent = text;
 		link.title = title;
 		link.setAttribute("aria-label", title);
-		link.style.display = "inline-block";
-		link.style.minWidth = "1.95rem";
-		link.style.padding = "0.14rem 0.38rem";
-		link.style.border = LEGACY_CHROME.dividerBorder;
-		link.style.borderRadius = "999px";
-		link.style.background = LEGACY_CHROME.controlLinkBackground;
-		link.style.color = "var(--accent)";
+		link.style.display = "inline-flex";
+		link.style.alignItems = "center";
+		link.style.justifyContent = "center";
+		link.style.minWidth = "1.65rem";
+		link.style.minHeight = "1.65rem";
+		link.style.padding = "0";
+		link.style.background = "transparent";
+		link.style.color = "rgba(127, 79, 36, 0.64)";
 		link.style.textDecoration = "none";
 		link.style.textAlign = "center";
-		link.style.lineHeight = "1.2";
-		link.style.fontWeight = "700";
-		link.style.boxShadow = "inset 0 1px 0 rgba(255, 255, 255, 0.45)";
+		link.style.lineHeight = "1";
+		link.style.fontWeight = "600";
+		link.style.borderRadius = "0.55rem";
+		link.style.opacity = "0.82";
+		link.style.transition = "background-color 120ms ease, color 120ms ease, opacity 120ms ease";
+
+		const setInteractiveState = (active) => {
+			link.style.background = active
+				? "rgba(255, 252, 247, 0.36)"
+				: "transparent";
+			link.style.color = active
+				? "rgba(36, 29, 24, 0.86)"
+				: "rgba(127, 79, 36, 0.64)";
+			link.style.opacity = active ? "1" : "0.82";
+		};
+
+		link.addEventListener("mouseenter", () => setInteractiveState(true));
+		link.addEventListener("mouseleave", () => setInteractiveState(false));
+		link.addEventListener("focus", () => setInteractiveState(true));
+		link.addEventListener("blur", () => setInteractiveState(false));
+
 		return link;
 	}
 
@@ -430,33 +468,24 @@
 		title.style.letterSpacing = "0.08em";
 
 		const list = document.createElement("ul");
-		list.style.display = "grid";
-		list.style.gridTemplateColumns = "repeat(auto-fit, minmax(min(13rem, 100%), 1fr))";
-		list.style.gap = "0.28rem 1.5rem";
+		list.style.columnWidth = "13rem";
+		list.style.columnGap = "1.5rem";
 		list.style.margin = "0";
 		list.style.padding = "0.95rem 1.1rem 1rem";
 		list.style.listStyle = "none";
 
 		for (const entry of entries) {
 			const item = document.createElement("li");
-			item.style.margin = "0";
+			item.style.margin = "0 0 0.28rem";
+			item.style.breakInside = "avoid";
 
 			const link = document.createElement("a");
 			link.href = "#" + entry.anchorId;
-			link.style.display = "inline-flex";
-			link.style.alignItems = "baseline";
-			link.style.gap = "0.42rem";
+			link.style.display = "inline-block";
 			link.style.color = "var(--ink)";
 			link.style.lineHeight = "1.35";
 			link.style.textDecorationColor = "rgba(127, 79, 36, 0.46)";
 
-			const bullet = document.createElement("span");
-			bullet.textContent = "\u25b8";
-			bullet.style.color = "var(--accent)";
-			bullet.style.flex = "0 0 auto";
-			bullet.style.fontSize = "0.8em";
-
-			link.append(bullet);
 			context.appendNodes(link, parseInline(entry.text, context));
 			item.append(link);
 			list.append(item);
@@ -503,6 +532,20 @@
 			rule.style.verticalAlign = "middle";
 		}
 		return rule;
+	}
+
+	function tryParseHeadingText(content) {
+		if (!content.startsWith("[=") || !content.endsWith("=]")) {
+			return null;
+		}
+
+		const text = content.slice(2, -2);
+		if (!text || text.startsWith("=") || text.endsWith("=")) {
+			return null;
+		}
+
+		const normalizedText = text.trim();
+		return normalizedText || null;
 	}
 
 	function createTableElement(block, context) {
@@ -881,15 +924,20 @@
 		wrapper.style.margin = "0 0 1rem";
 		wrapper.style.marginInlineStart = indentToMargin(indent);
 
-		const label = document.createElement("div");
-		label.className = "wiki-object-block-label";
-		label.textContent = labelText;
-		label.style.margin = "0 0 0.35rem";
-		label.style.color = "var(--muted)";
-		label.style.fontSize = "0.8rem";
-		label.style.fontWeight = "700";
-		label.style.letterSpacing = "0.08em";
-		label.style.textTransform = "uppercase";
+		const showLabel = !(kind === "txt" && labelText === ".txt");
+		const label = showLabel
+			? document.createElement("div")
+			: null;
+		if (label) {
+			label.className = "wiki-object-block-label";
+			label.textContent = labelText;
+			label.style.margin = "0 0 0.35rem";
+			label.style.color = "var(--muted)";
+			label.style.fontSize = "0.8rem";
+			label.style.fontWeight = "700";
+			label.style.letterSpacing = "0.08em";
+			label.style.textTransform = "uppercase";
+		}
 
 		const pre = document.createElement("pre");
 		pre.className = "wiki-object-block-content";
@@ -908,7 +956,10 @@
 		code.textContent = content;
 
 		pre.append(code);
-		wrapper.append(label, pre);
+		if (label) {
+			wrapper.append(label);
+		}
+		wrapper.append(pre);
 		return wrapper;
 	}
 
@@ -970,17 +1021,6 @@
 		wrapper.style.background = "#ffffdd";
 		wrapper.style.overflow = "hidden";
 
-		const label = document.createElement("span");
-		label.textContent = "." + objectData.kind;
-		label.style.flex = "0 0 auto";
-		label.style.padding = "0.22rem 0.42rem";
-		label.style.background = "#ddddff";
-		label.style.color = "#000000";
-		label.style.fontSize = "0.78rem";
-		label.style.fontWeight = "700";
-		label.style.letterSpacing = "0.05em";
-		label.style.textTransform = "uppercase";
-
 		const code = document.createElement("code");
 		code.className = "wiki-object";
 		code.dataset.kind = objectData.kind;
@@ -990,7 +1030,7 @@
 		code.style.background = "transparent";
 		code.style.whiteSpace = "pre-wrap";
 
-		wrapper.append(label, code);
+		wrapper.append(code);
 		return wrapper;
 	}
 
@@ -1007,7 +1047,9 @@
 	function appendInlineLines(parent, lines, context) {
 		for (let index = 0; index < lines.length; index += 1) {
 			if (index > 0) {
-				parent.append(document.createElement("br"));
+				// Paragraph line breaks are soft wraps so the source may use
+				// one sentence per line without forcing visible `<br>` output.
+				parent.append(document.createTextNode(" "));
 			}
 
 			context.appendNodes(parent, parseInline(lines[index], context));
@@ -1015,23 +1057,12 @@
 	}
 
 	function appendLegacyTextFlow(parent, source, context, compact = false) {
-		const blocks = parseTextBlocks(source);
+		const blocks = parseBlocks(source);
 		if (!blocks.length) {
 			return;
 		}
 
-		for (let index = 0; index < blocks.length; index += 1) {
-			const block = blocks[index];
-			const element = block.marker
-				? createMarkerParagraphElement(block, context)
-				: createParagraphElement(block, context);
-
-			if (compact) {
-				element.style.marginBottom = index === blocks.length - 1 ? "0" : "0.35rem";
-			}
-
-			parent.append(element);
-		}
+		appendRenderedBlocks(parent, blocks, context, compact);
 	}
 
 	function parseBlocks(source) {
@@ -1082,13 +1113,12 @@
 				continue;
 			}
 
-			const headingMatch = content.match(HEADING_PATTERN);
-			if (headingMatch) {
+			const headingText = tryParseHeadingText(content);
+			if (headingText !== null) {
 				flushParagraph();
 				blocks.push({
 					type: "heading",
-					level: headingMatch[1].length,
-					text: headingMatch[2].trim()
+					text: headingText
 				});
 				continue;
 			}
@@ -1128,56 +1158,6 @@
 		return blocks;
 	}
 
-	function parseTextBlocks(source) {
-		const lines = source.replace(/\r\n?/g, "\n").split("\n");
-		const blocks = [];
-		let currentParagraph = null;
-
-		const flushParagraph = () => {
-			if (!currentParagraph) {
-				return;
-			}
-
-			blocks.push(currentParagraph);
-			currentParagraph = null;
-		};
-
-		for (const line of lines) {
-			const indent = countIndent(line);
-			const content = line.trim();
-
-			if (!content) {
-				flushParagraph();
-				continue;
-			}
-
-			const markerMatch = content.match(MARKER_PATTERN);
-			const marker = markerMatch ? markerMatch[1] : "";
-			const text = markerMatch ? markerMatch[2] : content;
-
-			if (
-				currentParagraph &&
-				!marker &&
-				!currentParagraph.marker &&
-				currentParagraph.indent === indent
-			) {
-				currentParagraph.lines.push(text);
-				continue;
-			}
-
-			flushParagraph();
-			currentParagraph = {
-				type: "paragraph",
-				marker,
-				indent,
-				lines: [text]
-			};
-		}
-
-		flushParagraph();
-		return blocks;
-	}
-
 	function readTableBlock(lines, startIndex) {
 		if (!lines[startIndex].trim().startsWith("[|")) {
 			return null;
@@ -1187,7 +1167,7 @@
 		let index = startIndex;
 
 		while (index < lines.length && lines[index].trim().startsWith("[|")) {
-			const rowBlock = readDelimitedBlock(lines, index, "[|", "|]");
+			const rowBlock = readTableRowBlock(lines, index);
 			if (!rowBlock) {
 				return null;
 			}
@@ -1212,6 +1192,71 @@
 			},
 			nextIndex: index - 1
 		};
+	}
+
+	// Table rows use [| ... |], so cell parsing must ignore separators that
+	// belong to nested wiki syntax and must not confuse [|] with the row end.
+	function readTableRowBlock(lines, startIndex) {
+		const firstLine = lines[startIndex];
+		const baseWhitespace = firstLine.match(/^[ \t]*/)[0];
+		const firstContent = trimSharedIndent(firstLine, baseWhitespace).trimStart();
+		if (!firstContent.startsWith("[|")) {
+			return null;
+		}
+
+		let content = "";
+		let lineIndex = startIndex;
+		let lineContent = firstContent.slice(2);
+		let bracketDepth = 0;
+
+		while (lineIndex < lines.length) {
+			let charIndex = 0;
+
+			while (charIndex < lineContent.length) {
+				if (lineContent.startsWith("[|]", charIndex)) {
+					content += "[|]";
+					charIndex += 3;
+					continue;
+				}
+
+				if (
+					lineContent.startsWith("[[", charIndex) ||
+					lineContent.startsWith("]]", charIndex)
+				) {
+					content += lineContent.slice(charIndex, charIndex + 2);
+					charIndex += 2;
+					continue;
+				}
+
+				if (bracketDepth === 0 && lineContent.startsWith("|]", charIndex)) {
+					return {
+						content,
+						nextIndex: lineIndex
+					};
+				}
+
+				const char = lineContent[charIndex];
+				content += char;
+
+				if (char === "[") {
+					bracketDepth += 1;
+				} else if (char === "]" && bracketDepth > 0) {
+					bracketDepth -= 1;
+				}
+
+				charIndex += 1;
+			}
+
+			lineIndex += 1;
+			if (lineIndex >= lines.length) {
+				return null;
+			}
+
+			content += "\n";
+			lineContent = trimSharedIndent(lines[lineIndex], baseWhitespace);
+		}
+
+		return null;
 	}
 
 	function readHashBlock(lines, startIndex) {
@@ -1239,6 +1284,13 @@
 
 		const baseWhitespace = line.match(/^[ \t]*/)[0];
 		const rawKind = trimmed.slice(2).trim();
+		// Embedded resource blocks start with a standalone opener like `[.txt`.
+		// Compact inline objects such as `[.txt|value.]` may begin a sentence and
+		// must stay in the paragraph parser instead of swallowing following lines.
+		if (!rawKind || /[\s|\]]/.test(rawKind)) {
+			return null;
+		}
+
 		const bodyLines = [];
 
 		for (let index = startIndex + 1; index < lines.length; index += 1) {
@@ -1343,22 +1395,38 @@
 		const cells = [];
 		let buffer = "";
 		let index = 0;
+		let bracketDepth = 0;
 
 		while (index < normalizedContent.length) {
-			if (normalizedContent.startsWith("||", index)) {
-				buffer += "|";
+			if (normalizedContent.startsWith("[|]", index)) {
+				buffer += "[|]";
+				index += 3;
+				continue;
+			}
+
+			if (
+				normalizedContent.startsWith("[[", index) ||
+				normalizedContent.startsWith("]]", index)
+			) {
+				buffer += normalizedContent.slice(index, index + 2);
 				index += 2;
 				continue;
 			}
 
-			if (normalizedContent[index] === "|") {
+			const char = normalizedContent[index];
+			if (char === "|" && bracketDepth === 0) {
 				cells.push(buffer);
 				buffer = "";
 				index += 1;
 				continue;
 			}
 
-			buffer += normalizedContent[index];
+			buffer += char;
+			if (char === "[") {
+				bracketDepth += 1;
+			} else if (char === "]" && bracketDepth > 0) {
+				bracketDepth -= 1;
+			}
 			index += 1;
 		}
 
@@ -1473,7 +1541,6 @@
 			entries.push({
 				anchorId: block.anchorId,
 				anchorNumber: block.anchorNumber,
-				level: 1,
 				text: block.text
 			});
 		}

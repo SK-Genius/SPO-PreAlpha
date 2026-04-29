@@ -1,6 +1,4 @@
-[=VM and Modules=]
-
-[==Value Model==]
+[=Value Model=]
 
 [.txt|mVM_Data.tData.] is the only runtime representation.
 
@@ -34,27 +32,27 @@ Important architectural decision:
 - Tuples are only sugar over pairs.
 - Text values are runtime-level recursive char lists.
 
-[==Register Contract==]
+[=Register Contract=]
 
 Every call stack starts with a fixed register layout.
 
 [| [*Index*] | [*Meaning*] | [*Source*] |]
-[| [.txt||0.] | [.txt||EMPTY.] | fixed runtime value |]
-[| [.txt||1.] | [.txt||ONE.] | helper value for integer arithmetic |]
-[| [.txt||2.] | [.txt||FALSE.] | boolean constant |]
-[| [.txt||3.] | [.txt||TRUE.] | boolean constant |]
-[| [.txt||4.] | [.txt||EMPTY_TYPE.] | type value |]
-[| [.txt||5.] | [.txt||BOOL_TYPE.] | type value |]
-[| [.txt||6.] | [.txt||INT_TYPE.] | type value |]
-[| [.txt||7.] | [.txt||TYPE_TYPE.] | type value |]
-[| [.txt||8.] | [.txt||ENV.] | proc environment |]
-[| [.txt||9.] | [.txt||OBJ.] | object for method calls |]
-[| [.txt||10.] | [.txt||ARG.] | argument |]
-[| [.txt||11.] | [.txt||RES.] | result slot |]
+[| [.txt|0.] | [.txt|EMPTY.] | fixed runtime value |]
+[| [.txt|1.] | [.txt|ONE.] | helper value for integer arithmetic |]
+[| [.txt|2.] | [.txt|FALSE.] | boolean constant |]
+[| [.txt|3.] | [.txt|TRUE.] | boolean constant |]
+[| [.txt|4.] | [.txt|EMPTY_TYPE.] | type value |]
+[| [.txt|5.] | [.txt|BOOL_TYPE.] | type value |]
+[| [.txt|6.] | [.txt|INT_TYPE.] | type value |]
+[| [.txt|7.] | [.txt|TYPE_TYPE.] | type value |]
+[| [.txt|8.] | [.txt|ENV.] | proc environment |]
+[| [.txt|9.] | [.txt|OBJ.] | object for method calls |]
+[| [.txt|10.] | [.txt|ARG.] | argument |]
+[| [.txt|11.] | [.txt|RES.] | result slot |]
 
 This layout is created in [.txt|mVM.NewCallStack(...).] and assumed by [.txt|mIL_GenerateOpcodes.].
 
-[==Module Startup in the VM==]
+[=Module Startup in the VM=]
 
 [.txt|mVM.Run(mIL_AST.tModule, ...).] starts a module using a fixed contract:
 
@@ -66,7 +64,7 @@ This layout is created in [.txt|mVM.NewCallStack(...).] and assumed by [.txt|mIL
 
 This matters because module code can reach earlier defs through [.txt|ENV.], while external imports stay clearly separated in [.txt|ARG.].
 
-[==Proc, Def, and Call Model==]
+[=Proc, Def, and Call Model=]
 
 [.mermaid
 |sequenceDiagram
@@ -92,7 +90,7 @@ Important differences:
 
 [.txt|ReturnIf.] writes into the fixed result register [.txt|RES.] and ends the current stack frame.
 
-[==Pattern Matching in the Runtime==]
+[=Pattern Matching in the Runtime=]
 
 The actual match semantics are already prepared during lowering.
 The implementation currently splits into two layers that should not be confused:
@@ -109,7 +107,7 @@ Current gap:
 - [.txt|TryAsType.] is parsed by [.txt|mIL_Parser.], represented in [.txt|mIL_AST.], and emitted by [.txt|mIL_GenerateOpcodes.], but [.txt|mVM.Step(...).] has no case for it yet
 - [.txt|TryAsRef.] has the same problem, and [.txt|mVM_Data.tDataType.] currently has no [.txt|Ref.] runtime value kind at all
 
-[==Type Values at Runtime==]
+[=Type Values at Runtime=]
 
 The VM can also move [.txt|Type.] data around, but this area currently has a real three-layer gap:
 
@@ -131,7 +129,7 @@ Fixed call-stack type constants remain available through registers:
 
 That means compile-time type work is more mature than runtime type evaluation, and the drift is not only conceptual: enum definitions, IL generation, and VM execution are currently out of sync.
 
-[==Modules Registered in Code==]
+[=Modules Registered in Code=]
 
 [.txt|mModule.cs.] currently exposes:
 
@@ -155,7 +153,7 @@ As of [.txt|2026-04-22.]:
 - [.txt|Std.], [.txt|Char.], and [.txt|Text.] pass [.txt|mModule_Tests.]
 - [.txt|Maybe.] fails in the module test at generic type application
 
-[==Observable Module Semantics==]
+[=Observable Module Semantics=]
 
 The module tests show the current runtime effect clearly:
 
@@ -164,7 +162,7 @@ The module tests show the current runtime effect clearly:
 - [.txt|Text.] builds recursive text functions on top of [.txt|Char.]
 - [.txt|Maybe.] is present in the filesystem, but is not yet stable across the module boundary
 
-[==Host Embedding Example==]
+[=Host Embedding Example=]
 
 Outside [.txt|SPO_CS/.], [.txt|SPO/src/Program.cs.] shows how the runtime is embedded by a host application:
 

@@ -4,9 +4,13 @@
 
 [=Basic Principle=]
  Many constructs follow the form [[X ... X]].
+ For headings, the marker is exactly one [[= on the left and one =]] on the right.
+ This wiki format does not support Markdown-style multi level titles.
+ [[==Second Level==]] and [[===Third Level===]] are not valid heading syntax here.
  Block syntax on its own line creates separate elements. Inline syntax only affects running text.
 
  Lines without markers and with the same indentation are grouped into a single paragraph.
+ Line breaks inside such a paragraph behave like Markdown soft wraps and are rendered as spaces.
  An empty line ends the current paragraph.
 
  Unescaped brackets or pipe characters are marked as syntax errors.
@@ -20,6 +24,9 @@
 
 [=Headings=]
  Headings start at the beginning of the line and appear in the table of contents.
+ There is only one heading form: [[=Title=]].
+ The scheme is [[=...=]], not [[==...==]] or [[===...===]].
+ If more visual structure is needed inside a section, use [_underline_], [*bold*], or [/italic/] in normal text instead of extra heading levels.
 
 [.txt
 |[=Title=]
@@ -27,7 +34,8 @@
 
 [=Paragraphs and Indentation=]
  Normal paragraphs may be indented.
- Spaces and tabs at the beginning of the line determine the left margin. Lines with the same indentation stay in the same paragraph.
+ Spaces and tabs at the beginning of the line determine the left margin.
+ Lines with the same indentation stay in the same paragraph, and source line breaks inside that paragraph are rendered as spaces.
 
 [.txt
 |This is a paragraph.
@@ -68,25 +76,41 @@ o Circle marker
 
 [.txt
 |[_underlined_]
+|
 |[-struck through-]
+|
 |[/italic/]
+|
 |[*bold*]
+|
 |[!red!]
+|
 |Text and [(smaller Text)]
+|
 |Text and ['superscript']
+|
 |Text and [,subscript,]
+|
 |[*Bold with [/italic/] inside*]
 .]
 
 [_Rendered Example:_]
  [_underlined_]
+
  [-struck through-]
+
  [/italic/]
+
  [*bold*]
+
  [!red!]
+
  Text and [(smaller Text)]
+
  Text and ['superscript']
+
  Text and [,subscript,]
+
  [*Bold with [/italic/] inside*]
 
 [=Typographic Shortcuts=]
@@ -94,11 +118,13 @@ o Circle marker
 
 [.txt
 |[>Quote<]
+|
 |["Quotation"]
 .]
 
 [_Rendered Example:_]
  [>Quote<]
+
  ["Quotation"]
 
 [=Links and References=]
@@ -107,17 +133,25 @@ o Circle marker
 
 [.txt
 |[<Article>]
+|
 |[<Article|Custom Label>]
+|
 |[<../TODO.wiki|TODO File>]
+|
 |[<https://example.com|External Link>]
+|
 |[<mailto:mail@example.com|Mail Link>]
 .]
 
 [_Rendered Example:_]
  [<Article>]
+
  [<Article|Custom Label>]
+
  [<../TODO.wiki|TODO File>]
+
  [<https://example.com|External Link>]
+
  [<mailto:mail@example.com|Mail Link>]
 
  Raw URLs and mail addresses are also linked automatically:
@@ -139,20 +173,23 @@ o Circle marker
 
 [=Tables=]
  A table consists of consecutive lines, each beginning with the table syntax.
- The separator between cells is a pipe character. For a literal pipe character inside a cell, write a double pipe character in table syntax.
+ The separator between cells is a pipe character. For a literal pipe character inside a cell, write [|].
+ Links and compact inline objects keep their normal internal pipe separator inside a table cell.
 
 [.txt
-|[| [*Name*]          | [*Value*]      |]
-|[| Alpha             | 1              |]
-|[| Text with || Pipe | 2              |]
-|[| Formatting        | [_underlined_] |]
+|[| [*Name*]           | [*Value*]       |]
+|[| Alpha              | 1               |]
+|[| Text with [|] Pipe | 2               |]
+|[| Formatting         | [_underlined_]  |]
+|[| Inline object      | [.txt|A [|] B.] |]
 .]
 
 [_Rendered Example:_]
- [| [*Name*]          | [*Value*]      |]
- [| Alpha             | 1              |]
- [| Text with || Pipe | 2              |]
- [| Formatting        | [_underlined_] |]
+ [| [*Name*]           | [*Value*]       |]
+ [| Alpha              | 1               |]
+ [| Text with [|] Pipe | 2               |]
+ [| Formatting         | [_underlined_]  |]
+ [| Inline object      | [.txt|A [|] B.] |]
 
 [=External Resources as a Block=]
  An external resource is written with the hash marker on its own line.
@@ -201,6 +238,7 @@ o Circle marker
 
  For text-based resources, each content line usually starts with a leading pipe character.
  This pipe character is not part of the content and is removed. A single space directly after it is also removed.
+ To show that leading pipe character literally in a source example, write [|] after the helper pipe of the surrounding block.
 
  For binary resources, Base64 is used. The Base64 may span multiple lines.
  A leading pipe character is not required there.
@@ -266,16 +304,19 @@ ucZ3eSmzVYAAAAASUVORK5CYII=
 
 [_Rendered Example:_]
  Text with [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] in the sentence.
+
  Text with [.spo|x := 1.] in the sentence.
 
  Differences:
  - An inline hash object is rendered as a compact image or a compact reference, not as a large block viewer.
- - A compact dot object of the form [[.eee[|]... .]] is an inline code chip with a label, also without a large block viewer.
+ - A compact dot object of the form [[.eee[|]... .]] is an inline code chip, also without a large block viewer.
  - If the same resource should appear large and with a file-specific renderer, the block form on its own line must be used.
 
 [=Practical Notes=]
  - For raw syntax examples, an embedded .txt block is the easiest option.
  - If actual brackets or pipes are needed in running text, they must be escaped.
+ - There is only one heading level in wiki files. Repeated = markers do not create subheadings.
+ - For extra structure inside a section, use [_underline_], [*bold*], or [/italic/] instead of Markdown-like heading nesting.
  - Relative paths may use .., but must not escape the allowed root directory.
  - A link without an extension refers to a wiki page.
  - For file extensions without a specialized viewer, the fallback is intentionally simple.

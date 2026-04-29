@@ -8,6 +8,7 @@
 			"]": "[",
 			"}": "{"
 		};
+		let activeStandaloneLayoutCleanup = null;
 		
 		// SPO and ILT both use compound keywords whose trailing parts are plain ids.
 		const SPO_KEYWORD_PARTS = new Set([
@@ -33,6 +34,8 @@
 			source,
 			context
 		) {
+			clearStandaloneSourceLayout();
+			
 			context.prepareArticle("source-view");
 			
 			const title = context.fileNameLabel(context.filePath);
@@ -42,7 +45,9 @@
 			context.setPageTitle(title, language);
 			
 			const card = document.createElement("section");
-			card.className = "source-card";
+			card.className = context.isEmbedded
+				? "source-card"
+				: "source-card source-card-standalone";
 			
 			const bar = document.createElement("div");
 			bar.className = "source-bar";
@@ -79,7 +84,112 @@
 			card.append(bar, sourceElement);
 			context.articleElement.append(card);
 			
+			if (!context.isEmbedded) {
+				installStandaloneSourceLayout(card, bar, sourceElement);
+			}
+			
 			enableStickyLines(sourceElement, stickyElement, linesElement, lineModels);
+		}
+
+		function clearStandaloneSourceLayout(
+		) {
+			if (!activeStandaloneLayoutCleanup) {
+				return;
+			}
+			
+			const cleanup = activeStandaloneLayoutCleanup;
+			activeStandaloneLayoutCleanup = null;
+			cleanup();
+		}
+
+		function installStandaloneSourceLayout(
+			card,
+			bar,
+			sourceElement
+		) {
+			let frameId = 0;
+			let resizeObserver = null;
+			
+			const syncLayout = () => {
+				frameId = 0;
+				
+				if (!card.isConnected) {
+					cleanup(false);
+					return;
+				}
+				
+				const viewportHeight = readViewportHeight();
+				const cardTop = Math.max(0, card.getBoundingClientRect().top);
+				const headerHeight = bar.offsetHeight;
+				const availableHeight = Math.max(
+					160,
+					Math.floor(viewportHeight - cardTop - headerHeight - 2)
+				);
+				
+				sourceElement.style.height = availableHeight + "px";
+				sourceElement.style.maxHeight = availableHeight + "px";
+			};
+			
+			const scheduleLayoutSync = () => {
+				if (frameId !== 0) {
+					return;
+				}
+				
+				frameId = window.requestAnimationFrame(syncLayout);
+			};
+			
+			const onResize = () => scheduleLayoutSync();
+			const visualViewport = window.visualViewport || null;
+			
+			const cleanup = (
+				clearInlineStyles = true
+			) => {
+				if (frameId !== 0) {
+					window.cancelAnimationFrame(frameId);
+					frameId = 0;
+				}
+				
+				window.removeEventListener("resize", onResize);
+				if (visualViewport) {
+					visualViewport.removeEventListener("resize", onResize);
+				}
+				if (resizeObserver) {
+					resizeObserver.disconnect();
+					resizeObserver = null;
+				}
+				
+				if (clearInlineStyles) {
+					sourceElement.style.removeProperty("height");
+					sourceElement.style.removeProperty("max-height");
+				}
+				
+				if (activeStandaloneLayoutCleanup === cleanup) {
+					activeStandaloneLayoutCleanup = null;
+				}
+			};
+			
+			activeStandaloneLayoutCleanup = cleanup;
+			
+			window.addEventListener("resize", onResize, { passive: true });
+			if (visualViewport) {
+				visualViewport.addEventListener("resize", onResize, { passive: true });
+			}
+			if (window.ResizeObserver) {
+				resizeObserver = new window.ResizeObserver(scheduleLayoutSync);
+				resizeObserver.observe(card);
+				resizeObserver.observe(bar);
+			}
+			
+			scheduleLayoutSync();
+			window.setTimeout(scheduleLayoutSync, 0);
+			window.setTimeout(scheduleLayoutSync, 80);
+		}
+
+		function readViewportHeight(
+		) {
+			return window.visualViewport && window.visualViewport.height
+				? window.visualViewport.height
+				: window.innerHeight;
 		}
 		
 		function createLineModels(
@@ -947,6 +1057,7 @@
 		}
 		
 		window.SpoViewer = {
+			disposeStandaloneLayout: clearStandaloneSourceLayout,
 			render,
 			isSpoLikeFile
 		};

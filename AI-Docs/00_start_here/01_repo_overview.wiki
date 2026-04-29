@@ -1,8 +1,6 @@
-[=Repo Overview=]
+[=Project Scope=]
 
-[==Project Scope==]
-
-[.txt|SPO_CS/SPO_CS.csproj.] contains the complete system:
+ [.txt|SPO_CS/SPO_CS.csproj.] contains the complete system:
 
 - [.txt|TargetFramework = net10.0.]
 - [.txt|LangVersion = 14.0.]
@@ -16,20 +14,20 @@ This matters architecturally:
 - The layering is conceptual, not assembly-based.
 - [.txt|SPO_CS/src/mRunTests.cs.] is the effective entry point for all tests.
 
-[==Repo Shape Outside [.txt|SPO_CS.]==]
+[=Repo Shape Outside [.txt|SPO_CS.]=]
 
 [.txt|SPO_CS/.] is the implementation core, but the repo also contains adapter and host projects around it:
 
 [| [*Path*] | [*Role*] |]
-[| [.txt||SPO/.] | sample executable host for [.txt||.spo.] programs |]
-[| [.txt||LSP/.] | VS Code language-client packaging |]
-[| [.txt||spo-grammar-0.1.0/.] | VS Code grammar packaging |]
-[| [.txt||TestRunner/FakeTestAdapter/.] | VSTest integration for the custom [.txt||mTest.] runner |]
-[| [.txt||AI-Doc/.] | secondary architecture notes checked against source |]
+[| [.txt|SPO/.] | sample executable host for [.txt|.spo.] programs |]
+[| [.txt|LSP/.] | VS Code language-client packaging |]
+[| [.txt|spo-grammar-0.1.0/.] | VS Code grammar packaging |]
+[| [.txt|TestRunner/FakeTestAdapter/.] | VSTest integration for the custom [.txt|mTest.] runner |]
+[| [.txt|AI-Doc/.] | secondary architecture notes checked against source |]
 
 If you are debugging parser, lowering, types, VM behavior, or modules, start in [.txt|SPO_CS/.] and treat the other folders as consumers or adapters.
 
-[==Layers==]
+[=Layers=]
 
 [.mermaid
 |flowchart TD
@@ -50,16 +48,16 @@ If you are debugging parser, lowering, types, VM behavior, or modules, start in 
 .]
 
 [| [*Layer*] | [*Main files*] | [*Role*] |]
-[| Common | [.txt||SPO_CS/src/Common/*.] | Streams, results, parser infrastructure, FS, test DSL |]
-[| SPO frontend | [.txt||mTokenizer.], [.txt||mSPO_Parser.], [.txt||mSPO_AST.], [.txt||mSPO_Desugar.] | Read SPO, build AST, remove syntax sugar |]
-[| Type analysis | [.txt||mSPO_AST_Types.], [.txt||mVM_Type.] | Scope building, type inference, subtyping, type values |]
-[| IL boundary | [.txt||mIL_AST.], [.txt||mIL_Parser.] | Shared intermediate format for [.txt||.SPO.] and [.txt||.ILT.] |]
-[| Lowering | [.txt||mSPO2IL.], [.txt||mIL_GenerateOpcodes.] | AST to IL, IL to VM procedures |]
-[| Runtime | [.txt||mVM_Data.], [.txt||mVM.] | Values, opcodes, call stack, execution |]
-[| Modules | [.txt||mModule.], [.txt||SPO_CS/Modules/.] | File-based module assembly and dependency injection |]
-[| Tests | [.txt||mTest.], [.txt||mRunTests.], [.txt||mRegression_Tests.], [.txt||mModule_Tests.] | CLI test host and end-to-end checks |]
+[| Common | [.txt|SPO_CS/src/Common/*.] | Streams, results, parser infrastructure, FS, test DSL |]
+[| SPO frontend | [.txt|mTokenizer.], [.txt|mSPO_Parser.], [.txt|mSPO_AST.], [.txt|mSPO_Desugar.] | Read SPO, build AST, remove syntax sugar |]
+[| Type analysis | [.txt|mSPO_AST_Types.], [.txt|mVM_Type.] | Scope building, type inference, subtyping, type values |]
+[| IL boundary | [.txt|mIL_AST.], [.txt|mIL_Parser.] | Shared intermediate format for [.txt|.SPO.] and [.txt|.ILT.] |]
+[| Lowering | [.txt|mSPO2IL.], [.txt|mIL_GenerateOpcodes.] | AST to IL, IL to VM procedures |]
+[| Runtime | [.txt|mVM_Data.], [.txt|mVM.] | Values, opcodes, call stack, execution |]
+[| Modules | [.txt|mModule.], [.txt|SPO_CS/Modules/.] | File-based module assembly and dependency injection |]
+[| Tests | [.txt|mTest.], [.txt|mRunTests.], [.txt|mRegression_Tests.], [.txt|mModule_Tests.] | CLI test host and end-to-end checks |]
 
-[==Main Artifacts==]
+[=Main Artifacts=]
 
 [.mermaid
 |flowchart LR
@@ -75,7 +73,7 @@ If you are debugging parser, lowering, types, VM behavior, or modules, start in 
 The hard boundary between frontend and backend is [.txt|mIL_AST.tModule.].
 Below that point, [.txt|.SPO.] and [.txt|.ILT.] continue with the same IL model.
 
-[==Entry Points==]
+[=Entry Points=]
 
 - [.txt|mRunTests.cs.]
   Starts the test tree and handles flags such as [.txt|--list.], [.txt|--matchAny.], [.txt|--plainText.], or [.txt|--stopOnFirstFail.]. For file-driven regression coverage, launch it from [.txt|SPO_CS/.]: the current [.txt|mRegression_Tests.] implementation resolves [.txt|Regression.Tests/.] from [.txt|mFS.CWD().].
@@ -88,7 +86,7 @@ Below that point, [.txt|.SPO.] and [.txt|.ILT.] continue with the same IL model.
 - [.txt|SPO/src/Program.cs.]
   Example embedding host for standalone [.txt|.spo.] execution. It injects [.txt|_StdLib.] plus [.txt|_LoadModule....] as host-side externs, then runs the returned SPO value through [.txt|mVM.Run(...).] with object [.txt|#IO ().].
 
-[==Architectural Contracts==]
+[=Architectural Contracts=]
 
 - [.txt|mTokenizer.] is intentionally shared by [.txt|mSPO_Parser.] and [.txt|mIL_Parser.].
 - [.txt|mVM_Type.] is not a late backend add-on; it is the shared core.
@@ -97,7 +95,7 @@ Below that point, [.txt|.SPO.] and [.txt|.ILT.] continue with the same IL model.
 - [.txt|mModule.] builds imports as records; [.txt|§IMPORT.] is pattern matching on structured module values, not just name binding.
 - [.txt|SPO_CS/Modules/.] and [.txt|SPO_CS/Regression.Tests/.] are not documentation examples, but executable system artifacts.
 
-[==What This Repository Actually Is Today==]
+[=What This Repository Actually Is Today=]
 
 It is not a separate "compiler next to a VM", but a tightly coupled system with these properties:
 

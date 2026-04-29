@@ -1,18 +1,16 @@
-[=Tests and Artifacts=]
-
-[==Test Host==]
+[=Test Host=]
 
 [.txt|SPO_CS/src/mRunTests.cs.] is the central CLI entry point.
 
-[==Verified Run Baseline==]
+[=Verified Run Baseline=]
 
 These commands are the fastest way to re-establish the current test picture from a clean terminal:
 
 [| [*Workdir*] | [*Command*] | [*Current observed result*] |]
-[| [.txt||SPO_CS/.] | [.txt||dotnet run --project .\SPO_CS.csproj -- --plainText.] | [.txt||393.] leaf checks, [.txt||1.] failing leaf check ([.txt||mModule_Tests -> Maybe.]) |]
-[| [.txt||SPO_CS/.] | [.txt||dotnet run --project .\SPO_CS.csproj -- --plainText --matchAll mModule_Tests Maybe.] | fails at [.txt||.tMaybe tIn.] with [.txt||expected generic type but '_tMaybe...'.] |]
-[| [.txt||SPO_CS/.] | [.txt||dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --stopOnFirstFail --matchAny 07_12_GenericTypes.] | [.txt||3.] leaf checks pass |]
-[| repo root | [.txt||dotnet run --project .\SPO_CS\SPO_CS.csproj -- --plainText.] | [.txt||246.] leaf checks, [.txt||1.] failing leaf check, plus [.txt||Folder not found: mFS+tFolder.] |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText.] | [.txt|393.] leaf checks, [.txt|1.] failing leaf check ([.txt|mModule_Tests -> Maybe.]) |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText --matchAll mModule_Tests Maybe.] | fails at [.txt|.tMaybe tIn.] with [.txt|expected generic type but '_tMaybe...'.] |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --stopOnFirstFail --matchAny 07_12_GenericTypes.] | [.txt|3.] leaf checks pass |]
+[| repo root | [.txt|dotnet run --project .\SPO_CS\SPO_CS.csproj -- --plainText.] | [.txt|246.] leaf checks, [.txt|1.] failing leaf check, plus [.txt|Folder not found: mFS+tFolder.] |]
 
 These results were rechecked on [.txt|2026-04-22.].
 
@@ -44,7 +42,7 @@ Important caveats visible in [.txt|mRunTests.cs.]:
 
 The test host starts the root group [.txt|All.], which is assembled in [.txt|SPO_CS/src/mRunTests.cs.] from [.txt|mCommon_Tests.Tests.] and [.txt|mSPO_Tests.Tests.].
 
-[==Test Layers==]
+[=Test Layers=]
 
 [.mermaid
 |flowchart TD
@@ -58,7 +56,7 @@ The test host starts the root group [.txt|All.], which is assembled in [.txt|SPO
 |	MOD --> LIBS["SPO_CS/Modules/Std|Char|Text|Maybe"]
 .]
 
-[==Suite Composition==]
+[=Suite Composition=]
 
 [.txt|mSPO_Tests.Tests.] currently includes these main groups:
 
@@ -75,7 +73,7 @@ The test host starts the root group [.txt|All.], which is assembled in [.txt|SPO
 
 That means the architecture is secured not only by unit tests, but also by complete file-driven runs.
 
-[==Regression Harness==]
+[=Regression Harness=]
 
 [.txt|mRegression_Tests.] reads, for each case under [.txt|SPO_CS/Regression.Tests/.]:
 
@@ -109,7 +107,7 @@ If the generated IL text differs from the stored [.txt|.ILT.], the harness write
 
 As checked on [.txt|2026-04-22.], that folder currently yields [.txt|49.] discovered regression source files, which means [.txt|147.] file-driven regression checks before the rest of the unit and module suites are counted.
 
-[==Module Tests==]
+[=Module Tests=]
 
 [.txt|mModule_Tests.] exercises real library modules through [.txt|mModule.Init(...).].
 
@@ -125,7 +123,7 @@ Observed state on [.txt|2026-04-22.]:
 - [.txt|Std.], [.txt|Char.], and [.txt|Text.] are green
 - [.txt|Maybe.] is red because of generic type application over [.txt|.tMaybe tIn.]
 
-[==Real Checks Run for This Documentation==]
+[=Real Checks Run for This Documentation=]
 
 [.powershell
 |Push-Location .\SPO_CS
@@ -147,17 +145,17 @@ Summary:
 - the generics regression case [.txt|07_12_GenericTypes.] passes end-to-end
 - the module loader for [.txt|Maybe.] marks a real system boundary, not a documentation guess
 
-[==Important Repository Artifacts==]
+[=Important Repository Artifacts=]
 
 [| [*Location*] | [*Role*] |]
-[| [.txt||SPO_CS/Modules/*.SPO.] | source modules |]
-[| [.txt||SPO_CS/Modules/*.ILT.] | canonical compiled module forms |]
-[| [.txt||SPO_CS/Regression.Tests/*.SPO.] | inputs for end-to-end scenarios |]
-[| [.txt||SPO_CS/Regression.Tests/*.result.SPO.] | expected semantics expressed as SPO |]
-[| [.txt||SPO_CS/Regression.Tests/*.ILT.] | expected IL lowering |]
-[| [.txt||SPO_CS/**/*.ILT.new.] | drift indicator between current and canonical IL |]
+[| [.txt|SPO_CS/Modules/*.SPO.] | source modules |]
+[| [.txt|SPO_CS/Modules/*.ILT.] | canonical compiled module forms |]
+[| [.txt|SPO_CS/Regression.Tests/*.SPO.] | inputs for end-to-end scenarios |]
+[| [.txt|SPO_CS/Regression.Tests/*.result.SPO.] | expected semantics expressed as SPO |]
+[| [.txt|SPO_CS/Regression.Tests/*.ILT.] | expected IL lowering |]
+[| [.txt|SPO_CS/**/*.ILT.new.] | drift indicator between current and canonical IL |]
 
-[==Why This Test Structure Is Architecturally Strong==]
+[=Why This Test Structure Is Architecturally Strong=]
 
 It covers exactly the places where this repository is most likely to drift:
 

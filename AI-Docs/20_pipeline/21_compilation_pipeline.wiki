@@ -1,6 +1,4 @@
-[=Compilation Pipeline=]
-
-[==Two Input Paths, One Backend Boundary==]
+[=Two Input Paths, One Backend Boundary=]
 
 [.mermaid
 |flowchart LR
@@ -24,7 +22,7 @@
 [.txt|.SPO.] and [.txt|.ILT.] use the same lexer and meet afterward in
 [.txt|mIL_AST.tModule.].
 
-[==1. Tokenization==]
+[=1. Tokenization=]
 
 [.txt|mTokenizer.] is the shared lexer for both frontends.
 
@@ -38,7 +36,7 @@ Key facts from the code:
 
 Both the SPO parser and the IL parser operate on [.txt|mTokenizer.tToken.].
 
-[==2. SPO Parsing==]
+[=2. SPO Parsing=]
 
 [.txt|mSPO_Parser.] builds the richer surface AST in [.txt|mSPO_AST.].
 
@@ -56,7 +54,7 @@ The SPO frontend knows, among other things:
 The parser defaults a missing [.txt|§IMPORT.] section to an empty record pattern.
 [.txt|§EXPORT.] remains mandatory.
 
-[==3. Desugaring==]
+[=3. Desugaring=]
 
 [.txt|mSPO_Desugar.] reduces the surface language to a smaller core.
 
@@ -73,7 +71,7 @@ Not everything is normalized equally:
 - [.txt|DesugarType.] actively handles only tuple types today
 - many other type nodes are currently passed through unchanged
 
-[==4. Type Analysis and Scope Construction==]
+[=4. Type Analysis and Scope Construction=]
 
 [.txt|mSPO_AST_Types.] annotates expressions and patterns directly in the AST with [.txt|mVM_Type.tType.].
 
@@ -107,7 +105,7 @@ Important semantics:
 - [.txt|IfMatch.] propagates the matched value type into each case
 - [.txt|VarToVal.] explicitly requires a [.txt|[[§VAR T]].] type
 
-[==5. Module Wrapper and Lowering to IL==]
+[=5. Module Wrapper and Lowering to IL=]
 
 [.txt|mSPO2IL.MapModule(...).] does not translate a SPO module directly into a def list. It first builds a synthetic initialization lambda:
 
@@ -133,7 +131,7 @@ Important for matches:
 - successful matches are internally encoded via a [.txt|#Result ....] prefix
 - failure is transported as [.txt|().]
 
-[==6. IL AST and Text Form==]
+[=6. IL AST and Text Form=]
 
 [.txt|mIL_AST.] is the shared boundary for:
 
@@ -148,14 +146,14 @@ Important for matches:
 
 The text form always starts with [.txt|§TYPES.] and is followed by one or more [.txt|§DEF.] sections.
 
-[==6a. SPO Notation and IL Notation Are Not Identical==]
+[=6a. SPO Notation and IL Notation Are Not Identical=]
 
 When reading [.txt|.SPO.] and [.txt|.ILT.], it is important to note that not only the format changes, but also some keywords:
 
 [| [*Meaning*] | [*SPO*] | [*IL*] |]
-[| recursive type | [.txt||§RECURSIVE.] | [.txt||§REC.] |]
-[| generic type | [.txt||§GENERIC.] | [.txt||§ALL.] |]
-[| interface type | [.txt||§INTERFACE.] | [.txt||§ANY.] |]
+[| recursive type | [.txt|§RECURSIVE.] | [.txt|§REC.] |]
+[| generic type | [.txt|§GENERIC.] | [.txt|§ALL.] |]
+[| interface type | [.txt|§INTERFACE.] | [.txt|§ANY.] |]
 
 This is not a cosmetic side detail, but a real architectural boundary:
 
@@ -169,7 +167,7 @@ Additional observations from the code:
 - that helper is practical today, but it still couples parsing, desugaring, type analysis, and lowering more tightly than necessary
 - debug output introduces a third internal notation through [.txt|mVM_Type.ToText(...).], for example interface types as [.txt|§LET ... IN ....] and generics as [.txt|[[t => T]].]
 
-[==7. IL to Opcodes==]
+[=7. IL to Opcodes=]
 
 [.txt|mIL_GenerateOpcodes.GenerateOpcodes(...).] translates IL into:
 
@@ -184,7 +182,7 @@ At the same time, it checks type-safety constraints through [.txt|mVM_Type.], su
 - the shape of [.txt|TRY_AS_*.] commands
 - var set/get contracts
 
-[==8. Hand-off to the VM==]
+[=8. Hand-off to the VM=]
 
 At this point the frontend and IL layers are finished. The remaining work is runtime execution over [.txt|mVM_Data.tData.], no longer AST or source text.
 
