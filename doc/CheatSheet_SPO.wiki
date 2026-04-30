@@ -1,16 +1,16 @@
-[=SPO Cheat Sheet=]
+[§ SPO Cheat Sheet §]
 
-[*Scope:*] Quick reminder for the current surface syntax accepted by [.txt|mTokenizer.] and [.txt|mSPO_Parser.].
+[*Scope:*] Quick reminder for the current surface syntax accepted by [.|mTokenizer.] and [.|mSPO_Parser.].
 For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_language.wiki|doc_ai/10_language/11_surface_language.wiki>].
 
 [=Legend=]
-- [.txt|§.] keyword prefix
-- [.txt|€.] type annotation
-- [.txt|#.] prefix/tag constructor
-- [.txt|=>.] lambda body
-- [.txt|<=>.] generic-lambda marker
-- [.txt|..] method-call statement terminator
-- [.txt|§>.] / [.txt|§<.] pipe sugar
+- [.|§.] keyword prefix
+- [.|€.] type annotation
+- [.|#.] prefix/tag constructor
+- [.|=>.] lambda body
+- [.|<=>.] generic-lambda marker
+- [.|..] method-call statement terminator
+- [.|§>.] / [.|§<.] pipe sugar
 
 [=Literals=]
 [.spo
@@ -104,7 +104,7 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 .]
 
 - blocks are expressions
-- there is no implicit "last expression wins"; use [.txt|§RETURN.]
+- there is no implicit "last expression wins"; use [.|§RETURN.]
 
 [=Calls Lambdas and Methods=]
 [.spo
@@ -144,7 +144,7 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 .]
 
 [=Notes=]
-- [.txt|§IMPORT.] is a pattern, not just a name list.
-- [.txt|§IS.] is surface sugar over [.txt|§IF value MATCH { ... }.].
-- surface type keywords and IL type keywords differ: [.txt|§RECURSIVE/§GENERIC/§INTERFACE.] become [.txt|§REC/§ALL/§ANY.] in [.txt|.ILT.].
-- [.txt|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete. Use [<../doc_ai/40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] for the current gap map.
+- [.|§IMPORT.] is a pattern, not just a name list.
+- [.|§IS.] is surface sugar over [.|§IF value MATCH { ... }.].
+- surface type keywords and IL type keywords differ: [.|§RECURSIVE/§GENERIC/§INTERFACE.] become [.|§REC/§ALL/§ANY.] in [.|.ILT.].
+- [.|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete.

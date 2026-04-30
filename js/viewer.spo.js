@@ -1,14 +1,19 @@
-(
-	function (
-	) {
-		const MAX_STICKY_LINES = 6;
-		const TAB_SIZE = 4;
-		const OPENING_BRACKET_BY_CLOSER = {
-			")": "(",
-			"]": "[",
-			"}": "{"
-		};
-		let activeStandaloneLayoutCleanup = null;
+export const extensions = ["spo", "ilt"];
+export const isBinary = false;
+
+const MAX_STICKY_LINES = 6;
+const TAB_SIZE = 4;
+const RAINBOW_INDENT_COLORS = [
+	"rgba(255, 255, 0, 0.16)",
+	"rgba(255, 0, 255, 0.12)",
+	"rgba(0, 255, 255, 0.12)"
+];
+const OPENING_BRACKET_BY_CLOSER = {
+	")": "(",
+	"]": "[",
+	"}": "{"
+};
+let activeStandaloneLayoutCleanup = null;
 		
 		// SPO and ILT both use compound keywords whose trailing parts are plain ids.
 		const SPO_KEYWORD_PARTS = new Set([
@@ -30,66 +35,420 @@
 			"IF_NOT_EMPTY"
 		]);
 		
-		function render(
-			source,
-			context
-		) {
-			clearStandaloneSourceLayout();
-			
-			context.prepareArticle("source-view");
-			
-			const title = context.fileNameLabel(context.filePath);
-			const language = /\.ilt$/i.test(context.filePath) ? "ILT" : "SPO";
-			const lineModels = createLineModels(source, language);
-			
-			context.setPageTitle(title, language);
-			
-			const card = document.createElement("section");
-			card.className = context.isEmbedded
-				? "source-card"
-				: "source-card source-card-standalone";
-			
-			const bar = document.createElement("div");
-			bar.className = "source-bar";
-			
-			const languageElement = document.createElement("div");
-			languageElement.className = "source-language";
-			languageElement.textContent = language;
-			
-			const filenameElement = document.createElement("div");
-			filenameElement.className = "source-filename";
-			filenameElement.textContent = context.showSourceFilename ? context.filePath : "";
-			
-			const sourceElement = document.createElement("div");
-			sourceElement.className = "source-code";
-			sourceElement.style.setProperty(
-				"--source-gutter-width",
-				Math.max(3, String(lineModels.length).length + 1) + "ch"
-			);
-			
-			const stickyElement = document.createElement("div");
-			stickyElement.className = "source-sticky";
-			stickyElement.hidden = true;
-			stickyElement.setAttribute("aria-hidden", "true");
-			
-			const linesElement = document.createElement("div");
-			linesElement.className = "source-lines";
-			for (const lineModel of lineModels) {
-				linesElement.append(createLineElement(lineModel));
-			}
-			
-			sourceElement.append(stickyElement, linesElement);
-			
-			bar.append(languageElement, filenameElement);
-			card.append(bar, sourceElement);
-			context.articleElement.append(card);
-			
-			if (!context.isEmbedded) {
-				installStandaloneSourceLayout(card, bar, sourceElement);
-			}
-			
-			enableStickyLines(sourceElement, stickyElement, linesElement, lineModels);
+		const TOKEN_INLINE_STYLES = {
+			comment: { color: "#7f756a", fontStyle: "italic" },
+			string: { color: "#0f766e" },
+			number: { color: "#1d4ed8" },
+			keyword: { color: "#9a3412", fontWeight: "700" },
+			enum: { color: "#166534", fontWeight: "700" },
+			identifier: { color: "#475569" },
+			punctuation: { color: "#8b5e34" }
+		};
+		
+export function render(
+	source,
+	context
+) {
+	ensureSourceStyles();
+	clearStandaloneSourceLayout();
+
+	const target = context && context.articleElement;
+	if (!target) {
+		return;
+	}
+
+	const renderMode = getRenderMode(target);
+	const filePath = context && context.filePath ? context.filePath : "source.spo";
+	const language = /\.ilt$/i.test(filePath) ? "ILT" : "SPO";
+	const text = String(source ?? "");
+
+	if (context && typeof context.prepareArticle === "function") {
+		context.prepareArticle(renderMode === "file" ? "source-view" : target.className);
+	}
+
+	if (renderMode === "inline") {
+		target.replaceChildren(createInlineCodeElement(text, language));
+		return;
+	}
+
+	if (renderMode === "embedded") {
+		const lineModels = createLineModels(text, language);
+		const embeddedView = createEmbeddedCodeElement(lineModels, language, filePath, context);
+		target.replaceChildren(embeddedView.element);
+		enableStickyLines(
+			embeddedView.scrollElement,
+			embeddedView.stickyElement,
+			embeddedView.linesElement,
+			lineModels
+		);
+		return;
+	}
+
+	const lineModels = createLineModels(text, language);
+	if (context && typeof context.setPageTitle === "function") {
+		context.setPageTitle(getFileNameLabel(context, filePath), language);
+	}
+
+	const card = document.createElement("section");
+	card.className = "source-card source-card-standalone";
+
+	const bar = document.createElement("div");
+	bar.className = "source-bar";
+
+	const languageElement = document.createElement("div");
+	languageElement.className = "source-language";
+	languageElement.textContent = language;
+
+	const filenameElement = document.createElement("div");
+	filenameElement.className = "source-filename";
+	if (shouldShowSourceFilename(context)) {
+		appendSourceFilename(filenameElement, context, filePath);
+	}
+
+	const sourceElement = document.createElement("div");
+	sourceElement.className = "source-code";
+	sourceElement.style.setProperty(
+		"--source-gutter-width",
+		Math.max(3, String(lineModels.length).length + 1) + "ch"
+	);
+
+	const stickyElement = document.createElement("div");
+	stickyElement.className = "source-sticky";
+	stickyElement.hidden = true;
+	stickyElement.setAttribute("aria-hidden", "true");
+
+	const linesElement = document.createElement("div");
+	linesElement.className = "source-lines";
+	for (const lineModel of lineModels) {
+		linesElement.append(createLineElement(lineModel));
+	}
+
+	sourceElement.append(stickyElement, linesElement);
+
+	bar.append(languageElement, filenameElement);
+	card.append(bar, sourceElement);
+	target.replaceChildren(card);
+
+	installStandaloneSourceLayout(card, bar, sourceElement);
+	enableStickyLines(sourceElement, stickyElement, linesElement, lineModels);
+}
+
+function getRenderMode(
+	target
+) {
+	if (target.classList && target.classList.contains("wiki-embedded-inline")) return "inline";
+	if (target.classList && target.classList.contains("wiki-resource-inline")) return "inline";
+	if (target.classList && target.classList.contains("wiki-embedded-block")) return "embedded";
+	if (target.classList && target.classList.contains("wiki-resource-block")) return "embedded";
+	return "file";
+}
+
+function createInlineCodeElement(
+	source,
+	language
+) {
+	const code = document.createElement("code");
+	code.className = "wiki-object source-inline";
+	appendHighlightedSource(code, source, language, { inlineStyles: true });
+	return code;
+}
+
+function createEmbeddedCodeElement(
+	lineModels,
+	language,
+	filePath,
+	context
+) {
+	const pre = document.createElement("pre");
+	pre.className = "wiki-object wiki-text-embedded source-embed";
+	pre.style.setProperty(
+		"--source-gutter-width",
+		Math.max(3, String(Math.max(1, lineModels.length)).length + 1) + "ch"
+	);
+
+	const linesElement = document.createElement("div");
+	linesElement.className = "source-lines source-lines-embedded";
+	for (const lineModel of lineModels) {
+		linesElement.append(createLineElement(lineModel));
+	}
+
+	const stickyElement = document.createElement("div");
+	stickyElement.className = "source-sticky";
+	stickyElement.hidden = true;
+	stickyElement.setAttribute("aria-hidden", "true");
+
+	pre.append(stickyElement, linesElement);
+
+	if (!shouldShowSourceFilename(context)) {
+		return {
+			element: pre,
+			scrollElement: pre,
+			stickyElement,
+			linesElement
+		};
+	}
+
+	const card = document.createElement("section");
+	card.className = "source-card source-card-embedded";
+
+	const bar = document.createElement("div");
+	bar.className = "source-bar";
+
+	const languageElement = document.createElement("div");
+	languageElement.className = "source-language";
+	languageElement.textContent = language;
+
+	const filenameElement = document.createElement("div");
+	filenameElement.className = "source-filename";
+	appendSourceFilename(filenameElement, context, filePath);
+
+	bar.append(languageElement, filenameElement);
+	card.append(bar, pre);
+
+	return {
+		element: card,
+		scrollElement: pre,
+		stickyElement,
+		linesElement
+	};
+}
+
+function getFileNameLabel(
+	context,
+	filePath
+) {
+	if (context && typeof context.fileNameLabel === "function") {
+		return context.fileNameLabel(filePath);
+	}
+
+	const normalizedPath = String(filePath || "").replace(/\\/g, "/");
+	return normalizedPath.split("/").pop() || normalizedPath || "Source";
+}
+
+function shouldShowSourceFilename(
+	context
+) {
+	return context && typeof context.showSourceFilename === "boolean"
+		? context.showSourceFilename
+		: true;
+}
+
+function appendSourceFilename(
+	parent,
+	context,
+	filePath
+) {
+	const text = String(filePath || "").replace(/\\/g, "/");
+	if (!text) {
+		return;
+	}
+
+	if (
+		context &&
+		typeof context.createSourceFileUrl === "function"
+	) {
+		const link = document.createElement("a");
+		link.className = "source-filename-link";
+		link.href = context.createSourceFileUrl(filePath);
+		link.textContent = text;
+		parent.append(link);
+		return;
+	}
+
+	parent.textContent = text;
+}
+
+function ensureSourceStyles(
+) {
+	if (document.getElementById("spo-viewer-style")) {
+		return;
+	}
+
+	const style = document.createElement("style");
+	style.id = "spo-viewer-style";
+	style.textContent = `
+		.source-view {
+			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
+			color: #241d18;
 		}
+
+		.source-inline,
+		.source-code,
+		.source-lines,
+		.source-sticky,
+		.source-line,
+		.source-line-text {
+			tab-size: ${TAB_SIZE};
+		}
+
+		.source-card {
+			border: 1px solid rgba(125, 102, 78, 0.28);
+			border-radius: 0.95rem;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 243, 233, 0.92));
+			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+			overflow: hidden;
+		}
+
+		pre.wiki-object.source-embed {
+			position: relative;
+			margin: 0 0 1rem;
+			padding: 0;
+			border: 1px solid rgba(125, 102, 78, 0.22);
+			border-radius: 0.8rem;
+			background: rgba(246, 235, 215, 0.72);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+			max-height: 50vh;
+			overflow: auto;
+		}
+
+		.source-card-embedded > pre.wiki-object.source-embed {
+			margin: 0;
+			border: 0;
+			border-radius: 0;
+			box-shadow: none;
+		}
+
+		.source-bar {
+			display: flex;
+			align-items: center;
+			gap: 0.85rem;
+			padding: 0.75rem 0.9rem;
+			border-bottom: 1px solid rgba(127, 79, 36, 0.16);
+			background: linear-gradient(180deg, rgba(236, 218, 194, 0.98), rgba(221, 198, 170, 0.94));
+		}
+
+		.source-language {
+			flex: 0 0 auto;
+			font-size: 0.8rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #7f4f24;
+		}
+
+		.source-filename {
+			flex: 1 1 auto;
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			color: #5a4a3e;
+			font-size: 0.92rem;
+		}
+
+		.source-filename-link {
+			color: inherit;
+			text-decoration: underline;
+			text-underline-offset: 0.14em;
+		}
+
+		.source-filename-link:hover {
+			color: #7f4f24;
+		}
+
+		.source-code {
+			position: relative;
+			overflow: auto;
+			padding: 0;
+			background: rgba(255, 251, 245, 0.84);
+		}
+
+		.source-lines,
+		.source-sticky {
+			font-size: 0.95rem;
+			line-height: 1.5;
+		}
+
+		.source-lines-embedded {
+			padding: 0.5rem 0;
+		}
+
+		.source-sticky {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: auto;
+			z-index: 1;
+			pointer-events: none;
+			background: linear-gradient(180deg, rgba(255, 249, 240, 0.98), rgba(255, 249, 240, 0.9));
+			border-bottom: 1px solid rgba(125, 102, 78, 0.2);
+			box-shadow: 0 8px 16px rgba(70, 49, 31, 0.1);
+		}
+
+		.source-sticky::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: -14px;
+			height: 14px;
+			background: linear-gradient(180deg, rgba(70, 49, 31, 0.16), rgba(70, 49, 31, 0));
+		}
+
+		.source-line {
+			display: grid;
+			grid-template-columns: var(--source-gutter-width, 4ch) 1ch minmax(0, 1fr);
+			align-items: baseline;
+			padding: 0 0.9rem;
+			white-space: pre;
+		}
+
+		.source-embed .source-line {
+			padding-left: 0.75rem;
+			padding-right: 0.75rem;
+		}
+
+		.source-line.is-sticky {
+			background: rgba(255, 249, 240, 0.96);
+		}
+
+		.source-line.is-sticky.is-block-start {
+			background: rgba(248, 238, 223, 0.98);
+		}
+
+		.source-line.is-block-start {
+			background: rgba(127, 79, 36, 0.04);
+		}
+
+		.source-line:hover {
+			background: rgba(127, 79, 36, 0.07);
+		}
+
+		.source-gutter,
+		.source-separator {
+			color: #8a7869;
+			user-select: none;
+		}
+
+		.source-gutter {
+			text-align: right;
+			padding-right: 0.35rem;
+		}
+
+		.source-separator::before {
+			content: "|";
+		}
+
+		.source-line-text {
+			display: block;
+			min-width: 0;
+		}
+
+		.source-line-text.is-empty {
+			align-self: stretch;
+			min-height: 1lh;
+		}
+
+		.tok-comment { color: #7f756a; font-style: italic; }
+		.tok-string { color: #0f766e; }
+		.tok-number { color: #1d4ed8; }
+		.tok-keyword { color: #9a3412; font-weight: 700; }
+		.tok-enum { color: #166534; font-weight: 700; }
+		.tok-identifier { color: #475569; }
+		.tok-punctuation { color: #8b5e34; }
+	`;
+	document.head.append(style);
+}
 
 		function clearStandaloneSourceLayout(
 		) {
@@ -196,7 +555,7 @@
 			source,
 			language
 		) {
-			const tokenLines = splitTokensIntoLines(tokenizeSpo(source, language));
+			const tokenLines = splitTokensIntoLines(tokenizeSpo(source, normalizeSpoLanguage(language)));
 			const lineModels = tokenLines.map(
 				(
 					segments,
@@ -209,6 +568,7 @@
 						segments,
 						text,
 						indent: countIndent(text),
+						leadingTabColumns: collectLeadingTabColumns(text),
 						isBlank: text.trim() === "",
 						parentIndex: null,
 						startsBlock: false,
@@ -220,6 +580,23 @@
 			assignLineHierarchy(lineModels);
 			assignBracketLinks(lineModels);
 			return lineModels;
+		}
+		
+export function appendHighlightedSource(
+	parent,
+	source,
+	language,
+	options = null
+) {
+	const tokens = tokenizeSpo(String(source || ""), normalizeSpoLanguage(language));
+	appendHighlightedTokens(parent, tokens, options);
+	return parent;
+}
+		
+		function normalizeSpoLanguage(
+			language
+		) {
+			return String(language || "").toUpperCase() === "ILT" ? "ILT" : "SPO";
 		}
 		
 		function tokenizeSpo(
@@ -484,6 +861,30 @@
 			
 			return indent;
 		}
+
+		function collectLeadingTabColumns(
+			text
+		) {
+			const columns = [];
+			let indent = 0;
+
+			for (const char of text) {
+				if (char === " ") {
+					indent += 1;
+					continue;
+				}
+
+				if (char === "\t") {
+					indent += TAB_SIZE;
+					columns.push(indent);
+					continue;
+				}
+
+				break;
+			}
+
+			return columns;
+		}
 		
 		function createLineElement(
 			lineModel,
@@ -508,13 +909,48 @@
 			const gutterElement = document.createElement("span");
 			gutterElement.className = "source-gutter";
 			gutterElement.textContent = String(lineModel.number);
+
+			const separatorElement = document.createElement("span");
+			separatorElement.className = "source-separator";
+			separatorElement.setAttribute("aria-hidden", "true");
 			
 			const textElement = document.createElement("span");
 			textElement.className = "source-line-text";
+			if (lineModel.isBlank) {
+				textElement.classList.add("is-empty");
+			}
+			applyRainbowIndentBackground(textElement, lineModel.leadingTabColumns);
 			appendHighlightedSegments(textElement, lineModel.segments);
 			
-			lineElement.append(gutterElement, textElement);
+			lineElement.append(gutterElement, separatorElement, textElement);
 			return lineElement;
+		}
+
+		function applyRainbowIndentBackground(
+			element,
+			leadingTabColumns
+		) {
+			const layers = [];
+			const tabStops = Array.isArray(leadingTabColumns) ? leadingTabColumns : [];
+
+			for (let level = tabStops.length; level >= 0; level -= 1) {
+				const color = RAINBOW_INDENT_COLORS[level % RAINBOW_INDENT_COLORS.length];
+				const column = level === 0 ? 0 : tabStops[level - 1];
+				layers.push(
+					"linear-gradient(to right, transparent 0, transparent " +
+						column +
+						"ch, " +
+						color +
+						" " +
+						column +
+						"ch, " +
+						color +
+						" 100%)"
+				);
+			}
+
+			element.style.backgroundImage = layers.join(", ");
+			element.style.backgroundRepeat = "no-repeat";
 		}
 		
 		function appendHighlightedSegments(
@@ -531,6 +967,21 @@
 			}
 		}
 		
+		function appendHighlightedTokens(
+			parent,
+			tokens,
+			options = null
+		) {
+			for (const token of tokens) {
+				if (!token.type) {
+					parent.append(document.createTextNode(token.text));
+					continue;
+				}
+				
+				parent.append(createTokenNode(token.type, token.text, options));
+			}
+		}
+		
 		function enableStickyLines(
 			sourceElement,
 			stickyElement,
@@ -544,6 +995,10 @@
 			const syncStickyLines = () => {
 				scheduled = false;
 				
+				stickyElement.style.width = Math.max(
+					sourceElement.scrollWidth,
+					sourceElement.clientWidth
+				) + "px";
 				stickyElement.style.transform = "translateY(" + sourceElement.scrollTop + "px)";
 				
 				const stickyLineIndices = resolveStickyLineIndices(
@@ -647,8 +1102,42 @@
 			) {
 				stickyLineIndices.push(topLineIndex);
 			}
+
+			if (stickyLineIndices.length === 0) {
+				stickyLineIndices.push(findStickyFallbackLineIndex(
+					lineModels,
+					lineElements,
+					topLineIndex,
+					offsetTop
+				));
+			}
 			
 			return stickyLineIndices;
+		}
+
+		function findStickyFallbackLineIndex(
+			lineModels,
+			lineElements,
+			topLineIndex,
+			offsetTop
+		) {
+			if (!lineModels[topLineIndex].isBlank) {
+				return topLineIndex;
+			}
+
+			for (let index = topLineIndex - 1; index >= 0; index -= 1) {
+				if (!lineModels[index].isBlank && lineElements[index].offsetTop <= offsetTop) {
+					return index;
+				}
+			}
+
+			for (let index = topLineIndex + 1; index < lineModels.length; index += 1) {
+				if (!lineModels[index].isBlank) {
+					return index;
+				}
+			}
+
+			return topLineIndex;
 		}
 		
 		function findLineIndexAtOffset(
@@ -816,12 +1305,30 @@
 		
 		function createTokenNode(
 			type,
-			text
+			text,
+			options = null
 		) {
 			const span = document.createElement("span");
 			span.className = "tok-" + type;
 			span.textContent = text;
+			if (options && options.inlineStyles) {
+				applyInlineTokenStyle(span, type);
+			}
 			return span;
+		}
+		
+		function applyInlineTokenStyle(
+			element,
+			type
+		) {
+			const styles = TOKEN_INLINE_STYLES[type];
+			if (!styles) {
+				return;
+			}
+			
+			for (const [key, value] of Object.entries(styles)) {
+				element.style[key] = value;
+			}
 		}
 		
 		function readLineBreakLength(
@@ -1050,16 +1557,29 @@
 			return null;
 		}
 		
-		function isSpoLikeFile(
-			path
-		) {
-			return /\.(spo|ilt)$/i.test(path);
-		}
-		
-		window.SpoViewer = {
-			disposeStandaloneLayout: clearStandaloneSourceLayout,
-			render,
-			isSpoLikeFile
-		};
-	}
-)();
+export function disposeStandaloneLayout(
+) {
+	clearStandaloneSourceLayout();
+}
+
+export function isSpoLikeFile(
+	path
+) {
+	return /\.(spo|ilt)$/i.test(path);
+}
+
+const api = Object.freeze({
+	extensions,
+	isBinary,
+	renderer: { render },
+	appendHighlightedSource,
+	disposeStandaloneLayout,
+	render,
+	isSpoLikeFile
+});
+
+if (typeof window !== "undefined") {
+	window.SpoViewer = api;
+}
+
+export default api;

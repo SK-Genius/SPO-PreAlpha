@@ -1,17 +1,14 @@
-[=IL Cheat Sheet=]
-
-[*Scope:*] Quick reminder for the `.ILT` text parsed by [.txt|mIL_Parser.] and emitted by [.txt|ToILT().].
-For the pipeline and runtime meaning, see [<../doc_ai/20_pipeline/21_compilation_pipeline.wiki|21_compilation_pipeline.wiki>] and [<../doc_ai/30_runtime/31_vm_and_modules.wiki|31_vm_and_modules.wiki>].
+[§ IL Cheat Sheet §]
 
 [=How IL Sits In The Repo=]
 
-- surface [.txt|.SPO.] lowers to [.txt|mIL_AST.tModule.]
-- `.ILT` is the shared backend text boundary
-- canonical examples live in [.txt|SPO_CS/Modules/*.ILT.] and [.txt|SPO_CS/Regression.Tests/*.ILT.]
+- surface [*.SPO*] lowers to [*mIL_AST.tModule*]
+- [*.ILT*] is the shared backend text boundary
+- canonical examples live in [*SPO_CS/Modules/*.ILT*] and [*SPO_CS/Regression.Tests/*.ILT*]
 
 [=Module Shape=]
 
-[.txt
+[.ilt
 |§TYPES
 |    t_0 := [EMPTY_TYPE => BOOL]
 |    t_1 := [EMPTY_TYPE => t_0]
@@ -22,31 +19,27 @@ For the pipeline and runtime meaning, see [<../doc_ai/20_pipeline/21_compilation
 .]
 
 - all type definitions come first
-- each [.txt|§DEF.] has an id, a type id, and a command body
+- each [.ilt|§DEF.] has an id, a type id, and a command body
 - the last definition is the module init / entry proc
 
 [=Common Names=]
 
-- [.txt|t_*.]
-  compiler-assigned type ids
-- [.txt|d_*.]
-  compiler-assigned def ids
-- [.txt|r_*.]
-  register ids
-- [.txt|_Name.]
-  lowered user-visible names and import fields
+- [.ilt|t_*.] compiler-assigned type ids
+- [.ilt|d_*.] compiler-assigned def ids
+- [.ilt|r_*.] register ids
+- [.ilt|_Name.] lowered user-visible names and import fields
 
 Common fixed values that appear directly in IL:
 
-- [.txt|EMPTY.]
-- [.txt|TRUE.], [.txt|FALSE.]
-- [.txt|ONE.]
-- [.txt|ARG.], [.txt|ENV.], [.txt|OBJ.], [.txt|RES.]
-- runtime type values such as [.txt|INT_TYPE.] and [.txt|BOOL_TYPE.] may appear in type-literal lowering
+- [.ilt|EMPTY.]
+- [.ilt|TRUE.], [.ilt|FALSE.]
+- [.ilt|ONE.]
+- [.ilt|ARG.], [.ilt|ENV.], [.ilt|OBJ.], [.ilt|RES.]
+- runtime type values such as [.ilt|INT_TYPE.] and [.ilt|BOOL_TYPE.] may appear in type-literal lowering
 
 [=Common Type Forms=]
 
-[.txt
+[.ilt
 |EMPTY_TYPE
 |BOOL
 |INT
@@ -65,13 +58,13 @@ Common fixed values that appear directly in IL:
 
 Notes:
 
-- IL uses [.txt|§REC.], [.txt|§ALL.], and [.txt|§ANY.] where SPO surface syntax uses [.txt|§RECURSIVE.], [.txt|§GENERIC.], and [.txt|§INTERFACE.].
-- method types in IL are written as object type plus function type, for example [.txt|[tObj : [tArg => tRes]].]
-- [.txt|[A & Proof].] is parser-visible as [.txt|TypeCond.], but it is not fully finished end-to-end
+- IL uses [.ilt|§REC.], [.ilt|§ALL.], and [.ilt|§ANY.] where SPO surface syntax uses [.ilt|§RECURSIVE.], [.ilt|§GENERIC.], and [.ilt|§INTERFACE.].
+- method types in IL are written as object type plus function type, for example [.ilt|[[tObj : [tArg => tRes]]]].]
+- [.ilt|[[A & Proof]].] is parser-visible as [.ilt|TypeCond.], but it is not fully finished end-to-end
 
 [=Common Command Forms=]
 
-[.txt
+[.ilt
 |r_1 := 1
 |r_2 := TRUE
 |r_3 := r_1, r_2
@@ -92,17 +85,17 @@ Notes:
 The forms you will see most often in checked-in `.ILT` files are:
 
 - register assignment
-- tuple/pair decomposition via [.txt|§1ST.] and [.txt|§2ND.]
-- prefix construction and removal via [.txt|+#Tag.] and [.txt|-#Tag.]
-- function calls via [.txt|.name arg.]
-- method-style calls via [.txt|§OBJ:name arg.]
-- var create/get/set via [.txt|§VAR.]
-- conditional return via [.txt|§RETURN value IF cond.] or [.txt|IF_NOT_EMPTY.]
-- match helpers encoded through [.txt|#Result ...] versus [.txt|EMPTY.]
+- tuple/pair decomposition via [.ilt|§1ST.] and [.ilt|§2ND.]
+- prefix construction and removal via [.ilt|+#Tag.] and [.ilt|-#Tag.]
+- function calls via [.ilt|.name arg.]
+- method-style calls via [.ilt|§OBJ:name arg.]
+- var create/get/set via [.ilt|§VAR.]
+- conditional return via [.ilt|§RETURN value IF cond.] or [.ilt|IF_NOT_EMPTY.]
+- match helpers encoded through [.ilt|#Result ...] versus [.ilt|EMPTY.]
 
 [=Parser-Visible Extras=]
 
-[.txt
+[.ilt
 |r_1 := §TRY x AS_BOOL
 |r_2 := §TRY x AS_INT
 |r_3 := §TRY x AS_PAIR
@@ -113,16 +106,13 @@ The forms you will see most often in checked-in `.ILT` files are:
 |r_8 := §TRY_REMOVE #Tag FROM x
 .]
 
-- some of these forms are parser-visible before they are uniformly runtime-complete
-- use [<../doc_ai/40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] for the current gap map
-
 [=SPO vs IL Notation=]
 
-[| [*Concept*] | [*SPO*] | [*IL*] |]
-[| recursive type | [.txt|[§RECURSIVE t T].] | [.txt|[§REC t => T].] |]
-[| generic type | [.txt|[§GENERIC t T].] | [.txt|[§ALL t => T].] |]
-[| interface type | [.txt|[§INTERFACE t T].] | [.txt|[§ANY t => T].] |]
-[| method type | [.txt|[Obj : Arg => Res].] | [.txt|[Obj : [Arg => Res]].] |]
+[| [*Concept*]    ][ [*SPO*]                      ][ [*IL*]                           |]
+[| recursive type ][ [.spo|[[§RECURSIVE t T]].]   ][ [.ilt|[[§REC t => T]].]          |]
+[| generic type   ][ [.spo|[[§GENERIC t T]].]     ][ [.ilt|[[§ALL t => T]].]          |]
+[| interface type ][ [.spo|[[§INTERFACE t T]].]   ][ [.ilt|[[§ANY t => T]].]          |]
+[| method type    ][ [.spo|[[Obj : Arg => Res]].] ][ [.ilt|[[Obj : [[Arg => Res]]]].] |]
 
 [=Concrete References=]
 

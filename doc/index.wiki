@@ -1,39 +1,7 @@
-[=Practical Docs=]
+[§ Docs §]
 
-Use this folder for quick reminders and artifact browsing while working in the repo.
-These pages should stay short, task-oriented, and light on architectural narration.
-
-[=Read By Task=]
-
-[| [*Page*] | [*Use it for*] |]
-[| [<CheatSheet_SPO.wiki|CheatSheet_SPO.wiki>] | current SPO surface-syntax reminders and imperative/pipe examples |]
-[| [<CheatSheet_IL.wiki|CheatSheet_IL.wiki>] | current `.ILT` module shape, common commands, and parser-visible extras |]
-[| [<Tests.wiki|Tests.wiki>] | browsing real regression sources and their `.result.SPO` oracles by topic |]
-[| [<CheatSheet_Wiki.wiki|CheatSheet_Wiki.wiki>] | current wiki syntax, resource blocks, and viewer behavior |]
-[| [<TODO.wiki|TODO.wiki>] | short current backlog distilled from the verification pages |]
-
-[=Folder Boundary=]
-
-[| [*If you need*] | [*Open instead*] |]
-[| repo map, runtime behavior, lowering notes, or verification evidence | [<../doc_ai/index.wiki|doc_ai/index.wiki>] |]
-[| top-level doc-set selection and repo entry points | [<../index.wiki|../index.wiki>] |]
-
-[=Regression Browsing Conventions=]
-
-- [<Tests.wiki|Tests.wiki>] mirrors the executable `.SPO` sources under [.txt|../SPO_CS/Regression.Tests/.]
-- it shows `.SPO` inputs together with their `.result.SPO` oracles for quick semantic browsing
-- canonical `.ILT` companions stay beside those source files in [.txt|../SPO_CS/Regression.Tests/.] and [.txt|../SPO_CS/Modules/.]
-- helper files such as [.txt|_*.SPO.], expected-failure artifacts such as [.txt|*.SPO_Fail.], and generated drift files such as [.txt|*.ILT.new.] are intentionally excluded
-- current pass/fail state belongs in [<../doc_ai/40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>], not in this folder
-
-[=Useful Next Stops=]
-
-- [<../doc_ai/00_start_here/01_repo_overview.wiki|Repository Overview>]
-- [<../doc_ai/00_start_here/02_code_map.wiki|Current Code Map>]
-- [<../doc_ai/40_verification/41_tests_and_artifacts.wiki|Verified Test Baseline>]
-
-[=Maintenance Rules=]
-
-- keep this folder concise and task-oriented
-- move source ownership, runtime semantics, and detailed verification status into [.txt|doc_ai/.]
-- prefer linking to the verification pages over copying counts, failures, or dated observations here
+- [<CheatSheet_Wiki.wiki>]
+- [<CheatSheet_SPO.wiki>]
+- [<CheatSheet_IL.wiki>]
+- [<Tests.wiki>]
+- [<TODO.wiki>]

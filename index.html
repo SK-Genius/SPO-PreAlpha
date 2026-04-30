@@ -1,1163 +1,547 @@
 <!DOCTYPE html>
 <html lang="de">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Wiki Viewer</title>
-		<style>
-			:root {
-				--paper: rgba(255, 250, 241, 0.9);
-				--paper-edge: rgba(125, 102, 78, 0.18);
-				--ink: #241d18;
-				--muted: #695a4d;
-				--accent: #7f4f24;
-				--line: rgba(127, 79, 36, 0.22);
-				--shadow: 0 24px 60px rgba(70, 49, 31, 0.14);
-				--object: #efe0ca;
-				--error: #7f1d1d;
-				--error-bg: rgba(202, 70, 70, 0.09);
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Wiki Viewer</title>
+	<style>
+		:root {
+			--paper: rgba(255, 250, 241, 0.9);
+			--paper-edge: rgba(125, 102, 78, 0.18);
+			--ink: #241d18;
+			--muted: #695a4d;
+			--accent: #7f4f24;
+			--line: rgba(127, 79, 36, 0.22);
+			--shadow: 0 24px 60px rgba(70, 49, 31, 0.14);
+			--error: #7f1d1d;
+			--error-bg: rgba(202, 70, 70, 0.09);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			margin: 0;
+			min-height: 100%;
+		}
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+		body {
+			font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+			color: var(--ink);
+			background: radial-gradient(circle at top, #fff9ef 0%, #f0e2cd 36%, #e1cfba 100%);
+			line-height: 1.35;
+		}
+
+		.shell {
+			width: calc(100% - 2rem);
+			max-width: none;
+			margin: clamp(1rem, 4vw, 3rem) auto;
+			padding: clamp(1rem, 3vw, 2.5rem);
+			background: var(--paper);
+			border: 1px solid var(--paper-edge);
+			border-radius: 22px;
+			box-shadow: var(--shadow);
+			backdrop-filter: blur(10px);
+		}
+
+		.wiki-article {
+			padding-top: 0;
+		}
+
+		.status,
+		.error {
+			margin: 0;
+			padding: 1rem 1.1rem;
+			border-radius: 14px;
+			background: rgba(127, 79, 36, 0.08);
+			color: var(--muted);
+			white-space: pre-wrap;
+		}
+
+		.error {
+			background: var(--error-bg);
+			color: var(--error);
+		}
+
+		.wiki-title-bar,
+		.wiki-heading-bar {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.wiki-title-bar h1,
+		.wiki-heading-bar h2 {
+			flex: 1 1 auto;
+			min-width: 0;
+			margin-right: 0;
+		}
+
+		.wiki-title-bar button,
+		.wiki-heading-bar button,
+		.wiki-edit-actions button {
+			flex: 0 0 auto;
+			border: 1px solid rgba(127, 79, 36, 0.22);
+			border-radius: 999px;
+			padding: 0.42rem 0.75rem;
+			background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,237,219,0.92));
+			color: var(--ink);
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer;
+		}
+		.wiki-edit-panel:not(.wiki-edit-inline) {
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			height: 100vh;
+			height: 100dvh;
+			width: min(42rem, 42vw);
+			z-index: 10000;
+			display: flex;
+			flex-direction: column;
+			margin: 0;
+			padding: 0.85rem;
+			border: 1px solid rgba(125, 102, 78, 0.28);
+			border-radius: 0.95rem 0 0 0.95rem;
+			background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(249,243,233,0.96));
+			box-shadow: 0 24px 60px rgba(70, 49, 31, 0.18);
+		}
+
+
+		.wiki-edit-panel:not(.wiki-edit-inline) .wiki-edit-textarea {
+			display: block;
+			width: 100%;
+			min-height: 12rem;
+			flex: 1 1 auto;
+			padding: 0.75rem;
+			border: 1px solid rgba(125, 102, 78, 0.28);
+			border-radius: 0.6rem;
+			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
+			font-size: 0.95rem;
+			line-height: 1.35;
+			resize: none;
+		}
+
+
+		.wiki-edit-actions {
+			display: flex;
+			gap: 0.6rem;
+			margin-top: 0.7rem;
+		}
+
+		.wiki-edit-status {
+			margin: 0.7rem 0 0;
+			white-space: pre-wrap;
+			color: var(--error);
+		}
+
+		body.wiki-editor-open .shell {
+			padding-right: min(44rem, 44vw);
+		}
+
+		@media (max-width: 900px) {
+			.wiki-edit-panel {
+				left: 1rem;
+				width: auto;
 			}
 
-			* {
-				box-sizing: border-box;
+			body.wiki-editor-open .shell {
+				padding-right: clamp(1rem, 3vw, 2.5rem);
 			}
+		}
 
-			html,
+
+		@media print {
 			body {
-				margin: 0;
-				min-height: 100%;
-			}
-
-			html {
-				scroll-behavior: smooth;
-			}
-
-			body {
-				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-				color: var(--ink);
-				background:
-					radial-gradient(circle at top, #fff9ef 0%, #f0e2cd 36%, #e1cfba 100%);
-				line-height: 1.65;
+				background: #ffffff;
 			}
 
 			.shell {
-				width: min(1040px, calc(100% - 2rem));
-				margin: clamp(1rem, 4vw, 3rem) auto;
-				padding: clamp(1rem, 3vw, 2.5rem);
-				background: var(--paper);
-				border: 1px solid var(--paper-edge);
-				border-radius: 22px;
-				box-shadow: var(--shadow);
-				backdrop-filter: blur(10px);
-			}
-
-			.shell-source-standalone {
-				height: 100vh;
-				height: 100dvh;
-				margin-block: 0;
+				width: 100%;
+				margin: 0;
 				padding: 0;
-				overflow: hidden;
-			}
-
-			.wiki-article {
-				padding-top: 0;
-			}
-
-			.source-view {
-				padding-top: 0;
-			}
-
-			.source-card {
-				border: 1px solid var(--paper-edge);
-				border-radius: 18px;
-				overflow: hidden;
-				background: rgba(255, 252, 247, 0.88);
-				box-shadow: 0 10px 24px rgba(70, 49, 31, 0.08);
-			}
-
-			.source-card-standalone {
 				border: 0;
-				border-radius: inherit;
-				overflow: hidden;
-				background: transparent;
+				border-radius: 0;
 				box-shadow: none;
+				background: transparent;
 			}
 
-			.source-bar {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: 1rem;
-				padding: 0.9rem 1.1rem;
-				border-bottom: 1px solid var(--line);
-				background:
-					linear-gradient(180deg, rgba(247, 237, 219, 0.95), rgba(243, 230, 209, 0.74));
-			}
-
-			.source-language {
-				font-size: 0.8rem;
-				font-weight: 700;
-				letter-spacing: 0.16em;
-				text-transform: uppercase;
-				color: var(--accent);
-			}
-
-			.source-filename {
-				color: var(--muted);
-				font-size: 0.94rem;
-				word-break: break-word;
-				text-align: right;
-			}
-
-			.source-code {
-				margin: 0;
-				overflow: auto;
-				position: relative;
-				max-height: min(72vh, 46rem);
-				max-height: min(72dvh, 46rem);
-				overscroll-behavior: contain;
-				background:
-					linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(249, 243, 233, 0.92));
-				color: #211a15;
-				font-family: "Cascadia Code", Consolas, "SFMono-Regular", "Courier New", monospace;
-				font-size: 0.95rem;
-				line-height: 1.6;
-				tab-size: 4;
-			}
-
-			.source-lines,
-			.source-sticky {
-				min-width: 100%;
-				width: max-content;
-			}
-
-			.source-lines {
-				padding: 0.95rem 0 1.05rem;
-			}
-
-			.source-sticky {
-				position: absolute;
-				top: 0;
-				left: 0;
-				z-index: 1;
-				pointer-events: none;
-				user-select: none;
-				will-change: transform;
-			}
-
-			.source-line {
-				display: grid;
-				grid-template-columns: var(--source-gutter-width, 4ch) minmax(0, 1fr);
-				gap: 1.1rem;
-				align-items: baseline;
-				padding: 0 1.2rem;
-				min-height: 1.6em;
-			}
-
-			.source-gutter {
-				color: rgba(105, 90, 77, 0.75);
-				text-align: right;
-				user-select: none;
-			}
-
-			.source-line-text {
-				display: block;
-				white-space: pre;
-				padding-right: 0.8rem;
-			}
-
-			.source-sticky .source-line {
-				background:
-					linear-gradient(180deg, rgba(247, 237, 219, 0.97), rgba(243, 230, 209, 0.92));
-				border-bottom: 1px solid rgba(127, 79, 36, 0.14);
-				box-shadow: 0 10px 16px rgba(70, 49, 31, 0.05);
-			}
-
-			.source-sticky .source-gutter {
-				color: var(--accent);
-				font-weight: 700;
-			}
-
-			.source-sticky::after {
-				content: "";
-				display: block;
-				height: 0.9rem;
-				background:
-					linear-gradient(180deg, rgba(249, 243, 233, 0.32), rgba(249, 243, 233, 0));
-			}
-
-			.source-code .tok-comment {
-				color: #7f756a;
-				font-style: italic;
-			}
-
-			.source-code .tok-string {
-				color: #0f766e;
-			}
-
-			.source-code .tok-number {
-				color: #1d4ed8;
-			}
-
-			.source-code .tok-keyword {
-				color: #9a3412;
-				font-weight: 700;
-			}
-
-			.source-code .tok-enum {
-				color: #166534;
-				font-weight: 700;
-			}
-
-			.source-code .tok-identifier {
-				color: #475569;
-			}
-
-			.source-code .tok-punctuation {
-				color: #8b5e34;
-			}
-
-			.upload-panel {
-				margin-top: 1.2rem;
-				padding: 1.2rem;
-				border: 1px solid var(--paper-edge);
-				border-radius: 18px;
-				background: rgba(255, 255, 255, 0.46);
-			}
-
-			.upload-panel[hidden] {
-				display: none;
-			}
-
-			.upload-panel h2 {
-				margin: 0 0 0.5rem;
-				font-size: 1.25rem;
-			}
-
-			.upload-panel p {
-				margin: 0;
-				color: var(--muted);
-			}
-
-			.dropzone {
-				display: grid;
-				gap: 0.35rem;
-				justify-items: center;
-				margin-top: 1rem;
-				padding: 1.5rem 1rem;
-				border: 2px dashed rgba(127, 79, 36, 0.35);
-				border-radius: 16px;
-				background:
-					linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(244, 232, 214, 0.72));
-				text-align: center;
-				cursor: pointer;
-				transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-			}
-
-			.dropzone:hover,
-			.dropzone:focus-visible,
-			.dropzone.is-dragover {
-				outline: none;
-				transform: translateY(-1px);
-				border-color: var(--accent);
-				background:
-					linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 224, 202, 0.86));
-			}
-
-			.dropzone strong {
-				font-size: 1.08rem;
-			}
-
-			.dropzone span {
-				color: var(--muted);
-				font-size: 0.95rem;
-			}
-
-			.upload-actions {
-				display: flex;
-				justify-content: center;
-				margin-top: 0.9rem;
-			}
-
-			.upload-actions button {
-				border: 0;
-				border-radius: 999px;
-				padding: 0.68rem 1rem;
-				background: rgba(127, 79, 36, 0.14);
-				color: var(--ink);
-				font: inherit;
-				cursor: pointer;
-			}
-
-			.upload-actions button:hover,
-			.upload-actions button:focus-visible {
-				filter: brightness(0.98);
-			}
-
-			.upload-note {
-				margin-top: 0.9rem;
-				font-size: 0.92rem;
-			}
-
-			.upload-note[data-tone="error"] {
-				color: var(--error);
-			}
-
-			.visually-hidden {
-				position: absolute;
-				width: 1px;
-				height: 1px;
-				padding: 0;
-				margin: -1px;
-				overflow: hidden;
-				clip: rect(0, 0, 0, 0);
-				white-space: nowrap;
-				border: 0;
-			}
-
-			.wiki-article h1,
-			.wiki-article h2 {
-				margin: 1.7rem 0 0.7rem;
-				line-height: 1.15;
-			}
-
-			.wiki-article h1:first-child,
-			.wiki-article h2:first-child {
-				margin-top: 0;
-			}
-
-			.wiki-article h1 {
-				font-size: clamp(2rem, 3.8vw, 2.9rem);
-			}
-
-			.wiki-article h2 {
-				font-size: clamp(1.4rem, 2.8vw, 1.9rem);
-				padding-top: 0.4rem;
-				border-top: 1px solid var(--line);
-			}
-
-			.wiki-paragraph {
-				margin: 0 0 0.85rem;
-				margin-inline-start: calc(var(--indent, 0) * 0.85ch);
-			}
-
-			.wiki-paragraph.has-marker {
-				display: flex;
-				gap: 0.7ch;
-				align-items: flex-start;
-			}
-
-			.wiki-paragraph .marker {
-				flex: 0 0 auto;
-				min-width: 1.2ch;
-				color: var(--muted);
-				font-weight: 700;
-			}
-
-			.wiki-paragraph .content {
-				min-width: 0;
-			}
-
-			.wiki-quote {
-				margin: 0 0 0.9rem;
-				margin-inline-start: calc(var(--indent, 0) * 0.85ch);
-				padding: 0.2rem 0 0.2rem 1rem;
-				border-left: 3px solid rgba(127, 79, 36, 0.35);
-				color: #3e3127;
-				font-style: italic;
-			}
-
-			.wiki-article hr {
-				margin: 1.3rem 0;
-				border: 0;
-				border-top: 1px solid var(--line);
-			}
-
-			.wiki-article a {
-				color: var(--accent);
-				text-decoration-thickness: 0.08em;
-				text-underline-offset: 0.16em;
-			}
-
-			.wiki-article u {
-				text-decoration-thickness: 0.09em;
-				text-underline-offset: 0.14em;
-			}
-
-			.wiki-article del {
-				text-decoration-thickness: 0.08em;
-			}
-
-			.wiki-object {
-				display: inline-block;
-				padding: 0.1rem 0.45rem;
-				border-radius: 0.45rem;
-				background: var(--object);
-				font-family: "Consolas", "SFMono-Regular", "Courier New", monospace;
-				font-size: 0.92em;
-			}
-
-			.status,
-			.error {
-				margin: 0;
-				padding: 1rem 1.1rem;
-				border-radius: 14px;
-				background: rgba(127, 79, 36, 0.08);
-				color: var(--muted);
-			}
-
-			.error {
-				background: var(--error-bg);
-				color: var(--error);
-				white-space: pre-wrap;
-			}
-
-			@media (max-width: 760px) {
-				.shell {
-					width: min(100% - 1rem, 860px);
-					border-radius: 18px;
-				}
-
-				.source-code {
-					max-height: min(68vh, 38rem);
-					max-height: min(68dvh, 38rem);
-				}
-			}
-
-			@media print {
-				body {
-					background: #ffffff;
-				}
-
-				.shell {
-					width: 100%;
-					margin: 0;
-					padding: 0;
-					border: 0;
-					border-radius: 0;
-					box-shadow: none;
-					backdrop-filter: none;
-					background: transparent;
-				}
-
-				.upload-panel {
-					display: none;
-				}
-
-				.source-code {
-					max-height: none;
-					overflow: visible;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<main class="shell">
-			<article id="article" class="wiki-article" aria-live="polite"></article>
-
-			<section id="upload-panel" class="upload-panel" hidden>
-				<h2>Lokale Datei laden</h2>
-				<p>Wenn der Browser die Datei nicht direkt lesen darf, kann sie hier lokal geladen werden.</p>
-
-				<div id="dropzone" class="dropzone" tabindex="0" role="button" aria-controls="upload-input">
-					<strong>Datei hier ablegen</strong>
-					<span>oder klicken, um eine Wiki-, Code-, Bild- oder Video-Datei auszuwaehlen</span>
-				</div>
-
-				<div class="upload-actions">
-					<button id="upload-button" type="button">Datei waehlen</button>
-				</div>
-
-				<input id="upload-input" class="visually-hidden" type="file" accept=".wiki,.spo,.ilt,.txt,.text,.svg,.mermaid,.mmd,.math,.png,.jpg,.jpeg,.gif,.webp,.bmp,.avif,.webm,.mp4,.ogv,text/plain,text/vnd.mermaid,image/*,video/*">
-				<p id="upload-note" class="upload-note">Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.
-				</p>
-			</section>
-		</main>
-
-		<script src="js/viewer.wiki.js"></script>
-		<script src="js/viewer.spo.js"></script>
-		<script>
-			const DEFAULT_FILE = "index.wiki";
-			const articleElement = document.getElementById("article");
-			const shellElement = document.querySelector("main.shell");
-			const uploadPanelElement = document.getElementById("upload-panel");
-			const dropzoneElement = document.getElementById("dropzone");
-			const uploadButtonElement = document.getElementById("upload-button");
-			const uploadInputElement = document.getElementById("upload-input");
-			const uploadNoteElement = document.getElementById("upload-note");
-			const viewerRegistry = new Map();
-			const viewerScriptLoads = new Map();
-			const IMAGE_RESOURCE_EXTENSIONS = new Set([
-				"avif",
-				"bmp",
-				"gif",
-				"ico",
-				"jpeg",
-				"jpg",
-				"png",
-				"svg",
-				"webp"
-			]);
-			const VIDEO_RESOURCE_EXTENSIONS = new Set([
-				"mp4",
-				"ogv",
-				"webm"
-			]);
-			const BINARY_RESOURCE_EXTENSIONS = new Set([
-				"avif",
-				"bmp",
-				"gif",
-				"ico",
-				"jpeg",
-				"jpg",
-				"mp3",
-				"mp4",
-				"ogv",
-				"pdf",
-				"png",
-				"wav",
-				"webm",
-				"webp",
-				"zip"
-			]);
-			const MIME_TYPE_BY_EXTENSION = {
-				avif: "image/avif",
-				bmp: "image/bmp",
-				css: "text/css",
-				csv: "text/csv",
-				gif: "image/gif",
-				html: "text/html",
-				htm: "text/html",
-				ico: "image/x-icon",
-				jpeg: "image/jpeg",
-				jpg: "image/jpeg",
-				js: "text/javascript",
-				json: "application/json",
-				md: "text/markdown",
-				mermaid: "text/vnd.mermaid",
-				mjs: "text/javascript",
-				mmd: "text/vnd.mermaid",
-				math: "text/plain",
-				mp4: "video/mp4",
-				ogv: "video/ogg",
-				png: "image/png",
-				spo: "text/plain",
-				svg: "image/svg+xml",
-				tex: "text/plain",
-				text: "text/plain",
-				ts: "text/plain",
-				txt: "text/plain",
-				webm: "video/webm",
-				webp: "image/webp",
-				wiki: "text/plain",
-				xml: "text/xml",
-				yaml: "text/yaml",
-				yml: "text/yaml"
-			};
-
-			let currentWikiFile = DEFAULT_FILE;
-			registerBuiltInViewers();
-
-			window.ViewerHost = {
-				registerViewer
-			};
-
-			uploadButtonElement.addEventListener("click", () => {
-				uploadInputElement.click();
-			});
-
-			uploadInputElement.addEventListener("change", async () => {
-				await openSelectedFiles(uploadInputElement.files);
-				uploadInputElement.value = "";
-			});
-
-			dropzoneElement.addEventListener("click", () => {
-				uploadInputElement.click();
-			});
-
-			dropzoneElement.addEventListener("keydown", (event) => {
-				if (event.key === "Enter" || event.key === " ") {
-					event.preventDefault();
-					uploadInputElement.click();
-				}
-			});
-
-			dropzoneElement.addEventListener("dragenter", (event) => {
-				event.preventDefault();
-				dropzoneElement.classList.add("is-dragover");
-			});
-
-			dropzoneElement.addEventListener("dragover", (event) => {
-				event.preventDefault();
-				dropzoneElement.classList.add("is-dragover");
-			});
-
-			dropzoneElement.addEventListener("dragleave", (event) => {
-				if (!dropzoneElement.contains(event.relatedTarget)) {
-					dropzoneElement.classList.remove("is-dragover");
-				}
-			});
-
-			dropzoneElement.addEventListener("drop", async (event) => {
-				event.preventDefault();
-				dropzoneElement.classList.remove("is-dragover");
-				await openSelectedFiles(event.dataTransfer ? event.dataTransfer.files : null);
-			});
-
-			void loadFromQuery();
-
-			async function loadFromQuery() {
-				const params = new URLSearchParams(window.location.search);
-				const rawFile = params.get("file");
-				const request = normalizeRequestPath(rawFile || DEFAULT_FILE);
-
-				if (!request.ok) {
-					renderError(request.reason, true);
-					return;
-				}
-
-				currentWikiFile = request.path || DEFAULT_FILE;
-				renderStatus("Datei wird geladen ...");
-
+		}
+	</style>
+</head>
+<body>
+	<main class="shell">
+		<article id="app" class="wiki-article" aria-live="polite">HTML geladen.</article>
+	</main>
+
+	<script>
+		window.addEventListener("error", function (event) {
+			console.error("window error:", event.message, event.filename, event.lineno, event.colno, event.error || "");
+		});
+
+		window.addEventListener("unhandledrejection", function (event) {
+			console.error("unhandled rejection:", event.reason);
+		});
+	</script>
+
+	<script type="module">
+		const app = document.getElementById("app");
+		const inMemorySources = new Map();
+		const loadedModules = new Map();
+		const viewerMap = new Map();
+		let viewerMapLoaded = false;
+		let rootLinkBasePromise = null;
+		let rootLinkBaseValue = "";
+
+		function trace(message, value) {
+			const line = "[module] " + message + (value === undefined ? "" : " " + String(value));
+			console.log(line, value === undefined ? "" : value);
+		}
+
+		function show(text, className = "status") {
+			trace("show", text);
+			const node = document.createElement("p");
+			node.className = className;
+			node.textContent = text;
+			app.className = "wiki-article";
+			app.replaceChildren(node);
+		}
+
+		function normalizeSlashes(path) {
+			return String(path || "").split(String.fromCharCode(92)).join("/");
+		}
+
+		function normalizeSource(source) {
+			const text = String(source ?? "");
+			const cr = String.fromCharCode(13);
+			const lf = String.fromCharCode(10);
+			return text
+				.split(cr + lf).join(lf)
+				.split(lf + cr).join(lf)
+				.split(cr).join(lf);
+		}
+
+		function normalizePath(path) {
+			return normalizeSlashes(path || "./index.wiki");
+		}
+
+		async function ensureRootLinkBase() {
+			if (rootLinkBasePromise) return rootLinkBasePromise;
+
+			rootLinkBasePromise = (async () => {
 				try {
-					const source = await loadRenderableFile(currentWikiFile);
-					await renderSourceFile(source, currentWikiFile);
+					const response = await fetch("./js/root.conf", { cache: "no-store" });
+					if (!response.ok) {
+						rootLinkBaseValue = "";
+						return rootLinkBaseValue;
+					}
+
+					const line = normalizeSource(await response.text())
+						.split(String.fromCharCode(10))
+						.map((entry) => entry.trim())
+						.find((entry) => entry);
+
+					rootLinkBaseValue = line
+						? normalizeSlashes(line).replace(/\/+$/, "") + "/"
+						: "";
 				} catch (error) {
-					renderError(buildLoadError(error, currentWikiFile), true);
+					trace("root.conf failed", error);
+					rootLinkBaseValue = "";
 				}
+
+				return rootLinkBaseValue;
+			})();
+
+			return rootLinkBasePromise;
+		}
+
+		function getExtension(path) {
+			const clean = String(path || "").split("?")[0].split("#")[0];
+			const fileName = normalizeSlashes(clean).split("/").pop() || "";
+			const dot = fileName.lastIndexOf(".");
+			return dot >= 0 ? fileName.slice(dot + 1).toLowerCase() : "wiki";
+		}
+
+		async function ensureViewerMap() {
+			if (viewerMapLoaded) return;
+			viewerMapLoaded = true;
+			try {
+				const res = await fetch("./js/viewer.ini", { cache: "no-store" });
+				if (!res.ok) return;
+				const text = await res.text();
+				for (const line of normalizeSource(text).split(String.fromCharCode(10))) {
+					const t = line.trim();
+					if (!t || t.startsWith("#")) continue;
+					const i = t.indexOf("=");
+					if (i < 0) continue;
+					const key = t.slice(0, i).trim();
+					const val = t.slice(i + 1).trim();
+					viewerMap.set(key, val);
+				}
+				trace("viewer.ini loaded", Object.fromEntries(viewerMap));
+			} catch (e) {
+				trace("viewer.ini failed", e);
+			}
+		}
+
+		function getViewerPath(ext) {
+			const key = ext || "";
+			if (viewerMap.has(key)) return "./js/" + viewerMap.get(key);
+			if (viewerMap.has("*")) return "./js/" + viewerMap.get("*");
+			return "./js/viewer.txt.js";
+		}
+
+		function createNavigationUrl(path) {
+			return "index.html?file=" + encodeURIComponent(path);
+		}
+
+		function createSourceFileUrl(path) {
+			const normalizedPath = normalizePath(path);
+			if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedPath)) {
+				return normalizedPath;
 			}
 
-			function normalizeRequestPath(rawPath) {
-				if (typeof rawPath !== "string" || rawPath.trim() === "") {
-					return { ok: true, path: DEFAULT_FILE };
-				}
+			const relativePath = normalizedPath.replace(/^\.\//, "");
+			return rootLinkBaseValue
+				? rootLinkBaseValue + relativePath
+				: normalizedPath;
+		}
 
-				const input = rawPath.trim().replace(/\\/g, "/");
+		function fileNameLabel(path) {
+			const clean = String(path || "").split("?")[0].split("#")[0];
+			const fileName = normalizeSlashes(clean).split("/").pop() || "";
+			return fileName || clean || "Document";
+		}
 
-				if (/^[a-zA-Z]:/.test(input) || input.startsWith("/") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(input)) {
-					return { ok: false, reason: "Der Parameter file muss ein relativer Pfad sein." };
-				}
+		function setPageTitle(title, kind) {
+			const cleanTitle = String(title || "").trim();
+			const cleanKind = String(kind || "").trim();
+			document.title = cleanTitle
+				? cleanKind
+					? cleanTitle + " - " + cleanKind + " Viewer"
+					: cleanTitle + " - Wiki Viewer"
+				: "Wiki Viewer";
+		}
 
-				const segments = [];
-				for (const segment of input.split("/")) {
-					if (!segment || segment === ".") {
-						continue;
-					}
+		function resolveRelativePath(base, target) {
+			const normalizedTarget = normalizeSlashes(target);
+			if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedTarget)) return normalizedTarget;
 
-					if (segment === "..") {
-						if (!segments.length) {
-							return { ok: false, reason: "Der Pfad verlaesst das Startverzeichnis von index.html." };
-						}
+			const baseParts = normalizeSlashes(base).split("/");
+			baseParts.pop();
 
-						segments.pop();
-						continue;
-					}
-
-					segments.push(segment);
-				}
-
-				return { ok: true, path: segments.join("/") || DEFAULT_FILE };
+			for (const part of normalizedTarget.split("/")) {
+				if (!part || part === ".") continue;
+				if (part === "..") baseParts.pop();
+				else baseParts.push(part);
 			}
 
-			function resolveRelativePath(baseFile, targetPath) {
-				const input = targetPath.trim().replace(/\\/g, "/");
-				const baseSegments = baseFile.split("/");
-				baseSegments.pop();
+			return baseParts.join("/") || target;
+		}
 
-				const segments = [...baseSegments];
-				for (const segment of input.split("/")) {
-					if (!segment || segment === ".") {
-						continue;
-					}
+		async function checkedFetchText(path, options = {}) {
+			const normalizedPath = normalizePath(path);
 
-					if (segment === "..") {
-						if (!segments.length) {
-							return null;
-						}
+			if (inMemorySources.has(normalizedPath)) {
+				trace("memory source hit", normalizedPath);
+				return inMemorySources.get(normalizedPath);
+			}
 
-						segments.pop();
-						continue;
-					}
+			if (!options.quiet) {
+				show("Datei wird geladen: " + normalizedPath + " ...");
+			}
+			trace("fetch start", normalizedPath);
 
-					segments.push(segment);
+			const response = await fetch(normalizedPath, { cache: "no-store" });
+			trace("fetch response", normalizedPath + " HTTP " + response.status + " " + response.headers.get("content-type"));
+
+			if (!response.ok) {
+				throw new Error(normalizedPath + " konnte nicht geladen werden: HTTP " + response.status);
+			}
+
+			const text = await response.text();
+			trace("fetch text length", text.length);
+			return normalizeSource(text);
+		}
+
+		async function loadViewerForExtension(ext, options = {}) {
+			await ensureViewerMap();
+			const normalizedExt = ext || "txt";
+			const viewerPath = getViewerPath(normalizedExt);
+
+			// cache PROMISE to avoid parallel imports
+			if (loadedModules.has(viewerPath)) return loadedModules.get(viewerPath);
+
+			const loadPromise = (async () => {
+				if (!options.quiet) {
+					show("Importiere " + viewerPath + " ...");
 				}
+				trace("import start", viewerPath);
+				trace("protocol", window.location.protocol);
 
-				return segments.join("/") || DEFAULT_FILE;
-			}
-
-			async function loadFileBytes(path) {
-				const response = await fetch(path, { cache: "no-store" });
-				if (!response.ok) {
-					throw new Error("HTTP " + response.status + " " + response.statusText);
-				}
-
-				return new Uint8Array(await response.arrayBuffer());
-			}
-
-			async function loadRenderableFile(path) {
-				return createRenderInput(await loadFileBytes(path), path);
-			}
-
-			function decodeWikiText(bytes) {
+				let mod;
 				try {
-					return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-				} catch {
-					return new TextDecoder("windows-1252").decode(bytes);
+					mod = await import(viewerPath);
+				} catch (error) {
+					// fallback to txt viewer
+					if (normalizedExt !== "txt") {
+						trace("import fallback", viewerPath + " -> ./js/viewer.txt.js");
+						return await loadViewerForExtension("txt");
+					}
+					throw error;
 				}
-			}
 
-			function createRenderInput(bytes, filePath) {
-				if (isTextResourceExtension(getFileExtension(filePath))) {
-					return decodeWikiText(bytes);
-				}
+				trace("import ok", Object.keys(mod).join(", "));
 
-				return createBinaryRenderInput(bytes, filePath);
-			}
-
-			function createBinaryRenderInput(bytes, filePath) {
-				const extension = getFileExtension(filePath);
-				const mimeType = getMimeTypeForExtension(extension);
-				return {
-					kind: "binary-resource",
-					bytes,
-					mimeType,
-					objectUrl: URL.createObjectURL(new Blob([bytes], { type: mimeType })),
-					filePath
-				};
-			}
-
-			async function renderSourceFile(source, filePath) {
-				const extension = getFileExtension(filePath);
-				const renderer =
-					resolveViewerForPath(filePath) ||
-					await ensureViewerLoaded(extension);
+				const renderer = typeof mod.render === "function"
+					? mod
+					: mod.default && mod.default.renderer && typeof mod.default.renderer.render === "function"
+						? mod.default.renderer
+						: null;
+				const binary = Boolean(
+					mod && mod.isBinary === true
+					|| mod && mod.default && mod.default.isBinary === true
+				);
 
 				if (!renderer) {
-					if (tryRenderBasicResource(source, filePath)) {
-						return;
+					if (normalizedExt !== "txt") {
+						trace("renderer fallback", viewerPath + " -> ./js/viewer.txt.js");
+						return await loadViewerForExtension("txt");
 					}
+					throw new Error(viewerPath + " exportiert keine render(source, context)-Funktion.");
 				}
-
-				if (!renderer || typeof renderer.render !== "function") {
-					const fallbackRenderer = typeof source === "string" ? window.WikiViewer : null;
-					if (fallbackRenderer && typeof fallbackRenderer.render === "function") {
-						fallbackRenderer.render(source, createRenderContext(filePath));
-						return;
-					}
-
-					renderError("Der passende Renderer konnte nicht geladen werden.", true);
-					return;
-				}
-
-				renderer.render(source, createRenderContext(filePath));
-			}
-
-			function createRenderContext(filePath, targetElement = articleElement, options = {}) {
-				const suppressTitle = Boolean(options.suppressTitle);
-				const showSourceFilename = options.showSourceFilename !== false;
-				const isRootContext = targetElement === articleElement;
-				const isEmbedded = options.isEmbedded !== undefined
-					? Boolean(options.isEmbedded)
-					: !isRootContext;
 
 				return {
-					filePath,
-					isEmbedded,
-					articleElement: targetElement,
-					appendNodes,
-					fileNameLabel,
-					resolveRelativePath,
-					createNavigationUrl,
-					hasKnownRenderableExtension,
-					isExternalLink,
-					normalizeExternalLink,
-					decodeTextBytes: decodeWikiText,
-					getFileExtension,
-					getMimeTypeForExtension,
-					isTextResourceExtension,
-					resolveViewerForExtension,
-					ensureViewerLoaded,
-					createChildContext(childFilePath, childTargetElement, childOptions = {}) {
-						return createRenderContext(
-							childFilePath,
-							childTargetElement,
-							{
-								suppressTitle: true,
-								showSourceFilename: false,
-								isEmbedded: true,
-								...childOptions
-							}
-						);
-					},
-					showSourceFilename,
-					async loadResourceBytes(targetPath) {
-						const normalizedTarget = typeof targetPath === "string"
-							? targetPath.trim()
-							: "";
-						if (!normalizedTarget) {
-							throw new Error("Die Ressource hat keinen gueltigen Pfad.");
-						}
+					render: renderer.render,
+					isBinary: binary
+				};
+			})();
 
-						const resolvedPath = isExternalLink(normalizedTarget)
-							? normalizeExternalLink(normalizedTarget)
-							: resolveRelativePath(filePath, normalizedTarget);
-						if (!resolvedPath) {
-							throw new Error("Der Pfad verlaesst das Startverzeichnis der aktuellen Datei.");
-						}
+			loadedModules.set(viewerPath, loadPromise);
+			return loadPromise;
+		}
 
-						return {
-							path: resolvedPath,
-							bytes: await loadFileBytes(resolvedPath)
-						};
-					},
-					prepareArticle(className) {
-						if (isRootContext) {
-							currentWikiFile = filePath;
-							setShellMode(className === "source-view" && !isEmbedded);
-						}
+		async function renderFile(filePath) {
+			const normalizedFilePath = normalizePath(filePath);
+			const ext = getExtension(normalizedFilePath);
+			const viewer = await loadViewerForExtension(ext);
+			await ensureRootLinkBase();
+			const source = viewer.isBinary
+				? ""
+				: await checkedFetchText(normalizedFilePath);
 
-						targetElement.replaceChildren();
-						targetElement.className = className;
+			trace("render start", normalizedFilePath);
+			viewer.render(source, createRenderContext(normalizedFilePath));
+			trace("render done", normalizedFilePath);
+		}
 
-						if (isRootContext) {
-							hideUploadPanel();
-						}
-					},
-					setPageTitle(title, suffix) {
-						if (!suppressTitle) {
-							document.title = title + " - " + suffix;
-						}
+		function createRenderContext(filePath, articleElement = app, options = {}) {
+			const targetElement = articleElement || app;
+			const isEmbedded = Boolean(options.isEmbedded);
+			const context = {
+				filePath,
+				articleElement: targetElement,
+				isEmbedded,
+				showSourceFilename: options.showSourceFilename !== undefined ? options.showSourceFilename : !isEmbedded,
+				fileNameLabel,
+				createSourceFileUrl(path) {
+					trace("context.createSourceFileUrl", path);
+					return createSourceFileUrl(path);
+				},
+				setPageTitle(title, kind) {
+					if (isEmbedded) return;
+					trace("context.setPageTitle", title + (kind ? " [" + kind + "]" : ""));
+					setPageTitle(title, kind);
+				},
+				prepareArticle(className) {
+					trace("context.prepareArticle", className);
+					targetElement.className = className;
+					targetElement.replaceChildren();
+				},
+				resolveRelativePath(base, target) {
+					const resolved = resolveRelativePath(base, target);
+					trace("context.resolveRelativePath", base + " -> " + target + " = " + resolved);
+					return resolved;
+				},
+				createNavigationUrl(path) {
+					trace("context.createNavigationUrl", path);
+					return createNavigationUrl(path);
+				},
+				hasKnownRenderableExtension(path) {
+					const e = getExtension(path);
+					return viewerMap.has(e) || viewerMap.has("*");
+				},
+				async renderResourceReference(ext, resourcePath, embeddedTarget) {
+					await ensureViewerMap();
+					await ensureRootLinkBase();
+					const normalizedExt = ext || getExtension(resourcePath) || "txt";
+					const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
+					const normalizedFilePath = normalizePath(resourcePath);
+
+					if (viewer.isBinary) {
+						viewer.render("", createRenderContext(normalizedFilePath, embeddedTarget, {
+							isEmbedded: true,
+							showSourceFilename: true
+						}));
+						return;
 					}
+
+					const source = await checkedFetchText(normalizedFilePath, { quiet: true });
+					await this.renderEmbeddedSource(normalizedExt, source, embeddedTarget, normalizedFilePath, {
+						showSourceFilename: true
+					});
+				},
+				async renderEmbeddedSource(ext, source, embeddedTarget, embeddedFilePath, options = {}) {
+					await ensureViewerMap();
+					await ensureRootLinkBase();
+					const normalizedExt = ext || getExtension(embeddedFilePath) || "txt";
+					const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
+					const normalizedFilePath = normalizePath(embeddedFilePath || ("embedded." + normalizedExt));
+					viewer.render(
+						viewer.isBinary ? String(source ?? "") : normalizeSource(source),
+						createRenderContext(normalizedFilePath, embeddedTarget, {
+							isEmbedded: true,
+							showSourceFilename: options.showSourceFilename === true
+						})
+					);
+				}
+			};
+
+			if (!isEmbedded) {
+				context.updateWikiSource = async function updateWikiSource(nextSource) {
+					if (getExtension(filePath) !== "wiki") {
+						throw new Error("Nur .wiki-Dateien koennen im Viewer bearbeitet werden.");
+					}
+
+					const normalizedSource = normalizeSource(nextSource);
+					inMemorySources.set(normalizePath(filePath), normalizedSource);
+					trace("memory source updated", filePath + " length " + normalizedSource.length);
+					await renderFile(filePath);
 				};
 			}
 
-			function registerBuiltInViewers() {
-				if (window.WikiViewer && typeof window.WikiViewer.render === "function") {
-					registerViewer("wiki", window.WikiViewer);
-				}
+			return context;
+		}
 
-				if (window.SpoViewer && typeof window.SpoViewer.render === "function") {
-					registerViewer(["spo", "ilt"], window.SpoViewer);
-				}
-			}
+		try {
+			trace("module script reached");
+			trace("try start");
 
-			function registerViewer(extensions, viewer) {
-				if (!viewer || typeof viewer.render !== "function") {
-					return;
-				}
-
-				const extensionList = Array.isArray(extensions) ? extensions : [extensions];
-				for (const extension of extensionList) {
-					const normalizedExtension = normalizeExtension(extension);
-					if (!normalizedExtension) {
-						continue;
-					}
-
-					viewerRegistry.set(normalizedExtension, viewer);
-				}
-			}
-
-			function normalizeExtension(extension) {
-				return String(extension || "")
-					.trim()
-					.replace(/^\./, "")
-					.toLowerCase();
-			}
-
-			function getFileExtension(path) {
-				const cleanedPath = String(path || "")
-					.trim()
-					.replace(/[?#].*$/, "");
-				const lastSegment = cleanedPath.split(/[\\/]/).pop() || "";
-				const match = /\.([^.]+)$/.exec(lastSegment);
-				return match ? normalizeExtension(match[1]) : "";
-			}
-
-			function getMimeTypeForExtension(extension) {
-				const normalizedExtension = normalizeExtension(extension);
-				return MIME_TYPE_BY_EXTENSION[normalizedExtension] || "application/octet-stream";
-			}
-
-			function isBinaryResourceExtension(extension) {
-				return BINARY_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
-			}
-
-			function isTextResourceExtension(extension) {
-				const normalizedExtension = normalizeExtension(extension);
-				return !normalizedExtension || !isBinaryResourceExtension(normalizedExtension);
-			}
-
-			function isImageResourceExtension(extension) {
-				return IMAGE_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
-			}
-
-			function isVideoResourceExtension(extension) {
-				return VIDEO_RESOURCE_EXTENSIONS.has(normalizeExtension(extension));
-			}
-
-			function resolveViewerForExtension(extension) {
-				return viewerRegistry.get(normalizeExtension(extension)) || null;
-			}
-
-			function resolveViewerForPath(path) {
-				return resolveViewerForExtension(getFileExtension(path));
-			}
-
-			async function ensureViewerLoaded(extension) {
-				const normalizedExtension = normalizeExtension(extension);
-				const knownViewer = resolveViewerForExtension(normalizedExtension);
-				if (knownViewer) {
-					return knownViewer;
-				}
-
-				if (!normalizedExtension) {
-					return null;
-				}
-
-				if (!viewerScriptLoads.has(normalizedExtension)) {
-					viewerScriptLoads.set(
-						normalizedExtension,
-						loadViewerScript(normalizedExtension)
-							.then(() => resolveViewerForExtension(normalizedExtension))
-							.catch(() => null)
-					);
-				}
-
-				return viewerScriptLoads.get(normalizedExtension);
-			}
-
-			function loadViewerScript(extension) {
-				return new Promise((resolve, reject) => {
-					const script = document.createElement("script");
-					script.src = "js/viewer." + extension + ".js";
-					script.async = true;
-					script.onload = () => resolve();
-					script.onerror = () => reject(new Error("viewer." + extension + ".js konnte nicht geladen werden."));
-					document.head.append(script);
-				});
-			}
-
-			function renderStatus(message) {
-				setShellMode();
-				hideUploadPanel();
-				articleElement.className = "wiki-article";
-				const paragraph = document.createElement("p");
-				paragraph.className = "status";
-				paragraph.textContent = message;
-				articleElement.replaceChildren(paragraph);
-			}
-
-			function renderError(message, showUploader = false) {
-				setShellMode();
-				articleElement.className = "wiki-article";
-				document.title = "Datei Fehler";
-
-				const paragraph = document.createElement("p");
-				paragraph.className = "error";
-				paragraph.textContent = message;
-				articleElement.replaceChildren(paragraph);
-
-				if (showUploader) {
-					showUploadPanel();
-				} else {
-					hideUploadPanel();
-				}
-			}
-
-			function buildLoadError(error, filePath) {
-				const parts = [
-					"Die Datei konnte nicht geladen werden:",
-					filePath
-				];
-
-				if (error && error.message) {
-					parts.push("", error.message);
-				}
-
-				if (window.location.protocol === "file:") {
-					parts.push(
-						"",
-						"Hinweis: Browser blockieren lokale Datei-Zugriffe meist direkt ueber file://.",
-						"Nutze unten die Dropzone oder starte die Seite ueber einen lokalen HTTP-Server."
-					);
-				}
-
-				return parts.join("\n");
-			}
-
-			function tryRenderBasicResource(source, filePath) {
-				const extension = getFileExtension(filePath);
-				const objectUrl = createRenderObjectUrl(source, filePath);
-				if (!objectUrl) {
-					return false;
-				}
-
-				if (isImageResourceExtension(extension)) {
-					renderMediaFile(filePath, createImageElement(objectUrl, filePath));
-					return true;
-				}
-
-				if (isVideoResourceExtension(extension)) {
-					renderMediaFile(filePath, createVideoElement(objectUrl));
-					return true;
-				}
-
-				return false;
-			}
-
-			function createRenderObjectUrl(source, filePath) {
-				if (source && typeof source === "object" && source.objectUrl) {
-					return source.objectUrl;
-				}
-
-				let bytes = null;
-				if (typeof source === "string") {
-					bytes = new TextEncoder().encode(source);
-				} else if (source && source.bytes instanceof Uint8Array) {
-					bytes = source.bytes;
-				}
-
-				if (!bytes) {
-					return "";
-				}
-
-				return URL.createObjectURL(
-					new Blob([bytes], { type: getMimeTypeForExtension(getFileExtension(filePath)) })
-				);
-			}
-
-			function renderMediaFile(filePath, mediaElement) {
-				setShellMode();
-				hideUploadPanel();
-				articleElement.className = "wiki-article";
-				articleElement.replaceChildren();
-				document.title = fileNameLabel(filePath) + " - Resource";
-
-				const figure = document.createElement("figure");
-				figure.style.margin = "0";
-
-				const caption = document.createElement("figcaption");
-				caption.textContent = filePath;
-				caption.style.margin = "0 0 0.85rem";
-				caption.style.color = "var(--muted)";
-				caption.style.wordBreak = "break-word";
-
-				figure.append(caption, mediaElement);
-				articleElement.append(figure);
-			}
-
-			function createImageElement(objectUrl, filePath) {
-				const image = document.createElement("img");
-				image.src = objectUrl;
-				image.alt = fileNameLabel(filePath) || filePath;
-				image.loading = "lazy";
-				image.decoding = "async";
-				image.style.display = "block";
-				image.style.maxWidth = "100%";
-				image.style.height = "auto";
-				image.style.border = "1px solid rgba(125, 102, 78, 0.28)";
-				image.style.background = "#ffffff";
-				return image;
-			}
-
-			function createVideoElement(objectUrl) {
-				const video = document.createElement("video");
-				video.controls = true;
-				video.preload = "metadata";
-				video.src = objectUrl;
-				video.style.display = "block";
-				video.style.maxWidth = "100%";
-				video.style.height = "auto";
-				video.style.border = "1px solid rgba(125, 102, 78, 0.28)";
-				video.style.background = "#ffffff";
-				return video;
-			}
-
-			function createNavigationUrl(path) {
-				const url = new URL(window.location.href);
-				if (path === DEFAULT_FILE) {
-					url.searchParams.delete("file");
-				} else {
-					url.searchParams.set("file", path);
-				}
-
-				return url.toString();
-			}
-
-			async function openSelectedFiles(fileList) {
-				const file = fileList && fileList[0];
-				if (!file) {
-					return;
-				}
-
-				setUploadNote("Datei wird gelesen ...");
-
-				try {
-					const bytes = new Uint8Array(await file.arrayBuffer());
-					const source = createRenderInput(bytes, file.name);
-					await renderSourceFile(source, file.name);
-					setUploadNote("Die lokale Datei wurde erfolgreich geladen.");
-				} catch (error) {
-					renderError("Die ausgewaehlte Datei konnte nicht gelesen werden.", true);
-					setUploadNote(error && error.message ? error.message : "Unbekannter Fehler beim Lesen der Datei.", "error");
-				}
-			}
-
-			function showUploadPanel() {
-				uploadPanelElement.hidden = false;
-				setUploadNote("Die Datei wird nur lokal im Browser gelesen und nicht hochgeladen.");
-			}
-
-			function hideUploadPanel() {
-				uploadPanelElement.hidden = true;
-				dropzoneElement.classList.remove("is-dragover");
-			}
-
-			function setShellMode(sourceStandalone = false) {
-				if (!sourceStandalone &&
-					window.SpoViewer &&
-					typeof window.SpoViewer.disposeStandaloneLayout === "function"
-				) {
-					window.SpoViewer.disposeStandaloneLayout();
-				}
-
-				if (!shellElement) {
-					return;
-				}
-
-				shellElement.className = sourceStandalone
-					? "shell shell-source-standalone"
-					: "shell";
-			}
-
-			function setUploadNote(message, tone = "default") {
-				uploadNoteElement.textContent = message;
-				uploadNoteElement.dataset.tone = tone;
-			}
-
-			function isExternalLink(target) {
-				return /^(https?:\/\/|ftp:\/\/|mailto:)/i.test(target) || /^www\./i.test(target);
-			}
-
-			function normalizeExternalLink(target) {
-				return /^www\./i.test(target) ? "https://" + target : target;
-			}
-
-			function hasKnownRenderableExtension(path) {
-				return /\.(wiki|spo|ilt|mermaid|mmd)$/i.test(path);
-			}
-
-			function fileNameLabel(path) {
-				const normalized = path.replace(/\\/g, "/").split("/").pop() || path;
-				return normalized.replace(/\.[^.]+$/, "");
-			}
-
-			function appendNodes(parent, nodesOrResult) {
-				const nodes = Array.isArray(nodesOrResult) ? nodesOrResult : nodesOrResult.nodes;
-				for (const node of nodes) {
-					parent.append(node);
-				}
-			}
-		</script>
-	</body>
+			const params = new URLSearchParams(window.location.search);
+			const filePath = params.get("file") || "./index.wiki";
+			await renderFile(filePath);
+		} catch (error) {
+			trace("catch", error && error.stack || error && error.message || String(error));
+			show("Startfehler:\n" + (error && error.stack || error && error.message || String(error)), "error");
+		}
+	</script>
+</body>
 </html>

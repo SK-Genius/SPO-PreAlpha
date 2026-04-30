@@ -4,50 +4,99 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/SK-Genius/SPO-PreAlpha)
 
 # SPO (PreAlpha)
-SPO is a programming language focused on security, safety, robustness, and performance.
+
+SPO is a pre-alpha programming language project focused on security, safety, robustness, and performance.
+This repository currently contains the C# implementation of the language, a sample host, a VS Code extension, and a local documentation viewer.
 
 ## Why SPO?
-Modern software runs critical infrastructure, yet many languages still allow easy-to-miss failures (nulls, unchecked bounds).
-SPO aims to make secure and robust programs the default without drowning developers in complexity - by making effects explicit, keeping dataflow analyzable, and enforcing safety through the type system.
 
-## Goals
+Modern software runs critical infrastructure, yet many languages still make it easy to ship null bugs, unchecked bounds, and hidden side effects.
+SPO aims to push those failure modes out of the default path by making dataflow and effects explicit.
+
+Current design goals:
+
 - Memory safety and type safety by construction.
-- Avoid common runtime crashes (null pointer, out of range).
-- No unmanaged side effects: mutable state is explicit and capability-based; no global mutable data.
+- Avoid common runtime crashes such as null dereferences and out-of-range access.
+- Keep mutable state explicit and capability-based instead of allowing hidden global effects.
 - Make static dataflow analysis straightforward.
-- Seamless mix of functional, imperative, and parallel styles.
+- Allow functional, imperative, and parallel styles to coexist.
 
-## How security and safety are intended to be realized
+Current safety direction:
+
 - Explicit `tMaybe...` and `tResult...` types instead of implicit nulls or exceptions.
-- Refinement types to make bounds and validity checks explicit and move checks from callee to caller (also for performance).
-- Capabilities via mutable data/handles to control effects and prevent hidden side effects.
-- Capability model example (conceptual): code must declare needed capabilities (e.g., FileRead, FileWrite, Net); the host grants them or supplies mocks/proxies. Without a capability, code cannot touch that resource.
+- Refinement-style typing to move validity checks to the caller when possible.
+- Capability-oriented effects so code must be given access to files, networks, or other resources.
 
-## Example
+## Repository Layout
 
-```spo
-§IMPORT {
-  ...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-  ...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-}
+| Path | Purpose |
+| --- | --- |
+| `SPO_CS/` | main implementation: tokenizer, parser, AST, typing, lowering, VM, diagnostics, navigation, modules, and tests |
+| `SPO/` | small sample host that loads and runs `src/_.spo` through the interpreter |
+| `VSCode_Extension/` | VS Code client, language server source, packaged server payload, and local deploy helper |
+| `doc/` | contributor documentation in the repository's custom `.wiki` format |
+| `index.html` and `js/` | local viewer for `.wiki`, `.spo`, `.ilt`, diagrams, images, and related assets |
 
-§RECURSIVE {
-  §DEF Fib... = (
-    §DEF a € §INT
-  ) => §IF a §MATCH {
-    0 : 0
-    1 : 1
-    §DEF N : (.Fib (N .- 2)) .+ (.Fib (N .- 1))
-  }
-}
+If you want the file-level map first, open [doc/Repository_Map.wiki](doc/Repository_Map.wiki).
+If you want the architecture-level explanation, open [doc/Repository_Overview.wiki](doc/Repository_Overview.wiki).
 
-§EXPORT .Fib 6
+## Contributor Quick Start
+
+Prerequisites:
+
+- .NET 10 SDK pinned in [`global.json`](global.json)
+- Node only if you need to package or reinstall the VS Code extension
+- Windows if you need the packaged extension server path exactly as checked in today
+
+Start with the compiler-side runner, not the sample host:
+
+```text
+cd SPO_CS
+dotnet run -- --list
+dotnet run -- --matchAny mTokenizer
+dotnet run -- --matchAny 07_12_GenericTypes
 ```
 
-## Planned killer app
-A plugin-driven, secure, privacy-first social media infrastructure without servers (peer-to-peer). Untrusted extensions run under explicit capabilities. Data is hosted by users by default, unless explicitly delegated to a third-party server.
+That is the most reliable first feedback loop in the current checkout.
+For command details and path-sensitive caveats, read [doc/Build_and_Test.wiki](doc/Build_and_Test.wiki).
+
+## Documentation Map
+
+The detailed contributor docs live under [`doc/`](doc/) and are easiest to browse locally through the bundled viewer:
+
+```text
+index.html?file=doc/index.wiki
+```
+
+Recommended entry points:
+
+- [doc/index.wiki](doc/index.wiki): master index by goal
+- [doc/Getting_Started.wiki](doc/Getting_Started.wiki): fastest contributor onboarding path
+- [doc/Build_and_Test.wiki](doc/Build_and_Test.wiki): reliable commands and current caveats
+- [doc/Compilation_Pipeline.wiki](doc/Compilation_Pipeline.wiki): SPO source to IL to VM
+- [doc/VM_and_Modules.wiki](doc/VM_and_Modules.wiki): runtime data model and module bootstrap
+- [doc/Tooling.wiki](doc/Tooling.wiki): local viewer and VS Code extension
+- [doc/Current_Status.wiki](doc/Current_Status.wiki): dated command results for this checkout
+
+## Current Verified Status (2026-05-01)
+
+These command results were rechecked in this worktree on 2026-05-01:
+
+- `cd SPO_CS` then `dotnet run -- --list` succeeds and lists the custom test tree.
+- `cd SPO_CS` then `dotnet run -- --matchAny mModule_Tests --plainText` currently fails in `Maybe`.
+- `cd SPO` then plain `dotnet run` is not the safest smoke test in this checkout; if you need the host path, use `dotnet run /p:EnableSourceControlManagerQueries=false`, which currently still fails with a parser error at `SPO/src/_.spo:13`.
+- `cd VSCode_Extension` then `dotnet run .\Deploy-LocalExtension.cs -- --help` succeeds.
+
+Treat `SPO_CS/` as the implementation center and the best default validation path.
+Use the sample host only when you are specifically debugging host embedding behavior.
+
+## Planned Killer App
+
+A plugin-driven, secure, privacy-first social media infrastructure without mandatory central servers.
+Untrusted extensions would run under explicit capabilities, and user data would stay user-hosted unless deliberately delegated elsewhere.
 
 ## Roadmap
-- **Pre-Alpha -> Alpha:** make the compiler self-hosting (rewrite in SPO).
-- **Alpha -> Beta:** complete memory management (statically optimized reference counting) and missing core features (refinement types, parallel execution, debugger).
-- **Beta -> Release:** add real CPU backends (LLVM) and expand tooling + standard libraries.
+
+- Pre-Alpha to Alpha: make the compiler self-hosting by rewriting it in SPO.
+- Alpha to Beta: complete memory management and missing core features such as refinement types, parallel execution, and debugger support.
+- Beta to Release: add real CPU backends such as LLVM and expand tooling plus standard libraries.

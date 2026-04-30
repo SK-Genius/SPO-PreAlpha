@@ -1,7 +1,19 @@
-[=Wiki Syntax=]
+[§ CheatSheet for the Wiki Syntax §]
 
-This page describes the current wiki behavior implemented by [.txt|js/viewer.wiki.js.] and [.txt|index.html.].
+This page describes the current wiki behavior implemented by [.|js/viewer.wiki.js.] and [.|index.html.].
 Those files are the authority when this quick sheet and older examples disagree.
+
+[=Document Title Header=]
+
+Wiki pages may start with a dedicated first line that sets the document title:
+
+[.
+|[§ My Document Name §]
+.]
+
+- this header must be the very first line in the file
+- it is not rendered as page content
+- if the header is missing (or empty), the viewer falls back to the file name as the document title
 
 [=Basic Principle=]
 
@@ -9,7 +21,10 @@ Most syntax uses bracketed forms.
 Block syntax on its own line creates its own element.
 Inline syntax only affects running text.
 
-Lines without a block marker and with the same indentation join into one paragraph.
+Leading whitespace is ignored by the parser.
+Indentation does not change layout and does not create nested paragraphs.
+
+Lines without a block marker join into one paragraph.
 Line breaks inside such a paragraph render like soft wraps.
 An empty line ends the paragraph.
 
@@ -18,60 +33,66 @@ That means:
 - a single source line break inside a paragraph is rendered as a space
 - use an empty line if you want a visible paragraph break
 
-Where it stays readable, this page shows examples as [.txt|Source.] versus [.txt|Rendered.] in tables so the syntax and the live result stay together.
+Where it stays readable, this page shows examples as [.|Source.] versus [.|Rendered.] in tables so the syntax and the live result stay together.
 
 [=Escapes=]
-[| [*Source*]  | [*Rendered*] |]
-[| [.txt|[[.]  | [[           |]
-[| [.txt|]].]  | ]]           |]
-[| [.txt|[|].] | [|]          |]
+[| [*Source*] ][ [*Rendered*] |]
+[| [.|[[[[.]  ][ [[           |]
+[| [.|]]]].]  ][ ]]           |]
 
 [=Headings=]
 
 There is exactly one heading form:
 
-[.txt
-|[=Title=]
-.]
+[| [*Source*] ][ [*Rendered*] |]
+[| [.|[=Title=].] ][ [.wiki|[[=Title=]].] |]
 
 - headings start at the beginning of the line
 - headings appear in the table of contents
-- there is no second or third heading level; [.txt|[==Title==].] and [.txt|[===Title===].] are invalid
+- there is no second or third heading level; [.|[[==Title==]].] and [.|[[===Title===]].] are invalid
 
 [=Lists=]
 
 The block list markers are:
 
-[| [*Source*] | [*Rendered*] |]
+[| [*Source*] ][ [*Rendered*] |]
 [|
-  [.txt
+  [.
   |- Dash marker
   |o Circle marker
   |* Dot marker
+  |** Nested dot marker
+  |*** Deeper nested dot marker
   |# Square marker
   |> Arrow marker
+  |>> Nested arrow marker
+  |>>> Deeper nested arrow marker
   .]
-|
+][
   - Dash marker
   o Circle marker
   * Dot marker
+  ** Nested dot marker
+  *** Deeper nested dot marker
   # Square marker
   > Arrow marker
+  >> Nested arrow marker
+  >>> Deeper nested arrow marker
 |]
 
-- each marked line becomes its own list item
-- multi-line list items are currently not joined automatically
+- a line without a marker continues the previous paragraph or list item, unless an empty line appears before it
+- repeating the same marker increases the visual indentation depth, for example [.|**.], [.|>>>.], or [.|###.]
+- list items can therefore span multiple source lines by omitting the marker on continuation lines
 
 [=Inline Formatting=]
-[| [*Feature*]    | [*Source*]             | [*Rendered*]  |]
-[| underlined     | [.txt| XXX[_YYY_]ZZZ.] | XXX[_YYY_]ZZZ |]
-[| struck through | [.txt| XXX[-YYY-]ZZZ.] | XXX[-YYY-]ZZZ |]
-[| italic         | [.txt| XXX[/YYY/]ZZZ.] | XXX[/YYY/]ZZZ |]
-[| bold           | [.txt| XXX[*YYY*]ZZZ.] | XXX[*YYY*]ZZZ |]
-[| red            | [.txt| XXX[!YYY!]ZZZ.] | XXX[!YYY!]ZZZ |]
-[| smaller Text   | [.txt| XXX[(YYY)]ZZZ.] | XXX[(YYY)]ZZZ |]
-[| superscript    | [.txt| XXX['YYY']ZZZ.] | XXX['YYY']ZZZ |]
-[| subscript      | [.txt| XXX[,YYY,]ZZZ.] | XXX[,YYY,]ZZZ |]
+[| [*Feature*]    ][ [*Source*]            ][ [*Rendered*]  |]
+[| underlined     ][ [.| XXX[[_YYY_]]ZZZ.] ][ XXX[_YYY_]ZZZ |]
+[| struck through ][ [.| XXX[[-YYY-]]ZZZ.] ][ XXX[-YYY-]ZZZ |]
+[| italic         ][ [.| XXX[[/YYY/]]ZZZ.] ][ XXX[/YYY/]ZZZ |]
+[| bold           ][ [.| XXX[[*YYY*]]ZZZ.] ][ XXX[*YYY*]ZZZ |]
+[| red            ][ [.| XXX[[!YYY!]]ZZZ.] ][ XXX[!YYY!]ZZZ |]
+[| superscript    ][ [.| XXX[['YYY']]ZZZ.] ][ XXX['YYY']ZZZ |]
+[| subscript      ][ [.| XXX[[,YYY,]]ZZZ.] ][ XXX[,YYY,]ZZZ |]
 
 - inline markers may be nested if they close correctly
 
@@ -79,194 +100,242 @@ The block list markers are:
 
 Normal wiki links use the less-than form:
 
-[| [*Source*]                                    | [*Rendered*]                          |]
-[| [.txt|[<../TODO.wiki|TODO File>].]            | [<../TODO.wiki|TODO File>]            |]
-[| [.txt|[<https://example.com|External Link>].] | [<https://example.com|External Link>] |]
+[| [*Source*]                                 ][ [*Rendered*]                          |]
+[| [.|[<TODO.wiki|TODO File>].]               ][ [<TODO.wiki|TODO File>]               |]
+[| [.|[<https://example.com|External Link>].] ][ [<https://example.com|External Link>] |]
 
 Important rules:
 
-- a target without an extension is treated as a wiki page and gets [.txt|.wiki.] implicitly
-- [.txt|.wiki.], [.txt|.spo.], [.txt|.ilt.], [.txt|.mermaid.], and [.txt|.mmd.] open in repo viewers
+- a target without an extension is treated as a wiki page and gets [.|.wiki.] implicitly
+- [.|.wiki.], [.|.spo.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] open in repo viewers
 - explicit targets with other extensions resolve as files or assets
-- raw URLs, [.txt|www.example.com.], and mail addresses are auto-linked
-- the legacy board-link form [.txt|[?Title?].] is still recognized
+- raw URLs, [.|www.example.com.], and mail addresses are auto-linked
+- the legacy board-link form [.|[[?Title?]].] is still recognized
 
 [=Paragraphs Tables and Rules=]
 
-Paragraph indentation is preserved by shared leading spaces/tabs.
-Two consecutive text lines are merged into one paragraph.
-If you want a new paragraph, you must insert an empty line in the source.
-
-Visible rule:
-
-[| [*Source*]    | [*Rendered*] |]
-[| [.txt|[---].] | [---]        |]
-
-Tables use consecutive lines that begin with [.txt|[|.]:
-
-[.txt
-|[| [*Name*] | [*Value*] |]
-|[| Alpha    | 1         |]
-|[| A [|] B  | 2         |]
-.]
-
-- table cell separators ignore nested wiki syntax
-- use [.txt|[|].] for a literal pipe inside a cell
-
-[| [*Source*] | [*Rendered*] |]
+[| [*Source*] ][ [*Rendered*] |]
 [|
-  [.txt
+  [.
   |This is a paragraph.
   |This line still belongs to it.
   .]
-|
+][
   This is a paragraph.
   This line still belongs to it.
 |]
 [|
-  [.txt
+  [.
   |First paragraph.
   |
   |Second paragraph.
   .]
-|
+][
   First paragraph.
   
   Second paragraph.
 |]
 [|
-  [.txt
-  |  This paragraph is indented.
-  |  This line as well.
-  .]
-|
-  This paragraph is indented.
-  This line as well.
-|]
-[|
-  [.txt
+  [.
   |[---]
   .]
-|
+][
   [---]
 |]
 [|
-  [.txt
-  |[| [*Name*] | [*Value*] |]
-  |[| Alpha    | 1         |]
-  |[| A [|] B  | 2         |]
+  [.
+  |[| [*Name*] ][ [*Value*] |]
+  |[| Alpha    ][ 1         |]
+  |[| A | B    ][ 2         |]
   .]
-|
-  [| [*Name*] | [*Value*] |]
-  [| Alpha    | 1         |]
-  [| A [|] B  | 2         |]
+][
+  [| [*Name*] ][ [*Value*] |]
+  [| Alpha    ][ 1         |]
+  [| A | B    ][ 2         |]
 |]
 
 [=External Resource Blocks=]
 
 Hash blocks reference files or URLs:
 
-[| [*Source*] | [*Rendered*] |]
+[| [*Source*] ][ [*Rendered*] |]
 [|
-  [.txt
-  |[# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
+  [.
+  |[#
+  ||../SPO_CS/Regression.Tests/01_03_AssignInt.SPO
+  |#]
   .]
-|
-  [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
+][
+  [#
+  |../SPO_CS/Regression.Tests/01_03_AssignInt.SPO
+  #]
 |]
 
 - paths are relative to the current wiki file
-- [.txt|.wiki.], [.txt|.spo.], [.txt|.ilt.], [.txt|.mermaid.], and [.txt|.mmd.] use viewers
+- [.|.wiki.], [.|.spo.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] use viewers
 - images and videos use built-in media rendering
 - plain text files without a dedicated viewer fall back to code-style rendering
 
 [=Embedded Resource Blocks=]
 
-Embedded resources use a standalone opener line and the matching standalone close line shown below:
+Embedded resource blocks store the content directly in the wiki file.
+Use them when the resource should render as its own block instead of referencing an external file.
 
-[| [*Source*] | [*Rendered*] |]
+Pattern:
+
+[.
+|[.extension
+||content
+|.]
+.]
+
+- the opening line starts with the extension and stays open until the standalone closing line
+- the extension selects the viewer and also decides whether the content is treated as text or binary
+- for text resources, a leading helper pipe on each content line is stripped
+- for binary resources, write Base64 between the opening and closing lines
+- this multiline form is different from the inline compact form [.|[[.kind|value.]].]
+
+Examples:
+
+[| [*Source*] ][ [*Rendered*] |]
 [|
-  [.txt
-  |[.txt
+  [.
+  |[.
   ||first line
   ||second line
   |.]
   .]
-|
-  [.txt
+][
+  [.
   |first line
   |second line
   .]
 |]
 [|
-  [.txt
+  [.
   |[.spo
-  ||x := 1
-  ||export x
+  ||§VAR X := 1
+  ||§EXPORT X
   |.]
   .]
-|
+][
   [.spo
-  |x := 1
-  |export x
+  |§VAR X := 1
+  |§EXPORT X
   .]
-|]
-
-- for text resources, a leading helper pipe character on each content line is stripped
-- binary resources use Base64 between the opener and the matching close line
-
-[=Inline Compact Objects=]
-
-Inside a paragraph, compact forms stay inline:
-
-[| [*Source*] | [*Rendered*] |]
-[|
-  [.txt
-  |Text with [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] in a sentence.
-  .]
-|
-  Text with [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] in a sentence.
 |]
 [|
-  [.txt
-  |Text with [.spo|x := 1.] in a sentence.
+  [.
+  |[.mermaid
+  ||graph LR
+  ||    A[Square Rect] -- Link text --> B((Circle))
+  ||    A --> C(Round Rect)
+  ||    B --> D{Rhombus}
+  ||    C --> D  |.]
   .]
-|
-  Text with [.spo|§DEF x := 1.] in a sentence.
+][
+  [.mermaid
+  |graph LR
+  |    A[Square Rect] -- Link text --> B((Circle))
+  |    A --> C(Round Rect)
+  |    B --> D{Rhombus}
+  |    C --> D
+  .]
+|]
+[|
+  [.
+  |[.svg
+  ||<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  ||<!-- Created by hand! -->
+  ||<svg xmlns:svg="http://www.w3.org/2000/svg"
+  ||     xmlns="http://www.w3.org/2000/svg"
+  ||     version="1.0"
+  ||     width="220"
+  ||     height="220">
+  || <rect width="66" height="30" x="21" y="32" stroke="#204a87" stroke-width="2" fill="none" />
+  || <text x="21" y="82">Rechteck</text>
+  || <circle cx="144" cy="38" r="18" stroke="#4e9a06" stroke-width="2" fill="none" />
+  || <ellipse cx="170" cy="43" rx="27" ry="15" stroke="#73d216" stroke-width="2" fill="none" />
+  || <text x="122" y="81">Kreis + Ellipse</text>
+  || <path d="M 12,170 C 39,182 43,154 49,142 C 62,114 101,145 101,145"
+  ||       fill="#ef2929" fill-opacity="0.62" stroke="#a40000" stroke-width="2"/>
+  || <path d="M 149,109 L 149,127 L 127,144 L 140,172 L 188,167 L 191,119 L 149,109 z"
+  ||       fill="#edd400" fill-opacity="0.59" stroke="#c4a000" stroke-width="2" />
+  ||  <text x="35" y="192">Pfad</text>
+  ||  <text x="141" y="192">Polygon</text>
+  ||</svg>
+  |.]
+  .]
+][
+  [.svg
+  |<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  |<!-- Created by hand! -->
+  |<svg xmlns:svg="http://www.w3.org/2000/svg"
+  |     xmlns="http://www.w3.org/2000/svg"
+  |     version="1.0"
+  |     width="220"
+  |     height="220">
+  | <rect width="66" height="30" x="21" y="32" stroke="#204a87" stroke-width="2" fill="none" />
+  | <text x="21" y="82">Rechteck</text>
+  | <circle cx="144" cy="38" r="18" stroke="#4e9a06" stroke-width="2" fill="none" />
+  | <ellipse cx="170" cy="43" rx="27" ry="15" stroke="#73d216" stroke-width="2" fill="none" />
+  | <text x="122" y="81">Kreis + Ellipse</text>
+  | <path d="M 12,170 C 39,182 43,154 49,142 C 62,114 101,145 101,145"
+  |       fill="#ef2929" fill-opacity="0.62" stroke="#a40000" stroke-width="2"/>
+  | <path d="M 149,109 L 149,127 L 127,144 L 140,172 L 188,167 L 191,119 L 149,109 z"
+  |       fill="#edd400" fill-opacity="0.59" stroke="#c4a000" stroke-width="2" />
+  |  <text x="35" y="192">Pfad</text>
+  |  <text x="141" y="192">Polygon</text>
+  |</svg>
+  .]
+|]
+[|
+  [.txt
+  |[.png
+  ||iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABi
+  ||nRfyAAAACVBMVEX///8AAAD//wBT7WDCAAAASUlE
+  ||QVQY02NgEA1hYGDMWunAwLZq1QQGqVWrlkCIUCBg
+  ||SA0NjWRIDZsKJKKWRjJkrVq1kiEra+VKBqlZy4Dq
+  ||lkYtgWgDGwAyCgD65xnd5KbNVgAAAABJRU5ErkJg
+  ||gg==
+  |.]
+  .]
+][
+  [.png
+  |iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABi
+  |nRfyAAAACVBMVEX///8AAAD//wBT7WDCAAAASUlE
+  |QVQY02NgEA1hYGDMWunAwLZq1QQGqVWrlkCIUCBg
+  |SA0NjWRIDZsKJKKWRjJkrVq1kiEra+VKBqlZy4Dq
+  |lkYtgWgDGwAyCgD65xnd5KbNVgAAAABJRU5ErkJg
+  |gg==
+  .]
 |]
 
-- inline hash objects render as compact references or previews
-- inline dot objects render as compact code/resource chips
-- if you want the large block renderer, use the standalone block form instead
+[=Inline Objects=]
 
-[=Binary vs Text=]
+Use inline objects inside running text or inside table cells.
 
-The embedded-resource switch is file-extension based.
+There are two inline forms:
 
-The following extensions are currently treated as binary:
+- [.|[[# target #]].] uses the same hash syntax as the block form above, but inside a paragraph it renders inline
+- [.|[[.kind|value.]].] renders a compact code or resource chip
+- inside [.|[[.kind|value.]].], write [.|.]].] in the source when the value itself must contain [.|.]].]
+- inline hash objects can also show inline previews for images
+- if you want full block rendering, use a standalone hash block or the multiline embedded-resource form instead
 
-- [.txt|avif.], [.txt|bmp.], [.txt|gif.], [.txt|ico.], [.txt|jpeg.], [.txt|jpg.]
-- [.txt|mp3.], [.txt|mp4.], [.txt|ogv.], [.txt|pdf.], [.txt|png.]
-- [.txt|wav.], [.txt|webm.], [.txt|webp.], [.txt|zip.]
-
-Everything else is currently treated as text.
+[| [*Source*]                                                             ][ [*Rendered*]                                                     |]
+[| [.|See [[# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] inline. |]
+[| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                   |]
 
 [=Viewers By Extension=]
 
 There are dedicated viewers for:
 
-- [.txt|wiki.]
-- [.txt|spo.] and [.txt|ilt.]
-- [.txt|mermaid.] and [.txt|mmd.]
+- [.|.wiki.]
+- [.|.spo.] and [.|.ilt.]
+- [.|.mermaid.] and [.|.mmd.]
 
-There are built-in media fallbacks for:
+The supported image file formats:
 
-- images such as [.txt|avif.], [.txt|bmp.], [.txt|gif.], [.txt|ico.], [.txt|jpeg.], [.txt|jpg.], [.txt|png.], [.txt|svg.], [.txt|webp.]
-- videos such as [.txt|mp4.], [.txt|ogv.], [.txt|webm.]
-
-[=Practical Notes=]
-
-- use a standalone [.txt|.txt.] block for raw syntax examples
-- escape literal brackets and pipe characters inside running text
-- keep headings flat; use inline emphasis instead of fake heading levels
-- relative paths may use [.txt|..], but they still stay inside the allowed viewer root
+- binary: [.|.avif.], [.|.bmp.], [.|.gif.], [.|.ico.], [.|.jpeg.], [.|.jpg.], [.|.png.], [.|.webp.]
+- text based: [.|.svg.]
