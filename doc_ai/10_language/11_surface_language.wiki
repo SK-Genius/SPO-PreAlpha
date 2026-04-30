@@ -349,5 +349,7 @@ Especially important:
 
 - [.txt|§INTERFACE.] is visible in parser, AST, and type analysis, but not broadly secured end-to-end
 - conditional types are not yet a finished feature
-- generic type application works in regressions, but is not yet stable enough for the [.txt|Maybe.] module
 - not every type-literal form is already fully implemented as a runtime value
+- some features are accepted at the surface layer more broadly than they are verified through lowering, module loading, and VM execution
+
+Use [<../40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] for the current gap map instead of copying dated verification notes into this language page.

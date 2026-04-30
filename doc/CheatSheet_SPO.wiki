@@ -1,0 +1,150 @@
+[=SPO Cheat Sheet=]
+
+[*Scope:*] Quick reminder for the current surface syntax accepted by [.txt|mTokenizer.] and [.txt|mSPO_Parser.].
+For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_language.wiki|doc_ai/10_language/11_surface_language.wiki>].
+
+[=Legend=]
+- [.txt|§.] keyword prefix
+- [.txt|€.] type annotation
+- [.txt|#.] prefix/tag constructor
+- [.txt|=>.] lambda body
+- [.txt|<=>.] generic-lambda marker
+- [.txt|..] method-call statement terminator
+- [.txt|§>.] / [.txt|§<.] pipe sugar
+
+[=Literals=]
+[.spo
+|()
+|§TRUE
+|§FALSE
+|123
+|-3
+|§a
+|"abc"
+|"
+||first line
+||second line
+|"
+|_
+.]
+
+[=Data Forms=]
+[.spo
+|#Box 12
+|(a; b)
+|(a, b, c)
+|{ Name: "Ada", Age: 42 }
+.]
+
+[=Patterns=]
+[.spo
+|x
+|§DEF x
+|§VAR x
+|_
+|#Box _
+|(a; b)
+|(a, b, c)
+|{ Name: §DEF name }
+|(x & x .> 0)
+|(x € MyType)
+.]
+
+[=Types=]
+[.spo
+|[]
+|§BOOL
+|§INT
+|§CHAR
+|§TEXT
+|§ANY
+|§TYPE
+|[T; U]
+|[T, U, V]
+|[#Tag T]
+|[§VAR T]
+|[T | U | V]
+|[Arg => Res]
+|[Obj : Arg => Res]
+|[§RECURSIVE T Body]
+|[§GENERIC T Body]
+|[§INTERFACE T Body]
+|[.tList §INT]
+.]
+
+[=Commands=]
+[.spo
+|§DEF Answer = 42
+|§DEF Named € §INT = 7
+|Pattern = Expression
+|
+|§VAR x := 1 .
+|§VAR y:
+|    = 3
+|    + 4
+|.
+|x := 2 .
+|
+|§RETURN expr
+|§RETURN expr IF cond
+|
+|§RECURSIVE {
+|    §DEF Fib = (
+|        §DEF n € §INT
+|    ) => ...
+|}
+.]
+
+[=Blocks=]
+[.spo
+|{
+|    §RETURN 1 IF cond
+|    §RETURN 0
+|}
+.]
+
+- blocks are expressions
+- there is no implicit "last expression wins"; use [.txt|§RETURN.]
+
+[=Calls Lambdas and Methods=]
+[.spo
+|2 .+ 5
+|3 .<= 5 <= 7
+|a .Ord
+|
+|(x € §INT) => x .* x
+|(§DEF t € §TYPE) <=> (
+|    §DEF x € t
+|) => x
+|
+|§DEF +... = (
+|    §VAR X € §INT
+|) : (
+|    §DEF Y € §INT
+|) {
+|    X := ((§TO_VAL X) .+ Y).
+|}
+.]
+
+[=Modules and Pipes=]
+[.spo
+|§IMPORT {
+|    Std: {
+|        ...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+|    }
+|}
+|
+|(() .Append 1 §> .Append 2 §> .Append 3)
+|.Push 3 To §<.Push 2 To §<.Push 1 To ()
+|
+|§EXPORT {
+|    ...+...: ...+...
+|}
+|// or: §EXPORT Expression
+.]
+
+[=Notes=]
+- [.txt|§IMPORT.] is a pattern, not just a name list.
+- [.txt|§IS.] is surface sugar over [.txt|§IF value MATCH { ... }.].
+- surface type keywords and IL type keywords differ: [.txt|§RECURSIVE/§GENERIC/§INTERFACE.] become [.txt|§REC/§ALL/§ANY.] in [.txt|.ILT.].
+- [.txt|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete. Use [<../doc_ai/40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] for the current gap map.

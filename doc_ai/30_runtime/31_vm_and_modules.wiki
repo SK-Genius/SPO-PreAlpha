@@ -28,9 +28,9 @@ The data kinds currently used are:
 
 Important architectural decision:
 
-- The language models complex values mostly through [.txt|Pair.], [.txt|Prefix.], and [.txt|Record.].
-- Tuples are only sugar over pairs.
-- Text values are runtime-level recursive char lists.
+- complex values are modeled mostly through [.txt|Pair.], [.txt|Prefix.], and [.txt|Record.]
+- tuples are only sugar over pairs
+- text values are runtime-level recursive char lists
 
 [=Register Contract=]
 
@@ -62,8 +62,6 @@ This layout is created in [.txt|mVM.NewCallStack(...).] and assumed by [.txt|mIL
 - the resolved import record is placed into [.txt|ARG.]
 - [.txt|OBJ.] is always [.txt|().] when a module starts
 
-This matters because module code can reach earlier defs through [.txt|ENV.], while external imports stay clearly separated in [.txt|ARG.].
-
 [=Proc, Def, and Call Model=]
 
 [.mermaid
@@ -88,46 +86,31 @@ Important differences:
 - [.txt|CallFunc.] invokes functions without an object; when given a [.txt|Def.], it first materializes a [.txt|Proc.] by binding the passed argument as new environment
 - [.txt|CallProc.] invokes methods with [.txt|(Obj, Proc).] pairs and stores the object in register [.txt|OBJ.]
 
-[.txt|ReturnIf.] writes into the fixed result register [.txt|RES.] and ends the current stack frame.
+[.txt|ReturnIf.] writes into [.txt|RES.] and ends the current stack frame.
 
 [=Pattern Matching in the Runtime=]
 
-The actual match semantics are already prepared during lowering.
-The implementation currently splits into two layers that should not be confused:
+Match semantics are prepared during lowering, but not every exposed opcode is executable yet.
 
 - opcodes defined in IL / opcode generation:
   [.txt|TryAsEmpty.], [.txt|TryAsBool.], [.txt|TryAsInt.], [.txt|TryAsType.], [.txt|TryAsPair.], [.txt|TryAsRecord.], [.txt|TryAsVar.], [.txt|TryAsRef.], [.txt|TryRemovePrefixFrom.]
 - opcodes actually executed in [.txt|mVM.Step(...).] today:
   [.txt|TryAsEmpty.], [.txt|TryAsBool.], [.txt|TryAsInt.], [.txt|TryAsPair.], [.txt|TryAsRecord.], [.txt|TryAsVar.], [.txt|TryRemovePrefixFrom.]
 
-If such a test fails, [.txt|mVM.Step(...).] ends the current helper frame and signals "case does not match".
-
 Current gap:
 
-- [.txt|TryAsType.] is parsed by [.txt|mIL_Parser.], represented in [.txt|mIL_AST.], and emitted by [.txt|mIL_GenerateOpcodes.], but [.txt|mVM.Step(...).] has no case for it yet
-- [.txt|TryAsRef.] has the same problem, and [.txt|mVM_Data.tDataType.] currently has no [.txt|Ref.] runtime value kind at all
+- [.txt|TryAsType.] is parsed, represented, and emitted, but not executed by the VM
+- [.txt|TryAsRef.] has the same problem, and [.txt|mVM_Data.tDataType.] currently has no [.txt|Ref.] runtime value kind
 
 [=Type Values at Runtime=]
 
-The VM can also move [.txt|Type.] data around, but this area currently has a real three-layer gap:
+The VM can move [.txt|Type.] data around, but this area still has a real three-layer gap:
 
-- [.txt|mVM_Data.tOpCode.] defines a wider family of runtime type constructors:
-  [.txt|TypeEmpty.], [.txt|TypeAny.], [.txt|TypeInt.], [.txt|TypeFree.], [.txt|TypePair.], [.txt|TypePrefix.], [.txt|TypeRecord.], [.txt|TypeVar.], [.txt|TypeSet.], [.txt|TypeCond.], [.txt|TypeFunc.], [.txt|TypeMeth.], [.txt|TypeRecursive.], [.txt|TypeInterface.], [.txt|TypeGeneric.]
-- [.txt|mIL_GenerateOpcodes.] can already emit runtime type-building commands for [.txt|TypeFunc.], [.txt|TypeMethod.], [.txt|TypePair.], [.txt|TypePrefix.], [.txt|TypeSet.], [.txt|TypeVar.], [.txt|TypeFree.], [.txt|TypeRecursive.], [.txt|TypeInterface.], and [.txt|TypeGeneric.]
-- [.txt|mVM.Step(...).] currently executes only [.txt|TypeFree.], [.txt|TypePair.], [.txt|TypeSet.], [.txt|TypeRecursive.], and [.txt|TypeGeneric.]
+- [.txt|mVM_Data.tOpCode.] defines a wider family of runtime type constructors
+- [.txt|mIL_GenerateOpcodes.] can already emit more runtime type-building commands than the VM executes
+- [.txt|mVM.Step(...).] currently executes only a subset of those [.txt|Type*.] opcodes
 
-That means the VM still falls through to its default [.txt|TODO.] path if execution reaches [.txt|TypeEmpty.], [.txt|TypeAny.], [.txt|TypeInt.], [.txt|TypePrefix.], [.txt|TypeRecord.], [.txt|TypeVar.], [.txt|TypeFunc.], [.txt|TypeMeth.], or [.txt|TypeInterface.].
-
-Fixed call-stack type constants remain available through registers:
-
-- [.txt|EMPTY_TYPE.]
-- [.txt|BOOL_TYPE.]
-- [.txt|INT_TYPE.]
-- [.txt|TYPE_TYPE.]
-
-[.txt|TypeCond.] is an additional special case: the IL generator still throws before it can hand that operation to the VM at all.
-
-That means compile-time type work is more mature than runtime type evaluation, and the drift is not only conceptual: enum definitions, IL generation, and VM execution are currently out of sync.
+That means compile-time type work is more mature than runtime type evaluation.
 
 [=Modules Registered in Code=]
 
@@ -148,19 +131,16 @@ The [.txt|Modules/.] folder contains more artifacts than the registry exposes:
 
 Only the four [.txt|Module_*.] values above are addressable through [.txt|mModule.] today.
 
-As of [.txt|2026-04-22.]:
-
-- [.txt|Std.], [.txt|Char.], and [.txt|Text.] pass [.txt|mModule_Tests.]
-- [.txt|Maybe.] fails in the module test at generic type application
+Use [<../40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>] for the current green/red state of those modules.
 
 [=Observable Module Semantics=]
 
-The module tests show the current runtime effect clearly:
+The registered modules are layered this way:
 
 - [.txt|Std.] provides arithmetic and boolean core operations
 - [.txt|Char.] builds character comparison and character functions on top of that
 - [.txt|Text.] builds recursive text functions on top of [.txt|Char.]
-- [.txt|Maybe.] is present in the filesystem, but is not yet stable across the module boundary
+- [.txt|Maybe.] is part of the registered module path and therefore part of module-boundary verification
 
 [=Host Embedding Example=]
 
@@ -170,5 +150,3 @@ Outside [.txt|SPO_CS/.], [.txt|SPO/src/Program.cs.] shows how the runtime is emb
 - it exposes [.txt|_StdLib.] as imported runtime data
 - it exposes [.txt|_LoadModule....] as an [.txt|ExternProc.]
 - it expects the loaded SPO program to produce a callable value that is then executed with object [.txt|#IO ().]
-
-That example is the clearest source-backed reference for how SPO code is meant to cross the host/runtime boundary today.

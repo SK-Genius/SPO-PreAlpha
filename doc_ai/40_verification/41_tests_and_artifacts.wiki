@@ -1,0 +1,143 @@
+[=Test Host=]
+
+[.txt|SPO_CS/src/mRunTests.cs.] is the central CLI entry point for verification work.
+This page owns dated commands, counts, and raw verification observations for the current tree.
+
+[=Verified Run Baseline=]
+
+These commands were re-run on [.txt|2026-04-30.]:
+
+[| [*Workdir*] | [*Command*] | [*Current observed result*] |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText.] | [.txt|401.] passing leaf checks, [.txt|1.] failing leaf check |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --matchAny 01_02_AssignFalse.] | all [.txt|3.] regression leaf checks pass |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText --matchAll mModule_Tests Maybe.] | fails at [.txt|.tMaybe tIn.] with [.txt|expected generic type but '_tMaybe...'.] |]
+[| [.txt|SPO_CS/.] | [.txt|dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --stopOnFirstFail --matchAny 07_12_GenericTypes.] | all [.txt|3.] generic regression leaf checks pass |]
+[| repo root | [.txt|dotnet run --project .\SPO_CS\SPO_CS.csproj -- --plainText.] | [.txt|254.] passing leaf checks, [.txt|1.] failing leaf check, plus [.txt|Folder not found: mFS+tFolder.] |]
+
+Current failing leaf from [.txt|SPO_CS/.]:
+
+- [.txt|mModule_Tests -> Maybe.]
+  module compilation fails at [.txt|.tMaybe tIn.] before VM execution
+
+Current green spot checks from [.txt|SPO_CS/.]:
+
+- [.txt|mRegression_Tests -> 01_02_AssignFalse.]
+  direct SPO evaluation, SPO-to-ILT comparison, and ILT-to-result execution all pass in the working tree
+- [.txt|mRegression_Tests -> 07_12_GenericTypes.]
+  all three generic regression leaves pass
+
+[=Important CLI Behavior=]
+
+Important flags and behaviors visible in [.txt|mRunTests.cs.]:
+
+- [.txt|--help.] / [.txt|-h.]
+- [.txt|--list.] / [.txt|-l.]
+- [.txt|--matchAny.] / [.txt|-m.]
+- [.txt|--matchAll.] / [.txt|-M.]
+- [.txt|--plainText.] / [.txt|-p.]
+- [.txt|--stopOnFirstFail.] / [.txt|-1.]
+- [.txt|--showPassedGroups.] / [.txt|-g.]
+- [.txt|--showPassedTests.] / [.txt|-t.]
+- [.txt|--showSkippedTests.] / [.txt|-s.]
+- [.txt|--outputLevel.] / [.txt|-o.]
+- [.txt|--treeLevel.] / [.txt|-d.]
+- [.txt|--debugger.] / [.txt|-D.]
+- [.txt|--debugId.] / [.txt|-i.]
+
+Operational caveats:
+
+- [.txt|--matchAll.] and [.txt|--matchAny.] must be the last flag pair because every remaining argument is treated as filter text
+- [.txt|--plainText.] is also forced automatically when stdout is redirected
+- numeric aliases such as [.txt|-2.] through [.txt|-9.] still exist for stop-after-N-failures, but they are inconsistent and best treated as legacy shortcuts
+- the file-driven regression suite is current-working-directory-sensitive because [.txt|mRegression_Tests.] resolves [.txt|Regression.Tests/.] from [.txt|mFS.CWD().]
+
+[=Test Layers=]
+
+[.mermaid
+|flowchart TD
+|	RUN["mRunTests"] --> TREE["mTest test tree"]
+|	TREE --> UNIT["Unit-near tests"]
+|	TREE --> REG["mRegression_Tests"]
+|	TREE --> MOD["mModule_Tests"]
+|
+|	UNIT --> TOK["Tokenizer / Parser / Type / IL / VM"]
+|	REG --> CASES["SPO_CS/Regression.Tests/*.SPO + .result.SPO + .ILT"]
+|	MOD --> LIBS["SPO_CS/Modules/Std|Char|Text|Maybe"]
+.]
+
+[=Regression Harness=]
+
+[.txt|mRegression_Tests.] reads, for each case under [.txt|SPO_CS/Regression.Tests/.]:
+
+- [.txt|Name.SPO.]
+- [.txt|Name.result.SPO.]
+- [.txt|Name.ILT.]
+
+Each case produces exactly three checks:
+
+o 1. [.txt|.SPO == .result.SPO.]
+o 2. [.txt|.SPO -> .ILT.]
+o 3. [.txt|.ILT == .result.SPO.]
+
+This secures three distinct contracts:
+
+- direct SPO interpretation is semantically correct
+- lowering to IL is stable
+- IL execution is semantically equivalent to SPO execution
+
+Important execution details from the code:
+
+- the `.SPO` file under test and the `.ILT` file both run with [.txt|Module_Std.] as import
+- the oracle file [.txt|.result.SPO.] runs with an empty import
+- discovery uses [.txt|mFS.CWD() / "Regression.Tests".], so [.txt|mRunTests.] must be launched from [.txt|SPO_CS/.] for this suite to appear at all
+- only files whose names literally end in [.txt|.SPO.] are discovered as regression sources
+- files named [.txt|_*.SPO.] are intentionally skipped
+- if generated IL differs from stored [.txt|.ILT.], the harness writes [.txt|Name.ILT.new.]
+
+As rechecked on [.txt|2026-04-30.], the folder yields [.txt|49.] discovered regression source files, which means [.txt|147.] file-driven regression checks before the rest of the unit and module suites are counted.
+
+[=Module Tests=]
+
+[.txt|mModule_Tests.] exercises real library modules through [.txt|mModule.Init(...).].
+
+Currently covered:
+
+- [.txt|Std.]
+- [.txt|Char.]
+- [.txt|Text.]
+- [.txt|Maybe.]
+
+Observed state on [.txt|2026-04-30.]:
+
+- [.txt|Std.], [.txt|Char.], and [.txt|Text.] are green
+- [.txt|Maybe.] is still red because of generic type application over [.txt|.tMaybe tIn.]
+
+[=What The Current Results Mean=]
+
+- no failing file-driven regression leaf was observed in the current working tree when tests are launched from [.txt|SPO_CS/.]
+- [.txt|Maybe.] is a module-boundary failure, not a general claim that all generics are broken
+- [.txt|07_12_GenericTypes.] still passing all three checks proves that generic syntax and at least one end-to-end generic path remain valid
+- launching from repo root is not equivalent to launching from [.txt|SPO_CS/.] because regression discovery still depends on the current working directory
+
+[=Recommended Verification Routine=]
+
+[.powershell
+|Push-Location .\SPO_CS
+|dotnet run --project .\SPO_CS.csproj -- --list --plainText
+|dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --matchAny 01_02_AssignFalse
+|dotnet run --project .\SPO_CS.csproj -- --plainText --matchAll mModule_Tests Maybe
+|dotnet run --project .\SPO_CS.csproj -- --plainText --showPassedGroups --showPassedTests --stopOnFirstFail --matchAny 07_12_GenericTypes
+|Pop-Location
+.]
+
+Run these checks sequentially. Parallel [.txt|dotnet run.] invocations against the same project can contend for build outputs under [.txt|bin/Debug/net10.0/.] and [.txt|obj/Debug/net10.0/.].
+
+[=Important Repository Artifacts=]
+
+[| [*Location*] | [*Role*] |]
+[| [.txt|SPO_CS/Modules/*.SPO.] | source modules |]
+[| [.txt|SPO_CS/Modules/*.ILT.] | canonical compiled module forms |]
+[| [.txt|SPO_CS/Regression.Tests/*.SPO.] | inputs for end-to-end scenarios |]
+[| [.txt|SPO_CS/Regression.Tests/*.result.SPO.] | expected semantics expressed as SPO |]
+[| [.txt|SPO_CS/Regression.Tests/*.ILT.] | expected IL lowering |]
+[| [.txt|SPO_CS/**/*.ILT.new.] | drift indicator between current and canonical IL |]

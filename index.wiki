@@ -1,285 +1,51 @@
-[=Modules=]
-* [<SPO_CS/Modules/Char.SPO>]
-* [<SPO_CS/Modules/Maybe.SPO>]
-* [<SPO_CS/Modules/Result.SPO>]
-* [<SPO_CS/Modules/Text.SPO>]
+[=Documentation Map=]
 
-[=Tests=]
+Use this page to choose the right documentation set before reading deeper.
+The repo keeps quick references, source-backed architecture, and review notes separate on purpose.
 
-[_Bla_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/00_00_Bla.SPO #]
-|
-[# SPO_CS/Regression.Tests/00_00_Bla.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/00_01_Bla.SPO #]
-|
-[# SPO_CS/Regression.Tests/00_01_Bla.result.SPO #]
-|]
+[=Read By Task=]
 
-[_1 Assign Literals_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/01_00_AssignEmpty.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_00_AssignEmpty.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_01_AssignTrue.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_01_AssignTrue.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_02_AssignFalse.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_02_AssignFalse.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_03_AssignInt.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_04_AssignTag.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_04_AssignTag.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_05_AssignMultiLineText.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/01_05_AssignText.SPO #]
-|
-[# SPO_CS/Regression.Tests/01_05_AssignText.result.SPO #]
-|]
+[| [*If you need*] | [*Open*] |]
+[| project scope, goals, and roadmap | [<README.md|README.md>] |]
+[| quick SPO syntax, IL text shape, regression browsing, and wiki authoring | [<doc/index.wiki|doc/index.wiki>] |]
+[| code navigation, architecture, runtime behavior, and verification evidence | [<doc_ai/index.wiki|doc_ai/index.wiki>] |]
+[| review findings and follow-up investigations | [<Review_ai/README.md|Review_ai/README.md>] |]
 
-[_2 Create Complex Elements_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/02_01_CreateTag.SPO #]
-|
-[# SPO_CS/Regression.Tests/02_01_CreateTag.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/02_02_CreatePair.SPO #]
-|
-[# SPO_CS/Regression.Tests/02_02_CreatePair.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/02_03_CreateRecord.SPO #]
-|
-[# SPO_CS/Regression.Tests/02_03_CreateRecord.result.SPO #]
-|]
+[=Documentation Sets=]
 
-[_3 Match Complex Elements_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/03_01_MatchTag.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_01_MatchTag.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_02_MatchPair.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_02_MatchPair.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_03_MatchRecord.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_03_MatchRecord.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_04_Is.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_04_Is.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_05_MatchRecordIf.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_05_MatchRecordIf.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_98_If.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_98_If.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_Match.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_Match.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchPairA.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchPairA.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchPairB.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchPairB.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchPairC.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchPairC.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchPairD.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchPairD.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordA.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordA.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordB.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordB.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordC.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordC.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordD.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchRecordD.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedA.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedA.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedB.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedB.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedC.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedC.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedD.SPO #]
-|
-[# SPO_CS/Regression.Tests/03_99_MatchTaggedD.result.SPO #]
-|]
+[| [*Path*] | [*Owns*] | [*Do not duplicate here*] |]
+[| [.txt|doc/.] | quick references, syntax reminders, wiki authoring notes, and browsable regression artifacts | architecture narratives, runtime semantics, and dated verification snapshots |]
+[| [.txt|doc_ai/.] | source-anchored architecture, code maps, runtime semantics, and dated verification evidence | cheat-sheet material and repeated top-level navigation text |]
+[| [.txt|Review_ai/.] | review findings, audit notes, and follow-up investigations | repo navigation and day-to-day quick references |]
 
-[_4 Use Functions_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/04_00_Not.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_00_Not.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/04_01_And.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_01_And.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/04_02_CallLambda.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_02_CallLambda.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/04_03_DefFunc.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_03_DefFunc.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/04_04_MultiArgs.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_04_MultiArgs.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/04_05_SkipArgs.SPO #]
-|
-[# SPO_CS/Regression.Tests/04_05_SkipArgs.result.SPO #]
-|]
+[=Repository Surfaces=]
 
-[_5 Create Functions_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/05_01_InRange.SPO #]
-|
-[# SPO_CS/Regression.Tests/05_01_InRange.result.SPO #]
-|]
+[| [*Path*] | [*Why it matters*] | [*First doc stop*] |]
+[| [.txt|SPO_CS/.] | compiler pipeline, VM, module loading, and CLI verification host | [<doc_ai/00_start_here/02_code_map.wiki|02_code_map.wiki>] |]
+[| [.txt|SPO/.] | sample host for standalone `.SPO` programs | [<doc_ai/00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>] |]
+[| [.txt|VSCode_Extension/.] | editor package, language client, and language-server source | [<doc_ai/00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>] |]
+[| [.txt|TestRunner/FakeTestAdapter/.] | VSTest bridge for the custom [.txt|mTest.] tree | [<doc_ai/00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>] |]
+[| [.txt|index.html.] plus [.txt|js/.] | browser-side viewers for `.wiki`, `.spo`, `.ilt`, and mermaid docs | [<doc_ai/00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>] |]
 
-[_6 Recursion_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/06_01_Fib_If.SPO #]
-|
-[# SPO_CS/Regression.Tests/06_01_Fib_If.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.SPO #]
-|
-[# SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.SPO #]
-|
-[# SPO_CS/Regression.Tests/06_03_Fib_IfMatch.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.SPO #]
-|
-[# SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.result.SPO #]
-|]
+[=Verification Source Of Truth=]
 
-[_7 Types_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/07_01_AtomTypes.SPO #]
-|
-[# SPO_CS/Regression.Tests/07_01_AtomTypes.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/07_02_ComplexTypes.SPO #]
-|
-[# SPO_CS/Regression.Tests/07_02_ComplexTypes.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/07_11_RecursiveTypes.SPO #]
-|
-[# SPO_CS/Regression.Tests/07_11_RecursiveTypes.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/07_12_GenericTypes.SPO #]
-|
-[# SPO_CS/Regression.Tests/07_12_GenericTypes.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO #]
-|
-[# SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.result.SPO #]
-|]
+All dated commands, counts, green/red status, and raw verification observations belong in
+[<doc_ai/40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>].
+Index pages should point there, not restate its snapshot.
 
-[_8 Imperative_]
-[|Code|Result|]
-[|
-[# SPO_CS/Regression.Tests/08_01_Var.SPO #]
-|
-[# SPO_CS/Regression.Tests/08_01_Var.result.SPO #]
-|]
-[|
-[# SPO_CS/Regression.Tests/08_02_DefIncrement.SPO #]
-|
-[# SPO_CS/Regression.Tests/08_02_DefIncrement.result.SPO #]
-|]
+[=High-Value Entry Points=]
 
-[=Misc=]
+- [<doc/CheatSheet_SPO.wiki|SPO Cheat Sheet>]
+- [<doc/CheatSheet_IL.wiki|IL Cheat Sheet>]
+- [<doc/Tests.wiki|Regression Examples>]
+- [<doc_ai/00_start_here/01_repo_overview.wiki|Repository Overview>]
+- [<doc_ai/00_start_here/02_code_map.wiki|Current Code Map>]
+- [<doc_ai/30_runtime/31_vm_and_modules.wiki|VM and Modules>]
+- [<doc/TODO.wiki|TODO>]
 
-* [<TODO.wiki>]
-* [<doc/Wiki-Syntax.wiki>]
-* [<AI-Docs/README.wiki>]
+[=Maintenance Rules=]
+
+- keep reader-facing syntax and artifact browsing in [.txt|doc/.]
+- keep source-backed behavior, runtime meaning, and verification evidence in [.txt|doc_ai/.]
+- keep review findings in [.txt|Review_ai/.]
+- link to the owning page instead of repeating the same status or ownership note in multiple indexes

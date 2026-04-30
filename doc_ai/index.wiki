@@ -1,0 +1,42 @@
+[=Architecture and Verification=]
+
+Use this folder for source-backed explanations of how the current working tree behaves.
+Use [<../doc/index.wiki|doc/>] for quick syntax, wiki authoring notes, and artifact browsing.
+
+[=Read By Goal=]
+
+[| [*Goal*] | [*Best path*] |]
+[| first orientation | [<00_start_here/01_repo_overview.wiki|01_repo_overview.wiki>] -> [<00_start_here/02_code_map.wiki|02_code_map.wiki>] -> [<00_start_here/03_supporting_projects.wiki|03_supporting_projects.wiki>] |]
+[| visible SPO forms to backend hand-off | [<10_language/11_surface_language.wiki|11_surface_language.wiki>] -> [<20_pipeline/21_compilation_pipeline.wiki|21_compilation_pipeline.wiki>] |]
+[| runtime behavior and module model | [<30_runtime/31_vm_and_modules.wiki|31_vm_and_modules.wiki>] |]
+[| current verification evidence and follow-up | [<40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>] -> [<40_verification/42_known_limits_and_extension_points.wiki|42_known_limits_and_extension_points.wiki>] -> [<40_verification/43_next_work.wiki|43_next_work.wiki>] |]
+
+[=Section Roles=]
+
+[| [*Section*] | [*What belongs there*] |]
+[| [.txt|00_start_here/.] | repo shape, file layout, primary entry points, and supporting projects |]
+[| [.txt|10_language/.] | surface-language forms and how they map into backend-facing concepts |]
+[| [.txt|20_pipeline/.] | how `.SPO` and `.ILT` meet at [.txt|mIL_AST.tModule.] |]
+[| [.txt|30_runtime/.] | runtime data, opcodes, modules, and host embedding |]
+[| [.txt|40_verification/.] | dated commands, counts, green/red status, known gaps, and prioritized next work |]
+
+[=Core Anchors In Code=]
+
+- [<../SPO_CS/src/mSPO_Interpreter.cs|mSPO_Interpreter.cs>]
+  compact end-to-end SPO entry point
+- [<../SPO_CS/src/mSPO2IL.cs|mSPO2IL.cs>]
+  lowering from annotated SPO AST to IL
+- [<../SPO_CS/src/mIL_GenerateOpcodes.cs|mIL_GenerateOpcodes.cs>]
+  IL to VM procedure generation
+- [<../SPO_CS/src/mVM.cs|mVM.cs>]
+  register-based execution
+- [<../SPO_CS/src/mModule.cs|mModule.cs>]
+  file-based module loading and `.SPO` versus `.ILT` checking
+- [<../SPO_CS/src/mRunTests.cs|mRunTests.cs>]
+  CLI test host and filter behavior
+
+[=Boundary Rules=]
+
+- if a fact has a date, count, command output, or pass/fail status, keep it under [.txt|40_verification/.]
+- keep syntax-reminder material in [.txt|doc/.] unless the page is explaining backend meaning or source ownership
+- keep index pages focused on routing readers to the owning leaf page instead of restating whole sections

@@ -388,12 +388,38 @@
 			return createMarkerParagraphElement(block, context);
 		}
 
+		const standaloneHashBlock = tryCreateStandaloneHashParagraphElement(block, context);
+		if (standaloneHashBlock) {
+			return standaloneHashBlock;
+		}
+
 		const paragraph = document.createElement("p");
 		paragraph.className = "wiki-paragraph";
 		paragraph.style.setProperty("--indent", String(block.indent));
 		paragraph.style.marginInlineStart = indentToMargin(block.indent);
 		appendInlineLines(paragraph, block.lines, context);
 		return paragraph;
+	}
+
+	function tryCreateStandaloneHashParagraphElement(block, context) {
+		const text = block.lines.join("\n").trim();
+		if (!text.startsWith("[#")) {
+			return null;
+		}
+
+		const token = readTokenContent(text, 2, "#]");
+		if (!token || token.index !== text.length) {
+			return null;
+		}
+
+		return createHashBlockElement(
+			{
+				type: "hashBlock",
+				indent: block.indent,
+				content: token.content
+			},
+			context
+		);
 	}
 
 	function createMarkerParagraphElement(block, context) {
