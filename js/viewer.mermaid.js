@@ -5,6 +5,7 @@ const CUSTOM_ELEMENT_NAME = "spo-mermaid";
 const MERMAID_BUNDLE_PATH = "js/vendor/mermaid/mermaid.min.js";
 let mermaidLoadPromise = null;
 let mermaidConfigured = false;
+let mermaidConfiguredTheme = "";
 let diagramCounter = 0;
 
 export function render(
@@ -170,15 +171,18 @@ async function ensureMermaid(
 function configureMermaid(
 	mermaid
 ) {
-	if (mermaidConfigured) {
+	const theme = document.documentElement.dataset.theme === "dark" ? "dark" : "default";
+	if (mermaidConfigured && mermaidConfiguredTheme === theme) {
 		return;
 	}
 
 	mermaid.initialize({
 		startOnLoad: false,
-		securityLevel: "strict"
+		securityLevel: "strict",
+		theme
 	});
 	mermaidConfigured = true;
+	mermaidConfiguredTheme = theme;
 }
 
 function ensureCustomElement(
@@ -194,6 +198,9 @@ function ensureCustomElement(
 				super();
 				this._source = "";
 				this._renderToken = 0;
+				this._handleThemeChange = () => {
+					void this.renderDiagram();
+				};
 			}
 
 			get source() {
@@ -208,11 +215,16 @@ function ensureCustomElement(
 			}
 
 			connectedCallback() {
+				window.addEventListener("viewer-themechange", this._handleThemeChange);
 				if (!this._source) {
 					this._source = this.textContent || "";
 				}
 
 				void this.renderDiagram();
+			}
+
+			disconnectedCallback() {
+				window.removeEventListener("viewer-themechange", this._handleThemeChange);
 			}
 
 			async renderDiagram() {
@@ -301,14 +313,14 @@ function ensureMermaidViewerStyles(
 	style.id = "mermaid-viewer-style";
 	style.textContent = `
 		.source-view {
-			color: #241d18;
+			color: var(--ink);
 		}
 
 		.source-card {
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.95rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 243, 233, 0.92));
-			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--card-shadow);
 			overflow: hidden;
 		}
 
@@ -317,8 +329,8 @@ function ensureMermaidViewerStyles(
 			align-items: center;
 			gap: 0.85rem;
 			padding: 0.75rem 0.9rem;
-			border-bottom: 1px solid rgba(127, 79, 36, 0.16);
-			background: linear-gradient(180deg, rgba(236, 218, 194, 0.98), rgba(221, 198, 170, 0.94));
+			border-bottom: 1px solid var(--bar-border);
+			background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
 		}
 
 		.source-language {
@@ -327,7 +339,7 @@ function ensureMermaidViewerStyles(
 			font-weight: 700;
 			letter-spacing: 0.08em;
 			text-transform: uppercase;
-			color: #7f4f24;
+			color: var(--source-language);
 		}
 
 		.source-filename {
@@ -336,7 +348,7 @@ function ensureMermaidViewerStyles(
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
-			color: #5a4a3e;
+			color: var(--source-filename);
 			font-size: 0.92rem;
 			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
 		}
@@ -348,7 +360,7 @@ function ensureMermaidViewerStyles(
 
 		.mermaid-panel-embedded {
 			padding: 1rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(249, 243, 233, 0.62));
+			background: linear-gradient(180deg, var(--frame-bg-start), var(--frame-bg-end));
 		}
 
 		.mermaid-panel-inline {
@@ -367,10 +379,10 @@ function ensureMermaidViewerStyles(
 		.mermaid-frame {
 			overflow-x: auto;
 			padding: 0.35rem;
-			border: 1px solid rgba(125, 102, 78, 0.22);
+			border: 1px solid var(--source-sticky-border);
 			border-radius: 14px;
-			background: rgba(255, 255, 255, 0.88);
-			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+			background: var(--message-bg);
+			box-shadow: inset 0 1px 0 var(--surface-highlight);
 		}
 
 		.mermaid-graph {
@@ -379,17 +391,17 @@ function ensureMermaidViewerStyles(
 
 		.mermaid-message {
 			padding: 0.9rem 1rem;
-			border: 1px solid rgba(125, 102, 78, 0.2);
+			border: 1px solid var(--message-border);
 			border-radius: 12px;
-			background: rgba(255, 252, 247, 0.96);
-			color: #695a4d;
+			background: var(--message-bg);
+			color: var(--message-text);
 			font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 		}
 
 		.mermaid-message.is-error {
-			border-color: rgba(185, 28, 28, 0.28);
-			background: rgba(254, 242, 242, 0.96);
-			color: #991b1b;
+			border-color: var(--message-error-border);
+			background: var(--message-error-bg);
+			color: var(--message-error-text);
 		}
 	`;
 	document.head.append(style);

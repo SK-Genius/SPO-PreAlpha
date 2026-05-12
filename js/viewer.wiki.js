@@ -723,39 +723,39 @@ function ensureWikiStyles() {
 	style.textContent = `
 		.wiki-article {
 			font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-			color: #241d18;
+			color: var(--ink);
 			line-height: 1.35;
 		}
 
 		.wiki-article h1 {
 			margin: 0 0 1.25rem;
 			padding: 1rem 1.15rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.95rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 243, 233, 0.92));
-			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--card-shadow);
 			text-decoration: underline;
-			text-decoration-color: rgba(127, 79, 36, 0.52);
+			text-decoration-color: var(--line);
 			text-underline-offset: 0.16em;
 		}
 
 		.wiki-article h2 {
 			margin: 1.55rem 0 0.8rem;
 			padding: 0.5rem 0.75rem 0.55rem 1rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.8rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.90), rgba(249, 243, 233, 0.88));
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
 			text-decoration: underline;
-			text-decoration-color: rgba(127, 79, 36, 0.48);
+			text-decoration-color: var(--line);
 			text-underline-offset: 0.16em;
 		}
 
 		.wiki-toc {
 			margin: 0 0 1.35rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.95rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 243, 233, 0.92));
-			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--card-shadow);
 			overflow: hidden;
 		}
 
@@ -763,8 +763,8 @@ function ensureWikiStyles() {
 			content: "Contents";
 			display: block;
 			padding: 0.8rem 1.05rem;
-			border-bottom: 1px solid rgba(127, 79, 36, 0.16);
-			background: linear-gradient(180deg, rgba(236, 218, 194, 0.98), rgba(221, 198, 170, 0.94));
+			border-bottom: 1px solid var(--bar-border);
+			background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
 			font-size: 0.85rem;
 			font-weight: 700;
 			letter-spacing: 0.08em;
@@ -785,7 +785,7 @@ function ensureWikiStyles() {
 		}
 
 		.wiki-article a {
-			color: #7f4f24;
+			color: var(--accent);
 			text-decoration-thickness: 0.08em;
 			text-underline-offset: 0.16em;
 		}
@@ -810,7 +810,7 @@ function ensureWikiStyles() {
 			flex: 0 0 1rem;
 			width: 1rem;
 			height: 1.5rem;
-			color: #8b5e34;
+			color: var(--accent-strong);
 		}
 
 		.wiki-list-marker::before {
@@ -874,10 +874,10 @@ function ensureWikiStyles() {
 		.wiki-quote {
 			margin: 0 0 0.9rem;
 			padding: 0.45rem 0.9rem;
-			border-left: 4px solid rgba(127, 79, 36, 0.42);
+			border-left: 4px solid var(--quote-border);
 			border-radius: 0.45rem;
-			background: rgba(247, 237, 219, 0.55);
-			color: #3e3127;
+			background: var(--quote-bg);
+			color: var(--quote-text);
 			font-style: italic;
 		}
 
@@ -886,22 +886,22 @@ function ensureWikiStyles() {
 			max-width: 100%;
 			border-collapse: collapse;
 			margin: 0 0 1rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
-			background: rgba(255, 252, 247, 0.96);
+			border: 1px solid var(--card-border);
+			background: var(--table-bg);
 		}
 
 		.wiki-article td {
 			padding: 0.5rem 0.65rem;
-			border: 1px solid rgba(127, 79, 36, 0.16);
+			border: 1px solid var(--bar-border);
 			vertical-align: top;
 		}
 
 		.wiki-article tr:nth-child(odd) > td {
-			background: rgba(247, 237, 219, 0.78);
+			background: var(--table-row-odd);
 		}
 
 		.wiki-article tr:nth-child(even) > td {
-			background: rgba(255, 252, 247, 0.95);
+			background: var(--table-row-even);
 		}
 
 		.wiki-article td > *:first-child { margin-top: 0; }
@@ -911,9 +911,9 @@ function ensureWikiStyles() {
 		.wiki-object {
 			display: inline-block;
 			padding: 0.1rem 0.45rem;
-			border: 1px solid rgba(127, 79, 36, 0.22);
+			border: 1px solid var(--button-border);
 			border-radius: 0.45rem;
-			background: #efe0ca;
+			background: var(--object-bg);
 			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
 			font-size: 0.92em;
 			white-space: pre-wrap;
@@ -927,9 +927,19 @@ function ensureWikiStyles() {
 			overflow-x: auto;
 		}
 
+		.wiki-article del {
+			text-decoration: line-through;
+			text-decoration-thickness: 0.08em;
+			text-decoration-color: currentColor;
+		}
+
 		.wiki-alert {
-			color: #c62828;
+			color: var(--alert);
 			font-weight: 700;
+		}
+
+		.wiki-alert a {
+			color: inherit;
 		}
 
 		.wiki-embedded-block,
@@ -947,10 +957,10 @@ function ensureWikiStyles() {
 		.wiki-syntax-error {
 			display: inline-block;
 			padding: 0 0.08rem;
-			border: 1px solid rgba(127, 29, 29, 0.22);
+			border: 1px solid var(--syntax-border);
 			border-radius: 0.18rem;
-			background: rgba(220, 53, 69, 0.08);
-			color: #7f1d1d;
+			background: var(--syntax-bg);
+			color: var(--syntax-text);
 			line-height: 1.05;
 		}
 
@@ -962,11 +972,11 @@ function ensureWikiStyles() {
 
 		.wiki-edit-bar button,
 		.wiki-edit-actions button {
-			border: 1px solid rgba(127, 79, 36, 0.22);
+			border: 1px solid var(--button-border);
 			border-radius: 999px;
 			padding: 0.42rem 0.75rem;
-			background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,237,219,0.92));
-			color: #241d18;
+			background: linear-gradient(180deg, var(--button-bg-start), var(--button-bg-end));
+			color: var(--button-text);
 			font: inherit;
 			font-weight: 700;
 			cursor: pointer;
@@ -987,10 +997,10 @@ function ensureWikiStyles() {
 			flex-direction: column;
 			margin: 0;
 			padding: 0.85rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.95rem 0 0 0.95rem;
-			background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(249,243,233,0.96));
-			box-shadow: 0 24px 60px rgba(70, 49, 31, 0.18);
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--panel-shadow);
 		}
 
 		.wiki-edit-panel.wiki-edit-inline {
@@ -1008,7 +1018,7 @@ function ensureWikiStyles() {
 			max-height: none;
 			z-index: auto;
 			margin: 0;
-			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.08);
+			box-shadow: var(--card-shadow);
 			overflow: visible;
 		}
 
@@ -1031,7 +1041,7 @@ function ensureWikiStyles() {
 			display: none;
 			width: 0.35rem;
 			border-radius: 999px;
-			background: rgba(127, 79, 36, 0.16);
+			background: var(--splitter-bg);
 			cursor: col-resize;
 		}
 
@@ -1041,7 +1051,7 @@ function ensureWikiStyles() {
 
 		.wiki-section-splitter:hover,
 		.wiki-section-splitter.is-dragging {
-			background: rgba(127, 79, 36, 0.42);
+			background: var(--splitter-active);
 		}
 
 		.wiki-section-split.has-editor .wiki-edit-textarea {
@@ -1050,8 +1060,10 @@ function ensureWikiStyles() {
 			min-height: 0;
 			flex: 1 1 auto;
 			padding: 0.75rem;
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--input-border);
 			border-radius: 0.6rem;
+			background: var(--input-bg);
+			color: var(--input-text);
 			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
 			font-size: 0.95rem;
 			line-height: 1.35;
@@ -1078,7 +1090,7 @@ function ensureWikiStyles() {
 		.wiki-edit-status {
 			margin: 0.7rem 0 0;
 			white-space: pre-wrap;
-			color: #7f1d1d;
+			color: var(--syntax-text);
 		}
 
 		body.wiki-editor-open .wiki-article {

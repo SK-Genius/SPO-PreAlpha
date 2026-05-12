@@ -16,6 +16,7 @@ function el(tagName, options = {}, ...children) {
 }
 
 export function render(source, context) {
+	ensureTextViewerStyles();
 	const target = context && context.articleElement;
 	if (!target) return;
 
@@ -64,6 +65,77 @@ function getRenderMode(target) {
 	if (target.classList && target.classList.contains("wiki-embedded-block")) return "embedded";
 	if (target.classList && target.classList.contains("wiki-resource-block")) return "embedded";
 	return "file";
+}
+
+function ensureTextViewerStyles() {
+	if (document.getElementById("txt-viewer-style")) return;
+
+	const style = document.createElement("style");
+	style.id = "txt-viewer-style";
+	style.textContent = `
+		.source-view {
+			color: var(--ink);
+			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
+		}
+
+		.source-card {
+			border: 1px solid var(--card-border);
+			border-radius: 0.95rem;
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--card-shadow);
+			overflow: hidden;
+		}
+
+		.source-bar {
+			display: flex;
+			align-items: center;
+			gap: 0.85rem;
+			padding: 0.75rem 0.9rem;
+			border-bottom: 1px solid var(--bar-border);
+			background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
+		}
+
+		.source-language {
+			flex: 0 0 auto;
+			font-size: 0.8rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--source-language);
+		}
+
+		.source-filename {
+			flex: 1 1 auto;
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			color: var(--source-filename);
+			font-size: 0.92rem;
+		}
+
+		.source-code,
+		pre.wiki-object.wiki-text-embedded {
+			margin: 0;
+			padding: 0.9rem 1rem;
+			overflow: auto;
+			background: var(--source-surface);
+			color: var(--ink);
+			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
+		}
+
+		.source-code {
+			border-radius: 0 0 0.95rem 0.95rem;
+		}
+
+		pre.wiki-object.wiki-text-embedded {
+			margin: 0 0 1rem;
+			border: 1px solid var(--source-sticky-border);
+			border-radius: 0.8rem;
+			background: var(--source-embed-bg);
+		}
+	`;
+	document.head.append(style);
 }
 
 export default Object.freeze({

@@ -156,14 +156,14 @@ function ensureSvgViewerStyles(
 	style.id = "svg-viewer-style";
 	style.textContent = `
 		.source-view {
-			color: #241d18;
+			color: var(--ink);
 		}
 
 		.source-card {
-			border: 1px solid rgba(125, 102, 78, 0.28);
+			border: 1px solid var(--card-border);
 			border-radius: 0.95rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(249, 243, 233, 0.92));
-			box-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+			box-shadow: var(--card-shadow);
 			overflow: hidden;
 		}
 
@@ -172,8 +172,8 @@ function ensureSvgViewerStyles(
 			align-items: center;
 			gap: 0.85rem;
 			padding: 0.75rem 0.9rem;
-			border-bottom: 1px solid rgba(127, 79, 36, 0.16);
-			background: linear-gradient(180deg, rgba(236, 218, 194, 0.98), rgba(221, 198, 170, 0.94));
+			border-bottom: 1px solid var(--bar-border);
+			background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
 		}
 
 		.source-language {
@@ -182,7 +182,7 @@ function ensureSvgViewerStyles(
 			font-weight: 700;
 			letter-spacing: 0.08em;
 			text-transform: uppercase;
-			color: #7f4f24;
+			color: var(--source-language);
 		}
 
 		.source-filename {
@@ -191,7 +191,7 @@ function ensureSvgViewerStyles(
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
-			color: #5a4a3e;
+			color: var(--source-filename);
 			font-size: 0.92rem;
 			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
 		}
@@ -200,7 +200,7 @@ function ensureSvgViewerStyles(
 			display: block;
 			width: 100%;
 			padding: 1rem;
-			background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(249, 243, 233, 0.62));
+			background: linear-gradient(180deg, var(--frame-bg-start), var(--frame-bg-end));
 		}
 
 		.svg-frame-inline {
@@ -217,7 +217,7 @@ function ensureSvgViewerStyles(
 			height: auto;
 			margin: 0 auto;
 			border-radius: 0.35rem;
-			background: rgba(255, 255, 255, 0.78);
+			background: var(--image-bg);
 		}
 
 		.svg-frame-inline .svg-image {

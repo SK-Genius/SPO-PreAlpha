@@ -608,6 +608,16 @@ ValidateInstall(
 		throw new FileNotFoundException($"The deployed extension is missing \"{grammarPath}\".");
 	}
 	
+	var wikiLanguageConfigurationPath = Path.Combine(targetDir, "wiki.configuration.json");
+	if (!File.Exists(wikiLanguageConfigurationPath)) {
+		throw new FileNotFoundException($"The deployed extension is missing \"{wikiLanguageConfigurationPath}\".");
+	}
+	
+	var wikiGrammarPath = Path.Combine(targetDir, "wiki.tmLanguage.json");
+	if (!File.Exists(wikiGrammarPath)) {
+		throw new FileNotFoundException($"The deployed extension is missing \"{wikiGrammarPath}\".");
+	}
+	
 	var extensionEntryPoint = Path.Combine(targetDir, "src", "extension.js");
 	if (!File.Exists(extensionEntryPoint)) {
 		throw new FileNotFoundException($"The deployed extension is missing \"{extensionEntryPoint}\".");

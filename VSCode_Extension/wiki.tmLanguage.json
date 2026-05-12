@@ -1,0 +1,532 @@
+{
+	"scopeName": "text.wiki.spo",
+	"name": "SPO Wiki",
+	"patterns": [
+		{ "include": "#topLevel" }
+	],
+	"repository": {
+		"topLevel": {
+			"patterns": [
+				{ "include": "#documentTitle" },
+				{ "include": "#heading" },
+				{ "include": "#horizontalRule" },
+				{ "include": "#blockTableRow" },
+				{ "include": "#lineTableRow" },
+				{ "include": "#pipeCommentLine" },
+				{ "include": "#quoteBlock" },
+				{ "include": "#resourceBlock" },
+				{ "include": "#embedBlockSpo" },
+				{ "include": "#embedBlockXml" },
+				{ "include": "#embedBlockMermaid" },
+				{ "include": "#embedBlock" },
+				{ "include": "#listItem" },
+				{ "include": "#inlineContent" }
+			]
+		},
+		"documentTitle": {
+			"name": "meta.document.title.wiki",
+			"begin": "\\A(?:\\uFEFF)?(\\[\\u00A7)(?=[^\\r\\n]*\\u00A7\\](?=(?:\\]\\])*(?:[^\\]]|$))$)",
+			"beginCaptures": {
+				"1": { "name": "punctuation.definition.title.begin.wiki" }
+			},
+			"end": "(\\u00A7\\](?=(?:\\]\\])*(?:[^\\]]|$)))$",
+			"endCaptures": {
+				"1": { "name": "punctuation.definition.title.end.wiki" }
+			},
+			"contentName": "entity.name.title.document.wiki",
+			"patterns": [
+				{ "include": "#restrictedContent" }
+			]
+		},
+		"heading": {
+			"name": "meta.heading.wiki",
+			"begin": "^(\\s*)(\\[=)(?=[^\\r\\n]*=\\](?=(?:\\]\\])*(?:[^\\]]|$))\\s*$)",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.heading.begin.wiki" }
+			},
+			"end": "(=\\](?=(?:\\]\\])*(?:[^\\]]|$)))(\\s*)$",
+			"endCaptures": {
+				"1": { "name": "punctuation.definition.heading.end.wiki" }
+			},
+			"contentName": "entity.name.section.wiki",
+			"patterns": [
+				{ "include": "#restrictedContent" }
+			]
+		},
+		"horizontalRule": {
+			"name": "meta.separator.horizontal-rule.wiki",
+			"match": "^\\s*(\\[---\\])\\s*$",
+			"captures": {
+				"1": { "name": "punctuation.definition.separator.wiki" }
+			}
+		},
+		"blockTableRow": {
+			"name": "meta.table.row.block.wiki",
+			"begin": "^(\\s*)(\\[\\|)\\s*$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.table-row.begin.wiki" }
+			},
+			"end": "^([ \\t]*)(\\|\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.table-row.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "punctuation.separator.table-cell.block.wiki",
+					"match": "^\\s*(\\]\\[)\\s*$",
+					"captures": {
+						"1": { "name": "punctuation.separator.table-cell.wiki" }
+					}
+				},
+				{ "include": "#topLevel" }
+			]
+		},
+		"lineTableRow": {
+			"name": "meta.table.row.inline.wiki",
+			"begin": "^(\\s*)(\\[\\|)(?=[^\\r\\n]*\\|\\](?=(?:\\]\\])*(?:[^\\]]|$))\\s*$)",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.table-row.begin.wiki" }
+			},
+			"end": "(\\|\\](?=(?:\\]\\])*(?:[^\\]]|$)))(\\s*)$",
+			"endCaptures": {
+				"1": { "name": "punctuation.definition.table-row.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#tableLineContent" }
+			]
+		},
+		"tableLineContent": {
+			"patterns": [
+				{ "include": "#escapeBrackets" },
+				{ "include": "#inlineRule" },
+				{ "include": "#bold" },
+				{ "include": "#italic" },
+				{ "include": "#underline" },
+				{ "include": "#strike" },
+				{ "include": "#alert" },
+				{ "include": "#small" },
+				{ "include": "#superscript" },
+				{ "include": "#subscript" },
+				{ "include": "#inlineQuote" },
+				{ "include": "#inlineResource" },
+				{ "include": "#inlineLink" },
+				{ "include": "#inlineEmbed" },
+				{
+					"name": "punctuation.separator.table-cell.wiki",
+					"match": " \\]\\[ "
+				},
+				{ "include": "#invalidBracket" }
+			]
+		},
+		"pipeCommentLine": {
+			"name": "comment.line.vertical-bar.wiki",
+			"begin": "^(\\s*)(\\|)",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.comment.wiki" }
+			},
+			"end": "$"
+		},
+		"quoteBlock": {
+			"name": "markup.quote.block.wiki",
+			"begin": "^(\\s*)(\\[\\\")\\s*$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.quote-block.begin.wiki" }
+			},
+			"end": "^([ \\t]*)(\\\"\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.quote-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki markup.quote.block.content.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$"
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"resourceBlock": {
+			"name": "meta.reference.block.wiki",
+			"begin": "^(\\s*)(\\[#)\\s*$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.resource-block.begin.wiki" }
+			},
+			"end": "^([ \\t]*)(#\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.resource-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki string.other.resource.target.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$"
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"embedBlockSpo": {
+			"name": "meta.embedded.block.spo.wiki",
+			"begin": "^(\\s*)(\\[\\.)([Ss][Pp][Oo]|[Ii][Ll][Tt])(\\s*)$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.begin.wiki" },
+				"3": { "name": "entity.name.type.extension.wiki" }
+			},
+			"end": "^([ \\t]*)(\\.\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki meta.embedded.line.spo.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$",
+					"contentName": "source.spo.embedded.wiki",
+					"patterns": [
+						{ "include": "source.spo" }
+					]
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"embedBlockXml": {
+			"name": "meta.embedded.block.xml.wiki",
+			"begin": "^(\\s*)(\\[\\.)([Xx][Mm][Ll]|[Ss][Vv][Gg])(\\s*)$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.begin.wiki" },
+				"3": { "name": "entity.name.type.extension.wiki" }
+			},
+			"end": "^([ \\t]*)(\\.\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki meta.embedded.line.xml.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$",
+					"contentName": "text.xml.embedded.wiki",
+					"patterns": [
+						{ "include": "text.xml" }
+					]
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"embedBlockMermaid": {
+			"name": "meta.embedded.block.mermaid.wiki",
+			"begin": "^(\\s*)(\\[\\.)([Mm][Ee][Rr][Mm][Aa][Ii][Dd]|[Mm][Mm][Dd])(\\s*)$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.begin.wiki" },
+				"3": { "name": "entity.name.type.extension.wiki" }
+			},
+			"end": "^([ \\t]*)(\\.\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki meta.embedded.line.mermaid.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$",
+					"contentName": "source.mermaid.embedded.wiki",
+					"patterns": [
+						{ "include": "source.mermaid" }
+					]
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"embedBlock": {
+			"name": "meta.embedded.block.wiki",
+			"begin": "^(\\s*)(\\[\\.)([^\\s\\[\\]\\|]+)(\\s*)$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.begin.wiki" },
+				"3": { "name": "entity.name.type.extension.wiki" }
+			},
+			"end": "^([ \\t]*)(\\.\\])([ \\t]*)$",
+			"endCaptures": {
+				"2": { "name": "punctuation.definition.embed-block.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "comment.line.vertical-bar.wiki string.unquoted.embedded-source.wiki",
+					"begin": "^(\\s*)(\\|)",
+					"beginCaptures": {
+						"2": { "name": "punctuation.definition.comment.wiki" }
+					},
+					"end": "$"
+				},
+				{
+					"name": "invalid.illegal.block-content.wiki",
+					"match": "^.*$"
+				}
+			]
+		},
+		"listItem": {
+			"name": "markup.list.item.wiki",
+			"begin": "^(\\s*)((?:-+|o+|\\*+|#+|>+))(\\s+)",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.list.begin.wiki" }
+			},
+			"end": "$",
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"inlineContent": {
+			"patterns": [
+				{ "include": "#escapeBrackets" },
+				{ "include": "#inlineRule" },
+				{ "include": "#bold" },
+				{ "include": "#italic" },
+				{ "include": "#underline" },
+				{ "include": "#strike" },
+				{ "include": "#alert" },
+				{ "include": "#small" },
+				{ "include": "#superscript" },
+				{ "include": "#subscript" },
+				{ "include": "#inlineQuote" },
+				{ "include": "#inlineResource" },
+				{ "include": "#inlineLink" },
+				{ "include": "#inlineEmbed" },
+				{ "include": "#invalidBracket" }
+			]
+		},
+		"restrictedContent": {
+			"patterns": [
+				{ "include": "#escapeBrackets" },
+				{ "include": "#invalidBracket" }
+			]
+		},
+		"opaqueContent": {
+			"patterns": [
+				{ "include": "#escapeBrackets" }
+			]
+		},
+		"escapeBrackets": {
+			"name": "constant.character.escape.bracket.wiki",
+			"match": "\\[\\[|\\]\\]"
+		},
+		"inlineRule": {
+			"name": "meta.separator.inline-rule.wiki",
+			"match": "\\[---\\]"
+		},
+		"bold": {
+			"name": "markup.bold.wiki",
+			"begin": "\\[\\*(?=[^\\r\\n]*\\*\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.bold.begin.wiki" }
+			},
+			"end": "\\*\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.bold.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"italic": {
+			"name": "markup.italic.wiki",
+			"begin": "\\[/(?=[^\\r\\n]*/\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.italic.begin.wiki" }
+			},
+			"end": "/\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.italic.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"underline": {
+			"name": "markup.underline.wiki",
+			"begin": "\\[_(?=[^\\r\\n]*_\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.underline.begin.wiki" }
+			},
+			"end": "_\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.underline.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"strike": {
+			"name": "markup.strike.wiki",
+			"begin": "\\[-(?=[^\\r\\n]*-\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.strike.begin.wiki" }
+			},
+			"end": "-\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.strike.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"alert": {
+			"name": "markup.highlight.wiki",
+			"begin": "\\[!(?=[^\\r\\n]*!\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.alert.begin.wiki" }
+			},
+			"end": "!\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.alert.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"small": {
+			"name": "markup.other.small-text.wiki",
+			"begin": "\\[\\((?=[^\\r\\n]*\\)\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.small.begin.wiki" }
+			},
+			"end": "\\)\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.small.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"superscript": {
+			"name": "markup.other.superscript.wiki",
+			"begin": "\\['(?=[^\\r\\n]*'\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.superscript.begin.wiki" }
+			},
+			"end": "'\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.superscript.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"subscript": {
+			"name": "markup.other.subscript.wiki",
+			"begin": "\\[,(?=[^\\r\\n]*,\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.subscript.begin.wiki" }
+			},
+			"end": ",\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.subscript.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#inlineContent" }
+			]
+		},
+		"inlineQuote": {
+			"name": "markup.quote.inline.wiki",
+			"begin": "\\[\\\"(?=[^\\r\\n]*\\\"\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.quote.begin.wiki" }
+			},
+			"end": "\\\"\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.quote.end.wiki" }
+			},
+			"patterns": [
+				{ "include": "#restrictedContent" }
+			]
+		},
+		"inlineResource": {
+			"name": "meta.reference.inline.wiki",
+			"begin": "\\[#(?=[^\\r\\n]*#\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.resource.begin.wiki" }
+			},
+			"end": "#\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.resource.end.wiki" }
+			},
+			"contentName": "string.other.resource.target.wiki",
+			"patterns": [
+				{ "include": "#restrictedContent" }
+			]
+		},
+		"inlineLink": {
+			"name": "meta.link.inline.wiki",
+			"begin": "\\[<(?=[^\\r\\n]*>\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.link.begin.wiki" }
+			},
+			"end": ">\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.link.end.wiki" }
+			},
+			"contentName": "meta.link.body.wiki",
+			"patterns": [
+				{ "include": "#escapeBrackets" },
+				{
+					"name": "punctuation.separator.link.wiki",
+					"match": "\\|"
+				},
+				{ "include": "#invalidBracket" }
+			]
+		},
+		"inlineEmbed": {
+			"name": "comment.block.inline.wiki",
+			"begin": "\\[\\.(?=[^\\r\\n]*\\.\\](?=(?:\\]\\])*(?:[^\\]]|$)))",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.comment.begin.wiki" }
+			},
+			"end": "\\.\\](?=(?:\\]\\])*(?:[^\\]]|$))",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.comment.end.wiki" }
+			},
+			"patterns": [
+				{
+					"name": "entity.name.type.extension.wiki",
+					"match": "\\G[^\\s\\[\\]\\|]+(?=\\|)"
+				},
+				{
+					"name": "punctuation.separator.comment.wiki",
+					"match": "\\|"
+				},
+				{ "include": "#opaqueContent" }
+			]
+		},
+		"invalidBracket": {
+			"name": "invalid.illegal.bracket.wiki",
+			"match": "\\[|\\]"
+		}
+	}
+}

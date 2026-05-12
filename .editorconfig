@@ -7,6 +7,11 @@ indent_style = tab
 insert_final_newline = false
 tab_width = 4
 
+[*.wiki]
+indent_size = 2
+indent_style = space
+tab_width = 2
+
 [*.cs]
 csharp_indent_block_contents = true
 csharp_indent_braces = false

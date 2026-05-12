@@ -339,3 +339,139 @@ The supported image file formats:
 
 - binary: [.|.avif.], [.|.bmp.], [.|.gif.], [.|.ico.], [.|.jpeg.], [.|.jpg.], [.|.png.], [.|.webp.]
 - text based: [.|.svg.]
+
+[=EBNF=]
+
+[.
+|(* Escaping
+|
+|In normal text and restricted content:
+|
+|	[[  means literal [
+|	]]  means literal ]
+|
+|For close tokens ending in ], closing is decided right-to-left.
+|A close token is real only if the number of immediately following ] characters is even.
+|If the number is odd, one ] escapes the close token and the close token is emitted literally.
+|
+|Example for close token #]:
+|
+|	[#abc#]    closes
+|	[#abc#]]   emits literal #]
+|	[#abc#]]]  closes, followed by escaped/literal ] depending on context
+|*)
+|
+|
+|document        = [ "[§" , restrictedContent , "§]" , [ emptyLine ] ] ,
+|                  { emptyLine | block } ;
+|
+|
+|block           = heading
+|                | "[---]"                                              (* horizontal rule *)
+|
+|                | table
+|
+|                | "[\"" , newline ,
+|                    { whitespace , "|" , text , newline } ,
+|                  "\"]"                                              (* quote block *)
+|
+|                | "[#"  , newline ,
+|                    { whitespace , "|" , text , newline } ,
+|                  "#]"                                                (* resource / metadata block *)
+|
+|                | "[." , extension , newline ,
+|                    { whitespace , "|" , text , newline } ,
+|                  ".]"                                                (* extension-defined block *)
+|
+|                | list
+|                | paragraph ;
+|
+|
+|heading         = "[=" , restrictedContent , "=]" ;                 (* section heading *)
+|
+|
+|table           = { lineTableRow | blockTableRow } ;
+|
+|
+|lineTableRow    = "[|" ,
+|                    inlineText ,
+|                    { " ][ " , inlineText } ,
+|                  "|]" ;
+|
+|
+|blockTableRow   = "[|" , newline ,
+|                    document ,
+|                    { "][" , newline , document } ,
+|                  "|]" ;
+|
+|
+|list            = { listItem } ;
+|
+|
+|listItem        = ( "-" , { "-" }                                  (* dash list *)
+|                  | "o" , { "o" }                                  (* circle list *)
+|                  | "*" , { "*" }                                  (* filled bullet list *)
+|                  | "#" , { "#" }                                  (* square list *)
+|                  | ">" , { ">" } )                                (* arrow list *)
+|
+|                  , whitespace ,
+|                  inlineText ,
+|                  { continuationLine } ;
+|
+|
+|continuationLine = inlineText
+|                   (* stops at empty line, new list marker, or block start *) ;
+|
+|
+|paragraph       = inlineText , { inlineText } ;
+|
+|
+|inlineText      = { inlineToken
+|                  | textChar
+|                  | "[["                                              (* literal [ *)
+|                  | "]]"                                              (* literal ] *)
+|                  | "[---]" } ;                                       (* inline horizontal rule *)
+|
+|
+|inlineToken     = "[*" , inlineText , "*]"                          (* strong / bold *)
+|                | "[/" , inlineText , "/]"                          (* emphasis / italic *)
+|                | "[_" , inlineText , "_]"                          (* underline *)
+|                | "[-" , inlineText , "-]"                          (* deleted / strike-through *)
+|                | "[!" , inlineText , "!]"                          (* alert / highlighted span *)
+|                | "[(" , inlineText , ")]"                          (* small text *)
+|                | "['" , inlineText , "']"                          (* superscript *)
+|                | "[," , inlineText , ",]"                          (* subscript *)
+|
+|                | "[\"" , restrictedContent , "\"]"               (* inline quote *)
+|                | "[#" , restrictedContent , "#]"                   (* resource reference *)
+|
+|                | "[<" ,
+|                    restrictedContent ,
+|                    [ "|" , linkLabel ] ,
+|                  ">]"                                                (* link: target | optional label *)
+|
+|                | "[." ,
+|                    extension ,
+|                    "|" ,
+|                    opaqueContent ,
+|                  ".]" ;                                              (* inline embed handled by extension viewer *)
+|
+|
+|restrictedContent = { restrictedChar | "[[" | "]]" } ;
+|
+|
+|opaqueContent   = { anyChar | "[[" | "]]" } ;
+|
+|
+|extension       = extensionChar , { extensionChar } ;
+|
+|
+|extensionChar   = ? any non-whitespace char except "[" , "]" , "|" ? ;
+|restrictedChar  = ? any char except raw "[" and raw "]" unless escaped ? ;
+|textChar        = ? any char except raw "[" and raw "]" ? ;
+|
+|
+|emptyLine       = whitespace ;
+|whitespace      = { " " | "\t" } ;
+|newline         = "\n" ;
+.]

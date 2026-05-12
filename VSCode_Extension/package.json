@@ -15,6 +15,8 @@
 		"package.json",
 		"SPO.configuration.json",
 		"SPO.tmLanguage.json",
+		"wiki.configuration.json",
+		"wiki.tmLanguage.json",
 		"src/**",
 		"server/**",
 		"node_modules/**"
@@ -26,6 +28,12 @@
 				"extensions": [".SPO", ".spo", ".ILT", ".ilt"],
 				"aliases": ["SPO", "spo"],
 				"configuration": "./SPO.configuration.json"
+			},
+			{
+				"id": "wiki",
+				"extensions": [".wiki"],
+				"aliases": ["Wiki", "wiki"],
+				"configuration": "./wiki.configuration.json"
 			}
 		],
 		"grammars": [
@@ -33,6 +41,11 @@
 				"language": "spo",
 				"scopeName": "source.spo",
 				"path": "./SPO.tmLanguage.json"
+			},
+			{
+				"language": "wiki",
+				"scopeName": "text.wiki.spo",
+				"path": "./wiki.tmLanguage.json"
 			}
 		]
 	},
