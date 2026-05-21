@@ -1,9 +1,9 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mArrayList
-// IMPORT mMap
-// IMPORT mMaybe
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mArrayList.cs
+#:include mMap.cs
+#:include mMaybe.cs
 
 public static class
 mMap_Tests {

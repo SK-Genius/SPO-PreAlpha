@@ -1,6 +1,6 @@
-﻿// IMPORT mStd
-// IMPORT mError
-// IMPORT mAssert
+﻿#:include mStd.cs
+#:include mError.cs
+#:include mAssert.cs
 
 public static class
 mAny {

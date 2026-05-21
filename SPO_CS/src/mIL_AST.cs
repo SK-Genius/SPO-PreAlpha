@@ -1,8 +1,8 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mStream
-// IMPORT Common/mMaybe
-// IMPORT Common/mAssert
-// IMPORT Common/mError
+﻿#:include Common/mStd.cs
+#:include Common/mStream.cs
+#:include Common/mMaybe.cs
+#:include Common/mAssert.cs
+#:include Common/mError.cs
 
 public static class
 mIL_AST {

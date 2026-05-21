@@ -7,7 +7,7 @@ indent_style = tab
 insert_final_newline = false
 tab_width = 4
 
-[*.wiki]
+[*.wiki|*.yml]
 indent_size = 2
 indent_style = space
 tab_width = 2

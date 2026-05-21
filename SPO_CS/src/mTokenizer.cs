@@ -1,13 +1,12 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mStream
-// IMPORT Common/mTextStream
-// IMPORT Common/mTextParser
-// IMPORT Common/mMaybe
-// IMPORT Common/mSpan
-// IMPORT Common/mResult
-// IMPORT Common/mParserGen
-// IMPORT Common/mError
-// IMPORT Common/mParserGen
+﻿#:include Common/mStd.cs
+#:include Common/mStream.cs
+#:include Common/mTextStream.cs
+#:include Common/mTextParser.cs
+#:include Common/mMaybe.cs
+#:include Common/mSpan.cs
+#:include Common/mResult.cs
+#:include Common/mParserGen.cs
+#:include Common/mError.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -81,7 +80,7 @@ mTokenizer {
 		SpecialId,
 		SpecialToken,
 	}
-
+	
 	public struct
 	tToken {
 		public tTokenType Type;

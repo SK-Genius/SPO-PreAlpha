@@ -1,8 +1,8 @@
-// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mFS
-// IMPORT mMaybe
+#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mFS.cs
+#:include mMaybe.cs
 
 public static class
 mFS_Tests {

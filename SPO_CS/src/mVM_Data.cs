@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mAny
-// IMPORT Common/mArrayList
-// IMPORT Common/mAssert
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT mVM_Type
+﻿#:include Common/mStd.cs
+#:include Common/mAny.cs
+#:include Common/mArrayList.cs
+#:include Common/mAssert.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include mVM_Type.cs
 
 public static class
 mVM_Data {

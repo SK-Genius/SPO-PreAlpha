@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mMaybe
-// IMPORT mError
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mMaybe.cs
+#:include mError.cs
 
 public static class
 mResult {

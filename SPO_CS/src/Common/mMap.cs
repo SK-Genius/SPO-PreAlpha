@@ -1,6 +1,6 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mMaybe
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mMaybe.cs
 
 public static class
 mMap {

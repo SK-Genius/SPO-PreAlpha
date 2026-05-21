@@ -1,0 +1,72 @@
+[§ Docs §]
+
+[=SPO (PreAlpha)=]
+
+SPO is a pre-alpha programming language project focused on security, safety, robustness, and performance.
+This repository currently contains the C# implementation of the language, a sample host, a VS Code extension, and a local documentation viewer.
+SPO is a programming language project on pre-alpha stage.
+This language focused on security, safety, robustness, and performance.
+This repository currently contains the C# implementation of the language and a VS Code extension.
+
+[=Why SPO?=]
+
+Modern software runs critical infrastructure, yet many languages still make it easy to ship null bugs, unchecked bounds, and hidden side effects.
+SPO aims to push those failure modes out of the default path by making dataflow and effects explicit.
+
+Current design goals:
+
+- Memory safety and type safety by construction.
+- Avoid common runtime crashes such as null dereferences and out-of-range access.
+- Keep mutable state explicit and capability-based instead of allowing hidden global effects.
+- Make static dataflow analysis straightforward.
+- Allow functional, imperative, and parallel styles to coexist.
+
+Current safety direction:
+
+- Explicit [.spo|tMaybe....] and [.spo|tResult....] types instead of implicit nulls or exceptions.
+- Refinement-style typing to move validity checks to the caller when possible.
+- Capability-oriented effects so code must be given access to files, networks, or other resources.
+
+[=Repository Layout=]
+
+[| [*Path*]                     ][ [*Purpose*]                                                                             |]
+[| [.|SPO_CS/.]                 ][ main implementation: tokenizer, parser, AST, typing, lowering, VM, modules, and tests   |]
+[| [.|VSCode_Extension/.]       ][ VS Code client, language server source                                                  |]
+[| [.|doc/.]                    ][ documentation in the repository's custom [.|.wiki.] format                              |]
+[| [.|index.html.] and [.|js/.] ][ local viewer for [.|.wiki.], [.|.spo.}, [.|.ilt.], diagrams, images, and related assets |]
+
+[=Contributor Quick Start=]
+
+Prerequisites:
+
+- .NET 11 SDK pinned in [<../global.json>]
+- Node only if you need to package or reinstall the VS Code extension
+- Windows if you need the packaged extension server path exactly as checked in today
+
+Start with the compiler-side runner, not the sample host:
+
+[.sh
+|dotnet SPO_CS/src/mRunTests.cs
+.]
+
+That is the most reliable first feedback loop in the current checkout.
+For command details and path-sensitive caveats, read [<Build_and_Test.wiki>].
+
+Recommended entry points:
+
+- [<CheatSheet_Wiki.wiki>]
+- [<CheatSheet_SPO.wiki>]
+- [<CheatSheet_IL.wiki>]
+- [<Tests.wiki>]
+- [<TODO.wiki>]
+
+[=Planned Killer App=]
+
+A plugin-driven, secure, privacy-first social media infrastructure without mandatory central servers.
+Untrusted extensions would run under explicit capabilities, and user data would stay user-hosted unless deliberately delegated elsewhere.
+
+[=Roadmap=]
+
+- Pre-Alpha to Alpha: make the compiler self-hosting by rewriting it in SPO.
+- Alpha to Beta: complete memory management and missing core features such as refinement types, parallel execution, and debugger support.
+- Beta to Release: add real CPU backends such as LLVM and expand tooling plus standard libraries.

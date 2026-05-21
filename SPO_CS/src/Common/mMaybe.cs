@@ -1,5 +1,5 @@
-﻿// IMPORT mStd
-// IMPORT mError
+﻿#:include mStd.cs
+#:include mError.cs
 
 public static class
 mMaybe {

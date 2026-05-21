@@ -1,9 +1,9 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mTreeMap
-// IMPORT mMaybe
-// IMPORT mMath
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mTreeMap.cs
+#:include mMaybe.cs
+#:include mMath.cs
 
 public static class
 mTreeMap_Tests {

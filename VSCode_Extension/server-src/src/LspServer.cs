@@ -6,10 +6,10 @@ LspServer {
 	private readonly Stream Input;
 	private readonly Stream Output;
 	private readonly SpoLanguageService LanguageService;
-	private readonly Dictionary<string, string> Documents = [];
+	private readonly Dictionary<tText, tText> Documents = [];
 	private readonly JsonSerializerOptions JsonOptions = new();
 	
-	private bool ShutdownRequested;
+	private tBool ShutdownRequested;
 	
 	public
 	LspServer(
@@ -22,7 +22,7 @@ LspServer {
 		this.LanguageService = languageService;
 	}
 	
-	public int
+	public tInt32
 	Run(
 	) {
 		try {
@@ -43,12 +43,12 @@ LspServer {
 		}
 	}
 	
-	private bool
+	private tBool
 	HandleMessage(
 		JsonElement message
 	) {
 		var hasId = message.TryGetProperty("id", out var idProperty);
-		var id = hasId ? idProperty.Clone() : (JsonElement?)null;
+		var id = hasId ? idProperty.Clone() : default;
 		var method = message.TryGetProperty("method", out var methodProperty)
 			? methodProperty.GetString()
 			: null;
@@ -176,7 +176,7 @@ LspServer {
 			"textDocument/publishDiagnostics",
 			new {
 				uri,
-				diagnostics = Array.Empty<object>()
+				diagnostics = Array.Empty<tUnknown>()
 			}
 		);
 	}
@@ -241,7 +241,7 @@ LspServer {
 			!message.TryGetProperty("params", out var paramsProperty) ||
 			!paramsProperty.TryGetProperty("textDocument", out var textDocument)
 		) {
-			this.WriteResult(id, Array.Empty<object>());
+			this.WriteResult(id, Array.Empty<tUnknown>());
 			return;
 		}
 		
@@ -256,8 +256,8 @@ LspServer {
 	
 	private void
 	PublishDiagnostics(
-		string uri,
-		string text
+		tText uri,
+		tText text
 	) {
 		var diagnostics = this.LanguageService.GetDiagnostics(uri, text).Select(
 			diagnostic => new {
@@ -277,7 +277,7 @@ LspServer {
 		);
 	}
 	
-	private string?
+	private tText?
 	ReadMessage(
 	) {
 		var contentLength = 0;
@@ -299,7 +299,7 @@ LspServer {
 			var headerName = line[..separatorIndex];
 			var headerValue = line[(separatorIndex + 1)..].Trim();
 			if (headerName.Equals("Content-Length", StringComparison.OrdinalIgnoreCase)) {
-				contentLength = int.Parse(headerValue, System.Globalization.CultureInfo.InvariantCulture);
+				contentLength = tInt32.Parse(headerValue, System.Globalization.CultureInfo.InvariantCulture);
 			}
 		}
 		
@@ -307,7 +307,7 @@ LspServer {
 			return null;
 		}
 		
-		var buffer = new byte[contentLength];
+		var buffer = new tNat8[contentLength];
 		var offset = 0;
 		while (offset < contentLength) {
 			var read = this.Input.Read(buffer, offset, contentLength - offset);
@@ -320,10 +320,10 @@ LspServer {
 		return Encoding.UTF8.GetString(buffer);
 	}
 	
-	private string?
+	private tText?
 	ReadHeaderLine(
 	) {
-		var buffer = new List<byte>();
+		var buffer = new List<tNat8>();
 		while (true) {
 			var value = this.Input.ReadByte();
 			if (value < 0) {
@@ -341,14 +341,14 @@ LspServer {
 				return Encoding.ASCII.GetString(buffer.ToArray());
 			}
 			
-			buffer.Add((byte)value);
+			buffer.Add((tNat8)value);
 		}
 	}
 	
 	private void
 	WriteResult(
 		JsonElement? id,
-		object? result
+		tUnknown? result
 	) => this.WriteMessage(
 		new {
 			jsonrpc = "2.0",
@@ -360,8 +360,8 @@ LspServer {
 	private void
 	WriteError(
 		JsonElement? id,
-		int code,
-		string message
+		tInt32 code,
+		tText message
 	) => this.WriteMessage(
 		new {
 			jsonrpc = "2.0",
@@ -375,8 +375,8 @@ LspServer {
 	
 	private void
 	WriteNotification(
-		string method,
-		object? @params
+		tText method,
+		tUnknown? @params
 	) => this.WriteMessage(
 		new {
 			jsonrpc = "2.0",
@@ -387,7 +387,7 @@ LspServer {
 	
 	private void
 	WriteMessage(
-		object message
+		tUnknown message
 	) {
 		var payload = JsonSerializer.SerializeToUtf8Bytes(message, this.JsonOptions);
 		var header = Encoding.ASCII.GetBytes($"Content-Length: {payload.Length}\r\n\r\n");
@@ -399,32 +399,32 @@ LspServer {
 	
 	private void
 	Log(
-		string category,
-		string message
+		tText category,
+		tText message
 	) {
 		Console.Error.WriteLine($"[{category}] {message}");
 		Console.Error.Flush();
 	}
 	
-	private static string
+	private static tText
 	GetRequiredString(
 		JsonElement element,
-		string name
+		tText name
 	) => element.TryGetProperty(name, out var value)
 		? value.GetString() ?? ""
 		: "";
 	
-	private static int
+	private static tInt32
 	GetRequiredInt(
 		JsonElement element,
-		string name
+		tText name
 	) => element.TryGetProperty(name, out var value) &&
 		value.ValueKind == JsonValueKind.Number &&
 		value.TryGetInt32(out var result)
 		? result
 		: 0;
 	
-	private static object
+	private static tUnknown
 	ToLspDocumentSymbol(
 		SpoDocumentSymbol symbol
 	) => new {
@@ -436,7 +436,7 @@ LspServer {
 		children = symbol.Children.Select(ToLspDocumentSymbol).ToArray()
 	};
 	
-	private static object
+	private static tUnknown
 	ToLspRange(
 		SpoRange range
 	) => new {

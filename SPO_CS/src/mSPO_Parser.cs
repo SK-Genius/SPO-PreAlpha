@@ -1,16 +1,16 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mParserGen
-// IMPORT Common/mTextStream
-// IMPORT Common/mTextParser
-// IMPORT Common/mSpan
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT mTokenizer
-// IMPORT mVM_Type
-// IMPORT mIL_AST
-// IMPORT mSPO_AST
-// IMPORT mSPO2IL
-// IMPORT mSPO_Desugar
+﻿#:include Common/mStd.cs
+#:include Common/mParserGen.cs
+#:include Common/mTextStream.cs
+#:include Common/mTextParser.cs
+#:include Common/mSpan.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include mTokenizer.cs
+#:include mVM_Type.cs
+#:include mIL_AST.cs
+#:include mSPO_AST.cs
+#:include mSPO2IL.cs
+#:include mSPO_Desugar.cs
 
 using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;

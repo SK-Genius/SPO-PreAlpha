@@ -1,6 +1,6 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mTreeMap
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mTreeMap.cs
 
 using tError = System.String;
 

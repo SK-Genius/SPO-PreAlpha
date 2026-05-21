@@ -1,12 +1,12 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mAssert
-// IMPORT Common/mStream
-// IMPORT Common/mTextStream
-// IMPORT Common/mParserGen
-// IMPORT Common/mTextParser
-// IMPORT Common/mSpan
-// IMPORT mTokenizer
+﻿#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mAssert.cs
+#:include Common/mStream.cs
+#:include Common/mTextStream.cs
+#:include Common/mParserGen.cs
+#:include Common/mTextParser.cs
+#:include Common/mSpan.cs
+#:include mTokenizer.cs
 
 using tPos = mTextStream.tPos;
 

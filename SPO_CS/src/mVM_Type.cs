@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mResult
-// IMPORT Common/mStream
-// IMPORT Common/mError
-// IMPORT Common/mAssert
-// IMPORT Common/mMaybe
-// IMPORT Common/mTreeMap
+﻿#:include Common/mStd.cs
+#:include Common/mResult.cs
+#:include Common/mStream.cs
+#:include Common/mError.cs
+#:include Common/mAssert.cs
+#:include Common/mMaybe.cs
+#:include Common/mTreeMap.cs
 
 public static class
 mVM_Type {

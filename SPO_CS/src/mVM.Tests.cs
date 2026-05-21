@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mAssert
-// IMPORT Common/mStream
-// IMPORT mVM_Type
-// IMPORT mVM_Data
-// IMPORT mVM
+﻿#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mAssert.cs
+#:include Common/mStream.cs
+#:include mVM_Type.cs
+#:include mVM_Data.cs
+#:include mVM.cs
 
 public static class
 mVM_Tests {

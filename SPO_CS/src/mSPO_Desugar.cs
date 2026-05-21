@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mStream
-// IMPORT Common/mMaybe
-// IMPORT Common/mError
-// IMPORT Common/mAssert
-// IMPORT Common/mResult
-// IMPORT mSPO_AST
+﻿#:include Common/mStd.cs
+#:include Common/mStream.cs
+#:include Common/mMaybe.cs
+#:include Common/mError.cs
+#:include Common/mAssert.cs
+#:include Common/mResult.cs
+#:include mSPO_AST.cs
 
 public static class
 mSPO_Desugar {

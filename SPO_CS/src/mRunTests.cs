@@ -1,9 +1,13 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT Common/mCommon.Tests
-// IMPORT mSPO.Tests
+﻿#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableTransitiveDirectives = true
+#:property OutputType = Exe
+#:include _GlobalUsings.cs
+#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include Common/mCommon.Tests.cs
+#:include mSPO.Tests.cs
 
 var Tests = mTest.Tests(
 	"All",

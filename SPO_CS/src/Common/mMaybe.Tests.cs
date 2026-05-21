@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mMaybe
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mMaybe.cs
 
 public static class
 mMaybe_Tests {

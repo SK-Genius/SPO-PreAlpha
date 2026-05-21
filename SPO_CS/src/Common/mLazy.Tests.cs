@@ -1,7 +1,7 @@
-// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mLazy
+#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mLazy.cs
 
 public static class
 mLazy_Tests {

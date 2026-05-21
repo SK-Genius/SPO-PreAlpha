@@ -1,21 +1,21 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mSpan
-// IMPORT Common/mMaybe
-// IMPORT Common/mResult
-// IMPORT Common/mStream
-// IMPORT Common/mTextStream
-// IMPORT Common/mArrayList
-// IMPORT Common/mParserGen
-// IMPORT mTokenizer
-// IMPORT mVM_Type
-// IMPORT mVM_Data
-// IMPORT mVM
-// IMPORT mIL_AST
-// IMPORT mSPO2IL
-// IMPORT mSPO_AST
-// IMPORT mSPO_AST_Types
-// IMPORT mSPO_Parser
-// IMPORT mSPO_Desugar
+﻿#:include Common/mStd.cs
+#:include Common/mSpan.cs
+#:include Common/mMaybe.cs
+#:include Common/mResult.cs
+#:include Common/mStream.cs
+#:include Common/mTextStream.cs
+#:include Common/mArrayList.cs
+#:include Common/mParserGen.cs
+#:include mTokenizer.cs
+#:include mVM_Type.cs
+#:include mVM_Data.cs
+#:include mVM.cs
+#:include mIL_AST.cs
+#:include mSPO2IL.cs
+#:include mSPO_AST.cs
+#:include mSPO_AST_Types.cs
+#:include mSPO_Parser.cs
+#:include mSPO_Desugar.cs
 
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 

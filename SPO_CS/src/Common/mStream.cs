@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mMaybe
-// IMPORT mLazy
-// IMPORT mRef
+﻿#:include mStd.cs
+#:include mMaybe.cs
+#:include mLazy.cs
+#:include mRef.cs
 
 //#define TAIL_RECURSIVE
 

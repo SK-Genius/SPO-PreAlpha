@@ -1,16 +1,16 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mAssert
-// IMPORT Common/mError
-// IMPORT Common/mPerf
-// IMPORT Common/mMaybe
-// IMPORT Common/mMath
-// IMPORT Common/mStream
-// IMPORT Common/mAny
-// IMPORT Common/mArrayList
-// IMPORT Common/mTreeMap
-// IMPORT mVM_Data
-// IMPORT mIL_AST
-// IMPORT mIL_GenerateOpcodes
+﻿#:include Common/mStd.cs
+#:include Common/mAssert.cs
+#:include Common/mError.cs
+#:include Common/mPerf.cs
+#:include Common/mMaybe.cs
+#:include Common/mMath.cs
+#:include Common/mStream.cs
+#:include Common/mAny.cs
+#:include Common/mArrayList.cs
+#:include Common/mTreeMap.cs
+#:include mVM_Data.cs
+#:include mIL_AST.cs
+#:include mIL_GenerateOpcodes.cs
 
 public static class
 mVM {

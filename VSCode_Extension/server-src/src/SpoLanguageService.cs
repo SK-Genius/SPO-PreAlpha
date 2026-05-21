@@ -5,8 +5,8 @@ internal sealed class
 SpoLanguageService {
 	public IReadOnlyList<SpoDiagnostic>
 	GetDiagnostics(
-		string uri,
-		string text
+		tText uri,
+		tText text
 	) {
 		try {
 			var diagnostics = new List<SpoDiagnostic>();
@@ -14,7 +14,7 @@ SpoLanguageService {
 				diagnostics.Add(
 					new(
 						Range: ToRange(diagnostic.Pos),
-						Severity: (int)diagnostic.Severity,
+						Severity: (tInt32)diagnostic.Severity,
 						Source: diagnostic.Source,
 						Message: diagnostic.Message
 					)
@@ -25,7 +25,7 @@ SpoLanguageService {
 			return [
 				new(
 					Range: ToRange(mSpan.Span(mTextStream.Pos(uri, 1, 1))),
-					Severity: (int)mSPO_Diagnostics.tDiagnosticSeverity.Error,
+					Severity: (tInt32)mSPO_Diagnostics.tDiagnosticSeverity.Error,
 					Source: "lsp",
 					Message: "internal server error: " + exception.Message
 				)
@@ -35,8 +35,8 @@ SpoLanguageService {
 	
 	public IReadOnlyList<SpoDocumentSymbol>
 	GetDocumentSymbols(
-		string uri,
-		string text
+		tText uri,
+		tText text
 	) {
 		try {
 			var Symbols = new List<SpoDocumentSymbol>();
@@ -51,10 +51,10 @@ SpoLanguageService {
 	
 	public SpoLocation?
 	GetDefinition(
-		string uri,
-		string text,
-		int line,
-		int character
+		tText uri,
+		tText text,
+		tInt32 line,
+		tInt32 character
 	) {
 		try {
 			var Definition = mSPO_Navigation.GetDefinition(
@@ -62,8 +62,8 @@ SpoLanguageService {
 				uri,
 				mTextStream.Pos(
 					uri,
-					(uint)Math.Max(line, 0) + 1,
-					(uint)Math.Max(character, 0) + 1
+					(tNat32)Math.Max(line, 0) + 1,
+					(tNat32)Math.Max(character, 0) + 1
 				),
 				_ => {}
 			);
@@ -75,7 +75,7 @@ SpoLanguageService {
 		}
 	}
 	
-	static SpoRange
+	private static SpoRange
 	ToRange(
 		tSpan span
 	) {
@@ -93,23 +93,23 @@ SpoLanguageService {
 		);
 	}
 	
-	static SpoPosition
+	private static SpoPosition
 	ToStartPosition(
 		tPos pos
 	) => new(
-		Line: Math.Max((int)pos.Row - 1, 0),
-		Character: Math.Max((int)pos.Col - 1, 0)
+		Line: Math.Max((tInt32)pos.Row - 1, 0),
+		Character: Math.Max((tInt32)pos.Col - 1, 0)
 	);
 	
-	static SpoPosition
+	private static SpoPosition
 	ToEndPosition(
 		tPos pos
 	) => new(
-		Line: Math.Max((int)pos.Row - 1, 0),
-		Character: Math.Max((int)pos.Col, 0)
+		Line: Math.Max((tInt32)pos.Row - 1, 0),
+		Character: Math.Max((tInt32)pos.Col, 0)
 	);
 	
-	static SpoDocumentSymbol
+	private static SpoDocumentSymbol
 	ToDocumentSymbol(
 		mSPO_Navigation.tDocumentSymbol symbol
 	) {
@@ -121,14 +121,14 @@ SpoLanguageService {
 		return new(
 			Name: symbol.Name,
 			Detail: symbol.Detail,
-			Kind: (int)symbol.Kind,
+			Kind: (tInt32)symbol.Kind,
 			Range: ToRange(symbol.Range),
 			SelectionRange: ToRange(symbol.SelectionRange),
 			Children: Children
 		);
 	}
 	
-	static SpoLocation
+	private static SpoLocation
 	ToLocation(
 		mSPO_Navigation.tLocation location
 	) => new(
@@ -140,9 +140,9 @@ SpoLanguageService {
 internal sealed record
 SpoDiagnostic(
 	SpoRange Range,
-	int Severity,
-	string Source,
-	string Message
+	tInt32 Severity,
+	tText Source,
+	tText Message
 );
 
 internal sealed record
@@ -153,15 +153,15 @@ SpoRange(
 
 internal sealed record
 SpoPosition(
-	int Line,
-	int Character
+	tInt32 Line,
+	tInt32 Character
 );
 
 internal sealed record
 SpoDocumentSymbol(
-	string Name,
-	string Detail,
-	int Kind,
+	tText Name,
+	tText Detail,
+	tInt32 Kind,
 	SpoRange Range,
 	SpoRange SelectionRange,
 	IReadOnlyList<SpoDocumentSymbol> Children
@@ -169,6 +169,6 @@ SpoDocumentSymbol(
 
 internal sealed record
 SpoLocation(
-	string Uri,
+	tText Uri,
 	SpoRange Range
 );

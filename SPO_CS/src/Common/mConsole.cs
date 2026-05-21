@@ -1,4 +1,4 @@
-// IMPORT mStd
+#:include mStd.cs
 
 public static class
 mConsole {

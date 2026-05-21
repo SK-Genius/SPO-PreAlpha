@@ -1,6 +1,6 @@
-// IMPORT mStd
-// IMPORT mArena
-// IMPORT mArenaRef
+#:include mStd.cs
+#:include mArena.cs
+#:include mArenaRef.cs
 
 public static class
 mArenaArray {

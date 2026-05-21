@@ -1,8 +1,8 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mConsole
-// IMPORT mPerf
-// IMPORT mError
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mConsole.cs
+#:include mPerf.cs
+#:include mError.cs
 
 public static class
 mTest {

@@ -1,18 +1,18 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mAssert
-// IMPORT Common/mError
-// IMPORT Common/mTreeMap
-// IMPORT Common/mMath
-// IMPORT Common/mMaybe
-// IMPORT Common/mResult
-// IMPORT Common/mArrayList
-// IMPORT Common/mStream
-// IMPORT Common/mPerf
-// IMPORT mVM_Type
-// IMPORT mIL_AST
-// IMPORT mIL_GenerateOpcodes
-// IMPORT mSPO_AST
-// IMPORT mSPO_AST_Types
+﻿#:include Common/mStd.cs
+#:include Common/mAssert.cs
+#:include Common/mError.cs
+#:include Common/mTreeMap.cs
+#:include Common/mMath.cs
+#:include Common/mMaybe.cs
+#:include Common/mResult.cs
+#:include Common/mArrayList.cs
+#:include Common/mStream.cs
+#:include Common/mPerf.cs
+#:include mVM_Type.cs
+#:include mIL_AST.cs
+#:include mIL_GenerateOpcodes.cs
+#:include mSPO_AST.cs
+#:include mSPO_AST_Types.cs
 
 public static class
 mSPO2IL {

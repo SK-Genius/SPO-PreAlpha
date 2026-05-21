@@ -44,7 +44,7 @@ Where it stays readable, this page shows examples as [.|Source.] versus [.|Rende
 
 There is exactly one heading form:
 
-[| [*Source*] ][ [*Rendered*] |]
+[| [*Source*]     ][ [*Rendered*]         |]
 [| [.|[=Title=].] ][ [.wiki|[[=Title=]].] |]
 
 - headings start at the beginning of the line
@@ -325,7 +325,7 @@ There are two inline forms:
 
 [| [*Source*]                                                             ][ [*Rendered*]                                                     |]
 [| [.|See [[# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] inline. |]
-[| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                   |]
+[| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                      |]
 
 [=Viewers By Extension=]
 

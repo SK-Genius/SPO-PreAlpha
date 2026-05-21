@@ -1,10 +1,10 @@
-// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mTextStream
-// IMPORT mParserGen
-// IMPORT mTextParser
-// IMPORT mSpan
+#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mTextStream.cs
+#:include mParserGen.cs
+#:include mTextParser.cs
+#:include mSpan.cs
 
 using tPos = mTextStream.tPos;
 

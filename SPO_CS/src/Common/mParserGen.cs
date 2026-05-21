@@ -1,11 +1,11 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mSpan
-// IMPORT mResult
-// IMPORT mAssert
-// IMPORT mPerf
-// IMPORT mMath
-// IMPORT mMaybe
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mSpan.cs
+#:include mResult.cs
+#:include mAssert.cs
+#:include mPerf.cs
+#:include mMath.cs
+#:include mMaybe.cs
 
 //#define MY_TRACE_PARSER
 //#define INF_LOOP_DETECTION

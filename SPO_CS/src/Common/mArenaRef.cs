@@ -1,5 +1,5 @@
-// IMPORT mStd
-// IMPORT mArena
+#:include mStd.cs
+#:include mArena.cs
 
 public static class
 mArenaRef {

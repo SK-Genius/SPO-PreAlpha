@@ -1,16 +1,16 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mStream
-// IMPORT Common/mSpan
-// IMPORT Common/mResult
-// IMPORT Common/mTextStream
-// IMPORT Common/mArrayList
-// IMPORT Common/mParserGen
-// IMPORT mTokenizer
-// IMPORT mVM_Type
-// IMPORT mSPO_AST_Types
-// IMPORT mSPO_AST
-// IMPORT mSPO_Parser
+﻿#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mStream.cs
+#:include Common/mSpan.cs
+#:include Common/mResult.cs
+#:include Common/mTextStream.cs
+#:include Common/mArrayList.cs
+#:include Common/mParserGen.cs
+#:include mTokenizer.cs
+#:include mVM_Type.cs
+#:include mSPO_AST_Types.cs
+#:include mSPO_AST.cs
+#:include mSPO_Parser.cs
 
 public static class
 mVM_Type_Tests {

@@ -1,16 +1,16 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mAssert
-// IMPORT Common/mError
-// IMPORT Common/mMath
-// IMPORT Common/mMaybe
-// IMPORT Common/mResult
-// IMPORT Common/mStream
-// IMPORT Common/mTreeMap
-// IMPORT Common/mPerf
-// IMPORT Common/mArrayList
-// IMPORT mIL_AST
-// IMPORT mVM_Type
-// IMPORT mVM_Data
+﻿#:include Common/mStd.cs
+#:include Common/mAssert.cs
+#:include Common/mError.cs
+#:include Common/mMath.cs
+#:include Common/mMaybe.cs
+#:include Common/mResult.cs
+#:include Common/mStream.cs
+#:include Common/mTreeMap.cs
+#:include Common/mPerf.cs
+#:include Common/mArrayList.cs
+#:include mIL_AST.cs
+#:include mVM_Type.cs
+#:include mVM_Data.cs
 
 //#define MY_TRACE_IL
 

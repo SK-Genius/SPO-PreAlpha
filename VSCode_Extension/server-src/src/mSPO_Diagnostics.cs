@@ -1,18 +1,18 @@
-// IMPORT Common/mStd
-// IMPORT Common/mSpan
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT Common/mResult
-// IMPORT Common/mParserGen
-// IMPORT Common/mTextStream
-// IMPORT Common/mTextParser
-// IMPORT mTokenizer
-// IMPORT mVM_Type
-// IMPORT mSPO_AST
-// IMPORT mSPO_AST_Types
-// IMPORT mSPO_Parser
-// IMPORT mSPO_Desugar
-// IMPORT mSPO2IL
+#:include Common/mStd.cs
+#:include Common/mSpan.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include Common/mResult.cs
+#:include Common/mParserGen.cs
+#:include Common/mTextStream.cs
+#:include Common/mTextParser.cs
+#:include mTokenizer.cs
+#:include mVM_Type.cs
+#:include mSPO_AST.cs
+#:include mSPO_AST_Types.cs
+#:include mSPO_Parser.cs
+#:include mSPO_Desugar.cs
+#:include mSPO2IL.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -64,7 +64,7 @@ mSPO_Diagnostics {
 		aMessage
 	);
 	
-	static tPos
+	private static tPos
 	GetEndPos(
 		tText aCode,
 		tText aId
@@ -78,7 +78,7 @@ mSPO_Diagnostics {
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static tPos
+	private static tPos
 	NormalizePos(
 		tPos aPos,
 		tPos aFallback
@@ -87,7 +87,7 @@ mSPO_Diagnostics {
 		: aFallback;
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static tSpan
+	private static tSpan
 	NormalizeSpan(
 		tSpan aPos,
 		tPos aFallback
@@ -95,7 +95,7 @@ mSPO_Diagnostics {
 		? aPos
 		: mSpan.Span(aFallback);
 	
-	static mResult.tResult<mStream.tStream<(tSpan Span, tToken Value)>, mStream.tStream<tDiagnostic>>
+	private static mResult.tResult<mStream.tStream<(tSpan Span, tToken Value)>, mStream.tStream<tDiagnostic>>
 	Tokenize(
 		tText aCode,
 		tText aId,
@@ -140,7 +140,7 @@ mSPO_Diagnostics {
 		).WithErrorType<mStream.tStream<tDiagnostic>>();
 	}
 	
-	static mResult.tResult<mSPO_AST.tModuleNode<tSpan>, mStream.tStream<tDiagnostic>>
+	private static mResult.tResult<mSPO_AST.tModuleNode<tSpan>, mStream.tStream<tDiagnostic>>
 	ParseModule(
 		mStream.tStream<(tSpan Span, tToken Value)> aTokens,
 		tPos aFallback,
@@ -179,7 +179,7 @@ mSPO_Diagnostics {
 		).WithErrorType<mStream.tStream<tDiagnostic>>();
 	}
 	
-	static mResult.tResult<mStd.tEmpty, mStream.tStream<tDiagnostic>>
+	private static mResult.tResult<mStd.tEmpty, mStream.tStream<tDiagnostic>>
 	AnalyzeModule(
 		mSPO_AST.tModuleNode<tSpan> aModule
 	) {

@@ -1,12 +1,12 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mAssert
-// IMPORT Common/mMaybe
-// IMPORT Common/mResult
-// IMPORT Common/mError
-// IMPORT Common/mStream
-// IMPORT mVM_Type
-// IMPORT mSPO_AST
-// IMPORT mIL_GenerateOpcodes
+﻿#:include Common/mStd.cs
+#:include Common/mAssert.cs
+#:include Common/mMaybe.cs
+#:include Common/mResult.cs
+#:include Common/mError.cs
+#:include Common/mStream.cs
+#:include mVM_Type.cs
+#:include mSPO_AST.cs
+#:include mIL_GenerateOpcodes.cs
 
 public static class
 mSPO_AST_Types {

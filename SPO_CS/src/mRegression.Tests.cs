@@ -1,23 +1,23 @@
-// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mAssert
-// IMPORT Common/mStream
-// IMPORT Common/mMaybe
-// IMPORT Common/mResult
-// IMPORT Common/mArrayList
-// IMPORT Common/mSpan
-// IMPORT Common/mTextStream
-// IMPORT Common/mFS
-// IMPORT mVM_Data
-// IMPORT mVM
-// IMPORT mIL_AST
-// IMPORT mIL_Parser
-// IMPORT mSPO2IL
-// IMPORT mSPO_AST
-// IMPORT mSPO_AST_Types
-// IMPORT mSPO_Parser
-// IMPORT mSPO_Interpreter
-// IMPORT mModule
+#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mAssert.cs
+#:include Common/mStream.cs
+#:include Common/mMaybe.cs
+#:include Common/mResult.cs
+#:include Common/mArrayList.cs
+#:include Common/mSpan.cs
+#:include Common/mTextStream.cs
+#:include Common/mFS.cs
+#:include mVM_Data.cs
+#:include mVM.cs
+#:include mIL_AST.cs
+#:include mIL_Parser.cs
+#:include mSPO2IL.cs
+#:include mSPO_AST.cs
+#:include mSPO_AST_Types.cs
+#:include mSPO_Parser.cs
+#:include mSPO_Interpreter.cs
+#:include mModule.cs
 
 public static class
 mRegression_Tests {

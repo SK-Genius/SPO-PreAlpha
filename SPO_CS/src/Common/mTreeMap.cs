@@ -1,11 +1,11 @@
-﻿// IMPORT mStd
-// IMPORT mAssert
-// IMPORT mError
-// IMPORT mMaybe
-// IMPORT mRef
-// IMPORT mStream
-// IMPORT mMath
-// IMPORT mArrayList
+﻿#:include mStd.cs
+#:include mAssert.cs
+#:include mError.cs
+#:include mMaybe.cs
+#:include mRef.cs
+#:include mStream.cs
+#:include mMath.cs
+#:include mArrayList.cs
 
 public static class
 mTreeMap {

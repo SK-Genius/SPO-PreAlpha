@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mResult
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mResult.cs
 
 public static class
 mResult_Tests {

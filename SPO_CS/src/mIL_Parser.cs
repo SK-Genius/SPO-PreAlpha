@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mSpan
-// IMPORT Common/mTextStream
-// IMPORT Common/mParserGen
-// IMPORT Common/mStream
-// IMPORT mTokenizer
-// IMPORT mIL_AST
+﻿#:include Common/mStd.cs
+#:include Common/mSpan.cs
+#:include Common/mTextStream.cs
+#:include Common/mParserGen.cs
+#:include Common/mStream.cs
+#:include mTokenizer.cs
+#:include mIL_AST.cs
 
 using tToken = mTokenizer.tToken;
 

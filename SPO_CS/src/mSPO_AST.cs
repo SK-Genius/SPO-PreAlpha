@@ -1,10 +1,10 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mArrayList
-// IMPORT Common/mAssert
-// IMPORT Common/mStream
-// IMPORT Common/mMaybe
-// IMPORT Common/mError
-// IMPORT mVM_Type
+﻿#:include Common/mStd.cs
+#:include Common/mArrayList.cs
+#:include Common/mAssert.cs
+#:include Common/mStream.cs
+#:include Common/mMaybe.cs
+#:include Common/mError.cs
+#:include mVM_Type.cs
 
 public static class
 mSPO_AST {

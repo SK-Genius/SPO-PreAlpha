@@ -1,8 +1,8 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mError
-// IMPORT mConsole
-// IMPORT mMaybe
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mError.cs
+#:include mConsole.cs
+#:include mMaybe.cs
 
 public static class
 mAssert {

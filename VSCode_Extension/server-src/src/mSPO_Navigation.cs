@@ -1,11 +1,11 @@
-// IMPORT Common/mStd
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT Common/mSpan
-// IMPORT Common/mTextParser
-// IMPORT Common/mTextStream
-// IMPORT mSPO_AST
-// IMPORT mSPO_Parser
+#:include Common/mStd.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include Common/mSpan.cs
+#:include Common/mTextParser.cs
+#:include Common/mTextStream.cs
+#:include mSPO_AST.cs
+#:include mSPO_Parser.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -157,7 +157,7 @@ mSPO_Navigation {
 		return Location(DefinitionSpan.Start.Id, DefinitionSpan);
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetModuleSymbols(
 		mSPO_AST.tModuleNode<tSpan> aModule
 	) {
@@ -193,7 +193,7 @@ mSPO_Navigation {
 		return mStream.Stream(Result.ToArray());
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetCommandSymbols(
 		mSPO_AST.tCommandNode<tSpan> aCommand
 	) => aCommand switch {
@@ -244,7 +244,7 @@ mSPO_Navigation {
 		_ => mStd.cEmpty,
 	};
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetExpressionSymbols(
 		mSPO_AST.tExpressionNode<tSpan> aExpression
 	) => aExpression switch {
@@ -388,7 +388,7 @@ mSPO_Navigation {
 		_ => mStd.cEmpty,
 	};
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetLambdaSymbols(
 		mSPO_AST.tLambdaNode<tSpan> aLambda
 	) {
@@ -425,7 +425,7 @@ mSPO_Navigation {
 		return mStream.Stream(Result.ToArray());
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetMethodSymbols(
 		mSPO_AST.tMethodNode<tSpan> aMethod
 	) {
@@ -459,21 +459,21 @@ mSPO_Navigation {
 		return mStream.Stream(Result.ToArray());
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetBlockSymbols(
 		mSPO_AST.tBlockNode<tSpan> aBlock
 	) => JoinSymbolStreams(
 		aBlock.Commands.Map(GetCommandSymbols)
 	);
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetMethodCallSymbols(
 		mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>> aMethodCalls
 	) => JoinSymbolStreams(
 		aMethodCalls.Map(GetMethodCallSymbols)
 	);
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetMethodCallSymbols(
 		mSPO_AST.tMethodCallNode<tSpan> aMethodCall
 	) {
@@ -500,7 +500,7 @@ mSPO_Navigation {
 		return mStream.Stream(Result.ToArray());
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	GetPatternSymbols(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
 		tSpan aRange,
@@ -545,7 +545,7 @@ mSPO_Navigation {
 		);
 	}
 
-	static void
+	private static void
 	CollectPatternBindings(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
 		tSymbolKind aKind,
@@ -596,7 +596,7 @@ mSPO_Navigation {
 		}
 	}
 
-	static tBool
+	private static tBool
 	TryResolveModule(
 		mSPO_AST.tModuleNode<tSpan> aModule,
 		tPos aQueryPos,
@@ -637,7 +637,7 @@ mSPO_Navigation {
 		);
 	}
 
-	static tBool
+	private static tBool
 	TryResolveCommand(
 		mSPO_AST.tCommandNode<tSpan> aCommand,
 		tPos aQueryPos,
@@ -800,7 +800,7 @@ mSPO_Navigation {
 		return false;
 	}
 
-	static tBool
+	private static tBool
 	TryResolveMethodCall(
 		mSPO_AST.tMethodCallNode<tSpan> aMethodCall,
 		tPos aQueryPos,
@@ -840,7 +840,7 @@ mSPO_Navigation {
 		);
 	}
 
-	static tBool
+	private static tBool
 	TryResolvePattern(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
 		tPos aQueryPos,
@@ -1001,7 +1001,7 @@ mSPO_Navigation {
 		return false;
 	}
 
-	static tBool
+	private static tBool
 	TryResolveExpression(
 		mSPO_AST.tExpressionNode<tSpan> aExpression,
 		tPos aQueryPos,
@@ -1392,7 +1392,7 @@ mSPO_Navigation {
 		return false;
 	}
 
-	static tBool
+	private static tBool
 	TryResolveReference(
 		mSPO_AST.tIdNode<tSpan> aId,
 		tPos aQueryPos,
@@ -1411,14 +1411,14 @@ mSPO_Navigation {
 		return true;
 	}
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	JoinSymbolStreams(
 		params System.ReadOnlySpan<mStream.tStream<tDocumentSymbol>> aSymbolStreams
 	) => JoinSymbolStreams(
 		mStream.Stream(aSymbolStreams)
 	);
 
-	static mStream.tStream<tDocumentSymbol>
+	private static mStream.tStream<tDocumentSymbol>
 	JoinSymbolStreams(
 		mStream.tStream<mStream.tStream<tDocumentSymbol>> aSymbolStreams
 	) {
@@ -1429,7 +1429,7 @@ mSPO_Navigation {
 		return mStream.Stream(Result.ToArray());
 	}
 
-	static tBinding
+	private static tBinding
 	Binding(
 		tText aId,
 		tSpan aSpan,
@@ -1440,7 +1440,7 @@ mSPO_Navigation {
 		aKind
 	);
 
-	static void
+	private static void
 	AddSymbols(
 		System.Collections.Generic.List<tDocumentSymbol> aTarget,
 		mStream.tStream<tDocumentSymbol> aSymbols
@@ -1450,12 +1450,12 @@ mSPO_Navigation {
 		}
 	}
 
-	static System.Collections.Generic.List<tBinding>
+	private static System.Collections.Generic.List<tBinding>
 	CopyScope(
 		System.Collections.Generic.List<tBinding> aScope
 	) => [.. aScope];
 
-	static tBool
+	private static tBool
 	TryFindBinding(
 		System.Collections.Generic.List<tBinding> aScope,
 		tText aId,
@@ -1473,7 +1473,7 @@ mSPO_Navigation {
 	}
 
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static tText
+	private static tText
 	DisplayId(
 		tText aId
 	) => aId.StartsWith('_')
@@ -1481,7 +1481,7 @@ mSPO_Navigation {
 		: aId;
 
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static tSymbolKind
+	private static tSymbolKind
 	GetBindingKind(
 		mSPO_AST.tExpressionNode<tSpan> aExpression,
 		mMaybe.tMaybe<tText> aId
@@ -1501,7 +1501,7 @@ mSPO_Navigation {
 	);
 
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static mMaybe.tMaybe<tText>
+	private static mMaybe.tMaybe<tText>
 	TryGetPatternDisplayId(
 		mSPO_AST.tPatternNode<tSpan> aPattern
 	) => aPattern switch {
@@ -1513,7 +1513,7 @@ mSPO_Navigation {
 	};
 
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	static tBool
+	private static tBool
 	Contains(
 		tSpan aSpan,
 		tPos aPos
@@ -1522,7 +1522,7 @@ mSPO_Navigation {
 		mTextParser.ComparePos(aPos, aSpan.End) <= 0;
 
 	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "navigation should degrade gracefully on parse failures")]
-	static tBool
+	private static tBool
 	TryParseModule(
 		tText aCode,
 		tText aId,

@@ -25,9 +25,9 @@ foreach (
 	var ProjDep = CS_File.TryReadLines(
 	).ElseThrow(
 	).TakeWhile(
-		_ => _.StartsWith("// IMPORT ")
+		_ => _.StartsWith("#:include ")
 	).Map(
-		_ => _["// IMPORT ".Length..].Trim()
+		_ => _["#:include ".Length..].Trim()
 	);
 	
 	var ProjectReferences = ProjDep.Map(

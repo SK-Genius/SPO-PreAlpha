@@ -1,18 +1,18 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mSpan
-// IMPORT Common/mMaybe
-// IMPORT Common/mStream
-// IMPORT Common/mTreeMap
-// IMPORT Common/mAssert
-// IMPORT Common/mTest
-// IMPORT Common/mTextStream
-// IMPORT Common/mParserGen
-// IMPORT mTokenizer
-// IMPORT mIL_GenerateOpcodes
-// IMPORT mIL_AST
-// IMPORT mIL_Parser
-// IMPORT mVM_Data
-// IMPORT mVM
+﻿#:include Common/mStd.cs
+#:include Common/mSpan.cs
+#:include Common/mMaybe.cs
+#:include Common/mStream.cs
+#:include Common/mTreeMap.cs
+#:include Common/mAssert.cs
+#:include Common/mTest.cs
+#:include Common/mTextStream.cs
+#:include Common/mParserGen.cs
+#:include mTokenizer.cs
+#:include mIL_GenerateOpcodes.cs
+#:include mIL_AST.cs
+#:include mIL_Parser.cs
+#:include mVM_Data.cs
+#:include mVM.cs
 
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 

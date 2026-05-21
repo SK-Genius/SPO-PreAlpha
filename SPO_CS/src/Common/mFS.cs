@@ -1,10 +1,10 @@
-// IMPORT mStd
-// IMPORT mRef
-// IMPORT mStream
-// IMPORT mMaybe
-// IMPORT mError
-// IMPORT mResult
-// IMPORT mArrayList
+#:include mStd.cs
+#:include mRef.cs
+#:include mStream.cs
+#:include mMaybe.cs
+#:include mError.cs
+#:include mResult.cs
+#:include mArrayList.cs
 
 using System.Linq;
 

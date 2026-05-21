@@ -1,8 +1,8 @@
-// IMPORT mStd
-// IMPORT mMaybe
-// IMPORT mArena
-// IMPORT mArenaRef
-// IMPORT mArenaMaybeRef
+#:include mStd.cs
+#:include mMaybe.cs
+#:include mArena.cs
+#:include mArenaRef.cs
+#:include mArenaMaybeRef.cs
 
 public static class
 mArenaStack {

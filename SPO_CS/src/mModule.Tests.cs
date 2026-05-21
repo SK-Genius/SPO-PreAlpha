@@ -1,9 +1,9 @@
-﻿// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mAssert
-// IMPORT mVM_Data
-// IMPORT mSPO_Interpreter
-// IMPORT mModule
+﻿#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mAssert.cs
+#:include mVM_Data.cs
+#:include mSPO_Interpreter.cs
+#:include mModule.cs
 
 public static class
 mModule_Tests {

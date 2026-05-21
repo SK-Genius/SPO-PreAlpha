@@ -1,5 +1,5 @@
-// IMPORT mStd
-// IMPORT mMaybe
+#:include mStd.cs
+#:include mMaybe.cs
 
 public static class
 mRef {

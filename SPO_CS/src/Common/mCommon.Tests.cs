@@ -1,16 +1,16 @@
-// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAny.Tests
-// IMPORT mFS.Tests
-// IMPORT mLazy.Tests
-// IMPORT mMaybe.Tests
-// IMPORT mResult.Tests
-// IMPORT mStream.Tests
-// IMPORT mMap.Tests
-// IMPORT mTreeMap.Tests
-// IMPORT mArrayList.Tests
-// IMPORT mParserGen.Tests
-// IMPORT mTextParser.Tests
+#:include mStd.cs
+#:include mTest.cs
+#:include mAny.Tests.cs
+#:include mFS.Tests.cs
+#:include mLazy.Tests.cs
+#:include mMaybe.Tests.cs
+#:include mResult.Tests.cs
+#:include mStream.Tests.cs
+#:include mMap.Tests.cs
+#:include mTreeMap.Tests.cs
+#:include mArrayList.Tests.cs
+#:include mParserGen.Tests.cs
+#:include mTextParser.Tests.cs
 
 public static class
 mCommon_Tests {

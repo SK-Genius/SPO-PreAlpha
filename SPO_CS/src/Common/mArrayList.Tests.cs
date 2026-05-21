@@ -1,8 +1,8 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAssert
-// IMPORT mArrayList
-// IMPORT mStream
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAssert.cs
+#:include mArrayList.cs
+#:include mStream.cs
 
 public static class
 mArrayList_Tests {

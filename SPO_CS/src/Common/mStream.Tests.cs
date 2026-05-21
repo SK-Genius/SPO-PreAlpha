@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mStream
-// IMPORT mAssert
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mStream.cs
+#:include mAssert.cs
 
 public static class
 mStream_Tests {

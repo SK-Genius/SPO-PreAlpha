@@ -1,10 +1,10 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mSpan
-// IMPORT mStream
-// IMPORT mParserGen
-// IMPORT mAssert
-// IMPORT mResult
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mSpan.cs
+#:include mStream.cs
+#:include mParserGen.cs
+#:include mAssert.cs
+#:include mResult.cs
 
 public static class
 mParserGen_Tests {

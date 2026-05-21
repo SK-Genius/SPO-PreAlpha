@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mStream
-// IMPORT mMath
-// IMPORT mAssert
+﻿#:include mStd.cs
+#:include mStream.cs
+#:include mMath.cs
+#:include mAssert.cs
 
 public static class
 mArrayList {

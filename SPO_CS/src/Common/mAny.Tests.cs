@@ -1,7 +1,7 @@
-﻿// IMPORT mStd
-// IMPORT mTest
-// IMPORT mAny
-// IMPORT mAssert
+﻿#:include mStd.cs
+#:include mTest.cs
+#:include mAny.cs
+#:include mAssert.cs
 
 public static class
 mAny_Tests {

@@ -131,4 +131,9 @@
 		gNextDebugId += 1;
 		return DebugId;
 	}
+	
+	public static tNat8[]
+	ToUTF8(
+		this string a
+	) => System.Text.Encoding.UTF8.GetBytes(a);
 }

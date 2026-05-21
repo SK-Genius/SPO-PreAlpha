@@ -1,15 +1,15 @@
-// IMPORT Common/mStd
-// IMPORT Common/mTest
-// IMPORT Common/mStream
-// IMPORT Common/mResult
-// IMPORT Common/mAssert
-// IMPORT Common/mLazy
-// IMPORT Common/mFS
-// IMPORT mVM_Data
-// IMPORT mVM_Type
-// IMPORT mIL_Parser
-// IMPORT mSPO_Interpreter
-// IMPORT mSPO_Parser
+#:include Common/mStd.cs
+#:include Common/mTest.cs
+#:include Common/mStream.cs
+#:include Common/mResult.cs
+#:include Common/mAssert.cs
+#:include Common/mLazy.cs
+#:include Common/mFS.cs
+#:include mVM_Data.cs
+#:include mVM_Type.cs
+#:include mIL_Parser.cs
+#:include mSPO_Interpreter.cs
+#:include mSPO_Parser.cs
 
 public static class
 mModule {
