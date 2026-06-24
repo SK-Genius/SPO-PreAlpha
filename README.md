@@ -5,10 +5,8 @@
 
 # SPO (PreAlpha)
 
-SPO is a programming language project on pre-alpha stage.
-This language focused on security, safety, robustness, and performance.
-This repository currently contains the C# implementation of the language and a VS Code extension.
+SPO is a programming language for zero-trust execution, focusing on security, safety, robustness, and performance.
 
 # Documentation
 
-The documentation is written in a custom file format (.wiki), you can see it on [https://sk-genius.github.io/SPO-PreAlpha/doc/_.wiki](github.io) or the source in doc.
+The documentation is written in a custom file format (.wiki), you can see it on [github.io](https://sk-genius.github.io/SPO-PreAlpha) or the source in doc.

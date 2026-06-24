@@ -1,875 +1,839 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Wiki Viewer</title>
-	<script>
-		(function () {
-			const storageKey = "spo-viewer-theme";
-			const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-			let theme = systemPrefersDark ? "dark" : "light";
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Wiki Viewer</title>
+		<script>
+			(function () {
+				const storageKey = "spo-viewer-theme";
+				const systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+				let theme = systemPrefersDark ? "dark" : "light";
 
-			try {
-				const storedTheme = localStorage.getItem(storageKey);
-				if (storedTheme === "dark" || storedTheme === "light") {
-					theme = storedTheme;
+				try {
+					const storedTheme = localStorage.getItem(storageKey);
+					if (storedTheme === "dark" || storedTheme === "light") {
+						theme = storedTheme;
+					}
+				} catch (error) {
+					console.warn("theme bootstrap failed:", error);
 				}
-			} catch (error) {
-				console.warn("theme bootstrap failed:", error);
+
+				document.documentElement.dataset.theme = theme;
+			})();
+		</script>
+		<style>
+			:root {
+				color-scheme: light;
+				--backdrop-top: #fff9ef;
+				--backdrop-mid: #f0e2cd;
+				--backdrop-bottom: #e1cfba;
+				--paper: rgba(255, 250, 241, 0.9);
+				--paper-edge: rgba(125, 102, 78, 0.18);
+				--ink: #241d18;
+				--muted: #695a4d;
+				--accent: #7f4f24;
+				--accent-strong: #8b5e34;
+				--line: rgba(127, 79, 36, 0.22);
+				--line-soft: rgba(127, 79, 36, 0.16);
+				--shadow: 0 24px 60px rgba(70, 49, 31, 0.14);
+				--panel-shadow: 0 24px 60px rgba(70, 49, 31, 0.18);
+				--status-bg: rgba(127, 79, 36, 0.08);
+				--error: #7f1d1d;
+				--error-bg: rgba(202, 70, 70, 0.09);
+				--button-border: rgba(127, 79, 36, 0.22);
+				--button-bg-start: rgba(255, 255, 255, 0.96);
+				--button-bg-end: rgba(247, 237, 219, 0.92);
+				--button-text: var(--ink);
+				--switch-track: rgba(127, 79, 36, 0.18);
+				--switch-track-active: #7f4f24;
+				--switch-thumb: #ffffff;
+				--switch-label: var(--muted);
+				--card-border: rgba(125, 102, 78, 0.28);
+				--card-bg-start: rgba(255, 255, 255, 0.94);
+				--card-bg-end: rgba(249, 243, 233, 0.92);
+				--card-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
+				--bar-border: rgba(127, 79, 36, 0.16);
+				--bar-bg-start: rgba(236, 218, 194, 0.98);
+				--bar-bg-end: rgba(221, 198, 170, 0.94);
+				--source-language: var(--accent);
+				--source-filename: #5a4a3e;
+				--source-surface: rgba(255, 251, 245, 0.84);
+				--source-embed-bg: rgba(246, 235, 215, 0.72);
+				--source-sticky-start: rgba(255, 249, 240, 0.98);
+				--source-sticky-end: rgba(255, 249, 240, 0.9);
+				--source-sticky-border: rgba(125, 102, 78, 0.2);
+				--source-sticky-shadow: 0 8px 16px rgba(70, 49, 31, 0.1);
+				--source-sticky-tail-start: rgba(70, 49, 31, 0.16);
+				--source-line-sticky: rgba(255, 249, 240, 0.96);
+				--source-line-sticky-block: rgba(248, 238, 223, 0.98);
+				--source-line-block: rgba(127, 79, 36, 0.04);
+				--source-line-hover: rgba(127, 79, 36, 0.07);
+				--source-gutter: #8a7869;
+				--surface-highlight: rgba(255, 255, 255, 0.42);
+				--source-indent-rainbow-1: rgba(255, 255, 0, 0.16);
+				--source-indent-rainbow-2: rgba(255, 0, 255, 0.12);
+				--source-indent-rainbow-3: rgba(0, 255, 255, 0.12);
+				--frame-bg-start: rgba(255, 255, 255, 0.72);
+				--frame-bg-end: rgba(249, 243, 233, 0.62);
+				--image-bg: rgba(255, 255, 255, 0.78);
+				--status-text: var(--muted);
+				--message-border: rgba(125, 102, 78, 0.2);
+				--message-bg: rgba(255, 252, 247, 0.96);
+				--message-text: var(--muted);
+				--message-error-border: rgba(185, 28, 28, 0.28);
+				--message-error-bg: rgba(254, 242, 242, 0.96);
+				--message-error-text: #991b1b;
+				--quote-border: rgba(127, 79, 36, 0.42);
+				--quote-bg: rgba(247, 237, 219, 0.55);
+				--quote-text: #3e3127;
+				--table-bg: rgba(255, 252, 247, 0.96);
+				--table-row-odd: rgba(247, 237, 219, 0.78);
+				--table-row-even: rgba(255, 252, 247, 0.95);
+				--object-bg: #efe0ca;
+				--alert: #c62828;
+				--syntax-border: rgba(127, 29, 29, 0.22);
+				--syntax-bg: rgba(220, 53, 69, 0.08);
+				--syntax-text: #7f1d1d;
+				--splitter-bg: rgba(127, 79, 36, 0.16);
+				--splitter-active: rgba(127, 79, 36, 0.42);
+				--input-bg: rgba(255, 255, 255, 0.96);
+				--input-border: rgba(125, 102, 78, 0.28);
+				--input-text: var(--ink);
+				--tok-comment: #7f756a;
+				--tok-string: #0f766e;
+				--tok-number: #1d4ed8;
+				--tok-keyword: #9a3412;
+				--tok-enum: #166534;
+				--tok-identifier: #475569;
+				--tok-punctuation: #8b5e34;
 			}
 
-			document.documentElement.dataset.theme = theme;
-		})();
-	</script>
-	<style>
-		:root {
-			color-scheme: light;
-			--backdrop-top: #fff9ef;
-			--backdrop-mid: #f0e2cd;
-			--backdrop-bottom: #e1cfba;
-			--paper: rgba(255, 250, 241, 0.9);
-			--paper-edge: rgba(125, 102, 78, 0.18);
-			--ink: #241d18;
-			--muted: #695a4d;
-			--accent: #7f4f24;
-			--accent-strong: #8b5e34;
-			--line: rgba(127, 79, 36, 0.22);
-			--line-soft: rgba(127, 79, 36, 0.16);
-			--shadow: 0 24px 60px rgba(70, 49, 31, 0.14);
-			--panel-shadow: 0 24px 60px rgba(70, 49, 31, 0.18);
-			--status-bg: rgba(127, 79, 36, 0.08);
-			--error: #7f1d1d;
-			--error-bg: rgba(202, 70, 70, 0.09);
-			--button-border: rgba(127, 79, 36, 0.22);
-			--button-bg-start: rgba(255, 255, 255, 0.96);
-			--button-bg-end: rgba(247, 237, 219, 0.92);
-			--button-text: var(--ink);
-			--switch-track: rgba(127, 79, 36, 0.18);
-			--switch-track-active: #7f4f24;
-			--switch-thumb: #ffffff;
-			--switch-label: var(--muted);
-			--card-border: rgba(125, 102, 78, 0.28);
-			--card-bg-start: rgba(255, 255, 255, 0.94);
-			--card-bg-end: rgba(249, 243, 233, 0.92);
-			--card-shadow: 0 10px 24px rgba(70, 49, 31, 0.05);
-			--bar-border: rgba(127, 79, 36, 0.16);
-			--bar-bg-start: rgba(236, 218, 194, 0.98);
-			--bar-bg-end: rgba(221, 198, 170, 0.94);
-			--source-language: var(--accent);
-			--source-filename: #5a4a3e;
-			--source-surface: rgba(255, 251, 245, 0.84);
-			--source-embed-bg: rgba(246, 235, 215, 0.72);
-			--source-sticky-start: rgba(255, 249, 240, 0.98);
-			--source-sticky-end: rgba(255, 249, 240, 0.9);
-			--source-sticky-border: rgba(125, 102, 78, 0.2);
-			--source-sticky-shadow: 0 8px 16px rgba(70, 49, 31, 0.1);
-			--source-sticky-tail-start: rgba(70, 49, 31, 0.16);
-			--source-line-sticky: rgba(255, 249, 240, 0.96);
-			--source-line-sticky-block: rgba(248, 238, 223, 0.98);
-			--source-line-block: rgba(127, 79, 36, 0.04);
-			--source-line-hover: rgba(127, 79, 36, 0.07);
-			--source-gutter: #8a7869;
-			--surface-highlight: rgba(255, 255, 255, 0.42);
-			--source-indent-rainbow-1: rgba(255, 255, 0, 0.16);
-			--source-indent-rainbow-2: rgba(255, 0, 255, 0.12);
-			--source-indent-rainbow-3: rgba(0, 255, 255, 0.12);
-			--frame-bg-start: rgba(255, 255, 255, 0.72);
-			--frame-bg-end: rgba(249, 243, 233, 0.62);
-			--image-bg: rgba(255, 255, 255, 0.78);
-			--status-text: var(--muted);
-			--message-border: rgba(125, 102, 78, 0.2);
-			--message-bg: rgba(255, 252, 247, 0.96);
-			--message-text: var(--muted);
-			--message-error-border: rgba(185, 28, 28, 0.28);
-			--message-error-bg: rgba(254, 242, 242, 0.96);
-			--message-error-text: #991b1b;
-			--quote-border: rgba(127, 79, 36, 0.42);
-			--quote-bg: rgba(247, 237, 219, 0.55);
-			--quote-text: #3e3127;
-			--table-bg: rgba(255, 252, 247, 0.96);
-			--table-row-odd: rgba(247, 237, 219, 0.78);
-			--table-row-even: rgba(255, 252, 247, 0.95);
-			--object-bg: #efe0ca;
-			--alert: #c62828;
-			--syntax-border: rgba(127, 29, 29, 0.22);
-			--syntax-bg: rgba(220, 53, 69, 0.08);
-			--syntax-text: #7f1d1d;
-			--splitter-bg: rgba(127, 79, 36, 0.16);
-			--splitter-active: rgba(127, 79, 36, 0.42);
-			--input-bg: rgba(255, 255, 255, 0.96);
-			--input-border: rgba(125, 102, 78, 0.28);
-			--input-text: var(--ink);
-			--tok-comment: #7f756a;
-			--tok-string: #0f766e;
-			--tok-number: #1d4ed8;
-			--tok-keyword: #9a3412;
-			--tok-enum: #166534;
-			--tok-identifier: #475569;
-			--tok-punctuation: #8b5e34;
-		}
-
-		:root[data-theme="dark"] {
-			color-scheme: dark;
-			--backdrop-top: #19212b;
-			--backdrop-mid: #121821;
-			--backdrop-bottom: #0b1016;
-			--paper: rgba(17, 24, 31, 0.92);
-			--paper-edge: rgba(148, 163, 184, 0.18);
-			--ink: #e8dfd2;
-			--muted: #b8aa97;
-			--accent: #e3a86b;
-			--accent-strong: #f0bc88;
-			--line: rgba(227, 168, 107, 0.25);
-			--line-soft: rgba(227, 168, 107, 0.18);
-			--shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
-			--panel-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
-			--status-bg: rgba(227, 168, 107, 0.12);
-			--error: #fecaca;
-			--error-bg: rgba(127, 29, 29, 0.22);
-			--button-border: rgba(227, 168, 107, 0.22);
-			--button-bg-start: rgba(48, 34, 24, 0.95);
-			--button-bg-end: rgba(29, 23, 18, 0.92);
-			--button-text: var(--ink);
-			--switch-track: rgba(148, 163, 184, 0.32);
-			--switch-track-active: #e3a86b;
-			--switch-thumb: #fff7ed;
-			--switch-label: var(--muted);
-			--card-border: rgba(148, 163, 184, 0.18);
-			--card-bg-start: rgba(28, 36, 47, 0.94);
-			--card-bg-end: rgba(18, 25, 34, 0.92);
-			--card-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
-			--bar-border: rgba(227, 168, 107, 0.16);
-			--bar-bg-start: rgba(68, 49, 34, 0.96);
-			--bar-bg-end: rgba(48, 35, 26, 0.94);
-			--source-language: var(--accent);
-			--source-filename: #cabca7;
-			--source-surface: rgba(13, 18, 25, 0.88);
-			--source-embed-bg: rgba(22, 29, 38, 0.86);
-			--source-sticky-start: rgba(22, 29, 38, 0.98);
-			--source-sticky-end: rgba(22, 29, 38, 0.9);
-			--source-sticky-border: rgba(148, 163, 184, 0.18);
-			--source-sticky-shadow: 0 10px 20px rgba(0, 0, 0, 0.32);
-			--source-sticky-tail-start: rgba(0, 0, 0, 0.32);
-			--source-line-sticky: rgba(29, 39, 51, 0.96);
-			--source-line-sticky-block: rgba(43, 32, 24, 0.98);
-			--source-line-block: rgba(227, 168, 107, 0.08);
-			--source-line-hover: rgba(227, 168, 107, 0.12);
-			--source-gutter: #968977;
-			--surface-highlight: rgba(255, 255, 255, 0.08);
-			--source-indent-rainbow-1: rgba(250, 204, 21, 0.16);
-			--source-indent-rainbow-2: rgba(244, 114, 182, 0.12);
-			--source-indent-rainbow-3: rgba(56, 189, 248, 0.12);
-			--frame-bg-start: rgba(24, 32, 43, 0.84);
-			--frame-bg-end: rgba(14, 20, 28, 0.78);
-			--image-bg: rgba(255, 255, 255, 0.92);
-			--status-text: var(--muted);
-			--message-border: rgba(148, 163, 184, 0.18);
-			--message-bg: rgba(19, 26, 35, 0.96);
-			--message-text: var(--muted);
-			--message-error-border: rgba(248, 113, 113, 0.32);
-			--message-error-bg: rgba(69, 10, 10, 0.55);
-			--message-error-text: #fecaca;
-			--quote-border: rgba(227, 168, 107, 0.52);
-			--quote-bg: rgba(68, 49, 34, 0.28);
-			--quote-text: #eadfcf;
-			--table-bg: rgba(19, 26, 35, 0.96);
-			--table-row-odd: rgba(48, 35, 26, 0.48);
-			--table-row-even: rgba(19, 26, 35, 0.96);
-			--object-bg: rgba(68, 49, 34, 0.7);
-			--alert: #fca5a5;
-			--syntax-border: rgba(248, 113, 113, 0.34);
-			--syntax-bg: rgba(127, 29, 29, 0.22);
-			--syntax-text: #fecaca;
-			--splitter-bg: rgba(227, 168, 107, 0.18);
-			--splitter-active: rgba(227, 168, 107, 0.38);
-			--input-bg: rgba(11, 17, 24, 0.96);
-			--input-border: rgba(148, 163, 184, 0.18);
-			--input-text: #efe7da;
-			--tok-comment: #a49a90;
-			--tok-string: #5eead4;
-			--tok-number: #93c5fd;
-			--tok-keyword: #fdba74;
-			--tok-enum: #86efac;
-			--tok-identifier: #cbd5e1;
-			--tok-punctuation: #fcd34d;
-		}
-
-		* {
-			box-sizing: border-box;
-		}
-
-		html,
-		body {
-			margin: 0;
-			min-height: 100%;
-		}
-
-		html {
-			scroll-behavior: smooth;
-		}
-
-		body {
-			font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-			color: var(--ink);
-			background: radial-gradient(circle at top, var(--backdrop-top) 0%, var(--backdrop-mid) 36%, var(--backdrop-bottom) 100%);
-			line-height: 1.35;
-		}
-
-		.shell {
-			width: calc(100% - 2rem);
-			max-width: none;
-			margin: clamp(1rem, 4vw, 3rem) auto;
-			padding: clamp(1rem, 3vw, 2.5rem);
-			background: var(--paper);
-			border: 1px solid var(--paper-edge);
-			border-radius: 22px;
-			box-shadow: var(--shadow);
-			backdrop-filter: blur(10px);
-		}
-
-		.viewer-toolbar {
-			display: flex;
-			justify-content: flex-end;
-			margin: 0 0 1rem;
-		}
-
-		.theme-switch {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.75rem;
-			cursor: pointer;
-			user-select: none;
-			color: var(--switch-label);
-			font-size: 0.95rem;
-			font-weight: 700;
-		}
-
-		.theme-switch input {
-			position: absolute;
-			opacity: 0;
-			pointer-events: none;
-		}
-
-		.theme-switch-track {
-			position: relative;
-			flex: 0 0 auto;
-			width: 3.15rem;
-			height: 1.8rem;
-			border: 1px solid var(--button-border);
-			border-radius: 999px;
-			background: var(--switch-track);
-			transition: background 0.18s ease, border-color 0.18s ease;
-		}
-
-		.theme-switch-track::after {
-			content: "";
-			position: absolute;
-			top: 0.14rem;
-			left: 0.14rem;
-			width: 1.3rem;
-			height: 1.3rem;
-			border-radius: 50%;
-			background: var(--switch-thumb);
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-			transition: transform 0.18s ease;
-		}
-
-		.theme-switch input:checked + .theme-switch-track {
-			background: var(--switch-track-active);
-		}
-
-		.theme-switch input:checked + .theme-switch-track::after {
-			transform: translateX(1.35rem);
-		}
-
-		.theme-switch input:focus-visible + .theme-switch-track {
-			outline: 2px solid var(--accent);
-			outline-offset: 3px;
-		}
-
-		.source-view {
-			color: var(--ink);
-		}
-
-		.source-card {
-			border: 1px solid var(--card-border);
-			border-radius: 0.95rem;
-			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
-			box-shadow: var(--card-shadow);
-			overflow: hidden;
-		}
-
-		.source-bar {
-			display: flex;
-			align-items: center;
-			gap: 0.85rem;
-			padding: 0.75rem 0.9rem;
-			border-bottom: 1px solid var(--bar-border);
-			background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
-		}
-
-		.source-language {
-			flex: 0 0 auto;
-			font-size: 0.8rem;
-			font-weight: 700;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			color: var(--source-language);
-		}
-
-		.source-filename {
-			flex: 1 1 auto;
-			min-width: 0;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-			color: var(--source-filename);
-			font-size: 0.92rem;
-		}
-
-		.source-code {
-			background: var(--source-surface);
-		}
-
-		.wiki-article {
-			padding-top: 0;
-		}
-
-		.status,
-		.error {
-			margin: 0;
-			padding: 1rem 1.1rem;
-			border-radius: 14px;
-			background: var(--status-bg);
-			color: var(--muted);
-			white-space: pre-wrap;
-		}
-
-		.error {
-			background: var(--error-bg);
-			color: var(--error);
-		}
-
-		.wiki-title-bar,
-		.wiki-heading-bar {
-			display: flex;
-			align-items: center;
-			gap: 0.75rem;
-		}
-
-		.wiki-title-bar h1,
-		.wiki-heading-bar h2 {
-			flex: 1 1 auto;
-			min-width: 0;
-			margin-right: 0;
-		}
-
-		.wiki-title-bar button,
-		.wiki-heading-bar button,
-		.wiki-edit-actions button {
-			flex: 0 0 auto;
-			border: 1px solid var(--button-border);
-			border-radius: 999px;
-			padding: 0.42rem 0.75rem;
-			background: linear-gradient(180deg, var(--button-bg-start), var(--button-bg-end));
-			color: var(--button-text);
-			font: inherit;
-			font-weight: 700;
-			cursor: pointer;
-		}
-		.wiki-edit-panel:not(.wiki-edit-inline) {
-			position: fixed;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			height: 100vh;
-			height: 100dvh;
-			width: min(42rem, 42vw);
-			z-index: 10000;
-			display: flex;
-			flex-direction: column;
-			margin: 0;
-			padding: 0.85rem;
-			border: 1px solid var(--card-border);
-			border-radius: 0.95rem 0 0 0.95rem;
-			background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
-			box-shadow: var(--panel-shadow);
-		}
-
-
-		.wiki-edit-panel:not(.wiki-edit-inline) .wiki-edit-textarea {
-			display: block;
-			width: 100%;
-			min-height: 12rem;
-			flex: 1 1 auto;
-			padding: 0.75rem;
-			border: 1px solid var(--input-border);
-			border-radius: 0.6rem;
-			background: var(--input-bg);
-			color: var(--input-text);
-			font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
-			font-size: 0.95rem;
-			line-height: 1.35;
-			resize: none;
-		}
-
-
-		.wiki-edit-actions {
-			display: flex;
-			gap: 0.6rem;
-			margin-top: 0.7rem;
-		}
-
-		.wiki-edit-status {
-			margin: 0.7rem 0 0;
-			white-space: pre-wrap;
-			color: var(--error);
-		}
-
-		body.wiki-editor-open .shell {
-			padding-right: min(44rem, 44vw);
-		}
-
-		@media (max-width: 900px) {
-			.wiki-edit-panel {
-				left: 1rem;
-				width: auto;
+			:root[data-theme="dark"] {
+				color-scheme: dark;
+				--backdrop-top: #19212b;
+				--backdrop-mid: #121821;
+				--backdrop-bottom: #0b1016;
+				--paper: rgba(17, 24, 31, 0.92);
+				--paper-edge: rgba(148, 163, 184, 0.18);
+				--ink: #e8dfd2;
+				--muted: #b8aa97;
+				--accent: #e3a86b;
+				--accent-strong: #f0bc88;
+				--line: rgba(227, 168, 107, 0.25);
+				--line-soft: rgba(227, 168, 107, 0.18);
+				--shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+				--panel-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+				--status-bg: rgba(227, 168, 107, 0.12);
+				--error: #fecaca;
+				--error-bg: rgba(127, 29, 29, 0.22);
+				--button-border: rgba(227, 168, 107, 0.22);
+				--button-bg-start: rgba(48, 34, 24, 0.95);
+				--button-bg-end: rgba(29, 23, 18, 0.92);
+				--button-text: var(--ink);
+				--switch-track: rgba(148, 163, 184, 0.32);
+				--switch-track-active: #e3a86b;
+				--switch-thumb: #fff7ed;
+				--switch-label: var(--muted);
+				--card-border: rgba(148, 163, 184, 0.18);
+				--card-bg-start: rgba(28, 36, 47, 0.94);
+				--card-bg-end: rgba(18, 25, 34, 0.92);
+				--card-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+				--bar-border: rgba(227, 168, 107, 0.16);
+				--bar-bg-start: rgba(68, 49, 34, 0.96);
+				--bar-bg-end: rgba(48, 35, 26, 0.94);
+				--source-language: var(--accent);
+				--source-filename: #cabca7;
+				--source-surface: rgba(13, 18, 25, 0.88);
+				--source-embed-bg: rgba(22, 29, 38, 0.86);
+				--source-sticky-start: rgba(22, 29, 38, 0.98);
+				--source-sticky-end: rgba(22, 29, 38, 0.9);
+				--source-sticky-border: rgba(148, 163, 184, 0.18);
+				--source-sticky-shadow: 0 10px 20px rgba(0, 0, 0, 0.32);
+				--source-sticky-tail-start: rgba(0, 0, 0, 0.32);
+				--source-line-sticky: rgba(29, 39, 51, 0.96);
+				--source-line-sticky-block: rgba(43, 32, 24, 0.98);
+				--source-line-block: rgba(227, 168, 107, 0.08);
+				--source-line-hover: rgba(227, 168, 107, 0.12);
+				--source-gutter: #968977;
+				--surface-highlight: rgba(255, 255, 255, 0.08);
+				--source-indent-rainbow-1: rgba(250, 204, 21, 0.16);
+				--source-indent-rainbow-2: rgba(244, 114, 182, 0.12);
+				--source-indent-rainbow-3: rgba(56, 189, 248, 0.12);
+				--frame-bg-start: rgba(24, 32, 43, 0.84);
+				--frame-bg-end: rgba(14, 20, 28, 0.78);
+				--image-bg: rgba(255, 255, 255, 0.92);
+				--status-text: var(--muted);
+				--message-border: rgba(148, 163, 184, 0.18);
+				--message-bg: rgba(19, 26, 35, 0.96);
+				--message-text: var(--muted);
+				--message-error-border: rgba(248, 113, 113, 0.32);
+				--message-error-bg: rgba(69, 10, 10, 0.55);
+				--message-error-text: #fecaca;
+				--quote-border: rgba(227, 168, 107, 0.52);
+				--quote-bg: rgba(68, 49, 34, 0.28);
+				--quote-text: #eadfcf;
+				--table-bg: rgba(19, 26, 35, 0.96);
+				--table-row-odd: rgba(48, 35, 26, 0.48);
+				--table-row-even: rgba(19, 26, 35, 0.96);
+				--object-bg: rgba(68, 49, 34, 0.7);
+				--alert: #fca5a5;
+				--syntax-border: rgba(248, 113, 113, 0.34);
+				--syntax-bg: rgba(127, 29, 29, 0.22);
+				--syntax-text: #fecaca;
+				--splitter-bg: rgba(227, 168, 107, 0.18);
+				--splitter-active: rgba(227, 168, 107, 0.38);
+				--input-bg: rgba(11, 17, 24, 0.96);
+				--input-border: rgba(148, 163, 184, 0.18);
+				--input-text: #efe7da;
+				--tok-comment: #a49a90;
+				--tok-string: #5eead4;
+				--tok-number: #93c5fd;
+				--tok-keyword: #fdba74;
+				--tok-enum: #86efac;
+				--tok-identifier: #cbd5e1;
+				--tok-punctuation: #fcd34d;
 			}
 
-			body.wiki-editor-open .shell {
-				padding-right: clamp(1rem, 3vw, 2.5rem);
+			* {
+				box-sizing: border-box;
 			}
-		}
 
-
-		@media print {
+			html,
 			body {
-				background: #ffffff;
-			}
-
-			.viewer-toolbar {
-				display: none;
-			}
-
-			.shell {
-				width: 100%;
 				margin: 0;
-				padding: 0;
-				border: 0;
-				border-radius: 0;
-				box-shadow: none;
-				background: transparent;
+				min-height: 100%;
+			}
+			html {
+				scroll-behavior: smooth;
+			}
+			body {
+				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+				color: var(--ink);
+				background: radial-gradient(circle at top, var(--backdrop-top) 0%, var(--backdrop-mid) 36%, var(--backdrop-bottom) 100%);
+				line-height: 1.35;
+			}
+			.shell {
+				width: calc(100% - 2rem);
+				max-width: none;
+				margin: clamp(1rem, 4vw, 3rem) auto;
+				padding: clamp(1rem, 3vw, 2.5rem);
+				background: var(--paper);
+				border: 1px solid var(--paper-edge);
+				border-radius: 22px;
+				box-shadow: var(--shadow);
+				backdrop-filter: blur(10px);
+			}
+			.viewer-toolbar {
+				display: flex;
+				justify-content: flex-end;
+				margin: 0 0 1rem;
+			}
+			.theme-switch {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.75rem;
+				cursor: pointer;
+				user-select: none;
+				color: var(--switch-label);
+				font-size: 0.95rem;
+				font-weight: 700;
+			}
+			.theme-switch input {
+				position: absolute;
+				opacity: 0;
+				pointer-events: none;
+			}
+			.theme-switch-track {
+				position: relative;
+				flex: 0 0 auto;
+				width: 3.15rem;
+				height: 1.8rem;
+				border: 1px solid var(--button-border);
+				border-radius: 999px;
+				background: var(--switch-track);
+				transition: background 0.18s ease, border-color 0.18s ease;
+			}
+			.theme-switch-track::after {
+				content: "";
+				position: absolute;
+				top: 0.14rem;
+				left: 0.14rem;
+				width: 1.3rem;
+				height: 1.3rem;
+				border-radius: 50%;
+				background: var(--switch-thumb);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+				transition: transform 0.18s ease;
+			}
+			.theme-switch input:checked + .theme-switch-track {
+				background: var(--switch-track-active);
+			}
+			.theme-switch input:checked + .theme-switch-track::after {
+				transform: translateX(1.35rem);
+			}
+			.theme-switch input:focus-visible + .theme-switch-track {
+				outline: 2px solid var(--accent);
+				outline-offset: 3px;
+			}
+			.source-view {
+				color: var(--ink);
+			}
+			.source-card {
+				border: 1px solid var(--card-border);
+				border-radius: 0.95rem;
+				background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+				box-shadow: var(--card-shadow);
+				overflow: hidden;
+			}
+			.source-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.85rem;
+				padding: 0.75rem 0.9rem;
+				border-bottom: 1px solid var(--bar-border);
+				background: linear-gradient(180deg, var(--bar-bg-start), var(--bar-bg-end));
+			}
+			.source-language {
+				flex: 0 0 auto;
+				font-size: 0.8rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--source-language);
+			}
+			.source-filename {
+				flex: 1 1 auto;
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				color: var(--source-filename);
+				font-size: 0.92rem;
+			}
+			.source-code {
+				background: var(--source-surface);
+			}
+			.wiki-article {
+				padding-top: 0;
+			}
+			.status,
+			.error {
+				margin: 0;
+				padding: 1rem 1.1rem;
+				border-radius: 14px;
+				background: var(--status-bg);
+				color: var(--muted);
+				white-space: pre-wrap;
+			}
+			.error {
+				background: var(--error-bg);
+				color: var(--error);
+			}
+			.wiki-title-bar,
+			.wiki-heading-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+			.wiki-title-bar h1,
+			.wiki-heading-bar h2 {
+				flex: 1 1 auto;
+				min-width: 0;
+				margin-right: 0;
+			}
+			.wiki-title-bar button,
+			.wiki-heading-bar button,
+			.wiki-edit-actions button {
+				flex: 0 0 auto;
+				border: 1px solid var(--button-border);
+				border-radius: 999px;
+				padding: 0.42rem 0.75rem;
+				background: linear-gradient(180deg, var(--button-bg-start), var(--button-bg-end));
+				color: var(--button-text);
+				font: inherit;
+				font-weight: 700;
+				cursor: pointer;
+			}
+			.wiki-edit-panel:not(.wiki-edit-inline) {
+				position: fixed;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				height: 100vh;
+				height: 100dvh;
+				width: min(42rem, 42vw);
+				z-index: 10000;
+				display: flex;
+				flex-direction: column;
+				margin: 0;
+				padding: 0.85rem;
+				border: 1px solid var(--card-border);
+				border-radius: 0.95rem 0 0 0.95rem;
+				background: linear-gradient(180deg, var(--card-bg-start), var(--card-bg-end));
+				box-shadow: var(--panel-shadow);
+			}
+			.wiki-edit-panel:not(.wiki-edit-inline) .wiki-edit-textarea {
+				display: block;
+				width: 100%;
+				min-height: 12rem;
+				flex: 1 1 auto;
+				padding: 0.75rem;
+				border: 1px solid var(--input-border);
+				border-radius: 0.6rem;
+				background: var(--input-bg);
+				color: var(--input-text);
+				font-family: Consolas, "SFMono-Regular", "Courier New", monospace;
+				font-size: 0.95rem;
+				line-height: 1.35;
+				resize: none;
+			}
+			.wiki-edit-actions {
+				display: flex;
+				gap: 0.6rem;
+				margin-top: 0.7rem;
+			}
+			.wiki-edit-status {
+				margin: 0.7rem 0 0;
+				white-space: pre-wrap;
+				color: var(--error);
+			}
+			body.wiki-editor-open .shell {
+				padding-right: min(44rem, 44vw);
+			}
+			@media (max-width: 900px) {
+				.wiki-edit-panel {
+					left: 1rem;
+					width: auto;
+				}
+				body.wiki-editor-open .shell {
+					padding-right: clamp(1rem, 3vw, 2.5rem);
+				}
+			}
+			@media print {
+				body {
+					background: #ffffff;
+				}
+				.viewer-toolbar {
+					display: none;
+				}
+				.shell {
+					width: 100%;
+					margin: 0;
+					padding: 0;
+					border: 0;
+					border-radius: 0;
+					box-shadow: none;
+					background: transparent;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<main class="shell">
+			<div class="viewer-toolbar">
+				<label class="theme-switch" for="theme-toggle">
+					<span>Darkmode</span>
+					<input id="theme-toggle" type="checkbox" role="switch" aria-label="Darkmode umschalten">
+					<span class="theme-switch-track" aria-hidden="true"></span>
+				</label>
+			</div>
+			<article id="app" class="wiki-article" aria-live="polite">HTML geladen.</article>
+		</main>
+
+		<script>
+			window.addEventListener("error", function (event) {
+				console.error("window error:", event.message, event.filename, event.lineno, event.colno, event.error || "");
+			});
+
+			window.addEventListener("unhandledrejection", function (event) {
+				console.error("unhandled rejection:", event.reason);
+			});
+		</script>
+
+		<script type="module">
+			const app = document.getElementById("app");
+			const themeToggle = document.getElementById("theme-toggle");
+			const themeStorageKey = "spo-viewer-theme";
+			const inMemorySources = new Map();
+			const loadedModules = new Map();
+			const viewerMap = new Map();
+			let viewerMapLoaded = false;
+			let rootLinkBasePromise = null;
+			let rootLinkBaseValue = "";
+
+			function readTheme() {
+				return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
 			}
 
-		}
-	</style>
-</head>
-<body>
-	<main class="shell">
-		<div class="viewer-toolbar">
-			<label class="theme-switch" for="theme-toggle">
-				<span>Darkmode</span>
-				<input id="theme-toggle" type="checkbox" role="switch" aria-label="Darkmode umschalten">
-				<span class="theme-switch-track" aria-hidden="true"></span>
-			</label>
-		</div>
-		<article id="app" class="wiki-article" aria-live="polite">HTML geladen.</article>
-	</main>
-
-	<script>
-		window.addEventListener("error", function (event) {
-			console.error("window error:", event.message, event.filename, event.lineno, event.colno, event.error || "");
-		});
-
-		window.addEventListener("unhandledrejection", function (event) {
-			console.error("unhandled rejection:", event.reason);
-		});
-	</script>
-
-	<script type="module">
-		const app = document.getElementById("app");
-		const themeToggle = document.getElementById("theme-toggle");
-		const themeStorageKey = "spo-viewer-theme";
-		const inMemorySources = new Map();
-		const loadedModules = new Map();
-		const viewerMap = new Map();
-		let viewerMapLoaded = false;
-		let rootLinkBasePromise = null;
-		let rootLinkBaseValue = "";
-
-		function readTheme() {
-			return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-		}
-
-		function syncThemeToggle(theme) {
-			const darkModeEnabled = theme === "dark";
-			themeToggle.checked = darkModeEnabled;
-			themeToggle.setAttribute("aria-checked", String(darkModeEnabled));
-			themeToggle.setAttribute("aria-label", darkModeEnabled ? "Darkmode deaktivieren" : "Darkmode aktivieren");
-		}
-
-		function applyTheme(theme) {
-			const nextTheme = theme === "dark" ? "dark" : "light";
-			document.documentElement.dataset.theme = nextTheme;
-			syncThemeToggle(nextTheme);
-			window.dispatchEvent(new CustomEvent("viewer-themechange", {
-				detail: { theme: nextTheme }
-			}));
-		}
-
-		syncThemeToggle(readTheme());
-		themeToggle.addEventListener("change", () => {
-			const nextTheme = themeToggle.checked ? "dark" : "light";
-			try {
-				localStorage.setItem(themeStorageKey, nextTheme);
-			} catch (error) {
-				console.warn("theme persistence failed:", error);
+			function syncThemeToggle(theme) {
+				const darkModeEnabled = theme === "dark";
+				themeToggle.checked = darkModeEnabled;
+				themeToggle.setAttribute("aria-checked", String(darkModeEnabled));
+				themeToggle.setAttribute("aria-label", darkModeEnabled ? "Darkmode deaktivieren" : "Darkmode aktivieren");
 			}
-			applyTheme(nextTheme);
-		});
 
-		function trace(message, value) {
-			const line = "[module] " + message + (value === undefined ? "" : " " + String(value));
-			console.log(line, value === undefined ? "" : value);
-		}
+			function applyTheme(theme) {
+				const nextTheme = theme === "dark" ? "dark" : "light";
+				document.documentElement.dataset.theme = nextTheme;
+				syncThemeToggle(nextTheme);
+				window.dispatchEvent(new CustomEvent("viewer-themechange", {
+					detail: { theme: nextTheme }
+				}));
+			}
 
-		function show(text, className = "status") {
-			trace("show", text);
-			const node = document.createElement("p");
-			node.className = className;
-			node.textContent = text;
-			app.className = "wiki-article";
-			app.replaceChildren(node);
-		}
-
-		function normalizeSlashes(path) {
-			return String(path || "").split(String.fromCharCode(92)).join("/");
-		}
-
-		function normalizeSource(source) {
-			const text = String(source ?? "");
-			const cr = String.fromCharCode(13);
-			const lf = String.fromCharCode(10);
-			return text
-				.split(cr + lf).join(lf)
-				.split(lf + cr).join(lf)
-				.split(cr).join(lf);
-		}
-
-		function normalizePath(path) {
-			return normalizeSlashes(path || "./index.wiki");
-		}
-
-		async function ensureRootLinkBase() {
-			if (rootLinkBasePromise) return rootLinkBasePromise;
-
-			rootLinkBasePromise = (async () => {
+			syncThemeToggle(readTheme());
+			themeToggle.addEventListener("change", () => {
+				const nextTheme = themeToggle.checked ? "dark" : "light";
 				try {
-					const response = await fetch("./js/root.conf", { cache: "no-store" });
-					if (!response.ok) {
+					localStorage.setItem(themeStorageKey, nextTheme);
+				} catch (error) {
+					console.warn("theme persistence failed:", error);
+				}
+				applyTheme(nextTheme);
+			});
+
+			function trace(message, value) {
+				const line = "[module] " + message + (value === undefined ? "" : " " + String(value));
+				console.log(line, value === undefined ? "" : value);
+			}
+
+			function show(text, className = "status") {
+				trace("show", text);
+				const node = document.createElement("p");
+				node.className = className;
+				node.textContent = text;
+				app.className = "wiki-article";
+				app.replaceChildren(node);
+			}
+
+			function normalizeSlashes(path) {
+				return String(path || "").split(String.fromCharCode(92)).join("/");
+			}
+
+			function normalizeSource(source) {
+				const text = String(source ?? "");
+				const cr = String.fromCharCode(13);
+				const lf = String.fromCharCode(10);
+				return text
+					.split(cr + lf).join(lf)
+					.split(lf + cr).join(lf)
+					.split(cr).join(lf);
+			}
+
+			function normalizePath(path) {
+				return normalizeSlashes(path || "./index.wiki");
+			}
+
+			async function ensureRootLinkBase() {
+				if (rootLinkBasePromise) return rootLinkBasePromise;
+
+				rootLinkBasePromise = (async () => {
+					try {
+						const response = await fetch("./js/root.conf", { cache: "no-store" });
+						if (!response.ok) {
+							rootLinkBaseValue = "";
+							return rootLinkBaseValue;
+						}
+
+						const line = normalizeSource(await response.text())
+							.split(String.fromCharCode(10))
+							.map((entry) => entry.trim())
+							.find((entry) => entry);
+
+						rootLinkBaseValue = line
+							? normalizeSlashes(line).replace(/\/+$/, "") + "/"
+							: "";
+					} catch (error) {
+						trace("root.conf failed", error);
 						rootLinkBaseValue = "";
-						return rootLinkBaseValue;
 					}
 
-					const line = normalizeSource(await response.text())
-						.split(String.fromCharCode(10))
-						.map((entry) => entry.trim())
-						.find((entry) => entry);
+					return rootLinkBaseValue;
+				})();
 
-					rootLinkBaseValue = line
-						? normalizeSlashes(line).replace(/\/+$/, "") + "/"
-						: "";
-				} catch (error) {
-					trace("root.conf failed", error);
-					rootLinkBaseValue = "";
-				}
-
-				return rootLinkBaseValue;
-			})();
-
-			return rootLinkBasePromise;
-		}
-
-		function getExtension(path) {
-			const clean = String(path || "").split("?")[0].split("#")[0];
-			const fileName = normalizeSlashes(clean).split("/").pop() || "";
-			const dot = fileName.lastIndexOf(".");
-			return dot >= 0 ? fileName.slice(dot + 1).toLowerCase() : "wiki";
-		}
-
-		async function ensureViewerMap() {
-			if (viewerMapLoaded) return;
-			viewerMapLoaded = true;
-			try {
-				const res = await fetch("./js/viewer.ini", { cache: "no-store" });
-				if (!res.ok) return;
-				const text = await res.text();
-				for (const line of normalizeSource(text).split(String.fromCharCode(10))) {
-					const t = line.trim();
-					if (!t || t.startsWith("#")) continue;
-					const i = t.indexOf("=");
-					if (i < 0) continue;
-					const key = t.slice(0, i).trim();
-					const val = t.slice(i + 1).trim();
-					viewerMap.set(key, val);
-				}
-				trace("viewer.ini loaded", Object.fromEntries(viewerMap));
-			} catch (e) {
-				trace("viewer.ini failed", e);
-			}
-		}
-
-		function getViewerPath(ext) {
-			const key = ext || "";
-			if (viewerMap.has(key)) return "./js/" + viewerMap.get(key);
-			if (viewerMap.has("*")) return "./js/" + viewerMap.get("*");
-			return "./js/viewer.txt.js";
-		}
-
-		function createNavigationUrl(path) {
-			return "index.html?file=" + encodeURIComponent(path);
-		}
-
-		function createSourceFileUrl(path) {
-			const normalizedPath = normalizePath(path);
-			if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedPath)) {
-				return normalizedPath;
+				return rootLinkBasePromise;
 			}
 
-			const relativePath = normalizedPath.replace(/^\.\//, "");
-			return rootLinkBaseValue
-				? rootLinkBaseValue + relativePath
-				: normalizedPath;
-		}
-
-		function fileNameLabel(path) {
-			const clean = String(path || "").split("?")[0].split("#")[0];
-			const fileName = normalizeSlashes(clean).split("/").pop() || "";
-			return fileName || clean || "Document";
-		}
-
-		function setPageTitle(title, kind) {
-			const cleanTitle = String(title || "").trim();
-			const cleanKind = String(kind || "").trim();
-			document.title = cleanTitle
-				? cleanKind
-					? cleanTitle + " - " + cleanKind + " Viewer"
-					: cleanTitle + " - Wiki Viewer"
-				: "Wiki Viewer";
-		}
-
-		function resolveRelativePath(base, target) {
-			const normalizedTarget = normalizeSlashes(target);
-			if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedTarget)) return normalizedTarget;
-
-			const baseParts = normalizeSlashes(base).split("/");
-			baseParts.pop();
-
-			for (const part of normalizedTarget.split("/")) {
-				if (!part || part === ".") continue;
-				if (part === "..") baseParts.pop();
-				else baseParts.push(part);
+			function getExtension(path) {
+				const clean = String(path || "").split("?")[0].split("#")[0];
+				const fileName = normalizeSlashes(clean).split("/").pop() || "";
+				const dot = fileName.lastIndexOf(".");
+				return dot >= 0 ? fileName.slice(dot + 1).toLowerCase() : "wiki";
 			}
 
-			return baseParts.join("/") || target;
-		}
-
-		async function checkedFetchText(path, options = {}) {
-			const normalizedPath = normalizePath(path);
-
-			if (inMemorySources.has(normalizedPath)) {
-				trace("memory source hit", normalizedPath);
-				return inMemorySources.get(normalizedPath);
-			}
-
-			if (!options.quiet) {
-				show("Datei wird geladen: " + normalizedPath + " ...");
-			}
-			trace("fetch start", normalizedPath);
-
-			const response = await fetch(normalizedPath, { cache: "no-store" });
-			trace("fetch response", normalizedPath + " HTTP " + response.status + " " + response.headers.get("content-type"));
-
-			if (!response.ok) {
-				throw new Error(normalizedPath + " konnte nicht geladen werden: HTTP " + response.status);
-			}
-
-			const text = await response.text();
-			trace("fetch text length", text.length);
-			return normalizeSource(text);
-		}
-
-		async function loadViewerForExtension(ext, options = {}) {
-			await ensureViewerMap();
-			const normalizedExt = ext || "txt";
-			const viewerPath = getViewerPath(normalizedExt);
-
-			// cache PROMISE to avoid parallel imports
-			if (loadedModules.has(viewerPath)) return loadedModules.get(viewerPath);
-
-			const loadPromise = (async () => {
-				if (!options.quiet) {
-					show("Importiere " + viewerPath + " ...");
-				}
-				trace("import start", viewerPath);
-				trace("protocol", window.location.protocol);
-
-				let mod;
+			async function ensureViewerMap() {
+				if (viewerMapLoaded) return;
+				viewerMapLoaded = true;
 				try {
-					mod = await import(viewerPath);
-				} catch (error) {
-					// fallback to txt viewer
-					if (normalizedExt !== "txt") {
-						trace("import fallback", viewerPath + " -> ./js/viewer.txt.js");
-						return await loadViewerForExtension("txt");
+					const res = await fetch("./js/viewer.ini", { cache: "no-store" });
+					if (!res.ok) return;
+					const text = await res.text();
+					for (const line of normalizeSource(text).split(String.fromCharCode(10))) {
+						const t = line.trim();
+						if (!t || t.startsWith("#")) continue;
+						const i = t.indexOf("=");
+						if (i < 0) continue;
+						const key = t.slice(0, i).trim();
+						const val = t.slice(i + 1).trim();
+						viewerMap.set(key, val);
 					}
-					throw error;
+					trace("viewer.ini loaded", Object.fromEntries(viewerMap));
+				} catch (e) {
+					trace("viewer.ini failed", e);
 				}
-
-				trace("import ok", Object.keys(mod).join(", "));
-
-				const renderer = typeof mod.render === "function"
-					? mod
-					: mod.default && mod.default.renderer && typeof mod.default.renderer.render === "function"
-						? mod.default.renderer
-						: null;
-				const binary = Boolean(
-					mod && mod.isBinary === true
-					|| mod && mod.default && mod.default.isBinary === true
-				);
-
-				if (!renderer) {
-					if (normalizedExt !== "txt") {
-						trace("renderer fallback", viewerPath + " -> ./js/viewer.txt.js");
-						return await loadViewerForExtension("txt");
-					}
-					throw new Error(viewerPath + " exportiert keine render(source, context)-Funktion.");
-				}
-
-				return {
-					render: renderer.render,
-					isBinary: binary
-				};
-			})();
-
-			loadedModules.set(viewerPath, loadPromise);
-			return loadPromise;
-		}
-
-		async function renderFile(filePath) {
-			const normalizedFilePath = normalizePath(filePath);
-			const ext = getExtension(normalizedFilePath);
-			const viewer = await loadViewerForExtension(ext);
-			await ensureRootLinkBase();
-			const source = viewer.isBinary
-				? ""
-				: await checkedFetchText(normalizedFilePath);
-
-			trace("render start", normalizedFilePath);
-			viewer.render(source, createRenderContext(normalizedFilePath));
-			trace("render done", normalizedFilePath);
-		}
-
-		function createRenderContext(filePath, articleElement = app, options = {}) {
-			const targetElement = articleElement || app;
-			const isEmbedded = Boolean(options.isEmbedded);
-			const context = {
-				filePath,
-				articleElement: targetElement,
-				isEmbedded,
-				showSourceFilename: options.showSourceFilename !== undefined ? options.showSourceFilename : !isEmbedded,
-				fileNameLabel,
-				createSourceFileUrl(path) {
-					trace("context.createSourceFileUrl", path);
-					return createSourceFileUrl(path);
-				},
-				setPageTitle(title, kind) {
-					if (isEmbedded) return;
-					trace("context.setPageTitle", title + (kind ? " [" + kind + "]" : ""));
-					setPageTitle(title, kind);
-				},
-				prepareArticle(className) {
-					trace("context.prepareArticle", className);
-					targetElement.className = className;
-					targetElement.replaceChildren();
-				},
-				resolveRelativePath(base, target) {
-					const resolved = resolveRelativePath(base, target);
-					trace("context.resolveRelativePath", base + " -> " + target + " = " + resolved);
-					return resolved;
-				},
-				createNavigationUrl(path) {
-					trace("context.createNavigationUrl", path);
-					return createNavigationUrl(path);
-				},
-				hasKnownRenderableExtension(path) {
-					const e = getExtension(path);
-					return viewerMap.has(e) || viewerMap.has("*");
-				},
-				async renderResourceReference(ext, resourcePath, embeddedTarget) {
-					await ensureViewerMap();
-					await ensureRootLinkBase();
-					const normalizedExt = ext || getExtension(resourcePath) || "txt";
-					const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
-					const normalizedFilePath = normalizePath(resourcePath);
-
-					if (viewer.isBinary) {
-						viewer.render("", createRenderContext(normalizedFilePath, embeddedTarget, {
-							isEmbedded: true,
-							showSourceFilename: true
-						}));
-						return;
-					}
-
-					const source = await checkedFetchText(normalizedFilePath, { quiet: true });
-					await this.renderEmbeddedSource(normalizedExt, source, embeddedTarget, normalizedFilePath, {
-						showSourceFilename: true
-					});
-				},
-				async renderEmbeddedSource(ext, source, embeddedTarget, embeddedFilePath, options = {}) {
-					await ensureViewerMap();
-					await ensureRootLinkBase();
-					const normalizedExt = ext || getExtension(embeddedFilePath) || "txt";
-					const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
-					const normalizedFilePath = normalizePath(embeddedFilePath || ("embedded." + normalizedExt));
-					viewer.render(
-						viewer.isBinary ? String(source ?? "") : normalizeSource(source),
-						createRenderContext(normalizedFilePath, embeddedTarget, {
-							isEmbedded: true,
-							showSourceFilename: options.showSourceFilename === true
-						})
-					);
-				}
-			};
-
-			if (!isEmbedded) {
-				context.updateWikiSource = async function updateWikiSource(nextSource) {
-					if (getExtension(filePath) !== "wiki") {
-						throw new Error("Nur .wiki-Dateien koennen im Viewer bearbeitet werden.");
-					}
-
-					const normalizedSource = normalizeSource(nextSource);
-					inMemorySources.set(normalizePath(filePath), normalizedSource);
-					trace("memory source updated", filePath + " length " + normalizedSource.length);
-					await renderFile(filePath);
-				};
 			}
 
-			return context;
-		}
+			function getViewerPath(ext) {
+				const key = ext || "";
+				if (viewerMap.has(key)) return "./js/" + viewerMap.get(key);
+				if (viewerMap.has("*")) return "./js/" + viewerMap.get("*");
+				return "./js/viewer.txt.js";
+			}
 
-		try {
-			trace("module script reached");
-			trace("try start");
+			function createNavigationUrl(path) {
+				return "index.html?file=" + encodeURIComponent(path);
+			}
 
-			const params = new URLSearchParams(window.location.search);
-			const filePath = params.get("file") || "./index.wiki";
-			await renderFile(filePath);
-		} catch (error) {
-			trace("catch", error && error.stack || error && error.message || String(error));
-			show("Startfehler:\n" + (error && error.stack || error && error.message || String(error)), "error");
-		}
-	</script>
-</body>
+			function createSourceFileUrl(path) {
+				const normalizedPath = normalizePath(path);
+				if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedPath)) {
+					return normalizedPath;
+				}
+
+				const relativePath = normalizedPath.replace(/^\.\//, "");
+				return rootLinkBaseValue
+					? rootLinkBaseValue + relativePath
+					: normalizedPath;
+			}
+
+			function fileNameLabel(path) {
+				const clean = String(path || "").split("?")[0].split("#")[0];
+				const fileName = normalizeSlashes(clean).split("/").pop() || "";
+				return fileName || clean || "Document";
+			}
+
+			function setPageTitle(title, kind) {
+				const cleanTitle = String(title || "").trim();
+				const cleanKind = String(kind || "").trim();
+				document.title = cleanTitle
+					? cleanKind
+						? cleanTitle + " - " + cleanKind + " Viewer"
+						: cleanTitle + " - Wiki Viewer"
+					: "Wiki Viewer";
+			}
+
+			function resolveRelativePath(base, target) {
+				const normalizedTarget = normalizeSlashes(target);
+				if (/^(https?:\/\/|ftp:\/\/|mailto:|www\.)/i.test(normalizedTarget)) return normalizedTarget;
+
+				const baseParts = normalizeSlashes(base).split("/");
+				baseParts.pop();
+
+				for (const part of normalizedTarget.split("/")) {
+					if (!part || part === ".") continue;
+					if (part === "..") baseParts.pop();
+					else baseParts.push(part);
+				}
+
+				return baseParts.join("/") || target;
+			}
+
+			async function checkedFetchText(path, options = {}) {
+				const normalizedPath = normalizePath(path);
+
+				if (inMemorySources.has(normalizedPath)) {
+					trace("memory source hit", normalizedPath);
+					return inMemorySources.get(normalizedPath);
+				}
+
+				if (!options.quiet) {
+					show("Datei wird geladen: " + normalizedPath + " ...");
+				}
+				trace("fetch start", normalizedPath);
+
+				const response = await fetch(normalizedPath, { cache: "no-store" });
+				trace("fetch response", normalizedPath + " HTTP " + response.status + " " + response.headers.get("content-type"));
+
+				if (!response.ok) {
+					throw new Error(normalizedPath + " konnte nicht geladen werden: HTTP " + response.status);
+				}
+
+				const text = await response.text();
+				trace("fetch text length", text.length);
+				return normalizeSource(text);
+			}
+
+			async function loadViewerForExtension(ext, options = {}) {
+				await ensureViewerMap();
+				const normalizedExt = ext || "txt";
+				const viewerPath = getViewerPath(normalizedExt);
+
+				// cache PROMISE to avoid parallel imports
+				if (loadedModules.has(viewerPath)) return loadedModules.get(viewerPath);
+
+				const loadPromise = (async () => {
+					if (!options.quiet) {
+						show("Importiere " + viewerPath + " ...");
+					}
+					trace("import start", viewerPath);
+					trace("protocol", window.location.protocol);
+
+					let mod;
+					try {
+						mod = await import(viewerPath);
+					} catch (error) {
+						// fallback to txt viewer
+						if (normalizedExt !== "txt") {
+							trace("import fallback", viewerPath + " -> ./js/viewer.txt.js");
+							return await loadViewerForExtension("txt");
+						}
+						throw error;
+					}
+
+					trace("import ok", Object.keys(mod).join(", "));
+
+					const renderer = typeof mod.render === "function"
+						? mod
+						: mod.default && mod.default.renderer && typeof mod.default.renderer.render === "function"
+							? mod.default.renderer
+							: null;
+					const binary = Boolean(
+						mod && mod.isBinary === true
+						|| mod && mod.default && mod.default.isBinary === true
+					);
+
+					if (!renderer) {
+						if (normalizedExt !== "txt") {
+							trace("renderer fallback", viewerPath + " -> ./js/viewer.txt.js");
+							return await loadViewerForExtension("txt");
+						}
+						throw new Error(viewerPath + " exportiert keine render(source, context)-Funktion.");
+					}
+
+					return {
+						render: renderer.render,
+						isBinary: binary
+					};
+				})();
+
+				loadedModules.set(viewerPath, loadPromise);
+				return loadPromise;
+			}
+
+			async function renderFile(filePath) {
+				const normalizedFilePath = normalizePath(filePath);
+				const ext = getExtension(normalizedFilePath);
+				const viewer = await loadViewerForExtension(ext);
+				await ensureRootLinkBase();
+				const source = viewer.isBinary
+					? ""
+					: await checkedFetchText(normalizedFilePath);
+
+				trace("render start", normalizedFilePath);
+				viewer.render(source, createRenderContext(normalizedFilePath));
+				trace("render done", normalizedFilePath);
+			}
+
+			function createRenderContext(filePath, articleElement = app, options = {}) {
+				const targetElement = articleElement || app;
+				const isEmbedded = Boolean(options.isEmbedded);
+				const context = {
+					filePath,
+					articleElement: targetElement,
+					isEmbedded,
+					showSourceFilename: options.showSourceFilename !== undefined ? options.showSourceFilename : !isEmbedded,
+					fileNameLabel,
+					createSourceFileUrl(path) {
+						trace("context.createSourceFileUrl", path);
+						return createSourceFileUrl(path);
+					},
+					setPageTitle(title, kind) {
+						if (isEmbedded) return;
+						trace("context.setPageTitle", title + (kind ? " [" + kind + "]" : ""));
+						setPageTitle(title, kind);
+					},
+					prepareArticle(className) {
+						trace("context.prepareArticle", className);
+						targetElement.className = className;
+						targetElement.replaceChildren();
+					},
+					resolveRelativePath(base, target) {
+						const resolved = resolveRelativePath(base, target);
+						trace("context.resolveRelativePath", base + " -> " + target + " = " + resolved);
+						return resolved;
+					},
+					createNavigationUrl(path) {
+						trace("context.createNavigationUrl", path);
+						return createNavigationUrl(path);
+					},
+					hasKnownRenderableExtension(path) {
+						const e = getExtension(path);
+						return viewerMap.has(e) || viewerMap.has("*");
+					},
+					async renderResourceReference(ext, resourcePath, embeddedTarget) {
+						await ensureViewerMap();
+						await ensureRootLinkBase();
+						const normalizedExt = ext || getExtension(resourcePath) || "txt";
+						const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
+						const normalizedFilePath = normalizePath(resourcePath);
+
+						if (viewer.isBinary) {
+							viewer.render("", createRenderContext(normalizedFilePath, embeddedTarget, {
+								isEmbedded: true,
+								showSourceFilename: true
+							}));
+							return;
+						}
+
+						const source = await checkedFetchText(normalizedFilePath, { quiet: true });
+						await this.renderEmbeddedSource(normalizedExt, source, embeddedTarget, normalizedFilePath, {
+							showSourceFilename: true
+						});
+					},
+					async renderEmbeddedSource(ext, source, embeddedTarget, embeddedFilePath, options = {}) {
+						await ensureViewerMap();
+						await ensureRootLinkBase();
+						const normalizedExt = ext || getExtension(embeddedFilePath) || "txt";
+						const viewer = await loadViewerForExtension(normalizedExt, { quiet: true });
+						const normalizedFilePath = normalizePath(embeddedFilePath || ("embedded." + normalizedExt));
+						viewer.render(
+							viewer.isBinary ? String(source ?? "") : normalizeSource(source),
+							createRenderContext(normalizedFilePath, embeddedTarget, {
+								isEmbedded: true,
+								showSourceFilename: options.showSourceFilename === true
+							})
+						);
+					}
+				};
+
+				if (!isEmbedded) {
+					context.updateWikiSource = async function updateWikiSource(nextSource) {
+						if (getExtension(filePath) !== "wiki") {
+							throw new Error("Nur .wiki-Dateien koennen im Viewer bearbeitet werden.");
+						}
+
+						const normalizedSource = normalizeSource(nextSource);
+						inMemorySources.set(normalizePath(filePath), normalizedSource);
+						trace("memory source updated", filePath + " length " + normalizedSource.length);
+						await renderFile(filePath);
+					};
+				}
+
+				return context;
+			}
+
+			try {
+				trace("module script reached");
+				trace("try start");
+
+				const params = new URLSearchParams(window.location.search);
+				const filePath = params.get("file") || "./index.wiki";
+				await renderFile(filePath);
+			} catch (error) {
+				trace("catch", error && error.stack || error && error.message || String(error));
+				show("Startfehler:\n" + (error && error.stack || error && error.message || String(error)), "error");
+			}
+		</script>
+	</body>
 </html>

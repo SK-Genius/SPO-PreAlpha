@@ -1,11 +1,11 @@
-#:include Common/mStd.cs
-#:include Common/mMaybe.cs
-#:include Common/mStream.cs
-#:include Common/mSpan.cs
-#:include Common/mTextParser.cs
-#:include Common/mTextStream.cs
-#:include mSPO_AST.cs
-#:include mSPO_Parser.cs
+#:include ../../SPO_CS/src/Common/mStd.cs
+#:include ../../SPO_CS/src/Common/mMaybe.cs
+#:include ../../SPO_CS/src/Common/mStream.cs
+#:include ../../SPO_CS/src/Common/mSpan.cs
+#:include ../../SPO_CS/src/Common/mTextParser.cs
+#:include ../../SPO_CS/src/Common/mTextStream.cs
+#:include ../../SPO_CS/src/mSPO_AST.cs
+#:include ../../SPO_CS/src/mSPO_Parser.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;

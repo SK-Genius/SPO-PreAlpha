@@ -104,7 +104,7 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 .]
 
 - blocks are expressions
-- there is no implicit "last expression wins"; use [.|§RETURN.]
+- there is no implicit "last expression wins"; use [.spo|§RETURN.]
 
 [=Calls Lambdas and Methods=]
 [.spo
@@ -113,7 +113,9 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 |a .Ord
 |
 |(x € §INT) => x .* x
-|(§DEF t € §TYPE) <=> (
+|(
+|    §DEF t € §TYPE
+|) <=> (
 |    §DEF x € t
 |) => x
 |
@@ -144,7 +146,7 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 .]
 
 [=Notes=]
-- [.|§IMPORT.] is a pattern, not just a name list.
-- [.|§IS.] is surface sugar over [.|§IF value MATCH { ... }.].
-- surface type keywords and IL type keywords differ: [.|§RECURSIVE/§GENERIC/§INTERFACE.] become [.|§REC/§ALL/§ANY.] in [.|.ILT.].
-- [.|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete.
+- [.spo|§IMPORT.] is a pattern match, not just a name list.
+- [.spo|§IS.] is syntax sugar over [.spo|§IF value MATCH { ... }.].
+- surface type keywords and IL type keywords differ: [.spo|§RECURSIVE.]/[.spo|§GENERIC.]/[.spo|§INTERFACE.] become [.spo|§REC.]/[.spo|§ALL.]/[.spo|§ANY.] in [.|.ILT.].
+- [.spo|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete.

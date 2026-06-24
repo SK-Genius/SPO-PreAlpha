@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text;
 using System.Text.Json;
 
@@ -7,7 +8,6 @@ LspServer {
 	private readonly Stream Output;
 	private readonly SpoLanguageService LanguageService;
 	private readonly Dictionary<tText, tText> Documents = [];
-	private readonly JsonSerializerOptions JsonOptions = new();
 	
 	private tBool ShutdownRequested;
 	
@@ -57,22 +57,24 @@ LspServer {
 			case "initialize": {
 				this.WriteResult(
 					id,
-					new {
-						capabilities = new {
-							textDocumentSync = new {
-								openClose = true,
-								change = 1,
-								save = new {
-									includeText = false
-								}
-							},
-							definitionProvider = true,
-							documentSymbolProvider = true
-						},
-						serverInfo = new {
-							name = "SPO Language Server",
-							version = "0.1.0"
-						}
+					writer => {
+						writer.WriteStartObject();
+						writer.WriteStartObject("capabilities");
+						writer.WriteStartObject("textDocumentSync");
+						writer.WriteBoolean("openClose", true);
+						writer.WriteNumber("change", 1);
+						writer.WriteStartObject("save");
+						writer.WriteBoolean("includeText", false);
+						writer.WriteEndObject();
+						writer.WriteEndObject();
+						writer.WriteBoolean("definitionProvider", true);
+						writer.WriteBoolean("documentSymbolProvider", true);
+						writer.WriteEndObject();
+						writer.WriteStartObject("serverInfo");
+						writer.WriteString("name", "SPO Language Server");
+						writer.WriteString("version", "0.1.0");
+						writer.WriteEndObject();
+						writer.WriteEndObject();
 					}
 				);
 				return false;
@@ -82,7 +84,7 @@ LspServer {
 			}
 			case "shutdown": {
 				this.ShutdownRequested = true;
-				this.WriteResult(id, result: null);
+				this.WriteResult(id, writeResult: null);
 				return false;
 			}
 			case "exit": {
@@ -174,9 +176,12 @@ LspServer {
 		this.Documents.Remove(uri);
 		this.WriteNotification(
 			"textDocument/publishDiagnostics",
-			new {
-				uri,
-				diagnostics = Array.Empty<tUnknown>()
+			writer => {
+				writer.WriteStartObject();
+				writer.WriteString("uri", uri);
+				writer.WriteStartArray("diagnostics");
+				writer.WriteEndArray();
+				writer.WriteEndObject();
 			}
 		);
 	}
@@ -208,7 +213,7 @@ LspServer {
 			!paramsProperty.TryGetProperty("textDocument", out var textDocument) ||
 			!paramsProperty.TryGetProperty("position", out var position)
 		) {
-			this.WriteResult(id, result: null);
+			this.WriteResult(id, writeResult: null);
 			return;
 		}
 		
@@ -221,15 +226,18 @@ LspServer {
 			GetRequiredInt(position, "character")
 		);
 		
-		this.WriteResult(
-			id,
-			location is null
-				? null
-				: new {
-					uri = location.Uri,
-					range = ToLspRange(location.Range)
-				}
-		);
+		if (location is null) {
+			this.WriteResult(id, writeResult: null);
+			return;
+		}
+
+		this.WriteResult(id, writer => {
+			writer.WriteStartObject();
+			writer.WriteString("uri", location.Uri);
+			writer.WritePropertyName("range");
+			WriteRange(writer, location.Range);
+			writer.WriteEndObject();
+		});
 	}
 	
 	private void
@@ -241,17 +249,23 @@ LspServer {
 			!message.TryGetProperty("params", out var paramsProperty) ||
 			!paramsProperty.TryGetProperty("textDocument", out var textDocument)
 		) {
-			this.WriteResult(id, Array.Empty<tUnknown>());
+			this.WriteResult(id, writer => {
+				writer.WriteStartArray();
+				writer.WriteEndArray();
+			});
 			return;
 		}
 		
 		var uri = GetRequiredString(textDocument, "uri");
 		var text = this.Documents.GetValueOrDefault(uri, "");
-		var symbols = this.LanguageService.GetDocumentSymbols(uri, text).Select(
-			ToLspDocumentSymbol
-		).ToArray();
-		
-		this.WriteResult(id, symbols);
+		var symbols = this.LanguageService.GetDocumentSymbols(uri, text);
+		this.WriteResult(id, writer => {
+			writer.WriteStartArray();
+			foreach (var symbol in symbols) {
+				WriteDocumentSymbol(writer, symbol);
+			}
+			writer.WriteEndArray();
+		});
 	}
 	
 	private void
@@ -259,20 +273,24 @@ LspServer {
 		tText uri,
 		tText text
 	) {
-		var diagnostics = this.LanguageService.GetDiagnostics(uri, text).Select(
-			diagnostic => new {
-				range = ToLspRange(diagnostic.Range),
-				severity = diagnostic.Severity,
-				source = diagnostic.Source,
-				message = diagnostic.Message
-			}
-		).ToArray();
-		
+		var diagnostics = this.LanguageService.GetDiagnostics(uri, text);
 		this.WriteNotification(
 			"textDocument/publishDiagnostics",
-			new {
-				uri,
-				diagnostics
+			writer => {
+				writer.WriteStartObject();
+				writer.WriteString("uri", uri);
+				writer.WriteStartArray("diagnostics");
+				foreach (var diagnostic in diagnostics) {
+					writer.WriteStartObject();
+					writer.WritePropertyName("range");
+					WriteRange(writer, diagnostic.Range);
+					writer.WriteNumber("severity", diagnostic.Severity);
+					writer.WriteString("source", diagnostic.Source);
+					writer.WriteString("message", diagnostic.Message);
+					writer.WriteEndObject();
+				}
+				writer.WriteEndArray();
+				writer.WriteEndObject();
 			}
 		);
 	}
@@ -348,52 +366,72 @@ LspServer {
 	private void
 	WriteResult(
 		JsonElement? id,
-		tUnknown? result
-	) => this.WriteMessage(
-		new {
-			jsonrpc = "2.0",
-			id,
-			result
+		Action<Utf8JsonWriter>? writeResult
+	) => this.WriteMessage(writer => {
+		writer.WriteStartObject();
+		writer.WriteString("jsonrpc", "2.0");
+		writer.WritePropertyName("id");
+		if (id is {} idValue) {
+			idValue.WriteTo(writer);
+		} else {
+			writer.WriteNullValue();
 		}
-	);
+		writer.WritePropertyName("result");
+		if (writeResult is null) {
+			writer.WriteNullValue();
+		} else {
+			writeResult(writer);
+		}
+		writer.WriteEndObject();
+	});
 	
 	private void
 	WriteError(
 		JsonElement? id,
 		tInt32 code,
 		tText message
-	) => this.WriteMessage(
-		new {
-			jsonrpc = "2.0",
-			id,
-			error = new {
-				code,
-				message
-			}
+	) => this.WriteMessage(writer => {
+		writer.WriteStartObject();
+		writer.WriteString("jsonrpc", "2.0");
+		writer.WritePropertyName("id");
+		if (id is {} idValue) {
+			idValue.WriteTo(writer);
+		} else {
+			writer.WriteNullValue();
 		}
-	);
+		writer.WriteStartObject("error");
+		writer.WriteNumber("code", code);
+		writer.WriteString("message", message);
+		writer.WriteEndObject();
+		writer.WriteEndObject();
+	});
 	
 	private void
 	WriteNotification(
 		tText method,
-		tUnknown? @params
-	) => this.WriteMessage(
-		new {
-			jsonrpc = "2.0",
-			method,
-			@params
-		}
-	);
+		Action<Utf8JsonWriter> writeParams
+	) => this.WriteMessage(writer => {
+		writer.WriteStartObject();
+		writer.WriteString("jsonrpc", "2.0");
+		writer.WriteString("method", method);
+		writer.WritePropertyName("params");
+		writeParams(writer);
+		writer.WriteEndObject();
+	});
 	
 	private void
 	WriteMessage(
-		tUnknown message
+		Action<Utf8JsonWriter> writeMessage
 	) {
-		var payload = JsonSerializer.SerializeToUtf8Bytes(message, this.JsonOptions);
-		var header = Encoding.ASCII.GetBytes($"Content-Length: {payload.Length}\r\n\r\n");
+		var payload = new ArrayBufferWriter<tNat8>();
+		using (var writer = new Utf8JsonWriter(payload)) {
+			writeMessage(writer);
+			writer.Flush();
+		}
+		var header = Encoding.ASCII.GetBytes($"Content-Length: {payload.WrittenCount}\r\n\r\n");
 		
 		this.Output.Write(header, 0, header.Length);
-		this.Output.Write(payload, 0, payload.Length);
+		this.Output.Write(payload.WrittenSpan);
 		this.Output.Flush();
 	}
 	
@@ -424,29 +462,41 @@ LspServer {
 		? result
 		: 0;
 	
-	private static tUnknown
-	ToLspDocumentSymbol(
+	private static void
+	WriteDocumentSymbol(
+		Utf8JsonWriter writer,
 		SpoDocumentSymbol symbol
-	) => new {
-		name = symbol.Name,
-		detail = symbol.Detail,
-		kind = symbol.Kind,
-		range = ToLspRange(symbol.Range),
-		selectionRange = ToLspRange(symbol.SelectionRange),
-		children = symbol.Children.Select(ToLspDocumentSymbol).ToArray()
-	};
-	
-	private static tUnknown
-	ToLspRange(
-		SpoRange range
-	) => new {
-		start = new {
-			line = range.Start.Line,
-			character = range.Start.Character
-		},
-		end = new {
-			line = range.End.Line,
-			character = range.End.Character
+	) {
+		writer.WriteStartObject();
+		writer.WriteString("name", symbol.Name);
+		writer.WriteString("detail", symbol.Detail);
+		writer.WriteNumber("kind", symbol.Kind);
+		writer.WritePropertyName("range");
+		WriteRange(writer, symbol.Range);
+		writer.WritePropertyName("selectionRange");
+		WriteRange(writer, symbol.SelectionRange);
+		writer.WriteStartArray("children");
+		foreach (var child in symbol.Children) {
+			WriteDocumentSymbol(writer, child);
 		}
-	};
+		writer.WriteEndArray();
+		writer.WriteEndObject();
+	}
+	
+	private static void
+	WriteRange(
+		Utf8JsonWriter writer,
+		SpoRange range
+	) {
+		writer.WriteStartObject();
+		writer.WriteStartObject("start");
+		writer.WriteNumber("line", range.Start.Line);
+		writer.WriteNumber("character", range.Start.Character);
+		writer.WriteEndObject();
+		writer.WriteStartObject("end");
+		writer.WriteNumber("line", range.End.Line);
+		writer.WriteNumber("character", range.End.Character);
+		writer.WriteEndObject();
+		writer.WriteEndObject();
+	}
 }

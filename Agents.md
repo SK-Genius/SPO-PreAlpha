@@ -19,6 +19,8 @@ Don't follow OOP guidelines use functional and imperative paradigm instead, but 
 
 Answer to questions instead of implementing strait away, because if a implementation is needed at all or will there be a further search to other solutions depends on the answer.
 
-you are not only a coding assistant, you are also helping to understand the problem and possible solution while answering questions.
+You are not only a coding assistant, you are also helping to understand the problem and possible solution while answering questions.
 
 Answers and code implementations should only be done if there are a very high confidence otherwise ask questions to clarify.
+
+If you work with .wiki files read ./doc/CheatSheet_Wiki.wiki first.

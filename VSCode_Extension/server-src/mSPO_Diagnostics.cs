@@ -1,18 +1,18 @@
-#:include Common/mStd.cs
-#:include Common/mSpan.cs
-#:include Common/mMaybe.cs
-#:include Common/mStream.cs
-#:include Common/mResult.cs
-#:include Common/mParserGen.cs
-#:include Common/mTextStream.cs
-#:include Common/mTextParser.cs
-#:include mTokenizer.cs
-#:include mVM_Type.cs
-#:include mSPO_AST.cs
-#:include mSPO_AST_Types.cs
-#:include mSPO_Parser.cs
-#:include mSPO_Desugar.cs
-#:include mSPO2IL.cs
+#:include ../../SPO_CS/src/Common/mStd.cs
+#:include ../../SPO_CS/src/Common/mSpan.cs
+#:include ../../SPO_CS/src/Common/mMaybe.cs
+#:include ../../SPO_CS/src/Common/mStream.cs
+#:include ../../SPO_CS/src/Common/mResult.cs
+#:include ../../SPO_CS/src/Common/mParserGen.cs
+#:include ../../SPO_CS/src/Common/mTextStream.cs
+#:include ../../SPO_CS/src/Common/mTextParser.cs
+#:include ../../SPO_CS/src/mTokenizer.cs
+#:include ../../SPO_CS/src/mVM_Type.cs
+#:include ../../SPO_CS/src/mSPO_AST.cs
+#:include ../../SPO_CS/src/mSPO_AST_Types.cs
+#:include ../../SPO_CS/src/mSPO_Parser.cs
+#:include ../../SPO_CS/src/mSPO_Desugar.cs
+#:include ../../SPO_CS/src/mSPO2IL.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;

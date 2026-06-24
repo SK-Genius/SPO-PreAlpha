@@ -186,19 +186,10 @@ PublishServer(
 	
 	var configuration = "Release";
 	var runtimeIdentifier = "win-x64";
-	var serverSourceProject = Path.Combine(scriptDir, "server-src", "SPO.LSP.Server.csproj");
+	var serverSourceProject = Path.Combine(scriptDir, "server-src", "SPO.LSP.Server.cs");
 	var runtimeDir = Path.Combine(scriptDir, "server");
 	var publishDir = Path.Combine(scriptDir, ".publish-server");
 	var publishedExecutable = Path.Combine(publishDir, "SPO.LSP.Server.exe");
-	var spoCsDll = Path.Combine(
-		repoRoot,
-		"SPO_CS",
-		"bin",
-		configuration,
-		"net10.0",
-		runtimeIdentifier,
-		"SPO_CS.dll"
-	);
 	
 	DeleteDirectoryIfExists(publishDir);
 	
@@ -226,22 +217,11 @@ PublishServer(
 		throw new FileNotFoundException($"SPO.LSP.Server.exe was not found at \"{publishedExecutable}\".");
 	}
 	
-	if (!File.Exists(spoCsDll)) {
-		throw new FileNotFoundException($"SPO_CS.dll not found at \"{spoCsDll}\".");
-	}
-	
 	RecreateDirectory(runtimeDir);
 	RetryFileSystem(
 		() => File.Copy(
 			publishedExecutable,
 			Path.Combine(runtimeDir, "SPO.LSP.Server.exe"),
-			overwrite: true
-		)
-	);
-	RetryFileSystem(
-		() => File.Copy(
-			spoCsDll,
-			Path.Combine(runtimeDir, "SPO_CS.dll"),
 			overwrite: true
 		)
 	);
@@ -798,11 +778,6 @@ ReplaceDirectory(
 	var backupDir = "";
 	
 	Directory.CreateDirectory(targetParentDir);
-	
-	if (Directory.Exists(targetDir)) {
-		backupDir = targetDir + ".backup." + Guid.NewGuid().ToString("N");
-		RetryFileSystem(() => Directory.Move(targetDir, backupDir));
-	}
 	
 	try {
 		RetryFileSystem(() => Directory.Move(sourceDir, targetDir));

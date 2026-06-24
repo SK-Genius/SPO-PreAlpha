@@ -1,0 +1,77 @@
+[§SPO Repo§]
+
+[!!!! This project is in pre-alpha state !!!!]
+
+[=What is SPO=]
+
+SPO is a programming language focused on security, safety, robustness, and performance.
+
+And by the way, this properties make it also grate for agent coding.
+
+This repository currently contains a C# implementation of the language and some tooling:
+- a simple http server (to test the wiki doc locally)
+- a VSCode extension to support the files formats:
+-- .spo (the programming language source file format)
+-- .ilt (the intermediate language in text format)
+-- .wiki (the custom documentation markup language)
+
+[=Why SPO=]
+
+Modern software runs critical infrastructure, yet many languages still make it easy to ship:
+- null references exceptions,
+- out of range issues with array indexing,
+- and hidden side effects.
+
+SPO will not allow this kind of failures by supporting static code analysis to find tis issues before running the code.
+
+[=Current design goals=]
+
+- Strict memory safety and type safety.
+- Make common runtime failures impossible like null dereferences and out-of-range access.
+- Keep mutable state explicit by capability-based access instead of allowing hidden global effects.
+- Make static dataflow analysis straightforward.
+- Allow the coexist of functional, imperative and concurrent programming paradigms.
+
+[=Repository Layout=]
+
+[| [*Path*]                     ][ [*Purpose*]                                                                             |]
+[| [.|SPO_CS/.]                 ][ main implementation: tokenizer, parser, AST, typing, lowering, VM, modules, and tests   |]
+[| [.|VSCode_Extension/.]       ][ VS Code client, language server source                                                  |]
+[| [.|doc/.]                    ][ documentation in the repository's custom [.|.wiki.] format                              |]
+[| [.|index.html.] and [.|js/.] ][ local viewer for [.|.wiki.], [.|.spo.], [.|.ilt.], diagrams, images, and related assets |]
+
+[=Prerequisites=]
+
+- Windows
+- .NET 11 SDK pinned in [<../global.json>]
+
+[=Run Tests=]
+
+[.sh
+|dotnet SPO_CS/src/mRunTests.cs
+.]
+
+[=Documentation=]
+
+- [<doc/CheatSheet_SPO.wiki>]
+- [<doc/CheatSheet_IL.wiki>]
+- [<doc/Tests.wiki>]
+- [<doc/TODO.wiki>]
+- [<doc/CheatSheet_Wiki.wiki>]
+
+[=Planned Killer App=]
+
+A plugin-driven, secure, privacy-first social media infrastructure without mandatory central servers.
+
+Untrusted extensions would run under explicit capabilities, and user data would stay user-hosted unless deliberately delegated elsewhere.
+
+[=Roadmap=]
+
+[*Pre-Alpha -> Alpha:*]
+- make the compiler self-hosting by rewriting it in SPO.
+
+[*Alpha -> Beta:*]
+- complete memory management and missing core features such as refinement types, parallel execution, and debugger support.
+
+[*Beta -> Release:*]
+- add real CPU backends such as LLVM and expand tooling plus standard libraries.
