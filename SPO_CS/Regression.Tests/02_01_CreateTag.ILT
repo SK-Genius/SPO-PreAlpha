@@ -6,5 +6,5 @@
 §DEF d_0 € t_2
 	r_1 := 1
 	r_2 := +#_Test... r_1
-	_x := r_2
-	§RETURN _x IF TRUE
+	_X := r_2
+	§RETURN _X IF TRUE

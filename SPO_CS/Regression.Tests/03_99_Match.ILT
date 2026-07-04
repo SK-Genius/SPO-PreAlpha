@@ -24,8 +24,8 @@
 	§RETURN r_6 IF TRUE
 
 §DEF d_1 € t_3
-	_b := ARG
-	r_1 := +#Result _b
+	_Z := ARG
+	r_1 := +#Result _Z
 	§RETURN r_1 IF TRUE
 
 §DEF d_2 € t_9
@@ -49,11 +49,11 @@
 	d_0 := §2ND r_8
 	r_9 := §1ST r_8
 	r_1 := 1
-	_a := r_1
+	_X := r_1
 	r_2 := EMPTY, d_0
 	r_3 := r_2, d_1
 	r_4 := .d_2 r_3
-	r_5 := .r_4 _a
+	r_5 := .r_4 _X
 	r_6 := -#Result r_5
-	_x := r_6
-	§RETURN _x IF TRUE
+	_Y := r_6
+	§RETURN _Y IF TRUE

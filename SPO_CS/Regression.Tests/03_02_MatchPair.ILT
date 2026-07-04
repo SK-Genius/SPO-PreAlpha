@@ -7,8 +7,8 @@
 	r_2 := 1
 	r_3 := r_1, r_2
 	r_4 := §2ND r_3
-	_x := r_4
+	_X := r_4
 	r_5 := §1ST r_3
 	r_6 := §2ND r_5
 	r_7 := §1ST r_5
-	§RETURN _x IF TRUE
+	§RETURN _X IF TRUE

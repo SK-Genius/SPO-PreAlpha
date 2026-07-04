@@ -9,5 +9,5 @@
 	r_4 := +#_Second r_3
 	r_5 := {r_2} + r_4
 	r_6 := {r_5} #_Second
-	_x := r_6
-	§RETURN _x IF TRUE
+	_X := r_6
+	§RETURN _X IF TRUE

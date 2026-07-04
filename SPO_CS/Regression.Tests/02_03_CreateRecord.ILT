@@ -12,5 +12,5 @@
 	r_3 := 1
 	r_4 := +#_Second r_3
 	r_5 := {r_2} + r_4
-	_x := r_5
-	§RETURN _x IF TRUE
+	_X := r_5
+	§RETURN _X IF TRUE

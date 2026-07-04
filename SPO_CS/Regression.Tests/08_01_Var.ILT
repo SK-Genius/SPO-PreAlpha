@@ -4,8 +4,8 @@
 
 §DEF d_0 € t_1
 	r_1 := 1
-	_x := §VAR r_1
+	_X := §VAR r_1
 	r_2 := 2
-	§VAR _x <- r_2
-	r_3 := §VAR _x ->
+	§VAR _X <- r_2
+	r_3 := §VAR _X ->
 	§RETURN r_3 IF TRUE

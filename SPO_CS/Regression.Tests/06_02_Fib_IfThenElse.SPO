@@ -5,12 +5,12 @@
 }
 
 §DEF If...Then...Else... = (
-	§DEF c € §BOOL
-	§DEF i € [[] => §INT]
-	§DEF e € [[] => §INT]
+	§DEF aCond € §BOOL
+	§DEF aOnTrue € [[] => §INT]
+	§DEF aOnFalse € [[] => §INT]
 ) => {
-	§RETURN (.i) IF c
-	§RETURN (.e)
+	§RETURN (.aOnTrue) IF aCond
+	§RETURN (.aOnFalse)
 }
 
 §RECURSIVE {
@@ -31,4 +31,4 @@
 	.Fib 4
 	.Fib 5
 	.Fib 6
-)	
+)

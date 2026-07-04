@@ -80,20 +80,20 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_05_AssignMultiLineText.SPO
-  #]
-][
-  [#
-  |../SPO_CS/Regression.Tests/01_05_AssignMultiLineText.result.SPO
-  #]
-|]
-[|
-  [#
   |../SPO_CS/Regression.Tests/01_05_AssignText.SPO
   #]
 ][
   [#
   |../SPO_CS/Regression.Tests/01_05_AssignText.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/Regression.Tests/01_06_AssignMultiLineText.SPO
+  #]
+][
+  [#
+  |../SPO_CS/Regression.Tests/01_06_AssignMultiLineText.result.SPO
   #]
 |]
 

@@ -22,67 +22,67 @@
 	t_20 := [t_12 => t_19]
 
 §DEF d_0 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
 
 §DEF d_1 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
 
 §DEF d_2 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
 
 §DEF d_3 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
 
 §DEF d_4 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
 
 §DEF d_5 € t_6
-	_k := §2ND ENV
+	_K := §2ND ENV
 	r_4 := §1ST ENV
 	_...*... := §2ND r_4
 	r_5 := §1ST r_4
 	_a := ARG
-	r_1 := EMPTY, _k
+	r_1 := EMPTY, _K
 	r_2 := r_1, _a
 	r_3 := ._...*... r_2
 	§RETURN r_3 IF TRUE
@@ -103,39 +103,39 @@
 	r_1 := {ARG} #_...*...
 	_...*... := r_1
 	r_2 := 3
-	_k := r_2
+	_K := r_2
 	r_3 := EMPTY, _...*...
-	r_4 := r_3, _k
+	r_4 := r_3, _K
 	r_5 := .d_0 r_4
 	r_6 := 0
 	r_7 := .r_5 r_6
 	r_8 := EMPTY, r_7
 	r_9 := EMPTY, _...*...
-	r_10 := r_9, _k
+	r_10 := r_9, _K
 	r_11 := .d_1 r_10
 	r_12 := 1
 	r_13 := .r_11 r_12
 	r_14 := r_8, r_13
 	r_15 := EMPTY, _...*...
-	r_16 := r_15, _k
+	r_16 := r_15, _K
 	r_17 := .d_2 r_16
 	r_18 := 2
 	r_19 := .r_17 r_18
 	r_20 := r_14, r_19
 	r_21 := EMPTY, _...*...
-	r_22 := r_21, _k
+	r_22 := r_21, _K
 	r_23 := .d_3 r_22
 	r_24 := 3
 	r_25 := .r_23 r_24
 	r_26 := r_20, r_25
 	r_27 := EMPTY, _...*...
-	r_28 := r_27, _k
+	r_28 := r_27, _K
 	r_29 := .d_4 r_28
 	r_30 := 4
 	r_31 := .r_29 r_30
 	r_32 := r_26, r_31
 	r_33 := EMPTY, _...*...
-	r_34 := r_33, _k
+	r_34 := r_33, _K
 	r_35 := .d_5 r_34
 	r_36 := 5
 	r_37 := .r_35 r_36

@@ -1,4 +1,4 @@
-§VAR x := 1 .
-x := 2 .
+§VAR X := 1 .
+X := 2 .
 
-§EXPORT (§TO_VAL x)
+§EXPORT (§TO_VAL X)

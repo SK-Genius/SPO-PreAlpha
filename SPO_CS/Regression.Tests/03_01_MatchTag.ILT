@@ -6,5 +6,5 @@
 	r_1 := 1
 	r_2 := +#_Test... r_1
 	r_3 := -#_Test... r_2
-	_x := r_3
-	§RETURN _x IF TRUE
+	_X := r_3
+	§RETURN _X IF TRUE

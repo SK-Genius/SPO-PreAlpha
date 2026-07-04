@@ -3,11 +3,11 @@
 }
 
 §DEF +... = (
-	§VAR X € §INT
+	§VAR o € §INT
 ) : (
-	§DEF Y € §INT
+	§DEF a € §INT
 ) {
-	X := ((§TO_VAL X) .+ Y).
+	o := ((§TO_VAL o) .+ a).
 }
 
 §VAR X := 1, + 2 .

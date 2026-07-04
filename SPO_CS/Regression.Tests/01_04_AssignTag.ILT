@@ -5,5 +5,5 @@
 
 §DEF d_0 € t_2
 	r_1 := +#_Test EMPTY
-	_x := r_1
-	§RETURN _x IF TRUE
+	_X := r_1
+	§RETURN _X IF TRUE

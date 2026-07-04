@@ -13,18 +13,18 @@
 	t_11 := [t_7 => t_10]
 
 §DEF d_0 € t_7
-	_a := §2ND ENV
+	_X := §2ND ENV
 	r_11 := §1ST ENV
 	_...==... := §2ND r_11
 	r_12 := §1ST r_11
 	§RETURN ARG IF_NOT_EMPTY
-	r_1 := EMPTY, _a
+	r_1 := EMPTY, _X
 	r_2 := 1
 	r_3 := r_1, r_2
 	r_4 := ._...==... r_3
 	r_5 := 11
 	§RETURN r_5 IF r_4
-	r_6 := EMPTY, _a
+	r_6 := EMPTY, _X
 	r_7 := 2
 	r_8 := r_6, r_7
 	r_9 := ._...==... r_8
@@ -37,11 +37,11 @@
 	r_1 := {ARG} #_...==...
 	_...==... := r_1
 	r_2 := 1
-	_a := r_2
+	_X := r_2
 	r_4 := EMPTY, _...==...
-	r_5 := r_4, _a
+	r_5 := r_4, _X
 	r_6 := .d_0 r_5
 	r_7 := .r_6 EMPTY
 	r_3 := r_7
-	_x := r_3
-	§RETURN _x IF TRUE
+	_Y := r_3
+	§RETURN _Y IF TRUE

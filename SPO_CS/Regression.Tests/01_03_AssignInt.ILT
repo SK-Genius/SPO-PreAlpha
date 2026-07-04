@@ -4,5 +4,5 @@
 
 §DEF d_0 € t_1
 	r_1 := 1
-	_x := r_1
-	§RETURN _x IF TRUE
+	_X := r_1
+	§RETURN _X IF TRUE

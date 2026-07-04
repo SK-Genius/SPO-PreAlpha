@@ -4,27 +4,22 @@
 
 [=What is SPO=]
 
-SPO is a programming language focused on security, safety, robustness, and performance.
+SPO is a [*zero-trust*] programming language focused on security, safety, robustness, and performance.
 
-And by the way, this properties make it also grate for agent coding.
-
-This repository currently contains a C# implementation of the language and some tooling:
-- a simple http server (to test the wiki doc locally)
-- a VSCode extension to support the files formats:
--- .spo (the programming language source file format)
--- .ilt (the intermediate language in text format)
--- .wiki (the custom documentation markup language)
+[((And by the way, this properties make it also grate for agent coding.))]
 
 [=Why SPO=]
 
-Modern software runs critical infrastructure, yet many languages still make it easy to ship:
+Modern software runs critical infrastructure, but the most current production languages make it still easy to ship:
 - null references exceptions,
 - out of range issues with array indexing,
 - and hidden side effects.
 
-SPO will not allow this kind of failures by supporting static code analysis to find tis issues before running the code.
+This kind of issues threading the security, relatability and maintainability of current software.
 
-[=Current design goals=]
+SPO will not allow this kind of failures by design.
+
+[=Design goals=]
 
 - Strict memory safety and type safety.
 - Make common runtime failures impossible like null dereferences and out-of-range access.
@@ -34,30 +29,38 @@ SPO will not allow this kind of failures by supporting static code analysis to f
 
 [=Repository Layout=]
 
+This repository currently contains a C# implementation of the language and some tooling:
+- a HTML based viewer for the wiki docs
+-- a simple HTTP server (to test the wiki doc locally)
+- a VSCode extension to support the files formats:
+-- .spo (the programming language source file format)
+-- .ilt (the intermediate language in text format)
+-- .wiki (the custom documentation markup language)
+
 [| [*Path*]                     ][ [*Purpose*]                                                                             |]
 [| [.|SPO_CS/.]                 ][ main implementation: tokenizer, parser, AST, typing, lowering, VM, modules, and tests   |]
-[| [.|VSCode_Extension/.]       ][ VS Code client, language server source                                                  |]
-[| [.|doc/.]                    ][ documentation in the repository's custom [.|.wiki.] format                              |]
 [| [.|index.html.] and [.|js/.] ][ local viewer for [.|.wiki.], [.|.spo.], [.|.ilt.], diagrams, images, and related assets |]
+[| [.|doc/.]                    ][ documentation in the repository's custom [.|.wiki.] format                              |]
+[| [.|VSCode_Extension/.]       ][ VS Code client, language server source                                                  |]
 
 [=Prerequisites=]
 
-- Windows
+- Windows (only the performance measurement from the tests depends on windows)
 - .NET 11 SDK pinned in [<../global.json>]
 
 [=Run Tests=]
 
 [.sh
-|dotnet SPO_CS/src/mRunTests.cs
+|> dotnet SPO_CS/src/mRunTests.cs
 .]
 
 [=Documentation=]
 
 - [<doc/CheatSheet_SPO.wiki>]
 - [<doc/CheatSheet_IL.wiki>]
+- [<doc/CheatSheet_Wiki.wiki>]
 - [<doc/Tests.wiki>]
 - [<doc/TODO.wiki>]
-- [<doc/CheatSheet_Wiki.wiki>]
 
 [=Planned Killer App=]
 

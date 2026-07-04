@@ -1,2 +1,2 @@
-{Second: §DEF x} = {First: (), Second: 1}
-§EXPORT x
+{Second: §DEF X} = {First: (), Second: 1}
+§EXPORT X

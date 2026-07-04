@@ -50,18 +50,18 @@
 
 §DEF d_0 € t_5
 	r_1 := §2ND ARG
-	_e := r_1
+	_aOnFalse := r_1
 	r_2 := §1ST ARG
 	r_3 := §2ND r_2
-	_i := r_3
+	_aOnTrue := r_3
 	r_4 := §1ST r_2
 	r_5 := §2ND r_4
-	_c := r_5
+	_aCond := r_5
 	r_6 := §1ST r_4
 	§RETURN r_6 IF_NOT_EMPTY
-	r_7 := ._i EMPTY
-	§RETURN r_7 IF _c
-	r_8 := ._e EMPTY
+	r_7 := ._aOnTrue EMPTY
+	§RETURN r_7 IF _aCond
+	r_8 := ._aOnFalse EMPTY
 	§RETURN r_8 IF TRUE
 
 §DEF d_1 € t_6

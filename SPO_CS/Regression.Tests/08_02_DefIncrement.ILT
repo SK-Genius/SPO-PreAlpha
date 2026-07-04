@@ -13,13 +13,13 @@
 
 §DEF d_0 € t_6
 	_...+... := ENV
-	_Y := ARG
-	_X := OBJ
-	r_1 := §VAR _X ->
+	_a := ARG
+	_o := OBJ
+	r_1 := §VAR _o ->
 	r_2 := EMPTY, r_1
-	r_3 := r_2, _Y
+	r_3 := r_2, _a
 	r_4 := ._...+... r_3
-	§VAR _X <- r_4
+	§VAR _o <- r_4
 	§RETURN EMPTY IF TRUE
 
 §DEF d_1 € t_10

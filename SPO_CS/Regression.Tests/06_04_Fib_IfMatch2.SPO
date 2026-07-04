@@ -6,10 +6,10 @@
 
 §RECURSIVE {
 	§DEF Fib... = (
-		§DEF x € §INT
-	) => §IF x MATCH {
-		(§DEF a & a .< 2) : a
-		§DEF a : (.Fib(a .- 2)) .+ (.Fib(a .- 1))
+		§DEF a € §INT
+	) => §IF a MATCH {
+		(§DEF N & N .< 2) : a
+		§DEF N : (.Fib(N .- 2)) .+ (.Fib(N .- 1))
 	}
 }
 

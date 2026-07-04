@@ -3,5 +3,5 @@
 	t_1 := [EMPTY_TYPE => t_0]
 
 §DEF d_0 € t_1
-	_x := EMPTY
-	§RETURN _x IF TRUE
+	_X := EMPTY
+	§RETURN _X IF TRUE

@@ -2,15 +2,15 @@
 	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 }
 
-§DEF k = 3
+§DEF K = 3
 
-§DEF x... = §DEF a € §INT => k .* a
+§DEF X... = §DEF a € §INT => K .* a
 
 §EXPORT (
-	.x 0
-	.x 1
-	.x 2
-	.x 3
-	.x 4
-	.x 5
+	.X 0
+	.X 1
+	.X 2
+	.X 3
+	.X 4
+	.X 5
 )

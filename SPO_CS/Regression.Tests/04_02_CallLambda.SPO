@@ -2,13 +2,13 @@
 	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 }
 
-§DEF k = 3
+§DEF K = 3
 
 §EXPORT (
-	.(§DEF a € §INT => (k .* a)) 0
-	.(§DEF a € §INT => (k .* a)) 1
-	.(§DEF a € §INT => (k .* a)) 2
-	.(§DEF a € §INT => (k .* a)) 3
-	.(§DEF a € §INT => (k .* a)) 4
-	.(§DEF a € §INT => (k .* a)) 5
+	.(§DEF a € §INT => (K .* a)) 0
+	.(§DEF a € §INT => (K .* a)) 1
+	.(§DEF a € §INT => (K .* a)) 2
+	.(§DEF a € §INT => (K .* a)) 3
+	.(§DEF a € §INT => (K .* a)) 4
+	.(§DEF a € §INT => (K .* a)) 5
 )

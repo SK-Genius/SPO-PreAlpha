@@ -8,5 +8,5 @@
 	r_1 := EMPTY, EMPTY
 	r_2 := 1
 	r_3 := r_1, r_2
-	_x := r_3
-	§RETURN _x IF TRUE
+	_X := r_3
+	§RETURN _X IF TRUE

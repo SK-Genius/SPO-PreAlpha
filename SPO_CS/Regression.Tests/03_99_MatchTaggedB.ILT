@@ -7,8 +7,8 @@
 
 §DEF d_0 € t_2
 	r_1 := -#_Box... ARG
-	_Value := r_1
-	§RETURN _Value IF TRUE
+	_aValue := r_1
+	§RETURN _aValue IF TRUE
 
 §DEF d_1 € t_4
 	d_0 := ENV
