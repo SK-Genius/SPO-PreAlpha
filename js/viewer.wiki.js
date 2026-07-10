@@ -772,16 +772,20 @@ function ensureWikiStyles() {
 		}
 
 		.wiki-toc ol {
-			column-width: 13rem;
-			column-gap: 1.5rem;
+			display: grid;
+			grid-auto-flow: column;
+			grid-auto-columns: 20rem;
+			column-gap: 2rem;
+			row-gap: 0.5rem;
 			list-style: none;
 			margin: 0;
+			overflow-x: auto;
 			padding: 0.95rem 1.1rem 1rem;
 		}
 
 		.wiki-toc li {
-			margin: 0 0 0.28rem;
-			break-inside: avoid;
+			min-width: 0;
+			margin: 0;
 		}
 
 		.wiki-article a {
@@ -1382,11 +1386,46 @@ function createAnchorBase(text) {
 function renderTableOfContents(headings) {
 	const nav = el("nav", { className: "wiki-toc" });
 	const list = el("ol");
+	const itemCount = headings.length;
 
 	for (const heading of headings) {
 		const link = el("a", { attrs: { href: "#" + heading.anchorId } });
 		appendInline(link, heading.inline || parseInline(heading.text), null);
 		list.append(el("li", {}, link));
+	}
+
+	{
+		const applyLayout = () => {
+			if (itemCount < 1) return;
+
+			let maxItemsPerCol = Math.ceil(Math.sqrt(itemCount));
+			const colCount = Math.ceil(itemCount / maxItemsPerCol);
+			const listStyle = getComputedStyle(list);
+			const columnWidth = parseFloat(listStyle.gridAutoColumns) || list.clientWidth;
+			const columnGap = parseFloat(listStyle.columnGap) || 0;
+			const contentWidth = list.clientWidth - (parseFloat(listStyle.paddingLeft) || 0) - (parseFloat(listStyle.paddingRight) || 0);
+			const colCountMax = Math.max(1, Math.floor((contentWidth + columnGap) / (columnWidth + columnGap)));
+
+			if (colCount > colCountMax) {
+				maxItemsPerCol = Math.ceil(itemCount / colCountMax);
+			}
+
+			list.style.gridTemplateRows = "repeat(" + maxItemsPerCol + ", auto)";
+		};
+
+		requestAnimationFrame(() => {
+			applyLayout();
+			if (typeof ResizeObserver !== "function") return;
+
+			const observer = new ResizeObserver(() => {
+				if (!nav.isConnected) {
+					observer.disconnect();
+					return;
+				}
+				applyLayout();
+			});
+			observer.observe(list);
+		});
 	}
 
 	nav.append(list);
