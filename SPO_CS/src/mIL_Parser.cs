@@ -1,10 +1,14 @@
-﻿#:include Common/mStd.cs
-#:include Common/mSpan.cs
-#:include Common/mTextStream.cs
-#:include Common/mParserGen.cs
-#:include Common/mStream.cs
-#:include mTokenizer.cs
-#:include mIL_AST.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mSpan.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mParserGen.cs
+#:ref Common/mStream.cs
+#:ref mTokenizer.cs
+#:ref mIL_AST.cs
 
 using tToken = mTokenizer.tToken;
 

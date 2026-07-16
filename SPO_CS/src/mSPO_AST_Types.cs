@@ -1,12 +1,16 @@
-﻿#:include Common/mStd.cs
-#:include Common/mAssert.cs
-#:include Common/mMaybe.cs
-#:include Common/mResult.cs
-#:include Common/mError.cs
-#:include Common/mStream.cs
-#:include mVM_Type.cs
-#:include mSPO_AST.cs
-#:include mIL_GenerateOpcodes.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mAssert.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mResult.cs
+#:ref Common/mError.cs
+#:ref Common/mStream.cs
+#:ref mVM_Type.cs
+#:ref mSPO_AST.cs
+#:ref mIL_GenerateOpcodes.cs
 
 public static class
 mSPO_AST_Types {

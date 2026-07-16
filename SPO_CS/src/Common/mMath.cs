@@ -1,4 +1,9 @@
-﻿public static class
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+
+public static class
 mMath {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tInt32

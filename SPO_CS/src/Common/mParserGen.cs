@@ -1,11 +1,15 @@
-﻿#:include mStd.cs
-#:include mStream.cs
-#:include mSpan.cs
-#:include mResult.cs
-#:include mAssert.cs
-#:include mPerf.cs
-#:include mMath.cs
-#:include mMaybe.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mStream.cs
+#:ref mSpan.cs
+#:ref mResult.cs
+#:ref mAssert.cs
+#:ref mPerf.cs
+#:ref mMath.cs
+#:ref mMaybe.cs
 
 //#define MY_TRACE_PARSER
 //#define INF_LOOP_DETECTION

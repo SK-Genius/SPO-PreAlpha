@@ -1,16 +1,20 @@
-﻿#:include Common/mStd.cs
-#:include Common/mAssert.cs
-#:include Common/mError.cs
-#:include Common/mMath.cs
-#:include Common/mMaybe.cs
-#:include Common/mResult.cs
-#:include Common/mStream.cs
-#:include Common/mTreeMap.cs
-#:include Common/mPerf.cs
-#:include Common/mArrayList.cs
-#:include mIL_AST.cs
-#:include mVM_Type.cs
-#:include mVM_Data.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mAssert.cs
+#:ref Common/mError.cs
+#:ref Common/mMath.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mResult.cs
+#:ref Common/mStream.cs
+#:ref Common/mTreeMap.cs
+#:ref Common/mPerf.cs
+#:ref Common/mArrayList.cs
+#:ref mIL_AST.cs
+#:ref mVM_Type.cs
+#:ref mVM_Data.cs
 
 //#define MY_TRACE_IL
 

@@ -1,8 +1,12 @@
-﻿#:include Common/mStd.cs
-#:include Common/mStream.cs
-#:include Common/mMaybe.cs
-#:include Common/mAssert.cs
-#:include Common/mError.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mStream.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mAssert.cs
+#:ref Common/mError.cs
 
 public static class
 mIL_AST {

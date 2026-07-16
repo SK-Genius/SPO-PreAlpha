@@ -1,8 +1,12 @@
-﻿#:include mStd.cs
-#:include mTest.cs
-#:include mAssert.cs
-#:include mArrayList.cs
-#:include mStream.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mAssert.cs
+#:ref mArrayList.cs
+#:ref mStream.cs
 
 public static class
 mArrayList_Tests {

@@ -1,8 +1,12 @@
-﻿#:include mStd.cs
-#:include mStream.cs
-#:include mConsole.cs
-#:include mPerf.cs
-#:include mError.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mStream.cs
+#:ref mConsole.cs
+#:ref mPerf.cs
+#:ref mError.cs
 
 public static class
 mTest {

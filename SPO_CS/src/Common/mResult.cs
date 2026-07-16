@@ -1,7 +1,11 @@
-﻿#:include mStd.cs
-#:include mStream.cs
-#:include mMaybe.cs
-#:include mError.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mStream.cs
+#:ref mMaybe.cs
+#:ref mError.cs
 
 public static class
 mResult {

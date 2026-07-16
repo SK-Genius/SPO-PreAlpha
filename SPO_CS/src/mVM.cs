@@ -1,16 +1,20 @@
-﻿#:include Common/mStd.cs
-#:include Common/mAssert.cs
-#:include Common/mError.cs
-#:include Common/mPerf.cs
-#:include Common/mMaybe.cs
-#:include Common/mMath.cs
-#:include Common/mStream.cs
-#:include Common/mAny.cs
-#:include Common/mArrayList.cs
-#:include Common/mTreeMap.cs
-#:include mVM_Data.cs
-#:include mIL_AST.cs
-#:include mIL_GenerateOpcodes.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mAssert.cs
+#:ref Common/mError.cs
+#:ref Common/mPerf.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mMath.cs
+#:ref Common/mStream.cs
+#:ref Common/mAny.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mTreeMap.cs
+#:ref mVM_Data.cs
+#:ref mIL_AST.cs
+#:ref mIL_GenerateOpcodes.cs
 
 public static class
 mVM {

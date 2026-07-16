@@ -1,10 +1,14 @@
-﻿#:include mStd.cs
-#:include mTest.cs
-#:include mSpan.cs
-#:include mStream.cs
-#:include mParserGen.cs
-#:include mAssert.cs
-#:include mResult.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mSpan.cs
+#:ref mStream.cs
+#:ref mParserGen.cs
+#:ref mAssert.cs
+#:ref mResult.cs
 
 public static class
 mParserGen_Tests {

@@ -1,8 +1,12 @@
-#:include mStd.cs
-#:include mMaybe.cs
-#:include mArena.cs
-#:include mArenaRef.cs
-#:include mArenaMaybeRef.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mMaybe.cs
+#:ref mArena.cs
+#:ref mArenaRef.cs
+#:ref mArenaMaybeRef.cs
 
 public static class
 mArenaStack {

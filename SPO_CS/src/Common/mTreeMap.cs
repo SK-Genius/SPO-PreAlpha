@@ -1,11 +1,15 @@
-﻿#:include mStd.cs
-#:include mAssert.cs
-#:include mError.cs
-#:include mMaybe.cs
-#:include mRef.cs
-#:include mStream.cs
-#:include mMath.cs
-#:include mArrayList.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mAssert.cs
+#:ref mError.cs
+#:ref mMaybe.cs
+#:ref mRef.cs
+#:ref mStream.cs
+#:ref mMath.cs
+#:ref mArrayList.cs
 
 public static class
 mTreeMap {

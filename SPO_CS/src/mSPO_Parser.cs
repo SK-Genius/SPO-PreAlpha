@@ -1,16 +1,20 @@
-﻿#:include Common/mStd.cs
-#:include Common/mParserGen.cs
-#:include Common/mTextStream.cs
-#:include Common/mTextParser.cs
-#:include Common/mSpan.cs
-#:include Common/mMaybe.cs
-#:include Common/mStream.cs
-#:include mTokenizer.cs
-#:include mVM_Type.cs
-#:include mIL_AST.cs
-#:include mSPO_AST.cs
-#:include mSPO2IL.cs
-#:include mSPO_Desugar.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mParserGen.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mTextParser.cs
+#:ref Common/mSpan.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mStream.cs
+#:ref mTokenizer.cs
+#:ref mVM_Type.cs
+#:ref mIL_AST.cs
+#:ref mSPO_AST.cs
+#:ref mSPO2IL.cs
+#:ref mSPO_Desugar.cs
 
 using tToken = mTokenizer.tToken;
 using tTokenType = mTokenizer.tTokenType;

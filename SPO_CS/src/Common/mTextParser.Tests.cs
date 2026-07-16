@@ -1,10 +1,14 @@
-#:include mStd.cs
-#:include mTest.cs
-#:include mAssert.cs
-#:include mTextStream.cs
-#:include mParserGen.cs
-#:include mTextParser.cs
-#:include mSpan.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mAssert.cs
+#:ref mTextStream.cs
+#:ref mParserGen.cs
+#:ref mTextParser.cs
+#:ref mSpan.cs
 
 using tPos = mTextStream.tPos;
 

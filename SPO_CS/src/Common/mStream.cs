@@ -1,7 +1,11 @@
-﻿#:include mStd.cs
-#:include mMaybe.cs
-#:include mLazy.cs
-#:include mRef.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mMaybe.cs
+#:ref mLazy.cs
+#:ref mRef.cs
 
 //#define TAIL_RECURSIVE
 

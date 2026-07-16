@@ -1,13 +1,14 @@
-﻿#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property ExperimentalFileBasedProgramEnableTransitiveDirectives = true
+﻿#!dotnet
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Exe
 #:include _GlobalUsings.cs
-#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mMaybe.cs
-#:include Common/mStream.cs
-#:include Common/mCommon.Tests.cs
-#:include mSPO.Tests.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mStream.cs
+#:ref Common/mCommon.Tests.cs
+#:ref mSPO.Tests.cs
 
 var Tests = mTest.Tests(
 	"All",

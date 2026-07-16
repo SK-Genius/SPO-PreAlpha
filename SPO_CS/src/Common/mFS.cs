@@ -1,10 +1,14 @@
-#:include mStd.cs
-#:include mRef.cs
-#:include mStream.cs
-#:include mMaybe.cs
-#:include mError.cs
-#:include mResult.cs
-#:include mArrayList.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mRef.cs
+#:ref mStream.cs
+#:ref mMaybe.cs
+#:ref mError.cs
+#:ref mResult.cs
+#:ref mArrayList.cs
 
 using System.Linq;
 

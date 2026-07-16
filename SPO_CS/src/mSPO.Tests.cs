@@ -1,15 +1,19 @@
-#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include mIL_Parser.Tests.cs
-#:include mVM_Type.Tests.cs
-#:include mVM.Tests.cs
-#:include mIL_GenerateOpcodes.Tests.cs
-#:include mSPO_AST_Types.Tests.cs
-#:include mSPO_Parser.Tests.cs
-#:include mSPO2IL.Tests.cs
-#:include mTokenizer.Tests.cs
-#:include mRegression.Tests.cs
-#:include mModule.Tests.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref mIL_GenerateOpcodes.Tests.cs
+#:ref mIL_Parser.Tests.cs
+#:ref mModule.Tests.cs
+#:ref mRegression.Tests.cs
+#:ref mSPO_AST_Types.Tests.cs
+#:ref mSPO_Parser.Tests.cs
+#:ref mSPO2IL.Tests.cs
+#:ref mTokenizer.Tests.cs
+#:ref mVM_Type.Tests.cs
+#:ref mVM.Tests.cs
 
 public static class
 mSPO_Tests {

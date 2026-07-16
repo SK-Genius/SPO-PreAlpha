@@ -1,7 +1,11 @@
-#:include mStd.cs
-#:include mTest.cs
-#:include mAssert.cs
-#:include mLazy.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mAssert.cs
+#:ref mLazy.cs
 
 public static class
 mLazy_Tests {

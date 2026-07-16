@@ -1,10 +1,14 @@
-﻿#:include Common/mStd.cs
-#:include Common/mArrayList.cs
-#:include Common/mAssert.cs
-#:include Common/mStream.cs
-#:include Common/mMaybe.cs
-#:include Common/mError.cs
-#:include mVM_Type.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mAssert.cs
+#:ref Common/mStream.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mError.cs
+#:ref mVM_Type.cs
 
 public static class
 mSPO_AST {

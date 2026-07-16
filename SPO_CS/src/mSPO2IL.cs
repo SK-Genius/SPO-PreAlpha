@@ -1,18 +1,22 @@
-﻿#:include Common/mStd.cs
-#:include Common/mAssert.cs
-#:include Common/mError.cs
-#:include Common/mTreeMap.cs
-#:include Common/mMath.cs
-#:include Common/mMaybe.cs
-#:include Common/mResult.cs
-#:include Common/mArrayList.cs
-#:include Common/mStream.cs
-#:include Common/mPerf.cs
-#:include mVM_Type.cs
-#:include mIL_AST.cs
-#:include mIL_GenerateOpcodes.cs
-#:include mSPO_AST.cs
-#:include mSPO_AST_Types.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mAssert.cs
+#:ref Common/mError.cs
+#:ref Common/mTreeMap.cs
+#:ref Common/mMath.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mResult.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mStream.cs
+#:ref Common/mPerf.cs
+#:ref mVM_Type.cs
+#:ref mIL_AST.cs
+#:ref mIL_GenerateOpcodes.cs
+#:ref mSPO_AST.cs
+#:ref mSPO_AST_Types.cs
 
 public static class
 mSPO2IL {

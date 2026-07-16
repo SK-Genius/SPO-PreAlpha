@@ -1,8 +1,12 @@
-﻿#:include mStd.cs
-#:include mStream.cs
-#:include mError.cs
-#:include mConsole.cs
-#:include mMaybe.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mStream.cs
+#:ref mError.cs
+#:ref mConsole.cs
+#:ref mMaybe.cs
 
 public static class
 mAssert {

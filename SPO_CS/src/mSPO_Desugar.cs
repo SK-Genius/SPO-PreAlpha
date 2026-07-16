@@ -1,10 +1,14 @@
-﻿#:include Common/mStd.cs
-#:include Common/mStream.cs
-#:include Common/mMaybe.cs
-#:include Common/mError.cs
-#:include Common/mAssert.cs
-#:include Common/mResult.cs
-#:include mSPO_AST.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mStream.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mError.cs
+#:ref Common/mAssert.cs
+#:ref Common/mResult.cs
+#:ref mSPO_AST.cs
 
 public static class
 mSPO_Desugar {

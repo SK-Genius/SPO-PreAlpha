@@ -1,15 +1,19 @@
-#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mStream.cs
-#:include Common/mResult.cs
-#:include Common/mAssert.cs
-#:include Common/mLazy.cs
-#:include Common/mFS.cs
-#:include mVM_Data.cs
-#:include mVM_Type.cs
-#:include mIL_Parser.cs
-#:include mSPO_Interpreter.cs
-#:include mSPO_Parser.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mStream.cs
+#:ref Common/mResult.cs
+#:ref Common/mAssert.cs
+#:ref Common/mLazy.cs
+#:ref Common/mFS.cs
+#:ref mVM_Data.cs
+#:ref mVM_Type.cs
+#:ref mIL_Parser.cs
+#:ref mSPO_Interpreter.cs
+#:ref mSPO_Parser.cs
 
 public static class
 mModule {

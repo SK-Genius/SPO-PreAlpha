@@ -1,10 +1,16 @@
-﻿using tInt8 = System.SByte;
-using tInt16 = System.Int16;
-using tInt32 = System.Int32;
-using tInt64 = System.Int64;
-
-using tChar = System.Char;
-using tText = System.String;
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:include ../../SPO_CS/src/_GlobalUsings.cs
+#:ref ../../SPO_CS/src/Common/mAssert.cs
+#:ref ../../SPO_CS/src/Common/mResult.cs
+#:ref ../../SPO_CS/src/Common/mStd.cs
+#:ref ../../SPO_CS/src/Common/mSpan.cs
+#:ref ../../SPO_CS/src/Common/mTextStream.cs
+#:ref ../../SPO_CS/src/mModule.cs
+#:ref ../../SPO_CS/src/mVM.cs
+#:ref ../../SPO_CS/src/mVM_Data.cs
+#:ref ../../SPO_CS/src/mVM_Type.cs
+#:property OutputType = Exe
 
 public static class
 mProgram {

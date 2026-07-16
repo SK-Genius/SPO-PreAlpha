@@ -1,12 +1,16 @@
-﻿#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mAssert.cs
-#:include Common/mStream.cs
-#:include Common/mTextStream.cs
-#:include Common/mParserGen.cs
-#:include Common/mTextParser.cs
-#:include Common/mSpan.cs
-#:include mTokenizer.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mAssert.cs
+#:ref Common/mStream.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mParserGen.cs
+#:ref Common/mTextParser.cs
+#:ref Common/mSpan.cs
+#:ref mTokenizer.cs
 
 using tPos = mTextStream.tPos;
 

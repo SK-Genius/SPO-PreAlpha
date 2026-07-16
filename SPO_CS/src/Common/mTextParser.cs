@@ -1,14 +1,18 @@
-﻿#:include mStd.cs
-#:include mTextStream.cs
-#:include mMath.cs
-#:include mPerf.cs
-#:include mStream.cs
-#:include mParserGen.cs
-#:include mSpan.cs
-#:include mError.cs
-#:include mAssert.cs
-#:include mResult.cs
-#:include mMaybe.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTextStream.cs
+#:ref mMath.cs
+#:ref mPerf.cs
+#:ref mStream.cs
+#:ref mParserGen.cs
+#:ref mSpan.cs
+#:ref mError.cs
+#:ref mAssert.cs
+#:ref mResult.cs
+#:ref mMaybe.cs
 
 // TODO: create a function that generate a call stack output
 

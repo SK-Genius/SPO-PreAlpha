@@ -1,7 +1,11 @@
-﻿#:include mStd.cs
-#:include mTest.cs
-#:include mAny.cs
-#:include mAssert.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mAny.cs
+#:ref mAssert.cs
 
 public static class
 mAny_Tests {

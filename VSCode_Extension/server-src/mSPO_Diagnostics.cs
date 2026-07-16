@@ -1,18 +1,18 @@
-#:include ../../SPO_CS/src/Common/mStd.cs
-#:include ../../SPO_CS/src/Common/mSpan.cs
-#:include ../../SPO_CS/src/Common/mMaybe.cs
-#:include ../../SPO_CS/src/Common/mStream.cs
-#:include ../../SPO_CS/src/Common/mResult.cs
-#:include ../../SPO_CS/src/Common/mParserGen.cs
-#:include ../../SPO_CS/src/Common/mTextStream.cs
-#:include ../../SPO_CS/src/Common/mTextParser.cs
-#:include ../../SPO_CS/src/mTokenizer.cs
-#:include ../../SPO_CS/src/mVM_Type.cs
-#:include ../../SPO_CS/src/mSPO_AST.cs
-#:include ../../SPO_CS/src/mSPO_AST_Types.cs
-#:include ../../SPO_CS/src/mSPO_Parser.cs
-#:include ../../SPO_CS/src/mSPO_Desugar.cs
-#:include ../../SPO_CS/src/mSPO2IL.cs
+#:ref ../../SPO_CS/src/Common/mStd.cs
+#:ref ../../SPO_CS/src/Common/mSpan.cs
+#:ref ../../SPO_CS/src/Common/mMaybe.cs
+#:ref ../../SPO_CS/src/Common/mStream.cs
+#:ref ../../SPO_CS/src/Common/mResult.cs
+#:ref ../../SPO_CS/src/Common/mParserGen.cs
+#:ref ../../SPO_CS/src/Common/mTextStream.cs
+#:ref ../../SPO_CS/src/Common/mTextParser.cs
+#:ref ../../SPO_CS/src/mTokenizer.cs
+#:ref ../../SPO_CS/src/mVM_Type.cs
+#:ref ../../SPO_CS/src/mSPO_AST.cs
+#:ref ../../SPO_CS/src/mSPO_AST_Types.cs
+#:ref ../../SPO_CS/src/mSPO_Parser.cs
+#:ref ../../SPO_CS/src/mSPO_Desugar.cs
+#:ref ../../SPO_CS/src/mSPO2IL.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;

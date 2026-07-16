@@ -1,9 +1,13 @@
-﻿#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mAssert.cs
-#:include mVM_Data.cs
-#:include mSPO_Interpreter.cs
-#:include mModule.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mAssert.cs
+#:ref mVM_Data.cs
+#:ref mSPO_Interpreter.cs
+#:ref mModule.cs
 
 public static class
 mModule_Tests {

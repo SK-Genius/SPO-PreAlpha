@@ -1,9 +1,13 @@
-﻿#:include mStd.cs
-#:include mTest.cs
-#:include mAssert.cs
-#:include mTreeMap.cs
-#:include mMaybe.cs
-#:include mMath.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+#:ref mStd.cs
+#:ref mTest.cs
+#:ref mAssert.cs
+#:ref mTreeMap.cs
+#:ref mMaybe.cs
+#:ref mMath.cs
 
 public static class
 mTreeMap_Tests {

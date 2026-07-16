@@ -4,11 +4,11 @@
 #:property AllowUnsafeBlocks = true
 #:property PublishAot=false
 #:property OutputPath = ../server/
-#:include _GlobalUsings.cs
-#:include LspServer.cs
-#:include mSPO_Diagnostics.cs
-#:include mSPO_Navigation.cs
-#:include SpoLanguageService.cs
+#:ref _GlobalUsings.cs
+#:ref LspServer.cs
+#:ref mSPO_Diagnostics.cs
+#:ref mSPO_Navigation.cs
+#:ref SpoLanguageService.cs
 
 
 using System.Text;

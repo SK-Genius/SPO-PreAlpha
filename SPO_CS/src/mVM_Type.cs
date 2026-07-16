@@ -1,10 +1,14 @@
-﻿#:include Common/mStd.cs
-#:include Common/mResult.cs
-#:include Common/mStream.cs
-#:include Common/mError.cs
-#:include Common/mAssert.cs
-#:include Common/mMaybe.cs
-#:include Common/mTreeMap.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mResult.cs
+#:ref Common/mStream.cs
+#:ref Common/mError.cs
+#:ref Common/mAssert.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mTreeMap.cs
 
 public static class
 mVM_Type {

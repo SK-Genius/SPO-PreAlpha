@@ -1,4 +1,10 @@
-﻿//#define MY_TRACE_PERF
+﻿﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property AllowUnsafeBlocks = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+
+//#define MY_TRACE_PERF
 
 using xCallerName = System.Runtime.CompilerServices.CallerMemberNameAttribute;
 using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;

@@ -1,4 +1,9 @@
-﻿public static class mStd {
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include ../_GlobalUsings.cs
+
+public static class mStd {
 	#region tFunc & tAction
 	
 	public delegate tRes tFunc<out tRes>();

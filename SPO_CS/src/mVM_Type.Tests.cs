@@ -1,16 +1,20 @@
-﻿#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mStream.cs
-#:include Common/mSpan.cs
-#:include Common/mResult.cs
-#:include Common/mTextStream.cs
-#:include Common/mArrayList.cs
-#:include Common/mParserGen.cs
-#:include mTokenizer.cs
-#:include mVM_Type.cs
-#:include mSPO_AST_Types.cs
-#:include mSPO_AST.cs
-#:include mSPO_Parser.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mStream.cs
+#:ref Common/mSpan.cs
+#:ref Common/mResult.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mParserGen.cs
+#:ref mTokenizer.cs
+#:ref mVM_Type.cs
+#:ref mSPO_AST_Types.cs
+#:ref mSPO_AST.cs
+#:ref mSPO_Parser.cs
 
 public static class
 mVM_Type_Tests {

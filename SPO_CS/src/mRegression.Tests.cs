@@ -1,23 +1,27 @@
-#:include Common/mStd.cs
-#:include Common/mTest.cs
-#:include Common/mAssert.cs
-#:include Common/mStream.cs
-#:include Common/mMaybe.cs
-#:include Common/mResult.cs
-#:include Common/mArrayList.cs
-#:include Common/mSpan.cs
-#:include Common/mTextStream.cs
-#:include Common/mFS.cs
-#:include mVM_Data.cs
-#:include mVM.cs
-#:include mIL_AST.cs
-#:include mIL_Parser.cs
-#:include mSPO2IL.cs
-#:include mSPO_AST.cs
-#:include mSPO_AST_Types.cs
-#:include mSPO_Parser.cs
-#:include mSPO_Interpreter.cs
-#:include mModule.cs
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mTest.cs
+#:ref Common/mAssert.cs
+#:ref Common/mStream.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mResult.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mSpan.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mFS.cs
+#:ref mVM_Data.cs
+#:ref mVM.cs
+#:ref mIL_AST.cs
+#:ref mIL_Parser.cs
+#:ref mSPO2IL.cs
+#:ref mSPO_AST.cs
+#:ref mSPO_AST_Types.cs
+#:ref mSPO_Parser.cs
+#:ref mSPO_Interpreter.cs
+#:ref mModule.cs
 
 public static class
 mRegression_Tests {

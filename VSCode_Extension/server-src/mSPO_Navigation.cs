@@ -1,11 +1,11 @@
-#:include ../../SPO_CS/src/Common/mStd.cs
-#:include ../../SPO_CS/src/Common/mMaybe.cs
-#:include ../../SPO_CS/src/Common/mStream.cs
-#:include ../../SPO_CS/src/Common/mSpan.cs
-#:include ../../SPO_CS/src/Common/mTextParser.cs
-#:include ../../SPO_CS/src/Common/mTextStream.cs
-#:include ../../SPO_CS/src/mSPO_AST.cs
-#:include ../../SPO_CS/src/mSPO_Parser.cs
+#:ref ../../SPO_CS/src/Common/mStd.cs
+#:ref ../../SPO_CS/src/Common/mMaybe.cs
+#:ref ../../SPO_CS/src/Common/mStream.cs
+#:ref ../../SPO_CS/src/Common/mSpan.cs
+#:ref ../../SPO_CS/src/Common/mTextParser.cs
+#:ref ../../SPO_CS/src/Common/mTextStream.cs
+#:ref ../../SPO_CS/src/mSPO_AST.cs
+#:ref ../../SPO_CS/src/mSPO_Parser.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;

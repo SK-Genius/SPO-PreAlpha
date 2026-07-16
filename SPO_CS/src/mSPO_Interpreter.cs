@@ -1,21 +1,25 @@
-﻿#:include Common/mStd.cs
-#:include Common/mSpan.cs
-#:include Common/mMaybe.cs
-#:include Common/mResult.cs
-#:include Common/mStream.cs
-#:include Common/mTextStream.cs
-#:include Common/mArrayList.cs
-#:include Common/mParserGen.cs
-#:include mTokenizer.cs
-#:include mVM_Type.cs
-#:include mVM_Data.cs
-#:include mVM.cs
-#:include mIL_AST.cs
-#:include mSPO2IL.cs
-#:include mSPO_AST.cs
-#:include mSPO_AST_Types.cs
-#:include mSPO_Parser.cs
-#:include mSPO_Desugar.cs
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property OutputType = Library
+#:include _GlobalUsings.cs
+#:ref Common/mStd.cs
+#:ref Common/mSpan.cs
+#:ref Common/mMaybe.cs
+#:ref Common/mResult.cs
+#:ref Common/mStream.cs
+#:ref Common/mTextStream.cs
+#:ref Common/mArrayList.cs
+#:ref Common/mParserGen.cs
+#:ref mTokenizer.cs
+#:ref mVM_Type.cs
+#:ref mVM_Data.cs
+#:ref mVM.cs
+#:ref mIL_AST.cs
+#:ref mSPO2IL.cs
+#:ref mSPO_AST.cs
+#:ref mSPO_AST_Types.cs
+#:ref mSPO_Parser.cs
+#:ref mSPO_Desugar.cs
 
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
