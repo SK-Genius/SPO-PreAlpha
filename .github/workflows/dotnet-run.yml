@@ -1,63 +1,62 @@
 name: .NET CI + Coverage + SonarCloud
 
 on:
-	push:
-		branches: [ Main ]
-	
-	workflow_dispatch:
+  push:
+    branches: [ Main ]
+  
+  workflow_dispatch:
 
 env:
-	BUILD_VERSION: 0.0.0-alpha.${{ github.run_number }}
+  BUILD_VERSION: 0.0.0-alpha.${{ github.run_number }}
 
 jobs:
-	run:
-		runs-on: windows-latest
-		steps:
-			-
-				name: Checkout repository
-				uses: actions/checkout@v4
-			-
-				name: Setup .NET SDK
-				uses: actions/setup-dotnet@v4
-				with:
-					dotnet-version: 11.0.100-preview.4.26230.115
-			-
-				name: sonarscanner begin
-				continue-on-error: true
-				run: >
-					dnx dotnet-sonarscanner begin
-					/o:"sk-genius"
-					/k:"SK-Genius_SPO-PreAlpha"
-					/d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-					/d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
-			-
-				name: dotnet-coverage xml for SonarCloud
-				continue-on-error: true
-				run: >
-					dnx dotnet-coverage collect
-					"dotnet build SPO_CS/src/mRunTests.cs"
-					-f xml
-					-o coverage.xml
-			-
-				name: sonarscanner end
-				continue-on-error: true
-				run: >
-					dnx dotnet-sonarscanner end
-					/d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-			-
-				name: dotnet-coverage dotnet-coverage for Codecov
-				continue-on-error: true
-				run: >
-					dotnet-coverage collect
-					"dotnet SPO_CS/src/mRunTests.cs"
-					-f c
-			-
-				name: Upload coverage to Codecov
-				continue-on-error: true
-				uses: codecov/codecov-action@v4
-				with:
-					files: output.cobertura.xml
-					token: ${{ secrets.CODECOV_TOKEN }}
-					flags: ${{ env.BUILD_VERSION }}
-				env:
-					CI: true
+  run:
+    runs-on: windows-latest
+    steps:
+      -
+        name: Checkout repository
+        uses: actions/checkout@v4
+      -
+        name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 11.0.100-preview.6.26359.118
+      -
+        name: sonarscanner begin
+        continue-on-error: true
+        run: >
+          dnx dotnet-sonarscanner begin
+          /o:"sk-genius"
+          /k:"SK-Genius_SPO-PreAlpha"
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+      -
+        name: build for SonarCloud
+        continue-on-error: true
+        run: >
+          dnx dotnet-coverage collect
+          "dotnet build SPO_CS/src/mRunTests.cs"
+      -
+        name: sonarscanner end
+        continue-on-error: true
+        run: >
+          dnx dotnet-sonarscanner end
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      -
+        name: dotnet-coverage for Codecov
+        continue-on-error: true
+        run: >
+          dnx dotnet-coverage collect
+          "dotnet SPO_CS/src/mRunTests.cs"
+          -f cobertura
+          -o output.cobertura.xml
+      -
+        name: Upload coverage to Codecov
+        continue-on-error: true
+        uses: codecov/codecov-action@v4
+        with:
+          files: output.cobertura.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ env.BUILD_VERSION }}
+        env:
+          CI: true
