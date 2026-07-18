@@ -514,6 +514,16 @@ mSPO_Parser {
 	.Modify(mStream.Stream)
 	.ModifyS(mSPO_AST.SetType)
 	.SetName(nameof(SetType));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tGuardedTypeNode<tSpan>, tError>
+	GuardedType = E(
+		mParserGen.Seq(
+			TypeInTuple,
+			(-(NLs_Token[0..1] +-SpecialToken("&") +-NLs_Token[0..1]) +Id)[1..]
+		).Modify((aType, aGuards) => (BaseType: aType, Guards: aGuards))
+	)
+	.ModifyS(mSPO_AST.GuardedType)
+	.SetName(nameof(GuardedType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaTypeNode<tSpan>, tError>
 	LambdaType = (
@@ -807,6 +817,7 @@ mSPO_Parser {
 					TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					PairType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TupleType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					GuardedType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					E( TypeInTuple ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					//C( PipeExpression | Expression ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
 				]
@@ -899,5 +910,4 @@ mSPO_Parser {
 		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
 	) => $"{mTextParser.ToText(a.Pos)}: {a.ErrorText}";
 }
-
 

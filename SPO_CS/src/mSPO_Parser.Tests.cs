@@ -463,6 +463,28 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
+			mTest.Test("GuardedType",
+				aStreamOut => {
+					mAssert.AreEquals(
+						mSPO_Parser.Type.ParseText(
+							"[§INT & isPositive & isEven]",
+							"",
+							_ => { aStreamOut(_()); }
+						),
+						mSPO_AST.GuardedType(
+							Span((1, 1), (1, 28)),
+							mSPO_AST.IntType(Span((1, 2), (1, 5))),
+							mStream.Stream<mSPO_AST.tIdNode<tSpan>>(
+								[
+									mSPO_AST.Id(Span((1, 9), (1, 18)), "isPositive"),
+									mSPO_AST.Id(Span((1, 22), (1, 27)), "isEven")
+								]
+							)
+						),
+						mSPO_AST.AreEqual
+					);
+				}
+			),
 			mTest.Test("Record",
 				aStreamOut => {
 					mAssert.AreEquals(
