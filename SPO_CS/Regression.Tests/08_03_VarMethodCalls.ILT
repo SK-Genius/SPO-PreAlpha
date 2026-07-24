@@ -1,0 +1,68 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => INT]
+	t_3 := [INT => EMPTY_TYPE]
+	t_4 := [§VAR INT]
+	t_5 := [t_4 : t_3]
+	t_6 := [t_2 => t_5]
+	t_7 := [EMPTY_TYPE, t_6]
+	t_8 := [t_7, t_6]
+	t_9 := [#_...*... t_2]
+	t_10 := [{EMPTY_TYPE} + t_9]
+	t_11 := [#_...+... t_2]
+	t_12 := [{t_10} + t_11]
+	t_13 := [t_12 => INT]
+	t_14 := [t_8 => t_13]
+
+§DEF d_0 € t_6
+	_...+... := ENV
+	_i := ARG
+	_o := OBJ
+	r_1 := §VAR _o ->
+	r_2 := EMPTY, r_1
+	r_3 := r_2, _i
+	r_4 := ._...+... r_3
+	§VAR _o <- r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_6
+	_...*... := ENV
+	_i := ARG
+	_o := OBJ
+	r_1 := §VAR _o ->
+	r_2 := EMPTY, r_1
+	r_3 := r_2, _i
+	r_4 := ._...*... r_3
+	§VAR _o <- r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_14
+	d_1 := §2ND ENV
+	r_15 := §1ST ENV
+	d_0 := §2ND r_15
+	r_16 := §1ST r_15
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := {ARG} #_...*...
+	_...*... := r_2
+	r_3 := .d_0 _...+...
+	_+... := r_3
+	r_4 := .d_1 _...*...
+	_*... := r_4
+	r_5 := 1
+	_x := §VAR r_5
+	r_6 := 3
+	r_7 := _x, _+...
+	EMPTY := §OBJ:r_7 r_6
+	r_8 := 2
+	r_9 := _x, _*...
+	EMPTY := §OBJ:r_9 r_8
+	r_10 := 3
+	r_11 := _x, _+...
+	EMPTY := §OBJ:r_11 r_10
+	r_12 := 2
+	r_13 := _x, _*...
+	EMPTY := §OBJ:r_13 r_12
+	r_14 := §VAR _x ->
+	§RETURN r_14 IF TRUE

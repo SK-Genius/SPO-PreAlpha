@@ -1,0 +1,37 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => INT]
+	t_3 := [INT => EMPTY_TYPE]
+	t_4 := [§VAR INT]
+	t_5 := [t_4 : t_3]
+	t_6 := [t_2 => t_5]
+	t_7 := [#_...+... t_2]
+	t_8 := [{EMPTY_TYPE} + t_7]
+	t_9 := [t_8 => INT]
+	t_10 := [t_6 => t_9]
+
+§DEF d_0 € t_6
+	_...+... := ENV
+	_a := ARG
+	_o := OBJ
+	r_1 := §VAR _o ->
+	r_2 := EMPTY, r_1
+	r_3 := r_2, _a
+	r_4 := ._...+... r_3
+	§VAR _o <- r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_10
+	d_0 := ENV
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := .d_0 _...+...
+	_Add... := r_2
+	r_3 := 1
+	_X := §VAR r_3
+	r_4 := 2
+	r_5 := _X, _Add...
+	EMPTY := §OBJ:r_5 r_4
+	r_6 := §VAR _X ->
+	§RETURN r_6 IF TRUE

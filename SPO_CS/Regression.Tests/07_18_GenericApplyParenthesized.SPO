@@ -1,0 +1,4 @@
+§DEF tMaybe... = [§GENERIC t [t | []]]
+§DEF X € [.(tMaybe...) §INT] = ()
+§DEF Y € [.(tMaybe...) §INT] = 1
+§EXPORT (X, Y)

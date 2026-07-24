@@ -1,0 +1,27 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => INT]
+	t_3 := [#_...+... t_2]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [t_4 => INT]
+	t_6 := [EMPTY_TYPE => t_5]
+
+§DEF d_0 € t_6
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := 1
+	r_3 := EMPTY, r_2
+	r_4 := 2
+	r_5 := r_3, r_4
+	r_6 := ._...+... r_5
+	r_7 := EMPTY, r_6
+	r_8 := 3
+	r_9 := r_7, r_8
+	r_10 := ._...+... r_9
+	r_11 := EMPTY, r_10
+	r_12 := 4
+	r_13 := r_11, r_12
+	r_14 := ._...+... r_13
+	_X := r_14
+	§RETURN _X IF TRUE

@@ -1,0 +1,25 @@
+§TYPES
+	t_0 := [INT => INT]
+	t_1 := [§VAR INT]
+	t_2 := [t_1 : t_0]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE => INT]
+	t_5 := [t_3 => t_4]
+
+§DEF d_0 € t_3
+	_a := ARG
+	_o := OBJ
+	§RETURN _a IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_5
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	_Get... := r_1
+	r_2 := 0
+	_X := §VAR r_2
+	r_3 := 42
+	r_5 := _X, _Get...
+	r_4 := §OBJ:r_5 r_3
+	_Result := r_4
+	§RETURN _Result IF TRUE

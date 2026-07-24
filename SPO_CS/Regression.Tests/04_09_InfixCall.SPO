@@ -1,0 +1,5 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§EXPORT 1 .+ 2

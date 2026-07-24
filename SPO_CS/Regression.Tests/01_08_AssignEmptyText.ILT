@@ -1,0 +1,7 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => EMPTY_TYPE]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	_X := EMPTY
+	§RETURN _X IF TRUE

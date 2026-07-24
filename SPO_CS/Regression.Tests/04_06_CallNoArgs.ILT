@@ -1,0 +1,16 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [t_1 => t_0]
+
+§DEF d_0 € t_1
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 1
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_2
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	_F := r_1
+	r_2 := ._F EMPTY
+	§RETURN r_2 IF TRUE

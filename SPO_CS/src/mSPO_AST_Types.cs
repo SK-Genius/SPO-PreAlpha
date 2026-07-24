@@ -811,20 +811,7 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tTextTypeNode<tPos>: {
-				var FreeType = mVM_Type.Free();
-				Result = mVM_Type.Recursive(
-					FreeType,
-					mVM_Type.Set(
-						mVM_Type.Empty(),
-						mVM_Type.Pair(
-							FreeType,
-							mVM_Type.Prefix(
-								"_Char...",
-								mVM_Type.Int()
-							)
-						)
-					)
-				);
+				Result = mVM_Type.Text();
 				break;
 			}
 			case mSPO_AST.tTypeTypeNode<tPos>: {
@@ -872,10 +859,12 @@ mSPO_AST_Types {
 				);
 				break;
 			}
-			case mSPO_AST.tLambdaTypeNode<tPos> LambdaType: {
-				Result = LambdaType.ArgType.AsVM_Type(aScope).ThenTry(
-					aArgType => LambdaType.ResType.AsVM_Type(aScope).Then(
-						aResType => mVM_Type.Proc(mVM_Type.Empty(), aArgType, aResType)
+			case mSPO_AST.tProcTypeNode<tPos> ProcType: {
+				Result = ProcType.ObjType.AsVM_Type(aScope).ThenTry(
+					aObjType => ProcType.ArgType.AsVM_Type(aScope).ThenTry(
+						aArgType => ProcType.ResType.AsVM_Type(aScope).Then(
+							aResType => mVM_Type.Proc(aObjType, aArgType, aResType)
+						)
 					)
 				);
 				break;

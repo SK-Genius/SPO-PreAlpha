@@ -664,22 +664,8 @@ mSPO2IL {
 				);
 				return CharReg;
 			}
-			case mSPO_AST.tTextNode<tPos> { Pos: var Pos, Value: var Value }: {
-				var TailReg = mIL_AST.cEmptyValue;
-				var Index = Value.Length;
-				while (Index --> 0) {
-					var Char = Value[Index];
-					aDefConstructor.Commands.Push(
-						[
-							mIL_AST.CreateInt(Pos, aDefConstructor.CreateTempReg(out var CharOrdReg), ((tInt32)Char).ToString()),
-							mIL_AST.AddPrefix(Pos, aDefConstructor.CreateTempReg(out var HeadReg), "_Char...", CharOrdReg),
-							mIL_AST.CreatePair(Pos, aDefConstructor.CreateTempReg(out var TextReg), TailReg, HeadReg)
-						]
-					);
-					TailReg = TextReg;
-				}
-				return TailReg;
-			}
+			case mSPO_AST.tTextNode<tPos>:
+				throw mError.Error("text node should already be desugared");
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
 				var LambdaDef = NewDefConstructor<tPos>();
 				
@@ -1029,6 +1015,9 @@ mSPO2IL {
 				);
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
+			}
+			case mSPO_AST.tProcTypeNode<tPos> { Pos: var Pos, ObjType: var EnvType, ArgType: var ArgType, ResType: var ResType, TypeAnnotation: var TypeAnnotation }: {
+				throw new System.NotImplementedException(nameof(mSPO_AST.tProcTypeNode<>));
 			}
 			case mSPO_AST.tGenericTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, BodyType: var BodyType, TypeAnnotation: var Type }: {
 				mAssert.IsFalse(aDefConstructor.EnvIds.ToStream().Any(__ => __ == HeadType.Id));

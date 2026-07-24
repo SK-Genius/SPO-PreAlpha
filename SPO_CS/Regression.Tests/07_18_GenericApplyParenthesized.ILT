@@ -1,0 +1,18 @@
+§TYPES
+	t_0 := [EMPTY_TYPE | INT]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [t_1, t_0]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+
+§DEF d_0 € t_4
+	_t := [§FREE]
+	r_1 := [EMPTY_TYPE | _t]
+	r_2 := [§ALL _t => r_1]
+	_tMaybe... := r_2
+	_X := EMPTY
+	r_3 := 1
+	_Y := r_3
+	r_4 := EMPTY, _X
+	r_5 := r_4, _Y
+	§RETURN r_5 IF TRUE

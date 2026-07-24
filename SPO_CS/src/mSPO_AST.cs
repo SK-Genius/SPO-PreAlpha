@@ -369,10 +369,10 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tLambdaTypeNode<tPos> : tTypeNode<tPos> {
+	tProcTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tTypeNode<tPos> EnvType = default!;
+		public tTypeNode<tPos> ObjType = default!;
 		public tTypeNode<tPos> ArgType = default!;
 		public tTypeNode<tPos> ResType = default!;
 	}
@@ -720,15 +720,15 @@ mSPO_AST {
 		Expressions = aTypes,
 	};
 	
-	public static tLambdaTypeNode<tPos>
-	LambdaType<tPos>(
+	public static tProcTypeNode<tPos>
+	ProcType<tPos>(
 		tPos aPos,
-		tTypeNode<tPos> aEnvType,
+		tTypeNode<tPos> aObjType,
 		tTypeNode<tPos> aArgType,
 		tTypeNode<tPos> aResType
 	) => new() {
 		Pos = aPos,
-		EnvType = aEnvType,
+		ObjType = aObjType,
 		ArgType = aArgType,
 		ResType = aResType,
 	};
@@ -1305,7 +1305,7 @@ mSPO_AST {
 			case tSetTypeNode<tPos>: {
 				break;
 			}
-			case tLambdaTypeNode<tPos>: {
+			case tProcTypeNode<tPos>: {
 				break;
 			}
 			case tRecursiveTypeNode<tPos>: {
@@ -1474,10 +1474,12 @@ mSPO_AST {
 			tIntTypeNode<t> Node => "§INT",
 			tCharTypeNode<t> Node => "§CHAR",
 			tTextTypeNode<t> Node => "§TEXT",
-			tLambdaTypeNode<t> Node => (Node.EnvType, Node.ArgType, Node.ResType) switch {
+			tProcTypeNode<t> Node => (Node.ObjType, Node.ArgType, Node.ResType) switch {
 				(tEmptyTypeNode<t> _, tEmptyTypeNode<t> _, var ResType) => $"[=> {ResType.ToText(____)}]]",
-				(tEmptyTypeNode<t> _, var ArgType, var ResType) => $"[{____}{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]",
-				(var EnvType, var ArgType, var ResType) => $"[{____}{EnvType.ToText(____)} => [{ArgType.ToText(____)} => {ResType.ToText(____)}{__}]]",
+				(tEmptyTypeNode<t> _, var ArgType, var ResType) => $"[{____}{ArgType.ToText (____)} => {ResType.ToText(____)}{__}]",
+				(var ObjType, tEmptyTypeNode<t> _, var ResType) => $"[{____}{ObjType.ToText(____)} : => {ResType.ToText(____)}]]",
+				(var ObjType, var ArgType, tEmptyTypeNode<t> _) => $"[{____}{ObjType.ToText(____)} : {____}{ArgType.ToText (____)}]",
+				(var ObjType, var ArgType, var ResType) => $"[{____}{ObjType.ToText(____)} : {ArgType.ToText(____)} => {ResType.ToText(____)}{__}]",
 			},
 			tTypeTypeNode<t> Node => "§TYPE",
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",

@@ -1,0 +1,4 @@
+§DEF X € §TEXT = "
+	|A
+"
+§EXPORT X

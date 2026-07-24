@@ -1,0 +1,15 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [#_...Jun... t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+
+§DEF d_0 € t_4
+	r_1 := 4
+	r_2 := EMPTY, r_1
+	r_3 := 2026
+	r_4 := r_2, r_3
+	r_5 := +#_...Jun... r_4
+	_Date := r_5
+	§RETURN _Date IF TRUE

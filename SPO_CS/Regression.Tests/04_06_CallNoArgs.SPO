@@ -1,0 +1,2 @@
+§DEF F = () => 1
+§EXPORT .F

@@ -1,0 +1,15 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§DEF Add... € [[§VAR §INT] : §INT => []] = (
+	§VAR o € §INT
+) : (
+	§DEF a € §INT
+) {
+	o := ((§TO_VAL o) .+ a) .
+}
+
+§VAR X := 1, Add 2 .
+
+§EXPORT §TO_VAL X

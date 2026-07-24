@@ -363,31 +363,23 @@ mSPO_Parser {
 	.SetName(nameof(PrefixPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordNode<tSpan>, tError>
-	Record = (
+	Record = mParserGen.Seq(
+		SpecialToken("{") +-NLs_Token[0..1],
 		mParserGen.Seq(
-			SpecialToken("{") +-NLs_Token[0..1],
-			mParserGen.Seq(
-				Id,
-				SpecialToken(":"),
-				Expression
-			).Modify((aId, _, aExpression) => (Key: aId, Value: aExpression)),
-			mParserGen.Seq(
-				-SpecialToken(",") | -NLs_Token,
-				Id,
-				SpecialToken(":"),
-				Expression
-			).Modify((_, aId, _, aExpression) => (Key: aId, Value: aExpression))[0..],
-			-NLs_Token[0..1] +SpecialToken("}")
-		)
-		.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
-		.ModifyS(mSPO_AST.Record) |
+			Id,
+			SpecialToken(":"),
+			Expression
+		).Modify((aId, _, aExpression) => (Key: aId, Value: aExpression)),
 		mParserGen.Seq(
-			SpecialToken("{"),
-			NLs_Token[0..1],
-			SpecialToken("}")
-		)
-		.ModifyS((aSpan, _) => mSPO_AST.Record(aSpan, []))
+			-SpecialToken(",") | -NLs_Token,
+			Id,
+			SpecialToken(":"),
+			Expression
+		).Modify((_, aId, _, aExpression) => (Key: aId, Value: aExpression))[0..],
+		-NLs_Token[0..1] +SpecialToken("}")
 	)
+	.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
+	.ModifyS(mSPO_AST.Record)
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordPatternNode<tSpan>, tError>
@@ -515,8 +507,8 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.SetType)
 	.SetName(nameof(SetType));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaTypeNode<tSpan>, tError>
-	LambdaType = (
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tProcTypeNode<tSpan>, tError>
+	ProcType = (
 		mParserGen.Seq(
 			Type,
 			SpecialToken(":"),
@@ -546,8 +538,8 @@ mSPO_Parser {
 			)
 		)
 	)
-	.ModifyS(mSPO_AST.LambdaType)
-	.SetName(nameof(LambdaType));
+	.ModifyS(mSPO_AST.ProcType)
+	.SetName(nameof(ProcType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecursiveTypeNode<tSpan>, tError>
 	RecursiveType = (
@@ -775,7 +767,7 @@ mSPO_Parser {
 				[
 					PrefixType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					VarType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
-					LambdaType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					ProcType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					RecursiveType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					InterfaceType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					GenericType.Cast<mSPO_AST.tTypeNode<tSpan>>(),

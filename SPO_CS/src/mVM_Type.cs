@@ -796,7 +796,7 @@ mVM_Type {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Any: {
-				throw new System.NotImplementedException();
+				return aTypeMappings;
 			}
 			case tKind.Empty:
 			case tKind.Bool:

@@ -1,0 +1,4 @@
+§EXPORT §IF §A MATCH {
+	§A : 1
+	_ : 0
+}

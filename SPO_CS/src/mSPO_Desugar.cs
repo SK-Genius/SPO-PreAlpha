@@ -23,13 +23,13 @@ mSPO_Desugar {
 			(mSPO_AST.tTypeNode<tPos>)mSPO_AST.EmptyType(Node.Pos),
 			(aAccu, aDesugaredItem) => mSPO_AST.PairType(Node.Pos, aAccu, aDesugaredItem)
 		),
+		mSPO_AST.tCharTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tTextTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tSetTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tVarTypeNode<tPos> Node => Node, // TODO
-		mSPO_AST.tLambdaTypeNode<tPos> Node => Node, // TODO
+		mSPO_AST.tProcTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tPrefixTypeNode<tPos> Node => Node, // TODO
-		mSPO_AST.tGenericTypeNode<tPos> Node => Node,
-		 // TODO
+		mSPO_AST.tGenericTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tInterfaceTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecursiveTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericApplyTypeNode<tPos> Node => Node, // TODO
@@ -37,7 +37,6 @@ mSPO_Desugar {
 		mSPO_AST.tEmptyTypeNode<tPos> Node => Node,
 		mSPO_AST.tBoolTypeNode<tPos> Node => Node,
 		mSPO_AST.tIntTypeNode<tPos> Node => Node,
-		mSPO_AST.tCharTypeNode<tPos> Node => Node,
 		mSPO_AST.tTypeTypeNode<tPos> Node => Node,
 		_ => throw new System.NotImplementedException(aType.GetType().Name)
 	};
@@ -61,6 +60,7 @@ mSPO_Desugar {
 	) => aPattern switch {
 		mSPO_AST.tTypedPatternNode<tPos> Pattern
 		=> Pattern.DesugarTypedPattern().Then(__ => (mSPO_AST.tPatternNode<tPos>)__),
+		
 		mSPO_AST.tGuardPatternNode<tPos> Pattern
 		=> Pattern.Pattern.DesugarPattern().ThenTry(
 			aDesugaredPattern => Pattern.Guard.DesugarExpression().Then(
@@ -71,6 +71,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
+		
 		mSPO_AST.tPairPatternNode<tPos> Pattern
 		=> Pattern.Tail.DesugarPattern().ThenTry(
 			aDesugaredTail => Pattern.Head.DesugarPattern().Then(
@@ -81,6 +82,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Pattern.TypeAnnotation; })
 			)
 		),
+		
 		mSPO_AST.tPrefixPatternNode<tPos> Pattern 
 		=> Pattern.Pattern.DesugarPattern().Then(
 			aDesugaredPattern => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(
@@ -89,6 +91,7 @@ mSPO_Desugar {
 				aDesugaredPattern
 			).Do(__ => { __.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
+		
 		mSPO_AST.tRecordPatternNode<tPos> Pattern
 		=> Pattern.Elements.Map(
 			aElement => aElement.Pattern.DesugarPattern().Then(
@@ -100,36 +103,53 @@ mSPO_Desugar {
 				aDesugaredElements
 			).Do(__ => { __.TypeAnnotation = Pattern.TypeAnnotation; })
 		),
+		
 		mSPO_AST.tTuplePatternNode<tPos> Pattern
 		=> Pattern.Items.Map(
 			DesugarPattern
 		).WhenAllThen(
-			aDesugaredItems => (mSPO_AST.tPatternNode<tPos>)aDesugaredItems.Reduce(
+			aDesugaredItems => aDesugaredItems.Reduce(
 				(mSPO_AST.tPatternNode<tPos>)mSPO_AST.Empty(Pattern.Pos),
-				(aAccu, aDesugaredItem) => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PairPattern(Pattern.Pos, aAccu, aDesugaredItem)
+				(aAccu, aDesugaredItem) => mSPO_AST.PairPattern(Pattern.Pos, aAccu, aDesugaredItem)
 			).Do(
 				__ => { __.TypeAnnotation = Pattern.TypeAnnotation; }
 			)
 		),
+		
 		mSPO_AST.tTextNode<tPos> Pattern
-		=> mSPO_AST.TuplePattern(
-			Pattern.Pos,
+		=> mResult.OK(
 			mStream.Stream(
-				Pattern.Value.ToCharArray()
-			).Map(
-				__ => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(Pattern.Pos, "_Char...", mSPO_AST.Int(Pattern.Pos, (tInt32)__))
-			)
+			Pattern.Value.ToCharArray()
+		).Map(
+			__ => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.PrefixPattern(Pattern.Pos, "_Char...", mSPO_AST.Int(Pattern.Pos, __))
+		).Reduce(
+			(mSPO_AST.tPatternNode<tPos>)mSPO_AST.Empty(Pattern.Pos),
+			(aTail, aHead) => mSPO_AST.PairPattern(Pattern.Pos, aTail, aHead)
 		).Do(
 			__ => { __.TypeAnnotation = Pattern.TypeAnnotation; }
-		).DesugarPattern(
+			)
 		),
+		
+		mSPO_AST.tCharNode<tPos> Pattern
+		=> mSPO_AST.PrefixPattern(
+			Pattern.Pos,
+			"_Char...",
+			mSPO_AST.Int(Pattern.Pos, Pattern.Value)
+		).Do(
+			__ => { __.TypeAnnotation = Pattern.TypeAnnotation; }
+		),
+		
 		mSPO_AST.tLiteralNode<tPos> Pattern
 		=> mResult.OK(
 			(mSPO_AST.tPatternNode<tPos>)Pattern
 		),
+		
 		mSPO_AST.tFreeIdPatternNode<tPos> Pattern => Pattern,
+		
 		mSPO_AST.tVarPatternNode<tPos> Pattern => Pattern,
+		
 		mSPO_AST.tIgnorePatternNode<tPos> Pattern => Pattern,
+		
 		_ => throw new System.NotImplementedException(aPattern.GetType().FullName),
 	};
 	
@@ -148,6 +168,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Type; })
 			)
 		),
+		
 		mSPO_AST.tMethodNode<tPos> { Pos: var Pos, Obj: var Obj, Arg: var Arg, Body: var Body, TypeAnnotation: var Type }
 		=> Body.DesugarExpression().ThenTry(
 			aDesugaredBody => Obj.DesugarPattern().ThenTry(
@@ -161,6 +182,7 @@ mSPO_Desugar {
 				)
 			)
 		),
+		
 		mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }
 		=> Obj.DesugarExpression().Then(
 			aDesugaredObj => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.VarToVal(
@@ -168,6 +190,7 @@ mSPO_Desugar {
 				aDesugaredObj
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }
 		=> Func.DesugarExpression().ThenTry(
 			aDesugaredFunc => Arg.DesugarExpression().Then(
@@ -178,6 +201,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Type; })
 			)
 		),
+		
 		mSPO_AST.tPrefixNode<tPos> { Pos: var Pos, Prefix: var Prefix, Element: var Element, TypeAnnotation: var Type }
 		=> Element.DesugarExpression().Then(
 			aDesugaredElement => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Prefix(
@@ -186,6 +210,7 @@ mSPO_Desugar {
 				aDesugaredElement
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tTupleNode<tPos> { Pos: var Pos, Items: var Items, TypeAnnotation: var Type }
 		=> Items.Map(DesugarExpression).WhenAllThen(
 			aDesugaredItems => mSPO_AST.Tuple(
@@ -193,6 +218,7 @@ mSPO_Desugar {
 				aDesugaredItems
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }
 		=> Tail.DesugarExpression().ThenTry(
 			aDesugaredTail => Head.DesugarExpression().Then(
@@ -203,6 +229,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Type; })
 			)
 		),
+		
 		mSPO_AST.tRecordNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }
 		=> Elements.Map(
 			aElement => aElement.Value.DesugarExpression().Then(
@@ -214,6 +241,7 @@ mSPO_Desugar {
 				aDesugaredElements
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases, TypeAnnotation: var Type }
 		=> Cases.Map(
 			aCase => aCase.Cond.DesugarExpression().ThenTry(
@@ -227,6 +255,7 @@ mSPO_Desugar {
 				aDesugaredCases
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tIfMatchNode<tPos> { Pos: var Pos, Expression: var Expr, Cases: var Cases, TypeAnnotation: var Type }
 		=> Expr.DesugarExpression().ThenTry(
 			aDesugaredExpr => Cases.Map(
@@ -243,6 +272,7 @@ mSPO_Desugar {
 				).Do(__ => { __.TypeAnnotation = Type; })
 			)
 		),
+		
 		mSPO_AST.tIsNode<tPos> { Pos: var Pos, Expression: var Expression, Pattern: var Pattern, TypeAnnotation: var Type }
 		=> mSPO_AST.IfMatch(
 			Pos,
@@ -255,10 +285,11 @@ mSPO_Desugar {
 			__ => { __.TypeAnnotation = Type; }
 		).DesugarExpression(
 		),
+		
 		mSPO_AST.tPipeToRightNode<tPos> { Pos: var Pos, Head: var Head, Pipe: var Pipe, TypeAnnotation: var TypeAnnotation }
 		=> mStd.Call(
 			() => {
-				var Result = (mSPO_AST.tExpressionNode<tPos>)Head;
+				var Result = Head;
 				
 				foreach (var Left in Pipe) {
 					if (Left is not mSPO_AST.tCallNode<tPos> Call) {
@@ -295,10 +326,11 @@ mSPO_Desugar {
 				return Result.DesugarExpression();
 			}
 		),
+		
 		mSPO_AST.tPipeToLeftNode<tPos> { Pos: var Pos, Head: var Head, Pipe: var Pipe, TypeAnnotation: var TypeAnnotation }
 		=> mStd.Call(
 			() => {
-				var Result = (mSPO_AST.tExpressionNode<tPos>)Head;
+				var Result = Head;
 				
 				foreach (var Left in Pipe) {
 					if (Left is not mSPO_AST.tCallNode<tPos> Call) {
@@ -332,6 +364,7 @@ mSPO_Desugar {
 				return Result.DesugarExpression();
 			}
 		),
+		
 		mSPO_AST.tBlockNode<tPos> { Pos: var Pos, Commands: var Commands, TypeAnnotation: var Type }
 		=> Commands.Map(DesugarCommand).WhenAllThen(
 			aDesugaredCommands => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Block(
@@ -339,28 +372,37 @@ mSPO_Desugar {
 				aDesugaredCommands
 			).Do(__ => { __.TypeAnnotation = Type; })
 		),
+		
 		mSPO_AST.tTextNode<tPos> Node
 		=> mResult.OK(
-			mSPO_AST.Tuple(
-				Node.Pos,
-				mStream.Stream(
-					Node.Value.ToCharArray()
-				).Map(
-					__ => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Prefix(
-						Node.Pos,
-						"_Char...",
-						mSPO_AST.Int(Node.Pos, (tInt32)__)
-					)
+			mStream.Stream(
+				Node.Value.ToCharArray()
+			).Map(
+				__ => (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Prefix(
+					Node.Pos,
+					"_Char...",
+					mSPO_AST.Int(Node.Pos, __)
 				)
+			).Reduce(
+				(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Empty(Node.Pos),
+				(aTail, aHead) => mSPO_AST.Pair(Node.Pos, aTail, aHead)
 			)
 		),
+		
 		mSPO_AST.tIdNode<tPos> Node => Node,
+		
 		mSPO_AST.tEmptyNode<tPos> Node => Node,
+		
 		mSPO_AST.tTrueNode<tPos> Node => Node,
+		
 		mSPO_AST.tFalseNode<tPos> Node => Node,
+		
 		mSPO_AST.tIntNode<tPos> Node => Node,
+		
 		mSPO_AST.tCharNode<tPos> Node => Node,
+		
 		mSPO_AST.tTypeNode<tPos> Node => mResult.OK((mSPO_AST.tExpressionNode<tPos>)Node.DesugarType()),
+		
 		_ => throw new System.NotImplementedException(aExpr.GetType().Name)
 	};
 	
@@ -372,12 +414,14 @@ mSPO_Desugar {
 		=> DesugarExpression(Src).Then(
 			aSrc => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.Def(Pos, Des, aSrc)
 		),
+		
 		mSPO_AST.tReturnIfNode<tPos> { Pos: var Pos, Condition: var Cond, Result: var Res }
 		=> DesugarExpression(Cond).ThenTry(
 			aCond => DesugarExpression(Res).Then(
 				aRes => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.ReturnIf(Pos, aCond, aRes)
 			)
 		),
+		
 		mSPO_AST.tMethodCallsNode<tPos> { Pos: var Pos, Object: var Obj, MethodCalls: var Calls }
 		=> DesugarExpression(Obj).ThenTry(
 			NewObj => Calls.Map(
@@ -393,6 +437,7 @@ mSPO_Desugar {
 				aCalls => (mSPO_AST.tCommandNode<tPos>)mSPO_AST.MethodCallStatement(Pos, NewObj, aCalls)
 			)
 		),
+		
 		mSPO_AST.tRecLambdasNode<tPos> { Pos: var Pos, List: var List }
 		=> List.Map(
 			aListItem => aListItem.Lambda.DesugarExpression(
@@ -409,6 +454,7 @@ mSPO_Desugar {
 				aDesugaredList
 			)
 		),
+		
 		mSPO_AST.tDefVarNode<tPos> => mResult.OK(aCmd),
 		_ => throw new System.NotImplementedException(aCmd.GetType().Name)
 	};

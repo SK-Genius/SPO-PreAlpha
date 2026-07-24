@@ -1,0 +1,60 @@
+§TYPES
+	t_0 := [#_Char... INT]
+	t_1 := [#Result INT]
+	t_2 := [EMPTY_TYPE | t_1]
+	t_3 := [t_0 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_0 => INT]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [EMPTY_TYPE, t_6]
+	t_8 := [t_7, t_6]
+	t_9 := [t_0 => t_1]
+	t_10 := [t_8 => t_9]
+	t_11 := [t_8, t_10]
+	t_12 := [EMPTY_TYPE => INT]
+	t_13 := [t_11 => t_12]
+
+§DEF d_0 € t_4
+	r_1 := §TRY_REMOVE #_Char... FROM ARG
+	r_2 := §TRY r_1 AS_INT
+	r_3 := 65
+	r_4 := §INT r_2 == r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 1
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_1 € t_4
+	r_1 := 0
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_2 € t_10
+	d_1 := §2ND ENV
+	r_5 := §1ST ENV
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_0 EMPTY
+	r_2 := .r_1 ARG
+	§RETURN r_2 IF_NOT_EMPTY
+	r_3 := .d_1 EMPTY
+	r_4 := .r_3 ARG
+	§RETURN r_4 IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_13
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	r_1 := 65
+	r_2 := +#_Char... r_1
+	r_3 := EMPTY, d_0
+	r_4 := r_3, d_1
+	r_5 := .d_2 r_4
+	r_6 := .r_5 r_2
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE

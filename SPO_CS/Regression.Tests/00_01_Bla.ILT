@@ -2,7 +2,7 @@
 	t_0 := [§FREE]
 	t_1 := [#_Char... INT]
 	t_2 := [t_0, t_1]
-	t_3 := [EMPTY_TYPE | t_2]
+	t_3 := [t_2 | EMPTY_TYPE]
 	t_4 := [§REC t_0 => t_3]
 	t_5 := [EMPTY_TYPE, t_1]
 	t_6 := [§FREE]
@@ -48,23 +48,18 @@
 	t_46 := [t_4 => t_11]
 	t_47 := [t_45 => t_46]
 	t_48 := [t_45, t_47]
-	t_49 := [§FREE]
-	t_50 := [t_49, t_1]
-	t_51 := [EMPTY_TYPE | t_50]
-	t_52 := [§REC t_49 => t_51]
-	t_53 := [t_52 => t_10]
-	t_54 := [t_48 => t_53]
-	t_55 := [t_39, t_23]
-	t_56 := [t_55, t_26]
-	t_57 := [t_56, t_29]
-	t_58 := [t_57, t_44]
-	t_59 := [t_58, t_47]
-	t_60 := [t_59, t_54]
-	t_61 := [t_53 => t_53]
-	t_62 := [t_60 => t_61]
-	t_63 := [t_60, t_62]
-	t_64 := [EMPTY_TYPE => t_10]
-	t_65 := [t_63 => t_64]
+	t_49 := [t_48 => t_30]
+	t_50 := [t_39, t_23]
+	t_51 := [t_50, t_26]
+	t_52 := [t_51, t_29]
+	t_53 := [t_52, t_44]
+	t_54 := [t_53, t_47]
+	t_55 := [t_54, t_49]
+	t_56 := [t_30 => t_30]
+	t_57 := [t_55 => t_56]
+	t_58 := [t_55, t_57]
+	t_59 := [EMPTY_TYPE => t_10]
+	t_60 := [t_58 => t_59]
 
 §DEF d_0 € t_14
 	r_1 := §TRY ARG AS_EMPTY
@@ -203,7 +198,7 @@
 	§RETURN r_12 IF_NOT_EMPTY
 	§RETURN EMPTY IF TRUE
 
-§DEF d_8 € t_54
+§DEF d_8 € t_49
 	d_7 := §2ND ENV
 	r_12 := §1ST ENV
 	d_6 := §2ND r_12
@@ -236,7 +231,7 @@
 	r_11 := -#Result r_10
 	§RETURN r_11 IF TRUE
 
-§DEF d_9 € t_62
+§DEF d_9 € t_57
 	d_8 := §2ND ENV
 	r_11 := §1ST ENV
 	d_7 := §2ND r_11
@@ -268,7 +263,7 @@
 	r_10 := .d_8 r_9
 	§RETURN r_10 IF TRUE
 
-§DEF d_10 € t_65
+§DEF d_10 € t_60
 	d_9 := §2ND ENV
 	r_27 := §1ST ENV
 	d_8 := §2ND r_27

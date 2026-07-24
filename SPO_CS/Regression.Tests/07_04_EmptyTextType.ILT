@@ -1,0 +1,12 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [#_Char... INT]
+	t_2 := [t_0, t_1]
+	t_3 := [t_2 | EMPTY_TYPE]
+	t_4 := [§REC t_0 => t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+
+§DEF d_0 € t_6
+	_X := EMPTY
+	§RETURN _X IF TRUE

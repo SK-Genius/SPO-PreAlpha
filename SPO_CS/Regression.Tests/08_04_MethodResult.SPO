@@ -1,0 +1,12 @@
+§DEF Get... = (
+	§DEF o € [§VAR §INT]
+) : (
+	§DEF a € §INT
+) {
+	§RETURN a
+}
+
+§VAR X := 0 .
+X : Get 42 => §DEF Result .
+
+§EXPORT Result

@@ -1,0 +1,4 @@
+§EXPORT §IF "" MATCH {
+	"" : 1
+	_ : 0
+}

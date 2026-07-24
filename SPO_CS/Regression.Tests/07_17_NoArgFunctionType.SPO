@@ -1,0 +1,3 @@
+§DEF LazyInt € [=> §INT] = () => 4
+
+§EXPORT .LazyInt

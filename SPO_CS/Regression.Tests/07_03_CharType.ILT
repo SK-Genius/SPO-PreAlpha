@@ -1,0 +1,10 @@
+§TYPES
+	t_0 := [#_Char... INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+
+§DEF d_0 € t_2
+	r_1 := 65
+	r_2 := +#_Char... r_1
+	_X := r_2
+	§RETURN _X IF TRUE

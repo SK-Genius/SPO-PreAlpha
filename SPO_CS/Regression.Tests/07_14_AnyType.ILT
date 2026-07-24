@@ -1,0 +1,8 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => ANY]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	r_1 := 1
+	_X := r_1
+	§RETURN _X IF TRUE
