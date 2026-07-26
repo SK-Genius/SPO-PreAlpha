@@ -24,24 +24,24 @@
 #:ref mModule.cs
 
 public static class
-mRegression_Tests {
+mE2E_Tests {
 	private static readonly mFS.tFolder
-	cTestFolder = mFS.CWD() / "Regression.Tests";
+	cTestFilesFolder = mFS.CWD() / "TestFiles" / "Functions";
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
-		nameof(mRegression_Tests),
+		nameof(mE2E_Tests),
 		mStd.Call(
 			() => {
-				if (!cTestFolder.Exists()) {
-					System.Console.WriteLine("Folder not found: " + cTestFolder);
+				if (!cTestFilesFolder.Exists()) {
+					System.Console.WriteLine("Folder not found: " + cTestFilesFolder);
 					return [];
 				}
 				
 				var Tests = mArrayList.List<mTest.tTest>();
-				foreach (var SPO_File in cTestFolder.GetFiles().Where(__ => __.Name.EndsWith(".SPO"))) {
-					var ResFile = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".result.SPO"));
-					var ILT_File = cTestFolder.GetFile(SPO_File.Name.Replace(".SPO", ".ILT"));
+				foreach (var SPO_File in cTestFilesFolder.GetFiles().Where(__ => __.Name.EndsWith(".SPO"))) {
+					var ResFile = cTestFilesFolder.GetFile(SPO_File.Name.Replace(".SPO", ".result.SPO"));
+					var ILT_File = cTestFilesFolder.GetFile(SPO_File.Name.Replace(".SPO", ".ILT"));
 					if (
 						SPO_File.Name.StartsWith("_") ||
 						SPO_File.Name.EndsWith(".result.SPO") ||
@@ -64,7 +64,7 @@ mRegression_Tests {
 							};
 							var Result = mSPO_Interpreter.Run(
 								SPO_ResText.Value,
-								(cTestFolder._Path / SPO_File.Name).ToText(),
+								(cTestFilesFolder._Path / SPO_File.Name).ToText(),
 								(mVM_Data.Empty(), mVM_Type.Empty()),
 								__ => WriteToLog(__)
 							).ElseThrow();
@@ -83,7 +83,7 @@ mRegression_Tests {
 										
 										var SPO_Res = mSPO_Interpreter.Run(
 											SPO_Text.Value,
-											(cTestFolder._Path / SPO_File.Name).ToText(),
+											(cTestFilesFolder._Path / SPO_File.Name).ToText(),
 											(Module_Std.Data, Module_Std.Type),
 											__ => aDebug(__())
 										).ElseThrow();
@@ -104,12 +104,12 @@ mRegression_Tests {
 									aDebug => {
 										var IL_TextNew = mSPO_Parser.Module.ParseText(
 												SPO_Text.Value,
-												(cTestFolder._Path / SPO_File.Name).ToText(),
+												(cTestFilesFolder._Path / SPO_File.Name).ToText(),
 												__ => aDebug(__())
 											).ToILT();
 										
 										if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
-											cTestFolder.GetFile(
+											cTestFilesFolder.GetFile(
 												ILT_File.Name + ".new"
 											).TryCreate(
 												IL_TextNew
@@ -131,7 +131,7 @@ mRegression_Tests {
 										
 										var IlModule = mIL_Parser.Module.ParseText(
 											IL_Text.Value,
-											(cTestFolder._Path / ILT_File.Name).ToText(),
+											(cTestFilesFolder._Path / ILT_File.Name).ToText(),
 											__ => aDebug(__())
 										);
 										var IL_Res = mVM.Run(

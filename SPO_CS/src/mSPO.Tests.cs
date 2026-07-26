@@ -7,7 +7,7 @@
 #:ref mIL_GenerateOpcodes.Tests.cs
 #:ref mIL_Parser.Tests.cs
 #:ref mModule.Tests.cs
-#:ref mRegression.Tests.cs
+#:ref mE2E.Tests.cs
 #:ref mSPO_AST_Types.Tests.cs
 #:ref mSPO_Parser.Tests.cs
 #:ref mSPO2IL.Tests.cs
@@ -29,7 +29,7 @@ mSPO_Tests {
 			mSPO_AST_Types_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
-			mRegression_Tests.Tests,
+			mE2E_Tests.Tests,
 			mModule_Tests.Tests,
 		]
 	);
