@@ -361,6 +361,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tRecordTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mStream.tStream<(tIdNode<tPos> Key, tTypeNode<tPos> Type)> Elements;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tSetTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -711,6 +719,15 @@ mSPO_AST {
 		HeadType = aHeadType,
 	};
 	
+	public static tRecordTypeNode<tPos>
+	RecordType<tPos>(
+		tPos aPos,
+		mStream.tStream<(tIdNode<tPos> Key, tTypeNode<tPos> Type)> aElements
+	) => new() {
+		Pos = aPos,
+		Elements = aElements,
+	};
+
 	public static tSetTypeNode<tPos>
 	SetType<tPos>(
 		tPos aPos,
@@ -1302,6 +1319,19 @@ mSPO_AST {
 			case tTupleTypeNode<tPos>: {
 				break;
 			}
+			case tRecordTypeNode<tPos> Node1: {
+				return (
+					a2 is tRecordTypeNode<tPos> Node2 &&
+					mStream.ZipExtend(Node1.Elements, Node2.Elements).All(
+						__ => (
+							__._1.IsSome(out var a1) &&
+							__._2.IsSome(out var a2) &&
+							AreEqual(a1.Key, a2.Key) &&
+							AreEqual(a1.Type, a2.Type)
+						)
+					)
+				);
+			}
 			case tSetTypeNode<tPos>: {
 				break;
 			}
@@ -1485,6 +1515,7 @@ mSPO_AST {
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
+			tRecordTypeNode<t> Node => $"[<{Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Type.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}>]",
 			tPairPatternNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",

@@ -29,6 +29,7 @@ mSPO_Desugar {
 		mSPO_AST.tVarTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tProcTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tPrefixTypeNode<tPos> Node => Node, // TODO
+		mSPO_AST.tRecordTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tInterfaceTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecursiveTypeNode<tPos> Node => Node, // TODO

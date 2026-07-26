@@ -846,6 +846,20 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+			case mSPO_AST.tRecordTypeNode<tPos> RecordType: {
+				Result = RecordType.Elements.Reduce(
+					mResult.OK(
+						mStream.Stream<(tText Key, mVM_Type.tType Type)>()
+					).WithErrorType<(tPos Pos, tText ErrorText)>(
+					),
+					(aResult, aElement) => aResult.ThenTry(
+						aStream => aElement.Type.AsVM_Type(aScope).Then(
+							aType => mStream.Stream((Key: aElement.Key.Id, Type: aType), aStream)
+						)
+					)
+				).Then(__ => mVM_Type.Record(__.ToArrayList().ToArray()));
+				break;
+			}
 			case mSPO_AST.tIdNode<tPos> IdNode: {
 				Result = aScope.Where(
 					__ => __.Id == IdNode.Id

@@ -1000,6 +1000,21 @@ mSPO2IL {
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
+			case mSPO_AST.tRecordTypeNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }: {
+				var ResultReg = mIL_AST.cEmptyType;
+				foreach (var (Key, FieldType) in Elements) {
+					if (!aDefConstructor.MapExpression(aModuleConstructor, FieldType).Match(out var FieldReg, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					aDefConstructor.Commands.Push(
+						mIL_AST.TypePrefix(Key.Pos, aDefConstructor.CreateTempReg(out var PrefixReg), Key.Id, FieldReg),
+						mIL_AST.TypeRecord(Pos, aDefConstructor.CreateTempReg(out var RecordReg), ResultReg, PrefixReg)
+					);
+					ResultReg = RecordReg;
+				}
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ResultReg, Type.AssertNotEmpty());
+				return ResultReg;
+			}
 			case mSPO_AST.tPrefixTypeNode<tPos> { Pos: var Pos, Prefix: var Prefix, Expressions: var Expressions, TypeAnnotation: var Type }: {
 				if (
 					!aDefConstructor.MapExpression(

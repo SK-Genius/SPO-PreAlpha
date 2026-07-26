@@ -498,6 +498,36 @@ mSPO_Parser {
 	.ModifyS((aSpan, aPair) => mSPO_AST.PairType(aSpan, aPair.Tail, aPair.Head))
 	.SetName(nameof(PairType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordTypeNode<tSpan>, tError>
+	RecordType = mParserGen.Seq(
+		-SpecialToken("[") -Token("<") -NLs_Token[0..1],
+		mParserGen.Seq(
+			Id,
+			SpecialToken(":"),
+			(
+				mParserGen.Seq(Id, SpecialToken("€"), Type)
+				.Modify((_, _, aType) => aType)
+				|
+				Type
+			)
+		).Modify((aId, _, aType) => (Key: aId, Type: aType)),
+		mParserGen.Seq(
+			-SpecialToken(",") | -NLs_Token,
+			Id,
+			SpecialToken(":"),
+			(
+				mParserGen.Seq(Id, SpecialToken("€"), Type)
+				.Modify((_, _, aType) => aType)
+				|
+				Type
+			)
+		).Modify((_, aId, _, aType) => (Key: aId, Type: aType))[0..],
+		-NLs_Token[0..1] -Token(">") -SpecialToken("]")
+	)
+	.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
+	.ModifyS(mSPO_AST.RecordType)
+	.SetName(nameof(RecordType));
+
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSetTypeNode<tSpan>, tError>
 	SetType = mParserGen.Seq(
 		TypeInSet,
@@ -798,6 +828,7 @@ mSPO_Parser {
 					AnyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					PairType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					RecordType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TupleType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					E( TypeInTuple ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					//C( PipeExpression | Expression ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
