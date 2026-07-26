@@ -175,10 +175,11 @@ mIL_GenerateOpcodes_Tests {
 					var (Defs, DefLookup) = CompileModule(
 						"""
 						§TYPES
+							Bool := [TRUE | FALSE]
 							IntInt := [INT, INT]
-							IntInt->Bool := [IntInt => BOOL]
+							IntInt->Bool := [IntInt => Bool]
 							Env := [EMPTY_TYPE => IntInt->Bool]
-							Int->Bool := [INT => BOOL]
+							Int->Bool := [INT => Bool]
 							Env-->Int->Bool := [Env => Int->Bool]
 						§DEF ...=1 € Env-->Int->Bool
 							...=...? := . ENV EMPTY
@@ -240,10 +241,11 @@ mIL_GenerateOpcodes_Tests {
 					var (Defs, DefLookup) = CompileModule(
 						"""
 						§TYPES
+							Bool := [TRUE | FALSE]
 							IntInt := [INT, INT]
 							IntInt->Int := [IntInt => INT]
 							_IntInt->Int := [EMPTY_TYPE => IntInt->Int]
-							IntInt->Bool := [IntInt => BOOL]
+							IntInt->Bool := [IntInt => Bool]
 							_IntInt->Bool := [EMPTY_TYPE => IntInt->Bool]
 							Env1 := [EMPTY_TYPE, _IntInt->Int]
 							Env2 := [Env1, _IntInt->Int]

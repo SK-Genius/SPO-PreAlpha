@@ -17,7 +17,8 @@ mVM_Type {
 		Free,
 		Any,
 		Empty,
-		Bool,
+		True,
+		False,
 		Int,
 		Type,
 		Pair,
@@ -108,7 +109,8 @@ mVM_Type {
 				: aType;
 			}
 			case tKind.Empty:
-			case tKind.Bool:
+			case tKind.True:
+			case tKind.False:
 			case tKind.Int:
 			case tKind.Type:
 			case tKind.Any: {
@@ -217,19 +219,16 @@ mVM_Type {
 	}
 	
 	public static tType
+	True(
+	) => new() { Kind = tKind.True };
+
+	public static tType
+	False(
+	) => new() { Kind = tKind.False };
+
+	public static tType
 	Bool(
-	) => new() { Kind = tKind.Bool };
-	
-	public static tBool
-	IsBool(
-		this tType aType
-	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		return aType.Kind is tKind.Bool;
-	}
+	) => Set(True(), False());
 	
 	public static tType
 	Int(
@@ -741,6 +740,24 @@ mVM_Type {
 		tType aSupType,
 		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
 	) {
+		mStream.tStream<(tType Free, tType Ref)> 
+		MapFree(
+			tType aFree,
+			tType aRef
+		) => mStream.Stream(
+			(
+				aFree,
+				aTypeMappings.Where(
+					__ => __.Free.Id == aFree.Id
+				).TryFirst(
+				).Match(
+					__ => Union(aRef, __.Ref),
+					() => aRef
+				)
+			),
+			aTypeMappings
+		);
+		
 		if (aSubType.Kind is tKind.Free) {
 			aSubType = aSubType.Refs[0];
 		}
@@ -756,17 +773,11 @@ mVM_Type {
 		var SubBaseType = aSubType.BaseType();
 		
 		if (aSupType.Kind is tKind.Free) {
-			return mStream.Stream(
-				(Free: aSupType, Ref: aSubType),
-				aTypeMappings
-			);
+			return MapFree(aSupType, aSubType);
 		}
 		
 		if (aSubType.Kind is tKind.Free) {
-			return mStream.Stream(
-				(Free: aSubType, Ref: aSupType),
-				aTypeMappings
-			);
+			return MapFree(aSubType, aSupType);
 		}
 		
 		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
@@ -799,7 +810,8 @@ mVM_Type {
 				return aTypeMappings;
 			}
 			case tKind.Empty:
-			case tKind.Bool:
+			case tKind.True:
+			case tKind.False:
 			case tKind.Int:
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
@@ -1056,8 +1068,8 @@ mVM_Type {
 				!Matched1.IsSome(out var Matched1_) ? Matched2 :
 				!Matched2.IsSome(out var Matched2_) ? Matched1 :
 				Union(Matched1_, Matched2_),
-				!Remainder1.IsSome(out var Remainder1_) ? Matched2 :
-				!Remainder2.IsSome(out var Remainder2_) ? Matched1 :
+				!Remainder1.IsSome(out var Remainder1_) ? Remainder2 :
+				!Remainder2.IsSome(out var Remainder2_) ? Remainder1 :
 				Union(Remainder1_, Remainder2_)
 			);
 		}
@@ -1109,7 +1121,8 @@ mVM_Type {
 		}
 		return aType.Kind switch {
 			tKind.Empty => "[]",
-			tKind.Bool => "§BOOL",
+			tKind.True => "§TRUE",
+			tKind.False => "§FALSE",
 			tKind.Int => "§INT",
 			tKind.Any => "§ANY",
 			tKind.Type => "§TYPE",

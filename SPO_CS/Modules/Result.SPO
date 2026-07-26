@@ -1,10 +1,7 @@
 §DEF ...OrErrorType... = (
 	tValue € §TYPE
 	tError € §TYPE
-) => [
-	#Value tValue
-	#Error tError
-]
+) => [#Value tValue | #Error tError]
 
 §DEF OK... = (
 	§DEF t € §TYPE

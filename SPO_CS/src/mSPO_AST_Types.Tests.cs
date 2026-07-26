@@ -16,6 +16,7 @@
 #:ref mSPO_AST.cs
 #:ref mSPO_AST_Types.cs
 #:ref mSPO_Parser.cs
+#:ref mSPO_Desugar.cs
 
 public static class
 mSPO_AST_Types_Tests {
@@ -27,6 +28,24 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
+			mTest.Test("BOOL desugars to singleton types",
+				aDebugStream => {
+					var Type = mSPO_Parser.Type.ParseText(
+						"§BOOL",
+						"",
+						__ => aDebugStream(__())
+					).DesugarType();
+					mAssert.IsTrue(Type is mSPO_AST.tSetTypeNode<mSpan.tSpan<mTextStream.tPos>>);
+					var DesugaredType = Type.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					var ExpandedType = mSPO_Parser.Type.ParseText(
+						"[§TRUE | §FALSE]",
+						"",
+						__ => aDebugStream(__())
+					).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					DesugaredType.IsSubType(ExpandedType, mStd.cEmpty).AssertNotError(__ => __);
+					ExpandedType.IsSubType(DesugaredType, mStd.cEmpty).AssertNotError(__ => __);
+				}
+			),
 			mTest.Test("Literals",
 				aDebugStream => {
 					mAssert.AreEquals(
@@ -35,7 +54,7 @@ mSPO_AST_Types_Tests {
 					);
 					mAssert.AreEquals(
 						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
-						mVM_Type.Bool()
+						mVM_Type.False()
 					);
 				}
 			),
@@ -50,12 +69,12 @@ mSPO_AST_Types_Tests {
 							]
 						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Tuple(
-							[mVM_Type.Int(), mVM_Type.Bool()]
+							[mVM_Type.Int(), mVM_Type.True()]
 						)
 					);
 					mAssert.AreEquals(
 						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
-						mVM_Type.Bool()
+						mVM_Type.False()
 					);
 				}
 			),
@@ -91,7 +110,15 @@ mSPO_AST_Types_Tests {
 									mSPO_AST.Pattern(
 										cNoPos,
 										mSPO_AST.FreeIdPattern(cNoPos, "a"),
-										mSPO_AST.BoolType(cNoPos)
+										mMaybe.Some(
+											(mSPO_AST.tExpressionNode<tInt32>)mSPO_AST.SetType(
+												cNoPos,
+												mStream.Stream<mSPO_AST.tTypeNode<tInt32>>(
+													mSPO_AST.False(cNoPos),
+													mSPO_AST.True(cNoPos)
+												)
+											)
+										)
 									)
 								),
 								mStd.cEmpty
@@ -110,6 +137,9 @@ mSPO_AST_Types_Tests {
 							"(#Bla (§DEF a € §BOOL)) => a",
 							"",
 							__ => { aDebugStream(__()); }
+						).DesugarExpression(
+						).AssertNotError(
+							__ => __.ErrorText
 						).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
@@ -120,7 +150,7 @@ mSPO_AST_Types_Tests {
 					
 					mAssert.AreEquals(
 						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
-						mVM_Type.Bool()
+						mVM_Type.False()
 					);
 				}
 			),
@@ -135,12 +165,12 @@ mSPO_AST_Types_Tests {
 						(
 							mStd.FileLine(),
 							"§TRUE",
-							mVM_Type.Bool()
+							mVM_Type.True()
 						),
 						(
 							mStd.FileLine(),
 							"§FALSE",
-							mVM_Type.Bool()
+							mVM_Type.False()
 						),
 						(
 							mStd.FileLine(),
@@ -150,7 +180,7 @@ mSPO_AST_Types_Tests {
 						(
 							mStd.FileLine(),
 							"(1, §TRUE)",
-							mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()])
+							mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.True()])
 						),
 						(
 							mStd.FileLine(),

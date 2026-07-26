@@ -1,15 +1,16 @@
 §TYPES
-	t_0 := [EMPTY_TYPE, BOOL]
-	t_1 := [t_0, BOOL]
-	t_2 := [t_1 => BOOL]
-	t_3 := [#_...And... t_2]
-	t_4 := [{EMPTY_TYPE} + t_3]
-	t_5 := [t_1, BOOL]
-	t_6 := [t_5, BOOL]
-	t_7 := [t_4 => t_6]
-	t_8 := [EMPTY_TYPE => t_7]
+	t_0 := [TRUE | FALSE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [t_1, t_0]
+	t_3 := [t_2 => t_0]
+	t_4 := [#_...And... t_3]
+	t_5 := [{EMPTY_TYPE} + t_4]
+	t_6 := [t_2, t_0]
+	t_7 := [t_6, t_0]
+	t_8 := [t_5 => t_7]
+	t_9 := [EMPTY_TYPE => t_8]
 
-§DEF d_0 € t_8
+§DEF d_0 € t_9
 	r_1 := {ARG} #_...And...
 	_...And... := r_1
 	r_2 := EMPTY, FALSE

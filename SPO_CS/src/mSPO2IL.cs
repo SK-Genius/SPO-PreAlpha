@@ -183,9 +183,13 @@ mSPO2IL {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cEmptyType, a);
 				return mIL_GenerateOpcodes.cEmptyType;
 			}
-			case var a when a.IsBool(): {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cBoolType, a);
-				return mIL_GenerateOpcodes.cBoolType;
+			case var a when a.Kind is mVM_Type.tKind.True: {
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_AST.cTrue, a);
+				return mIL_AST.cTrue;
+			}
+			case var a when a.Kind is mVM_Type.tKind.False: {
+				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_AST.cFalse, a);
+				return mIL_AST.cFalse;
 			}
 			case var a when a.IsInt(): {
 				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cIntType, a);
@@ -524,9 +528,6 @@ mSPO2IL {
 			}
 			case mSPO_AST.tEmptyTypeNode<tPos> EmptyTypeNode: {
 				return mIL_AST.cEmptyType;
-			}
-			case mSPO_AST.tBoolTypeNode<tPos> BoolTypeNode: {
-				return mIL_AST.cBoolType;
 			}
 			case mSPO_AST.tIntTypeNode<tPos> IntTypeNode: {
 				return mIL_AST.cIntType;

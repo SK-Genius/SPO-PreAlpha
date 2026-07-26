@@ -4,6 +4,7 @@ bin/
 obj/
 TestResults/
 Report/
+output/
 
 .*
 *.dll

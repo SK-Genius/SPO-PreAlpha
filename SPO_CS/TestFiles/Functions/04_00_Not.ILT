@@ -1,11 +1,12 @@
 §TYPES
-	t_0 := [BOOL => BOOL]
-	t_1 := [#_Not... t_0]
-	t_2 := [{EMPTY_TYPE} + t_1]
-	t_3 := [t_2 => BOOL]
-	t_4 := [EMPTY_TYPE => t_3]
+	t_0 := [TRUE | FALSE]
+	t_1 := [t_0 => t_0]
+	t_2 := [#_Not... t_1]
+	t_3 := [{EMPTY_TYPE} + t_2]
+	t_4 := [t_3 => t_0]
+	t_5 := [EMPTY_TYPE => t_4]
 
-§DEF d_0 € t_4
+§DEF d_0 € t_5
 	r_1 := {ARG} #_Not...
 	_Not... := r_1
 	r_2 := ._Not... TRUE

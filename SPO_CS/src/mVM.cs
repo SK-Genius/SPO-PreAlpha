@@ -50,7 +50,6 @@ mVM {
 				mVM_Data.Bool(true),
 				//mVM_Data.Proc(aProcDef, aEnv),
 				mVM_Data.TypeEmpty(),
-				mVM_Data.TypeBool(),
 				mVM_Data.TypeInt(),
 				mVM_Data.TypeType(),
 				aEnv,
@@ -66,13 +65,12 @@ mVM {
 		aTraceOut(() => " 3 := TRUE");
 		//aTraceOut(() => " 4 := SELF");
 		aTraceOut(() => " 4 := EMPTY_TYPE");
-		aTraceOut(() => " 5 := BOOL_TYPE");
-		aTraceOut(() => " 6 := INT_TYPE");
-		aTraceOut(() => " 7 := TYPE_TYPE");
-		aTraceOut(() => " 8 := ENV  |  " + aEnv.ToText(20));
-		aTraceOut(() => " 9 := OBJ  |  " + aObj.ToText(20));
-		aTraceOut(() => "10 := ARG  |  " + aArg.ToText(20));
-		aTraceOut(() => "11 := RES");
+		aTraceOut(() => " 5 := INT_TYPE");
+		aTraceOut(() => " 6 := TYPE_TYPE");
+		aTraceOut(() => " 7 := ENV  |  " + aEnv.ToText(20));
+		aTraceOut(() => " 8 := OBJ  |  " + aObj.ToText(20));
+		aTraceOut(() => " 9 := ARG  |  " + aArg.ToText(20));
+		aTraceOut(() => "10 := RES");
 		
 		return Result;
 	}

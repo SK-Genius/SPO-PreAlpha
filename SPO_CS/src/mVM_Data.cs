@@ -95,13 +95,12 @@ mVM_Data {
 	public static readonly tNat32 cTrueReg = 3;
 	//public static readonly tNat32 cSelfFuncReg = 4;
 	public static readonly tNat32 cEmptyTypeReg = 4;
-	public static readonly tNat32 cBoolTypeReg = 5;
-	public static readonly tNat32 cIntTypeReg = 6;
-	public static readonly tNat32 cTypeTypeReg = 7;
-	public static readonly tNat32 cEnvReg = 8;
-	public static readonly tNat32 cObjReg = 9;
-	public static readonly tNat32 cArgReg = 10;
-	public static readonly tNat32 cResReg = 11;
+	public static readonly tNat32 cIntTypeReg = 5;
+	public static readonly tNat32 cTypeTypeReg = 6;
+	public static readonly tNat32 cEnvReg = 7;
+	public static readonly tNat32 cObjReg = 8;
+	public static readonly tNat32 cArgReg = 9;
+	public static readonly tNat32 cResReg = 10;
 	
 	[DebuggerDisplay("{this.DefType.ToText()}")]
 	public sealed class
@@ -988,10 +987,6 @@ mVM_Data {
 	public static tData
 	TypeEmpty(
 	) => Data(tDataType.Type, false, mVM_Type.Empty());
-	
-	public static tData
-	TypeBool(
-	) => Data(tDataType.Type, false, mVM_Type.Bool());
 	
 	public static tData
 	TypeInt(

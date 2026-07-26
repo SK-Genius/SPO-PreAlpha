@@ -91,8 +91,8 @@ mSPO_AST_Types {
 	) => (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
-			mSPO_AST.tTrueNode<tPos> => mVM_Type.Bool(),
-			mSPO_AST.tFalseNode<tPos> => mVM_Type.Bool(),
+			mSPO_AST.tTrueNode<tPos> => mVM_Type.True(),
+			mSPO_AST.tFalseNode<tPos> => mVM_Type.False(),
 			mSPO_AST.tIntNode<tPos> => mVM_Type.Int(),
 			mSPO_AST.tTextNode<tPos> => mVM_Type.Text(),
 			mSPO_AST.tCharNode<tPos> => mVM_Type.Char(),
@@ -323,8 +323,11 @@ mSPO_AST_Types {
 					aCase => aCase.Cond.UpdateTypes(
 						aScope
 					).FailIfNot(
-						__ => __ == mVM_Type.Bool(),
-						__ => (aCase.Cond.Pos, $"condition '{aCase.Cond.ToText()}' has to be {mVM_Type.Bool().ToText()} but is of type:\n  {__.ToText()}")
+						__ => __.IsSubType(
+							mVM_Type.Bool(),
+							mStd.cEmpty
+						).Match(out _, out _),
+						__ => (aCase.Cond.Pos, $"condition '{aCase.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:\n  {__.ToText()}")
 					).ThenTry(
 						_ => aCase.Result.UpdateTypes(aScope)
 					)
@@ -573,7 +576,10 @@ mSPO_AST_Types {
 					return mResult.Fail(Error);
 				}
 				
-				if (!BoolRes.IsBool()) {
+				if (!BoolRes.IsSubType(
+					mVM_Type.Bool(),
+					mStd.cEmpty
+				).Match(out _, out _)) {
 					return mResult.Fail((GuardPattern.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
 				}
 				
@@ -664,8 +670,11 @@ mSPO_AST_Types {
 				return ReturnIf.Condition.UpdateTypes(
 					aScope
 				).FailIfNot(
-					aConditionType => aConditionType == mVM_Type.Bool(),
-					__ => (ReturnIf.Pos, $"{__.ToText()} != {mIL_GenerateOpcodes.cBoolType}")
+					aConditionType => aConditionType.IsSubType(
+						mVM_Type.Bool(),
+						mStd.cEmpty
+					).Match(out _, out _),
+					__ => (ReturnIf.Pos, $"{__.ToText()} != [§TRUE | §FALSE]")
 				).ThenTry(
 					_ => ReturnIf.Result.UpdateTypes(aScope)
 				).Then(
@@ -798,8 +807,12 @@ mSPO_AST_Types {
 				Result = mVM_Type.Empty();
 				break;
 			}
-			case mSPO_AST.tBoolTypeNode<tPos>: {
-				Result = mVM_Type.Bool();
+			case mSPO_AST.tTrueNode<tPos>: {
+				Result = mVM_Type.True();
+				break;
+			}
+			case mSPO_AST.tFalseNode<tPos>: {
+				Result = mVM_Type.False();
 				break;
 			}
 			case mSPO_AST.tIntTypeNode<tPos>: {

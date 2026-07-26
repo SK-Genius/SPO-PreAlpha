@@ -1,14 +1,15 @@
 §TYPES
 	t_0 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_1 := [t_0, BOOL]
-	t_2 := [t_1, BOOL]
-	t_3 := [t_2, INT]
-	t_4 := [#_Bla EMPTY_TYPE]
-	t_5 := [t_3, t_4]
-	t_6 := [EMPTY_TYPE => t_5]
+	t_1 := [TRUE | FALSE]
+	t_2 := [t_0, t_1]
+	t_3 := [t_2, t_1]
+	t_4 := [t_3, INT]
+	t_5 := [#_Bla EMPTY_TYPE]
+	t_6 := [t_4, t_5]
 	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE => t_7]
 
-§DEF d_0 € t_7
+§DEF d_0 € t_8
 	_A_0 := EMPTY
 	_A_1 := TRUE
 	_A_2 := FALSE

@@ -1,25 +1,26 @@
 §TYPES
 	t_0 := [EMPTY_TYPE, EMPTY_TYPE]
 	t_1 := [t_0, INT]
-	t_2 := [#Result BOOL]
-	t_3 := [EMPTY_TYPE | t_2]
-	t_4 := [t_1 => t_3]
-	t_5 := [EMPTY_TYPE => t_4]
-	t_6 := [t_1 => BOOL]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [EMPTY_TYPE, t_7]
-	t_9 := [t_8, t_7]
-	t_10 := [t_1 => t_2]
-	t_11 := [t_9 => t_10]
-	t_12 := [t_9, t_11]
-	t_13 := [INT | EMPTY_TYPE]
-	t_14 := [EMPTY_TYPE => t_13]
-	t_15 := [t_12 => t_14]
-	t_16 := [t_12, t_15]
-	t_17 := [EMPTY_TYPE => INT]
-	t_18 := [t_16 => t_17]
+	t_2 := [TRUE | FALSE]
+	t_3 := [#Result t_2]
+	t_4 := [EMPTY_TYPE | t_3]
+	t_5 := [t_1 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_1 => t_2]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [EMPTY_TYPE, t_8]
+	t_10 := [t_9, t_8]
+	t_11 := [t_1 => t_3]
+	t_12 := [t_10 => t_11]
+	t_13 := [t_10, t_12]
+	t_14 := [INT | EMPTY_TYPE]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [t_13 => t_15]
+	t_17 := [t_13, t_16]
+	t_18 := [EMPTY_TYPE => INT]
+	t_19 := [t_17 => t_18]
 
-§DEF d_0 € t_5
+§DEF d_0 € t_6
 	r_1 := §TRY ARG AS_PAIR
 	r_2 := §1ST r_1
 	r_3 := §2ND r_1
@@ -31,11 +32,11 @@
 	r_9 := +#Result TRUE
 	§RETURN r_9 IF TRUE
 
-§DEF d_1 € t_5
+§DEF d_1 € t_6
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_2 € t_11
+§DEF d_2 € t_12
 	d_1 := §2ND ENV
 	r_5 := §1ST ENV
 	d_0 := §2ND r_5
@@ -48,7 +49,7 @@
 	§RETURN r_4 IF_NOT_EMPTY
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_15
+§DEF d_3 € t_16
 	d_2 := §2ND ENV
 	r_11 := §1ST ENV
 	d_1 := §2ND r_11
@@ -70,7 +71,7 @@
 	§RETURN r_10 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_18
+§DEF d_4 € t_19
 	d_3 := §2ND ENV
 	r_7 := §1ST ENV
 	d_2 := §2ND r_7

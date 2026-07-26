@@ -36,7 +36,8 @@ mSPO_Desugar {
 		mSPO_AST.tGenericApplyTypeNode<tPos> Node => Node, // TODO
 		
 		mSPO_AST.tEmptyTypeNode<tPos> Node => Node,
-		mSPO_AST.tBoolTypeNode<tPos> Node => Node,
+		mSPO_AST.tTrueNode<tPos> Node => Node,
+		mSPO_AST.tFalseNode<tPos> Node => Node,
 		mSPO_AST.tIntTypeNode<tPos> Node => Node,
 		mSPO_AST.tTypeTypeNode<tPos> Node => Node,
 		_ => throw new System.NotImplementedException(aType.GetType().Name)

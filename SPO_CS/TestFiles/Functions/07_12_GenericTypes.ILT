@@ -16,14 +16,15 @@
 	t_14 := [t_10, t_13]
 	t_15 := [EMPTY_TYPE, t_14]
 	t_16 := [t_15, t_14]
-	t_17 := [EMPTY_TYPE, BOOL]
-	t_18 := [t_17, t_2]
-	t_19 := [t_18 | EMPTY_TYPE]
-	t_20 := [§REC t_2 => t_19]
-	t_21 := [t_17, t_20]
-	t_22 := [t_16, t_21]
-	t_23 := [EMPTY_TYPE => t_22]
-	t_24 := [t_9 => t_23]
+	t_17 := [TRUE | FALSE]
+	t_18 := [EMPTY_TYPE, t_17]
+	t_19 := [t_18, t_2]
+	t_20 := [t_19 | EMPTY_TYPE]
+	t_21 := [§REC t_2 => t_20]
+	t_22 := [t_18, t_21]
+	t_23 := [t_16, t_22]
+	t_24 := [EMPTY_TYPE => t_23]
+	t_25 := [t_9 => t_24]
 
 §DEF d_0 € t_9
 	r_1 := §2ND ARG
@@ -37,7 +38,7 @@
 	r_6 := r_5, _aTail
 	§RETURN r_6 IF TRUE
 
-§DEF d_1 € t_24
+§DEF d_1 € t_25
 	d_0 := ENV
 	_t := [§FREE]
 	_tStack := [§FREE]

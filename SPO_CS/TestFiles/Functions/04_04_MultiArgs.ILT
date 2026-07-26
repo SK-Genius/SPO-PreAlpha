@@ -1,23 +1,24 @@
 §TYPES
-	t_0 := [EMPTY_TYPE, BOOL]
-	t_1 := [t_0, BOOL]
-	t_2 := [t_1 => BOOL]
-	t_3 := [EMPTY_TYPE, t_2]
-	t_4 := [EMPTY_TYPE, INT]
-	t_5 := [t_4, INT]
-	t_6 := [t_5 => BOOL]
-	t_7 := [t_3, t_6]
-	t_8 := [t_5, INT]
-	t_9 := [t_8 => BOOL]
-	t_10 := [t_7 => t_9]
-	t_11 := [#_...<=... t_6]
-	t_12 := [{EMPTY_TYPE} + t_11]
-	t_13 := [#_...And... t_2]
-	t_14 := [{t_12} + t_13]
-	t_15 := [t_14 => t_1]
-	t_16 := [t_10 => t_15]
+	t_0 := [TRUE | FALSE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [t_1, t_0]
+	t_3 := [t_2 => t_0]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [EMPTY_TYPE, INT]
+	t_6 := [t_5, INT]
+	t_7 := [t_6 => t_0]
+	t_8 := [t_4, t_7]
+	t_9 := [t_6, INT]
+	t_10 := [t_9 => t_0]
+	t_11 := [t_8 => t_10]
+	t_12 := [#_...<=... t_7]
+	t_13 := [{EMPTY_TYPE} + t_12]
+	t_14 := [#_...And... t_3]
+	t_15 := [{t_13} + t_14]
+	t_16 := [t_15 => t_2]
+	t_17 := [t_11 => t_16]
 
-§DEF d_0 € t_10
+§DEF d_0 € t_11
 	_...<=... := §2ND ENV
 	r_16 := §1ST ENV
 	_...And... := §2ND r_16
@@ -43,7 +44,7 @@
 	r_15 := ._...And... r_14
 	§RETURN r_15 IF TRUE
 
-§DEF d_1 € t_16
+§DEF d_1 € t_17
 	d_0 := ENV
 	r_1 := {ARG} #_...<=...
 	_...<=... := r_1

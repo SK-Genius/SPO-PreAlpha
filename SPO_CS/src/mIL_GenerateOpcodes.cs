@@ -21,7 +21,6 @@
 public static class
 mIL_GenerateOpcodes {
 	public static readonly tText cEmptyType = "EMPTY_TYPE";
-	public static readonly tText cBoolType = "BOOL";
 	public static readonly tText cIntType = "INT";
 	public static readonly tText cAnyType = "ANY";
 	public static readonly tText cTypeType = "TYPE";
@@ -50,18 +49,20 @@ mIL_GenerateOpcodes {
 			[
 				(cEmptyType, 0u),
 				(cAnyType, 1u),
-				(cBoolType, 2u),
-				(cIntType, 3u),
-				(cTypeType, 4u),
+				(cIntType, 2u),
+				(cTypeType, 3u),
+				(mIL_AST.cTrue, 4u),
+				(mIL_AST.cFalse, 5u),
 			]
 		);
 		
 		var Types_ = mStream.Stream(
 			mVM_Type.Empty(),
 			mVM_Type.Any(),
-			mVM_Type.Bool(),
 			mVM_Type.Int(),
-			mVM_Type.Type()
+			mVM_Type.Type(),
+			mVM_Type.True(),
+			mVM_Type.False()
 		);
 		
 		var NextTypeIndex = Types_.Count();
@@ -180,7 +181,6 @@ mIL_GenerateOpcodes {
 			.Set(mIL_AST.cTrue, mVM_Data.cTrueReg)
 			//.Set(mIL_AST.cSelfFunc, TypeMap.TryGet(TypeName).AssertNotEmpty(Fail_))
 			.Set(mIL_AST.cEmptyType, mVM_Data.cEmptyTypeReg)
-			.Set(mIL_AST.cBoolType, mVM_Data.cBoolTypeReg)
 			.Set(mIL_AST.cIntType, mVM_Data.cIntTypeReg)
 			.Set(mIL_AST.cTypeType, mVM_Data.cTypeTypeReg)
 			.Set(mIL_AST.cEnv, mVM_Data.cEnvReg)
@@ -191,11 +191,10 @@ mIL_GenerateOpcodes {
 			var Types = NewProc.Types
 			.Push(mVM_Type.Empty())
 			.Push(mVM_Type.Int())
-			.Push(mVM_Type.Bool())
-			.Push(mVM_Type.Bool())
+			.Push(mVM_Type.False())
+			.Push(mVM_Type.True())
 			// self type
 			.Push(mVM_Type.Type()) // mVM_Type.Empty()
-			.Push(mVM_Type.Type()) // mVM_Type.Bool()
 			.Push(mVM_Type.Type()) // mVM_Type.Int()
 			.Push(mVM_Type.Type()) // mVM_Type.Type()
 			.Push(DefEnvType)
@@ -267,8 +266,8 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.BoolAnd, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
-						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
+						mAssert.IsTrue(Types.Get(Reg1).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
+						mAssert.IsTrue(Types.Get(Reg2).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
 						Regs = Regs.Set(RegId1, NewProc.And(Span, Reg1, Reg2));
 						Types.Push(mVM_Type.Bool());
 						break;
@@ -276,8 +275,8 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.BoolOr, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
-						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
+						mAssert.IsTrue(Types.Get(Reg1).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
+						mAssert.IsTrue(Types.Get(Reg2).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
 						Regs = Regs.Set(RegId1, NewProc.Or(Span, Reg1, Reg2));
 						Types.Push(mVM_Type.Bool());
 						break;
@@ -285,8 +284,8 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.BoolXOr, Pos: var Span, _1: var RegId1, _2: var RegId2 , _3: var RegId3 }: {
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
-						mAssert.AreEquals(Types.Get(Reg1), mVM_Type.Bool());
-						mAssert.AreEquals(Types.Get(Reg2), mVM_Type.Bool());
+						mAssert.IsTrue(Types.Get(Reg1).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
+						mAssert.IsTrue(Types.Get(Reg2).IsSubType(mVM_Type.Bool(), mStd.cEmpty).Match(out _, out _));
 						Regs = Regs.Set(RegId1, NewProc.XOr(Span, Reg1, Reg2));
 						Types.Push(mVM_Type.Bool());
 						break;
@@ -491,7 +490,7 @@ mIL_GenerateOpcodes {
 						var ArgType = Types.Get(ArgReg);
 						
 						var (SuccessType, FailureType) = ArgType.SplitBy(
-							__ => __.IsBool()
+							__ => __.Kind is mVM_Type.tKind.True or mVM_Type.tKind.False
 						);
 						
 						mAssert.IsTrue(

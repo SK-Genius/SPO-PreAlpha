@@ -433,9 +433,17 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.EmptyType)
 	.SetName(nameof(EmptyType));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tBoolTypeNode<tSpan>, tError>
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSetTypeNode<tSpan>, tError>
 	BoolType = (-KeyWord("BOOL"))
-	.ModifyS(mSPO_AST.BoolType)
+	.ModifyS(
+		aSpan => mSPO_AST.SetType(
+			aSpan,
+			mStream.Stream<mSPO_AST.tTypeNode<tSpan>>(
+				mSPO_AST.False(aSpan),
+				mSPO_AST.True(aSpan)
+			)
+		)
+	)
 	.SetName(nameof(BoolType));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIntTypeNode<tSpan>, tError>
@@ -821,6 +829,8 @@ mSPO_Parser {
 				[
 					Id.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					EmptyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					True.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					False.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					BoolType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					IntType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					CharType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
@@ -922,5 +932,3 @@ mSPO_Parser {
 		this (mSpan.tSpan<mTextStream.tPos> Pos, tText ErrorText) a
 	) => $"{mTextParser.ToText(a.Pos)}: {a.ErrorText}";
 }
-
-

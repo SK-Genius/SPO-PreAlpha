@@ -47,14 +47,14 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tFalseNode<tPos> : tLiteralNode<tPos> {
+	tFalseNode<tPos> : tLiteralNode<tPos>, tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tTrueNode<tPos> : tLiteralNode<tPos> {
+	tTrueNode<tPos> : tLiteralNode<tPos>, tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
@@ -65,13 +65,6 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
-	
-	[DebuggerDisplay(cDebuggerDisplay)]
-	public sealed record
-	tBoolTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-	} 
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -536,13 +529,6 @@ mSPO_AST {
 	
 	public static tEmptyTypeNode<tPos>
 	EmptyType<tPos>(
-		tPos aPos
-	) => new() {
-		Pos = aPos,
-	};
-	
-	public static tBoolTypeNode<tPos>
-	BoolType<tPos>(
 		tPos aPos
 	) => new() {
 		Pos = aPos,
@@ -1139,9 +1125,6 @@ mSPO_AST {
 			case tEmptyTypeNode<tPos>: {
 				return a2 is tEmptyTypeNode<tPos>;
 			}
-			case tBoolTypeNode<tPos>: {
-				return a2 is tBoolTypeNode<tPos>;
-			}
 			case tIntTypeNode<tPos>: {
 				return a2 is tIntTypeNode<tPos>;
 			}
@@ -1500,7 +1483,6 @@ mSPO_AST {
 			
 			// Types
 			tEmptyTypeNode<t> Node => "[]",
-			tBoolTypeNode<t> Node => "§BOOL",
 			tIntTypeNode<t> Node => "§INT",
 			tCharTypeNode<t> Node => "§CHAR",
 			tTextTypeNode<t> Node => "§TEXT",

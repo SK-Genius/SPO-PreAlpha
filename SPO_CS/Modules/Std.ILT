@@ -1,4 +1,5 @@
 ﻿§TYPES
+	BOOL := [TRUE | FALSE]
 	t1 := [BOOL => BOOL]
 	t1_ := [EMPTY_TYPE => t1]
 	t2_ := [EMPTY_TYPE, BOOL]

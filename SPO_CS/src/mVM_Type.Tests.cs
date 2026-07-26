@@ -15,6 +15,7 @@
 #:ref mSPO_AST_Types.cs
 #:ref mSPO_AST.cs
 #:ref mSPO_Parser.cs
+#:ref mSPO_Desugar.cs
 
 public static class
 mVM_Type_Tests {
@@ -57,6 +58,7 @@ mVM_Type_Tests {
 						(1, 1) : 1
 						(1, _) : 2
 						(2, §DEF a) : a
+						_ : 0
 					}
 					""",
 					"§INT"
@@ -101,6 +103,7 @@ mVM_Type_Tests {
 						a.Type,
 						"",
 						__ => { aStreamOut(__()); }
+					).DesugarType(
 					).AsVM_Type(
 						cTestScope
 					).AssertNotError(__ => __.ToText());
@@ -108,8 +111,16 @@ mVM_Type_Tests {
 					Type.IsSubType(Type_, mStd.cEmpty)
 					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
 					
-					Type_.IsSubType(Type, mStd.cEmpty)
-					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
+					if (a.Expr is "§TRUE") {
+						mAssert.AreEquals(Type, mVM_Type.True());
+						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+					} else if (a.Expr is "§FALSE") {
+						mAssert.AreEquals(Type, mVM_Type.False());
+						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+					} else {
+						Type_.IsSubType(Type, mStd.cEmpty)
+						.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
+					}
 				},
 				a.File,
 				a.LineNr

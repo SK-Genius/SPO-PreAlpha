@@ -120,7 +120,6 @@ mIL_AST {
 	public static readonly tText cRes        = "RES";
 	public static readonly tText cSelfFunc   = "SELF";
 	public static readonly tText cEmptyType  = "EMPTY_TYPE";
-	public static readonly tText cBoolType   = "BOOL_TYPE";
 	public static readonly tText cIntType    = "INT_TYPE";
 	public static readonly tText cTypeType   = "Type_TYPE";
 
