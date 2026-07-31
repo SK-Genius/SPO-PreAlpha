@@ -111,7 +111,7 @@ mSPO_AST_Types {
 				);
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsRecursive(out var RecursiveHead, out var RecursiveBody): {
-				var Expanded = RecursiveBody.Substitute(RecursiveHead.Id!, aType);
+				var Expanded = RecursiveBody.Substitute(RecursiveHead, aType);
 				
 				return (
 					ReferenceEquals(Expanded, aType)
@@ -279,6 +279,181 @@ mSPO_AST_Types {
 		}
 	}
 	
+	private static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings
+		),
+		(tPos Pos, tText ErrorText)
+	>
+	TryInferArgument<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aArgument,
+		mVM_Type.tType aExpectedType,
+		mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> aMappings,
+		mStream.tStream<tScopeItem> aScope
+	) {
+		static tBool
+		HasUnresolvedFreeType(
+			mVM_Type.tType aType,
+			mStream.tStream<mVM_Type.tType> aBoundTypes
+		) {
+			switch (aType.Kind) {
+				case mVM_Type.tKind.Free: {
+					return ReferenceEquals(aType, aType.Refs[0])
+					? !aBoundTypes.Any(__ => ReferenceEquals(__, aType))
+					: HasUnresolvedFreeType(aType.Refs[0], aBoundTypes);
+				}
+				case mVM_Type.tKind.Recursive:
+				case mVM_Type.tKind.Generic:
+				case mVM_Type.tKind.Interface: {
+					return HasUnresolvedFreeType(
+						aType.Refs[1],
+						mStream.Stream(aType.Refs[0], aBoundTypes)
+					);
+				}
+				case mVM_Type.tKind.Record: {
+					return aType.Fields.ToStream().Any(
+						__ => HasUnresolvedFreeType(__.Value, aBoundTypes)
+					);
+				}
+				default: {
+					return mStream.Stream(
+						System.MemoryExtensions.AsSpan(aType.Refs)
+					).Any(
+						__ => HasUnresolvedFreeType(__, aBoundTypes)
+					);
+				}
+			}
+		}
+		
+		var MappedExpectedType = aExpectedType.ApplyMappings(aMappings);
+		if (!aArgument.UpdateTypes(aScope).Match(out var ExpressionType, out var Error)) {
+			var LambdaType = MappedExpectedType;
+			while (LambdaType.IsGeneric(out _, out var InnerType)) {
+				LambdaType = InnerType;
+			}
+			
+			if (
+				aArgument is not mSPO_AST.tLambdaNode<tPos> Lambda ||
+				Lambda.Generic.IsSome(out _) ||
+				!LambdaType.IsProc(out _, out var LambdaArgType, out var LambdaExpectedResultType) ||
+				HasUnresolvedFreeType(LambdaArgType, mStd.cEmpty)
+			) {
+				return mResult.Fail(Error);
+			}
+			
+			if (
+				!UpdatePatternTypes(
+					Lambda.Head,
+					LambdaArgType,
+					tTypeRelation.Sub,
+					aScope
+				).Match(out var LambdaArg, out Error) ||
+				!Lambda.Body.TryInferArgument(
+					LambdaExpectedResultType,
+					aMappings,
+					LambdaArg.Scope
+				).Match(out var LambdaResult, out Error)
+			) {
+				return mResult.Fail(Error);
+			}
+			
+			ExpressionType = mVM_Type.Proc(
+				mVM_Type.Empty(),
+				LambdaArg.Type,
+				LambdaResult.Type
+			);
+			Lambda.TypeAnnotation = ExpressionType;
+			aMappings = LambdaResult.Mappings;
+		}
+		
+		return ExpressionType.IsSubType(
+			MappedExpectedType,
+			aMappings
+		).Then(
+			__ => (ExpressionType, __)
+		).ModifyError(
+			__ => (aArgument.Pos, __)
+		);
+	}
+	
+	private static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings
+		),
+		(tPos Pos, tText ErrorText)
+	>
+	TryInferArguments<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aArgument,
+		mVM_Type.tType aExpectedType,
+		mStream.tStream<tScopeItem> aScope
+	) {
+		var Arguments = mStream.Stream(aArgument);
+		var ExpectedTypes = mStream.Stream(aExpectedType);
+		
+		if (aArgument is mSPO_AST.tTupleNode<tPos> Tuple) {
+			var TupleTypes = mStream.Stream<mVM_Type.tType>();
+			var Type = aExpectedType;
+			while (Type.IsPair(out var TailType, out var Head)) {
+				TupleTypes = mStream.Stream(Head, TupleTypes);
+				Type = TailType;
+			}
+			
+			if (Type.IsEmpty() && TupleTypes.Count() == Tuple.Items.Count()) {
+				Arguments = Tuple.Items;
+				ExpectedTypes = TupleTypes;
+			}
+		}
+		
+		var ArgumentCount = Arguments.Count();
+		var Done = new tBool[ArgumentCount];
+		var ArgumentTypes = new mVM_Type.tType[ArgumentCount];
+		var Errors = new mMaybe.tMaybe<(tPos Pos, tText ErrorText)>[ArgumentCount];
+		var Mappings = mStream.Stream<(mVM_Type.tType Free, mVM_Type.tType Ref)>();
+		var Remaining = ArgumentCount;
+		var ArgumentsWithTypes = mStream.ZipShort(Arguments, ExpectedTypes).MapWithIndex().Reverse();
+		
+		while (Remaining > 0) {
+			var Progress = false;
+			foreach (var (Index, ArgumentAndType) in ArgumentsWithTypes) {
+				if (Done[Index]) {
+					continue;
+				}
+				
+				if (
+					ArgumentAndType._1.TryInferArgument(
+						ArgumentAndType._2,
+						Mappings,
+						aScope
+					).Match(out var Inferred, out var Error)
+				) {
+					ArgumentTypes[Index] = Inferred.Type;
+					Mappings = Inferred.Mappings;
+					Done[Index] = true;
+					Errors[Index] = mStd.cEmpty;
+					Remaining -= 1;
+					Progress = true;
+				} else {
+					Errors[Index] = Error;
+				}
+			}
+			
+			if (!Progress) {
+				foreach (var Error in Errors) {
+					if (Error.IsSome(out var Error_)) {
+						return mResult.Fail(Error_);
+					}
+				}
+				throw mError.Error("missing inference error");
+			}
+		}
+		
+		var ExpressionType = mVM_Type.Tuple(System.MemoryExtensions.AsSpan(ArgumentTypes));
+		aArgument.TypeAnnotation = ExpressionType;
+		return (ExpressionType, Mappings);
+	}
+	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
@@ -293,7 +468,14 @@ mSPO_AST_Types {
 			mSPO_AST.tCharNode<tPos> => mVM_Type.Char(),
 			mSPO_AST.tIdNode<tPos> IdNode => (
 				IdNode.TypeAnnotation.Match(
-					__ => __,
+					Annotation => aScope.Where(
+						__ => __.Id == IdNode.Id
+					).TryFirst(
+					).Then(
+						__ => __.Type
+					).ElseUse(
+						Annotation
+					),
 					() => (
 						IdNode.Id == "_=..."
 					) ? (
@@ -448,22 +630,29 @@ mSPO_AST_Types {
 					}
 				)
 			),
-			mSPO_AST.tCallNode<tPos> Call => (
-				Call.Arg.UpdateTypes(
-					aScope
-				).ThenTry(
-					aArgType => Call.Func.UpdateTypes(
-						aScope
-					).ThenTry(
-						aFuncType => mVM_Type.Infer(
-							aFuncType,
-							mVM_Type.Empty(),
-							aArgType,
-							__ => {} // no Tracing
-						).ModifyError(
-							__ => (Call.Func.Pos, __)
-						)
-					)
+			mSPO_AST.tCallNode<tPos> Call => Call.Func.UpdateTypes(
+				aScope
+			).ThenTry(
+				aFuncType => mStd.Call(
+					() => {
+						var ProcType = aFuncType;
+						while (ProcType.IsGeneric(out _, out var InnerType)) {
+							ProcType = InnerType;
+						}
+
+						if (!ProcType.IsProc(out _, out var FormalArgType, out var FormalResultType)) {
+							return mResult.Fail(
+								(Call.Func.Pos, $"expect proc but is:\n{aFuncType.ToText()}")
+							);
+						}
+
+						return Call.Arg.TryInferArguments(
+							FormalArgType,
+							aScope
+						).Then(
+							aArg => FormalResultType.ApplyMappings(aArg.Mappings)
+						);
+					}
 				)
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
@@ -915,33 +1104,36 @@ mSPO_AST_Types {
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
 		mStream.tStream<tScopeItem> aScope
-	) => aMethodCall.Argument.UpdateTypes(aScope).ThenTry(
-		aArgType => aMethodCall.Method.UpdateTypes(aScope).ThenTry(
-			aMethodType => (
-				aMethodType.IsProc(out var MethObjType, out var MethArgType, out var MethResType)
-				? mResult.OK((MethObjType, MethArgType, MethResType)).WithErrorType<(tPos, tText)>()
-				: mResult.Fail((aMethodCall.Argument.Pos, $"'{aMethodType.ToText()}' is not a Proc"))
-			)
-		).ThenTry(
-			aTypes => aArgType.IsSubType(
-				aTypes.MethArgType,
-				mStd.cEmpty
-			).Then(
-				_ => aTypes
-			).ModifyError(
-				__ => (aMethodCall.Argument.Pos, __)
-			)
-		).ThenTry(
-			__ => (
-				!aMethodCall.Result.IsSome(out var T)
-				? aScope
-				: UpdatePatternTypes(
-					T,
-					__.MethResType,
-					tTypeRelation.Sub,
+	) => aMethodCall.Method.UpdateTypes(aScope).ThenTry(
+		aMethodType => mStd.Call(
+			() => {
+				var ProcType = aMethodType;
+				while (ProcType.IsGeneric(out _, out var InnerType)) {
+					ProcType = InnerType;
+				}
+
+				if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
+					return mResult.Fail(
+						(aMethodCall.Argument.Pos, $"'{aMethodType.ToText()}' is not a Proc")
+					);
+				}
+
+				return aMethodCall.Argument.TryInferArguments(
+					MethArgType,
 					aScope
-				).Then(__ => __.Scope)
-			)
+				).ThenTry(
+					aArgument => (
+						!aMethodCall.Result.IsSome(out var Result)
+						? aScope
+						: UpdatePatternTypes(
+							Result,
+							MethResType.ApplyMappings(aArgument.Mappings),
+							tTypeRelation.Sub,
+							aScope
+						).Then(__ => __.Scope)
+					)
+				);
+			}
 		)
 	);
 	
@@ -1266,7 +1458,7 @@ mSPO_AST_Types {
 				Result = GenericApplyType.GenericType.AsVM_Type(aScope).ThenTry(
 					aGenericType => GenericApplyType.ArgType.AsVM_Type(aScope).ThenTry(
 						aArgType => aGenericType.IsGeneric(out var Head, out var Body)
-						? mResult.OK(Body.Substitute(Head.Id, aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
+						? mResult.OK(Body.Substitute(Head, aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
 						: mResult.Fail((GenericApplyType.GenericType.Pos, $"expected generic type but '{GenericApplyType.GenericType.ToText()}'"))
 					)
 				);

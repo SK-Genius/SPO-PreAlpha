@@ -261,6 +261,81 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("Higher-order arguments reach a recursive fixed point",
+				aDebugStream => {
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"""
+							.F (
+								1
+								(§DEF a => a)
+								(§DEF a1 => (§DEF a2 => a1))
+							)
+							""",
+							"",
+							__ => aDebugStream(__())
+						).UpdateTypes(
+							mStream.Stream(
+								mSPO_AST_Types.ScopeItem(
+									"_F...",
+									mSPO_Parser.Type.ParseText(
+										"""
+										[
+											§GENERIC tIn [
+												§GENERIC tMiddle [
+													§GENERIC tOut [
+														[
+															tIn
+															[tIn => tMiddle]
+															[
+																tIn => [tMiddle => tOut]
+															]
+														] => tOut
+													]
+												]
+											]
+										]
+										""",
+										"",
+										__ => aDebugStream(__())
+									).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
+								)
+							)
+						),
+						mVM_Type.Int()
+					);
+				}
+			),
+			mTest.Test("Higher-order method arguments are retried",
+				aDebugStream => {
+					var Scope = mSPO_AST_Types.UpdateMethodCallTypes(
+						mSPO_Parser.MethodCall.ParseText(
+							"""
+							F (
+								1
+								(§DEF a => a)
+							) => §DEF result
+							""",
+							"",
+							__ => aDebugStream(__())
+						),
+						mStream.Stream(
+							mSPO_AST_Types.ScopeItem(
+								"_F...",
+								mSPO_Parser.Type.ParseText(
+									"[§GENERIC tIn [§GENERIC tOut [[tIn, [tIn => tOut]] => tOut]]]",
+									"",
+									__ => aDebugStream(__())
+								).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
+							)
+						)
+					).AssertNotError(__ => __.ErrorText);
+					mAssert.AreEquals(
+						Scope.Where(__ => __.Id == "_result").TryFirst().AssertNotEmpty().Type,
+						mVM_Type.Int()
+					);
+				}
+			),
 			mTest.Tests("Types",
 				mStream.Stream<(tText FileLine, tText Code, mVM_Type.tType Type)>(
 					[

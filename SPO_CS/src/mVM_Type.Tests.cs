@@ -40,6 +40,44 @@ mVM_Type_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mVM_Type),
 		[
+			mTest.Test("ApplyMappings uses free type instances",
+				aDebugStream => {
+					var Outer = mVM_Type.Free("t");
+					var Gen = mVM_Type.Generic(
+						mVM_Type.Free("t").Def(out var Bound),
+						mVM_Type.Proc(mVM_Type.Empty(), Outer, Bound)
+					);
+					
+					mAssert.IsFalse(ReferenceEquals(Outer, Bound));
+					
+					var Mappings = mVM_Type.Int(
+					).IsSubType(
+						Outer,
+						mStd.cEmpty
+					).AssertNotError(__ => __);
+					
+					Mappings = mVM_Type.False(
+					).IsSubType(
+						Bound,
+						Mappings
+					).AssertNotError(__ => __);
+					
+					mAssert.AreEquals(
+						Gen.ApplyMappings(Mappings),
+						mVM_Type.Generic(
+							Bound,
+							mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), Bound)
+						)
+					);
+					
+					var OtherBound = mVM_Type.Free("other");
+					
+					mVM_Type.Generic(Bound, Bound).IsSubType(
+						mVM_Type.Generic(OtherBound, OtherBound),
+						mStd.cEmpty
+					).AssertNotError(__ => __);
+				}
+			),
 			mTest.Tests("Pair projection",
 				mStream.Stream(
 					[

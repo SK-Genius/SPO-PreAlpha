@@ -7,8 +7,12 @@
 	§DEF aTail € [.tStack t]
 ) => (aHead, aTail)
 
+§DEF ...AsBool = (
+	a € §BOOL
+) => a
+
 §EXPORT (
 	.Push 3 To (.Push 2 To (.Push 1 To ()))
 	.Push 3 To §<.Push 2 To §<.Push 1 To ()
-	.Push §TRUE To (.Push §FALSE To ())
+	.Push §TRUE To (.Push (§FALSE.AsBool) To ())
 )

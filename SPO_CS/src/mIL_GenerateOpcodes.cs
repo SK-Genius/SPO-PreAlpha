@@ -248,7 +248,7 @@ mIL_GenerateOpcodes {
 						var ProcType = Types.Get(ProcReg);
 						
 						while (ProcType.IsGeneric(out var GenericHead, out var GenericBody)) {
-							ProcType = GenericBody.Substitute(GenericHead.Id!, mVM_Type.Free());
+							ProcType = GenericBody.Substitute(GenericHead, mVM_Type.Free());
 						}
 						
 						mAssert.IsTrue(

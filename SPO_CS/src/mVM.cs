@@ -115,7 +115,7 @@ mVM {
 		} else if (aType.IsSet(out var Type1, out var Type2)) {
 			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
 		} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
-			return aData.Matches(BodyType.Substitute(HeadType.Id!, aType), aVisited);
+			return aData.Matches(BodyType.Substitute(HeadType, aType), aVisited);
 		} else if (aType.IsInterface(out _, out BodyType) || aType.IsGeneric(out _, out BodyType)) {
 			return aData.Matches(BodyType, aVisited);
 		} else {

@@ -1,0 +1,22 @@
+§IMPORT {
+	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+}
+
+§DEF tArray... = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
+
+§RECURSIVE {
+	§DEF ...MapEachWith... = (
+		§DEF tIn € §TYPE
+		§DEF tOut € §TYPE
+	) <=> (
+		§DEF aArray € [.tArray tIn]
+		§DEF aMap... € [tIn => tOut]
+	) => §IF aArray MATCH {
+		() : ()
+		(§DEF aTail € [.tArray tIn]; §DEF aHead € tIn) : (aTail .MapEachWith aMap...; .aMap aHead)
+	}
+}
+
+§EXPORT (1, 2, 3) .MapEachWith (
+	§DEF a => 2 .* a
+)
