@@ -96,6 +96,113 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("Match cases consume the remaining union type",
+				aDebugStream => {
+					var Match = (mSPO_AST.tIfMatchNode<mSpan.tSpan<mTextStream.tPos>>)mSPO_Parser.Expression.ParseText(
+						"""
+						§IF X MATCH {
+							() : 0
+							§DEF N : N
+						}
+						""",
+						"",
+						__ => aDebugStream(__())
+					);
+					mAssert.AreEquals(
+						Match.UpdateTypes(
+							mStream.Stream(
+								mSPO_AST_Types.ScopeItem(
+									"_X",
+									mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())
+								)
+							)
+						),
+						mVM_Type.Int()
+					);
+					mAssert.AreEquals(
+						Match.Cases.Skip(1).TryFirst().AssertNotEmpty().Pattern.TypeAnnotation.AssertNotEmpty(),
+						mVM_Type.Int()
+					);
+				}
+			),
+			mTest.Test("Match must be exhaustive",
+				aDebugStream => {
+					var Match = mSPO_Parser.Expression.ParseText(
+						"""
+						§IF X MATCH {
+							() : 0
+						}
+						""",
+						"",
+						__ => aDebugStream(__())
+					);
+					mAssert.IsFalse(
+						Match.UpdateTypes(
+							mStream.Stream(
+								mSPO_AST_Types.ScopeItem(
+									"_X",
+									mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())
+								)
+							)
+						).Match(out _, out _)
+					);
+				}
+			),
+			mTest.Tests("Split match type",
+				mStream.Stream(
+					[
+						(mStd.File(), mStd.LineNr(), "[[[] | §INT]; §TRUE]", "((); _)", "[[]; §TRUE]", "[§INT; §TRUE]"),
+						(mStd.File(), mStd.LineNr(), "[#Some §INT | #None []]", "(#Some _)", "[#Some §INT]", "[#None []]"),
+						(mStd.File(), mStd.LineNr(), "§INT", "1", "§INT", "§INT"),
+						(mStd.File(), mStd.LineNr(), "§INT", "(_ & §TRUE)", "§INT", "§INT"),
+						(mStd.File(), mStd.LineNr(), "[< Field: [§INT | []] >]", "{ Missing: _ }", "", "[< Field: [§INT | []] >]"),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"[§RECURSIVE RecursiveMatch [[]| [RecursiveMatch; §INT]]]",
+							"(_; _)",
+							"[[§RECURSIVE RecursiveMatch [[]| [RecursiveMatch; §INT]]]; §INT]",
+							"[]"
+						),
+					]
+				).Map(
+					((tText File, tInt32 LineNr, tText Type, tText Pattern, tText PatternTypeUsed, tText RemainingType) a) => mTest.Test($"{a.Type} : {a.Pattern}",
+						aDebugStream => {
+							var Type = mSPO_Parser.Type.ParseText(a.Type, "", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							var PatternType = mSPO_Parser.Pattern.ParseText(a.Pattern, "", __ => aDebugStream(__()));
+							
+							var PatternTypeUsed = a.PatternTypeUsed == ""
+							? mMaybe.None<mVM_Type.tType>()
+							: mSPO_Parser.Type.ParseText(a.PatternTypeUsed, "", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							var RemainingType = a.RemainingType == ""
+							? mMaybe.None<mVM_Type.tType>()
+							: mSPO_Parser.Type.ParseText(a.RemainingType, "", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							var Coverage = Type.SplitForPatternType(PatternType);
+							
+							mAssert.IsTrue(
+								Coverage.Matched.Eq(PatternTypeUsed, (a, b) => a == b),
+								() => $"matched '{Coverage.Matched}' instead of '{PatternTypeUsed}'"
+							);
+							
+							mAssert.IsTrue(
+								Coverage.Remaining.Eq(RemainingType, (a, b) => a == b),
+								() => $"remaining '{Coverage.Remaining}' instead of '{RemainingType}'"
+							);
+						},
+						a.File,
+						a.LineNr
+					)
+				).ToArrayList().ToArray()
+			),
 			mTest.Test("Lambda",
 				aDebugStream => {
 					mAssert.AreEquals(

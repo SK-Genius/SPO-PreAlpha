@@ -181,6 +181,22 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.ReturnIfNotEmpty))
 			.SetDebugName([nameof(mIL_AST.ReturnIfNotEmpty)]),
 			
+			mParserGen.Seq(
+				-KeyWord("TRY_RETURN") -SpecialToken("."),
+				Id,
+				Id,
+				(-Token("IF") +Id)[0..1].Modify(__ => __.TryFirst().Then(__ => __.Text))
+			)
+			.ModifyS(
+				(aSpan, _, aFunc, aArg, aGuard) => mIL_AST.TryReturn(
+					aSpan,
+					aFunc.Text,
+					aArg.Text,
+					aGuard
+				)
+			)
+			.SetDebugName([nameof(mIL_AST.TryReturn)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("TRY"), Id, -Token("AS_EMPTY"))
 			.Modify((a1, _, _, a2, _) => (a1, a2))
 			.ModifyS(mTokenizer.X(mIL_AST.TryAsEmpty))

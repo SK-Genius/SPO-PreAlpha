@@ -1,0 +1,10 @@
+§DEF tRecursive = [§RECURSIVE tRecursive [§INT | [tRecursive; []]]]
+
+§DEF Match... = (
+	§DEF Value € tRecursive
+) => §IF Value MATCH {
+	1 : 1
+	_ : 0
+}
+
+§EXPORT (.Match 2, .Match 1)

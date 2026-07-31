@@ -88,7 +88,8 @@ mIL_AST {
 		VarSet = _BeginCommands_,   // §VAR X <- X
 		ReturnIf,                   // §RETURN X IF X
 		ReturnIfNotEmpty,           // §RETURN x IF_NOT_EMPTY
-		TryAsEmpty,                   // X := §TRY X AS_INT
+		TryReturn,                  // §TRY_RETURN .X X [IF X]
+		TryAsEmpty,                 // X := §TRY X AS_INT
 		TryAsBool,                  // X := §TRY X AS_BOOL
 		TryAsInt,                   // X := §TRY X AS_INT
 		TryAsPair,                  // X := §TRY X AS_PAIR
@@ -210,6 +211,7 @@ mIL_AST {
 		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
 		tCommandNodeType.ReturnIf => $"§RETURN {a._2} IF {a._1}",
 		tCommandNodeType.ReturnIfNotEmpty => $"§RETURN {a._2} IF_NOT_EMPTY",
+		tCommandNodeType.TryReturn => $"§TRY_RETURN .{a._1} {a._2}" + a._3.Match(__ => $" IF {__}", () => ""),
 		tCommandNodeType.TryAsEmpty => $"{a._1} := §TRY {a._2} AS_EMPTY",
 		tCommandNodeType.TryAsBool => $"{a._1} := §TRY {a._2} AS_BOOL",
 		tCommandNodeType.TryAsInt => $"{a._1} := §TRY {a._2} AS_INT",
@@ -567,6 +569,24 @@ mIL_AST {
 		tPos aPos,
 		tText aArgReg
 	) => CommandNode(tCommandNodeType.ReturnIfNotEmpty, aPos, cEmptyValue, aArgReg);
+
+	public static tCommandNode<tPos>
+	TryReturn<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg
+	) => CommandNode(tCommandNodeType.TryReturn, aPos, aFuncReg, aArgReg);
+
+	public static tCommandNode<tPos>
+	TryReturn<tPos>(
+		tPos aPos,
+		tText aFuncReg,
+		tText aArgReg,
+		mMaybe.tMaybe<tText> aGuardReg
+	) => aGuardReg.Match(
+		__ => CommandNode(tCommandNodeType.TryReturn, aPos, aFuncReg, aArgReg, __),
+		() => TryReturn(aPos, aFuncReg, aArgReg)
+	);
 	
 	public static tCommandNode<tPos>
 	TryAsEmpty<tPos>(

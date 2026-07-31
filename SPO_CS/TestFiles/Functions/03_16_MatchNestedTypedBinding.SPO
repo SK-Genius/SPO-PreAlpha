@@ -1,0 +1,31 @@
+§IMPORT {
+	...>...: §DEF ...>... € [[§INT, §INT] => §BOOL]
+	...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+}
+
+§DEF tValue = [
+	[§INT; []]
+	| [
+		[[]; §INT]
+		| [
+			[[]; []]
+			| []
+		]
+	]
+]
+
+§DEF Match... = (
+	§DEF Value € tValue
+) => §IF Value MATCH {
+	((§DEF N € §INT; _) & N .> 4) : 1
+	((_; §DEF N € §INT) & N .< 1) : 2
+	(_; _) : 3
+	§DEF E € [] : 4
+}
+
+§EXPORT (
+	.Match (5; ())
+	.Match ((); 0)
+	.Match (2; ())
+	.Match ()
+)

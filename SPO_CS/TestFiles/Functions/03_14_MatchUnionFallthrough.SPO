@@ -1,0 +1,13 @@
+§DEF Value € [[] | §INT] = 2
+§DEF TaggedValue € [#A | #B] = #B
+
+§EXPORT (
+	§IF Value MATCH {
+		() : 0
+		§DEF Int : Int
+	}
+	§IF TaggedValue MATCH {
+		(#A) : 1
+		(#B) : 2
+	}
+)

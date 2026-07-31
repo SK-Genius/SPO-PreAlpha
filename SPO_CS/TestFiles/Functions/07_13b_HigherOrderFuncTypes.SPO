@@ -2,7 +2,7 @@
 	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
 }
 
-§DEF tArray = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
+§DEF tArray... = [§GENERIC t [§RECURSIVE tArray [[] | [tArray; t]]]]
 
 §RECURSIVE {
 	§DEF ...MapEachWith... = (
@@ -13,7 +13,7 @@
 		§DEF aMap... € [tIn => tOut]
 	) => §IF aArray MATCH {
 		() : ()
-		(aTail € [.tArray tIn]; §DEF aHead € tIn) : (aTail .MapEachWith aMap...; .aMap aHead)
+		(§DEF aTail € [.tArray tIn]; §DEF aHead € tIn) : (aTail .MapEachWith aMap...; .aMap aHead)
 	}
 }
 

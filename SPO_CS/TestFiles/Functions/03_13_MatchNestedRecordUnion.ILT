@@ -1,0 +1,74 @@
+§TYPES
+	t_0 := [#_Field INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [#Result INT]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [#_Field EMPTY_TYPE]
+	t_6 := [{EMPTY_TYPE} + t_5]
+	t_7 := [t_6 => t_2]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [#_Field INT]
+	t_10 := [{EMPTY_TYPE} + t_9]
+	t_11 := [EMPTY_TYPE, t_4]
+	t_12 := [#_Field EMPTY_TYPE]
+	t_13 := [{EMPTY_TYPE} + t_12]
+	t_14 := [t_11, t_8]
+	t_15 := [INT | EMPTY_TYPE]
+	t_16 := [#_Field t_15]
+	t_17 := [{EMPTY_TYPE} + t_16]
+	t_18 := [t_17 => t_2]
+	t_19 := [t_14 => t_18]
+	t_20 := [#_Field INT]
+	t_21 := [{EMPTY_TYPE} + t_20]
+	t_22 := [#_Field EMPTY_TYPE]
+	t_23 := [{EMPTY_TYPE} + t_22]
+	t_24 := [#_Field INT]
+	t_25 := [{EMPTY_TYPE} + t_24]
+	t_26 := [#_Field EMPTY_TYPE]
+	t_27 := [{EMPTY_TYPE} + t_26]
+	t_28 := [#_Field t_15]
+	t_29 := [{EMPTY_TYPE} + t_28]
+	t_30 := [t_14, t_19]
+	t_31 := [EMPTY_TYPE => INT]
+	t_32 := [t_30 => t_31]
+
+§DEF d_0 € t_4
+	r_1 := {ARG} #_Field
+	_X := r_1
+	r_2 := +#Result _X
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_8
+	r_1 := {ARG} #_Field
+	r_2 := 0
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_2 € t_19
+	d_1 := §2ND ENV
+	r_3 := §1ST ENV
+	d_0 := §2ND r_3
+	r_4 := §1ST r_3
+	r_1 := .d_0 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_1 EMPTY
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_32
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	_Value := EMPTY
+	r_1 := +#_Field _Value
+	r_2 := {EMPTY} + r_1
+	r_3 := EMPTY, d_0
+	r_4 := r_3, d_1
+	r_5 := .d_2 r_4
+	r_6 := .r_5 r_2
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE

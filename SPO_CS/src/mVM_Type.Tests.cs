@@ -38,9 +38,82 @@ mVM_Type_Tests {
 	);
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(
-		nameof(mVM_Type),
-		mStream.Stream<(tText File, tInt32 LineNr, tText Expr, tText Type)>(
+	Tests = mTest.Tests(nameof(mVM_Type),
+		[
+			mTest.Tests("Pair projection",
+				mStream.Stream(
+					[
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"[§INT; §TRUE]",
+							"§INT",
+							"§TRUE"
+						),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"[[§INT; §TRUE] | [[]; §FALSE]]",
+							"[§INT | []]",
+							"[§TRUE | §FALSE]"
+						),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"[§RECURSIVE RecursivePair [[] | [RecursivePair; §INT]]]",
+							"[§RECURSIVE RecursivePair [[] | [RecursivePair; §INT]]]",
+							"§INT"
+						),
+					]
+				).Map(
+					((tText File, tInt32 LineNr, tText Type, tText _1, tText _2) a) => mTest.Test(
+						a.Type,
+						aDebugStream => {
+							var Type = mSPO_Parser.Type.ParseText(a.Type, "Pair", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							var _1 = mSPO_Parser.Type.ParseText(a._1, "FirstPart", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							var _2 = mSPO_Parser.Type.ParseText(a._2, "SecondPart", __ => aDebugStream(__()))
+							.AsVM_Type(mStd.cEmpty)
+							.AssertNotError(__ => __.ToText());
+							
+							mAssert.IsTrue(Type.TryProjectPair(out var First, out var Second));
+							mAssert.AreEquals(First, _1);
+							mAssert.AreEquals(Second, _2);
+						},
+						a.File,
+						a.LineNr
+					)
+				).ToArrayList().ToArray()
+			),
+			mTest.Test("Pair projection fails for non pairs",
+				aDebugStream => {
+					mAssert.IsFalse(mVM_Type.Int().TryProjectPair(out _, out _));
+				}
+			),
+			mTest.Test("SplitBy expands recursive types",
+				aDebugStream => {
+					var Head = mVM_Type.Free("RecursiveSplit");
+					var Recursive = mVM_Type.Recursive(
+						Head,
+						mVM_Type.Set(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(Head, mVM_Type.Int())
+						)
+					);
+					var Split = Recursive.SplitBy(__ => __.IsPair(out _, out _));
+					mAssert.AreEquals(
+						Split.Matched.AssertNotEmpty(),
+						mVM_Type.Pair(Recursive, mVM_Type.Int())
+					);
+					mAssert.AreEquals(Split.Remainder.AssertNotEmpty(), mVM_Type.Empty());
+				}
+			),
+			..mStream.Stream<(tText File, tInt32 LineNr, tText Expr, tText Type)>(
 			[
 				(mStd.File(), mStd.LineNr(), "()", "[]"),
 				(mStd.File(), mStd.LineNr(), "§TRUE", "§BOOL"),
@@ -125,8 +198,9 @@ mVM_Type_Tests {
 				a.File,
 				a.LineNr
 			)
-		).ToArrayList(
-		).ToArray(
-		)
+			).ToArrayList(
+			).ToArray(
+			)
+		]
 	);
 }

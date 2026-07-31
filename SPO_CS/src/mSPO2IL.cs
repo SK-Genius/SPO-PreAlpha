@@ -337,7 +337,7 @@ mSPO2IL {
 	) {
 		if (
 			!aDefConstructor.MapPattern(aLambdaNode.Head, mIL_AST.cArg, out var Error) ||
-			!aDefConstructor.MapExpression(aModuleConstructor, aLambdaNode.Body).Match(out var ResultReg, out Error)
+			!aDefConstructor.TryMapExpression(aModuleConstructor, aLambdaNode.Body).Match(out var ResultReg, out Error)
 		) {
 			return mResult.Fail(Error);
 		}
@@ -378,7 +378,7 @@ mSPO2IL {
 		if (
 			!aDefConstructor.MapPattern(aMethodNode.Arg, mIL_AST.cArg, out var Error) ||
 			!aDefConstructor.MapPattern(aMethodNode.Obj, mIL_AST.cObj, out Error) ||
-			!aDefConstructor.MapExpression(aModuleConstructor, aMethodNode.Body).Match(out var ResultReg, out Error)
+			!aDefConstructor.TryMapExpression(aModuleConstructor, aMethodNode.Body).Match(out var ResultReg, out Error)
 		) {
 			return mResult.Fail(Error);
 		}
@@ -509,7 +509,7 @@ mSPO2IL {
 	}
 	
 	public static mResult.tResult<tText, (tPos Pos, tText ErrorText)>
-	MapExpression<tPos>(
+	TryMapExpression<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tModuleConstructor<tPos> aModuleConstructor,
 		mSPO_AST.tExpressionNode<tPos> aExpressionNode
@@ -568,8 +568,8 @@ mSPO2IL {
 			}
 			case mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }: {
 				if (
-					!aDefConstructor.MapExpression(aModuleConstructor, Func).Match(out var FuncReg, out var Error) ||
-					!aDefConstructor.MapExpression(aModuleConstructor, Arg).Match(out var ArgReg, out Error)
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Func).Match(out var FuncReg, out var Error) ||
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Arg).Match(out var ArgReg, out Error)
 				) {
 					return mResult.Fail(Error);
 				}
@@ -587,13 +587,13 @@ mSPO2IL {
 					}
 					case 1: {
 						mAssert.IsTrue(Items.Is(out var Head, out var _));
-						return aDefConstructor.MapExpression(aModuleConstructor, Head);
+						return aDefConstructor.TryMapExpression(aModuleConstructor, Head);
 					}
 					default: {
 						mAssert.IsTrue(Items.Is(out var Head, out var _));
 						var TailReg = mIL_AST.cEmptyValue;
 						foreach (var Item in Items) {
-							if (!aDefConstructor.MapExpression(aModuleConstructor, Item).Match(out var HeadReg, out var Error)) {
+							if (!aDefConstructor.TryMapExpression(aModuleConstructor, Item).Match(out var HeadReg, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							aDefConstructor.Commands.Push(
@@ -612,10 +612,10 @@ mSPO2IL {
 				}
 			}
 			case mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Tail).Match(out var TailReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Tail).Match(out var TailReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Head).Match(out var HeadReg, out Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Head).Match(out var HeadReg, out Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(mIL_AST.CreatePair(Pos, aDefConstructor.CreateTempReg(out var ResultReg), TailReg, HeadReg));
@@ -623,7 +623,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tPrefixNode<tPos> { Pos: var Pos, Prefix: var Prefix, Element: var Element, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Element).Match(out var ExpressionReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Element).Match(out var ExpressionReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -635,7 +635,7 @@ mSPO2IL {
 			case mSPO_AST.tRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var Type }: {
 				var ResultReg = mIL_AST.cEmptyValue;
 				foreach (var (Key, Value) in Elements) {
-					if (!aDefConstructor.MapExpression(aModuleConstructor, Value).Match(out var Expression, out var Error)) {
+					if (!aDefConstructor.TryMapExpression(aModuleConstructor, Value).Match(out var Expression, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					aDefConstructor.Commands.Push(
@@ -704,15 +704,14 @@ mSPO2IL {
 				);
 			}
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
-				if (!aModuleConstructor.MapMethod(MethodNode).Match(out var MethodDef, out var Error)) {
-					return mResult.Fail(Error);
-				}
-				return aDefConstructor.InitProc(
-					MethodNode.Pos,
-					MethodDef.Index,
-					MethodDef.Type,
-					MethodDef.EnvList
-				);
+				return aModuleConstructor.MapMethod(MethodNode).Match(out var MethodDef, out var Error)
+					? aDefConstructor.InitProc(
+						MethodNode.Pos,
+						MethodDef.Index,
+						MethodDef.Type,
+						MethodDef.EnvList
+					)
+					: mResult.Fail(Error);
 			}
 			case mSPO_AST.tBlockNode<tPos> { Commands: var Commands }: {
 				foreach (var Command in Commands) {
@@ -720,13 +719,20 @@ mSPO2IL {
 						return mResult.Fail(Error);
 					}
 				}
+				
 				// TODO: remove created symbols from unknown symbols
 				return mIL_AST.cEmptyValue;
 			}
 			case mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases }: {
 				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
 				foreach (var (Test, Run) in Cases) {
-					Ifs.Push(mSPO_AST.ReturnIf(aModuleConstructor.MergePos(Test.Pos, Run.Pos), Test, Run));
+					Ifs.Push(
+						mSPO_AST.ReturnIf(
+							aModuleConstructor.MergePos(Test.Pos, Run.Pos),
+							Test,
+							Run
+						)
+					);
 				}
 				Ifs.Push(
 					mSPO_AST.ReturnIf(
@@ -761,114 +767,149 @@ mSPO2IL {
 					)
 				);
 				
+				return (
+					mSPO_AST_Types.UpdateCommandTypes(Def, mStd.cEmpty).Match(out _, out var Error) &&
+					aDefConstructor.MapCommand(aModuleConstructor, Def, out Error)
+					? ResultReg
+					: mResult.Fail(Error)
+				);
+			}
+			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases, TypeAnnotation: var Type }: {
 				if (
-					!mSPO_AST_Types.UpdateCommandTypes(Def, mStd.cEmpty).Match(out _, out var Error) ||
-					!aDefConstructor.MapCommand(aModuleConstructor, Def, out Error)
+					!aDefConstructor.TryMapExpression(
+						aModuleConstructor,
+						MatchExpression
+					).Match(
+						out var InputReg,
+						out var Error
+					)
 				) {
 					return mResult.Fail(Error);
 				}
 				
-				return ResultReg;
-			}
-			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, MatchExpression).Match(out var InputReg, out var Error)) {
-					return mResult.Fail(Error);
-				}
-				
 				var SwitchDef = NewDefConstructor<tPos>();
-				
-				var CaseType = mVM_Type.Proc(
-					mVM_Type.Empty(),
-					MatchExpression.TypeAnnotation.AssertNotEmpty(),
-					mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Prefix("Result", aExpressionNode.TypeAnnotation.AssertNotEmpty()))
-				);
-					
-				// TODO: add gard command for the case that no case matched the argument
+				var Remaining = mMaybe.Some(MatchExpression.TypeAnnotation.AssertNotEmpty());
 				
 				foreach (var Case in Cases) {
+					if (!Remaining.IsSome(out var RemainingType)) {
+						break;
+					}
+					
+					var Coverage = RemainingType.SplitForPatternType(Case.Pattern);
+					
+					if (!Coverage.Matched.IsSome(out var MatchedType)) {
+						return mResult.Fail(
+							(
+								Case.Pattern.Pos,
+								$"pattern cannot match {RemainingType.ToText()}"
+							)
+						);
+					}
+					
 					var CasePos = aModuleConstructor.MergePos(Case.Pattern.Pos, Case.Expression.Pos);
-					
-					var TestAndCallCaseFunc = NewDefConstructor<tPos>();
-					
+					var CaseFunc = NewDefConstructor<tPos>();
 					var ErrorText_ = default(tText?);
+					
 					if (
-						!aModuleConstructor.MapIfCase(
-							ref TestAndCallCaseFunc,
+						!aModuleConstructor.TryMapMatchedCase(
+							ref CaseFunc,
 							Case,
-							MatchExpression.TypeAnnotation.AssertNotEmpty(),
 							CasePos,
 							out Error
 						) ||
-						!TestAndCallCaseFunc.CreateDefType(
+						!CaseFunc.CreateDefType(
 							aModuleConstructor,
-							CaseType
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								MatchedType,
+								mVM_Type.Prefix("Result", aExpressionNode.TypeAnnotation.AssertNotEmpty())
+							)
 						).Match(out var CaseDefType, out ErrorText_)
 					) {
 						return mResult.Fail((CasePos, ErrorText_ ?? Error.ErrorText));
 					}
 					
-					var TestAndCallDefIndex = TestAndCallCaseFunc.FinishMapProc(
+					var CaseDefIndex = CaseFunc.FinishMapProc(
 						Pos,
 						aModuleConstructor,
 						CaseDefType
 					);
 					
-					mAssert.IsTrue(
-						CaseDefType.IsProc(out var Empty1, out var DefEnvType, out var DefLambdaType),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					mAssert.IsTrue(
-						Empty1.IsEmpty(),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					mAssert.IsTrue(
-						DefLambdaType.IsProc(out var DefObjType, out var DefArgType, out var DefResType),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					mAssert.IsTrue(
-						DefResType.IsSet(out var Empty2, out var Prefix__),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					mAssert.IsTrue(
-						Empty2.IsEmpty(),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					mAssert.IsTrue(
-						Prefix__.IsPrefix("Result", out var DefResType__),
-						$"expected proc but is: {CaseDefType.ToText()}"
-					);
-					
-					var SwitchDefType_ = mVM_Type.Proc(
-						mVM_Type.Empty(),
-						DefEnvType,
-						mVM_Type.Proc(
-							DefObjType,
-							DefArgType,
-							DefResType__
-						)
-					);
-					
-					var TypeDict_ = TestAndCallCaseFunc.TypeDict;
+					var CaseTypeDict = CaseFunc.TypeDict;
 					var ProcId = SwitchDef.InitProc(
 						Pos,
-						TestAndCallDefIndex,
-						SwitchDefType_,
-						TestAndCallCaseFunc.EnvIds.ToStream(
+						CaseDefIndex,
+						CaseDefType,
+						CaseFunc.EnvIds.ToStream(
 						).Map(
 							__ => mSPO_AST_Types.ScopeItem(
 								__,
-								TypeDict_.TryGet(__).AssertNotEmpty()
+								CaseTypeDict.TryGet(__).AssertNotEmpty()
 							)
 						)
 					);
 					
+					var GuardProcId = mMaybe.None<tText>();
+					if (Case.Pattern.HasGuards()) {
+						var GuardFunc = NewDefConstructor<tPos>();
+						
+						if (
+							!GuardFunc.TryMapPatternGuard(
+								aModuleConstructor,
+								Case.Pattern,
+								mIL_AST.cArg,
+								out Error
+							)
+						) {
+							return mResult.Fail(Error);
+						}
+						
+						GuardFunc.Commands.Push(
+							mIL_AST.ReturnIf(CasePos, mIL_AST.cTrue, mIL_AST.cTrue)
+						);
+						
+						if (
+							!GuardFunc.CreateDefType(
+								aModuleConstructor,
+								mVM_Type.Proc(mVM_Type.Empty(), MatchedType, mVM_Type.Bool())
+							).Match(
+								out var GuardDefType,
+								out var GuardError
+							)
+						) {
+							return mResult.Fail((CasePos, GuardError));
+						}
+						
+						GuardProcId = SwitchDef.InitProc(
+							CasePos,
+							GuardFunc.FinishMapProc(CasePos, aModuleConstructor, GuardDefType),
+							GuardDefType,
+							GuardFunc.EnvIds.ToStream(
+							).Map(
+								__ => mSPO_AST_Types.ScopeItem(
+									__,
+									GuardFunc.TypeDict.TryGet(__).AssertNotEmpty()
+								)
+							)
+						);
+					}
+					
 					SwitchDef.Commands.Push(
-						[
-							mIL_AST.CallFunc(CasePos, SwitchDef.CreateTempReg(out var Res_), ProcId, mIL_AST.cArg),
-							mIL_AST.ReturnIfNotEmpty(CasePos, Res_)
-						]
+						mIL_AST.TryReturn(
+							CasePos,
+							ProcId,
+							mIL_AST.cArg,
+							GuardProcId
+						)
 					);
+					
+					Remaining = Coverage.Remaining;
 				}
+				
+				mAssert.IsTrue(
+					Remaining.IsNone(),
+					"match lowering must consume the complete input type"
+				);
 				
 				SwitchDef.Commands.Push(
 					mIL_AST.ReturnIf(Pos, mIL_AST.cTrue, mIL_AST.cEmptyValue)
@@ -926,7 +967,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Obj).Match(out var ObjReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Obj).Match(out var ObjReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -940,7 +981,7 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
-				if (!aDefConstructor.MapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -951,11 +992,11 @@ mSPO2IL {
 			}
 			case mSPO_AST.tSetTypeNode<tPos> { Expressions: var Expressions, TypeAnnotation: var Type }: {
 				mAssert.IsTrue(Expressions.Is(out var Head, out var Tail));
-				if (!aDefConstructor.MapExpression(aModuleConstructor, Head).Match(out var ResultReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Head).Match(out var ResultReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				foreach (var Expression in Tail) {
-					if (!aDefConstructor.MapExpression(aModuleConstructor, Expression).Match(out var ExprReg, out Error)) {
+					if (!aDefConstructor.TryMapExpression(aModuleConstructor, Expression).Match(out var ExprReg, out Error)) {
 						return mResult.Fail(Error);
 					}
 					aDefConstructor.Commands.Push(
@@ -971,11 +1012,11 @@ mSPO2IL {
 					return mIL_AST.cEmptyType;
 				} else {
 					var Pos = First.Pos;
-					if (!aDefConstructor.MapExpression(aModuleConstructor, First).Match(out var ResultReg, out var Error)) {
+					if (!aDefConstructor.TryMapExpression(aModuleConstructor, First).Match(out var ResultReg, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					foreach (var Head in Rest) {
-						if (!aDefConstructor.MapExpression(aModuleConstructor, Head).Match(out var HeadReg, out Error)) {
+						if (!aDefConstructor.TryMapExpression(aModuleConstructor, Head).Match(out var HeadReg, out Error)) {
 							return mResult.Fail(Error);
 						}
 						Pos = aModuleConstructor.MergePos(Pos, Head.Pos);
@@ -989,10 +1030,10 @@ mSPO2IL {
 				}
 			}
 			case mSPO_AST.tPairTypeNode<tPos> { Pos: var Pos, HeadType: var HeadType, TailType: var TailType, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, TailType).Match(out var TailTypeReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, TailType).Match(out var TailTypeReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
-				if (!aDefConstructor.MapExpression(aModuleConstructor, HeadType).Match(out var HeadTypeReg, out Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, HeadType).Match(out var HeadTypeReg, out Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -1004,7 +1045,7 @@ mSPO2IL {
 			case mSPO_AST.tRecordTypeNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }: {
 				var ResultReg = mIL_AST.cEmptyType;
 				foreach (var (Key, FieldType) in Elements) {
-					if (!aDefConstructor.MapExpression(aModuleConstructor, FieldType).Match(out var FieldReg, out var Error)) {
+					if (!aDefConstructor.TryMapExpression(aModuleConstructor, FieldType).Match(out var FieldReg, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					aDefConstructor.Commands.Push(
@@ -1018,7 +1059,7 @@ mSPO2IL {
 			}
 			case mSPO_AST.tPrefixTypeNode<tPos> { Pos: var Pos, Prefix: var Prefix, Expressions: var Expressions, TypeAnnotation: var Type }: {
 				if (
-					!aDefConstructor.MapExpression(
+					!aDefConstructor.TryMapExpression(
 						aModuleConstructor,
 						mSPO_AST.TupleType(Pos, Expressions)
 					).Match(out var InnerType, out var Error)
@@ -1041,7 +1082,7 @@ mSPO2IL {
 					mIL_AST.TypeFree(HeadType.Pos, HeadType.Id)
 				);
 				
-				if (!aDefConstructor.MapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, BodyType).Match(out var BodyTypeReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -1051,10 +1092,10 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tGenericApplyTypeNode<tPos> { Pos: var Pos, GenericType: var GenericType, ArgType: var ArgType, TypeAnnotation: var Type }: {
-				if (!aDefConstructor.MapExpression(aModuleConstructor, GenericType).Match(out var GenericTypeReg, out var Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, GenericType).Match(out var GenericTypeReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
-				if (!aDefConstructor.MapExpression(aModuleConstructor, ArgType).Match(out var ArgTypeReg, out Error)) {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, ArgType).Match(out var ArgTypeReg, out Error)) {
 					return mResult.Fail(Error);
 				}
 				aDefConstructor.Commands.Push(
@@ -1072,37 +1113,40 @@ mSPO2IL {
 			default: {
 				throw mError.Error(
 					$"not implemented: case {nameof(mSPO_AST)}.{aExpressionNode.GetType().Name} " +
-					$"in {nameof(mSPO2IL)}.{nameof(MapExpression)}(...)"
+					$"in {nameof(mSPO2IL)}.{nameof(TryMapExpression)}(...)"
 				);
 			}
 		}
 	}
 	
 	internal static tBool
-	MapIfCase<tPos>(
+	TryMapMatchedCase<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
-		ref tDefConstructor<tPos> aTestAndCallCaseFunc,
+		ref tDefConstructor<tPos> aCaseFunc,
 		(mSPO_AST.tPatternNode<tPos> Match, mSPO_AST.tExpressionNode<tPos> Expression) aCase,
-		mVM_Type.tType aArgType,
 		tPos aCasePos,
-		[MaybeNullWhen(false)]out (tPos, tText) aError
+		out (tPos Pos, tText ErrorText) aError
 	) {
 		if (
-			!aTestAndCallCaseFunc.MapIfCaseRecursive(
-				aModuleConstructor,
+			!aCaseFunc.TryBindMatchedPattern(
 				aCase.Match,
 				mIL_AST.cArg,
-				aArgType,
 				out aError
 			) ||
-			!aTestAndCallCaseFunc.MapExpression(aModuleConstructor, aCase.Expression).Match(out var Res, out aError)
+			!aCaseFunc.TryMapExpression(
+				aModuleConstructor,
+				aCase.Expression
+			).Match(
+				out var Res,
+				out aError
+			)
 		) {
 			return false;
 		}
 		
-		aTestAndCallCaseFunc.Commands.Push(
+		aCaseFunc.Commands.Push(
 			[
-				mIL_AST.AddPrefix(aCasePos, aTestAndCallCaseFunc.CreateTempReg(out var TemReg), "Result", Res),
+				mIL_AST.AddPrefix(aCasePos, aCaseFunc.CreateTempReg(out var TemReg), "Result", Res),
 				mIL_AST.ReturnIf(aCasePos, mIL_AST.cTrue, TemReg),
 			]
 		);
@@ -1112,240 +1156,119 @@ mSPO2IL {
 	}
 	
 	internal static tBool
-	MapIfCaseRecursive<tPos>(
-		this ref tDefConstructor<tPos> aTestAndCallCaseFunc,
-		tModuleConstructor<tPos> aModuleConstructor,
+	TryBindMatchedPattern<tPos>(
+		this ref tDefConstructor<tPos> aCaseFunc,
 		mSPO_AST.tPatternNode<tPos> aMatch,
 		tText aInputReg,
-		mVM_Type.tType aArgType,
-		out (tPos, tText) aError
+		out (tPos Pos, tText ErrorText) aError
 	) {
 		switch (aMatch) {
 			case mSPO_AST.tCharNode<tPos>:
 			case mSPO_AST.tTuplePatternNode<tPos>: {
 				throw mError.Error($"{aMatch.GetType().Name} should already be desugared");
 			}
-			case mSPO_AST.tFreeIdPatternNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					mIL_AST.Alias(Node.Pos, Node.Id, aInputReg)
+			case mSPO_AST.tFreeIdPatternNode<tPos>:
+			case mSPO_AST.tIdNode<tPos>:
+			case mSPO_AST.tVarPatternNode<tPos>: {
+				var Id = aMatch.TryGetId().AssertNotEmpty();
+				aCaseFunc.Commands.Push(
+					mIL_AST.Alias(aMatch.Pos, Id, aInputReg)
 				);
-				
-				aTestAndCallCaseFunc.AddLocal(Node.Id, aArgType);
-				
+				aCaseFunc.AddLocal(Id, aMatch.TypeAnnotation.AssertNotEmpty());
 				break;
 			}
-			case mSPO_AST.tIgnorePatternNode<tPos> Node: {
-				break;
-			}
-			case mSPO_AST.tEmptyNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					mIL_AST.TryAsEmpty(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(), aInputReg)
-				);
-				
-				break;
-			}
-			case mSPO_AST.tTrueNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					[
-						mIL_AST.TryAsBool(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var BoolReg), aInputReg),
-						mIL_AST.XOr(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var NotReg), BoolReg, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(Node.Pos, NotReg, mIL_AST.cEmptyValue),
-					]
-				);
-				break;
-			}
-			case mSPO_AST.tFalseNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					[
-						mIL_AST.TryAsBool(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var BoolReg), aInputReg),
-						mIL_AST.ReturnIf(Node.Pos, BoolReg, mIL_AST.cEmptyValue),
-					]
-				);
-				break;
-			}
-			case mSPO_AST.tIntNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					[
-						mIL_AST.TryAsInt(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var IntArg), aInputReg),
-						mIL_AST.CreateInt(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var Int), "" + Node.Value),
-						mIL_AST.IntsAreEq(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var Eq), IntArg, Int),
-						mIL_AST.XOr(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var NotEq), Eq, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(Node.Pos, NotEq, mIL_AST.cEmptyValue),
-					]
-				);
+			case mSPO_AST.tIgnorePatternNode<tPos>:
+			case mSPO_AST.tEmptyNode<tPos>:
+			case mSPO_AST.tTrueNode<tPos>:
+			case mSPO_AST.tFalseNode<tPos>:
+			case mSPO_AST.tIntNode<tPos>: {
 				break;
 			}
 			case mSPO_AST.tPrefixPatternNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					mIL_AST.TryRemovePrefixFrom(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var InnerArg), aInputReg, Node.Prefix)
+				aCaseFunc.Commands.Push(
+					mIL_AST.SubPrefix(Node.Pos, aCaseFunc.CreateTempReg(out var InnerArg), Node.Prefix, aInputReg)
 				);
-				
 				if (
-					!aArgType.SubSet(
-						__ => __.IsPrefix(Node.Prefix, out var T) ? mMaybe.Some(T) : mStd.cEmpty
-					).IsSome(out var Type)
-				) {
-					if (
-						Node.TypeAnnotation.AssertNotEmpty()
-						.IsSubType(aArgType, mStd.cEmpty)
-						.Match(out var T_, out var Error)
-					) {
-						throw mError.Error("Impossible");
-					} else {
-						aError = (Node.Pos, Error);
-						return false;
-					}
-				}
-				
-				if (
-					!aTestAndCallCaseFunc.MapIfCaseRecursive(
-						aModuleConstructor,
+					!aCaseFunc.TryBindMatchedPattern(
 						Node.Pattern,
 						InnerArg,
-						Type,
 						out aError
 					)
 				) {
 					return false;
 				}
-				
 				break;
 			}
 			case mSPO_AST.tPairPatternNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
+				aCaseFunc.Commands.Push(
 					[
-						mIL_AST.TryAsPair(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var PairArgReg), aInputReg),
-						mIL_AST.GetFirst(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var FirstReg), PairArgReg),
-						mIL_AST.GetSecond(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var SecondReg), PairArgReg),
+						mIL_AST.GetFirst(Node.Pos, aCaseFunc.CreateTempReg(out var FirstReg), aInputReg),
+						mIL_AST.GetSecond(Node.Pos, aCaseFunc.CreateTempReg(out var SecondReg), aInputReg),
 					]
 				);
 				
-				var (T, NotT) = aArgType.SplitBy(__ => __.IsPair(out _, out _));
-				
 				if (
-					!T.IsSome(out var T_)
-				) {
-					if (
-						Node.TypeAnnotation.AssertNotEmpty()
-						.IsSubType(aArgType, mStd.cEmpty)
-						.Match(out _, out var Error)
-					) {
-						throw mError.Error("Impossible");
-					} else {
-						aError = (Node.Pos, Error);
-						return false;
-					}
-				}
-				
-				if (!T_.IsPair(out var Type1, out var Type2)) {
-					throw new System.NotImplementedException();
-				}
-				
-				if (
-					!aTestAndCallCaseFunc.MapIfCaseRecursive(
-						aModuleConstructor,
+					!aCaseFunc.TryBindMatchedPattern(
 						Node.Tail,
 						FirstReg,
-						Type1,
 						out aError
 					) ||
-					!aTestAndCallCaseFunc.MapIfCaseRecursive(
-						aModuleConstructor,
+					!aCaseFunc.TryBindMatchedPattern(
 						Node.Head,
 						SecondReg,
-						Type2,
 						out aError
 					)
 				) {
 					return false;
 				}
-				
 				break;
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> Node: {
-				aTestAndCallCaseFunc.Commands.Push(
-					mIL_AST.TryAsRecord(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var RecordReg), aInputReg)
-				);
-				
-				var (T, NotT) = aArgType.SplitBy(__ => __.IsRecord(out _));
-				
-				if (!T.IsSome(out var RecordType)) {
-					if (
-						Node.TypeAnnotation.AssertNotEmpty()
-						.IsSubType(aArgType, mStd.cEmpty)
-						.Match(out _, out var Error)
-					) {
-						throw mError.Error("Impossible");
-					} else {
-						aError = (Node.Pos, Error);
-						return false;
-					}
-				}
-				
 				foreach (var (IdNode, Pattern) in Node.Elements) {
-					var FieldType = RecordType.GetFieldType(IdNode.Id);
-					aTestAndCallCaseFunc.Commands.Push(
-						mIL_AST.GetField(IdNode.Pos, aTestAndCallCaseFunc.CreateTempReg(out var FieldReg), RecordReg, IdNode.Id)
+					aCaseFunc.Commands.Push(
+						mIL_AST.GetField(IdNode.Pos, aCaseFunc.CreateTempReg(out var FieldReg), aInputReg, IdNode.Id)
 					);
 					
 					if (
-						!aTestAndCallCaseFunc.MapIfCaseRecursive(
-							aModuleConstructor,
+						!aCaseFunc.TryBindMatchedPattern(
 							Pattern,
 							FieldReg,
-							FieldType,
 							out aError
 						)
 					) {
 						return false;
 					}
 				}
-				
 				break;
 			}
 			case mSPO_AST.tGuardPatternNode<tPos> Node: {
 				if (
-					!aTestAndCallCaseFunc.MapIfCaseRecursive(
-						aModuleConstructor,
+					!aCaseFunc.TryBindMatchedPattern(
 						Node.Pattern,
 						aInputReg,
-						aArgType,
 						out aError
 					)
 				) {
 					return false;
 				}
-				
-				if (
-					!aTestAndCallCaseFunc.MapExpression(
-						aModuleConstructor,
-						Node.Guard
-					).Match(out var TestReg, out aError)
-				) {
-					return false;
-				}
-				
-				aTestAndCallCaseFunc.Commands.Push(
-					[
-						mIL_AST.XOr(Node.Pos, aTestAndCallCaseFunc.CreateTempReg(out var TestInvertReg), TestReg, mIL_AST.cTrue),
-						mIL_AST.ReturnIf(Node.Pos, TestInvertReg, mIL_AST.cEmptyValue),
-					]
-				);
-				
 				break;
 			}
 			case mSPO_AST.tTypedPatternNode<tPos> Node: {
-				if (Node.TypeExpression.IsSome(out var TypeExpr)) {
-					aError = (TypeExpr.Pos, "TypeAnnotation not supported in §IF...Match... conditions");
+				if (
+					Node.TypeExpression.IsSome(out var TypeExpr) &&
+					Node.Pattern is not mSPO_AST.tFreeIdPatternNode<tPos>
+				) {
+					aError = (
+						TypeExpr.Pos,
+						"TypeAnnotation in §IF...MATCH is currently only supported for '§DEF Id € Type'"
+					);
 					return false;
 				}
 				
 				if (
-					!aTestAndCallCaseFunc.MapIfCaseRecursive(
-						aModuleConstructor,
+					!aCaseFunc.TryBindMatchedPattern(
 						Node.Pattern,
 						aInputReg,
-						aArgType,
 						out aError
 					)
 				) {
@@ -1362,13 +1285,200 @@ mSPO2IL {
 		return true;
 	}
 	
-	public static tBool
-	MapTypedPattern<tPos>(
-		this ref tDefConstructor<tPos> aDefConstructor,
-		mSPO_AST.tTypedPatternNode<tPos> aPatternNode,
-		tText aRegId,
-		out (tPos, tText) aError
-	) => aDefConstructor.MapPattern(aPatternNode.Pattern, aRegId, out aError);
+	static tBool
+	HasGuards<tPos>(
+		this mSPO_AST.tPatternNode<tPos> aPattern
+	) => aPattern switch {
+		mSPO_AST.tIntNode<tPos> or
+		mSPO_AST.tGuardPatternNode<tPos> =>
+			true,
+		mSPO_AST.tFreeIdPatternNode<tPos> or
+		mSPO_AST.tIdNode<tPos> or
+		mSPO_AST.tVarPatternNode<tPos> or
+		mSPO_AST.tIgnorePatternNode<tPos> or
+		mSPO_AST.tEmptyNode<tPos> or
+		mSPO_AST.tTrueNode<tPos> or
+		mSPO_AST.tFalseNode<tPos> =>
+			false,
+		mSPO_AST.tPairPatternNode<tPos> Pair =>
+			Pair.Tail.HasGuards() || Pair.Head.HasGuards(),
+		mSPO_AST.tPrefixPatternNode<tPos> Prefix =>
+			Prefix.Pattern.HasGuards(),
+		mSPO_AST.tRecordPatternNode<tPos> Record =>
+			Record.Elements.Any(__ => __.Pattern.HasGuards()),
+		mSPO_AST.tTypedPatternNode<tPos> Typed =>
+			Typed.Pattern.HasGuards(),
+		mSPO_AST.tCharNode<tPos> or
+		mSPO_AST.tTuplePatternNode<tPos> =>
+			throw mError.Error($"{aPattern.GetType().Name} should already be desugared"),
+		_ =>
+			throw new System.NotImplementedException(aPattern.GetType().Name),
+	};
+	
+	internal static tBool
+	TryMapPatternGuard<tPos>(
+		this ref tDefConstructor<tPos> aGuardFunc,
+		tModuleConstructor<tPos> aModuleConstructor,
+		mSPO_AST.tPatternNode<tPos> aPattern,
+		tText aInputReg,
+		[MaybeNullWhen(false)] out (tPos Pos, tText ErrorText) aError
+	) {
+		switch (aPattern) {
+			case mSPO_AST.tCharNode<tPos>:
+			case mSPO_AST.tTuplePatternNode<tPos>: {
+				mAssert.Fail($"{aPattern.GetType().Name} should already be desugared");
+				break;
+			}
+			case mSPO_AST.tFreeIdPatternNode<tPos>:
+			case mSPO_AST.tIdNode<tPos>:
+			case mSPO_AST.tVarPatternNode<tPos>: {
+				var Id = aPattern.TryGetId().AssertNotEmpty();
+				aGuardFunc.Commands.Push(
+					mIL_AST.Alias(aPattern.Pos, Id, aInputReg)
+				);
+				aGuardFunc.AddLocal(Id, aPattern.TypeAnnotation.AssertNotEmpty());
+				break;
+			}
+			case mSPO_AST.tIgnorePatternNode<tPos>:
+			case mSPO_AST.tEmptyNode<tPos>:
+			case mSPO_AST.tTrueNode<tPos>:
+			case mSPO_AST.tFalseNode<tPos>: {
+				break;
+			}
+			case mSPO_AST.tIntNode<tPos> Node: {
+				aGuardFunc.Commands.Push(
+					[
+						mIL_AST.CreateInt(Node.Pos, aGuardFunc.CreateTempReg(out var Int), "" + Node.Value),
+						mIL_AST.IntsAreEq(Node.Pos, aGuardFunc.CreateTempReg(out var Eq), aInputReg, Int),
+						mIL_AST.XOr(Node.Pos, aGuardFunc.CreateTempReg(out var NotEq), Eq, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(Node.Pos, NotEq, mIL_AST.cFalse),
+					]
+				);
+				break;
+			}
+			case mSPO_AST.tPrefixPatternNode<tPos> Node: {
+				aGuardFunc.Commands.Push(
+					mIL_AST.SubPrefix(
+						Node.Pos,
+						aGuardFunc.CreateTempReg(out var InnerArg),
+						Node.Prefix,
+						aInputReg
+					)
+				);
+				return aGuardFunc.TryMapPatternGuard(
+					aModuleConstructor,
+					Node.Pattern,
+					InnerArg,
+					out aError
+				);
+			}
+			case mSPO_AST.tPairPatternNode<tPos> Node: {
+				aGuardFunc.Commands.Push(
+					[
+						mIL_AST.GetFirst(Node.Pos, aGuardFunc.CreateTempReg(out var FirstReg), aInputReg),
+						mIL_AST.GetSecond(Node.Pos, aGuardFunc.CreateTempReg(out var SecondReg), aInputReg),
+					]
+				);
+				
+				if (
+					!aGuardFunc.TryMapPatternGuard(
+						aModuleConstructor,
+						Node.Tail,
+						FirstReg,
+						out aError
+					) ||
+					!aGuardFunc.TryMapPatternGuard(
+						aModuleConstructor,
+						Node.Head,
+						SecondReg,
+						out aError
+					)
+				) {
+					return false;
+				}
+				break;
+			}
+			case mSPO_AST.tRecordPatternNode<tPos> Node: {
+				foreach (var (IdNode, Pattern) in Node.Elements) {
+					aGuardFunc.Commands.Push(
+						mIL_AST.GetField(
+							IdNode.Pos,
+							aGuardFunc.CreateTempReg(out var FieldReg),
+							aInputReg,
+							IdNode.Id
+						)
+					);
+					
+					if (
+						!aGuardFunc.TryMapPatternGuard(
+							aModuleConstructor,
+							Pattern,
+							FieldReg,
+							out aError
+						)
+					) {
+						return false;
+					}
+				}
+				break;
+			}
+			case mSPO_AST.tGuardPatternNode<tPos> Node: {
+				if (
+					!aGuardFunc.TryMapPatternGuard(
+						aModuleConstructor,
+						Node.Pattern,
+						aInputReg,
+						out aError
+					)
+				) {
+					return false;
+				}
+				
+				if (
+					!aGuardFunc.TryMapExpression(
+						aModuleConstructor,
+						Node.Guard
+					).Match(
+						out var TestReg,
+						out aError
+					)
+				) {
+					return false;
+				}
+				
+				aGuardFunc.Commands.Push(
+					[
+						mIL_AST.XOr(
+							Node.Pos,
+							aGuardFunc.CreateTempReg(out var TestInvertReg),
+							TestReg,
+							mIL_AST.cTrue
+						),
+						mIL_AST.ReturnIf(
+							Node.Pos,
+							TestInvertReg,
+							mIL_AST.cFalse
+						),
+					]
+				);
+				break;
+			}
+			case mSPO_AST.tTypedPatternNode<tPos> Node: {
+				return aGuardFunc.TryMapPatternGuard(
+					aModuleConstructor,
+					Node.Pattern,
+					aInputReg,
+					out aError
+				);
+			}
+			default: {
+				throw new System.NotImplementedException(aPattern.GetType().Name); // TODO
+			}
+		}
+		
+		aError = default;
+		return true;
+	}
 	
 	public static tBool
 	MapPattern<tPos>(
@@ -1478,12 +1588,12 @@ mSPO2IL {
 				// TODO: ASSERT Guard
 				return aDefConstructor.MapPattern(Pattern, aRegId, out aError);
 			}
-			case mSPO_AST.tTypedPatternNode<tPos> PatternNode: {
-				return aDefConstructor.MapTypedPattern(PatternNode, aRegId, out aError);
+			case mSPO_AST.tTypedPatternNode<tPos> { Pattern: var Pattern }: {
+				return aDefConstructor.MapPattern(Pattern, aRegId, out aError);
 			}
 			default: {
 				throw mError.Error(
-					$"not implemented: {nameof(mSPO_AST)}.{aPatternNode.GetType().Name} in {nameof(mSPO2IL)}.{nameof(MapTypedPattern)}(...)"
+					$"not implemented: {nameof(mSPO_AST)}.{aPatternNode.GetType().Name} in {nameof(mSPO2IL)}.{nameof(MapPattern)}(...)"
 				);
 			}
 		}
@@ -1499,7 +1609,7 @@ mSPO2IL {
 		mSPO_AST.tDefNode<tPos> aDefNode,
 		out (tPos Pos, tText ErrorText) aError
 	) => (
-		aDefConstructor.MapExpression(aModuleConstructor, aDefNode.Src).Match(out var ValueReg, out aError) &&
+		aDefConstructor.TryMapExpression(aModuleConstructor, aDefNode.Src).Match(out var ValueReg, out aError) &&
 		aDefConstructor.MapPattern(aDefNode.Des, ValueReg, out aError)
 	);
 	
@@ -1511,8 +1621,8 @@ mSPO2IL {
 		out (tPos, tText) aError
 	) {
 		if (
-			aDefConstructor.MapExpression(aModuleConstructor, aReturnNode.Condition).Match(out var CondReg, out aError) &&
-			aDefConstructor.MapExpression(aModuleConstructor, aReturnNode.Result).Match(out var ResReg, out aError)
+			aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Condition).Match(out var CondReg, out aError) &&
+			aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Result).Match(out var ResReg, out aError)
 		) {
 			aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aReturnNode.Pos, CondReg, ResReg));
 			return true;
@@ -1696,7 +1806,7 @@ mSPO2IL {
 		mSPO_AST.tDefVarNode<tPos> aDefVarNode,
 		out (tPos, tText) aError
 	) {
-		if (!aDefConstructor.MapExpression(aModuleConstructor, aDefVarNode.Expression).Match(out var Reg, out aError)) {
+		if (!aDefConstructor.TryMapExpression(aModuleConstructor, aDefVarNode.Expression).Match(out var Reg, out aError)) {
 			return false;
 		}
 		
@@ -1733,11 +1843,11 @@ mSPO2IL {
 	) {
 		// TODO: set proper Def type ?
 		
-		if (!aDefConstructor.MapExpression(aModuleConstructor, aMethodCallsNode.Object).Match(out var Object, out aError)) {
+		if (!aDefConstructor.TryMapExpression(aModuleConstructor, aMethodCallsNode.Object).Match(out var Object, out aError)) {
 			return false;
 		}
 		foreach (var Call in aMethodCallsNode.MethodCalls) {
-			if (!aDefConstructor.MapExpression(aModuleConstructor, Call.Argument).Match(out var Arg, out aError)) {
+			if (!aDefConstructor.TryMapExpression(aModuleConstructor, Call.Argument).Match(out var Arg, out aError)) {
 				return false;
 			}
 			if (Call.Argument.TypeAnnotation.IsSome(out var ArgType) && ArgType.IsVar(out var ArgInnerType)) {

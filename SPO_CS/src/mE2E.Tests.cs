@@ -97,7 +97,7 @@ mE2E_Tests {
 											ResRes.Value.Result.Data.ToText(1000)
 										);
 									},
-									SPO_File + ", " + mStd.File()
+									SPO_File.Name + ", " + mStd.File()
 								),
 								mTest.Test(
 									".SPO -> .ILT",
@@ -122,7 +122,7 @@ mE2E_Tests {
 											);
 										}
 									},
-									SPO_File + ", " + ILT_File + ", " + mStd.File()
+									SPO_File.Name + ", " + ILT_File + ", " + mStd.File()
 								),
 								mTest.Test(
 									".ILT == .result.SPO",
@@ -149,7 +149,7 @@ mE2E_Tests {
 										
 										mAssert.AreEquals(IL_Res.Data.ToText(1000), ResRes.Value.Result.Data.ToText(1000));
 									},
-									ILT_File + ", " + mStd.File()
+									ILT_File.Name + ", " + mStd.File()
 								),
 							]
 						)

@@ -315,6 +315,32 @@ mVM_Type {
 			return false;
 		}
 	}
+
+	public static tBool
+	TryProjectPair(
+		this tType aType,
+		[MaybeNullWhen(false)] out tType aLeft,
+		[MaybeNullWhen(false)] out tType aRight
+	) {
+		if (
+			aType.SubSet(
+				__ => __.IsPair(out var Left, out _) ? Left : mStd.cEmpty
+			).IsSome(
+				out aLeft
+			) &&
+			aType.SubSet(
+				__ => __.IsPair(out _, out var Right) ? Right : mStd.cEmpty
+			).IsSome(
+				out aRight
+			)
+		) {
+			return true;
+		} else {
+			aLeft = default;
+			aRight = default;
+			return false;
+		}
+	}
 	
 	public static tType
 	GetFieldType(
@@ -982,13 +1008,31 @@ mVM_Type {
 	SubSet(
 		this tType aType,
 		mStd.tFunc<tType, mMaybe.tMaybe<tType>> aSelect
-	) => (
-		aSelect(aType).IsSome(out var Res) ? Res :
-		!aType.IsSet(out var T1, out var T2) ? mStd.cEmpty :
-		!T1.SubSet(aSelect).IsSome(out var T1_) ? T2.SubSet(aSelect) :
-		!T2.SubSet(aSelect).IsSome(out var T2_) ? T1_ :
-		Set(T1_, T2_)
-	);
+	) {
+		if (aSelect(aType).IsSome(out var Result)) {
+			return Result;
+		}
+		
+		if (aType.IsRecursive(out var Head, out var Body)) {
+			var Expanded = Body.Substitute(Head.Id!, aType);
+			
+			return ReferenceEquals(Expanded, aType)
+			? mStd.cEmpty
+			: Expanded.SubSet(aSelect);
+		}
+		
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			var Selected1 = Type1.SubSet(aSelect);
+			var Selected2 = Type2.SubSet(aSelect);
+			
+			return !Selected1.IsSome(out var SelectedType1) ? Selected2
+			: !Selected2.IsSome(out var SelectedType2) ? Selected1
+			: SelectedType1 == SelectedType2 ? Selected1
+			: Set(SelectedType1, SelectedType2);
+		}
+		
+		return mStd.cEmpty;
+	}
 	
 	public static tType
 	BaseType(
@@ -1051,13 +1095,17 @@ mVM_Type {
 		return ResType;
 	}
 	
-	public static (mMaybe.tMaybe<mVM_Type.tType> Matched, mMaybe.tMaybe<mVM_Type.tType> Remainder)
+	public static (mMaybe.tMaybe<tType> Matched, mMaybe.tMaybe<tType> Remainder)
 	SplitBy(
-		this mVM_Type.tType aType,
-		mStd.tFunc<mVM_Type.tType, tBool> aIsMatching
+		this tType aType,
+		mStd.tFunc<tType, tBool> aIsMatching
 	) {
 		if (aType.IsRecursive(out var Head, out var Body)) {
-			return Body.Substitute(Head.Id, Body).SplitBy(aIsMatching);
+			var Expanded = Body.Substitute(Head.Id!, aType);
+			
+			return ReferenceEquals(Expanded, aType)
+			? (mStd.cEmpty, mMaybe.Some(aType))
+			: Expanded.SplitBy(aIsMatching);
 		}
 		
 		if (aType.IsSet(out var Type1, out var Type2)) {
@@ -1065,12 +1113,8 @@ mVM_Type {
 			var (Matched2, Remainder2) = Type2.SplitBy(aIsMatching);
 			
 			return (
-				!Matched1.IsSome(out var Matched1_) ? Matched2 :
-				!Matched2.IsSome(out var Matched2_) ? Matched1 :
-				Union(Matched1_, Matched2_),
-				!Remainder1.IsSome(out var Remainder1_) ? Remainder2 :
-				!Remainder2.IsSome(out var Remainder2_) ? Remainder1 :
-				Union(Remainder1_, Remainder2_)
+				Union(Matched1, Matched2),
+				Union(Remainder1, Remainder2)
 			);
 		}
 		
@@ -1079,10 +1123,10 @@ mVM_Type {
 		: (mStd.cEmpty, aType);
 	}
 	
-	public static mVM_Type.tType
+	public static tType
 	Union(
-		mVM_Type.tType aType1,
-		mVM_Type.tType aType2
+		tType aType1,
+		tType aType2
 	) {
 		if (aType1.IsEmpty()) {
 			return aType2;
@@ -1097,7 +1141,51 @@ mVM_Type {
 			return aType1;
 		}
 		
-		return mVM_Type.Set(aType1, aType2);
+		return Set(aType1, aType2);
+	}
+	
+	public static mMaybe.tMaybe<tType>
+	Union(
+		mMaybe.tMaybe<tType> aType1,
+		mMaybe.tMaybe<tType> aType2
+	) => (
+		!aType1.IsSome(out var Type1) ? aType2 :
+		!aType2.IsSome(out var Type2) ? aType1 :
+		Type1 == Type2 ? aType1 :
+		mMaybe.Some(Set(Type1, Type2))
+	);
+	
+	public static mMaybe.tMaybe<tType>
+	Subtract(
+		this tType aType,
+		tType aRemoved
+	) {
+		if (aType.IsSubType(aRemoved, mStd.cEmpty).Match(out _, out _)) {
+			return mStd.cEmpty;
+		} else if (aType.IsSet(out var Type1, out var Type2)) {
+			return Union(Type1.Subtract(aRemoved), Type2.Subtract(aRemoved));
+		} else if (aRemoved.IsSet(out Type1, out Type2)) {
+			return aType.Subtract(Type1).ThenTry(__ => __.Subtract(Type2));
+		} else if (aType.IsRecursive(out var Head, out var Body)) {
+			return Body.Substitute(Head.Id!, aType).Subtract(aRemoved);
+		} else if (aRemoved.IsRecursive(out Head, out Body)) {
+			return aType.Subtract(Body.Substitute(Head.Id!, aRemoved));
+		} else if (
+			aType.IsPair(out var First, out var Second) &&
+			aRemoved.IsPair(out var RemovedFirst, out var RemovedSecond)
+		) {
+			return Union(
+				First.Subtract(RemovedFirst).Then(__ => Pair(__, Second)),
+				Second.Subtract(RemovedSecond).Then(__ => Pair(RemovedFirst, __))
+			);
+		} else if (
+			aType.IsPrefix(out var Prefix, out var Inner) &&
+			aRemoved.IsPrefix(Prefix, out var RemovedInner)
+		) {
+			return Inner.Subtract(RemovedInner).Then(__ => mVM_Type.Prefix(Prefix, __));
+		} else {
+			return aType;
+		}
 	}
 	
 	public static tText

@@ -5,161 +5,104 @@
 	t_3 := [{t_1} + t_2]
 	t_4 := [TRUE | FALSE]
 	t_5 := [#Result t_4]
-	t_6 := [EMPTY_TYPE | t_5]
-	t_7 := [t_3 => t_6]
-	t_8 := [EMPTY_TYPE => t_7]
-	t_9 := [#_First EMPTY_TYPE]
-	t_10 := [{EMPTY_TYPE} + t_9]
-	t_11 := [#_Second INT]
-	t_12 := [{t_10} + t_11]
-	t_13 := [#_First EMPTY_TYPE]
-	t_14 := [{EMPTY_TYPE} + t_13]
-	t_15 := [#_Second INT]
-	t_16 := [{t_14} + t_15]
-	t_17 := [t_16 => t_4]
-	t_18 := [EMPTY_TYPE => t_17]
-	t_19 := [EMPTY_TYPE, t_18]
-	t_20 := [#_First EMPTY_TYPE]
-	t_21 := [{EMPTY_TYPE} + t_20]
-	t_22 := [#_Second INT]
-	t_23 := [{t_21} + t_22]
-	t_24 := [t_19, t_18]
-	t_25 := [#_First EMPTY_TYPE]
-	t_26 := [{EMPTY_TYPE} + t_25]
-	t_27 := [#_Second INT]
-	t_28 := [{t_26} + t_27]
-	t_29 := [t_28 => t_5]
-	t_30 := [t_24 => t_29]
-	t_31 := [#_First EMPTY_TYPE]
-	t_32 := [{EMPTY_TYPE} + t_31]
-	t_33 := [#_Second INT]
-	t_34 := [{t_32} + t_33]
-	t_35 := [#_First EMPTY_TYPE]
-	t_36 := [{EMPTY_TYPE} + t_35]
-	t_37 := [#_Second INT]
-	t_38 := [{t_36} + t_37]
-	t_39 := [#_First EMPTY_TYPE]
-	t_40 := [{EMPTY_TYPE} + t_39]
-	t_41 := [#_Second INT]
-	t_42 := [{t_40} + t_41]
-	t_43 := [#_First EMPTY_TYPE]
-	t_44 := [{EMPTY_TYPE} + t_43]
-	t_45 := [#_Second INT]
-	t_46 := [{t_44} + t_45]
-	t_47 := [#_First EMPTY_TYPE]
-	t_48 := [{EMPTY_TYPE} + t_47]
-	t_49 := [#_Second INT]
-	t_50 := [{t_48} + t_49]
-	t_51 := [t_24, t_30]
-	t_52 := [INT | EMPTY_TYPE]
-	t_53 := [EMPTY_TYPE => t_52]
-	t_54 := [t_51 => t_53]
-	t_55 := [#_First EMPTY_TYPE]
-	t_56 := [{EMPTY_TYPE} + t_55]
-	t_57 := [#_Second INT]
-	t_58 := [{t_56} + t_57]
-	t_59 := [#_First EMPTY_TYPE]
-	t_60 := [{EMPTY_TYPE} + t_59]
-	t_61 := [#_Second INT]
-	t_62 := [{t_60} + t_61]
-	t_63 := [#_First EMPTY_TYPE]
-	t_64 := [{EMPTY_TYPE} + t_63]
-	t_65 := [#_Second INT]
-	t_66 := [{t_64} + t_65]
-	t_67 := [#_First EMPTY_TYPE]
-	t_68 := [{EMPTY_TYPE} + t_67]
-	t_69 := [#_Second INT]
-	t_70 := [{t_68} + t_69]
-	t_71 := [#_First EMPTY_TYPE]
-	t_72 := [{EMPTY_TYPE} + t_71]
-	t_73 := [#_Second INT]
-	t_74 := [{t_72} + t_73]
-	t_75 := [#_First EMPTY_TYPE]
-	t_76 := [{EMPTY_TYPE} + t_75]
-	t_77 := [#_Second INT]
-	t_78 := [{t_76} + t_77]
-	t_79 := [#_First EMPTY_TYPE]
-	t_80 := [{EMPTY_TYPE} + t_79]
-	t_81 := [#_Second INT]
-	t_82 := [{t_80} + t_81]
-	t_83 := [#_First EMPTY_TYPE]
-	t_84 := [{EMPTY_TYPE} + t_83]
-	t_85 := [#_Second INT]
-	t_86 := [{t_84} + t_85]
-	t_87 := [#_First EMPTY_TYPE]
-	t_88 := [{EMPTY_TYPE} + t_87]
-	t_89 := [#_Second INT]
-	t_90 := [{t_88} + t_89]
-	t_91 := [#_First EMPTY_TYPE]
-	t_92 := [{EMPTY_TYPE} + t_91]
-	t_93 := [#_Second INT]
-	t_94 := [{t_92} + t_93]
-	t_95 := [t_51, t_54]
-	t_96 := [EMPTY_TYPE => INT]
-	t_97 := [t_95 => t_96]
+	t_6 := [t_3 => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [#_First EMPTY_TYPE]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [#_Second INT]
+	t_11 := [{t_9} + t_10]
+	t_12 := [#_First EMPTY_TYPE]
+	t_13 := [{EMPTY_TYPE} + t_12]
+	t_14 := [#_Second INT]
+	t_15 := [{t_13} + t_14]
+	t_16 := [t_7 => t_6]
+	t_17 := [#_First EMPTY_TYPE]
+	t_18 := [{EMPTY_TYPE} + t_17]
+	t_19 := [#_Second INT]
+	t_20 := [{t_18} + t_19]
+	t_21 := [EMPTY_TYPE, t_7]
+	t_22 := [#_First EMPTY_TYPE]
+	t_23 := [{EMPTY_TYPE} + t_22]
+	t_24 := [#_Second INT]
+	t_25 := [{t_23} + t_24]
+	t_26 := [#_First EMPTY_TYPE]
+	t_27 := [{EMPTY_TYPE} + t_26]
+	t_28 := [#_Second INT]
+	t_29 := [{t_27} + t_28]
+	t_30 := [t_21, t_16]
+	t_31 := [INT | EMPTY_TYPE]
+	t_32 := [EMPTY_TYPE => t_31]
+	t_33 := [t_30 => t_32]
+	t_34 := [#_First EMPTY_TYPE]
+	t_35 := [{EMPTY_TYPE} + t_34]
+	t_36 := [#_Second INT]
+	t_37 := [{t_35} + t_36]
+	t_38 := [#_First EMPTY_TYPE]
+	t_39 := [{EMPTY_TYPE} + t_38]
+	t_40 := [#_Second INT]
+	t_41 := [{t_39} + t_40]
+	t_42 := [#_First EMPTY_TYPE]
+	t_43 := [{EMPTY_TYPE} + t_42]
+	t_44 := [#_Second INT]
+	t_45 := [{t_43} + t_44]
+	t_46 := [#_First EMPTY_TYPE]
+	t_47 := [{EMPTY_TYPE} + t_46]
+	t_48 := [#_Second INT]
+	t_49 := [{t_47} + t_48]
+	t_50 := [#_First EMPTY_TYPE]
+	t_51 := [{EMPTY_TYPE} + t_50]
+	t_52 := [#_Second INT]
+	t_53 := [{t_51} + t_52]
+	t_54 := [#_First EMPTY_TYPE]
+	t_55 := [{EMPTY_TYPE} + t_54]
+	t_56 := [#_Second INT]
+	t_57 := [{t_55} + t_56]
+	t_58 := [t_30, t_33]
+	t_59 := [EMPTY_TYPE => INT]
+	t_60 := [t_58 => t_59]
 
-§DEF d_0 € t_8
-	r_1 := §TRY ARG AS_RECORD
-	r_2 := {r_1} #_First
-	r_3 := §TRY r_2 AS_EMPTY
-	r_4 := {r_1} #_Second
-	r_5 := +#Result TRUE
-	§RETURN r_5 IF TRUE
+§DEF d_0 € t_7
+	r_1 := {ARG} #_First
+	r_2 := {ARG} #_Second
+	r_3 := +#Result TRUE
+	§RETURN r_3 IF TRUE
 
-§DEF d_1 € t_8
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
-
-§DEF d_2 € t_30
-	d_1 := §2ND ENV
-	r_5 := §1ST ENV
-	d_0 := §2ND r_5
-	r_6 := §1ST r_5
+§DEF d_1 € t_16
+	d_0 := ENV
 	r_1 := .d_0 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_1 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_54
-	d_2 := §2ND ENV
-	r_13 := §1ST ENV
-	d_1 := §2ND r_13
-	r_14 := §1ST r_13
-	d_0 := §2ND r_14
-	r_15 := §1ST r_14
+§DEF d_2 € t_33
+	d_1 := §2ND ENV
+	r_11 := §1ST ENV
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
 	§RETURN ARG IF_NOT_EMPTY
 	r_1 := +#_First EMPTY
 	r_2 := {EMPTY} + r_1
 	r_3 := 7
 	r_4 := +#_Second r_3
 	r_5 := {r_2} + r_4
-	r_6 := EMPTY, d_0
-	r_7 := r_6, d_1
-	r_8 := .d_2 r_7
-	r_9 := .r_8 r_5
-	r_10 := -#Result r_9
-	r_11 := 1
-	§RETURN r_11 IF r_10
-	r_12 := 0
-	§RETURN r_12 IF TRUE
+	r_6 := .d_1 d_0
+	r_7 := .r_6 r_5
+	r_8 := -#Result r_7
+	r_9 := 1
+	§RETURN r_9 IF r_8
+	r_10 := 0
+	§RETURN r_10 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_97
-	d_3 := §2ND ENV
-	r_7 := §1ST ENV
-	d_2 := §2ND r_7
+§DEF d_3 € t_60
+	d_2 := §2ND ENV
+	r_6 := §1ST ENV
+	d_1 := §2ND r_6
+	r_7 := §1ST r_6
+	d_0 := §2ND r_7
 	r_8 := §1ST r_7
-	d_1 := §2ND r_8
-	r_9 := §1ST r_8
-	d_0 := §2ND r_9
-	r_10 := §1ST r_9
 	r_2 := EMPTY, d_0
 	r_3 := r_2, d_1
-	r_4 := r_3, d_2
-	r_5 := .d_3 r_4
-	r_6 := .r_5 EMPTY
-	r_1 := r_6
+	r_4 := .d_2 r_3
+	r_5 := .r_4 EMPTY
+	r_1 := r_5
 	§RETURN r_1 IF TRUE

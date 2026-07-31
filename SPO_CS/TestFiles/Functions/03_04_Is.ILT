@@ -1,472 +1,501 @@
 §TYPES
 	t_0 := [TRUE | FALSE]
 	t_1 := [#Result t_0]
-	t_2 := [EMPTY_TYPE | t_1]
-	t_3 := [INT => t_2]
-	t_4 := [EMPTY_TYPE => t_3]
-	t_5 := [INT => t_0]
-	t_6 := [EMPTY_TYPE => t_5]
-	t_7 := [EMPTY_TYPE, t_6]
-	t_8 := [t_7, t_6]
-	t_9 := [INT => t_1]
-	t_10 := [t_8 => t_9]
-	t_11 := [EMPTY_TYPE, INT]
-	t_12 := [t_11, INT]
-	t_13 := [t_12 => t_2]
-	t_14 := [EMPTY_TYPE => t_13]
-	t_15 := [t_12 => t_0]
+	t_2 := [INT => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [INT => t_0]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE, t_3]
+	t_7 := [t_6, t_5]
+	t_8 := [t_7, t_3]
+	t_9 := [t_8 => t_2]
+	t_10 := [EMPTY_TYPE, INT]
+	t_11 := [t_10, INT]
+	t_12 := [t_11 => t_1]
+	t_13 := [EMPTY_TYPE => t_12]
+	t_14 := [t_13 => t_12]
+	t_15 := [t_11 => t_0]
 	t_16 := [EMPTY_TYPE => t_15]
-	t_17 := [EMPTY_TYPE, t_16]
+	t_17 := [EMPTY_TYPE, t_13]
 	t_18 := [t_17, t_16]
-	t_19 := [t_12 => t_1]
-	t_20 := [t_18 => t_19]
+	t_19 := [t_18, t_13]
+	t_20 := [t_19 => t_12]
 	t_21 := [#_Foo... INT]
-	t_22 := [t_21 => t_2]
+	t_22 := [t_21 => t_1]
 	t_23 := [EMPTY_TYPE => t_22]
-	t_24 := [t_21 => t_0]
-	t_25 := [EMPTY_TYPE => t_24]
-	t_26 := [EMPTY_TYPE, t_25]
-	t_27 := [t_26, t_25]
-	t_28 := [t_21 => t_1]
-	t_29 := [t_27 => t_28]
-	t_30 := [t_8, t_10]
-	t_31 := [t_30, t_6]
-	t_32 := [t_31, t_6]
-	t_33 := [t_32, t_10]
-	t_34 := [t_33, t_16]
-	t_35 := [t_34, t_16]
-	t_36 := [t_35, t_20]
-	t_37 := [t_36, t_16]
-	t_38 := [t_37, t_16]
-	t_39 := [t_38, t_20]
-	t_40 := [t_39, t_16]
-	t_41 := [t_40, t_16]
-	t_42 := [t_41, t_20]
+	t_24 := [t_23 => t_22]
+	t_25 := [t_21 => t_0]
+	t_26 := [EMPTY_TYPE => t_25]
+	t_27 := [EMPTY_TYPE, t_23]
+	t_28 := [t_27, t_26]
+	t_29 := [t_28, t_23]
+	t_30 := [t_29 => t_22]
+	t_31 := [t_8, t_9]
+	t_32 := [t_31, t_3]
+	t_33 := [t_32, t_5]
+	t_34 := [t_33, t_3]
+	t_35 := [t_34, t_9]
+	t_36 := [t_35, t_13]
+	t_37 := [t_36, t_14]
+	t_38 := [t_37, t_13]
+	t_39 := [t_38, t_16]
+	t_40 := [t_39, t_13]
+	t_41 := [t_40, t_20]
+	t_42 := [t_41, t_13]
 	t_43 := [t_42, t_16]
-	t_44 := [t_43, t_16]
+	t_44 := [t_43, t_13]
 	t_45 := [t_44, t_20]
-	t_46 := [t_45, t_16]
+	t_46 := [t_45, t_13]
 	t_47 := [t_46, t_16]
-	t_48 := [t_47, t_20]
-	t_49 := [t_48, t_16]
-	t_50 := [t_49, t_16]
-	t_51 := [t_50, t_20]
-	t_52 := [t_51, t_25]
-	t_53 := [t_52, t_25]
-	t_54 := [t_53, t_29]
-	t_55 := [t_54, t_25]
-	t_56 := [t_55, t_25]
-	t_57 := [t_56, t_29]
-	t_58 := [t_57, t_25]
-	t_59 := [t_58, t_25]
-	t_60 := [t_59, t_29]
-	t_61 := [EMPTY_TYPE, t_0]
-	t_62 := [t_61, t_0]
-	t_63 := [t_62, t_0]
-	t_64 := [t_63, t_0]
-	t_65 := [t_64, t_0]
-	t_66 := [t_65, t_0]
-	t_67 := [t_66, t_0]
-	t_68 := [t_67, t_0]
+	t_48 := [t_47, t_13]
+	t_49 := [t_48, t_20]
+	t_50 := [t_49, t_13]
+	t_51 := [t_50, t_16]
+	t_52 := [t_51, t_13]
+	t_53 := [t_52, t_20]
+	t_54 := [t_53, t_13]
+	t_55 := [t_54, t_16]
+	t_56 := [t_55, t_13]
+	t_57 := [t_56, t_20]
+	t_58 := [t_57, t_23]
+	t_59 := [t_58, t_24]
+	t_60 := [t_59, t_23]
+	t_61 := [t_60, t_26]
+	t_62 := [t_61, t_23]
+	t_63 := [t_62, t_30]
+	t_64 := [t_63, t_23]
+	t_65 := [t_64, t_26]
+	t_66 := [t_65, t_23]
+	t_67 := [t_66, t_30]
+	t_68 := [EMPTY_TYPE, t_0]
 	t_69 := [t_68, t_0]
 	t_70 := [t_69, t_0]
 	t_71 := [t_70, t_0]
-	t_72 := [EMPTY_TYPE => t_71]
-	t_73 := [t_60 => t_72]
+	t_72 := [t_71, t_0]
+	t_73 := [t_72, t_0]
+	t_74 := [t_73, t_0]
+	t_75 := [t_74, t_0]
+	t_76 := [t_75, t_0]
+	t_77 := [t_76, t_0]
+	t_78 := [t_77, t_0]
+	t_79 := [EMPTY_TYPE => t_78]
+	t_80 := [t_67 => t_79]
 
-§DEF d_0 € t_4
-	r_1 := §TRY ARG AS_INT
-	r_2 := 12
-	r_3 := §INT r_1 == r_2
-	r_4 := §BOOL r_3 ^ TRUE
-	§RETURN EMPTY IF r_4
-	r_5 := +#Result TRUE
-	§RETURN r_5 IF TRUE
+§DEF d_0 € t_3
+	r_1 := +#Result TRUE
+	§RETURN r_1 IF TRUE
 
-§DEF d_1 € t_4
+§DEF d_1 € t_5
+	r_1 := 12
+	r_2 := §INT ARG == r_1
+	r_3 := §BOOL r_2 ^ TRUE
+	§RETURN FALSE IF r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_2 € t_3
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_2 € t_10
-	d_1 := §2ND ENV
-	r_5 := §1ST ENV
+§DEF d_3 € t_9
+	d_2 := §2ND ENV
+	r_4 := §1ST ENV
+	d_1 := §2ND r_4
+	r_5 := §1ST r_4
 	d_0 := §2ND r_5
 	r_6 := §1ST r_5
 	r_1 := .d_0 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_1 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	r_2 := .d_1 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_2 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_4
-	r_1 := §TRY ARG AS_INT
-	r_2 := 13
-	r_3 := §INT r_1 == r_2
-	r_4 := §BOOL r_3 ^ TRUE
-	§RETURN EMPTY IF r_4
+§DEF d_4 € t_3
+	r_1 := +#Result TRUE
+	§RETURN r_1 IF TRUE
+
+§DEF d_5 € t_5
+	r_1 := 13
+	r_2 := §INT ARG == r_1
+	r_3 := §BOOL r_2 ^ TRUE
+	§RETURN FALSE IF r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_6 € t_3
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_7 € t_9
+	d_6 := §2ND ENV
+	r_4 := §1ST ENV
+	d_5 := §2ND r_4
+	r_5 := §1ST r_4
+	d_4 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_4 EMPTY
+	r_2 := .d_5 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_6 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_8 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
 	r_5 := +#Result TRUE
 	§RETURN r_5 IF TRUE
 
-§DEF d_4 € t_4
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
-
-§DEF d_5 € t_10
-	d_4 := §2ND ENV
-	r_5 := §1ST ENV
-	d_3 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_3 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_4 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
-	§RETURN EMPTY IF TRUE
-
-§DEF d_6 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := +#Result TRUE
-	§RETURN r_8 IF TRUE
-
-§DEF d_7 € t_14
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
-
-§DEF d_8 € t_20
-	d_7 := §2ND ENV
-	r_5 := §1ST ENV
-	d_6 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_6 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_7 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
-	§RETURN EMPTY IF TRUE
-
 §DEF d_9 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_6 AS_INT
-	r_9 := 1
-	r_10 := §INT r_8 == r_9
-	r_11 := §BOOL r_10 ^ TRUE
-	§RETURN EMPTY IF r_11
-	r_12 := +#Result TRUE
-	§RETURN r_12 IF TRUE
+	d_8 := ENV
+	r_1 := .d_8 EMPTY
+	§TRY_RETURN .r_1 ARG
+	§RETURN EMPTY IF TRUE
 
-§DEF d_10 € t_14
+§DEF d_10 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := +#Result TRUE
+	§RETURN r_5 IF TRUE
+
+§DEF d_11 € t_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := 1
+	r_6 := §INT r_4 == r_5
+	r_7 := §BOOL r_6 ^ TRUE
+	§RETURN FALSE IF r_7
+	§RETURN TRUE IF TRUE
+
+§DEF d_12 € t_13
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_11 € t_20
-	d_10 := §2ND ENV
-	r_5 := §1ST ENV
-	d_9 := §2ND r_5
+§DEF d_13 € t_20
+	d_12 := §2ND ENV
+	r_4 := §1ST ENV
+	d_11 := §2ND r_4
+	r_5 := §1ST r_4
+	d_10 := §2ND r_5
 	r_6 := §1ST r_5
-	r_1 := .d_9 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_10 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	r_1 := .d_10 EMPTY
+	r_2 := .d_11 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_12 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_12 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_3 AS_INT
-	r_9 := 2
-	r_10 := §INT r_8 == r_9
-	r_11 := §BOOL r_10 ^ TRUE
-	§RETURN EMPTY IF r_11
-	r_12 := +#Result TRUE
-	§RETURN r_12 IF TRUE
+§DEF d_14 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := +#Result TRUE
+	§RETURN r_5 IF TRUE
 
-§DEF d_13 € t_14
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
+§DEF d_15 € t_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := 2
+	r_6 := §INT r_2 == r_5
+	r_7 := §BOOL r_6 ^ TRUE
+	§RETURN FALSE IF r_7
+	§RETURN TRUE IF TRUE
 
-§DEF d_14 € t_20
-	d_13 := §2ND ENV
-	r_5 := §1ST ENV
-	d_12 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_12 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_13 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
-	§RETURN EMPTY IF TRUE
-
-§DEF d_15 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_6 AS_INT
-	r_9 := 1
-	r_10 := §INT r_8 == r_9
-	r_11 := §BOOL r_10 ^ TRUE
-	§RETURN EMPTY IF r_11
-	r_12 := §TRY r_3 AS_INT
-	r_13 := 2
-	r_14 := §INT r_12 == r_13
-	r_15 := §BOOL r_14 ^ TRUE
-	§RETURN EMPTY IF r_15
-	r_16 := +#Result TRUE
-	§RETURN r_16 IF TRUE
-
-§DEF d_16 € t_14
+§DEF d_16 € t_13
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
 §DEF d_17 € t_20
 	d_16 := §2ND ENV
-	r_5 := §1ST ENV
-	d_15 := §2ND r_5
+	r_4 := §1ST ENV
+	d_15 := §2ND r_4
+	r_5 := §1ST r_4
+	d_14 := §2ND r_5
 	r_6 := §1ST r_5
-	r_1 := .d_15 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
+	r_1 := .d_14 EMPTY
+	r_2 := .d_15 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
 	r_3 := .d_16 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_18 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_6 AS_INT
-	r_9 := 2
-	r_10 := §INT r_8 == r_9
-	r_11 := §BOOL r_10 ^ TRUE
-	§RETURN EMPTY IF r_11
-	r_12 := +#Result TRUE
-	§RETURN r_12 IF TRUE
+§DEF d_18 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := +#Result TRUE
+	§RETURN r_5 IF TRUE
 
-§DEF d_19 € t_14
+§DEF d_19 € t_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := 1
+	r_6 := §INT r_4 == r_5
+	r_7 := §BOOL r_6 ^ TRUE
+	§RETURN FALSE IF r_7
+	r_8 := 2
+	r_9 := §INT r_2 == r_8
+	r_10 := §BOOL r_9 ^ TRUE
+	§RETURN FALSE IF r_10
+	§RETURN TRUE IF TRUE
+
+§DEF d_20 € t_13
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_20 € t_20
-	d_19 := §2ND ENV
-	r_5 := §1ST ENV
+§DEF d_21 € t_20
+	d_20 := §2ND ENV
+	r_4 := §1ST ENV
+	d_19 := §2ND r_4
+	r_5 := §1ST r_4
 	d_18 := §2ND r_5
 	r_6 := §1ST r_5
 	r_1 := .d_18 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_19 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	r_2 := .d_19 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_20 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_21 € t_14
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
+§DEF d_22 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := +#Result TRUE
+	§RETURN r_5 IF TRUE
+
+§DEF d_23 € t_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := 2
+	r_6 := §INT r_4 == r_5
+	r_7 := §BOOL r_6 ^ TRUE
+	§RETURN FALSE IF r_7
+	§RETURN TRUE IF TRUE
+
+§DEF d_24 € t_13
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_25 € t_20
+	d_24 := §2ND ENV
+	r_4 := §1ST ENV
+	d_23 := §2ND r_4
 	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_3 AS_INT
-	r_9 := 3
-	r_10 := §INT r_8 == r_9
-	r_11 := §BOOL r_10 ^ TRUE
-	§RETURN EMPTY IF r_11
-	r_12 := +#Result TRUE
-	§RETURN r_12 IF TRUE
-
-§DEF d_22 € t_14
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
-
-§DEF d_23 € t_20
-	d_22 := §2ND ENV
-	r_5 := §1ST ENV
-	d_21 := §2ND r_5
+	d_22 := §2ND r_5
 	r_6 := §1ST r_5
-	r_1 := .d_21 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_22 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	r_1 := .d_22 EMPTY
+	r_2 := .d_23 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_24 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_24 € t_23
-	r_1 := §TRY_REMOVE #_Foo... FROM ARG
-	r_2 := +#Result TRUE
-	§RETURN r_2 IF TRUE
+§DEF d_26 € t_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := +#Result TRUE
+	§RETURN r_5 IF TRUE
 
-§DEF d_25 € t_23
+§DEF d_27 € t_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	r_5 := 3
+	r_6 := §INT r_2 == r_5
+	r_7 := §BOOL r_6 ^ TRUE
+	§RETURN FALSE IF r_7
+	§RETURN TRUE IF TRUE
+
+§DEF d_28 € t_13
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_26 € t_29
-	d_25 := §2ND ENV
-	r_5 := §1ST ENV
-	d_24 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_24 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_25 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
-	§RETURN EMPTY IF TRUE
-
-§DEF d_27 € t_23
-	r_1 := §TRY_REMOVE #_Foo... FROM ARG
-	r_2 := §TRY r_1 AS_INT
-	r_3 := 12
-	r_4 := §INT r_2 == r_3
-	r_5 := §BOOL r_4 ^ TRUE
-	§RETURN EMPTY IF r_5
-	r_6 := +#Result TRUE
-	§RETURN r_6 IF TRUE
-
-§DEF d_28 € t_23
-	r_1 := +#Result FALSE
-	§RETURN r_1 IF TRUE
-
-§DEF d_29 € t_29
+§DEF d_29 € t_20
 	d_28 := §2ND ENV
-	r_5 := §1ST ENV
-	d_27 := §2ND r_5
+	r_4 := §1ST ENV
+	d_27 := §2ND r_4
+	r_5 := §1ST r_4
+	d_26 := §2ND r_5
 	r_6 := §1ST r_5
-	r_1 := .d_27 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
+	r_1 := .d_26 EMPTY
+	r_2 := .d_27 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
 	r_3 := .d_28 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
 §DEF d_30 € t_23
-	r_1 := §TRY_REMOVE #_Foo... FROM ARG
-	r_2 := §TRY r_1 AS_INT
-	r_3 := 13
-	r_4 := §INT r_2 == r_3
-	r_5 := §BOOL r_4 ^ TRUE
-	§RETURN EMPTY IF r_5
-	r_6 := +#Result TRUE
-	§RETURN r_6 IF TRUE
+	r_1 := -#_Foo... ARG
+	r_2 := +#Result TRUE
+	§RETURN r_2 IF TRUE
 
-§DEF d_31 € t_23
+§DEF d_31 € t_24
+	d_30 := ENV
+	r_1 := .d_30 EMPTY
+	§TRY_RETURN .r_1 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_32 € t_23
+	r_1 := -#_Foo... ARG
+	r_2 := +#Result TRUE
+	§RETURN r_2 IF TRUE
+
+§DEF d_33 € t_26
+	r_1 := -#_Foo... ARG
+	r_2 := 12
+	r_3 := §INT r_1 == r_2
+	r_4 := §BOOL r_3 ^ TRUE
+	§RETURN FALSE IF r_4
+	§RETURN TRUE IF TRUE
+
+§DEF d_34 € t_23
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_32 € t_29
-	d_31 := §2ND ENV
-	r_5 := §1ST ENV
-	d_30 := §2ND r_5
+§DEF d_35 € t_30
+	d_34 := §2ND ENV
+	r_4 := §1ST ENV
+	d_33 := §2ND r_4
+	r_5 := §1ST r_4
+	d_32 := §2ND r_5
 	r_6 := §1ST r_5
-	r_1 := .d_30 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
-	r_3 := .d_31 EMPTY
-	r_4 := .r_3 ARG
-	§RETURN r_4 IF_NOT_EMPTY
+	r_1 := .d_32 EMPTY
+	r_2 := .d_33 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_34 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_33 € t_73
-	d_32 := §2ND ENV
-	r_74 := §1ST ENV
-	d_31 := §2ND r_74
-	r_75 := §1ST r_74
-	d_30 := §2ND r_75
-	r_76 := §1ST r_75
-	d_29 := §2ND r_76
-	r_77 := §1ST r_76
-	d_28 := §2ND r_77
-	r_78 := §1ST r_77
-	d_27 := §2ND r_78
-	r_79 := §1ST r_78
-	d_26 := §2ND r_79
+§DEF d_36 € t_23
+	r_1 := -#_Foo... ARG
+	r_2 := +#Result TRUE
+	§RETURN r_2 IF TRUE
+
+§DEF d_37 € t_26
+	r_1 := -#_Foo... ARG
+	r_2 := 13
+	r_3 := §INT r_1 == r_2
+	r_4 := §BOOL r_3 ^ TRUE
+	§RETURN FALSE IF r_4
+	§RETURN TRUE IF TRUE
+
+§DEF d_38 € t_23
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_39 € t_30
+	d_38 := §2ND ENV
+	r_4 := §1ST ENV
+	d_37 := §2ND r_4
+	r_5 := §1ST r_4
+	d_36 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_36 EMPTY
+	r_2 := .d_37 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_38 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_40 € t_80
+	d_39 := §2ND ENV
+	r_79 := §1ST ENV
+	d_38 := §2ND r_79
 	r_80 := §1ST r_79
-	d_25 := §2ND r_80
+	d_37 := §2ND r_80
 	r_81 := §1ST r_80
-	d_24 := §2ND r_81
+	d_36 := §2ND r_81
 	r_82 := §1ST r_81
-	d_23 := §2ND r_82
+	d_35 := §2ND r_82
 	r_83 := §1ST r_82
-	d_22 := §2ND r_83
+	d_34 := §2ND r_83
 	r_84 := §1ST r_83
-	d_21 := §2ND r_84
+	d_33 := §2ND r_84
 	r_85 := §1ST r_84
-	d_20 := §2ND r_85
+	d_32 := §2ND r_85
 	r_86 := §1ST r_85
-	d_19 := §2ND r_86
+	d_31 := §2ND r_86
 	r_87 := §1ST r_86
-	d_18 := §2ND r_87
+	d_30 := §2ND r_87
 	r_88 := §1ST r_87
-	d_17 := §2ND r_88
+	d_29 := §2ND r_88
 	r_89 := §1ST r_88
-	d_16 := §2ND r_89
+	d_28 := §2ND r_89
 	r_90 := §1ST r_89
-	d_15 := §2ND r_90
+	d_27 := §2ND r_90
 	r_91 := §1ST r_90
-	d_14 := §2ND r_91
+	d_26 := §2ND r_91
 	r_92 := §1ST r_91
-	d_13 := §2ND r_92
+	d_25 := §2ND r_92
 	r_93 := §1ST r_92
-	d_12 := §2ND r_93
+	d_24 := §2ND r_93
 	r_94 := §1ST r_93
-	d_11 := §2ND r_94
+	d_23 := §2ND r_94
 	r_95 := §1ST r_94
-	d_10 := §2ND r_95
+	d_22 := §2ND r_95
 	r_96 := §1ST r_95
-	d_9 := §2ND r_96
+	d_21 := §2ND r_96
 	r_97 := §1ST r_96
-	d_8 := §2ND r_97
+	d_20 := §2ND r_97
 	r_98 := §1ST r_97
-	d_7 := §2ND r_98
+	d_19 := §2ND r_98
 	r_99 := §1ST r_98
-	d_6 := §2ND r_99
+	d_18 := §2ND r_99
 	r_100 := §1ST r_99
-	d_5 := §2ND r_100
+	d_17 := §2ND r_100
 	r_101 := §1ST r_100
-	d_4 := §2ND r_101
+	d_16 := §2ND r_101
 	r_102 := §1ST r_101
-	d_3 := §2ND r_102
+	d_15 := §2ND r_102
 	r_103 := §1ST r_102
-	d_2 := §2ND r_103
+	d_14 := §2ND r_103
 	r_104 := §1ST r_103
-	d_1 := §2ND r_104
+	d_13 := §2ND r_104
 	r_105 := §1ST r_104
-	d_0 := §2ND r_105
+	d_12 := §2ND r_105
 	r_106 := §1ST r_105
+	d_11 := §2ND r_106
+	r_107 := §1ST r_106
+	d_10 := §2ND r_107
+	r_108 := §1ST r_107
+	d_9 := §2ND r_108
+	r_109 := §1ST r_108
+	d_8 := §2ND r_109
+	r_110 := §1ST r_109
+	d_7 := §2ND r_110
+	r_111 := §1ST r_110
+	d_6 := §2ND r_111
+	r_112 := §1ST r_111
+	d_5 := §2ND r_112
+	r_113 := §1ST r_112
+	d_4 := §2ND r_113
+	r_114 := §1ST r_113
+	d_3 := §2ND r_114
+	r_115 := §1ST r_114
+	d_2 := §2ND r_115
+	r_116 := §1ST r_115
+	d_1 := §2ND r_116
+	r_117 := §1ST r_116
+	d_0 := §2ND r_117
+	r_118 := §1ST r_117
 	r_1 := 12
 	_Value := r_1
 	r_2 := 1
@@ -479,68 +508,73 @@
 	_TagValue := r_7
 	r_8 := EMPTY, d_0
 	r_9 := r_8, d_1
-	r_10 := .d_2 r_9
-	r_11 := .r_10 _Value
-	r_12 := -#Result r_11
-	r_13 := EMPTY, r_12
-	r_14 := EMPTY, d_3
-	r_15 := r_14, d_4
-	r_16 := .d_5 r_15
-	r_17 := .r_16 _Value
-	r_18 := -#Result r_17
-	r_19 := r_13, r_18
-	r_20 := EMPTY, d_6
-	r_21 := r_20, d_7
-	r_22 := .d_8 r_21
+	r_10 := r_9, d_2
+	r_11 := .d_3 r_10
+	r_12 := .r_11 _Value
+	r_13 := -#Result r_12
+	r_14 := EMPTY, r_13
+	r_15 := EMPTY, d_4
+	r_16 := r_15, d_5
+	r_17 := r_16, d_6
+	r_18 := .d_7 r_17
+	r_19 := .r_18 _Value
+	r_20 := -#Result r_19
+	r_21 := r_14, r_20
+	r_22 := .d_9 d_8
 	r_23 := .r_22 _Pair
 	r_24 := -#Result r_23
-	r_25 := r_19, r_24
-	r_26 := EMPTY, d_9
-	r_27 := r_26, d_10
-	r_28 := .d_11 r_27
-	r_29 := .r_28 _Pair
-	r_30 := -#Result r_29
-	r_31 := r_25, r_30
-	r_32 := EMPTY, d_12
-	r_33 := r_32, d_13
-	r_34 := .d_14 r_33
-	r_35 := .r_34 _Pair
-	r_36 := -#Result r_35
-	r_37 := r_31, r_36
-	r_38 := EMPTY, d_15
-	r_39 := r_38, d_16
-	r_40 := .d_17 r_39
-	r_41 := .r_40 _Pair
-	r_42 := -#Result r_41
-	r_43 := r_37, r_42
-	r_44 := EMPTY, d_18
-	r_45 := r_44, d_19
-	r_46 := .d_20 r_45
-	r_47 := .r_46 _Pair
-	r_48 := -#Result r_47
-	r_49 := r_43, r_48
-	r_50 := EMPTY, d_21
-	r_51 := r_50, d_22
-	r_52 := .d_23 r_51
-	r_53 := .r_52 _Pair
-	r_54 := -#Result r_53
-	r_55 := r_49, r_54
-	r_56 := EMPTY, d_24
-	r_57 := r_56, d_25
-	r_58 := .d_26 r_57
-	r_59 := .r_58 _TagValue
-	r_60 := -#Result r_59
-	r_61 := r_55, r_60
-	r_62 := EMPTY, d_27
-	r_63 := r_62, d_28
-	r_64 := .d_29 r_63
-	r_65 := .r_64 _TagValue
-	r_66 := -#Result r_65
-	r_67 := r_61, r_66
-	r_68 := EMPTY, d_30
-	r_69 := r_68, d_31
-	r_70 := .d_32 r_69
-	r_71 := .r_70 _TagValue
-	r_72 := -#Result r_71
-	r_73 := r_67, r_72
-	§RETURN r_73 IF TRUE
+	r_25 := r_21, r_24
+	r_26 := EMPTY, d_10
+	r_27 := r_26, d_11
+	r_28 := r_27, d_12
+	r_29 := .d_13 r_28
+	r_30 := .r_29 _Pair
+	r_31 := -#Result r_30
+	r_32 := r_25, r_31
+	r_33 := EMPTY, d_14
+	r_34 := r_33, d_15
+	r_35 := r_34, d_16
+	r_36 := .d_17 r_35
+	r_37 := .r_36 _Pair
+	r_38 := -#Result r_37
+	r_39 := r_32, r_38
+	r_40 := EMPTY, d_18
+	r_41 := r_40, d_19
+	r_42 := r_41, d_20
+	r_43 := .d_21 r_42
+	r_44 := .r_43 _Pair
+	r_45 := -#Result r_44
+	r_46 := r_39, r_45
+	r_47 := EMPTY, d_22
+	r_48 := r_47, d_23
+	r_49 := r_48, d_24
+	r_50 := .d_25 r_49
+	r_51 := .r_50 _Pair
+	r_52 := -#Result r_51
+	r_53 := r_46, r_52
+	r_54 := EMPTY, d_26
+	r_55 := r_54, d_27
+	r_56 := r_55, d_28
+	r_57 := .d_29 r_56
+	r_58 := .r_57 _Pair
+	r_59 := -#Result r_58
+	r_60 := r_53, r_59
+	r_61 := .d_31 d_30
+	r_62 := .r_61 _TagValue
+	r_63 := -#Result r_62
+	r_64 := r_60, r_63
+	r_65 := EMPTY, d_32
+	r_66 := r_65, d_33
+	r_67 := r_66, d_34
+	r_68 := .d_35 r_67
+	r_69 := .r_68 _TagValue
+	r_70 := -#Result r_69
+	r_71 := r_64, r_70
+	r_72 := EMPTY, d_36
+	r_73 := r_72, d_37
+	r_74 := r_73, d_38
+	r_75 := .d_39 r_74
+	r_76 := .r_75 _TagValue
+	r_77 := -#Result r_76
+	r_78 := r_71, r_77
+	§RETURN r_78 IF TRUE

@@ -2,39 +2,30 @@
 	t_0 := [EMPTY_TYPE, EMPTY_TYPE]
 	t_1 := [t_0, INT]
 	t_2 := [#Result INT]
-	t_3 := [EMPTY_TYPE | t_2]
-	t_4 := [t_1 => t_3]
-	t_5 := [EMPTY_TYPE => t_4]
-	t_6 := [t_1 => INT]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [t_1 => t_2]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_4 => t_3]
+	t_6 := [EMPTY_TYPE, t_4]
+	t_7 := [t_6, t_5]
+	t_8 := [EMPTY_TYPE => INT]
 	t_9 := [t_7 => t_8]
-	t_10 := [EMPTY_TYPE, t_7]
-	t_11 := [t_10, t_9]
-	t_12 := [EMPTY_TYPE => INT]
-	t_13 := [t_11 => t_12]
 
-§DEF d_0 € t_5
-	r_1 := §TRY ARG AS_PAIR
-	r_2 := §1ST r_1
-	r_3 := §2ND r_1
-	r_4 := §TRY r_2 AS_PAIR
-	r_5 := §1ST r_4
-	r_6 := §2ND r_4
-	r_7 := §TRY r_5 AS_EMPTY
-	r_8 := §TRY r_6 AS_EMPTY
-	_Second := r_3
-	r_9 := +#Result _Second
-	§RETURN r_9 IF TRUE
+§DEF d_0 € t_4
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	_Second := r_2
+	r_5 := +#Result _Second
+	§RETURN r_5 IF TRUE
 
-§DEF d_1 € t_9
+§DEF d_1 € t_5
 	d_0 := ENV
 	r_1 := .d_0 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
+	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_13
+§DEF d_2 € t_9
 	d_1 := §2ND ENV
 	r_7 := §1ST ENV
 	d_0 := §2ND r_7

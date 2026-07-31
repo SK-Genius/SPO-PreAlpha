@@ -1,0 +1,13 @@
+§DEF EmptyValue € [[] | §INT] = ()
+§DEF IntValue € [[] | §INT] = 8
+
+§EXPORT (
+	§IF { Field: EmptyValue } MATCH {
+		{ Field: §DEF N € §INT } : N
+		{ Field: §DEF E € [] } : 0
+	}
+	§IF { Field: IntValue } MATCH {
+		{ Field: §DEF N € §INT } : N
+		{ Field: §DEF E € [] } : 0
+	}
+)

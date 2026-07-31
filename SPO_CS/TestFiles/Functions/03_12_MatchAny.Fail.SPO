@@ -1,0 +1,6 @@
+§DEF Value € §ANY = ()
+
+§EXPORT §IF Value MATCH {
+	() : 1
+	_ : 0
+}

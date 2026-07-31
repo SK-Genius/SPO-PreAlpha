@@ -82,6 +82,8 @@ mIL_Parser_Tests {
 			("§VAR a <- b", mIL_AST.VarSet(Span((1, 1), (1, 11)), "a", "b")),
 			("§RETURN a IF b", mIL_AST.ReturnIf(Span((1, 1), (1, 14)), "b", "a")),
 			("§RETURN a IF_NOT_EMPTY", mIL_AST.ReturnIfNotEmpty(Span((1, 1), (1, 22)), "a")),
+			("§TRY_RETURN .a b", mIL_AST.TryReturn(Span((1, 1), (1, 16)), "a", "b")),
+			("§TRY_RETURN .a b IF c", mIL_AST.TryReturn(Span((1, 1), (1, 21)), "a", "b", mMaybe.Some("c"))),
 			("a := §TRY b AS_BOOL", mIL_AST.TryAsBool(Span((1, 1), (1, 19)), "a", "b")),
 			("a := §TRY b AS_INT", mIL_AST.TryAsInt(Span((1, 1), (1, 18)), "a", "b")),
 			("a := §TRY b AS_TYPE", mIL_AST.TryAsType(Span((1, 1), (1, 19)), "a", "b")),

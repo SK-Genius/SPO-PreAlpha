@@ -4,55 +4,48 @@
 	t_2 := [#_Second INT]
 	t_3 := [{t_1} + t_2]
 	t_4 := [#Result INT]
-	t_5 := [EMPTY_TYPE | t_4]
-	t_6 := [t_3 => t_5]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [#_First EMPTY_TYPE]
-	t_9 := [{EMPTY_TYPE} + t_8]
-	t_10 := [#_Second INT]
-	t_11 := [{t_9} + t_10]
-	t_12 := [t_11 => INT]
-	t_13 := [EMPTY_TYPE => t_12]
-	t_14 := [#_First EMPTY_TYPE]
-	t_15 := [{EMPTY_TYPE} + t_14]
-	t_16 := [#_Second INT]
-	t_17 := [{t_15} + t_16]
-	t_18 := [t_17 => t_4]
-	t_19 := [t_13 => t_18]
-	t_20 := [#_First EMPTY_TYPE]
-	t_21 := [{EMPTY_TYPE} + t_20]
-	t_22 := [#_Second INT]
-	t_23 := [{t_21} + t_22]
-	t_24 := [EMPTY_TYPE, t_13]
+	t_5 := [t_3 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [#_First EMPTY_TYPE]
+	t_8 := [{EMPTY_TYPE} + t_7]
+	t_9 := [#_Second INT]
+	t_10 := [{t_8} + t_9]
+	t_11 := [#_First EMPTY_TYPE]
+	t_12 := [{EMPTY_TYPE} + t_11]
+	t_13 := [#_Second INT]
+	t_14 := [{t_12} + t_13]
+	t_15 := [t_6 => t_5]
+	t_16 := [#_First EMPTY_TYPE]
+	t_17 := [{EMPTY_TYPE} + t_16]
+	t_18 := [#_Second INT]
+	t_19 := [{t_17} + t_18]
+	t_20 := [EMPTY_TYPE, t_6]
+	t_21 := [#_First EMPTY_TYPE]
+	t_22 := [{EMPTY_TYPE} + t_21]
+	t_23 := [#_Second INT]
+	t_24 := [{t_22} + t_23]
 	t_25 := [#_First EMPTY_TYPE]
 	t_26 := [{EMPTY_TYPE} + t_25]
 	t_27 := [#_Second INT]
 	t_28 := [{t_26} + t_27]
-	t_29 := [#_First EMPTY_TYPE]
-	t_30 := [{EMPTY_TYPE} + t_29]
-	t_31 := [#_Second INT]
-	t_32 := [{t_30} + t_31]
-	t_33 := [t_24, t_19]
-	t_34 := [EMPTY_TYPE => INT]
-	t_35 := [t_33 => t_34]
+	t_29 := [t_20, t_15]
+	t_30 := [EMPTY_TYPE => INT]
+	t_31 := [t_29 => t_30]
 
-§DEF d_0 € t_7
-	r_1 := §TRY ARG AS_RECORD
-	r_2 := {r_1} #_First
-	r_3 := §TRY r_2 AS_EMPTY
-	r_4 := {r_1} #_Second
-	_Value := r_4
-	r_5 := +#Result _Value
-	§RETURN r_5 IF TRUE
+§DEF d_0 € t_6
+	r_1 := {ARG} #_First
+	r_2 := {ARG} #_Second
+	_Value := r_2
+	r_3 := +#Result _Value
+	§RETURN r_3 IF TRUE
 
-§DEF d_1 € t_19
+§DEF d_1 € t_15
 	d_0 := ENV
 	r_1 := .d_0 EMPTY
-	r_2 := .r_1 ARG
-	§RETURN r_2 IF_NOT_EMPTY
+	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_35
+§DEF d_2 € t_31
 	d_1 := §2ND ENV
 	r_9 := §1ST ENV
 	d_0 := §2ND r_9

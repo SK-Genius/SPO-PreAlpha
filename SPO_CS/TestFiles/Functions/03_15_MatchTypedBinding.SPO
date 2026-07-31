@@ -1,0 +1,23 @@
+§DEF EmptyValue € [[] | §INT] = ()
+§DEF IntValue € [[] | §INT] = 7
+§DEF AnyEmptyValue € §ANY = ()
+§DEF AnyIntValue € §ANY = 9
+
+§EXPORT (
+	§IF EmptyValue MATCH {
+		§DEF N € §INT : N
+		§DEF E € [] : 0
+	}
+	§IF IntValue MATCH {
+		§DEF N € §INT : N
+		§DEF E € [] : 0
+	}
+	§IF AnyEmptyValue MATCH {
+		§DEF N € §INT : N
+		_ : 0
+	}
+	§IF AnyIntValue MATCH {
+		§DEF N € §INT : N
+		_ : 0
+	}
+)

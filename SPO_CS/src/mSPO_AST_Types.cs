@@ -47,41 +47,236 @@ mSPO_AST_Types {
 		Super,
 	}
 	
-	static tBool
-	TryExtractPairType(
-		mVM_Type.tType aType,
-		[MaybeNullWhen(false)]out mVM_Type.tType aTailType,
-		[MaybeNullWhen(false)]out mVM_Type.tType aHeadType
+	public static (
+		mMaybe.tMaybe<mVM_Type.tType> Matched,
+		mMaybe.tMaybe<mVM_Type.tType> Remaining
+	)
+	SplitForPatternType<tPos>(
+		this mVM_Type.tType aType,
+		mSPO_AST.tPatternNode<tPos> aPattern
 	) {
-		var ToVisit = new System.Collections.Generic.Stack<mVM_Type.tType>();
-		var Visited = new System.Collections.Generic.HashSet<tNat64>();
-		ToVisit.Push(aType);
-		while (ToVisit.Count > 0) {
-			var Current = ToVisit.Pop();
-			if (!Visited.Add(Current.DebugId)) {
-				continue;
+		switch (aPattern) {
+			case mSPO_AST.tGuardPatternNode<tPos> Guard: {
+				return (
+					aType.SplitForPatternType(Guard.Pattern).Matched,
+					aType
+				);
 			}
-			if (Current.IsPair(out aTailType, out aHeadType)) {
-				return true;
+			case mSPO_AST.tFreeIdPatternNode<tPos>:
+			case mSPO_AST.tIgnorePatternNode<tPos>:
+			case mSPO_AST.tIdNode<tPos>:
+			case mSPO_AST.tVarPatternNode<tPos>: {
+				return (aType, mStd.cEmpty);
 			}
-			if (Current.IsRecursive(out var RecHead, out var RecBody)) {
-				mAssert.IsNotNull(RecHead.Id);
-				ToVisit.Push(RecBody.Substitute(RecHead.Id, Current));
-				continue;
+			case mSPO_AST.tPatternNode<tPos> when aType.IsAny():
+			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(out _, out var Ref) && ReferenceEquals(aType, Ref): {
+				static mVM_Type.tType
+				PatternType(
+					mSPO_AST.tPatternNode<tPos> aPattern_,
+					mVM_Type.tType aFallback
+				) => aPattern_.TypeAnnotation.ElseUse(
+					aPattern_ switch {
+						mSPO_AST.tTypedPatternNode<tPos> Typed_ => PatternType(Typed_.Pattern, aFallback),
+						mSPO_AST.tGuardPatternNode<tPos> Guard_ => PatternType(Guard_.Pattern, aFallback),
+						mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
+						mSPO_AST.tTrueNode<tPos> => mVM_Type.True(),
+						mSPO_AST.tFalseNode<tPos> => mVM_Type.False(),
+						mSPO_AST.tIntNode<tPos> => mVM_Type.Int(),
+						mSPO_AST.tPairPatternNode<tPos> Pair_ => mVM_Type.Pair(
+							PatternType(Pair_.Tail, aFallback),
+							PatternType(Pair_.Head, aFallback)
+						),
+						mSPO_AST.tPrefixPatternNode<tPos> Prefix_ => mVM_Type.Prefix(
+							Prefix_.Prefix,
+							PatternType(Prefix_.Pattern, aFallback)
+						),
+						mSPO_AST.tRecordPatternNode<tPos> Record_ => Record_.Elements.Reduce(
+							mVM_Type.Empty(),
+							(Type_, Field) => mVM_Type.Record(
+								Type_,
+								mVM_Type.Prefix(
+									Field.Id.Id,
+									PatternType(Field.Pattern, aFallback)
+								)
+							)
+						),
+						_ => aFallback,
+					}
+				);
+				
+				var Matched = PatternType(aPattern, aType);
+				return (
+					Matched,
+					Matched == aType ? mStd.cEmpty : aType
+				);
 			}
-			if (Current.IsSet(out var SetHead, out var SetTail)) {
-				ToVisit.Push(SetHead);
-				ToVisit.Push(SetTail);
-				continue;
+			case mSPO_AST.tPatternNode<tPos> when aType.IsRecursive(out var RecursiveHead, out var RecursiveBody): {
+				var Expanded = RecursiveBody.Substitute(RecursiveHead.Id!, aType);
+				
+				return (
+					ReferenceEquals(Expanded, aType)
+					? (aType, aType)
+					: Expanded.SplitForPatternType(aPattern)
+				);
 			}
-			if (Current.IsFree(out _, out var RefType)) {
-				ToVisit.Push(RefType);
-				continue;
+			case mSPO_AST.tPatternNode<tPos> when aType.IsSet(out var Type1, out var Type2): {
+				var Coverage1 = Type1.SplitForPatternType(aPattern);
+				var Coverage2 = Type2.SplitForPatternType(aPattern);
+				
+				return (
+					mVM_Type.Union(Coverage1.Matched, Coverage2.Matched),
+					mVM_Type.Union(Coverage1.Remaining, Coverage2.Remaining)
+				);
+			}
+			case mSPO_AST.tTypedPatternNode<tPos> Typed: {
+				if (
+					Typed.TypeExpression.IsSome(out _) &&
+					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
+					Typed.TypeAnnotation.IsSome(out var MatchType)
+				) {
+					if (aType.IsSubType(MatchType, mStd.cEmpty).Match(out _, out _)) {
+						return (aType, mStd.cEmpty);
+					}
+					
+					return (
+						MatchType.IsSubType(aType, mStd.cEmpty).Match(out _, out _)
+						? (MatchType, aType)
+						: (mStd.cEmpty, aType)
+					);
+				}
+				return aType.SplitForPatternType(Typed.Pattern);
+			}
+			case mSPO_AST.tPairPatternNode<tPos> Pair: {
+				if (!aType.IsPair(out var FirstType, out var SecondType)) {
+					return (mStd.cEmpty, aType);
+				}
+				
+				var FirstCoverage = FirstType.SplitForPatternType(Pair.Tail);
+				var SecondCoverage = SecondType.SplitForPatternType(Pair.Head);
+				
+				if (
+					!FirstCoverage.Matched.IsSome(out var MatchedFirst) ||
+					!SecondCoverage.Matched.IsSome(out var MatchedSecond)
+				) {
+					return (mStd.cEmpty, aType);
+				}
+				
+				var MatchedPair = mVM_Type.Pair(MatchedFirst, MatchedSecond);
+				
+				if (
+					(FirstCoverage.Remaining.IsSome(out var RemainingFirst) && RemainingFirst == FirstType) ||
+					(SecondCoverage.Remaining.IsSome(out var RemainingSecond) && RemainingSecond == SecondType)
+				) {
+					return (MatchedPair, aType);
+				}
+				
+				var Remaining = FirstCoverage.Remaining.Then(__ => mVM_Type.Pair(__, SecondType));
+				if (SecondCoverage.Remaining.IsSome(out RemainingSecond)) {
+					Remaining = mVM_Type.Union(
+						Remaining,
+						mVM_Type.Pair(MatchedFirst, RemainingSecond)
+					);
+				}
+				
+				return (MatchedPair, Remaining);
+			}
+			case mSPO_AST.tPrefixPatternNode<tPos> Prefix: {
+				if (!aType.IsPrefix(Prefix.Prefix, out var InnerType)) {
+					return (mStd.cEmpty, aType);
+				}
+				
+				var Coverage = InnerType.SplitForPatternType(Prefix.Pattern);
+				
+				return (
+					Coverage.Matched.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __)),
+					(
+						Coverage.Remaining.IsSome(out var RemainingInner) && RemainingInner == InnerType
+						? mMaybe.Some(aType)
+						: Coverage.Remaining.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __))
+					)
+				);
+			}
+			case mSPO_AST.tRecordPatternNode<tPos> Record: {
+				if (!aType.IsRecord(out var Fields)) {
+					return (
+						aType.IsFree(out _, out _)
+						? (aType, aType)
+						: (mStd.cEmpty, aType)
+					);
+				}
+				
+				var MatchedFields = Fields;
+				var Remaining = mMaybe.None<mVM_Type.tType>();
+				
+				foreach (var (Id, Pattern) in Record.Elements) {
+					if (!Fields.TryGet(Id.Id).IsSome(out var FieldType)) {
+						return (mStd.cEmpty, aType);
+					}
+					
+					var Coverage = FieldType.SplitForPatternType(Pattern);
+					if (!Coverage.Matched.IsSome(out var MatchedField)) {
+						return (mStd.cEmpty, aType);
+					}
+					
+					if (Coverage.Remaining.IsSome(out var RemainingField)) {
+						Remaining = mVM_Type.Union(
+							Remaining,
+							mVM_Type.Record(
+								MatchedFields.Set(Id.Id, RemainingField).ToStream(
+								).Map(
+									__ => (__.Key, __.Value)
+								).ToArrayList(
+								).ToArray()
+							)
+						);
+					}
+					
+					MatchedFields = MatchedFields.Set(Id.Id, MatchedField);
+				}
+				
+				return (
+					mVM_Type.Record(
+						MatchedFields.ToStream(
+						).Map(
+							__ => (__.Key, __.Value)
+						).ToArrayList(
+						).ToArray()
+					),
+					Remaining
+				);
+			}
+			case mSPO_AST.tIntNode<tPos>: {
+				return (
+					aType.IsInt() ? (aType, aType) :
+					aType.IsFree(out _, out _) ? (aType, aType) :
+					(mStd.cEmpty, aType)
+				);
+			}
+			case mSPO_AST.tEmptyNode<tPos>: {
+				return (
+					aType.IsEmpty() ? (aType, mStd.cEmpty) :
+					aType.IsFree(out _, out _) ? (aType, aType) :
+					(mStd.cEmpty, aType)
+				);
+			}
+			case mSPO_AST.tTrueNode<tPos>: {
+				return (
+					aType.Kind is mVM_Type.tKind.True ? (aType, mStd.cEmpty) :
+					aType.IsFree(out _, out _) ? (aType, aType) :
+					(mStd.cEmpty, aType)
+				);
+			}
+			case mSPO_AST.tFalseNode<tPos>: {
+				return (
+					aType.Kind is mVM_Type.tKind.False ? (aType, mStd.cEmpty) :
+					aType.IsFree(out _, out _) ? (aType, aType) :
+					(mStd.cEmpty, aType)
+				);
+			}
+			default: {
+				return (aType, aType);
 			}
 		}
-		aTailType = default!;
-		aHeadType = default!;
-		return false;
 	}
 	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
@@ -273,23 +468,83 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
 				IfMatch.Expression.UpdateTypes(aScope).ThenTry(
-					aTypePattern => IfMatch.Cases.Map(
-						aCase => UpdatePatternTypes(
-							aCase.Pattern,
-							aTypePattern,
-							tTypeRelation.Super,
-							aScope
-						).ThenTry(
-							__ => aCase.Expression.UpdateTypes(__.Scope)
-						)
-					).WhenAllThen(
-						aCaseTypes => aCaseTypes.Reduce(
-							mStream.Stream<mVM_Type.tType>([]),
-							(aList, aItem) => aList.All(__ => __ != aItem) ? mStream.Stream(aItem, aList) : aList
-						).Reduce(
-							(mVM_Type.tType)null!,
-							(aTypeSet, aType) => aTypeSet is null ? aType : mVM_Type.Set(aType, aTypeSet)
-						)
+					aTypePattern => mStd.Call(
+						() => {
+							var Remaining = mMaybe.Some(aTypePattern);
+							var CaseTypes = mStream.Stream<mVM_Type.tType>();
+							
+							foreach (var Case in IfMatch.Cases) {
+								var CaseInputType = Remaining.ElseUse(aTypePattern);
+								
+								// first try
+								var CoverageCandidate = CaseInputType.SplitForPatternType(Case.Pattern);
+								if (!CoverageCandidate.Matched.IsSome(out var CandidateType)) {
+									return mResult.Fail(
+										(
+											Case.Pattern.Pos,
+											$"pattern '{Case.Pattern.ToText()}' cannot match '{CaseInputType.ToText()}'"
+										)
+									);
+								}
+								
+								// update
+								if (
+									!UpdatePatternTypes(
+										Case.Pattern,
+										CandidateType,
+										tTypeRelation.Super,
+										aScope
+									).Match(out var Pattern, out var Error)
+								) {
+									return mResult.Fail(Error);
+								}
+								
+								// final try
+								var Coverage = CaseInputType.SplitForPatternType(Case.Pattern);
+								if (!Coverage.Matched.IsSome(out _)) {
+									return mResult.Fail(
+										(
+											Case.Pattern.Pos,
+											$"pattern '{Case.Pattern.ToText()}' cannot match '{CaseInputType.ToText()}'"
+										)
+									);
+								}
+								
+								// update
+								if (!Case.Expression.UpdateTypes(Pattern.Scope).Match(out var CaseType, out Error)) {
+									return mResult.Fail(Error);
+								}
+								
+								CaseTypes = mStream.Stream(CaseType, CaseTypes);
+								
+								if (Remaining.IsSome(out _)) {
+									Remaining = Coverage.Remaining;
+								}
+							}
+							
+							if (Remaining.IsSome(out var RemainingType)) {
+								return mResult.Fail(
+									(
+										IfMatch.Pos,
+										$"""
+										non-exhaustive match; unmatched type:
+										{RemainingType.ToText()}
+										"""
+									)
+								);
+							}
+							
+							return mResult.OK(
+								CaseTypes.Reduce(
+									(mVM_Type.tType)null!,
+									(aTypes, aType) => (
+										aTypes is null || aTypes == aType
+										? aType
+										: mVM_Type.Set(aType, aTypes)
+									)
+								)
+							).WithErrorType<(tPos Pos, tText ErrorText)>();
+						}
 					)
 				)
 			),
@@ -527,20 +782,41 @@ mSPO_AST_Types {
 			case mSPO_AST.tPairPatternNode<tPos> PairPattern: {
 				var TailType = mMaybe.None<mVM_Type.tType>();
 				var HeadType = mMaybe.None<mVM_Type.tType>();
+				
 				if (aType.IsSome(out var Type)) {
-					if (!TryExtractPairType(Type, out var Tail, out var Head)) {
-						return mResult.Fail((PairPattern.Pos, $"cant unify '{PairPattern.ToText()}' and '{Type.ToText()}'"));
+					if (!Type.TryProjectPair(out var Tail, out var Head)) {
+						return mResult.Fail(
+							(
+								PairPattern.Pos,
+								$"cant unify '{PairPattern.ToText()}' and '{Type.ToText()}'"
+							)
+						);
 					}
 					
 					TailType = Tail;
 					HeadType = Head;
 				}
 				
-				if (!UpdatePatternTypes(PairPattern.Tail, TailType, aTypeRelation, aScope).Match(out var TailRes, out var Error)) {
-					return mResult.Fail(Error);
-				}
-				
-				if (!UpdatePatternTypes(PairPattern.Head, HeadType, aTypeRelation, TailRes.Scope).Match(out var HeadRes, out Error)) {
+				if (
+					!UpdatePatternTypes(
+						PairPattern.Tail,
+						TailType,
+						aTypeRelation,
+						aScope
+					).Match(
+						out var TailRes,
+						out var Error
+					) ||
+					!UpdatePatternTypes(
+						PairPattern.Head,
+						HeadType,
+						aTypeRelation,
+						TailRes.Scope
+					).Match(
+						out var HeadRes,
+						out Error
+					)
+				) {
 					return mResult.Fail(Error);
 				}
 				
@@ -550,10 +826,9 @@ mSPO_AST_Types {
 			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
 				Result = (mVM_Type.Empty(), aScope);
 				foreach (var Item in RecordPattern.Elements) {
-					var Type = mMaybe.None<mVM_Type.tType>();
-					if (aType.IsSome(out var RecordType)) {
-						Type = RecordType.GetFieldType(Item.Id.Id);
-					}
+					var Type = aType.IsSome(out var RecordType)
+					? RecordType.GetFieldType(Item.Id.Id)
+					: mMaybe.None<mVM_Type.tType>();
 					
 					Result = Result.ThenTry(
 						a1 => UpdatePatternTypes(
@@ -562,7 +837,13 @@ mSPO_AST_Types {
 							aTypeRelation,
 							a1.Scope
 						).Then(
-							a2 => (mVM_Type.Record(a1.Type, mVM_Type.Prefix(Item.Id.Id, a2.Type)), a2.Scope)
+							a2 => (
+								mVM_Type.Record(
+									a1.Type,
+									mVM_Type.Prefix(Item.Id.Id, a2.Type)
+								),
+								a2.Scope
+							)
 						)
 					);
 				}
@@ -570,17 +851,40 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tGuardPatternNode<tPos> GuardPattern: {
 				if (
-					!UpdatePatternTypes(GuardPattern.Pattern, aType, tTypeRelation.Super, aScope).Match(out var Res, out var Error) ||
-					!GuardPattern.Guard.UpdateTypes(Res.Scope).Match(out var BoolRes, out Error)
+					!UpdatePatternTypes(
+						GuardPattern.Pattern,
+						aType,
+						tTypeRelation.Super,
+						aScope
+					).Match(
+						out var Res,
+						out var Error
+					) ||
+					!GuardPattern.Guard.UpdateTypes(
+						Res.Scope
+					).Match(
+						out var BoolRes,
+						out Error
+					)
 				) {
 					return mResult.Fail(Error);
 				}
 				
-				if (!BoolRes.IsSubType(
-					mVM_Type.Bool(),
-					mStd.cEmpty
-				).Match(out _, out _)) {
-					return mResult.Fail((GuardPattern.Pos, $"return type has to be boolean but is:\n{BoolRes.ToText()}"));
+				if (
+					!BoolRes.IsSubType(
+						mVM_Type.Bool(),
+						mStd.cEmpty
+					).Match(out _, out _)
+				) {
+					return mResult.Fail(
+						(
+							GuardPattern.Pos,
+							$"""
+							return type has to be boolean but is:
+								{BoolRes.ToText()}
+							"""
+						)
+					);
 				}
 				
 				Result = Res;

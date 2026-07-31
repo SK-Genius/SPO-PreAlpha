@@ -1,0 +1,6 @@
+§DEF Value = { Field: 1 }
+
+§EXPORT §IF Value MATCH {
+	{} : 0
+	{ Field: _ } : 1
+}

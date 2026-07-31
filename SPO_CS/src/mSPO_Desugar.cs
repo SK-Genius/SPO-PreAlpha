@@ -60,6 +60,9 @@ mSPO_Desugar {
 	DesugarPattern<tPos>(
 		this mSPO_AST.tPatternNode<tPos> aPattern
 	) => aPattern switch {
+		mSPO_AST.tIdNode<tPos> Pattern
+		=> Pattern,
+		
 		mSPO_AST.tTypedPatternNode<tPos> Pattern
 		=> Pattern.DesugarTypedPattern().Then(__ => (mSPO_AST.tPatternNode<tPos>)__),
 		
@@ -146,11 +149,14 @@ mSPO_Desugar {
 			(mSPO_AST.tPatternNode<tPos>)Pattern
 		),
 		
-		mSPO_AST.tFreeIdPatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tFreeIdPatternNode<tPos> Pattern
+		=> Pattern,
 		
-		mSPO_AST.tVarPatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tVarPatternNode<tPos> Pattern
+		=> Pattern,
 		
-		mSPO_AST.tIgnorePatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tIgnorePatternNode<tPos> Pattern
+		=> Pattern,
 		
 		_ => throw new System.NotImplementedException(aPattern.GetType().FullName),
 	};

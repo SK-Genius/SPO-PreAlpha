@@ -52,6 +52,7 @@ mVM_Data {
 		DefRecProcs,
 		ReturnIf,
 		ReturnIfNotEmpty,
+		TryReturn,
 		TryAsEmpty,
 		TryAsBool,
 		TryAsInt,
@@ -84,8 +85,9 @@ mVM_Data {
 	}
 	
 	public interface
-	tProcDef {
+	iProcDef {
 		tText FirstPosText { get; }
+		mVM_Type.tType DefType { get; }
 	}
 	
 	// standard stack indexes
@@ -104,21 +106,24 @@ mVM_Data {
 	
 	[DebuggerDisplay("{this.DefType.ToText()}")]
 	public sealed class
-	tProcDef<tPos> : tProcDef {
+	tProcDef<tPos> : iProcDef {
 		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32, tNat64)>
-			Commands = mArrayList.List<(tOpCode, tNat32, tNat32, tNat64)>();
+		Commands = mArrayList.List<(tOpCode, tNat32, tNat32, tNat64)>();
 		
 		public readonly mArrayList.tArrayList<tPos>
-			PosList = mArrayList.List<tPos>();
+		PosList = mArrayList.List<tPos>();
 		
-		public readonly mVM_Type.tType DefType;
+		public mVM_Type.tType
+		DefType { get; }
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
 		
-		public tNat32 _LastReg = cResReg;
+		public tNat32
+		_LastReg = cResReg;
 		
-		public tText FirstPosText => "" + this.PosList.ToStream().TryFirst().AssertNotEmpty();
+		public tText
+		FirstPosText => "" + this.PosList.ToStream().TryFirst().AssertNotEmpty();
 		
 		public tProcDef(
 			mVM_Type.tType aDefType
@@ -392,6 +397,14 @@ mVM_Data {
 	) {
 		aDef._AddCommand(aPos, tOpCode.ReturnIfNotEmpty, aResReg);
 	}
+
+	public static tNat32
+	TryReturn<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aProcOrProcGuardPairReg,
+		tNat32 aArgReg
+	) => aDef._AddReg(aPos, tOpCode.TryReturn, aProcOrProcGuardPairReg, aArgReg);
 	
 	public static tNat32
 	TryAsEmpty<tPos>(
@@ -892,13 +905,13 @@ mVM_Data {
 	public static tBool
 	IsProc(
 		this tData aData,
-		[MaybeNullWhen(false)]out tProcDef aDef,
+		[MaybeNullWhen(false)]out iProcDef aDef,
 		[MaybeNullWhen(false)]out tData aEnv
 	) {
 		if (aData._DataType is tDataType.Proc) {
 			mAssert.IsTrue(aData._Value.Is(out ITuple Data));
 			mAssert.AreEquals(Data.Length, 2);
-			aDef = (tProcDef)Data[0];
+			aDef = (iProcDef)Data[0];
 			aEnv = (tData)Data[1];
 			return true;
 		} else {
@@ -939,7 +952,7 @@ mVM_Data {
 	public static tBool
 	IsDef(
 		this tData aData,
-		out tProcDef aDef
+		out iProcDef aDef
 	) {
 		if (aData._DataType is tDataType.Def) {
 			mAssert.IsTrue(aData._Value.Is(out aDef));

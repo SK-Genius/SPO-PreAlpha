@@ -75,6 +75,117 @@ mVM {
 		return Result;
 	}
 	
+	private static mMaybe.tMaybe<mVM_Type.tType>
+	TryGetFuncArgType(
+		mVM_Data.tData aProc
+	) {
+		if (
+			!aProc.IsProc(out var Def, out _) ||
+			!Def.DefType.IsProc(out _, out _, out var FuncType)
+		) {
+			return mStd.cEmpty;
+		}
+		
+		while (FuncType.IsGeneric(out _, out var BodyType)) {
+			FuncType = BodyType;
+		}
+		
+		return (
+			FuncType.IsProc(out _, out var ArgType, out _)
+			? ArgType
+			: mStd.cEmpty
+		);
+	}
+	
+	private static tBool
+	Matches(
+		this mVM_Data.tData aData,
+		mVM_Type.tType aType,
+		System.Collections.Generic.HashSet<(tNat64 Data, tNat64 Type)>? aVisited = null
+	) {
+		if (aType.IsFree(out _, out var Ref)) {
+			return ReferenceEquals(aType, Ref) || aData.Matches(Ref, aVisited);
+		} else if (aType.IsAny()) {
+			return true;
+		}
+		
+		aVisited ??= [];
+		if (!aVisited.Add((aData._DebugId, aType.DebugId))) {
+			return true;
+		} else if (aType.IsSet(out var Type1, out var Type2)) {
+			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
+		} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
+			return aData.Matches(BodyType.Substitute(HeadType.Id!, aType), aVisited);
+		} else if (aType.IsInterface(out _, out BodyType) || aType.IsGeneric(out _, out BodyType)) {
+			return aData.Matches(BodyType, aVisited);
+		} else {
+			return aType.Kind switch {
+				mVM_Type.tKind.Empty => aData.IsEmpty(),
+				mVM_Type.tKind.True => aData.IsBool(out var Bool) && Bool,
+				mVM_Type.tKind.False => aData.IsBool(out var Bool) && !Bool,
+				mVM_Type.tKind.Int => aData.IsInt(out _),
+				mVM_Type.tKind.Type => aData._DataType is mVM_Data.tDataType.Type,
+				mVM_Type.tKind.Pair => (
+					aData.IsPair(out var First, out var Second) &&
+					aType.IsPair(out var FirstType, out var SecondType) &&
+					First.Matches(FirstType, aVisited) &&
+					Second.Matches(SecondType, aVisited)
+				),
+				mVM_Type.tKind.Prefix => (
+					aType.IsPrefix(out var Prefix, out var InnerType) &&
+					aData.IsPrefix(Prefix, out var Inner) &&
+					Inner.Matches(InnerType, aVisited)
+				),
+				mVM_Type.tKind.Record => (
+					aType.IsRecord(out var FieldTypes) &&
+					aData.IsRecord(out var Fields) &&
+					FieldTypes.ToStream().All(
+						__ => (
+							Fields.TryGet(__.Key.PrefixHash()).IsSome(out var Field) &&
+							Field.Matches(__.Value, aVisited)
+						)
+					)
+				),
+				mVM_Type.tKind.Proc => (
+					aData.IsProc(out var Def, out _) &&
+					Def.DefType.IsProc(out _, out _, out var FuncType) &&
+					FuncType.IsSubType(aType, mStd.cEmpty).Match(out _, out _)
+				),
+				mVM_Type.tKind.Var => (
+					aType.IsVar(out var ValueType) &&
+					aData.IsVar(out var Value) &&
+					Value.Matches(ValueType, aVisited)
+				),
+				_ => false,
+			};
+		}
+	}
+	
+	private static mVM_Data.tData
+	RunFunc<tPos>(
+		mVM_Data.tData aProc,
+		mVM_Data.tData aArg,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
+	) {
+		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
+			var Res = mVM_Data.Empty();
+			Run(
+				mVM_Data.Proc(Def, Env),
+				mVM_Data.Empty(),
+				aArg,
+				Res,
+				aPosToText,
+				aTraceOut
+			);
+			return Res;
+		} else if (aProc.IsExternProc(out var ExternDef, out var ExternEnv)) {
+			return ExternDef(ExternEnv, mVM_Data.Empty(), aArg, aTraceOut);
+		} else {
+			throw mError.Error("expected proc but is: " + aProc._DataType);
+		}
+	}
+	
 	public static mMaybe.tMaybe<tCallStack<tPos>>
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
@@ -507,6 +618,33 @@ mVM {
 					Des._IsMutable = Res._IsMutable;
 					aCallStack._TraceOut(() => "====================================");
 					return aCallStack._Parent;
+				}
+				break;
+			}
+			case mVM_Data.tOpCode.TryReturn: {
+				var ProcOrPair = aCallStack._Regs.Get(Arg1);
+				
+				var (Proc, Guard) = (
+					ProcOrPair.IsPair(out var Proc_, out var Guard_)
+					? (Proc_, Guard_)
+					: (ProcOrPair, mMaybe.None<mVM_Data.tData>())
+				);
+				
+				var Arg = aCallStack._Regs.Get(Arg2);
+				if (
+					TryGetFuncArgType(Proc).IsSome(out var ArgType) &&
+					Arg.Matches(ArgType) &&
+					(
+						!Guard.IsSome(out var GuardProc) ||
+						(
+							RunFunc(GuardProc, Arg, aPosToText, aCallStack._TraceOut).IsBool(out var GuardResult) &&
+							GuardResult
+						)
+					)
+				) {
+					aCallStack._Regs.Push(RunFunc(Proc, Arg, aPosToText, aCallStack._TraceOut));
+				} else {
+					aCallStack._Regs.Push(mVM_Data.Empty());
 				}
 				break;
 			}

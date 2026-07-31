@@ -1,33 +1,33 @@
-[§ Regression Examples §]
+[§ Function Test Examples §]
 
-This page mirrors the executable regression sources under [.|../SPO_CS/Regression.Tests/.].
-Use it to browse real `.SPO` inputs and their `.result.SPO` oracles by topic.
+This page mirrors the executable function-test sources under [.|../SPO_CS/TestFiles/Functions/.].
+Use it to browse real [.|.SPO.] inputs and their [.|.result.SPO.] oracles by topic.
 For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>] instead.
 
 [=Browsing Rules=]
 
-- each case is shown as source plus expected-result oracle
-- sibling `.ILT` files stay beside the source in [.|../SPO_CS/Regression.Tests/.] and are intentionally not duplicated here
-- helper files such as [.|_*.SPO.], expected-failure artifacts such as [.|*.SPO_Fail.], and generated drift files such as [.|*.ILT.new.] are intentionally excluded
+- each active case is shown as source plus expected-result oracle
+- sibling [.|.ILT.] files stay beside the source in [.|../SPO_CS/TestFiles/Functions/.] and are intentionally not duplicated here
+- helper files such as [.|_*.SPO.], disabled cases such as [.|*.SPO_.], expected-failure artifacts such as [.|*.SPO_Fail.], and generated drift files such as [.|*.ILT.new.] are intentionally excluded
 
 [=0 Smoke=]
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/00_00_Bla.SPO
+  |../SPO_CS/TestFiles/Functions/00_00_Bla.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/00_00_Bla.result.SPO
+  |../SPO_CS/TestFiles/Functions/00_00_Bla.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/00_01_Bla.SPO
+  |../SPO_CS/TestFiles/Functions/00_01_Bla.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/00_01_Bla.result.SPO
+  |../SPO_CS/TestFiles/Functions/00_01_Bla.result.SPO
   #]
 |]
 
@@ -35,65 +35,83 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_00_AssignEmpty.SPO
+  |../SPO_CS/TestFiles/Functions/01_00_AssignEmpty.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_00_AssignEmpty.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_00_AssignEmpty.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_01_AssignTrue.SPO
+  |../SPO_CS/TestFiles/Functions/01_01_AssignTrue.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_01_AssignTrue.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_01_AssignTrue.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_02_AssignFalse.SPO
+  |../SPO_CS/TestFiles/Functions/01_02_AssignFalse.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_02_AssignFalse.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_02_AssignFalse.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_03_AssignInt.SPO
+  |../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_03_AssignInt.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_03_AssignInt.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_04_AssignTag.SPO
+  |../SPO_CS/TestFiles/Functions/01_04_AssignTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_04_AssignTag.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_04_AssignTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_05_AssignText.SPO
+  |../SPO_CS/TestFiles/Functions/01_05_AssignText.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_05_AssignText.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_05_AssignText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/01_06_AssignMultiLineText.SPO
+  |../SPO_CS/TestFiles/Functions/01_06_AssignMultiLineText.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/01_06_AssignMultiLineText.result.SPO
+  |../SPO_CS/TestFiles/Functions/01_06_AssignMultiLineText.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/01_07_AssignChar.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/01_07_AssignChar.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/01_08_AssignEmptyText.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/01_08_AssignEmptyText.result.SPO
   #]
 |]
 
@@ -101,29 +119,38 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/02_01_CreateTag.SPO
+  |../SPO_CS/TestFiles/Functions/02_01_CreateTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/02_01_CreateTag.result.SPO
+  |../SPO_CS/TestFiles/Functions/02_01_CreateTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/02_02_CreatePair.SPO
+  |../SPO_CS/TestFiles/Functions/02_02_CreatePair.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/02_02_CreatePair.result.SPO
+  |../SPO_CS/TestFiles/Functions/02_02_CreatePair.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/02_03_CreateRecord.SPO
+  |../SPO_CS/TestFiles/Functions/02_03_CreateRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/02_03_CreateRecord.result.SPO
+  |../SPO_CS/TestFiles/Functions/02_03_CreateRecord.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/02_04_InfixTag.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/02_04_InfixTag.result.SPO
   #]
 |]
 
@@ -131,173 +158,281 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_01_MatchTag.SPO
+  |../SPO_CS/TestFiles/Functions/03_01_MatchTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_01_MatchTag.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_01_MatchTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_02_MatchPair.SPO
+  |../SPO_CS/TestFiles/Functions/03_02_MatchPair.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_02_MatchPair.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_02_MatchPair.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_03_MatchRecord.SPO
+  |../SPO_CS/TestFiles/Functions/03_03_MatchRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_03_MatchRecord.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_03_MatchRecord.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_04_Is.SPO
+  |../SPO_CS/TestFiles/Functions/03_04_Is.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_04_Is.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_04_Is.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_05_MatchRecordIf.SPO
+  |../SPO_CS/TestFiles/Functions/03_05_MatchRecordIf.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_05_MatchRecordIf.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_05_MatchRecordIf.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_98_If.SPO
+  |../SPO_CS/TestFiles/Functions/03_07_MatchText.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_98_If.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_07_MatchText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_Match.SPO
+  |../SPO_CS/TestFiles/Functions/03_08_MatchChar.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_Match.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_08_MatchChar.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairA.SPO
+  |../SPO_CS/TestFiles/Functions/03_09_MatchEmptyText.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairA.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_09_MatchEmptyText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairB.SPO
+  |../SPO_CS/TestFiles/Functions/03_10_MatchMultiLineText.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairB.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_10_MatchMultiLineText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairC.SPO
+  |../SPO_CS/TestFiles/Functions/03_11_MatchRecursiveLiteralFirst.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairC.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_11_MatchRecursiveLiteralFirst.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairD.SPO
+  |../SPO_CS/TestFiles/Functions/03_12_MatchAny.Fail.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchPairD.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_12_MatchAny.Fail.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordA.SPO
+  |../SPO_CS/TestFiles/Functions/03_12_MatchEmptyRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordA.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_12_MatchEmptyRecord.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordB.SPO
+  |../SPO_CS/TestFiles/Functions/03_13_MatchNestedRecordUnion.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordB.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_13_MatchNestedRecordUnion.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordC.SPO
+  |../SPO_CS/TestFiles/Functions/03_14_MatchUnionFallthrough.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordC.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_14_MatchUnionFallthrough.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordD.SPO
+  |../SPO_CS/TestFiles/Functions/03_15_MatchTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchRecordD.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_15_MatchTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedA.SPO
+  |../SPO_CS/TestFiles/Functions/03_16_MatchNestedTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedA.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_16_MatchNestedTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedB.SPO
+  |../SPO_CS/TestFiles/Functions/03_17_MatchRecordTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedB.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_17_MatchRecordTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedC.SPO
+  |../SPO_CS/TestFiles/Functions/03_98_If.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedC.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_98_If.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedD.SPO
+  |../SPO_CS/TestFiles/Functions/03_99_Match.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/03_99_MatchTaggedD.result.SPO
+  |../SPO_CS/TestFiles/Functions/03_99_Match.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairA.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairA.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairB.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairB.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairC.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairC.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairD.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchPairD.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordA.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordA.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordB.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordB.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordC.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordC.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordD.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordD.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedA.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedA.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedB.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedB.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedC.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedC.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedD.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedD.result.SPO
   #]
 |]
 
@@ -305,56 +440,92 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_00_Not.SPO
+  |../SPO_CS/TestFiles/Functions/04_00_Not.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_00_Not.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_00_Not.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_01_And.SPO
+  |../SPO_CS/TestFiles/Functions/04_01_And.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_01_And.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_01_And.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_02_CallLambda.SPO
+  |../SPO_CS/TestFiles/Functions/04_02_CallLambda.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_02_CallLambda.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_02_CallLambda.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_03_DefFunc.SPO
+  |../SPO_CS/TestFiles/Functions/04_03_DefFunc.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_03_DefFunc.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_03_DefFunc.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_04_MultiArgs.SPO
+  |../SPO_CS/TestFiles/Functions/04_04_MultiArgs.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_04_MultiArgs.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_04_MultiArgs.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/04_05_SkipArgs.SPO
+  |../SPO_CS/TestFiles/Functions/04_05_SkipArgs.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/04_05_SkipArgs.result.SPO
+  |../SPO_CS/TestFiles/Functions/04_05_SkipArgs.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/04_06_CallNoArgs.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/04_06_CallNoArgs.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/04_07_PipeToRight.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/04_07_PipeToRight.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/04_08_PipeToLeft.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/04_08_PipeToLeft.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/04_09_InfixCall.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/04_09_InfixCall.result.SPO
   #]
 |]
 
@@ -362,11 +533,11 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/05_01_InRange.SPO
+  |../SPO_CS/TestFiles/Functions/05_01_InRange.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/05_01_InRange.result.SPO
+  |../SPO_CS/TestFiles/Functions/05_01_InRange.result.SPO
   #]
 |]
 
@@ -374,38 +545,38 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/06_01_Fib_If.SPO
+  |../SPO_CS/TestFiles/Functions/06_01_Fib_If.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/06_01_Fib_If.result.SPO
+  |../SPO_CS/TestFiles/Functions/06_01_Fib_If.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.SPO
+  |../SPO_CS/TestFiles/Functions/06_02_Fib_IfThenElse.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/06_02_Fib_IfThenElse.result.SPO
+  |../SPO_CS/TestFiles/Functions/06_02_Fib_IfThenElse.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/06_03_Fib_IfMatch.SPO
+  |../SPO_CS/TestFiles/Functions/06_03_Fib_IfMatch.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/06_03_Fib_IfMatch.result.SPO
+  |../SPO_CS/TestFiles/Functions/06_03_Fib_IfMatch.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.SPO
+  |../SPO_CS/TestFiles/Functions/06_04_Fib_IfMatch2.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/06_04_Fib_IfMatch2.result.SPO
+  |../SPO_CS/TestFiles/Functions/06_04_Fib_IfMatch2.result.SPO
   #]
 |]
 
@@ -413,47 +584,137 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/07_01_AtomTypes.SPO
+  |../SPO_CS/TestFiles/Functions/07_01_AtomTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/07_01_AtomTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions/07_01_AtomTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/07_02_ComplexTypes.SPO
+  |../SPO_CS/TestFiles/Functions/07_02_ComplexTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/07_02_ComplexTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions/07_02_ComplexTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/07_11_RecursiveTypes.SPO
+  |../SPO_CS/TestFiles/Functions/07_03_CharType.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/07_11_RecursiveTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions/07_03_CharType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/07_12_GenericTypes.SPO
+  |../SPO_CS/TestFiles/Functions/07_04_EmptyTextType.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/07_12_GenericTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions/07_04_EmptyTextType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.SPO
+  |../SPO_CS/TestFiles/Functions/07_05_SingleLineTextType.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/07_13_HigherOrderFuncTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions/07_05_SingleLineTextType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_06_MultiLineTextType.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_06_MultiLineTextType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_07_RecordType.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_07_RecordType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_11_RecursiveTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_11_RecursiveTypes.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_12_GenericTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_12_GenericTypes.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13_HigherOrderFuncTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13_HigherOrderFuncTypes.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13b_HigherOrderFuncTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13b_HigherOrderFuncTypes.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_14_AnyType.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_14_AnyType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_16_MethodType.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_16_MethodType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_17_NoArgFunctionType.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_17_NoArgFunctionType.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_18_GenericApplyParenthesized.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_18_GenericApplyParenthesized.result.SPO
   #]
 |]
 
@@ -461,19 +722,37 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/08_01_Var.SPO
+  |../SPO_CS/TestFiles/Functions/08_01_Var.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/08_01_Var.result.SPO
+  |../SPO_CS/TestFiles/Functions/08_01_Var.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/Regression.Tests/08_02_DefIncrement.SPO
+  |../SPO_CS/TestFiles/Functions/08_02_DefIncrement.SPO
   #]
 ][
   [#
-  |../SPO_CS/Regression.Tests/08_02_DefIncrement.result.SPO
+  |../SPO_CS/TestFiles/Functions/08_02_DefIncrement.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/08_03_VarMethodCalls.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/08_03_VarMethodCalls.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/08_04_MethodResult.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/08_04_MethodResult.result.SPO
   #]
 |]

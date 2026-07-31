@@ -1,0 +1,10 @@
+§DEF tLoop = [§RECURSIVE tLoop [tLoop | §INT]]
+
+§DEF Match... = (
+	§DEF Value € tLoop
+) => §IF Value MATCH {
+	1 : 1
+	_ : 0
+}
+
+§EXPORT 0

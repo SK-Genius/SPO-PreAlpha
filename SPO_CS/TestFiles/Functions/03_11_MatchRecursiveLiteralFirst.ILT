@@ -1,0 +1,107 @@
+§TYPES
+	t_0 := [#Result INT]
+	t_1 := [INT => t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [TRUE | FALSE]
+	t_4 := [INT => t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [§FREE]
+	t_7 := [t_6, EMPTY_TYPE]
+	t_8 := [t_7 | INT]
+	t_9 := [§REC t_6 => t_8]
+	t_10 := [t_9, EMPTY_TYPE]
+	t_11 := [t_10 | INT]
+	t_12 := [t_11 => t_0]
+	t_13 := [EMPTY_TYPE => t_12]
+	t_14 := [EMPTY_TYPE, t_2]
+	t_15 := [t_14, t_5]
+	t_16 := [t_15, t_13]
+	t_17 := [t_9 => t_0]
+	t_18 := [t_16 => t_17]
+	t_19 := [t_16, t_18]
+	t_20 := [t_9 => INT]
+	t_21 := [t_19 => t_20]
+	t_22 := [t_19, t_21]
+	t_23 := [EMPTY_TYPE, INT]
+	t_24 := [t_23, INT]
+	t_25 := [EMPTY_TYPE => t_24]
+	t_26 := [t_22 => t_25]
+
+§DEF d_0 € t_2
+	r_1 := 1
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_5
+	r_1 := 1
+	r_2 := §INT ARG == r_1
+	r_3 := §BOOL r_2 ^ TRUE
+	§RETURN FALSE IF r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_2 € t_13
+	r_1 := 0
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_3 € t_18
+	d_2 := §2ND ENV
+	r_4 := §1ST ENV
+	d_1 := §2ND r_4
+	r_5 := §1ST r_4
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_0 EMPTY
+	r_2 := .d_1 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_2 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_21
+	d_3 := §2ND ENV
+	r_7 := §1ST ENV
+	d_2 := §2ND r_7
+	r_8 := §1ST r_7
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	_Value := ARG
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := r_2, d_2
+	r_4 := .d_3 r_3
+	r_5 := .r_4 _Value
+	r_6 := -#Result r_5
+	§RETURN r_6 IF TRUE
+
+§DEF d_5 € t_26
+	d_4 := §2ND ENV
+	r_15 := §1ST ENV
+	d_3 := §2ND r_15
+	r_16 := §1ST r_15
+	d_2 := §2ND r_16
+	r_17 := §1ST r_16
+	d_1 := §2ND r_17
+	r_18 := §1ST r_17
+	d_0 := §2ND r_18
+	r_19 := §1ST r_18
+	_tRecursive := [§FREE]
+	r_1 := [_tRecursive, EMPTY_TYPE]
+	r_2 := [r_1 | INT_TYPE]
+	r_3 := [§REC _tRecursive => r_2]
+	_tRecursive := r_3
+	r_4 := EMPTY, d_0
+	r_5 := r_4, d_1
+	r_6 := r_5, d_2
+	r_7 := r_6, d_3
+	r_8 := .d_4 r_7
+	_Match... := r_8
+	r_9 := 2
+	r_10 := ._Match... r_9
+	r_11 := EMPTY, r_10
+	r_12 := 1
+	r_13 := ._Match... r_12
+	r_14 := r_11, r_13
+	§RETURN r_14 IF TRUE

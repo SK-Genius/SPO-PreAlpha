@@ -120,7 +120,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var Def = mSPO2IL.NewDefConstructor<tSpan>();
-					mAssert.AreEquals(Def.MapExpression(Module, ExpressionNode), mSPO2IL.GetRegId(11));
+					mAssert.AreEquals(Def.TryMapExpression(Module, ExpressionNode), mSPO2IL.GetRegId(11));
 					
 					mAssert.AreEquals(
 						Def.Commands.ToStream(),
@@ -799,24 +799,28 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := §TRY ARG AS_INT
-							r_2 := 0
-							r_3 := §INT r_1 == r_2
-							r_4 := §BOOL r_3 ^ TRUE
-							§RETURN EMPTY IF r_4
-							r_5 := 2
-							r_6 := +#Result r_5
-							§RETURN r_6 IF TRUE
+							r_1 := 2
+							r_2 := +#Result r_1
+							§RETURN r_2 IF TRUE
 							""",
 							"""
-							r_1 := §TRY ARG AS_INT
-							r_2 := 1
-							r_3 := §INT r_1 == r_2
-							r_4 := §BOOL r_3 ^ TRUE
-							§RETURN EMPTY IF r_4
-							r_5 := 4
-							r_6 := +#Result r_5
-							§RETURN r_6 IF TRUE
+							r_1 := 0
+							r_2 := §INT ARG == r_1
+							r_3 := §BOOL r_2 ^ TRUE
+							§RETURN FALSE IF r_3
+							§RETURN TRUE IF TRUE
+							""",
+							"""
+							r_1 := 4
+							r_2 := +#Result r_1
+							§RETURN r_2 IF TRUE
+							""",
+							"""
+							r_1 := 1
+							r_2 := §INT ARG == r_1
+							r_3 := §BOOL r_2 ^ TRUE
+							§RETURN FALSE IF r_3
+							§RETURN TRUE IF TRUE
 							""",
 							"""
 							r_1 := 6
@@ -824,46 +828,55 @@ mSPO2IL_Tests {
 							§RETURN r_2 IF TRUE
 							""",
 							"""
-							d_2 := §2ND ENV
-							r_7 := §1ST ENV
-							d_1 := §2ND r_7
+							d_4 := §2ND ENV
+							r_6 := §1ST ENV
+							d_3 := §2ND r_6
+							r_7 := §1ST r_6
+							d_2 := §2ND r_7
 							r_8 := §1ST r_7
-							d_0 := §2ND r_8
+							d_1 := §2ND r_8
 							r_9 := §1ST r_8
+							d_0 := §2ND r_9
+							r_10 := §1ST r_9
 							r_1 := .d_0 EMPTY
-							r_2 := .r_1 ARG
-							§RETURN r_2 IF_NOT_EMPTY
-							r_3 := .d_1 EMPTY
-							r_4 := .r_3 ARG
-							§RETURN r_4 IF_NOT_EMPTY
-							r_5 := .d_2 EMPTY
-							r_6 := .r_5 ARG
-							§RETURN r_6 IF_NOT_EMPTY
+							r_2 := .d_1 EMPTY
+							§TRY_RETURN .r_1 ARG IF r_2
+							r_3 := .d_2 EMPTY
+							r_4 := .d_3 EMPTY
+							§TRY_RETURN .r_3 ARG IF r_4
+							r_5 := .d_4 EMPTY
+							§TRY_RETURN .r_5 ARG
 							§RETURN EMPTY IF TRUE
 							""",
 							"""
-							d_3 := §2ND ENV
-							r_8 := §1ST ENV
-							d_2 := §2ND r_8
-							r_9 := §1ST r_8
-							d_1 := §2ND r_9
-							r_10 := §1ST r_9
-							d_0 := §2ND r_10
+							d_5 := §2ND ENV
+							r_10 := §1ST ENV
+							d_4 := §2ND r_10
 							r_11 := §1ST r_10
+							d_3 := §2ND r_11
+							r_12 := §1ST r_11
+							d_2 := §2ND r_12
+							r_13 := §1ST r_12
+							d_1 := §2ND r_13
+							r_14 := §1ST r_13
+							d_0 := §2ND r_14
+							r_15 := §1ST r_14
 							r_1 := 1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
 							r_4 := r_3, d_2
-							r_5 := .d_3 r_4
-							r_6 := .r_5 r_1
-							r_7 := -#Result r_6
-							_x := r_7
+							r_5 := r_4, d_3
+							r_6 := r_5, d_4
+							r_7 := .d_5 r_6
+							r_8 := .r_7 r_1
+							r_9 := -#Result r_8
+							_x := r_9
 							""",
 						]
 					);
 				}
 			),
- 			mTest.Test("MapIfMatch_2_WithSet",
+			mTest.Test("MapIfMatch_2_WithSet",
 				aStreamOut => {
 					var ModuleNode = mSPO_Parser.Module.ParseText(
 						//       1         2         3         4         5         6         7         8
@@ -912,23 +925,27 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := §TRY_REMOVE #_Blub FROM ARG
-							r_2 := §TRY r_1 AS_EMPTY
-							r_3 := 1
-							r_4 := +#Result r_3
-							§RETURN r_4 IF TRUE
+							r_1 := -#_Blub ARG
+							r_2 := 1
+							r_3 := +#Result r_2
+							§RETURN r_3 IF TRUE
 							""",
 							"""
-							r_1 := §TRY_REMOVE #_Bla FROM ARG
-							r_2 := §TRY r_1 AS_EMPTY
-							r_3 := 2
-							r_4 := +#Result r_3
-							§RETURN r_4 IF TRUE
+							r_1 := -#_Bla ARG
+							r_2 := 2
+							r_3 := +#Result r_2
+							§RETURN r_3 IF TRUE
 							""",
 							"""
-							r_1 := 3
-							r_2 := +#Result r_1
-							§RETURN r_2 IF TRUE
+							d_1 := §2ND ENV
+							r_3 := §1ST ENV
+							d_0 := §2ND r_3
+							r_4 := §1ST r_3
+							r_1 := .d_0 EMPTY
+							§TRY_RETURN .r_1 ARG
+							r_2 := .d_1 EMPTY
+							§TRY_RETURN .r_2 ARG
+							§RETURN EMPTY IF TRUE
 							""",
 							"""
 							d_2 := §2ND ENV
@@ -937,36 +954,15 @@ mSPO2IL_Tests {
 							r_8 := §1ST r_7
 							d_0 := §2ND r_8
 							r_9 := §1ST r_8
-							r_1 := .d_0 EMPTY
-							r_2 := .r_1 ARG
-							§RETURN r_2 IF_NOT_EMPTY
-							r_3 := .d_1 EMPTY
-							r_4 := .r_3 ARG
-							§RETURN r_4 IF_NOT_EMPTY
-							r_5 := .d_2 EMPTY
-							r_6 := .r_5 ARG
-							§RETURN r_6 IF_NOT_EMPTY
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_3 := §2ND ENV
-							r_8 := §1ST ENV
-							d_2 := §2ND r_8
-							r_9 := §1ST r_8
-							d_1 := §2ND r_9
-							r_10 := §1ST r_9
-							d_0 := §2ND r_10
-							r_11 := §1ST r_10
 							§RETURN ARG IF_NOT_EMPTY
 							r_1 := +#_Bla EMPTY
 							_X := r_1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
-							r_4 := r_3, d_2
-							r_5 := .d_3 r_4
-							r_6 := .r_5 _X
-							r_7 := -#Result r_6
-							§RETURN r_7 IF TRUE
+							r_4 := .d_2 r_3
+							r_5 := .r_4 _X
+							r_6 := -#Result r_5
+							§RETURN r_6 IF TRUE
 							""",
 						]
 					);

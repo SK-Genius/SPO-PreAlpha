@@ -1,0 +1,6 @@
+§DEF Value € [[] | §INT] = ()
+
+§EXPORT §IF { Field: Value } MATCH {
+	{ Field: (§DEF X € §INT) } : X
+	{ Field: () } : 0
+}

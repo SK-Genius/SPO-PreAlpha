@@ -241,6 +241,76 @@ mIL_GenerateOpcodes {
 						Types.Push(ResType);
 						break;
 					}
+					case { NodeType: mIL_AST.tCommandNodeType.TryReturn, Pos: var Span, _1: var FuncId, _2: var ArgId, _3: var GuardId }: {
+						var ProcReg = Regs.GetOrThrow(FuncId, Command);
+						var ArgReg = Regs.GetOrThrow(ArgId, Command);
+						var ArgType = Types.Get(ArgReg);
+						var ProcType = Types.Get(ProcReg);
+						
+						while (ProcType.IsGeneric(out var GenericHead, out var GenericBody)) {
+							ProcType = GenericBody.Substitute(GenericHead.Id!, mVM_Type.Free());
+						}
+						
+						mAssert.IsTrue(
+							ProcType.IsProc(out var ObjType, out var ExpectedArgType, out var ResultType),
+							Fail_("§TRY_RETURN expects a function")
+						);
+						mAssert.IsTrue(
+							ObjType.IsEmpty(),
+							Fail_("§TRY_RETURN does not accept a method")
+						);
+						mAssert.IsTrue(
+							ExpectedArgType.IsSubType(ArgType, mStd.cEmpty).Match(out _, out _),
+							Fail_("§TRY_RETURN function argument type cannot match the argument")
+						);
+						
+						var (_, SuccessResult) = ResultType.SplitBy(__ => __.IsEmpty());
+						
+						mAssert.IsTrue(
+							SuccessResult.IsSome(out var SuccessType) && SuccessType.IsPrefix("Result", out _),
+							Fail_("§TRY_RETURN function result must contain #Result")
+						);
+						
+						SuccessType.IsSubType(DefResType, mStd.cEmpty).AssertNotError(Fail_);
+						
+						var ProcOrProcGuardPairReg = ProcReg;
+						if (GuardId.IsSome(out var GuardId_)) {
+							var GuardReg = Regs.GetOrThrow(GuardId_, Command);
+							var GuardType = Types.Get(GuardReg);
+							
+							while (GuardType.IsGeneric(out _, out var GenericBody)) {
+								GuardType = GenericBody;
+							}
+							
+							mAssert.IsTrue(
+								GuardType.IsProc(out var GuardObjType, out var GuardArgType, out var GuardResultType),
+								Fail_("§TRY_RETURN guard expects a function")
+							);
+							mAssert.IsTrue(
+								GuardObjType.IsEmpty(),
+								Fail_("§TRY_RETURN guard does not accept a method")
+							);
+							ExpectedArgType.IsSubType(GuardArgType, mStd.cEmpty).AssertNotError(Fail_);
+							GuardResultType.IsSubType(mVM_Type.Bool(), mStd.cEmpty).AssertNotError(Fail_);
+							
+							ProcOrProcGuardPairReg = NewProc.Pair(Span, ProcReg, GuardReg);
+							Types.Push(mVM_Type.Pair(ProcType, GuardType));
+						}
+						
+						var ResReg = NewProc.TryReturn(Span, ProcOrProcGuardPairReg, ArgReg);
+						Types.Push(ResultType);
+						NewProc.ReturnIfNotEmpty(Span, ResReg);
+						Types.Set(ResReg, mVM_Type.Empty());
+						ReturnType = mVM_Type.Union(ReturnType, SuccessType);
+						
+						if (
+							GuardId.IsNone() &&
+							ArgType.Subtract(ExpectedArgType).IsSome(out var RemainingArgType)
+						) {
+							Types.Set(ArgReg, RemainingArgType);
+						}
+						break;
+					}
 					case { NodeType: mIL_AST.tCommandNodeType.CallProc, Pos: var Span, _1: var RegId1, _2: var RegId2, _3: var RegId3 }: {
 						var ObjMethodPair = Regs.GetOrThrow(RegId2, Command);
 						mAssert.IsTrue(Types.Get(ObjMethodPair).IsPair(out var ObjType, out var MethType));
@@ -354,14 +424,14 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.First, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg  = Regs.GetOrThrow(RegId2, Command);
 						var ArgType = Types.Get(ArgReg);
-						mAssert.IsTrue(ArgType.IsPair(out var ResType, out var __), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText()}");
+						mAssert.IsTrue(ArgType.TryProjectPair(out var ResType, out _), () => $"{Span} {RegId1} := FIRST {RegId2} :: {ArgType.ToText()}");
 						Regs = Regs.Set(RegId1, NewProc.First(Span, ArgReg));
 						Types.Push(ResType);
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.Second, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var ArgReg = Regs.GetOrThrow(RegId2, Command);
-						mAssert.IsTrue(Types.Get(ArgReg).IsPair(out _, out  var ResType));
+						mAssert.IsTrue(Types.Get(ArgReg).TryProjectPair(out _, out var ResType));
 						Regs = Regs.Set(RegId1, NewProc.Second(Span, ArgReg));
 						Types.Push(ResType);
 						break;
