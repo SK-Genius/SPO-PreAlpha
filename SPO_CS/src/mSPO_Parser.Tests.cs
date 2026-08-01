@@ -12,6 +12,7 @@
 #:ref Common/mParserGen.cs
 #:ref mTokenizer.cs
 #:ref mSPO_AST.cs
+#:ref mSPO_Desugar.cs
 #:ref mSPO_Parser.cs
 
 using tPos = mTextStream.tPos;
@@ -262,6 +263,61 @@ mSPO_Parser_Tests {
 						mSPO_AST.AreEqual
 					);
 				}
+			),
+			mTest.Tests("Unnamed lambda arguments",
+				mStream.Stream(
+					[
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"=> 2 .* ...",
+							"a0 => 2 .* a0"
+						),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"=> ... .+ ...",
+							"(a0, a1) => a0 .+ a1"
+						),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"=> ((=> ...), ...)",
+							"a0 => ((a0 => a0), a0)"
+						),
+						(
+							mStd.File(),
+							mStd.LineNr(),
+							"=> (..., (=> ...), ...)",
+							"(a0, a1) => (a0, (a0 => a0), a1)"
+						),
+					]
+				).Map(
+					((tText File, tInt32 LineNr, tText Expr1, tText Expr2) a) => mTest.Test(a.Expr1,
+						aStreamOut => {
+							static mSPO_AST.tExpressionNode<tSpan>
+							ParseAndDesugar(
+								tText aText,
+								mStd.tAction<tText> aStreamOut
+							) => mSPO_Parser.Expression.ParseText(
+								aText,
+								"",
+								__ => aStreamOut(__())
+							).DesugarExpression(
+							).AssertNotError(
+								__ => __.ErrorText
+							);
+							
+							var Expected = ParseAndDesugar(a.Expr2, aStreamOut).ToText();
+							for (var Index = 0; Index <= 9; Index += 1) {
+								Expected = Expected.Replace($"_a{Index}", $"a{Index}");
+							}
+							mAssert.AreEquals(ParseAndDesugar(a.Expr1, aStreamOut).ToText(), Expected);
+						},
+						a.File,
+						a.LineNr
+					)
+				).ToArrayList().ToArray()
 			),
 			mTest.Test("TypedMatch",
 				aStreamOut => {

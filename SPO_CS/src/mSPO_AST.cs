@@ -232,6 +232,14 @@ mSPO_AST {
 		public tPatternNode<tPos> Head = default!;
 		public tExpressionNode<tPos> Body = default!;
 	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tShortLambdaNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Body = default!;
+	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -612,6 +620,33 @@ mSPO_AST {
 		Id = "_" + aId,
 	};
 	
+	public static tIdNode<tPos>
+	Id<tPos>(
+		tPos aPos,
+		tText aId,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Id(aPos, aId).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+
+	public static tIdNode<tPos>
+	UnnamedArgId<tPos>(
+		tPos aPos,
+		tInt32 aIndex
+	) => new() {
+		Pos = aPos,
+		Id = "a" + aIndex,
+	};
+	
+	public static tIdNode<tPos>
+	UnnamedArgId<tPos>(
+		tPos aPos,
+		tInt32 aIndex,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => UnnamedArgId(aPos, aIndex).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tFreeIdPatternNode<tPos>
 	FreeIdPattern<tPos>(
 		tPos aPos,
@@ -654,6 +689,15 @@ mSPO_AST {
 		},
 	};
 	
+	public static tExpressionNode<tPos>
+	Tuple<tPos>(
+		tPos aPos,
+		mStream.tStream<tExpressionNode<tPos>> aItems,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Tuple(aPos, aItems).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tPairNode<tPos>
 	Pair<tPos>(
 		tPos aPos,
@@ -664,6 +708,16 @@ mSPO_AST {
 		Tail = aTail,
 		Head = aHead,
 	};
+	
+	public static tPairNode<tPos>
+	Pair<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aTail,
+		tExpressionNode<tPos> aHead,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Pair(aPos, aTail, aHead).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tPrefixTypeNode<tPos>
 	PrefixType<tPos>(
@@ -791,6 +845,16 @@ mSPO_AST {
 		Arg = aArg,
 	};
 	
+	public static tCallNode<tPos>
+	Call<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aFunc,
+		tExpressionNode<tPos> aArg,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Call(aPos, aFunc, aArg).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tPrefixNode<tPos>
 	Prefix<tPos>(
 		tPos aPos,
@@ -802,6 +866,16 @@ mSPO_AST {
 		Element = aElement,
 	};
 	
+	public static tPrefixNode<tPos>
+	Prefix<tPos>(
+		tPos aPos,
+		tText aPrefix,
+		tExpressionNode<tPos> aElement,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Prefix(aPos, aPrefix, aElement).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tPrefixPatternNode<tPos>
 	PrefixPattern<tPos>(
 		tPos aPos,
@@ -812,6 +886,16 @@ mSPO_AST {
 		Prefix = aPrefix,
 		Pattern = aPattern,
 	};
+	
+	public static tPrefixPatternNode<tPos>
+	PrefixPattern<tPos>(
+		tPos aPos,
+		tText aPrefix,
+		tPatternNode<tPos> aPattern,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => PrefixPattern(aPos, aPrefix, aPattern).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tRecordNode<tPos>
 	Record<tPos>(
@@ -828,6 +912,15 @@ mSPO_AST {
 		Elements = aRecordItems,
 	};
 	
+	public static tRecordNode<tPos>
+	Record<tPos>(
+		tPos aPos,
+		mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> aRecordItems,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Record(aPos, aRecordItems).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tRecordPatternNode<tPos>
 	RecordPattern<tPos>(
 		tPos aPos,
@@ -836,6 +929,15 @@ mSPO_AST {
 		Pos = aPos,
 		Elements = aRecordItems,
 	};
+	
+	public static tRecordPatternNode<tPos>
+	RecordPattern<tPos>(
+		tPos aPos,
+		mStream.tStream<(tIdNode<tPos> Key, tPatternNode<tPos> Pattern)> aRecordItems,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => RecordPattern(aPos, aRecordItems).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tGuardPatternNode<tPos>
 	GuardPattern<tPos>(
@@ -848,6 +950,16 @@ mSPO_AST {
 		Guard = aGuard,
 	};
 	
+	public static tGuardPatternNode<tPos>
+	GuardPattern<tPos>(
+		tPos aPos,
+		tPatternNode<tPos> aPattern,
+		tExpressionNode<tPos> aGuard,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => GuardPattern(aPos, aPattern, aGuard).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tLambdaNode<tPos>
 	Lambda<tPos>(
 		tPos aPos,
@@ -858,6 +970,26 @@ mSPO_AST {
 		Pos = aPos,
 		Generic = aStaticPattern,
 		Head = aPattern,
+		Body = aBody,
+	};
+	
+	public static tLambdaNode<tPos>
+	Lambda<tPos>(
+		tPos aPos,
+		mMaybe.tMaybe<tPatternNode<tPos>> aStaticPattern,
+		tPatternNode<tPos> aPattern,
+		tExpressionNode<tPos> aBody,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Lambda(aPos, aStaticPattern, aPattern, aBody).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
+	public static tShortLambdaNode<tPos>
+	ShortLambda<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aBody
+	) => new() {
+		Pos = aPos,
 		Body = aBody,
 	};
 	
@@ -873,6 +1005,17 @@ mSPO_AST {
 		Arg = aArgPattern,
 		Body = aBody,
 	};
+	
+	public static tMethodNode<tPos>
+	Method<tPos>(
+		tPos aPos,
+		tPatternNode<tPos> aObjPattern,
+		tPatternNode<tPos> aArgPattern,
+		tBlockNode<tPos> aBody,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Method(aPos, aObjPattern, aArgPattern, aBody).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tRecLambdaItemNode<tPos>
 	RecLambdaItem<tPos>(
@@ -918,6 +1061,24 @@ mSPO_AST {
 		Head = aHead,
 	};
 	
+	public static tPairPatternNode<tPos>
+	PairPattern<tPos>(
+		tPos aPos,
+		tPatternNode<tPos> aTail,
+		tPatternNode<tPos> aHead,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => PairPattern(aPos, aTail, aHead).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
+	public static tPatternNode<tPos>
+	WithTypeAnnotation<tPos>(
+		tPatternNode<tPos> aPattern,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => aPattern.Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tTypedPatternNode<tPos>
 	Pattern<tPos>(
 		tPos aPos,
@@ -929,6 +1090,16 @@ mSPO_AST {
 		TypeExpression = aType,
 		TypeAnnotation = aPattern.TypeAnnotation,
 	};
+	
+	public static tTypedPatternNode<tPos>
+	Pattern<tPos>(
+		tPos aPos,
+		tPatternNode<tPos> aPattern,
+		mMaybe.tMaybe<tExpressionNode<tPos>> aType,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Pattern(aPos, aPattern, aType).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tTypedPatternNode<tPos>
 	UnTypedPattern<tPos>(
@@ -967,6 +1138,15 @@ mSPO_AST {
 		Cases = aCases,
 	};
 	
+	public static tIfNode<tPos>
+	If<tPos>(
+		tPos aPos,
+		mStream.tStream<(tExpressionNode<tPos>, tExpressionNode<tPos>)> aCases,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => If(aPos, aCases).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+	
 	public static tIfMatchNode<tPos>
 	IfMatch<tPos>(
 		tPos aPos,
@@ -977,6 +1157,16 @@ mSPO_AST {
 		Expression = aExpression,
 		Cases = aCases,
 	};
+	
+	public static tIfMatchNode<tPos>
+	IfMatch<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aExpression,
+		mStream.tStream<(tPatternNode<tPos>, tExpressionNode<tPos>)> aCases,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => IfMatch(aPos, aExpression, aCases).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tIsNode<tPos>
 	Is<tPos>(
@@ -1010,6 +1200,15 @@ mSPO_AST {
 		Pos = aPos,
 		Obj = aObj,
 	};
+	
+	public static tVarToValNode<tPos>
+	VarToVal<tPos>(
+		tPos aPos,
+		tExpressionNode<tPos> aObj,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => VarToVal(aPos, aObj).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tMethodCallsNode<tPos>
 	MethodCallStatement<tPos>(
@@ -1065,6 +1264,15 @@ mSPO_AST {
 		Pos = aPos,
 		Commands = aCommands,
 	};
+	
+	public static tBlockNode<tPos>
+	Block<tPos>(
+		tPos aPos,
+		mStream.tStream<tCommandNode<tPos>> aCommands,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Block(aPos, aCommands).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tModuleNode<tPos>
 	Module<tPos>(
@@ -1238,6 +1446,12 @@ mSPO_AST {
 				return (
 					a2 is tLambdaNode<tPos> Node2 &&
 					AreEqual(Node1.Head , Node2.Head) &&
+					AreEqual(Node1.Body, Node2.Body)
+				);
+			}
+			case tShortLambdaNode<tPos> Node1: {
+				return (
+					a2 is tShortLambdaNode<tPos> Node2 &&
 					AreEqual(Node1.Body, Node2.Body)
 				);
 			}
@@ -1429,8 +1643,8 @@ mSPO_AST {
 			// Expressions
 			tIdNode<t> Node => Node.Id,
 			tEmptyNode<t> Node => "()",
-			tTrueNode<t> Node => "#TRUE",
-			tFalseNode<t> Node => "#FALSE",
+			tTrueNode<t> Node => "§TRUE",
+			tFalseNode<t> Node => "§FALSE",
 			tIntNode<t> Node => "" + Node.Value,
 			tCharNode<t> Node => $"§{Node.Value}",
 			tTextNode<t> Node => $"\"{Node.Value}\"",
@@ -1440,6 +1654,7 @@ mSPO_AST {
 			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
+			tShortLambdaNode<t> Node => $"({____}=> {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
 			tMethodNode<t> Node => $"({____}{Node.Obj.ToText(____)} : {Node.Arg.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tIfMatchNode<t> Node => (

@@ -627,6 +627,11 @@ mSPO_Parser {
 	.ModifyS((aSpan, aGenericType, aTypes) => mSPO_AST.GenericApplyType(aSpan, aGenericType, mSPO_AST.TupleType(aSpan, aTypes)))
 	.SetName(nameof(GenericApplyType));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tShortLambdaNode<tSpan>, tError>
+	ShortLambda = (-SpecialToken("=>") +Expression)
+	.ModifyS(mSPO_AST.ShortLambda)
+	.SetName(nameof(ShortLambda));
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tLambdaNode<tSpan>, tError>
 	Lambda = mParserGen.Seq(
 		mParserGen.Seq(Pattern, -Token("<=>"))[0..1].Modify(a => a.TryFirst().ThenTry(__ => mMaybe.Some(__.Item1))),
@@ -869,6 +874,7 @@ mSPO_Parser {
 					If.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					IfMatch.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Is.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					ShortLambda.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Lambda.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Method.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Call.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

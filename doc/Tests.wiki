@@ -683,6 +683,24 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 |]
 [|
   [#
+  |../SPO_CS/TestFiles/Functions/07_13c_HigherOrderFuncTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13c_HigherOrderFuncTypes.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13d_HigherOrderFuncTypes.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_13d_HigherOrderFuncTypes.result.SPO
+  #]
+|]
+[|
+  [#
   |../SPO_CS/TestFiles/Functions/07_14_AnyType.SPO
   #]
 ][
