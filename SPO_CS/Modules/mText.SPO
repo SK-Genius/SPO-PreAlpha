@@ -1,0 +1,16 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+		...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
+	}
+}
+
+§DEF tChar = [#Char §INT]
+
+
+§EXPORT {
+}

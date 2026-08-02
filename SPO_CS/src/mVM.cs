@@ -103,8 +103,8 @@ mVM {
 		mVM_Type.tType aType,
 		System.Collections.Generic.HashSet<(tNat64 Data, tNat64 Type)>? aVisited = null
 	) {
-		if (aType.IsFree(out _, out var Ref)) {
-			return ReferenceEquals(aType, Ref) || aData.Matches(Ref, aVisited);
+		if (aType.IsTypeVariable(out _, out _)) {
+			return true;
 		} else if (aType.IsAny()) {
 			return true;
 		}
@@ -118,6 +118,8 @@ mVM {
 			return aData.Matches(BodyType.Substitute(HeadType, aType), aVisited);
 		} else if (aType.IsInterface(out _, out BodyType) || aType.IsGeneric(out _, out BodyType)) {
 			return aData.Matches(BodyType, aVisited);
+		} else if (aType.IsSig(out _, out _, out _)) {
+			return aData.IsSig(out _, out _);
 		} else {
 			return aType.Kind switch {
 				mVM_Type.tKind.Empty => aData.IsEmpty(),
@@ -149,7 +151,7 @@ mVM {
 				mVM_Type.tKind.Proc => (
 					aData.IsProc(out var Def, out _) &&
 					Def.DefType.IsProc(out _, out _, out var FuncType) &&
-					FuncType.IsSubType(aType, mStd.cEmpty).Match(out _, out _)
+					FuncType.IsSubType(aType).Match(out _, out _)
 				),
 				mVM_Type.tKind.Var => (
 					aType.IsVar(out var ValueType) &&
@@ -310,6 +312,21 @@ mVM {
 				aCallStack._Regs.Push(Var2);
 				break;
 			}
+			case mVM_Data.tOpCode.NewSig: {
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsPair(out var Head, out var Body));
+				aCallStack._Regs.Push(mVM_Data.Sig(Head, Body));
+				break;
+			}
+			case mVM_Data.tOpCode.SigHead: {
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsSig(out var Head, out _));
+				aCallStack._Regs.Push(Head);
+				break;
+			}
+			case mVM_Data.tOpCode.SigBody: {
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsSig(out _, out var Body));
+				aCallStack._Regs.Push(Body);
+				break;
+			}
 			case mVM_Data.tOpCode.AddPrefix: {
 				aCallStack._Regs.Push(mVM_Data.Prefix(Arg1, aCallStack._Regs.Get(Arg2)));
 				break;
@@ -345,7 +362,7 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Arg.IsRecord(out var Fields));
 				aCallStack._Regs.Push(
-					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {Arg2} {Arg.ToText(3)}").ElseThrow()
+					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {mVM_Data.gHashToPrefix.TryGet(Arg2).ElseUse("" + Arg2)} {Arg.ToText(3)}").ElseThrow()
 				);
 				break;
 			}
@@ -658,6 +675,27 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.TryAsSig: {
+				var Arg = aCallStack._Regs.Get(Arg1);
+				var MatchesHead = Arg2 == tNat32.MaxValue;
+				if (
+					!MatchesHead &&
+					Arg.IsSig(out var Head, out _) &&
+					Head._DataType is mVM_Data.tDataType.Type &&
+					Head._Value.Is(out mVM_Type.tType HeadType) &&
+					aCallStack._ProcDef.TypeConstants.Get(Arg2) is var ExpectedHead
+				) {
+					MatchesHead = HeadType.IsSubType(ExpectedHead).Match(out _, out _) &&
+						ExpectedHead.IsSubType(HeadType).Match(out _, out _);
+				}
+				if (Arg.IsSig(out _, out _) && MatchesHead) {
+					aCallStack._Regs.Push(Arg);
+				} else {
+					aCallStack._TraceOut(() => "====================================");
+					return aCallStack._Parent;
+				}
+				break;
+			}
 			case mVM_Data.tOpCode.TryAsRecord: {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				if (Arg.IsRecord(out var _)) {
@@ -680,11 +718,33 @@ mVM {
 			}
 			case mVM_Data.tOpCode.TypeFree: {
 				// create a fresh free type variable
+				var Kind = mVM_Type.Type();
+				if (Arg1 != tNat32.MaxValue) {
+					var KindData = aCallStack._Regs.Get(Arg1);
+					mAssert.AreEquals(KindData._DataType, mVM_Data.tDataType.Type);
+					mAssert.IsTrue(KindData._Value.Is(out Kind));
+				}
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
 						_IsMutable = false,
-						_Value = mAny.Any(mVM_Type.Free())
+						_Value = mAny.Any(mVM_Type.TypeVariable("", Kind))
+					}
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeSig: {
+				var BinderData = aCallStack._Regs.Get(Arg1);
+				var BodyData = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(BinderData._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(BodyData._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(BinderData._Value.Is(out mVM_Type.tType Binder));
+				mAssert.IsTrue(BodyData._Value.Is(out mVM_Type.tType BodyType));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.Sig(Binder, Binder.KindOf(), BodyType))
 					}
 				);
 				break;
@@ -705,13 +765,57 @@ mVM {
 				);
 				break;
 			}
+			case mVM_Data.tOpCode.TypePrefix: {
+				var InnerData = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(InnerData._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(InnerData._Value.Is(out mVM_Type.tType Inner));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Prefix(Arg1.ToString(), Inner))
+				});
+				break;
+			}
+			case mVM_Data.tOpCode.TypeRecord: {
+				var RecordData = aCallStack._Regs.Get(Arg1);
+				var FieldData = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(RecordData._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(FieldData._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(RecordData._Value.Is(out mVM_Type.tType Record));
+				mAssert.IsTrue(FieldData._Value.Is(out mVM_Type.tType Field));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Record(Record, Field))
+				});
+				break;
+			}
+			case mVM_Data.tOpCode.TypeVar: {
+				var InnerData = aCallStack._Regs.Get(Arg1);
+				mAssert.AreEquals(InnerData._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(InnerData._Value.Is(out mVM_Type.tType Inner));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Var(Inner))
+				});
+				break;
+			}
 			case mVM_Data.tOpCode.TypeSet: {
 				var Type1 = aCallStack._Regs.Get(Arg1);
 				var Type2 = aCallStack._Regs.Get(Arg2);
-				mAssert.AreEquals(Type1._DataType, mVM_Data.tDataType.Type);
-				mAssert.AreEquals(Type2._DataType, mVM_Data.tDataType.Type);
-				mAssert.IsTrue(Type1._Value.Is(out mVM_Type.tType T1));
-				mAssert.IsTrue(Type2._Value.Is(out mVM_Type.tType T2));
+				mVM_Type.tType T1;
+				if (Type1.IsBool(out var Bool1)) {
+					T1 = Bool1 ? mVM_Type.True() : mVM_Type.False();
+				} else {
+					mAssert.IsTrue(Type1._Value.Is(out T1));
+				}
+				mVM_Type.tType T2;
+				if (Type2.IsBool(out var Bool2)) {
+					T2 = Bool2 ? mVM_Type.True() : mVM_Type.False();
+				} else {
+					mAssert.IsTrue(Type2._Value.Is(out T2));
+				}
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
@@ -735,6 +839,43 @@ mVM {
 						_Value = mAny.Any(mVM_Type.Recursive(Head, Body))
 					}
 				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeInterface: {
+				var HeadData = aCallStack._Regs.Get(Arg1);
+				var BodyData = aCallStack._Regs.Get(Arg2);
+				mAssert.IsTrue(HeadData._Value.Is(out mVM_Type.tType Head));
+				mAssert.IsTrue(BodyData._Value.Is(out mVM_Type.tType Body));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Interface(Head, Body))
+				});
+				break;
+			}
+			case mVM_Data.tOpCode.TypeFunc: {
+				var ArgData = aCallStack._Regs.Get(Arg1);
+				var ResultData = aCallStack._Regs.Get(Arg2);
+				mAssert.IsTrue(ArgData._Value.Is(out mVM_Type.tType ArgType));
+				mAssert.IsTrue(ResultData._Value.Is(out mVM_Type.tType ResultType));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Proc(mVM_Type.Empty(), ArgType, ResultType))
+				});
+				break;
+			}
+			case mVM_Data.tOpCode.TypeMeth: {
+				var ObjData = aCallStack._Regs.Get(Arg1);
+				var FuncData = aCallStack._Regs.Get(Arg2);
+				mAssert.IsTrue(ObjData._Value.Is(out mVM_Type.tType ObjType));
+				mAssert.IsTrue(FuncData._Value.Is(out mVM_Type.tType FuncType));
+				mAssert.IsTrue(FuncType.IsProc(out _, out var ArgType, out var ResultType));
+				aCallStack._Regs.Push(new mVM_Data.tData {
+					_DataType = mVM_Data.tDataType.Type,
+					_IsMutable = false,
+					_Value = mAny.Any(mVM_Type.Proc(ObjType, ArgType, ResultType))
+				});
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsEmpty: {
@@ -779,6 +920,22 @@ mVM {
 						_DataType = mVM_Data.tDataType.Type,
 						_IsMutable = false,
 						_Value = mAny.Any(mVM_Type.Generic(Head, Body))
+					}
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeGenericApply: {
+				var ConstructorData = aCallStack._Regs.Get(Arg1);
+				var ArgumentData = aCallStack._Regs.Get(Arg2);
+				mAssert.AreEquals(ConstructorData._DataType, mVM_Data.tDataType.Type);
+				mAssert.AreEquals(ArgumentData._DataType, mVM_Data.tDataType.Type);
+				mAssert.IsTrue(ConstructorData._Value.Is(out mVM_Type.tType Constructor));
+				mAssert.IsTrue(ArgumentData._Value.Is(out mVM_Type.tType Argument));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Type,
+						_IsMutable = false,
+						_Value = mAny.Any(mVM_Type.TypeApply(Constructor, Argument))
 					}
 				);
 				break;

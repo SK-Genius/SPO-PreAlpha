@@ -7,236 +7,234 @@
 	t_5 := [t_4, INT]
 	t_6 := [t_5, INT]
 	t_7 := [t_6, t_3]
-	t_8 := [INT | EMPTY_TYPE]
-	t_9 := [EMPTY_TYPE => t_8]
-	t_10 := [t_7 => t_9]
-	t_11 := [t_4, t_3]
-	t_12 := [t_11, t_10]
-	t_13 := [t_1 => INT]
-	t_14 := [t_12 => t_13]
-	t_15 := [#_Char... INT]
-	t_16 := [t_15 => INT]
-	t_17 := [EMPTY_TYPE => t_16]
-	t_18 := [INT => t_15]
-	t_19 := [EMPTY_TYPE => t_18]
-	t_20 := [EMPTY_TYPE, t_2]
-	t_21 := [t_20, t_2]
-	t_22 := [t_21 => t_2]
-	t_23 := [EMPTY_TYPE, t_22]
-	t_24 := [t_23, t_3]
-	t_25 := [t_1, INT]
-	t_26 := [t_25 => t_2]
-	t_27 := [t_24 => t_26]
-	t_28 := [EMPTY_TYPE, t_26]
-	t_29 := [t_28, t_16]
-	t_30 := [EMPTY_TYPE, t_15]
-	t_31 := [t_30, t_15]
-	t_32 := [t_31, t_15]
-	t_33 := [t_32 => t_2]
-	t_34 := [t_29 => t_33]
-	t_35 := [EMPTY_TYPE, t_13]
-	t_36 := [t_35, t_16]
-	t_37 := [t_31 => INT]
-	t_38 := [t_36 => t_37]
-	t_39 := [#Result t_2]
-	t_40 := [INT => t_39]
-	t_41 := [EMPTY_TYPE => t_40]
-	t_42 := [INT => t_2]
+	t_8 := [EMPTY_TYPE => INT]
+	t_9 := [t_7 => t_8]
+	t_10 := [t_4, t_3]
+	t_11 := [t_10, t_9]
+	t_12 := [t_1 => INT]
+	t_13 := [t_11 => t_12]
+	t_14 := [#_Char... INT]
+	t_15 := [t_14 => INT]
+	t_16 := [EMPTY_TYPE => t_15]
+	t_17 := [INT => t_14]
+	t_18 := [EMPTY_TYPE => t_17]
+	t_19 := [EMPTY_TYPE, t_2]
+	t_20 := [t_19, t_2]
+	t_21 := [t_20 => t_2]
+	t_22 := [EMPTY_TYPE, t_21]
+	t_23 := [t_22, t_3]
+	t_24 := [t_1, INT]
+	t_25 := [t_24 => t_2]
+	t_26 := [t_23 => t_25]
+	t_27 := [EMPTY_TYPE, t_25]
+	t_28 := [t_27, t_15]
+	t_29 := [EMPTY_TYPE, t_14]
+	t_30 := [t_29, t_14]
+	t_31 := [t_30, t_14]
+	t_32 := [t_31 => t_2]
+	t_33 := [t_28 => t_32]
+	t_34 := [EMPTY_TYPE, t_12]
+	t_35 := [t_34, t_15]
+	t_36 := [t_30 => INT]
+	t_37 := [t_35 => t_36]
+	t_38 := [#Result t_2]
+	t_39 := [INT => t_38]
+	t_40 := [EMPTY_TYPE => t_39]
+	t_41 := [FALSE | TRUE]
+	t_42 := [INT => t_41]
 	t_43 := [EMPTY_TYPE => t_42]
-	t_44 := [EMPTY_TYPE, t_41]
+	t_44 := [EMPTY_TYPE, t_40]
 	t_45 := [t_44, t_43]
-	t_46 := [t_45, t_41]
-	t_47 := [t_46 => t_40]
-	t_48 := [EMPTY_TYPE, t_37]
-	t_49 := [t_48, t_41]
+	t_46 := [t_45, t_40]
+	t_47 := [t_46 => t_39]
+	t_48 := [EMPTY_TYPE, t_36]
+	t_49 := [t_48, t_40]
 	t_50 := [t_49, t_43]
-	t_51 := [t_50, t_41]
+	t_51 := [t_50, t_40]
 	t_52 := [t_51, t_47]
-	t_53 := [t_31 => t_2]
+	t_53 := [t_30 => t_2]
 	t_54 := [t_52 => t_53]
-	t_55 := [FALSE | TRUE]
-	t_56 := [#Result t_55]
-	t_57 := [INT => t_56]
-	t_58 := [EMPTY_TYPE => t_57]
-	t_59 := [EMPTY_TYPE, t_58]
-	t_60 := [t_59, t_43]
-	t_61 := [t_60, t_58]
-	t_62 := [t_61 => t_57]
-	t_63 := [t_48, t_58]
-	t_64 := [t_63, t_43]
-	t_65 := [t_64, t_58]
-	t_66 := [t_65, t_62]
-	t_67 := [t_31 => t_55]
-	t_68 := [t_66 => t_67]
-	t_69 := [TRUE | t_2]
+	t_55 := [#Result t_41]
+	t_56 := [INT => t_55]
+	t_57 := [EMPTY_TYPE => t_56]
+	t_58 := [EMPTY_TYPE, t_57]
+	t_59 := [t_58, t_43]
+	t_60 := [t_59, t_57]
+	t_61 := [t_60 => t_56]
+	t_62 := [t_48, t_57]
+	t_63 := [t_62, t_43]
+	t_64 := [t_63, t_57]
+	t_65 := [t_64, t_61]
+	t_66 := [t_30 => t_41]
+	t_67 := [t_65 => t_66]
+	t_68 := [TRUE | t_2]
+	t_69 := [TRUE | t_68]
 	t_70 := [TRUE | t_69]
 	t_71 := [TRUE | t_70]
 	t_72 := [TRUE | t_71]
 	t_73 := [TRUE | t_72]
 	t_74 := [TRUE | t_73]
-	t_75 := [TRUE | t_74]
-	t_76 := [#Result t_75]
-	t_77 := [INT => t_76]
-	t_78 := [EMPTY_TYPE => t_77]
-	t_79 := [EMPTY_TYPE, t_78]
-	t_80 := [t_79, t_43]
-	t_81 := [t_80, t_78]
-	t_82 := [t_81, t_43]
-	t_83 := [t_82, t_78]
-	t_84 := [t_83, t_43]
-	t_85 := [t_84, t_78]
-	t_86 := [t_85, t_43]
-	t_87 := [t_86, t_78]
-	t_88 := [t_87, t_43]
-	t_89 := [t_88, t_78]
-	t_90 := [t_89, t_43]
-	t_91 := [t_90, t_78]
-	t_92 := [t_91, t_43]
-	t_93 := [t_92, t_78]
-	t_94 := [t_93, t_43]
-	t_95 := [t_94, t_78]
-	t_96 := [t_95 => t_77]
-	t_97 := [EMPTY_TYPE, t_16]
-	t_98 := [t_97, t_78]
-	t_99 := [t_98, t_43]
-	t_100 := [t_99, t_78]
-	t_101 := [t_100, t_43]
-	t_102 := [t_101, t_78]
-	t_103 := [t_102, t_43]
-	t_104 := [t_103, t_78]
-	t_105 := [t_104, t_43]
-	t_106 := [t_105, t_78]
-	t_107 := [t_106, t_43]
-	t_108 := [t_107, t_78]
-	t_109 := [t_108, t_43]
-	t_110 := [t_109, t_78]
-	t_111 := [t_110, t_43]
-	t_112 := [t_111, t_78]
-	t_113 := [t_112, t_43]
-	t_114 := [t_113, t_78]
-	t_115 := [t_114, t_96]
-	t_116 := [t_15 => t_75]
-	t_117 := [t_115 => t_116]
-	t_118 := [EMPTY_TYPE, t_33]
-	t_119 := [t_118, t_15]
-	t_120 := [t_119, t_18]
-	t_121 := [t_120, t_13]
-	t_122 := [t_121, t_13]
-	t_123 := [t_122, t_16]
-	t_124 := [t_15 | EMPTY_TYPE]
-	t_125 := [EMPTY_TYPE => t_124]
-	t_126 := [t_123 => t_125]
-	t_127 := [t_118, t_18]
-	t_128 := [t_127, t_13]
-	t_129 := [t_128, t_13]
-	t_130 := [t_129, t_16]
-	t_131 := [t_130, t_126]
-	t_132 := [t_15 => t_15]
-	t_133 := [t_131 => t_132]
-	t_134 := [EMPTY_TYPE, t_10]
-	t_135 := [t_134, t_14]
-	t_136 := [t_135, t_17]
-	t_137 := [t_136, t_19]
-	t_138 := [t_137, t_27]
-	t_139 := [t_138, t_34]
-	t_140 := [t_139, t_38]
-	t_141 := [t_140, t_41]
-	t_142 := [t_141, t_43]
-	t_143 := [t_142, t_41]
-	t_144 := [t_143, t_47]
-	t_145 := [t_144, t_54]
-	t_146 := [t_145, t_58]
-	t_147 := [t_146, t_43]
-	t_148 := [t_147, t_58]
-	t_149 := [t_148, t_62]
-	t_150 := [t_149, t_68]
-	t_151 := [t_150, t_41]
-	t_152 := [t_151, t_43]
-	t_153 := [t_152, t_41]
-	t_154 := [t_153, t_47]
-	t_155 := [t_154, t_54]
-	t_156 := [t_155, t_41]
-	t_157 := [t_156, t_43]
-	t_158 := [t_157, t_41]
-	t_159 := [t_158, t_47]
-	t_160 := [t_159, t_54]
-	t_161 := [t_160, t_58]
-	t_162 := [t_161, t_43]
-	t_163 := [t_162, t_58]
-	t_164 := [t_163, t_62]
-	t_165 := [t_164, t_68]
-	t_166 := [t_165, t_58]
-	t_167 := [t_166, t_43]
-	t_168 := [t_167, t_58]
-	t_169 := [t_168, t_62]
-	t_170 := [t_169, t_68]
-	t_171 := [t_170, t_78]
+	t_75 := [#Result t_74]
+	t_76 := [INT => t_75]
+	t_77 := [EMPTY_TYPE => t_76]
+	t_78 := [EMPTY_TYPE, t_77]
+	t_79 := [t_78, t_43]
+	t_80 := [t_79, t_77]
+	t_81 := [t_80, t_43]
+	t_82 := [t_81, t_77]
+	t_83 := [t_82, t_43]
+	t_84 := [t_83, t_77]
+	t_85 := [t_84, t_43]
+	t_86 := [t_85, t_77]
+	t_87 := [t_86, t_43]
+	t_88 := [t_87, t_77]
+	t_89 := [t_88, t_43]
+	t_90 := [t_89, t_77]
+	t_91 := [t_90, t_43]
+	t_92 := [t_91, t_77]
+	t_93 := [t_92, t_43]
+	t_94 := [t_93, t_77]
+	t_95 := [t_94 => t_76]
+	t_96 := [EMPTY_TYPE, t_15]
+	t_97 := [t_96, t_77]
+	t_98 := [t_97, t_43]
+	t_99 := [t_98, t_77]
+	t_100 := [t_99, t_43]
+	t_101 := [t_100, t_77]
+	t_102 := [t_101, t_43]
+	t_103 := [t_102, t_77]
+	t_104 := [t_103, t_43]
+	t_105 := [t_104, t_77]
+	t_106 := [t_105, t_43]
+	t_107 := [t_106, t_77]
+	t_108 := [t_107, t_43]
+	t_109 := [t_108, t_77]
+	t_110 := [t_109, t_43]
+	t_111 := [t_110, t_77]
+	t_112 := [t_111, t_43]
+	t_113 := [t_112, t_77]
+	t_114 := [t_113, t_95]
+	t_115 := [t_14 => t_74]
+	t_116 := [t_114 => t_115]
+	t_117 := [EMPTY_TYPE, t_32]
+	t_118 := [t_117, t_14]
+	t_119 := [t_118, t_17]
+	t_120 := [t_119, t_12]
+	t_121 := [t_120, t_12]
+	t_122 := [t_121, t_15]
+	t_123 := [EMPTY_TYPE => t_14]
+	t_124 := [t_122 => t_123]
+	t_125 := [t_117, t_17]
+	t_126 := [t_125, t_12]
+	t_127 := [t_126, t_12]
+	t_128 := [t_127, t_15]
+	t_129 := [t_128, t_124]
+	t_130 := [t_14 => t_14]
+	t_131 := [t_129 => t_130]
+	t_132 := [EMPTY_TYPE, t_9]
+	t_133 := [t_132, t_13]
+	t_134 := [t_133, t_16]
+	t_135 := [t_134, t_18]
+	t_136 := [t_135, t_26]
+	t_137 := [t_136, t_33]
+	t_138 := [t_137, t_37]
+	t_139 := [t_138, t_40]
+	t_140 := [t_139, t_43]
+	t_141 := [t_140, t_40]
+	t_142 := [t_141, t_47]
+	t_143 := [t_142, t_54]
+	t_144 := [t_143, t_57]
+	t_145 := [t_144, t_43]
+	t_146 := [t_145, t_57]
+	t_147 := [t_146, t_61]
+	t_148 := [t_147, t_67]
+	t_149 := [t_148, t_40]
+	t_150 := [t_149, t_43]
+	t_151 := [t_150, t_40]
+	t_152 := [t_151, t_47]
+	t_153 := [t_152, t_54]
+	t_154 := [t_153, t_40]
+	t_155 := [t_154, t_43]
+	t_156 := [t_155, t_40]
+	t_157 := [t_156, t_47]
+	t_158 := [t_157, t_54]
+	t_159 := [t_158, t_57]
+	t_160 := [t_159, t_43]
+	t_161 := [t_160, t_57]
+	t_162 := [t_161, t_61]
+	t_163 := [t_162, t_67]
+	t_164 := [t_163, t_57]
+	t_165 := [t_164, t_43]
+	t_166 := [t_165, t_57]
+	t_167 := [t_166, t_61]
+	t_168 := [t_167, t_67]
+	t_169 := [t_168, t_77]
+	t_170 := [t_169, t_43]
+	t_171 := [t_170, t_77]
 	t_172 := [t_171, t_43]
-	t_173 := [t_172, t_78]
+	t_173 := [t_172, t_77]
 	t_174 := [t_173, t_43]
-	t_175 := [t_174, t_78]
+	t_175 := [t_174, t_77]
 	t_176 := [t_175, t_43]
-	t_177 := [t_176, t_78]
+	t_177 := [t_176, t_77]
 	t_178 := [t_177, t_43]
-	t_179 := [t_178, t_78]
+	t_179 := [t_178, t_77]
 	t_180 := [t_179, t_43]
-	t_181 := [t_180, t_78]
+	t_181 := [t_180, t_77]
 	t_182 := [t_181, t_43]
-	t_183 := [t_182, t_78]
+	t_183 := [t_182, t_77]
 	t_184 := [t_183, t_43]
-	t_185 := [t_184, t_78]
-	t_186 := [t_185, t_43]
-	t_187 := [t_186, t_78]
-	t_188 := [t_187, t_96]
-	t_189 := [t_188, t_117]
-	t_190 := [t_189, t_126]
-	t_191 := [t_190, t_133]
-	t_192 := [t_191, t_126]
-	t_193 := [t_192, t_133]
-	t_194 := [#_...!=... t_3]
-	t_195 := [{EMPTY_TYPE} + t_194]
-	t_196 := [#_...+... t_13]
+	t_185 := [t_184, t_77]
+	t_186 := [t_185, t_95]
+	t_187 := [t_186, t_116]
+	t_188 := [t_187, t_124]
+	t_189 := [t_188, t_131]
+	t_190 := [t_189, t_124]
+	t_191 := [t_190, t_131]
+	t_192 := [#_...!=... t_3]
+	t_193 := [{EMPTY_TYPE} + t_192]
+	t_194 := [#_...+... t_12]
+	t_195 := [{t_193} + t_194]
+	t_196 := [#_...-... t_12]
 	t_197 := [{t_195} + t_196]
-	t_198 := [#_...-... t_13]
+	t_198 := [#_...<=... t_3]
 	t_199 := [{t_197} + t_198]
-	t_200 := [#_...<=... t_3]
+	t_200 := [#_...==... t_3]
 	t_201 := [{t_199} + t_200]
-	t_202 := [#_...==... t_3]
+	t_202 := [#_...And... t_21]
 	t_203 := [{t_201} + t_202]
-	t_204 := [#_...And... t_22]
-	t_205 := [{t_203} + t_204]
-	t_206 := [#_Std t_205]
+	t_204 := [#_Std t_203]
+	t_205 := [{EMPTY_TYPE} + t_204]
+	t_206 := [#_...!=... t_66]
 	t_207 := [{EMPTY_TYPE} + t_206]
-	t_208 := [#_...!=... t_67]
-	t_209 := [{EMPTY_TYPE} + t_208]
-	t_210 := [#_...<... t_53]
+	t_208 := [#_...<... t_53]
+	t_209 := [{t_207} + t_208]
+	t_210 := [#_...<=... t_66]
 	t_211 := [{t_209} + t_210]
-	t_212 := [#_...<=... t_67]
+	t_212 := [#_...<=...<=... t_32]
 	t_213 := [{t_211} + t_212]
-	t_214 := [#_...<=...<=... t_33]
+	t_214 := [#_...<=>... t_36]
 	t_215 := [{t_213} + t_214]
-	t_216 := [#_...<=>... t_37]
+	t_216 := [#_...==... t_53]
 	t_217 := [{t_215} + t_216]
-	t_218 := [#_...==... t_53]
+	t_218 := [#_...>... t_53]
 	t_219 := [{t_217} + t_218]
-	t_220 := [#_...>... t_53]
+	t_220 := [#_...>=... t_66]
 	t_221 := [{t_219} + t_220]
-	t_222 := [#_...>=... t_67]
+	t_222 := [#_...AsChar t_17]
 	t_223 := [{t_221} + t_222]
-	t_224 := [#_...AsChar t_18]
+	t_224 := [#_...IsSpace t_115]
 	t_225 := [{t_223} + t_224]
-	t_226 := [#_...IsSpace t_116]
+	t_226 := [#_...Ord t_15]
 	t_227 := [{t_225} + t_226]
-	t_228 := [#_...Ord t_16]
+	t_228 := [#_...ToLower t_130]
 	t_229 := [{t_227} + t_228]
-	t_230 := [#_...ToLower t_132]
+	t_230 := [#_...ToUpper t_130]
 	t_231 := [{t_229} + t_230]
-	t_232 := [#_...ToUpper t_132]
-	t_233 := [{t_231} + t_232]
-	t_234 := [t_207 => t_233]
-	t_235 := [t_193 => t_234]
+	t_232 := [t_205 => t_231]
+	t_233 := [t_191 => t_232]
 
-§DEF d_0 € t_10
+§DEF d_0 € t_9
 	_...<=... := §2ND ENV
 	r_10 := §1ST ENV
 	_a2 := §2ND r_10
@@ -260,7 +258,7 @@
 	§RETURN r_9 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_14
+§DEF d_1 € t_13
 	d_0 := §2ND ENV
 	r_12 := §1ST ENV
 	_...<=... := §2ND r_12
@@ -283,18 +281,18 @@
 	r_5 := r_11
 	§RETURN r_5 IF TRUE
 
-§DEF d_2 € t_17
+§DEF d_2 € t_16
 	_a := ARG
 	r_1 := -#_Char... _a
 	_Ord := r_1
 	§RETURN _Ord IF TRUE
 
-§DEF d_3 € t_19
+§DEF d_3 € t_18
 	_a := ARG
 	r_1 := +#_Char... _a
 	§RETURN r_1 IF TRUE
 
-§DEF d_4 € t_27
+§DEF d_4 € t_26
 	_...<=... := §2ND ENV
 	r_16 := §1ST ENV
 	_...And... := §2ND r_16
@@ -320,7 +318,7 @@
 	r_15 := ._...And... r_14
 	§RETURN r_15 IF TRUE
 
-§DEF d_5 € t_34
+§DEF d_5 € t_33
 	_...Ord := §2ND ENV
 	r_14 := §1ST ENV
 	_...<=...<=... := §2ND r_14
@@ -344,7 +342,7 @@
 	r_13 := ._...<=...<=... r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_6 € t_38
+§DEF d_6 € t_37
 	_...Ord := §2ND ENV
 	r_10 := §1ST ENV
 	_...<=>... := §2ND r_10
@@ -363,7 +361,7 @@
 	r_9 := ._...<=>... r_8
 	§RETURN r_9 IF TRUE
 
-§DEF d_7 € t_41
+§DEF d_7 € t_40
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -374,7 +372,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_9 € t_41
+§DEF d_9 € t_40
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -421,7 +419,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_12 € t_58
+§DEF d_12 € t_57
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -432,11 +430,11 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_14 € t_58
+§DEF d_14 € t_57
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
-§DEF d_15 € t_62
+§DEF d_15 € t_61
 	d_14 := §2ND ENV
 	r_4 := §1ST ENV
 	d_13 := §2ND r_4
@@ -450,7 +448,7 @@
 	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_16 € t_68
+§DEF d_16 € t_67
 	d_15 := §2ND ENV
 	r_14 := §1ST ENV
 	d_14 := §2ND r_14
@@ -479,7 +477,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_17 € t_41
+§DEF d_17 € t_40
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -490,7 +488,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_19 € t_41
+§DEF d_19 € t_40
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -537,7 +535,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_22 € t_41
+§DEF d_22 € t_40
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -548,7 +546,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_24 € t_41
+§DEF d_24 € t_40
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -595,7 +593,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_27 € t_58
+§DEF d_27 € t_57
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -606,11 +604,11 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_29 € t_58
+§DEF d_29 € t_57
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
-§DEF d_30 € t_62
+§DEF d_30 € t_61
 	d_29 := §2ND ENV
 	r_4 := §1ST ENV
 	d_28 := §2ND r_4
@@ -624,7 +622,7 @@
 	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_31 € t_68
+§DEF d_31 € t_67
 	d_30 := §2ND ENV
 	r_14 := §1ST ENV
 	d_29 := §2ND r_14
@@ -653,7 +651,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_32 € t_58
+§DEF d_32 € t_57
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
@@ -664,11 +662,11 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_34 € t_58
+§DEF d_34 € t_57
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
-§DEF d_35 € t_62
+§DEF d_35 € t_61
 	d_34 := §2ND ENV
 	r_4 := §1ST ENV
 	d_33 := §2ND r_4
@@ -682,7 +680,7 @@
 	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_36 € t_68
+§DEF d_36 € t_67
 	d_35 := §2ND ENV
 	r_14 := §1ST ENV
 	d_34 := §2ND r_14
@@ -711,7 +709,7 @@
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_37 € t_78
+§DEF d_37 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -722,7 +720,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_39 € t_78
+§DEF d_39 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -733,7 +731,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_41 € t_78
+§DEF d_41 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -744,7 +742,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_43 € t_78
+§DEF d_43 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -755,7 +753,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_45 € t_78
+§DEF d_45 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -766,7 +764,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_47 € t_78
+§DEF d_47 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -777,7 +775,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_49 € t_78
+§DEF d_49 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -788,7 +786,7 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_51 € t_78
+§DEF d_51 € t_77
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
@@ -799,11 +797,11 @@
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_53 € t_78
+§DEF d_53 € t_77
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_54 € t_96
+§DEF d_54 € t_95
 	d_53 := §2ND ENV
 	r_18 := §1ST ENV
 	d_52 := §2ND r_18
@@ -866,7 +864,7 @@
 	§TRY_RETURN .r_17 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_55 € t_117
+§DEF d_55 € t_116
 	d_54 := §2ND ENV
 	r_22 := §1ST ENV
 	d_53 := §2ND r_22
@@ -929,7 +927,7 @@
 	r_21 := -#Result r_20
 	§RETURN r_21 IF TRUE
 
-§DEF d_56 € t_126
+§DEF d_56 € t_124
 	_...Ord := §2ND ENV
 	r_23 := §1ST ENV
 	_...+... := §2ND r_23
@@ -969,7 +967,7 @@
 	§RETURN _a IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_57 € t_133
+§DEF d_57 € t_131
 	d_56 := §2ND ENV
 	r_10 := §1ST ENV
 	_...Ord := §2ND r_10
@@ -994,7 +992,7 @@
 	r_1 := r_9
 	§RETURN r_1 IF TRUE
 
-§DEF d_58 € t_126
+§DEF d_58 € t_124
 	_...Ord := §2ND ENV
 	r_23 := §1ST ENV
 	_...+... := §2ND r_23
@@ -1034,7 +1032,7 @@
 	§RETURN _a IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_59 € t_133
+§DEF d_59 € t_131
 	d_58 := §2ND ENV
 	r_10 := §1ST ENV
 	_...Ord := §2ND r_10
@@ -1059,7 +1057,7 @@
 	r_1 := r_9
 	§RETURN r_1 IF TRUE
 
-§DEF d_60 € t_235
+§DEF d_60 € t_233
 	d_59 := §2ND ENV
 	r_119 := §1ST ENV
 	d_58 := §2ND r_119

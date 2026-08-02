@@ -5,15 +5,14 @@
 	t_3 := [t_1 => t_2]
 	t_4 := [EMPTY_TYPE, t_3]
 	t_5 := [t_4, INT]
-	t_6 := [INT | EMPTY_TYPE]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [t_5 => t_7]
-	t_9 := [#_...==... t_3]
-	t_10 := [{EMPTY_TYPE} + t_9]
-	t_11 := [t_10 => INT]
-	t_12 := [t_8 => t_11]
+	t_6 := [EMPTY_TYPE => INT]
+	t_7 := [t_5 => t_6]
+	t_8 := [#_...==... t_3]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [t_9 => INT]
+	t_11 := [t_7 => t_10]
 
-§DEF d_0 € t_8
+§DEF d_0 € t_7
 	_X := §2ND ENV
 	r_11 := §1ST ENV
 	_...==... := §2ND r_11
@@ -33,7 +32,7 @@
 	§RETURN r_10 IF r_9
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_12
+§DEF d_1 € t_11
 	d_0 := ENV
 	r_1 := {ARG} #_...==...
 	_...==... := r_1

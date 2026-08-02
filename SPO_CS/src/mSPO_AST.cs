@@ -104,7 +104,7 @@ mSPO_AST {
 	tCharNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tChar Value = default!;
+		public tChar Value = default;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -120,7 +120,7 @@ mSPO_AST {
 	tIntNode<tPos> : tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-		public tInt32 Value = default!;
+		public tInt32 Value = default;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -136,12 +136,14 @@ mSPO_AST {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
+		public mStream.tStream<tPos> NameParts;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tFreeIdPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
+		public tPos NamePos = default!;
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
 	}
@@ -150,6 +152,7 @@ mSPO_AST {
 	public sealed record
 	tVarPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
+		public tPos NamePos = default!;
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tText Id = default!;
 	}
@@ -169,6 +172,24 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tPatternNode<tPos> Tail = default!;
 		public tPatternNode<tPos> Head = default!;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tSigPatternNode<tPos> : tPatternNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> Contract = default!;
+		public tPatternNode<tPos> Head = default!;
+		public tPatternNode<tPos> Body = default!;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tTypePatternNode<tPos> : tPatternNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> Type = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -359,6 +380,16 @@ mSPO_AST {
 		public tTypeNode<tPos> TailType = default!;
 		public tTypeNode<tPos> HeadType = default!;
 	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tSigTypeNode<tPos> : tTypeNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tIdNode<tPos> Head = default!;
+		public tTypeNode<tPos> HeadType = default!;
+		public tTypeNode<tPos> BodyType = default!;
+	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -490,6 +521,16 @@ mSPO_AST {
 		public tExpressionNode<tPos> Tail = default!;
 		public tExpressionNode<tPos> Head = default!;
 	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tSigNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> Contract = default!;
+		public tExpressionNode<tPos> Head = default!;
+		public tExpressionNode<tPos> Body = default!;
+	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
@@ -618,6 +659,18 @@ mSPO_AST {
 	) => new() {
 		Pos = aPos,
 		Id = "_" + aId,
+		NameParts = mStream.Stream(aPos),
+	};
+
+	public static tIdNode<tPos>
+	Id<tPos>(
+		tPos aPos,
+		tText aId,
+		mStream.tStream<tPos> aNameParts
+	) => new() {
+		Pos = aPos,
+		Id = "_" + aId,
+		NameParts = aNameParts,
 	};
 	
 	public static tIdNode<tPos>
@@ -653,6 +706,18 @@ mSPO_AST {
 		tText aId
 	) => new() {
 		Pos = aPos,
+		NamePos = aPos,
+		Id = "_" + aId,
+	};
+
+	public static tFreeIdPatternNode<tPos>
+	FreeIdPattern<tPos>(
+		tPos aPos,
+		tPos aNamePos,
+		tText aId
+	) => new() {
+		Pos = aPos,
+		NamePos = aNamePos,
 		Id = "_" + aId,
 	};
 	
@@ -662,6 +727,18 @@ mSPO_AST {
 		tText aId
 	) => new() {
 		Pos = aPos,
+		NamePos = aPos,
+		Id = "_" + aId,
+	};
+
+	public static tVarPatternNode<tPos>
+	VarPattern<tPos>(
+		tPos aPos,
+		tPos aNamePos,
+		tText aId
+	) => new() {
+		Pos = aPos,
+		NamePos = aNamePos,
 		Id = "_" + aId,
 	};
 	
@@ -708,6 +785,30 @@ mSPO_AST {
 		Tail = aTail,
 		Head = aHead,
 	};
+
+	public static tSigNode<tPos>
+	Sig<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aContract,
+		tExpressionNode<tPos> aHead,
+		tExpressionNode<tPos> aBody
+	) => new() {
+		Pos = aPos,
+		Contract = aContract,
+		Head = aHead,
+		Body = aBody,
+	};
+
+	public static tSigNode<tPos>
+	Sig<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aContract,
+		tExpressionNode<tPos> aHead,
+		tExpressionNode<tPos> aBody,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => Sig(aPos, aContract, aHead, aBody).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
 	
 	public static tPairNode<tPos>
 	Pair<tPos>(
@@ -757,6 +858,19 @@ mSPO_AST {
 		Pos = aPos,
 		TailType = aTailType,
 		HeadType = aHeadType,
+	};
+
+	public static tSigTypeNode<tPos>
+	SigType<tPos>(
+		tPos aPos,
+		tIdNode<tPos> aHead,
+		tTypeNode<tPos> aHeadType,
+		tTypeNode<tPos> aBodyType
+	) => new() {
+		Pos = aPos,
+		Head = aHead,
+		HeadType = aHeadType,
+		BodyType = aBodyType,
 	};
 	
 	public static tRecordTypeNode<tPos>
@@ -1060,6 +1174,39 @@ mSPO_AST {
 		Tail = aTail,
 		Head = aHead,
 	};
+
+	public static tSigPatternNode<tPos>
+	SigPattern<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aContract,
+		tPatternNode<tPos> aHead,
+		tPatternNode<tPos> aBody
+	) => new() {
+		Pos = aPos,
+		Contract = aContract,
+		Head = aHead,
+		Body = aBody,
+	};
+
+	public static tSigPatternNode<tPos>
+	SigPattern<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aContract,
+		tPatternNode<tPos> aHead,
+		tPatternNode<tPos> aBody,
+		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
+	) => SigPattern(aPos, aContract, aHead, aBody).Do(
+		__ => { __.TypeAnnotation = aTypeAnnotation; }
+	);
+
+	public static tTypePatternNode<tPos>
+	TypePattern<tPos>(
+		tPos aPos,
+		tTypeNode<tPos> aType
+	) => new() {
+		Pos = aPos,
+		Type = aType,
+	};
 	
 	public static tPairPatternNode<tPos>
 	PairPattern<tPos>(
@@ -1310,7 +1457,7 @@ mSPO_AST {
 		tNode<tPos> a1,
 		tNode<tPos> a2
 	) {
-		if (ReferenceEquals(a1, a2)) {
+		if (mStd.RefEq(a1, a2)) {
 			return true;
 		}
 		if (!Equals(a1.Pos, a2.Pos)) {
@@ -1351,6 +1498,17 @@ mSPO_AST {
 					AreEqual(Node1.Tail, Node2.Tail) &&
 					AreEqual(Node1.Head, Node2.Head)
 				);
+			}
+			case tSigPatternNode<tPos> Node1: {
+				return (
+					a2 is tSigPatternNode<tPos> Node2 &&
+					AreEqual(Node1.Contract, Node2.Contract) &&
+					AreEqual(Node1.Head, Node2.Head) &&
+					AreEqual(Node1.Body, Node2.Body)
+				);
+			}
+			case tTypePatternNode<tPos> Node1: {
+				return a2 is tTypePatternNode<tPos> Node2 && AreEqual(Node1.Type, Node2.Type);
 			}
 			case tCharNode<tPos> Node1: {
 				return a2 is tCharNode<tPos> Node2 && Node1.Value == Node2.Value;
@@ -1513,6 +1671,14 @@ mSPO_AST {
 			case tPrefixTypeNode<tPos>: {
 				break;
 			}
+			case tSigTypeNode<tPos> Node1: {
+				return (
+					a2 is tSigTypeNode<tPos> Node2 &&
+					AreEqual(Node1.Head, Node2.Head) &&
+					AreEqual(Node1.HeadType, Node2.HeadType) &&
+					AreEqual(Node1.BodyType, Node2.BodyType)
+				);
+			}
 			case tTupleTypeNode<tPos>: {
 				break;
 			}
@@ -1603,6 +1769,14 @@ mSPO_AST {
 					AreEqual(Node1.Head, Node2.Head)
 				);
 			}
+			case tSigNode<tPos> Node1: {
+				return (
+					a2 is tSigNode<tPos> Node2 &&
+					AreEqual(Node1.Contract, Node2.Contract) &&
+					AreEqual(Node1.Head, Node2.Head) &&
+					AreEqual(Node1.Body, Node2.Body)
+				);
+			}
 			case tImportNode<tPos>: {
 				break;
 			}
@@ -1653,6 +1827,7 @@ mSPO_AST {
 			tTupleNode<t> Node => $"({Node.Items.Map(aChild => ____ + aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
+			tSigNode<t> Node => $"§SIG {Node.Contract.ToText(____)} WITH {Node.Head.ToText(____)} IN {Node.Body.ToText(____)}",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tShortLambdaNode<t> Node => $"({____}=> {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
@@ -1695,6 +1870,8 @@ mSPO_AST {
 					""
 				)
 			} }}",
+			tSigPatternNode<t> Node => $"§SIG {Node.Contract.ToText(____)} WITH {Node.Head.ToText(____)} IN {Node.Body.ToText(____)}",
+			tTypePatternNode<t> Node => Node.Type.ToText(____),
 			
 			// Types
 			tEmptyTypeNode<t> Node => "[]",
@@ -1702,16 +1879,17 @@ mSPO_AST {
 			tCharTypeNode<t> Node => "§CHAR",
 			tTextTypeNode<t> Node => "§TEXT",
 			tProcTypeNode<t> Node => (Node.ObjType, Node.ArgType, Node.ResType) switch {
-				(tEmptyTypeNode<t> _, tEmptyTypeNode<t> _, var ResType) => $"[=> {ResType.ToText(____)}]]",
-				(tEmptyTypeNode<t> _, var ArgType, var ResType) => $"[{____}{ArgType.ToText (____)} => {ResType.ToText(____)}{__}]",
-				(var ObjType, tEmptyTypeNode<t> _, var ResType) => $"[{____}{ObjType.ToText(____)} : => {ResType.ToText(____)}]]",
-				(var ObjType, var ArgType, tEmptyTypeNode<t> _) => $"[{____}{ObjType.ToText(____)} : {____}{ArgType.ToText (____)}]",
+				(tEmptyTypeNode<t>, tEmptyTypeNode<t>, var ResType) => $"[=> {ResType.ToText(____)}]]",
+				(tEmptyTypeNode<t>, var ArgType, var ResType) => $"[{____}{ArgType.ToText (____)} => {ResType.ToText(____)}{__}]",
+				(var ObjType, tEmptyTypeNode<t>, var ResType) => $"[{____}{ObjType.ToText(____)} : => {ResType.ToText(____)}]]",
+				(var ObjType, var ArgType, tEmptyTypeNode<t>) => $"[{____}{ObjType.ToText(____)} : {____}{ArgType.ToText (____)}]",
 				(var ObjType, var ArgType, var ResType) => $"[{____}{ObjType.ToText(____)} : {ArgType.ToText(____)} => {ResType.ToText(____)}{__}]",
 			},
 			tTypeTypeNode<t> Node => "§TYPE",
 			tPrefixTypeNode<t> Node => $"[{____}#{Node.Prefix} {Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tTupleTypeNode<t> Node => $"[{____}{Node.ItemTypes.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}]",
 			tPairTypeNode<t> Node => $"[{____}{Node.TailType.ToText(____)} ; {Node.HeadType.ToText(____)}{__}]",
+			tSigTypeNode<t> Node => $"[{____}§SIG_WITH {Node.Head.ToText(____)} € {Node.HeadType.ToText(____)} IN {Node.BodyType.ToText(____)}{__}]",
 			tRecordTypeNode<t> Node => $"[<{Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Type.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__}>]",
 			tPairPatternNode<t> Node => $"({____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__})",
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",

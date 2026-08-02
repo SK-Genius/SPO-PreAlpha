@@ -1,0 +1,235 @@
+§IMPORT {
+	Std: {
+		-...: §DEF -... € [§INT => §INT]
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+		.../...: §DEF .../... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+		...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+		...>...: §DEF ...>... € [[§INT, §INT] => §BOOL]
+		...>=...: §DEF ...>=... € [[§INT, §INT] => §BOOL]
+		...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
+		...Or...: §DEF ...Or... € [[§BOOL, §BOOL] => §BOOL]
+		...XOr...: §DEF ...XOr... € [[§BOOL, §BOOL] => §BOOL]
+	}
+}
+
+§DEF tList... = [§GENERIC t [§RECURSIVE tList [[tList; t] | []]]]
+§DEF tList1... = [§GENERIC t [§RECURSIVE tList [[tList; t] | [[]; t]]]]
+§DEF tList2... = [§GENERIC t [§RECURSIVE tList [[tList; t] | [t, t]]]]
+
+§DEF ...AsList = (
+	t € §TYPE
+) <=> (
+	a € t
+) => ((); a)
+
+§RECURSIVE {
+	§DEF ...FoldWith...InitBy... = (
+		§DEF tIn € §TYPE
+		§DEF tOut € §TYPE
+	) <=> (
+		§DEF aList € [.tList tIn]
+		§DEF ...aOp... € [[tIn, tOut] => tOut]
+		§DEF aInit € tOut
+	) => §IF aList MATCH {
+		(): (
+			aInit
+		)
+		(§DEF List; §DEF E): (
+			List .FoldWith ...aOp... InitBy (E .aOp aInit)
+		)
+	}
+}
+
+§DEF ...FoldWith... = (
+	§DEF t € §TYPE
+) <=> (
+	(§DEF aList; §DEF a) € [.tList t]
+	§DEF ...aOp... € [[t, t] => t]
+) => aList .FoldWith ...aOp... InitBy a
+
+§RECURSIVE {
+	§DEF ...Slide2With... = (
+		§DEF tIn € §TYPE
+		§DEF tOut € §TYPE
+	) <=> (
+		§DEF aList € [.tList2 tIn]
+		§DEF ...aOp... € [[tIn, tIn] => tOut]
+	) => §IF aList MATCH {
+		(§DEF X1, §DEF X2): (
+			()
+			; X1 .aOp X2
+		)
+		((§DEF List; §DEF X2); §DEF X1): (
+			(List; X2) .Slide2With ...aOp...
+			; X2 .aOp X1
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...! = (
+		§DEF a € §INT
+	) => §IF a MATCH {
+		0: 1
+		_: a .* ((a .- 1).!)
+	}
+}
+
+§DEF ...AsBool = (
+	§DEF a € §BOOL
+) => a
+
+§DEF All... = (
+	§DEF a € [.tList §BOOL]
+) => a .FoldWith ...And... InitBy (§TRUE .AsBool)
+
+§DEF Any... = (
+	§DEF a € [.tList §BOOL]
+) => a .FoldWith ...Or... InitBy (§FALSE .AsBool)
+
+§DEF <... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [.tList2 §INT]
+) => .All (a .Slide2With ...<...)
+
+§DEF <=... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [.tList2 §INT]
+) => .All (a .Slide2With ...<=...)
+
+§DEF >... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [.tList2 §INT]
+) => .All (a .Slide2With ...>...)
+
+§DEF >=... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € [.tList2 §INT]
+) => .All (a .Slide2With ...>=...)
+
+§DEF ...<=...<=... = (
+	§DEF aMin € §INT
+	§DEF a € §INT
+	§DEF aMax € §INT
+) => (aMin .<= a) .And (a .<= aMax)
+
+§DEF ...<...<... = (
+	§DEF aMin € §INT
+	§DEF a € §INT
+	§DEF aMax € §INT
+) => (aMin .< a) .And (a .< aMax)
+
+§DEF ...<=...<... = (
+	§DEF aMin € §INT
+	§DEF a € §INT
+	§DEF aMax € §INT
+) => (aMin .<= a) .And (a .< aMax)
+
+§DEF ...<...<=... = (
+	§DEF aMin € §INT
+	§DEF a € §INT
+	§DEF aMax € §INT
+) => (aMin .<= a) .And (a .< aMax)
+
+§DEF Min2... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF (a1 .< a2) MATCH {
+	§TRUE: a1
+	_: a2
+}
+
+§DEF Min... = (
+	§DEF a € [.tList1 §INT]
+) => a .FoldWith Min2...
+
+§DEF Max2... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF (a1 .< a2) MATCH {
+	§FALSE: a1
+	_: a2
+}
+
+§DEF Max... = (
+	§DEF a € [.tList1 §INT]
+) => a .FoldWith Max2...
+
+§DEF Max... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF {
+	a2 .< a1: a1
+	§TRUE: a2
+}
+
+§DEF ...Clamp... = (
+	§DEF a € §INT
+	(
+		§DEF aMin € §INT
+		§DEF aMax € §INT
+	)
+) => .Min (.Max (aMin, a), aMax)
+
+§DEF Abs... = (
+	§DEF a € §INT
+) => §IF (0 .< a) MATCH {
+	§TRUE: a
+	_: 0 .- a
+}
+
+§DEF Sign... = (
+	§DEF a € §INT
+) => §IF {
+	a .< 0: -1
+	a .== 0: 0
+	§TRUE: 1
+}
+
+§DEF ...<=>... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => .Sign (a2 .- a1)
+
+§RECURSIVE {
+	§DEF Sum... = (
+		§DEF a € [.tList §INT]
+	) => §IF a MATCH {
+		(): (
+			0
+		)
+		(§DEF List € [.tList §INT]; §DEF N € §INT): (
+			(.Sum List) .+ N
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF Prod... = (
+		§DEF a € [.tList §INT]
+	) => §IF a MATCH {
+		(): (
+			0
+		)
+		(§DEF List € [.tList §INT]; §DEF N € §INT): (
+			(.Sum List) .* N
+		)
+	}
+}
+
+§EXPORT {
+	Min...: Min...
+	Max...: Max...
+	...Clamp...: ...Clamp...
+	Abs...: Abs...
+	Sign...: Sign...
+}

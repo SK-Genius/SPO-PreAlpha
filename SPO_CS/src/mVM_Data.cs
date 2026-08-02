@@ -7,6 +7,7 @@
 #:ref Common/mArrayList.cs
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
+#:ref Common/mMap.cs
 #:ref Common/mStream.cs
 #:ref mVM_Type.cs
 
@@ -32,6 +33,11 @@ mVM_Data {
 		NewPair,
 		First,
 		Second,
+
+		// SIG
+		NewSig,
+		SigHead,
+		SigBody,
 		
 		// PREFIX
 		AddPrefix,
@@ -58,6 +64,7 @@ mVM_Data {
 		TryAsInt,
 		TryAsType,
 		TryAsPair,
+		TryAsSig,
 		TryAsVar,
 		TryAsRef,
 		TryAsRecord,
@@ -72,6 +79,7 @@ mVM_Data {
 		TypeInt,
 		TypeFree,
 		TypePair,
+		TypeSig,
 		TypePrefix,
 		TypeRecord,
 		TypeVar,
@@ -82,6 +90,7 @@ mVM_Data {
 		TypeRecursive,
 		TypeInterface,
 		TypeGeneric,
+		TypeGenericApply,
 	}
 	
 	public interface
@@ -118,6 +127,9 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
+
+		public readonly mArrayList.tArrayList<mVM_Type.tType>
+		TypeConstants = mArrayList.List<mVM_Type.tType>();
 		
 		public tNat32
 		_LastReg = cResReg;
@@ -291,6 +303,27 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aPairReg
 	) => aDef._AddReg(aPos, tOpCode.Second, aPairReg);
+
+	public static tNat32
+	Sig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aPayloadReg
+	) => aDef._AddReg(aPos, tOpCode.NewSig, aPayloadReg);
+
+	public static tNat32
+	SigHead<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aSigReg
+	) => aDef._AddReg(aPos, tOpCode.SigHead, aSigReg);
+
+	public static tNat32
+	SigBody<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aSigReg
+	) => aDef._AddReg(aPos, tOpCode.SigBody, aSigReg);
 	
 	public static tNat32
 	AddPrefix<tPos>(
@@ -455,6 +488,21 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.TryAsPair, aArgReg);
+
+	public static tNat32
+	TryAsSig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aArgReg,
+		mMaybe.tMaybe<mVM_Type.tType> aExpectedHead
+	) => aExpectedHead.Match(
+		__ => mStd.Call(() => {
+			var Index = aDef.TypeConstants.Size;
+			aDef.TypeConstants.Push(__);
+			return aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, Index);
+		}),
+		() => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, tNat32.MaxValue)
+	);
 	
 	public static tNat32
 	TryAsVar<tPos>(
@@ -505,6 +553,14 @@ mVM_Data {
 		tNat32 aTypeReg1,
 		tNat32 aTypeReg2
 	) => aDef._AddReg(aPos, tOpCode.TypePair, aTypeReg1, aTypeReg2);
+
+	public static tNat32
+	TypeSig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aBinderKindReg,
+		tNat32 aBodyTypeReg
+	) => aDef._AddReg(aPos, tOpCode.TypeSig, aBinderKindReg, aBodyTypeReg);
 	
 	public static tNat32
 	TypePrefix<tPos>(
@@ -557,7 +613,14 @@ mVM_Data {
 	TypeFree<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos
-	) => aDef._AddReg(aPos, tOpCode.TypeFree);
+	) => aDef._AddReg(aPos, tOpCode.TypeFree, tNat32.MaxValue);
+
+	public static tNat32
+	TypeFree<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aKindReg
+	) => aDef._AddReg(aPos, tOpCode.TypeFree, aKindReg);
 	
 	public static tNat32
 	TypeRecursive<tPos>(
@@ -582,6 +645,14 @@ mVM_Data {
 		tNat32 aHeadTypeReg,
 		tNat32 aBodyTypeReg
 	) => aDef._AddReg(aPos, tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
+
+	public static tNat32
+	TypeGenericApply<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aGenericTypeReg,
+		tNat32 aArgTypeReg
+	) => aDef._AddReg(aPos, tOpCode.TypeGenericApply, aGenericTypeReg, aArgTypeReg);
 	
 	// TODO: Pattern Types
 	
@@ -591,6 +662,7 @@ mVM_Data {
 		Bool,
 		Int,
 		Pair,
+		Sig,
 		Prefix,
 		Record,
 		Proc,
@@ -604,12 +676,20 @@ mVM_Data {
 	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
 	public sealed class
 	tData {
-		public tDataType _DataType;
-		public mAny.tAny _Value;
-		public mTreeMap.tTree<tNat32, tData> _Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
-		public tBool _IsMutable;
+		public tDataType
+		_DataType;
 		
-		public tNat64 _DebugId = mStd.NewDebugId();
+		public mAny.tAny
+		_Value;
+		
+		public mTreeMap.tTree<tNat32, tData>
+		_Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
+		
+		public tBool
+		_IsMutable;
+		
+		public tNat64
+		_DebugId = mStd.NewDebugId();
 		
 		public tBool
 		Equals(
@@ -746,6 +826,26 @@ mVM_Data {
 	}
 	
 	public static tData
+	Sig(
+		tData aHead,
+		tData aBody
+	) => Data(tDataType.Sig, aHead._IsMutable || aBody._IsMutable, aHead, aBody);
+	
+	public static tBool
+	IsSig(
+		this tData aData,
+		out tData aHead,
+		out tData aBody
+	) {
+		if (!aData.Is(tDataType.Sig, out aHead, out aBody)) {
+			aHead = aData;
+			aBody = Empty();
+			return false;
+		}
+		return true;
+	}
+	
+	public static tData
 	Tuple(
 		System.Span<tData> a
 	) => mStream.Stream(a).Reduce(Empty(), Pair);
@@ -875,10 +975,10 @@ mVM_Data {
 		[NotNullWhen(true)]out mTreeMap.tTree<tNat32, tData> aFields
 	) {
 		if (aData._DataType is tDataType.Record) {
-			aFields =  aData._Fields;
+			aFields = aData._Fields;
 			return true;
 		} else {
-			aFields = default!;
+			aFields = default;
 			return false;
 		}
 	}
@@ -911,12 +1011,15 @@ mVM_Data {
 		if (aData._DataType is tDataType.Proc) {
 			mAssert.IsTrue(aData._Value.Is(out ITuple Data));
 			mAssert.AreEquals(Data.Length, 2);
-			aDef = (iProcDef)Data[0];
-			aEnv = (tData)Data[1];
+			
+			aDef = (iProcDef)Data[0]!;
+			aEnv = (tData)Data[1]!;
+			
 			return true;
 		} else {
 			aDef = default!;
 			aEnv = default!;
+			
 			return false;
 		}
 	}
@@ -1058,6 +1161,9 @@ mVM_Data {
 				return "(" + Result;
 			}),
 			
+			_ when a.IsSig(out var Head, out var Body)
+			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
+			
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",
 			
@@ -1069,6 +1175,8 @@ mVM_Data {
 		};
 	}
 	
+	public static mMap.tMap<tNat32, tText> gHashToPrefix = mMap.Map<tNat32, tText>((a1, a2) => a1 == a2);
+	
 	public static tNat32
 	PrefixHash(
 		this tText a
@@ -1077,8 +1185,9 @@ mVM_Data {
 			return 0;
 		}
 		
+		var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
+		
 		unchecked {
-			var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
 			foreach (var ch in a) {
 				Hash ^= ch;
 				var Shift = Hash & 31;
@@ -1086,7 +1195,10 @@ mVM_Data {
 				Hash ^= Rot;
 			}
 			Hash ^= Hash >> 16;
-			return Hash;
 		}
+		
+		gHashToPrefix = gHashToPrefix.Set(Hash, a);
+		
+		return Hash;
 	}
 }

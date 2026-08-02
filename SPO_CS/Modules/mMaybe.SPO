@@ -1,0 +1,126 @@
+§DEF tMaybe... = [§GENERIC t [t | []]]
+
+§DEF Some... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF Value € t
+) => Value
+
+§DEF None... = (
+	§DEF t € §TYPE
+) <=> (
+	_ € t
+) => ()
+
+§DEF ...>>... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF aValue € [.tMaybe tIn]
+	§DEF aOnValue... € [tIn => tOut]
+) => §IF aValue MATCH {
+	(): ()
+	§DEF Inner: .aOnValue Inner
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF aValue € [.tMaybe tIn]
+	§DEF aOnValue... € [tIn => [.tMaybe tOut]]
+) => §IF aValue MATCH {
+	(): ()
+	§DEF Inner: .aOnValue Inner
+}
+
+§DEF ...Or... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [.tMaybe t]
+	§DEF aFallback € t
+) => §IF aValue MATCH {
+	(): aFallback
+	§DEF Inner: Inner
+}
+
+§DEF ...OrDo... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [.tMaybe t]
+	§DEF aOnNone € [[] => t]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
+}
+
+§DEF ...OrTry... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [.tMaybe t]
+	§DEF aOnNone € [[] => [.tMaybe t]]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
+}
+
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => §TYPE] IN [<
+		Some...: [§GENERIC t [t => [.F t]]]
+		None...: [§GENERIC t [t => [.F t]]]
+		...>>...: [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					[
+						.F tIn
+						tIn => tOut
+					] => [.F tOut]
+				]
+			]
+		]
+		...>>?...: [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					[
+						.F tIn
+						tIn => [.F tOut]
+					] => [.F tOut]
+				]
+			]
+		]
+		...Or...: [
+			§GENERIC t [
+				[
+					.F t
+					t
+				] => t
+			]
+		]
+		...OrDo...: [
+			§GENERIC t [
+				[
+					.F t
+					[] => t
+				] => t
+			]
+		]
+		...OrTry...: [
+			§GENERIC t [
+				[
+					.F t
+					[] => [.F t]
+				] => [.F t]
+			]
+		]
+	>]
+]
+
+§EXPORT §SIG Contract WITH tMaybe... IN {
+	Some...: Some...
+	None...: None...
+	...>>...: ...>>...
+	...>>?...: ...>>?...
+	...Or...: ...Or...
+	...OrDo...: ...OrDo...
+	...OrTry...: ...OrTry...
+}

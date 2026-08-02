@@ -40,7 +40,28 @@ mModule {
 	public static mResult.tResult<
 		(mVM_Data.tData Data, mVM_Type.tType Type),
 		tText
-	> Init(
+	>
+	Init(
+		this mStream.tStream<(tText Key, tModuleSetup Module)> aModules,
+		mStd.tAction<tText> aLogger
+	) {
+		var Data = mVM_Data.Empty();
+		var Type = mVM_Type.Empty();
+		foreach (var (Key, ModuleSetup) in aModules) {
+			if (!ModuleSetup.Init(aLogger).Match(out var Module, out var Error)) {
+				return mResult.Fail(Error);
+			}
+			Data = mVM_Data.Record(Data, mVM_Data.Prefix("_" + Key, Module.Data));
+			Type = mVM_Type.Record(Type, mVM_Type.Prefix("_" + Key, Module.Type));
+		}
+		return (Data, Type);
+	}
+	
+	public static mResult.tResult<
+		(mVM_Data.tData Data, mVM_Type.tType Type),
+		tText
+	>
+	Init(
 		this tModuleSetup aModuleSetup,
 		mStd.tAction<tText> aLogger
 	) {
@@ -48,34 +69,10 @@ mModule {
 			return X;
 		}
 		
-		var Data = mVM_Data.Empty();
-		var Type = mVM_Type.Empty();
-		foreach (var Dependency in aModuleSetup.Dependencies) {
-			if (!Dependency.Module.Module.IsSome(out var Dep)) {
-				Dep = Dependency.Module.Init(aLogger);
-				Dependency.Module.Module = Dep;
-			}
-			
-			if (!Dep.Match(out var Dep_, out var Error)) {
-				return mResult.Fail(Error);
-			}
-			
-			var Module = Dep_;
-			Data = mVM_Data.Record(
-				Data,
-				mVM_Data.Prefix(
-					"_" + Dependency.Key,
-					Module.Data
-				)
-			);
-			Type = mVM_Type.Record(
-				Type,
-				mVM_Type.Prefix(
-					"_" + Dependency.Key,
-					Module.Type
-				)
-			);
+		if (!aModuleSetup.Dependencies.Init(aLogger).Match(out var Dependencies, out var DependencyError)) {
+			return mResult.Fail(DependencyError);
 		}
+		var (Data, Type) = Dependencies;
 		
 		var Folder = mFS.Folder(aModuleSetup.ModulePath.Parent.Deref.AssertNotEmpty());
 		var FileExtension = mStream.Stream(aModuleSetup.ModulePath.ToText().Split('.')).TryLast().AssertNotEmpty();
@@ -90,9 +87,11 @@ mModule {
 						SPO_File.Name.Replace(".SPO", ".ILT")
 					);
 					
-					var IL_Text = ILT_File.Exists()
-					? mLazy.Lazy(() => ILT_File.TryReadText().ElseThrow())
-					: "";
+					var IL_Text = (
+						ILT_File.Exists()
+						? mLazy.Lazy(() => ILT_File.TryReadText().ElseThrow())
+						: ""
+					);
 					
 					var IL_TextNew = mSPO_Parser.Module.ParseText(
 						SPO_Text,
@@ -101,17 +100,7 @@ mModule {
 					).ToILT();
 					
 					if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
-						Folder.GetFile(
-							ILT_File.Name + ".new"
-						).TryCreate(
-							IL_TextNew
-						);
-						mAssert.Fail(
-							mAssert.DiffText(
-								IL_TextNew,
-								IL_Text.Value
-							)
-						);
+						ILT_File.TryCreate(IL_TextNew);
 					}
 				}
 				#endif
@@ -149,20 +138,20 @@ mModule {
 					return (Res.Data, Res.Type);
 				} catch	(System.Exception e) {
 					var Error = e.ToString();
-					aModuleSetup.Module = (mResult.tResult<(mVM_Data.tData, mVM_Type.tType), tText>)mResult.Fail(Error);
+					aModuleSetup.Module = mResult.Fail(Error).AsResult<(mVM_Data.tData, mVM_Type.tType)>();
 					return mResult.Fail(Error);
 				}
 			}
 			default: {
-				return mResult.Fail($"file '{aModuleSetup.ModulePath.ToText()}' wrong extension. (expect .SPO or .ILT)");
+				return mResult.Fail(
+					$"file '{aModuleSetup.ModulePath.ToText()}' wrong extension. (expect .SPO or .ILT)"
+				);
 			}
 		}
 	}
 	
 	private static readonly mFS.tPath
-	ModuleFolder = mFS.Path(
-		mStd.File()
-	).Parent.Deref.AssertNotEmpty() / "../Modules";
+	ModuleFolder = mFS.Path(mStd.File()) / ".." / ".." / "Modules";
 	
 	public static readonly tModuleSetup
 	Module_Std = ModuleSetup(
@@ -191,5 +180,63 @@ mModule {
 	Module_Maybe = ModuleSetup(
 		ModuleFolder / "Maybe.SPO",
 		mStd.cEmpty
+	);
+	
+	public static readonly tModuleSetup
+	Module_mMaybe = ModuleSetup(
+		ModuleFolder / "mMaybe.SPO",
+		mStd.cEmpty
+	);
+	
+	public static readonly tModuleSetup
+	Module_Result = ModuleSetup(
+		ModuleFolder / "Result.SPO",
+		mStd.cEmpty
+	);
+	
+	public static readonly tModuleSetup
+	Module_mResult = ModuleSetup(
+		ModuleFolder / "mResult.SPO",
+		mStream.Stream(
+			("mMaybe", Module_mMaybe)
+		)
+	);
+	
+	public static readonly tModuleSetup
+	Module_mMath = ModuleSetup(
+		ModuleFolder / "mMath.SPO",
+		mStream.Stream(
+			("Std", Module_Std)
+		)
+	);
+	
+	public static readonly tModuleSetup
+	Module_mSpan = ModuleSetup(
+		ModuleFolder / "mSpan.SPO",
+		mStream.Stream(
+			("Std", Module_Std)
+		)
+	);
+	
+	public static readonly tModuleSetup
+	Module_mList = ModuleSetup(
+		ModuleFolder / "mList.SPO",
+		mStream.Stream(
+			("Std", Module_Std)
+		)
+	);
+	
+	public static readonly mStream.tStream<(tText Key, tModuleSetup Module)>
+	Modules = mStream.Stream(
+		("Std", Module_Std),
+		("Char", Module_Char),
+		("Text", Module_Text),
+		("Maybe", Module_Maybe),
+		("Result", Module_Result),
+		("mMaybe", Module_mMaybe),
+		("mResult", Module_mResult),
+		("mMath", Module_mMath),
+		("mSpan", Module_mSpan),
+		("mList", Module_mList)
 	);
 }

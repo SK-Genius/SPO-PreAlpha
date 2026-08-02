@@ -1,0 +1,866 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+	}
+}
+
+§DEF tList... = [§GENERIC t [§RECURSIVE tList [[] | [tList; t]]]]
+
+§RECURSIVE {
+	§DEF CopyFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): .CopyFromFirst (Tail, (Result; Head))
+	}
+}
+
+§RECURSIVE {
+	§DEF ReverseInto... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+		§DEF Result € [.tList t]
+	) => §IF List MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): .ReverseInto (Tail, (Result; Head))
+	}
+}
+
+§DEF ...Reverse = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+) => .ReverseInto (List, ())
+
+§DEF EmptyList... = (
+	§DEF t € §TYPE
+) <=> (
+	_ € t
+) => {
+	§DEF Result € [.tList t] = ()
+	§RETURN Result
+}
+
+§DEF List... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF Item € t
+) => {
+	§DEF Result € [.tList t] = ((); Item)
+	§RETURN Result
+}
+
+§DEF ...Push... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Item € t
+) => .CopyFromFirst (((); Item), List)
+
+§DEF ...Prepend... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Item € t
+) => .CopyFromFirst ((List .Reverse), ((); Item))
+
+§DEF ...TryPop = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+) => §IF List MATCH {
+	(): ()
+	(§DEF Tail € [.tList t]; §DEF Head € t): (Tail, Head)
+}
+
+§RECURSIVE {
+	§DEF ...Count = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+	) => §IF List MATCH {
+		(): 0
+		(§DEF Tail € [.tList t]; _): 1 .+ (Tail .Count)
+	}
+}
+
+§DEF ...IsEmpty = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+) => §IF List MATCH {
+	(): §TRUE
+	_: §FALSE
+}
+
+§RECURSIVE {
+	§DEF ...TryFirst = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+	) => §IF List MATCH {
+		(): ()
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF Tail MATCH {
+			(): Head
+			_: Tail .TryFirst
+		}
+	}
+}
+
+§DEF ...TryLast = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+) => §IF List MATCH {
+	(): ()
+	(_; §DEF Head € t): Head
+}
+
+§RECURSIVE {
+	§DEF TryGetFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Index € §INT
+	) => §IF Reversed MATCH {
+		(): ()
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (Index .== 0) MATCH {
+			§TRUE: Head
+			_: .TryGetFromFirst (Tail, Index .- 1)
+		}
+	}
+}
+
+§DEF ...TryGet... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Index € §INT
+) => .TryGetFromFirst ((List .Reverse), Index)
+
+§RECURSIVE {
+	§DEF SetFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Index € §INT
+		§DEF Value € t
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (Index .== 0) MATCH {
+			§TRUE: .CopyFromFirst (Tail, (Result; Value))
+			_: .SetFromFirst (Tail, Index .- 1, Value, (Result; Head))
+		}
+	}
+}
+
+§DEF ...TrySetAt... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	(
+		§DEF Index € §INT
+		§DEF Value € t
+	)
+) => §IF (List .TryGet Index) MATCH {
+	(): ()
+	_: .SetFromFirst ((List .Reverse), Index, Value, ())
+}
+
+§RECURSIVE {
+	§DEF UpdateFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Index € §INT
+		§DEF Update... € [t => t]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (Index .== 0) MATCH {
+			§TRUE: .CopyFromFirst (Tail, (Result; .Update Head))
+			_: .UpdateFromFirst (Tail, Index .- 1, Update..., (Result; Head))
+		}
+	}
+}
+
+§DEF ...TryUpdateAt... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	(
+		§DEF Index € §INT
+		§DEF Update... € [t => t]
+	)
+) => §IF (List .TryGet Index) MATCH {
+	(): ()
+	_: .UpdateFromFirst ((List .Reverse), Index, Update..., ())
+}
+
+§RECURSIVE {
+	§DEF MapFromFirst... = (
+		§DEF tIn € §TYPE
+		§DEF tOut € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList tIn]
+		§DEF Map... € [tIn => tOut]
+		§DEF Result € [.tList tOut]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList tIn]; §DEF Head € tIn): .MapFromFirst (
+			Tail
+			Map...
+			(Result; .Map Head)
+		)
+	}
+}
+
+§DEF ...Map... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF List € [.tList tIn]
+	§DEF Map... € [tIn => tOut]
+) => .MapFromFirst ((List .Reverse), Map..., ())
+
+§RECURSIVE {
+	§DEF MapWithIndexFromFirst... = (
+		§DEF tIn € §TYPE
+		§DEF tOut € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList tIn]
+		§DEF Index € §INT
+		§DEF Map... € [[§INT, tIn] => tOut]
+		§DEF Result € [.tList tOut]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList tIn]; §DEF Head € tIn): .MapWithIndexFromFirst (
+			Tail
+			Index .+ 1
+			Map...
+			(Result; .Map (Index, Head))
+		)
+	}
+}
+
+§DEF ...MapWithIndex... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF List € [.tList tIn]
+	§DEF Map... € [[§INT, tIn] => tOut]
+) => .MapWithIndexFromFirst ((List .Reverse), 0, Map..., ())
+
+§RECURSIVE {
+	§DEF WithIndexFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Index € §INT
+		§DEF Result € [.tList [§INT, t]]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): .WithIndexFromFirst (
+			Tail
+			Index .+ 1
+			(Result; (Index, Head))
+		)
+	}
+}
+
+§DEF ...WithIndex = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+) => .WithIndexFromFirst ((List .Reverse), 0, ())
+
+§RECURSIVE {
+	§DEF ReduceFromFirst... = (
+		§DEF t € §TYPE
+		§DEF tResult € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Result € tResult
+		§DEF Aggregate... € [[tResult, t] => tResult]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): .ReduceFromFirst (
+			Tail
+			.Aggregate (Result, Head)
+			Aggregate...
+		)
+	}
+}
+
+§DEF ...Reduce... = (
+	§DEF t € §TYPE
+	§DEF tResult € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	(
+		§DEF Initial € tResult
+		§DEF Aggregate... € [[tResult, t] => tResult]
+	)
+) => .ReduceFromFirst ((List .Reverse), Initial, Aggregate...)
+
+§DEF ...TryReduce... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Aggregate... € [[t, t] => t]
+) => §IF (List .Reverse) MATCH {
+	(): ()
+	(§DEF Tail € [.tList t]; §DEF First € t): .ReduceFromFirst (Tail, First, Aggregate...)
+}
+
+§RECURSIVE {
+	§DEF ...Where... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+	) => §IF List MATCH {
+		(): ()
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: (Tail .Where Predicate...; Head)
+			_: Tail .Where Predicate...
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF TakeFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Count € §INT
+		§DEF Result € [.tList t]
+	) => §IF (Reversed, Count .== 0) MATCH {
+		(_, §TRUE): Result
+		((), _): Result
+		((§DEF Tail € [.tList t]; §DEF Head € t), _): .TakeFromFirst (
+			Tail
+			Count .- 1
+			(Result; Head)
+		)
+	}
+}
+
+§DEF ...Take... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Count € §INT
+) => .TakeFromFirst ((List .Reverse), Count, ())
+
+§RECURSIVE {
+	§DEF TakeWhileFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: .TakeWhileFromFirst (Tail, Predicate..., (Result; Head))
+			_: Result
+		}
+	}
+}
+
+§DEF ...TakeWhile... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Predicate... € [t => §BOOL]
+) => .TakeWhileFromFirst ((List .Reverse), Predicate..., ())
+
+§RECURSIVE {
+	§DEF TakeUntilFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: Result
+			_: .TakeUntilFromFirst (Tail, Predicate..., (Result; Head))
+		}
+	}
+}
+
+§DEF ...TakeUntil... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Predicate... € [t => §BOOL]
+) => .TakeUntilFromFirst ((List .Reverse), Predicate..., ())
+
+§RECURSIVE {
+	§DEF SkipFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Count € §INT
+		§DEF Empty € [.tList t]
+	) => §IF (Reversed, Count .== 0) MATCH {
+		(_, §TRUE): .CopyFromFirst (Reversed, Empty)
+		((), _): Empty
+		((§DEF Tail € [.tList t]; _), _): .SkipFromFirst (Tail, Count .- 1, Empty)
+	}
+}
+
+§DEF ...Skip... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Count € §INT
+) => .SkipFromFirst ((List .Reverse), Count, ())
+
+§RECURSIVE {
+	§DEF SkipWhileFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+		§DEF Empty € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Empty
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: .SkipWhileFromFirst (Tail, Predicate..., Empty)
+			_: .CopyFromFirst (Tail, (Empty; Head))
+		}
+	}
+}
+
+§DEF ...SkipWhile... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Predicate... € [t => §BOOL]
+) => .SkipWhileFromFirst ((List .Reverse), Predicate..., ())
+
+§RECURSIVE {
+	§DEF SkipUntilFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+		§DEF Empty € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Empty
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: .CopyFromFirst (Tail, (Empty; Head))
+			_: .SkipUntilFromFirst (Tail, Predicate..., Empty)
+		}
+	}
+}
+
+§DEF ...SkipUntil... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Predicate... € [t => §BOOL]
+) => .SkipUntilFromFirst ((List .Reverse), Predicate..., ())
+
+§RECURSIVE {
+	§DEF EveryFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Every € §INT
+		§DEF Remaining € §INT
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (Remaining .== 0) MATCH {
+			§TRUE: .EveryFromFirst (Tail, Every, Every .- 1, (Result; Head))
+			_: .EveryFromFirst (Tail, Every, Remaining .- 1, Result)
+		}
+	}
+}
+
+§DEF ...Every... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Every € §INT
+) => {
+	§DEF Empty € [.tList t] = ()
+	§RETURN §IF (Every .== 0) MATCH {
+		§TRUE: Empty
+		_: .EveryFromFirst ((List .Reverse), Every, 0, Empty)
+	}
+}
+
+§RECURSIVE {
+	§DEF CollapseAfter... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Previous € t
+		§DEF Result € [.tList t]
+		§DEF EqItem... € [[t, t] => §BOOL]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.EqItem (Previous, Head)) MATCH {
+			§TRUE: .CollapseAfter (Tail, Head, Result, EqItem...)
+			_: .CollapseAfter (Tail, Head, (Result; Head), EqItem...)
+		}
+	}
+}
+
+§DEF ...CollapseRepeats... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF EqItem... € [[t, t] => §BOOL]
+) => {
+	§DEF Empty € [.tList t] = ()
+	§RETURN §IF (List .Reverse) MATCH {
+		(): Empty
+		(§DEF Tail € [.tList t]; §DEF First € t): .CollapseAfter (Tail, First, (Empty; First), EqItem...)
+	}
+}
+
+§RECURSIVE {
+	§DEF InsertByFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Item € t
+		§DEF Compare... € [[t, t] => §INT]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): (Result; Item)
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF ((.Compare (Head, Item)) .<= 0) MATCH {
+			§TRUE: .InsertByFromFirst (Tail, Item, Compare..., (Result; Head))
+			_: .CopyFromFirst (Tail, ((Result; Item); Head))
+		}
+	}
+}
+
+§DEF InsertBy... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Item € t
+	§DEF Compare... € [[t, t] => §INT]
+) => .InsertByFromFirst ((List .Reverse), Item, Compare..., ())
+
+§RECURSIVE {
+	§DEF SortByFromFirst... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Reversed € [.tList t]
+		§DEF Compare... € [[t, t] => §INT]
+		§DEF Result € [.tList t]
+	) => §IF Reversed MATCH {
+		(): Result
+		(§DEF Tail € [.tList t]; §DEF Head € t): .SortByFromFirst (
+			Tail
+			Compare...
+			.InsertBy (Result, Head, Compare...)
+		)
+	}
+}
+
+§DEF ...SortBy... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	§DEF Compare... € [[t, t] => §INT]
+) => .SortByFromFirst ((List .Reverse), Compare..., ())
+
+§DEF ...Join... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF List € [.tList t]
+	(
+		§DEF Aggregate... € [[t, t] => t]
+		§DEF Default € t
+	)
+) => §IF (List .Reverse) MATCH {
+	(): Default
+	(§DEF Tail € [.tList t]; §DEF First € t): .ReduceFromFirst (Tail, First, Aggregate...)
+}
+
+§RECURSIVE {
+	§DEF ...Any = (
+		§DEF List € [.tList §BOOL]
+	) => §IF List MATCH {
+		(): §FALSE
+		(§DEF Tail € [.tList §BOOL]; §DEF Head € §BOOL): §IF Head MATCH {
+			§TRUE: §TRUE
+			_: Tail .Any
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF ...All = (
+		§DEF List € [.tList §BOOL]
+	) => §IF List MATCH {
+		(): §TRUE
+		(§DEF Tail € [.tList §BOOL]; §DEF Head € §BOOL): §IF Head MATCH {
+			§TRUE: Tail .All
+			_: §FALSE
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Any... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+	) => §IF List MATCH {
+		(): §FALSE
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: §TRUE
+			_: Tail .Any Predicate...
+		}
+	}
+}
+
+§RECURSIVE {
+	§DEF ...All... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF List € [.tList t]
+		§DEF Predicate... € [t => §BOOL]
+	) => §IF List MATCH {
+		(): §TRUE
+		(§DEF Tail € [.tList t]; §DEF Head € t): §IF (.Predicate Head) MATCH {
+			§TRUE: Tail .All Predicate...
+			_: §FALSE
+		}
+	}
+}
+
+§DEF Concat... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF A € [.tList t]
+	§DEF B € [.tList t]
+) => .CopyFromFirst ((B .Reverse), A)
+
+§RECURSIVE {
+	§DEF FlattenInto... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF Lists € [.tList [.tList t]]
+		§DEF Result € [.tList t]
+	) => §IF Lists MATCH {
+		(): Result
+		(§DEF Tail € [.tList [.tList t]]; §DEF Head € [.tList t]): .Concat (
+			.FlattenInto (Tail, Result)
+			Head
+		)
+	}
+}
+
+§DEF ...Flatten = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF Lists € [.tList [.tList t]]
+) => .FlattenInto (Lists, ())
+
+§RECURSIVE {
+	§DEF ZipShortFromFirst... = (
+		§DEF tA € §TYPE
+		§DEF tB € §TYPE
+	) <=> (
+		§DEF ReversedA € [.tList tA]
+		§DEF ReversedB € [.tList tB]
+		§DEF Result € [.tList [tA, tB]]
+	) => §IF (ReversedA, ReversedB) MATCH {
+		((), _): Result
+		(_, ()): Result
+		(
+			(§DEF TailA € [.tList tA]; §DEF HeadA € tA)
+			(§DEF TailB € [.tList tB]; §DEF HeadB € tB)
+		): .ZipShortFromFirst (TailA, TailB, (Result; (HeadA, HeadB)))
+	}
+}
+
+§DEF ZipShort... = (
+	§DEF tA € §TYPE
+	§DEF tB € §TYPE
+) <=> (
+	§DEF A € [.tList tA]
+	§DEF B € [.tList tB]
+) => .ZipShortFromFirst ((A .Reverse), (B .Reverse), ())
+
+§RECURSIVE {
+	§DEF ZipExtendFromFirst... = (
+		§DEF tA € §TYPE
+		§DEF tB € §TYPE
+	) <=> (
+		§DEF ReversedA € [.tList tA]
+		§DEF ReversedB € [.tList tB]
+		§DEF Result € [.tList [[tA | []], [tB | []]]]
+	) => §IF (ReversedA, ReversedB) MATCH {
+		((), ()): Result
+		((), (§DEF TailB € [.tList tB]; §DEF HeadB € tB)): .ZipExtendFromFirst (
+			()
+			TailB
+			(Result; ((), HeadB))
+		)
+		((§DEF TailA € [.tList tA]; §DEF HeadA € tA), ()): .ZipExtendFromFirst (
+			TailA
+			()
+			(Result; (HeadA, ()))
+		)
+		(
+			(§DEF TailA € [.tList tA]; §DEF HeadA € tA)
+			(§DEF TailB € [.tList tB]; §DEF HeadB € tB)
+		): .ZipExtendFromFirst (TailA, TailB, (Result; (HeadA, HeadB)))
+	}
+}
+
+§DEF ZipLongest... = (
+	§DEF tA € §TYPE
+	§DEF tB € §TYPE
+) <=> (
+	§DEF A € [.tList tA]
+	§DEF B € [.tList tB]
+) => .ZipExtendFromFirst ((A .Reverse), (B .Reverse), ())
+
+§RECURSIVE {
+	§DEF ...==...With... = (
+		§DEF t € §TYPE
+	) <=> (
+		§DEF A € [.tList t]
+		§DEF B € [.tList t]
+		§DEF EqItem... € [[t, t] => §BOOL]
+	) => §IF (A, B) MATCH {
+		((), ()): §TRUE
+		((), _): §FALSE
+		(_, ()): §FALSE
+		(
+			(§DEF TailA € [.tList t]; §DEF HeadA € t)
+			(§DEF TailB € [.tList t]; §DEF HeadB € t)
+		): §IF (.EqItem (HeadA, HeadB)) MATCH {
+			§TRUE: TailA .== TailB With EqItem...
+			_: §FALSE
+		}
+	}
+}
+
+§DEF ==With... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF EqItem... € [[t, t] => §BOOL]
+) => (
+	§DEF A € [.tList t]
+	§DEF B € [.tList t]
+) => A .== B With EqItem...
+
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => §TYPE] IN [<
+		EmptyList...: [§GENERIC t [t => [.F t]]]
+		List...: [§GENERIC t [t => [.F t]]]
+		...Push...: [§GENERIC t [[.F t, t] => [.F t]]]
+		...Prepend...: [§GENERIC t [[.F t, t] => [.F t]]]
+		...TryPop: [§GENERIC t [[.F t] => [[.F t, t] | []]]]
+		...Count: [§GENERIC t [[.F t] => §INT]]
+		...IsEmpty: [§GENERIC t [[.F t] => §BOOL]]
+		...TryFirst: [§GENERIC t [[.F t] => [t | []]]]
+		...TryLast: [§GENERIC t [[.F t] => [t | []]]]
+		...TryGet...: [§GENERIC t [[.F t, §INT] => [t | []]]]
+		...TrySetAt...: [§GENERIC t [[.F t, [§INT, t]] => [[.F t] | []]]]
+		...TryUpdateAt...: [§GENERIC t [[.F t, [§INT, t => t]] => [[.F t] | []]]]
+		...Map...: [
+			§GENERIC tIn [§GENERIC tOut [[.F tIn, tIn => tOut] => [.F tOut]]]
+		]
+		...MapWithIndex...: [
+			§GENERIC tIn [§GENERIC tOut [[.F tIn, [§INT, tIn] => tOut] => [.F tOut]]]
+		]
+		...WithIndex: [§GENERIC t [[.F t] => [.F [§INT, t]]]]
+		...Reduce...: [
+			§GENERIC t [§GENERIC tResult [[.F t, [tResult, [tResult, t] => tResult]] => tResult]]
+		]
+		...TryReduce...: [§GENERIC t [[.F t, [t, t] => t] => [t | []]]]
+		...Where...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+		...Reverse: [§GENERIC t [[.F t] => [.F t]]]
+		...Take...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+		...TakeWhile...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+		...TakeUntil...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+		...Skip...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+		...SkipWhile...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+		...SkipUntil...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+		...Every...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+		...CollapseRepeats...: [§GENERIC t [[.F t, [t, t] => §BOOL] => [.F t]]]
+		...SortBy...: [§GENERIC t [[.F t, [t, t] => §INT] => [.F t]]]
+		...Join...: [§GENERIC t [[.F t, [[t, t] => t, t]] => t]]
+		...Any: [[.F §BOOL] => §BOOL]
+		...All: [[.F §BOOL] => §BOOL]
+		...Any...: [§GENERIC t [[.F t, t => §BOOL] => §BOOL]]
+		...All...: [§GENERIC t [[.F t, t => §BOOL] => §BOOL]]
+		Concat...: [§GENERIC t [[.F t, .F t] => [.F t]]]
+		...Flatten: [§GENERIC t [[.F [.F t]] => [.F t]]]
+		ZipShort...: [
+			§GENERIC tA [§GENERIC tB [[.F tA, .F tB] => [.F [tA, tB]]]]
+		]
+		ZipLongest...: [
+			§GENERIC tA [§GENERIC tB [[.F tA, .F tB] => [.F [[tA | []], [tB | []]]]]]
+		]
+		...==...With...: [§GENERIC t [[.F t, .F t, [[t, t] => §BOOL]] => §BOOL]]
+		==With...: [§GENERIC t [[[t, t] => §BOOL] => [[.F t, .F t] => §BOOL]]]
+	>]
+]
+
+§EXPORT §SIG Contract WITH tList... IN {
+	EmptyList...: EmptyList...
+	List...: List...
+	...Push...: ...Push...
+	...Prepend...: ...Prepend...
+	...TryPop: ...TryPop
+	...Count: ...Count
+	...IsEmpty: ...IsEmpty
+	...TryFirst: ...TryFirst
+	...TryLast: ...TryLast
+	...TryGet...: ...TryGet...
+	...TrySetAt...: ...TrySetAt...
+	...TryUpdateAt...: ...TryUpdateAt...
+	...Map...: ...Map...
+	...MapWithIndex...: ...MapWithIndex...
+	...WithIndex: ...WithIndex
+	...Reduce...: ...Reduce...
+	...TryReduce...: ...TryReduce...
+	...Where...: ...Where...
+	...Reverse: ...Reverse
+	...Take...: ...Take...
+	...TakeWhile...: ...TakeWhile...
+	...TakeUntil...: ...TakeUntil...
+	...Skip...: ...Skip...
+	...SkipWhile...: ...SkipWhile...
+	...SkipUntil...: ...SkipUntil...
+	...Every...: ...Every...
+	...CollapseRepeats...: ...CollapseRepeats...
+	...SortBy...: ...SortBy...
+	...Join...: ...Join...
+	...Any: ...Any
+	...All: ...All
+	...Any...: ...Any...
+	...All...: ...All...
+	Concat...: Concat...
+	...Flatten: ...Flatten
+	ZipShort...: ZipShort...
+	ZipLongest...: ZipLongest...
+	...==...With...: ...==...With...
+	==With...: ==With...
+}

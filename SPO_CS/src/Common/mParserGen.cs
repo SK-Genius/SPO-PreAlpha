@@ -757,7 +757,7 @@ mParserGen {
 		}
 		
 		#if INF_LOOP_DETECTION
-		if (!aInfiniteLoopDetectionSet.All(__ => !ReferenceEquals(__, aParser))) {
+		if (!aInfiniteLoopDetectionSet.All(__ => !mStd.RefEq(__, aParser))) {
 			#if MY_TRACE_PARSER
 				aDebugStream($"!!! INFINITE LOOP !!! ({aParser._DebugName ?? aParser._DebugDef})");
 			#endif

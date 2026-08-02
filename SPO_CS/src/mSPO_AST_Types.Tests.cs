@@ -42,8 +42,8 @@ mSPO_AST_Types_Tests {
 						"",
 						__ => aDebugStream(__())
 					).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
-					DesugaredType.IsSubType(ExpandedType, mStd.cEmpty).AssertNotError(__ => __);
-					ExpandedType.IsSubType(DesugaredType, mStd.cEmpty).AssertNotError(__ => __);
+					DesugaredType.IsSubType(ExpandedType).AssertNotError(__ => __);
+					ExpandedType.IsSubType(DesugaredType).AssertNotError(__ => __);
 				}
 			),
 			mTest.Test("Literals",
@@ -146,6 +146,88 @@ mSPO_AST_Types_Tests {
 							)
 						).Match(out _, out _)
 					);
+				}
+			),
+			mTest.Test("Sig packing validates witness kind and body",
+				aDebugStream => {
+					mAssert.IsFalse(
+						mSPO_Parser.Expression.ParseText(
+							"§SIG [§SIG_WITH F € [§TYPE => §TYPE] IN §INT] WITH §INT IN 1",
+							"",
+							__ => aDebugStream(__())
+						).UpdateTypes(mStd.cEmpty).Match(out _, out _)
+					);
+					mAssert.IsFalse(
+						mSPO_Parser.Expression.ParseText(
+							"§SIG [§SIG_WITH T € §TYPE IN §BOOL] WITH §INT IN 1",
+							"",
+							__ => aDebugStream(__())
+						).UpdateTypes(mStd.cEmpty).Match(out _, out _)
+					);
+				}
+			),
+			mTest.Test("Sig head kind annotation is checked",
+				aDebugStream => {
+					var Expression = mSPO_Parser.Expression.ParseText(
+						"""
+						§IF (§SIG [§SIG_WITH T € §TYPE IN T] WITH §INT IN 1) MATCH {
+							§SIG [§SIG_WITH T € §TYPE IN T] WITH §DEF T € [§TYPE => §TYPE] IN §DEF X : 0
+						}
+						""",
+						"",
+						__ => aDebugStream(__())
+					);
+					mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty).Match(out _, out _));
+				}
+			),
+			mTest.Test("Opened Sig witness cannot escape unless repacked",
+				aDebugStream => {
+					const tText Contract = "[§SIG_WITH T € §TYPE IN T]";
+					static mSPO_AST.tExpressionNode<mSpan.tSpan<mTextStream.tPos>>
+					Parse(
+						tText aResult,
+						tText aContract,
+						mStd.tAction<tText> aDebugStream
+					) =>
+						mSPO_Parser.Expression.ParseText(
+							$$"""
+							§IF (§SIG {{aContract}} WITH §INT IN 1) MATCH {
+								§SIG {{aContract}} WITH §DEF T € §TYPE IN §DEF X : {{aResult}}
+							}
+							""",
+							"",
+							__ => aDebugStream(__())
+						);
+					mAssert.IsFalse(
+						Parse("(§DEF _ € T) => X", Contract, aDebugStream).UpdateTypes(
+							mStd.cEmpty
+						).Match(out _, out _)
+					);
+					mAssert.AreEquals(
+						Parse($"§SIG {Contract} WITH T IN X", Contract, aDebugStream).UpdateTypes(mStd.cEmpty),
+						mSPO_Parser.Type.ParseText(Contract, "", __ => aDebugStream(__())).AsVM_Type(mStd.cEmpty)
+					);
+				}
+			),
+			mTest.Test("Separate Sig opens use distinct rigid witnesses",
+				aDebugStream => {
+					const tText Contract = "[§SIG_WITH T € §TYPE IN T]";
+					var Expression = mSPO_Parser.Expression.ParseText(
+						$$"""
+						§IF (
+							§SIG {{Contract}} WITH §INT IN 1
+							§SIG {{Contract}} WITH §BOOL IN §TRUE
+						) MATCH {
+							(
+								§SIG {{Contract}} WITH §DEF T1 IN §DEF X1
+								§SIG {{Contract}} WITH §DEF T2 IN §DEF X2
+							) : .((§DEF Y € T1) => Y)(X2)
+						}
+						""",
+						"",
+						__ => aDebugStream(__())
+					);
+					mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty).Match(out _, out _));
 				}
 			),
 			mTest.Tests("Split match type",
@@ -306,6 +388,35 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("Higher-order argument context follows nested calls only",
+				aDebugStream => {
+				var ValueLambda = mVM_Type.Proc(
+					mVM_Type.Empty(),
+					mVM_Type.Int(),
+					mVM_Type.Int()
+				);
+				var Map = mVM_Type.Proc(mVM_Type.Empty(), ValueLambda, mVM_Type.Int());
+				var NestedLambda = mVM_Type.Proc(mVM_Type.Empty(), Map, mVM_Type.Int());
+				var Use = mVM_Type.Proc(mVM_Type.Empty(), NestedLambda, mVM_Type.Int());
+				var OuterLambda = mVM_Type.Proc(mVM_Type.Empty(), Use, mVM_Type.Int());
+				
+				mAssert.AreEquals(
+					mSPO_Parser.Expression.ParseText(
+						".F (§DEF use... => .use (§DEF map... => .map (§DEF value => value)))",
+						"",
+						__ => aDebugStream(__())
+					).UpdateTypes(
+						mStream.Stream(
+							mSPO_AST_Types.ScopeItem(
+								"_F...",
+								mVM_Type.Proc(mVM_Type.Empty(), OuterLambda, mVM_Type.Bool())
+							)
+						)
+					),
+					mVM_Type.Bool()
+				);
+			}
+			),
 			mTest.Test("Higher-order method arguments are retried",
 				aDebugStream => {
 					var Scope = mSPO_AST_Types.UpdateMethodCallTypes(
@@ -333,6 +444,66 @@ mSPO_AST_Types_Tests {
 					mAssert.AreEquals(
 						Scope.Where(__ => __.Id == "_result").TryFirst().AssertNotEmpty().Type,
 						mVM_Type.Int()
+					);
+				}
+			),
+			mTest.Test("Calls constrain implicit lambda parameters",
+				aDebugStream => {
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"=> .F (..., ...)",
+							"",
+							__ => aDebugStream(__())
+						).DesugarExpression(
+						).AssertNotError(
+							__ => __.ErrorText
+						).UpdateTypes(
+							mStream.Stream(
+								mSPO_AST_Types.ScopeItem(
+									"_F...",
+									mVM_Type.Proc(
+										mVM_Type.Empty(),
+										mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()]),
+										mVM_Type.Text()
+									)
+								)
+							)
+						),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()]),
+							mVM_Type.Text()
+						)
+					);
+					mAssert.AreEquals(
+						mSPO_Parser.Expression.ParseText(
+							"""
+							=> {
+								§RETURN .F ...
+							}
+							""",
+							"",
+							__ => aDebugStream(__())
+						).DesugarExpression(
+						).AssertNotError(
+							__ => __.ErrorText
+						).UpdateTypes(
+							mStream.Stream(
+								mSPO_AST_Types.ScopeItem(
+									"_F...",
+									mVM_Type.Proc(
+										mVM_Type.Empty(),
+										mVM_Type.Int(),
+										mVM_Type.Text()
+									)
+								)
+							)
+						),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Int(),
+							mVM_Type.Text()
+						)
 					);
 				}
 			),

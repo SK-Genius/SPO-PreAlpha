@@ -1,0 +1,107 @@
+
+§IMPORT {
+	Std: {
+		...And...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
+		Not...: §DEF !... € [§BOOL => §BOOL]
+	}
+}
+
+§DEF tSpan... = [§GENERIC t [t #-- t]]
+
+§DEF ...--... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a1 € t
+	§DEF a2 € t
+) => a1 #-- a2
+
+§DEF SpanAt... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a € t
+) => a #-- a
+
+§DEF ...Start = (
+	§DEF t € §TYPE
+) <=> (
+	(§DEF aStart #-- _) € [.tSpan t]
+) => aStart
+
+§DEF ...End = (
+	§DEF t € §TYPE
+) <=> (
+	(_ #-- §DEF aEnd) € [.tSpan t]
+) => aEnd
+
+§DEF Select...Or...By... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF a1 € t
+	§DEF a2 € t
+	§DEF aSelectFirst?... € [[t, t] => §BOOL]
+) => §IF (.aSelectFirst? (a1, a2)) MATCH {
+	§TRUE: a1
+	§FALSE: a2
+}
+
+§DEF ...&...With... = (
+	§DEF t € §TYPE
+) <=> (
+	(§DEF aStart1 #-- §DEF aEnd1) € [.tSpan t]
+	(§DEF aStart2 #-- §DEF aEnd2) € [.tSpan t]
+	§DEF ...a>... € [[t, t] => §BOOL]
+) => (
+	.Select aStart1 Or aStart2 By (=> .!(... .a> ...))
+) #-- (
+	.Select aEnd1 Or aEnd2 By ...a>...
+)
+
+§DEF ...==...With... = (
+	§DEF t € §TYPE
+) <=> (
+	(§DEF aStart1 #-- §DEF aEnd1) € [.tSpan t]
+	(§DEF aStart2 #-- §DEF aEnd2) € [.tSpan t]
+	§DEF ...a==... € [[t, t] => §BOOL]
+) => (aStart1 .a== aStart2) .& (aEnd1 .a== aEnd2)
+
+§DEF ==With... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF ...a==... € [[t, t] => §BOOL]
+) => (=> ... .== ... With ...a==...)
+
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => §TYPE] IN [<
+		...--...: [§GENERIC t [[t, t] => [.F t]]]
+		SpanAt...: [§GENERIC t [t => [.F t]]]
+		...Start: [§GENERIC t [[.F t] => t]]
+		...End: [§GENERIC t [[.F t] => t]]
+		...&...With...: [
+			§GENERIC t [[.F t, .F t, [t, t] => §BOOL] => [.F t]]
+		]
+		...==...With...: [
+			§GENERIC t [
+				[
+					.F t
+					.F t
+					[t, t] => §BOOL
+				] => §BOOL
+			]
+		]
+		==With...: [
+			§GENERIC t [
+				[[t, t] => §BOOL] => [[.F t, .F t] => §BOOL]
+			]
+		]
+	>]
+]
+
+§EXPORT §SIG Contract WITH tSpan... IN {
+	...--...: ...--...
+	SpanAt...: SpanAt...
+	...Start: ...Start
+	...End: ...End
+	...&...With...: ...&...With...
+	...==...With...: ...==...With...
+	==With...: ==With...
+}

@@ -1,0 +1,66 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [§SIG_WITH t_0 IN t_0]
+	t_2 := [#Result TYPE]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [FALSE | TRUE]
+	t_6 := [t_1 => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE, t_4]
+	t_9 := [t_8, t_7]
+	t_10 := [t_9 => t_3]
+	t_11 := [t_9, t_10]
+	t_12 := [EMPTY_TYPE => TYPE]
+	t_13 := [t_11 => t_12]
+
+§DEF d_0 € t_4
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := §TRY ARG AS_SIG r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	_Head := r_4
+	r_6 := +#Result _Head
+	§RETURN r_6 IF TRUE
+
+§DEF d_1 € t_7
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := §TRY ARG AS_SIG r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	_Head := r_4
+	§RETURN TRUE IF TRUE
+
+§DEF d_2 € t_10
+	d_1 := §2ND ENV
+	r_3 := §1ST ENV
+	d_0 := §2ND r_3
+	r_4 := §1ST r_3
+	r_1 := .d_0 EMPTY
+	r_2 := .d_1 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_13
+	d_2 := §2ND ENV
+	r_12 := §1ST ENV
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	_t := [§FREE € Type_TYPE]
+	r_1 := [§SIG_WITH _t IN _t]
+	_Contract := r_1
+	r_2 := [§FREE]
+	r_3 := [§SIG_WITH r_2 IN r_2]
+	r_4 := 1
+	r_5 := INT_TYPE, r_4
+	r_6 := §SIG r_3 WITH r_5
+	r_7 := EMPTY, d_0
+	r_8 := r_7, d_1
+	r_9 := .d_2 r_8
+	r_10 := .r_9 r_6
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE

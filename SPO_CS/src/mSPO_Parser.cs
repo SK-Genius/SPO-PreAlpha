@@ -256,7 +256,8 @@ mSPO_Parser {
 					).Reduce(
 						"",
 						(a1, a2) => $"{a1}...{a2}"
-					) + (aLastChild.IsEmpty() ? "" : "...")
+					) + (aLastChild.IsEmpty() ? "" : "..."),
+					aList.Map(__ => __.Item2.Pos)
 				),
 				mStream.Concat(aList.Map(__ => __.Item1), aLastChild)
 			)
@@ -271,7 +272,11 @@ mSPO_Parser {
 			SpecialToken("."), Id, Infix(aChildParser)
 		).ModifyS(
 			(aSpan, _, aFirstId, aInfix) => (
-				Id: mSPO_AST.Id(aSpan, aFirstId.Id[1..] + aInfix.Id.Id[1..]),
+				Id: mSPO_AST.Id(
+					aSpan,
+					aFirstId.Id[1..] + aInfix.Id.Id[1..],
+					mStream.Concat(aFirstId.NameParts, aInfix.Id.NameParts)
+				),
 				Children: aInfix.Children
 			)
 		)
@@ -279,7 +284,11 @@ mSPO_Parser {
 		mParserGen.Seq(aChildParser, SpecialToken("."), Id, Infix(aChildParser))
 		.ModifyS(
 			(aSpan, aFirstChild, _, aFirstId, aInfix) => (
-				Id: mSPO_AST.Id(aSpan, "..." + aFirstId.Id[1..] + aInfix.Id.Id[1..]),
+				Id: mSPO_AST.Id(
+					aSpan,
+					"..." + aFirstId.Id[1..] + aInfix.Id.Id[1..],
+					mStream.Concat(aFirstId.NameParts, aInfix.Id.NameParts)
+				),
 				Children: mStream.Stream(aFirstChild, aInfix.Children)
 			)
 		)
@@ -287,7 +296,7 @@ mSPO_Parser {
 		(-SpecialToken(".") +Id)
 		.ModifyS(
 			(aSpan, aId) => (
-				Id: mSPO_AST.Id(aSpan, aId.Id[1..]),
+				Id: mSPO_AST.Id(aSpan, aId.Id[1..], aId.NameParts),
 				Children: mStream.Stream<tChild>([])
 			)
 		)
@@ -300,7 +309,11 @@ mSPO_Parser {
 		mParserGen.Seq(SpecialId('#'), Infix(aChildParser))
 		.ModifyS(
 			(aSpan, aFirstId, aInfix) => (
-				Id: mSPO_AST.Id(aSpan, aFirstId.Text[1..] + aInfix.Id.Id[1..]),
+				Id: mSPO_AST.Id(
+					aSpan,
+					aFirstId.Text[1..] + aInfix.Id.Id[1..],
+					mStream.Concat(mStream.Stream(aFirstId.Span), aInfix.Id.NameParts)
+				),
 				Children: aInfix.Children
 			)
 		)
@@ -308,7 +321,11 @@ mSPO_Parser {
 		mParserGen.Seq(aChildParser, SpecialId('#'), Infix(aChildParser))
 		.ModifyS(
 			(aSpan, aFirstChild, aFirstId, aInfix) => (
-				Id: mSPO_AST.Id(aSpan, "..." + aFirstId.Text[1..] + aInfix.Id.Id[1..]),
+				Id: mSPO_AST.Id(
+					aSpan,
+					"..." + aFirstId.Text[1..] + aInfix.Id.Id[1..],
+					mStream.Concat(mStream.Stream(aFirstId.Span), aInfix.Id.NameParts)
+				),
 				Children: mStream.Stream(aFirstChild, aInfix.Children)
 			)
 		)
@@ -316,7 +333,7 @@ mSPO_Parser {
 		SpecialId('#')
 		.ModifyS(
 			(aSpan, aId) => (
-				Id: mSPO_AST.Id(aSpan, aId.Text[1..]),
+				Id: mSPO_AST.Id(aSpan, aId.Text[1..], mStream.Stream(aId.Span)),
 				Children: mStream.Stream<tChild>([])
 			)
 		)
@@ -341,14 +358,12 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tFreeIdPatternNode<tSpan>, tError>
 	FreeIdPattern = (-KeyWord("DEF") +Id)
-	.Modify(__ => __.Id[1..])
-	.ModifyS(mSPO_AST.FreeIdPattern)
+	.ModifyS((aSpan, aId) => mSPO_AST.FreeIdPattern(aSpan, aId.Pos, aId.Id[1..]))
 	.SetName(nameof(FreeIdPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tVarPatternNode<tSpan>, tError>
 	VarPattern = (-KeyWord("VAR") +Id)
-	.Modify(__ => __.Id[1..])
-	.ModifyS(mSPO_AST.VarPattern)
+	.ModifyS((aSpan, aId) => mSPO_AST.VarPattern(aSpan, aId.Pos, aId.Id[1..]))
 	.SetName(nameof(VarPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixPatternNode<tSpan>, tError>
@@ -620,12 +635,61 @@ mSPO_Parser {
 		[
 			InfixCall(Type).Modify((aId, aTypes) => ((mSPO_AST.tTypeNode<tSpan>)aId, aTypes)),
 			mParserGen.Seq(
-				-SpecialToken(".") +C(Type), Type.Modify(__ => mStream.Stream(__))
+				-SpecialToken(".") +C(TypeInSet), Type.Modify(__ => mStream.Stream(__))
 			)
 		]
 	)
 	.ModifyS((aSpan, aGenericType, aTypes) => mSPO_AST.GenericApplyType(aSpan, aGenericType, mSPO_AST.TupleType(aSpan, aTypes)))
 	.SetName(nameof(GenericApplyType));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigTypeNode<tSpan>, tError>
+	SigType = E(
+		mParserGen.Seq(
+			-KeyWord("SIG_WITH") +Id,
+			-SpecialToken("€") +Type,
+			-Token("IN") +Type
+		)
+	)
+	.ModifyS(mSPO_AST.SigType)
+	.SetName(nameof(SigType));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPatternNode<tSpan>, tError>
+	SigHeadPattern = mParserGen.OneOf(
+		[
+			mParserGen.Seq(
+				FreeIdPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
+				-SpecialToken("€") +Type.Modify(__ => (mSPO_AST.tExpressionNode<tSpan>)__)
+			).ModifyS(
+				(aSpan, aPattern, aKind) => (mSPO_AST.tPatternNode<tSpan>)mSPO_AST.Pattern(
+					aSpan,
+					aPattern,
+					mMaybe.Some(aKind)
+				)
+			),
+			FreeIdPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
+			IgnorePattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
+			Type.ModifyS((aSpan, aType) => (mSPO_AST.tPatternNode<tSpan>)mSPO_AST.TypePattern(aSpan, aType)),
+		]
+	)
+	.SetName(nameof(SigHeadPattern));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigNode<tSpan>, tError>
+	Sig = mParserGen.Seq(
+		-KeyWord("SIG") +Type,
+		-Token("WITH") +Expression,
+		-Token("IN") +Expression
+	)
+	.ModifyS(mSPO_AST.Sig)
+	.SetName(nameof(Sig));
+
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigPatternNode<tSpan>, tError>
+	SigPattern = mParserGen.Seq(
+		-KeyWord("SIG") +Type,
+		-Token("WITH") +SigHeadPattern,
+		-Token("IN") +Pattern
+	)
+	.ModifyS(mSPO_AST.SigPattern)
+	.SetName(nameof(SigPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tShortLambdaNode<tSpan>, tError>
 	ShortLambda = (-SpecialToken("=>") +Expression)
@@ -719,7 +783,11 @@ mSPO_Parser {
 	.ModifyS(
 		(aSpan, aFirst, aInfix, aMaybeOut) => mSPO_AST.MethodCall(
 			aSpan,
-			mSPO_AST.Id(aSpan, aFirst.Id[1..] + aInfix.Id.Id[1..]),
+			mSPO_AST.Id(
+				aSpan,
+				aFirst.Id[1..] + aInfix.Id.Id[1..],
+				mStream.Concat(aFirst.NameParts, aInfix.Id.NameParts)
+			),
 			mSPO_AST.Tuple(aSpan, aInfix.Children),
 			aMaybeOut
 		)
@@ -773,7 +841,7 @@ mSPO_Parser {
 	.SetName(nameof(Import));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tExportNode<tSpan>, tError>
-	Export = (-KeyWord("EXPORT") +Expression)
+	Export = (-KeyWord("EXPORT") +(PipeExpression | Expression))
 	.ModifyS(mSPO_AST.Export)
 	.SetName(nameof(Export));
 	
@@ -843,6 +911,7 @@ mSPO_Parser {
 					AnyType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TypeType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					PairType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
+					SigType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					RecordType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					TupleType.Cast<mSPO_AST.tTypeNode<tSpan>>(),
 					E( TypeInTuple ).Cast<mSPO_AST.tTypeNode<tSpan>>(),
@@ -858,6 +927,7 @@ mSPO_Parser {
 					VarPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
 					TuplePattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
 					PairPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
+					SigPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
 					IgnorePattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
 					PrefixPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
 					RecordPattern.Cast<mSPO_AST.tPatternNode<tSpan>>(),
@@ -883,6 +953,7 @@ mSPO_Parser {
 					Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Pair.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					Sig.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

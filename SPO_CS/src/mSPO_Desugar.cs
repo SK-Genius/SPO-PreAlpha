@@ -37,6 +37,13 @@ mSPO_Desugar {
 		mSPO_AST.tInterfaceTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecursiveTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericApplyTypeNode<tPos> Node => Node, // TODO
+		mSPO_AST.tIdNode<tPos> Node => Node,
+		mSPO_AST.tSigTypeNode<tPos> Node => mSPO_AST.SigType(
+			Node.Pos,
+			Node.Head,
+			Node.HeadType.DesugarType(),
+			Node.BodyType.DesugarType()
+		).Do(__ => { __.TypeAnnotation = Node.TypeAnnotation; }),
 		
 		mSPO_AST.tEmptyTypeNode<tPos> Node => Node,
 		mSPO_AST.tTrueNode<tPos> Node => Node,
@@ -96,6 +103,24 @@ mSPO_Desugar {
 					Pattern.TypeAnnotation
 				)
 			)
+		),
+
+		mSPO_AST.tSigPatternNode<tPos> Pattern
+		=> Pattern.Head.DesugarPattern().ThenTry(
+			aHead => Pattern.Body.DesugarPattern().Then(
+				aBody => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.SigPattern(
+					Pattern.Pos,
+					Pattern.Contract.DesugarType(),
+					aHead,
+					aBody,
+					Pattern.TypeAnnotation
+				)
+			)
+		),
+
+		mSPO_AST.tTypePatternNode<tPos> Pattern
+		=> mSPO_AST.TypePattern(Pattern.Pos, Pattern.Type.DesugarType()).Do(
+			__ => { __.TypeAnnotation = Pattern.TypeAnnotation; }
 		),
 		
 		mSPO_AST.tPrefixPatternNode<tPos> Pattern 
@@ -347,6 +372,22 @@ mSPO_Desugar {
 				)
 			)
 		),
+
+		mSPO_AST.tSigNode<tPos> { Pos: var Pos, Contract: var Contract, Head: var Head, Body: var Body, TypeAnnotation: var Type }
+		=> Head.DesugarExpression(aNextArgIndex).ThenTry(
+			aHead => Body.DesugarExpression(aHead.NextArgIndex).Then(
+				aBody => (
+					(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Sig(
+						Pos,
+						Contract.DesugarType(),
+						aHead.Expression,
+						aBody.Expression,
+						Type
+					),
+					aBody.NextArgIndex
+				)
+			)
+		),
 		
 		mSPO_AST.tRecordNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }
 		=> DesugarAll(
@@ -438,16 +479,19 @@ mSPO_Desugar {
 					if (Left is not mSPO_AST.tCallNode<tPos> Call) {
 						return mResult.Fail((Pos, $"expect call but is:\n{Left.ToText()}"));
 					}
+					var Id = Call.Func as mSPO_AST.tIdNode<tPos>;
 					
 					Result = mSPO_AST.Call(
 						Pos,
 						(
-							Call.Func is mSPO_AST.tIdNode<tPos> Id
+							Id is not null
 							? mSPO_AST.Id(Id.Pos, "..." + Id.Id[1..], Id.TypeAnnotation)
 							: Call.Func
 						),
 						(
-							Call.Arg is mSPO_AST.tTupleNode<tPos> Args
+							Id is not null && !Id.Id.Contains("...")
+							? Result
+							: Call.Arg is mSPO_AST.tTupleNode<tPos> Args
 							? mSPO_AST.Tuple(
 								Pos,
 								mStream.Stream(Result, Args.Items)
@@ -473,20 +517,25 @@ mSPO_Desugar {
 					if (Left is not mSPO_AST.tCallNode<tPos> Call) {
 						return mResult.Fail((Pos, $"expect call but is:\n{Left.ToText()}"));
 					}
+					var Id = Call.Func as mSPO_AST.tIdNode<tPos>;
 					
 					Result = mSPO_AST.Call(
 						Pos,
 						(
-							Call.Func is mSPO_AST.tIdNode<tPos> Id
+							Id is not null
 							? mSPO_AST.Id(Id.Pos, Id.Id[1..] + "...", Id.TypeAnnotation)
 							: Call.Func
 						),
-						mSPO_AST.Tuple(
-							Pos,
-							(
-								Call.Arg is mSPO_AST.tTupleNode<tPos> Args
-								? mStream.Concat(Args.Items, mStream.Stream(Result))
-								: mStream.Stream(Call.Arg, Result)
+						(
+							Id is not null && !Id.Id.Contains("...")
+							? Result
+							: mSPO_AST.Tuple(
+								Pos,
+								(
+									Call.Arg is mSPO_AST.tTupleNode<tPos> Args
+									? mStream.Concat(Args.Items, mStream.Stream(Result))
+									: mStream.Stream(Call.Arg, Result)
+								)
 							)
 						),
 						Call.TypeAnnotation

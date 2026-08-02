@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -14,7 +14,7 @@ public static class
 mVM_Type {
 	public enum
 	tKind {
-		Free,
+		TypeVariable,
 		Any,
 		Empty,
 		True,
@@ -22,6 +22,8 @@ mVM_Type {
 		Int,
 		Type,
 		Pair,
+		Sig,
+		TypeApply,
 		Prefix,
 		Record,
 		Proc,
@@ -39,9 +41,11 @@ mVM_Type {
 		public tKind Kind;
 		public tText? Id;
 		public tText? Prefix;
+		public tType? VariableKind;
 		public tType[] Refs = [];
 		public mTreeMap.tTree<tText, tType> Fields;
-		public tNat64 DebugId = mStd.NewDebugId();
+		public readonly tNat64 DebugId = mStd.NewDebugId();
+		public tNat64 Identity => DebugId;
 		
 		public override tBool
 		Equals(
@@ -57,7 +61,7 @@ mVM_Type {
 			tType a1,
 			tType a2
 		) {
-			if (ReferenceEquals(a1, a2)) {
+			if (mStd.RefEq(a1, a2)) {
 				return true;
 			}
 			
@@ -74,8 +78,35 @@ mVM_Type {
 				return false;
 			}
 			
-			if (a1.Kind is tKind.Free) {
+			if (a1.Kind is tKind.TypeVariable) {
+				return mStd.RefEq(a1, a2);
+			}
+			
+			if (a1.Kind is tKind.Record) {
+				if (a1.Fields.ToStream().Count() != a2.Fields.ToStream().Count()) {
+					return false;
+				}
+				foreach (var Field in a1.Fields.ToStream()) {
+					if (!a2.Fields.TryGet(Field.Key).IsSome(out var Other) || Field.Value != Other) {
+						return false;
+					}
+				}
 				return true;
+			}
+			
+			if (a1.Kind is tKind.Recursive or tKind.Generic or tKind.Interface) {
+				var Binder = TypeVariable("alpha", a1.Refs[0].KindOf());
+				return a1.Refs[1].Substitute(a1.Refs[0], Binder) ==
+					a2.Refs[1].Substitute(a2.Refs[0], Binder);
+			}
+			
+			if (a1.Kind is tKind.Sig) {
+				if (a1.Refs[0].KindOf() != a2.Refs[0].KindOf()) {
+					return false;
+				}
+				var Binder = TypeVariable("alpha", a1.Refs[0].KindOf());
+				return a1.Refs[1].Substitute(a1.Refs[0], Binder) ==
+					a2.Refs[1].Substitute(a2.Refs[0], Binder);
 			}
 			
 			for (var I = a1.Refs.Length; I --> 0;) {
@@ -94,17 +125,15 @@ mVM_Type {
 	
 	public static readonly tText? cUnknownPrefix = null; // TODO
 	
-	private static tInt32 NextPlaceholderId = 1; // TODO: remove static var
-	
 	public static tType
 	Substitute(
 		this tType aType,
-		tType aFree,
+		tType aVariable,
 		tType aReplacement
 	) {
 		switch (aType.Kind) {
-			case tKind.Free: {
-				return ReferenceEquals(aType, aFree)
+			case tKind.TypeVariable: {
+				return mStd.RefEq(aType, aVariable)
 				? aReplacement
 				: aType;
 			}
@@ -125,15 +154,21 @@ mVM_Type {
 				return new tType {
 					Prefix = aType.Prefix,
 					Kind = aType.Kind,
-					Refs = System.Array.ConvertAll(aType.Refs, __ => __.Substitute(aFree, aReplacement))
+					Refs = System.Array.ConvertAll(aType.Refs, __ => __.Substitute(aVariable, aReplacement))
 				};
+			}
+			case tKind.TypeApply: {
+				return TypeApply(
+					aType.Refs[0].Substitute(aVariable, aReplacement),
+					aType.Refs[1].Substitute(aVariable, aReplacement)
+				);
 			}
 			case tKind.Record: {
 				mAssert.IsTrue(aType.IsRecord(out var Fields));
 				return Record(
 					Fields.ToStream(
 					).Map(
-						__ => (__.Key, __.Value.Substitute(aFree, aReplacement))
+						__ => (__.Key, __.Value.Substitute(aVariable, aReplacement))
 					).ToArrayList(
 					).ToArray(
 					)
@@ -141,23 +176,33 @@ mVM_Type {
 			}
 			case tKind.Recursive: {
 				return (
-					ReferenceEquals(aType.Refs[0], aFree)
+					mStd.RefEq(aType.Refs[0], aVariable)
 					? aType
-					: Recursive(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
+					: Recursive(aType.Refs[0], aType.Refs[1].Substitute(aVariable, aReplacement))
 				);
 			}
 			case tKind.Generic: {
 				return (
-					ReferenceEquals(aType.Refs[0], aFree)
+					mStd.RefEq(aType.Refs[0], aVariable)
 					? aType
-					: Generic(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
+					: Generic(aType.Refs[0], aType.Refs[1].Substitute(aVariable, aReplacement))
 				);
 			}
 			case tKind.Interface: {
 				return (
-					ReferenceEquals(aType.Refs[0], aFree)
+					mStd.RefEq(aType.Refs[0], aVariable)
 					? aType
-					: Interface(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
+					: Interface(aType.Refs[0], aType.Refs[1].Substitute(aVariable, aReplacement))
+				);
+			}
+			case tKind.Sig: {
+				return (
+					mStd.RefEq(aType.Refs[0], aVariable)
+					? aType
+					: Sig(
+						aType.Refs[0],
+						aType.Refs[1].Substitute(aVariable, aReplacement)
+					)
 				);
 			}
 			default: {
@@ -167,51 +212,64 @@ mVM_Type {
 	}
 	
 	public static tType
-	ApplyMappings(
+	ApplyInference(
 		this tType aType,
-		mStream.tStream<(tType Free, tType Ref)> aMappings
+		tInferenceState aInferenceState
 	) {
-		foreach (var (Free, Ref) in aMappings) {
-			mAssert.IsTrue(Free.IsFree(out _, out _));
-			aType = aType.Substitute(Free, Ref);
+		foreach (var (Variable, Solution) in aMappings) {
+			mAssert.IsTrue(Variable.IsTypeVariable(out _, out _));
+			aType = aType.Substitute(Variable, Solution);
 		}
 		
 		return aType;
 	}
 	
 	public static tType
-	Free(
-		tText aId
+	TypeVariable(
+		tText aDisplayName,
+		tType? aKind = null
 	) {
-		var Type = new tType {
-			Kind = tKind.Free,
-			Id = aId
+		return new tType {
+			Kind = tKind.TypeVariable,
+			Id = aDisplayName,
+			VariableKind = aKind ?? Type()
 		};
-		Type.Refs = [Type]; // needed for unification
-		return Type;
 	}
 	
 	public static tType
-	Free(
+	TypeVariable(
+	) => TypeVariable("t" + mStd.NewDebugId());
+	
+	public static tType
+	KindOf(
+		this tType aType
 	) {
-		var Id = "?"+NextPlaceholderId;
-		NextPlaceholderId += 1;
-		return Free(Id);
+		if (aType.Kind is tKind.TypeVariable) {
+			return aType.VariableKind!;
+		}
+		if (aType.IsGeneric(out var Head, out var Body)) {
+			return Proc(Empty(), Head.KindOf(), Body.KindOf());
+		}
+		if (aType.IsTypeApply(out var Constructor, out _)) {
+			mAssert.IsTrue(Constructor.KindOf().IsProc(out _, out _, out var ResultKind));
+			return ResultKind;
+		}
+		return Type();
 	}
 	
 	public static tBool
-	IsFree(
+	IsTypeVariable(
 		this tType aType,
-		[MaybeNullWhen(false)] out tText aId,
-		[MaybeNullWhen(false)] out tType aRef
+		[MaybeNullWhen(false)] out tText aDisplayName,
+		[MaybeNullWhen(false)] out tType aKind
 	) {
-		if (aType.Kind is tKind.Free) {
-			aId = aType.Id!;
-			aRef = aType.Refs[0];
+		if (aType.Kind is tKind.TypeVariable) {
+			aDisplayName = aType.Id!;
+			aKind = aType.VariableKind!;
 			return true;
 		} else {
-			aId = default!;
-			aRef = default;
+			aDisplayName = default;
+			aKind = default;
 			return false;
 		}
 	}
@@ -223,13 +281,7 @@ mVM_Type {
 	public static tBool
 	IsAny(
 		this tType aType
-	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		return aType.Kind is tKind.Any;
-	}
+	) => aType.Kind is tKind.Any;
 	
 	public static tType
 	Empty(
@@ -238,25 +290,19 @@ mVM_Type {
 	public static tBool
 	IsEmpty(
 		this tType aType
-	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		return aType.Kind is tKind.Empty;
-	}
+	) => aType.Kind is tKind.Empty;
 	
 	public static tType
 	True(
 	) => new() { Kind = tKind.True };
-
+	
 	public static tType
 	False(
 	) => new() { Kind = tKind.False };
-
+	
 	public static tType
 	Bool(
-	) => Set(True(), False());
+	) => Set(False(), True());
 	
 	public static tType
 	Int(
@@ -265,13 +311,7 @@ mVM_Type {
 	public static tBool
 	IsInt(
 		this tType aType
-	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		return aType.Kind is tKind.Int;
-	}
+	) => aType.Kind is tKind.Int;
 	
 	public static tType
 	Char(
@@ -285,7 +325,7 @@ mVM_Type {
 	public static tType
 	Text(
 	) => mStd.With(
-		Free("tText"),
+		TypeVariable("tText"),
 		__ => Recursive(
 			__,
 			Set(
@@ -307,14 +347,6 @@ mVM_Type {
 	) => aType.Kind is tKind.Type;
 	
 	public static tType
-	Value(
-		this tType aType
-	) {
-		mAssert.IsTrue(aType.Kind is tKind.Type or tKind.Free);
-		return aType.Refs[0];
-	}
-	
-	public static tType
 	Pair(
 		tType aType1,
 		tType aType2
@@ -329,21 +361,17 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aType1,
 		[MaybeNullWhen(false)] out tType aType2
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Pair) {
 			aType1 = aType.Refs[0];
 			aType2 = aType.Refs[1];
 			return true;
 		} else {
-			aType1 = default!;
-			aType2 = default!;
+			aType1 = default;
+			aType2 = default;
 			return false;
 		}
 	}
-
+	
 	public static tBool
 	TryProjectPair(
 		this tType aType,
@@ -371,14 +399,80 @@ mVM_Type {
 	}
 	
 	public static tType
+	Sig(
+		tType aHead,
+		tType aBody
+	) => new() {
+		Kind = tKind.Sig,
+		Refs = [aHead, aBody],
+	};
+	
+	public static tType
+	Sig(
+		tType aHead,
+		tType aHeadKind,
+		tType aBody
+	) {
+		mAssert.AreEquals(aHead.KindOf(), aHeadKind);
+		return Sig(aHead, aBody);
+	}
+	
+	public static tBool
+	IsSig(
+		this tType aType,
+		[MaybeNullWhen(false)] out tType aHead,
+		[MaybeNullWhen(false)] out tType aHeadKind,
+		[MaybeNullWhen(false)] out tType aBody
+	) {
+		if (aType.Kind is tKind.Sig) {
+			aHead = aType.Refs[0];
+			aHeadKind = aHead.KindOf();
+			aBody = aType.Refs[1];
+			return true;
+		}
+		aHead = default;
+		aHeadKind = default;
+		aBody = default;
+		return false;
+	}
+	
+	public static tType
+	TypeApply(
+		tType aConstructor,
+		tType aArgument
+	) {
+		if (aConstructor.IsGeneric(out var Head, out var Body)) {
+			return Body.Substitute(Head, aArgument);
+		}
+		mAssert.IsTrue(aConstructor.KindOf().IsProc(out _, out var ArgumentKind, out _));
+		mAssert.IsTrue(aArgument.KindOf().IsSubType(ArgumentKind).Match(out _, out _));
+		return new() {
+			Kind = tKind.TypeApply,
+			Refs = [aConstructor, aArgument],
+		};
+	}
+	
+	public static tBool
+	IsTypeApply(
+		this tType aType,
+		[MaybeNullWhen(false)] out tType aConstructor,
+		[MaybeNullWhen(false)] out tType aArgument
+	) {
+		if (aType.Kind is tKind.TypeApply) {
+			aConstructor = aType.Refs[0];
+			aArgument = aType.Refs[1];
+			return true;
+		}
+		aConstructor = default;
+		aArgument = default;
+		return false;
+	}
+	
+	public static tType
 	GetFieldType(
 		this tType aType,
 		tText aKey
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		mAssert.IsTrue(aType.IsRecord(out var Fields));
 		mAssert.IsTrue(
 			Fields.TryGet(aKey).IsSome(out var FieldType),
@@ -421,17 +515,13 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Prefix) {
 			aPrefix = aType.Prefix!;
 			aTypeOut = aType.Refs[0];
 			return true;
 		} else {
-			aPrefix = default!;
-			aTypeOut = default!;
+			aPrefix = default;
+			aTypeOut = default;
 			return false;
 		}
 	}
@@ -442,11 +532,7 @@ mVM_Type {
 		tText aPrefix,
 		[MaybeNullWhen(false)] out tType aTypeOut
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
-		return aType.IsPrefix(out var Prefix, out aTypeOut!) && Prefix == aPrefix;
+		return aType.IsPrefix(out var Prefix, out aTypeOut) && Prefix == aPrefix;
 	}
 	
 	public static tType
@@ -489,15 +575,11 @@ mVM_Type {
 		this tType aType,
 		[NotNullWhen(true)]out mTreeMap.tTree<tText, tType> aFields
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Record) {
 			aFields = aType.Fields;
 			return true;
 		} else {
-			aFields = default!;
+			aFields = default;
 			return false;
 		}
 	}
@@ -520,12 +602,7 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aResType
 	) {
 		if (aType.IsRecursive(out var Head, out var Body)) {
-			mAssert.IsNotNull(Head.Refs[0]);
 			aType = Body;
-		}
-		
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
 		}
 		
 		if (aType.Kind is tKind.Proc) {
@@ -534,31 +611,23 @@ mVM_Type {
 			aResType = aType.Refs[2];
 			return true;
 		} else {
-			aObjType = default!;
-			aArgType = default!;
-			aResType = default!;
+			aObjType = default;
+			aArgType = default;
+			aResType = default;
 			return false;
 		}
 	}
 	
 	public static tType
 	Prefix(
-		tText aId
-	) => new() {
-		Kind = tKind.Prefix,
-		Id = aId,
-		Refs = [Empty()],
-	};
+		tText aPrefix
+	) => Prefix(aPrefix, Empty());
 	
 	public static tBool
 	IsPrefix(
 		this tType aType,
 		tText aPrefix
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		return aType.Prefix == aPrefix && aType.Refs[0].IsEmpty();
 	}
 	
@@ -575,15 +644,11 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Ref) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
-			aOutType = default!;
+			aOutType = default;
 			return false;
 		}
 	}
@@ -601,15 +666,11 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aOutType
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Var) {
 			aOutType = aType.Refs[0];
 			return true;
 		} else {
-			aOutType = default!;
+			aOutType = default;
 			return false;
 		}
 	}
@@ -633,17 +694,13 @@ mVM_Type {
 		[MaybeNullWhen(false)] out tType aType1,
 		[MaybeNullWhen(false)] out tType aType2
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Set) {
 			aType1 = aType.Refs[0];
 			aType2 = aType.Refs[1];
 			return true;
 		} else {
-			aType1 = default!;
-			aType2 = default!;
+			aType1 = default;
+			aType2 = default;
 			return false;
 		}
 	}
@@ -651,7 +708,6 @@ mVM_Type {
 	public static tType
 	Cond(
 		tType aType
-		// aCond
 	) {
 		mAssert.IsTrue(false); // TODO
 		return new tType {
@@ -664,18 +720,13 @@ mVM_Type {
 	IsCond(
 		this tType aType,
 		out tType aSuperType
-		// aCond
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		mAssert.IsTrue(false); // TODO
 		if (aType.Kind is tKind.Cond) {
 			aSuperType = aType.Refs[0];
 			return true;
 		} else {
-			aSuperType = default!;
+			aSuperType = default;
 			return false;
 		}
 	}
@@ -692,22 +743,17 @@ mVM_Type {
 	public static tBool
 	IsRecursive(
 		this tType aType,
-		out tType aHeadType,
-		out tType aBodyType
-		// aCond
+		[MaybeNullWhen(false)]out tType aHeadType,
+		[MaybeNullWhen(false)]out tType aBodyType
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Recursive) {
 			aHeadType = aType.Refs[0];
-			mAssert.AreEquals(aHeadType.Kind, tKind.Free);
+			mAssert.AreEquals(aHeadType.Kind, tKind.TypeVariable);
 			aBodyType = aType.Refs[1];
 			return true;
 		} else {
-			aHeadType = default!;
-			aBodyType = default!;
+			aHeadType = default;
+			aBodyType = default;
 			return false;
 		}
 	}
@@ -726,19 +772,14 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aHeadType,
 		[MaybeNullWhen(false)] out tType aBodyType
-		// aCond
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Interface) {
 			aHeadType = aType.Refs[0];
 			aBodyType = aType.Refs[1];
 			return true;
 		} else {
-			aHeadType = default!;
-			aBodyType = default!;
+			aHeadType = default;
+			aBodyType = default;
 			return false;
 		}
 	}
@@ -757,19 +798,14 @@ mVM_Type {
 		this tType aType,
 		[MaybeNullWhen(false)] out tType aHeadType,
 		[MaybeNullWhen(false)] out tType aBodyType
-		// aCond
 	) {
-		if (aType.Kind is tKind.Free) {
-			aType = aType.Refs[0];
-		}
-		
 		if (aType.Kind is tKind.Generic ) {
 			aHeadType = aType.Refs[0];
 			aBodyType = aType.Refs[1];
 			return true;
 		} else {
-			aHeadType = default!;
-			aBodyType = default!;
+			aHeadType = default;
+			aBodyType = default;
 			return false;
 		}
 	}
@@ -779,73 +815,142 @@ mVM_Type {
 		tText aError,
 		tType aSubType,
 		tType aSupType
-	) => $"""
+	) => (
+		$"""
 		{aError}
 		in:
 		{"  " + aSubType.ToText("\n  ")}
 		!<
 		{"  " + aSupType.ToText("\n  ")}
 		
-		""";
+		"""
+	);
 	
-	public static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>, tText>
+	public static tBool
+	ContainsVariable(
+		this tType aType,
+		tType aVariable
+	) {
+		if (aType.Kind is tKind.TypeVariable) {
+			return mStd.RefEq(aType, aVariable);
+		} else if (aType.Kind is tKind.Record) {
+			return aType.Fields.ToStream().Any(__ => __.Value.ContainsVariable(aVariable));
+		} else if (
+			aType.Kind is tKind.Recursive or tKind.Generic or tKind.Interface or tKind.Sig &&
+			mStd.RefEq(aType.Refs[0], aVariable)
+		) {
+			return false;
+		} else {
+			return mStream.Stream(aType.Refs).Any(__ => __.ContainsVariable(aVariable));
+		}
+	}
+	
+	public static mStream.tStream<(tType Variable, tType Solution)>
+	InferenceVariables(
+		this tType aType
+	) {
+		static mStream.tStream<tType>
+		Collect(
+			tType aType,
+			mStream.tStream<tType> aBound
+		) {
+			if (aType.Kind is tKind.TypeVariable) {
+				return aBound.Any(__ => mStd.RefEq(__, aType))
+				? mStd.cEmpty
+				: mStream.Stream(aType);
+			}
+			if (aType.Kind is tKind.Record) {
+				return aType.Fields.ToStream().Map(__ => Collect(__.Value, aBound)).Reduce(
+					mStream.Stream<tType>(),
+					(a1, a2) => mStream.Concat(a1, a2)
+				);
+			}
+			if (aType.Kind is tKind.Recursive or tKind.Generic or tKind.Interface or tKind.Sig) {
+				var Bound = mStream.Stream(aType.Refs[0], aBound);
+				return mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)[1..])
+				.Map(__ => Collect(__, Bound)).Reduce(
+					mStream.Stream<tType>(),
+					(a1, a2) => mStream.Concat(a1, a2)
+				);
+			}
+			return mStream.Stream(aType.Refs).Map(__ => Collect(__, aBound)).Reduce(
+				mStream.Stream<tType>(),
+				(a1, a2) => mStream.Concat(a1, a2)
+			);
+		}
+		
+		return Collect(aType, mStd.cEmpty).Map(__ => (Variable: __, Solution: __));
+	}
+	
+	public static mResult.tResult<tInferenceState, tText>
 	IsSubType(
 		this tType aSubType,
 		tType aSupType,
-		mStream.tStream<(tType Free, tType Ref)> aTypeMappings
+		tInferenceState aInferenceState
 	) {
-		static tBool
-		HasFreeType(
-			tType aType
-		) => aType.Kind switch {
-			tKind.Free => true,
-			tKind.Record => aType.Fields.ToStream().Any(__ => HasFreeType(__.Value)),
-			_ => mStream.Stream(aType.Refs).Any(HasFreeType)
-		};
-		
-		static mStream.tStream<(tType Free, tType Ref)>
-		MapFree(
-			mStream.tStream<(tType Free, tType Ref)> aTypeMappings,
-			tType aFree,
-			tType aRef
-		) => mStream.Stream(
-			(
-				aFree,
-				aTypeMappings.Where(
-					__ => ReferenceEquals(__.Free, aFree)
+		static mResult.tResult<tInferenceState, tText>
+		Solve(
+			tInferenceState aCurrent,
+			tType aVariable,
+			tType aSolution
+		) {
+			if (
+				!aCurrent.Where(
+					__ => mStd.RefEq(__.Variable, aVariable)
 				).TryFirst(
-				).Match(
-					__ => Union(aRef, __.Ref),
-					() => aRef
+				).IsSome(
+					out var Entry
 				)
-			),
-			aTypeMappings
-		);
-		
-		if (aSubType.Kind is tKind.Free) {
-			aSubType = aSubType.Refs[0];
-		}
-		
-		if (aSupType.Kind is tKind.Free) {
-			aSupType = aSupType.Refs[0];
+			) {
+				return mResult.Fail(
+					$"rigid type variable '{aVariable.ToText()}' cannot be unified with '{aSolution.ToText()}'"
+				);
+			} else if (!mStd.RefEq(aSolution, aVariable) && aSolution.ContainsVariable(aVariable)) {
+				return mResult.Fail(
+					$"occurs check failed for '{aVariable.ToText()}' in '{aSolution.ToText()}'"
+				);
+			}
+			if (!mStd.RefEq(Entry.Solution, aVariable)) {
+				if (aSolution.IsSubType(Entry.Solution, aInference).Match(out var RefinedInference, out _)) {
+					return RefinedInference;
+				}
+				
+				var WiderSolution = (
+					Entry.Solution.IsSubType(aSolution, aInference).Match(out _, out _)
+					? aSolution
+					: Union(Entry.Solution, aSolution)
+				);
+				
+				return mStream.Stream(
+					(aVariable, mMaybe.Some(WiderSolution)),
+					aCurrent.Where(a => !mStd.RefEq(a.Variable, aVariable))
+				);
+			} else {
+				return (
+					!aSolution.KindOf().IsSubType(aVariable.KindOf()).Match(out _, out var KindError)
+					? mResult.Fail(KindError)
+					: mStream.Stream(
+						(aVariable, mMaybe.Some(aSolution)),
+						aCurrent.Where(__ => !mStd.RefEq(__.Variable, aVariable))
+					)
+				);
+			}
+			
+			return (
+				!aSolution.KindOf().IsSubType(aVariable.KindOf(), mStd.cEmpty).Match(out _, out var KindError)
+				? mResult.Fail(KindError)
+				: mStream.Stream((aVariable, aSolution), aInference)
+			);
 		}
 		
 		if (
-			ReferenceEquals(aSubType, aSupType) ||
-			(aSubType == aSupType && !HasFreeType(aSubType))
+			mStd.RefEq(aSubType, aSupType) ||
+			aSubType == aSupType
 		) {
 			return aTypeMappings;
 		}
 		
 		var SubBaseType = aSubType.BaseType();
-		
-		if (aSupType.Kind is tKind.Free) {
-			return MapFree(aTypeMappings, aSupType, aSubType);
-		}
-		
-		if (aSubType.Kind is tKind.Free) {
-			return MapFree(aTypeMappings, aSubType, aSupType);
-		}
 		
 		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
 			return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
@@ -853,6 +958,22 @@ mVM_Type {
 			).ModifyError(
 				__ => ExtendError(__, aSubType, aSupType)
 			);
+		}
+
+		if (aSupType.IsSet(out var SupChoice1, out var SupChoice2)) {
+			return SubBaseType.IsSubType(SupChoice1, aTypeMappings).ElseTry(
+				aError1 => SubBaseType.IsSubType(SupChoice2, aTypeMappings).ElseTry(
+					aError2 => mResult.Fail(aError1 + "\n" + aError2)
+				)
+			);
+		}
+
+		if (aSupType.Kind is tKind.TypeVariable) {
+			return Solve(aTypeMappings, aSupType, aSubType);
+		}
+
+		if (aSubType.Kind is tKind.TypeVariable) {
+			return Solve(aTypeMappings, aSubType, aSupType);
 		}
 		
 		if (
@@ -870,11 +991,11 @@ mVM_Type {
 		
 		// TODO: implement
 		switch (aSupType.Kind) {
-			case tKind.Free: {
+			case tKind.TypeVariable: {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Any: {
-				return aTypeMappings;
+				return aInferenceState;
 			}
 			case tKind.Empty:
 			case tKind.True:
@@ -882,7 +1003,7 @@ mVM_Type {
 			case tKind.Int:
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
-					? aTypeMappings
+					? aInferenceState
 					: mResult.Fail(ExtendError("", aSubType, aSupType));
 			}
 			case tKind.Pair: {
@@ -892,12 +1013,64 @@ mVM_Type {
 				if (
 					TailSubType.IsPair(out TailSubType, out var HeadSubType) &&
 					TailSupType.IsPair(out TailSupType, out var HeadSupType) &&
-					HeadSubType.IsSubType(HeadSupType, aTypeMappings).Match(out aTypeMappings, out Error) &&
-					TailSubType.IsSubType(TailSupType, aTypeMappings).Match(out aTypeMappings, out Error)
+					HeadSubType.IsSubTypeOf(
+						HeadSupType,
+						aInferenceState,
+						aRecursiveAssumptions
+					).Match(out var Inference, out Error) &&
+					TailSubType.IsSubTypeOf(
+						TailSupType,
+						Inference,
+						aRecursiveAssumptions
+					).Match(out Inference, out Error)
 				) {
-					return aTypeMappings;
+					return Inference;
 				} else {
 					return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+				}
+			}
+			case tKind.Sig: {
+				if (
+					!SubBaseType.IsSig(out var SubHead, out var SubKind, out var SubBody) ||
+					!aSupType.IsSig(out var SupHead, out var SupKind, out var SupBody)
+				) {
+					return mResult.Fail(ExtendError("Expected §SIG_WITH", aSubType, aSupType));
+				}
+				
+				var Binder = TypeVariable("sig", SupKind);
+				
+				return (
+					SubKind.IsSubTypeOf(SupKind, aInferenceState, aRecursiveAssumptions)
+				).ThenTry(
+					__ => SupKind.IsSubTypeOf(SubKind, __, aRecursiveAssumptions)
+				).ThenTry(
+					__ => (
+						SubBody.Substitute(SubHead, Binder)
+					).IsSubTypeOf(
+						SupBody.Substitute(SupHead, Binder),
+						__,
+						aRecursiveAssumptions
+					)
+				).ModifyError(
+					__ => ExtendError(__, aSubType, aSupType)
+				);
+			}
+			case tKind.TypeApply: {
+				if (
+					!SubBaseType.IsTypeApply(out var SubConstructor, out var SubArgument) ||
+					!aSupType.IsTypeApply(out var SupConstructor, out var SupArgument)
+				) {
+					return mResult.Fail(ExtendError("Expected type application", aSubType, aSupType));
+				} else {
+					return (
+						SubConstructor.IsSubTypeOf(SupConstructor, aInferenceState, aRecursiveAssumptions)
+					).ThenTry(
+						__ => SupConstructor.IsSubTypeOf(SubConstructor, __, aRecursiveAssumptions)
+					).ThenTry(
+						__ => SubArgument.IsSubTypeOf(SupArgument, __, aRecursiveAssumptions))
+					.ThenTry(
+						__ => SupArgument.IsSubTypeOf(SubArgument, __, aRecursiveAssumptions)
+					);
 				}
 			}
 			case tKind.Prefix: {
@@ -906,9 +1079,10 @@ mVM_Type {
 					aSupType.IsPrefix(out var SupPrefix, out var Sup) &&
 					SubPrefix == SupPrefix
 				) {
-					return Sub.IsSubType(
+					return Sub.IsSubTypeOf(
 						Sup,
-						aTypeMappings
+						aInferenceState,
+						aRecursiveAssumptions
 					).ElseTry(
 						__ => mResult.Fail(ExtendError(__, aSubType, aSupType))
 					);
@@ -925,9 +1099,7 @@ mVM_Type {
 							aSupType
 						)
 					);
-				}
-				
-				if (!aSubType.IsRecord(out var SubFields)) {
+				} else if (!aSubType.IsRecord(out var SubFields)) {
 					return mResult.Fail(
 						ExtendError(
 							$"Expected Record but is {aSubType}",
@@ -935,15 +1107,14 @@ mVM_Type {
 							aSupType
 						)
 					);
-				}
-				
-				foreach (var SupField in SupFields.ToStream()) {
-					if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
-						return mResult.Fail(
-							ExtendError(
-								$"Missing field '{SupField.Key}' in {aSubType}",
-								aSubType,
-								aSupType
+				} else {
+					foreach (var SupField in SupFields.ToStream()) {
+						if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
+							return mResult.Fail(
+								ExtendError(
+									$"Missing field '{SupField.Key}' in {aSubType}",
+									aSubType,
+									aSupType
 							)
 						);
 					}
@@ -965,13 +1136,19 @@ mVM_Type {
 					!aSupType.IsProc(out var SupObj, out var SupArg, out var SupRes)
 				) {
 					return mResult.Fail(mStd.FileLine());
+				} else {
+					return (
+						SubObj.IsSubTypeOf(SupObj, aInferenceState, aRecursiveAssumptions)
+					).ThenTry(
+						__ => SupObj.IsSubTypeOf(SubObj, __, aRecursiveAssumptions)
+					).ThenTry(
+						__ => SupArg.IsSubTypeOf(SubArg, __, aRecursiveAssumptions)
+					).ThenTry(
+						__ => SubRes.IsSubTypeOf(SupRes, __, aRecursiveAssumptions)
+					).ElseTry(
+						__ => mResult.Fail(ExtendError(__, aSubType, aSupType))
+					);
 				}
-				
-				return SubObj.IsSubType(SupObj, aTypeMappings)
-				.ThenTry(__ => SupObj.IsSubType(SubObj, __))
-				.ThenTry(__ => SubArg.IsSubType(SupArg, __))
-				.ThenTry(__ => SubRes.IsSubType(SupRes, __))
-				.ElseTry(__ => mResult.Fail(ExtendError(__, aSubType, aSupType)));
 			}
 			case tKind.Var: {
 				throw new System.NotImplementedException();
@@ -993,7 +1170,7 @@ mVM_Type {
 			case tKind.Recursive: {
 				mAssert.IsTrue(aSupType.IsRecursive(out var SupHead, out var SupBody));
 				if (aSubType.IsRecursive(out var SubHead, out var SubBody)) {
-					if (!ReferenceEquals(SubHead, SupHead)) {
+					if (!mStd.RefEq(SubHead, SupHead)) {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
@@ -1011,7 +1188,7 @@ mVM_Type {
 			case tKind.Generic: {
 				mAssert.IsTrue(aSupType.IsGeneric(out var SupHead, out var SupBody));
 				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
-					if (!ReferenceEquals(SubHead, SupHead)) {
+					if (!mStd.RefEq(SubHead, SupHead)) {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
@@ -1026,7 +1203,7 @@ mVM_Type {
 			case tKind.Interface: {
 				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
 				if (aSubType.IsInterface(out var SubHead, out var SubBody)) {
-					if (!ReferenceEquals(SubHead, SupHead)) {
+					if (!mStd.RefEq(SubHead, SupHead)) {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
@@ -1057,19 +1234,23 @@ mVM_Type {
 		if (aType.IsRecursive(out var Head, out var Body)) {
 			var Expanded = Body.Substitute(Head, aType);
 			
-			return ReferenceEquals(Expanded, aType)
-			? mStd.cEmpty
-			: Expanded.SubSet(aSelect);
+			return (
+				mStd.RefEq(Expanded, aType)
+				? mStd.cEmpty
+				: Expanded.SubSet(aSelect)
+			);
 		}
 		
 		if (aType.IsSet(out var Type1, out var Type2)) {
 			var Selected1 = Type1.SubSet(aSelect);
 			var Selected2 = Type2.SubSet(aSelect);
 			
-			return !Selected1.IsSome(out var SelectedType1) ? Selected2
-			: !Selected2.IsSome(out var SelectedType2) ? Selected1
-			: SelectedType1 == SelectedType2 ? Selected1
-			: Set(SelectedType1, SelectedType2);
+			return (
+				!Selected1.IsSome(out var SelectedType1) ? Selected2 :
+				!Selected2.IsSome(out var SelectedType2) ? Selected1 :
+				SelectedType1 == SelectedType2 ? Selected1 :
+				Set(SelectedType1, SelectedType2)
+			);
 		}
 		
 		return mStd.cEmpty;
@@ -1092,11 +1273,10 @@ mVM_Type {
 	}
 	
 	public static mResult.tResult<tType, tText>
-	Infer(
+	InferCallResultType(
 		tType aProc,
 		tType aObj,
-		tType aArg,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
+		tType aArg
 	) {
 		if (aProc.IsGeneric(out var FreeType, out var InnerType)) {
 			return Infer(InnerType, aObj, aArg, aTrace);
@@ -1111,7 +1291,7 @@ mVM_Type {
 		//	return mResult.Fail($"{aObj.ToText()} != {ObjType.ToText()}");
 		//}
 		
-		if (!aArg.IsSubType(ArgType, mStd.cEmpty).Match(out var TypeMappings, out var Error)) {
+		if (!aArg.IsSubType(ArgType, ArgType.InferenceVariables()).Match(out var TypeMappings, out var Error)) {
 			return mResult.Fail(
 				ExtendError(
 					$"""
@@ -1139,12 +1319,12 @@ mVM_Type {
 		if (aType.IsRecursive(out var Head, out var Body)) {
 			var Expanded = Body.Substitute(Head, aType);
 			
-			return ReferenceEquals(Expanded, aType)
-			? (mStd.cEmpty, mMaybe.Some(aType))
-			: Expanded.SplitBy(aIsMatching);
-		}
-		
-		if (aType.IsSet(out var Type1, out var Type2)) {
+			return (
+				mStd.RefEq(Expanded, aType)
+				? (mStd.cEmpty, mMaybe.Some(aType))
+				: Expanded.SplitBy(aIsMatching)
+			);
+		} else if (aType.IsSet(out var Type1, out var Type2)) {
 			var (Matched1, Remainder1) = Type1.SplitBy(aIsMatching);
 			var (Matched2, Remainder2) = Type2.SplitBy(aIsMatching);
 			
@@ -1152,11 +1332,13 @@ mVM_Type {
 				Union(Matched1, Matched2),
 				Union(Remainder1, Remainder2)
 			);
+		} else {
+			return (
+				aIsMatching(aType)
+				? (aType, mStd.cEmpty)
+				: (mStd.cEmpty, aType)
+			);
 		}
-		
-		return aIsMatching(aType)
-		? (aType, mStd.cEmpty)
-		: (mStd.cEmpty, aType);
 	}
 	
 	public static tType
@@ -1187,8 +1369,7 @@ mVM_Type {
 	) => (
 		!aType1.IsSome(out var Type1) ? aType2 :
 		!aType2.IsSome(out var Type2) ? aType1 :
-		Type1 == Type2 ? aType1 :
-		mMaybe.Some(Set(Type1, Type2))
+		mMaybe.Some(Union(Type1, Type2))
 	);
 	
 	public static mMaybe.tMaybe<tType>
@@ -1196,29 +1377,43 @@ mVM_Type {
 		this tType aType,
 		tType aRemoved
 	) {
+		if (aLimit is 0) {
+			throw mError.Error(mStd.FileLine());
+		}
+		
 		if (aType.IsSubType(aRemoved, mStd.cEmpty).Match(out _, out _)) {
 			return mStd.cEmpty;
 		} else if (aType.IsSet(out var Type1, out var Type2)) {
-			return Union(Type1.Subtract(aRemoved), Type2.Subtract(aRemoved));
+			return Union(Type1.Subtract(aRemoved, aLimit - 1), Type2.Subtract(aRemoved, aLimit - 1));
 		} else if (aRemoved.IsSet(out Type1, out Type2)) {
-			return aType.Subtract(Type1).ThenTry(__ => __.Subtract(Type2));
+			return aType.Subtract(Type1, aLimit - 1).ThenTry(__ => __.Subtract(Type2, aLimit - 1));
+		} else if (aType.IsRecursive(out var Head1, out var Body1) && aRemoved.IsRecursive(out var Head2, out var Body2)) {
+			if (mStd.RefEq(Head1, Head2)) {
+				return Body1.Subtract(Body2, aLimit - 1).Then(__ => Recursive(Head1, __)).ElseUse(aType);
+			} else {
+				var H = TypeVariable();
+				
+				var B1 = Recursive(H, Body1.Substitute(Head1, H));
+				var B2 = Recursive(H, Body2.Substitute(Head2, H));
+				return B1.Subtract(B2, aLimit - 1);
+			}
 		} else if (aType.IsRecursive(out var Head, out var Body)) {
-			return Body.Substitute(Head, aType).Subtract(aRemoved);
+			return Body.Substitute(Head, aType).Subtract(aRemoved, aLimit - 1);
 		} else if (aRemoved.IsRecursive(out Head, out Body)) {
-			return aType.Subtract(Body.Substitute(Head, aRemoved));
+			return aType.Subtract(Body.Substitute(Head, aRemoved), aLimit - 1);
 		} else if (
 			aType.IsPair(out var First, out var Second) &&
 			aRemoved.IsPair(out var RemovedFirst, out var RemovedSecond)
 		) {
 			return Union(
-				First.Subtract(RemovedFirst).Then(__ => Pair(__, Second)),
-				Second.Subtract(RemovedSecond).Then(__ => Pair(RemovedFirst, __))
+				First.Subtract(RemovedFirst, aLimit - 1).Then(__ => Pair(__, Second)),
+				Second.Subtract(RemovedSecond, aLimit - 1).Then(__ => Pair(First, __))
 			);
 		} else if (
 			aType.IsPrefix(out var Prefix, out var Inner) &&
 			aRemoved.IsPrefix(Prefix, out var RemovedInner)
 		) {
-			return Inner.Subtract(RemovedInner).Then(__ => mVM_Type.Prefix(Prefix, __));
+			return Inner.Subtract(RemovedInner, aLimit - 1).Then(__ => mVM_Type.Prefix(Prefix, __));
 		} else {
 			return aType;
 		}
@@ -1243,6 +1438,7 @@ mVM_Type {
 			__ = aIndent;
 			____ = __ + "  ";
 		}
+		
 		return aType.Kind switch {
 			tKind.Empty => "[]",
 			tKind.True => "§TRUE",
@@ -1250,7 +1446,8 @@ mVM_Type {
 			tKind.Int => "§INT",
 			tKind.Any => "§ANY",
 			tKind.Type => "§TYPE",
-			tKind.Free => "?" + aType.Id,
+			tKind.TypeVariable => "?" + aType.Id,
+			tKind.TypeApply => $"[{____}.{aType.Refs[0].ToText(____)} {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Prefix => $"[{____}#{aType.Prefix} {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Record => mStd.Call(
 				() => {
@@ -1302,9 +1499,10 @@ mVM_Type {
 			tKind.Ref => $"[{____}§REF {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
-			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
-			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
-			tKind.Interface => $"[{____}§LET {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Generic => $"[{____}§GENERIC {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Interface => $"[{____}§INTERFACE {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Sig => $"[{____}§SIG_WITH {aType.Refs[0]} € {aType.Refs[0].KindOf().ToText(____)} IN {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Cond => $"[{____ + aType.Refs[0].ToText(____)} ? ...{__}]", // TODO
 			_ => throw mError.Error("impossible")
 		};

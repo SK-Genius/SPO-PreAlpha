@@ -1,0 +1,31 @@
+Type inference is unidirectional and local.
+
+This makes it easier for programmers to follow.
+
+There is no spooky action at a distance and no propagation from the result type back to argument types.
+
+Result types follow from argument types.
+
+For HighOrderFunctions, argument functions receive the argument types from the HighOrderFunction as soon as they are available, allowing them to determine their result type.
+
+The result type flows back to the HighOrderFunction to provide argument types for the other argument functions, until all argument types of the HighOrderFunction are known and its result type can be determined, or type inference terminates with an error.
+
+This enables a simple implementation with a limited context.
+
+It is therefore simple type inference, not a "TypeSolver".
+
+At any time, programmers should also be able to determine the types themselves easily, using simple rules.
+
+It is known that TypeAnnotation as mutable state was a wrong decision. It should instead be an ImmutableMap in a Context that is passed through and updated.
+
+However, this is not currently the case and will not be refactored yet, as the impact appears too large.
+
+Type checking is intentionally performed at the SPO, IL, and VM opcode levels.
+
+At the SPO level, it provides feedback to the programmer.
+
+At the IL level, it provides security, safety, and robustness.
+
+At the VM opcode level, it is used to find implementation errors.
+
+Local Function have to be static.

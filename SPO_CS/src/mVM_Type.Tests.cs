@@ -40,42 +40,214 @@ mVM_Type_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mVM_Type),
 		[
-			mTest.Test("ApplyMappings uses free type instances",
+			mTest.Test("Inference uses type-variable identities",
 				aDebugStream => {
-					var Outer = mVM_Type.Free("t");
+					var Outer = mVM_Type.TypeVariable("t");
 					var Gen = mVM_Type.Generic(
-						mVM_Type.Free("t").Def(out var Bound),
+						mVM_Type.TypeVariable("t").Def(out var Bound),
 						mVM_Type.Proc(mVM_Type.Empty(), Outer, Bound)
 					);
 					
-					mAssert.IsFalse(ReferenceEquals(Outer, Bound));
+					mAssert.IsFalse(mStd.RefEq(Outer, Bound));
 					
 					var Mappings = mVM_Type.Int(
-					).IsSubType(
+					).IsSubTypeOf(
 						Outer,
-						mStd.cEmpty
+						mVM_Type.NewInferenceState().AddVar(Outer)
 					).AssertNotError(__ => __);
 					
 					Mappings = mVM_Type.False(
-					).IsSubType(
+					).IsSubTypeOf(
 						Bound,
-						Mappings
+						Mappings.AddVar(Bound)
 					).AssertNotError(__ => __);
 					
 					mAssert.AreEquals(
-						Gen.ApplyMappings(Mappings),
+						Gen.ApplyInference(Mappings),
 						mVM_Type.Generic(
 							Bound,
 							mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), Bound)
 						)
 					);
 					
-					var OtherBound = mVM_Type.Free("other");
+					var OtherBound = mVM_Type.TypeVariable("other");
 					
 					mVM_Type.Generic(Bound, Bound).IsSubType(
-						mVM_Type.Generic(OtherBound, OtherBound),
-						mStd.cEmpty
+						mVM_Type.Generic(OtherBound, OtherBound)
 					).AssertNotError(__ => __);
+				}
+			),
+			mTest.Test("ApplyInference resolves transitive solutions in any order",
+				aDebugStream => {
+					var Variable1 = mVM_Type.TypeVariable("variable1");
+					var Variable2 = mVM_Type.TypeVariable("variable2");
+					var Type = mVM_Type.Pair(Variable1, Variable2);
+					var Variable1ToVariable2 = (
+						Variable: Variable1,
+						Solution: mMaybe.Some(Variable2)
+					);
+					var Variable2ToInt = (
+						Variable: Variable2,
+						Solution: mMaybe.Some(mVM_Type.Int())
+					);
+					var Expected = mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int());
+					
+					mAssert.AreEquals(
+						Type.ApplyInference(
+							mStream.Stream(
+								[
+									Variable1ToVariable2,
+									Variable2ToInt,
+								]
+							)
+						),
+						Expected
+					);
+					mAssert.AreEquals(
+						Type.ApplyInference(
+							mStream.Stream(
+								Variable2ToInt,
+								Variable1ToVariable2
+							)
+						),
+						Expected
+					);
+				}
+			),
+			mTest.Test("Occurs check rejects infinite inference types",
+				aDebugStream => {
+					var Variable = mVM_Type.TypeVariable("inferred");
+					mAssert.IsFalse(
+						mVM_Type.Pair(Variable, mVM_Type.Int()).IsSubTypeOf(
+							Variable,
+							mVM_Type.NewInferenceState().AddVar(Variable)
+						).Match(out _, out _)
+					);
+				}
+			),
+			mTest.Test("Union alternatives are checked before rigid type variables",
+				aDebugStream => {
+					var Rigid = mVM_Type.TypeVariable("rigid");
+					var Inferred = mVM_Type.TypeVariable("inferred");
+					var Mappings = Rigid.IsSubTypeOf(
+						mVM_Type.Set(mVM_Type.Empty(), Inferred),
+						mVM_Type.NewInferenceState().AddVar(Inferred)
+					).AssertNotError(__ => __);
+					
+					mAssert.IsTrue(
+						Mappings.Any(
+							__ => mStd.RefEq(__.Variable, Inferred) && mStd.RefEq(__.Solution, Rigid)
+						)
+					);
+				}
+			),
+			mTest.Tests("Union",
+				mStream.Stream<(tText File, tInt32 LineNr, tText Type1, tText Type2, tText Expected)>(
+					[
+						(mStd.File(), mStd.LineNr(), "[]", "§INT", "[[] | §INT]"),
+						(mStd.File(), mStd.LineNr(), "§INT", "[]", "[§INT | []]"),
+						(mStd.File(), mStd.LineNr(), "[[] | §INT]", "§INT", "[[] | §INT]"),
+						(mStd.File(), mStd.LineNr(), "§INT", "[[] | §INT]", "[§INT | []]"),
+						(mStd.File(), mStd.LineNr(), "[[] | §INT]", "[]", "[§INT | []]"),
+						(mStd.File(), mStd.LineNr(), "[]", "[[] | §INT]", "[[] | §INT]"),
+					]
+				).Map(
+					a => mTest.Test(
+						$"[{a.Type1} | {a.Type2}] == {a.Expected}",
+						aDebugStream => {
+							static mVM_Type.tType
+							ParseInWrittenOrder(
+								tText aType,
+								mStd.tAction<tText> aDebugStream
+							) => mSPO_Parser.Type.ParseText(
+									aType,
+									"",
+									__ => aDebugStream(__())
+								).AsVM_Type(
+									mStd.cEmpty
+								).AssertNotError(
+									__ => __.ErrorText
+								);
+							
+							mAssert.AreEquals(
+								mVM_Type.Union(
+									ParseInWrittenOrder(a.Type1, aDebugStream),
+									ParseInWrittenOrder(a.Type2, aDebugStream)
+								),
+								ParseInWrittenOrder(a.Expected, aDebugStream)
+							);
+						},
+						a.File,
+						a.LineNr
+					)
+				).ToArrayList().ToArray()
+			),
+			mTest.Test("Pair subtyping distributes nested unions",
+				aDebugStream => {
+					var Type1 = mVM_Type.Empty();
+					var Type2 = mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int());
+					var Head = mVM_Type.True();
+					var PairWithUnion = mVM_Type.Pair(mVM_Type.Set(Type1, Type2), Head);
+					var UnionOfPairs = mVM_Type.Set(
+						mVM_Type.Pair(Type1, Head),
+						mVM_Type.Pair(Type2, Head)
+					);
+					
+					PairWithUnion.IsSubType(UnionOfPairs).AssertNotError(__ => __);
+					UnionOfPairs.IsSubType(PairWithUnion).AssertNotError(__ => __);
+				}
+			),
+			mTest.Test("Recursive subtyping is coinductive",
+				aDebugStream => {
+					var ListHead = mVM_Type.TypeVariable("List");
+					var List = mVM_Type.Recursive(
+						ListHead,
+						mVM_Type.Set(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(ListHead, mVM_Type.Int())
+						)
+					);
+					var List1Head = mVM_Type.TypeVariable("List1");
+					var List1 = mVM_Type.Recursive(
+						List1Head,
+						mVM_Type.Set(
+							mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()),
+							mVM_Type.Pair(List1Head, mVM_Type.Int())
+						)
+					);
+					
+					List1.IsSubType(List).AssertNotError(__ => __);
+					mAssert.IsFalse(List.IsSubType(List1).Match(out _, out _));
+					
+					var BoolListHead = mVM_Type.TypeVariable("BoolList");
+					var BoolList = mVM_Type.Recursive(
+						BoolListHead,
+						mVM_Type.Set(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(BoolListHead, mVM_Type.Bool())
+						)
+					);
+					mAssert.IsFalse(List1.IsSubType(BoolList).Match(out _, out _));
+				}
+			),
+			mTest.Test("Recursive types must be guarded",
+				aDebugStream => {
+					var Head = mVM_Type.TypeVariable("Unguarded");
+					var Recursive = mVM_Type.Recursive(Head, Head);
+					
+					mAssert.IsFalse(Recursive.IsSubType(mVM_Type.Int(), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(mVM_Type.Int().IsSubType(Recursive, mStd.cEmpty).Match(out _, out _));
+				}
+			),
+			mTest.Test("Sig contracts are alpha-equivalent",
+				aDebugStream => {
+					var ConstructorKind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					var F1 = mVM_Type.TypeVariable("F1", ConstructorKind);
+					var F2 = mVM_Type.TypeVariable("F2", ConstructorKind);
+					mAssert.AreEquals(
+						mVM_Type.Sig(F1, mVM_Type.TypeApply(F1, mVM_Type.Int())),
+						mVM_Type.Sig(F2, mVM_Type.TypeApply(F2, mVM_Type.Int()))
+					);
 				}
 			),
 			mTest.Tests("Pair projection",
@@ -135,7 +307,7 @@ mVM_Type_Tests {
 			),
 			mTest.Test("SplitBy expands recursive types",
 				aDebugStream => {
-					var Head = mVM_Type.Free("RecursiveSplit");
+					var Head = mVM_Type.TypeVariable("RecursiveSplit");
 					var Recursive = mVM_Type.Recursive(
 						Head,
 						mVM_Type.Set(
@@ -219,17 +391,17 @@ mVM_Type_Tests {
 						cTestScope
 					).AssertNotError(__ => __.ToText());
 					
-					Type.IsSubType(Type_, mStd.cEmpty)
+					Type.IsSubType(Type_)
 					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
 					
 					if (a.Expr is "§TRUE") {
 						mAssert.AreEquals(Type, mVM_Type.True());
-						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(Type_.IsSubType(Type).Match(out _, out _));
 					} else if (a.Expr is "§FALSE") {
 						mAssert.AreEquals(Type, mVM_Type.False());
-						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(Type_.IsSubType(Type).Match(out _, out _));
 					} else {
-						Type_.IsSubType(Type, mStd.cEmpty)
+						Type_.IsSubType(Type)
 						.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
 					}
 				},

@@ -1,0 +1,231 @@
+§IMPORT {
+	mMaybe: §SIG [
+		§SIG_WITH M € [§TYPE => §TYPE] IN [<
+			Some...: [§GENERIC t [t => [.M t]]]
+		>]
+	] WITH [§GENERIC t [t | []]] IN _
+}
+
+§DEF tResult... = [
+	§GENERIC tValue [
+		§GENERIC tError [#Value tValue | #Error tError]
+	]
+]
+
+§DEF OK... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	_ € tError
+	§DEF Value € tValue
+) => #Value Value
+
+§DEF Fail... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Error € tError
+	_ € tValue
+) => #Error Error
+
+§DEF ...>>... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tIn) tError]
+	§DEF OnValue... € [tIn => tOut]
+) => §IF Result MATCH {
+	(#Error §DEF Error): #Error Error
+	(#Value §DEF Value): #Value (.OnValue Value)
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tIn) tError]
+	§DEF OnValue... € [tIn => [.(.tResult tOut) tError]]
+) => §IF Result MATCH {
+	(#Error §DEF Error): #Error Error
+	(#Value §DEF Value): .OnValue Value
+}
+
+§DEF ...Or... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tValue) tError]
+	§DEF Fallback € tValue
+) => §IF Result MATCH {
+	(#Error _): Fallback
+	(#Value §DEF Value): Value
+}
+
+§DEF ...OrDo... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tValue) tError]
+	§DEF OnError... € [tError => tValue]
+) => §IF Result MATCH {
+	(#Error §DEF Error): .OnError Error
+	(#Value §DEF Value): Value
+}
+
+§DEF ...OrTry... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tValue) tError]
+	§DEF OnError... € [tError => [.(.tResult tValue) tError]]
+) => §IF Result MATCH {
+	(#Error §DEF Error): .OnError Error
+	(#Value _): Result
+}
+
+§DEF ...MapError... = (
+	§DEF tValue € §TYPE
+	§DEF tErrorIn € §TYPE
+	§DEF tErrorOut € §TYPE
+) <=> (
+	§DEF Result € [.(.tResult tValue) tErrorIn]
+	§DEF OnError... € [tErrorIn => tErrorOut]
+) => §IF Result MATCH {
+	(#Error §DEF Error): #Error (.OnError Error)
+	(#Value §DEF Value): #Value Value
+}
+
+§DEF ...Match... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	a € [.(.tResult tIn) tError]
+	{
+		OnOK: §DEF aOnOK... € [tIn => tOut]
+		OnFail: §DEF aOnFail... € [tError => tOut]
+	}
+) => §IF a MATCH {
+	(#Value §DEF Value): .aOnOK Value
+	(#Error §DEF Error): .aOnFail Error
+}
+
+§DEF ...OrFail... = (
+	§DEF tValue € §TYPE
+	§DEF tError € §TYPE
+) <=> (
+	§DEF Maybe € [tValue | []]
+	§DEF OnFail € [[] => tError]
+) => §IF Maybe MATCH {
+	(): #Error (.OnFail)
+	§DEF Value: #Value Value
+}
+
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
+		OK...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[tError, tValue] => [.(.F tValue) tError]
+				]
+			]
+		]
+		Fail...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[tError, tValue] => [.(.F tValue) tError]
+				]
+			]
+		]
+		...>>...: [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					§GENERIC tError [
+						[
+							[.(.F tIn) tError]
+							tIn => tOut
+						] => [.(.F tOut) tError]
+					]
+				]
+			]
+		]
+		...>>?...: [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					§GENERIC tError [
+						[
+							[.(.F tIn) tError]
+							tIn => [.(.F tOut) tError]
+						] => [.(.F tOut) tError]
+					]
+				]
+			]
+		]
+		...Or...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[.(.F tValue) tError]
+						tValue
+					] => tValue
+				]
+			]
+		]
+		...OrDo...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[.(.F tValue) tError]
+						tError => tValue
+					] => tValue
+				]
+			]
+		]
+		...OrTry...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[.(.F tValue) tError]
+						tError => [.(.F tValue) tError]
+					] => [.(.F tValue) tError]
+				]
+			]
+		]
+		...MapError...: [
+			§GENERIC tValue [
+				§GENERIC tErrorIn [
+					§GENERIC tErrorOut [
+						[
+							[.(.F tValue) tErrorIn]
+							tErrorIn => tErrorOut
+						] => [.(.F tValue) tErrorOut]
+					]
+				]
+			]
+		]
+		...OrFail...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[tValue | []]
+						[] => tError
+					] => [.(.F tValue) tError]
+				]
+			]
+		]
+	>]
+]
+
+§EXPORT §SIG Contract WITH tResult... IN {
+	OK...: OK...
+	Fail...: Fail...
+	...>>...: ...>>...
+	...>>?...: ...>>?...
+	...Or...: ...Or...
+	...OrDo...: ...OrDo...
+	...OrTry...: ...OrTry...
+	...MapError...: ...MapError...
+	...OrFail...: ...OrFail...
+}

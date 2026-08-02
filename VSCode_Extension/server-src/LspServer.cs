@@ -68,6 +68,10 @@ LspServer {
 						writer.WriteEndObject();
 						writer.WriteEndObject();
 						writer.WriteBoolean("definitionProvider", true);
+						writer.WriteBoolean("referencesProvider", true);
+						writer.WriteStartObject("renameProvider");
+						writer.WriteBoolean("prepareProvider", true);
+						writer.WriteEndObject();
 						writer.WriteBoolean("documentSymbolProvider", true);
 						writer.WriteEndObject();
 						writer.WriteStartObject("serverInfo");
@@ -108,6 +112,18 @@ LspServer {
 			}
 			case "textDocument/definition": {
 				this.HandleDefinition(message, id);
+				return false;
+			}
+			case "textDocument/references": {
+				this.HandleReferences(message, id);
+				return false;
+			}
+			case "textDocument/prepareRename": {
+				this.HandlePrepareRename(message, id);
+				return false;
+			}
+			case "textDocument/rename": {
+				this.HandleRename(message, id);
 				return false;
 			}
 			case "textDocument/documentSymbol": {
@@ -208,17 +224,11 @@ LspServer {
 		JsonElement message,
 		JsonElement? id
 	) {
-		if (
-			!message.TryGetProperty("params", out var paramsProperty) ||
-			!paramsProperty.TryGetProperty("textDocument", out var textDocument) ||
-			!paramsProperty.TryGetProperty("position", out var position)
-		) {
+		if (!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out _)) {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-		
-		var uri = GetRequiredString(textDocument, "uri");
-		var text = this.Documents.GetValueOrDefault(uri, "");
+
 		var location = this.LanguageService.GetDefinition(
 			uri,
 			text,
@@ -231,13 +241,7 @@ LspServer {
 			return;
 		}
 
-		this.WriteResult(id, writer => {
-			writer.WriteStartObject();
-			writer.WriteString("uri", location.Uri);
-			writer.WritePropertyName("range");
-			WriteRange(writer, location.Range);
-			writer.WriteEndObject();
-		});
+		this.WriteResult(id, writer => WriteLocation(writer, location));
 	}
 	
 	private void
@@ -265,6 +269,110 @@ LspServer {
 				WriteDocumentSymbol(writer, symbol);
 			}
 			writer.WriteEndArray();
+		});
+	}
+
+	private void
+	HandleReferences(
+		JsonElement message,
+		JsonElement? id
+	) {
+		if (!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out var paramsProperty)) {
+			this.WriteResult(id, writer => {
+				writer.WriteStartArray();
+				writer.WriteEndArray();
+			});
+			return;
+		}
+
+		var includeDeclaration = !paramsProperty.TryGetProperty("context", out var context) ||
+			!context.TryGetProperty("includeDeclaration", out var include) ||
+			include.ValueKind != JsonValueKind.False;
+		var locations = this.LanguageService.GetReferences(
+			uri,
+			text,
+			GetRequiredInt(position, "line"),
+			GetRequiredInt(position, "character"),
+			includeDeclaration
+		);
+		this.WriteResult(id, writer => {
+			writer.WriteStartArray();
+			foreach (var location in locations) {
+				WriteLocation(writer, location);
+			}
+			writer.WriteEndArray();
+		});
+	}
+
+	private void
+	HandlePrepareRename(
+		JsonElement message,
+		JsonElement? id
+	) {
+		if (!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out _)) {
+			this.WriteResult(id, writeResult: null);
+			return;
+		}
+
+		var target = this.LanguageService.PrepareRename(
+			uri,
+			text,
+			GetRequiredInt(position, "line"),
+			GetRequiredInt(position, "character")
+		);
+		if (target is null) {
+			this.WriteResult(id, writeResult: null);
+			return;
+		}
+
+		this.WriteResult(id, writer => {
+			writer.WriteStartObject();
+			writer.WritePropertyName("range");
+			WriteRange(writer, target.Range);
+			writer.WriteString("placeholder", target.Placeholder);
+			writer.WriteEndObject();
+		});
+	}
+
+	private void
+	HandleRename(
+		JsonElement message,
+		JsonElement? id
+	) {
+		if (
+			!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out var paramsProperty) ||
+			!paramsProperty.TryGetProperty("newName", out var newNameProperty)
+		) {
+			this.WriteResult(id, writeResult: null);
+			return;
+		}
+
+		var edits = this.LanguageService.Rename(
+			uri,
+			text,
+			GetRequiredInt(position, "line"),
+			GetRequiredInt(position, "character"),
+			newNameProperty.GetString() ?? ""
+		);
+		if (edits is null) {
+			this.WriteResult(id, writeResult: null);
+			return;
+		}
+
+		this.WriteResult(id, writer => {
+			writer.WriteStartObject();
+			writer.WriteStartObject("changes");
+			writer.WriteStartArray(uri);
+			foreach (var edit in edits) {
+				writer.WriteStartObject();
+				writer.WritePropertyName("range");
+				WriteRange(writer, edit.Range);
+				writer.WriteString("newText", edit.NewText);
+				writer.WriteEndObject();
+			}
+			writer.WriteEndArray();
+			writer.WriteEndObject();
+			writer.WriteEndObject();
 		});
 	}
 	
@@ -461,6 +569,30 @@ LspServer {
 		value.TryGetInt32(out var result)
 		? result
 		: 0;
+
+	private tBool
+	TryGetTextDocumentPosition(
+		JsonElement message,
+		out tText uri,
+		out tText text,
+		out JsonElement position,
+		out JsonElement paramsProperty
+	) {
+		if (
+			message.TryGetProperty("params", out paramsProperty) &&
+			paramsProperty.TryGetProperty("textDocument", out var textDocument) &&
+			paramsProperty.TryGetProperty("position", out position)
+		) {
+			uri = GetRequiredString(textDocument, "uri");
+			text = this.Documents.GetValueOrDefault(uri, "");
+			return true;
+		}
+
+		uri = "";
+		text = "";
+		position = default;
+		return false;
+	}
 	
 	private static void
 	WriteDocumentSymbol(
@@ -480,6 +612,18 @@ LspServer {
 			WriteDocumentSymbol(writer, child);
 		}
 		writer.WriteEndArray();
+		writer.WriteEndObject();
+	}
+
+	private static void
+	WriteLocation(
+		Utf8JsonWriter writer,
+		SpoLocation location
+	) {
+		writer.WriteStartObject();
+		writer.WriteString("uri", location.Uri);
+		writer.WritePropertyName("range");
+		WriteRange(writer, location.Range);
 		writer.WriteEndObject();
 	}
 	

@@ -1,0 +1,144 @@
+§IMPORT {
+	mMaybe: §SIG [
+		§SIG_WITH M € [§TYPE => §TYPE] IN [<
+			Some...: [§GENERIC t [t => [.M t]]]
+			None...: [§GENERIC t [t => [.M t]]]
+		>]
+	] WITH [§GENERIC t [t | []]] IN {
+		Some...: §DEF Some...
+		None...: §DEF None...
+	}
+	mResult: §SIG [
+		§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
+			OK...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[tError, tValue] => [.(.F tError) tValue]
+					]
+				]
+			]
+			Fail...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[tError, tValue] => [.(.F tError) tValue]
+					]
+				]
+			]
+			...>>...: [
+				§GENERIC tError [
+					§GENERIC tIn [
+						§GENERIC tOut [
+							[
+								[.(.F tError) tIn]
+								tIn => tOut
+							] => [.(.F tError) tOut]
+						]
+					]
+				]
+			]
+			...>>?...: [
+				§GENERIC tError [
+					§GENERIC tIn [
+						§GENERIC tOut [
+							[
+								[.(.F tError) tIn]
+								tIn => [.(.F tError) tOut]
+							] => [.(.F tError) tOut]
+						]
+					]
+				]
+			]
+			...Or...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[
+							[.(.F tError) tValue]
+							tValue
+						] => tValue
+					]
+				]
+			]
+			...OrDo...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[
+							[.(.F tError) tValue]
+							tError => tValue
+						] => tValue
+					]
+				]
+			]
+			...OrTry...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[
+							[.(.F tError) tValue]
+							tError => [.(.F tError) tValue]
+						] => [.(.F tError) tValue]
+					]
+				]
+			]
+			...MapError...: [
+				§GENERIC tErrorIn [
+					§GENERIC tErrorOut [
+						§GENERIC tValue [
+							[
+								[.(.F tErrorIn) tValue]
+								tErrorIn => tErrorOut
+							] => [.(.F tErrorOut) tValue]
+						]
+					]
+				]
+			]
+			...OrFail...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[
+							[tValue | []]
+							[] => tError
+						] => [.(.F tError) tValue]
+					]
+				]
+			]
+		>]
+	] WITH §DEF F € [§TYPE => [§TYPE => §TYPE]] IN {
+		OK...: §DEF OK...
+		Fail...: §DEF Fail...
+		...>>...: §DEF ...>>...
+		...>>?...: §DEF ...>>?...
+		...Or...: §DEF ...Or...
+		...OrDo...: §DEF ...OrDo...
+		...OrTry...: §DEF ...OrTry...
+		...MapError...: §DEF ...MapError...
+		...OrFail...: §DEF ...OrFail...
+	}
+}
+
+§DEF Good € [.(.F §INT) §INT] = .OK (0, 1)
+§DEF Bad € [.(.F §INT) §INT] = .Fail (2, 0)
+§DEF Zero € §INT = 0
+§DEF Two € §INT = 2
+§DEF Three € §INT = 3
+§DEF ToTrue = §DEF _ € §INT => §TRUE
+§DEF ToFalse = §DEF _ € §INT => §FALSE
+§DEF ErrorToZero = §DEF _ € §INT => Zero
+§DEF ErrorToTwo = §DEF _ € §INT => Two
+§DEF ErrorToFalse € [§INT => §BOOL] = §DEF _ € §INT => §FALSE
+§DEF BoolToThree = §DEF _ € §BOOL => Three
+§DEF SomeEight € [§INT | []] = .Some 8
+§DEF NoneInt € [§INT | []] = .None 0
+§DEF Four € §INT = 4
+§DEF MakeFour € [[] => §INT] = () => Four
+§DEF ErrorValue = §DEF Error € §INT => Error
+
+§EXPORT (
+	Good §>.>> ToTrue §>.Or §TRUE
+	Bad §>.>> ToFalse §>.Or §FALSE
+	Good .Or Zero
+	Bad .Or Zero
+	Good .OrDo ErrorToZero
+	Bad .OrDo ErrorToTwo
+	Bad §>.MapError ErrorToFalse §>.OrDo BoolToThree
+	SomeEight §>.OrFail MakeFour §>.Or Zero
+	NoneInt §>.OrFail MakeFour §>.OrDo ErrorValue
+)

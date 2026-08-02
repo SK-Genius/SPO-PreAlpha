@@ -45,7 +45,7 @@ mArenaRef {
 		}
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		public unsafe t
+		public t
 		DeRef(
 			mArena.tArena aArena
 		) {

@@ -47,8 +47,8 @@ mStream {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public override readonly tBool
 		Equals(
-			tUnknown a
-		) => this.Equals((tStream<t>)a);
+			tUnknown? a
+		) => a is not null && this.Equals((tStream<t>)a);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public static
@@ -130,7 +130,7 @@ mStream {
 	Stream<t>(
 		t aHead,
 		tStream<t> aTail
-	) => new tStream<t>(
+	) => new (
 		aHead,
 		aTail
 	);
@@ -478,17 +478,11 @@ mStream {
 		public tStream<t>
 		Every(
 			tNat32 aCount
-		) {
-			if (aCount is 0) {
-				return mStd.cEmpty;
-			}
-			
-			return (
-				aStream.Is(out var Head, out var Tail)
-				? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount))
-				: mStd.cEmpty
-			);
-		}
+		) => (
+			aCount is 0 ? mStd.cEmpty :
+			aStream.Is(out var Head, out var Tail) ? Stream(Head, () => Tail.Skip(aCount - 1).Every(aCount)) :
+			mStd.cEmpty
+		);
 		
 		[Pure, DebuggerHidden]
 		public tStream<t>

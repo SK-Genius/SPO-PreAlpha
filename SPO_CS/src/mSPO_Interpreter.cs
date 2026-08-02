@@ -37,12 +37,11 @@ mSPO_Interpreter {
 			return mResult.Fail(Error.ToText());
 		}
 		
-		var TypeArg = mVM_Type.Free();
+		var TypeArg = mVM_Type.TypeVariable();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
-			mSPO_AST_Types.tTypeRelation.Sub,
 			mStream.Stream(
 				mSPO_AST_Types.ScopeItem(
 					"_=...",
@@ -117,7 +116,6 @@ mSPO_Interpreter {
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
-			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty
 		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
 		
@@ -133,7 +131,7 @@ mSPO_Interpreter {
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');
 		
-		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
+		var Map = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var TypeIndex = 0u;
 		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
 			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
@@ -156,16 +154,27 @@ mSPO_Interpreter {
 				)
 			);
 			
-			SB.Append("\t" + TypeCommand_.ToText()).Append('\n');
+			SB.Append('\t').Append(TypeCommand_.ToText()).Append('\n');
 			TypeIndex += 1;
 		}
 		
 		foreach (var (TypeId, Commands) in Module.Defs.ToStream()) {
-			SB.Append('\n');
-			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
+			SB.Append(
+				'\n'
+			).Append(
+				$"§DEF {
+					mSPO2IL.GetDefId(DefIndex)
+				} € {
+					mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))
+				}"
+			).Append(
+				'\n'
+			);
+			
 			foreach (var Cmd in Commands.ToStream()) {
-				SB.Append("\t" + Cmd.ToText()).Append('\n');
+				SB.Append('\t').Append(Cmd.ToText()).Append('\n');
 			}
+			
 			DefIndex += 1;
 		}
 		

@@ -899,7 +899,6 @@ mSPO2IL_Tests {
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 						ModuleNode.Import.Pattern,
 						mStd.cEmpty,
-						mSPO_AST_Types.tTypeRelation.Sub,
 						mStd.cEmpty
 					).Then(
 						__ => __.Scope
@@ -1099,7 +1098,6 @@ mSPO2IL_Tests {
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 						ModuleNode.Import.Pattern,
 						mStd.cEmpty,
-						mSPO_AST_Types.tTypeRelation.Sub,
 						mStd.cEmpty
 					).Then(
 						__ => __.Scope

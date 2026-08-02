@@ -196,7 +196,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		var TypeArg = mVM_Type.Free();
+		var TypeArg = mVM_Type.TypeVariable();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,

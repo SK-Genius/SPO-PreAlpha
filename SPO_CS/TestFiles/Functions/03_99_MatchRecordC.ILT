@@ -10,7 +10,7 @@
 	t_8 := [{EMPTY_TYPE} + t_7]
 	t_9 := [#_Second INT]
 	t_10 := [{t_8} + t_9]
-	t_11 := [TRUE | FALSE]
+	t_11 := [FALSE | TRUE]
 	t_12 := [t_10 => t_11]
 	t_13 := [EMPTY_TYPE => t_12]
 	t_14 := [#_First INT]

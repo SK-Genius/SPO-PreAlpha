@@ -148,61 +148,65 @@ mModule_Tests {
 			),
 			mTest.Test("Maybe",
 				aDebugStream => {
-					var Module_Maybe = mModule.Module_Maybe.Init(
+					var TestFolder = mFS.CWD() / "TestFiles" / "Modules";
+					var ConsumerFile = TestFolder.GetFile("MaybeConsumer.SPO");
+					var ExpectedFile = TestFolder.GetFile("MaybeConsumer.result.SPO");
+					var Modules = mModule.Modules.Init(
 						aDebugStream
 					).ElseThrow(
 					);
 					
+					var Expected = mSPO_Interpreter.Run(
+						ExpectedFile.TryReadText().ElseThrow(),
+						(TestFolder._Path / ExpectedFile.Name).ToText(),
+						(mVM_Data.Empty(), mVM_Type.Empty()),
+						__ => aDebugStream(__())
+					).ElseThrow();
+
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
-							"""
-							§IMPORT {
-								tMaybe...: §DEF tMaybe... € [§TYPE => §TYPE]
-								...>>...: §DEF ...>>... € [
-									§GENERIC tIn [
-										§GENERIC tOut [
-											[
-												.tMaybe tIn
-												tIn => tOut
-											] => [.tMaybe tOut]
-										]
-									]
-								]
-								...Or...: §DEF ...Or... € [
-									§GENERIC t [
-										[
-											t | []
-											t
-										] => t
-									]
-								]
-							}
-							
-							§DEF X € [§INT | []] = 1
-							§DEF Y € [§INT | []] = ()
-							
-							§EXPORT (
-								X §>.>> (§DEF a € [§INT | []] => §TRUE) §>.Or §FALSE
-								Y §>.>> (§DEF a € [§INT | []] => §TRUE) §>.Or §FALSE
-								X .Or 0
-								Y .Or 0
-							)
-							""",
-							"",
-							(Module_Maybe.Data, Module_Maybe.Type),
+							ConsumerFile.TryReadText().ElseThrow(),
+							(TestFolder._Path / ConsumerFile.Name).ToText(),
+							(Modules.Data, Modules.Type),
 							__ => aDebugStream(__())
 						).Then(
 							__ => __.Data
 						).ElseThrow(
 						),
-						mVM_Data.Tuple(
-							[
-								mVM_Data.Bool(true),
-								mVM_Data.Bool(false),
-								mVM_Data.Int(1),
-								mVM_Data.Int(0),
-							]
+						Expected.Data,
+						default,
+						__ => __.ToText(20)
+					);
+				}
+			),
+			mTest.Test("Result",
+				aDebugStream => {
+					var TestFolder = mFS.CWD() / "TestFiles" / "Modules";
+					var ConsumerFile = TestFolder.GetFile("ResultConsumer.SPO");
+					var ExpectedFile = TestFolder.GetFile("ResultConsumer.result.SPO");
+					var Modules = mModule.Modules.Init(
+						aDebugStream
+					).ElseThrow(
+					);
+
+					var Expected = mSPO_Interpreter.Run(
+						ExpectedFile.TryReadText().ElseThrow(),
+						(TestFolder._Path / ExpectedFile.Name).ToText(),
+						(mVM_Data.Empty(), mVM_Type.Empty()),
+						__ => aDebugStream(__())
+					).ElseThrow();
+
+					mAssert.AreEquals(
+						mSPO_Interpreter.Run(
+							ConsumerFile.TryReadText().ElseThrow(),
+							(TestFolder._Path / ConsumerFile.Name).ToText(),
+							(Modules.Data, Modules.Type),
+							__ => aDebugStream(__())
+						).Then(
+							__ => __.Data
+						).ElseThrow(
 						),
+						Expected.Data,
 						default,
 						__ => __.ToText(20)
 					);
