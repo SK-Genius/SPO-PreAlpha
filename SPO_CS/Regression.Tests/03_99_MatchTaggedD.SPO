@@ -1,0 +1,8 @@
+§DEF value = #Box ((), 7)
+
+§DEF result = §IF {
+                value §IS (#Box ((), _)) : 1
+                §TRUE : 0
+}
+
+§EXPORT result

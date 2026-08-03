@@ -1,0 +1,8 @@
+§DEF value = {First: 0, Second: 5}
+
+§DEF result = §IF value MATCH {
+                {First: 0, Second: §DEF number} : number
+                {First: §DEF other, Second: _} : other
+}
+
+§EXPORT result

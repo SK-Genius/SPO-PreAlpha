@@ -1,0 +1,8 @@
+§DEF value = #Box (0, 5)
+
+§DEF result = §IF value MATCH {
+                (#Box (0, §DEF number)) : number
+                (#Box (§DEF other, _)) : other
+}
+
+§EXPORT result
