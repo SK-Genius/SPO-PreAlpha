@@ -770,33 +770,38 @@ mSPO2IL {
 				); // TODO: ASSERT FALSE
 				
 				var ResultReg = aDefConstructor.CreateTempReg();
-				
+				var ResultType = aExpressionNode.TypeAnnotation.AssertNotEmpty();
+				var ArgumentType = mVM_Type.Empty();
+				var Lambda = mSPO_AST.Lambda(
+					Pos,
+					mStd.cEmpty,
+					mSPO_AST.Pattern(
+						Pos,
+						mSPO_AST.WithTypeAnnotation(mSPO_AST.Empty(Pos), ArgumentType),
+						mStd.cEmpty,
+						ArgumentType
+					),
+					mSPO_AST.Block(Pos, Ifs.ToStream(), ResultType),
+					mVM_Type.Proc(mVM_Type.Empty(), ArgumentType, ResultType)
+				);
 				var Def = mSPO_AST.Def(
 					Pos,
 					mSPO_AST.Pattern(
 						Pos,
-						new mSPO_AST.tFreeIdPatternNode<tPos> { Id = ResultReg },
-						mStd.cEmpty
+						new mSPO_AST.tFreeIdPatternNode<tPos> {
+							Id = ResultReg,
+							Pos = Pos,
+							NamePos = Pos,
+							TypeAnnotation = ResultType,
+						},
+						mStd.cEmpty,
+						ResultType
 					),
-					mSPO_AST.Call(
-						Pos,
-						mSPO_AST.Lambda(
-							Pos,
-							mStd.cEmpty,
-							mSPO_AST.Pattern(
-								Pos,
-								mSPO_AST.Empty(Pos),
-								mStd.cEmpty
-							),
-							mSPO_AST.Block(Pos, Ifs.ToStream())
-						),
-						mSPO_AST.Empty(Pos)
-					)
+					mSPO_AST.Call(Pos, Lambda, mSPO_AST.Empty(Pos), ResultType)
 				);
 				
 				return (
-					mSPO_AST_Types.UpdateCommandTypes(Def, mStd.cEmpty).Match(out _, out var Error) &&
-					aDefConstructor.MapCommand(aModuleConstructor, Def, out Error)
+					aDefConstructor.MapCommand(aModuleConstructor, Def, out var Error)
 					? ResultReg
 					: mResult.Fail(Error)
 				);

@@ -10,8 +10,45 @@
 #:ref Common/mMaybe.cs
 #:ref Common/mTreeMap.cs
 
+using tInferenceState = mStream.tStream<(mVM_Type.tType Variable, mMaybe.tMaybe<mVM_Type.tType> Solution)>;
+
 public static class
 mVM_Type {
+	public static tInferenceState
+	NewInferenceState(
+	) => mStd.cEmpty;
+	
+	public static tInferenceState
+	AddVar(
+		this tInferenceState aInferenceState,
+		tType aVariable
+	) {
+		mAssert.IsTrue(aVariable.IsTypeVariable(out _, out _));
+		return aInferenceState.Any(__ => mStd.RefEq(__.Variable, aVariable))
+		? aInferenceState
+		: mStream.Stream(
+			(Variable: aVariable, Solution: mMaybe.None<tType>()),
+			aInferenceState
+		);
+	}
+	
+	public static mMaybe.tMaybe<tType>
+	TryGetSolution(
+		this tInferenceState aInferenceState,
+		tType aVariable
+	) => aInferenceState.Where(
+		__ => mStd.RefEq(__.Variable, aVariable)
+	).TryFirst(
+	).ThenTry(
+		__ => __.Solution
+	);
+	
+	public static tBool
+	IsRegistered(
+		this tInferenceState aInferenceState,
+		tType aVariable
+	) => aInferenceState.Any(__ => mStd.RefEq(__.Variable, aVariable));
+	
 	public enum
 	tKind {
 		TypeVariable,
@@ -69,6 +106,15 @@ mVM_Type {
 				return false;
 			}
 			
+			if (a1.Kind is tKind.Set && a2.Kind is tKind.Set) {
+				var Alternatives1 = mStream.Stream<tType>().AddUnionAlternatives(a1);
+				var Alternatives2 = mStream.Stream<tType>().AddUnionAlternatives(a2);
+				return Alternatives1.Count() == Alternatives2.Count() &&
+					Alternatives1.All(
+						a1 => Alternatives2.Any(a2 => a1 == a2)
+					);
+			}
+			
 			if (
 				a1.Kind != a2.Kind ||
 				a1.Id != a2.Id ||
@@ -121,6 +167,24 @@ mVM_Type {
 		public override tText
 		ToString(
 		) => this.ToText();
+	}
+	
+	private static mStream.tStream<tType>
+	AddUnionAlternatives(
+		this mStream.tStream<tType> aAlternatives,
+		tType aType
+	) {
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			return aAlternatives
+			.AddUnionAlternatives(Type1)
+			.AddUnionAlternatives(Type2);
+		}
+		
+		return (
+			aAlternatives.Any(__ => __ == aType)
+			? aAlternatives
+			: mStream.Stream(aType, aAlternatives)
+		);
 	}
 	
 	public static readonly tText? cUnknownPrefix = null; // TODO
@@ -216,12 +280,43 @@ mVM_Type {
 		this tType aType,
 		tInferenceState aInferenceState
 	) {
-		foreach (var (Variable, Solution) in aMappings) {
-			mAssert.IsTrue(Variable.IsTypeVariable(out _, out _));
-			aType = aType.Substitute(Variable, Solution);
+		static tType
+		Apply(
+			tType aCurrent,
+			tInferenceState aInferenceState,
+			mStream.tStream<tType> aResolving
+		) {
+			foreach (var (Variable, OptionalSolution) in aInferenceState) {
+				mAssert.IsTrue(Variable.IsTypeVariable(out _, out _));
+				if (
+					OptionalSolution.IsSome(out var Solution) &&
+					aCurrent.ContainsVariable(Variable) &&
+					!aResolving.Any(__ => mStd.RefEq(__, Variable))
+				) {
+					aCurrent = aCurrent.Substitute(
+						Variable,
+						Apply(
+							Solution,
+							aInferenceState,
+							mStream.Stream(Variable, aResolving)
+						)
+					);
+				}
+			}
+			return aCurrent;
 		}
-		
-		return aType;
+		return Apply(aType, aInferenceState, mStd.cEmpty);
+	}
+	
+	public static tBool
+	HasUnresolved(
+		this tInferenceState aInferenceState,
+		tType aType
+	) {
+		var Type = aType.ApplyInference(aInferenceState);
+		return aInferenceState.Any(
+			__ => __.Solution.IsNone() && Type.ContainsVariable(__.Variable)
+		);
 	}
 	
 	public static tType
@@ -735,10 +830,58 @@ mVM_Type {
 	Recursive(
 		tType aTypeHead,
 		tType aTypeBody
-	) => new() {
-		Kind = tKind.Recursive,
-		Refs = [aTypeHead, aTypeBody],
-	};
+	) {
+		mAssert.IsTrue(aTypeHead.Kind is tKind.TypeVariable);
+		
+		static tBool
+		IsGuarded(
+			tType aType,
+			tType aTypeHead,
+			tBool aGuarded
+		) {
+			if (aType.Kind is tKind.TypeVariable) {
+				return !mStd.RefEq(aType, aTypeHead) || aGuarded;
+			} else if (aType.Kind is tKind.TypeApply) {
+				mAssert.IsTrue(aType.IsTypeApply(out var Constructor, out var Argument));
+				return (
+					Constructor.IsGeneric(out var Parameter, out var Definition)
+					? IsGuarded(Definition.Substitute(Parameter, Argument), aTypeHead, aGuarded)
+					: IsGuarded(Constructor, aTypeHead, aGuarded) &&
+						IsGuarded(Argument, aTypeHead, aGuarded)
+				);
+			} else if (aType.Kind is tKind.Recursive or tKind.Generic or tKind.Interface or tKind.Sig) {
+				return (
+					mStd.RefEq(aType.Refs[0], aTypeHead) ||
+					IsGuarded(aType.Refs[1], aTypeHead, aGuarded)
+				);
+			} else {
+				var ChildrenAreGuarded = (
+					aGuarded ||
+					aType.Kind is tKind.Record or tKind.Pair or tKind.Prefix or tKind.Proc
+				);
+				
+				return (
+					aType.Kind is tKind.Record
+					? aType.Fields.ToStream().All(
+						__ => IsGuarded(__.Value, aTypeHead, ChildrenAreGuarded)
+					)
+					: mStream.Stream(aType.Refs).All(
+						__ => IsGuarded(__, aTypeHead, ChildrenAreGuarded)
+					)
+				);
+			}
+		}
+		
+		mAssert.IsTrue(
+			IsGuarded(aTypeBody, aTypeHead, false),
+			() => $"recursive type variable '{aTypeHead.ToText()}' is not guarded by a type constructor"
+		);
+		
+		return new() {
+			Kind = tKind.Recursive,
+			Refs = [aTypeHead, aTypeBody],
+		};
+	}
 	
 	public static tBool
 	IsRecursive(
@@ -845,48 +988,35 @@ mVM_Type {
 		}
 	}
 	
-	public static mStream.tStream<(tType Variable, tType Solution)>
-	InferenceVariables(
-		this tType aType
-	) {
-		static mStream.tStream<tType>
-		Collect(
-			tType aType,
-			mStream.tStream<tType> aBound
-		) {
-			if (aType.Kind is tKind.TypeVariable) {
-				return aBound.Any(__ => mStd.RefEq(__, aType))
-				? mStd.cEmpty
-				: mStream.Stream(aType);
-			}
-			if (aType.Kind is tKind.Record) {
-				return aType.Fields.ToStream().Map(__ => Collect(__.Value, aBound)).Reduce(
-					mStream.Stream<tType>(),
-					(a1, a2) => mStream.Concat(a1, a2)
-				);
-			}
-			if (aType.Kind is tKind.Recursive or tKind.Generic or tKind.Interface or tKind.Sig) {
-				var Bound = mStream.Stream(aType.Refs[0], aBound);
-				return mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)[1..])
-				.Map(__ => Collect(__, Bound)).Reduce(
-					mStream.Stream<tType>(),
-					(a1, a2) => mStream.Concat(a1, a2)
-				);
-			}
-			return mStream.Stream(aType.Refs).Map(__ => Collect(__, aBound)).Reduce(
-				mStream.Stream<tType>(),
-				(a1, a2) => mStream.Concat(a1, a2)
-			);
-		}
-		
-		return Collect(aType, mStd.cEmpty).Map(__ => (Variable: __, Solution: __));
-	}
-	
 	public static mResult.tResult<tInferenceState, tText>
 	IsSubType(
 		this tType aSubType,
+		tType aSupType
+	) => IsSubTypeOf(
+		aSubType,
+		aSupType,
+		NewInferenceState(),
+		mStream.Stream<(tType SubType, tType SupType)>()
+	);
+	
+	public static mResult.tResult<tInferenceState, tText>
+	IsSubTypeOf(
+		this tType aSubType,
 		tType aSupType,
 		tInferenceState aInferenceState
+	) => IsSubTypeOf(
+		aSubType,
+		aSupType,
+		aInferenceState,
+		mStream.Stream<(tType SubType, tType SupType)>()
+	);
+	
+	private static mResult.tResult<tInferenceState, tText>
+	IsSubTypeOf(
+		this tType aSubType,
+		tType aSupType,
+		tInferenceState aInferenceState,
+		mStream.tStream<(tType SubType, tType SupType)> aRecursiveAssumptions
 	) {
 		static mResult.tResult<tInferenceState, tText>
 		Solve(
@@ -909,16 +1039,13 @@ mVM_Type {
 				return mResult.Fail(
 					$"occurs check failed for '{aVariable.ToText()}' in '{aSolution.ToText()}'"
 				);
-			}
-			if (!mStd.RefEq(Entry.Solution, aVariable)) {
-				if (aSolution.IsSubType(Entry.Solution, aInference).Match(out var RefinedInference, out _)) {
-					return RefinedInference;
-				}
-				
+			} else if (Entry.Solution.IsSome(out var ExistingSolution)) {
+				var Existing = ExistingSolution.ApplyInference(aCurrent);
+				var Solution = aSolution.ApplyInference(aCurrent);
 				var WiderSolution = (
-					Entry.Solution.IsSubType(aSolution, aInference).Match(out _, out _)
-					? aSolution
-					: Union(Entry.Solution, aSolution)
+					Solution.IsSubType(Existing).Match(out _, out _) ? Existing :
+					Existing.IsSubType(Solution).Match(out _, out _) ? Solution :
+					Union(Existing, Solution)
 				);
 				
 				return mStream.Stream(
@@ -935,58 +1062,220 @@ mVM_Type {
 					)
 				);
 			}
-			
-			return (
-				!aSolution.KindOf().IsSubType(aVariable.KindOf(), mStd.cEmpty).Match(out _, out var KindError)
-				? mResult.Fail(KindError)
-				: mStream.Stream((aVariable, aSolution), aInference)
+		}
+		
+		static mMaybe.tMaybe<(tType Type1, tType Type2)>
+		SplitFirstNestedUnion(
+			// Value constructors distribute over unions. Split one nested choice at a time so
+			// subtype checks never have to materialize their full Cartesian product.
+			tType aType
+		) {
+			static mMaybe.tMaybe<(tType Type1, tType Type2)>
+			Split(
+				tType aChild
+			) => (
+				aChild.IsSet(out var Type1, out var Type2)
+				? (Type1, Type2)
+				: SplitFirstNestedUnion(aChild)
 			);
+			
+			if (aType.IsPair(out var First, out var Second)) {
+				if (Split(First).IsSome(out var SplitFirst)) {
+					return (Pair(SplitFirst.Type1, Second), Pair(SplitFirst.Type2, Second));
+				}
+				
+				if (Split(Second).IsSome(out var SplitSecond)) {
+					return (Pair(First, SplitSecond.Type1), Pair(First, SplitSecond.Type2));
+				}
+			}
+			
+			if (aType.IsPrefix(out var Prefix_, out var Inner)) {
+				if (Split(Inner).IsSome(out var SplitInner)) {
+					return (Prefix(Prefix_, SplitInner.Type1), Prefix(Prefix_, SplitInner.Type2));
+				}
+			}
+			
+			return mStd.cEmpty;
+		}
+		
+		static mResult.tResult<tInferenceState, tText>
+		Merge(
+			tInferenceState aLeft,
+			tInferenceState aRight,
+			tInferenceState aInitial
+		) {
+			static tBool
+			IsUnchanged(
+				mMaybe.tMaybe<tType> aSolution,
+				mMaybe.tMaybe<tType> aInitialSolution
+			) => (
+				!aInitialSolution.IsSome(out var Initial)
+				? aSolution.IsNone()
+				: aSolution.IsSome(out var Solution) && Solution == Initial
+			);
+			
+			var Result = aInitial;
+			foreach (var Entry in aInitial) {
+				var Left = aLeft.Where(
+					__ => mStd.RefEq(__.Variable, Entry.Variable)
+				).TryFirst(
+				).AssertNotEmpty(
+				).Solution;
+				
+				var Right = aRight.Where(
+					__ => mStd.RefEq(__.Variable, Entry.Variable)
+				).TryFirst(
+				).AssertNotEmpty(
+				).Solution;
+				
+				if (
+					IsUnchanged(Left, Entry.Solution) ||
+					IsUnchanged(Right, Entry.Solution)
+				) {
+					continue;
+				}
+				
+				foreach (var Solution in mStream.Stream(Left, Right)) {
+					if (
+						Solution.IsSome(out var Type) &&
+						!Solve(Result, Entry.Variable, Type).Match(out Result, out var Error)
+					) {
+						return mResult.Fail(Error);
+					}
+				}
+			}
+			
+			return Result;
 		}
 		
 		if (
 			mStd.RefEq(aSubType, aSupType) ||
 			aSubType == aSupType
 		) {
-			return aTypeMappings;
-		}
-		
-		var SubBaseType = aSubType.BaseType();
-		
-		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
-			return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
-				__ => SubType2.IsSubType(aSupType, __)
-			).ModifyError(
-				__ => ExtendError(__, aSubType, aSupType)
-			);
-		}
-
-		if (aSupType.IsSet(out var SupChoice1, out var SupChoice2)) {
-			return SubBaseType.IsSubType(SupChoice1, aTypeMappings).ElseTry(
-				aError1 => SubBaseType.IsSubType(SupChoice2, aTypeMappings).ElseTry(
-					aError2 => mResult.Fail(aError1 + "\n" + aError2)
-				)
-			);
-		}
-
-		if (aSupType.Kind is tKind.TypeVariable) {
-			return Solve(aTypeMappings, aSupType, aSubType);
-		}
-
-		if (aSubType.Kind is tKind.TypeVariable) {
-			return Solve(aTypeMappings, aSubType, aSupType);
+			return aInferenceState;
 		}
 		
 		if (
-			aSupType.Kind is not tKind.Recursive &&
-			SubBaseType.IsRecursive(out var Head, out var Body)
+			aSubType.Kind is tKind.Recursive &&
+			aSupType.Kind is tKind.TypeVariable
 		) {
-			return Body.Substitute(
-				Head,
-				Body
-			).IsSubType(
+			return Solve(aInferenceState, aSupType, aSubType);
+		}
+		
+		if (
+			aSubType.Kind is tKind.TypeVariable &&
+			aSupType.Kind is tKind.Recursive
+		) {
+			return Solve(aInferenceState, aSubType, aSupType);
+		}
+		
+		if (
+			aRecursiveAssumptions.Any(
+				__ => (
+					mStd.RefEq(__.SubType, aSubType) &&
+					mStd.RefEq(__.SupType, aSupType)
+				)
+			)
+		) {
+			return aInferenceState;
+		}
+		
+		static tType
+		Expand(
+			tType aType
+		) => (
+			aType.IsRecursive(out var Head, out var Body)
+			? Body.Substitute(Head, aType)
+			: aType
+		);
+		
+		if (aSubType.Kind is tKind.Recursive || aSupType.Kind is tKind.Recursive) {
+			var ExpandedSubType = Expand(aSubType);
+			var ExpandedSupType = Expand(aSupType);
+			
+			if (
+				mStd.RefEq(ExpandedSubType, aSubType) &&
+				mStd.RefEq(ExpandedSupType, aSupType)
+			) {
+				return mResult.Fail(
+					$"recursive subtype comparison makes no progress between '{aSubType.ToText()}' and '{aSupType.ToText()}'"
+				);
+			} else {
+				return ExpandedSubType.IsSubTypeOf(
+					ExpandedSupType,
+					aInferenceState,
+					mStream.Stream(
+						(SubType: aSubType, SupType: aSupType),
+						aRecursiveAssumptions
+					)
+				).ModifyError(__ => ExtendError(__, aSubType, aSupType));
+			}
+		}
+		
+		var SubBaseType = aSubType.BaseType();
+		if (SubBaseType.IsSet(out var SubChoice1, out var SubChoice2)) {
+			return SubChoice1.IsSubTypeOf(
 				aSupType,
-				aTypeMappings
+				aInferenceState,
+				aRecursiveAssumptions
+			).ThenTry(
+				__ => SubChoice2.IsSubTypeOf(aSupType, __, aRecursiveAssumptions)
+			).ModifyError(
+				__ => ExtendError(__, aSubType, aSupType)
 			);
+		} else if (
+			aSubType.Kind is tKind.TypeVariable &&
+			aSupType.Kind is tKind.Set &&
+			aInferenceState.IsRegistered(aSubType) &&
+			!aSupType.ContainsVariable(aSubType)
+		) {
+			return Solve(aInferenceState, aSubType, aSupType);
+		} else if (aSupType.IsSet(out var SupChoice1, out var SupChoice2)) {
+			var Match1 = SubBaseType.IsSubTypeOf(
+				SupChoice1,
+				aInferenceState,
+				aRecursiveAssumptions
+			);
+			var Match2 = SubBaseType.IsSubTypeOf(
+				SupChoice2,
+				aInferenceState,
+				aRecursiveAssumptions
+			);
+			var HasMatch1 = Match1.Match(out var Inference1, out var Error1);
+			var HasMatch2 = Match2.Match(out var Inference2, out var Error2);
+			
+			if (HasMatch1 && HasMatch2) {
+				return Merge(Inference1, Inference2, aInferenceState);
+			} else if (HasMatch1) {
+				return Inference1;
+			} else if (HasMatch2) {
+				return Inference2;
+			} else {
+				return SplitFirstNestedUnion(SubBaseType).Match(
+					Split => Split.Type1.IsSubTypeOf(
+						aSupType,
+						aInferenceState,
+						aRecursiveAssumptions
+					).ThenTry(
+						__ => Split.Type2.IsSubTypeOf(aSupType, __, aRecursiveAssumptions)
+					),
+					() => mResult.Fail(Error1 + "\n" + Error2)
+				);
+			}
+		} else if (
+			aSupType.Kind is tKind.TypeVariable &&
+			aInferenceState.IsRegistered(aSupType)
+		) {
+			return Solve(aInferenceState, aSupType, aSubType);
+		} else if (
+			aSubType.Kind is tKind.TypeVariable &&
+			aInferenceState.IsRegistered(aSubType)
+		) {
+			return Solve(aInferenceState, aSubType, aSupType);
+		} else if (aSupType.Kind is tKind.TypeVariable) {
+			return Solve(aInferenceState, aSupType, aSubType);
+		} else if (aSubType.Kind is tKind.TypeVariable) {
+			return Solve(aInferenceState, aSubType, aSupType);
 		}
 		
 		// TODO: implement
@@ -1115,20 +1404,23 @@ mVM_Type {
 									$"Missing field '{SupField.Key}' in {aSubType}",
 									aSubType,
 									aSupType
+								)
+							);
+						} else if (
+							!SubField.IsSubTypeOf(
+								SupField.Value,
+								aInferenceState,
+								aRecursiveAssumptions
+							).Match(
+								out aInferenceState,
+								out var Error
 							)
-						);
+						) {
+							return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+						}
 					}
-					
-					if (
-						!SubField.IsSubType(SupField.Value, aTypeMappings).Match(
-							out aTypeMappings,
-							out var Error
-						)
-					) {
-						return mResult.Fail(ExtendError(Error, aSubType, aSupType));
-					}
+					return aInferenceState;
 				}
-				return aTypeMappings;
 			}
 			case tKind.Proc: {
 				if (
@@ -1156,64 +1448,35 @@ mVM_Type {
 			case tKind.Ref: {
 				throw new System.NotImplementedException();
 			}
-			case tKind.Set: {
-				mAssert.IsTrue(aSupType.IsSet(out var SupType1, out var SupType2));
-				return SubBaseType.IsSubType(SupType1, aTypeMappings).ElseTry(
-					aError1 => SubBaseType.IsSubType(SupType2, aTypeMappings).ElseTry(
-						aError2 => mResult.Fail(aError1 + "\n" + aError2)
-					)
-				);
-			}
 			case tKind.Cond: {
 				throw new System.NotImplementedException();
 			}
 			case tKind.Recursive: {
-				mAssert.IsTrue(aSupType.IsRecursive(out var SupHead, out var SupBody));
-				if (aSubType.IsRecursive(out var SubHead, out var SubBody)) {
-					if (!mStd.RefEq(SubHead, SupHead)) {
-						SubBody = SubBody.Substitute(SubHead, SupHead);
-					}
-					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				} else {
-					return aSubType.IsSubType(
-						SupBody.Substitute(SupHead, aSupType),
-						aTypeMappings
-					).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				}
+				mAssert.Impossible();
+				return default;
 			}
-			case tKind.Generic: {
-				mAssert.IsTrue(aSupType.IsGeneric(out var SupHead, out var SupBody));
-				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
-					if (!mStd.RefEq(SubHead, SupHead)) {
-						SubBody = SubBody.Substitute(SubHead, SupHead);
-					}
-					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				} else {
-					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				}
-			}
+			case tKind.Generic:
 			case tKind.Interface: {
-				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
-				if (aSubType.IsInterface(out var SubHead, out var SubBody)) {
-					if (!mStd.RefEq(SubHead, SupHead)) {
-						SubBody = SubBody.Substitute(SubHead, SupHead);
-					}
-					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				} else {
-					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
+				var SupHead = aSupType.Refs[0];
+				var SupBody = aSupType.Refs[1];
+				var SubBody = aSubType;
+				
+				if (
+					aSubType.Kind == aSupType.Kind &&
+					!mStd.RefEq(aSubType.Refs[0], SupHead)
+				) {
+					SubBody = aSubType.Refs[1].Substitute(aSubType.Refs[0], SupHead);
+				} else if (aSubType.Kind == aSupType.Kind) {
+					SubBody = aSubType.Refs[1];
 				}
+				
+				return SubBody.IsSubTypeOf(
+					SupBody,
+					aInferenceState,
+					aRecursiveAssumptions
+				).ModifyError(
+					__ => ExtendError(__, aSubType, aSupType)
+				);
 			}
 			default: {
 				mAssert.Impossible();
@@ -1278,20 +1541,19 @@ mVM_Type {
 		tType aObj,
 		tType aArg
 	) {
-		if (aProc.IsGeneric(out var FreeType, out var InnerType)) {
-			return Infer(InnerType, aObj, aArg, aTrace);
+		var State = NewInferenceState();
+		while (aProc.IsGeneric(out var Variable, out var InnerType)) {
+			mAssert.IsTrue(Variable.IsTypeVariable(out var Name, out var Kind));
+			var FreshVariable = TypeVariable(Name, Kind);
+			State = State.AddVar(FreshVariable);
+			aProc = InnerType.Substitute(Variable, FreshVariable);
 		}
 		
 		if (!aProc.IsProc(out var ObjType, out var ArgType, out var ResType)) {
 			return mResult.Fail($"expect proc but is:\n{aProc.ToText()}");
-		}
-		
-		// TODO:
-		//if (aObj != ObjType) {
-		//	return mResult.Fail($"{aObj.ToText()} != {ObjType.ToText()}");
-		//}
-		
-		if (!aArg.IsSubType(ArgType, ArgType.InferenceVariables()).Match(out var TypeMappings, out var Error)) {
+		} else if (!aObj.IsSubTypeOf(ObjType, State).Match(out State, out var Error)) {
+			return mResult.Fail(ExtendError(Error, aObj, ObjType));
+		} else if (!aArg.IsSubTypeOf(ArgType, State).Match(out State, out Error)) {
 			return mResult.Fail(
 				ExtendError(
 					$"""
@@ -1306,9 +1568,20 @@ mVM_Type {
 					ArgType
 				)
 			);
+		} else {
+			var Result = ResType.ApplyInference(State);
+			
+			return (
+				State.HasUnresolved(Result)
+				? mResult.Fail(
+					$"""
+					call result contains unresolved local type variables:
+					{Result.ToText()}
+					"""
+				)
+				: Result
+			);
 		}
-		
-		return ResType.ApplyMappings(TypeMappings);
 	}
 	
 	public static (mMaybe.tMaybe<tType> Matched, mMaybe.tMaybe<tType> Remainder)
@@ -1346,20 +1619,16 @@ mVM_Type {
 		tType aType1,
 		tType aType2
 	) {
-		if (aType1.IsEmpty()) {
-			return aType2;
-		}
+		var Alternatives = mStream.Stream<tType>(
+		).AddUnionAlternatives(
+			aType1
+		).AddUnionAlternatives(
+			aType2
+		).Reverse();
 		
-		if (aType2.IsEmpty()) {
-			return aType1;
-		}
+		mAssert.IsTrue(Alternatives.Is(out var Result, out var Tail));
 		
-		if (aType1 == aType2) {
-			// TODO: special cases for UnionTypes
-			return aType1;
-		}
-		
-		return Set(aType1, aType2);
+		return Tail.Reduce(Result, Set);
 	}
 	
 	public static mMaybe.tMaybe<tType>
@@ -1377,46 +1646,87 @@ mVM_Type {
 		this tType aType,
 		tType aRemoved
 	) {
-		if (aLimit is 0) {
-			throw mError.Error(mStd.FileLine());
+		static mMaybe.tMaybe<tType>
+		Difference(
+			tType aCurrentType,
+			tType aCurrentRemoved,
+			mStream.tStream<(tNat64 Type, tNat64 Removed)> aActive
+		) {
+			if (aCurrentType.IsSubType(aCurrentRemoved).Match(out _, out _)) {
+				return mStd.cEmpty;
+			}
+			
+			var Pair_ = (aCurrentType.Identity, aCurrentRemoved.Identity);
+			if (aActive.Any(__ => __ == Pair_)) {
+				return aCurrentType;
+			}
+			
+			var Active = mStream.Stream(Pair_, aActive);
+			if (aCurrentType.IsSet(out var Type1, out var Type2)) {
+				return Union(
+					Difference(Type1, aCurrentRemoved, Active),
+					Difference(Type2, aCurrentRemoved, Active)
+				);
+			} else if (aCurrentRemoved.IsSet(out Type1, out Type2)) {
+				return Difference(aCurrentType, Type1, Active).ThenTry(
+					__ => Difference(__, Type2, Active)
+				);
+			} else if (
+				aCurrentType.IsRecursive(out var Head1, out var Body1) &&
+				aCurrentRemoved.IsRecursive(out var Head2, out var Body2)
+			) {
+				var Binder = mStd.RefEq(Head1, Head2) ? Head1 : TypeVariable();
+				return Difference(
+					Body1.Substitute(Head1, Binder),
+					Body2.Substitute(Head2, Binder),
+					Active
+				).Then(__ => Recursive(Binder, __));
+			} else if (aCurrentType.IsRecursive(out var Head, out var Body)) {
+				return Difference(
+					Body.Substitute(Head, aCurrentType),
+					aCurrentRemoved,
+					Active
+				);
+			} else if (aCurrentRemoved.IsRecursive(out Head, out Body)) {
+				return Difference(
+					aCurrentType,
+					Body.Substitute(Head, aCurrentRemoved),
+					Active
+				);
+			} else if (
+				aCurrentType.IsPair(out var First, out var Second) &&
+				aCurrentRemoved.IsPair(out var RemovedFirst, out var RemovedSecond)
+			) {
+				var FirstRemainder = Difference(
+					First,
+					RemovedFirst,
+					Active
+				).Then(__ => Pair(__, Second));
+				var SecondRemainder = Difference(
+					Second,
+					RemovedSecond,
+					Active
+				).Then(__ => Pair(First, __));
+				return Union(FirstRemainder, SecondRemainder);
+			} else if (
+				aCurrentType.IsPrefix(out var Prefix_, out var Inner) &&
+				aCurrentRemoved.IsPrefix(Prefix_, out var RemovedInner)
+			) {
+				return Difference(
+					Inner,
+					RemovedInner,
+					Active
+				).Then(__ => Prefix(Prefix_, __));
+			} else {
+				return aCurrentType;
+			}
 		}
 		
-		if (aType.IsSubType(aRemoved, mStd.cEmpty).Match(out _, out _)) {
-			return mStd.cEmpty;
-		} else if (aType.IsSet(out var Type1, out var Type2)) {
-			return Union(Type1.Subtract(aRemoved, aLimit - 1), Type2.Subtract(aRemoved, aLimit - 1));
-		} else if (aRemoved.IsSet(out Type1, out Type2)) {
-			return aType.Subtract(Type1, aLimit - 1).ThenTry(__ => __.Subtract(Type2, aLimit - 1));
-		} else if (aType.IsRecursive(out var Head1, out var Body1) && aRemoved.IsRecursive(out var Head2, out var Body2)) {
-			if (mStd.RefEq(Head1, Head2)) {
-				return Body1.Subtract(Body2, aLimit - 1).Then(__ => Recursive(Head1, __)).ElseUse(aType);
-			} else {
-				var H = TypeVariable();
-				
-				var B1 = Recursive(H, Body1.Substitute(Head1, H));
-				var B2 = Recursive(H, Body2.Substitute(Head2, H));
-				return B1.Subtract(B2, aLimit - 1);
-			}
-		} else if (aType.IsRecursive(out var Head, out var Body)) {
-			return Body.Substitute(Head, aType).Subtract(aRemoved, aLimit - 1);
-		} else if (aRemoved.IsRecursive(out Head, out Body)) {
-			return aType.Subtract(Body.Substitute(Head, aRemoved), aLimit - 1);
-		} else if (
-			aType.IsPair(out var First, out var Second) &&
-			aRemoved.IsPair(out var RemovedFirst, out var RemovedSecond)
-		) {
-			return Union(
-				First.Subtract(RemovedFirst, aLimit - 1).Then(__ => Pair(__, Second)),
-				Second.Subtract(RemovedSecond, aLimit - 1).Then(__ => Pair(First, __))
-			);
-		} else if (
-			aType.IsPrefix(out var Prefix, out var Inner) &&
-			aRemoved.IsPrefix(Prefix, out var RemovedInner)
-		) {
-			return Inner.Subtract(RemovedInner, aLimit - 1).Then(__ => mVM_Type.Prefix(Prefix, __));
-		} else {
-			return aType;
-		}
+		return Difference(
+			aType,
+			aRemoved,
+			mStream.Stream<(tNat64 Type, tNat64 Removed)>()
+		);
 	}
 	
 	public static tText

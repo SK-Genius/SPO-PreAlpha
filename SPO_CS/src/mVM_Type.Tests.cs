@@ -24,6 +24,15 @@ mVM_Type_Tests {
 		tText aId
 	) => "_" + aId;
 	
+	private static void
+	AssertEquivalent(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		aType1.IsSubType(aType2).AssertNotError(__ => __);
+		aType2.IsSubType(aType1).AssertNotError(__ => __);
+	}
+	
 	private static readonly mStream.tStream<mSPO_AST_Types.tScopeItem> cTestScope = mStream.Stream(
 		mSPO_AST_Types.ScopeItem(
 			"_...+...",
@@ -95,10 +104,16 @@ mVM_Type_Tests {
 					mAssert.AreEquals(
 						Type.ApplyInference(
 							mStream.Stream(
-								[
-									Variable1ToVariable2,
-									Variable2ToInt,
-								]
+								(Variable: Variable1, Solution: mMaybe.None<mVM_Type.tType>())
+							)
+						),
+						Type
+					);
+					mAssert.AreEquals(
+						Type.ApplyInference(
+							mStream.Stream(
+								Variable1ToVariable2,
+								Variable2ToInt
 							)
 						),
 						Expected
@@ -111,6 +126,102 @@ mVM_Type_Tests {
 							)
 						),
 						Expected
+					);
+				}
+			),
+			mTest.Test("Constraint and union order only changes representation",
+				aDebugStream => {
+					var Variable1 = mVM_Type.TypeVariable("left");
+					var InitialInference = mVM_Type.NewInferenceState().AddVar(Variable1);
+					var Inference1 = InitialInference;
+					Inference1 = mVM_Type.Int().IsSubTypeOf(Variable1, Inference1).AssertNotError(__ => __);
+					mAssert.IsTrue(InitialInference.TryGetSolution(Variable1).IsNone());
+					Inference1 = mVM_Type.Bool().IsSubTypeOf(Variable1, Inference1).AssertNotError(__ => __);
+					
+					var Variable2 = mVM_Type.TypeVariable("right");
+					var Inference2 = mVM_Type.NewInferenceState().AddVar(Variable2);
+					Inference2 = mVM_Type.Bool().IsSubTypeOf(Variable2, Inference2).AssertNotError(__ => __);
+					Inference2 = mVM_Type.Int().IsSubTypeOf(Variable2, Inference2).AssertNotError(__ => __);
+					
+					AssertEquivalent(
+						Inference1.TryGetSolution(Variable1).AssertNotEmpty(),
+						Inference2.TryGetSolution(Variable2).AssertNotEmpty()
+					);
+					
+					var Choice1 = mVM_Type.TypeVariable("choice1");
+					var Choice2 = mVM_Type.TypeVariable("choice2");
+					
+					var ChoiceInference1 = mVM_Type.Int().IsSubTypeOf(
+						mVM_Type.Set(mVM_Type.Empty(), Choice1),
+						mVM_Type.NewInferenceState().AddVar(Choice1)
+					).AssertNotError(__ => __);
+					
+					var ChoiceInference2 = mVM_Type.Int().IsSubTypeOf(
+						mVM_Type.Set(Choice2, mVM_Type.Empty()),
+						mVM_Type.NewInferenceState().AddVar(Choice2)
+					).AssertNotError(__ => __);
+					
+					AssertEquivalent(
+						ChoiceInference1.TryGetSolution(Choice1).AssertNotEmpty(),
+						ChoiceInference2.TryGetSolution(Choice2).AssertNotEmpty()
+					);
+				}
+			),
+			mTest.Test("Proc arguments are contravariant",
+				aDebugStream => {
+					var SubType = mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Any(),
+						mVM_Type.True()
+					);
+					var SupType = mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Int(),
+						mVM_Type.Bool()
+					);
+					SubType.IsSubType(SupType).AssertNotError(__ => __);
+					mAssert.IsFalse(SupType.IsSubType(SubType).Match(out _, out _));
+					var DifferentObject = mVM_Type.Proc(
+						mVM_Type.Int(),
+						mVM_Type.Any(),
+						mVM_Type.True()
+					);
+					mAssert.IsFalse(DifferentObject.IsSubType(SubType).Match(out _, out _));
+					mAssert.IsFalse(SubType.IsSubType(DifferentObject).Match(out _, out _));
+				}
+			),
+			mTest.Test("Tuple and empty-prefix representation",
+				aDebugStream => {
+					var Element = mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int());
+					mAssert.AreEquals(mVM_Type.Tuple([]), mVM_Type.Empty());
+					mAssert.IsTrue(mStd.RefEq(mVM_Type.Tuple([Element]), Element));
+					mAssert.AreEquals(
+						mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()]),
+						mVM_Type.Pair(
+							mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()),
+							mVM_Type.Bool()
+						)
+					);
+					mAssert.AreEquals(mVM_Type.Prefix("_P..."), mVM_Type.Prefix("_P...", mVM_Type.Empty()));
+					mAssert.IsTrue(
+						mVM_Type.Prefix("_P...", mVM_Type.Tuple([Element])).IsPrefix(
+							"_P...",
+							out var SinglePrefixElement
+						)
+					);
+					mAssert.IsTrue(mStd.RefEq(SinglePrefixElement, Element));
+					mAssert.AreEquals(
+						mVM_Type.Prefix(
+							"_P...",
+							mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()])
+						),
+						mVM_Type.Prefix(
+							"_P...",
+							mVM_Type.Pair(
+								mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()),
+								mVM_Type.Bool()
+							)
+						)
 					);
 				}
 			),
@@ -136,7 +247,9 @@ mVM_Type_Tests {
 					
 					mAssert.IsTrue(
 						Mappings.Any(
-							__ => mStd.RefEq(__.Variable, Inferred) && mStd.RefEq(__.Solution, Rigid)
+							__ => mStd.RefEq(__.Variable, Inferred) &&
+								__.Solution.IsSome(out var Solution) &&
+								mStd.RefEq(Solution, Rigid)
 						)
 					);
 				}
@@ -228,15 +341,94 @@ mVM_Type_Tests {
 						)
 					);
 					mAssert.IsFalse(List1.IsSubType(BoolList).Match(out _, out _));
+					
+					var Element = mVM_Type.TypeVariable("Element");
+					var GenericListHead = mVM_Type.TypeVariable("GenericList");
+					var GenericList = mVM_Type.Recursive(
+						GenericListHead,
+						mVM_Type.Set(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(GenericListHead, Element)
+						)
+					);
+					var Mappings = BoolList.IsSubTypeOf(
+						GenericList,
+						mVM_Type.NewInferenceState().AddVar(Element)
+					).AssertNotError(__ => __);
+					mAssert.IsTrue(
+						Mappings.Any(
+							__ => (
+								mStd.RefEq(__.Variable, Element) &&
+								__.Solution.IsSome(out var Solution) &&
+								Solution == mVM_Type.Bool()
+							)
+						)
+					);
+					mVM_Type.Pair(BoolList, mVM_Type.True()).IsSubTypeOf(
+						mVM_Type.Pair(GenericList, Element),
+						mVM_Type.NewInferenceState().AddVar(Element)
+					).AssertNotError(__ => __);
 				}
 			),
 			mTest.Test("Recursive types must be guarded",
 				aDebugStream => {
 					var Head = mVM_Type.TypeVariable("Unguarded");
-					var Recursive = mVM_Type.Recursive(Head, Head);
+					mAssert.ThrowsError(() => mVM_Type.Recursive(Head, Head));
 					
-					mAssert.IsFalse(Recursive.IsSubType(mVM_Type.Int(), mStd.cEmpty).Match(out _, out _));
-					mAssert.IsFalse(mVM_Type.Int().IsSubType(Recursive, mStd.cEmpty).Match(out _, out _));
+					var Parameter = mVM_Type.TypeVariable("T");
+					mAssert.ThrowsError(
+						() => mVM_Type.Recursive(
+							Head,
+							mVM_Type.TypeApply(mVM_Type.Generic(Parameter, Parameter), Head)
+						)
+					);
+					mAssert.ThrowsError(
+						() => mVM_Type.Recursive(
+							Head,
+							mVM_Type.TypeApply(
+								mVM_Type.Generic(
+									Parameter,
+									mVM_Type.Set(Parameter, mVM_Type.Prefix("None"))
+								),
+								Head
+							)
+						)
+					);
+					
+					mVM_Type.Recursive(
+						Head,
+						mVM_Type.TypeApply(
+							mVM_Type.Generic(Parameter, mVM_Type.Prefix("Box", Parameter)),
+							Head
+						)
+					);
+					mVM_Type.Recursive(
+						Head,
+						mVM_Type.TypeApply(
+							mVM_Type.Generic(Parameter, mVM_Type.Pair(mVM_Type.Int(), Parameter)),
+							Head
+						)
+					);
+					mVM_Type.Recursive(
+						Head,
+						mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), Head)
+					);
+					
+					var Outer = mVM_Type.TypeVariable("Outer");
+					var Inner = mVM_Type.TypeVariable("Inner");
+					mVM_Type.Recursive(
+						Outer,
+						mVM_Type.Recursive(Inner, mVM_Type.Pair(Inner, Outer))
+					);
+					mAssert.ThrowsError(
+						() => mVM_Type.Recursive(
+							Outer,
+							mVM_Type.Recursive(
+								Inner,
+								mVM_Type.Set(mVM_Type.Pair(Inner, mVM_Type.Int()), Outer)
+							)
+						)
+					);
 				}
 			),
 			mTest.Test("Sig contracts are alpha-equivalent",

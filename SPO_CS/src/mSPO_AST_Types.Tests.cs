@@ -23,6 +23,21 @@ mSPO_AST_Types_Tests {
 	#if true
 	
 	private const tInt32 cNoPos = 1;
+
+	private static void
+	AssertEquivalent(
+		mVM_Type.tType aType1,
+		mVM_Type.tType aType2
+	) {
+		aType1.IsSubType(aType2).AssertNotError(__ => __);
+		aType2.IsSubType(aType1).AssertNotError(__ => __);
+	}
+
+	private static void
+	AssertEquivalent<tPos>(
+		mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)> aType1,
+		mVM_Type.tType aType2
+	) => AssertEquivalent(aType1.AssertNotError(__ => __.ErrorText), aType2);
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(
@@ -48,13 +63,26 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Literals",
 				aDebugStream => {
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_AST.Int(cNoPos, 1).UpdateTypes(mStd.cEmpty),
 						mVM_Type.Int()
 					);
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
 						mVM_Type.False()
+					);
+				}
+			),
+			mTest.Test("Identifier annotations are output only",
+				aDebugStream => {
+					mAssert.IsFalse(
+						mSPO_AST.Id(
+							cNoPos,
+							"missing",
+							mMaybe.Some(mVM_Type.Int())
+						).UpdateTypes(
+							mStd.cEmpty
+						).Match(out _, out _)
 					);
 				}
 			),
@@ -76,6 +104,27 @@ mSPO_AST_Types_Tests {
 						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty),
 						mVM_Type.False()
 					);
+				}
+			),
+			mTest.Test("Calls keep a pair-typed scalar as one argument",
+				aDebugStream => {
+					var Pair = mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int());
+					var Type = mSPO_Parser.Expression.ParseText(
+						".F pair",
+						"",
+						__ => aDebugStream(__())
+					).UpdateTypes(
+						mStream.Stream(
+							[
+								mSPO_AST_Types.ScopeItem(
+									"_F...",
+									mVM_Type.Proc(mVM_Type.Empty(), Pair, mVM_Type.Text())
+								),
+								mSPO_AST_Types.ScopeItem("_pair", Pair),
+							]
+						)
+					).AssertNotError(__ => __.ErrorText);
+					AssertEquivalent(Type, mVM_Type.Text());
 				}
 			),
 			mTest.Test("Is",
@@ -287,7 +336,7 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Lambda",
 				aDebugStream => {
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_AST.Lambda(
 							cNoPos,
 							mStd.cEmpty,
@@ -321,7 +370,7 @@ mSPO_AST_Types_Tests {
 						)
 					);
 					
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_Parser.Expression.ParseText(
 							"(#Bla (§DEF a € §BOOL)) => a",
 							"",
@@ -345,7 +394,7 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Higher-order arguments reach a recursive fixed point",
 				aDebugStream => {
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_Parser.Expression.ParseText(
 							"""
 							.F (
@@ -388,6 +437,107 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
+			mTest.Test("Call worklist order is semantically irrelevant",
+				aDebugStream => {
+					static mVM_Type.tType
+					Function(
+						tBool aLambdaFirst
+					) {
+						var Variable = mVM_Type.TypeVariable("item");
+						var Lambda = mVM_Type.Proc(mVM_Type.Empty(), Variable, Variable);
+						return mVM_Type.Generic(
+							Variable,
+							mVM_Type.Proc(
+								mVM_Type.Empty(),
+								mVM_Type.Tuple(
+									aLambdaFirst
+									? [Lambda, Variable]
+									: [Variable, Lambda]
+								),
+								Variable
+							)
+						);
+					}
+
+					static mVM_Type.tType
+					Infer(
+						tText aExpression,
+						tText aId,
+						tBool aLambdaFirst,
+						mStd.tAction<tText> aDebugStream
+					) => (
+						mSPO_Parser.Expression.ParseText(
+							aExpression,
+							"",
+							__ => aDebugStream(__())
+						).UpdateTypes(
+							mStream.Stream(mSPO_AST_Types.ScopeItem(aId, Function(aLambdaFirst)))
+						).AssertNotError(__ => __.ErrorText)
+					);
+
+					AssertEquivalent(
+						Infer(".FValueFirst (1, (§DEF a => a))", "_FValueFirst...", false, aDebugStream),
+						Infer(".FLambdaFirst ((§DEF a => a), 1)", "_FLambdaFirst...", true, aDebugStream)
+					);
+				}
+			),
+			mTest.Test("Generic calls instantiate binders locally and keep outer binders rigid",
+				aDebugStream => {
+					var Outer = mVM_Type.TypeVariable("outer");
+					var Binder = mVM_Type.TypeVariable("select");
+					var CompareType = mVM_Type.Proc(
+						mVM_Type.Empty(),
+						mVM_Type.Tuple([Binder, Binder]),
+						mVM_Type.Bool()
+					);
+					var SelectType = mVM_Type.Generic(
+						Binder,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Tuple([Binder, Binder, CompareType]),
+							Binder
+						)
+					);
+					var Scope = mStream.Stream(
+						[
+							mSPO_AST_Types.ScopeItem("_Select...", SelectType),
+							mSPO_AST_Types.ScopeItem("_a1", Outer),
+							mSPO_AST_Types.ScopeItem("_a2", Outer),
+							mSPO_AST_Types.ScopeItem(
+								"_compare...",
+								CompareType.Substitute(Binder, Outer)
+							),
+							mSPO_AST_Types.ScopeItem("_outer", mVM_Type.Type(), Outer),
+						]
+					);
+					AssertEquivalent(
+						mSPO_AST.Call(
+							cNoPos,
+							mSPO_AST.Id(cNoPos, "Select..."),
+							mSPO_AST.Tuple(
+								cNoPos,
+								[
+									mSPO_AST.Id(cNoPos, "a1"),
+									mSPO_AST.Id(cNoPos, "a2"),
+									mSPO_AST.Id(cNoPos, "compare..."),
+								]
+							)
+						).UpdateTypes(Scope),
+						Outer
+					);
+					AssertEquivalent(
+						mSPO_Parser.Expression.ParseText(
+							".Select (a1, a2, (=> .compare (..., ...)))",
+							"",
+							__ => aDebugStream(__())
+						).DesugarExpression(
+						).AssertNotError(
+							__ => __.ErrorText
+						).UpdateTypes(Scope),
+						Outer
+					);
+				}
+			),
 			mTest.Test("Higher-order argument context follows nested calls only",
 				aDebugStream => {
 				var ValueLambda = mVM_Type.Proc(
@@ -400,7 +550,7 @@ mSPO_AST_Types_Tests {
 				var Use = mVM_Type.Proc(mVM_Type.Empty(), NestedLambda, mVM_Type.Int());
 				var OuterLambda = mVM_Type.Proc(mVM_Type.Empty(), Use, mVM_Type.Int());
 				
-				mAssert.AreEquals(
+				AssertEquivalent(
 					mSPO_Parser.Expression.ParseText(
 						".F (§DEF use... => .use (§DEF map... => .map (§DEF value => value)))",
 						"",
@@ -441,7 +591,7 @@ mSPO_AST_Types_Tests {
 							)
 						)
 					).AssertNotError(__ => __.ErrorText);
-					mAssert.AreEquals(
+					AssertEquivalent(
 						Scope.Where(__ => __.Id == "_result").TryFirst().AssertNotEmpty().Type,
 						mVM_Type.Int()
 					);
@@ -449,7 +599,7 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Calls constrain implicit lambda parameters",
 				aDebugStream => {
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_Parser.Expression.ParseText(
 							"=> .F (..., ...)",
 							"",
@@ -475,7 +625,7 @@ mSPO_AST_Types_Tests {
 							mVM_Type.Text()
 						)
 					);
-					mAssert.AreEquals(
+					AssertEquivalent(
 						mSPO_Parser.Expression.ParseText(
 							"""
 							=> {
@@ -503,6 +653,27 @@ mSPO_AST_Types_Tests {
 							mVM_Type.Empty(),
 							mVM_Type.Int(),
 							mVM_Type.Text()
+						)
+					);
+					AssertEquivalent(
+						mSPO_Parser.Expression.ParseText(
+							"""
+							=> {
+								§RETURN 0 IF ...
+							}
+							""",
+							"",
+							__ => aDebugStream(__())
+						).DesugarExpression(
+						).AssertNotError(
+							__ => __.ErrorText
+						).UpdateTypes(
+							mStd.cEmpty
+						),
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Bool(),
+							mVM_Type.Int()
 						)
 					);
 				}
