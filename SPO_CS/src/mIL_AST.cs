@@ -40,6 +40,7 @@ mIL_AST {
 		_, // unused
 		_BeginTypes_,
 		TypePair = _BeginTypes_,    // T := [T, T]
+		TypeSig,                    // T := [§SIG_WITH T IN T]
 		TypePrefix,                 // T := [#N T]
 		TypeRecord,                 // T := [{T} +T]
 		TypeFunc,                   // T := [T -> T]
@@ -69,6 +70,9 @@ mIL_AST {
 		Pair,                       // X := X, X
 		First,                      // X := §1ST X
 		Second,                     // X := §2ND X
+		Sig,                        // X := §SIG T WITH X IN X
+		SigHead,                    // X := §SIG_HEAD X
+		SigBody,                    // X := §SIG_BODY X
 		PrefixApply,                // X := +#N X
 		PrefixRemove,               // X := -#N X
 		AddField,                   // X := {X} +X
@@ -93,6 +97,7 @@ mIL_AST {
 		TryAsBool,                  // X := §TRY X AS_BOOL
 		TryAsInt,                   // X := §TRY X AS_INT
 		TryAsPair,                  // X := §TRY X AS_PAIR
+		TryAsSig,                   // X := §TRY X AS_SIG T
 		TryAsRecord,                // X := §TRY X AS_RECORD
 		TryAsVar,                   // X := §TRY X AS_VAR
 		TryAsRef,                   // X := §TRY X AS_REF
@@ -182,6 +187,9 @@ mIL_AST {
 		tCommandNodeType.Pair => $"{a._1} := {a._2}, {a._3}",
 		tCommandNodeType.First => $"{a._1} := §1ST {a._2}",
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
+		tCommandNodeType.Sig => $"{a._1} := §SIG {a._2} WITH {a._3}",
+		tCommandNodeType.SigHead => $"{a._1} := §SIG_HEAD {a._2}",
+		tCommandNodeType.SigBody => $"{a._1} := §SIG_BODY {a._2}",
 		tCommandNodeType.PrefixApply => $"{a._1} := +#{a._2} {a._3}",
 		tCommandNodeType.PrefixRemove => $"{a._1} := -#{a._2} {a._3}",
 		tCommandNodeType.AddField => $"{a._1} := {{{a._2}}} + {a._3}",
@@ -193,6 +201,7 @@ mIL_AST {
 		tCommandNodeType.DefRecProcs => $"§REC {a._1} := .{a._2} {a._3}",
 		
 		tCommandNodeType.TypePair => $"{a._1} := [{a._2}, {a._3}]",
+		tCommandNodeType.TypeSig => $"{a._1} := [§SIG_WITH {a._2} IN {a._3}]",
 		tCommandNodeType.TypePrefix => $"{a._1} := [#{a._2} {a._3}]",
 		tCommandNodeType.TypeRecord => $"{a._1} := [{{{a._2}}} + {a._3}]",
 		tCommandNodeType.TypeFunc => $"{a._1} := [{a._2} => {a._3}]",
@@ -200,7 +209,7 @@ mIL_AST {
 		tCommandNodeType.TypeSet => $"{a._1} := [{a._2} | {a._3}]",
 		tCommandNodeType.TypeCond => $"{a._1} := [{a._2} & {a._3}]",
 		tCommandNodeType.TypeVar => $"{a._1} := [§VAR {a._2}]",
-		tCommandNodeType.TypeFree => $"{a._1} := [§FREE]",
+		tCommandNodeType.TypeFree => $"{a._1} := [§FREE" + a._2.Match(__ => $" € {__}", () => "") + "]",
 		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
 		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
 		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",
@@ -219,6 +228,7 @@ mIL_AST {
 		tCommandNodeType.TryAsVar => $"{a._1} := §TRY {a._2} AS_VAR",
 		tCommandNodeType.TryAsType => $"{a._1} := §TRY {a._2} AS_TYPE",
 		tCommandNodeType.TryAsPair => $"{a._1} := §TRY {a._2} AS_PAIR",
+		tCommandNodeType.TryAsSig => $"{a._1} := §TRY {a._2} AS_SIG {a._3}",
 		tCommandNodeType.TryAsRecord => $"{a._1} := §TRY {a._2} AS_RECORD",
 		tCommandNodeType.TryRemovePrefixFrom => $"{a._1} := §TRY_REMOVE #{a._3} FROM {a._2}",
 		
@@ -464,6 +474,28 @@ mIL_AST {
 		tText aResReg,
 		tText aPairReg
 	) => CommandNode(tCommandNodeType.Second, aPos, aResReg, aPairReg);
+
+	public static tCommandNode<tPos>
+	CreateSig<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aContract,
+		tText aPayloadReg
+	) => CommandNode(tCommandNodeType.Sig, aPos, aResReg, aContract, aPayloadReg);
+
+	public static tCommandNode<tPos>
+	GetSigHead<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aSigReg
+	) => CommandNode(tCommandNodeType.SigHead, aPos, aResReg, aSigReg);
+
+	public static tCommandNode<tPos>
+	GetSigBody<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aSigReg
+	) => CommandNode(tCommandNodeType.SigBody, aPos, aResReg, aSigReg);
 	
 	public static tCommandNode<tPos>
 	AddPrefix<tPos>(
@@ -622,7 +654,15 @@ mIL_AST {
 		tText aResReg,
 		tText aArgReg
 	) => CommandNode(tCommandNodeType.TryAsPair, aPos, aResReg, aArgReg);
-	
+
+	public static tCommandNode<tPos>
+	TryAsSig<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aArgReg,
+		tText aContract
+	) => CommandNode(tCommandNodeType.TryAsSig, aPos, aResReg, aArgReg, aContract);
+
 	public static tCommandNode<tPos>
 	TryAsRecord<tPos>(
 		tPos aPos,
@@ -683,6 +723,14 @@ mIL_AST {
 		tText aId2,
 		tText aId3
 	) => CommandNode(tCommandNodeType.TypePair, aPos, aId1, aId2, aId3);
+
+	public static tCommandNode<tPos>
+	TypeSig<tPos>(
+		tPos aPos,
+		tText aId,
+		tText aBinder,
+		tText aBody
+	) => CommandNode(tCommandNodeType.TypeSig, aPos, aId, aBinder, aBody);
 	
 	public static tCommandNode<tPos>
 	TypePrefix<tPos>(
@@ -720,6 +768,13 @@ mIL_AST {
 		tPos aPos,
 		tText aId
 	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId);
+
+	public static tCommandNode<tPos>
+	TypeFree<tPos>(
+		tPos aPos,
+		tText aId,
+		tText aKind
+	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId, aKind);
 	
 	public static tCommandNode<tPos>
 	TypeRecursive<tPos>(

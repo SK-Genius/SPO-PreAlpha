@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -22,6 +22,8 @@ mVM_Type {
 		Int,
 		Type,
 		Pair,
+		Sig,
+		TypeApply,
 		Prefix,
 		Record,
 		Proc,
@@ -57,7 +59,7 @@ mVM_Type {
 			tType a1,
 			tType a2
 		) {
-			if (ReferenceEquals(a1, a2)) {
+			if (mStd.RefEq(a1, a2)) {
 				return true;
 			}
 			

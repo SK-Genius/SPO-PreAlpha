@@ -1,0 +1,109 @@
+§IMPORT {
+	Std: {
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...Or...: §DEF ...Or... € [[§BOOL, §BOOL] => §BOOL]
+		...XOr...: §DEF ...XOr... € [[§BOOL, §BOOL] => §BOOL]
+	}
+	Char: {
+		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
+	}
+}
+
+§DEF tList... = [§GENERIC t [§RECURSIVE tList [[] | [tList; t]]]]
+
+§DEF ...AsList = (
+	§DEF t € §TYPE
+) <=> (
+	a € t
+) => ((); a)
+
+§RECURSIVE {
+	§DEF RowOfSize... = (
+		§DEF aSize € §INT
+	) => §IF aSize MATCH {
+		0: ()
+		_: (.RowOfSize (aSize .- 1); §FALSE)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Generation_StartWith... = (
+		§DEF aRow € [.tList §BOOL]
+		§DEF aPosition € §INT
+	) => §IF aRow MATCH {
+		(): ()
+		(§DEF Prefix; _): (
+			Prefix .Generation_StartWith (aPosition .- 1)
+			; aPosition .== 1
+		)
+	}
+}
+
+§DEF Rule... = (
+	§DEF aLeft € §BOOL
+	§DEF aCenter € §BOOL
+	§DEF aRight € §BOOL
+) => (aLeft .XOr (aCenter .Or aRight))
+
+§DEF ...Iterate = (
+	§DEF aRow € [.tList §BOOL]
+) => {
+	§RECURSIVE {
+		§DEF Go... = (
+			§DEF aRow € [.tList §BOOL]
+			§DEF aRight € §BOOL
+		) => §IF aRow MATCH {
+			(): ()
+			((); §DEF Center): (
+				.Go ((), Center)
+				; .Rule (§FALSE, Center, aRight)
+			)
+			((§DEF Prefix; §DEF Left); §DEF Center): (
+				.Go ((Prefix; Left), Center)
+				; .Rule (Left, Center, aRight)
+			)
+		}
+	}
+
+	§RETURN .Go (aRow, §FALSE)
+}
+
+§RECURSIVE {
+	§DEF ...ToText = (
+		§DEF aRow € [.tList §BOOL]
+	) => §IF aRow MATCH {
+		(): ""
+		(§DEF Prefix; §DEF Cell): (
+			Prefix.ToText
+			; §IF Cell MATCH {
+				§TRUE: 35 .AsChar
+				§FALSE: 46 .AsChar
+			}
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...ToTextLines = (
+		§DEF aRows € [.tList [.tList §BOOL]]
+	) => §IF aRows MATCH {
+		(): ()
+		(SubRows; Row): (SubRows .ToTextLines; Row .ToText)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...ExtendBy...Rows = (
+		§DEF aRows € [.tList [.tList §BOOL]]
+		§DEF aCount € §INT
+	) => §IF aCount MATCH {
+		0: aRows
+		§DEF N: §IF aRows MATCH {
+			(): ()
+			(_; §DEF LastRow): (aRows; LastRow .Iterate) .ExtendBy (N .- 1) Rows
+		}
+	}
+}
+
+§EXPORT .RowOfSize 31 §> .Generation_StartWith 16 §> .AsList §> .ExtendBy 14 Rows §> .ToTextLines

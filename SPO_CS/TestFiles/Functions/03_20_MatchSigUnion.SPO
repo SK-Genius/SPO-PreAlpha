@@ -1,0 +1,10 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+
+§DEF Value € [Contract | [§INT | [§SIG_WITH t € §TYPE IN [t, t]]]] = (
+	§SIG Contract WITH §INT IN 7
+)
+
+§EXPORT §IF Value MATCH {
+	§SIG Contract WITH _ IN §DEF Body : 1
+	_ : 0
+}

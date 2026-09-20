@@ -4,7 +4,7 @@
 	t_2 := [#Result INT]
 	t_3 := [t_1 => t_2]
 	t_4 := [EMPTY_TYPE => t_3]
-	t_5 := [TRUE | FALSE]
+	t_5 := [FALSE | TRUE]
 	t_6 := [t_1 => t_5]
 	t_7 := [EMPTY_TYPE => t_6]
 	t_8 := [EMPTY_TYPE, t_4]

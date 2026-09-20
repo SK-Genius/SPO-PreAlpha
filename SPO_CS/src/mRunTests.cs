@@ -2,7 +2,7 @@
 #:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Exe
-#:property OutputPath = ./output
+#:property OutputPath = ../output
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mTest.cs
@@ -177,17 +177,17 @@ return Tests.Run(
 		),
 		DebuggerBreak = Args.Any(__ => __ is cDebugger or cDebuggerShort),
 		StopOnFirstFail = Args.Any(__ => __ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
-		: Args.Any(__ => __ is "-1") ? 1
-		: Args.Any(__ => __ is "-2") ? 2
-		: Args.Any(__ => __ is "-3") ? 3
-		: Args.Any(__ => __ is "-4") ? 4
-		: Args.Any(__ => __ is "-5") ? 5
-		: Args.Any(__ => __ is "-6") ? 6
-		: Args.Any(__ => __ is "-7") ? 7
-		: Args.Any(__ => __ is "-8") ? 7
-		: Args.Any(__ => __ is "-9") ? 8
-		: tInt32.MaxValue,
+		: Args.Where(
+			__ => (
+				__.Length > 1 &&
+				__[0] is '-' &&
+				__[1..].ToCharArray().AsStream().All(___ => ___ is >= '0' and <= '9')
+			)
+		).TryFirst(
+		).Then(
+			__ => tInt32.Parse(__[1..])
+		).ElseUse(
+			tInt32.MaxValue
+		),
 	}
-).Result is mTest.tResult.Fail
-? -1
-: 0;
+).FailCount;

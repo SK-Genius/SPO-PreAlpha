@@ -1,0 +1,143 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [§SIG_WITH t_0 IN t_0]
+	t_2 := [TRUE | FALSE]
+	t_3 := [t_2 | INT]
+	t_4 := [#Result t_3]
+	t_5 := [t_1 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [FALSE | TRUE]
+	t_8 := [t_1 => t_7]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [EMPTY_TYPE, t_6]
+	t_11 := [t_10, t_9]
+	t_12 := [t_11, t_6]
+	t_13 := [t_12, t_9]
+	t_14 := [t_13, t_6]
+	t_15 := [t_14, t_9]
+	t_16 := [t_15 => t_5]
+	t_17 := [t_15, t_16]
+	t_18 := [EMPTY_TYPE => t_3]
+	t_19 := [t_17 => t_18]
+
+§DEF d_0 € t_6
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := [TRUE | FALSE]
+	r_4 := [r_2, r_3]
+	r_5 := §TRY ARG AS_SIG r_4
+	r_6 := §SIG_HEAD r_5
+	r_7 := §SIG_BODY r_5
+	_Value := r_7
+	r_8 := +#Result _Value
+	§RETURN r_8 IF TRUE
+
+§DEF d_1 € t_9
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := [TRUE | FALSE]
+	r_4 := [r_2, r_3]
+	r_5 := §TRY ARG AS_SIG r_4
+	r_6 := §SIG_HEAD r_5
+	r_7 := §SIG_BODY r_5
+	_Value := r_7
+	§RETURN TRUE IF TRUE
+
+§DEF d_2 € t_6
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := [r_2, INT_TYPE]
+	r_4 := §TRY ARG AS_SIG r_3
+	r_5 := §SIG_HEAD r_4
+	r_6 := §SIG_BODY r_4
+	_Value := r_6
+	r_7 := +#Result _Value
+	§RETURN r_7 IF TRUE
+
+§DEF d_3 € t_9
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := [r_2, INT_TYPE]
+	r_4 := §TRY ARG AS_SIG r_3
+	r_5 := §SIG_HEAD r_4
+	r_6 := §SIG_BODY r_4
+	_Value := r_6
+	§RETURN TRUE IF TRUE
+
+§DEF d_4 € t_6
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := §TRY ARG AS_SIG r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	r_6 := 0
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_5 € t_9
+	r_1 := [§FREE]
+	r_2 := [§SIG_WITH r_1 IN r_1]
+	r_3 := §TRY ARG AS_SIG r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_6 € t_16
+	d_5 := §2ND ENV
+	r_7 := §1ST ENV
+	d_4 := §2ND r_7
+	r_8 := §1ST r_7
+	d_3 := §2ND r_8
+	r_9 := §1ST r_8
+	d_2 := §2ND r_9
+	r_10 := §1ST r_9
+	d_1 := §2ND r_10
+	r_11 := §1ST r_10
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
+	r_1 := .d_0 EMPTY
+	r_2 := .d_1 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_2 EMPTY
+	r_4 := .d_3 EMPTY
+	§TRY_RETURN .r_3 ARG IF r_4
+	r_5 := .d_4 EMPTY
+	r_6 := .d_5 EMPTY
+	§TRY_RETURN .r_5 ARG IF r_6
+	§RETURN EMPTY IF TRUE
+
+§DEF d_7 € t_19
+	d_6 := §2ND ENV
+	r_17 := §1ST ENV
+	d_5 := §2ND r_17
+	r_18 := §1ST r_17
+	d_4 := §2ND r_18
+	r_19 := §1ST r_18
+	d_3 := §2ND r_19
+	r_20 := §1ST r_19
+	d_2 := §2ND r_20
+	r_21 := §1ST r_20
+	d_1 := §2ND r_21
+	r_22 := §1ST r_21
+	d_0 := §2ND r_22
+	r_23 := §1ST r_22
+	_t := [§FREE € Type_TYPE]
+	r_1 := [§SIG_WITH _t IN _t]
+	_Contract := r_1
+	r_2 := [TRUE | FALSE]
+	_tBool := r_2
+	r_3 := [§FREE]
+	r_4 := [§SIG_WITH r_3 IN r_3]
+	r_5 := 1
+	r_6 := INT_TYPE, r_5
+	r_7 := §SIG r_4 WITH r_6
+	r_8 := EMPTY, d_0
+	r_9 := r_8, d_1
+	r_10 := r_9, d_2
+	r_11 := r_10, d_3
+	r_12 := r_11, d_4
+	r_13 := r_12, d_5
+	r_14 := .d_6 r_13
+	r_15 := .r_14 r_7
+	r_16 := -#Result r_15
+	§RETURN r_16 IF TRUE

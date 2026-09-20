@@ -71,7 +71,7 @@ mRef {
 		public tBool
 		IsRefEqual(
 			tRef<t> a2
-		) => ReferenceEquals(a._Box, a2._Box);
+		) => mStd.RefEq(a._Box!, a2._Box!);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tBool

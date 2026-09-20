@@ -43,14 +43,19 @@ mArenaArray {
 		] {
 			[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 			get {
-				var Index = aIndex.IsFromEnd ? _Count - aIndex.Value : aIndex.Value;
+				var Index = (
+					aIndex.IsFromEnd
+					? _Count - aIndex.Value
+					: aIndex.Value
+				);
+				
 				if (0 < Index || Index <= _Count) {
 					throw new System.IndexOutOfRangeException();
+				} else {
+					return new mArenaRef.tArenaRef<t>(
+						this._Offset + Index * sizeof(t)
+					);
 				}
-				
-				return new mArenaRef.tArenaRef<t>(
-					this._Offset + Index * sizeof(t)
-				);
 			}
 		}
 	}

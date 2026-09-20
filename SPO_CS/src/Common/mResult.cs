@@ -12,12 +12,15 @@ mResult {
 	public readonly struct
 	tResultFail<tError> {
 		internal readonly tError _Error;
+		internal readonly tNat64 _DebugId;
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal tResultFail(
-			tError aError
+			tError aError,
+			tNat64 aDebugId
 		) {
 			this._Error = aError;
+			this._DebugId = aDebugId;
 		}
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -48,6 +51,7 @@ mResult {
 		internal tBool _IsOK;
 		internal tOK _Value;
 		internal tError _Error;
+		internal tNat64 _DebugId;
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public static
@@ -73,16 +77,19 @@ mResult {
 			tResultFail<tError> aFail
 		) => new() {
 			_IsOK = false,
-			_Error = aFail._Error
+			_Error = aFail._Error,
 		};
 		
 		public override readonly tText
 		ToString(
-		) => this.Then(
-			__ => "" + __
-		).Else(
-			__ => $"Error: {__}"
-		);
+		) {
+			var DebugId = this._DebugId;
+			return this.Then(
+				static __ => "" + __
+			).Else(
+				__ => $"Error [DebugId: {DebugId}]: {__}"
+			);
+		}
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -94,13 +101,14 @@ mResult {
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResultFail<tError>
 	Fail<tError>(
-		tError aError
-	) => new(aError);
+		tError aError,
+		tNat64 aDebugId = 0
+	) => new(aError, aDebugId == 0 ? mStd.NewDebugId() : aDebugId);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tResultFail<mStd.tEmpty>
 	Fail(
-	) => new(mStd.cEmpty);
+	) => new(mStd.cEmpty, mStd.NewDebugId());
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	[System.Obsolete]
@@ -120,7 +128,7 @@ mResult {
 		mStd.tFunc<tError> aOnFail
 	) => aRes.Match(
 		[DebuggerHidden] (aValue) => OK(aValue).WithErrorType<tError>(),
-		[DebuggerHidden] () => Fail(aOnFail())
+		[DebuggerHidden] () => Fail(aOnFail(), mStd.NewDebugId())
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -134,7 +142,7 @@ mResult {
 			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);
 			} else {
-				return Fail(Error);
+				return Fail(Error, Result._DebugId);
 			}
 		}
 		return OK(aOnSucceed(List.Reverse()));
@@ -151,7 +159,7 @@ mResult {
 			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);
 			} else {
-				return Fail(Error);
+				return Fail(Error, Result._DebugId);
 			}
 		}
 		return aOnSucceed(List.Reverse());
@@ -175,7 +183,7 @@ mResult {
 				aValue = aRes._Value;
 				return false;
 			} else {
-				aError = new(aRes._Error);
+				aError = new(aRes._Error, aRes._DebugId);
 				aValue = default!;
 				return true;
 			}
@@ -211,7 +219,7 @@ mResult {
 		) => (
 			aRes.Match(out var Value, out var Error)
 			? aMod(Value)
-			: Fail(Error)
+			: Fail(Error, aRes._DebugId)
 		);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -221,7 +229,7 @@ mResult {
 		) => (
 			aRes.Match(out var Value, out var Error)
 			? aMod(Value)
-			: Fail(Error)
+			: Fail(Error, aRes._DebugId)
 		);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -230,7 +238,7 @@ mResult {
 			tContext aContext
 		) => aRes.Match(out var Value, out var Error)
 		? OK((Value: Value, Context: aContext))
-		: Fail((Error: Error, Context: aContext));
+		: Fail((Error: Error, Context: aContext), aRes._DebugId);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tResult<tOut, tError>
@@ -239,7 +247,7 @@ mResult {
 		) => (
 			aRes.Match(out var Value, out var Error)
 			? aMod(Value)
-			: Fail(Error)
+			: Fail(Error, aRes._DebugId)
 		);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -262,7 +270,7 @@ mResult {
 			[DebuggerHidden] (a) => (
 				aCond(a)
 				? OK(a).WithErrorType<tError>()
-				: Fail(aOnFail(a))
+				: Fail(aOnFail(a), mStd.NewDebugId())
 			)
 		);
 		
@@ -293,7 +301,7 @@ mResult {
 		) => (
 			aRes.Match(out var Value, out var Error)
 			? Value
-			: throw mError.Error(aModifyError(Error))
+			: throw mError.Error(aModifyError(Error), aRes._DebugId)
 		);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -308,7 +316,7 @@ mResult {
 			mStd.tFunc<tError, tErrorOut> aModifyError
 		) => aRes.Match(out var Value, out var Error)
 		? OK(Value)
-		: Fail(aModifyError(Error));
+		: Fail(aModifyError(Error), aRes._DebugId);
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public tText
@@ -329,7 +337,7 @@ mResult {
 		a
 	) => a.Match(out var Value, out var Error)
 	? aOnOK(Value)
-	: aOnFail(Error);
+	: $"ERROR (DebugId: {a._DebugId}): {aOnFail(Error)}";
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tBool

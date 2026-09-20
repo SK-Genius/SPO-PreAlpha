@@ -1,0 +1,55 @@
+§IMPORT {
+	Std: {
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...>...: §DEF ...>... € [[§INT, §INT] => §BOOL]
+	}
+	mSpan: §SIG [
+		§SIG_WITH F € [§TYPE => §TYPE] IN [<
+			...--...: [§GENERIC t [[t, t] => [.F t]]]
+			SpanAt...: [§GENERIC t [t => [.F t]]]
+			...Start: [§GENERIC t [[.F t] => t]]
+			...End: [§GENERIC t [[.F t] => t]]
+			...&...With...: [
+				§GENERIC t [[.F t, .F t, [t, t] => §BOOL] => [.F t]]
+			]
+			...==...With...: [
+				§GENERIC t [
+					[
+						.F t
+						.F t
+						[t, t] => §BOOL
+					] => §BOOL
+				]
+			]
+			==With...: [
+				§GENERIC t [
+					[[t, t] => §BOOL] => [[.F t, .F t] => §BOOL]
+				]
+			]
+		>]
+	] WITH §DEF F € [§TYPE => §TYPE] IN {
+		...--...: §DEF ...--...
+		SpanAt...: §DEF SpanAt...
+		...Start: §DEF ...Start
+		...End: §DEF ...End
+		...&...With...: §DEF ...&...With...
+		...==...With...: §DEF ...==...With...
+		==With...: §DEF ==With...
+	}
+}
+
+§DEF A € [.F §INT] = 1 .-- 3
+§DEF SameA € [.F §INT] = 1 .-- 3
+§DEF B € [.F §INT] = 3 .-- 7
+§DEF Point € [.F §INT] = .SpanAt 4
+§DEF Merged € [.F §INT] = A .& B With ...>...
+§DEF ...Span==... € [[.F §INT, .F §INT] => §BOOL] = .==With ...==...
+
+§EXPORT (
+	(A .Start, A .End)
+	(Point .Start, Point .End)
+	(Merged .Start, Merged .End)
+	A .== SameA With ...==...
+	A .== B With ...==...
+	A .Span== SameA
+)

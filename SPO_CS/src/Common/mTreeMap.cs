@@ -157,13 +157,11 @@ mTreeMap {
 		this mRef.tRef<tNode<tKey, tValue>> aNode,
 		tKey aKey,
 		mStd.tFunc<tKey, tKey, tInt32> aKeyCompare
-	) {
-		if (aNode.Is(out var Node)) {
-			return Node.Remove(aKey, aKeyCompare);
-		} else {
-			return mStd.cEmpty;
-		}
-	}
+	) => (
+		aNode.Is(out var Node)
+		? Node.Remove(aKey, aKeyCompare)
+		: (mRef.tRef<tNode<tKey, tValue>>)mStd.cEmpty
+	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	internal static mRef.tRef<tNode<tKey, tValue>>
@@ -286,7 +284,7 @@ mTreeMap {
 		mAssert.IsTrue(aNode.SubTree2.Is(out var SubTree2));
 		
 		return Node(
-			SubTree2!.Key,
+			SubTree2.Key,
 			SubTree2.Value,
 			Node(
 				aNode.Key,

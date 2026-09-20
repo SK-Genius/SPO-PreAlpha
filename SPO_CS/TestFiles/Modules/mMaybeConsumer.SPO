@@ -1,0 +1,77 @@
+§IMPORT {
+	mMaybe: §SIG [
+		§SIG_WITH F € [§TYPE => §TYPE] IN [<
+			Some...: [§GENERIC t [t => [.F t]]]
+			None...: [§GENERIC t [t => [.F t]]]
+			...>>...: [
+				§GENERIC tIn [
+					§GENERIC tOut [
+						[
+							.F tIn
+							tIn => tOut
+						] => [.F tOut]
+					]
+				]
+			]
+			...>>?...: [
+				§GENERIC tIn [
+					§GENERIC tOut [
+						[
+							.F tIn
+							tIn => [.F tOut]
+						] => [.F tOut]
+					]
+				]
+			]
+			...Or...: [
+				§GENERIC t [
+					[
+						.F t
+						t
+					] => t
+				]
+			]
+			...OrDo...: [
+				§GENERIC t [
+					[
+						.F t
+						[] => t
+					] => t
+				]
+			]
+			...OrTry...: [
+				§GENERIC t [
+					[
+						.F t
+						[] => [.F t]
+					] => [.F t]
+				]
+			]
+		>]
+	] WITH §DEF F € [§TYPE => §TYPE] IN {
+		Some...: §DEF Some...
+		None...: §DEF None...
+		...>>...: §DEF ...>>...
+		...>>?...: §DEF ...>>?...
+		...Or...: §DEF ...Or...
+		...OrDo...: §DEF ...OrDo...
+		...OrTry...: §DEF ...OrTry...
+	}
+}
+
+§DEF SomeInt € [.F §INT] = .Some 1
+§DEF NoneInt € [.F §INT] = .None 0
+§DEF ZeroValue € §INT = 0
+§DEF ToTrue = §DEF _ € §INT => §TRUE
+§DEF ToFalse = §DEF _ € §INT => §FALSE
+§DEF Zero € [[] => §INT] = () => 0
+§DEF Two € [[] => §INT] = () => 2
+
+§EXPORT (
+	SomeInt §>.>> ToTrue §>.Or §TRUE
+	NoneInt §>.>> ToFalse §>.Or §FALSE
+	SomeInt .Or ZeroValue
+	NoneInt .Or ZeroValue
+	SomeInt .OrDo Zero
+	NoneInt .OrDo Two
+)

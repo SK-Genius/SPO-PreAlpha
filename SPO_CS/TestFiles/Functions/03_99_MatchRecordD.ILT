@@ -30,36 +30,34 @@
 	t_28 := [#_Second INT]
 	t_29 := [{t_27} + t_28]
 	t_30 := [t_21, t_16]
-	t_31 := [INT | EMPTY_TYPE]
-	t_32 := [EMPTY_TYPE => t_31]
-	t_33 := [t_30 => t_32]
-	t_34 := [#_First EMPTY_TYPE]
-	t_35 := [{EMPTY_TYPE} + t_34]
-	t_36 := [#_Second INT]
-	t_37 := [{t_35} + t_36]
-	t_38 := [#_First EMPTY_TYPE]
-	t_39 := [{EMPTY_TYPE} + t_38]
-	t_40 := [#_Second INT]
-	t_41 := [{t_39} + t_40]
-	t_42 := [#_First EMPTY_TYPE]
-	t_43 := [{EMPTY_TYPE} + t_42]
-	t_44 := [#_Second INT]
-	t_45 := [{t_43} + t_44]
-	t_46 := [#_First EMPTY_TYPE]
-	t_47 := [{EMPTY_TYPE} + t_46]
-	t_48 := [#_Second INT]
-	t_49 := [{t_47} + t_48]
-	t_50 := [#_First EMPTY_TYPE]
-	t_51 := [{EMPTY_TYPE} + t_50]
-	t_52 := [#_Second INT]
-	t_53 := [{t_51} + t_52]
-	t_54 := [#_First EMPTY_TYPE]
-	t_55 := [{EMPTY_TYPE} + t_54]
-	t_56 := [#_Second INT]
-	t_57 := [{t_55} + t_56]
-	t_58 := [t_30, t_33]
-	t_59 := [EMPTY_TYPE => INT]
-	t_60 := [t_58 => t_59]
+	t_31 := [EMPTY_TYPE => INT]
+	t_32 := [t_30 => t_31]
+	t_33 := [#_First EMPTY_TYPE]
+	t_34 := [{EMPTY_TYPE} + t_33]
+	t_35 := [#_Second INT]
+	t_36 := [{t_34} + t_35]
+	t_37 := [#_First EMPTY_TYPE]
+	t_38 := [{EMPTY_TYPE} + t_37]
+	t_39 := [#_Second INT]
+	t_40 := [{t_38} + t_39]
+	t_41 := [#_First EMPTY_TYPE]
+	t_42 := [{EMPTY_TYPE} + t_41]
+	t_43 := [#_Second INT]
+	t_44 := [{t_42} + t_43]
+	t_45 := [#_First EMPTY_TYPE]
+	t_46 := [{EMPTY_TYPE} + t_45]
+	t_47 := [#_Second INT]
+	t_48 := [{t_46} + t_47]
+	t_49 := [#_First EMPTY_TYPE]
+	t_50 := [{EMPTY_TYPE} + t_49]
+	t_51 := [#_Second INT]
+	t_52 := [{t_50} + t_51]
+	t_53 := [#_First EMPTY_TYPE]
+	t_54 := [{EMPTY_TYPE} + t_53]
+	t_55 := [#_Second INT]
+	t_56 := [{t_54} + t_55]
+	t_57 := [t_30, t_32]
+	t_58 := [t_57 => t_31]
 
 §DEF d_0 € t_7
 	r_1 := {ARG} #_First
@@ -73,7 +71,7 @@
 	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_33
+§DEF d_2 € t_32
 	d_1 := §2ND ENV
 	r_11 := §1ST ENV
 	d_0 := §2ND r_11
@@ -93,7 +91,7 @@
 	§RETURN r_10 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_60
+§DEF d_3 € t_58
 	d_2 := §2ND ENV
 	r_6 := §1ST ENV
 	d_1 := §2ND r_6

@@ -3,7 +3,7 @@
 	t_1 := [#Result INT]
 	t_2 := [t_0 => t_1]
 	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [TRUE | FALSE]
+	t_4 := [FALSE | TRUE]
 	t_5 := [t_0 => t_4]
 	t_6 := [EMPTY_TYPE => t_5]
 	t_7 := [EMPTY_TYPE, t_3]

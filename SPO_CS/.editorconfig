@@ -1,6 +1,7 @@
 root	= true
 
-[*.*]
+[*]
+charset                 	= utf-8
 end_of_line             	= lf
 indent_size             	= 4
 indent_style            	= tab
@@ -156,6 +157,7 @@ dotnet_diagnostic.CA1819.severity 	= none # Properties should not return arrays
 dotnet_diagnostic.CA2211.severity 	= none # Non-constant fields should not be visible
 dotnet_diagnostic.CA2225.severity 	= none # Operator overloads have named alternates
 dotnet_diagnostic.CA2231.severity 	= none # Overload operator equals on overriding value types
+dotnet_diagnostic.CA2266.severity 	= none # use #! (in libs ???)
 #dotnet_diagnostic.CA5392.severity	= none # Use DefaultDllImportSearchPaths attribute for P/Invokes (Windows only)
 
 #dotnet_diagnostic.CS8524.severity	= none # The switch expression does not handle all possible values of its input type
@@ -163,8 +165,10 @@ dotnet_diagnostic.CS8981.severity 	= none # The type name only contains lower-ca
 dotnet_diagnostic.CS8620.severity 	= none # IEnumerable differences in the nullability of reference types
 
 dotnet_diagnostic.IDE0042.severity  = none # Deconstruct variable declaration
+dotnet_diagnostic.IDE0045.severity  = none # "if" statment can be simplified
 dotnet_diagnostic.IDE0047.severity  = none # Remove unnecessary parentheses
 dotnet_diagnostic.IDE0055.severity  = none # Fix formatting
+dotnet_diagnostic.IDE0062.severity  = error # Local functions must be static; pass state explicitly
 
 dotnet_diagnostic.SA1131.severity = none # Constant values should appear on the right-hand side of comparisons !!! not true for "<" and "<=" in speacel for ranges "0 <= X && X < 10"
 dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence !!! hmm ..., just no

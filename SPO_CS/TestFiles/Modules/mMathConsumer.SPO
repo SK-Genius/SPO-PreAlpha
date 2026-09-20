@@ -1,0 +1,29 @@
+§IMPORT {
+	mMath: {
+		Min...: §DEF Min... € [[§INT, §INT] => §INT]
+		Max...: §DEF Max... € [[§INT, §INT] => §INT]
+		...Clamp...: §DEF ...Clamp... € [[§INT, [§INT, §INT]] => §INT]
+		Abs...: §DEF Abs... € [§INT => §INT]
+		Sign...: §DEF Sign... € [§INT => §INT]
+	}
+}
+
+§DEF NegativeThree € §INT = -3
+§DEF NegativeFive € §INT = -5
+§DEF NegativeSeven € §INT = -7
+
+§EXPORT (
+	.Min (3, 5)
+	.Min (NegativeThree, NegativeFive)
+	.Max (3, 5)
+	.Max (NegativeThree, NegativeFive)
+	3 .Clamp (0, 5)
+	NegativeThree .Clamp (0, 5)
+	7 .Clamp (0, 5)
+	.Abs 7
+	.Abs 0
+	.Abs NegativeSeven
+	.Sign 7
+	.Sign 0
+	.Sign NegativeSeven
+)

@@ -1,0 +1,41 @@
+0)	All of the following rules should be applied with good judgment. They serve readability, navigation, and clean "git diff" output.
+
+1)	Blank lines are indented. TrimEOL does not apply to the indentation of blank lines.
+
+2)	Opening parentheses are either closed on the same line, or a line break is inserted immediately after the opening parenthesis. The closing parenthesis then starts on a new line, and list items between them each get their own line.
+	a(b, c)
+	a(
+		b,
+		c
+	)
+
+3)	Indentation always increases by one unit, usually one tab. Indentation should be determined by parentheses.
+	- Correct:
+		return (
+			a
+			? b
+			: c
+		);
+	
+	- Incorrect:
+		return a
+			? b
+			: c;
+
+4)	Lines should not be too long. This also helps when reviewing code changes in a side-by-side git diff.
+
+5)	Names use PascalCase, but may have a lowercase prefix:
+	- g Global
+	- a Argument
+	- t Type
+	- i Interface
+	- c Constant
+	- m Module
+
+6)	Internal types such as tStream, tMaybe, tResult, tFunc, ... should be used, as well as aliases such as tBool, tInt32, tText, ... .
+
+7)	Don't use System.Collection.* .
+
+8)	No external libraries are used.
+
+9)	Functional style and immutable data are preferred, while OOP style should be avoided.

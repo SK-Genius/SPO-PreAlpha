@@ -1,0 +1,232 @@
+§TYPES
+	t_0 := [INT => TRUE]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [INT => FALSE]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE => INT]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE, t_1]
+	t_7 := [t_6, t_3]
+	t_8 := [t_7, t_5]
+	t_9 := [t_8, t_5]
+	t_10 := [TYPE => TYPE]
+	t_11 := [§FREE € t_10]
+	t_12 := [§FREE]
+	t_13 := [§FREE]
+	t_14 := [.t_11 t_12]
+	t_15 := [EMPTY_TYPE, t_14]
+	t_16 := [t_12 => t_13]
+	t_17 := [t_15, t_16]
+	t_18 := [.t_11 t_13]
+	t_19 := [t_17 => t_18]
+	t_20 := [§ALL t_13 => t_19]
+	t_21 := [§ALL t_12 => t_20]
+	t_22 := [#_...>>... t_21]
+	t_23 := [{EMPTY_TYPE} + t_22]
+	t_24 := [t_12 => t_18]
+	t_25 := [t_15, t_24]
+	t_26 := [t_25 => t_18]
+	t_27 := [§ALL t_13 => t_26]
+	t_28 := [§ALL t_12 => t_27]
+	t_29 := [#_...>>?... t_28]
+	t_30 := [{t_23} + t_29]
+	t_31 := [§FREE]
+	t_32 := [.t_11 t_31]
+	t_33 := [EMPTY_TYPE, t_32]
+	t_34 := [t_33, t_31]
+	t_35 := [t_34 => t_31]
+	t_36 := [§ALL t_31 => t_35]
+	t_37 := [#_...Or... t_36]
+	t_38 := [{t_30} + t_37]
+	t_39 := [EMPTY_TYPE => t_31]
+	t_40 := [t_33, t_39]
+	t_41 := [t_40 => t_31]
+	t_42 := [§ALL t_31 => t_41]
+	t_43 := [#_...OrDo... t_42]
+	t_44 := [{t_38} + t_43]
+	t_45 := [EMPTY_TYPE => t_32]
+	t_46 := [t_33, t_45]
+	t_47 := [t_46 => t_32]
+	t_48 := [§ALL t_31 => t_47]
+	t_49 := [#_...OrTry... t_48]
+	t_50 := [{t_44} + t_49]
+	t_51 := [t_31 => t_32]
+	t_52 := [§ALL t_31 => t_51]
+	t_53 := [#_None... t_52]
+	t_54 := [{t_50} + t_53]
+	t_55 := [#_Some... t_52]
+	t_56 := [{t_54} + t_55]
+	t_57 := [§SIG_WITH t_11 IN t_56]
+	t_58 := [#_mMaybe t_57]
+	t_59 := [{EMPTY_TYPE} + t_58]
+	t_60 := [EMPTY_TYPE, TRUE]
+	t_61 := [t_60, FALSE]
+	t_62 := [t_61, INT]
+	t_63 := [t_62, INT]
+	t_64 := [t_63, INT]
+	t_65 := [t_64, INT]
+	t_66 := [t_59 => t_65]
+	t_67 := [t_9 => t_66]
+
+§DEF d_0 € t_1
+	__ := ARG
+	§RETURN TRUE IF TRUE
+
+§DEF d_1 € t_3
+	__ := ARG
+	§RETURN FALSE IF TRUE
+
+§DEF d_2 € t_5
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 0
+	§RETURN r_1 IF TRUE
+
+§DEF d_3 € t_5
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 2
+	§RETURN r_1 IF TRUE
+
+§DEF d_4 € t_67
+	d_3 := §2ND ENV
+	r_119 := §1ST ENV
+	d_2 := §2ND r_119
+	r_120 := §1ST r_119
+	d_1 := §2ND r_120
+	r_121 := §1ST r_120
+	d_0 := §2ND r_121
+	r_122 := §1ST r_121
+	r_1 := {ARG} #_mMaybe
+	r_3 := [Type_TYPE => Type_TYPE]
+	r_2 := [§FREE € r_3]
+	r_4 := [§FREE]
+	r_5 := [§FREE]
+	r_6 := [.r_2 r_4]
+	r_7 := [EMPTY_TYPE, r_6]
+	r_8 := [r_4 => r_5]
+	r_9 := [r_7, r_8]
+	r_10 := [.r_2 r_5]
+	r_11 := [r_9 => r_10]
+	r_12 := [§ALL r_5 => r_11]
+	r_13 := [§ALL r_4 => r_12]
+	r_14 := [#_...>>... r_13]
+	r_15 := [{EMPTY_TYPE} + r_14]
+	r_16 := [§FREE]
+	r_17 := [§FREE]
+	r_18 := [.r_2 r_16]
+	r_19 := [EMPTY_TYPE, r_18]
+	r_20 := [.r_2 r_17]
+	r_21 := [r_16 => r_20]
+	r_22 := [r_19, r_21]
+	r_23 := [.r_2 r_17]
+	r_24 := [r_22 => r_23]
+	r_25 := [§ALL r_17 => r_24]
+	r_26 := [§ALL r_16 => r_25]
+	r_27 := [#_...>>?... r_26]
+	r_28 := [{r_15} + r_27]
+	r_29 := [§FREE]
+	r_30 := [.r_2 r_29]
+	r_31 := [EMPTY_TYPE, r_30]
+	r_32 := [r_31, r_29]
+	r_33 := [r_32 => r_29]
+	r_34 := [§ALL r_29 => r_33]
+	r_35 := [#_...Or... r_34]
+	r_36 := [{r_28} + r_35]
+	r_37 := [§FREE]
+	r_38 := [.r_2 r_37]
+	r_39 := [EMPTY_TYPE, r_38]
+	r_40 := [EMPTY_TYPE => r_37]
+	r_41 := [r_39, r_40]
+	r_42 := [r_41 => r_37]
+	r_43 := [§ALL r_37 => r_42]
+	r_44 := [#_...OrDo... r_43]
+	r_45 := [{r_36} + r_44]
+	r_46 := [§FREE]
+	r_47 := [.r_2 r_46]
+	r_48 := [EMPTY_TYPE, r_47]
+	r_49 := [.r_2 r_46]
+	r_50 := [EMPTY_TYPE => r_49]
+	r_51 := [r_48, r_50]
+	r_52 := [.r_2 r_46]
+	r_53 := [r_51 => r_52]
+	r_54 := [§ALL r_46 => r_53]
+	r_55 := [#_...OrTry... r_54]
+	r_56 := [{r_45} + r_55]
+	r_57 := [§FREE]
+	r_58 := [.r_2 r_57]
+	r_59 := [r_57 => r_58]
+	r_60 := [§ALL r_57 => r_59]
+	r_61 := [#_None... r_60]
+	r_62 := [{r_56} + r_61]
+	r_63 := [§FREE]
+	r_64 := [.r_2 r_63]
+	r_65 := [r_63 => r_64]
+	r_66 := [§ALL r_63 => r_65]
+	r_67 := [#_Some... r_66]
+	r_68 := [{r_62} + r_67]
+	r_69 := [§SIG_WITH r_2 IN r_68]
+	r_70 := §TRY r_1 AS_SIG r_69
+	r_71 := §SIG_HEAD r_70
+	r_72 := §SIG_BODY r_70
+	_F := r_71
+	r_73 := {r_72} #_Some...
+	_Some... := r_73
+	r_74 := {r_72} #_None...
+	_None... := r_74
+	r_75 := {r_72} #_...>>...
+	_...>>... := r_75
+	r_76 := {r_72} #_...>>?...
+	_...>>?... := r_76
+	r_77 := {r_72} #_...Or...
+	_...Or... := r_77
+	r_78 := {r_72} #_...OrDo...
+	_...OrDo... := r_78
+	r_79 := {r_72} #_...OrTry...
+	_...OrTry... := r_79
+	_F... := r_71
+	r_80 := 1
+	r_81 := ._Some... r_80
+	_SomeInt := r_81
+	r_82 := 0
+	r_83 := ._None... r_82
+	_NoneInt := r_83
+	r_84 := 0
+	_ZeroValue := r_84
+	r_85 := .d_0 EMPTY
+	_ToTrue := r_85
+	r_86 := .d_1 EMPTY
+	_ToFalse := r_86
+	r_87 := .d_2 EMPTY
+	_Zero := r_87
+	r_88 := .d_3 EMPTY
+	_Two := r_88
+	r_89 := EMPTY, _SomeInt
+	r_90 := r_89, _ToTrue
+	r_91 := ._...>>... r_90
+	r_92 := EMPTY, r_91
+	r_93 := r_92, TRUE
+	r_94 := ._...Or... r_93
+	r_95 := EMPTY, r_94
+	r_96 := EMPTY, _NoneInt
+	r_97 := r_96, _ToFalse
+	r_98 := ._...>>... r_97
+	r_99 := EMPTY, r_98
+	r_100 := r_99, FALSE
+	r_101 := ._...Or... r_100
+	r_102 := r_95, r_101
+	r_103 := EMPTY, _SomeInt
+	r_104 := r_103, _ZeroValue
+	r_105 := ._...Or... r_104
+	r_106 := r_102, r_105
+	r_107 := EMPTY, _NoneInt
+	r_108 := r_107, _ZeroValue
+	r_109 := ._...Or... r_108
+	r_110 := r_106, r_109
+	r_111 := EMPTY, _SomeInt
+	r_112 := r_111, _Zero
+	r_113 := ._...OrDo... r_112
+	r_114 := r_110, r_113
+	r_115 := EMPTY, _NoneInt
+	r_116 := r_115, _Two
+	r_117 := ._...OrDo... r_116
+	r_118 := r_114, r_117
+	§RETURN r_118 IF TRUE

@@ -141,4 +141,11 @@ public static class mStd {
 	ToUTF8(
 		this string a
 	) => System.Text.Encoding.UTF8.GetBytes(a);
+	
+	public static tBool
+	RefEq<t>(
+		t a1,
+		t a2
+	) where t : class
+	=> ReferenceEquals(a1, a2);
 }
