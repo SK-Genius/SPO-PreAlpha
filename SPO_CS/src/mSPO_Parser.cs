@@ -641,7 +641,7 @@ mSPO_Parser {
 	)
 	.ModifyS((aSpan, aGenericType, aTypes) => mSPO_AST.GenericApplyType(aSpan, aGenericType, mSPO_AST.TupleType(aSpan, aTypes)))
 	.SetName(nameof(GenericApplyType));
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigTypeNode<tSpan>, tError>
 	SigType = E(
 		mParserGen.Seq(
@@ -652,7 +652,7 @@ mSPO_Parser {
 	)
 	.ModifyS(mSPO_AST.SigType)
 	.SetName(nameof(SigType));
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPatternNode<tSpan>, tError>
 	SigHeadPattern = mParserGen.OneOf(
 		[
@@ -672,7 +672,7 @@ mSPO_Parser {
 		]
 	)
 	.SetName(nameof(SigHeadPattern));
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigNode<tSpan>, tError>
 	Sig = mParserGen.Seq(
 		-KeyWord("SIG") +Type,
@@ -681,7 +681,7 @@ mSPO_Parser {
 	)
 	.ModifyS(mSPO_AST.Sig)
 	.SetName(nameof(Sig));
-
+	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigPatternNode<tSpan>, tError>
 	SigPattern = mParserGen.Seq(
 		-KeyWord("SIG") +Type,

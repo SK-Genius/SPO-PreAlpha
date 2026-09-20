@@ -88,6 +88,136 @@ mIL_GenerateOpcodes_Tests {
 	Tests = mTest.Tests(
 		nameof(mIL_GenerateOpcodes),
 		[
+			mTest.Test("ALL is callable and describes generic function signatures",
+				aDebug => {
+					const tText Source = """
+					§TYPES
+						t := [§FREE]
+						Body := [t => t]
+						Identity := [§ALL t => Body]
+						IdDef := [EMPTY_TYPE => Identity]
+						Func := [EMPTY_TYPE => TYPE]
+						Def := [IdDef => Func]
+					§DEF identity € IdDef
+						§RETURN ARG IF TRUE
+					§DEF main € Def
+						id := .ENV EMPTY
+						seven := 7
+						value := .id seven
+						flag := .id TRUE
+						t := [§FREE]
+						Body := [t => t]
+						T := [§ALL t => Body]
+						result := .T INT_TYPE
+						§RETURN result IF TRUE
+					""";
+					var Module = CompileModule(Source + "\n", "", __ => aDebug(__()));
+					var IdDef = Module.Defs.TryFirst().AssertNotEmpty();
+					var Def = Module.Defs.TryGet(Module.DefLookup.TryGet("main").AssertNotEmpty()).AssertNotEmpty();
+					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					mAssert.IsTrue(IdDef.DefType.Refs[2].KindType().SameType(Kind));
+					mAssert.IsTrue(Def.Types.Get(Def._LastReg - 1).SameType(Kind));
+					mAssert.IsTrue(Def.Types.Get(Def._LastReg).IsType());
+					var Result = mVM_Data.Empty();
+					mVM.Run<tSpan>(
+						mVM_Data.Proc(Def, mVM_Data.Def(IdDef)),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
+						Result,
+						mTextParser.ToText,
+						__ => aDebug(__())
+					);
+					mAssert.IsTrue(Result.TypeValue().SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())));
+					mAssert.ThrowsError(() => {
+						CompileModule(Source.Replace("[§ALL t => Body]", "[§GENERIC t => Body]") + "\n", "", _ => { });
+					});
+					mAssert.ThrowsError(() => {
+						CompileModule(Source.Replace("[§ALL t => Body]", "[§ALL INT => Body]") + "\n", "", _ => { });
+					});
+				}
+			),
+			mTest.Test("SIG type constructors are callable functions",
+				aDebug => {
+					const tText Source = """
+					§TYPES
+						Func := [EMPTY_TYPE => TYPE]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						t := [§FREE]
+						F := [§ALL t => t]
+						result := .F INT_TYPE
+						§RETURN result IF TRUE
+					""";
+					var Def = CompileModule(Source + "\n", "", __ => aDebug(__())).Defs.TryFirst().AssertNotEmpty();
+					var Result = mVM_Data.Empty();
+					mVM.Run<tSpan>(
+						mVM_Data.Proc(Def, mVM_Data.Empty()),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
+						Result,
+						mTextParser.ToText,
+						__ => aDebug(__())
+					);
+					mAssert.IsTrue(Result.TypeValue().IsInt());
+					mAssert.ThrowsError(() => {
+						CompileModule(Source.Replace("§RETURN result", "§RETURN F") + "\n", "", _ => { });
+					});
+					mAssert.ThrowsError(() => {
+						CompileModule(Source.Replace("[§FREE]", "[§FREE € Type_TYPE]") + "\n", "", _ => { });
+					});
+				}
+			),
+			mTest.Test("SIG parameter declarations cannot escape as values",
+				aDebug => {
+					const tText Source = """
+					§TYPES
+						Func := [EMPTY_TYPE => TYPE]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						F := [§SIG_HEAD Type_TYPE]
+						Contract := [§SIG_WITH F IN F]
+						§RETURN Contract IF TRUE
+					
+					""";
+					CompileModule(Source, "", __ => aDebug(__()));
+					mAssert.ThrowsError(() => {
+						CompileModule(Source.Replace("§RETURN Contract", "§RETURN F"), "", _ => { });
+					});
+				}
+			),
+			mTest.Test("SIG uses type values while head registers have type TYPE",
+				aDebug => {
+					const tText Source = """
+					§TYPES
+						Func := [EMPTY_TYPE => TYPE]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						t := [§SIG_HEAD Type_TYPE]
+						contract := [§SIG_WITH t IN t]
+						body := 7
+						payload := INT_TYPE, body
+						package := §SIG contract WITH payload
+						head := §SIG_HEAD package
+						§RETURN head IF TRUE
+					""";
+					var Def = CompileModule(Source + "\n", "", __ => aDebug(__())).Defs.TryFirst().AssertNotEmpty();
+					mAssert.IsTrue(Def.Types.Get(mVM_Data.cIntTypeReg).IsType());
+					mAssert.IsTrue(Def.Types.Get(Def._LastReg).IsType());
+					var Result = mVM_Data.Empty();
+					mVM.Run<tSpan>(
+						mVM_Data.Proc(Def, mVM_Data.Empty()),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
+						Result,
+						mTextParser.ToText,
+						__ => aDebug(__())
+					);
+					mAssert.IsTrue(Result.TypeValue().IsInt());
+					mAssert.ThrowsError(
+						() => { CompileModule(Source.Replace("body := 7", "body := TRUE") + "\n", "", _ => { }); }
+					);
+				}
+			),
 			mTest.Test("Call",
 				aDebugStream => {
 					var (Defs, DefLookup) = CompileModule(

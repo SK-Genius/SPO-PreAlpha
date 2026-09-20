@@ -48,53 +48,53 @@
 
 §DEF d_2 € t_29
 	d_1 := §2ND ENV
-	r_42 := §1ST ENV
-	d_0 := §2ND r_42
-	r_43 := §1ST r_42
-	_t := [§FREE]
-	_tStack := [§FREE]
-	r_1 := [EMPTY_TYPE, _t]
-	r_2 := [r_1, _tStack]
-	r_3 := [r_2 | EMPTY_TYPE]
-	r_4 := [§REC _tStack => r_3]
-	r_5 := [§ALL _t => r_4]
-	_tStack... := r_5
-	r_6 := .d_0 EMPTY
-	_Push...To... := r_6
-	r_7 := .d_1 EMPTY
-	_...AsBool := r_7
-	r_8 := 3
-	r_9 := EMPTY, r_8
-	r_10 := 2
+	r_44 := §1ST ENV
+	d_0 := §2ND r_44
+	r_45 := §1ST r_44
+	r_1 := [§FREE]
+	r_2 := [§FREE]
+	r_3 := [EMPTY_TYPE, r_1]
+	r_4 := [r_3, r_2]
+	r_5 := [r_4 | EMPTY_TYPE]
+	r_6 := [§REC r_2 => r_5]
+	r_7 := [§ALL r_1 => r_6]
+	_tStack... := r_7
+	r_8 := .d_0 EMPTY
+	_Push...To... := r_8
+	r_9 := .d_1 EMPTY
+	_...AsBool := r_9
+	r_10 := 3
 	r_11 := EMPTY, r_10
-	r_12 := 1
+	r_12 := 2
 	r_13 := EMPTY, r_12
-	r_14 := r_13, EMPTY
-	r_15 := ._Push...To... r_14
-	r_16 := r_11, r_15
+	r_14 := 1
+	r_15 := EMPTY, r_14
+	r_16 := r_15, EMPTY
 	r_17 := ._Push...To... r_16
-	r_18 := r_9, r_17
+	r_18 := r_13, r_17
 	r_19 := ._Push...To... r_18
-	r_20 := EMPTY, r_19
-	r_21 := 3
+	r_20 := r_11, r_19
+	r_21 := ._Push...To... r_20
 	r_22 := EMPTY, r_21
-	r_23 := 2
+	r_23 := 3
 	r_24 := EMPTY, r_23
-	r_25 := 1
+	r_25 := 2
 	r_26 := EMPTY, r_25
-	r_27 := r_26, EMPTY
-	r_28 := ._Push...To... r_27
-	r_29 := r_24, r_28
+	r_27 := 1
+	r_28 := EMPTY, r_27
+	r_29 := r_28, EMPTY
 	r_30 := ._Push...To... r_29
-	r_31 := r_22, r_30
+	r_31 := r_26, r_30
 	r_32 := ._Push...To... r_31
-	r_33 := r_20, r_32
-	r_34 := EMPTY, TRUE
-	r_35 := ._...AsBool FALSE
-	r_36 := EMPTY, r_35
-	r_37 := r_36, EMPTY
-	r_38 := ._Push...To... r_37
-	r_39 := r_34, r_38
+	r_33 := r_24, r_32
+	r_34 := ._Push...To... r_33
+	r_35 := r_22, r_34
+	r_36 := EMPTY, TRUE
+	r_37 := ._...AsBool FALSE
+	r_38 := EMPTY, r_37
+	r_39 := r_38, EMPTY
 	r_40 := ._Push...To... r_39
-	r_41 := r_33, r_40
-	§RETURN r_41 IF TRUE
+	r_41 := r_36, r_40
+	r_42 := ._Push...To... r_41
+	r_43 := r_35, r_42
+	§RETURN r_43 IF TRUE

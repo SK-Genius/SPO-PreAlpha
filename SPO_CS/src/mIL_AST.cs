@@ -40,6 +40,7 @@ mIL_AST {
 		_, // unused
 		_BeginTypes_,
 		TypePair = _BeginTypes_,    // T := [T, T]
+		TypeSigHead,                // F := [§SIG_HEAD T]
 		TypeSig,                    // T := [§SIG_WITH T IN T]
 		TypePrefix,                 // T := [#N T]
 		TypeRecord,                 // T := [{T} +T]
@@ -209,7 +210,8 @@ mIL_AST {
 		tCommandNodeType.TypeSet => $"{a._1} := [{a._2} | {a._3}]",
 		tCommandNodeType.TypeCond => $"{a._1} := [{a._2} & {a._3}]",
 		tCommandNodeType.TypeVar => $"{a._1} := [§VAR {a._2}]",
-		tCommandNodeType.TypeFree => $"{a._1} := [§FREE" + a._2.Match(__ => $" € {__}", () => "") + "]",
+		tCommandNodeType.TypeFree => $"{a._1} := [§FREE]",
+		tCommandNodeType.TypeSigHead => $"{a._1} := [§SIG_HEAD {a._2}]",
 		tCommandNodeType.TypeRecursive => $"{a._1} := [§REC {a._2} => {a._3}]",
 		tCommandNodeType.TypeInterface => $"{a._1} := [§ANY {a._2} => {a._3}]",
 		tCommandNodeType.TypeGeneric => $"{a._1} := [§ALL {a._2} => {a._3}]",
@@ -770,11 +772,11 @@ mIL_AST {
 	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId);
 
 	public static tCommandNode<tPos>
-	TypeFree<tPos>(
+	TypeSigHead<tPos>(
 		tPos aPos,
 		tText aId,
 		tText aKind
-	) => CommandNode(tCommandNodeType.TypeFree, aPos, aId, aKind);
+	) => CommandNode(tCommandNodeType.TypeSigHead, aPos, aId, aKind);
 	
 	public static tCommandNode<tPos>
 	TypeRecursive<tPos>(

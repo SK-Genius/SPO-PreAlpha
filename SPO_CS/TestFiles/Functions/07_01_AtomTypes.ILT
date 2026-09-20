@@ -17,8 +17,8 @@
 	r_2 := +#_Bla EMPTY
 	_A_4 := r_2
 	r_3 := EMPTY, _A_0
-	r_4 := r_3, _A_1
-	r_5 := r_4, _A_2
+	r_4 := r_3, TRUE
+	r_5 := r_4, FALSE
 	r_6 := r_5, _A_3
 	r_7 := r_6, _A_4
 	§RETURN r_7 IF TRUE

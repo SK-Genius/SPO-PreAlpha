@@ -1,6 +1,6 @@
 §TYPES
 	t_0 := [TYPE => TYPE]
-	t_1 := [§FREE € t_0]
+	t_1 := [§SIG_HEAD t_0]
 	t_2 := [.t_1 INT]
 	t_3 := [EMPTY_TYPE, t_2]
 	t_4 := [TRUE | FALSE]
@@ -10,36 +10,32 @@
 	t_8 := [#Result t_7]
 	t_9 := [t_7 => t_8]
 	t_10 := [EMPTY_TYPE => t_9]
-	t_11 := [FALSE | TRUE]
-	t_12 := [t_7 => t_11]
-	t_13 := [EMPTY_TYPE => t_12]
-	t_14 := [EMPTY_TYPE, t_10]
-	t_15 := [t_14, t_13]
-	t_16 := [t_15 => t_9]
-	t_17 := [EMPTY_TYPE, INT]
-	t_18 := [t_17, t_4]
-	t_19 := [t_17, FALSE]
-	t_20 := [t_18 | t_19]
-	t_21 := [#Result t_20]
-	t_22 := [t_7 => t_21]
-	t_23 := [EMPTY_TYPE => t_22]
-	t_24 := [EMPTY_TYPE, t_23]
-	t_25 := [t_24, t_13]
-	t_26 := [t_25, t_23]
-	t_27 := [t_26, t_13]
-	t_28 := [t_27 => t_22]
-	t_29 := [t_15, t_16]
-	t_30 := [t_29, t_23]
-	t_31 := [t_30, t_13]
-	t_32 := [t_31, t_23]
-	t_33 := [t_32, t_13]
-	t_34 := [t_33, t_28]
-	t_35 := [EMPTY_TYPE => t_20]
-	t_36 := [t_34 => t_35]
+	t_11 := [t_10 => t_9]
+	t_12 := [EMPTY_TYPE, INT]
+	t_13 := [t_12, t_4]
+	t_14 := [t_12, FALSE]
+	t_15 := [t_13 | t_14]
+	t_16 := [#Result t_15]
+	t_17 := [t_7 => t_16]
+	t_18 := [EMPTY_TYPE => t_17]
+	t_19 := [t_7 => t_4]
+	t_20 := [EMPTY_TYPE => t_19]
+	t_21 := [EMPTY_TYPE, t_18]
+	t_22 := [t_21, t_20]
+	t_23 := [t_22, t_18]
+	t_24 := [t_23 => t_17]
+	t_25 := [EMPTY_TYPE, t_10]
+	t_26 := [t_25, t_11]
+	t_27 := [t_26, t_18]
+	t_28 := [t_27, t_20]
+	t_29 := [t_28, t_18]
+	t_30 := [t_29, t_24]
+	t_31 := [EMPTY_TYPE => t_15]
+	t_32 := [t_30 => t_31]
 
 §DEF d_0 € t_10
 	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
+	r_1 := [§SIG_HEAD r_2]
 	r_3 := [.r_1 INT_TYPE]
 	r_4 := [EMPTY_TYPE, r_3]
 	r_5 := [TRUE | FALSE]
@@ -51,9 +47,8 @@
 	r_11 := §SIG_BODY r_9
 	_F := r_10
 	_Body := r_11
-	_F... := r_10
 	r_13 := [Type_TYPE => Type_TYPE]
-	r_12 := [§FREE € r_13]
+	r_12 := [§SIG_HEAD r_13]
 	r_14 := [.r_12 INT_TYPE]
 	r_15 := [EMPTY_TYPE, r_14]
 	r_16 := [TRUE | FALSE]
@@ -65,36 +60,15 @@
 	r_22 := +#Result r_21
 	§RETURN r_22 IF TRUE
 
-§DEF d_1 € t_13
-	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
-	r_3 := [.r_1 INT_TYPE]
-	r_4 := [EMPTY_TYPE, r_3]
-	r_5 := [TRUE | FALSE]
-	r_6 := [.r_1 r_5]
-	r_7 := [r_4, r_6]
-	r_8 := [§SIG_WITH r_1 IN r_7]
-	r_9 := §TRY ARG AS_SIG r_8
-	r_10 := §SIG_HEAD r_9
-	r_11 := §SIG_BODY r_9
-	_F := r_10
-	_Body := r_11
-	_F... := r_10
-	§RETURN TRUE IF TRUE
-
-§DEF d_2 € t_16
-	d_1 := §2ND ENV
-	r_3 := §1ST ENV
-	d_0 := §2ND r_3
-	r_4 := §1ST r_3
+§DEF d_1 € t_11
+	d_0 := ENV
 	r_1 := .d_0 EMPTY
-	r_2 := .d_1 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
+	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_23
+§DEF d_2 € t_18
 	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
+	r_1 := [§SIG_HEAD r_2]
 	r_3 := [.r_1 INT_TYPE]
 	r_4 := [EMPTY_TYPE, r_3]
 	r_5 := [TRUE | FALSE]
@@ -103,7 +77,7 @@
 	r_8 := [§SIG_WITH r_1 IN r_7]
 	r_9 := [§FREE]
 	r_10 := [§ALL r_9 => r_9]
-	r_11 := [r_8, r_10]
+	r_11 := r_8, r_10
 	r_12 := §TRY ARG AS_SIG r_11
 	r_13 := §SIG_HEAD r_12
 	r_14 := §SIG_BODY r_12
@@ -118,9 +92,9 @@
 	r_21 := +#Result r_20
 	§RETURN r_21 IF TRUE
 
-§DEF d_4 € t_13
+§DEF d_3 € t_20
 	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
+	r_1 := [§SIG_HEAD r_2]
 	r_3 := [.r_1 INT_TYPE]
 	r_4 := [EMPTY_TYPE, r_3]
 	r_5 := [TRUE | FALSE]
@@ -129,7 +103,7 @@
 	r_8 := [§SIG_WITH r_1 IN r_7]
 	r_9 := [§FREE]
 	r_10 := [§ALL r_9 => r_9]
-	r_11 := [r_8, r_10]
+	r_11 := r_8, r_10
 	r_12 := §TRY ARG AS_SIG r_11
 	r_13 := §SIG_HEAD r_12
 	r_14 := §SIG_BODY r_12
@@ -141,9 +115,9 @@
 	_BoolValue := r_16
 	§RETURN TRUE IF TRUE
 
-§DEF d_5 € t_23
+§DEF d_4 € t_18
 	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
+	r_1 := [§SIG_HEAD r_2]
 	r_3 := [.r_1 INT_TYPE]
 	r_4 := [EMPTY_TYPE, r_3]
 	r_5 := [TRUE | FALSE]
@@ -159,91 +133,69 @@
 	r_15 := +#Result r_14
 	§RETURN r_15 IF TRUE
 
-§DEF d_6 € t_13
-	r_2 := [Type_TYPE => Type_TYPE]
-	r_1 := [§FREE € r_2]
-	r_3 := [.r_1 INT_TYPE]
-	r_4 := [EMPTY_TYPE, r_3]
-	r_5 := [TRUE | FALSE]
-	r_6 := [.r_1 r_5]
-	r_7 := [r_4, r_6]
-	r_8 := [§SIG_WITH r_1 IN r_7]
-	r_9 := §TRY ARG AS_SIG r_8
-	r_10 := §SIG_HEAD r_9
-	r_11 := §SIG_BODY r_9
-	§RETURN TRUE IF TRUE
-
-§DEF d_7 € t_28
-	d_6 := §2ND ENV
-	r_5 := §1ST ENV
-	d_5 := §2ND r_5
+§DEF d_5 € t_24
+	d_4 := §2ND ENV
+	r_4 := §1ST ENV
+	d_3 := §2ND r_4
+	r_5 := §1ST r_4
+	d_2 := §2ND r_5
 	r_6 := §1ST r_5
-	d_4 := §2ND r_6
-	r_7 := §1ST r_6
-	d_3 := §2ND r_7
-	r_8 := §1ST r_7
-	r_1 := .d_3 EMPTY
-	r_2 := .d_4 EMPTY
+	r_1 := .d_2 EMPTY
+	r_2 := .d_3 EMPTY
 	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_5 EMPTY
-	r_4 := .d_6 EMPTY
-	§TRY_RETURN .r_3 ARG IF r_4
+	r_3 := .d_4 EMPTY
+	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_8 € t_36
-	d_7 := §2ND ENV
-	r_34 := §1ST ENV
-	d_6 := §2ND r_34
-	r_35 := §1ST r_34
-	d_5 := §2ND r_35
+§DEF d_6 € t_32
+	d_5 := §2ND ENV
+	r_35 := §1ST ENV
+	d_4 := §2ND r_35
 	r_36 := §1ST r_35
-	d_4 := §2ND r_36
+	d_3 := §2ND r_36
 	r_37 := §1ST r_36
-	d_3 := §2ND r_37
+	d_2 := §2ND r_37
 	r_38 := §1ST r_37
-	d_2 := §2ND r_38
+	d_1 := §2ND r_38
 	r_39 := §1ST r_38
-	d_1 := §2ND r_39
+	d_0 := §2ND r_39
 	r_40 := §1ST r_39
-	d_0 := §2ND r_40
-	r_41 := §1ST r_40
-	_t := [§FREE]
-	r_1 := [§ALL _t => _t]
-	_tIdentity... := r_1
-	r_2 := [Type_TYPE => Type_TYPE]
-	_F... := [§FREE € r_2]
-	r_3 := [._F... INT_TYPE]
-	r_4 := [EMPTY_TYPE, r_3]
-	r_5 := [TRUE | FALSE]
-	r_6 := [._F... r_5]
-	r_7 := [r_4, r_6]
-	r_8 := [§SIG_WITH _F... IN r_7]
-	_Contract := r_8
-	r_10 := [Type_TYPE => Type_TYPE]
-	r_9 := [§FREE € r_10]
-	r_11 := [.r_9 INT_TYPE]
-	r_12 := [EMPTY_TYPE, r_11]
-	r_13 := [TRUE | FALSE]
-	r_14 := [.r_9 r_13]
-	r_15 := [r_12, r_14]
-	r_16 := [§SIG_WITH r_9 IN r_15]
-	r_17 := 1
-	r_18 := EMPTY, r_17
-	r_19 := r_18, TRUE
-	r_20 := _tIdentity..., r_19
-	r_21 := §SIG r_16 WITH r_20
-	_Package := r_21
-	r_22 := EMPTY, d_0
-	r_23 := r_22, d_1
-	r_24 := .d_2 r_23
-	r_25 := .r_24 _Package
-	r_26 := -#Result r_25
-	_Repacked := r_26
-	r_27 := EMPTY, d_3
-	r_28 := r_27, d_4
-	r_29 := r_28, d_5
-	r_30 := r_29, d_6
-	r_31 := .d_7 r_30
-	r_32 := .r_31 _Repacked
-	r_33 := -#Result r_32
-	§RETURN r_33 IF TRUE
+	r_1 := [§FREE]
+	r_2 := [§ALL r_1 => r_1]
+	_tIdentity... := r_2
+	r_4 := [Type_TYPE => Type_TYPE]
+	r_3 := [§SIG_HEAD r_4]
+	r_5 := [.r_3 INT_TYPE]
+	r_6 := [EMPTY_TYPE, r_5]
+	r_7 := [TRUE | FALSE]
+	r_8 := [.r_3 r_7]
+	r_9 := [r_6, r_8]
+	r_10 := [§SIG_WITH r_3 IN r_9]
+	_Contract := r_10
+	r_12 := [Type_TYPE => Type_TYPE]
+	r_11 := [§SIG_HEAD r_12]
+	r_13 := [.r_11 INT_TYPE]
+	r_14 := [EMPTY_TYPE, r_13]
+	r_15 := [TRUE | FALSE]
+	r_16 := [.r_11 r_15]
+	r_17 := [r_14, r_16]
+	r_18 := [§SIG_WITH r_11 IN r_17]
+	r_19 := [§FREE]
+	r_20 := [§ALL r_19 => r_19]
+	r_21 := 1
+	r_22 := EMPTY, r_21
+	r_23 := r_22, TRUE
+	r_24 := r_20, r_23
+	r_25 := §SIG r_18 WITH r_24
+	_Package := r_25
+	r_26 := .d_1 d_0
+	r_27 := .r_26 _Package
+	r_28 := -#Result r_27
+	_Repacked := r_28
+	r_29 := EMPTY, d_2
+	r_30 := r_29, d_3
+	r_31 := r_30, d_4
+	r_32 := .d_5 r_31
+	r_33 := .r_32 _Repacked
+	r_34 := -#Result r_33
+	§RETURN r_34 IF TRUE

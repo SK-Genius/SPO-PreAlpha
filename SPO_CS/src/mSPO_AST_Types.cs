@@ -15,8 +15,8 @@
 public static class
 mSPO_AST_Types {
 	public struct tScopeItem {
-		public System.String Id;
-		public mMaybe.tMaybe<mVM_Type.tType> FreeType;
+		public tText Id;
+		public mMaybe.tMaybe<mVM_Type.tType> TypeValue;
 		public mVM_Type.tType Type;
 	}
 	
@@ -24,10 +24,10 @@ mSPO_AST_Types {
 	ScopeItem(
 		tText aId,
 		mVM_Type.tType aType,
-		mMaybe.tMaybe<mVM_Type.tType> aFreeType
+		mMaybe.tMaybe<mVM_Type.tType> aTypeValue
 	) => new () {
 		Id = aId,
-		FreeType = aFreeType,
+		TypeValue = aTypeValue,
 		Type = aType,
 	};
 	
@@ -37,7 +37,7 @@ mSPO_AST_Types {
 		mVM_Type.tType aType
 	) => new () {
 		Id = aId,
-		FreeType = mStd.cEmpty,
+		TypeValue = mStd.cEmpty,
 		Type = aType,
 	};
 	
@@ -126,6 +126,32 @@ mSPO_AST_Types {
 				return (
 					mVM_Type.Union(Coverage1.Matched, Coverage2.Matched),
 					mVM_Type.Union(Coverage1.Remaining, Coverage2.Remaining)
+				);
+			}
+			case mSPO_AST.tSigPatternNode<tPos> Sig: {
+				if (!aType.IsSig(out _, out _)) {
+					return (mStd.cEmpty, aType);
+				}
+				if (!Sig.Contract.AsVM_Type(mStd.cEmpty).Match(out var Contract, out _)) {
+					return (aType, aType);
+				}
+				if (!aType.IsSubType(Contract, mStd.cEmpty).Match(out _, out _)) {
+					return (mStd.cEmpty, aType);
+				}
+				var Head = Sig.Head is mSPO_AST.tTypedPatternNode<tPos> TypedHead ? TypedHead.Pattern : Sig.Head;
+				if (!Sig.HeadValue.IsSome(out var HeadValue) || !Sig.Body.TypeAnnotation.IsSome(out _)) {
+					return (aType, aType);
+				}
+				var Body = Contract.Refs[1].Substitute(Contract.Refs[0], HeadValue);
+				var Coverage = Body.SplitForPatternType(Sig.Body);
+				if (Coverage.Matched.IsNone()) {
+					return (mStd.cEmpty, aType);
+				}
+				return (
+					Contract,
+					Head is mSPO_AST.tTypePatternNode<tPos> || Coverage.Remaining.IsSome(out _)
+						? aType
+						: mStd.cEmpty
 				);
 			}
 			case mSPO_AST.tTypedPatternNode<tPos> Typed: {
@@ -298,6 +324,7 @@ mSPO_AST_Types {
 			mStream.tStream<mVM_Type.tType> aBoundTypes
 		) {
 			switch (aType.Kind) {
+				case mVM_Type.tKind.Abstract: return false;
 				case mVM_Type.tKind.Free: {
 					return ReferenceEquals(aType, aType.Refs[0])
 					? !aBoundTypes.Any(__ => ReferenceEquals(__, aType))
@@ -469,31 +496,52 @@ mSPO_AST_Types {
 			mSPO_AST.tIdNode<tPos> IdNode => (
 				IdNode.TypeAnnotation.Match(
 					Annotation => aScope.Where(
-						__ => __.Id == IdNode.Id
+						__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
 					).TryFirst(
 					).Then(
-						__ => __.Type
+						__ => { IdNode.TypeValue = __.TypeValue; return __.Type; }
 					).ElseUse(
 						Annotation
 					),
 					() => (
 						IdNode.Id == "_=..."
 					) ? (
-						mStd.With(mVM_Type.Free(), FreeType => mVM_Type.Proc(FreeType, FreeType, mVM_Type.Empty()))
+						mStd.With(mVM_Type.Free(), TypeValue => mVM_Type.Proc(TypeValue, TypeValue, mVM_Type.Empty()))
 					) : (
 						aScope.Where(
-							__ => __.Id == IdNode.Id
+							__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
 						).TryFirst(
 						).ElseFail(
 							() => (IdNode.Pos, $"No Identifier '{IdNode.Id}' in scope")
 						).Then(
-							__ => __.Type
+							__ => { IdNode.TypeValue = __.TypeValue; return __.Type; }
 						)
 					)
 				)
 			),
 			mSPO_AST.tTypeNode<tPos> Type => (
-				Type.AsVM_Type(aScope)
+				Type.AsVM_Value(aScope).Then(__ => __.KindType())
+			),
+			mSPO_AST.tSigNode<tPos> Sig => mStd.Call(
+				() => {
+					if (
+						!Sig.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error) ||
+						!Sig.Head.AsVM_Value(aScope).Match(out var Head, out Error) ||
+						!Sig.Body.UpdateTypes(aScope).Match(out var Body, out Error)
+					) {
+						return mResult.Fail(Error);
+					}
+					if (!Contract.IsSig(out var Binder, out var BodyType)) {
+						return mResult.Fail((Sig.Contract.Pos, "expected SIG contract"));
+					}
+					if (!Head.KindType().SameType(Binder.KindType())) {
+						return mResult.Fail((Sig.Head.Pos, "SIG head has the wrong kind"));
+					}
+					Sig.Head.TypeAnnotation = Head.KindType();
+					return Body.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).Then(
+						_ => Contract
+					).ModifyError(__ => (Sig.Body.Pos, __));
+				}
 			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Map(
@@ -554,7 +602,7 @@ mSPO_AST_Types {
 												__ => __.Id == GenericPattern.TryGetId().AssertNotEmpty()
 											).TryFirst(
 											).AssertNotEmpty(
-											).FreeType.AssertNotEmpty(
+											).TypeValue.AssertNotEmpty(
 											);
 											
 											return mVM_Type.Generic(T, Proc);
@@ -827,6 +875,54 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+			case mSPO_AST.tSigPatternNode<tPos> Sig: {
+				if (!Sig.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				if (!Contract.IsSig(out var Binder, out var BodyType)) {
+					return mResult.Fail((Sig.Contract.Pos, "expected SIG contract"));
+				}
+				var HeadPattern = Sig.Head;
+				if (HeadPattern is mSPO_AST.tTypedPatternNode<tPos> Typed) {
+					if (Typed.TypeExpression.IsSome(out var KindExpr)) {
+						if (!KindExpr.AsVM_Type(aScope).Match(out var Kind, out Error)) {
+							return mResult.Fail(Error);
+						}
+						if (!Kind.SameType(Binder.KindType())) {
+							return mResult.Fail((KindExpr.Pos, "SIG head binding has the wrong kind"));
+						}
+					}
+					HeadPattern = Typed.Pattern;
+				}
+				var Head = mVM_Type.Abstract(Binder.Id!, Binder.KindType());
+				var Scope = aScope;
+				if (HeadPattern is mSPO_AST.tTypePatternNode<tPos> Concrete) {
+					if (!Concrete.Type.AsVM_Value(aScope).Match(out Head, out Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!Head.KindType().SameType(Binder.KindType())) {
+						return mResult.Fail((Concrete.Pos, "SIG head pattern has the wrong kind"));
+					}
+				} else if (HeadPattern is mSPO_AST.tFreeIdPatternNode<tPos> Binding) {
+					Head = mVM_Type.Abstract(Binding.Id, Binder.KindType());
+					Scope = mStream.Stream(ScopeItem(Binding.Id, Head.KindType(), Head), Scope);
+				}
+				HeadPattern.TypeAnnotation = Head.KindType();
+				Sig.Head.TypeAnnotation = Head.KindType();
+				Sig.HeadValue = Head;
+				var ExpectedBody = BodyType.Substitute(Binder, Head);
+				Result = UpdatePatternTypes(
+					Sig.Body,
+					ExpectedBody,
+					aTypeRelation,
+					Scope
+				).ThenTry(
+					__ => ExpectedBody.SplitForPatternType(Sig.Body).Matched.IsSome(out _)
+						? mResult.OK((Contract, __.Scope)).WithErrorType<(tPos Pos, tText ErrorText)>()
+						: mResult.Fail((Sig.Body.Pos, "SIG body pattern cannot match the body type"))
+				);
+				break;
+			}
 			case mSPO_AST.tFreeIdPatternNode<tPos> FreePatternId: {
 				Result = aType.Then(
 					__ => (
@@ -1085,7 +1181,12 @@ mSPO_AST_Types {
 				
 				Result = (
 					Type,
-					mStream.Stream(ScopeItem(Id.Id, Type), aScope)
+					mStream.Stream(
+						Type.IsType()
+						? ScopeItem(Id.Id, Type, mVM_Type.Free(Id.Id))
+						: ScopeItem(Id.Id, Type),
+						aScope
+					)
 				);
 				break;
 			}
@@ -1155,7 +1256,13 @@ mSPO_AST_Types {
 							aType.Type,
 							mStd.cEmpty
 						).Then(
-							_ => aType.Scope
+							Mappings => (
+								Def.Src is mSPO_AST.tTypeNode<tPos> &&
+								Def.Des.TryGetId().IsSome(out var Id) &&
+								Def.Src.AsVM_Value(aScope).Match(out var Value, out _)
+								? mStream.Stream(ScopeItem(Id, aSrcType, Value), aType.Scope.Where(__ => __.Id != Id))
+								: aType.Scope
+							)
 						).ModifyError(
 							__ => (Def.Src.Pos, __)
 						)
@@ -1291,8 +1398,21 @@ mSPO_AST_Types {
 		_ => mStd.cEmpty,
 	};
 	
+	// Accept a value signature without changing the kind of its type abstraction.
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	AsVM_Type<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aExpression,
+		mStream.tStream<tScopeItem> aScope
+	) {
+		return aExpression.AsVM_Value(aScope).ThenTry(
+			Value => Value.IsSignature()
+				? mResult.OK(Value).WithErrorType<(tPos Pos, tText ErrorText)>()
+				: mResult.Fail((aExpression.Pos, "expected a type or declared generic signature"))
+		);
+	}
+	
+	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
+	AsVM_Value<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aExpression,
 		mStream.tStream<tScopeItem> aScope
 	) {
@@ -1371,15 +1491,13 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIdNode<tPos> IdNode: {
 				Result = aScope.Where(
-					__ => __.Id == IdNode.Id
-				).TryFirst(
+					__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
+				).TryFirst().Match(
+					__ => __.TypeValue,
+					() => IdNode.TypeValue
 				).ElseFail(
-					() => (IdNode.Pos, $"unknown type of Identifier '{IdNode.Id}'")
-				).ThenTry(
-					__ => __.Type.IsType()
-					? __.FreeType.ElseFail(() => (IdNode.Pos, "impossible ???"))
-					: __.Type
-				);
+					() => (IdNode.Pos, $"unknown type value '{IdNode.Id}'")
+				).ThenDo(__ => { IdNode.TypeValue = __; });
 				break;
 			}
 			case mSPO_AST.tProcTypeNode<tPos> ProcType: {
@@ -1396,9 +1514,9 @@ mSPO_AST_Types {
 				var Name = RecursiveType.HeadType.Id;
 				var RecursiveVar = mVM_Type.Free(Name);
 				
-				Result = RecursiveType.BodyType.UpdateTypes(
+				Result = RecursiveType.BodyType.AsVM_Type(
 					mStream.Stream(
-						ScopeItem(Name, RecursiveVar),
+						ScopeItem(Name, mVM_Type.Type(), RecursiveVar),
 						aScope
 					)
 				).Then(
@@ -1440,13 +1558,27 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+			case mSPO_AST.tSigTypeNode<tPos> Sig: {
+				if (!Sig.HeadType.AsVM_Type(aScope).Match(out var Kind, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				if (!Kind.KindType().IsType()) {
+					return mResult.Fail((Sig.HeadType.Pos, "SIG head kind must be a type"));
+				}
+				var Head = mVM_Type.SigHead(Sig.Head.Id, Kind);
+				Sig.Head.TypeAnnotation = Head.KindType();
+				Result = Sig.BodyType.AsVM_Type(
+					mStream.Stream(ScopeItem(Sig.Head.Id, Head.KindType(), Head), aScope)
+				).Then(__ => mVM_Type.Sig(Head, __));
+				break;
+			}
 			case mSPO_AST.tGenericTypeNode<tPos> GenericType: {
 				var Name = GenericType.HeadType.Id;
 				var GenericVar = mVM_Type.Free(Name);
 				
-				Result = GenericType.BodyType.UpdateTypes(
+				Result = GenericType.BodyType.AsVM_Value(
 					mStream.Stream(
-						ScopeItem(Name, GenericVar),
+						ScopeItem(Name, mVM_Type.Type(), GenericVar),
 						aScope
 					)
 				).Then(
@@ -1455,11 +1587,14 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tGenericApplyTypeNode<tPos> GenericApplyType: {
-				Result = GenericApplyType.GenericType.AsVM_Type(aScope).ThenTry(
-					aGenericType => GenericApplyType.ArgType.AsVM_Type(aScope).ThenTry(
-						aArgType => aGenericType.IsGeneric(out var Head, out var Body)
-						? mResult.OK(Body.Substitute(Head, aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
-						: mResult.Fail((GenericApplyType.GenericType.Pos, $"expected generic type but '{GenericApplyType.GenericType.ToText()}'"))
+				Result = GenericApplyType.GenericType.AsVM_Value(aScope).ThenTry(
+					aGenericType => GenericApplyType.ArgType.AsVM_Value(aScope).ThenTry(
+						aArgType => (
+							aGenericType.KindType().IsProc(out var Obj, out var Arg, out _) &&
+							Obj.IsEmpty() && Arg.SameType(aArgType.KindType())
+							? mResult.OK(aGenericType.ApplyType(aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
+							: mResult.Fail((GenericApplyType.Pos, "invalid type constructor or argument kind"))
+						)
 					)
 				);
 				break;
@@ -1469,7 +1604,7 @@ mSPO_AST_Types {
 			}
 		}
 		return Result.ThenDo(
-			__ => { aExpression.TypeAnnotation = __; }
+			__ => { aExpression.TypeAnnotation = __.KindType(); }
 		);
 	}
 }

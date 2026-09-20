@@ -11,53 +11,31 @@
 	t_9 := [{EMPTY_TYPE} + t_8]
 	t_10 := [#_Second INT]
 	t_11 := [{t_9} + t_10]
-	t_12 := [#_First EMPTY_TYPE]
-	t_13 := [{EMPTY_TYPE} + t_12]
-	t_14 := [#_Second INT]
-	t_15 := [{t_13} + t_14]
-	t_16 := [t_7 => t_6]
-	t_17 := [#_First EMPTY_TYPE]
-	t_18 := [{EMPTY_TYPE} + t_17]
-	t_19 := [#_Second INT]
-	t_20 := [{t_18} + t_19]
-	t_21 := [EMPTY_TYPE, t_7]
-	t_22 := [#_First EMPTY_TYPE]
-	t_23 := [{EMPTY_TYPE} + t_22]
-	t_24 := [#_Second INT]
-	t_25 := [{t_23} + t_24]
+	t_12 := [t_7 => t_6]
+	t_13 := [#_First EMPTY_TYPE]
+	t_14 := [{EMPTY_TYPE} + t_13]
+	t_15 := [#_Second INT]
+	t_16 := [{t_14} + t_15]
+	t_17 := [EMPTY_TYPE, t_7]
+	t_18 := [#_First EMPTY_TYPE]
+	t_19 := [{EMPTY_TYPE} + t_18]
+	t_20 := [#_Second INT]
+	t_21 := [{t_19} + t_20]
+	t_22 := [t_17, t_12]
+	t_23 := [INT | EMPTY_TYPE]
+	t_24 := [EMPTY_TYPE => t_23]
+	t_25 := [t_22 => t_24]
 	t_26 := [#_First EMPTY_TYPE]
 	t_27 := [{EMPTY_TYPE} + t_26]
 	t_28 := [#_Second INT]
 	t_29 := [{t_27} + t_28]
-	t_30 := [t_21, t_16]
-	t_31 := [EMPTY_TYPE => INT]
-	t_32 := [t_30 => t_31]
-	t_33 := [#_First EMPTY_TYPE]
-	t_34 := [{EMPTY_TYPE} + t_33]
-	t_35 := [#_Second INT]
-	t_36 := [{t_34} + t_35]
-	t_37 := [#_First EMPTY_TYPE]
-	t_38 := [{EMPTY_TYPE} + t_37]
-	t_39 := [#_Second INT]
-	t_40 := [{t_38} + t_39]
-	t_41 := [#_First EMPTY_TYPE]
-	t_42 := [{EMPTY_TYPE} + t_41]
-	t_43 := [#_Second INT]
-	t_44 := [{t_42} + t_43]
-	t_45 := [#_First EMPTY_TYPE]
-	t_46 := [{EMPTY_TYPE} + t_45]
-	t_47 := [#_Second INT]
-	t_48 := [{t_46} + t_47]
-	t_49 := [#_First EMPTY_TYPE]
-	t_50 := [{EMPTY_TYPE} + t_49]
-	t_51 := [#_Second INT]
-	t_52 := [{t_50} + t_51]
-	t_53 := [#_First EMPTY_TYPE]
-	t_54 := [{EMPTY_TYPE} + t_53]
-	t_55 := [#_Second INT]
-	t_56 := [{t_54} + t_55]
-	t_57 := [t_30, t_32]
-	t_58 := [t_57 => t_31]
+	t_30 := [#_First EMPTY_TYPE]
+	t_31 := [{EMPTY_TYPE} + t_30]
+	t_32 := [#_Second INT]
+	t_33 := [{t_31} + t_32]
+	t_34 := [t_22, t_25]
+	t_35 := [EMPTY_TYPE => INT]
+	t_36 := [t_34 => t_35]
 
 §DEF d_0 € t_7
 	r_1 := {ARG} #_First
@@ -65,13 +43,13 @@
 	r_3 := +#Result TRUE
 	§RETURN r_3 IF TRUE
 
-§DEF d_1 € t_16
+§DEF d_1 € t_12
 	d_0 := ENV
 	r_1 := .d_0 EMPTY
 	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_32
+§DEF d_2 € t_25
 	d_1 := §2ND ENV
 	r_11 := §1ST ENV
 	d_0 := §2ND r_11
@@ -91,7 +69,7 @@
 	§RETURN r_10 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_58
+§DEF d_3 € t_36
 	d_2 := §2ND ENV
 	r_6 := §1ST ENV
 	d_1 := §2ND r_6

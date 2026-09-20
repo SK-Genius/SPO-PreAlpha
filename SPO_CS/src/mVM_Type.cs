@@ -15,6 +15,8 @@ mVM_Type {
 	public enum
 	tKind {
 		Free,
+		Abstract,
+		SigHead,
 		Any,
 		Empty,
 		True,
@@ -76,6 +78,9 @@ mVM_Type {
 				return false;
 			}
 			
+			if (a1.Kind is tKind.Abstract or tKind.SigHead) {
+				return false;
+			}
 			if (a1.Kind is tKind.Free) {
 				return true;
 			}
@@ -105,6 +110,8 @@ mVM_Type {
 		tType aReplacement
 	) {
 		switch (aType.Kind) {
+			case tKind.Abstract:
+			case tKind.SigHead:
 			case tKind.Free: {
 				return ReferenceEquals(aType, aFree)
 				? aReplacement
@@ -124,43 +131,41 @@ mVM_Type {
 			case tKind.Ref:
 			case tKind.Var:
 			case tKind.Set: {
-				return new tType {
-					Prefix = aType.Prefix,
-					Kind = aType.Kind,
-					Refs = System.Array.ConvertAll(aType.Refs, __ => __.Substitute(aFree, aReplacement))
-				};
+				var Refs = mStream.Stream(aType.Refs).Map(
+					__ => __.Substitute(aFree, aReplacement)
+				).ToArrayList().ToArray();
+				return mStream.ZipShort(mStream.Stream(Refs), mStream.Stream(aType.Refs)).All(
+					__ => mStd.RefEq(__.Item1, __.Item2)
+				)
+					? aType
+					: new tType { Prefix = aType.Prefix, Kind = aType.Kind, Refs = Refs };
+			}
+			case tKind.TypeApply: {
+				var Function = aType.Refs[0].Substitute(aFree, aReplacement);
+				var Argument = aType.Refs[1].Substitute(aFree, aReplacement);
+				return mStd.RefEq(Function, aType.Refs[0]) && mStd.RefEq(Argument, aType.Refs[1])
+					? aType
+					: Function.ApplyType(Argument);
 			}
 			case tKind.Record: {
-				mAssert.IsTrue(aType.IsRecord(out var Fields));
-				return Record(
-					Fields.ToStream(
-					).Map(
-						__ => (__.Key, __.Value.Substitute(aFree, aReplacement))
-					).ToArrayList(
-					).ToArray(
-					)
-				);
+				var Fields = aType.Fields.ToStream().Map(
+					__ => (__.Key, Value: __.Value.Substitute(aFree, aReplacement))
+				).ToArrayList().ToArray();
+				return mStream.Stream(Fields).All(
+					__ => mStd.RefEq(__.Value, aType.Fields.TryGet(__.Key).AssertNotEmpty())
+				) ? aType : Record(Fields);
 			}
-			case tKind.Recursive: {
-				return (
-					ReferenceEquals(aType.Refs[0], aFree)
-					? aType
-					: Recursive(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
-				);
-			}
-			case tKind.Generic: {
-				return (
-					ReferenceEquals(aType.Refs[0], aFree)
-					? aType
-					: Generic(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
-				);
-			}
+			case tKind.Sig:
+			case tKind.Recursive:
+			case tKind.Generic:
 			case tKind.Interface: {
-				return (
-					ReferenceEquals(aType.Refs[0], aFree)
+				if (mStd.RefEq(aType.Refs[0], aFree)) {
+					return aType;
+				}
+				var Body = aType.Refs[1].Substitute(aFree, aReplacement);
+				return mStd.RefEq(Body, aType.Refs[1])
 					? aType
-					: Interface(aType.Refs[0], aType.Refs[1].Substitute(aFree, aReplacement))
-				);
+					: new tType { Kind = aType.Kind, Refs = [aType.Refs[0], Body] };
 			}
 			default: {
 				throw new System.NotImplementedException($"aType.Kind '{aType.Kind}'"); // TODO
@@ -189,9 +194,22 @@ mVM_Type {
 			Kind = tKind.Free,
 			Id = aId
 		};
-		Type.Refs = [Type]; // needed for unification
+		Type.Refs = [Type];
 		return Type;
 	}
+	
+	// Fixed unknown values, e.g. opened SIG heads or parameters when comparing signatures.
+	public static tType
+	Abstract(
+		tText aId,
+		tType aKind
+	) => new() { Kind = tKind.Abstract, Id = aId, Refs = [aKind] };
+	
+	public static tType
+	SigHead(
+		tText aId,
+		tType aKind
+	) => new() { Kind = tKind.SigHead, Id = aId, Refs = [aKind] };
 	
 	public static tType
 	Free(
@@ -309,11 +327,121 @@ mVM_Type {
 	) => aType.Kind is tKind.Type;
 	
 	public static tType
-	Value(
+	KindType(
 		this tType aType
+	) => aType.Kind switch {
+		tKind.Abstract or tKind.SigHead => aType.Refs[0],
+		tKind.Generic => Proc(Empty(), Type(), aType.Refs[1].KindType()),
+		tKind.TypeApply => aType.Refs[0].KindType().Refs[2],
+		_ => Type(),
+	};
+	
+	// A declared abstraction can describe a family of value signatures.
+	// This does not change the function kind of the abstraction itself.
+	public static tBool
+	IsSignature(
+		this tType aType
+	) => aType.Kind is tKind.Generic ? aType.Refs[1].IsSignature() : aType.KindType().IsType();
+	
+	public static tBool
+	IsTypeFunctionKind(
+		this tType aType
+	) => (
+		aType.IsProc(out var Obj, out var Arg, out var Res) && Obj.IsEmpty() &&
+		(Arg.IsType() || Arg.IsTypeFunctionKind()) &&
+		(Res.IsType() || Res.IsTypeFunctionKind())
+	);
+	
+	public static tType
+	ApplyType(
+		this tType aConstructor,
+		tType aArgument
 	) {
-		mAssert.IsTrue(aType.Kind is tKind.Type or tKind.Free);
-		return aType.Refs[0];
+		mAssert.IsTrue(
+			aConstructor.KindType().IsProc(out var Obj, out var Arg, out _) &&
+			Obj.IsEmpty() && Arg.SameType(aArgument.KindType()),
+			$"invalid type application: {aConstructor} to {aArgument}"
+		);
+		if (aConstructor.Kind is tKind.Generic) {
+			return aConstructor.Refs[1].Substitute(aConstructor.Refs[0], aArgument);
+		}
+		return new() { Kind = tKind.TypeApply, Refs = [aConstructor, aArgument] };
+	}
+	
+	public static tType
+	Sig(
+		tType aHead,
+		tType aBody
+	) {
+		mAssert.IsTrue(aBody.IsSignature(), "SIG body must be a type or generic signature");
+		return new() { Kind = tKind.Sig, Refs = [aHead, aBody] };
+	}
+	
+	public static tBool
+	IsSig(
+		this tType aType,
+		out tType aHead,
+		out tType aBody
+	) {
+		aHead = default!;
+		aBody = default!;
+		if (aType.Kind is not tKind.Sig) {
+			return false;
+		}
+		aHead = aType.Refs[0];
+		aBody = aType.Refs[1];
+		return true;
+	}
+	
+	// Equality of type values: binder names do not matter; free variables keep their identity.
+	public static tBool
+	SameType(
+		this tType aLeft,
+		tType aRight
+	) {
+		if (mStd.RefEq(aLeft, aRight)) {
+			return true;
+		}
+		if (aLeft.Kind != aRight.Kind || aLeft.Prefix != aRight.Prefix) {
+			return false;
+		}
+		if (aLeft.Kind is tKind.Free or tKind.Abstract or tKind.SigHead) {
+			return false;
+		}
+		if (aLeft.Kind is tKind.Generic or tKind.Recursive or tKind.Interface or tKind.Sig) {
+			return (
+				(
+					aLeft.Refs[0].Kind is tKind.Free or tKind.SigHead &&
+					aRight.Refs[0].Kind == aLeft.Refs[0].Kind
+					? aLeft.Refs[0].KindType().SameType(aRight.Refs[0].KindType())
+					: aLeft.Refs[0].SameType(aRight.Refs[0])
+				) &&
+				aLeft.Refs[1].Substitute(aLeft.Refs[0], aRight.Refs[0]).SameType(aRight.Refs[1])
+			);
+		}
+		if (aLeft.Kind is tKind.Record) {
+			return (
+				aLeft.Fields.ToStream().Count() == aRight.Fields.ToStream().Count() &&
+				aLeft.Fields.ToStream().All(
+					__ => aRight.Fields.TryGet(__.Key).Match(__.Value.SameType, () => false)
+				)
+			);
+		}
+		if (aLeft.Kind is tKind.Set) {
+			static mStream.tStream<tType>
+			Members(tType aType) => aType.IsSet(out var A, out var B)
+				? mStream.Concat(Members(A), Members(B))
+				: mStream.Stream(aType);
+			var Left = Members(aLeft);
+			var Right = Members(aRight);
+			return Left.All(__ => Right.Any(__.SameType)) && Right.All(__ => Left.Any(__.SameType));
+		}
+		return (
+			aLeft.Refs.Length == aRight.Refs.Length &&
+			mStream.ZipShort(mStream.Stream(aLeft.Refs), mStream.Stream(aRight.Refs)).All(
+				__ => __.Item1.SameType(__.Item2)
+			)
+		);
 	}
 	
 	public static tType
@@ -749,10 +877,10 @@ mVM_Type {
 	Generic(
 		tType aTypeHead,
 		tType aTypeBody
-	) => new() {
-		Kind = tKind.Generic,
-		Refs = [aTypeHead, aTypeBody],
-	};
+	) {
+		mAssert.IsTrue(aTypeHead.Kind is tKind.Free, "ALL requires a free type parameter");
+		return new() { Kind = tKind.Generic, Refs = [aTypeHead, aTypeBody] };
+	}
 	
 	public static tBool
 	IsGeneric(
@@ -801,6 +929,7 @@ mVM_Type {
 			tType aType
 		) => aType.Kind switch {
 			tKind.Free => true,
+			tKind.Abstract or tKind.SigHead => false,
 			tKind.Record => aType.Fields.ToStream().Any(__ => HasFreeType(__.Value)),
 			_ => mStream.Stream(aType.Refs).Any(HasFreeType)
 		};
@@ -832,9 +961,13 @@ mVM_Type {
 			aSupType = aSupType.Refs[0];
 		}
 		
+		if (!aSubType.IsSignature() || !aSupType.IsSignature()) {
+			return mResult.Fail("comparison requires types or declared generic signatures");
+		}
+		
 		if (
 			ReferenceEquals(aSubType, aSupType) ||
-			(aSubType == aSupType && !HasFreeType(aSubType))
+			(aSubType.SameType(aSupType) && !HasFreeType(aSubType))
 		) {
 			return aTypeMappings;
 		}
@@ -842,11 +975,15 @@ mVM_Type {
 		var SubBaseType = aSubType.BaseType();
 		
 		if (aSupType.Kind is tKind.Free) {
-			return MapFree(aTypeMappings, aSupType, aSubType);
+			return aSubType.KindType().IsType()
+				? MapFree(aTypeMappings, aSupType, aSubType)
+				: mResult.Fail("a free type variable cannot hold a type abstraction");
 		}
 		
 		if (aSubType.Kind is tKind.Free) {
-			return MapFree(aTypeMappings, aSubType, aSupType);
+			return aSupType.KindType().IsType()
+				? MapFree(aTypeMappings, aSubType, aSupType)
+				: mResult.Fail("a free type variable cannot hold a type abstraction");
 		}
 		
 		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
@@ -886,6 +1023,53 @@ mVM_Type {
 				return SubBaseType.Kind == aSupType.Kind
 					? aTypeMappings
 					: mResult.Fail(ExtendError("", aSubType, aSupType));
+			}
+			case tKind.Abstract:
+			case tKind.SigHead: {
+				return mResult.Fail(ExtendError("different bound types", aSubType, aSupType));
+			}
+			case tKind.TypeApply: {
+				if (SubBaseType.Kind is not tKind.TypeApply) {
+					return mResult.Fail(ExtendError("different type constructors", aSubType, aSupType));
+				}
+				static mResult.tResult<mStream.tStream<(tType Free, tType Ref)>, tText>
+				MatchApplication(
+					tType aLeft,
+					tType aRight,
+					mStream.tStream<(tType Free, tType Ref)> aMappings
+				) {
+					if (aLeft.SameType(aRight)) {
+						return aMappings;
+					}
+					if (aLeft.Kind is not tKind.TypeApply || aRight.Kind is not tKind.TypeApply) {
+						return mResult.Fail("different type function bindings");
+					}
+					return MatchApplication(aLeft.Refs[0], aRight.Refs[0], aMappings).ThenTry(
+						__ => aLeft.Refs[1].IsSubType(aRight.Refs[1], __)
+					).ThenTry(
+						__ => aRight.Refs[1].IsSubType(aLeft.Refs[1], __)
+					);
+				}
+				return MatchApplication(SubBaseType, aSupType, aTypeMappings);
+			}
+			case tKind.Sig: {
+				if (!SubBaseType.IsSig(out var SubHead, out var SubBody)) {
+					return mResult.Fail(ExtendError("expected SIG", aSubType, aSupType));
+				}
+				var SupHead = aSupType.Refs[0];
+				if (!SubHead.KindType().SameType(SupHead.KindType())) {
+					return mResult.Fail(ExtendError("different SIG head kinds", aSubType, aSupType));
+				}
+				if (SupHead.Kind is not tKind.SigHead && !SubHead.SameType(SupHead)) {
+					return mResult.Fail(ExtendError("different SIG heads", aSubType, aSupType));
+				}
+				var Witness = SubHead.Kind is tKind.SigHead
+					? Abstract(SubHead.Id!, SubHead.KindType())
+					: SubHead;
+				return SubBody.Substitute(SubHead, Witness).IsSubType(
+					aSupType.Refs[1].Substitute(SupHead, Witness),
+					aTypeMappings
+				);
 			}
 			case tKind.Pair: {
 				var TailSubType = SubBaseType;
@@ -1011,19 +1195,19 @@ mVM_Type {
 				}
 			}
 			case tKind.Generic: {
-				mAssert.IsTrue(aSupType.IsGeneric(out var SupHead, out var SupBody));
+				var SupHead = aSupType.Refs[0];
+				var SupBody = aSupType.Refs[1];
 				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
-					if (!ReferenceEquals(SubHead, SupHead)) {
-						SubBody = SubBody.Substitute(SubHead, SupHead);
-					}
-					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
-					);
-				} else {
-					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
+					// Signature parameters are inferred from arguments; their declaration order may differ.
+					return SubBody.Substitute(SubHead, SupHead).IsSubType(SupBody, aTypeMappings).ModifyError(
 						__ => ExtendError(__, aSubType, aSupType)
 					);
 				}
+				// A monomorphic function must work for an arbitrary parameter, not just one inferred type.
+				return aSubType.IsSubType(
+					SupBody.Substitute(SupHead, Abstract(SupHead.Id!, Type())),
+					aTypeMappings
+				).ModifyError(__ => ExtendError(__, aSubType, aSupType));
 			}
 			case tKind.Interface: {
 				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
@@ -1253,6 +1437,10 @@ mVM_Type {
 			tKind.Any => "§ANY",
 			tKind.Type => "§TYPE",
 			tKind.Free => "?" + aType.Id,
+			tKind.Abstract => "^" + aType.Id,
+			tKind.SigHead => aType.Id!,
+			tKind.TypeApply => $"[.{aType.Refs[0].ToText(____)} {aType.Refs[1].ToText(____)}]",
+			tKind.Sig => $"[§SIG_WITH {aType.Refs[0]} € {aType.Refs[0].KindType()} IN {aType.Refs[1].ToText(____)}]",
 			tKind.Prefix => $"[{____}#{aType.Prefix} {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Record => mStd.Call(
 				() => {
@@ -1305,7 +1493,7 @@ mVM_Type {
 			tKind.Set => $"[{____}{mStream.Stream(System.MemoryExtensions.AsSpan(aType.Refs)).Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " |" + ____ + a2, "")}{__}]",
 			tKind.Var => $"[{____}§VAR {aType.Refs[0].ToText(____)}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {aType.Refs[0]} = {aType.Refs[1].ToText(____)}{__}]",
-			tKind.Generic => $"[{____}{aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
+			tKind.Generic => $"[{____}§ALL {aType.Refs[0]} => {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Interface => $"[{____}§LET {aType.Refs[0]} IN {aType.Refs[1].ToText(____)}{__}]",
 			tKind.Cond => $"[{____ + aType.Refs[0].ToText(____)} ? ...{__}]", // TODO
 			_ => throw mError.Error("impossible")

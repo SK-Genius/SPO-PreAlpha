@@ -6,7 +6,7 @@
 	t_4 := [EMPTY_TYPE, t_1]
 	t_5 := [t_4, t_3]
 	t_6 := [TYPE => TYPE]
-	t_7 := [§FREE € t_6]
+	t_7 := [§SIG_HEAD t_6]
 	t_8 := [§FREE]
 	t_9 := [§FREE]
 	t_10 := [.t_7 t_8]
@@ -27,21 +27,27 @@
 	t_25 := [§ALL t_20 => t_24]
 	t_26 := [#_...Or... t_25]
 	t_27 := [{t_19} + t_26]
-	t_28 := [t_20 => t_21]
-	t_29 := [§ALL t_20 => t_28]
-	t_30 := [#_None... t_29]
-	t_31 := [{t_27} + t_30]
-	t_32 := [#_Some... t_29]
-	t_33 := [{t_31} + t_32]
-	t_34 := [§SIG_WITH t_7 IN t_33]
-	t_35 := [#_Maybe t_34]
-	t_36 := [{EMPTY_TYPE} + t_35]
-	t_37 := [EMPTY_TYPE, TRUE]
-	t_38 := [t_37, FALSE]
-	t_39 := [t_38, INT]
-	t_40 := [t_39, INT]
-	t_41 := [t_36 => t_40]
-	t_42 := [t_5 => t_41]
+	t_28 := [§FREE]
+	t_29 := [.t_7 t_28]
+	t_30 := [t_28 => t_29]
+	t_31 := [§ALL t_28 => t_30]
+	t_32 := [#_None... t_31]
+	t_33 := [{t_27} + t_32]
+	t_34 := [§FREE]
+	t_35 := [.t_7 t_34]
+	t_36 := [t_34 => t_35]
+	t_37 := [§ALL t_34 => t_36]
+	t_38 := [#_Some... t_37]
+	t_39 := [{t_33} + t_38]
+	t_40 := [§SIG_WITH t_7 IN t_39]
+	t_41 := [#_Maybe t_40]
+	t_42 := [{EMPTY_TYPE} + t_41]
+	t_43 := [EMPTY_TYPE, TRUE]
+	t_44 := [t_43, FALSE]
+	t_45 := [t_44, INT]
+	t_46 := [t_45, INT]
+	t_47 := [t_42 => t_46]
+	t_48 := [t_5 => t_47]
 
 §DEF d_0 € t_1
 	__ := ARG
@@ -51,14 +57,14 @@
 	__ := ARG
 	§RETURN FALSE IF TRUE
 
-§DEF d_2 € t_42
+§DEF d_2 € t_48
 	d_1 := §2ND ENV
 	r_74 := §1ST ENV
 	d_0 := §2ND r_74
 	r_75 := §1ST r_74
 	r_1 := {ARG} #_Maybe
 	r_3 := [Type_TYPE => Type_TYPE]
-	r_2 := [§FREE € r_3]
+	r_2 := [§SIG_HEAD r_3]
 	r_4 := [§FREE]
 	r_5 := [§FREE]
 	r_6 := [.r_2 r_4]
@@ -104,7 +110,6 @@
 	_...>>... := r_42
 	r_43 := {r_39} #_...Or...
 	_...Or... := r_43
-	_F... := r_38
 	r_44 := 1
 	r_45 := ._Some... r_44
 	_X := r_45

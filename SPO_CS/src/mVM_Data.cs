@@ -78,6 +78,7 @@ mVM_Data {
 		TypeAny,
 		TypeInt,
 		TypeFree,
+		TypeSigHead,
 		TypePair,
 		TypeSig,
 		TypePrefix,
@@ -127,6 +128,9 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
+		
+		public readonly mArrayList.tArrayList<tText>
+		TypePrefixes = mArrayList.List<tText>();
 		
 		public tNat32
 		_LastReg = cResReg;
@@ -305,8 +309,9 @@ mVM_Data {
 	Sig<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
+		tNat32 aContractReg,
 		tNat32 aPayloadReg
-	) => aDef._AddReg(aPos, tOpCode.NewSig, aPayloadReg);
+	) => aDef._AddReg(aPos, tOpCode.NewSig, aContractReg, aPayloadReg);
 
 	public static tNat32
 	SigHead<tPos>(
@@ -491,13 +496,8 @@ mVM_Data {
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aArgReg,
-		mMaybe.tMaybe<mVM_Type.tType> aExpectedHead
-	) => aExpectedHead.Match(
-		__ => mStd.Call(() => {
-			return aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg);
-		}),
-		() => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, tNat32.MaxValue)
-	);
+		tNat32 aContractReg
+	) => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, aContractReg);
 	
 	public static tNat32
 	TryAsVar<tPos>(
@@ -561,9 +561,13 @@ mVM_Data {
 	TypePrefix<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aPrefix,
+		tText aPrefix,
 		tNat32 aTypeReg
-	) => aDef._AddReg(aPos, tOpCode.TypePrefix, aPrefix, aTypeReg);
+	) {
+		var Index = aDef.TypePrefixes.Size;
+		aDef.TypePrefixes.Push(aPrefix);
+		return aDef._AddReg(aPos, tOpCode.TypePrefix, Index, aTypeReg);
+	}
 	
 	public static tNat32
 	TypeRecord<tPos>(
@@ -609,6 +613,13 @@ mVM_Data {
 		this tProcDef<tPos> aDef,
 		tPos aPos
 	) => aDef._AddReg(aPos, tOpCode.TypeFree);
+	
+	public static tNat32
+	TypeSigHead<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aKindReg
+	) => aDef._AddReg(aPos, tOpCode.TypeSigHead, aKindReg);
 	
 	public static tNat32
 	TypeRecursive<tPos>(
@@ -658,7 +669,9 @@ mVM_Data {
 		Def,
 		ExternDef,
 		Var,
-		Type
+		Type,
+		TypeFunction,
+		SigBinding
 	}
 	
 	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
@@ -815,24 +828,77 @@ mVM_Data {
 	
 	public static tData
 	Sig(
+		mVM_Type.tType aContract,
 		tData aHead,
 		tData aBody
-	) => Data(tDataType.Sig, aHead._IsMutable || aBody._IsMutable, aHead, aBody);
+	) => Data(tDataType.Sig, aBody._IsMutable, (aContract, aHead, aBody));
 	
 	public static tBool
 	IsSig(
 		this tData aData,
+		out mVM_Type.tType aContract,
 		out tData aHead,
 		out tData aBody
 	) {
-		if (!aData.Is(tDataType.Sig, out aHead, out aBody)) {
-			aHead = aData;
-			aBody = Empty();
+		aContract = default!;
+		aHead = default!;
+		aBody = default!;
+		if (!aData.Is(tDataType.Sig, out (mVM_Type.tType Contract, tData Head, tData Body) Sig)) {
 			return false;
 		}
+		(aContract, aHead, aBody) = Sig;
 		return true;
 	}
 	
+	public static tData
+	Type(
+		mVM_Type.tType aValue
+	) {
+		mAssert.IsTrue(aValue.KindType().IsType(), "expected type value");
+		return Data(tDataType.Type, false, aValue);
+	}
+	
+	// Type expressions may also denote constructors or a bound SIG parameter.
+	public static tData
+	TypeExpression(
+		mVM_Type.tType aValue
+	) => Data(
+		aValue.Kind is mVM_Type.tKind.SigHead ? tDataType.SigBinding :
+		aValue.KindType().IsType() ? tDataType.Type : tDataType.TypeFunction,
+		false,
+		aValue
+	);
+	
+	public static mVM_Type.tType
+	TypeExpressionValue(
+		this tData aValue
+	) {
+		if (aValue.IsBool(out var Bool)) {
+			return Bool ? mVM_Type.True() : mVM_Type.False();
+		}
+		mAssert.IsTrue(aValue._DataType is tDataType.Type or tDataType.TypeFunction or tDataType.SigBinding);
+		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
+		return Expression;
+	}
+	
+	public static mVM_Type.tType
+	SignatureValue(
+		this tData aValue
+	) {
+		var Value = aValue.TypeExpressionValue();
+		mAssert.IsTrue(Value.IsSignature(), "expected type or generic signature");
+		return Value;
+	}
+	
+	public static mVM_Type.tType
+	TypeValue(
+		this tData aValue
+	) {
+		var Value = aValue.TypeExpressionValue();
+		mAssert.IsTrue(Value.KindType().IsType(), "expected type value");
+		return Value;
+	}
+
 	public static tData
 	Tuple(
 		System.Span<tData> a
@@ -1149,7 +1215,7 @@ mVM_Data {
 				return "(" + Result;
 			}),
 			
-			_ when a.IsSig(out var Head, out var Body)
+			_ when a.IsSig(out _, out var Head, out var Body)
 			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
 			
 			_ when a.IsProc(out var Def, out var Env)

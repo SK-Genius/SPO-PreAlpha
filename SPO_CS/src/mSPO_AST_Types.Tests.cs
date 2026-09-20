@@ -28,6 +28,128 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
+			mTest.Test("Generic values and signatures use the same type abstraction",
+				aDebug => {
+					var Expression = mSPO_Parser.Expression.ParseText(
+						"[§GENERIC t [t => t]]",
+						"",
+						__ => aDebug(__())
+					);
+					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Value.KindType().SameType(Kind));
+					var Signature = Expression.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Value.SameType(Signature));
+					mAssert.IsFalse(mVM_Type.Free("x").IsSubType(Value, mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(Value.IsSubType(mVM_Type.Free("x"), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsTrue(Signature.KindType().SameType(Kind));
+					mAssert.IsTrue(Expression.TypeAnnotation.AssertNotEmpty().SameType(Kind));
+					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type(), mStd.cEmpty).Match(out _, out _));
+					var Scope = mStream.Stream(mSPO_AST_Types.ScopeItem("_T", Kind, Value));
+					var Alias = mSPO_Parser.Expression.ParseText("T", "", __ => aDebug(__()));
+					mAssert.IsTrue(Alias.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText).SameType(Value));
+					var Applied = mSPO_Parser.Expression.ParseText("[.T §INT]", "", __ => aDebug(__()))
+						.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Applied.SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())));
+					var Mono = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
+					mAssert.IsFalse(Mono.IsSubType(Signature, mStd.cEmpty).Match(out _, out _));
+					var A = mVM_Type.Free("a");
+					var B = mVM_Type.Free("b");
+					var Body = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(A, B), A);
+					var AB = mVM_Type.Generic(A, mVM_Type.Generic(B, Body));
+					var BA = mVM_Type.Generic(B, mVM_Type.Generic(A, Body));
+					mAssert.IsFalse(AB.SameType(BA));
+					mAssert.IsTrue(AB.IsSubType(BA, mStd.cEmpty).Match(out _, out _));
+				}
+			),
+			mTest.Test("Curried type abstractions retain their function kind until fully applied",
+				aDebug => {
+					var Expression = mSPO_Parser.Expression.ParseText(
+						"[§GENERIC a [§GENERIC b [a => b]]]",
+						"",
+						__ => aDebug(__())
+					);
+					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					var FunctionKind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					mAssert.IsTrue(Value.KindType().SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), FunctionKind)));
+					var Partial = Value.ApplyType(mVM_Type.Int());
+					mAssert.IsTrue(Partial.KindType().SameType(FunctionKind));
+					var Applied = Partial.ApplyType(mVM_Type.Bool());
+					mAssert.IsTrue(Applied.KindType().IsType());
+					mAssert.IsTrue(Applied.SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Bool())));
+					mAssert.ThrowsError(() => { Value.ApplyType(Partial); });
+				}
+			),
+			mTest.Test("SIG type function bindings cannot be inferred as types",
+				aDebug => {
+					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					var F = mVM_Type.SigHead("F", Kind);
+					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type(), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(F.IsSubType(mVM_Type.Int(), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(mVM_Type.Free("t").IsSubType(F, mStd.cEmpty).Match(out _, out _));
+					var Application = F.ApplyType(mVM_Type.Int());
+					mAssert.IsTrue(Application.KindType().IsType());
+					var Parameter = mVM_Type.Free("t");
+					var Identity = mVM_Type.Generic(Parameter, Parameter);
+					mAssert.IsTrue(Application.Substitute(F, Identity).IsInt());
+					mAssert.ThrowsError(() => { mVM_Type.Sig(F, F); });
+				}
+			),
+			mTest.Tests("SIG rejects type functions in type positions",
+				mStream.Stream(
+					"[§SIG_WITH F € [§TYPE => §TYPE] IN F]",
+					"[§SIG_WITH F € [§TYPE => §TYPE] IN [< Value: F >]]",
+					"[§SIG_WITH F € [§TYPE => §TYPE] IN [F => §INT]]",
+					"[§SIG_WITH F € [§TYPE => §TYPE] IN [§INT => F]]",
+					"[§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [.F §INT]]"
+				).Map(Source => mTest.Test(Source,
+					aDebug => {
+						var Expression = mSPO_Parser.Expression.ParseText(Source, "", __ => aDebug(__()));
+						mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty).Match(out _, out _));
+					}
+				)).ToArrayList().ToArray()
+			),
+			mTest.Test("SIG heads and type literals have type TYPE",
+				aDebug => {
+					var Literal = mSPO_Parser.Expression.ParseText("§INT", "", __ => aDebug(__()));
+					var Type = Literal.UpdateTypes(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Type.IsType() && Type.Refs.Length == 0);
+					mAssert.IsTrue(Literal.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText).IsInt());
+					mAssert.IsTrue(Literal.TypeAnnotation.AssertNotEmpty().IsType());
+					var Pattern = mSPO_Parser.Pattern.ParseText(
+						"§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body",
+						"",
+						__ => aDebug(__())
+					);
+					var Scope = mSPO_AST_Types.UpdatePatternTypes(
+						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Equal, mStd.cEmpty
+					).AssertNotError(__ => __.ErrorText).Scope;
+					var Head = Scope.Where(__ => __.Id == "_Head").TryFirst().AssertNotEmpty();
+					var Body = Scope.Where(__ => __.Id == "_Body").TryFirst().AssertNotEmpty();
+					mAssert.IsTrue(Head.Type.IsType() && Head.Type.Refs.Length == 0);
+					mAssert.IsTrue(Body.Type.SameType(Head.TypeValue.AssertNotEmpty()));
+				}
+			),
+			mTest.Tests("SIG rejects invalid packages",
+				mStream.Stream(
+					"§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN §TRUE",
+					"§SIG [§SIG_WITH F € [§TYPE => §TYPE] IN []] WITH §INT IN ()",
+					"§SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }",
+					"""
+					§IF (§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN 7) MATCH {
+						§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body : .((§DEF N € §INT) => N) Body
+					}
+					"""
+				).Map(
+					Source => mTest.Test(Source,
+						aDebug => {
+							var Expression = mSPO_Parser.Expression.ParseText(Source, "", __ => aDebug(__()))
+							.DesugarExpression().AssertNotError(__ => __.ErrorText);
+							mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty).Match(out _, out _));
+						}
+					)
+				).ToArrayList().ToArray()
+			),
 			mTest.Test("BOOL desugars to singleton types",
 				aDebugStream => {
 					var Type = mSPO_Parser.Type.ParseText(

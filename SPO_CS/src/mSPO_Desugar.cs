@@ -34,6 +34,7 @@ mSPO_Desugar {
 		mSPO_AST.tPrefixTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecordTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericTypeNode<tPos> Node => Node, // TODO
+		mSPO_AST.tSigTypeNode<tPos> Node => Node,
 		mSPO_AST.tInterfaceTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tRecursiveTypeNode<tPos> Node => Node, // TODO
 		mSPO_AST.tGenericApplyTypeNode<tPos> Node => Node, // TODO
@@ -82,6 +83,16 @@ mSPO_Desugar {
 					aDesugaredPattern,
 					aDesugaredGuard,
 					Pattern.TypeAnnotation
+				)
+			)
+		),
+		
+		mSPO_AST.tTypePatternNode<tPos> Pattern => Pattern,
+		mSPO_AST.tSigPatternNode<tPos> Pattern
+		=> Pattern.Head.DesugarPattern().ThenTry(
+			aHead => Pattern.Body.DesugarPattern().Then(
+				aBody => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.SigPattern(
+					Pattern.Pos, Pattern.Contract, aHead, aBody, Pattern.TypeAnnotation
 				)
 			)
 		),
@@ -297,6 +308,18 @@ mSPO_Desugar {
 			)
 		),
 		
+		mSPO_AST.tSigNode<tPos> Node
+		=> Node.Head.DesugarExpression(aNextArgIndex).ThenTry(
+			aHead => Node.Body.DesugarExpression(aHead.NextArgIndex).Then(
+				aBody => (
+					(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Sig(
+						Node.Pos, Node.Contract, aHead.Expression, aBody.Expression, Node.TypeAnnotation
+					),
+					aBody.NextArgIndex
+				)
+			)
+		),
+		
 		mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }
 		=> Func.DesugarExpression(aNextArgIndex).ThenTry(
 			aDesugaredFunc => Arg.DesugarExpression(aDesugaredFunc.NextArgIndex).Then(
@@ -447,7 +470,9 @@ mSPO_Desugar {
 							: Call.Func
 						),
 						(
-							Call.Arg is mSPO_AST.tTupleNode<tPos> Args
+							Call.Func is mSPO_AST.tIdNode<tPos> Name && !Name.Id.Contains("...")
+							? Result
+							: Call.Arg is mSPO_AST.tTupleNode<tPos> Args
 							? mSPO_AST.Tuple(
 								Pos,
 								mStream.Stream(Result, Args.Items)
@@ -481,7 +506,9 @@ mSPO_Desugar {
 							? mSPO_AST.Id(Id.Pos, Id.Id[1..] + "...", Id.TypeAnnotation)
 							: Call.Func
 						),
-						mSPO_AST.Tuple(
+						Call.Func is mSPO_AST.tIdNode<tPos> Name && !Name.Id.Contains("...")
+						? Result
+						: mSPO_AST.Tuple(
 							Pos,
 							(
 								Call.Arg is mSPO_AST.tTupleNode<tPos> Args

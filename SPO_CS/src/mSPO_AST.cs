@@ -1,4 +1,4 @@
-﻿﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -135,6 +135,7 @@ mSPO_AST {
 	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeValue;
 		public tText Id = default!;
 		public mStream.tStream<tPos> NameParts;
 	}
@@ -179,6 +180,7 @@ mSPO_AST {
 	tSigPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<mVM_Type.tType> HeadValue;
 		public tTypeNode<tPos> Contract = default!;
 		public tPatternNode<tPos> Head = default!;
 		public tPatternNode<tPos> Body = default!;
@@ -253,7 +255,7 @@ mSPO_AST {
 		public tPatternNode<tPos> Head = default!;
 		public tExpressionNode<tPos> Body = default!;
 	}
-
+	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tShortLambdaNode<tPos> : tExpressionNode<tPos> {
@@ -380,7 +382,7 @@ mSPO_AST {
 		public tTypeNode<tPos> TailType = default!;
 		public tTypeNode<tPos> HeadType = default!;
 	}
-
+	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tSigTypeNode<tPos> : tTypeNode<tPos> {
@@ -398,7 +400,7 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mStream.tStream<(tIdNode<tPos> Key, tTypeNode<tPos> Type)> Elements;
 	}
-
+	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
 	tSetTypeNode<tPos> : tTypeNode<tPos> {

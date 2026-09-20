@@ -2,7 +2,7 @@
 	t_0 := [#Result INT]
 	t_1 := [INT => t_0]
 	t_2 := [EMPTY_TYPE => t_1]
-	t_3 := [FALSE | TRUE]
+	t_3 := [TRUE | FALSE]
 	t_4 := [INT => t_3]
 	t_5 := [EMPTY_TYPE => t_4]
 	t_6 := [§FREE]
@@ -78,30 +78,30 @@
 
 §DEF d_5 € t_26
 	d_4 := §2ND ENV
-	r_15 := §1ST ENV
-	d_3 := §2ND r_15
-	r_16 := §1ST r_15
-	d_2 := §2ND r_16
+	r_16 := §1ST ENV
+	d_3 := §2ND r_16
 	r_17 := §1ST r_16
-	d_1 := §2ND r_17
+	d_2 := §2ND r_17
 	r_18 := §1ST r_17
-	d_0 := §2ND r_18
+	d_1 := §2ND r_18
 	r_19 := §1ST r_18
-	_tRecursive := [§FREE]
-	r_1 := [_tRecursive, EMPTY_TYPE]
-	r_2 := [r_1 | INT_TYPE]
-	r_3 := [§REC _tRecursive => r_2]
-	_tRecursive := r_3
-	r_4 := EMPTY, d_0
-	r_5 := r_4, d_1
-	r_6 := r_5, d_2
-	r_7 := r_6, d_3
-	r_8 := .d_4 r_7
-	_Match... := r_8
-	r_9 := 2
-	r_10 := ._Match... r_9
-	r_11 := EMPTY, r_10
-	r_12 := 1
-	r_13 := ._Match... r_12
-	r_14 := r_11, r_13
-	§RETURN r_14 IF TRUE
+	d_0 := §2ND r_19
+	r_20 := §1ST r_19
+	r_1 := [§FREE]
+	r_2 := [r_1, EMPTY_TYPE]
+	r_3 := [r_2 | INT_TYPE]
+	r_4 := [§REC r_1 => r_3]
+	_tRecursive := r_4
+	r_5 := EMPTY, d_0
+	r_6 := r_5, d_1
+	r_7 := r_6, d_2
+	r_8 := r_7, d_3
+	r_9 := .d_4 r_8
+	_Match... := r_9
+	r_10 := 2
+	r_11 := ._Match... r_10
+	r_12 := EMPTY, r_11
+	r_13 := 1
+	r_14 := ._Match... r_13
+	r_15 := r_12, r_14
+	§RETURN r_15 IF TRUE

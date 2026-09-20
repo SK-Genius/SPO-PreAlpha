@@ -1,0 +1,27 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN []]
+§DEF ConstructorContract = [§SIG_WITH F € [§TYPE => §TYPE] IN []]
+§DEF Identity... = [§GENERIC t t]
+§DEF OtherIdentity... = [§GENERIC u u]
+
+§EXPORT (
+	§IF (§SIG Contract WITH §INT IN ()) MATCH {
+		§SIG Contract WITH [§INT | §BOOL] IN _ : 1
+		§SIG Contract WITH _ IN _ : 0
+	}
+	§IF (§SIG Contract WITH [§INT | §BOOL] IN ()) MATCH {
+		§SIG Contract WITH §INT IN _ : 1
+		§SIG Contract WITH _ IN _ : 0
+	}
+	§IF (§SIG Contract WITH [< Value: §INT >] IN ()) MATCH {
+		§SIG Contract WITH [< Value: §BOOL >] IN _ : 1
+		§SIG Contract WITH _ IN _ : 0
+	}
+	§IF (§SIG Contract WITH [§INT | §BOOL] IN ()) MATCH {
+		§SIG Contract WITH [§BOOL | §INT] IN _ : 1
+		§SIG Contract WITH _ IN _ : 0
+	}
+	§IF (§SIG ConstructorContract WITH Identity... IN ()) MATCH {
+		§SIG ConstructorContract WITH OtherIdentity... IN _ : 1
+		§SIG ConstructorContract WITH _ IN _ : 0
+	}
+)

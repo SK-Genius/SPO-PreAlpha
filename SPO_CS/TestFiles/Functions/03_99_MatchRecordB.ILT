@@ -5,12 +5,8 @@
 	t_3 := [{t_1} + t_2]
 	t_4 := [t_3 => INT]
 	t_5 := [EMPTY_TYPE => t_4]
-	t_6 := [#_First EMPTY_TYPE]
-	t_7 := [{EMPTY_TYPE} + t_6]
-	t_8 := [#_Second INT]
-	t_9 := [{t_7} + t_8]
-	t_10 := [EMPTY_TYPE => INT]
-	t_11 := [t_5 => t_10]
+	t_6 := [EMPTY_TYPE => INT]
+	t_7 := [t_5 => t_6]
 
 §DEF d_0 € t_5
 	r_1 := {ARG} #_First
@@ -19,7 +15,7 @@
 	_Value := r_2
 	§RETURN _Value IF TRUE
 
-§DEF d_1 € t_11
+§DEF d_1 € t_7
 	d_0 := ENV
 	r_1 := .d_0 EMPTY
 	r_2 := +#_First EMPTY

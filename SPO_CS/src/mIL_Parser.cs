@@ -323,16 +323,13 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.TypeVar))
 			.SetDebugName([nameof(mIL_AST.TypeVar)]),
 			
-			mParserGen.Seq(
-				Id,
-				-SpecialToken(":") -Token("="),
-				-SpecialToken("[") -KeyWord("FREE"),
-				(-SpecialToken("€") +Id)[0..1].Modify(__ => __.TryFirst().Then(__ => __.Text)) +-SpecialToken("]")
-			).ModifyS((aSpan, aId, _, _, aKind) => aKind.Match(
-				__ => mIL_AST.TypeFree(aSpan, aId.Text, __),
-				() => mIL_AST.TypeFree(aSpan, aId.Text)
-			))
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("[") -KeyWord("FREE") -SpecialToken("]"))
+			.ModifyS((aSpan, aId, _) => mIL_AST.TypeFree(aSpan, aId.Text))
 			.SetDebugName([nameof(mIL_AST.TypeFree)]),
+			
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("=") -SpecialToken("[") -KeyWord("SIG_HEAD"), Id +-SpecialToken("]"))
+			.ModifyS((aSpan, aId, _, aKind) => mIL_AST.TypeSigHead(aSpan, aId.Text, aKind.Text))
+			.SetDebugName([nameof(mIL_AST.TypeSigHead)]),
 			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -SpecialToken("[") -KeyWord("REC"), Id, -SpecialToken("=>") +Id +-SpecialToken("]"))
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
