@@ -522,12 +522,6 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				switch (0) {
-					case 0 when Proc._DataType is mVM_Data.tDataType.TypeFunction: {
-						aCallStack._Regs.Push(mVM_Data.Type(
-							Proc.TypeValue().ApplyType(Arg.TypeValue())
-						));
-						break;
-					}
 					case 0 when Proc.IsExternDef(out var ExternDef): {
 						aCallStack._Regs.Push(mVM_Data.ExternProc(ExternDef, Arg));
 						break;
