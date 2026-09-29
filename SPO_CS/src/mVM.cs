@@ -101,9 +101,9 @@ mVM {
 		mVM_Type.tType aType,
 		mStream.tStream<(tNat64 Data, tNat64 Type)> aVisited = default
 	) {
-		if (aData._DataType is mVM_Data.tDataType.Type or mVM_Data.tDataType.TypeFunction &&
+		if (aData._DataType is mVM_Data.tDataType.Type &&
 			aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
-			return aData.TypeExpressionValue().KindType().SameType(aType);
+			return aData.TypeValue().KindType().SameType(aType);
 		}
 		if (aType.IsFree(out _, out var Ref)) {
 			return ReferenceEquals(aType, Ref) || aData.Matches(Ref, aVisited);
@@ -129,8 +129,8 @@ mVM {
 			return (
 				aData.IsSig(out var Contract, out var Head, out var Body) &&
 				Contract.IsSubType(aType, mStd.cEmpty).Match(out _, out _) &&
-				Head.TypeExpressionValue().KindType().SameType(Binder.KindType()) &&
-				Body.Matches(SigBody.Substitute(Binder, Head.TypeExpressionValue()), aVisited)
+				Head.TypeValue().KindType().SameType(Binder.KindType()) &&
+				Body.Matches(SigBody.Substitute(Binder, Head.TypeValue()), aVisited)
 			);
 		} else if (aType.IsSet(out var Type1, out var Type2)) {
 			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
@@ -523,8 +523,8 @@ mVM {
 				
 				switch (0) {
 					case 0 when Proc._DataType is mVM_Data.tDataType.TypeFunction: {
-						aCallStack._Regs.Push(mVM_Data.TypeExpression(
-							Proc.TypeExpressionValue().ApplyType(Arg.TypeValue())
+						aCallStack._Regs.Push(mVM_Data.Type(
+							Proc.TypeValue().ApplyType(Arg.TypeValue())
 						));
 						break;
 					}
@@ -707,8 +707,8 @@ mVM {
 				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Head, out var Body));
 				mAssert.IsTrue(Contract.IsSig(out var Binder, out var BodyType));
-				mAssert.IsTrue(Head.TypeExpressionValue().KindType().SameType(Binder.KindType()));
-				mAssert.IsTrue(Body.Matches(BodyType.Substitute(Binder, Head.TypeExpressionValue())));
+				mAssert.IsTrue(Head.TypeValue().KindType().SameType(Binder.KindType()));
+				mAssert.IsTrue(Body.Matches(BodyType.Substitute(Binder, Head.TypeValue())));
 				aCallStack._Regs.Push(mVM_Data.Sig(Contract, Head, Body));
 				break;
 			}
@@ -718,13 +718,13 @@ mVM {
 				var Expected = mMaybe.None<mVM_Type.tType>();
 				if (TestValue.IsPair(out var Contract, out var Head)) {
 					TestValue = Contract;
-					Expected = Head.TypeExpressionValue();
+					Expected = Head.TypeValue();
 				}
 				var Test = TestValue.TypeValue();
 				if (
 					!Arg.Matches(Test) ||
 					!Arg.IsSig(out _, out var ActualHead, out _) ||
-					(Expected.IsSome(out var ExpectedHead) && !ActualHead.TypeExpressionValue().SameType(ExpectedHead))
+					(Expected.IsSome(out var ExpectedHead) && !ActualHead.TypeValue().SameType(ExpectedHead))
 				) {
 					return aCallStack._Parent;
 				}
@@ -746,14 +746,14 @@ mVM {
 			case mVM_Data.tOpCode.TypeVar: {
 				var A = OpCode is mVM_Data.tOpCode.TypePrefix ? mVM_Type.Empty() :
 					OpCode is mVM_Data.tOpCode.TypeSig or mVM_Data.tOpCode.TypeGenericApply
-					? aCallStack._Regs.Get(Arg1).TypeExpressionValue()
-					: aCallStack._Regs.Get(Arg1).SignatureValue();
+					? aCallStack._Regs.Get(Arg1).TypeValue()
+					: aCallStack._Regs.Get(Arg1).TypeValue();
 				var B = OpCode is mVM_Data.tOpCode.TypeVar
 					? mVM_Type.Empty()
 					: OpCode is mVM_Data.tOpCode.TypeGenericApply
 					? aCallStack._Regs.Get(Arg2).TypeValue()
-					: aCallStack._Regs.Get(Arg2).SignatureValue();
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(OpCode switch {
+					: aCallStack._Regs.Get(Arg2).TypeValue();
+				aCallStack._Regs.Push(mVM_Data.Type(OpCode switch {
 					mVM_Data.tOpCode.TypeSig => mVM_Type.Sig(A, B),
 					mVM_Data.tOpCode.TypeGenericApply => A.ApplyType(B),
 					mVM_Data.tOpCode.TypeFunc => mVM_Type.Proc(mVM_Type.Empty(), A, B),
@@ -767,7 +767,7 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.TypeSigHead: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(
+				aCallStack._Regs.Push(mVM_Data.Type(
 					mVM_Type.SigHead("head", aCallStack._Regs.Get(Arg1).TypeValue())
 				));
 				break;
@@ -786,8 +786,8 @@ mVM {
 			case mVM_Data.tOpCode.TypePair: {
 				var Type1 = aCallStack._Regs.Get(Arg1);
 				var Type2 = aCallStack._Regs.Get(Arg2);
-				var T1 = Type1.SignatureValue();
-				var T2 = Type2.SignatureValue();
+				var T1 = Type1.TypeValue();
+				var T2 = Type2.TypeValue();
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
@@ -800,8 +800,8 @@ mVM {
 			case mVM_Data.tOpCode.TypeSet: {
 				var Type1 = aCallStack._Regs.Get(Arg1);
 				var Type2 = aCallStack._Regs.Get(Arg2);
-				var T1 = Type1.SignatureValue();
-				var T2 = Type2.SignatureValue();
+				var T1 = Type1.TypeValue();
+				var T2 = Type2.TypeValue();
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
@@ -812,9 +812,9 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.TypeRecursive: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(mVM_Type.Recursive(
+				aCallStack._Regs.Push(mVM_Data.Type(mVM_Type.Recursive(
 					aCallStack._Regs.Get(Arg1).TypeValue(),
-					aCallStack._Regs.Get(Arg2).SignatureValue()
+					aCallStack._Regs.Get(Arg2).TypeValue()
 				)));
 				break;
 			}
@@ -849,9 +849,9 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.TypeGeneric: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(mVM_Type.Generic(
+				aCallStack._Regs.Push(mVM_Data.Type(mVM_Type.Generic(
 					aCallStack._Regs.Get(Arg1).TypeValue(),
-					aCallStack._Regs.Get(Arg2).TypeExpressionValue()
+					aCallStack._Regs.Get(Arg2).TypeValue()
 				)));
 				break;
 			}
