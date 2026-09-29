@@ -244,7 +244,7 @@ mIL_GenerateOpcodes {
 			.Set(mVM_Data.cFalseReg, mVM_Data.Bool(false));
 			
 			static mVM_Type.tType
-			TypeExpressionValue(
+			KnownTypeValue(
 				tText aId,
 				tNat32 aReg,
 				mArrayList.tArrayList<mVM_Type.tType> aTypes,
@@ -297,7 +297,7 @@ mIL_GenerateOpcodes {
 				#endif
 				
 				if (Command.NodeType is >= mIL_AST.tCommandNodeType._BeginTypes_ and < mIL_AST.tCommandNodeType._EndTypes_) {
-					var Value = CreateTypeExpression(Command, __ => TypeExpressionValue(__, Regs.GetOrThrow(__, Command), Types, ref KnownValues));
+					var Value = CreateTypeExpression(Command, __ => KnownTypeValue(__, Regs.GetOrThrow(__, Command), Types, ref KnownValues));
 					var A = Command._2.Match(__ => Regs.TryGet(__).ElseUse(0u), () => mVM_Data.cTypeTypeReg);
 					var B = Command._3.Match(__ => Regs.TryGet(__).ElseUse(0u), () => 0u);
 					var Reg = Command.NodeType switch {
@@ -328,7 +328,7 @@ mIL_GenerateOpcodes {
 					if (
 						Operand.IsSome(out var Id) && Regs.TryGet(Id).IsSome(out var Reg) &&
 						KnownValues.TryGet(Reg).IsSome(out var Value) &&
-						Value._DataType is mVM_Data.tDataType.Type or mVM_Data.tDataType.SigBinding
+						Value._DataType is mVM_Data.tDataType.Type
 					) {
 						mAssert.IsFalse(HasUnboundSigHead(Value.TypeValue()), Fail_("unbound SIG head used as a value"));
 					}
@@ -337,7 +337,7 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.Sig, _1: var Id, _2: var ContractId, _3: var PayloadId }: {
 						var ContractReg = Regs.GetOrThrow(ContractId, Command);
 						var PayloadReg = Regs.GetOrThrow(PayloadId, Command);
-						var Contract = TypeExpressionValue(ContractId.AssertNotEmpty(), ContractReg, Types, ref KnownValues);
+						var Contract = KnownTypeValue(ContractId.AssertNotEmpty(), ContractReg, Types, ref KnownValues);
 						mAssert.IsTrue(Contract.IsSig(out var Binder, out var BodyType), Fail_("expected SIG contract"));
 						mAssert.IsTrue(Types.Get(PayloadReg).IsPair(out var HeadValue, out var Body), Fail_("expected SIG payload"));
 						mAssert.IsTrue(KnownValues.TryGet(PayloadReg).AssertNotEmpty().IsPair(out var HeadData, out _));
@@ -578,7 +578,7 @@ mIL_GenerateOpcodes {
 						var Reg1 = Regs.GetOrThrow(RegId2, Command);
 						var Reg2 = Regs.GetOrThrow(RegId3, Command);
 						if (Types.Get(Reg1).IsType() || Types.Get(Reg1).IsTypeFunctionKind()) {
-							TypeExpressionValue(RegId2.AssertNotEmpty(), Reg1, Types, ref KnownValues);
+							KnownTypeValue(RegId2.AssertNotEmpty(), Reg1, Types, ref KnownValues);
 						}
 						Regs = Regs.Set(RegId1, NewProc.Pair(Span, Reg1, Reg2));
 						Types.Push(mVM_Type.Pair(Types.Get(Reg1), Types.Get(Reg2)));
