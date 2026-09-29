@@ -669,9 +669,7 @@ mVM_Data {
 		Def,
 		ExternDef,
 		Var,
-		Type,
-		TypeFunction,
-		SigBinding
+		Type
 	}
 	
 	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
@@ -850,52 +848,22 @@ mVM_Data {
 		return true;
 	}
 	
+	// All type-level values use the same VM representation. Their kind is part
+	// of mVM_Type.tType and does not need a second classification in tDataType.
 	public static tData
 	Type(
 		mVM_Type.tType aValue
-	) {
-		mAssert.IsTrue(aValue.KindType().IsType(), "expected type value");
-		return Data(tDataType.Type, false, aValue);
-	}
-	
-	// Type expressions may also denote constructors or a bound SIG parameter.
-	public static tData
-	TypeExpression(
-		mVM_Type.tType aValue
-	) => Data(
-		aValue.Kind is mVM_Type.tKind.SigHead ? tDataType.SigBinding :
-		aValue.KindType().IsType() ? tDataType.Type : tDataType.TypeFunction,
-		false,
-		aValue
-	);
-	
-	public static mVM_Type.tType
-	TypeExpressionValue(
-		this tData aValue
-	) {
-		if (aValue.IsBool(out var Bool)) {
-			return Bool ? mVM_Type.True() : mVM_Type.False();
-		}
-		mAssert.IsTrue(aValue._DataType is tDataType.Type or tDataType.TypeFunction or tDataType.SigBinding);
-		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
-		return Expression;
-	}
-	
-	public static mVM_Type.tType
-	SignatureValue(
-		this tData aValue
-	) {
-		var Value = aValue.TypeExpressionValue();
-		mAssert.IsTrue(Value.IsSignature(), "expected type or generic signature");
-		return Value;
-	}
+	) => Data(tDataType.Type, false, aValue);
 	
 	public static mVM_Type.tType
 	TypeValue(
 		this tData aValue
 	) {
-		var Value = aValue.TypeExpressionValue();
-		mAssert.IsTrue(Value.KindType().IsType(), "expected type value");
+		if (aValue.IsBool(out var Bool)) {
+			return Bool ? mVM_Type.True() : mVM_Type.False();
+		}
+		mAssert.AreEquals(aValue._DataType, tDataType.Type);
+		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Value));
 		return Value;
 	}
 
