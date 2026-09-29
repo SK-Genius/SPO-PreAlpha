@@ -251,12 +251,12 @@ mIL_GenerateOpcodes {
 				ref mTreeMap.tTree<tNat32, mVM_Data.tData> aValues
 			) {
 				if (aValues.TryGet(aReg).IsSome(out var Value) && !Value.IsEmpty()) {
-					return Value.TypeExpressionValue();
+					return Value.TypeValue();
 				}
 				var Kind = aTypes.Get(aReg);
 				mAssert.IsTrue(Kind.IsType() || Kind.IsTypeFunctionKind(), "expected type or type function");
 				var Symbol = mVM_Type.Abstract(aId, Kind);
-				aValues = aValues.Set(aReg, mVM_Data.TypeExpression(Symbol));
+				aValues = aValues.Set(aReg, mVM_Data.Type(Symbol));
 				return Symbol;
 			}
 			
@@ -319,7 +319,7 @@ mIL_GenerateOpcodes {
 					};
 					Regs = Regs.Set(Command._1, Reg);
 					Types.Push(Value.KindType());
-					KnownValues = KnownValues.Set(Reg, mVM_Data.TypeExpression(Value));
+					KnownValues = KnownValues.Set(Reg, mVM_Data.Type(Value));
 					mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 					continue;
 				}
@@ -328,9 +328,9 @@ mIL_GenerateOpcodes {
 					if (
 						Operand.IsSome(out var Id) && Regs.TryGet(Id).IsSome(out var Reg) &&
 						KnownValues.TryGet(Reg).IsSome(out var Value) &&
-						Value._DataType is mVM_Data.tDataType.Type or mVM_Data.tDataType.TypeFunction or mVM_Data.tDataType.SigBinding
+						Value._DataType is mVM_Data.tDataType.Type or mVM_Data.tDataType.SigBinding
 					) {
-						mAssert.IsFalse(HasUnboundSigHead(Value.TypeExpressionValue()), Fail_("unbound SIG head used as a value"));
+						mAssert.IsFalse(HasUnboundSigHead(Value.TypeValue()), Fail_("unbound SIG head used as a value"));
 					}
 				}
 				switch (Command) {
@@ -341,7 +341,7 @@ mIL_GenerateOpcodes {
 						mAssert.IsTrue(Contract.IsSig(out var Binder, out var BodyType), Fail_("expected SIG contract"));
 						mAssert.IsTrue(Types.Get(PayloadReg).IsPair(out var HeadValue, out var Body), Fail_("expected SIG payload"));
 						mAssert.IsTrue(KnownValues.TryGet(PayloadReg).AssertNotEmpty().IsPair(out var HeadData, out _));
-						var Head = HeadData.TypeExpressionValue();
+						var Head = HeadData.TypeValue();
 						mAssert.IsTrue(Head.KindType().SameType(Binder.KindType()), Fail_("wrong SIG head kind"));
 						Body.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).AssertNotError(Fail_);
 						Regs = Regs.Set(Id, NewProc.Sig(Command.Pos, ContractReg, PayloadReg));
@@ -355,7 +355,7 @@ mIL_GenerateOpcodes {
 						var Expected = mMaybe.None<mVM_Type.tType>();
 						if (TestValue.IsPair(out var Signature, out var Head)) {
 							TestValue = Signature;
-							Expected = Head.TypeExpressionValue();
+							Expected = Head.TypeValue();
 						}
 						var Contract = TestValue.TypeValue();
 						mAssert.IsTrue(Contract.IsSig(out var Binder, out var Body), Fail_("expected SIG contract"));
@@ -378,7 +378,7 @@ mIL_GenerateOpcodes {
 						Regs = Regs.Set(Id, IsHead ? NewProc.SigHead(Command.Pos, Input) : NewProc.SigBody(Command.Pos, Input));
 						Types.Push(IsHead ? Head.KindType() : Body);
 						if (IsHead) {
-							KnownValues = KnownValues.Set(NewProc._LastReg, mVM_Data.TypeExpression(Head));
+							KnownValues = KnownValues.Set(NewProc._LastReg, mVM_Data.Type(Head));
 						}
 						break;
 					}
