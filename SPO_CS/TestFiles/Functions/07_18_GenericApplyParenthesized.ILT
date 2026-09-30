@@ -6,13 +6,13 @@
 	t_4 := [EMPTY_TYPE => t_3]
 
 §DEF d_0 € t_4
-	_t := [§FREE]
-	r_1 := [EMPTY_TYPE | _t]
-	r_2 := [§ALL _t => r_1]
-	_tMaybe... := r_2
+	r_1 := [§FREE]
+	r_2 := [EMPTY_TYPE | r_1]
+	r_3 := [§ALL r_1 => r_2]
+	_tMaybe... := r_3
 	_X := EMPTY
-	r_3 := 1
-	_Y := r_3
-	r_4 := EMPTY, _X
-	r_5 := r_4, _Y
-	§RETURN r_5 IF TRUE
+	r_4 := 1
+	_Y := r_4
+	r_5 := EMPTY, _X
+	r_6 := r_5, _Y
+	§RETURN r_6 IF TRUE

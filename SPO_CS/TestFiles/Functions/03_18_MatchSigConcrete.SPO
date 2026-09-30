@@ -1,0 +1,8 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+§DEF tBool = §BOOL
+
+§EXPORT §IF (§SIG Contract WITH §INT IN 1) MATCH {
+	§SIG Contract WITH tBool IN §DEF Value : Value
+	§SIG Contract WITH §INT IN §DEF Value : Value
+	§SIG Contract WITH _ IN _ : 0
+}

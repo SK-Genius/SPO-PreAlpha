@@ -57,8 +57,8 @@ Run(
 		Directory.CreateDirectory(targetParentDir);
 		
 		stagingDir = Path.Combine(
-			Path.GetTempPath(),
-			Path.GetFileName(targetDir) + ".staging." + Guid.NewGuid().ToString("N")
+			targetParentDir,
+			"." + Path.GetFileName(targetDir) + ".staging." + Guid.NewGuid().ToString("N")
 		);
 		Directory.CreateDirectory(stagingDir);
 		
@@ -181,9 +181,6 @@ static void
 PublishServer(
 	string scriptDir
 ) {
-	var repoRoot = Directory.GetParent(scriptDir)?.FullName
-		?? throw new InvalidOperationException("Could not determine the repository root.");
-	
 	var configuration = "Release";
 	var runtimeIdentifier = "win-x64";
 	var serverSourceProject = Path.Combine(scriptDir, "server-src", "SPO.LSP.Server.cs");
@@ -206,7 +203,8 @@ PublishServer(
 			"/p:SelfContained=true",
 			"/p:DebugType=None",
 			"/p:DebugSymbols=false",
-			"/p:EnableSourceControlManagerQueries=false"
+			"/p:EnableSourceControlManagerQueries=false",
+			"/p:ExperimentalFileBasedProgramEnableRefDirective=true"
 		]
 	);
 	if (publishExitCode != 0) {
@@ -779,6 +777,11 @@ ReplaceDirectory(
 	
 	Directory.CreateDirectory(targetParentDir);
 	
+	if (Directory.Exists(targetDir)) {
+		backupDir = targetDir + ".backup." + Guid.NewGuid().ToString("N");
+		RetryFileSystem(() => Directory.Move(targetDir, backupDir));
+	}
+
 	try {
 		RetryFileSystem(() => Directory.Move(sourceDir, targetDir));
 	} catch {

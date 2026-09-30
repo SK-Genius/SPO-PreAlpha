@@ -1,0 +1,43 @@
+§IMPORT {
+	Maybe: §SIG [
+		§SIG_WITH F € [§TYPE => §TYPE] IN [<
+			Some...: [§GENERIC t [t => [.F t]]]
+			None...: [§GENERIC t [t => [.F t]]]
+			...>>...: [
+				§GENERIC tIn [
+					§GENERIC tOut [
+						[
+							.F tIn
+							tIn => tOut
+						] => [.F tOut]
+					]
+				]
+			]
+			...Or...: [
+				§GENERIC t [
+					[
+						.F t
+						t
+					] => t
+				]
+			]
+		>]
+	] WITH §DEF F € [§TYPE => §TYPE] IN {
+		Some...: §DEF Some...
+		None...: §DEF None...
+		...>>...: §DEF ...>>...
+		...Or...: §DEF ...Or...
+	}
+}
+
+§DEF X € [.F §INT] = .Some 1
+§DEF Y € [.F §INT] = .None 0
+§DEF ToTrue = §DEF _ € §INT => §TRUE
+§DEF ToFalse = §DEF _ € §INT => §FALSE
+
+§EXPORT (
+	X §>.>> ToTrue §>.Or §TRUE
+	Y §>.>> ToFalse §>.Or §FALSE
+	X .Or 0
+	Y .Or 0
+)

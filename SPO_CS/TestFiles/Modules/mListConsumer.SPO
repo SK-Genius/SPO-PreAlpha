@@ -1,0 +1,214 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+	}
+	mList: §SIG [
+		§SIG_WITH F € [§TYPE => §TYPE] IN [<
+			EmptyList...: [§GENERIC t [t => [.F t]]]
+			List...: [§GENERIC t [t => [.F t]]]
+			...Push...: [§GENERIC t [[.F t, t] => [.F t]]]
+			...Prepend...: [§GENERIC t [[.F t, t] => [.F t]]]
+			...TryPop: [§GENERIC t [[.F t] => [[.F t, t] | []]]]
+			...Count: [§GENERIC t [[.F t] => §INT]]
+			...IsEmpty: [§GENERIC t [[.F t] => §BOOL]]
+			...TryFirst: [§GENERIC t [[.F t] => [t | []]]]
+			...TryLast: [§GENERIC t [[.F t] => [t | []]]]
+			...TryGet...: [§GENERIC t [[.F t, §INT] => [t | []]]]
+			...TrySetAt...: [§GENERIC t [[.F t, [§INT, t]] => [[.F t] | []]]]
+			...TryUpdateAt...: [§GENERIC t [[.F t, [§INT, t => t]] => [[.F t] | []]]]
+			...Map...: [
+				§GENERIC tIn [§GENERIC tOut [[.F tIn, tIn => tOut] => [.F tOut]]]
+			]
+			...MapWithIndex...: [
+				§GENERIC tIn [§GENERIC tOut [[.F tIn, [§INT, tIn] => tOut] => [.F tOut]]]
+			]
+			...WithIndex: [§GENERIC t [[.F t] => [.F [§INT, t]]]]
+			...Reduce...: [
+				§GENERIC t [§GENERIC tResult [[.F t, [tResult, [tResult, t] => tResult]] => tResult]]
+			]
+			...TryReduce...: [§GENERIC t [[.F t, [t, t] => t] => [t | []]]]
+			...Where...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+			...Reverse: [§GENERIC t [[.F t] => [.F t]]]
+			...Take...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+			...TakeWhile...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+			...TakeUntil...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+			...Skip...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+			...SkipWhile...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+			...SkipUntil...: [§GENERIC t [[.F t, t => §BOOL] => [.F t]]]
+			...Every...: [§GENERIC t [[.F t, §INT] => [.F t]]]
+			...CollapseRepeats...: [§GENERIC t [[.F t, [t, t] => §BOOL] => [.F t]]]
+			...SortBy...: [§GENERIC t [[.F t, [t, t] => §INT] => [.F t]]]
+			...Join...: [§GENERIC t [[.F t, [[t, t] => t, t]] => t]]
+			...Any: [[.F §BOOL] => §BOOL]
+			...All: [[.F §BOOL] => §BOOL]
+			...Any...: [§GENERIC t [[.F t, t => §BOOL] => §BOOL]]
+			...All...: [§GENERIC t [[.F t, t => §BOOL] => §BOOL]]
+			Concat...: [§GENERIC t [[.F t, .F t] => [.F t]]]
+			...Flatten: [§GENERIC t [[.F [.F t]] => [.F t]]]
+			ZipShort...: [
+				§GENERIC tA [§GENERIC tB [[.F tA, .F tB] => [.F [tA, tB]]]]
+			]
+			ZipLongest...: [
+				§GENERIC tA [§GENERIC tB [[.F tA, .F tB] => [.F [[tA | []], [tB | []]]]]]
+			]
+			...==...With...: [§GENERIC t [[.F t, .F t, [t, t] => §BOOL] => §BOOL]]
+			==With...: [§GENERIC t [[[t, t] => §BOOL] => [[.F t, .F t] => §BOOL]]]
+		>]
+	] WITH [§GENERIC t [§RECURSIVE tList [[] | [tList; t]]]] IN {
+		EmptyList...: §DEF EmptyList...
+		List...: §DEF List...
+		...Push...: §DEF ...Push...
+		...Prepend...: §DEF ...Prepend...
+		...TryPop: §DEF ...TryPop
+		...Count: §DEF ...Count
+		...IsEmpty: §DEF ...IsEmpty
+		...TryFirst: §DEF ...TryFirst
+		...TryLast: §DEF ...TryLast
+		...TryGet...: §DEF ...TryGet...
+		...TrySetAt...: §DEF ...TrySetAt...
+		...TryUpdateAt...: §DEF ...TryUpdateAt...
+		...Map...: §DEF ...Map...
+		...MapWithIndex...: §DEF ...MapWithIndex...
+		...WithIndex: §DEF ...WithIndex
+		...Reduce...: §DEF ...Reduce...
+		...TryReduce...: §DEF ...TryReduce...
+		...Where...: §DEF ...Where...
+		...Reverse: §DEF ...Reverse
+		...Take...: §DEF ...Take...
+		...TakeWhile...: §DEF ...TakeWhile...
+		...TakeUntil...: §DEF ...TakeUntil...
+		...Skip...: §DEF ...Skip...
+		...SkipWhile...: §DEF ...SkipWhile...
+		...SkipUntil...: §DEF ...SkipUntil...
+		...Every...: §DEF ...Every...
+		...CollapseRepeats...: §DEF ...CollapseRepeats...
+		...SortBy...: §DEF ...SortBy...
+		...Join...: §DEF ...Join...
+		...Any: §DEF ...Any
+		...All: §DEF ...All
+		...Any...: §DEF ...Any...
+		...All...: §DEF ...All...
+		Concat...: §DEF Concat...
+		...Flatten: §DEF ...Flatten
+		ZipShort...: §DEF ZipShort...
+		ZipLongest...: §DEF ZipLongest...
+		...==...With...: §DEF ...==...With...
+		==With...: §DEF ==With...
+	}
+}
+
+§DEF ...Int<=>... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF {
+	a1 .< a2: -1
+	a2 .< a1: 1
+	§TRUE: 0
+}
+
+§DEF _2x = (
+	§DEF a € §INT
+) => a .* 2
+
+§DEF IsEven = (
+	§DEF Value € §INT
+) => §IF Value MATCH {
+	2: §TRUE
+	4: §TRUE
+	_: §FALSE
+}
+
+§DEF LessThan3 = (
+	§DEF a € §INT
+) => a .< 3
+
+§DEF Is3 = (
+	§DEF Value € §INT
+) => Value .== 3
+
+§DEF AtMost4 = (
+	§DEF Value € §INT
+) => Value .<= 4
+
+§DEF ...AsBool = (
+	§DEF Value € §BOOL
+) => Value
+
+§DEF L = .List 1 §> .Push 2 §> .Push 2 §> .Push 3 §> .Push 4
+§DEF Empty = .EmptyList 0
+§DEF Bools = .List (§FALSE .AsBool) §> .Push (§TRUE .AsBool) §> .Push (§TRUE .AsBool)
+§DEF OneTwo = .List 1 §> .Push 2
+§DEF ThreeFour = .List 3 §> .Push 4
+§DEF OneTwoThree = OneTwo .Push 3
+§DEF FourFive = .List 4 §> .Push 5
+§DEF SameL = .List 1 §> .Push 2 §> .Push 2 §> .Push 3 §> .Push 4
+§DEF Shorter = .List 1 §> .Push 2 §> .Push 3 §> .Push 4
+§DEF ...List==... = .==With ...==...
+
+§DEF PopSummary = §IF (L .TryPop) MATCH {
+	(): -1
+	(_, §DEF Item): Item
+}
+
+§DEF SetAt1 = §IF (L .TrySetAt (1, 9)) MATCH {
+	(): §FALSE
+	_: §TRUE
+}
+
+§DEF UpdateAt1 = §IF (L .TryUpdateAt (1, _2x)) MATCH {
+	(): §FALSE
+	_: §TRUE
+}
+
+§EXPORT (
+	(L .Push 5) .TryLast
+	(L .Prepend 0) .TryFirst
+	PopSummary
+	Empty .TryPop
+	L .Count
+	L .IsEmpty
+	Empty .IsEmpty
+	L .TryFirst
+	L .TryLast
+	L .TryGet 2
+	L .TryGet 99
+	SetAt1
+	UpdateAt1
+	(L .Map _2x) .TryGet 3
+	(L .MapWithIndex ...+...) .TryGet 3
+	(L .WithIndex) .TryGet 2
+	L .Reduce (0, ...+...)
+	L .TryReduce ...+...
+	(L .Where IsEven) .Count
+	(L .Reverse) .TryFirst
+	(L .Take 3) .TryLast
+	(L .TakeWhile LessThan3) .Count
+	(L .TakeUntil Is3) .Count
+	(L .Skip 2) .TryFirst
+	(L .SkipWhile LessThan3) .TryFirst
+	(L .SkipUntil Is3) .TryFirst
+	(L .Every 2) .TryGet 1
+	(L .CollapseRepeats ...==...) .Count
+	((.List 3 §> .Push 1 §> .Push 4 §> .Push 2) .SortBy ...Int<=>...) .TryFirst
+	((.List 3 §> .Push 1 §> .Push 4 §> .Push 2) .SortBy ...Int<=>...) .TryLast
+	L .Join (...+..., 99)
+	Empty .Join (...+..., 99)
+	Bools .Any
+	Bools .All
+	L .Any Is3
+	L .All AtMost4
+	(.Concat (OneTwo, ThreeFour)) .Count
+	(.Concat (OneTwo, ThreeFour)) .TryLast
+	((.List OneTwo §> .Push ThreeFour) .Flatten) .Count
+	(.ZipShort (OneTwoThree, FourFive)) .Count
+	(.ZipShort (OneTwoThree, FourFive)) .TryLast
+	(.ZipLongest (OneTwoThree, FourFive)) .Count
+	(.ZipLongest (OneTwoThree, FourFive)) .TryLast
+	L .== SameL With ...==...
+	L .== Shorter With ...==...
+	L .List== SameL
+)

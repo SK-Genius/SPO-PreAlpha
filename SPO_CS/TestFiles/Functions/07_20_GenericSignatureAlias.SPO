@@ -1,0 +1,13 @@
+§DEF Signature... = [§GENERIC t [t => t]]
+
+§DEF Identity... € Signature... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF Value € t
+) => Value
+
+§DEF Use... = (
+	§DEF F... € Signature...
+) => (.F 9, .F §FALSE)
+
+§EXPORT (.Identity 7, .Identity §TRUE, .Use Identity...)

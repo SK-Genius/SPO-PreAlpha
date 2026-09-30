@@ -6,32 +6,28 @@
 	t_4 := [EMPTY_TYPE => t_3]
 	t_5 := [#_Field INT]
 	t_6 := [{EMPTY_TYPE} + t_5]
-	t_7 := [#_Field INT]
-	t_8 := [{EMPTY_TYPE} + t_7]
-	t_9 := [t_4 => t_3]
-	t_10 := [#_Field INT]
-	t_11 := [{EMPTY_TYPE} + t_10]
-	t_12 := [EMPTY_TYPE, t_4]
-	t_13 := [#_Field INT]
-	t_14 := [{EMPTY_TYPE} + t_13]
-	t_15 := [#_Field INT]
-	t_16 := [{EMPTY_TYPE} + t_15]
-	t_17 := [t_12, t_9]
-	t_18 := [EMPTY_TYPE => INT]
-	t_19 := [t_17 => t_18]
+	t_7 := [t_4 => t_3]
+	t_8 := [#_Field INT]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [EMPTY_TYPE, t_4]
+	t_11 := [#_Field INT]
+	t_12 := [{EMPTY_TYPE} + t_11]
+	t_13 := [t_10, t_7]
+	t_14 := [EMPTY_TYPE => INT]
+	t_15 := [t_13 => t_14]
 
 §DEF d_0 € t_4
 	r_1 := 0
 	r_2 := +#Result r_1
 	§RETURN r_2 IF TRUE
 
-§DEF d_1 € t_9
+§DEF d_1 € t_7
 	d_0 := ENV
 	r_1 := .d_0 EMPTY
 	§TRY_RETURN .r_1 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_19
+§DEF d_2 € t_15
 	d_1 := §2ND ENV
 	r_7 := §1ST ENV
 	d_0 := §2ND r_7

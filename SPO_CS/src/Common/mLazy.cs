@@ -10,16 +10,15 @@ mLazy {
 	public sealed class
 	tLazy<t> {
 		private mStd.tFunc<t>? _Func;
-		private t _Value;
 		
 		public t Value {
 			[DebuggerHidden]
 			get {
 				if (this._Func is not null) {
-					this._Value = this._Func();
+					field = this._Func();
 					this._Func = null;
 				} 
-				return this._Value;
+				return field;
 			}
 		}
 		
@@ -28,7 +27,7 @@ mLazy {
 		tLazy(
 			t a
 		) {
-			this._Value = a;
+			this.Value = a;
 			this._Func = null;
 		}
 		
@@ -38,7 +37,7 @@ mLazy {
 			mStd.tFunc<t> a
 		) {
 			this._Func = a;
-			this._Value = default!;
+			this.Value = default!;
 		}
 		
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]

@@ -1,0 +1,59 @@
+§IMPORT {
+	Result: §SIG [
+		§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
+			OK...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[tError, tValue] => [.(.F tError) tValue]
+					]
+				]
+			]
+			Fail...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[tError, tValue] => [.(.F tError) tValue]
+					]
+				]
+			]
+			...>>...: [
+				§GENERIC tError [
+					§GENERIC tIn [
+						§GENERIC tOut [
+							[
+								[.(.F tError) tIn]
+								tIn => tOut
+							] => [.(.F tError) tOut]
+						]
+					]
+				]
+			]
+			...Or...: [
+				§GENERIC tError [
+					§GENERIC tValue [
+						[
+							[.(.F tError) tValue]
+							tValue
+						] => tValue
+					]
+				]
+			]
+		>]
+	] WITH §DEF F € [§TYPE => [§TYPE => §TYPE]] IN {
+		OK...: §DEF OK...
+		Fail...: §DEF Fail...
+		...>>...: §DEF ...>>...
+		...Or...: §DEF ...Or...
+	}
+}
+
+§DEF Good € [.(.F §FALSE) §INT] = .OK (§FALSE, 1)
+§DEF Bad € [.(.F §TRUE) §INT] = .Fail (§TRUE, 0)
+§DEF ToTrue = §DEF _ € §INT => §TRUE
+§DEF ToFalse = §DEF _ € §INT => §FALSE
+
+§EXPORT (
+	Good §>.>> ToTrue §>.Or §TRUE
+	Bad §>.>> ToFalse §>.Or §FALSE
+	Good .Or 0
+	Bad .Or 0
+)

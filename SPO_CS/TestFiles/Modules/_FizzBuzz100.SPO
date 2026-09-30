@@ -1,0 +1,40 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		.../...: §DEF .../... € [[§INT, §INT] => §INT]
+		...%...: §DEF ...%... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
+	}
+	Char: {
+		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
+	}
+}
+
+§DEF FizzBuzz... = (
+	§DEF Number € §INT
+) => {
+	§DEF Result € §TEXT = §IF {
+		(Number .% 15) .== 0: "FizzBuzz"
+		(Number .% 3) .== 0: "Fizz"
+		(Number .% 5) .== 0: "Buzz"
+		Number .<= 9: (""; ((Number .+ 48) .AsChar))
+		§TRUE: (
+			(""; (((Number ./ 10) .+ 48) .AsChar))
+			; (((Number .% 10) .+ 48) .AsChar)
+		)
+	}
+	§RETURN Result
+}
+
+§RECURSIVE {
+	§DEF FizzBuzzTo... = (
+		§DEF Number € §INT
+	) => §IF Number MATCH {
+		0: ()
+		§DEF Number: (.FizzBuzzTo (Number .- 1); .FizzBuzz Number)
+	}
+}
+
+§EXPORT .FizzBuzzTo 100

@@ -1,0 +1,1231 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [§FREE]
+	t_3 := [t_1, t_2]
+	t_4 := [#_Value... t_2]
+	t_5 := [t_3 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [§FREE]
+	t_8 := [EMPTY_TYPE, t_7]
+	t_9 := [§FREE]
+	t_10 := [t_8, t_9]
+	t_11 := [#_Error... t_7]
+	t_12 := [t_10 => t_11]
+	t_13 := [EMPTY_TYPE => t_12]
+	t_14 := [§FREE]
+	t_15 := [#_Error... t_14]
+	t_16 := [§FREE]
+	t_17 := [#_Value... t_16]
+	t_18 := [t_15 | t_17]
+	t_19 := [#Result t_18]
+	t_20 := [t_15 => t_19]
+	t_21 := [EMPTY_TYPE => t_20]
+	t_22 := [§FREE]
+	t_23 := [t_22 => t_16]
+	t_24 := [#_Value... t_22]
+	t_25 := [t_24 => t_19]
+	t_26 := [t_23 => t_25]
+	t_27 := [EMPTY_TYPE, t_21]
+	t_28 := [t_27, t_23]
+	t_29 := [t_28, t_26]
+	t_30 := [t_15 | t_24]
+	t_31 := [t_30 => t_19]
+	t_32 := [t_29 => t_31]
+	t_33 := [t_27, t_26]
+	t_34 := [t_33, t_32]
+	t_35 := [EMPTY_TYPE, t_30]
+	t_36 := [t_35, t_23]
+	t_37 := [t_36 => t_18]
+	t_38 := [t_34 => t_37]
+	t_39 := [§FREE]
+	t_40 := [#_Error... t_39]
+	t_41 := [§FREE]
+	t_42 := [#_Value... t_41]
+	t_43 := [t_40 | t_42]
+	t_44 := [t_40 | t_43]
+	t_45 := [#Result t_44]
+	t_46 := [t_40 => t_45]
+	t_47 := [EMPTY_TYPE => t_46]
+	t_48 := [§FREE]
+	t_49 := [t_48 => t_43]
+	t_50 := [#_Value... t_48]
+	t_51 := [t_50 => t_45]
+	t_52 := [t_49 => t_51]
+	t_53 := [EMPTY_TYPE, t_47]
+	t_54 := [t_53, t_49]
+	t_55 := [t_54, t_52]
+	t_56 := [t_40 | t_50]
+	t_57 := [t_56 => t_45]
+	t_58 := [t_55 => t_57]
+	t_59 := [t_53, t_52]
+	t_60 := [t_59, t_58]
+	t_61 := [EMPTY_TYPE, t_56]
+	t_62 := [t_61, t_49]
+	t_63 := [t_62 => t_44]
+	t_64 := [t_60 => t_63]
+	t_65 := [§FREE]
+	t_66 := [§FREE]
+	t_67 := [#_Error... t_66]
+	t_68 := [#Result t_65]
+	t_69 := [t_67 => t_68]
+	t_70 := [t_65 => t_69]
+	t_71 := [#_Value... t_65]
+	t_72 := [t_71 => t_68]
+	t_73 := [EMPTY_TYPE => t_72]
+	t_74 := [EMPTY_TYPE, t_65]
+	t_75 := [t_74, t_70]
+	t_76 := [t_75, t_73]
+	t_77 := [t_67 | t_71]
+	t_78 := [t_77 => t_68]
+	t_79 := [t_76 => t_78]
+	t_80 := [EMPTY_TYPE, t_70]
+	t_81 := [t_80, t_73]
+	t_82 := [t_81, t_79]
+	t_83 := [EMPTY_TYPE, t_77]
+	t_84 := [t_83, t_65]
+	t_85 := [t_84 => t_65]
+	t_86 := [t_82 => t_85]
+	t_87 := [§FREE]
+	t_88 := [§FREE]
+	t_89 := [t_87 => t_88]
+	t_90 := [#_Error... t_87]
+	t_91 := [#Result t_88]
+	t_92 := [t_90 => t_91]
+	t_93 := [t_89 => t_92]
+	t_94 := [#_Value... t_88]
+	t_95 := [t_94 => t_91]
+	t_96 := [EMPTY_TYPE => t_95]
+	t_97 := [EMPTY_TYPE, t_89]
+	t_98 := [t_97, t_93]
+	t_99 := [t_98, t_96]
+	t_100 := [t_90 | t_94]
+	t_101 := [t_100 => t_91]
+	t_102 := [t_99 => t_101]
+	t_103 := [EMPTY_TYPE, t_93]
+	t_104 := [t_103, t_96]
+	t_105 := [t_104, t_102]
+	t_106 := [EMPTY_TYPE, t_100]
+	t_107 := [t_106, t_89]
+	t_108 := [t_107 => t_88]
+	t_109 := [t_105 => t_108]
+	t_110 := [§FREE]
+	t_111 := [#_Error... t_110]
+	t_112 := [§FREE]
+	t_113 := [#_Value... t_112]
+	t_114 := [t_111 | t_113]
+	t_115 := [t_110 => t_114]
+	t_116 := [#Result t_114]
+	t_117 := [t_111 => t_116]
+	t_118 := [t_115 => t_117]
+	t_119 := [t_113 => t_116]
+	t_120 := [t_114 => t_119]
+	t_121 := [EMPTY_TYPE, t_115]
+	t_122 := [t_121, t_118]
+	t_123 := [t_122, t_114]
+	t_124 := [t_123, t_120]
+	t_125 := [t_114 => t_116]
+	t_126 := [t_124 => t_125]
+	t_127 := [EMPTY_TYPE, t_118]
+	t_128 := [t_127, t_120]
+	t_129 := [t_128, t_126]
+	t_130 := [EMPTY_TYPE, t_114]
+	t_131 := [t_130, t_115]
+	t_132 := [t_131 => t_114]
+	t_133 := [t_129 => t_132]
+	t_134 := [§FREE]
+	t_135 := [§FREE]
+	t_136 := [t_134 => t_135]
+	t_137 := [#_Error... t_134]
+	t_138 := [#_Error... t_135]
+	t_139 := [§FREE]
+	t_140 := [#_Value... t_139]
+	t_141 := [t_138 | t_140]
+	t_142 := [#Result t_141]
+	t_143 := [t_137 => t_142]
+	t_144 := [t_136 => t_143]
+	t_145 := [t_140 => t_142]
+	t_146 := [EMPTY_TYPE => t_145]
+	t_147 := [EMPTY_TYPE, t_136]
+	t_148 := [t_147, t_144]
+	t_149 := [t_148, t_146]
+	t_150 := [t_137 | t_140]
+	t_151 := [t_150 => t_142]
+	t_152 := [t_149 => t_151]
+	t_153 := [EMPTY_TYPE, t_144]
+	t_154 := [t_153, t_146]
+	t_155 := [t_154, t_152]
+	t_156 := [EMPTY_TYPE, t_150]
+	t_157 := [t_156, t_136]
+	t_158 := [t_157 => t_141]
+	t_159 := [t_155 => t_158]
+	t_160 := [§FREE]
+	t_161 := [§FREE]
+	t_162 := [t_160 => t_161]
+	t_163 := [#_Value... t_160]
+	t_164 := [#Result t_161]
+	t_165 := [t_163 => t_164]
+	t_166 := [t_162 => t_165]
+	t_167 := [§FREE]
+	t_168 := [t_167 => t_161]
+	t_169 := [#_Error... t_167]
+	t_170 := [t_169 => t_164]
+	t_171 := [t_168 => t_170]
+	t_172 := [EMPTY_TYPE, t_162]
+	t_173 := [t_172, t_166]
+	t_174 := [t_173, t_168]
+	t_175 := [t_174, t_171]
+	t_176 := [t_169 | t_163]
+	t_177 := [t_176 => t_164]
+	t_178 := [t_175 => t_177]
+	t_179 := [EMPTY_TYPE, t_166]
+	t_180 := [t_179, t_171]
+	t_181 := [t_180, t_178]
+	t_182 := [EMPTY_TYPE, t_176]
+	t_183 := [#_OnFail t_168]
+	t_184 := [{EMPTY_TYPE} + t_183]
+	t_185 := [#_OnOK t_162]
+	t_186 := [{t_184} + t_185]
+	t_187 := [t_182, t_186]
+	t_188 := [t_187 => t_161]
+	t_189 := [t_181 => t_188]
+	t_190 := [§FREE]
+	t_191 := [EMPTY_TYPE => t_190]
+	t_192 := [#_Error... t_190]
+	t_193 := [§FREE]
+	t_194 := [#_Value... t_193]
+	t_195 := [t_192 | t_194]
+	t_196 := [#Result t_195]
+	t_197 := [EMPTY_TYPE => t_196]
+	t_198 := [t_191 => t_197]
+	t_199 := [t_193 => t_196]
+	t_200 := [EMPTY_TYPE => t_199]
+	t_201 := [EMPTY_TYPE, t_191]
+	t_202 := [t_201, t_198]
+	t_203 := [t_202, t_200]
+	t_204 := [EMPTY_TYPE | t_193]
+	t_205 := [t_204 => t_196]
+	t_206 := [t_203 => t_205]
+	t_207 := [EMPTY_TYPE, t_198]
+	t_208 := [t_207, t_200]
+	t_209 := [t_208, t_206]
+	t_210 := [EMPTY_TYPE, t_204]
+	t_211 := [t_210, t_191]
+	t_212 := [t_211 => t_195]
+	t_213 := [t_209 => t_212]
+	t_214 := [EMPTY_TYPE, t_6]
+	t_215 := [t_214, t_13]
+	t_216 := [t_215, t_21]
+	t_217 := [t_216, t_26]
+	t_218 := [t_217, t_32]
+	t_219 := [t_218, t_38]
+	t_220 := [t_219, t_47]
+	t_221 := [t_220, t_52]
+	t_222 := [t_221, t_58]
+	t_223 := [t_222, t_64]
+	t_224 := [t_223, t_70]
+	t_225 := [t_224, t_73]
+	t_226 := [t_225, t_79]
+	t_227 := [t_226, t_86]
+	t_228 := [t_227, t_93]
+	t_229 := [t_228, t_96]
+	t_230 := [t_229, t_102]
+	t_231 := [t_230, t_109]
+	t_232 := [t_231, t_118]
+	t_233 := [t_232, t_120]
+	t_234 := [t_233, t_126]
+	t_235 := [t_234, t_133]
+	t_236 := [t_235, t_144]
+	t_237 := [t_236, t_146]
+	t_238 := [t_237, t_152]
+	t_239 := [t_238, t_159]
+	t_240 := [t_239, t_166]
+	t_241 := [t_240, t_171]
+	t_242 := [t_241, t_178]
+	t_243 := [t_242, t_189]
+	t_244 := [t_243, t_198]
+	t_245 := [t_244, t_200]
+	t_246 := [t_245, t_206]
+	t_247 := [t_246, t_213]
+	t_248 := [TYPE => TYPE]
+	t_249 := [§SIG_HEAD t_248]
+	t_250 := [§FREE]
+	t_251 := [.t_249 t_250]
+	t_252 := [t_250 => t_251]
+	t_253 := [§ALL t_250 => t_252]
+	t_254 := [#_Some... t_253]
+	t_255 := [{EMPTY_TYPE} + t_254]
+	t_256 := [§SIG_WITH t_249 IN t_255]
+	t_257 := [#_mMaybe t_256]
+	t_258 := [{EMPTY_TYPE} + t_257]
+	t_259 := [TYPE => t_248]
+	t_260 := [§SIG_HEAD t_259]
+	t_261 := [§FREE]
+	t_262 := [§FREE]
+	t_263 := [§FREE]
+	t_264 := [.t_260 t_261]
+	t_265 := [.t_264 t_263]
+	t_266 := [EMPTY_TYPE, t_265]
+	t_267 := [t_261 => t_262]
+	t_268 := [t_266, t_267]
+	t_269 := [.t_260 t_262]
+	t_270 := [.t_269 t_263]
+	t_271 := [t_268 => t_270]
+	t_272 := [§ALL t_263 => t_271]
+	t_273 := [§ALL t_262 => t_272]
+	t_274 := [§ALL t_261 => t_273]
+	t_275 := [#_...>>... t_274]
+	t_276 := [{EMPTY_TYPE} + t_275]
+	t_277 := [§FREE]
+	t_278 := [§FREE]
+	t_279 := [§FREE]
+	t_280 := [.t_260 t_277]
+	t_281 := [.t_280 t_279]
+	t_282 := [EMPTY_TYPE, t_281]
+	t_283 := [.t_260 t_278]
+	t_284 := [.t_283 t_279]
+	t_285 := [t_277 => t_284]
+	t_286 := [t_282, t_285]
+	t_287 := [t_286 => t_284]
+	t_288 := [§ALL t_279 => t_287]
+	t_289 := [§ALL t_278 => t_288]
+	t_290 := [§ALL t_277 => t_289]
+	t_291 := [#_...>>?... t_290]
+	t_292 := [{t_276} + t_291]
+	t_293 := [§FREE]
+	t_294 := [§FREE]
+	t_295 := [§FREE]
+	t_296 := [.t_260 t_293]
+	t_297 := [.t_296 t_294]
+	t_298 := [EMPTY_TYPE, t_297]
+	t_299 := [t_294 => t_295]
+	t_300 := [t_298, t_299]
+	t_301 := [.t_296 t_295]
+	t_302 := [t_300 => t_301]
+	t_303 := [§ALL t_295 => t_302]
+	t_304 := [§ALL t_294 => t_303]
+	t_305 := [§ALL t_293 => t_304]
+	t_306 := [#_...MapError... t_305]
+	t_307 := [{t_292} + t_306]
+	t_308 := [§FREE]
+	t_309 := [§FREE]
+	t_310 := [.t_260 t_308]
+	t_311 := [.t_310 t_309]
+	t_312 := [EMPTY_TYPE, t_311]
+	t_313 := [t_312, t_308]
+	t_314 := [t_313 => t_308]
+	t_315 := [§ALL t_309 => t_314]
+	t_316 := [§ALL t_308 => t_315]
+	t_317 := [#_...Or... t_316]
+	t_318 := [{t_307} + t_317]
+	t_319 := [§FREE]
+	t_320 := [§FREE]
+	t_321 := [.t_260 t_319]
+	t_322 := [.t_321 t_320]
+	t_323 := [EMPTY_TYPE, t_322]
+	t_324 := [t_320 => t_319]
+	t_325 := [t_323, t_324]
+	t_326 := [t_325 => t_319]
+	t_327 := [§ALL t_320 => t_326]
+	t_328 := [§ALL t_319 => t_327]
+	t_329 := [#_...OrDo... t_328]
+	t_330 := [{t_318} + t_329]
+	t_331 := [§FREE]
+	t_332 := [§FREE]
+	t_333 := [EMPTY_TYPE | t_331]
+	t_334 := [EMPTY_TYPE, t_333]
+	t_335 := [EMPTY_TYPE => t_332]
+	t_336 := [t_334, t_335]
+	t_337 := [.t_260 t_331]
+	t_338 := [.t_337 t_332]
+	t_339 := [t_336 => t_338]
+	t_340 := [§ALL t_332 => t_339]
+	t_341 := [§ALL t_331 => t_340]
+	t_342 := [#_...OrFail... t_341]
+	t_343 := [{t_330} + t_342]
+	t_344 := [§FREE]
+	t_345 := [§FREE]
+	t_346 := [.t_260 t_344]
+	t_347 := [.t_346 t_345]
+	t_348 := [EMPTY_TYPE, t_347]
+	t_349 := [t_345 => t_347]
+	t_350 := [t_348, t_349]
+	t_351 := [t_350 => t_347]
+	t_352 := [§ALL t_345 => t_351]
+	t_353 := [§ALL t_344 => t_352]
+	t_354 := [#_...OrTry... t_353]
+	t_355 := [{t_343} + t_354]
+	t_356 := [§FREE]
+	t_357 := [§FREE]
+	t_358 := [EMPTY_TYPE, t_357]
+	t_359 := [t_358, t_356]
+	t_360 := [.t_260 t_356]
+	t_361 := [.t_360 t_357]
+	t_362 := [t_359 => t_361]
+	t_363 := [§ALL t_357 => t_362]
+	t_364 := [§ALL t_356 => t_363]
+	t_365 := [#_Fail... t_364]
+	t_366 := [{t_355} + t_365]
+	t_367 := [§FREE]
+	t_368 := [§FREE]
+	t_369 := [EMPTY_TYPE, t_368]
+	t_370 := [t_369, t_367]
+	t_371 := [.t_260 t_367]
+	t_372 := [.t_371 t_368]
+	t_373 := [t_370 => t_372]
+	t_374 := [§ALL t_368 => t_373]
+	t_375 := [§ALL t_367 => t_374]
+	t_376 := [#_OK... t_375]
+	t_377 := [{t_366} + t_376]
+	t_378 := [§SIG_WITH t_260 IN t_377]
+	t_379 := [t_258 => t_378]
+	t_380 := [t_247 => t_379]
+
+§DEF d_0 € t_6
+	r_1 := §2ND ARG
+	_Value := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := +#_Value... _Value
+	§RETURN r_5 IF TRUE
+
+§DEF d_1 € t_13
+	r_1 := §2ND ARG
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Error := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := +#_Error... _Error
+	§RETURN r_5 IF TRUE
+
+§DEF d_2 € t_21
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := +#_Error... _Error
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_3 € t_26
+	_OnValue... := ENV
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := ._OnValue... _Value
+	r_3 := +#_Value... r_2
+	r_4 := +#Result r_3
+	§RETURN r_4 IF TRUE
+
+§DEF d_4 € t_32
+	d_3 := §2ND ENV
+	r_3 := §1ST ENV
+	_OnValue... := §2ND r_3
+	r_4 := §1ST r_3
+	d_2 := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_2 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_3 _OnValue...
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_5 € t_38
+	d_4 := §2ND ENV
+	r_11 := §1ST ENV
+	d_3 := §2ND r_11
+	r_12 := §1ST r_11
+	d_2 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_OnValue... := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, d_2
+	r_6 := r_5, _OnValue...
+	r_7 := r_6, d_3
+	r_8 := .d_4 r_7
+	r_9 := .r_8 _Result
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_6 € t_47
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := +#_Error... _Error
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_7 € t_52
+	_OnValue... := ENV
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := ._OnValue... _Value
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_8 € t_58
+	d_7 := §2ND ENV
+	r_3 := §1ST ENV
+	_OnValue... := §2ND r_3
+	r_4 := §1ST r_3
+	d_6 := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_6 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_7 _OnValue...
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_9 € t_64
+	d_8 := §2ND ENV
+	r_11 := §1ST ENV
+	d_7 := §2ND r_11
+	r_12 := §1ST r_11
+	d_6 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_OnValue... := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, d_6
+	r_6 := r_5, _OnValue...
+	r_7 := r_6, d_7
+	r_8 := .d_8 r_7
+	r_9 := .r_8 _Result
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_10 € t_70
+	_Fallback := ENV
+	r_1 := -#_Error... ARG
+	r_2 := +#Result _Fallback
+	§RETURN r_2 IF TRUE
+
+§DEF d_11 € t_73
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := +#Result _Value
+	§RETURN r_2 IF TRUE
+
+§DEF d_12 € t_79
+	d_11 := §2ND ENV
+	r_3 := §1ST ENV
+	d_10 := §2ND r_3
+	r_4 := §1ST r_3
+	_Fallback := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_10 _Fallback
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_11 EMPTY
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_13 € t_86
+	d_12 := §2ND ENV
+	r_11 := §1ST ENV
+	d_11 := §2ND r_11
+	r_12 := §1ST r_11
+	d_10 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_Fallback := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _Fallback
+	r_6 := r_5, d_10
+	r_7 := r_6, d_11
+	r_8 := .d_12 r_7
+	r_9 := .r_8 _Result
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_14 € t_93
+	_OnError... := ENV
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := ._OnError... _Error
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_15 € t_96
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := +#Result _Value
+	§RETURN r_2 IF TRUE
+
+§DEF d_16 € t_102
+	d_15 := §2ND ENV
+	r_3 := §1ST ENV
+	d_14 := §2ND r_3
+	r_4 := §1ST r_3
+	_OnError... := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_14 _OnError...
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_15 EMPTY
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_17 € t_109
+	d_16 := §2ND ENV
+	r_11 := §1ST ENV
+	d_15 := §2ND r_11
+	r_12 := §1ST r_11
+	d_14 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_OnError... := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _OnError...
+	r_6 := r_5, d_14
+	r_7 := r_6, d_15
+	r_8 := .d_16 r_7
+	r_9 := .r_8 _Result
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_18 € t_118
+	_OnError... := ENV
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := ._OnError... _Error
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_19 € t_120
+	_Result := ENV
+	r_1 := -#_Value... ARG
+	r_2 := +#Result _Result
+	§RETURN r_2 IF TRUE
+
+§DEF d_20 € t_126
+	d_19 := §2ND ENV
+	r_3 := §1ST ENV
+	_Result := §2ND r_3
+	r_4 := §1ST r_3
+	d_18 := §2ND r_4
+	r_5 := §1ST r_4
+	_OnError... := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_18 _OnError...
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_19 _Result
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_21 € t_133
+	d_20 := §2ND ENV
+	r_12 := §1ST ENV
+	d_19 := §2ND r_12
+	r_13 := §1ST r_12
+	d_18 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := §2ND ARG
+	_OnError... := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _OnError...
+	r_6 := r_5, d_18
+	r_7 := r_6, _Result
+	r_8 := r_7, d_19
+	r_9 := .d_20 r_8
+	r_10 := .r_9 _Result
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE
+
+§DEF d_22 € t_144
+	_OnError... := ENV
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := ._OnError... _Error
+	r_3 := +#_Error... r_2
+	r_4 := +#Result r_3
+	§RETURN r_4 IF TRUE
+
+§DEF d_23 € t_146
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := +#_Value... _Value
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_24 € t_152
+	d_23 := §2ND ENV
+	r_3 := §1ST ENV
+	d_22 := §2ND r_3
+	r_4 := §1ST r_3
+	_OnError... := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_22 _OnError...
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_23 EMPTY
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_25 € t_159
+	d_24 := §2ND ENV
+	r_11 := §1ST ENV
+	d_23 := §2ND r_11
+	r_12 := §1ST r_11
+	d_22 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_OnError... := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Result := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _OnError...
+	r_6 := r_5, d_22
+	r_7 := r_6, d_23
+	r_8 := .d_24 r_7
+	r_9 := .r_8 _Result
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_26 € t_166
+	_aOnOK... := ENV
+	r_1 := -#_Value... ARG
+	_Value := r_1
+	r_2 := ._aOnOK... _Value
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_27 € t_171
+	_aOnFail... := ENV
+	r_1 := -#_Error... ARG
+	_Error := r_1
+	r_2 := ._aOnFail... _Error
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_28 € t_178
+	d_27 := §2ND ENV
+	r_3 := §1ST ENV
+	_aOnFail... := §2ND r_3
+	r_4 := §1ST r_3
+	d_26 := §2ND r_4
+	r_5 := §1ST r_4
+	_aOnOK... := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := .d_26 _aOnOK...
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_27 _aOnFail...
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_29 € t_189
+	d_28 := §2ND ENV
+	r_14 := §1ST ENV
+	d_27 := §2ND r_14
+	r_15 := §1ST r_14
+	d_26 := §2ND r_15
+	r_16 := §1ST r_15
+	r_1 := §2ND ARG
+	r_2 := {r_1} #_OnOK
+	_aOnOK... := r_2
+	r_3 := {r_1} #_OnFail
+	_aOnFail... := r_3
+	r_4 := §1ST ARG
+	r_5 := §2ND r_4
+	_a := r_5
+	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
+	r_7 := EMPTY, _aOnOK...
+	r_8 := r_7, d_26
+	r_9 := r_8, _aOnFail...
+	r_10 := r_9, d_27
+	r_11 := .d_28 r_10
+	r_12 := .r_11 _a
+	r_13 := -#Result r_12
+	§RETURN r_13 IF TRUE
+
+§DEF d_30 € t_198
+	_OnFail := ENV
+	r_1 := ._OnFail EMPTY
+	r_2 := +#_Error... r_1
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_31 € t_200
+	_Value := ARG
+	r_1 := +#_Value... _Value
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_32 € t_206
+	d_31 := §2ND ENV
+	r_3 := §1ST ENV
+	d_30 := §2ND r_3
+	r_4 := §1ST r_3
+	_OnFail := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_30 _OnFail
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_31 EMPTY
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_33 € t_213
+	d_32 := §2ND ENV
+	r_11 := §1ST ENV
+	d_31 := §2ND r_11
+	r_12 := §1ST r_11
+	d_30 := §2ND r_12
+	r_13 := §1ST r_12
+	r_1 := §2ND ARG
+	_OnFail := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_Maybe := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _OnFail
+	r_6 := r_5, d_30
+	r_7 := r_6, d_31
+	r_8 := .d_32 r_7
+	r_9 := .r_8 _Maybe
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_34 € t_380
+	d_33 := §2ND ENV
+	r_342 := §1ST ENV
+	d_32 := §2ND r_342
+	r_343 := §1ST r_342
+	d_31 := §2ND r_343
+	r_344 := §1ST r_343
+	d_30 := §2ND r_344
+	r_345 := §1ST r_344
+	d_29 := §2ND r_345
+	r_346 := §1ST r_345
+	d_28 := §2ND r_346
+	r_347 := §1ST r_346
+	d_27 := §2ND r_347
+	r_348 := §1ST r_347
+	d_26 := §2ND r_348
+	r_349 := §1ST r_348
+	d_25 := §2ND r_349
+	r_350 := §1ST r_349
+	d_24 := §2ND r_350
+	r_351 := §1ST r_350
+	d_23 := §2ND r_351
+	r_352 := §1ST r_351
+	d_22 := §2ND r_352
+	r_353 := §1ST r_352
+	d_21 := §2ND r_353
+	r_354 := §1ST r_353
+	d_20 := §2ND r_354
+	r_355 := §1ST r_354
+	d_19 := §2ND r_355
+	r_356 := §1ST r_355
+	d_18 := §2ND r_356
+	r_357 := §1ST r_356
+	d_17 := §2ND r_357
+	r_358 := §1ST r_357
+	d_16 := §2ND r_358
+	r_359 := §1ST r_358
+	d_15 := §2ND r_359
+	r_360 := §1ST r_359
+	d_14 := §2ND r_360
+	r_361 := §1ST r_360
+	d_13 := §2ND r_361
+	r_362 := §1ST r_361
+	d_12 := §2ND r_362
+	r_363 := §1ST r_362
+	d_11 := §2ND r_363
+	r_364 := §1ST r_363
+	d_10 := §2ND r_364
+	r_365 := §1ST r_364
+	d_9 := §2ND r_365
+	r_366 := §1ST r_365
+	d_8 := §2ND r_366
+	r_367 := §1ST r_366
+	d_7 := §2ND r_367
+	r_368 := §1ST r_367
+	d_6 := §2ND r_368
+	r_369 := §1ST r_368
+	d_5 := §2ND r_369
+	r_370 := §1ST r_369
+	d_4 := §2ND r_370
+	r_371 := §1ST r_370
+	d_3 := §2ND r_371
+	r_372 := §1ST r_371
+	d_2 := §2ND r_372
+	r_373 := §1ST r_372
+	d_1 := §2ND r_373
+	r_374 := §1ST r_373
+	d_0 := §2ND r_374
+	r_375 := §1ST r_374
+	r_1 := {ARG} #_mMaybe
+	r_3 := [Type_TYPE => Type_TYPE]
+	r_2 := [§SIG_HEAD r_3]
+	r_4 := [§FREE]
+	r_5 := [.r_2 r_4]
+	r_6 := [r_4 => r_5]
+	r_7 := [§ALL r_4 => r_6]
+	r_8 := [#_Some... r_7]
+	r_9 := [{EMPTY_TYPE} + r_8]
+	r_10 := [§SIG_WITH r_2 IN r_9]
+	r_11 := [§FREE]
+	r_12 := [EMPTY_TYPE | r_11]
+	r_13 := [§ALL r_11 => r_12]
+	r_14 := r_10, r_13
+	r_15 := §TRY r_1 AS_SIG r_14
+	r_16 := §SIG_HEAD r_15
+	r_17 := §SIG_BODY r_15
+	r_18 := [§FREE]
+	r_19 := [§FREE]
+	r_20 := [#_Error... r_19]
+	r_21 := [#_Value... r_18]
+	r_22 := [r_20 | r_21]
+	r_23 := [§ALL r_19 => r_22]
+	r_24 := [§ALL r_18 => r_23]
+	_tResult... := r_24
+	r_25 := .d_0 EMPTY
+	_OK... := r_25
+	r_26 := .d_1 EMPTY
+	_Fail... := r_26
+	r_27 := EMPTY, d_2
+	r_28 := r_27, d_3
+	r_29 := r_28, d_4
+	r_30 := .d_5 r_29
+	_...>>... := r_30
+	r_31 := EMPTY, d_6
+	r_32 := r_31, d_7
+	r_33 := r_32, d_8
+	r_34 := .d_9 r_33
+	_...>>?... := r_34
+	r_35 := EMPTY, d_10
+	r_36 := r_35, d_11
+	r_37 := r_36, d_12
+	r_38 := .d_13 r_37
+	_...Or... := r_38
+	r_39 := EMPTY, d_14
+	r_40 := r_39, d_15
+	r_41 := r_40, d_16
+	r_42 := .d_17 r_41
+	_...OrDo... := r_42
+	r_43 := EMPTY, d_18
+	r_44 := r_43, d_19
+	r_45 := r_44, d_20
+	r_46 := .d_21 r_45
+	_...OrTry... := r_46
+	r_47 := EMPTY, d_22
+	r_48 := r_47, d_23
+	r_49 := r_48, d_24
+	r_50 := .d_25 r_49
+	_...MapError... := r_50
+	r_51 := EMPTY, d_26
+	r_52 := r_51, d_27
+	r_53 := r_52, d_28
+	r_54 := .d_29 r_53
+	_...Match... := r_54
+	r_55 := EMPTY, d_30
+	r_56 := r_55, d_31
+	r_57 := r_56, d_32
+	r_58 := .d_33 r_57
+	_...OrFail... := r_58
+	r_60 := [Type_TYPE => Type_TYPE]
+	r_61 := [Type_TYPE => r_60]
+	r_59 := [§SIG_HEAD r_61]
+	r_62 := [§FREE]
+	r_63 := [§FREE]
+	r_64 := [§FREE]
+	r_65 := [.r_59 r_62]
+	r_66 := [.r_65 r_64]
+	r_67 := [EMPTY_TYPE, r_66]
+	r_68 := [r_62 => r_63]
+	r_69 := [r_67, r_68]
+	r_70 := [.r_59 r_63]
+	r_71 := [.r_70 r_64]
+	r_72 := [r_69 => r_71]
+	r_73 := [§ALL r_64 => r_72]
+	r_74 := [§ALL r_63 => r_73]
+	r_75 := [§ALL r_62 => r_74]
+	r_76 := [#_...>>... r_75]
+	r_77 := [{EMPTY_TYPE} + r_76]
+	r_78 := [§FREE]
+	r_79 := [§FREE]
+	r_80 := [§FREE]
+	r_81 := [.r_59 r_78]
+	r_82 := [.r_81 r_80]
+	r_83 := [EMPTY_TYPE, r_82]
+	r_84 := [.r_59 r_79]
+	r_85 := [.r_84 r_80]
+	r_86 := [r_78 => r_85]
+	r_87 := [r_83, r_86]
+	r_88 := [.r_59 r_79]
+	r_89 := [.r_88 r_80]
+	r_90 := [r_87 => r_89]
+	r_91 := [§ALL r_80 => r_90]
+	r_92 := [§ALL r_79 => r_91]
+	r_93 := [§ALL r_78 => r_92]
+	r_94 := [#_...>>?... r_93]
+	r_95 := [{r_77} + r_94]
+	r_96 := [§FREE]
+	r_97 := [§FREE]
+	r_98 := [§FREE]
+	r_99 := [.r_59 r_96]
+	r_100 := [.r_99 r_97]
+	r_101 := [EMPTY_TYPE, r_100]
+	r_102 := [r_97 => r_98]
+	r_103 := [r_101, r_102]
+	r_104 := [.r_59 r_96]
+	r_105 := [.r_104 r_98]
+	r_106 := [r_103 => r_105]
+	r_107 := [§ALL r_98 => r_106]
+	r_108 := [§ALL r_97 => r_107]
+	r_109 := [§ALL r_96 => r_108]
+	r_110 := [#_...MapError... r_109]
+	r_111 := [{r_95} + r_110]
+	r_112 := [§FREE]
+	r_113 := [§FREE]
+	r_114 := [.r_59 r_112]
+	r_115 := [.r_114 r_113]
+	r_116 := [EMPTY_TYPE, r_115]
+	r_117 := [r_116, r_112]
+	r_118 := [r_117 => r_112]
+	r_119 := [§ALL r_113 => r_118]
+	r_120 := [§ALL r_112 => r_119]
+	r_121 := [#_...Or... r_120]
+	r_122 := [{r_111} + r_121]
+	r_123 := [§FREE]
+	r_124 := [§FREE]
+	r_125 := [.r_59 r_123]
+	r_126 := [.r_125 r_124]
+	r_127 := [EMPTY_TYPE, r_126]
+	r_128 := [r_124 => r_123]
+	r_129 := [r_127, r_128]
+	r_130 := [r_129 => r_123]
+	r_131 := [§ALL r_124 => r_130]
+	r_132 := [§ALL r_123 => r_131]
+	r_133 := [#_...OrDo... r_132]
+	r_134 := [{r_122} + r_133]
+	r_135 := [§FREE]
+	r_136 := [§FREE]
+	r_137 := [EMPTY_TYPE | r_135]
+	r_138 := [EMPTY_TYPE, r_137]
+	r_139 := [EMPTY_TYPE => r_136]
+	r_140 := [r_138, r_139]
+	r_141 := [.r_59 r_135]
+	r_142 := [.r_141 r_136]
+	r_143 := [r_140 => r_142]
+	r_144 := [§ALL r_136 => r_143]
+	r_145 := [§ALL r_135 => r_144]
+	r_146 := [#_...OrFail... r_145]
+	r_147 := [{r_134} + r_146]
+	r_148 := [§FREE]
+	r_149 := [§FREE]
+	r_150 := [.r_59 r_148]
+	r_151 := [.r_150 r_149]
+	r_152 := [EMPTY_TYPE, r_151]
+	r_153 := [.r_59 r_148]
+	r_154 := [.r_153 r_149]
+	r_155 := [r_149 => r_154]
+	r_156 := [r_152, r_155]
+	r_157 := [.r_59 r_148]
+	r_158 := [.r_157 r_149]
+	r_159 := [r_156 => r_158]
+	r_160 := [§ALL r_149 => r_159]
+	r_161 := [§ALL r_148 => r_160]
+	r_162 := [#_...OrTry... r_161]
+	r_163 := [{r_147} + r_162]
+	r_164 := [§FREE]
+	r_165 := [§FREE]
+	r_166 := [EMPTY_TYPE, r_165]
+	r_167 := [r_166, r_164]
+	r_168 := [.r_59 r_164]
+	r_169 := [.r_168 r_165]
+	r_170 := [r_167 => r_169]
+	r_171 := [§ALL r_165 => r_170]
+	r_172 := [§ALL r_164 => r_171]
+	r_173 := [#_Fail... r_172]
+	r_174 := [{r_163} + r_173]
+	r_175 := [§FREE]
+	r_176 := [§FREE]
+	r_177 := [EMPTY_TYPE, r_176]
+	r_178 := [r_177, r_175]
+	r_179 := [.r_59 r_175]
+	r_180 := [.r_179 r_176]
+	r_181 := [r_178 => r_180]
+	r_182 := [§ALL r_176 => r_181]
+	r_183 := [§ALL r_175 => r_182]
+	r_184 := [#_OK... r_183]
+	r_185 := [{r_174} + r_184]
+	r_186 := [§SIG_WITH r_59 IN r_185]
+	_Contract := r_186
+	r_188 := [Type_TYPE => Type_TYPE]
+	r_189 := [Type_TYPE => r_188]
+	r_187 := [§SIG_HEAD r_189]
+	r_190 := [§FREE]
+	r_191 := [§FREE]
+	r_192 := [§FREE]
+	r_193 := [.r_187 r_190]
+	r_194 := [.r_193 r_192]
+	r_195 := [EMPTY_TYPE, r_194]
+	r_196 := [r_190 => r_191]
+	r_197 := [r_195, r_196]
+	r_198 := [.r_187 r_191]
+	r_199 := [.r_198 r_192]
+	r_200 := [r_197 => r_199]
+	r_201 := [§ALL r_192 => r_200]
+	r_202 := [§ALL r_191 => r_201]
+	r_203 := [§ALL r_190 => r_202]
+	r_204 := [#_...>>... r_203]
+	r_205 := [{EMPTY_TYPE} + r_204]
+	r_206 := [§FREE]
+	r_207 := [§FREE]
+	r_208 := [§FREE]
+	r_209 := [.r_187 r_206]
+	r_210 := [.r_209 r_208]
+	r_211 := [EMPTY_TYPE, r_210]
+	r_212 := [.r_187 r_207]
+	r_213 := [.r_212 r_208]
+	r_214 := [r_206 => r_213]
+	r_215 := [r_211, r_214]
+	r_216 := [.r_187 r_207]
+	r_217 := [.r_216 r_208]
+	r_218 := [r_215 => r_217]
+	r_219 := [§ALL r_208 => r_218]
+	r_220 := [§ALL r_207 => r_219]
+	r_221 := [§ALL r_206 => r_220]
+	r_222 := [#_...>>?... r_221]
+	r_223 := [{r_205} + r_222]
+	r_224 := [§FREE]
+	r_225 := [§FREE]
+	r_226 := [§FREE]
+	r_227 := [.r_187 r_224]
+	r_228 := [.r_227 r_225]
+	r_229 := [EMPTY_TYPE, r_228]
+	r_230 := [r_225 => r_226]
+	r_231 := [r_229, r_230]
+	r_232 := [.r_187 r_224]
+	r_233 := [.r_232 r_226]
+	r_234 := [r_231 => r_233]
+	r_235 := [§ALL r_226 => r_234]
+	r_236 := [§ALL r_225 => r_235]
+	r_237 := [§ALL r_224 => r_236]
+	r_238 := [#_...MapError... r_237]
+	r_239 := [{r_223} + r_238]
+	r_240 := [§FREE]
+	r_241 := [§FREE]
+	r_242 := [.r_187 r_240]
+	r_243 := [.r_242 r_241]
+	r_244 := [EMPTY_TYPE, r_243]
+	r_245 := [r_244, r_240]
+	r_246 := [r_245 => r_240]
+	r_247 := [§ALL r_241 => r_246]
+	r_248 := [§ALL r_240 => r_247]
+	r_249 := [#_...Or... r_248]
+	r_250 := [{r_239} + r_249]
+	r_251 := [§FREE]
+	r_252 := [§FREE]
+	r_253 := [.r_187 r_251]
+	r_254 := [.r_253 r_252]
+	r_255 := [EMPTY_TYPE, r_254]
+	r_256 := [r_252 => r_251]
+	r_257 := [r_255, r_256]
+	r_258 := [r_257 => r_251]
+	r_259 := [§ALL r_252 => r_258]
+	r_260 := [§ALL r_251 => r_259]
+	r_261 := [#_...OrDo... r_260]
+	r_262 := [{r_250} + r_261]
+	r_263 := [§FREE]
+	r_264 := [§FREE]
+	r_265 := [EMPTY_TYPE | r_263]
+	r_266 := [EMPTY_TYPE, r_265]
+	r_267 := [EMPTY_TYPE => r_264]
+	r_268 := [r_266, r_267]
+	r_269 := [.r_187 r_263]
+	r_270 := [.r_269 r_264]
+	r_271 := [r_268 => r_270]
+	r_272 := [§ALL r_264 => r_271]
+	r_273 := [§ALL r_263 => r_272]
+	r_274 := [#_...OrFail... r_273]
+	r_275 := [{r_262} + r_274]
+	r_276 := [§FREE]
+	r_277 := [§FREE]
+	r_278 := [.r_187 r_276]
+	r_279 := [.r_278 r_277]
+	r_280 := [EMPTY_TYPE, r_279]
+	r_281 := [.r_187 r_276]
+	r_282 := [.r_281 r_277]
+	r_283 := [r_277 => r_282]
+	r_284 := [r_280, r_283]
+	r_285 := [.r_187 r_276]
+	r_286 := [.r_285 r_277]
+	r_287 := [r_284 => r_286]
+	r_288 := [§ALL r_277 => r_287]
+	r_289 := [§ALL r_276 => r_288]
+	r_290 := [#_...OrTry... r_289]
+	r_291 := [{r_275} + r_290]
+	r_292 := [§FREE]
+	r_293 := [§FREE]
+	r_294 := [EMPTY_TYPE, r_293]
+	r_295 := [r_294, r_292]
+	r_296 := [.r_187 r_292]
+	r_297 := [.r_296 r_293]
+	r_298 := [r_295 => r_297]
+	r_299 := [§ALL r_293 => r_298]
+	r_300 := [§ALL r_292 => r_299]
+	r_301 := [#_Fail... r_300]
+	r_302 := [{r_291} + r_301]
+	r_303 := [§FREE]
+	r_304 := [§FREE]
+	r_305 := [EMPTY_TYPE, r_304]
+	r_306 := [r_305, r_303]
+	r_307 := [.r_187 r_303]
+	r_308 := [.r_307 r_304]
+	r_309 := [r_306 => r_308]
+	r_310 := [§ALL r_304 => r_309]
+	r_311 := [§ALL r_303 => r_310]
+	r_312 := [#_OK... r_311]
+	r_313 := [{r_302} + r_312]
+	r_314 := [§SIG_WITH r_187 IN r_313]
+	r_315 := [§FREE]
+	r_316 := [§FREE]
+	r_317 := [#_Error... r_316]
+	r_318 := [#_Value... r_315]
+	r_319 := [r_317 | r_318]
+	r_320 := [§ALL r_316 => r_319]
+	r_321 := [§ALL r_315 => r_320]
+	r_322 := +#_OK... _OK...
+	r_323 := {EMPTY} + r_322
+	r_324 := +#_Fail... _Fail...
+	r_325 := {r_323} + r_324
+	r_326 := +#_...>>... _...>>...
+	r_327 := {r_325} + r_326
+	r_328 := +#_...>>?... _...>>?...
+	r_329 := {r_327} + r_328
+	r_330 := +#_...Or... _...Or...
+	r_331 := {r_329} + r_330
+	r_332 := +#_...OrDo... _...OrDo...
+	r_333 := {r_331} + r_332
+	r_334 := +#_...OrTry... _...OrTry...
+	r_335 := {r_333} + r_334
+	r_336 := +#_...MapError... _...MapError...
+	r_337 := {r_335} + r_336
+	r_338 := +#_...OrFail... _...OrFail...
+	r_339 := {r_337} + r_338
+	r_340 := r_321, r_339
+	r_341 := §SIG r_314 WITH r_340
+	§RETURN r_341 IF TRUE

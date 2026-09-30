@@ -1,46 +1,92 @@
-§DEF ...OrErrorType... = (
-	tValue € §TYPE
-	tError € §TYPE
-) => [#Value tValue | #Error tError]
+§DEF tResult... = [
+	§GENERIC tError [
+		§GENERIC tValue [#Value tValue | #Error tError]
+	]
+]
 
 §DEF OK... = (
-	§DEF t € §TYPE
+	§DEF tError € §TYPE
+	§DEF tValue € §TYPE
 ) <=> (
-	§DEF a € t
-) => (#Value a)
+	_ € tError
+	§DEF Value € tValue
+) => #Value Value
 
 §DEF Fail... = (
 	§DEF tError € §TYPE
+	§DEF tValue € §TYPE
 ) <=> (
-	§DEF aError € tError
-) => (#Error aError)
+	§DEF Error € tError
+	_ € tValue
+) => #Error Error
 
 §DEF ...>>... = (
+	§DEF tError € §TYPE
 	§DEF tIn € §TYPE
 	§DEF tOut € §TYPE
-	§DEF tError € §TYPE
 ) <=> (
-	§DEF a € tIn .OrErrorType tError
-	§DEF aOnValue... € [tn => tOut]
-) => §IF a MATCH {
-	(#Error §DEF Error): .Fail Error
-	(#Value §DEF Value): .aOnValue Value
+	§DEF Value € [.(.tResult tError) tIn]
+	§DEF OnValue... € [tIn => tOut]
+) => §IF Value MATCH {
+	(#Error §DEF Error): (#Error Error)
+	(#Value §DEF Inner): (#Value (.OnValue Inner))
 }
 
-§DEF ...>>?... = (
-	§DEF tIn € §TYPE
-	§DEF tOut € §TYPE
+§DEF ...Or... = (
 	§DEF tError € §TYPE
+	§DEF tValue € §TYPE
 ) <=> (
-	§DEF a € tIn .OrErrorType tError
-	§DEF aOnValue... € [tn => tOut]
-) => §IF a MATCH {
-	(#Error §DEF Error): .Fail Error
-	(#Value §DEF Value): .aOnValue Value
+	§DEF Value € [.(.tResult tError) tValue]
+	§DEF Fallback € tValue
+) => §IF Value MATCH {
+	(#Error _): Fallback
+	(#Value §DEF Inner): Inner
 }
 
-§EXPORT {
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
+		OK...: [
+			§GENERIC tError [
+				§GENERIC tValue [
+					[tError, tValue] => [.(.F tError) tValue]
+				]
+			]
+		]
+		Fail...: [
+			§GENERIC tError [
+				§GENERIC tValue [
+					[tError, tValue] => [.(.F tError) tValue]
+				]
+			]
+		]
+		...>>...: [
+			§GENERIC tError [
+				§GENERIC tIn [
+					§GENERIC tOut [
+						[
+							[.(.F tError) tIn]
+							tIn => tOut
+						] => [.(.F tError) tOut]
+					]
+				]
+			]
+		]
+		...Or...: [
+			§GENERIC tError [
+				§GENERIC tValue [
+					[
+						[.(.F tError) tValue]
+						tValue
+					] => tValue
+				]
+			]
+		]
+	>]
+]
+
+§EXPORT §SIG Contract WITH tResult... IN {
 	OK...: OK...
 	Fail...: Fail...
 	...>>...: ...>>...
+	...Or...: ...Or...
 }

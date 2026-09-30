@@ -1,0 +1,21 @@
+§DEF tIdentity... = [§GENERIC t t]
+§DEF Contract = [
+	§SIG_WITH F € [§TYPE => §TYPE] IN [
+		[.F §INT]
+		[.F §BOOL]
+	]
+]
+
+§DEF Package = §SIG Contract WITH tIdentity... IN (1, §TRUE)
+
+§DEF Repacked = §IF Package MATCH {
+	§SIG Contract WITH §DEF F € [§TYPE => §TYPE] IN §DEF Body : §SIG Contract WITH F IN Body
+}
+
+§EXPORT §IF Repacked MATCH {
+	§SIG Contract WITH tIdentity... IN (§DEF IntValue, §DEF BoolValue) : (
+		IntValue
+		BoolValue
+	)
+	§SIG Contract WITH _ IN _ : (0, §FALSE)
+}

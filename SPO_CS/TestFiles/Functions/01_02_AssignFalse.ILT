@@ -4,4 +4,4 @@
 
 §DEF d_0 € t_1
 	_X := FALSE
-	§RETURN _X IF TRUE
+	§RETURN FALSE IF TRUE

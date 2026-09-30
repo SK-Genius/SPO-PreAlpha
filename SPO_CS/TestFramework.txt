@@ -1,0 +1,8 @@
+Start tests with:
+> dotnet src/mRunTests.cs --no-restore
+
+For more information, run:
+> dotnet src/mRunTests.cs --no-restore -- --help
+
+Run tests with immediate output (without caching; useful if a test hangs):
+> dotnet src/mRunTests.cs --no-restore -- -t -g

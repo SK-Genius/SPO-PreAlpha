@@ -29,7 +29,7 @@ mArenaMaybeRef {
 	}
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-	public static unsafe tArenaMaybeRef<t>
+	public static tArenaMaybeRef<t>
 	NoneRef<t>(
 	) where t : unmanaged
 	=> new (-1);

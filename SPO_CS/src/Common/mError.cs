@@ -10,14 +10,16 @@ mError {
 	tError : System.Exception {
 		internal
 		tError(
-			tText aMsg
-		) : base(aMsg) {
+			tText aMsg,
+			tNat64 aDebugId
+		) : base($"[DebugId: {(aDebugId == 0 ? mStd.NewDebugId() : aDebugId)}] {aMsg}") {
 		}
 	}
 	
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static tError
 	Error(
-		tText aMsg
-	) => new(aMsg);
+		tText aMsg,
+		tNat64 aDebugId = 0
+	) => new(aMsg, aDebugId);
 }

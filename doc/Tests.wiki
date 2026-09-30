@@ -311,6 +311,33 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 |]
 [|
   [#
+  |../SPO_CS/TestFiles/Functions/03_18_MatchSigConcrete.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_18_MatchSigConcrete.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_19_MatchSigHead.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_19_MatchSigHead.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_20_MatchSigUnion.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_20_MatchSigUnion.result.SPO
+  #]
+|]
+[|
+  [#
   |../SPO_CS/TestFiles/Functions/03_98_If.SPO
   #]
 ][
@@ -528,6 +555,15 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
   |../SPO_CS/TestFiles/Functions/04_09_InfixCall.result.SPO
   #]
 |]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/04_10_PipeWithoutArguments.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/04_10_PipeWithoutArguments.result.SPO
+  #]
+|]
 
 [=5 Create Functions=]
 [| [*Code*] ][ [*Result*] |]
@@ -733,6 +769,15 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 ][
   [#
   |../SPO_CS/TestFiles/Functions/07_18_GenericApplyParenthesized.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_19_SigHigherKind.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_19_SigHigherKind.result.SPO
   #]
 |]
 

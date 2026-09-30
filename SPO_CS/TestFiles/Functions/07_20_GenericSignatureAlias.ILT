@@ -1,0 +1,53 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [t_0 => t_0]
+	t_2 := [§ALL t_0 => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [§FREE]
+	t_5 := [t_4 => t_4]
+	t_6 := [§ALL t_4 => t_5]
+	t_7 := [EMPTY_TYPE, INT]
+	t_8 := [t_7, FALSE]
+	t_9 := [t_6 => t_8]
+	t_10 := [EMPTY_TYPE => t_9]
+	t_11 := [EMPTY_TYPE, t_3]
+	t_12 := [t_11, t_10]
+	t_13 := [t_7, TRUE]
+	t_14 := [t_13, t_8]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [t_12 => t_15]
+
+§DEF d_0 € t_3
+	_Value := ARG
+	§RETURN _Value IF TRUE
+
+§DEF d_1 € t_10
+	_F... := ARG
+	r_1 := 9
+	r_2 := ._F... r_1
+	r_3 := EMPTY, r_2
+	r_4 := ._F... FALSE
+	r_5 := r_3, r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_2 € t_16
+	d_1 := §2ND ENV
+	r_13 := §1ST ENV
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := [§FREE]
+	r_2 := [r_1 => r_1]
+	r_3 := [§ALL r_1 => r_2]
+	_Signature... := r_3
+	r_4 := .d_0 EMPTY
+	_Identity... := r_4
+	r_5 := .d_1 EMPTY
+	_Use... := r_5
+	r_6 := 7
+	r_7 := ._Identity... r_6
+	r_8 := EMPTY, r_7
+	r_9 := ._Identity... TRUE
+	r_10 := r_8, r_9
+	r_11 := ._Use... _Identity...
+	r_12 := r_10, r_11
+	§RETURN r_12 IF TRUE

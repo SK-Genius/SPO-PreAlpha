@@ -1,0 +1,5 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+
+§EXPORT §IF (§SIG Contract WITH §INT IN 1) MATCH {
+	§SIG Contract WITH §DEF Head € §TYPE IN _ : Head
+}

@@ -104,19 +104,12 @@ mFS {
 		] {
 			get {
 				if (!aRange.Start.IsFromEnd && aRange.Start.Value is 0) {
-					if (!aRange.End.IsFromEnd) {
-						return this[..^(this.Length() - aRange.End.Value)];
-					}
-					
-					if (aRange.End.Value is 0) {
-						return this;
-					}
-					
-					if (this.Parent.Is(out var Parent)) {
-						return Parent[..^(aRange.End.Value - 1)];
-					}
-					
-					return cIdentPath;
+					return (
+						!aRange.End.IsFromEnd ? this[..^(this.Length() - aRange.End.Value)] :
+						aRange.End.Value is 0 ? this :
+						this.Parent.Is(out var Parent) ? Parent[..^(aRange.End.Value - 1)] :
+						cIdentPath
+					);
 				}
 				
 				tInt32 StartFromEnd;
@@ -126,14 +119,10 @@ mFS {
 					StartFromEnd = aRange.Start.IsFromEnd ? aRange.Start.Value : Length - aRange.Start.Value;
 					EndFromEnd = aRange.End.IsFromEnd ? aRange.End.Value : Length - aRange.End.Value;
 					
-					if (StartFromEnd == Length) {
-						return this[..^EndFromEnd];
-					}
-					
 					return (
-						StartFromEnd > Length || EndFromEnd > Length
-						? cIdentPath
-						: this[^StartFromEnd..^EndFromEnd]
+						StartFromEnd == Length ? this[..^EndFromEnd] :
+						(StartFromEnd > Length || EndFromEnd > Length) ? cIdentPath :
+						this[^StartFromEnd..^EndFromEnd]
 					);
 				} else {
 					StartFromEnd = aRange.Start.Value;
@@ -274,7 +263,7 @@ mFS {
 	
 	public static tFolder
 	CWD(
-	) => new tFolder(System.IO.Directory.GetCurrentDirectory());
+	) => new (System.IO.Directory.GetCurrentDirectory());
 	
 	public static tBool
 	IsAbsoluteRootName(

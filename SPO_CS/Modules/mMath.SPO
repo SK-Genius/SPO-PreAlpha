@@ -1,0 +1,54 @@
+§IMPORT {
+	Std: {
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+		...<...: §DEF ...<... € [[§INT, §INT] => §BOOL]
+	}
+}
+
+§DEF Min... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF (a1 .< a2) MATCH {
+	§TRUE: a1
+	_: a2
+}
+
+§DEF Max... = (
+	§DEF a1 € §INT
+	§DEF a2 € §INT
+) => §IF {
+	a2 .< a1: a1
+	§TRUE: a2
+}
+
+§DEF ...Clamp... = (
+	§DEF a € §INT
+	(
+		§DEF aMin € §INT
+		§DEF aMax € §INT
+	)
+) => .Min (.Max (aMin, a), aMax)
+
+§DEF Abs... = (
+	§DEF a € §INT
+) => §IF (0 .< a) MATCH {
+	§TRUE: a
+	_: 0 .- a
+}
+
+§DEF Sign... = (
+	§DEF a € §INT
+) => §IF {
+	a .< 0: -1
+	a .== 0: 0
+	§TRUE: 1
+}
+
+§EXPORT {
+	Min...: Min...
+	Max...: Max...
+	...Clamp...: ...Clamp...
+	Abs...: Abs...
+	Sign...: Sign...
+}

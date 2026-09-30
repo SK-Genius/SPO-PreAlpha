@@ -13,7 +13,9 @@ mAny {
 		internal readonly tUnknown? _Value;
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
-		internal tAny(tUnknown? aValue) {
+		internal tAny(
+			tUnknown? aValue
+		) {
 			this._Value = aValue;
 		}
 		

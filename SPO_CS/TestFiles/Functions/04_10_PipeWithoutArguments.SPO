@@ -1,0 +1,31 @@
+§DEF ...Right = (
+	§DEF Value € §INT
+) => Value
+
+§DEF Left... = (
+	§DEF Value € §INT
+) => Value
+
+§DEF ...RightWith... = (
+	§DEF Value € §INT
+	_ € []
+) => Value
+
+§DEF Left...Then... = (
+	_ € []
+	§DEF Value € §INT
+) => Value
+
+§DEF ...GenericList = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF Value € t
+) => ((); Value)
+
+§EXPORT (
+	7 §> .Right
+	.Left §< 8
+	9 §> .RightWith ()
+	.Left () Then §< 10
+	11 §> .GenericList
+)

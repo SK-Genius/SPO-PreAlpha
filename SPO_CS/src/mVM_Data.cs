@@ -7,6 +7,7 @@
 #:ref Common/mArrayList.cs
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
+#:ref Common/mMap.cs
 #:ref Common/mStream.cs
 #:ref mVM_Type.cs
 
@@ -32,6 +33,11 @@ mVM_Data {
 		NewPair,
 		First,
 		Second,
+
+		// SIG
+		NewSig,
+		SigHead,
+		SigBody,
 		
 		// PREFIX
 		AddPrefix,
@@ -58,6 +64,7 @@ mVM_Data {
 		TryAsInt,
 		TryAsType,
 		TryAsPair,
+		TryAsSig,
 		TryAsVar,
 		TryAsRef,
 		TryAsRecord,
@@ -71,7 +78,9 @@ mVM_Data {
 		TypeAny,
 		TypeInt,
 		TypeFree,
+		TypeSigHead,
 		TypePair,
+		TypeSig,
 		TypePrefix,
 		TypeRecord,
 		TypeVar,
@@ -82,6 +91,7 @@ mVM_Data {
 		TypeRecursive,
 		TypeInterface,
 		TypeGeneric,
+		TypeGenericApply,
 	}
 	
 	public interface
@@ -118,6 +128,9 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
+		
+		public readonly mArrayList.tArrayList<tText>
+		TypePrefixes = mArrayList.List<tText>();
 		
 		public tNat32
 		_LastReg = cResReg;
@@ -291,6 +304,28 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aPairReg
 	) => aDef._AddReg(aPos, tOpCode.Second, aPairReg);
+
+	public static tNat32
+	Sig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aContractReg,
+		tNat32 aPayloadReg
+	) => aDef._AddReg(aPos, tOpCode.NewSig, aContractReg, aPayloadReg);
+
+	public static tNat32
+	SigHead<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aSigReg
+	) => aDef._AddReg(aPos, tOpCode.SigHead, aSigReg);
+
+	public static tNat32
+	SigBody<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aSigReg
+	) => aDef._AddReg(aPos, tOpCode.SigBody, aSigReg);
 	
 	public static tNat32
 	AddPrefix<tPos>(
@@ -455,6 +490,14 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.TryAsPair, aArgReg);
+
+	public static tNat32
+	TryAsSig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aArgReg,
+		tNat32 aContractReg
+	) => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, aContractReg);
 	
 	public static tNat32
 	TryAsVar<tPos>(
@@ -505,14 +548,26 @@ mVM_Data {
 		tNat32 aTypeReg1,
 		tNat32 aTypeReg2
 	) => aDef._AddReg(aPos, tOpCode.TypePair, aTypeReg1, aTypeReg2);
+
+	public static tNat32
+	TypeSig<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aBinderKindReg,
+		tNat32 aBodyTypeReg
+	) => aDef._AddReg(aPos, tOpCode.TypeSig, aBinderKindReg, aBodyTypeReg);
 	
 	public static tNat32
 	TypePrefix<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aPrefix,
+		tText aPrefix,
 		tNat32 aTypeReg
-	) => aDef._AddReg(aPos, tOpCode.TypePrefix, aPrefix, aTypeReg);
+	) {
+		var Index = aDef.TypePrefixes.Size;
+		aDef.TypePrefixes.Push(aPrefix);
+		return aDef._AddReg(aPos, tOpCode.TypePrefix, Index, aTypeReg);
+	}
 	
 	public static tNat32
 	TypeRecord<tPos>(
@@ -560,6 +615,13 @@ mVM_Data {
 	) => aDef._AddReg(aPos, tOpCode.TypeFree);
 	
 	public static tNat32
+	TypeSigHead<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aKindReg
+	) => aDef._AddReg(aPos, tOpCode.TypeSigHead, aKindReg);
+	
+	public static tNat32
 	TypeRecursive<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
@@ -582,6 +644,14 @@ mVM_Data {
 		tNat32 aHeadTypeReg,
 		tNat32 aBodyTypeReg
 	) => aDef._AddReg(aPos, tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
+
+	public static tNat32
+	TypeGenericApply<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aGenericTypeReg,
+		tNat32 aArgTypeReg
+	) => aDef._AddReg(aPos, tOpCode.TypeGenericApply, aGenericTypeReg, aArgTypeReg);
 	
 	// TODO: Pattern Types
 	
@@ -591,6 +661,7 @@ mVM_Data {
 		Bool,
 		Int,
 		Pair,
+		Sig,
 		Prefix,
 		Record,
 		Proc,
@@ -598,18 +669,28 @@ mVM_Data {
 		Def,
 		ExternDef,
 		Var,
-		Type
+		Type,
+		TypeFunction,
+		SigBinding
 	}
 	
 	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
 	public sealed class
 	tData {
-		public tDataType _DataType;
-		public mAny.tAny _Value;
-		public mTreeMap.tTree<tNat32, tData> _Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
-		public tBool _IsMutable;
+		public tDataType
+		_DataType;
 		
-		public tNat64 _DebugId = mStd.NewDebugId();
+		public mAny.tAny
+		_Value;
+		
+		public mTreeMap.tTree<tNat32, tData>
+		_Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
+		
+		public tBool
+		_IsMutable;
+		
+		public tNat64
+		_DebugId = mStd.NewDebugId();
 		
 		public tBool
 		Equals(
@@ -746,6 +827,79 @@ mVM_Data {
 	}
 	
 	public static tData
+	Sig(
+		mVM_Type.tType aContract,
+		tData aHead,
+		tData aBody
+	) => Data(tDataType.Sig, aBody._IsMutable, (aContract, aHead, aBody));
+	
+	public static tBool
+	IsSig(
+		this tData aData,
+		out mVM_Type.tType aContract,
+		out tData aHead,
+		out tData aBody
+	) {
+		aContract = default!;
+		aHead = default!;
+		aBody = default!;
+		if (!aData.Is(tDataType.Sig, out (mVM_Type.tType Contract, tData Head, tData Body) Sig)) {
+			return false;
+		}
+		(aContract, aHead, aBody) = Sig;
+		return true;
+	}
+	
+	public static tData
+	Type(
+		mVM_Type.tType aValue
+	) {
+		mAssert.IsTrue(aValue.KindType().IsType(), "expected type value");
+		return Data(tDataType.Type, false, aValue);
+	}
+	
+	// Type expressions may also denote constructors or a bound SIG parameter.
+	public static tData
+	TypeExpression(
+		mVM_Type.tType aValue
+	) => Data(
+		aValue.Kind is mVM_Type.tKind.SigHead ? tDataType.SigBinding :
+		aValue.KindType().IsType() ? tDataType.Type : tDataType.TypeFunction,
+		false,
+		aValue
+	);
+	
+	public static mVM_Type.tType
+	TypeExpressionValue(
+		this tData aValue
+	) {
+		if (aValue.IsBool(out var Bool)) {
+			return Bool ? mVM_Type.True() : mVM_Type.False();
+		}
+		mAssert.IsTrue(aValue._DataType is tDataType.Type or tDataType.TypeFunction or tDataType.SigBinding);
+		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
+		return Expression;
+	}
+	
+	public static mVM_Type.tType
+	SignatureValue(
+		this tData aValue
+	) {
+		var Value = aValue.TypeExpressionValue();
+		mAssert.IsTrue(Value.IsSignature(), "expected type or generic signature");
+		return Value;
+	}
+	
+	public static mVM_Type.tType
+	TypeValue(
+		this tData aValue
+	) {
+		var Value = aValue.TypeExpressionValue();
+		mAssert.IsTrue(Value.KindType().IsType(), "expected type value");
+		return Value;
+	}
+
+	public static tData
 	Tuple(
 		System.Span<tData> a
 	) => mStream.Stream(a).Reduce(Empty(), Pair);
@@ -875,10 +1029,10 @@ mVM_Data {
 		[NotNullWhen(true)]out mTreeMap.tTree<tNat32, tData> aFields
 	) {
 		if (aData._DataType is tDataType.Record) {
-			aFields =  aData._Fields;
+			aFields = aData._Fields;
 			return true;
 		} else {
-			aFields = default!;
+			aFields = default;
 			return false;
 		}
 	}
@@ -911,12 +1065,15 @@ mVM_Data {
 		if (aData._DataType is tDataType.Proc) {
 			mAssert.IsTrue(aData._Value.Is(out ITuple Data));
 			mAssert.AreEquals(Data.Length, 2);
-			aDef = (iProcDef)Data[0];
-			aEnv = (tData)Data[1];
+			
+			aDef = (iProcDef)Data[0]!;
+			aEnv = (tData)Data[1]!;
+			
 			return true;
 		} else {
 			aDef = default!;
 			aEnv = default!;
+			
 			return false;
 		}
 	}
@@ -1058,6 +1215,9 @@ mVM_Data {
 				return "(" + Result;
 			}),
 			
+			_ when a.IsSig(out _, out var Head, out var Body)
+			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
+			
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",
 			
@@ -1069,6 +1229,8 @@ mVM_Data {
 		};
 	}
 	
+	public static mMap.tMap<tNat32, tText> gHashToPrefix = mMap.Map<tNat32, tText>((a1, a2) => a1 == a2);
+	
 	public static tNat32
 	PrefixHash(
 		this tText a
@@ -1077,8 +1239,9 @@ mVM_Data {
 			return 0;
 		}
 		
+		var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
+		
 		unchecked {
-			var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
 			foreach (var ch in a) {
 				Hash ^= ch;
 				var Shift = Hash & 31;
@@ -1086,7 +1249,10 @@ mVM_Data {
 				Hash ^= Rot;
 			}
 			Hash ^= Hash >> 16;
-			return Hash;
 		}
+		
+		gHashToPrefix = gHashToPrefix.Set(Hash, a);
+		
+		return Hash;
 	}
 }
