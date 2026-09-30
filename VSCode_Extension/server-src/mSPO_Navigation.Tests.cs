@@ -182,6 +182,60 @@ const tText Uri = "file:///navigation-test.spo";
 	Assert(Responses.Contains("\"newText\":\"Using\"", StringComparison.Ordinal), "second mixfix LSP edit missing");
 }
 
+{
+	var Folder = mFS.CWD() / "SignatureTests";
+	var SignatureFile = Folder.GetFile("Contract.SIG");
+	var Files = new System.Collections.Generic.Dictionary<tText, tText>();
+	var SignatureUri = SignatureFile.Path.ToUri();
+	var Signature = "[§SIG_WITH F € [§TYPE => §TYPE] IN [< Value: [§GENERIC t [t => [.F t]]] >]]";
+	Files[SignatureFile.Path.ToText()] = Signature;
+	var Service = new SpoLanguageService(new mTokenizer.tFileContext(aFile => Files[aFile.Path.ToText()]));
+	Assert(Service.GetDiagnostics(SignatureUri, Signature).Count == 0, "valid SIG has diagnostics");
+	Assert(Service.GetDiagnostics(SignatureUri, Signature + "\n§INT").Count > 0, "SIG accepted two types");
+	Assert(Service.GetDiagnostics(SignatureUri, "[§LOAD \"./Contract.SIG\"]").Count > 0, "unsaved SIG can load itself from disk");
+	Assert(Service.GetDocumentSymbols(SignatureUri, Signature).Count > 0, "SIG symbols missing");
+	var HeadUse = Signature.IndexOf(".F", StringComparison.Ordinal) + 1;
+	var Definition = Service.GetDefinition(SignatureUri, Signature, 0, HeadUse);
+	Assert(Definition is not null && Definition.Uri == SignatureUri && Definition.Range.Start.Character == Signature.IndexOf("F", StringComparison.Ordinal), "SIG head definition missing");
+	var Rename = Service.Rename(SignatureUri, Signature, 0, HeadUse, "G");
+	Assert(Rename is not null && Rename.Count == 2, "SIG head rename missing");
+
+	var SourceUri = Folder.GetFile("Consumer.SPO").Path.ToUri();
+	var Source = "§EXPORT [§LOAD \"Contract.SIG\"]\n";
+	Assert(Service.GetDiagnostics(SourceUri, Source).Count == 0, "SPO cannot load a SIG");
+	var Target = Service.GetDefinition(SourceUri, Source, 0, Source.IndexOf("Contract", StringComparison.Ordinal));
+	Assert(Target is not null && Target.Uri == SignatureUri, "LOAD does not navigate to its file");
+	var Multiline = "[\n§LOAD \"Contract.SIG\"\n]";
+	Assert(Service.GetDefinition(SignatureUri, Multiline, 1, 8)?.Uri == SignatureUri, "multiline LOAD does not navigate to its file");
+	var Unbracketed = "§LOAD \"Contract.SIG\"";
+	Assert(Service.GetDefinition(SignatureUri, Unbracketed, 0, 8) is null, "unbracketed LOAD navigates as a type load");
+	Files[SignatureFile.Path.ToText()] = "[§LOAD \"./Contract.SIG\"]";
+	var Diagnostics = Service.GetDiagnostics(SourceUri, Source);
+	Assert(Diagnostics.Count == 1 && Diagnostics[0].Source == "parser" && Diagnostics[0].Message.Contains("recursive §LOAD"), "recursive SIG is not a parser diagnostic");
+	Assert(Diagnostics[0].Range.Start.Character == 8, "LOAD error is not located at the directive");
+
+	var Messages = new List<tNat8>();
+	AddMessage(Messages, "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didOpen\",\"params\":{\"textDocument\":{\"uri\":" + JsonString(SourceUri) + ",\"text\":" + JsonString(Source) + "}}}");
+	AddMessage(Messages, "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didSave\",\"params\":{\"textDocument\":{\"uri\":" + JsonString(SignatureUri) + "}}}");
+	AddMessage(Messages, "{\"jsonrpc\":\"2.0\",\"method\":\"workspace/didChangeWatchedFiles\",\"params\":{\"changes\":[{\"uri\":" + JsonString(SignatureUri) + ",\"type\":2}]}}");
+	AddMessage(Messages, "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"shutdown\"}");
+	AddMessage(Messages, "{\"jsonrpc\":\"2.0\",\"method\":\"exit\"}");
+	using var Input = new System.IO.MemoryStream(Messages.ToArray());
+	using var Output = new System.IO.MemoryStream();
+	Assert(new LspServer(Input, Output, Service).Run() == 0, "SIG notification session failed");
+	var Responses = System.Text.Encoding.UTF8.GetString(Output.ToArray());
+	Assert(Responses.Split("textDocument/publishDiagnostics").Length == 4, "SIG saves and file changes do not recheck consumers");
+
+	Files[SignatureFile.Path.ToText()] = "t";
+	var Context = "[§GENERIC t [§LOAD \"Contract.SIG\"]]";
+	var ContextUri = Folder.GetFile("Context.SIG").Path.ToUri();
+	Assert(Service.GetDiagnostics(ContextUri, Context).Count == 0, "loaded type cannot use its enclosing type parameter");
+	Assert(Service.Rename(ContextUri, Context, 0, Context.IndexOf(" t ", StringComparison.Ordinal) + 1, "u") is null, "rename returned edits from another file as local edits");
+	var References = Service.GetReferences(ContextUri, Context, 0, Context.IndexOf(" t ", StringComparison.Ordinal) + 1, false);
+	Assert(References.Count == 1 && References[0].Uri == SignatureUri, "loaded reference points to the containing file instead of the SIG");
+	Assert(References[0].Range.Start.Line == 0 && References[0].Range.Start.Character == 0, "loaded reference has the wrong position");
+}
+
 return 0;
 
 static void

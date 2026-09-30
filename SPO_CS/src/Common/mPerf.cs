@@ -3,6 +3,7 @@
 #:property AllowUnsafeBlocks = true
 #:property OutputType = Library
 #:include ../_GlobalUsings.cs
+#:ref mFS.cs
 
 //#define MY_TRACE_PERF
 
@@ -76,9 +77,9 @@ mPerf {
 							Duration00 /= 1000;
 							Unit += 1;
 						}
-						System.Console.WriteLine($"{LogLine.Time}: {new tText(' ', StackIndex)} END {System.IO.Path.GetFileNameWithoutExtension(StackLine.File)}::{StackLine.Name} ({Duration00/100}.{Duration00%100} {cUnits[Unit]}Cycle)");
+						System.Console.WriteLine($"{LogLine.Time}: {new tText(' ', StackIndex)} END {mFS.File(StackLine.File).NameWithoutExtension}::{StackLine.Name} ({Duration00/100}.{Duration00%100} {cUnits[Unit]}Cycle)");
 					} else {
-						System.Console.WriteLine($"{LogLine.Time}: {new tText(' ', StackIndex)} BEGIN {System.IO.Path.GetFileNameWithoutExtension(LogLine.File)}::{LogLine.Name}");
+						System.Console.WriteLine($"{LogLine.Time}: {new tText(' ', StackIndex)} BEGIN {mFS.File(LogLine.File).NameWithoutExtension}::{LogLine.Name}");
 						Stack[StackIndex] = LogLine;
 						StackIndex += 1;
 					}

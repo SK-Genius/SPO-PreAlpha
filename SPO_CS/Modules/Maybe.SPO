@@ -45,30 +45,7 @@
 	§DEF Inner: Inner
 }
 
-§DEF Contract = [
-	§SIG_WITH F € [§TYPE => §TYPE] IN [<
-		Some...: [§GENERIC t [t => [.F t]]]
-		None...: [§GENERIC t [t => [.F t]]]
-		...>>...: [
-			§GENERIC tIn [
-				§GENERIC tOut [
-					[
-						.F tIn
-						tIn => tOut
-					] => [.F tOut]
-				]
-			]
-		]
-		...Or...: [
-			§GENERIC t [
-				[
-					.F t
-					t
-				] => t
-			]
-		]
-	>]
-]
+§DEF Contract = [§LOAD "Maybe.SIG"]
 
 §EXPORT §SIG Contract WITH tMaybe... IN {
 	Some...: Some...

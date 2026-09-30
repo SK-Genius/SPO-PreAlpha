@@ -3,17 +3,21 @@
 #:property OutputType = Library
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
+#:ref Common/mFS.cs
 #:ref Common/mTest.cs
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
 #:ref Common/mSpan.cs
 #:ref Common/mStream.cs
+#:ref Common/mTreeMap.cs
+#:ref Common/mMath.cs
 #:ref Common/mTextStream.cs
 #:ref Common/mParserGen.cs
 #:ref mTokenizer.cs
 #:ref mSPO_AST.cs
 #:ref mSPO_Desugar.cs
 #:ref mSPO_Parser.cs
+#:ref mIL_Parser.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -41,6 +45,83 @@ mSPO_Parser_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_Parser),
 		[
+			mTest.Test("LOAD",
+				aDebug => {
+					var Folder = mFS.CWD() / "SignatureTests";
+					var Source = Folder.GetFile("Test.SPO").Path.ToText();
+					
+					var Files = mTreeMap.Tree<tText, tText>((a, b) => tText.CompareOrdinal(a, b).Sign(), [])
+					.Set(Folder.GetFile("Int.SIG").Path.ToText(), "\n§INT\n")
+					.Set(Folder.GetFile("nested/Pair.SIG").Path.ToText(), "[[§LOAD \"../Int.SIG\"], [§LOAD \"../Int.SIG\"]]\n");
+					
+					var FileContext = new mTokenizer.tFileContext(aFile => Files.TryGet(aFile.Path.ToText()).AssertNotEmpty());
+					
+					var Type = mSPO_Parser.Type.ParseText("[§LOAD \"nested/Pair.SIG\"]", Source, __ => aDebug(__()), FileContext);
+					
+					mAssert.IsTrue(Type is mSPO_AST.tTupleTypeNode<tSpan> Tuple && Tuple.ItemTypes.All(__ => __ is mSPO_AST.tIntTypeNode<tSpan>));
+					mAssert.IsTrue(mSPO_Parser.Type.ParseText("[\n§LOAD \"Int.SIG\"\n]", Source, _ => {}, FileContext) is mSPO_AST.tIntTypeNode<tSpan>);
+					
+					foreach (var Text in new[] { "§LOAD \"Int.SIG\"", "§LOAD_SIG \"Int.SIG\"", "[§LOAD_SIG \"Int.SIG\"]", "[§LOAD \"Int.SIG\"" }) {
+						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText(Text, Source, _ => {}, FileContext));
+					}
+					
+					mSPO_Parser.Module.ParseText(
+						"§DEF Identity = (§DEF Value € [§LOAD \"Int.SIG\"]) => Value\n§EXPORT Identity\n",
+						Source,
+						__ => aDebug(__()), FileContext
+					);
+					
+					foreach (var Text in new[] { "", "§INT\n§BOOL", "§DEF T = §INT", "1" }) {
+						Files = Files.Set(Folder.GetFile("Invalid.SIG").Path.ToText(), Text);
+						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText("[§LOAD \"Invalid.SIG\"]", Source, _ => {}, FileContext));
+					}
+					
+					foreach (var Target in new[] { "Missing.SIG", "Int.SPO" }) {
+						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext));
+					}
+					
+					foreach (var Indirect in new[] { false, true }) {
+						Files = Files.Set(Folder.GetFile("Cycle.SIG").Path.ToText(), Indirect ? "[§LOAD \"nested/Back.SIG\"]" : "[§LOAD \"./Cycle.SIG\"]")
+							.Set(Folder.GetFile("nested/Back.SIG").Path.ToText(), "[§LOAD \"../Cycle.SIG\"]");
+						var Rejected = false;
+						try {
+							mSPO_Parser.Type.ParseText("[§LOAD \"Cycle.SIG\"]", Source, _ => {}, FileContext);
+						} catch (mSPO_Parser.tLoadSigError Error) {
+							Rejected = Error.Message.Contains("recursive §LOAD") && Error.Message.Contains("Cycle.SIG");
+						}
+						mAssert.IsTrue(Rejected, "recursive signature was not rejected with its load path");
+					}
+					mAssert.ThrowsError(() => mIL_Parser.Module.ParseText("[§LOAD \"Int.SIG\"]", Source, _ => {}, FileContext));
+				}
+			),
+			mTest.Test("LOAD paths",
+				aDebug => {
+					var File = mFS.CWD().GetFile("Signature Tests/Int #1.sig");
+					var FileContext = new mTokenizer.tFileContext(aFile => {
+						mAssert.IsTrue(aFile.IsSameFile(File));
+						return "§INT";
+					});
+					foreach (var Source in new[] { "", "Test.SPO", mFS.CWD().GetFile("Test.SPO").Path.ToText(), mFS.CWD().GetFile("Test.SPO").Path.ToUri() }) {
+						foreach (var Target in new[] { "Signature Tests/Int #1.sig", File.Path.ToText() }) {
+							var Type = mSPO_Parser.Type.ParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext);
+							mAssert.IsTrue(Type is mSPO_AST.tIntTypeNode<tSpan>);
+							mAssert.AreEquals(Type.Pos.Start.Id, File.Path.ToUri());
+						}
+					}
+
+					foreach (var Source in new[] { File.Path.ToText(), File.Path.ToUri() }) {
+						foreach (var Target in System.OperatingSystem.IsWindows() ? new[] { "./Int #1.sig", "./INT #1.SIG" } : new[] { "./Int #1.sig" }) {
+							var Rejected = false;
+							try {
+								mSPO_Parser.Type.ParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext);
+							} catch (mSPO_Parser.tLoadSigError Error) {
+								Rejected = Error.Message.Contains("recursive §LOAD");
+							}
+							mAssert.IsTrue(Rejected, "self-load was not rejected before reading the file");
+						}
+					}
+				}
+			),
 			mTest.Test("Atoms",
 				aStreamOut => {
 					mAssert.AreEquals(

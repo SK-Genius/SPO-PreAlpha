@@ -110,6 +110,12 @@ LspServer {
 				this.HandleDidSave(message);
 				return false;
 			}
+			case "workspace/didChangeWatchedFiles": {
+				foreach (var (uri, text) in this.Documents) {
+					this.PublishDiagnostics(uri, text);
+				}
+				return false;
+			}
 			case "textDocument/definition": {
 				this.HandleDefinition(message, id);
 				return false;
@@ -214,7 +220,11 @@ LspServer {
 		}
 		
 		var uri = GetRequiredString(textDocument, "uri");
-		if (this.Documents.TryGetValue(uri, out var text)) {
+		if (uri.EndsWith(".SIG", StringComparison.OrdinalIgnoreCase)) {
+			foreach (var (documentUri, documentText) in this.Documents) {
+				this.PublishDiagnostics(documentUri, documentText);
+			}
+		} else if (this.Documents.TryGetValue(uri, out var text)) {
 			this.PublishDiagnostics(uri, text);
 		}
 	}

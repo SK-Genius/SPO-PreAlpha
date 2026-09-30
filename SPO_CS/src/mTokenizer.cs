@@ -3,6 +3,7 @@
 #:property OutputType = Library
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
+#:ref Common/mFS.cs
 #:ref Common/mStream.cs
 #:ref Common/mTextStream.cs
 #:ref Common/mTextParser.cs
@@ -90,10 +91,25 @@ mTokenizer {
 		public tTokenType Type;
 		public tText Text;
 		public tSpan Span;
+		public tFileContext? FileContext;
 		
 		public override readonly tText
 		ToString(
 		) => $"'{this.Text}'::{this.Type}@({mTextParser.ToText(this.Span)})";
+	}
+
+	public sealed class
+	tFileContext {
+		public readonly mStd.tFunc<mFS.tFile, tText> ReadText;
+		public readonly mStream.tStream<mFS.tFile> LoadPath;
+
+		public tFileContext(
+			mStd.tFunc<mFS.tFile, tText> aReadText,
+			mStream.tStream<mFS.tFile> aLoadPath = default
+		) {
+			ReadText = aReadText;
+			LoadPath = aLoadPath;
+		}
 	}
 	
 	public static readonly mParserGen.tParser<tPos, tChar, tToken, tError>
@@ -166,10 +182,14 @@ mTokenizer {
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
 		tText aId,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		tFileContext? aFileContext = null
 	) {
 		var Tokens = Tokenizer.ParseText(aText, aId, aDebugStream).Result;
-		var MaybeResult = aParser.StartParse(Tokens.Map(__ => (__.Span, __)), aDebugStream);
+		var MaybeResult = aParser.StartParse(Tokens.Map(__ => {
+			__.FileContext = aFileContext;
+			return (__.Span, __);
+		}), aDebugStream);
 		var Lines = aText.Split("\n");
 		var Result = MaybeResult.AssertNotError(
 			__ => __.ToText(Lines)

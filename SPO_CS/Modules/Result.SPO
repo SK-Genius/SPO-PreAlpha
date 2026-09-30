@@ -43,46 +43,7 @@
 	(#Value §DEF Inner): Inner
 }
 
-§DEF Contract = [
-	§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
-		OK...: [
-			§GENERIC tError [
-				§GENERIC tValue [
-					[tError, tValue] => [.(.F tError) tValue]
-				]
-			]
-		]
-		Fail...: [
-			§GENERIC tError [
-				§GENERIC tValue [
-					[tError, tValue] => [.(.F tError) tValue]
-				]
-			]
-		]
-		...>>...: [
-			§GENERIC tError [
-				§GENERIC tIn [
-					§GENERIC tOut [
-						[
-							[.(.F tError) tIn]
-							tIn => tOut
-						] => [.(.F tError) tOut]
-					]
-				]
-			]
-		]
-		...Or...: [
-			§GENERIC tError [
-				§GENERIC tValue [
-					[
-						[.(.F tError) tValue]
-						tValue
-					] => tValue
-				]
-			]
-		]
-	>]
-]
+§DEF Contract = [§LOAD "Result.SIG"]
 
 §EXPORT §SIG Contract WITH tResult... IN {
 	OK...: OK...

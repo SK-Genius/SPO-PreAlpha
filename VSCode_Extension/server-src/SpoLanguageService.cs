@@ -3,6 +3,12 @@ using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 internal sealed class
 SpoLanguageService {
+	private readonly mTokenizer.tFileContext? FileContext;
+
+	public SpoLanguageService(mTokenizer.tFileContext? fileContext = null) {
+		FileContext = fileContext;
+	}
+
 	public IReadOnlyList<SpoDiagnostic>
 	GetDiagnostics(
 		tText uri,
@@ -10,17 +16,24 @@ SpoLanguageService {
 	) {
 		try {
 			var diagnostics = new List<SpoDiagnostic>();
-			foreach (var diagnostic in mSPO_Diagnostics.GetModuleDiagnostics(text, uri, _ => {})) {
+			foreach (var diagnostic in mSPO_Diagnostics.GetModuleDiagnostics(text, uri, _ => {}, FileContext)) {
 				diagnostics.Add(
 					new(
-						Range: ToRange(diagnostic.Pos),
+						Range: ToRange(diagnostic.Pos.Start.Id == uri ? diagnostic.Pos : mSpan.Span(mTextStream.Pos(uri, 1, 1))),
 						Severity: (tInt32)diagnostic.Severity,
 						Source: diagnostic.Source,
-						Message: diagnostic.Message
+						Message: diagnostic.Pos.Start.Id == uri ? diagnostic.Message : mTextParser.ToText(diagnostic.Pos) + ": " + diagnostic.Message
 					)
 				);
 			}
 			return diagnostics;
+		} catch (mSPO_Parser.tLoadSigError exception) {
+			return [new(
+				Range: ToRange(exception.Pos),
+				Severity: (tInt32)mSPO_Diagnostics.tDiagnosticSeverity.Error,
+				Source: "parser",
+				Message: exception.Message
+			)];
 		} catch (Exception exception) {
 			return [
 				new(
@@ -40,7 +53,7 @@ SpoLanguageService {
 	) {
 		try {
 			var Symbols = new List<SpoDocumentSymbol>();
-			foreach (var Symbol in mSPO_Navigation.GetDocumentSymbols(text, uri, _ => {})) {
+			foreach (var Symbol in mSPO_Navigation.GetDocumentSymbols(text, uri, _ => {}, FileContext)) {
 				Symbols.Add(ToDocumentSymbol(Symbol));
 			}
 			return Symbols;
@@ -61,7 +74,8 @@ SpoLanguageService {
 				text,
 				uri,
 				ToParserPosition(uri, line, character),
-				_ => {}
+				_ => {},
+				FileContext
 			);
 			return Definition.IsSome(out var Location)
 			? ToLocation(Location)
@@ -86,7 +100,8 @@ SpoLanguageService {
 				uri,
 				ToParserPosition(uri, line, character),
 				includeDeclaration,
-				_ => {}
+				_ => {},
+				FileContext
 			)) {
 				Locations.Add(ToLocation(Location));
 			}
@@ -108,7 +123,8 @@ SpoLanguageService {
 				text,
 				uri,
 				ToParserPosition(uri, line, character),
-				_ => {}
+				_ => {},
+				FileContext
 			);
 			return Target.IsSome(out var Value)
 				? new(ToRange(Value.Range), Value.Placeholder)
@@ -132,7 +148,8 @@ SpoLanguageService {
 				uri,
 				ToParserPosition(uri, line, character),
 				newName,
-				_ => {}
+				_ => {},
+				FileContext
 			);
 			if (!Rename.IsSome(out var NavigationEdits)) {
 				return null;

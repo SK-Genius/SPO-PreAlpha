@@ -508,6 +508,39 @@ An explicitly written `()` is still a real argument:
 The argument positions of the called name determine where the piped value is
 inserted.
 
+## Signature files
+
+A `.SIG` file contains exactly one SPO type definition, with optional surrounding
+whitespace. It has no `§DEF`, `§IMPORT`, or `§EXPORT` wrapper. For example,
+`Types/TypeConstructor.SIG` contains:
+
+```SPO
+[§TYPE => §TYPE]
+```
+
+Use `[§LOAD "path/to/File.SIG"]` wherever a type is allowed in SPO, including
+inside another `.SIG` file. The square brackets mark a type load and are required:
+
+```SPO
+[§SIG_WITH F € [§LOAD "../Types/TypeConstructor.SIG"] IN [<
+    Some...: [§GENERIC t [t => [.F t]]]
+>]]
+```
+
+Paths are resolved relative to the file containing `§LOAD`. Absolute paths
+are also accepted. Each file is parsed as one complete type; empty files,
+additional definitions, missing files, and loading other file extensions are
+errors. Direct and indirect load cycles are rejected with their load chain.
+Repeated independent loads of the same file are allowed.
+
+Loading happens during SPO parsing. Generated `.ILT` contains the resulting type
+definitions and does not support `[§LOAD "..."]`.
+
+The SIG modules and their consumer tests share the files in `Modules/*.SIG`.
+Common type definitions such as `TypeConstructor.SIG` live in `Types/`.
+VSCode recognizes `.SIG` and `.sig`, checks their syntax and types, and supports
+symbols, references, renaming, and navigation to files named by `§LOAD`.
+
 ## Tests
 
 Run all tests with:
@@ -534,7 +567,7 @@ empty values.
 The test run updates `.ILT` files. These are generated IL examples.
 The `.result.SPO` files define the expected behavior.
 
-The full test run currently contains 578 tests.
+The full test run currently contains 582 tests.
 
 Additional regression tests cover:
 

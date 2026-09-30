@@ -1,4 +1,5 @@
 #:ref ../../SPO_CS/src/Common/mStd.cs
+#:ref ../../SPO_CS/src/Common/mFS.cs
 #:ref ../../SPO_CS/src/Common/mMaybe.cs
 #:ref ../../SPO_CS/src/Common/mStream.cs
 #:ref ../../SPO_CS/src/Common/mSpan.cs
@@ -208,29 +209,48 @@ mSPO_Navigation {
 	GetDocumentSymbols(
 		tText aCode,
 		tText aId,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	) => TryParseModule(
-		aCode,
-		aId,
-		aDebugStream,
-		out var Module
-	)
-		? GetModuleSymbols(Module)
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
+	) {
+		mStream.tStream<tDocumentSymbol> LocalSymbols(mStream.tStream<tDocumentSymbol> aSymbols)
+			=> aSymbols.Where(__ => __.Range.Start.Id == aId).Map(__ => DocumentSymbol(
+				__.Name, __.Detail, __.Kind, __.Range, __.SelectionRange, LocalSymbols(__.Children)
+			));
+		return TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext)
+		? LocalSymbols(aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
+			? GetExpressionSymbols(Module.Export.Expression)
+			: GetModuleSymbols(Module))
 		: mStd.cEmpty;
+	}
 
 	public static mMaybe.tMaybe<tLocation>
 	GetDefinition(
 		tText aCode,
 		tText aId,
 		tPos aPos,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
 	) {
+		var Tokens = mTokenizer.Tokenizer.ParseText(aCode, aId, aDebugStream).Result;
+		while (Tokens.TryFirst().IsSome(out var Token)) {
+			Tokens = Tokens.Skip(1);
+			if (Token.Type != mTokenizer.tTokenType.SpecialToken || Token.Text != "[") { continue; }
+			var Load = Tokens.SkipWhile(__ => __.Type == mTokenizer.tTokenType.SpecialToken && __.Text is "\n" or " " or "\t");
+			if (Load.TryFirst().IsSome(out var Keyword) && Keyword.Type == mTokenizer.tTokenType.SpecialId && Keyword.Text == "§LOAD" &&
+				Load.Skip(1).TryFirst().IsSome(out var File) && File.Type == mTokenizer.tTokenType.Text &&
+				Contains(File.Span, aPos)) {
+				var Folder = string.IsNullOrEmpty(aId) ? mFS.CWD() : mFS.File(aId).Folder;
+				var Target = Folder.GetFile(File.Text).Path.ToUri();
+				return Location(Target, mSpan.Span(mTextStream.Pos(Target, 1, 1)));
+			}
+		}
 		if (
 			!TryParseModule(
 				aCode,
 				aId,
 				aDebugStream,
-				out var Module
+				out var Module,
+				aFileContext
 			) ||
 			!TryResolveModule(
 				Module,
@@ -251,10 +271,11 @@ mSPO_Navigation {
 		tText aId,
 		tPos aPos,
 		tBool aIncludeDeclaration,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
 	) {
 		if (
-			!TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences) ||
+			!TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) ||
 			!TryFindOccurrence(Occurrences, aPos, out var Selected, out _)
 		) {
 			return mStd.cEmpty;
@@ -267,7 +288,7 @@ mSPO_Navigation {
 				(aIncludeDeclaration || !Occurrence.IsDefinition) &&
 				Occurrence.NameParts.TryFirst().IsSome(out var Range)
 			) {
-				Result.Add(Location(aId, Range));
+				Result.Add(Location(Range.Start.Id, Range));
 			}
 		}
 		return mStream.Stream(Result.ToArray());
@@ -278,9 +299,11 @@ mSPO_Navigation {
 		tText aCode,
 		tText aId,
 		tPos aPos,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
-	) => TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences) &&
-		TryFindOccurrence(Occurrences, aPos, out var Occurrence, out var SelectedPart)
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
+	) => TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) &&
+		TryFindOccurrence(Occurrences, aPos, out var Occurrence, out var SelectedPart) &&
+		Occurrences.TrueForAll(__ => !SameSpan(__.DefinitionSpan, Occurrence.DefinitionSpan) || __.NameParts.All(aPart => aPart.Start.Id == aId))
 		? RenameTarget(SelectedPart, DisplayId(Occurrence.Id))
 		: mStd.cEmpty;
 
@@ -290,11 +313,13 @@ mSPO_Navigation {
 		tText aId,
 		tPos aPos,
 		tText aNewName,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
 	) {
 		if (
-			!TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences) ||
+			!TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) ||
 			!TryFindOccurrence(Occurrences, aPos, out var Selected, out _) ||
+			!Occurrences.TrueForAll(__ => !SameSpan(__.DefinitionSpan, Selected.DefinitionSpan) || __.NameParts.All(aPart => aPart.Start.Id == aId)) ||
 			!TryGetRenameParts(DisplayId(Selected.Id), aNewName, out var NewParts)
 		) {
 			return mStd.cEmpty;
@@ -1743,7 +1768,7 @@ mSPO_Navigation {
 		var NameParts = aId.NameParts.IsEmpty()
 			? mStream.Stream(aId.Pos)
 			: aId.NameParts;
-		aQueryPos.Occurrences?.Add(new(aId.Id, Binding.Span, NameParts, false));
+		aQueryPos.Occurrences?.Add(new(Binding.Id, Binding.Span, NameParts, false));
 		if (!NameParts.Any(aPart => Contains(aPart, aQueryPos.QueryPos))) {
 			aDefinitionSpan = default;
 			return false;
@@ -1758,10 +1783,11 @@ mSPO_Navigation {
 		tText aCode,
 		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
-		[MaybeNullWhen(false)] out System.Collections.Generic.List<tOccurrence> aOccurrences
+		[MaybeNullWhen(false)] out System.Collections.Generic.List<tOccurrence> aOccurrences,
+		mTokenizer.tFileContext? aFileContext
 	) {
 		aOccurrences = [];
-		if (!TryParseModule(aCode, aId, aDebugStream, out var Module)) {
+		if (!TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext)) {
 			return false;
 		}
 
@@ -1905,7 +1931,7 @@ mSPO_Navigation {
 		out tBinding aBinding
 	) {
 		for (var I = aScope.Count - 1; I >= 0; I -= 1) {
-			if (aScope[I].Id == aId) {
+			if (aScope[I].Id == aId || (aScope[I].Kind == tSymbolKind.TypeParameter && aScope[I].Id + "..." == aId)) {
 				aBinding = aScope[I];
 				return true;
 			}
@@ -1972,10 +1998,11 @@ mSPO_Navigation {
 		tText aCode,
 		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
-		[MaybeNullWhen(false)] out mSPO_AST.tModuleNode<tSpan> aModule
+		[MaybeNullWhen(false)] out mSPO_AST.tModuleNode<tSpan> aModule,
+		mTokenizer.tFileContext? aFileContext
 	) {
 		try {
-			aModule = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
+			aModule = mSPO_Diagnostics.DocumentParser(aId).ParseText(aCode, aId, aDebugStream, aFileContext);
 			return true;
 		} catch {
 			aModule = default!;

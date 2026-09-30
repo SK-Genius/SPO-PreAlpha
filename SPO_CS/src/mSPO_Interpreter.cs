@@ -3,6 +3,7 @@
 #:property OutputType = Library
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
+#:ref Common/mFS.cs
 #:ref Common/mSpan.cs
 #:ref Common/mMaybe.cs
 #:ref Common/mResult.cs
@@ -88,7 +89,10 @@ mSPO_Interpreter {
 			}
 		).ModifyError(
 			aError => {
-				var Lines = aCode.Split("\n");
+				var ErrorSource = aError.Pos.Start.Id;
+				var Lines = (ErrorSource != aId
+					? mFS.File(ErrorSource).TryReadText().ElseThrow()
+					: aCode).Split("\n");
 				return (
 					aError.ToText() +
 					"\n" +

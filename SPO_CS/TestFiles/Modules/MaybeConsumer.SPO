@@ -1,28 +1,5 @@
 §IMPORT {
-	Maybe: §SIG [
-		§SIG_WITH F € [§TYPE => §TYPE] IN [<
-			Some...: [§GENERIC t [t => [.F t]]]
-			None...: [§GENERIC t [t => [.F t]]]
-			...>>...: [
-				§GENERIC tIn [
-					§GENERIC tOut [
-						[
-							.F tIn
-							tIn => tOut
-						] => [.F tOut]
-					]
-				]
-			]
-			...Or...: [
-				§GENERIC t [
-					[
-						.F t
-						t
-					] => t
-				]
-			]
-		>]
-	] WITH §DEF F € [§TYPE => §TYPE] IN {
+	Maybe: §SIG [§LOAD "../../Modules/Maybe.SIG"] WITH §DEF F € [§TYPE => §TYPE] IN {
 		Some...: §DEF Some...
 		None...: §DEF None...
 		...>>...: §DEF ...>>...

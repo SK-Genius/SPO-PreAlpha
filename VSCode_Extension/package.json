@@ -25,7 +25,7 @@
 		"languages": [
 			{
 				"id": "spo",
-				"extensions": [".SPO", ".spo", ".ILT", ".ilt"],
+				"extensions": [".SPO", ".spo", ".ILT", ".ilt", ".SIG", ".sig"],
 				"aliases": ["SPO", "spo"],
 				"configuration": "./SPO.configuration.json"
 			},

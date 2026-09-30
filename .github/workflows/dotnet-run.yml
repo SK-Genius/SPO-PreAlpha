@@ -23,6 +23,8 @@ jobs:
           dotnet-version: 11.0.100-preview.6.26359.118
       -
         name: sonarscanner begin
+        id: sonar_begin
+        continue-on-error: true
         run: >
           dnx dotnet-sonarscanner begin
           /o:"sk-genius"
@@ -42,6 +44,8 @@ jobs:
           -o ../coverage.xml
       -
         name: sonarscanner end
+        if: steps.sonar_begin.outcome == 'success'
+        continue-on-error: true
         run: >
           dnx dotnet-sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"

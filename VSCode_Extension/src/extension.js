@@ -48,7 +48,11 @@ function activate(context) {
 	
 	const clientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'spo' }],
+		synchronize: {
+			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.{SIG,sig}')
+		}
 	};
+	context.subscriptions.push(clientOptions.synchronize.fileEvents);
 	
 	client = new LanguageClient('spo-lang', 'SPO Language Server', serverOptions, clientOptions);
 	outputChannel.appendLine(`Starting language server: ${serverExecutable}`);

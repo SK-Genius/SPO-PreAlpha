@@ -20,6 +20,18 @@ using tToken = mTokenizer.tToken;
 
 public static class
 mSPO_Diagnostics {
+	public static mParserGen.tParser<tPos, tToken, mSPO_AST.tModuleNode<tSpan>, tText>
+	DocumentParser(
+		tText aId
+	) => aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
+		? mSPO_Parser.Signature.ModifyS((aSpan, aType) => mSPO_AST.Module(
+			aSpan,
+			mSPO_AST.Import(aSpan, mSPO_AST.RecordPattern<tSpan>(aSpan, mStd.cEmpty)),
+			mStd.cEmpty,
+			mSPO_AST.Export(aSpan, aType)
+		))
+		: mSPO_Parser.Module;
+
 	public enum
 	tDiagnosticSeverity {
 		Error = 1,
@@ -100,7 +112,8 @@ mSPO_Diagnostics {
 		tText aCode,
 		tText aId,
 		tPos aFallback,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext
 	) {
 		var CharStream = aCode.ToStream(aId).Map(
 			__ => (mSpan.Span(__.Pos), __.Char)
@@ -135,7 +148,10 @@ mSPO_Diagnostics {
 		
 		return mResult.OK(
 			TokenResult.Result.Value.Map(
-				__ => (__.Span, __)
+				__ => {
+					__.FileContext = aFileContext;
+					return (__.Span, __);
+				}
 			)
 		).WithErrorType<mStream.tStream<tDiagnostic>>();
 	}
@@ -146,7 +162,7 @@ mSPO_Diagnostics {
 		tPos aFallback,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		var MaybeModule = mSPO_Parser.Module.StartParse(aTokens, aDebugStream);
+		var MaybeModule = DocumentParser(aFallback.Id).StartParse(aTokens, aDebugStream);
 		if (!MaybeModule.Match(out var ModuleResult, out var ParseErrors)) {
 			return mResult.Fail(
 				ParseErrors.Map(
@@ -257,7 +273,8 @@ mSPO_Diagnostics {
 	GetModuleDiagnostics(
 		tText aCode,
 		tText aId,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mTokenizer.tFileContext? aFileContext = null
 	) {
 		var Fallback = GetEndPos(aCode, aId);
 		
@@ -265,7 +282,8 @@ mSPO_Diagnostics {
 			aCode,
 			aId,
 			Fallback,
-			aDebugStream
+			aDebugStream,
+			aFileContext
 		).ThenTry(
 			aTokens => ParseModule(aTokens, Fallback, aDebugStream)
 		).ThenTry(

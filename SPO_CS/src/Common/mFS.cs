@@ -42,10 +42,11 @@ mFS {
 			tPath aBasePath,
 			tPath aChild
 		) => (
+			aChild.IsAbsolutePath ? aChild :
 			aBasePath == cIdentPath ? aChild :
 			aChild == cIdentPath ? aBasePath :
-			aChild == cParentPath && aBasePath == cParentPath ? new (aBasePath, "..") :
-			aChild == cParentPath ? aBasePath.Parent.Deref.ElseUse(cIdentPath) :
+			aChild == cParentPath && aBasePath.Name == ".." ? new (aBasePath, "..") :
+			aChild == cParentPath ? aBasePath.Parent.Deref.ElseUse(aBasePath.IsAbsolutePath ? aBasePath : cIdentPath) :
 			aChild.Parent.Is(out var Parent) ? (aBasePath / Parent) / aChild.Name :
 			new (aBasePath, aChild.Name)
 		);
@@ -158,11 +159,7 @@ mFS {
 		
 		public override tText
 		ToString(
-		) => (
-			this.Parent.Is(out var Parent)
-			? $"{Parent}/{this.Name}"
-			: this.Name
-		);
+		) => this.ToText();
 	}
 	
 	public readonly struct
@@ -219,35 +216,30 @@ mFS {
 	Path(
 		tText aPath
 	) {
+		if (System.Uri.TryCreate(aPath, System.UriKind.Absolute, out var Uri) && Uri.IsFile) {
+			aPath = Uri.LocalPath;
+		}
+
 		if (aPath is [_, ':']) {
 			return new (aPath);
 		}
-		
-		//System.Console.WriteLine($"=== {aPath} ==");
-		
-		if (aPath is [_, ':', '/' or '\\', ..]) {
-			var Parts = aPath.Split(['/', '\\'], 2);
-			return (new tPath(Parts[0]) / Parts[1]);
-		}
-		
-		if (aPath is not ['.', '/' or '\\', ..]) {
-			aPath = "./" + aPath;
-		}
-		
+
 		var Path = cIdentPath;
-		
-		foreach (var Child in aPath.Split(['/', '\\'])) {
-			//System.Console.WriteLine($"  {Path} / {Child}");
-			
-			Path = Child switch {
-				"." => Path,
-				".." => Path.Name == ".." ? new (Path, "..") : Path.Parent.Deref.ElseUse(cParentPath),
-				var X when X.IsAbsoluteRootName() => throw mError.Error($"can't append absolute path '{X}'"),
-				_ => Path == cIdentPath ? new(Child) : new(Path, Child),
-			};
+		if (System.IO.Path.IsPathRooted(aPath)) {
+			aPath = System.IO.Path.GetFullPath(aPath);
+			var Root = System.IO.Path.GetPathRoot(aPath)!;
+			var RootName = Root.Replace('\\', '/').TrimEnd('/');
+			Path = new (RootName.Length == 0 ? "/" : RootName);
+			aPath = aPath[Root.Length..];
 		}
-		//System.Console.WriteLine($"  {Path}");
-		
+
+		foreach (var Child in aPath.Split(['/', '\\'], System.StringSplitOptions.RemoveEmptyEntries)) {
+			if (Child.IsAbsoluteRootName()) {
+				throw mError.Error($"can't append absolute path '{Child}'");
+			}
+			Path /= new tPath(Child);
+		}
+
 		return Path;
 	}
 	
@@ -259,7 +251,7 @@ mFS {
 	public static tFile
 	File(
 		tPath aPath
-	) => new (mFS.Folder(aPath.Parent.Deref.AssertNotEmpty()), aPath.Name);
+	) => new (mFS.Folder(aPath.Parent.Deref.ElseUse(cIdentPath)), aPath.Name);
 	
 	public static tFolder
 	CWD(
@@ -268,7 +260,7 @@ mFS {
 	public static tBool
 	IsAbsoluteRootName(
 		this tText a
-	) => (
+	) => a == "/" || a.StartsWith("//", System.StringComparison.Ordinal) || (
 		a is [var DriveLetter, ':'] &&
 		(
 			('a' <= DriveLetter && DriveLetter <= 'z') ||
@@ -277,6 +269,14 @@ mFS {
 	);
 	
 	extension (tPath aPath) {
+		public tPath
+		ToAbsolute(
+		) => Path(System.IO.Path.GetFullPath(aPath.ToText()));
+
+		public tText
+		ToUri(
+		) => new System.Uri(aPath.ToAbsolute().ToText()).AbsoluteUri;
+
 		public tInt32
 		Length(
 		) => aPath.Parent.Is(out var Parent)
@@ -319,8 +319,8 @@ mFS {
 		ToText(
 		) => (
 			aPath.Parent.Is(out var Parent)
-			? $"{Parent.ToText()}/{aPath.Name}"
-			: aPath.Name
+			? $"{Parent.ToText().TrimEnd('/')}/{aPath.Name}"
+			: aPath.Name is [_, ':'] ? aPath.Name + "/" : aPath.Name
 		);
 		
 		public tBool
@@ -354,8 +354,8 @@ mFS {
 		
 		public tFile
 		GetFile(
-			tText aName
-		) => new (aFolder, aName);
+			tPath aPath
+		) => File(aFolder._Path / aPath);
 		
 		public mStream.tStream<tFile>
 		GetFiles(
@@ -408,12 +408,27 @@ mFS {
 	}
 	
 	extension (tFile aFile) {
-		private tText Path => System.IO.Path.Combine(aFile._Folder.Deref.AssertNotEmpty()._Path.ToText(), aFile.Name);
+		public tPath Path => aFile._Folder.Deref.AssertNotEmpty()._Path / aFile.Name;
+
+		public tFolder Folder => mFS.Folder(aFile.Path.Parent.Deref.ElseUse(cIdentPath));
+
+		public tText Extension => System.IO.Path.GetExtension(aFile.Name).TrimStart('.');
+
+		public tText NameWithoutExtension => System.IO.Path.GetFileNameWithoutExtension(aFile.Name);
+
+		public tBool
+		IsSameFile(
+			tFile aOther
+		) => tText.Equals(
+			aFile.Path.ToAbsolute().ToText(),
+			aOther.Path.ToAbsolute().ToText(),
+			System.OperatingSystem.IsWindows() ? System.StringComparison.OrdinalIgnoreCase : System.StringComparison.Ordinal
+		);
 		
 		public tBool
 		Exists(
 		) => System.IO.File.Exists(
-			aFile.Path
+			aFile.Path.ToText()
 		);
 		
 		public tBool
@@ -421,7 +436,7 @@ mFS {
 		) {
 			if (aFile.Exists()) {
 				System.IO.File.Delete(
-					aFile.Path
+					aFile.Path.ToText()
 				);
 			}
 			
@@ -431,13 +446,13 @@ mFS {
 		public mResult.tResult<tText, tText>
 		TryReadText(
 		) => System.IO.File.ReadAllText(
-			aFile.Path
+			aFile.Path.ToText()
 		);
 		
 		public mResult.tResult<mStream.tStream<tText>, tText>
 		TryReadLines(
 		) => System.IO.File.ReadAllLines(
-			aFile.Path
+			aFile.Path.ToText()
 		).AsStream(
 		);
 		
@@ -446,7 +461,7 @@ mFS {
 			tText aText
 		) {
 			System.IO.File.WriteAllText(
-				aFile.Path,
+				aFile.Path.ToText(),
 				aText
 			);
 			
@@ -458,7 +473,7 @@ mFS {
 			mStream.tStream<tText> aLines
 		) {
 			System.IO.File.WriteAllLines(
-				aFile.Path,
+				aFile.Path.ToText(),
 				aLines.ToArrayList().ToArray()
 			);
 			
