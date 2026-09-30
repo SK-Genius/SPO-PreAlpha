@@ -23,7 +23,6 @@ jobs:
           dotnet-version: 11.0.100-preview.6.26359.118
       -
         name: sonarscanner begin
-        continue-on-error: true
         run: >
           dnx dotnet-sonarscanner begin
           /o:"sk-genius"
@@ -32,13 +31,17 @@ jobs:
           /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
       -
         name: build for SonarCloud
-        continue-on-error: true
+        run: dotnet build SPO_CS/src/mRunTests.cs --no-incremental
+      -
+        name: dotnet-coverage for SonarCloud
+        working-directory: SPO_CS
         run: >
           dnx dotnet-coverage collect
-          "dotnet build SPO_CS/src/mRunTests.cs"
+          "dotnet ../bin/mRunTests.dll"
+          -f xml
+          -o ../coverage.xml
       -
         name: sonarscanner end
-        continue-on-error: true
         run: >
           dnx dotnet-sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
@@ -46,8 +49,7 @@ jobs:
         name: dotnet-coverage for Codecov
         continue-on-error: true
         run: >
-          dnx dotnet-coverage collect
-          "dotnet SPO_CS/src/mRunTests.cs"
+          dnx dotnet-coverage merge coverage.xml
           -f cobertura
           -o output.cobertura.xml
       -

@@ -4,7 +4,6 @@
 #:property OutputType = Exe
 #:property AllowUnsafeBlocks = true
 #:property PublishAot=false
-#:property OutputPath = ../server/
 #:include _GlobalUsings.cs
 #:include LspServer.cs
 #:include mSPO_Diagnostics.cs

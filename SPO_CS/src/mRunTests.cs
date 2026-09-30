@@ -2,7 +2,6 @@
 #:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Exe
-#:property OutputPath = ../output
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mTest.cs
