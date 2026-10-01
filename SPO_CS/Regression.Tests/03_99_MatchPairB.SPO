@@ -1,0 +1,1 @@
+§EXPORT (.( ((), §DEF value € §INT) => value) ((), 3))

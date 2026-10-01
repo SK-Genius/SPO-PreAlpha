@@ -1,0 +1,7 @@
+§DEF MatchInput = ((), 2)
+
+§DEF x = §IF MatchInput MATCH {
+                ((), §DEF value) : value
+}
+
+§EXPORT x
