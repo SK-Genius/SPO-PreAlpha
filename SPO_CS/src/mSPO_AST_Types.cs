@@ -556,6 +556,7 @@ mSPO_AST_Types {
 		}
 		
 		var ValidatedTypes = aTypeState.ValidatedTypes;
+		var TypeAnnotation = aNode.TypeAnnotation;
 		return (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
@@ -927,6 +928,18 @@ mSPO_AST_Types {
 			mSPO_AST.tPipeToLeftNode<tPos> Pipe => throw mError.Error($"'{aNode.GetType().Name}' should be desugared at this point!"),
 			_ => throw mError.Error("not implemented: " + aNode.GetType().Name),
 		}
+	).ThenTry(
+		InferredType => TypeAnnotation.Match(
+			Annotation => InferredType.IsSubType(
+				Annotation,
+				mStd.cEmpty
+			).Then(
+				_ => InferredType
+			).ModifyError(
+				_ => (aNode.Pos, $"type annotation '{Annotation.ToText()}' contradicts inferred type '{InferredType.ToText()}'")
+			),
+			() => mResult.OK(InferredType).WithErrorType<(tPos Pos, tText ErrorText)>()
+		)
 	).ThenDo(
 		__ => {
 			aNode.TypeAnnotation = __;
@@ -1585,12 +1598,10 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tPairTypeNode<tPos> PairType: {
 				Result = PairType.TailType.AsVM_Type(
-					aScope,
-					aTypeState
+					aScope
 				).ThenTry(
 					aTail => PairType.HeadType.AsVM_Type(
-						aScope,
-						aTypeState
+						aScope
 					).Then(
 						aHead => mVM_Type.Pair(aTail, aHead)
 					)
