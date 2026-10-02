@@ -27,13 +27,30 @@ mSPO_AST_Types {
 			(a1, a2) => a1.CompareTo(a2),
 			[]
 		);
+		
+		public mTreeMap.tTree<
+			tInt32,
+			mStream.tStream<(
+				mSPO_AST.tExpressionNode<tPos> Node,
+				mMaybe.tMaybe<mVM_Type.tType> Type
+			)>
+		> InputTypeAnnotations = mTreeMap.Tree<
+			tInt32,
+			mStream.tStream<(
+				mSPO_AST.tExpressionNode<tPos> Node,
+				mMaybe.tMaybe<mVM_Type.tType> Type
+			)>
+		>(
+			(a1, a2) => a1.CompareTo(a2),
+			[]
+		);
 	}
 	
 	public static tTypeState<tPos>
 	NewTypeState<tPos>(
 	) => new();
 	
-	private static mMaybe.tMaybe<mVM_Type.tType>
+	public static mMaybe.tMaybe<mVM_Type.tType>
 	TryGetValidatedType<tPos>(
 		this tTypeState<tPos> aTypeState,
 		mSPO_AST.tExpressionNode<tPos> aNode
@@ -50,6 +67,36 @@ mSPO_AST_Types {
 		);
 	}
 	
+	private static mMaybe.tMaybe<mVM_Type.tType>
+	GetInputTypeAnnotation<tPos>(
+		this tTypeState<tPos> aTypeState,
+		mSPO_AST.tExpressionNode<tPos> aNode
+	) {
+		var Key = RuntimeHelpers.GetHashCode(aNode);
+		var Bucket = mStream.Stream<(
+			mSPO_AST.tExpressionNode<tPos> Node,
+			mMaybe.tMaybe<mVM_Type.tType> Type
+		)>();
+		
+		if (aTypeState.InputTypeAnnotations.TryGet(Key).IsSome(out var Existing)) {
+			if (
+				Existing.Where(
+					__ => mStd.RefEq(__.Node, aNode)
+				).TryFirst().IsSome(out var Entry)
+			) {
+				return Entry.Type;
+			}
+			Bucket = Existing;
+		}
+		
+		var Type = aNode.TypeAnnotation;
+		aTypeState.InputTypeAnnotations = aTypeState.InputTypeAnnotations.Set(
+			Key,
+			mStream.Stream((aNode, Type), Bucket)
+		);
+		return Type;
+	}
+	
 	private static void
 	SetValidatedType<tPos>(
 		this tTypeState<tPos> aTypeState,
@@ -59,7 +106,9 @@ mSPO_AST_Types {
 		var Key = RuntimeHelpers.GetHashCode(aNode);
 		var Bucket = mStream.Stream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>();
 		if (aTypeState.ValidatedTypes.TryGet(Key).IsSome(out var Existing)) {
-			Bucket = Existing;
+			Bucket = Existing.Where(
+				__ => !mStd.RefEq(__.Node, aNode)
+			);
 		}
 		aTypeState.ValidatedTypes = aTypeState.ValidatedTypes.Set(
 			Key,
@@ -535,6 +584,7 @@ mSPO_AST_Types {
 		}
 		
 		var ExpressionType = mVM_Type.Tuple(System.MemoryExtensions.AsSpan(ArgumentTypes));
+		aTypeState.GetInputTypeAnnotation(aArgument);
 		aArgument.TypeAnnotation = ExpressionType;
 		return (ExpressionType, Mappings);
 	}
@@ -551,12 +601,8 @@ mSPO_AST_Types {
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
-		if (aTypeState.TryGetValidatedType(aNode).IsSome(out var ValidatedType)) {
-			return ValidatedType;
-		}
-		
 		var ValidatedTypes = aTypeState.ValidatedTypes;
-		var TypeAnnotation = aNode.TypeAnnotation;
+		var TypeAnnotation = aTypeState.GetInputTypeAnnotation(aNode);
 		return (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
@@ -566,7 +612,7 @@ mSPO_AST_Types {
 			mSPO_AST.tTextNode<tPos> => mVM_Type.Text(),
 			mSPO_AST.tCharNode<tPos> => mVM_Type.Char(),
 			mSPO_AST.tIdNode<tPos> IdNode => (
-				IdNode.TypeAnnotation.Match(
+				TypeAnnotation.Match(
 					Annotation => aScope.Where(
 						__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
 					).TryFirst(
@@ -596,6 +642,7 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tSigNode<tPos> Sig => mStd.Call(
 				() => {
+					aTypeState.GetInputTypeAnnotation(Sig.Head);
 					if (
 						!Sig.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error) ||
 						!Sig.Head.AsVM_Value(aScope).Match(out var Head, out Error) ||
