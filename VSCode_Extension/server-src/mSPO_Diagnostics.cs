@@ -213,6 +213,7 @@ mSPO_Diagnostics {
 		}
 		
 		var TypeArg = mVM_Type.Free();
+		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
@@ -230,7 +231,8 @@ mSPO_Diagnostics {
 						)
 					)
 				)
-			)
+			),
+			TypeState
 		).Then(
 			__ => __.Scope
 		);
@@ -238,7 +240,7 @@ mSPO_Diagnostics {
 		if (!DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, TypeState)
 			)
 		).Match(out var Scope, out var TypeError)) {
 			return mResult.Fail(
@@ -253,7 +255,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope).Match(out _, out var LoweringError)) {
+		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope, TypeState).Match(out _, out var LoweringError)) {
 			return mResult.Fail(
 				mStream.Stream(
 					Diagnostic(
