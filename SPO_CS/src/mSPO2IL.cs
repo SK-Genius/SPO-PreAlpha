@@ -24,6 +24,7 @@ mSPO2IL {
 	tModuleConstructor<tPos> {
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> TypeDef;
 		public mTreeMap.tTree<tText, mVM_Type.tType> Types; // TypeText to TypeDef
+		public System.Collections.Generic.Dictionary<mVM_Type.tType, tText> TypeIds;
 		public mArrayList.tArrayList<(tText? TypeId, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands)> Defs;
 		internal mStd.tFunc<tPos, tPos, tPos> MergePos;
 	}
@@ -78,6 +79,7 @@ mSPO2IL {
 		Defs = mArrayList.List<(tText? Type, mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Def)>(),
 		TypeDef = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
 		Types = mTreeMap.Tree<tText, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)), []),
+		TypeIds = new(System.Collections.Generic.ReferenceEqualityComparer.Instance),
 		MergePos = aMergePos,
 	};
 	
@@ -155,6 +157,16 @@ mSPO2IL {
 	}
 	
 	public static void
+	SetType<tPos>(
+		this tModuleConstructor<tPos> aModuleConstructor,
+		tText aTypeId,
+		mVM_Type.tType aType
+	) {
+		aModuleConstructor.Types = aModuleConstructor.Types.Set(aTypeId, aType);
+		aModuleConstructor.TypeIds[aType] = aTypeId;
+	}
+	
+	public static void
 	EnsureTypeDefinition<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
 		tText aTypeId,
@@ -163,10 +175,11 @@ mSPO2IL {
 	) {
 		if (aModuleConstructor.Types.TryGet(aTypeId).IsSome(out var ExistingType)) {
 			mAssert.AreEquals(ExistingType, aType);
+			aModuleConstructor.TypeIds[aType] = aTypeId;
 			return;
 		}
 		aModuleConstructor.TypeDef.Push(aCreateDefinition());
-		aModuleConstructor.Types = aModuleConstructor.Types.Set(aTypeId, aType);
+		aModuleConstructor.SetType(aTypeId, aType);
 	}
 	
 	public static tText
@@ -174,12 +187,8 @@ mSPO2IL {
 		this tModuleConstructor<tPos> aModuleConstructor,
 		mVM_Type.tType aType
 	) {
-		if (
-			aModuleConstructor.Types.ToStream().Where(
-				__ => mStd.RefEq(__.Value, aType)
-			).TryFirst().IsSome(out var Existing)
-		) {
-			return Existing.Key;
+		if (aModuleConstructor.TypeIds.TryGetValue(aType, out var Existing)) {
+			return Existing;
 		}
 		
 		switch (aType) {
@@ -195,27 +204,27 @@ mSPO2IL {
 				return Id;
 			}
 			case var a when a.IsType(): {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cTypeType, a);
+				aModuleConstructor.SetType(mIL_GenerateOpcodes.cTypeType, a);
 				return mIL_GenerateOpcodes.cTypeType;
 			}
 			case var a when a.IsEmpty(): {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cEmptyType, a);
+				aModuleConstructor.SetType(mIL_GenerateOpcodes.cEmptyType, a);
 				return mIL_GenerateOpcodes.cEmptyType;
 			}
 			case var a when a.Kind is mVM_Type.tKind.True: {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_AST.cTrue, a);
+				aModuleConstructor.SetType(mIL_AST.cTrue, a);
 				return mIL_AST.cTrue;
 			}
 			case var a when a.Kind is mVM_Type.tKind.False: {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_AST.cFalse, a);
+				aModuleConstructor.SetType(mIL_AST.cFalse, a);
 				return mIL_AST.cFalse;
 			}
 			case var a when a.IsInt(): {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cIntType, a);
+				aModuleConstructor.SetType(mIL_GenerateOpcodes.cIntType, a);
 				return mIL_GenerateOpcodes.cIntType;
 			}
 			case var a when a.IsAny(): {
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(mIL_GenerateOpcodes.cAnyType, a);
+				aModuleConstructor.SetType(mIL_GenerateOpcodes.cAnyType, a);
 				return mIL_GenerateOpcodes.cAnyType;
 			}
 			case var a when a.Kind is mVM_Type.tKind.SigHead or mVM_Type.tKind.Abstract: {
@@ -228,7 +237,9 @@ mSPO2IL {
 			}
 			case var a when a.Kind is mVM_Type.tKind.Free: {
 				if (!mStd.RefEq(a, a.Refs[0])) {
-					return aModuleConstructor.MapType(a.Refs[0]);
+					var Id = aModuleConstructor.MapType(a.Refs[0]);
+					aModuleConstructor.TypeIds[a] = Id;
+					return Id;
 				}
 				var Id = "free_" + aModuleConstructor.TypeDef.Size;
 				aModuleConstructor.EnsureTypeDefinition(Id, a, () => mIL_AST.TypeFree(default(tPos)!, Id));
@@ -257,7 +268,7 @@ mSPO2IL {
 					aModuleConstructor.TypeDef.Push(mIL_AST.TypeRecord(default(tPos)!, NewRecTypeId, RecTypeId, PrefixedFieldTypeId));
 					RecTypeId = NewRecTypeId;
 				}
-				aModuleConstructor.Types = aModuleConstructor.Types.Set(RecTypeId, a);
+				aModuleConstructor.SetType(RecTypeId, a);
 				return RecTypeId;
 			}
 			case var a when a.IsSet(out var Type1, out var Type2): {
@@ -275,6 +286,7 @@ mSPO2IL {
 				aModuleConstructor.EnsureTypeDefinition(IdFunc, FuncType, () => mIL_AST.TypeFunc(default(tPos)!, IdFunc, IdArg, IdRes));
 				
 				if (EnvType.IsEmpty()) {
+					aModuleConstructor.TypeIds[a] = IdFunc;
 					return IdFunc;
 				}
 				
