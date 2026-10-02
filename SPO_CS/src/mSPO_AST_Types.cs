@@ -485,7 +485,12 @@ mSPO_AST_Types {
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
 		mStream.tStream<tScopeItem> aScope
-	) => (
+	) {
+		if (aNode.TypeAnnotation.IsSome(out var Type)) {
+			return Type;
+		}
+		
+		return (
 		aNode switch {
 			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
 			mSPO_AST.tTrueNode<tPos> => mVM_Type.True(),
@@ -849,6 +854,7 @@ mSPO_AST_Types {
 	).ThenDo(
 		__ => { aNode.TypeAnnotation = __; }
 	);
+	}
 	
 	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
 	UpdatePatternTypes<tPos>(
