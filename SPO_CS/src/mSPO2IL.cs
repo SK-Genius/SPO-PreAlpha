@@ -1970,7 +1970,10 @@ mSPO2IL {
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos,
 		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope
-	) => MapModule(aModuleNode, aMergePos, aScope, mSPO_AST_Types.NewTypeState<tPos>());
+	) {
+		var TypeState = mSPO_AST_Types.NewTypeState<tPos>();
+		return MapModule(aModuleNode, aMergePos, aScope, TypeState, false);
+	}
 	
 	public static mResult.tResult<tModuleConstructor<tPos>, (tPos Pos, tText ErrorText)>
 	MapModule<tPos>(
@@ -1978,6 +1981,15 @@ mSPO2IL {
 		mStd.tFunc<tPos, tPos, tPos> aMergePos,
 		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope,
 		mSPO_AST_Types.tTypeState<tPos> aTypeState
+	) => MapModule(aModuleNode, aMergePos, aScope, aTypeState, true);
+	
+	private static mResult.tResult<tModuleConstructor<tPos>, (tPos Pos, tText ErrorText)>
+	MapModule<tPos>(
+		mSPO_AST.tModuleNode<tPos> aModuleNode,
+		mStd.tFunc<tPos, tPos, tPos> aMergePos,
+		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope,
+		mSPO_AST_Types.tTypeState<tPos> aTypeState,
+		tBool aCommandsAlreadyTyped
 	) {
 		using var __Perf = mPerf.Measure();
 		
@@ -2005,7 +2017,16 @@ mSPO2IL {
 			)
 		);
 		
-		if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out _, out var Error)) {
+		if (aCommandsAlreadyTyped) {
+			if (!aModuleNode.Export.Expression.UpdateTypes(aScope, aTypeState).Match(out var ExportType, out var Error)) {
+				return mResult.Fail(Error);
+			}
+			Lambda.TypeAnnotation = mVM_Type.Proc(
+				mVM_Type.Empty(),
+				aModuleNode.Import.Pattern.TypeAnnotation.AssertNotEmpty(),
+				ExportType
+			);
+		} else if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out _, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		
