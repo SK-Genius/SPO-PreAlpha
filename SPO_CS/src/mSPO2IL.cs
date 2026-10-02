@@ -1981,8 +1981,7 @@ mSPO2IL {
 	MapModule<tPos>(
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos,
-		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope,
-		tBool aTypesUpdated = false
+		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope
 	) {
 		using var __Perf = mPerf.Measure();
 		
@@ -2010,19 +2009,7 @@ mSPO2IL {
 			)
 		);
 		
-		if (aTypesUpdated) {
-			if (
-				!aModuleNode.Export.Expression.TypeAnnotation.IsSome(out var ExportType) &&
-				!aModuleNode.Export.Expression.UpdateTypes(aScope).Match(out ExportType, out var Error)
-			) {
-				return mResult.Fail(Error);
-			}
-			Lambda.TypeAnnotation = mVM_Type.Proc(
-				mVM_Type.Empty(),
-				aModuleNode.Import.Pattern.TypeAnnotation.AssertNotEmpty(),
-				ExportType
-			);
-		} else if (!Lambda.UpdateTypes(aScope).Match(out _, out var Error)) {
+		if (!Lambda.UpdateTypes(aScope).Match(out _, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		
