@@ -664,10 +664,12 @@ mSPO_AST_Types {
 								Lambda.Head,
 								mStd.cEmpty,
 								tTypeRelation.Sub,
-								aGenTypeScope.Scope
+								aGenTypeScope.Scope,
+								aTypeState
 							).ThenTry(
 								aArgTypeScope => Lambda.Body.UpdateTypes(
-									aArgTypeScope.Scope
+									aArgTypeScope.Scope,
+									aTypeState
 								).Then(
 									aResTypeScope => {
 										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope);
@@ -698,7 +700,8 @@ mSPO_AST_Types {
 						aTypeState
 					).ThenTry(
 						aArg => Lambda.Body.UpdateTypes(
-							aArg.Scope
+							aArg.Scope,
+							aTypeState
 						).Then(
 							aRes => mVM_Type.Proc(
 								mVM_Type.Empty(),
@@ -725,7 +728,8 @@ mSPO_AST_Types {
 						aTypeState
 					).ThenTry(
 						aArg => Method.Body.UpdateTypes(
-							aArg.Scope
+							aArg.Scope,
+							aTypeState
 						).Then(
 							aResType => mVM_Type.Proc(aObj.Type, aArg.Type, aResType)
 						)
@@ -757,7 +761,8 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tCallNode<tPos> Call => Call.Func.UpdateTypes(
-				aScope
+				aScope,
+				aTypeState
 			).ThenTry(
 				aFuncType => mStd.Call(
 					() => {
@@ -809,7 +814,8 @@ mSPO_AST_Types {
 										Case.Pattern,
 										CandidateType,
 										tTypeRelation.Super,
-										aScope
+										aScope,
+										aTypeState
 									).Match(out var Pattern, out var Error)
 								) {
 									return mResult.Fail(Error);
@@ -873,7 +879,8 @@ mSPO_AST_Types {
 						Is.Pattern,
 						aValueType,
 						tTypeRelation.Super,
-						aScope
+						aScope,
+						aTypeState
 					)
 				).Then(
 					_ => mVM_Type.Bool()
@@ -979,7 +986,8 @@ mSPO_AST_Types {
 								Pattern.Pattern,
 								aType,
 								aTypeRelation,
-								aScope
+								aScope,
+								aTypeState
 							)
 						)
 					),
@@ -1027,7 +1035,8 @@ mSPO_AST_Types {
 					Sig.Body,
 					ExpectedBody,
 					aTypeRelation,
-					Scope
+					Scope,
+					aTypeState
 				).ThenTry(
 					__ => ExpectedBody.SplitForPatternType(Sig.Body).Matched.IsSome(out _)
 						? mResult.OK((Contract, __.Scope)).WithErrorType<(tPos Pos, tText ErrorText)>()
@@ -1234,7 +1243,8 @@ mSPO_AST_Types {
 							Item.Pattern,
 							Type,
 							aTypeRelation,
-							a1.Scope
+							a1.Scope,
+							aTypeState
 						).Then(
 							a2 => (
 								mVM_Type.Record(
@@ -1261,7 +1271,8 @@ mSPO_AST_Types {
 						out var Error
 					) ||
 					!GuardPattern.Guard.UpdateTypes(
-						Res.Scope
+						Res.Scope,
+						aTypeState
 					).Match(
 						out var BoolRes,
 						out Error
