@@ -1970,6 +1970,14 @@ mSPO2IL {
 		mSPO_AST.tModuleNode<tPos> aModuleNode,
 		mStd.tFunc<tPos, tPos, tPos> aMergePos,
 		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope
+	) => MapModule(aModuleNode, aMergePos, aScope, mSPO_AST_Types.NewTypeState<tPos>());
+	
+	public static mResult.tResult<tModuleConstructor<tPos>, (tPos Pos, tText ErrorText)>
+	MapModule<tPos>(
+		mSPO_AST.tModuleNode<tPos> aModuleNode,
+		mStd.tFunc<tPos, tPos, tPos> aMergePos,
+		mStream.tStream<mSPO_AST_Types.tScopeItem> aScope,
+		mSPO_AST_Types.tTypeState<tPos> aTypeState
 	) {
 		using var __Perf = mPerf.Measure();
 		
@@ -1997,7 +2005,7 @@ mSPO2IL {
 			)
 		);
 		
-		if (!Lambda.UpdateTypes(aScope).Match(out _, out var Error)) {
+		if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out _, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		
