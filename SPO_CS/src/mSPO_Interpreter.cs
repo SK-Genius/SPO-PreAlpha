@@ -39,6 +39,7 @@ mSPO_Interpreter {
 		}
 		
 		var TypeArg = mVM_Type.Free();
+		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
@@ -56,7 +57,8 @@ mSPO_Interpreter {
 						)
 					)
 				)
-			)
+			),
+			TypeState
 		).Then(
 			__ => __.Scope
 		);
@@ -64,10 +66,10 @@ mSPO_Interpreter {
 		return DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, TypeState)
 			)
 		).ThenTry(
-			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope)
+			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope, TypeState)
 		).Then(
 			aModule => {
 				return mVM.Run(
@@ -117,22 +119,24 @@ mSPO_Interpreter {
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
 		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
+		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
-			mStd.cEmpty
+			mStd.cEmpty,
+			TypeState
 		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, TypeState)
 			)
 		).AssertNotError(__ => __.ToText());
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(__ => __.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope, TypeState).AssertNotError(__ => __.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');
