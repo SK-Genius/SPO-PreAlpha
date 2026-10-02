@@ -60,16 +60,16 @@ mSPO_Interpreter {
 			),
 			TypeState
 		).Then(
-			__ => __.Scope
+			__ => (__.Scope, __.State)
 		);
 		
 		return DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, TypeState)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
 		).ThenTry(
-			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope, TypeState)
+			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope.Scope, aNewScope.State)
 		).Then(
 			aModule => {
 				return mVM.Run(
@@ -127,16 +127,16 @@ mSPO_Interpreter {
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty,
 			TypeState
-		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
+		).Then(__ => (__.Scope, __.State)).AssertNotError(__ => __.ToText());
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, TypeState)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
 		).AssertNotError(__ => __.ToText());
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope, TypeState).AssertNotError(__ => __.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope.Scope, Scope.State).AssertNotError(__ => __.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');

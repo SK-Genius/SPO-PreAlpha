@@ -237,9 +237,9 @@ mSPO2IL {
 			}
 			case var a when a.Kind is mVM_Type.tKind.Free: {
 				if (!mStd.RefEq(a, a.Refs[0])) {
-					var Id = aModuleConstructor.MapType(a.Refs[0]);
-					aModuleConstructor.TypeIds[a] = Id;
-					return Id;
+					var ReferencedId = aModuleConstructor.MapType(a.Refs[0]);
+					aModuleConstructor.TypeIds[a] = ReferencedId;
+					return ReferencedId;
 				}
 				var Id = "free_" + aModuleConstructor.TypeDef.Size;
 				aModuleConstructor.EnsureTypeDefinition(Id, a, () => mIL_AST.TypeFree(default(tPos)!, Id));
@@ -2036,7 +2036,7 @@ mSPO2IL {
 			Lambda.TypeAnnotation = mVM_Type.Proc(
 				mVM_Type.Empty(),
 				aModuleNode.Import.Pattern.TypeAnnotation.AssertNotEmpty(),
-				ExportType
+				ExportType.Type
 			);
 		} else if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out _, out var Error)) {
 			return mResult.Fail(Error);

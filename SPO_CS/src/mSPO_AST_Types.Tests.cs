@@ -8,6 +8,7 @@
 #:ref Common/mMaybe.cs
 #:ref Common/mResult.cs
 #:ref Common/mStream.cs
+#:ref Common/mTreeMap.cs
 #:ref Common/mSpan.cs
 #:ref Common/mTextStream.cs
 #:ref Common/mParserGen.cs
@@ -28,6 +29,75 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
+			mTest.Test("Type state snapshots persist across checks and branches",
+				aDebug => {
+					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
+					var Id = mSPO_AST.Id(cNoPos, "value");
+					var IntScope = mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Int()));
+					var TextScope = mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Text()));
+					var First = Id.UpdateTypes(IntScope, Initial).AssertNotError(__ => __.ErrorText);
+					mAssert.IsFalse(Initial.TryGetValidatedType(Id).IsSome(out _));
+					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
+					mAssert.IsTrue(First.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Int()));
+					var Second = Id.UpdateTypes(TextScope, First.State).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Second.Type.SameType(mVM_Type.Text()));
+					mAssert.IsTrue(First.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsTrue(Second.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Text()));
+					var Other = mSPO_AST.Int(cNoPos, 42);
+					var Branch = Other.UpdateTypes(IntScope, First.State).AssertNotError(__ => __.ErrorText);
+					mAssert.IsFalse(First.State.TryGetValidatedType(Other).IsSome(out _));
+					mAssert.IsFalse(Second.State.TryGetValidatedType(Other).IsSome(out _));
+					mAssert.IsTrue(Branch.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Int()));
+				}
+			),
+			mTest.Test("Failed checks preserve both input type state trees",
+				aDebug => {
+					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
+					var Valid = mSPO_AST.Int(cNoPos, 1);
+					var Seed = Valid.UpdateTypes(mStd.cEmpty, Initial).AssertNotError(__ => __.ErrorText);
+					var NewChild = mSPO_AST.Int(cNoPos, 2);
+					var Missing = mSPO_AST.Id(cNoPos, "missing");
+					var Pair = mSPO_AST.Pair(cNoPos, NewChild, Missing);
+					var Types = Seed.State.ValidatedTypes;
+					var Annotations = Seed.State.InputTypeAnnotations;
+					mAssert.IsFalse(Pair.UpdateTypes(mStd.cEmpty, Seed.State).Match(out _, out _));
+					mAssert.AreEquals(Seed.State.ValidatedTypes, Types);
+					mAssert.AreEquals(Seed.State.InputTypeAnnotations, Annotations);
+					mAssert.IsFalse(Seed.State.TryGetValidatedType(NewChild).IsSome(out _));
+					mAssert.IsFalse(Seed.State.TryGetValidatedType(Pair).IsSome(out _));
+					mAssert.IsTrue(Seed.State.TryGetValidatedType(Valid).AssertNotEmpty().SameType(mVM_Type.Int()));
+				}
+			),
+			mTest.Test("Composite checks return the state of every checked child",
+				aDebug => {
+					var Tail = mSPO_AST.Int(cNoPos, 1);
+					var Head = mSPO_AST.Text(cNoPos, "two");
+					var Pair = mSPO_AST.Pair(cNoPos, Tail, Head);
+					var Checked = Pair.UpdateTypes(mStd.cEmpty, mSPO_AST_Types.NewTypeState<tInt32>()).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Pair).AssertNotEmpty().SameType(Checked.Type));
+				}
+			),
+			mTest.Test("Commands return pattern scopes and carry expression state forward",
+				aDebug => {
+					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
+					var Value = mSPO_AST.Int(cNoPos, 1);
+					var FirstId = mSPO_AST.Id(cNoPos, "first");
+					var First = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_AST.Def(cNoPos, FirstId, Value), mStd.cEmpty, Initial
+					).AssertNotError(__ => __.ErrorText);
+					var Reference = mSPO_AST.Id(cNoPos, "first");
+					var Second = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_AST.Def(cNoPos, mSPO_AST.Id(cNoPos, "second"), Reference), First.Scope, First.State
+					).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Second.Scope.Any(__ => __.Id == "_second" && __.Type.SameType(mVM_Type.Int())));
+					mAssert.IsTrue(Second.State.TryGetValidatedType(Value).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsTrue(Second.State.TryGetValidatedType(Reference).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsFalse(First.State.TryGetValidatedType(Reference).IsSome(out _));
+					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
+				}
+			),
 			mTest.Test("Generic values and signatures use the same type abstraction",
 				aDebug => {
 					var Expression = mSPO_Parser.Expression.ParseText(
