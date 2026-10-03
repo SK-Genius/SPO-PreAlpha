@@ -31,6 +31,7 @@ mSPO2IL {
 	
 	public struct
 	tDefConstructor<tPos> {
+		public mSPO_AST_Types.tTypeState<tPos> TypeState { get; init; }
 		// TODO: add SubDefs
 		public mArrayList.tArrayList<mIL_AST.tCommandNode<tPos>> Commands;
 		public tNat32 LastTempReg;
@@ -85,7 +86,9 @@ mSPO2IL {
 	
 	public static tDefConstructor<tPos>
 	NewDefConstructor<tPos>(
+		mSPO_AST_Types.tTypeState<tPos> aTypeState
 	) => new () {
+		TypeState = aTypeState,
 		Commands = mArrayList.List<mIL_AST.tCommandNode<tPos>>(),
 		EnvIds = mArrayList.List<tText>(),
 		ArgIds = mArrayList.List<tText>(),
@@ -421,7 +424,7 @@ mSPO2IL {
 		
 		return aDefConstructor.CreateDefType(
 			aModuleConstructor,
-			aLambdaNode.TypeAnnotation.AssertNotEmpty()
+			aDefConstructor.TypeState.TryGetValidatedType(aLambdaNode).AssertNotEmpty()
 		).Then(
 			aType => {
 				var DefIndex = Def.FinishMapProc(
@@ -460,7 +463,7 @@ mSPO2IL {
 		
 		return aDefConstructor.CreateDefType(
 			aModuleConstructor,
-			aMethodNode.TypeAnnotation.AssertNotEmpty()
+			aDefConstructor.TypeState.TryGetValidatedType(aMethodNode).AssertNotEmpty()
 		).Then(
 			aType => {
 				var DefIndex = Def.FinishMapProc(
@@ -519,9 +522,10 @@ mSPO2IL {
 	>
 	MapMethod<tPos>(
 		this tModuleConstructor<tPos> aModuleConstructor,
-		mSPO_AST.tMethodNode<tPos> aMethodNode
+		mSPO_AST.tMethodNode<tPos> aMethodNode,
+		mSPO_AST_Types.tTypeState<tPos> aTypeState
 	) {
-		var TempMethodDef = NewDefConstructor<tPos>();
+		var TempMethodDef = NewDefConstructor(aTypeState);
 		return TempMethodDef.MapMethod(aModuleConstructor, aMethodNode).Then(
 			aDef => {
 				var EnvList = TempMethodDef.EnvIds.ToStream(
@@ -746,7 +750,8 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id, TypeAnnotation: var Type, TypeValue: var Value }: {
+			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id, TypeValue: var Value }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (Value.IsSome(out var Known)) {
 					return aDefConstructor.MapTypeValue(Pos, Known);
 				}
@@ -770,7 +775,8 @@ mSPO2IL {
 				
 				return Id;
 			}
-			case mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg, TypeAnnotation: var Type }: {
+			case mSPO_AST.tCallNode<tPos> { Pos: var Pos, Func: var Func, Arg: var Arg }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (
 					!aDefConstructor.TryMapExpression(aModuleConstructor, Func).Match(out var FuncReg, out var Error) ||
 					!aDefConstructor.TryMapExpression(aModuleConstructor, Arg).Match(out var ArgReg, out Error)
@@ -786,7 +792,8 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tTupleNode<tPos> { Items: var Items, TypeAnnotation: var Type }: {
+			case mSPO_AST.tTupleNode<tPos> { Items: var Items }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				switch (Items.Take(2).ToArrayList().Size) {
 					case 0: {
 						throw mError.Error("impossible");
@@ -819,7 +826,7 @@ mSPO2IL {
 				}
 			}
 			case mSPO_AST.tSigNode<tPos> Sig: {
-				var Contract = aDefConstructor.MapTypeValue(Sig.Pos, Sig.TypeAnnotation.AssertNotEmpty());
+				var Contract = aDefConstructor.MapTypeValue(Sig.Pos, aDefConstructor.TypeState.TryGetValidatedType(Sig).AssertNotEmpty());
 				var Head = aDefConstructor.MapTypeValue(
 					Sig.Head.Pos,
 					Sig.Head.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
@@ -834,11 +841,12 @@ mSPO2IL {
 					mIL_AST.CreateSig(Sig.Pos, aDefConstructor.CreateTempReg(out var Result), Contract, Payload)
 				);
 				
-				aDefConstructor.AddLocal(Result, Sig.TypeAnnotation.AssertNotEmpty());
+				aDefConstructor.AddLocal(Result, aDefConstructor.TypeState.TryGetValidatedType(Sig).AssertNotEmpty());
 				
 				return Result;
 			}
-			case mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head, TypeAnnotation: var Type }: {
+			case mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Tail).Match(out var TailReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
@@ -852,7 +860,8 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tPrefixNode<tPos> { Pos: var Pos, Prefix: var Prefix, Element: var Element, TypeAnnotation: var Type }: {
+			case mSPO_AST.tPrefixNode<tPos> { Pos: var Pos, Prefix: var Prefix, Element: var Element }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Element).Match(out var ExpressionReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
@@ -865,7 +874,8 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tRecordNode<tPos> { Elements: var Elements, TypeAnnotation: var Type }: {
+			case mSPO_AST.tRecordNode<tPos> { Elements: var Elements }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				var ResultReg = mIL_AST.cEmptyValue;
 				foreach (var (Key, Value) in Elements) {
 					if (!aDefConstructor.TryMapExpression(aModuleConstructor, Value).Match(out var Expression, out var Error)) {
@@ -884,7 +894,8 @@ mSPO2IL {
 				aDefConstructor.AddLocal(ResultReg, Type.AssertNotEmpty());
 				return ResultReg;
 			}
-			case mSPO_AST.tCharNode<tPos> { Pos: var Pos, Value: var Value, TypeAnnotation: var Type }: {
+			case mSPO_AST.tCharNode<tPos> { Pos: var Pos, Value: var Value }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				aDefConstructor.Commands.Push(
 					[
 						mIL_AST.CreateInt(Pos, aDefConstructor.CreateTempReg(out var OrdReg), ((tInt32)Value).ToString()),
@@ -906,7 +917,7 @@ mSPO2IL {
 				throw mError.Error("text node should already be desugared");
 			}
 			case mSPO_AST.tLambdaNode<tPos> LambdaNode: {
-				var LambdaDef = NewDefConstructor<tPos>();
+				var LambdaDef = NewDefConstructor(aDefConstructor.TypeState);
 				
 				if (
 					!LambdaDef.MapLambda(
@@ -942,7 +953,7 @@ mSPO2IL {
 				);
 			}
 			case mSPO_AST.tMethodNode<tPos> MethodNode: {
-				return aModuleConstructor.MapMethod(MethodNode).Match(out var MethodDef, out var Error)
+				return aModuleConstructor.MapMethod(MethodNode, aDefConstructor.TypeState).Match(out var MethodDef, out var Error)
 					? aDefConstructor.InitProc(
 						MethodNode.Pos,
 						MethodDef.Index,
@@ -984,37 +995,42 @@ mSPO2IL {
 				
 				var ResultReg = aDefConstructor.CreateTempReg();
 				
-				var Def = mSPO_AST.Def(
-					Pos,
-					mSPO_AST.Pattern(
-						Pos,
-						new mSPO_AST.tFreeIdPatternNode<tPos> { Id = ResultReg },
-						mStd.cEmpty
-					),
-					mSPO_AST.Call(
-						Pos,
-						mSPO_AST.Lambda(
-							Pos,
-							mStd.cEmpty,
-							mSPO_AST.Pattern(
-								Pos,
-								mSPO_AST.Empty(Pos),
-								mStd.cEmpty
-							),
-							mSPO_AST.Block(Pos, Ifs.ToStream())
-						),
-						mSPO_AST.Empty(Pos)
-					)
+				var Head = mSPO_AST.Pattern(Pos, mSPO_AST.Empty(Pos), mStd.cEmpty);
+				var Lambda = mSPO_AST.Lambda(Pos, mStd.cEmpty, Head, mSPO_AST.Block(Pos, Ifs.ToStream()));
+				var TypeState = aDefConstructor.TypeState;
+				var ResultTypes = Cases.Reduce(
+					mStream.Stream<mVM_Type.tType>(),
+					(aTypes, Case) => {
+						var Type = TypeState.TryGetValidatedType(Case.Result).AssertNotEmpty();
+						return aTypes.All(__ => !Equals(__, Type)) ? mStream.Stream(Type, aTypes) : aTypes;
+					}
 				);
-				
-				return (
-					mSPO_AST_Types.UpdateCommandTypes(Def, mStd.cEmpty, new()).Match(out _, out var Error) &&
-					aDefConstructor.MapCommand(aModuleConstructor, Def, out Error)
-					? ResultReg
-					: mResult.Fail(Error)
+				var EmptyType = mVM_Type.Empty();
+				if (ResultTypes.All(__ => !Equals(__, EmptyType))) {
+					ResultTypes = mStream.Stream(EmptyType, ResultTypes);
+				}
+				var ResultType = ResultTypes.Join((a1, a2) => mVM_Type.Set(a2, a1), EmptyType);
+				var IfTypeState = TypeState
+					.SetValidatedType(Head, mVM_Type.Empty())
+					.SetValidatedType(Lambda, mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), ResultType));
+				var IfDef = NewDefConstructor(IfTypeState);
+				if (!IfDef.MapLambda(aModuleConstructor, Lambda).Match(out var Mapped, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				var EnvList = IfDef.EnvIds.ToStream().Map(
+					__ => mSPO_AST_Types.ScopeItem(__, IfDef.TypeDict.TryGet(__).AssertNotEmpty())
 				);
+				var FuncReg = aDefConstructor.InitProc(Pos, Mapped.DefIndex, Mapped.DefType, EnvList);
+				aDefConstructor.Commands.Push(
+					mIL_AST.CallFunc(Pos, aDefConstructor.CreateTempReg(out var CallReg), FuncReg, mIL_AST.cEmptyValue),
+					mIL_AST.Alias(Pos, ResultReg, CallReg)
+				);
+				aDefConstructor.AddLocal(CallReg, ResultType);
+				aDefConstructor.AddArg(ResultReg, ResultType);
+				return ResultReg;
 			}
-			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases, TypeAnnotation: var Type }: {
+			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (
 					!aDefConstructor.TryMapExpression(
 						aModuleConstructor,
@@ -1027,15 +1043,15 @@ mSPO2IL {
 					return mResult.Fail(Error);
 				}
 				
-				var SwitchDef = NewDefConstructor<tPos>();
-				var Remaining = mMaybe.Some(MatchExpression.TypeAnnotation.AssertNotEmpty());
+				var SwitchDef = NewDefConstructor(aDefConstructor.TypeState);
+				var Remaining = mMaybe.Some(aDefConstructor.TypeState.TryGetValidatedType(MatchExpression).AssertNotEmpty());
 				
 				foreach (var Case in Cases) {
 					if (!Remaining.IsSome(out var RemainingType)) {
 						break;
 					}
 					
-					var Coverage = RemainingType.SplitForPatternType(Case.Pattern);
+					var Coverage = RemainingType.SplitForPatternType(Case.Pattern, aDefConstructor.TypeState);
 					
 					if (!Coverage.Matched.IsSome(out var MatchedType)) {
 						return mResult.Fail(
@@ -1047,7 +1063,7 @@ mSPO2IL {
 					}
 					
 					var CasePos = aModuleConstructor.MergePos(Case.Pattern.Pos, Case.Expression.Pos);
-					var CaseFunc = NewDefConstructor<tPos>();
+					var CaseFunc = NewDefConstructor(aDefConstructor.TypeState);
 					var ErrorText_ = default(tText?);
 					
 					if (
@@ -1062,7 +1078,7 @@ mSPO2IL {
 							mVM_Type.Proc(
 								mVM_Type.Empty(),
 								MatchedType,
-								mVM_Type.Prefix("Result", aExpressionNode.TypeAnnotation.AssertNotEmpty())
+								mVM_Type.Prefix("Result", aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode).AssertNotEmpty())
 							)
 						).Match(out var CaseDefType, out ErrorText_)
 					) {
@@ -1092,7 +1108,7 @@ mSPO2IL {
 					var GuardProcId = mMaybe.None<tText>();
 					
 					if (Case.Pattern.HasGuards()) {
-						var GuardFunc = NewDefConstructor<tPos>();
+						var GuardFunc = NewDefConstructor(aDefConstructor.TypeState);
 						
 						if (
 							!GuardFunc.TryMapPatternGuard(
@@ -1172,8 +1188,8 @@ mSPO2IL {
 						aModuleConstructor,
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							MatchExpression.TypeAnnotation.AssertNotEmpty(),
-							mVM_Type.Prefix("Result", aExpressionNode.TypeAnnotation.AssertNotEmpty())
+							aDefConstructor.TypeState.TryGetValidatedType(MatchExpression).AssertNotEmpty(),
+							mVM_Type.Prefix("Result", aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode).AssertNotEmpty())
 						)
 					).Match(out var SwitchDefType, out var ErrorText)
 				) {
@@ -1209,7 +1225,8 @@ mSPO2IL {
 				
 				return ResultReg;
 			}
-			case mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj, TypeAnnotation: var Type }: {
+			case mSPO_AST.tVarToValNode<tPos> { Pos: var Pos, Obj: var Obj }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Obj).Match(out var ObjReg, out var Error)) {
 					return mResult.Fail(Error);
 				}
@@ -1306,7 +1323,7 @@ mSPO2IL {
 					mIL_AST.Alias(aMatch.Pos, Id, aInputReg)
 				);
 				
-				aCaseFunc.AddLocal(Id, aMatch.TypeAnnotation.AssertNotEmpty());
+				aCaseFunc.AddLocal(Id, aCaseFunc.TypeState.TryGetValidatedType(aMatch).AssertNotEmpty());
 				
 				break;
 			}
@@ -1501,7 +1518,7 @@ mSPO2IL {
 					mIL_AST.Alias(aPattern.Pos, Id, aInputReg)
 				);
 				
-				aGuardFunc.AddLocal(Id, aPattern.TypeAnnotation.AssertNotEmpty());
+				aGuardFunc.AddLocal(Id, aGuardFunc.TypeState.TryGetValidatedType(aPattern).AssertNotEmpty());
 				
 				break;
 			}
@@ -1673,7 +1690,8 @@ mSPO2IL {
 				
 				break;
 			}
-			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
+			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Name }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
@@ -1701,13 +1719,15 @@ mSPO2IL {
 				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(NotEqReg, mVM_Type.Bool());
 				break;
 			}
-			case mSPO_AST.tFreeIdPatternNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
+			case mSPO_AST.tFreeIdPatternNode<tPos> { Pos: var Pos, Id: var Name }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
 			}
-			case mSPO_AST.tVarPatternNode<tPos> { Pos: var Pos, Id: var Name, TypeAnnotation: var Type }: {
+			case mSPO_AST.tVarPatternNode<tPos> { Pos: var Pos, Id: var Name }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
@@ -1716,7 +1736,8 @@ mSPO2IL {
 			case mSPO_AST.tIgnorePatternNode<tPos> IgnorePatternNode: {
 				break;
 			}
-			case mSPO_AST.tPrefixPatternNode<tPos> { Pos: var Pos, Prefix: var Prefix, Pattern: var Pattern, TypeAnnotation: var Type }: {
+			case mSPO_AST.tPrefixPatternNode<tPos> { Pos: var Pos, Prefix: var Prefix, Pattern: var Pattern }: {
+				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				aDefConstructor.Commands.Push(
 					mIL_AST.SubPrefix(Pos, aDefConstructor.CreateTempReg(out var ResultReg), Prefix, aRegId)
 				);
@@ -1725,7 +1746,7 @@ mSPO2IL {
 				
 				return aDefConstructor.MapPattern(Pattern, ResultReg, out aError);
 			}
-			case mSPO_AST.tRecordPatternNode<tPos> { Elements: var Elements, TypeAnnotation: var TypeAnnotation }: {
+			case mSPO_AST.tRecordPatternNode<tPos> { Elements: var Elements }: {
 				foreach (var (IdNode, Pattern) in Elements) {
 					aDefConstructor.Commands.Push(
 						mIL_AST.GetField(IdNode.Pos, aDefConstructor.CreateTempReg(out var FieldReg), aRegId, IdNode.Id)
@@ -1747,7 +1768,7 @@ mSPO2IL {
 						mIL_AST.GetSecond(Pos, aDefConstructor.CreateTempReg(out var ItemReg), RemainingReg)
 					);
 					
-					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ItemReg, Item.TypeAnnotation.AssertNotEmpty());
+					aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(ItemReg, aDefConstructor.TypeState.TryGetValidatedType(Item).AssertNotEmpty());
 					
 					if (!aDefConstructor.MapPattern(Item, ItemReg, out aError)) {
 						return false;
@@ -1767,7 +1788,7 @@ mSPO2IL {
 					mIL_AST.GetSecond(Pos, aDefConstructor.CreateTempReg(out var HeadReg), aRegId)
 				);
 				
-				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(HeadReg, Head.TypeAnnotation.AssertNotEmpty());
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(HeadReg, aDefConstructor.TypeState.TryGetValidatedType(Head).AssertNotEmpty());
 				
 				if (!aDefConstructor.MapPattern(Head, HeadReg, out aError)) {
 					return false;
@@ -1777,7 +1798,7 @@ mSPO2IL {
 					mIL_AST.GetFirst(Pos, aDefConstructor.CreateTempReg(out var TailReg), aRegId)
 				);
 				
-				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(TailReg, Tail.TypeAnnotation.AssertNotEmpty());
+				aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(TailReg, aDefConstructor.TypeState.TryGetValidatedType(Tail).AssertNotEmpty());
 				
 				if (!aDefConstructor.MapPattern(Tail, TailReg, out aError)) {
 					return false;
@@ -1839,14 +1860,15 @@ mSPO2IL {
 		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode,
 		out (tPos, tText) aError
 	) {
+		var TypeState = aDefConstructor.TypeState;
 		var IsSingle = aRecLambdasNode.List.Count() is 1;
-		var RecFactoryFunc = NewDefConstructor<tPos>();
+		var RecFactoryFunc = NewDefConstructor(aDefConstructor.TypeState);
 		
 		if (IsSingle) {
 			var RecProc = aRecLambdasNode.List.TryFirst().AssertNotEmpty();
 			RecFactoryFunc.AddArg(
 				RecProc.Id.Id,
-				RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+				TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 			);
 			RecFactoryFunc.Commands.Push(
 				mIL_AST.Alias(RecProc.Pos, RecProc.Id.Id, mIL_AST.cArg)
@@ -1856,7 +1878,7 @@ mSPO2IL {
 			foreach (var RecProc in aRecLambdasNode.List) {
 				RecFactoryFunc.AddArg(
 					RecProc.Id.Id,
-					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 				);
 				RecFactoryFunc.Commands.Push(
 					mIL_AST.GetSecond(RecProc.Pos, RecProc.Id.Id, Arg),
@@ -1869,7 +1891,7 @@ mSPO2IL {
 		var ResultTupleReg = mIL_AST.cEmptyValue;
 		
 		foreach (var RecProc in aRecLambdasNode.List) {
-			var RecProcConstructor = NewDefConstructor<tPos>();
+			var RecProcConstructor = NewDefConstructor(aDefConstructor.TypeState);
 			if (
 				!RecProcConstructor.MapLambda(
 					aModuleConstructor,
@@ -1917,12 +1939,12 @@ mSPO2IL {
 		
 		var RecProcsType = (
 			IsSingle
-			? aRecLambdasNode.List.TryFirst().AssertNotEmpty().Lambda.TypeAnnotation.AssertNotEmpty()
+			? aDefConstructor.TypeState.TryGetValidatedType(aRecLambdasNode.List.TryFirst().AssertNotEmpty().Lambda).AssertNotEmpty()
 			: aRecLambdasNode.List.Reduce(
 				mVM_Type.Empty(),
 				(Acc, RecProc) => mVM_Type.Pair(
 					Acc,
-					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 				)
 			)
 		);
@@ -1972,7 +1994,7 @@ mSPO2IL {
 			);
 			aDefConstructor.AddLocal(
 				RecProc.Id.Id,
-				RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+				TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 			);
 		} else {
 			foreach (var RecProc in aRecLambdasNode.List) {
@@ -1991,7 +2013,7 @@ mSPO2IL {
 				RecProcsTupleReg = TempReg;
 				aDefConstructor.AddLocal(
 					RecProc.Id.Id,
-					RecProc.Lambda.TypeAnnotation.AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 				);
 			}
 		}
@@ -2021,7 +2043,7 @@ mSPO2IL {
 		
 		aDefConstructor.TypeDict = aDefConstructor.TypeDict.Set(
 			aDefVarNode.Id.Id,
-			mVM_Type.Var(aDefVarNode.Expression.TypeAnnotation.AssertNotEmpty())
+			mVM_Type.Var(aDefConstructor.TypeState.TryGetValidatedType(aDefVarNode.Expression).AssertNotEmpty())
 		);
 		
 		return aDefConstructor.MapMethodCalls(
@@ -2042,6 +2064,7 @@ mSPO2IL {
 		mSPO_AST.tMethodCallsNode<tPos> aMethodCallsNode,
 		out (tPos, tText) aError
 	) {
+		var TypeState = aDefConstructor.TypeState;
 		// TODO: set proper Def type ?
 		
 		if (!aDefConstructor.TryMapExpression(aModuleConstructor, aMethodCallsNode.Object).Match(out var Object, out aError)) {
@@ -2052,7 +2075,7 @@ mSPO2IL {
 				return false;
 			}
 			
-			if (Call.Argument.TypeAnnotation.IsSome(out var ArgType) && ArgType.IsVar(out var ArgInnerType)) {
+			if (aDefConstructor.TypeState.TryGetValidatedType(Call.Argument).IsSome(out var ArgType) && ArgType.IsVar(out var ArgInnerType)) {
 				aDefConstructor.Commands.Push(
 					mIL_AST.VarGet(Call.Argument.Pos, aDefConstructor.CreateTempReg(out var ArgValue), Arg)
 				);
@@ -2067,7 +2090,7 @@ mSPO2IL {
 			}
 			
 			var Result = Call.Result.IsNone() ? mIL_AST.cEmptyValue : aDefConstructor.CreateTempReg();
-			var ResultType = Call.Result.Then(__ => __.TypeAnnotation.AssertNotEmpty()).ElseUse(mVM_Type.Empty());
+			var ResultType = Call.Result.Then(__ => TypeState.TryGetValidatedType(__).AssertNotEmpty()).ElseUse(mVM_Type.Empty());
 			
 			aDefConstructor.Commands.Push(
 				[
@@ -2145,12 +2168,12 @@ mSPO2IL {
 			)
 		);
 		
-		if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out _, out var Error)) {
+		if (!Lambda.UpdateTypes(aScope, aTypeState).Match(out var Checked, out var Error)) {
 			return mResult.Fail(Error);
 		}
 		
 		var ModuleConstructor = NewModuleConstructor(aMergePos);
-		var TempLambdaDef = NewDefConstructor<tPos>();
+		var TempLambdaDef = NewDefConstructor(Checked.State);
 		
 		if (!TempLambdaDef.MapLambda(ModuleConstructor, Lambda).Match(out var _, out var Error_)) {
 			return mResult.Fail(Error_);

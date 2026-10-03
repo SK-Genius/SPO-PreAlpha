@@ -20,23 +20,11 @@ mSPO_AST_Types {
 	tTypeState<tPos> {
 		public mTreeMap.tTree<
 			tInt32,
-			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>
+			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
 		>
 		ValidatedTypes { get; init; } = mTreeMap.Tree<
 			tInt32,
-			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>
-		>(
-			(a1, a2) => a1.CompareTo(a2),
-			[]
-		);
-		
-		public mTreeMap.tTree<
-			tInt32,
-			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mMaybe.tMaybe<mVM_Type.tType> Type)>
-		>
-		InputTypeAnnotations { get; init; } = mTreeMap.Tree<
-			tInt32,
-			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mMaybe.tMaybe<mVM_Type.tType> Type)>
+			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
 		>(
 			(a1, a2) => a1.CompareTo(a2),
 			[]
@@ -46,7 +34,7 @@ mSPO_AST_Types {
 	public static mMaybe.tMaybe<mVM_Type.tType>
 	TryGetValidatedType<tPos>(
 		this tTypeState<tPos> aTypeState,
-		mSPO_AST.tExpressionNode<tPos> aNode
+		mSPO_AST.tNode<tPos> aNode
 	) {
 		var Key = RuntimeHelpers.GetHashCode(aNode);
 		if (!aTypeState.ValidatedTypes.TryGet(Key).IsSome(out var Bucket)) {
@@ -60,45 +48,14 @@ mSPO_AST_Types {
 		);
 	}
 	
-	private static (mMaybe.tMaybe<mVM_Type.tType> Type, tTypeState<tPos> State)
-	GetInputTypeAnnotation<tPos>(
-		this tTypeState<tPos> aTypeState,
-		mSPO_AST.tExpressionNode<tPos> aNode
-	) {
-		var Key = RuntimeHelpers.GetHashCode(aNode);
-		var Bucket = mStream.Stream<(
-			mSPO_AST.tExpressionNode<tPos> Node,
-			mMaybe.tMaybe<mVM_Type.tType> Type
-		)>();
-		
-		if (aTypeState.InputTypeAnnotations.TryGet(Key).IsSome(out var Existing)) {
-			if (
-				Existing.Where(
-					__ => mStd.RefEq(__.Node, aNode)
-				).TryFirst().IsSome(out var Entry)
-			) {
-				return (Entry.Type, aTypeState);
-			}
-			Bucket = Existing;
-		}
-		
-		var Type = aNode.TypeAnnotation;
-		return (Type, aTypeState with {
-			InputTypeAnnotations = aTypeState.InputTypeAnnotations.Set(
-				Key,
-				mStream.Stream((aNode, Type), Bucket)
-			)
-		});
-	}
-	
-	private static tTypeState<tPos>
+	public static tTypeState<tPos>
 	SetValidatedType<tPos>(
 		this tTypeState<tPos> aTypeState,
-		mSPO_AST.tExpressionNode<tPos> aNode,
+		mSPO_AST.tNode<tPos> aNode,
 		mVM_Type.tType aType
 	) {
 		var Key = RuntimeHelpers.GetHashCode(aNode);
-		var Bucket = mStream.Stream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>();
+		var Bucket = mStream.Stream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>();
 		if (aTypeState.ValidatedTypes.TryGet(Key).IsSome(out var Existing)) {
 			Bucket = Existing.Where(
 				__ => !mStd.RefEq(__.Node, aNode)
@@ -151,12 +108,13 @@ mSPO_AST_Types {
 	)
 	SplitForPatternType<tPos>(
 		this mVM_Type.tType aType,
-		mSPO_AST.tPatternNode<tPos> aPattern
+		mSPO_AST.tPatternNode<tPos> aPattern,
+		tTypeState<tPos> aTypeState
 	) {
 		switch (aPattern) {
 			case mSPO_AST.tGuardPatternNode<tPos> Guard: {
 				return (
-					aType.SplitForPatternType(Guard.Pattern).Matched,
+					aType.SplitForPatternType(Guard.Pattern, aTypeState).Matched,
 					aType
 				);
 			}
@@ -168,11 +126,11 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsAny():
 			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(out _, out var Ref) && ReferenceEquals(aType, Ref): {
-				static mVM_Type.tType
+				mVM_Type.tType
 				PatternType(
 					mSPO_AST.tPatternNode<tPos> aPattern_,
 					mVM_Type.tType aFallback
-				) => aPattern_.TypeAnnotation.ElseUse(
+				) => aTypeState.TryGetValidatedType(aPattern_).ElseUse(
 					aPattern_ switch {
 						mSPO_AST.tTypedPatternNode<tPos> Typed_ => PatternType(Typed_.Pattern, aFallback),
 						mSPO_AST.tGuardPatternNode<tPos> Guard_ => PatternType(Guard_.Pattern, aFallback),
@@ -214,12 +172,12 @@ mSPO_AST_Types {
 				return (
 					ReferenceEquals(Expanded, aType)
 					? (aType, aType)
-					: Expanded.SplitForPatternType(aPattern)
+					: Expanded.SplitForPatternType(aPattern, aTypeState)
 				);
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsSet(out var Type1, out var Type2): {
-				var Coverage1 = Type1.SplitForPatternType(aPattern);
-				var Coverage2 = Type2.SplitForPatternType(aPattern);
+				var Coverage1 = Type1.SplitForPatternType(aPattern, aTypeState);
+				var Coverage2 = Type2.SplitForPatternType(aPattern, aTypeState);
 				
 				return (
 					mVM_Type.Union(Coverage1.Matched, Coverage2.Matched),
@@ -237,11 +195,11 @@ mSPO_AST_Types {
 					return (mStd.cEmpty, aType);
 				}
 				var Head = Sig.Head is mSPO_AST.tTypedPatternNode<tPos> TypedHead ? TypedHead.Pattern : Sig.Head;
-				if (!Sig.HeadValue.IsSome(out var HeadValue) || !Sig.Body.TypeAnnotation.IsSome(out _)) {
+				if (!Sig.HeadValue.IsSome(out var HeadValue) || !aTypeState.TryGetValidatedType(Sig.Body).IsSome(out _)) {
 					return (aType, aType);
 				}
 				var Body = Contract.Refs[1].Substitute(Contract.Refs[0], HeadValue);
-				var Coverage = Body.SplitForPatternType(Sig.Body);
+				var Coverage = Body.SplitForPatternType(Sig.Body, aTypeState);
 				if (Coverage.Matched.IsNone()) {
 					return (mStd.cEmpty, aType);
 				}
@@ -256,7 +214,7 @@ mSPO_AST_Types {
 				if (
 					Typed.TypeExpression.IsSome(out _) &&
 					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
-					Typed.TypeAnnotation.IsSome(out var MatchType)
+					aTypeState.TryGetValidatedType(Typed).IsSome(out var MatchType)
 				) {
 					if (aType.IsSubType(MatchType, mStd.cEmpty).Match(out _, out _)) {
 						return (aType, mStd.cEmpty);
@@ -268,15 +226,15 @@ mSPO_AST_Types {
 						: (mStd.cEmpty, aType)
 					);
 				}
-				return aType.SplitForPatternType(Typed.Pattern);
+				return aType.SplitForPatternType(Typed.Pattern, aTypeState);
 			}
 			case mSPO_AST.tPairPatternNode<tPos> Pair: {
 				if (!aType.IsPair(out var FirstType, out var SecondType)) {
 					return (mStd.cEmpty, aType);
 				}
 				
-				var FirstCoverage = FirstType.SplitForPatternType(Pair.Tail);
-				var SecondCoverage = SecondType.SplitForPatternType(Pair.Head);
+				var FirstCoverage = FirstType.SplitForPatternType(Pair.Tail, aTypeState);
+				var SecondCoverage = SecondType.SplitForPatternType(Pair.Head, aTypeState);
 				
 				if (
 					!FirstCoverage.Matched.IsSome(out var MatchedFirst) ||
@@ -309,7 +267,7 @@ mSPO_AST_Types {
 					return (mStd.cEmpty, aType);
 				}
 				
-				var Coverage = InnerType.SplitForPatternType(Prefix.Pattern);
+				var Coverage = InnerType.SplitForPatternType(Prefix.Pattern, aTypeState);
 				
 				return (
 					Coverage.Matched.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __)),
@@ -337,7 +295,7 @@ mSPO_AST_Types {
 						return (mStd.cEmpty, aType);
 					}
 					
-					var Coverage = FieldType.SplitForPatternType(Pattern);
+					var Coverage = FieldType.SplitForPatternType(Pattern, aTypeState);
 					if (!Coverage.Matched.IsSome(out var MatchedField)) {
 						return (mStd.cEmpty, aType);
 					}
@@ -495,7 +453,7 @@ mSPO_AST_Types {
 				),
 				LambdaResult.State
 			);
-			Lambda.TypeAnnotation = Checked.Type;
+			Checked.State = Checked.State.SetValidatedType(Lambda, Checked.Type);
 			aMappings = LambdaResult.Mappings;
 		}
 		
@@ -585,9 +543,7 @@ mSPO_AST_Types {
 		}
 		
 		var ExpressionType = mVM_Type.Tuple(System.MemoryExtensions.AsSpan(ArgumentTypes));
-		var AnnotationState = Checked.State.GetInputTypeAnnotation(aArgument).State;
-		aArgument.TypeAnnotation = ExpressionType;
-		return (ExpressionType, Checked.Mappings, AnnotationState);
+		return (ExpressionType, Checked.Mappings, Checked.State.SetValidatedType(aArgument, ExpressionType));
 	}
 	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
@@ -602,14 +558,14 @@ mSPO_AST_Types {
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
-		var (TypeAnnotation, AnnotationState) = aTypeState.GetInputTypeAnnotation(aNode);
+		var TypeAnnotation = aNode.TypeAnnotation;
 		mResult.tResult<(mVM_Type.tType Type, tTypeState<tPos> State), (tPos Pos, tText ErrorText)> Result = aNode switch {
-			mSPO_AST.tEmptyNode<tPos> => (mVM_Type.Empty(), AnnotationState),
-			mSPO_AST.tTrueNode<tPos> => (mVM_Type.True(), AnnotationState),
-			mSPO_AST.tFalseNode<tPos> => (mVM_Type.False(), AnnotationState),
-			mSPO_AST.tIntNode<tPos> => (mVM_Type.Int(), AnnotationState),
-			mSPO_AST.tTextNode<tPos> => (mVM_Type.Text(), AnnotationState),
-			mSPO_AST.tCharNode<tPos> => (mVM_Type.Char(), AnnotationState),
+			mSPO_AST.tEmptyNode<tPos> => (mVM_Type.Empty(), aTypeState),
+			mSPO_AST.tTrueNode<tPos> => (mVM_Type.True(), aTypeState),
+			mSPO_AST.tFalseNode<tPos> => (mVM_Type.False(), aTypeState),
+			mSPO_AST.tIntNode<tPos> => (mVM_Type.Int(), aTypeState),
+			mSPO_AST.tTextNode<tPos> => (mVM_Type.Text(), aTypeState),
+			mSPO_AST.tCharNode<tPos> => (mVM_Type.Char(), aTypeState),
 			mSPO_AST.tIdNode<tPos> IdNode => (
 				TypeAnnotation.Match(
 					Annotation => aScope.Where(
@@ -635,17 +591,16 @@ mSPO_AST_Types {
 						)
 					)
 				)
-			).Then(__ => (__, AnnotationState)),
+			).Then(__ => (__, aTypeState)),
 			mSPO_AST.tTypeNode<tPos> Type => (
-				Type.AsVM_Value(aScope).Then(__ => (__.KindType(), AnnotationState))
+				Type.AsVM_Value(aScope).Then(__ => (__.KindType(), aTypeState))
 			),
 			mSPO_AST.tSigNode<tPos> Sig => mStd.Call(
 				() => {
-					var HeadState = AnnotationState.GetInputTypeAnnotation(Sig.Head).State;
 					if (
 						!Sig.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error) ||
 						!Sig.Head.AsVM_Value(aScope).Match(out var Head, out Error) ||
-						!Sig.Body.UpdateTypes(aScope, HeadState).Match(out var Body, out Error)
+						!Sig.Body.UpdateTypes(aScope, aTypeState).Match(out var Body, out Error)
 					) {
 						return mResult.Fail(Error);
 					}
@@ -655,15 +610,14 @@ mSPO_AST_Types {
 					if (!Head.KindType().SameType(Binder.KindType())) {
 						return mResult.Fail((Sig.Head.Pos, "SIG head has the wrong kind"));
 					}
-					Sig.Head.TypeAnnotation = Head.KindType();
 					return Body.Type.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).Then(
-						_ => (Contract, Body.State)
+						_ => (Contract, Body.State.SetValidatedType(Sig.Head, Head.KindType()))
 					).ModifyError(__ => (Sig.Body.Pos, __));
 				}
 			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: AnnotationState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 					(aChecked, Item) => aChecked.ThenTry(
 						__ => Item.UpdateTypes(aScope, __.State).Then(
 							aItem => (mStream.Stream(aItem.Type, __.Types), aItem.State)
@@ -676,7 +630,7 @@ mSPO_AST_Types {
 			mSPO_AST.tPairNode<tPos> Pair => (
 				Pair.Tail.UpdateTypes(
 					aScope,
-					AnnotationState
+					aTypeState
 				).ThenTry(
 					aTail => Pair.Head.UpdateTypes(aScope, aTail.State).Then(
 						aHead => (mVM_Type.Pair(aTail.Type, aHead.Type), aHead.State)
@@ -686,14 +640,14 @@ mSPO_AST_Types {
 			mSPO_AST.tPrefixNode<tPos> Prefix => (
 				Prefix.Element.UpdateTypes(
 					aScope,
-					AnnotationState
+					aTypeState
 				).Then(
 					__ => (mVM_Type.Prefix(Prefix.Prefix, __.Type), __.State)
 				)
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (
 				Record.Elements.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: AnnotationState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 					(aChecked, Item) => aChecked.ThenTry(
 						__ => Item.Value.UpdateTypes(aScope, __.State).Then(
 							aItem => (mStream.Stream(mVM_Type.Prefix(Item.Key.Id, aItem.Type), __.Types), aItem.State)
@@ -713,7 +667,7 @@ mSPO_AST_Types {
 				() => {
 					if (Lambda.Generic.IsSome(out var GenericPattern)) {
 						// TODO: AI generated code has to be reviewed
-						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope, AnnotationState).ThenTry(
+						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope, aTypeState).ThenTry(
 							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
 								mStd.cEmpty,
@@ -751,7 +705,7 @@ mSPO_AST_Types {
 						mStd.cEmpty,
 						tTypeRelation.Sub,
 						aScope,
-						AnnotationState
+						aTypeState
 					).ThenTry(
 						aArg => Lambda.Body.UpdateTypes(
 							aArg.Scope,
@@ -772,7 +726,7 @@ mSPO_AST_Types {
 					mStd.cEmpty,
 					tTypeRelation.Equal,
 					aScope,
-					AnnotationState
+					aTypeState
 				).ThenTry(
 					aObj => UpdatePatternTypes(
 						Method.Arg,
@@ -794,14 +748,14 @@ mSPO_AST_Types {
 				mStd.Call(
 					() => {
 						var Types = mStream.Stream<mVM_Type.tType>([]);
-						var Checked = (Scope: aScope, State: AnnotationState);
+						var Checked = (Scope: aScope, State: aTypeState);
 						foreach (var Command in Block.Commands) {
 							if (!UpdateCommandTypes(Command, Checked.Scope, Checked.State).Match(out Checked, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
 							if (Command is mSPO_AST.tReturnIfNode<tPos> ReturnIf) {
-								var Type = ReturnIf.Result.TypeAnnotation.AssertNotEmpty();
+								var Type = Checked.State.TryGetValidatedType(ReturnIf.Result).AssertNotEmpty();
 								if (Types.All(__ => !Equals(__, Type))) {
 									Types = mStream.Stream(Type, Types);
 								}
@@ -816,7 +770,7 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tCallNode<tPos> Call => Call.Func.UpdateTypes(
 				aScope,
-				AnnotationState
+				aTypeState
 			).ThenTry(
 				aFuncType => mStd.Call(
 					() => {
@@ -842,7 +796,7 @@ mSPO_AST_Types {
 				)
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
-				IfMatch.Expression.UpdateTypes(aScope, AnnotationState).ThenTry(
+				IfMatch.Expression.UpdateTypes(aScope, aTypeState).ThenTry(
 					aTypePattern => mStd.Call(
 						() => {
 							var Remaining = mMaybe.Some(aTypePattern.Type);
@@ -852,7 +806,7 @@ mSPO_AST_Types {
 								var CaseInputType = Remaining.ElseUse(aTypePattern.Type);
 								
 								// first try
-								var CoverageCandidate = CaseInputType.SplitForPatternType(Case.Pattern);
+								var CoverageCandidate = CaseInputType.SplitForPatternType(Case.Pattern, Checked.State);
 								if (!CoverageCandidate.Matched.IsSome(out var CandidateType)) {
 									return mResult.Fail(
 										(
@@ -876,7 +830,7 @@ mSPO_AST_Types {
 								}
 								
 								// final try
-								var Coverage = CaseInputType.SplitForPatternType(Case.Pattern);
+								var Coverage = CaseInputType.SplitForPatternType(Case.Pattern, Pattern.State);
 								if (!Coverage.Matched.IsSome(out _)) {
 									return mResult.Fail(
 										(
@@ -930,7 +884,7 @@ mSPO_AST_Types {
 			mSPO_AST.tIsNode<tPos> Is => (
 				Is.Expression.UpdateTypes(
 					aScope,
-					AnnotationState
+					aTypeState
 				).ThenTry(
 					aValueType => UpdatePatternTypes(
 						Is.Pattern,
@@ -946,7 +900,7 @@ mSPO_AST_Types {
 			mSPO_AST.tVarToValNode<tPos> VarToVal => (
 				VarToVal.Obj.UpdateTypes(
 					aScope,
-					AnnotationState
+					aTypeState
 				).ThenTry(
 					__ => (
 						__.Type.IsVar(out var ValType)
@@ -957,7 +911,7 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIfNode<tPos> If => (
 				If.Cases.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: AnnotationState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 					(aChecked, Case) => aChecked.ThenTry(
 						__ => Case.Cond.UpdateTypes(aScope, __.State).FailIfNot(
 							aCondition => aCondition.Type.IsSubType(
@@ -1008,10 +962,7 @@ mSPO_AST_Types {
 				() => mResult.OK(Inferred).WithErrorType<(tPos Pos, tText ErrorText)>()
 			)
 		).Then(
-			Inferred => {
-				aNode.TypeAnnotation = Inferred.Type;
-				return (Inferred.Type, Inferred.State.SetValidatedType(aNode, Inferred.Type));
-			}
+			Inferred => (Inferred.Type, Inferred.State.SetValidatedType(aNode, Inferred.Type))
 		);
 	}
 	
@@ -1081,8 +1032,7 @@ mSPO_AST_Types {
 					Head = mVM_Type.Abstract(Binding.Id, Binder.KindType());
 					Scope = mStream.Stream(ScopeItem(Binding.Id, Head.KindType(), Head), Scope);
 				}
-				HeadPattern.TypeAnnotation = Head.KindType();
-				Sig.Head.TypeAnnotation = Head.KindType();
+				var HeadState = aTypeState.SetValidatedType(HeadPattern, Head.KindType()).SetValidatedType(Sig.Head, Head.KindType());
 				Sig.HeadValue = Head;
 				var ExpectedBody = BodyType.Substitute(Binder, Head);
 				Result = UpdatePatternTypes(
@@ -1090,9 +1040,9 @@ mSPO_AST_Types {
 					ExpectedBody,
 					aTypeRelation,
 					Scope,
-					aTypeState
+					HeadState
 				).ThenTry(
-					__ => ExpectedBody.SplitForPatternType(Sig.Body).Matched.IsSome(out _)
+					__ => ExpectedBody.SplitForPatternType(Sig.Body, __.State).Matched.IsSome(out _)
 						? mResult.OK((Contract, __.Scope, __.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
 						: mResult.Fail((Sig.Body.Pos, "SIG body pattern cannot match the body type"))
 				);
@@ -1155,8 +1105,6 @@ mSPO_AST_Types {
 									return (Type: ExistingType, Scope: aScope, State: aTypeState);
 								}
 							);
-							
-							VarPattern.TypeAnnotation = NewTypeScope.Type;
 							
 							return NewTypeScope;
 						}
@@ -1382,7 +1330,7 @@ mSPO_AST_Types {
 				throw mError.Error("not implemented: " + aPattern.GetType().Name);
 			}
 		}
-		return Result.ThenDo(__ => { aPattern.TypeAnnotation = __.Type; });
+		return Result.Then(__ => (__.Type, __.Scope, __.State.SetValidatedType(aPattern, __.Type)));
 	}
 	
 	public static mResult.tResult<
@@ -1771,7 +1719,6 @@ mSPO_AST_Types {
 					return mResult.Fail((Sig.HeadType.Pos, "SIG head kind must be a type"));
 				}
 				var Head = mVM_Type.SigHead(Sig.Head.Id, Kind);
-				Sig.Head.TypeAnnotation = Head.KindType();
 				Result = Sig.BodyType.AsVM_Type(
 					mStream.Stream(ScopeItem(Sig.Head.Id, Head.KindType(), Head), aScope)
 				).Then(__ => mVM_Type.Sig(Head, __));
@@ -1808,8 +1755,6 @@ mSPO_AST_Types {
 				throw mError.Error("not implemented: " + aExpression.GetType().Name);
 			}
 		}
-		return Result.ThenDo(
-			__ => { aExpression.TypeAnnotation = __.KindType(); }
-		);
+		return Result;
 	}
 }

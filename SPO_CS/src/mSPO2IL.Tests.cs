@@ -101,6 +101,24 @@ mSPO2IL_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mSPO2IL),
 		[
+			mTest.Test("If lowering uses validated types without changing AST annotations",
+				aStreamOut => {
+					var Expression = mSPO_Parser.Expression.ParseText(
+						"§IF {\n\tFlag: Value\n\t§TRUE: 0\n}", "", __ => aStreamOut(__())
+					);
+					var Scope = mStream.Stream(
+						mSPO_AST_Types.ScopeItem("_Flag", mVM_Type.Bool()),
+						mSPO_AST_Types.ScopeItem("_Value", mVM_Type.Int())
+					);
+					var Checked = Expression.UpdateTypes(Scope, new()).AssertNotError(__ => __.ToText());
+					var Def = mSPO2IL.NewDefConstructor(Checked.State);
+					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
+					Def.TryMapExpression(Module, Expression).AssertNotError(__ => __.ToText());
+					mAssert.IsFalse(Expression.TypeAnnotation.IsSome(out _));
+					mAssert.AreEquals(Def.TypeState, Checked.State);
+					mAssert.AreEquals(Module.Defs.Size, 1u);
+				}
+			),
 			mTest.Test("MapExpression",
 				aStreamOut => {
 					var ExpressionNode = mSPO_Parser.Expression.ParseText(
@@ -116,10 +134,10 @@ mSPO2IL_Tests {
 						mSPO_AST_Types.ScopeItem("_...<...<...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Bool()))
 					);
 					
-					ExpressionNode.UpdateTypes(Scope);
+					var Checked = ExpressionNode.UpdateTypes(Scope, new()).AssertNotError(__ => __.ToText());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Def = mSPO2IL.NewDefConstructor<tSpan>();
+					var Def = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.AreEquals(Def.TryMapExpression(Module, ExpressionNode), mSPO2IL.GetRegId(11));
 					
 					mAssert.AreEquals(
@@ -151,10 +169,10 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(
 						DefConstructor.MapDef(Module, DefNode, out var Error),
 						Error.ToText()
@@ -184,10 +202,10 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					mAssert.AreEquals(
@@ -228,10 +246,10 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					mAssert.AreEquals(
@@ -268,10 +286,10 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
@@ -330,7 +348,8 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
+					var Scope = Checked.Scope;
 					
 					mAssert.AreEquals(
 						Scope,
@@ -348,7 +367,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					
 					DefConstructor.FinishMapProc(
@@ -463,7 +482,8 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
+					var Scope = Checked.Scope;
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("...*...+..."),
@@ -478,7 +498,7 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
 						default,
@@ -623,7 +643,8 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
+					var Scope = Checked.Scope;
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("TestTest..."),
@@ -638,7 +659,7 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
 						default,
@@ -762,7 +783,8 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
+					var Scope = Checked.Scope;
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
@@ -775,7 +797,7 @@ mSPO2IL_Tests {
 					);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
 					DefConstructor.FinishMapProc(
@@ -991,34 +1013,30 @@ mSPO2IL_Tests {
 					);
 					
 					var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var Type = LambdaNode.UpdateTypes(InitScope);
-					if (Type.Match(out var Type_, out var Error)) {
-						mAssert.AreEquals(
-							Type_,
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Tuple(
-									[
-										mVM_Type.Int(),
-										mVM_Type.Int(),
-										mVM_Type.Tuple(
-											[
-												mVM_Type.Int(),
-												mVM_Type.Int(),
-												mVM_Type.Int()
-											]
-										)
-									]
-								),
-								mVM_Type.Int()
+					var Checked = LambdaNode.UpdateTypes(InitScope, new()).AssertNotError(__ => __.ToText());
+					mAssert.AreEquals(
+						Checked.Type,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Tuple(
+								[
+									mVM_Type.Int(),
+									mVM_Type.Int(),
+									mVM_Type.Tuple(
+										[
+											mVM_Type.Int(),
+											mVM_Type.Int(),
+											mVM_Type.Int()
+										]
+									)
+								]
 							),
-							(a1, a2) => a1 == a2
-						);
-					} else {
-						mAssert.Fail(Error.ToText());
-					}
+							mVM_Type.Int()
+						),
+						(a1, a2) => a1 == a2
+					);
 					
-					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
+					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					
 					var (DefIndex, DefType) = DefConstructor.MapLambda(
 						ModuleConstructor,
