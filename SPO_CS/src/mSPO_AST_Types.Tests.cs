@@ -31,13 +31,10 @@ mSPO_AST_Types_Tests {
 		[
 			mTest.Test("Type state snapshots persist across checks and branches",
 				aDebug => {
-					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
 					var Id = mSPO_AST.Id(cNoPos, "value");
 					var IntScope = mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Int()));
 					var TextScope = mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Text()));
-					var First = Id.UpdateTypes(IntScope, Initial).AssertNotError(__ => __.ErrorText);
-					mAssert.IsFalse(Initial.TryGetValidatedType(Id).IsSome(out _));
-					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
+					var First = Id.UpdateTypes(IntScope, new()).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(First.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Int()));
 					var Second = Id.UpdateTypes(TextScope, First.State).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Second.Type.SameType(mVM_Type.Text()));
@@ -52,9 +49,8 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Failed checks preserve both input type state trees",
 				aDebug => {
-					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
 					var Valid = mSPO_AST.Int(cNoPos, 1);
-					var Seed = Valid.UpdateTypes(mStd.cEmpty, Initial).AssertNotError(__ => __.ErrorText);
+					var Seed = Valid.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText);
 					var NewChild = mSPO_AST.Int(cNoPos, 2);
 					var Missing = mSPO_AST.Id(cNoPos, "missing");
 					var Pair = mSPO_AST.Pair(cNoPos, NewChild, Missing);
@@ -73,7 +69,7 @@ mSPO_AST_Types_Tests {
 					var Tail = mSPO_AST.Int(cNoPos, 1);
 					var Head = mSPO_AST.Text(cNoPos, "two");
 					var Pair = mSPO_AST.Pair(cNoPos, Tail, Head);
-					var Checked = Pair.UpdateTypes(mStd.cEmpty, mSPO_AST_Types.NewTypeState<tInt32>()).AssertNotError(__ => __.ErrorText);
+					var Checked = Pair.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Pair).AssertNotEmpty().SameType(Checked.Type));
@@ -82,7 +78,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Expression folds retain all child states and the input snapshot",
 				aDebug => {
 					var SeedNode = mSPO_AST.Empty(cNoPos);
-					var Seed = SeedNode.UpdateTypes(mStd.cEmpty, mSPO_AST_Types.NewTypeState<tInt32>()).AssertNotError(__ => __.ErrorText);
+					var Seed = SeedNode.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText);
 					foreach (var Kind in new[] { 0, 1, 2 }) {
 						var First = mSPO_AST.Int(cNoPos, 1);
 						var Last = mSPO_AST.Text(cNoPos, "two");
@@ -118,42 +114,46 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Failed expression folds skip later child checks",
 				aDebug => {
-					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
 					var First = mSPO_AST.Int(cNoPos, 1);
 					var Last = mSPO_AST.Text(cNoPos, "not checked");
 					var Tuple = mSPO_AST.Tuple(
 						cNoPos,
 						mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>([First, mSPO_AST.Id(cNoPos, "missing"), Last])
 					);
-					mAssert.IsFalse(Tuple.UpdateTypes(mStd.cEmpty, Initial).Match(out _, out _));
+					mAssert.IsFalse(Tuple.UpdateTypes(mStd.cEmpty, new()).Match(out _, out _));
 					mAssert.IsFalse(Last.TypeAnnotation.IsSome(out _));
 					mAssert.IsFalse(Tuple.TypeAnnotation.IsSome(out _));
-					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
-					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
 				}
 			),
 			mTest.Test("Commands return pattern scopes and carry expression state forward",
 				aDebug => {
-					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
 					var Value = mSPO_AST.Int(cNoPos, 1);
 					var FirstId = mSPO_AST.Id(cNoPos, "first");
 					var First = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_AST.Def(cNoPos, FirstId, Value), mStd.cEmpty, Initial
-					).AssertNotError(__ => __.ErrorText);
+						mSPO_AST.Def(cNoPos, FirstId, Value),
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					);
+					
 					var Reference = mSPO_AST.Id(cNoPos, "first");
 					var Second = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_AST.Def(cNoPos, mSPO_AST.Id(cNoPos, "second"), Reference), First.Scope, First.State
-					).AssertNotError(__ => __.ErrorText);
+						mSPO_AST.Def(cNoPos, mSPO_AST.Id(cNoPos, "second"), Reference),
+						First.Scope,
+						First.State
+					).AssertNotError(
+						__ => __.ErrorText
+					);
+					
 					mAssert.IsTrue(Second.Scope.Any(__ => __.Id == "_second" && __.Type.SameType(mVM_Type.Int())));
 					mAssert.IsTrue(Second.State.TryGetValidatedType(Value).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsTrue(Second.State.TryGetValidatedType(Reference).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsFalse(First.State.TryGetValidatedType(Reference).IsSome(out _));
-					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
 				}
 			),
 			mTest.Test("Pair patterns retain both child states and the guard state",
 				aDebug => {
-					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
 					var Tail = mSPO_AST.Int(cNoPos, 1);
 					var Head = mSPO_AST.Text(cNoPos, "two");
 					var Guard = mSPO_AST.True(cNoPos);
@@ -163,13 +163,17 @@ mSPO_AST_Types_Tests {
 						mSPO_AST.GuardPattern(cNoPos, Head, Guard)
 					);
 					var Checked = mSPO_AST_Types.UpdatePatternTypes(
-						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty, Initial
-					).AssertNotError(__ => __.ErrorText);
+						Pattern,
+						mStd.cEmpty,
+						mSPO_AST_Types.tTypeRelation.Sub,
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					);
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Guard).AssertNotEmpty().SameType(mVM_Type.True()));
-					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
-					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
 				}
 			),
 			mTest.Test("Tuple patterns carry child states with and without an expected type",
@@ -184,10 +188,14 @@ mSPO_AST_Types_Tests {
 						mMaybe.tMaybe<mVM_Type.tType> ExpectedType = HasExpectedType
 							? mVM_Type.Pair(mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Text())
 							: mStd.cEmpty;
+						
 						var Checked = mSPO_AST_Types.UpdatePatternTypes(
 							Pattern, ExpectedType, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
-							mSPO_AST_Types.NewTypeState<tInt32>()
-						).AssertNotError(__ => __.ErrorText);
+							new()
+						).AssertNotError(
+							__ => __.ErrorText
+						);
+						
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
 					}
@@ -199,15 +207,21 @@ mSPO_AST_Types_Tests {
 					var Last = mSPO_AST.Text(cNoPos, "two");
 					var Pattern = mSPO_AST.RecordPattern(
 						cNoPos,
-						mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tPatternNode<tInt32> Pattern)>([
-							(mSPO_AST.Id(cNoPos, "first"), mSPO_AST.PrefixPattern(cNoPos, "value", First)),
-							(mSPO_AST.Id(cNoPos, "last"), Last)
-						])
+						mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tPatternNode<tInt32> Pattern)>(
+							[
+								(mSPO_AST.Id(cNoPos, "first"), mSPO_AST.PrefixPattern(cNoPos, "value", First)),
+								(mSPO_AST.Id(cNoPos, "last"), Last)
+							]
+						)
 					);
+					
 					var Checked = mSPO_AST_Types.UpdatePatternTypes(
 						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
-						mSPO_AST_Types.NewTypeState<tInt32>()
-					).AssertNotError(__ => __.ErrorText);
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					);
+					
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(First).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Last).AssertNotEmpty().SameType(mVM_Type.Text()));
 				}
@@ -297,19 +311,30 @@ mSPO_AST_Types_Tests {
 				aDebug => {
 					var Literal = mSPO_Parser.Expression.ParseText("§INT", "", __ => aDebug(__()));
 					var Type = Literal.UpdateTypes(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					
 					mAssert.IsTrue(Type.IsType() && Type.Refs.Length == 0);
 					mAssert.IsTrue(Literal.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText).IsInt());
 					mAssert.IsTrue(Literal.TypeAnnotation.AssertNotEmpty().IsType());
+					
 					var Pattern = mSPO_Parser.Pattern.ParseText(
 						"§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body",
 						"",
 						__ => aDebug(__())
 					);
+					
 					var Scope = mSPO_AST_Types.UpdatePatternTypes(
-						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Equal, mStd.cEmpty
-					).AssertNotError(__ => __.ErrorText).Scope;
+						Pattern,
+						mStd.cEmpty,
+						mSPO_AST_Types.tTypeRelation.Equal,
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					).Scope;
+					
 					var Head = Scope.Where(__ => __.Id == "_Head").TryFirst().AssertNotEmpty();
 					var Body = Scope.Where(__ => __.Id == "_Body").TryFirst().AssertNotEmpty();
+					
 					mAssert.IsTrue(Head.Type.IsType() && Head.Type.Refs.Length == 0);
 					mAssert.IsTrue(Body.Type.SameType(Head.TypeValue.AssertNotEmpty()));
 				}
@@ -634,8 +659,12 @@ mSPO_AST_Types_Tests {
 									__ => aDebugStream(__())
 								).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
 							)
-						)
-					).AssertNotError(__ => __.ErrorText);
+						),
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					).Scope;
+					
 					mAssert.AreEquals(
 						Scope.Where(__ => __.Id == "_result").TryFirst().AssertNotEmpty().Type,
 						mVM_Type.Int()

@@ -151,7 +151,7 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
@@ -184,7 +184,7 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
@@ -228,7 +228,7 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
@@ -268,7 +268,7 @@ mSPO2IL_Tests {
 						__ => aStreamOut(__())
 					);
 					
-					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty);
+					mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new());
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor<tSpan>();
@@ -330,7 +330,7 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
 					
 					mAssert.AreEquals(
 						Scope,
@@ -463,7 +463,7 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("...*...+..."),
@@ -623,7 +623,7 @@ mSPO2IL_Tests {
 						)
 					);
 					
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("TestTest..."),
@@ -762,7 +762,7 @@ mSPO2IL_Tests {
 					);
 					
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
-					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope).AssertNotError(__ => __.ToText());
+					var Scope = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText()).Scope;
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
@@ -900,7 +900,8 @@ mSPO2IL_Tests {
 						ModuleNode.Import.Pattern,
 						mStd.cEmpty,
 						mSPO_AST_Types.tTypeRelation.Sub,
-						mStd.cEmpty
+						mStd.cEmpty,
+						new()
 					).Then(
 						__ => __.Scope
 					).AssertNotError(
@@ -910,13 +911,13 @@ mSPO2IL_Tests {
 					var Scope = ModuleNode.Commands.Reduce(
 						mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 						(aResultScope, aCommand) => aResultScope.ThenTry(
-							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, new()).Then(__ => __.Scope)
 						)
 					).AssertNotError(
 						__ => __.ToText()
 					);
 					
-					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope).AssertNotError(__ => __.ToText());
+					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope, new()).AssertNotError(__ => __.ToText());
 					
 					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
 					
@@ -1100,7 +1101,8 @@ mSPO2IL_Tests {
 						ModuleNode.Import.Pattern,
 						mStd.cEmpty,
 						mSPO_AST_Types.tTypeRelation.Sub,
-						mStd.cEmpty
+						mStd.cEmpty,
+						new()
 					).Then(
 						__ => __.Scope
 					).AssertNotError(
@@ -1110,7 +1112,8 @@ mSPO2IL_Tests {
 					var ModuleConstructor = mSPO2IL.MapModule(
 						ModuleNode,
 						mSpan.Merge,
-						mStd.cEmpty
+						mStd.cEmpty,
+						new()
 					).AssertNotError(
 						__ => __.ToText()
 					);

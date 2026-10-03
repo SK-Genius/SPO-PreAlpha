@@ -34,13 +34,12 @@ mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
+		
 		if (!mSPO_Desugar.DesugarModule(ModuleNode).Match(out var DesugaredModule, out var Error)) {
 			return mResult.Fail(Error.ToText());
 		}
 		
 		var TypeArg = mVM_Type.Free();
-		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
-		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
@@ -58,7 +57,7 @@ mSPO_Interpreter {
 					)
 				)
 			),
-			TypeState
+			new()
 		).Then(
 			__ => (__.Scope, __.State)
 		);
@@ -119,15 +118,15 @@ mSPO_Interpreter {
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
 		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
-		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
-		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
 			mStd.cEmpty,
-			TypeState
-		).Then(__ => (__.Scope, __.State)).AssertNotError(__ => __.ToText());
+			new()
+		).Then(
+			__ => (__.Scope, __.State)).AssertNotError(__ => __.ToText()
+		);
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
@@ -143,6 +142,7 @@ mSPO_Interpreter {
 		
 		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var TypeIndex = 0u;
+		
 		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
 			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
 			mAssert.IsTrue(TypeCommand.NodeType < mIL_AST.tCommandNodeType._EndTypes_);

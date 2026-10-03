@@ -213,7 +213,6 @@ mSPO_Diagnostics {
 		}
 		
 		var TypeArg = mVM_Type.Free();
-		var TypeState = mSPO_AST_Types.NewTypeState<tSpan>();
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
@@ -232,7 +231,7 @@ mSPO_Diagnostics {
 					)
 				)
 			),
-			TypeState
+			new()
 		).Then(
 			__ => (__.Scope, __.State)
 		);

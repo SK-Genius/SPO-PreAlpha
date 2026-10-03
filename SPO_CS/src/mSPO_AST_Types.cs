@@ -21,7 +21,8 @@ mSPO_AST_Types {
 		public mTreeMap.tTree<
 			tInt32,
 			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>
-		> ValidatedTypes { get; init; } = mTreeMap.Tree<
+		>
+		ValidatedTypes { get; init; } = mTreeMap.Tree<
 			tInt32,
 			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mVM_Type.tType Type)>
 		>(
@@ -31,25 +32,16 @@ mSPO_AST_Types {
 		
 		public mTreeMap.tTree<
 			tInt32,
-			mStream.tStream<(
-				mSPO_AST.tExpressionNode<tPos> Node,
-				mMaybe.tMaybe<mVM_Type.tType> Type
-			)>
-		> InputTypeAnnotations { get; init; } = mTreeMap.Tree<
+			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mMaybe.tMaybe<mVM_Type.tType> Type)>
+		>
+		InputTypeAnnotations { get; init; } = mTreeMap.Tree<
 			tInt32,
-			mStream.tStream<(
-				mSPO_AST.tExpressionNode<tPos> Node,
-				mMaybe.tMaybe<mVM_Type.tType> Type
-			)>
+			mStream.tStream<(mSPO_AST.tExpressionNode<tPos> Node, mMaybe.tMaybe<mVM_Type.tType> Type)>
 		>(
 			(a1, a2) => a1.CompareTo(a2),
 			[]
 		);
 	}
-	
-	public static tTypeState<tPos>
-	NewTypeState<tPos>(
-	) => new();
 	
 	public static mMaybe.tMaybe<mVM_Type.tType>
 	TryGetValidatedType<tPos>(
@@ -411,7 +403,14 @@ mSPO_AST_Types {
 		}
 	}
 	
-	private static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
+	private static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	TryInferArgument<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
@@ -488,11 +487,14 @@ mSPO_AST_Types {
 				return mResult.Fail(Error);
 			}
 			
-			Checked = (mVM_Type.Proc(
-				mVM_Type.Empty(),
-				LambdaArg.Type,
-				LambdaResult.Type
-			), LambdaResult.State);
+			Checked = (
+				mVM_Type.Proc(
+					mVM_Type.Empty(),
+					LambdaArg.Type,
+					LambdaResult.Type
+				),
+				LambdaResult.State
+			);
 			Lambda.TypeAnnotation = Checked.Type;
 			aMappings = LambdaResult.Mappings;
 		}
@@ -507,7 +509,14 @@ mSPO_AST_Types {
 		);
 	}
 	
-	private static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
+	private static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	TryInferArguments<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
@@ -585,7 +594,7 @@ mSPO_AST_Types {
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
 		mStream.tStream<tScopeItem> aScope
-	) => aNode.UpdateTypes(aScope, NewTypeState<tPos>()).Then(Result => Result.Type);
+	) => aNode.UpdateTypes(aScope, new()).Then(Result => Result.Type);
 	
 	public static mResult.tResult<(mVM_Type.tType Type, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
 	UpdateTypes<tPos>(
@@ -815,13 +824,13 @@ mSPO_AST_Types {
 						while (ProcType.IsGeneric(out _, out var InnerType)) {
 							ProcType = InnerType;
 						}
-
+						
 						if (!ProcType.IsProc(out _, out var FormalArgType, out var FormalResultType)) {
 							return mResult.Fail(
 								(Call.Func.Pos, $"expect proc but is:\n{aFuncType.Type.ToText()}")
 							);
 						}
-
+						
 						return Call.Arg.TryInferArguments(
 							FormalArgType,
 							aScope,
@@ -902,14 +911,17 @@ mSPO_AST_Types {
 							}
 							
 							return mResult.OK(
-								(Checked.Types.Reduce(
-									(mVM_Type.tType)null!,
-									(aTypes, aType) => (
-										aTypes is null || aTypes == aType
-										? aType
-										: mVM_Type.Set(aType, aTypes)
-									)
-								), Checked.State)
+								(
+									Checked.Types.Reduce(
+										(mVM_Type.tType)null!,
+										(aTypes, aType) => (
+											aTypes is null || aTypes == aType
+											? aType
+											: mVM_Type.Set(aType, aTypes)
+										)
+									),
+									Checked.State
+								)
 							).WithErrorType<(tPos Pos, tText ErrorText)>();
 						}
 					)
@@ -1003,15 +1015,14 @@ mSPO_AST_Types {
 		);
 	}
 	
-	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
-	UpdatePatternTypes<tPos>(
-		mSPO_AST.tPatternNode<tPos> aPattern,
-		mMaybe.tMaybe<mVM_Type.tType> aType,
-		tTypeRelation aTypeRelation,
-		mStream.tStream<tScopeItem> aScope
-	) => UpdatePatternTypes(aPattern, aType, aTypeRelation, aScope, NewTypeState<tPos>()).Then(Result => (Result.Type, Result.Scope));
-	
-	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<tScopeItem> Scope,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	UpdatePatternTypes<tPos>(
 		mSPO_AST.tPatternNode<tPos> aPattern,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
@@ -1374,59 +1385,53 @@ mSPO_AST_Types {
 		return Result.ThenDo(__ => { aPattern.TypeAnnotation = __.Type; });
 	}
 	
-	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
-	UpdateMethodCallTypes<tPos>(
-		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
-		mStream.tStream<tScopeItem> aScope
-	) => UpdateMethodCallTypes(aMethodCall, aScope, NewTypeState<tPos>()).Then(Result => Result.Scope);
-	
-	public static mResult.tResult<(mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<
+		(
+			mStream.tStream<tScopeItem> Scope,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
 		return aMethodCall.Method.UpdateTypes(aScope, aTypeState).ThenTry(
-		aMethodType => mStd.Call(
-			() => {
-				var ProcType = aMethodType.Type;
-				while (ProcType.IsGeneric(out _, out var InnerType)) {
-					ProcType = InnerType;
-				}
-
-				if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
-					return mResult.Fail(
-						(aMethodCall.Argument.Pos, $"'{aMethodType.Type.ToText()}' is not a Proc")
+			aMethodType => mStd.Call(
+				() => {
+					var ProcType = aMethodType.Type;
+					while (ProcType.IsGeneric(out _, out var InnerType)) {
+						ProcType = InnerType;
+					}
+					
+					if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
+						return mResult.Fail(
+							(aMethodCall.Argument.Pos, $"'{aMethodType.Type.ToText()}' is not a Proc")
+						);
+					}
+					
+					return aMethodCall.Argument.TryInferArguments(
+						MethArgType,
+						aScope,
+						aMethodType.State
+					).ThenTry(
+						aArgument => (
+							!aMethodCall.Result.IsSome(out var Result)
+							? mResult.OK((Scope: aScope, State: aArgument.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
+							: UpdatePatternTypes(
+								Result,
+								MethResType.ApplyMappings(aArgument.Mappings),
+								tTypeRelation.Sub,
+								aScope,
+								aArgument.State
+							).Then(__ => (__.Scope, __.State))
+						)
 					);
 				}
-
-				return aMethodCall.Argument.TryInferArguments(
-					MethArgType,
-					aScope,
-					aMethodType.State
-				).ThenTry(
-					aArgument => (
-						!aMethodCall.Result.IsSome(out var Result)
-						? mResult.OK((Scope: aScope, State: aArgument.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
-						: UpdatePatternTypes(
-							Result,
-							MethResType.ApplyMappings(aArgument.Mappings),
-							tTypeRelation.Sub,
-							aScope,
-							aArgument.State
-						).Then(__ => (__.Scope, __.State))
-					)
-				);
-			}
-		)
-	);
+			)
+		);
 	}
-	
-	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
-	UpdateCommandTypes<tPos>(
-		mSPO_AST.tCommandNode<tPos> aCommand,
-		mStream.tStream<tScopeItem> aScope
-	) => UpdateCommandTypes(aCommand, aScope, NewTypeState<tPos>()).Then(Result => Result.Scope);
 	
 	public static mResult.tResult<(mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
 	UpdateCommandTypes<tPos>(
