@@ -98,6 +98,67 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
 				}
 			),
+			mTest.Test("Pair patterns retain both child states and the guard state",
+				aDebug => {
+					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
+					var Tail = mSPO_AST.Int(cNoPos, 1);
+					var Head = mSPO_AST.Text(cNoPos, "two");
+					var Guard = mSPO_AST.True(cNoPos);
+					var Pattern = mSPO_AST.PairPattern(
+						cNoPos,
+						mSPO_AST.Pattern(cNoPos, Tail, mStd.cEmpty),
+						mSPO_AST.GuardPattern(cNoPos, Head, Guard)
+					);
+					var Checked = mSPO_AST_Types.UpdatePatternTypes(
+						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty, Initial
+					).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Guard).AssertNotEmpty().SameType(mVM_Type.True()));
+					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
+					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
+				}
+			),
+			mTest.Test("Tuple patterns carry child states with and without an expected type",
+				aDebug => {
+					foreach (var HasExpectedType in new[] { false, true }) {
+						var Tail = mSPO_AST.Int(cNoPos, 1);
+						var Head = mSPO_AST.Text(cNoPos, "two");
+						var Pattern = mSPO_AST.TuplePattern(
+							cNoPos,
+							mStream.Stream<mSPO_AST.tPatternNode<tInt32>>([Tail, Head])
+						);
+						mMaybe.tMaybe<mVM_Type.tType> ExpectedType = HasExpectedType
+							? mVM_Type.Pair(mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Text())
+							: mStd.cEmpty;
+						var Checked = mSPO_AST_Types.UpdatePatternTypes(
+							Pattern, ExpectedType, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
+							mSPO_AST_Types.NewTypeState<tInt32>()
+						).AssertNotError(__ => __.ErrorText);
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
+					}
+				}
+			),
+			mTest.Test("Record patterns retain earlier fields through prefix patterns",
+				aDebug => {
+					var First = mSPO_AST.Int(cNoPos, 1);
+					var Last = mSPO_AST.Text(cNoPos, "two");
+					var Pattern = mSPO_AST.RecordPattern(
+						cNoPos,
+						mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tPatternNode<tInt32> Pattern)>([
+							(mSPO_AST.Id(cNoPos, "first"), mSPO_AST.PrefixPattern(cNoPos, "value", First)),
+							(mSPO_AST.Id(cNoPos, "last"), Last)
+						])
+					);
+					var Checked = mSPO_AST_Types.UpdatePatternTypes(
+						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
+						mSPO_AST_Types.NewTypeState<tInt32>()
+					).AssertNotError(__ => __.ErrorText);
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(First).AssertNotEmpty().SameType(mVM_Type.Int()));
+					mAssert.IsTrue(Checked.State.TryGetValidatedType(Last).AssertNotEmpty().SameType(mVM_Type.Text()));
+				}
+			),
 			mTest.Test("Generic values and signatures use the same type abstraction",
 				aDebug => {
 					var Expression = mSPO_Parser.Expression.ParseText(
