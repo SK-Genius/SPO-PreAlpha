@@ -79,6 +79,59 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Pair).AssertNotEmpty().SameType(Checked.Type));
 				}
 			),
+			mTest.Test("Expression folds retain all child states and the input snapshot",
+				aDebug => {
+					var SeedNode = mSPO_AST.Empty(cNoPos);
+					var Seed = SeedNode.UpdateTypes(mStd.cEmpty, mSPO_AST_Types.NewTypeState<tInt32>()).AssertNotError(__ => __.ErrorText);
+					foreach (var Kind in new[] { 0, 1, 2 }) {
+						var First = mSPO_AST.Int(cNoPos, 1);
+						var Last = mSPO_AST.Text(cNoPos, "two");
+						var Condition = mSPO_AST.True(cNoPos);
+						var Otherwise = mSPO_AST.False(cNoPos);
+						mSPO_AST.tExpressionNode<tInt32> Expression = Kind switch {
+							0 => mSPO_AST.Tuple(cNoPos, mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>([First, Last])),
+							1 => mSPO_AST.Record(
+								cNoPos,
+								mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tExpressionNode<tInt32> Value)>([
+									(mSPO_AST.Id(cNoPos, "first"), First), (mSPO_AST.Id(cNoPos, "last"), Last)
+								])
+							),
+							_ => mSPO_AST.If(
+								cNoPos,
+								mStream.Stream<(mSPO_AST.tExpressionNode<tInt32>, mSPO_AST.tExpressionNode<tInt32>)>([
+									(Condition, First), (Otherwise, Last)
+								])
+							)
+						};
+						var Checked = Expression.UpdateTypes(mStd.cEmpty, Seed.State).AssertNotError(__ => __.ErrorText);
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(First).AssertNotEmpty().SameType(mVM_Type.Int()));
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(Last).AssertNotEmpty().SameType(mVM_Type.Text()));
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(Expression).AssertNotEmpty().SameType(Checked.Type));
+						mAssert.IsTrue(Checked.State.TryGetValidatedType(SeedNode).AssertNotEmpty().SameType(mVM_Type.Empty()));
+						mAssert.IsFalse(Seed.State.TryGetValidatedType(First).IsSome(out _));
+						if (Kind == 2) {
+							mAssert.IsTrue(Checked.State.TryGetValidatedType(Condition).AssertNotEmpty().SameType(mVM_Type.True()));
+							mAssert.IsTrue(Checked.State.TryGetValidatedType(Otherwise).AssertNotEmpty().SameType(mVM_Type.False()));
+						}
+					}
+				}
+			),
+			mTest.Test("Failed expression folds skip later child checks",
+				aDebug => {
+					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
+					var First = mSPO_AST.Int(cNoPos, 1);
+					var Last = mSPO_AST.Text(cNoPos, "not checked");
+					var Tuple = mSPO_AST.Tuple(
+						cNoPos,
+						mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>([First, mSPO_AST.Id(cNoPos, "missing"), Last])
+					);
+					mAssert.IsFalse(Tuple.UpdateTypes(mStd.cEmpty, Initial).Match(out _, out _));
+					mAssert.IsFalse(Last.TypeAnnotation.IsSome(out _));
+					mAssert.IsFalse(Tuple.TypeAnnotation.IsSome(out _));
+					mAssert.IsTrue(Initial.ValidatedTypes.ToStream().IsEmpty());
+					mAssert.IsTrue(Initial.InputTypeAnnotations.ToStream().IsEmpty());
+				}
+			),
 			mTest.Test("Commands return pattern scopes and carry expression state forward",
 				aDebug => {
 					var Initial = mSPO_AST_Types.NewTypeState<tInt32>();
