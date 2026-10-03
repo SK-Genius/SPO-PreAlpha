@@ -13,37 +13,17 @@
 	t_11 := [{EMPTY_TYPE} + t_10]
 	t_12 := [#_Second INT]
 	t_13 := [{t_11} + t_12]
-	t_14 := [#_First INT]
-	t_15 := [{EMPTY_TYPE} + t_14]
-	t_16 := [#_Second INT]
-	t_17 := [{t_15} + t_16]
-	t_18 := [EMPTY_TYPE, t_6]
-	t_19 := [t_18, t_9]
-	t_20 := [#_First INT]
-	t_21 := [{EMPTY_TYPE} + t_20]
-	t_22 := [#_Second INT]
-	t_23 := [{t_21} + t_22]
-	t_24 := [t_19, t_6]
-	t_25 := [#_First INT]
-	t_26 := [{EMPTY_TYPE} + t_25]
-	t_27 := [#_Second INT]
-	t_28 := [{t_26} + t_27]
-	t_29 := [t_24 => t_5]
-	t_30 := [#_First INT]
-	t_31 := [{EMPTY_TYPE} + t_30]
-	t_32 := [#_Second INT]
-	t_33 := [{t_31} + t_32]
-	t_34 := [#_First INT]
-	t_35 := [{EMPTY_TYPE} + t_34]
-	t_36 := [#_Second INT]
-	t_37 := [{t_35} + t_36]
-	t_38 := [#_First INT]
-	t_39 := [{EMPTY_TYPE} + t_38]
-	t_40 := [#_Second INT]
-	t_41 := [{t_39} + t_40]
-	t_42 := [t_24, t_29]
-	t_43 := [EMPTY_TYPE => INT]
-	t_44 := [t_42 => t_43]
+	t_14 := [EMPTY_TYPE, t_6]
+	t_15 := [t_14, t_9]
+	t_16 := [t_15, t_6]
+	t_17 := [#_First INT]
+	t_18 := [{EMPTY_TYPE} + t_17]
+	t_19 := [#_Second INT]
+	t_20 := [{t_18} + t_19]
+	t_21 := [t_16 => t_5]
+	t_22 := [t_16, t_21]
+	t_23 := [EMPTY_TYPE => INT]
+	t_24 := [t_22 => t_23]
 
 §DEF d_0 € t_6
 	r_1 := {ARG} #_First
@@ -69,7 +49,7 @@
 	r_3 := +#Result _Value
 	§RETURN r_3 IF TRUE
 
-§DEF d_3 € t_29
+§DEF d_3 € t_21
 	d_2 := §2ND ENV
 	r_4 := §1ST ENV
 	d_1 := §2ND r_4
@@ -83,7 +63,7 @@
 	§TRY_RETURN .r_3 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_44
+§DEF d_4 € t_24
 	d_3 := §2ND ENV
 	r_13 := §1ST ENV
 	d_2 := §2ND r_13

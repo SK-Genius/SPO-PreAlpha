@@ -8,12 +8,67 @@
 #:ref Common/mResult.cs
 #:ref Common/mError.cs
 #:ref Common/mStream.cs
+#:ref Common/mTreeMap.cs
 #:ref mVM_Type.cs
 #:ref mSPO_AST.cs
 #:ref mIL_GenerateOpcodes.cs
 
 public static class
 mSPO_AST_Types {
+	// Updates share unchanged tree branches; only successful results publish a new snapshot.
+	public sealed record
+	tTypeState<tPos> {
+		public mTreeMap.tTree<
+			tInt32,
+			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
+		>
+		ValidatedTypes { get; init; } = mTreeMap.Tree<
+			tInt32,
+			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
+		>(
+			(a1, a2) => a1.CompareTo(a2),
+			[]
+		);
+	}
+	
+	public static mMaybe.tMaybe<mVM_Type.tType>
+	TryGetValidatedType<tPos>(
+		this tTypeState<tPos> aTypeState,
+		mSPO_AST.tNode<tPos> aNode
+	) {
+		var Key = RuntimeHelpers.GetHashCode(aNode);
+		if (!aTypeState.ValidatedTypes.TryGet(Key).IsSome(out var Bucket)) {
+			return mStd.cEmpty;
+		}
+		return Bucket.Where(
+			__ => mStd.RefEq(__.Node, aNode)
+		).TryFirst(
+		).Then(
+			__ => __.Type
+		);
+	}
+	
+	public static tTypeState<tPos>
+	SetValidatedType<tPos>(
+		this tTypeState<tPos> aTypeState,
+		mSPO_AST.tNode<tPos> aNode,
+		mVM_Type.tType aType
+	) {
+		var Key = RuntimeHelpers.GetHashCode(aNode);
+		var Bucket = mStream.Stream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>();
+		if (aTypeState.ValidatedTypes.TryGet(Key).IsSome(out var Existing)) {
+			Bucket = Existing.Where(
+				__ => !mStd.RefEq(__.Node, aNode)
+			);
+		}
+		return aTypeState with {
+			ValidatedTypes = aTypeState.ValidatedTypes.Set(
+				Key,
+				mStream.Stream((aNode, aType), Bucket)
+			)
+		};
+	}
+	
 	public struct tScopeItem {
 		public tText Id;
 		public mMaybe.tMaybe<mVM_Type.tType> TypeValue;
@@ -53,12 +108,13 @@ mSPO_AST_Types {
 	)
 	SplitForPatternType<tPos>(
 		this mVM_Type.tType aType,
-		mSPO_AST.tPatternNode<tPos> aPattern
+		mSPO_AST.tPatternNode<tPos> aPattern,
+		tTypeState<tPos> aTypeState
 	) {
 		switch (aPattern) {
 			case mSPO_AST.tGuardPatternNode<tPos> Guard: {
 				return (
-					aType.SplitForPatternType(Guard.Pattern).Matched,
+					aType.SplitForPatternType(Guard.Pattern, aTypeState).Matched,
 					aType
 				);
 			}
@@ -70,11 +126,11 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsAny():
 			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(out _, out var Ref) && ReferenceEquals(aType, Ref): {
-				static mVM_Type.tType
+				mVM_Type.tType
 				PatternType(
 					mSPO_AST.tPatternNode<tPos> aPattern_,
 					mVM_Type.tType aFallback
-				) => aPattern_.TypeAnnotation.ElseUse(
+				) => aTypeState.TryGetValidatedType(aPattern_).ElseUse(
 					aPattern_ switch {
 						mSPO_AST.tTypedPatternNode<tPos> Typed_ => PatternType(Typed_.Pattern, aFallback),
 						mSPO_AST.tGuardPatternNode<tPos> Guard_ => PatternType(Guard_.Pattern, aFallback),
@@ -116,12 +172,12 @@ mSPO_AST_Types {
 				return (
 					ReferenceEquals(Expanded, aType)
 					? (aType, aType)
-					: Expanded.SplitForPatternType(aPattern)
+					: Expanded.SplitForPatternType(aPattern, aTypeState)
 				);
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsSet(out var Type1, out var Type2): {
-				var Coverage1 = Type1.SplitForPatternType(aPattern);
-				var Coverage2 = Type2.SplitForPatternType(aPattern);
+				var Coverage1 = Type1.SplitForPatternType(aPattern, aTypeState);
+				var Coverage2 = Type2.SplitForPatternType(aPattern, aTypeState);
 				
 				return (
 					mVM_Type.Union(Coverage1.Matched, Coverage2.Matched),
@@ -139,11 +195,11 @@ mSPO_AST_Types {
 					return (mStd.cEmpty, aType);
 				}
 				var Head = Sig.Head is mSPO_AST.tTypedPatternNode<tPos> TypedHead ? TypedHead.Pattern : Sig.Head;
-				if (!Sig.HeadValue.IsSome(out var HeadValue) || !Sig.Body.TypeAnnotation.IsSome(out _)) {
+				if (!Sig.HeadValue.IsSome(out var HeadValue) || !aTypeState.TryGetValidatedType(Sig.Body).IsSome(out _)) {
 					return (aType, aType);
 				}
 				var Body = Contract.Refs[1].Substitute(Contract.Refs[0], HeadValue);
-				var Coverage = Body.SplitForPatternType(Sig.Body);
+				var Coverage = Body.SplitForPatternType(Sig.Body, aTypeState);
 				if (Coverage.Matched.IsNone()) {
 					return (mStd.cEmpty, aType);
 				}
@@ -158,7 +214,7 @@ mSPO_AST_Types {
 				if (
 					Typed.TypeExpression.IsSome(out _) &&
 					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
-					Typed.TypeAnnotation.IsSome(out var MatchType)
+					aTypeState.TryGetValidatedType(Typed).IsSome(out var MatchType)
 				) {
 					if (aType.IsSubType(MatchType, mStd.cEmpty).Match(out _, out _)) {
 						return (aType, mStd.cEmpty);
@@ -170,15 +226,15 @@ mSPO_AST_Types {
 						: (mStd.cEmpty, aType)
 					);
 				}
-				return aType.SplitForPatternType(Typed.Pattern);
+				return aType.SplitForPatternType(Typed.Pattern, aTypeState);
 			}
 			case mSPO_AST.tPairPatternNode<tPos> Pair: {
 				if (!aType.IsPair(out var FirstType, out var SecondType)) {
 					return (mStd.cEmpty, aType);
 				}
 				
-				var FirstCoverage = FirstType.SplitForPatternType(Pair.Tail);
-				var SecondCoverage = SecondType.SplitForPatternType(Pair.Head);
+				var FirstCoverage = FirstType.SplitForPatternType(Pair.Tail, aTypeState);
+				var SecondCoverage = SecondType.SplitForPatternType(Pair.Head, aTypeState);
 				
 				if (
 					!FirstCoverage.Matched.IsSome(out var MatchedFirst) ||
@@ -211,7 +267,7 @@ mSPO_AST_Types {
 					return (mStd.cEmpty, aType);
 				}
 				
-				var Coverage = InnerType.SplitForPatternType(Prefix.Pattern);
+				var Coverage = InnerType.SplitForPatternType(Prefix.Pattern, aTypeState);
 				
 				return (
 					Coverage.Matched.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __)),
@@ -239,7 +295,7 @@ mSPO_AST_Types {
 						return (mStd.cEmpty, aType);
 					}
 					
-					var Coverage = FieldType.SplitForPatternType(Pattern);
+					var Coverage = FieldType.SplitForPatternType(Pattern, aTypeState);
 					if (!Coverage.Matched.IsSome(out var MatchedField)) {
 						return (mStd.cEmpty, aType);
 					}
@@ -308,7 +364,8 @@ mSPO_AST_Types {
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
-			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			tTypeState<tPos> State
 		),
 		(tPos Pos, tText ErrorText)
 	>
@@ -316,7 +373,8 @@ mSPO_AST_Types {
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
 		mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> aMappings,
-		mStream.tStream<tScopeItem> aScope
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
 	) {
 		static tBool
 		HasUnresolvedFreeType(
@@ -354,7 +412,7 @@ mSPO_AST_Types {
 		}
 		
 		var MappedExpectedType = aExpectedType.ApplyMappings(aMappings);
-		if (!aArgument.UpdateTypes(aScope).Match(out var ExpressionType, out var Error)) {
+		if (!aArgument.UpdateTypes(aScope, aTypeState).Match(out var Checked, out var Error)) {
 			var LambdaType = MappedExpectedType;
 			while (LambdaType.IsGeneric(out _, out var InnerType)) {
 				LambdaType = InnerType;
@@ -374,31 +432,36 @@ mSPO_AST_Types {
 					Lambda.Head,
 					LambdaArgType,
 					tTypeRelation.Sub,
-					aScope
+					aScope,
+					aTypeState
 				).Match(out var LambdaArg, out Error) ||
 				!Lambda.Body.TryInferArgument(
 					LambdaExpectedResultType,
 					aMappings,
-					LambdaArg.Scope
+					LambdaArg.Scope,
+					LambdaArg.State
 				).Match(out var LambdaResult, out Error)
 			) {
 				return mResult.Fail(Error);
 			}
 			
-			ExpressionType = mVM_Type.Proc(
-				mVM_Type.Empty(),
-				LambdaArg.Type,
-				LambdaResult.Type
+			Checked = (
+				mVM_Type.Proc(
+					mVM_Type.Empty(),
+					LambdaArg.Type,
+					LambdaResult.Type
+				),
+				LambdaResult.State
 			);
-			Lambda.TypeAnnotation = ExpressionType;
+			Checked.State = Checked.State.SetValidatedType(Lambda, Checked.Type);
 			aMappings = LambdaResult.Mappings;
 		}
 		
-		return ExpressionType.IsSubType(
+		return Checked.Type.IsSubType(
 			MappedExpectedType,
 			aMappings
 		).Then(
-			__ => (ExpressionType, __)
+			__ => (Checked.Type, __, Checked.State)
 		).ModifyError(
 			__ => (aArgument.Pos, __)
 		);
@@ -407,14 +470,16 @@ mSPO_AST_Types {
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
-			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings
+			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			tTypeState<tPos> State
 		),
 		(tPos Pos, tText ErrorText)
 	>
 	TryInferArguments<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
-		mStream.tStream<tScopeItem> aScope
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
 	) {
 		var Arguments = mStream.Stream(aArgument);
 		var ExpectedTypes = mStream.Stream(aExpectedType);
@@ -437,7 +502,7 @@ mSPO_AST_Types {
 		var Done = new tBool[ArgumentCount];
 		var ArgumentTypes = new mVM_Type.tType[ArgumentCount];
 		var Errors = new mMaybe.tMaybe<(tPos Pos, tText ErrorText)>[ArgumentCount];
-		var Mappings = mStream.Stream<(mVM_Type.tType Free, mVM_Type.tType Ref)>();
+		var Checked = (Mappings: mStream.Stream<(mVM_Type.tType Free, mVM_Type.tType Ref)>(), State: aTypeState);
 		var Remaining = ArgumentCount;
 		var ArgumentsWithTypes = mStream.ZipShort(Arguments, ExpectedTypes).MapWithIndex().Reverse();
 		
@@ -451,12 +516,13 @@ mSPO_AST_Types {
 				if (
 					ArgumentAndType._1.TryInferArgument(
 						ArgumentAndType._2,
-						Mappings,
-						aScope
+						Checked.Mappings,
+						aScope,
+						Checked.State
 					).Match(out var Inferred, out var Error)
 				) {
 					ArgumentTypes[Index] = Inferred.Type;
-					Mappings = Inferred.Mappings;
+					Checked = (Inferred.Mappings, Inferred.State);
 					Done[Index] = true;
 					Errors[Index] = mStd.cEmpty;
 					Remaining -= 1;
@@ -477,24 +543,31 @@ mSPO_AST_Types {
 		}
 		
 		var ExpressionType = mVM_Type.Tuple(System.MemoryExtensions.AsSpan(ArgumentTypes));
-		aArgument.TypeAnnotation = ExpressionType;
-		return (ExpressionType, Mappings);
+		return (ExpressionType, Checked.Mappings, Checked.State.SetValidatedType(aArgument, ExpressionType));
 	}
 	
 	public static mResult.tResult<mVM_Type.tType, (tPos Pos, tText ErrorText)>
 	UpdateTypes<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aNode,
 		mStream.tStream<tScopeItem> aScope
-	) => (
-		aNode switch {
-			mSPO_AST.tEmptyNode<tPos> => mVM_Type.Empty(),
-			mSPO_AST.tTrueNode<tPos> => mVM_Type.True(),
-			mSPO_AST.tFalseNode<tPos> => mVM_Type.False(),
-			mSPO_AST.tIntNode<tPos> => mVM_Type.Int(),
-			mSPO_AST.tTextNode<tPos> => mVM_Type.Text(),
-			mSPO_AST.tCharNode<tPos> => mVM_Type.Char(),
+	) => aNode.UpdateTypes(aScope, new()).Then(Result => Result.Type);
+	
+	public static mResult.tResult<(mVM_Type.tType Type, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
+	UpdateTypes<tPos>(
+		this mSPO_AST.tExpressionNode<tPos> aNode,
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
+	) {
+		var TypeAnnotation = aNode.TypeAnnotation;
+		mResult.tResult<(mVM_Type.tType Type, tTypeState<tPos> State), (tPos Pos, tText ErrorText)> Result = aNode switch {
+			mSPO_AST.tEmptyNode<tPos> => (mVM_Type.Empty(), aTypeState),
+			mSPO_AST.tTrueNode<tPos> => (mVM_Type.True(), aTypeState),
+			mSPO_AST.tFalseNode<tPos> => (mVM_Type.False(), aTypeState),
+			mSPO_AST.tIntNode<tPos> => (mVM_Type.Int(), aTypeState),
+			mSPO_AST.tTextNode<tPos> => (mVM_Type.Text(), aTypeState),
+			mSPO_AST.tCharNode<tPos> => (mVM_Type.Char(), aTypeState),
 			mSPO_AST.tIdNode<tPos> IdNode => (
-				IdNode.TypeAnnotation.Match(
+				TypeAnnotation.Match(
 					Annotation => aScope.Where(
 						__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
 					).TryFirst(
@@ -518,16 +591,16 @@ mSPO_AST_Types {
 						)
 					)
 				)
-			),
+			).Then(__ => (__, aTypeState)),
 			mSPO_AST.tTypeNode<tPos> Type => (
-				Type.AsVM_Value(aScope).Then(__ => __.KindType())
+				Type.AsVM_Value(aScope).Then(__ => (__.KindType(), aTypeState))
 			),
 			mSPO_AST.tSigNode<tPos> Sig => mStd.Call(
 				() => {
 					if (
 						!Sig.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error) ||
 						!Sig.Head.AsVM_Value(aScope).Match(out var Head, out Error) ||
-						!Sig.Body.UpdateTypes(aScope).Match(out var Body, out Error)
+						!Sig.Body.UpdateTypes(aScope, aTypeState).Match(out var Body, out Error)
 					) {
 						return mResult.Fail(Error);
 					}
@@ -537,46 +610,56 @@ mSPO_AST_Types {
 					if (!Head.KindType().SameType(Binder.KindType())) {
 						return mResult.Fail((Sig.Head.Pos, "SIG head has the wrong kind"));
 					}
-					Sig.Head.TypeAnnotation = Head.KindType();
-					return Body.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).Then(
-						_ => Contract
+					return Body.Type.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).Then(
+						_ => (Contract, Body.State.SetValidatedType(Sig.Head, Head.KindType()))
 					).ModifyError(__ => (Sig.Body.Pos, __));
 				}
 			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
-				Tuple.Items.Map(
-					__ => __.UpdateTypes(aScope)
-				).WhenAllThen(
-					mVM_Type.Tuple
+				Tuple.Items.Reduce(
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					(aChecked, Item) => aChecked.ThenTry(
+						__ => Item.UpdateTypes(aScope, __.State).Then(
+							aItem => (mStream.Stream(aItem.Type, __.Types), aItem.State)
+						)
+					)
+				).Then(
+					__ => (mVM_Type.Tuple(__.Types.Reverse()), __.State)
 				)
 			),
 			mSPO_AST.tPairNode<tPos> Pair => (
 				Pair.Tail.UpdateTypes(
-					aScope
+					aScope,
+					aTypeState
 				).ThenTry(
-					aTail => Pair.Head.UpdateTypes(aScope).Then(
-						aHead => mVM_Type.Pair(aTail, aHead)
+					aTail => Pair.Head.UpdateTypes(aScope, aTail.State).Then(
+						aHead => (mVM_Type.Pair(aTail.Type, aHead.Type), aHead.State)
 					)
 				)
 			),
 			mSPO_AST.tPrefixNode<tPos> Prefix => (
 				Prefix.Element.UpdateTypes(
-					aScope
+					aScope,
+					aTypeState
 				).Then(
-					__ => mVM_Type.Prefix(Prefix.Prefix, __)
+					__ => (mVM_Type.Prefix(Prefix.Prefix, __.Type), __.State)
 				)
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (
-				Record.Elements.Map(
-					__ => __.Value.UpdateTypes(
-						aScope
-					).Then(
-						aType => mVM_Type.Prefix(__.Key.Id, aType)
+				Record.Elements.Reduce(
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					(aChecked, Item) => aChecked.ThenTry(
+						__ => Item.Value.UpdateTypes(aScope, __.State).Then(
+							aItem => (mStream.Stream(mVM_Type.Prefix(Item.Key.Id, aItem.Type), __.Types), aItem.State)
+						)
 					)
-				).WhenAllThen(
-					__ => __.Reduce(
-						mVM_Type.Empty(),
-						(aTail, aHead) => mVM_Type.Record(aTail, aHead)
+				).Then(
+					__ => (
+						__.Types.Reverse().Reduce(
+							mVM_Type.Empty(),
+							(aTail, aHead) => mVM_Type.Record(aTail, aHead)
+						),
+						__.State
 					)
 				)
 			),
@@ -584,18 +667,20 @@ mSPO_AST_Types {
 				() => {
 					if (Lambda.Generic.IsSome(out var GenericPattern)) {
 						// TODO: AI generated code has to be reviewed
-						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope).ThenTry(
+						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope, aTypeState).ThenTry(
 							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
 								mStd.cEmpty,
 								tTypeRelation.Sub,
-								aGenTypeScope.Scope
+								aGenTypeScope.Scope,
+								aGenTypeScope.State
 							).ThenTry(
 								aArgTypeScope => Lambda.Body.UpdateTypes(
-									aArgTypeScope.Scope
+									aArgTypeScope.Scope,
+									aArgTypeScope.State
 								).Then(
 									aResTypeScope => {
-										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope);
+										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope.Type);
 										
 										if (aGenTypeScope.Type.IsType()) {
 											var T = aGenTypeScope.Scope.Where(
@@ -605,9 +690,9 @@ mSPO_AST_Types {
 											).TypeValue.AssertNotEmpty(
 											);
 											
-											return mVM_Type.Generic(T, Proc);
+											return (mVM_Type.Generic(T, Proc), aResTypeScope.State);
 										} else {
-											return Proc;
+											return (Proc, aResTypeScope.State);
 										}
 									}
 								)
@@ -619,16 +704,18 @@ mSPO_AST_Types {
 						Lambda.Head,
 						mStd.cEmpty,
 						tTypeRelation.Sub,
-						aScope
+						aScope,
+						aTypeState
 					).ThenTry(
 						aArg => Lambda.Body.UpdateTypes(
-							aArg.Scope
+							aArg.Scope,
+							aArg.State
 						).Then(
-							aRes => mVM_Type.Proc(
+							aRes => (mVM_Type.Proc(
 								mVM_Type.Empty(),
 								aArg.Type,
-								aRes
-							)
+								aRes.Type
+							), aRes.State)
 						)
 					);
 				}
@@ -638,18 +725,21 @@ mSPO_AST_Types {
 					Method.Obj,
 					mStd.cEmpty,
 					tTypeRelation.Equal,
-					aScope
+					aScope,
+					aTypeState
 				).ThenTry(
 					aObj => UpdatePatternTypes(
 						Method.Arg,
 						mStd.cEmpty,
 						tTypeRelation.Sub,
-						aObj.Scope
+						aObj.Scope,
+						aObj.State
 					).ThenTry(
 						aArg => Method.Body.UpdateTypes(
-							aArg.Scope
+							aArg.Scope,
+							aArg.State
 						).Then(
-							aResType => mVM_Type.Proc(aObj.Type, aArg.Type, aResType)
+							aResType => (mVM_Type.Proc(aObj.Type, aArg.Type, aResType.Type), aResType.State)
 						)
 					)
 				)
@@ -658,63 +748,65 @@ mSPO_AST_Types {
 				mStd.Call(
 					() => {
 						var Types = mStream.Stream<mVM_Type.tType>([]);
-						var BlockScope = aScope;
+						var Checked = (Scope: aScope, State: aTypeState);
 						foreach (var Command in Block.Commands) {
-							if (!UpdateCommandTypes(Command, BlockScope).Match(out BlockScope, out var Error)) {
+							if (!UpdateCommandTypes(Command, Checked.Scope, Checked.State).Match(out Checked, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
 							if (Command is mSPO_AST.tReturnIfNode<tPos> ReturnIf) {
-								var Type = ReturnIf.Result.TypeAnnotation.AssertNotEmpty();
+								var Type = Checked.State.TryGetValidatedType(ReturnIf.Result).AssertNotEmpty();
 								if (Types.All(__ => !Equals(__, Type))) {
 									Types = mStream.Stream(Type, Types);
 								}
 							}
 						}
 						return mResult.OK(
-							Types.Join((a1, a2) => mVM_Type.Set(a2, a1), mVM_Type.Empty())
+							(Types.Join((a1, a2) => mVM_Type.Set(a2, a1), mVM_Type.Empty()), Checked.State)
 						).WithErrorType<(tPos Pos, tText ErrorText)>(
 						);
 					}
 				)
 			),
 			mSPO_AST.tCallNode<tPos> Call => Call.Func.UpdateTypes(
-				aScope
+				aScope,
+				aTypeState
 			).ThenTry(
 				aFuncType => mStd.Call(
 					() => {
-						var ProcType = aFuncType;
+						var ProcType = aFuncType.Type;
 						while (ProcType.IsGeneric(out _, out var InnerType)) {
 							ProcType = InnerType;
 						}
-
+						
 						if (!ProcType.IsProc(out _, out var FormalArgType, out var FormalResultType)) {
 							return mResult.Fail(
-								(Call.Func.Pos, $"expect proc but is:\n{aFuncType.ToText()}")
+								(Call.Func.Pos, $"expect proc but is:\n{aFuncType.Type.ToText()}")
 							);
 						}
-
+						
 						return Call.Arg.TryInferArguments(
 							FormalArgType,
-							aScope
+							aScope,
+							aFuncType.State
 						).Then(
-							aArg => FormalResultType.ApplyMappings(aArg.Mappings)
+							aArg => (FormalResultType.ApplyMappings(aArg.Mappings), aArg.State)
 						);
 					}
 				)
 			),
 			mSPO_AST.tIfMatchNode<tPos> IfMatch => (
-				IfMatch.Expression.UpdateTypes(aScope).ThenTry(
+				IfMatch.Expression.UpdateTypes(aScope, aTypeState).ThenTry(
 					aTypePattern => mStd.Call(
 						() => {
-							var Remaining = mMaybe.Some(aTypePattern);
-							var CaseTypes = mStream.Stream<mVM_Type.tType>();
+							var Remaining = mMaybe.Some(aTypePattern.Type);
+							var Checked = (Types: mStream.Stream<mVM_Type.tType>(), State: aTypePattern.State);
 							
 							foreach (var Case in IfMatch.Cases) {
-								var CaseInputType = Remaining.ElseUse(aTypePattern);
+								var CaseInputType = Remaining.ElseUse(aTypePattern.Type);
 								
 								// first try
-								var CoverageCandidate = CaseInputType.SplitForPatternType(Case.Pattern);
+								var CoverageCandidate = CaseInputType.SplitForPatternType(Case.Pattern, Checked.State);
 								if (!CoverageCandidate.Matched.IsSome(out var CandidateType)) {
 									return mResult.Fail(
 										(
@@ -730,14 +822,15 @@ mSPO_AST_Types {
 										Case.Pattern,
 										CandidateType,
 										tTypeRelation.Super,
-										aScope
+										aScope,
+										Checked.State
 									).Match(out var Pattern, out var Error)
 								) {
 									return mResult.Fail(Error);
 								}
 								
 								// final try
-								var Coverage = CaseInputType.SplitForPatternType(Case.Pattern);
+								var Coverage = CaseInputType.SplitForPatternType(Case.Pattern, Pattern.State);
 								if (!Coverage.Matched.IsSome(out _)) {
 									return mResult.Fail(
 										(
@@ -748,11 +841,11 @@ mSPO_AST_Types {
 								}
 								
 								// update
-								if (!Case.Expression.UpdateTypes(Pattern.Scope).Match(out var CaseType, out Error)) {
+								if (!Case.Expression.UpdateTypes(Pattern.Scope, Pattern.State).Match(out var CaseType, out Error)) {
 									return mResult.Fail(Error);
 								}
 								
-								CaseTypes = mStream.Stream(CaseType, CaseTypes);
+								Checked = (mStream.Stream(CaseType.Type, Checked.Types), CaseType.State);
 								
 								if (Remaining.IsSome(out _)) {
 									Remaining = Coverage.Remaining;
@@ -772,13 +865,16 @@ mSPO_AST_Types {
 							}
 							
 							return mResult.OK(
-								CaseTypes.Reduce(
-									(mVM_Type.tType)null!,
-									(aTypes, aType) => (
-										aTypes is null || aTypes == aType
-										? aType
-										: mVM_Type.Set(aType, aTypes)
-									)
+								(
+									Checked.Types.Reduce(
+										(mVM_Type.tType)null!,
+										(aTypes, aType) => (
+											aTypes is null || aTypes == aType
+											? aType
+											: mVM_Type.Set(aType, aTypes)
+										)
+									),
+									Checked.State
 								)
 							).WithErrorType<(tPos Pos, tText ErrorText)>();
 						}
@@ -787,52 +883,58 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIsNode<tPos> Is => (
 				Is.Expression.UpdateTypes(
-					aScope
+					aScope,
+					aTypeState
 				).ThenTry(
 					aValueType => UpdatePatternTypes(
 						Is.Pattern,
-						aValueType,
+						aValueType.Type,
 						tTypeRelation.Super,
-						aScope
+						aScope,
+						aValueType.State
 					)
 				).Then(
-					_ => mVM_Type.Bool()
+					__ => (mVM_Type.Bool(), __.State)
 				)
 			),
 			mSPO_AST.tVarToValNode<tPos> VarToVal => (
 				VarToVal.Obj.UpdateTypes(
-					aScope
+					aScope,
+					aTypeState
 				).ThenTry(
 					__ => (
-						__.IsVar(out var ValType)
-						? mResult.OK(ValType).WithErrorType<(tPos Pos, tText ErrorText)>()
-						: mResult.Fail((VarToVal.Pos, $"the type '{__}' in not from type '[§VAR ...]'"))
+						__.Type.IsVar(out var ValType)
+						? mResult.OK((ValType, __.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
+						: mResult.Fail((VarToVal.Pos, $"the type '{__.Type}' in not from type '[§VAR ...]'"))
 					)
 				)
 			),
 			mSPO_AST.tIfNode<tPos> If => (
-				If.Cases.Map(
-					aCase => aCase.Cond.UpdateTypes(
-						aScope
-					).FailIfNot(
-						__ => __.IsSubType(
-							mVM_Type.Bool(),
-							mStd.cEmpty
-						).Match(out _, out _),
-						__ => (aCase.Cond.Pos, $"condition '{aCase.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:\n  {__.ToText()}")
-					).ThenTry(
-						_ => aCase.Result.UpdateTypes(aScope)
+				If.Cases.Reduce(
+					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					(aChecked, Case) => aChecked.ThenTry(
+						__ => Case.Cond.UpdateTypes(aScope, __.State).FailIfNot(
+							aCondition => aCondition.Type.IsSubType(
+								mVM_Type.Bool(),
+								mStd.cEmpty
+							).Match(out _, out _),
+							aCondition => (Case.Cond.Pos, $"condition '{Case.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:\n  {aCondition.Type.ToText()}")
+						).ThenTry(
+							aCondition => Case.Result.UpdateTypes(aScope, aCondition.State)
+						).Then(
+							aCase => (mStream.Stream(aCase.Type, __.Types), aCase.State)
+						)
 					)
-				).WhenAllThen(
-					a => {
-						var X = a.Reduce(
+				).Then(
+					aChecked => {
+						var X = aChecked.Types.Reverse().Reduce(
 							mStream.Stream<mVM_Type.tType>([]),
 							(aList, aItem) => aList.All(__ => __ != aItem)
 							? mStream.Stream(aItem, aList)
 							: aList
 						);
 						
-						return X.Count() switch {
+						var Type = X.Count() switch {
 							0 => mVM_Type.Empty(),
 							1 => X.TryFirst().AssertNotEmpty(),
 							_ => X.Reduce(
@@ -840,24 +942,46 @@ mSPO_AST_Types {
 								(aTypeSet, aType) => mVM_Type.Set(aType, aTypeSet)
 							)
 						};
+						return (Type, aChecked.State);
 					}
 				)
 			),
 			mSPO_AST.tPipeToLeftNode<tPos> Pipe => throw mError.Error($"'{aNode.GetType().Name}' should be desugared at this point!"),
 			_ => throw mError.Error("not implemented: " + aNode.GetType().Name),
-		}
-	).ThenDo(
-		__ => { aNode.TypeAnnotation = __; }
-	);
+		};
+		return Result.ThenTry(
+			Inferred => TypeAnnotation.Match(
+				Annotation => Inferred.Type.IsSubType(
+					Annotation,
+					mStd.cEmpty
+				).Then(
+					_ => Inferred
+				).ModifyError(
+					_ => (aNode.Pos, $"type annotation '{Annotation.ToText()}' contradicts inferred type '{Inferred.Type.ToText()}'")
+				),
+				() => mResult.OK(Inferred).WithErrorType<(tPos Pos, tText ErrorText)>()
+			)
+		).Then(
+			Inferred => (Inferred.Type, Inferred.State.SetValidatedType(aNode, Inferred.Type))
+		);
+	}
 	
-	public static mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<
+		(
+			mVM_Type.tType Type,
+			mStream.tStream<tScopeItem> Scope,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	UpdatePatternTypes<tPos>(
 		mSPO_AST.tPatternNode<tPos> aPattern,
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
-		mStream.tStream<tScopeItem> aScope
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
 	) {
-		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope), (tPos Pos, tText ErrorText)> Result;
+		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)> Result;
 		switch (aPattern) {
 			case mSPO_AST.tTypedPatternNode<tPos> Pattern: {
 				Result = Pattern.TypeExpression.Match(
@@ -867,11 +991,12 @@ mSPO_AST_Types {
 								Pattern.Pattern,
 								aType,
 								aTypeRelation,
-								aScope
+								aScope,
+								aTypeState
 							)
 						)
 					),
-					() => UpdatePatternTypes(Pattern.Pattern, aType, aTypeRelation, aScope)
+					() => UpdatePatternTypes(Pattern.Pattern, aType, aTypeRelation, aScope, aTypeState)
 				);
 				break;
 			}
@@ -907,18 +1032,18 @@ mSPO_AST_Types {
 					Head = mVM_Type.Abstract(Binding.Id, Binder.KindType());
 					Scope = mStream.Stream(ScopeItem(Binding.Id, Head.KindType(), Head), Scope);
 				}
-				HeadPattern.TypeAnnotation = Head.KindType();
-				Sig.Head.TypeAnnotation = Head.KindType();
+				var HeadState = aTypeState.SetValidatedType(HeadPattern, Head.KindType()).SetValidatedType(Sig.Head, Head.KindType());
 				Sig.HeadValue = Head;
 				var ExpectedBody = BodyType.Substitute(Binder, Head);
 				Result = UpdatePatternTypes(
 					Sig.Body,
 					ExpectedBody,
 					aTypeRelation,
-					Scope
+					Scope,
+					HeadState
 				).ThenTry(
-					__ => ExpectedBody.SplitForPatternType(Sig.Body).Matched.IsSome(out _)
-						? mResult.OK((Contract, __.Scope)).WithErrorType<(tPos Pos, tText ErrorText)>()
+					__ => ExpectedBody.SplitForPatternType(Sig.Body, __.State).Matched.IsSome(out _)
+						? mResult.OK((Contract, __.Scope, __.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
 						: mResult.Fail((Sig.Body.Pos, "SIG body pattern cannot match the body type"))
 				);
 				break;
@@ -936,7 +1061,8 @@ mSPO_AST_Types {
 									mVM_Type.Free(FreePatternId.Id)
 								),
 								aScope
-							)
+							),
+							aTypeState
 						)
 						: (
 							__,
@@ -946,7 +1072,8 @@ mSPO_AST_Types {
 									__
 								),
 								aScope
-							)
+							),
+							aTypeState
 						)
 					)
 				).ElseFail(
@@ -967,7 +1094,7 @@ mSPO_AST_Types {
 									var NewType = __.IsVar(out _)
 										? __
 										: mVM_Type.Var(__);
-									return (Type: NewType, Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope));
+									return (Type: NewType, Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope), State: aTypeState);
 								},
 								aScopeItem => {
 									var ExistingType = aScopeItem.Type;
@@ -975,11 +1102,9 @@ mSPO_AST_Types {
 										ExistingType.IsVar(out _),
 										() => $"'{ExistingType.ToText()}' is not a var type"
 									);
-									return (Type: ExistingType, Scope: aScope);
+									return (Type: ExistingType, Scope: aScope, State: aTypeState);
 								}
 							);
-							
-							VarPattern.TypeAnnotation = NewTypeScope.Type;
 							
 							return NewTypeScope;
 						}
@@ -991,7 +1116,7 @@ mSPO_AST_Types {
 			}
 			
 			case mSPO_AST.tIgnorePatternNode<tPos> IgnorePattern: {
-				Result = aType.Then(__ => (__, aScope)).ElseFail(() => (IgnorePattern.Pos, "unknown type"));
+				Result = aType.Then(__ => (__, aScope, aTypeState)).ElseFail(() => (IgnorePattern.Pos, "unknown type"));
 				break;
 			}
 			case mSPO_AST.tPrefixPatternNode<tPos> PrefixPattern: {
@@ -1011,21 +1136,21 @@ mSPO_AST_Types {
 						mAssert.AreEquals(Prefix, PrefixPattern.Prefix);
 					}
 				}
-				Result = UpdatePatternTypes(PrefixPattern.Pattern, SubType, aTypeRelation, aScope).Then(
-					__ => (mVM_Type.Prefix(PrefixPattern.Prefix, __.Type), __.Scope)
+				Result = UpdatePatternTypes(PrefixPattern.Pattern, SubType, aTypeRelation, aScope, aTypeState).Then(
+					__ => (mVM_Type.Prefix(PrefixPattern.Prefix, __.Type), __.Scope, __.State)
 				);
 				break;
 			}
 			case mSPO_AST.tTuplePatternNode<tPos> TuplePattern: {
 				var Types = mStream.Stream<mVM_Type.tType>([]);
-				var NewScope = aScope;
+				var Checked = (Scope: aScope, State: aTypeState);
 				if (!aType.IsSome(out var Type)) {
 					foreach (var Pattern in TuplePattern.Items) {
-						if (!UpdatePatternTypes(Pattern, mStd.cEmpty, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+						if (!UpdatePatternTypes(Pattern, mStd.cEmpty, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
 							return mResult.Fail(Error);
 						}
 						
-						NewScope = TS.Scope;
+						Checked = (TS.Scope, TS.State);
 						Types = mStream.Stream(TS.Type, Types);
 					}
 				} else {
@@ -1039,12 +1164,12 @@ mSPO_AST_Types {
 						// TODO: this part looks wrong. i expect TypeStack is never empty.
 						//   and why should i use aType for each item in the list?
 						foreach (var Pattern in TuplePattern.Items) {
-							if (!UpdatePatternTypes(Pattern, Type, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+							if (!UpdatePatternTypes(Pattern, Type, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
 							Types = mStream.Stream(TS.Type, Types);
-							NewScope = TS.Scope;
+							Checked = (TS.Scope, TS.State);
 						}
 					} else {
 						if (!WalkType.IsEmpty() || TypeStack.Count() != TuplePattern.Items.Count()) {
@@ -1052,16 +1177,16 @@ mSPO_AST_Types {
 						}
 						
 						foreach (var (Pattern, ItemType) in mStream.ZipShort(TuplePattern.Items, TypeStack)) {
-							if (!UpdatePatternTypes(Pattern, ItemType, aTypeRelation, NewScope).Match(out var TS, out var Error)) {
+							if (!UpdatePatternTypes(Pattern, ItemType, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
 								return mResult.Fail(Error);
 							}
 							
 							Types = mStream.Stream(TS.Type, Types);
-							NewScope = TS.Scope;
+							Checked = (TS.Scope, TS.State);
 						}
 					}
 				}
-				Result = (mVM_Type.Tuple(Types.Reverse()), NewScope);
+				Result = (mVM_Type.Tuple(Types.Reverse()), Checked.Scope, Checked.State);
 				break;
 			}
 			case mSPO_AST.tPairPatternNode<tPos> PairPattern: {
@@ -1087,7 +1212,8 @@ mSPO_AST_Types {
 						PairPattern.Tail,
 						TailType,
 						aTypeRelation,
-						aScope
+						aScope,
+						aTypeState
 					).Match(
 						out var TailRes,
 						out var Error
@@ -1096,7 +1222,8 @@ mSPO_AST_Types {
 						PairPattern.Head,
 						HeadType,
 						aTypeRelation,
-						TailRes.Scope
+						TailRes.Scope,
+						TailRes.State
 					).Match(
 						out var HeadRes,
 						out Error
@@ -1105,11 +1232,11 @@ mSPO_AST_Types {
 					return mResult.Fail(Error);
 				}
 				
-				Result = (mVM_Type.Pair(TailRes.Type, HeadRes.Type), HeadRes.Scope);
+				Result = (mVM_Type.Pair(TailRes.Type, HeadRes.Type), HeadRes.Scope, HeadRes.State);
 				break;
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
-				Result = (mVM_Type.Empty(), aScope);
+				Result = (mVM_Type.Empty(), aScope, aTypeState);
 				foreach (var Item in RecordPattern.Elements) {
 					var Type = aType.IsSome(out var RecordType)
 					? RecordType.GetFieldType(Item.Id.Id)
@@ -1120,14 +1247,16 @@ mSPO_AST_Types {
 							Item.Pattern,
 							Type,
 							aTypeRelation,
-							a1.Scope
+							a1.Scope,
+							a1.State
 						).Then(
 							a2 => (
 								mVM_Type.Record(
 									a1.Type,
 									mVM_Type.Prefix(Item.Id.Id, a2.Type)
 								),
-								a2.Scope
+								a2.Scope,
+								a2.State
 							)
 						)
 					);
@@ -1140,13 +1269,15 @@ mSPO_AST_Types {
 						GuardPattern.Pattern,
 						aType,
 						tTypeRelation.Super,
-						aScope
+						aScope,
+						aTypeState
 					).Match(
 						out var Res,
 						out var Error
 					) ||
 					!GuardPattern.Guard.UpdateTypes(
-						Res.Scope
+						Res.Scope,
+						Res.State
 					).Match(
 						out var BoolRes,
 						out Error
@@ -1156,7 +1287,7 @@ mSPO_AST_Types {
 				}
 				
 				if (
-					!BoolRes.IsSubType(
+					!BoolRes.Type.IsSubType(
 						mVM_Type.Bool(),
 						mStd.cEmpty
 					).Match(out _, out _)
@@ -1166,13 +1297,13 @@ mSPO_AST_Types {
 							GuardPattern.Pos,
 							$"""
 							return type has to be boolean but is:
-								{BoolRes.ToText()}
+								{BoolRes.Type.ToText()}
 							"""
 						)
 					);
 				}
 				
-				Result = Res;
+				Result = (Res.Type, Res.Scope, BoolRes.State);
 				// TODO: Result = mVM_Type.Guard(Result, ...);
 				break;
 			}
@@ -1186,82 +1317,97 @@ mSPO_AST_Types {
 						? ScopeItem(Id.Id, Type, mVM_Type.Free(Id.Id))
 						: ScopeItem(Id.Id, Type),
 						aScope
-					)
+					),
+					aTypeState
 				);
 				break;
 			}
 			case mSPO_AST.tExpressionNode<tPos> Expression: {
-				Result = Expression.UpdateTypes(aScope).Then(__ => (__, aScope));
+				Result = Expression.UpdateTypes(aScope, aTypeState).Then(__ => (__.Type, aScope, __.State));
 				break;
 			}
 			default: {
 				throw mError.Error("not implemented: " + aPattern.GetType().Name);
 			}
 		}
-		return Result.ThenDo(__ => { aPattern.TypeAnnotation = __.Type; });
+		return Result.Then(__ => (__.Type, __.Scope, __.State.SetValidatedType(aPattern, __.Type)));
 	}
 	
-	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<
+		(
+			mStream.tStream<tScopeItem> Scope,
+			tTypeState<tPos> State
+		),
+		(tPos Pos, tText ErrorText)
+	>
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
-		mStream.tStream<tScopeItem> aScope
-	) => aMethodCall.Method.UpdateTypes(aScope).ThenTry(
-		aMethodType => mStd.Call(
-			() => {
-				var ProcType = aMethodType;
-				while (ProcType.IsGeneric(out _, out var InnerType)) {
-					ProcType = InnerType;
-				}
-
-				if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
-					return mResult.Fail(
-						(aMethodCall.Argument.Pos, $"'{aMethodType.ToText()}' is not a Proc")
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
+	) {
+		return aMethodCall.Method.UpdateTypes(aScope, aTypeState).ThenTry(
+			aMethodType => mStd.Call(
+				() => {
+					var ProcType = aMethodType.Type;
+					while (ProcType.IsGeneric(out _, out var InnerType)) {
+						ProcType = InnerType;
+					}
+					
+					if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
+						return mResult.Fail(
+							(aMethodCall.Argument.Pos, $"'{aMethodType.Type.ToText()}' is not a Proc")
+						);
+					}
+					
+					return aMethodCall.Argument.TryInferArguments(
+						MethArgType,
+						aScope,
+						aMethodType.State
+					).ThenTry(
+						aArgument => (
+							!aMethodCall.Result.IsSome(out var Result)
+							? mResult.OK((Scope: aScope, State: aArgument.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
+							: UpdatePatternTypes(
+								Result,
+								MethResType.ApplyMappings(aArgument.Mappings),
+								tTypeRelation.Sub,
+								aScope,
+								aArgument.State
+							).Then(__ => (__.Scope, __.State))
+						)
 					);
 				}
-
-				return aMethodCall.Argument.TryInferArguments(
-					MethArgType,
-					aScope
-				).ThenTry(
-					aArgument => (
-						!aMethodCall.Result.IsSome(out var Result)
-						? aScope
-						: UpdatePatternTypes(
-							Result,
-							MethResType.ApplyMappings(aArgument.Mappings),
-							tTypeRelation.Sub,
-							aScope
-						).Then(__ => __.Scope)
-					)
-				);
-			}
-		)
-	);
+			)
+		);
+	}
 	
-	public static mResult.tResult<mStream.tStream<tScopeItem>, (tPos Pos, tText ErrorText)>
+	public static mResult.tResult<(mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)>
 	UpdateCommandTypes<tPos>(
 		mSPO_AST.tCommandNode<tPos> aCommand,
-		mStream.tStream<tScopeItem> aScope
+		mStream.tStream<tScopeItem> aScope,
+		tTypeState<tPos> aTypeState
 	) {
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tPos> Def: {
-				return Def.Src.UpdateTypes(aScope).ThenTry(
-					aSrcType => UpdatePatternTypes(
+				return Def.Src.UpdateTypes(aScope, aTypeState).ThenTry(
+					aSource => UpdatePatternTypes(
 						Def.Des,
-						aSrcType,
+						aSource.Type,
 						tTypeRelation.Equal,
-						aScope
+						aScope,
+						aSource.State
 					).ThenTry(
-						aType => aSrcType.IsSubType(
-							aType.Type,
+						aPattern => aSource.Type.IsSubType(
+							aPattern.Type,
 							mStd.cEmpty
 						).Then(
 							Mappings => (
-								Def.Src is mSPO_AST.tTypeNode<tPos> &&
+								Scope: Def.Src is mSPO_AST.tTypeNode<tPos> &&
 								Def.Des.TryGetId().IsSome(out var Id) &&
 								Def.Src.AsVM_Value(aScope).Match(out var Value, out _)
-								? mStream.Stream(ScopeItem(Id, aSrcType, Value), aType.Scope.Where(__ => __.Id != Id))
-								: aType.Scope
+								? mStream.Stream(ScopeItem(Id, aSource.Type, Value), aPattern.Scope.Where(__ => __.Id != Id))
+								: aPattern.Scope,
+								State: aPattern.State
 							)
 						).ModifyError(
 							__ => (Def.Src.Pos, __)
@@ -1271,50 +1417,54 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tReturnIfNode<tPos> ReturnIf: {
 				return ReturnIf.Condition.UpdateTypes(
-					aScope
+					aScope,
+					aTypeState
 				).FailIfNot(
-					aConditionType => aConditionType.IsSubType(
+					aCondition => aCondition.Type.IsSubType(
 						mVM_Type.Bool(),
 						mStd.cEmpty
 					).Match(out _, out _),
-					__ => (ReturnIf.Pos, $"{__.ToText()} != [§TRUE | §FALSE]")
+					__ => (ReturnIf.Pos, $"{__.Type.ToText()} != [§TRUE | §FALSE]")
 				).ThenTry(
-					_ => ReturnIf.Result.UpdateTypes(aScope)
+					aCondition => ReturnIf.Result.UpdateTypes(aScope, aCondition.State)
 				).Then(
-					_ => aScope
+					aResult => (aScope, aResult.State)
 				);
 			}
 			case mSPO_AST.tDefVarNode<tPos> DefVar: {
-				return DefVar.Expression.UpdateTypes(aScope).ThenTry(
-					aValueType => DefVar.MethodCalls.Reduce(
-						mResult.OK(aScope).WithErrorType<(tPos Pos, tText ErrorText)>(),
-						(Scope, MethodCall) => Scope.ThenTry(a => UpdateMethodCallTypes(MethodCall, a))
-					).Then(
-						aScope => {
-							var Type = mVM_Type.Var(aValueType);
-							var NewScope = mStream.Stream(ScopeItem(DefVar.Id.Id, Type), aScope);
-							DefVar.Id.UpdateTypes(NewScope);
-							return NewScope;
+				return DefVar.Expression.UpdateTypes(aScope, aTypeState).ThenTry(
+					aValue => DefVar.MethodCalls.Reduce(
+						mResult.OK((Scope: aScope, State: aValue.State)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+						(aChecked, MethodCall) => aChecked.ThenTry(
+							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State)
+						)
+					).ThenTry(
+						aChecked => {
+							var Type = mVM_Type.Var(aValue.Type);
+							var NewScope = mStream.Stream(ScopeItem(DefVar.Id.Id, Type), aChecked.Scope);
+							return DefVar.Id.UpdateTypes(NewScope, aChecked.State).Then(
+								__ => (NewScope, __.State)
+							);
 						}
 					)
 				);
 			}
 			case mSPO_AST.tRecLambdasNode<tPos> RecLambdas: {
-				var NewScope = aScope;
+				var Checked = (Scope: aScope, State: aTypeState);
 				foreach (var Item in RecLambdas.List) {
-					var HeadScope = NewScope;
+					var Head = Checked;
 					if (Item.Lambda.Generic.IsSome(out var GenericPattern)) {
-						if (!UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, HeadScope).Match(out var GenScope, out var GenError)) {
+						if (!UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, Head.Scope, Head.State).Match(out var GenScope, out var GenError)) {
 							return mResult.Fail(GenError);
 						}
-						HeadScope = GenScope.Scope;
+						Head = (GenScope.Scope, GenScope.State);
 					}
 					
-					if (!UpdatePatternTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, HeadScope).Match(out var Result, out var Error)) {
+					if (!UpdatePatternTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, Head.Scope, Head.State).Match(out var Result, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					
-					NewScope = mStream.Stream(
+					Checked = (mStream.Stream(
 						ScopeItem(
 							Item.Id.Id,
 							mVM_Type.Proc(
@@ -1323,13 +1473,13 @@ mSPO_AST_Types {
 								mVM_Type.Free("__" + Item.Id.Id + "_Res__")
 							)
 						),
-						NewScope
-					);
+						Checked.Scope
+					), Result.State);
 				}
 				
 				foreach (var Item in RecLambdas.List) {
 					if (
-						!NewScope.Where(
+						!Checked.Scope.Where(
 							__ => __.Id == Item.Id.Id
 						).TryFirst(
 						).ElseFail(
@@ -1337,43 +1487,46 @@ mSPO_AST_Types {
 						).Then(
 							__ => __.Type
 						).ThenTry(
-							DesType => Item.Lambda.UpdateTypes(NewScope).ThenDo(
+							DesType => Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).ThenDo(
 								SrcType => {
-									DesType.Kind = SrcType.Kind;
-									DesType.Id = SrcType.Id;
-									DesType.Prefix = SrcType.Prefix;
-									DesType.Refs = SrcType.Refs;
+									DesType.Kind = SrcType.Type.Kind;
+									DesType.Id = SrcType.Type.Id;
+									DesType.Prefix = SrcType.Type.Prefix;
+									DesType.Refs = SrcType.Type.Refs;
 								}
 							)
-						).Match(out _, out var Error)
+						).Match(out var Typed, out var Error)
 					) {
 						return mResult.Fail(Error);
 					}
+					Checked = (Checked.Scope, Typed.State);
 				}
 				
 				foreach (var Item in RecLambdas.List) {
 					if (
-						!Item.Lambda.UpdateTypes(NewScope).Then(
-							__ => mStream.Stream(
+						!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Then(
+							__ => (mStream.Stream(
 								ScopeItem(
 									Item.Id.Id,
-									__
+									__.Type
 								),
-								NewScope
-							)
-						).Match(out NewScope, out var Error)
+								Checked.Scope
+							), __.State)
+						).Match(out Checked, out var Error)
 					) {
 						return mResult.Fail(Error);
 					}
 				}
 				
-				return NewScope;
+				return Checked;
 			}
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
-				return MethodCalls.Object.UpdateTypes(aScope).ThenTry(
-					aObjType => MethodCalls.MethodCalls.Reduce(
-						mResult.OK(aScope).WithErrorType<(tPos Pos, tText ErrorText)>(),
-						(Scope, MethodCall) => Scope.ThenTry(__ => UpdateMethodCallTypes(MethodCall, __))
+				return MethodCalls.Object.UpdateTypes(aScope, aTypeState).ThenTry(
+					aObject => MethodCalls.MethodCalls.Reduce(
+						mResult.OK((Scope: aScope, State: aObject.State)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+						(aChecked, MethodCall) => aChecked.ThenTry(
+							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State)
+						)
 					)
 				);
 			}
@@ -1566,7 +1719,6 @@ mSPO_AST_Types {
 					return mResult.Fail((Sig.HeadType.Pos, "SIG head kind must be a type"));
 				}
 				var Head = mVM_Type.SigHead(Sig.Head.Id, Kind);
-				Sig.Head.TypeAnnotation = Head.KindType();
 				Result = Sig.BodyType.AsVM_Type(
 					mStream.Stream(ScopeItem(Sig.Head.Id, Head.KindType(), Head), aScope)
 				).Then(__ => mVM_Type.Sig(Head, __));
@@ -1603,8 +1755,6 @@ mSPO_AST_Types {
 				throw mError.Error("not implemented: " + aExpression.GetType().Name);
 			}
 		}
-		return Result.ThenDo(
-			__ => { aExpression.TypeAnnotation = __.KindType(); }
-		);
+		return Result;
 	}
 }

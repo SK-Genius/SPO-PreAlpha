@@ -21,26 +21,14 @@
 	t_19 := [{EMPTY_TYPE} + t_18]
 	t_20 := [#_Field t_11]
 	t_21 := [{EMPTY_TYPE} + t_20]
-	t_22 := [#_Field INT]
-	t_23 := [{EMPTY_TYPE} + t_22]
-	t_24 := [#_Field EMPTY_TYPE]
-	t_25 := [{EMPTY_TYPE} + t_24]
-	t_26 := [#_Field t_11]
-	t_27 := [{EMPTY_TYPE} + t_26]
-	t_28 := [t_10, t_15]
-	t_29 := [#_Field INT]
-	t_30 := [{EMPTY_TYPE} + t_29]
-	t_31 := [t_28, t_4]
-	t_32 := [#_Field EMPTY_TYPE]
-	t_33 := [{EMPTY_TYPE} + t_32]
-	t_34 := [t_31, t_8]
-	t_35 := [#_Field t_11]
-	t_36 := [{EMPTY_TYPE} + t_35]
-	t_37 := [t_34, t_15]
-	t_38 := [EMPTY_TYPE, INT]
-	t_39 := [t_38, INT]
-	t_40 := [EMPTY_TYPE => t_39]
-	t_41 := [t_37 => t_40]
+	t_22 := [t_10, t_15]
+	t_23 := [t_22, t_4]
+	t_24 := [t_23, t_8]
+	t_25 := [t_24, t_15]
+	t_26 := [EMPTY_TYPE, INT]
+	t_27 := [t_26, INT]
+	t_28 := [EMPTY_TYPE => t_27]
+	t_29 := [t_25 => t_28]
 
 §DEF d_0 € t_4
 	r_1 := {ARG} #_Field
@@ -90,7 +78,7 @@
 	§TRY_RETURN .r_2 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_6 € t_41
+§DEF d_6 € t_29
 	d_5 := §2ND ENV
 	r_18 := §1ST ENV
 	d_4 := §2ND r_18

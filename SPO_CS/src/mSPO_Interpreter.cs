@@ -34,12 +34,12 @@ mSPO_Interpreter {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
 		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
+		
 		if (!mSPO_Desugar.DesugarModule(ModuleNode).Match(out var DesugaredModule, out var Error)) {
 			return mResult.Fail(Error.ToText());
 		}
 		
 		var TypeArg = mVM_Type.Free();
-		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
@@ -56,18 +56,19 @@ mSPO_Interpreter {
 						)
 					)
 				)
-			)
+			),
+			new()
 		).Then(
-			__ => __.Scope
+			__ => (__.Scope, __.State)
 		);
 		
 		return DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
 		).ThenTry(
-			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope)
+			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope.Scope, aNewScope.State)
 		).Then(
 			aModule => {
 				return mVM.Run(
@@ -117,28 +118,31 @@ mSPO_Interpreter {
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
 		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
-		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
 			mSPO_AST_Types.tTypeRelation.Sub,
-			mStd.cEmpty
-		).Then(__ => __.Scope).AssertNotError(__ => __.ToText());
+			mStd.cEmpty,
+			new()
+		).Then(
+			__ => (__.Scope, __.State)).AssertNotError(__ => __.ToText()
+		);
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
 		).AssertNotError(__ => __.ToText());
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope).AssertNotError(__ => __.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope.Scope, Scope.State).AssertNotError(__ => __.ToText());
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');
 		
 		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var TypeIndex = 0u;
+		
 		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
 			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
 			mAssert.IsTrue(TypeCommand.NodeType < mIL_AST.tCommandNodeType._EndTypes_);

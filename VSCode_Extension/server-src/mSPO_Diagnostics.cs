@@ -230,15 +230,16 @@ mSPO_Diagnostics {
 						)
 					)
 				)
-			)
+			),
+			new()
 		).Then(
-			__ => __.Scope
+			__ => (__.Scope, __.State)
 		);
 		
 		if (!DesugaredModule.Commands.Reduce(
 			InitScope,
 			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope)
+				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
 		).Match(out var Scope, out var TypeError)) {
 			return mResult.Fail(
@@ -253,7 +254,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope).Match(out _, out var LoweringError)) {
+		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope.Scope, Scope.State).Match(out _, out var LoweringError)) {
 			return mResult.Fail(
 				mStream.Stream(
 					Diagnostic(
