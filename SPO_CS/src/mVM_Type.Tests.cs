@@ -207,30 +207,43 @@ mVM_Type_Tests {
 					);
 					
 					var Type = AST.UpdateTypes(
-						cTestScope
-					).AssertNotError(__ => __.ToText());
+						cTestScope,
+						new()
+					).AssertNotError(
+						__ => __.ToText()
+					).Type;
 					
-					var Type_ = mSPO_Parser.Type.ParseText(
+					var VM_Type = mSPO_Parser.Type.ParseText(
 						a.Type,
 						"",
 						__ => { aStreamOut(__()); }
 					).DesugarType(
 					).AsVM_Type(
 						cTestScope
-					).AssertNotError(__ => __.ToText());
+					).AssertNotError(
+						__ => __.ToText()
+					);
 					
-					Type.IsSubType(Type_, mStd.cEmpty)
-					.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
+					Type.IsSubType(
+						VM_Type,
+						mStd.cEmpty
+					).AssertNotError(
+						_ => Type.ToText() + " != " + VM_Type.ToText()
+					);
 					
 					if (a.Expr is "§TRUE") {
 						mAssert.AreEquals(Type, mVM_Type.True());
-						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(VM_Type.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
 					} else if (a.Expr is "§FALSE") {
 						mAssert.AreEquals(Type, mVM_Type.False());
-						mAssert.IsFalse(Type_.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(VM_Type.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
 					} else {
-						Type_.IsSubType(Type, mStd.cEmpty)
-						.AssertNotError(_ => Type.ToText() + " != " + Type_.ToText());
+						VM_Type.IsSubType(
+							Type,
+							mStd.cEmpty
+						).AssertNotError(
+							_ => Type.ToText() + " != " + VM_Type.ToText()
+						);
 					}
 				},
 				a.File,

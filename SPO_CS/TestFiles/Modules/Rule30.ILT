@@ -1,0 +1,1343 @@
+§TYPES
+	t_0 := [§FREE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [t_0 => t_1]
+	t_3 := [§ALL t_0 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [§FREE]
+	t_6 := [t_5, FALSE]
+	t_7 := [EMPTY_TYPE | t_6]
+	t_8 := [t_7, FALSE]
+	t_9 := [EMPTY_TYPE | t_8]
+	t_10 := [#Result t_9]
+	t_11 := [INT => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [TRUE | FALSE]
+	t_14 := [INT => t_13]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [INT => t_7]
+	t_17 := [EMPTY_TYPE, t_16]
+	t_18 := [EMPTY_TYPE, INT]
+	t_19 := [t_18, INT]
+	t_20 := [t_19 => INT]
+	t_21 := [t_17, t_20]
+	t_22 := [t_21, INT]
+	t_23 := [t_22 => t_11]
+	t_24 := [EMPTY_TYPE, t_12]
+	t_25 := [t_24, t_15]
+	t_26 := [t_25, t_16]
+	t_27 := [t_26, t_20]
+	t_28 := [t_27, INT]
+	t_29 := [t_28, t_23]
+	t_30 := [t_29 => t_11]
+	t_31 := [t_27, t_23]
+	t_32 := [t_31, t_30]
+	t_33 := [INT => t_9]
+	t_34 := [t_32 => t_33]
+	t_35 := [t_25, t_20]
+	t_36 := [t_35, t_23]
+	t_37 := [t_36, t_30]
+	t_38 := [t_37, t_34]
+	t_39 := [t_33 => t_33]
+	t_40 := [t_38 => t_39]
+	t_41 := [§FREE]
+	t_42 := [t_41, t_13]
+	t_43 := [EMPTY_TYPE | t_42]
+	t_44 := [t_43, t_13]
+	t_45 := [EMPTY_TYPE | t_44]
+	t_46 := [#Result t_45]
+	t_47 := [EMPTY_TYPE => t_46]
+	t_48 := [EMPTY_TYPE => t_47]
+	t_49 := [§FREE]
+	t_50 := [t_49, t_13]
+	t_51 := [t_50 | EMPTY_TYPE]
+	t_52 := [§REC t_49 => t_51]
+	t_53 := [EMPTY_TYPE, t_52]
+	t_54 := [t_53, INT]
+	t_55 := [t_54 => t_43]
+	t_56 := [EMPTY_TYPE, t_55]
+	t_57 := [t_56, t_20]
+	t_58 := [t_57, INT]
+	t_59 := [t_19 => t_13]
+	t_60 := [t_58, t_59]
+	t_61 := [t_52, t_13]
+	t_62 := [t_61 => t_46]
+	t_63 := [t_60 => t_62]
+	t_64 := [EMPTY_TYPE, t_48]
+	t_65 := [t_64, t_55]
+	t_66 := [t_65, t_20]
+	t_67 := [t_66, INT]
+	t_68 := [t_67, t_59]
+	t_69 := [t_68, t_63]
+	t_70 := [t_52 => t_46]
+	t_71 := [t_69 => t_70]
+	t_72 := [t_66, t_59]
+	t_73 := [t_72, t_63]
+	t_74 := [t_73, t_71]
+	t_75 := [t_54 => t_45]
+	t_76 := [t_74 => t_75]
+	t_77 := [t_64, t_20]
+	t_78 := [t_77, t_59]
+	t_79 := [t_78, t_63]
+	t_80 := [t_79, t_71]
+	t_81 := [t_80, t_76]
+	t_82 := [t_75 => t_75]
+	t_83 := [t_81 => t_82]
+	t_84 := [EMPTY_TYPE, t_13]
+	t_85 := [t_84, t_13]
+	t_86 := [t_85 => t_13]
+	t_87 := [EMPTY_TYPE, t_86]
+	t_88 := [t_87, t_86]
+	t_89 := [t_85, t_13]
+	t_90 := [t_89 => t_13]
+	t_91 := [t_88 => t_90]
+	t_92 := [§FREE]
+	t_93 := [t_92, t_13]
+	t_94 := [EMPTY_TYPE | t_93]
+	t_95 := [t_94, t_13]
+	t_96 := [EMPTY_TYPE | t_95]
+	t_97 := [#Result t_96]
+	t_98 := [EMPTY_TYPE => t_97]
+	t_99 := [EMPTY_TYPE => t_98]
+	t_100 := [t_53, t_13]
+	t_101 := [t_100 => t_94]
+	t_102 := [EMPTY_TYPE, t_101]
+	t_103 := [t_102, t_90]
+	t_104 := [t_103, t_13]
+	t_105 := [t_84 => t_97]
+	t_106 := [t_104 => t_105]
+	t_107 := [t_61, t_13]
+	t_108 := [t_107 => t_97]
+	t_109 := [t_104 => t_108]
+	t_110 := [EMPTY_TYPE, t_99]
+	t_111 := [t_110, t_101]
+	t_112 := [t_111, t_90]
+	t_113 := [t_112, t_13]
+	t_114 := [t_113, t_106]
+	t_115 := [t_114, t_109]
+	t_116 := [t_52 => t_97]
+	t_117 := [t_115 => t_116]
+	t_118 := [t_112, t_106]
+	t_119 := [t_118, t_109]
+	t_120 := [t_119, t_117]
+	t_121 := [t_100 => t_96]
+	t_122 := [t_120 => t_121]
+	t_123 := [t_110, t_90]
+	t_124 := [t_123, t_106]
+	t_125 := [t_124, t_109]
+	t_126 := [t_125, t_117]
+	t_127 := [t_126, t_122]
+	t_128 := [t_121 => t_121]
+	t_129 := [t_127 => t_128]
+	t_130 := [t_127, t_129]
+	t_131 := [t_52 => t_96]
+	t_132 := [t_130 => t_131]
+	t_133 := [§FREE]
+	t_134 := [#_Char... INT]
+	t_135 := [t_133, t_134]
+	t_136 := [EMPTY_TYPE | t_135]
+	t_137 := [t_136, t_134]
+	t_138 := [EMPTY_TYPE | t_137]
+	t_139 := [#Result t_138]
+	t_140 := [EMPTY_TYPE => t_139]
+	t_141 := [EMPTY_TYPE => t_140]
+	t_142 := [INT => t_134]
+	t_143 := [#Result t_134]
+	t_144 := [TRUE => t_143]
+	t_145 := [t_142 => t_144]
+	t_146 := [FALSE => t_143]
+	t_147 := [t_142 => t_146]
+	t_148 := [EMPTY_TYPE, t_142]
+	t_149 := [t_148, t_145]
+	t_150 := [t_149, t_147]
+	t_151 := [t_13 => t_143]
+	t_152 := [t_150 => t_151]
+	t_153 := [t_52 => t_136]
+	t_154 := [EMPTY_TYPE, t_153]
+	t_155 := [t_154, t_142]
+	t_156 := [t_155, t_145]
+	t_157 := [t_156, t_147]
+	t_158 := [t_157, t_152]
+	t_159 := [t_61 => t_139]
+	t_160 := [t_158 => t_159]
+	t_161 := [EMPTY_TYPE, t_141]
+	t_162 := [t_161, t_153]
+	t_163 := [t_162, t_142]
+	t_164 := [t_163, t_145]
+	t_165 := [t_164, t_147]
+	t_166 := [t_165, t_152]
+	t_167 := [t_166, t_160]
+	t_168 := [t_52 => t_139]
+	t_169 := [t_167 => t_168]
+	t_170 := [t_167, t_169]
+	t_171 := [t_52 => t_138]
+	t_172 := [t_170 => t_171]
+	t_173 := [t_161, t_142]
+	t_174 := [t_173, t_145]
+	t_175 := [t_174, t_147]
+	t_176 := [t_175, t_152]
+	t_177 := [t_176, t_160]
+	t_178 := [t_177, t_169]
+	t_179 := [t_178, t_172]
+	t_180 := [t_171 => t_171]
+	t_181 := [t_179 => t_180]
+	t_182 := [§FREE]
+	t_183 := [t_182, t_138]
+	t_184 := [EMPTY_TYPE | t_183]
+	t_185 := [t_184, t_138]
+	t_186 := [EMPTY_TYPE | t_185]
+	t_187 := [#Result t_186]
+	t_188 := [EMPTY_TYPE => t_187]
+	t_189 := [EMPTY_TYPE => t_188]
+	t_190 := [t_49, t_52]
+	t_191 := [t_190 | EMPTY_TYPE]
+	t_192 := [§REC t_49 => t_191]
+	t_193 := [t_192 => t_184]
+	t_194 := [EMPTY_TYPE, t_193]
+	t_195 := [t_194, t_171]
+	t_196 := [t_192, t_52]
+	t_197 := [t_196 => t_187]
+	t_198 := [t_195 => t_197]
+	t_199 := [EMPTY_TYPE, t_189]
+	t_200 := [t_199, t_193]
+	t_201 := [t_200, t_171]
+	t_202 := [t_201, t_198]
+	t_203 := [t_192 => t_187]
+	t_204 := [t_202 => t_203]
+	t_205 := [t_202, t_204]
+	t_206 := [t_192 => t_186]
+	t_207 := [t_205 => t_206]
+	t_208 := [t_199, t_171]
+	t_209 := [t_208, t_198]
+	t_210 := [t_209, t_204]
+	t_211 := [t_210, t_207]
+	t_212 := [t_206 => t_206]
+	t_213 := [t_211 => t_212]
+	t_214 := [§FREE]
+	t_215 := [EMPTY_TYPE | t_214]
+	t_216 := [t_192 | t_215]
+	t_217 := [EMPTY_TYPE | t_216]
+	t_218 := [t_192 | t_217]
+	t_219 := [#Result t_218]
+	t_220 := [INT => t_219]
+	t_221 := [t_192 => t_220]
+	t_222 := [#Result t_217]
+	t_223 := [EMPTY_TYPE => t_222]
+	t_224 := [EMPTY_TYPE => t_223]
+	t_225 := [EMPTY_TYPE, t_192]
+	t_226 := [t_225, INT]
+	t_227 := [t_226 => t_216]
+	t_228 := [EMPTY_TYPE, t_227]
+	t_229 := [t_228, t_192]
+	t_230 := [t_229, t_131]
+	t_231 := [t_230, t_20]
+	t_232 := [t_231, INT]
+	t_233 := [t_196 => t_222]
+	t_234 := [t_232 => t_233]
+	t_235 := [EMPTY_TYPE, t_224]
+	t_236 := [t_235, t_227]
+	t_237 := [t_236, t_192]
+	t_238 := [t_237, t_131]
+	t_239 := [t_238, t_20]
+	t_240 := [t_239, INT]
+	t_241 := [t_240, t_234]
+	t_242 := [t_192 => t_222]
+	t_243 := [t_241 => t_242]
+	t_244 := [t_225, t_224]
+	t_245 := [t_244, t_227]
+	t_246 := [t_245, t_131]
+	t_247 := [t_246, t_20]
+	t_248 := [t_247, t_234]
+	t_249 := [t_248, t_243]
+	t_250 := [t_249 => t_220]
+	t_251 := [t_225, t_221]
+	t_252 := [t_251, t_15]
+	t_253 := [t_252, t_224]
+	t_254 := [t_253, t_227]
+	t_255 := [t_254, t_131]
+	t_256 := [t_255, t_20]
+	t_257 := [t_256, t_234]
+	t_258 := [t_257, t_243]
+	t_259 := [t_258, t_250]
+	t_260 := [t_259 => t_220]
+	t_261 := [EMPTY_TYPE, t_221]
+	t_262 := [t_261, t_15]
+	t_263 := [t_262, t_224]
+	t_264 := [t_263, t_227]
+	t_265 := [t_264, t_131]
+	t_266 := [t_265, t_20]
+	t_267 := [t_266, t_234]
+	t_268 := [t_267, t_243]
+	t_269 := [t_268, t_250]
+	t_270 := [t_269, t_260]
+	t_271 := [t_226 => t_218]
+	t_272 := [t_270 => t_271]
+	t_273 := [t_263, t_131]
+	t_274 := [t_273, t_20]
+	t_275 := [t_274, t_234]
+	t_276 := [t_275, t_243]
+	t_277 := [t_276, t_250]
+	t_278 := [t_277, t_260]
+	t_279 := [t_278, t_272]
+	t_280 := [t_271 => t_271]
+	t_281 := [t_279 => t_280]
+	t_282 := [EMPTY_TYPE, t_4]
+	t_283 := [t_282, t_12]
+	t_284 := [t_283, t_15]
+	t_285 := [t_284, t_23]
+	t_286 := [t_285, t_30]
+	t_287 := [t_286, t_34]
+	t_288 := [t_287, t_40]
+	t_289 := [t_288, t_48]
+	t_290 := [t_289, t_63]
+	t_291 := [t_290, t_71]
+	t_292 := [t_291, t_76]
+	t_293 := [t_292, t_83]
+	t_294 := [t_293, t_91]
+	t_295 := [t_294, t_99]
+	t_296 := [t_295, t_106]
+	t_297 := [t_296, t_109]
+	t_298 := [t_297, t_117]
+	t_299 := [t_298, t_122]
+	t_300 := [t_299, t_129]
+	t_301 := [t_300, t_132]
+	t_302 := [t_301, t_141]
+	t_303 := [t_302, t_145]
+	t_304 := [t_303, t_147]
+	t_305 := [t_304, t_152]
+	t_306 := [t_305, t_160]
+	t_307 := [t_306, t_169]
+	t_308 := [t_307, t_172]
+	t_309 := [t_308, t_181]
+	t_310 := [t_309, t_189]
+	t_311 := [t_310, t_198]
+	t_312 := [t_311, t_204]
+	t_313 := [t_312, t_207]
+	t_314 := [t_313, t_213]
+	t_315 := [t_314, t_221]
+	t_316 := [t_315, t_15]
+	t_317 := [t_316, t_224]
+	t_318 := [t_317, t_234]
+	t_319 := [t_318, t_243]
+	t_320 := [t_319, t_250]
+	t_321 := [t_320, t_260]
+	t_322 := [t_321, t_272]
+	t_323 := [t_322, t_281]
+	t_324 := [#_...AsChar t_142]
+	t_325 := [{EMPTY_TYPE} + t_324]
+	t_326 := [#_Char t_325]
+	t_327 := [{EMPTY_TYPE} + t_326]
+	t_328 := [#_...-... t_20]
+	t_329 := [{EMPTY_TYPE} + t_328]
+	t_330 := [#_...==... t_59]
+	t_331 := [{t_329} + t_330]
+	t_332 := [#_...Or... t_86]
+	t_333 := [{t_331} + t_332]
+	t_334 := [#_...XOr... t_86]
+	t_335 := [{t_333} + t_334]
+	t_336 := [#_Std t_335]
+	t_337 := [{t_327} + t_336]
+	t_338 := [t_337 => t_186]
+	t_339 := [t_323 => t_338]
+
+§DEF d_0 € t_4
+	_a := ARG
+	r_1 := EMPTY, _a
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_12
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_2 € t_15
+	r_1 := 0
+	r_2 := §INT ARG == r_1
+	r_3 := §BOOL r_2 ^ TRUE
+	§RETURN FALSE IF r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_3 € t_23
+	_aSize := §2ND ENV
+	r_8 := §1ST ENV
+	_...-... := §2ND r_8
+	r_9 := §1ST r_8
+	_RowOfSize... := §2ND r_9
+	r_10 := §1ST r_9
+	r_1 := EMPTY, _aSize
+	r_2 := 1
+	r_3 := r_1, r_2
+	r_4 := ._...-... r_3
+	r_5 := ._RowOfSize... r_4
+	r_6 := r_5, FALSE
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_30
+	d_3 := §2ND ENV
+	r_7 := §1ST ENV
+	_aSize := §2ND r_7
+	r_8 := §1ST r_7
+	_...-... := §2ND r_8
+	r_9 := §1ST r_8
+	_RowOfSize... := §2ND r_9
+	r_10 := §1ST r_9
+	d_2 := §2ND r_10
+	r_11 := §1ST r_10
+	d_1 := §2ND r_11
+	r_12 := §1ST r_11
+	r_1 := .d_1 EMPTY
+	r_2 := .d_2 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := EMPTY, _RowOfSize...
+	r_4 := r_3, _...-...
+	r_5 := r_4, _aSize
+	r_6 := .d_3 r_5
+	§TRY_RETURN .r_6 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_5 € t_34
+	d_4 := §2ND ENV
+	r_10 := §1ST ENV
+	d_3 := §2ND r_10
+	r_11 := §1ST r_10
+	_...-... := §2ND r_11
+	r_12 := §1ST r_11
+	_RowOfSize... := §2ND r_12
+	r_13 := §1ST r_12
+	d_2 := §2ND r_13
+	r_14 := §1ST r_13
+	d_1 := §2ND r_14
+	r_15 := §1ST r_14
+	_aSize := ARG
+	r_1 := EMPTY, d_1
+	r_2 := r_1, d_2
+	r_3 := r_2, _RowOfSize...
+	r_4 := r_3, _...-...
+	r_5 := r_4, _aSize
+	r_6 := r_5, d_3
+	r_7 := .d_4 r_6
+	r_8 := .r_7 _aSize
+	r_9 := -#Result r_8
+	§RETURN r_9 IF TRUE
+
+§DEF d_6 € t_40
+	d_5 := §2ND ENV
+	r_8 := §1ST ENV
+	d_4 := §2ND r_8
+	r_9 := §1ST r_8
+	d_3 := §2ND r_9
+	r_10 := §1ST r_9
+	_...-... := §2ND r_10
+	r_11 := §1ST r_10
+	d_2 := §2ND r_11
+	r_12 := §1ST r_11
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	_RowOfSize... := ARG
+	r_1 := EMPTY, d_1
+	r_2 := r_1, d_2
+	r_3 := r_2, _RowOfSize...
+	r_4 := r_3, _...-...
+	r_5 := r_4, d_3
+	r_6 := r_5, d_4
+	r_7 := .d_5 r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_7 € t_48
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_8 € t_63
+	_...==... := §2ND ENV
+	r_16 := §1ST ENV
+	_aPosition := §2ND r_16
+	r_17 := §1ST r_16
+	_...-... := §2ND r_17
+	r_18 := §1ST r_17
+	_...Generation_StartWith... := §2ND r_18
+	r_19 := §1ST r_18
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	_Prefix := r_1
+	r_3 := EMPTY, _Prefix
+	r_4 := EMPTY, _aPosition
+	r_5 := 1
+	r_6 := r_4, r_5
+	r_7 := ._...-... r_6
+	r_8 := r_3, r_7
+	r_9 := ._...Generation_StartWith... r_8
+	r_10 := EMPTY, _aPosition
+	r_11 := 1
+	r_12 := r_10, r_11
+	r_13 := ._...==... r_12
+	r_14 := r_9, r_13
+	r_15 := +#Result r_14
+	§RETURN r_15 IF TRUE
+
+§DEF d_9 € t_71
+	d_8 := §2ND ENV
+	r_7 := §1ST ENV
+	_...==... := §2ND r_7
+	r_8 := §1ST r_7
+	_aPosition := §2ND r_8
+	r_9 := §1ST r_8
+	_...-... := §2ND r_9
+	r_10 := §1ST r_9
+	_...Generation_StartWith... := §2ND r_10
+	r_11 := §1ST r_10
+	d_7 := §2ND r_11
+	r_12 := §1ST r_11
+	r_1 := .d_7 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := EMPTY, _...Generation_StartWith...
+	r_3 := r_2, _...-...
+	r_4 := r_3, _aPosition
+	r_5 := r_4, _...==...
+	r_6 := .d_8 r_5
+	§TRY_RETURN .r_6 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_10 € t_76
+	d_9 := §2ND ENV
+	r_14 := §1ST ENV
+	d_8 := §2ND r_14
+	r_15 := §1ST r_14
+	_...==... := §2ND r_15
+	r_16 := §1ST r_15
+	_...-... := §2ND r_16
+	r_17 := §1ST r_16
+	_...Generation_StartWith... := §2ND r_17
+	r_18 := §1ST r_17
+	d_7 := §2ND r_18
+	r_19 := §1ST r_18
+	r_1 := §2ND ARG
+	_aPosition := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aRow := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, d_7
+	r_6 := r_5, _...Generation_StartWith...
+	r_7 := r_6, _...-...
+	r_8 := r_7, _aPosition
+	r_9 := r_8, _...==...
+	r_10 := r_9, d_8
+	r_11 := .d_9 r_10
+	r_12 := .r_11 _aRow
+	r_13 := -#Result r_12
+	§RETURN r_13 IF TRUE
+
+§DEF d_11 € t_83
+	d_10 := §2ND ENV
+	r_8 := §1ST ENV
+	d_9 := §2ND r_8
+	r_9 := §1ST r_8
+	d_8 := §2ND r_9
+	r_10 := §1ST r_9
+	_...==... := §2ND r_10
+	r_11 := §1ST r_10
+	_...-... := §2ND r_11
+	r_12 := §1ST r_11
+	d_7 := §2ND r_12
+	r_13 := §1ST r_12
+	_...Generation_StartWith... := ARG
+	r_1 := EMPTY, d_7
+	r_2 := r_1, _...Generation_StartWith...
+	r_3 := r_2, _...-...
+	r_4 := r_3, _...==...
+	r_5 := r_4, d_8
+	r_6 := r_5, d_9
+	r_7 := .d_10 r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_12 € t_91
+	_...Or... := §2ND ENV
+	r_13 := §1ST ENV
+	_...XOr... := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := §2ND ARG
+	_aRight := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aCenter := r_3
+	r_4 := §1ST r_2
+	r_5 := §2ND r_4
+	_aLeft := r_5
+	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
+	r_7 := EMPTY, _aLeft
+	r_8 := EMPTY, _aCenter
+	r_9 := r_8, _aRight
+	r_10 := ._...Or... r_9
+	r_11 := r_7, r_10
+	r_12 := ._...XOr... r_11
+	§RETURN r_12 IF TRUE
+
+§DEF d_13 € t_99
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_14 € t_106
+	_aRight := §2ND ENV
+	r_12 := §1ST ENV
+	_Rule... := §2ND r_12
+	r_13 := §1ST r_12
+	_Go... := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	_Center := r_2
+	r_3 := EMPTY, EMPTY
+	r_4 := r_3, _Center
+	r_5 := ._Go... r_4
+	r_6 := EMPTY, FALSE
+	r_7 := r_6, _Center
+	r_8 := r_7, _aRight
+	r_9 := ._Rule... r_8
+	r_10 := r_5, r_9
+	r_11 := +#Result r_10
+	§RETURN r_11 IF TRUE
+
+§DEF d_15 € t_109
+	_aRight := §2ND ENV
+	r_15 := §1ST ENV
+	_Rule... := §2ND r_15
+	r_16 := §1ST r_15
+	_Go... := §2ND r_16
+	r_17 := §1ST r_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	r_3 := §1ST r_1
+	r_4 := §2ND r_1
+	_Prefix := r_3
+	_Left := r_4
+	_Center := r_2
+	r_5 := _Prefix, _Left
+	r_6 := EMPTY, r_5
+	r_7 := r_6, _Center
+	r_8 := ._Go... r_7
+	r_9 := EMPTY, _Left
+	r_10 := r_9, _Center
+	r_11 := r_10, _aRight
+	r_12 := ._Rule... r_11
+	r_13 := r_8, r_12
+	r_14 := +#Result r_13
+	§RETURN r_14 IF TRUE
+
+§DEF d_16 € t_117
+	d_15 := §2ND ENV
+	r_10 := §1ST ENV
+	d_14 := §2ND r_10
+	r_11 := §1ST r_10
+	_aRight := §2ND r_11
+	r_12 := §1ST r_11
+	_Rule... := §2ND r_12
+	r_13 := §1ST r_12
+	_Go... := §2ND r_13
+	r_14 := §1ST r_13
+	d_13 := §2ND r_14
+	r_15 := §1ST r_14
+	r_1 := .d_13 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := EMPTY, _Go...
+	r_3 := r_2, _Rule...
+	r_4 := r_3, _aRight
+	r_5 := .d_14 r_4
+	§TRY_RETURN .r_5 ARG
+	r_6 := EMPTY, _Go...
+	r_7 := r_6, _Rule...
+	r_8 := r_7, _aRight
+	r_9 := .d_15 r_8
+	§TRY_RETURN .r_9 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_17 € t_122
+	d_16 := §2ND ENV
+	r_14 := §1ST ENV
+	d_15 := §2ND r_14
+	r_15 := §1ST r_14
+	d_14 := §2ND r_15
+	r_16 := §1ST r_15
+	_Rule... := §2ND r_16
+	r_17 := §1ST r_16
+	_Go... := §2ND r_17
+	r_18 := §1ST r_17
+	d_13 := §2ND r_18
+	r_19 := §1ST r_18
+	r_1 := §2ND ARG
+	_aRight := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aRow := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, d_13
+	r_6 := r_5, _Go...
+	r_7 := r_6, _Rule...
+	r_8 := r_7, _aRight
+	r_9 := r_8, d_14
+	r_10 := r_9, d_15
+	r_11 := .d_16 r_10
+	r_12 := .r_11 _aRow
+	r_13 := -#Result r_12
+	§RETURN r_13 IF TRUE
+
+§DEF d_18 € t_129
+	d_17 := §2ND ENV
+	r_8 := §1ST ENV
+	d_16 := §2ND r_8
+	r_9 := §1ST r_8
+	d_15 := §2ND r_9
+	r_10 := §1ST r_9
+	d_14 := §2ND r_10
+	r_11 := §1ST r_10
+	_Rule... := §2ND r_11
+	r_12 := §1ST r_11
+	d_13 := §2ND r_12
+	r_13 := §1ST r_12
+	_Go... := ARG
+	r_1 := EMPTY, d_13
+	r_2 := r_1, _Go...
+	r_3 := r_2, _Rule...
+	r_4 := r_3, d_14
+	r_5 := r_4, d_15
+	r_6 := r_5, d_16
+	r_7 := .d_17 r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_19 € t_132
+	d_18 := §2ND ENV
+	r_11 := §1ST ENV
+	d_17 := §2ND r_11
+	r_12 := §1ST r_11
+	d_16 := §2ND r_12
+	r_13 := §1ST r_12
+	d_15 := §2ND r_13
+	r_14 := §1ST r_13
+	d_14 := §2ND r_14
+	r_15 := §1ST r_14
+	_Rule... := §2ND r_15
+	r_16 := §1ST r_15
+	d_13 := §2ND r_16
+	r_17 := §1ST r_16
+	_aRow := ARG
+	r_1 := EMPTY, d_13
+	r_2 := r_1, _Rule...
+	r_3 := r_2, d_14
+	r_4 := r_3, d_15
+	r_5 := r_4, d_16
+	r_6 := r_5, d_17
+	§REC r_7 := .d_18 r_6
+	_Go... := r_7
+	r_8 := EMPTY, _aRow
+	r_9 := r_8, FALSE
+	r_10 := ._Go... r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_20 € t_141
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_21 € t_145
+	_...AsChar := ENV
+	r_1 := 35
+	r_2 := ._...AsChar r_1
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_22 € t_147
+	_...AsChar := ENV
+	r_1 := 46
+	r_2 := ._...AsChar r_1
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_23 € t_152
+	d_22 := §2ND ENV
+	r_3 := §1ST ENV
+	d_21 := §2ND r_3
+	r_4 := §1ST r_3
+	_...AsChar := §2ND r_4
+	r_5 := §1ST r_4
+	r_1 := .d_21 _...AsChar
+	§TRY_RETURN .r_1 ARG
+	r_2 := .d_22 _...AsChar
+	§TRY_RETURN .r_2 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_24 € t_160
+	d_23 := §2ND ENV
+	r_12 := §1ST ENV
+	d_22 := §2ND r_12
+	r_13 := §1ST r_12
+	d_21 := §2ND r_13
+	r_14 := §1ST r_13
+	_...AsChar := §2ND r_14
+	r_15 := §1ST r_14
+	_...ToText := §2ND r_15
+	r_16 := §1ST r_15
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	_Prefix := r_1
+	_Cell := r_2
+	r_3 := ._...ToText _Prefix
+	r_4 := EMPTY, _...AsChar
+	r_5 := r_4, d_21
+	r_6 := r_5, d_22
+	r_7 := .d_23 r_6
+	r_8 := .r_7 _Cell
+	r_9 := -#Result r_8
+	r_10 := r_3, r_9
+	r_11 := +#Result r_10
+	§RETURN r_11 IF TRUE
+
+§DEF d_25 € t_169
+	d_24 := §2ND ENV
+	r_8 := §1ST ENV
+	d_23 := §2ND r_8
+	r_9 := §1ST r_8
+	d_22 := §2ND r_9
+	r_10 := §1ST r_9
+	d_21 := §2ND r_10
+	r_11 := §1ST r_10
+	_...AsChar := §2ND r_11
+	r_12 := §1ST r_11
+	_...ToText := §2ND r_12
+	r_13 := §1ST r_12
+	d_20 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := .d_20 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := EMPTY, _...ToText
+	r_3 := r_2, _...AsChar
+	r_4 := r_3, d_21
+	r_5 := r_4, d_22
+	r_6 := r_5, d_23
+	r_7 := .d_24 r_6
+	§TRY_RETURN .r_7 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_26 € t_172
+	d_25 := §2ND ENV
+	r_11 := §1ST ENV
+	d_24 := §2ND r_11
+	r_12 := §1ST r_11
+	d_23 := §2ND r_12
+	r_13 := §1ST r_12
+	d_22 := §2ND r_13
+	r_14 := §1ST r_13
+	d_21 := §2ND r_14
+	r_15 := §1ST r_14
+	_...AsChar := §2ND r_15
+	r_16 := §1ST r_15
+	_...ToText := §2ND r_16
+	r_17 := §1ST r_16
+	d_20 := §2ND r_17
+	r_18 := §1ST r_17
+	_aRow := ARG
+	r_1 := EMPTY, d_20
+	r_2 := r_1, _...ToText
+	r_3 := r_2, _...AsChar
+	r_4 := r_3, d_21
+	r_5 := r_4, d_22
+	r_6 := r_5, d_23
+	r_7 := r_6, d_24
+	r_8 := .d_25 r_7
+	r_9 := .r_8 _aRow
+	r_10 := -#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_27 € t_181
+	d_26 := §2ND ENV
+	r_10 := §1ST ENV
+	d_25 := §2ND r_10
+	r_11 := §1ST r_10
+	d_24 := §2ND r_11
+	r_12 := §1ST r_11
+	d_23 := §2ND r_12
+	r_13 := §1ST r_12
+	d_22 := §2ND r_13
+	r_14 := §1ST r_13
+	d_21 := §2ND r_14
+	r_15 := §1ST r_14
+	_...AsChar := §2ND r_15
+	r_16 := §1ST r_15
+	d_20 := §2ND r_16
+	r_17 := §1ST r_16
+	_...ToText := ARG
+	r_1 := EMPTY, d_20
+	r_2 := r_1, _...ToText
+	r_3 := r_2, _...AsChar
+	r_4 := r_3, d_21
+	r_5 := r_4, d_22
+	r_6 := r_5, d_23
+	r_7 := r_6, d_24
+	r_8 := r_7, d_25
+	r_9 := .d_26 r_8
+	§RETURN r_9 IF TRUE
+
+§DEF d_28 € t_189
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_29 € t_198
+	_...ToText := §2ND ENV
+	r_7 := §1ST ENV
+	_...ToTextLines := §2ND r_7
+	r_8 := §1ST r_7
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	_SubRows := r_1
+	_Row := r_2
+	r_3 := ._...ToTextLines _SubRows
+	r_4 := ._...ToText _Row
+	r_5 := r_3, r_4
+	r_6 := +#Result r_5
+	§RETURN r_6 IF TRUE
+
+§DEF d_30 € t_204
+	d_29 := §2ND ENV
+	r_5 := §1ST ENV
+	_...ToText := §2ND r_5
+	r_6 := §1ST r_5
+	_...ToTextLines := §2ND r_6
+	r_7 := §1ST r_6
+	d_28 := §2ND r_7
+	r_8 := §1ST r_7
+	r_1 := .d_28 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := EMPTY, _...ToTextLines
+	r_3 := r_2, _...ToText
+	r_4 := .d_29 r_3
+	§TRY_RETURN .r_4 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_31 € t_207
+	d_30 := §2ND ENV
+	r_8 := §1ST ENV
+	d_29 := §2ND r_8
+	r_9 := §1ST r_8
+	_...ToText := §2ND r_9
+	r_10 := §1ST r_9
+	_...ToTextLines := §2ND r_10
+	r_11 := §1ST r_10
+	d_28 := §2ND r_11
+	r_12 := §1ST r_11
+	_aRows := ARG
+	r_1 := EMPTY, d_28
+	r_2 := r_1, _...ToTextLines
+	r_3 := r_2, _...ToText
+	r_4 := r_3, d_29
+	r_5 := .d_30 r_4
+	r_6 := .r_5 _aRows
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_32 € t_213
+	d_31 := §2ND ENV
+	r_7 := §1ST ENV
+	d_30 := §2ND r_7
+	r_8 := §1ST r_7
+	d_29 := §2ND r_8
+	r_9 := §1ST r_8
+	_...ToText := §2ND r_9
+	r_10 := §1ST r_9
+	d_28 := §2ND r_10
+	r_11 := §1ST r_10
+	_...ToTextLines := ARG
+	r_1 := EMPTY, d_28
+	r_2 := r_1, _...ToTextLines
+	r_3 := r_2, _...ToText
+	r_4 := r_3, d_29
+	r_5 := r_4, d_30
+	r_6 := .d_31 r_5
+	§RETURN r_6 IF TRUE
+
+§DEF d_33 € t_221
+	_aRows := ENV
+	r_1 := +#Result _aRows
+	§RETURN r_1 IF TRUE
+
+§DEF d_34 € t_15
+	r_1 := 0
+	r_2 := §INT ARG == r_1
+	r_3 := §BOOL r_2 ^ TRUE
+	§RETURN FALSE IF r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_35 € t_224
+	r_1 := +#Result EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_36 € t_234
+	_N := §2ND ENV
+	r_13 := §1ST ENV
+	_...-... := §2ND r_13
+	r_14 := §1ST r_13
+	_...Iterate := §2ND r_14
+	r_15 := §1ST r_14
+	_aRows := §2ND r_15
+	r_16 := §1ST r_15
+	_...ExtendBy...Rows := §2ND r_16
+	r_17 := §1ST r_16
+	r_1 := §1ST ARG
+	r_2 := §2ND ARG
+	_LastRow := r_2
+	r_3 := ._...Iterate _LastRow
+	r_4 := _aRows, r_3
+	r_5 := EMPTY, r_4
+	r_6 := EMPTY, _N
+	r_7 := 1
+	r_8 := r_6, r_7
+	r_9 := ._...-... r_8
+	r_10 := r_5, r_9
+	r_11 := ._...ExtendBy...Rows r_10
+	r_12 := +#Result r_11
+	§RETURN r_12 IF TRUE
+
+§DEF d_37 € t_243
+	d_36 := §2ND ENV
+	r_8 := §1ST ENV
+	_N := §2ND r_8
+	r_9 := §1ST r_8
+	_...-... := §2ND r_9
+	r_10 := §1ST r_9
+	_...Iterate := §2ND r_10
+	r_11 := §1ST r_10
+	_aRows := §2ND r_11
+	r_12 := §1ST r_11
+	_...ExtendBy...Rows := §2ND r_12
+	r_13 := §1ST r_12
+	d_35 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := .d_35 EMPTY
+	§TRY_RETURN .r_1 ARG
+	r_2 := EMPTY, _...ExtendBy...Rows
+	r_3 := r_2, _aRows
+	r_4 := r_3, _...Iterate
+	r_5 := r_4, _...-...
+	r_6 := r_5, _N
+	r_7 := .d_36 r_6
+	§TRY_RETURN .r_7 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_38 € t_250
+	d_37 := §2ND ENV
+	r_12 := §1ST ENV
+	d_36 := §2ND r_12
+	r_13 := §1ST r_12
+	_...-... := §2ND r_13
+	r_14 := §1ST r_13
+	_...Iterate := §2ND r_14
+	r_15 := §1ST r_14
+	_...ExtendBy...Rows := §2ND r_15
+	r_16 := §1ST r_15
+	d_35 := §2ND r_16
+	r_17 := §1ST r_16
+	_aRows := §2ND r_17
+	r_18 := §1ST r_17
+	_N := ARG
+	r_1 := EMPTY, d_35
+	r_2 := r_1, _...ExtendBy...Rows
+	r_3 := r_2, _aRows
+	r_4 := r_3, _...Iterate
+	r_5 := r_4, _...-...
+	r_6 := r_5, _N
+	r_7 := r_6, d_36
+	r_8 := .d_37 r_7
+	r_9 := .r_8 _aRows
+	r_10 := -#Result r_9
+	r_11 := +#Result r_10
+	§RETURN r_11 IF TRUE
+
+§DEF d_39 € t_260
+	d_38 := §2ND ENV
+	r_11 := §1ST ENV
+	d_37 := §2ND r_11
+	r_12 := §1ST r_11
+	d_36 := §2ND r_12
+	r_13 := §1ST r_12
+	_...-... := §2ND r_13
+	r_14 := §1ST r_13
+	_...Iterate := §2ND r_14
+	r_15 := §1ST r_14
+	_...ExtendBy...Rows := §2ND r_15
+	r_16 := §1ST r_15
+	d_35 := §2ND r_16
+	r_17 := §1ST r_16
+	d_34 := §2ND r_17
+	r_18 := §1ST r_17
+	d_33 := §2ND r_18
+	r_19 := §1ST r_18
+	_aRows := §2ND r_19
+	r_20 := §1ST r_19
+	r_1 := .d_33 _aRows
+	r_2 := .d_34 EMPTY
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := EMPTY, _aRows
+	r_4 := r_3, d_35
+	r_5 := r_4, _...ExtendBy...Rows
+	r_6 := r_5, _...Iterate
+	r_7 := r_6, _...-...
+	r_8 := r_7, d_36
+	r_9 := r_8, d_37
+	r_10 := .d_38 r_9
+	§TRY_RETURN .r_10 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_40 € t_272
+	d_39 := §2ND ENV
+	r_18 := §1ST ENV
+	d_38 := §2ND r_18
+	r_19 := §1ST r_18
+	d_37 := §2ND r_19
+	r_20 := §1ST r_19
+	d_36 := §2ND r_20
+	r_21 := §1ST r_20
+	_...-... := §2ND r_21
+	r_22 := §1ST r_21
+	_...Iterate := §2ND r_22
+	r_23 := §1ST r_22
+	_...ExtendBy...Rows := §2ND r_23
+	r_24 := §1ST r_23
+	d_35 := §2ND r_24
+	r_25 := §1ST r_24
+	d_34 := §2ND r_25
+	r_26 := §1ST r_25
+	d_33 := §2ND r_26
+	r_27 := §1ST r_26
+	r_1 := §2ND ARG
+	_aCount := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aRows := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _aRows
+	r_6 := r_5, d_33
+	r_7 := r_6, d_34
+	r_8 := r_7, d_35
+	r_9 := r_8, _...ExtendBy...Rows
+	r_10 := r_9, _...Iterate
+	r_11 := r_10, _...-...
+	r_12 := r_11, d_36
+	r_13 := r_12, d_37
+	r_14 := r_13, d_38
+	r_15 := .d_39 r_14
+	r_16 := .r_15 _aCount
+	r_17 := -#Result r_16
+	§RETURN r_17 IF TRUE
+
+§DEF d_41 € t_281
+	d_40 := §2ND ENV
+	r_12 := §1ST ENV
+	d_39 := §2ND r_12
+	r_13 := §1ST r_12
+	d_38 := §2ND r_13
+	r_14 := §1ST r_13
+	d_37 := §2ND r_14
+	r_15 := §1ST r_14
+	d_36 := §2ND r_15
+	r_16 := §1ST r_15
+	_...-... := §2ND r_16
+	r_17 := §1ST r_16
+	_...Iterate := §2ND r_17
+	r_18 := §1ST r_17
+	d_35 := §2ND r_18
+	r_19 := §1ST r_18
+	d_34 := §2ND r_19
+	r_20 := §1ST r_19
+	d_33 := §2ND r_20
+	r_21 := §1ST r_20
+	_...ExtendBy...Rows := ARG
+	r_1 := EMPTY, d_33
+	r_2 := r_1, d_34
+	r_3 := r_2, d_35
+	r_4 := r_3, _...ExtendBy...Rows
+	r_5 := r_4, _...Iterate
+	r_6 := r_5, _...-...
+	r_7 := r_6, d_36
+	r_8 := r_7, d_37
+	r_9 := r_8, d_38
+	r_10 := r_9, d_39
+	r_11 := .d_40 r_10
+	§RETURN r_11 IF TRUE
+
+§DEF d_42 € t_339
+	d_41 := §2ND ENV
+	r_78 := §1ST ENV
+	d_40 := §2ND r_78
+	r_79 := §1ST r_78
+	d_39 := §2ND r_79
+	r_80 := §1ST r_79
+	d_38 := §2ND r_80
+	r_81 := §1ST r_80
+	d_37 := §2ND r_81
+	r_82 := §1ST r_81
+	d_36 := §2ND r_82
+	r_83 := §1ST r_82
+	d_35 := §2ND r_83
+	r_84 := §1ST r_83
+	d_34 := §2ND r_84
+	r_85 := §1ST r_84
+	d_33 := §2ND r_85
+	r_86 := §1ST r_85
+	d_32 := §2ND r_86
+	r_87 := §1ST r_86
+	d_31 := §2ND r_87
+	r_88 := §1ST r_87
+	d_30 := §2ND r_88
+	r_89 := §1ST r_88
+	d_29 := §2ND r_89
+	r_90 := §1ST r_89
+	d_28 := §2ND r_90
+	r_91 := §1ST r_90
+	d_27 := §2ND r_91
+	r_92 := §1ST r_91
+	d_26 := §2ND r_92
+	r_93 := §1ST r_92
+	d_25 := §2ND r_93
+	r_94 := §1ST r_93
+	d_24 := §2ND r_94
+	r_95 := §1ST r_94
+	d_23 := §2ND r_95
+	r_96 := §1ST r_95
+	d_22 := §2ND r_96
+	r_97 := §1ST r_96
+	d_21 := §2ND r_97
+	r_98 := §1ST r_97
+	d_20 := §2ND r_98
+	r_99 := §1ST r_98
+	d_19 := §2ND r_99
+	r_100 := §1ST r_99
+	d_18 := §2ND r_100
+	r_101 := §1ST r_100
+	d_17 := §2ND r_101
+	r_102 := §1ST r_101
+	d_16 := §2ND r_102
+	r_103 := §1ST r_102
+	d_15 := §2ND r_103
+	r_104 := §1ST r_103
+	d_14 := §2ND r_104
+	r_105 := §1ST r_104
+	d_13 := §2ND r_105
+	r_106 := §1ST r_105
+	d_12 := §2ND r_106
+	r_107 := §1ST r_106
+	d_11 := §2ND r_107
+	r_108 := §1ST r_107
+	d_10 := §2ND r_108
+	r_109 := §1ST r_108
+	d_9 := §2ND r_109
+	r_110 := §1ST r_109
+	d_8 := §2ND r_110
+	r_111 := §1ST r_110
+	d_7 := §2ND r_111
+	r_112 := §1ST r_111
+	d_6 := §2ND r_112
+	r_113 := §1ST r_112
+	d_5 := §2ND r_113
+	r_114 := §1ST r_113
+	d_4 := §2ND r_114
+	r_115 := §1ST r_114
+	d_3 := §2ND r_115
+	r_116 := §1ST r_115
+	d_2 := §2ND r_116
+	r_117 := §1ST r_116
+	d_1 := §2ND r_117
+	r_118 := §1ST r_117
+	d_0 := §2ND r_118
+	r_119 := §1ST r_118
+	r_1 := {ARG} #_Std
+	r_2 := {r_1} #_...-...
+	_...-... := r_2
+	r_3 := {r_1} #_...==...
+	_...==... := r_3
+	r_4 := {r_1} #_...Or...
+	_...Or... := r_4
+	r_5 := {r_1} #_...XOr...
+	_...XOr... := r_5
+	r_6 := {ARG} #_Char
+	r_7 := {r_6} #_...AsChar
+	_...AsChar := r_7
+	r_8 := [§FREE]
+	r_9 := [§FREE]
+	r_10 := [r_9, r_8]
+	r_11 := [r_10 | EMPTY_TYPE]
+	r_12 := [§REC r_9 => r_11]
+	r_13 := [§ALL r_8 => r_12]
+	_tList... := r_13
+	r_14 := .d_0 EMPTY
+	_...AsList := r_14
+	r_15 := EMPTY, d_1
+	r_16 := r_15, d_2
+	r_17 := r_16, _...-...
+	r_18 := r_17, d_3
+	r_19 := r_18, d_4
+	r_20 := r_19, d_5
+	§REC r_21 := .d_6 r_20
+	_RowOfSize... := r_21
+	r_22 := EMPTY, d_7
+	r_23 := r_22, _...-...
+	r_24 := r_23, _...==...
+	r_25 := r_24, d_8
+	r_26 := r_25, d_9
+	r_27 := r_26, d_10
+	§REC r_28 := .d_11 r_27
+	_...Generation_StartWith... := r_28
+	r_29 := EMPTY, _...XOr...
+	r_30 := r_29, _...Or...
+	r_31 := .d_12 r_30
+	_Rule... := r_31
+	r_32 := EMPTY, d_13
+	r_33 := r_32, _Rule...
+	r_34 := r_33, d_14
+	r_35 := r_34, d_15
+	r_36 := r_35, d_16
+	r_37 := r_36, d_17
+	r_38 := r_37, d_18
+	r_39 := .d_19 r_38
+	_...Iterate := r_39
+	r_40 := EMPTY, d_20
+	r_41 := r_40, _...AsChar
+	r_42 := r_41, d_21
+	r_43 := r_42, d_22
+	r_44 := r_43, d_23
+	r_45 := r_44, d_24
+	r_46 := r_45, d_25
+	r_47 := r_46, d_26
+	§REC r_48 := .d_27 r_47
+	_...ToText := r_48
+	r_49 := EMPTY, d_28
+	r_50 := r_49, _...ToText
+	r_51 := r_50, d_29
+	r_52 := r_51, d_30
+	r_53 := r_52, d_31
+	§REC r_54 := .d_32 r_53
+	_...ToTextLines := r_54
+	r_55 := EMPTY, d_33
+	r_56 := r_55, d_34
+	r_57 := r_56, d_35
+	r_58 := r_57, _...Iterate
+	r_59 := r_58, _...-...
+	r_60 := r_59, d_36
+	r_61 := r_60, d_37
+	r_62 := r_61, d_38
+	r_63 := r_62, d_39
+	r_64 := r_63, d_40
+	§REC r_65 := .d_41 r_64
+	_...ExtendBy...Rows := r_65
+	r_66 := 31
+	r_67 := ._RowOfSize... r_66
+	r_68 := EMPTY, r_67
+	r_69 := 16
+	r_70 := r_68, r_69
+	r_71 := ._...Generation_StartWith... r_70
+	r_72 := ._...AsList r_71
+	r_73 := EMPTY, r_72
+	r_74 := 14
+	r_75 := r_73, r_74
+	r_76 := ._...ExtendBy...Rows r_75
+	r_77 := ._...ToTextLines r_76
+	§RETURN r_77 IF TRUE
