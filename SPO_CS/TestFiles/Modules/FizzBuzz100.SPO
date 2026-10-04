@@ -1,15 +1,15 @@
 §IMPORT {
 	Std: {
-		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-		.../...: §DEF .../... € [[§INT, §INT] => §INT]
-		...%...: §DEF ...%... € [[§INT, §INT] => §INT]
-		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-	}
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...==...: §DEF ...==...
+		...<=...: §DEF ...<=...
+	} € [§LOAD "../../Modules/Std.SIG"]
 	Char: {
-		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
-	}
+		...AsChar: §DEF ...AsChar
+	} € [§LOAD "../../Modules/Char.SIG"]
 }
 
 §DEF FizzBuzz... = (

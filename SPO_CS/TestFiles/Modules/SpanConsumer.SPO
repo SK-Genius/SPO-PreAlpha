@@ -1,9 +1,9 @@
 §IMPORT {
 	Std: {
-		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-		...>...: §DEF ...>... € [[§INT, §INT] => §BOOL]
-	}
-	mSpan: §SIG [§LOAD "../../Modules/mSpan.SIG"] WITH §DEF F € [§TYPE => §TYPE] IN {
+		...==...: §DEF ...==...
+		...>...: §DEF ...>...
+	} € [§LOAD "../../Modules/Std.SIG"]
+	Span: §SIG [§LOAD "../../Modules/Span.SIG"] WITH §DEF F € [§TYPE => §TYPE] IN {
 		...--...: §DEF ...--...
 		SpanAt...: §DEF SpanAt...
 		...Start: §DEF ...Start

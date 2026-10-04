@@ -1,13 +1,13 @@
 §IMPORT {
 	Std: {
-		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-		...Or...: §DEF ...Or... € [[§BOOL, §BOOL] => §BOOL]
-		...XOr...: §DEF ...XOr... € [[§BOOL, §BOOL] => §BOOL]
-	}
+		...-...: §DEF ...-...
+		...==...: §DEF ...==...
+		...Or...: §DEF ...Or...
+		...XOr...: §DEF ...XOr...
+	} € [§LOAD "../../Modules/Std.SIG"]
 	Char: {
-		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
-	}
+		...AsChar: §DEF ...AsChar
+	} € [§LOAD "../../Modules/Char.SIG"]
 }
 
 §DEF tList... = [§GENERIC t [§RECURSIVE tList [[] | [tList; t]]]]

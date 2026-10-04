@@ -1,5 +1,5 @@
 [
-	§SIG_WITH F € [§LOAD "../Types/TypeConstructor.SIG"] IN [<
+	§SIG_WITH F € [§TYPE => §TYPE] IN [<
 		EmptyList...: [§GENERIC t [t => [.F t]]]
 		List...: [§GENERIC t [t => [.F t]]]
 		...Push...: [§GENERIC t [[.F t, t] => [.F t]]]

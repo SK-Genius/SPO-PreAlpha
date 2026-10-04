@@ -1,20 +1,26 @@
 §IMPORT {
-	Maybe: §SIG [§LOAD "../../Modules/Maybe.SIG"] WITH §DEF F € [§TYPE => §TYPE] IN {
-		Some...: §DEF Some...
-		None...: §DEF None...
+	Maybe: {
 		...>>...: §DEF ...>>...
+		...>>?...: §DEF ...>>?...
 		...Or...: §DEF ...Or...
-	}
+		...OrDo...: §DEF ...OrDo...
+		...OrTry...: §DEF ...OrTry...
+	} € [§LOAD "../../Modules/Maybe.SIG"]
 }
 
-§DEF X € [.F §INT] = .Some 1
-§DEF Y € [.F §INT] = .None 0
+§DEF SomeInt € [§INT | []] = 1
+§DEF NoneInt € [§INT | []] = ()
+§DEF ZeroValue € §INT = 0
 §DEF ToTrue = §DEF _ € §INT => §TRUE
 §DEF ToFalse = §DEF _ € §INT => §FALSE
+§DEF Zero € [[] => §INT] = () => 0
+§DEF Two € [[] => §INT] = () => 2
 
 §EXPORT (
-	X §>.>> ToTrue §>.Or §TRUE
-	Y §>.>> ToFalse §>.Or §FALSE
-	X .Or 0
-	Y .Or 0
+	SomeInt §>.>> ToTrue §>.Or §TRUE
+	NoneInt §>.>> ToFalse §>.Or §FALSE
+	SomeInt .Or ZeroValue
+	NoneInt .Or ZeroValue
+	SomeInt .OrDo Zero
+	NoneInt .OrDo Two
 )

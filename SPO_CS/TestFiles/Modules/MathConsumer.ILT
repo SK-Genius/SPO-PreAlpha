@@ -15,7 +15,7 @@
 	t_13 := [{t_11} + t_12]
 	t_14 := [#_Sign... t_6]
 	t_15 := [{t_13} + t_14]
-	t_16 := [#_mMath t_15]
+	t_16 := [#_Math t_15]
 	t_17 := [{EMPTY_TYPE} + t_16]
 	t_18 := [t_1, INT]
 	t_19 := [t_18, INT]
@@ -32,7 +32,7 @@
 	t_30 := [EMPTY_TYPE => t_29]
 
 §DEF d_0 € t_30
-	r_1 := {ARG} #_mMath
+	r_1 := {ARG} #_Math
 	r_2 := {r_1} #_Min...
 	_Min... := r_2
 	r_3 := {r_1} #_Max...

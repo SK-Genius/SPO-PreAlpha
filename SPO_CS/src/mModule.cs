@@ -183,36 +183,22 @@ mModule {
 	);
 	
 	public static readonly tModuleSetup
-	Module_mMaybe = ModuleSetup(
-		ModuleFolder / "mMaybe.SPO",
-		mStd.cEmpty
-	);
-	
-	public static readonly tModuleSetup
 	Module_Result = ModuleSetup(
 		ModuleFolder / "Result.SPO",
 		mStd.cEmpty
 	);
 	
 	public static readonly tModuleSetup
-	Module_mResult = ModuleSetup(
-		ModuleFolder / "mResult.SPO",
-		mStream.Stream(
-			("mMaybe", Module_mMaybe)
-		)
-	);
-	
-	public static readonly tModuleSetup
-	Module_mMath = ModuleSetup(
-		ModuleFolder / "mMath.SPO",
+	Module_Math = ModuleSetup(
+		ModuleFolder / "Math.SPO",
 		mStream.Stream(
 			("Std", Module_Std)
 		)
 	);
 	
 	public static readonly tModuleSetup
-	Module_mSpan = ModuleSetup(
-		ModuleFolder / "mSpan.SPO",
+	Module_Span = ModuleSetup(
+		ModuleFolder / "Span.SPO",
 		mStream.Stream(
 			("Std", Module_Std)
 		)
@@ -229,14 +215,12 @@ mModule {
 	public static readonly mStream.tStream<(tText Key, tModuleSetup Module)>
 	Modules = mStream.Stream(
 		("Std", Module_Std),
+		("Math", Module_Math),
 		("Char", Module_Char),
 		("Text", Module_Text),
 		("Maybe", Module_Maybe),
 		("Result", Module_Result),
-		("mMaybe", Module_mMaybe),
-		("mResult", Module_mResult),
-		("mMath", Module_mMath),
-		("mSpan", Module_mSpan),
+		("Span", Module_Span),
 		("mList", Module_mList)
 	);
 }

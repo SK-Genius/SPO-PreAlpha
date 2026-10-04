@@ -1,24 +1,46 @@
-[
-	§SIG_WITH F € [§LOAD "../Types/TypeConstructor.SIG"] IN [<
-		Some...: [§GENERIC t [t => [.F t]]]
-		None...: [§GENERIC t [t => [.F t]]]
-		...>>...: [
-			§GENERIC tIn [
-				§GENERIC tOut [
-					[
-						.F tIn
-						tIn => tOut
-					] => [.F tOut]
-				]
-			]
-		]
-		...Or...: [
-			§GENERIC t [
+[<
+	...>>...: [
+		§GENERIC tIn [
+			§GENERIC tOut [
 				[
-					.F t
-					t
-				] => t
+					[tIn | []]
+					tIn => tOut
+				] => [tOut | []]
 			]
 		]
-	>]
-]
+	]
+	...>>?...: [
+		§GENERIC tIn [
+			§GENERIC tOut [
+				[
+					[tIn | []]
+					tIn => [tOut | []]
+				] => [tOut | []]
+			]
+		]
+	]
+	...Or...: [
+		§GENERIC t [
+			[
+				[t | []]
+				t
+			] => t
+		]
+	]
+	...OrDo...: [
+		§GENERIC t [
+			[
+				[t | []]
+				[] => t
+			] => t
+		]
+	]
+	...OrTry...: [
+		§GENERIC t [
+			[
+				[t | []]
+				[] => [t | []]
+			] => [t | []]
+		]
+	]
+>]

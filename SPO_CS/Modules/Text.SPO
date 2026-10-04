@@ -1,17 +1,17 @@
 ﻿§IMPORT {
 	Std: {
-		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
-		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-	}
+		...==...: §DEF ...==...
+		...!=...: §DEF ...!=...
+		...<=...: §DEF ...<=...
+	} € [§LOAD "Std.SIG"]
 	Char: {
-		...<=>...: §DEF ...Char<=>... € [[§CHAR, §CHAR] => §INT]
-		...Ord: §DEF ...Ord € [§CHAR => §INT]
-		...AsChar: §DEF ...AsChar € [§INT => §CHAR]
-		...ToUpper: §DEF ...ToUpperChar € [§CHAR => §CHAR]
-		...ToLower: §DEF ...ToLowerChar € [§CHAR => §CHAR]
-		...IsSpace: §DEF ...IsSpace € [§CHAR => §BOOL]
-	}
+		...<=>...: §DEF ...Char<=>...
+		...Ord: §DEF ...Ord
+		...AsChar: §DEF ...AsChar
+		...ToUpper: §DEF ...ToUpperChar
+		...ToLower: §DEF ...ToLowerChar
+		...IsSpace: §DEF ...IsSpace
+	} € [§LOAD "Char.SIG"]
 }
 
 §RECURSIVE {

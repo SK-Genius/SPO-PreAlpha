@@ -1,55 +1,61 @@
-§DEF tMaybe... = [§GENERIC t [t | []]]
-
-§DEF ...AsMaybe = (
-	§DEF t € §TYPE
-) <=> (
-	§DEF a € [.tMaybe t]
-) => a
-
-§DEF ...AsEmpty = (
-	§DEF t € §TYPE
-) <=> (
-	§DEF a € t
-) => .((§DEF t_ € §TYPE) <=> (§DEF a_ € [.tMaybe t], _ € t_) => a_) ((), a)
-
-§DEF Some... = (
-	§DEF t € §TYPE
-) <=> (
-	§DEF a € t
-) => a .AsMaybe
-
-§DEF None... = (
-	§DEF t € §TYPE
-) <=> (
-	a € t
-) => a .AsEmpty
-
 §DEF ...>>... = (
 	§DEF tIn € §TYPE
 	§DEF tOut € §TYPE
 ) <=> (
-	§DEF Value € [.tMaybe tIn]
-	§DEF OnValue... € [tIn => tOut]
-) => §IF Value MATCH {
+	§DEF aValue € [tIn | []]
+	§DEF aOnValue... € [tIn => tOut]
+) => §IF aValue MATCH {
 	(): ()
-	§DEF Inner: .OnValue Inner
+	§DEF Inner: .aOnValue Inner
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF aValue € [tIn | []]
+	§DEF aOnValue... € [tIn => [tOut | []]]
+) => §IF aValue MATCH {
+	(): ()
+	§DEF Inner: .aOnValue Inner
 }
 
 §DEF ...Or... = (
 	§DEF t € §TYPE
 ) <=> (
-	§DEF Value € [.tMaybe t]
-	§DEF Fallback € t
-) => §IF Value MATCH {
-	(): Fallback
+	§DEF aValue €[t | []]
+	§DEF aFallback € t
+) => §IF aValue MATCH {
+	(): aFallback
 	§DEF Inner: Inner
 }
 
-§DEF Contract = [§LOAD "Maybe.SIG"]
-
-§EXPORT §SIG Contract WITH tMaybe... IN {
-	Some...: Some...
-	None...: None...
-	...>>...: ...>>...
-	...Or...: ...Or...
+§DEF ...OrDo... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [t | []]
+	§DEF aOnNone € [[] => t]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
 }
+
+§DEF ...OrTry... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [t | []]
+	§DEF aOnNone € [[] => [t | []]]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
+}
+
+§DEF Module € [§LOAD "Maybe.SIG"] = {
+	...>>...: ...>>...
+	...>>?...: ...>>?...
+	...Or...: ...Or...
+	...OrDo...: ...OrDo...
+	...OrTry...: ...OrTry...
+}
+
+§EXPORT Module

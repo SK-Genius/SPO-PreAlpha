@@ -1,38 +1,92 @@
 [
-	§SIG_WITH F € [§TYPE => [§LOAD "../Types/TypeConstructor.SIG"]] IN [<
+	§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
 		OK...: [
-			§GENERIC tError [
-				§GENERIC tValue [
-					[tError, tValue] => [.(.F tError) tValue]
+			§GENERIC tValue [
+				§GENERIC tError [
+					[tError, tValue] => [.(.F tValue) tError]
 				]
 			]
 		]
 		Fail...: [
-			§GENERIC tError [
-				§GENERIC tValue [
-					[tError, tValue] => [.(.F tError) tValue]
+			§GENERIC tValue [
+				§GENERIC tError [
+					[tError, tValue] => [.(.F tValue) tError]
 				]
 			]
 		]
 		...>>...: [
-			§GENERIC tError [
-				§GENERIC tIn [
-					§GENERIC tOut [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					§GENERIC tError [
 						[
-							[.(.F tError) tIn]
+							[.(.F tIn) tError]
 							tIn => tOut
-						] => [.(.F tError) tOut]
+						] => [.(.F tOut) tError]
+					]
+				]
+			]
+		]
+		...>>?...: [
+			§GENERIC tIn [
+				§GENERIC tOut [
+					§GENERIC tError [
+						[
+							[.(.F tIn) tError]
+							tIn => [.(.F tOut) tError]
+						] => [.(.F tOut) tError]
 					]
 				]
 			]
 		]
 		...Or...: [
-			§GENERIC tError [
-				§GENERIC tValue [
+			§GENERIC tValue [
+				§GENERIC tError [
 					[
-						[.(.F tError) tValue]
+						[.(.F tValue) tError]
 						tValue
 					] => tValue
+				]
+			]
+		]
+		...OrDo...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[.(.F tValue) tError]
+						tError => tValue
+					] => tValue
+				]
+			]
+		]
+		...OrTry...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[.(.F tValue) tError]
+						tError => [.(.F tValue) tError]
+					] => [.(.F tValue) tError]
+				]
+			]
+		]
+		...MapError...: [
+			§GENERIC tValue [
+				§GENERIC tErrorIn [
+					§GENERIC tErrorOut [
+						[
+							[.(.F tValue) tErrorIn]
+							tErrorIn => tErrorOut
+						] => [.(.F tValue) tErrorOut]
+					]
+				]
+			]
+		]
+		...OrFail...: [
+			§GENERIC tValue [
+				§GENERIC tError [
+					[
+						[tValue | []]
+						[] => tError
+					] => [.(.F tValue) tError]
 				]
 			]
 		]

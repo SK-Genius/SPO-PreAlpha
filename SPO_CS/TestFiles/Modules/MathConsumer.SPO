@@ -1,11 +1,11 @@
 §IMPORT {
-	mMath: {
+	Math: {
 		Min...: §DEF Min... € [[§INT, §INT] => §INT]
 		Max...: §DEF Max... € [[§INT, §INT] => §INT]
 		...Clamp...: §DEF ...Clamp... € [[§INT, [§INT, §INT]] => §INT]
 		Abs...: §DEF Abs... € [§INT => §INT]
 		Sign...: §DEF Sign... € [§INT => §INT]
-	}
+	} € [§LOAD "../../Modules/Math.SIG"]
 }
 
 §DEF NegativeThree € §INT = -3

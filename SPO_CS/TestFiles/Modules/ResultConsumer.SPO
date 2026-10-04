@@ -1,20 +1,42 @@
 §IMPORT {
-	Result: §SIG [§LOAD "../../Modules/Result.SIG"] WITH §DEF F € [§TYPE => [§TYPE => §TYPE]] IN {
+	Result: §SIG [§LOAD "../../Modules/Result.SIG"] WITH §DEF tResult IN {
 		OK...: §DEF OK...
 		Fail...: §DEF Fail...
 		...>>...: §DEF ...>>...
+		...>>?...: §DEF ...>>?...
 		...Or...: §DEF ...Or...
+		...OrDo...: §DEF ...OrDo...
+		...OrTry...: §DEF ...OrTry...
+		...MapError...: §DEF ...MapError...
+		...OrFail...: §DEF ...OrFail...
 	}
 }
 
-§DEF Good € [.(.F §FALSE) §INT] = .OK (§FALSE, 1)
-§DEF Bad € [.(.F §TRUE) §INT] = .Fail (§TRUE, 0)
+§DEF Good € [.(.tResult §INT) §INT] = .OK (0, 1)
+§DEF Bad € [.(.tResult §INT) §INT] = .Fail (2, 0)
+§DEF Zero € §INT = 0
+§DEF Two € §INT = 2
+§DEF Three € §INT = 3
 §DEF ToTrue = §DEF _ € §INT => §TRUE
 §DEF ToFalse = §DEF _ € §INT => §FALSE
+§DEF ErrorToZero = §DEF _ € §INT => Zero
+§DEF ErrorToTwo = §DEF _ € §INT => Two
+§DEF ErrorToFalse € [§INT => §BOOL] = §DEF _ € §INT => §FALSE
+§DEF BoolToThree = §DEF _ € §BOOL => Three
+§DEF SomeEight € [§INT | []] = 8
+§DEF NoneInt € [§INT | []] = ()
+§DEF Four € §INT = 4
+§DEF MakeFour € [[] => §INT] = () => Four
+§DEF ErrorValue = §DEF Error € §INT => Error
 
 §EXPORT (
 	Good §>.>> ToTrue §>.Or §TRUE
 	Bad §>.>> ToFalse §>.Or §FALSE
-	Good .Or 0
-	Bad .Or 0
+	Good .Or Zero
+	Bad .Or Zero
+	Good .OrDo ErrorToZero
+	Bad .OrDo ErrorToTwo
+	Bad §>.MapError ErrorToFalse §>.OrDo BoolToThree
+	SomeEight §>.OrFail MakeFour §>.Or Zero
+	NoneInt §>.OrFail MakeFour §>.OrDo ErrorValue
 )

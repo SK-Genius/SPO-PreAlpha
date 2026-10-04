@@ -1,5 +1,5 @@
 [
-	§SIG_WITH F € [§LOAD "../Types/TypeConstructor.SIG"] IN [<
+	§SIG_WITH F € [§TYPE => §TYPE] IN [<
 		...--...: [§GENERIC t [[t, t] => [.F t]]]
 		SpanAt...: [§GENERIC t [t => [.F t]]]
 		...Start: [§GENERIC t [[.F t] => t]]

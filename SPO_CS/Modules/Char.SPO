@@ -1,12 +1,12 @@
 ﻿§IMPORT {
 	Std: {
-		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-		...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
-		...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
-		...<=...: §DEF ...<=... € [[§INT, §INT] => §BOOL]
-		...And...: §DEF ...And... € [[§BOOL, §BOOL] => §BOOL]
-	}
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...==...: §DEF ...==...
+		...!=...: §DEF ...!=...
+		...<=...: §DEF ...<=...
+		...And...: §DEF ...And...
+	} € [§LOAD "Std.SIG"]
 }
 
 §DEF ...<=>... = (
@@ -130,7 +130,7 @@
 	)
 }
 
-§EXPORT {
+§DEF Module € [§LOAD "Char.SIG"] = {
 	...<=...<=...: ...Char<=...<=...
 	...<=>...: ...Char<=>...
 	...==...: ...Char==...
@@ -145,3 +145,5 @@
 	...ToLower: ...ToLower
 	...IsSpace: ...IsSpace
 }
+
+§EXPORT Module

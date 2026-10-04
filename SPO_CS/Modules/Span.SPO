@@ -1,9 +1,8 @@
-
 §IMPORT {
 	Std: {
-		...And...: §DEF ...&... € [[§BOOL, §BOOL] => §BOOL]
-		Not...: §DEF !... € [§BOOL => §BOOL]
-	}
+		...And...: §DEF ...&...
+		Not...: §DEF !...
+	} € [§LOAD "Std.SIG"]
 }
 
 §DEF tSpan... = [§GENERIC t [t #-- t]]
@@ -70,9 +69,7 @@
 	§DEF ...a==... € [[t, t] => §BOOL]
 ) => (=> ... .== ... With ...a==...)
 
-§DEF Contract = [§LOAD "mSpan.SIG"]
-
-§EXPORT §SIG Contract WITH tSpan... IN {
+§EXPORT §SIG [§LOAD "Span.SIG"] WITH tSpan... IN {
 	...--...: ...--...
 	SpanAt...: SpanAt...
 	...Start: ...Start
