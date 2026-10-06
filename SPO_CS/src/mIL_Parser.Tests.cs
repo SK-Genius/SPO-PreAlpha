@@ -54,6 +54,10 @@ mIL_Parser_Tests {
 			("a := [§ANY b => c]", mIL_AST.TypeInterface(Span((1, 1), (1, 18)), "a", "b", "c")),
 			("a := [§ALL b => c]", mIL_AST.TypeGeneric(Span((1, 1), (1, 18)), "a", "b", "c")),
 			("a := [.b c]", mIL_AST.TypeGenericApply(Span((1, 1), (1, 11)), "a", "b", "c")),
+			("a := [§ABSTRACT b]", mIL_AST.TypeAbstract(Span((1, 1), (1, 18)), "a", "b")),
+			("a := [§FREE b]", mIL_AST.TypeFree(Span((1, 1), (1, 14)), "a", "b")),
+			("a := §SIG_HEAD b", mIL_AST.GetSigHead(Span((1, 1), (1, 16)), "a", "b")),
+			("a := §SIG_HEAD b AS c", mIL_AST.GetSigHeadAs(Span((1, 1), (1, 21)), "a", "b", "c")),
 			
 			("a := b", mIL_AST.Alias(Span((1, 1), (1, 6)), "a", "b")),
 			("a := 1", mIL_AST.CreateInt(Span((1, 1), (1, 6)), "a", "1")),
@@ -91,6 +95,8 @@ mIL_Parser_Tests {
 			("a := §TRY b AS_RECORD", mIL_AST.TryAsRecord(Span((1, 1), (1, 21)), "a", "b")),
 			("a := §TRY b AS_VAR", mIL_AST.TryAsVar(Span((1, 1), (1, 18)), "a", "b")),
 			("a := §TRY b AS_REF", mIL_AST.TryAsRef(Span((1, 1), (1, 18)), "a", "b")),
+			("a := §TRY b AS_SIG c", mIL_AST.TryAsSig(Span((1, 1), (1, 20)), "a", "b", "c")),
+			("a := §TRY b HAS_HEAD_TYPE c", mIL_AST.TryHasHeadType(Span((1, 1), (1, 27)), "a", "b", "c")),
 			("a := §TRY_REMOVE #c FROM b", mIL_AST.TryRemovePrefixFrom(Span((1, 1), (1, 26)), "a", "b", "c")),
 			("§ASSERT a => b", mIL_AST.Assert(Span((1, 1), (1, 14)), "a", "b")),
 		}.AsStream(

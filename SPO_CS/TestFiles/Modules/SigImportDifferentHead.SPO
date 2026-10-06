@@ -1,0 +1,7 @@
+§IMPORT {
+	SigValue: §SIG [§LOAD "_Imports/SigValue.SIG"] WITH §DEF t IN §DEF Value
+	SigBoolReader: §SIG [§LOAD "_Imports/SigBoolReader.SIG"] WITH t IN §DEF Read...
+}
+
+§DEF Result € [§INT | []] = .Read Value
+§EXPORT Result

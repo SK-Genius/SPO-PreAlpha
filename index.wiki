@@ -35,6 +35,7 @@ This repository currently contains a C# implementation of the language and some 
 - a VSCode extension to support the files formats:
 -- .spo (the programming language source file format)
 -- .ilt (the intermediate language in text format)
+-- .sig (shared SPO type definitions loaded with §LOAD)
 -- .wiki (the custom documentation markup language)
 
 [| [*Path*]                     ][ [*Purpose*]                                                                             |]
@@ -46,12 +47,13 @@ This repository currently contains a C# implementation of the language and some 
 [=Prerequisites=]
 
 - Windows (only the performance measurement from the tests depends on windows)
-- .NET 11 SDK pinned in [<../global.json>]
+- .NET 11 SDK pinned in [<global.json>]
 
 [=Run Tests=]
 
 [.sh
-|> dotnet SPO_CS/src/mRunTests.cs
+|cd SPO_CS
+|dotnet src/mRunTests.cs
 .]
 
 [=Documentation=]

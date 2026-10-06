@@ -1,7 +1,7 @@
 [§ SPO Cheat Sheet §]
 
 [*Scope:*] Quick reminder for the current surface syntax accepted by [.|mTokenizer.] and [.|mSPO_Parser.].
-For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_language.wiki|doc_ai/10_language/11_surface_language.wiki>].
+For executable function and module examples, open [<Tests.wiki|Test Examples>].
 
 [=Legend=]
 - [.|§.] keyword prefix
@@ -70,6 +70,8 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 |[§GENERIC T Body]
 |[§INTERFACE T Body]
 |[.tList §INT]
+|[§SIG_WITH t € §TYPE IN Body]
+|[§SIG_WITH tF € [§TYPE => §TYPE] IN Body]
 .]
 
 [=Commands=]
@@ -144,6 +146,42 @@ For the source-backed walkthrough, open [<../doc_ai/10_language/11_surface_langu
 |}
 |// or: §EXPORT Expression
 .]
+
+[=SIG Exports and Imports=]
+
+The [.|Span.] module uses [.spo|§SIG.] to export a range type and its operations:
+
+[#
+|../SPO_CS/Modules/Span.SPO
+#]
+
+Importing and using the range type:
+
+[| [*Code*] ][ [*Result*] |]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/SpanConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/SpanConsumer.result.SPO
+  #]
+|]
+
+- [.spo|WITH §DEF F.] binds the imported abstract type as [.spo|F.]
+- [.spo|WITH F.] requires another import to use the same type
+
+[=Signature Files=]
+
+A [.|.SIG.] file contains a type definition shared by exports and imports:
+
+[#
+|../SPO_CS/Modules/Span.SIG
+#]
+
+- use [.spo|[[§LOAD "Span.SIG"]].] in place of a type
+- paths are relative to the file containing [.spo|§LOAD.]
+- [.|.SIG.] files can load other [.|.SIG.] files
 
 [=Notes=]
 - [.spo|§IMPORT.] is a pattern match, not just a name list.

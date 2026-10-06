@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -39,7 +39,7 @@ mSPO_Interpreter {
 			return mResult.Fail(Error.ToText());
 		}
 		
-		var TypeArg = mVM_Type.Free();
+		var TypeArg = mVM_Type.Free(mVM_Type.Type());
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
@@ -73,7 +73,7 @@ mSPO_Interpreter {
 			aModule => {
 				return mVM.Run(
 					mIL_AST.Module(
-						aModule.TypeDef.ToStream(),
+						aModule.TypeDeclarations.TypeDef.ToStream(),
 						aModule.Defs.ToStream(
 						).MapWithIndex(
 							(aIndex, aDef) => mIL_AST.Def(
@@ -143,7 +143,7 @@ mSPO_Interpreter {
 		var Map = mTreeMap.Tree<tText, tNat32>((tText a1, tText a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var TypeIndex = 0u;
 		
-		foreach (var TypeCommand in Module.TypeDef.ToStream()) {
+		foreach (var TypeCommand in Module.TypeDeclarations.TypeDef.ToStream()) {
 			mAssert.IsTrue(TypeCommand.NodeType >= mIL_AST.tCommandNodeType._BeginTypes_);
 			mAssert.IsTrue(TypeCommand.NodeType < mIL_AST.tCommandNodeType._EndTypes_);
 			
@@ -172,7 +172,14 @@ mSPO_Interpreter {
 			SB.Append('\n');
 			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
 			foreach (var Cmd in Commands.ToStream()) {
-				SB.Append("\t" + Cmd.ToText()).Append('\n');
+				var Command = Cmd;
+				if (Command.NodeType is not (mIL_AST.tCommandNodeType.TypePrefix or mIL_AST.tCommandNodeType.PrefixApply or mIL_AST.tCommandNodeType.PrefixRemove)) {
+					Command._2 = Command._2.Then(__ => Map.TryGet(__).Match(() => __, mSPO2IL.GetTypeId));
+				}
+				if (Command.NodeType is not (mIL_AST.tCommandNodeType.GetField or mIL_AST.tCommandNodeType.TryRemovePrefixFrom)) {
+					Command._3 = Command._3.Then(__ => Map.TryGet(__).Match(() => __, mSPO2IL.GetTypeId));
+				}
+				SB.Append("\t" + Command.ToText()).Append('\n');
 			}
 			DefIndex += 1;
 		}

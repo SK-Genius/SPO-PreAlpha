@@ -1,4 +1,4 @@
-export const extensions = ["spo", "ilt"];
+export const extensions = ["spo", "sig", "ilt"];
 export const isBinary = false;
 
 const MAX_STICKY_LINES = 6;
@@ -1565,7 +1565,7 @@ export function disposeStandaloneLayout(
 export function isSpoLikeFile(
 	path
 ) {
-	return /\.(spo|ilt)$/i.test(path);
+	return /\.(spo|sig|ilt)$/i.test(path);
 }
 
 const api = Object.freeze({

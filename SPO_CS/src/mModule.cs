@@ -205,8 +205,8 @@ mModule {
 	);
 	
 	public static readonly tModuleSetup
-	Module_mList = ModuleSetup(
-		ModuleFolder / "mList.SPO",
+	Module_List = ModuleSetup(
+		ModuleFolder / "List.SPO",
 		mStream.Stream(
 			("Std", Module_Std)
 		)
@@ -221,6 +221,6 @@ mModule {
 		("Maybe", Module_Maybe),
 		("Result", Module_Result),
 		("Span", Module_Span),
-		("mList", Module_mList)
+		("List", Module_List)
 	);
 }

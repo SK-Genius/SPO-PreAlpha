@@ -11,6 +11,7 @@ This repository currently contains a C# implementation of the language and some 
 - a VSCode extension to support the files formats:
 -- .spo (the programming language source file format)
 -- .ilt (the intermediate language in text format)
+-- .sig (shared SPO type definitions loaded with §LOAD)
 -- .wiki (the custom documentation markup language)
 
 [=Why SPO=]
@@ -54,11 +55,12 @@ SPO aims to push those failure modes out of the default path by making dataflow 
 [*Run Tests:*]
 
 [.sh
-|dotnet SPO_CS/src/mRunTests.cs
+|cd SPO_CS
+|dotnet src/mRunTests.cs
 .]
 
 That is the most reliable first feedback loop in the current checkout.
-For command details and path-sensitive caveats, read [<Build_and_Test.wiki>].
+For test layout and expected results, read [<Tests.wiki>]; command options are documented in [<../SPO_CS/TestFramework.txt>].
 
 [=Documentation=]
 

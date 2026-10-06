@@ -6,7 +6,7 @@
 		...<...: §DEF ...<...
 		...<=...: §DEF ...<=...
 	} € [§LOAD "../../Modules/Std.SIG"]
-	mList: §SIG [§LOAD "../../Modules/mList.SIG"] WITH [§GENERIC t [§RECURSIVE tList [[] | [tList; t]]]] IN {
+	List: §SIG [§LOAD "../../Modules/List.SIG"] WITH _ IN {
 		EmptyList...: §DEF EmptyList...
 		List...: §DEF List...
 		...Push...: §DEF ...Push...
@@ -116,7 +116,10 @@
 	(L .Push 5) .TryLast
 	(L .Prepend 0) .TryFirst
 	PopSummary
-	Empty .TryPop
+	§IF (Empty .TryPop) MATCH {
+		(): ()
+		(_, §DEF Item): Item
+	}
 	L .Count
 	L .IsEmpty
 	Empty .IsEmpty

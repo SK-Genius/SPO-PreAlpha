@@ -188,14 +188,14 @@ mModule_Tests {
 						aDebugStream
 					).ElseThrow(
 					);
-
+					
 					var Expected = mSPO_Interpreter.Run(
 						ExpectedFile.TryReadText().ElseThrow(),
 						(TestFolder._Path / ExpectedFile.Name).ToText(),
 						(mVM_Data.Empty(), mVM_Type.Empty()),
 						__ => aDebugStream(__())
 					).ElseThrow();
-
+					
 					mAssert.AreEquals(
 						mSPO_Interpreter.Run(
 							ConsumerFile.TryReadText().ElseThrow(),

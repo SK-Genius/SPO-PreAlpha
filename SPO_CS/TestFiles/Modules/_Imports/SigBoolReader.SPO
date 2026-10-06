@@ -1,0 +1,3 @@
+§DEF Read... = (§DEF a € §BOOL) => 0
+
+§EXPORT §SIG [§LOAD "SigBoolReader.SIG"] WITH §BOOL IN Read...

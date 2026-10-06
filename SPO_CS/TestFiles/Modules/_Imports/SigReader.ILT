@@ -1,0 +1,20 @@
+§TYPES
+	t_0 := [INT => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [§FREE TYPE]
+	t_3 := [t_2 => INT]
+	t_4 := [§SIG_WITH t_2 IN t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [t_1 => t_5]
+
+§DEF d_0 € t_1
+	_a := ARG
+	§RETURN _a IF TRUE
+
+§DEF d_1 € t_6
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	_Read... := r_1
+	r_2 := INT_TYPE, _Read...
+	r_3 := §SIG t_4 WITH r_2
+	§RETURN r_3 IF TRUE

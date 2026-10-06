@@ -1,0 +1,354 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [§SIG_WITH t_0 IN EMPTY_TYPE]
+	t_2 := [TRUE | FALSE]
+	t_3 := [#_Value INT]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [§ABSTRACT TYPE]
+	t_6 := [#Result INT]
+	t_7 := [t_1 => t_6]
+	t_8 := [TYPE => t_7]
+	t_9 := [t_1 => t_2]
+	t_10 := [TYPE => t_9]
+	t_11 := [§ABSTRACT TYPE]
+	t_12 := [EMPTY_TYPE => t_7]
+	t_13 := [EMPTY_TYPE, TYPE]
+	t_14 := [t_13, t_8]
+	t_15 := [t_14, t_10]
+	t_16 := [t_15, t_12]
+	t_17 := [t_16 => t_7]
+	t_18 := [§ABSTRACT TYPE]
+	t_19 := [§ABSTRACT TYPE]
+	t_20 := [EMPTY_TYPE, t_1]
+	t_21 := [t_20, t_8]
+	t_22 := [t_21, t_10]
+	t_23 := [t_22, t_12]
+	t_24 := [t_23, t_17]
+	t_25 := [t_24, t_1]
+	t_26 := [t_25, t_8]
+	t_27 := [t_26, t_10]
+	t_28 := [t_27, t_12]
+	t_29 := [t_28, t_17]
+	t_30 := [t_29, t_1]
+	t_31 := [t_30, t_8]
+	t_32 := [t_31, t_10]
+	t_33 := [t_32, t_12]
+	t_34 := [t_33, t_17]
+	t_35 := [EMPTY_TYPE, INT]
+	t_36 := [t_35, INT]
+	t_37 := [t_36, INT]
+	t_38 := [#Result t_37]
+	t_39 := [t_1 => t_38]
+	t_40 := [t_34 => t_39]
+	t_41 := [t_34, t_40]
+	t_42 := [t_41 => t_39]
+	t_43 := [EMPTY_TYPE, t_8]
+	t_44 := [t_43, t_10]
+	t_45 := [t_44, t_12]
+	t_46 := [t_45, t_17]
+	t_47 := [t_46, t_8]
+	t_48 := [t_47, t_10]
+	t_49 := [t_48, t_12]
+	t_50 := [t_49, t_17]
+	t_51 := [t_50, t_8]
+	t_52 := [t_51, t_10]
+	t_53 := [t_52, t_12]
+	t_54 := [t_53, t_17]
+	t_55 := [t_54, t_40]
+	t_56 := [t_55, t_42]
+	t_57 := [EMPTY_TYPE => t_37]
+	t_58 := [t_56 => t_57]
+
+§DEF d_0 € t_8
+	_Head := ENV
+	r_1 := §TRY ARG HAS_HEAD_TYPE _Head
+	r_2 := §SIG_HEAD r_1 AS t_5
+	r_3 := §SIG_BODY r_1
+	r_4 := 1
+	r_5 := +#Result r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_1 € t_10
+	_Head := ENV
+	r_1 := §TRY ARG HAS_HEAD_TYPE _Head
+	r_2 := §SIG_HEAD r_1 AS t_5
+	r_3 := §SIG_BODY r_1
+	§RETURN TRUE IF TRUE
+
+§DEF d_2 € t_12
+	r_1 := §SIG_HEAD ARG AS t_11
+	r_2 := §SIG_BODY ARG
+	r_3 := 0
+	r_4 := +#Result r_3
+	§RETURN r_4 IF TRUE
+
+§DEF d_3 € t_17
+	d_2 := §2ND ENV
+	r_4 := §1ST ENV
+	d_1 := §2ND r_4
+	r_5 := §1ST r_4
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	_Head := §2ND r_6
+	r_7 := §1ST r_6
+	r_1 := .d_0 _Head
+	r_2 := .d_1 _Head
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_2 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_8
+	_Head := ENV
+	r_1 := §TRY ARG HAS_HEAD_TYPE _Head
+	r_2 := §SIG_HEAD r_1 AS t_5
+	r_3 := §SIG_BODY r_1
+	r_4 := 1
+	r_5 := +#Result r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_5 € t_10
+	_Head := ENV
+	r_1 := §TRY ARG HAS_HEAD_TYPE _Head
+	r_2 := §SIG_HEAD r_1 AS t_5
+	r_3 := §SIG_BODY r_1
+	§RETURN TRUE IF TRUE
+
+§DEF d_6 € t_12
+	r_1 := §SIG_HEAD ARG AS t_18
+	r_2 := §SIG_BODY ARG
+	r_3 := 0
+	r_4 := +#Result r_3
+	§RETURN r_4 IF TRUE
+
+§DEF d_7 € t_17
+	d_6 := §2ND ENV
+	r_4 := §1ST ENV
+	d_5 := §2ND r_4
+	r_5 := §1ST r_4
+	d_4 := §2ND r_5
+	r_6 := §1ST r_5
+	_Head := §2ND r_6
+	r_7 := §1ST r_6
+	r_1 := .d_4 _Head
+	r_2 := .d_5 _Head
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_6 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_8 € t_8
+	_Head := ENV
+	r_1 := [#_Value _Head]
+	r_2 := [{EMPTY_TYPE} + r_1]
+	r_3 := §TRY ARG HAS_HEAD_TYPE r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	r_6 := 1
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_9 € t_10
+	_Head := ENV
+	r_1 := [#_Value _Head]
+	r_2 := [{EMPTY_TYPE} + r_1]
+	r_3 := §TRY ARG HAS_HEAD_TYPE r_2
+	r_4 := §SIG_HEAD r_3
+	r_5 := §SIG_BODY r_3
+	§RETURN TRUE IF TRUE
+
+§DEF d_10 € t_12
+	r_1 := §SIG_HEAD ARG AS t_19
+	r_2 := §SIG_BODY ARG
+	r_3 := 0
+	r_4 := +#Result r_3
+	§RETURN r_4 IF TRUE
+
+§DEF d_11 € t_17
+	d_10 := §2ND ENV
+	r_4 := §1ST ENV
+	d_9 := §2ND r_4
+	r_5 := §1ST r_4
+	d_8 := §2ND r_5
+	r_6 := §1ST r_5
+	_Head := §2ND r_6
+	r_7 := §1ST r_6
+	r_1 := .d_8 _Head
+	r_2 := .d_9 _Head
+	§TRY_RETURN .r_1 ARG IF r_2
+	r_3 := .d_10 EMPTY
+	§TRY_RETURN .r_3 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_12 € t_40
+	d_11 := §2ND ENV
+	r_28 := §1ST ENV
+	d_10 := §2ND r_28
+	r_29 := §1ST r_28
+	d_9 := §2ND r_29
+	r_30 := §1ST r_29
+	d_8 := §2ND r_30
+	r_31 := §1ST r_30
+	_RecordPackage := §2ND r_31
+	r_32 := §1ST r_31
+	d_7 := §2ND r_32
+	r_33 := §1ST r_32
+	d_6 := §2ND r_33
+	r_34 := §1ST r_33
+	d_5 := §2ND r_34
+	r_35 := §1ST r_34
+	d_4 := §2ND r_35
+	r_36 := §1ST r_35
+	_BoolPackage := §2ND r_36
+	r_37 := §1ST r_36
+	d_3 := §2ND r_37
+	r_38 := §1ST r_37
+	d_2 := §2ND r_38
+	r_39 := §1ST r_38
+	d_1 := §2ND r_39
+	r_40 := §1ST r_39
+	d_0 := §2ND r_40
+	r_41 := §1ST r_40
+	_IntPackage := §2ND r_41
+	r_42 := §1ST r_41
+	r_1 := §SIG_HEAD ARG AS t_5
+	r_2 := §SIG_BODY ARG
+	_Head := r_1
+	r_3 := EMPTY, _Head
+	r_4 := r_3, d_0
+	r_5 := r_4, d_1
+	r_6 := r_5, d_2
+	r_7 := .d_3 r_6
+	r_8 := .r_7 _IntPackage
+	r_9 := -#Result r_8
+	r_10 := EMPTY, r_9
+	r_11 := EMPTY, _Head
+	r_12 := r_11, d_4
+	r_13 := r_12, d_5
+	r_14 := r_13, d_6
+	r_15 := .d_7 r_14
+	r_16 := .r_15 _BoolPackage
+	r_17 := -#Result r_16
+	r_18 := r_10, r_17
+	r_19 := EMPTY, _Head
+	r_20 := r_19, d_8
+	r_21 := r_20, d_9
+	r_22 := r_21, d_10
+	r_23 := .d_11 r_22
+	r_24 := .r_23 _RecordPackage
+	r_25 := -#Result r_24
+	r_26 := r_18, r_25
+	r_27 := +#Result r_26
+	§RETURN r_27 IF TRUE
+
+§DEF d_13 € t_42
+	d_12 := §2ND ENV
+	r_17 := §1ST ENV
+	d_11 := §2ND r_17
+	r_18 := §1ST r_17
+	d_10 := §2ND r_18
+	r_19 := §1ST r_18
+	d_9 := §2ND r_19
+	r_20 := §1ST r_19
+	d_8 := §2ND r_20
+	r_21 := §1ST r_20
+	_RecordPackage := §2ND r_21
+	r_22 := §1ST r_21
+	d_7 := §2ND r_22
+	r_23 := §1ST r_22
+	d_6 := §2ND r_23
+	r_24 := §1ST r_23
+	d_5 := §2ND r_24
+	r_25 := §1ST r_24
+	d_4 := §2ND r_25
+	r_26 := §1ST r_25
+	_BoolPackage := §2ND r_26
+	r_27 := §1ST r_26
+	d_3 := §2ND r_27
+	r_28 := §1ST r_27
+	d_2 := §2ND r_28
+	r_29 := §1ST r_28
+	d_1 := §2ND r_29
+	r_30 := §1ST r_29
+	d_0 := §2ND r_30
+	r_31 := §1ST r_30
+	_IntPackage := §2ND r_31
+	r_32 := §1ST r_31
+	r_1 := EMPTY, _IntPackage
+	r_2 := r_1, d_0
+	r_3 := r_2, d_1
+	r_4 := r_3, d_2
+	r_5 := r_4, d_3
+	r_6 := r_5, _BoolPackage
+	r_7 := r_6, d_4
+	r_8 := r_7, d_5
+	r_9 := r_8, d_6
+	r_10 := r_9, d_7
+	r_11 := r_10, _RecordPackage
+	r_12 := r_11, d_8
+	r_13 := r_12, d_9
+	r_14 := r_13, d_10
+	r_15 := r_14, d_11
+	r_16 := .d_12 r_15
+	§TRY_RETURN .r_16 ARG
+	§RETURN EMPTY IF TRUE
+
+§DEF d_14 € t_58
+	d_13 := §2ND ENV
+	r_26 := §1ST ENV
+	d_12 := §2ND r_26
+	r_27 := §1ST r_26
+	d_11 := §2ND r_27
+	r_28 := §1ST r_27
+	d_10 := §2ND r_28
+	r_29 := §1ST r_28
+	d_9 := §2ND r_29
+	r_30 := §1ST r_29
+	d_8 := §2ND r_30
+	r_31 := §1ST r_30
+	d_7 := §2ND r_31
+	r_32 := §1ST r_31
+	d_6 := §2ND r_32
+	r_33 := §1ST r_32
+	d_5 := §2ND r_33
+	r_34 := §1ST r_33
+	d_4 := §2ND r_34
+	r_35 := §1ST r_34
+	d_3 := §2ND r_35
+	r_36 := §1ST r_35
+	d_2 := §2ND r_36
+	r_37 := §1ST r_36
+	d_1 := §2ND r_37
+	r_38 := §1ST r_37
+	d_0 := §2ND r_38
+	r_39 := §1ST r_38
+	_Contract := t_1
+	r_1 := INT_TYPE, EMPTY
+	r_2 := §SIG t_1 WITH r_1
+	_IntPackage := r_2
+	r_3 := t_2, EMPTY
+	r_4 := §SIG t_1 WITH r_3
+	_BoolPackage := r_4
+	r_5 := t_4, EMPTY
+	r_6 := §SIG t_1 WITH r_5
+	_RecordPackage := r_6
+	r_7 := EMPTY, _IntPackage
+	r_8 := r_7, d_0
+	r_9 := r_8, d_1
+	r_10 := r_9, d_2
+	r_11 := r_10, d_3
+	r_12 := r_11, _BoolPackage
+	r_13 := r_12, d_4
+	r_14 := r_13, d_5
+	r_15 := r_14, d_6
+	r_16 := r_15, d_7
+	r_17 := r_16, _RecordPackage
+	r_18 := r_17, d_8
+	r_19 := r_18, d_9
+	r_20 := r_19, d_10
+	r_21 := r_20, d_11
+	r_22 := r_21, d_12
+	r_23 := .d_13 r_22
+	r_24 := .r_23 _IntPackage
+	r_25 := -#Result r_24
+	§RETURN r_25 IF TRUE

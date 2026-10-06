@@ -1,0 +1,3 @@
+§DEF Read... = (§DEF a € §INT) => a
+
+§EXPORT §SIG [§LOAD "SigReader.SIG"] WITH §INT IN Read...

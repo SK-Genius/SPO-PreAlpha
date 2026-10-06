@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -40,11 +40,43 @@ mVM_Type_Tests {
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mVM_Type),
 		[
+			mTest.Test(
+				"SIG contracts compare bound constructors independently of parameter names",
+				aDebug => {
+					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					var F = mVM_Type.Free("F", Kind);
+					var G = mVM_Type.Free("G", Kind);
+					var Contract = mVM_Type.Sig(F, F.ApplyType(mVM_Type.Int()));
+					var Renamed = mVM_Type.Sig(G, G.ApplyType(mVM_Type.Int()));
+					mAssert.IsTrue(Contract.SameType(Renamed));
+					mAssert.IsTrue(
+						Contract.IsSubType(Renamed).AssertNotError(__ => __).ToStream().IsEmpty()
+					);
+					mAssert.IsFalse(
+						Contract.IsSubType(
+							mVM_Type.Sig(G, G.ApplyType(mVM_Type.Bool()))
+						).Match(out _, out _)
+					);
+				}
+			),
+			mTest.Test(
+				"Repeated free bindings replace the mapping and preserve previous snapshots",
+				aDebug => {
+					var Free = mVM_Type.Free("t", mVM_Type.Type());
+					var First = mVM_Type.Int().IsSubType(Free).AssertNotError(__ => __);
+					var Updated = mVM_Type.False().IsSubType(Free, First).AssertNotError(__ => __);
+					mAssert.AreEquals(Updated.ToStream().Count(), 1u);
+					mAssert.IsTrue(Free.ApplyMappings(First).IsInt());
+					mAssert.IsTrue(
+						Free.ApplyMappings(Updated).SameType(mVM_Type.Union(mVM_Type.Int(), mVM_Type.False()))
+					);
+				}
+			),
 			mTest.Test("ApplyMappings uses free type instances",
 				aDebugStream => {
-					var Outer = mVM_Type.Free("t");
+					var Outer = mVM_Type.Free("t", mVM_Type.Type());
 					var Gen = mVM_Type.Generic(
-						mVM_Type.Free("t").Def(out var Bound),
+						mVM_Type.Free("t", mVM_Type.Type()).Def(out var Bound),
 						mVM_Type.Proc(mVM_Type.Empty(), Outer, Bound)
 					);
 					
@@ -52,8 +84,7 @@ mVM_Type_Tests {
 					
 					var Mappings = mVM_Type.Int(
 					).IsSubType(
-						Outer,
-						mStd.cEmpty
+						Outer
 					).AssertNotError(__ => __);
 					
 					Mappings = mVM_Type.False(
@@ -70,11 +101,10 @@ mVM_Type_Tests {
 						)
 					);
 					
-					var OtherBound = mVM_Type.Free("other");
+					var OtherBound = mVM_Type.Free("other", mVM_Type.Type());
 					
 					mVM_Type.Generic(Bound, Bound).IsSubType(
-						mVM_Type.Generic(OtherBound, OtherBound),
-						mStd.cEmpty
+						mVM_Type.Generic(OtherBound, OtherBound)
 					).AssertNotError(__ => __);
 				}
 			),
@@ -135,7 +165,7 @@ mVM_Type_Tests {
 			),
 			mTest.Test("SplitBy expands recursive types",
 				aDebugStream => {
-					var Head = mVM_Type.Free("RecursiveSplit");
+					var Head = mVM_Type.Free("RecursiveSplit", mVM_Type.Type());
 					var Recursive = mVM_Type.Recursive(
 						Head,
 						mVM_Type.Set(
@@ -225,22 +255,20 @@ mVM_Type_Tests {
 					);
 					
 					Type.IsSubType(
-						VM_Type,
-						mStd.cEmpty
+						VM_Type
 					).AssertNotError(
 						_ => Type.ToText() + " != " + VM_Type.ToText()
 					);
 					
 					if (a.Expr is "§TRUE") {
 						mAssert.AreEquals(Type, mVM_Type.True());
-						mAssert.IsFalse(VM_Type.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
 					} else if (a.Expr is "§FALSE") {
 						mAssert.AreEquals(Type, mVM_Type.False());
-						mAssert.IsFalse(VM_Type.IsSubType(Type, mStd.cEmpty).Match(out _, out _));
+						mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
 					} else {
 						VM_Type.IsSubType(
-							Type,
-							mStd.cEmpty
+							Type
 						).AssertNotError(
 							_ => Type.ToText() + " != " + VM_Type.ToText()
 						);

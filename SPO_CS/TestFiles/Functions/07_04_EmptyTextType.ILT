@@ -1,5 +1,5 @@
 §TYPES
-	t_0 := [§FREE]
+	t_0 := [§FREE TYPE]
 	t_1 := [#_Char... INT]
 	t_2 := [t_0, t_1]
 	t_3 := [t_2 | EMPTY_TYPE]

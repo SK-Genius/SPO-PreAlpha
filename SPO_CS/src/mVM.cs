@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -101,7 +101,7 @@ mVM {
 		mVM_Type.tType aType,
 		mStream.tStream<(tNat64 Data, tNat64 Type)> aVisited = default
 	) {
-		if (aData._DataType is mVM_Data.tDataType.Type or mVM_Data.tDataType.TypeFunction &&
+		if (aData._DataType is mVM_Data.tDataType.Type &&
 			aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
 			return aData.TypeExpressionValue().KindType().SameType(aType);
 		}
@@ -123,12 +123,12 @@ mVM {
 			while (aType.Kind is mVM_Type.tKind.Proc && FuncType.IsGeneric(out _, out var FuncBody)) {
 				FuncType = FuncBody;
 			}
-			return FuncType.IsSubType(aType, mStd.cEmpty).Match(out _, out _);
+			return FuncType.IsSubType(aType).Match(out _, out _);
 		}
 		if (aType.IsSig(out var Binder, out var SigBody)) {
 			return (
 				aData.IsSig(out var Contract, out var Head, out var Body) &&
-				Contract.IsSubType(aType, mStd.cEmpty).Match(out _, out _) &&
+				Contract.IsSubType(aType).Match(out _, out _) &&
 				Head.TypeExpressionValue().KindType().SameType(Binder.KindType()) &&
 				Body.Matches(SigBody.Substitute(Binder, Head.TypeExpressionValue()), aVisited)
 			);
@@ -314,7 +314,7 @@ mVM {
 						out var Var1,
 						out var Var2
 					),
-					$"{CommandLine()} # expect pair but is {aCallStack._Regs.Get(Arg1).ToText(20)}"
+					() => $"{CommandLine()} # expect pair but is {aCallStack._Regs.Get(Arg1).ToText(20)}"
 				);
 				aCallStack._Regs.Push(Var1);
 				break;
@@ -522,10 +522,15 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				switch (0) {
-					case 0 when Proc._DataType is mVM_Data.tDataType.TypeFunction: {
-						aCallStack._Regs.Push(mVM_Data.TypeExpression(
-							Proc.TypeExpressionValue().ApplyType(Arg.TypeValue())
-						));
+					case 0 when (
+						Proc._DataType is mVM_Data.tDataType.Type &&
+						Proc.TypeExpressionValue().KindType().IsTypeFunctionKind()
+					): {
+						aCallStack._Regs.Push(
+							mVM_Data.TypeExpression(
+								Proc.TypeExpressionValue().ApplyType(Arg.TypeValue())
+							)
+						);
 						break;
 					}
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -620,7 +625,7 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.ReturnIf: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), CommandLine());
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), () => CommandLine());
 				if (Cond) {
 					var Res = aCallStack._Regs.Get(Arg2);
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
@@ -703,6 +708,11 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.LoadType: {
+				var Type = aCallStack._ProcDef.TypeDefinitions.TryGet(Arg1).AssertNotEmpty();
+				aCallStack._Regs.Push(mVM_Data.TypeExpression(Type));
+				break;
+			}
 			case mVM_Data.tOpCode.NewSig: {
 				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Head, out var Body));
@@ -714,18 +724,18 @@ mVM {
 			}
 			case mVM_Data.tOpCode.TryAsSig: {
 				var Arg = aCallStack._Regs.Get(Arg1);
-				var TestValue = aCallStack._Regs.Get(Arg2);
-				var Expected = mMaybe.None<mVM_Type.tType>();
-				if (TestValue.IsPair(out var Contract, out var Head)) {
-					TestValue = Contract;
-					Expected = Head.TypeExpressionValue();
+				var Contract = aCallStack._ProcDef.TypeDefinitions.TryGet(Arg2).AssertNotEmpty();
+				if (!Arg.Matches(Contract)) {
+					return aCallStack._Parent;
 				}
-				var Test = TestValue.TypeValue();
-				if (
-					!Arg.Matches(Test) ||
-					!Arg.IsSig(out _, out var ActualHead, out _) ||
-					(Expected.IsSome(out var ExpectedHead) && !ActualHead.TypeExpressionValue().SameType(ExpectedHead))
-				) {
+				aCallStack._Regs.Push(Arg);
+				break;
+			}
+			case mVM_Data.tOpCode.TryHasHeadType: {
+				var Arg = aCallStack._Regs.Get(Arg1);
+				mAssert.IsTrue(Arg.IsSig(out _, out var Head, out _));
+				var Expected = aCallStack._Regs.Get(Arg2).TypeExpressionValue();
+				if (!Head.TypeExpressionValue().SameType(Expected)) {
 					return aCallStack._Parent;
 				}
 				aCallStack._Regs.Push(Arg);
@@ -744,42 +754,47 @@ mVM {
 			case mVM_Data.tOpCode.TypeRecord:
 			case mVM_Data.tOpCode.TypePrefix:
 			case mVM_Data.tOpCode.TypeVar: {
-				var A = OpCode is mVM_Data.tOpCode.TypePrefix ? mVM_Type.Empty() :
-					OpCode is mVM_Data.tOpCode.TypeSig or mVM_Data.tOpCode.TypeGenericApply
-					? aCallStack._Regs.Get(Arg1).TypeExpressionValue()
-					: aCallStack._Regs.Get(Arg1).SignatureValue();
-				var B = OpCode is mVM_Data.tOpCode.TypeVar
-					? mVM_Type.Empty()
-					: OpCode is mVM_Data.tOpCode.TypeGenericApply
-					? aCallStack._Regs.Get(Arg2).TypeValue()
-					: aCallStack._Regs.Get(Arg2).SignatureValue();
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(OpCode switch {
-					mVM_Data.tOpCode.TypeSig => mVM_Type.Sig(A, B),
-					mVM_Data.tOpCode.TypeGenericApply => A.ApplyType(B),
-					mVM_Data.tOpCode.TypeFunc => mVM_Type.Proc(mVM_Type.Empty(), A, B),
-					mVM_Data.tOpCode.TypeRecord => mVM_Type.Record(A, B),
-					mVM_Data.tOpCode.TypePrefix => mVM_Type.Prefix(
-						aCallStack._ProcDef.TypePrefixes.Get(Arg1), B
+				var A = OpCode switch {
+					mVM_Data.tOpCode.TypePrefix => mVM_Type.Empty(),
+					mVM_Data.tOpCode.TypeSig or mVM_Data.tOpCode.TypeGenericApply => (
+						aCallStack._Regs.Get(Arg1).TypeExpressionValue()
 					),
-					mVM_Data.tOpCode.TypeMeth => mVM_Type.Proc(A, B.Refs[1], B.Refs[2]),
-					_ => mVM_Type.Var(A),
-				}));
-				break;
-			}
-			case mVM_Data.tOpCode.TypeSigHead: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(
-					mVM_Type.SigHead("head", aCallStack._Regs.Get(Arg1).TypeValue())
-				));
-				break;
-			}
-			case mVM_Data.tOpCode.TypeFree: {
-				// create a fresh free type variable
+					_ => aCallStack._Regs.Get(Arg1).SignatureValue(),
+				};
+				
+				var B = OpCode switch {
+					mVM_Data.tOpCode.TypeVar => mVM_Type.Empty(),
+					mVM_Data.tOpCode.TypeGenericApply => aCallStack._Regs.Get(Arg2).TypeExpressionValue(),
+					_ => aCallStack._Regs.Get(Arg2).SignatureValue(),
+				};
+				
 				aCallStack._Regs.Push(
-					new mVM_Data.tData {
-						_DataType = mVM_Data.tDataType.Type,
-						_IsMutable = false,
-						_Value = mAny.Any(mVM_Type.Free("runtime"))
-					}
+					mVM_Data.TypeExpression(
+						OpCode switch {
+							mVM_Data.tOpCode.TypeSig => mVM_Type.Sig(A, B),
+							mVM_Data.tOpCode.TypeGenericApply => A.ApplyType(B),
+							mVM_Data.tOpCode.TypeFunc => mVM_Type.Proc(mVM_Type.Empty(), A, B),
+							mVM_Data.tOpCode.TypeRecord => mVM_Type.Record(A, B),
+							mVM_Data.tOpCode.TypePrefix => mVM_Type.Prefix(
+								aCallStack._ProcDef.TypePrefixes.Get(Arg1),
+								B
+							),
+							mVM_Data.tOpCode.TypeMeth => mVM_Type.Proc(A, B.Refs[1], B.Refs[2]),
+							_ => mVM_Type.Var(A),
+						}
+					)
+				);
+				break;
+			}
+			case mVM_Data.tOpCode.TypeAbstract:
+			case mVM_Data.tOpCode.TypeFree: {
+				var Kind = aCallStack._Regs.Get(Arg1).TypeValue();
+				aCallStack._Regs.Push(
+					mVM_Data.TypeExpression(
+						OpCode is mVM_Data.tOpCode.TypeFree
+						? mVM_Type.Free("runtime", Kind)
+						: mVM_Type.Abstract("runtime", Kind)
+					)
 				);
 				break;
 			}
@@ -849,10 +864,14 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.TypeGeneric: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(mVM_Type.Generic(
-					aCallStack._Regs.Get(Arg1).TypeValue(),
-					aCallStack._Regs.Get(Arg2).TypeExpressionValue()
-				)));
+				aCallStack._Regs.Push(
+					mVM_Data.TypeExpression(
+						mVM_Type.Generic(
+							aCallStack._Regs.Get(Arg1).TypeExpressionValue(),
+							aCallStack._Regs.Get(Arg2).TypeExpressionValue()
+						)
+					)
+				);
 				break;
 			}
 			// TODO: missing IL Command
@@ -905,6 +924,8 @@ mVM {
 				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
 				aRes._DataType = Res._DataType;
 				aRes._Value = Res._Value;
+				aRes._Fields = Res._Fields;
+				aRes._IsMutable = Res._IsMutable;
 				break;
 			}
 			default: {
@@ -963,7 +984,7 @@ mVM {
 		);
 		mAssert.IsTrue(
 			FuncType.IsProc(out _, out _, out var ResType),
-			$"{mStd.FileLine()}: {FuncType.ToText()}"
+			() => $"{mStd.FileLine()}: {FuncType.ToText()}"
 		);
 		return (Res, ResType);
 	}

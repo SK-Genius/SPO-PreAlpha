@@ -1,14 +1,21 @@
-[§ Function Test Examples §]
+[§ Test Examples §]
 
-This page mirrors the executable function-test sources under [.|../SPO_CS/TestFiles/Functions/.].
-Use it to browse real [.|.SPO.] inputs and their [.|.result.SPO.] oracles by topic.
-For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifacts.wiki|41_tests_and_artifacts.wiki>] instead.
+This page collects function and module tests from [.|SPO_CS/TestFiles/.].
+Browse [.|.SPO.] sources and their [.|.result.SPO.] expected results by topic.
+
+Run the tests from the repository root:
+
+[.sh
+|cd SPO_CS
+|dotnet src/mRunTests.cs -- -t -g
+.]
 
 [=Browsing Rules=]
 
-- each active case is shown as source plus expected-result oracle
-- sibling [.|.ILT.] files stay beside the source in [.|../SPO_CS/TestFiles/Functions/.] and are intentionally not duplicated here
-- helper files such as [.|_*.SPO.], disabled cases such as [.|*.SPO_.], expected-failure artifacts such as [.|*.SPO_Fail.], and generated drift files such as [.|*.ILT.new.] are intentionally excluded
+- each active case is shown as source plus expected result
+- generated [.|.ILT.] files stay beside their sources and are not duplicated here
+- function tests import [.|Std.] functions directly; module tests import modules by name
+- disabled cases such as [.|*.SPO_.], expected-failure files such as [.|*.SPO_Fail.], and generated [.|*.ILT.new.] files are excluded
 
 [=0 Smoke=]
 [| [*Code*] ][ [*Result*] |]
@@ -334,6 +341,24 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 ][
   [#
   |../SPO_CS/TestFiles/Functions/03_20_MatchSigUnion.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_21_MatchSigExactHead.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_21_MatchSigExactHead.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/03_22_MatchSigCapturedHead.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/03_22_MatchSigCapturedHead.result.SPO
   #]
 |]
 [|
@@ -780,6 +805,15 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
   |../SPO_CS/TestFiles/Functions/07_19_SigHigherKind.result.SPO
   #]
 |]
+[|
+  [#
+  |../SPO_CS/TestFiles/Functions/07_20_GenericSignatureAlias.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Functions/07_20_GenericSignatureAlias.result.SPO
+  #]
+|]
 
 [=8 Imperative=]
 [| [*Code*] ][ [*Result*] |]
@@ -817,5 +851,125 @@ For current pass/fail state, use [<../doc_ai/40_verification/41_tests_and_artifa
 ][
   [#
   |../SPO_CS/TestFiles/Functions/08_04_MethodResult.result.SPO
+  #]
+|]
+
+[=Module Tests=]
+
+Examples using modules from [.|SPO_CS/Modules/.] and [.|SPO_CS/TestFiles/Modules/_Imports/.].
+
+[| [*Code*] ][ [*Result*] |]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/FizzBuzz100.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/FizzBuzz100.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/ListConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/ListConsumer.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/MathConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/MathConsumer.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/MaybeConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/MaybeConsumer.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/ResultConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/ResultConsumer.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/Rule30.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/Rule30.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/SigImportDifferentHead.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/SigImportDifferentHead.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/SigImportSameHead.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/SigImportSameHead.result.SPO
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/SpanConsumer.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/SpanConsumer.result.SPO
+  #]
+|]
+
+[=Module Import Providers=]
+
+Modules and signatures used by the SIG import tests:
+
+[| [*Provider*] ][ [*Contract*] |]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigValue.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigValue.SIG
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigReader.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigReader.SIG
+  #]
+|]
+[|
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigBoolReader.SPO
+  #]
+][
+  [#
+  |../SPO_CS/TestFiles/Modules/_Imports/SigBoolReader.SIG
   #]
 |]

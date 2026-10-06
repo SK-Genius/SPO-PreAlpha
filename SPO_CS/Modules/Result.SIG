@@ -1,16 +1,16 @@
 [
-	§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [<
+	§SIG_WITH tResult € [§TYPE => [§TYPE => §TYPE]] IN [<
 		OK...: [
 			§GENERIC tValue [
 				§GENERIC tError [
-					[tError, tValue] => [.(.F tValue) tError]
+					[tError, tValue] => [.(.tResult tValue) tError]
 				]
 			]
 		]
 		Fail...: [
 			§GENERIC tValue [
 				§GENERIC tError [
-					[tError, tValue] => [.(.F tValue) tError]
+					[tError, tValue] => [.(.tResult tValue) tError]
 				]
 			]
 		]
@@ -19,9 +19,9 @@
 				§GENERIC tOut [
 					§GENERIC tError [
 						[
-							[.(.F tIn) tError]
+							[.(.tResult tIn) tError]
 							tIn => tOut
-						] => [.(.F tOut) tError]
+						] => [.(.tResult tOut) tError]
 					]
 				]
 			]
@@ -31,9 +31,9 @@
 				§GENERIC tOut [
 					§GENERIC tError [
 						[
-							[.(.F tIn) tError]
-							tIn => [.(.F tOut) tError]
-						] => [.(.F tOut) tError]
+							[.(.tResult tIn) tError]
+							tIn => [.(.tResult tOut) tError]
+						] => [.(.tResult tOut) tError]
 					]
 				]
 			]
@@ -42,7 +42,7 @@
 			§GENERIC tValue [
 				§GENERIC tError [
 					[
-						[.(.F tValue) tError]
+						[.(.tResult tValue) tError]
 						tValue
 					] => tValue
 				]
@@ -52,7 +52,7 @@
 			§GENERIC tValue [
 				§GENERIC tError [
 					[
-						[.(.F tValue) tError]
+						[.(.tResult tValue) tError]
 						tError => tValue
 					] => tValue
 				]
@@ -62,9 +62,9 @@
 			§GENERIC tValue [
 				§GENERIC tError [
 					[
-						[.(.F tValue) tError]
-						tError => [.(.F tValue) tError]
-					] => [.(.F tValue) tError]
+						[.(.tResult tValue) tError]
+						tError => [.(.tResult tValue) tError]
+					] => [.(.tResult tValue) tError]
 				]
 			]
 		]
@@ -73,9 +73,9 @@
 				§GENERIC tErrorIn [
 					§GENERIC tErrorOut [
 						[
-							[.(.F tValue) tErrorIn]
+							[.(.tResult tValue) tErrorIn]
 							tErrorIn => tErrorOut
-						] => [.(.F tValue) tErrorOut]
+						] => [.(.tResult tValue) tErrorOut]
 					]
 				]
 			]
@@ -86,7 +86,7 @@
 					[
 						[tValue | []]
 						[] => tError
-					] => [.(.F tValue) tError]
+					] => [.(.tResult tValue) tError]
 				]
 			]
 		]

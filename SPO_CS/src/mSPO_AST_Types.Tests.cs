@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -286,11 +286,11 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Value.KindType().SameType(Kind));
 					var Signature = Expression.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Value.SameType(Signature));
-					mAssert.IsFalse(mVM_Type.Free("x").IsSubType(Value, mStd.cEmpty).Match(out _, out _));
-					mAssert.IsFalse(Value.IsSubType(mVM_Type.Free("x"), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(mVM_Type.Free("x", mVM_Type.Type()).IsSubType(Value).Match(out _, out _));
+					mAssert.IsFalse(Value.IsSubType(mVM_Type.Free("x", mVM_Type.Type())).Match(out _, out _));
 					mAssert.IsTrue(Signature.KindType().SameType(Kind));
 					mAssert.IsFalse(Expression.TypeAnnotation.IsSome(out _));
-					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type(), mStd.cEmpty).Match(out _, out _));
+					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type()).Match(out _, out _));
 					var Scope = mStream.Stream(mSPO_AST_Types.ScopeItem("_T", Kind, Value));
 					var Alias = mSPO_Parser.Expression.ParseText("T", "", __ => aDebug(__()));
 					mAssert.IsTrue(Alias.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText).SameType(Value));
@@ -298,14 +298,14 @@ mSPO_AST_Types_Tests {
 						.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Applied.SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())));
 					var Mono = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
-					mAssert.IsFalse(Mono.IsSubType(Signature, mStd.cEmpty).Match(out _, out _));
-					var A = mVM_Type.Free("a");
-					var B = mVM_Type.Free("b");
+					mAssert.IsFalse(Mono.IsSubType(Signature).Match(out _, out _));
+					var A = mVM_Type.Free("a", mVM_Type.Type());
+					var B = mVM_Type.Free("b", mVM_Type.Type());
 					var Body = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(A, B), A);
 					var AB = mVM_Type.Generic(A, mVM_Type.Generic(B, Body));
 					var BA = mVM_Type.Generic(B, mVM_Type.Generic(A, Body));
 					mAssert.IsFalse(AB.SameType(BA));
-					mAssert.IsTrue(AB.IsSubType(BA, mStd.cEmpty).Match(out _, out _));
+					mAssert.IsTrue(AB.IsSubType(BA).Match(out _, out _));
 				}
 			),
 			mTest.Test("Curried type abstractions retain their function kind until fully applied",
@@ -329,13 +329,13 @@ mSPO_AST_Types_Tests {
 			mTest.Test("SIG type function bindings cannot be inferred as types",
 				aDebug => {
 					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
-					var F = mVM_Type.SigHead("F", Kind);
-					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type(), mStd.cEmpty).Match(out _, out _));
-					mAssert.IsFalse(F.IsSubType(mVM_Type.Int(), mStd.cEmpty).Match(out _, out _));
-					mAssert.IsFalse(mVM_Type.Free("t").IsSubType(F, mStd.cEmpty).Match(out _, out _));
+					var F = mVM_Type.Abstract("F", Kind);
+					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type()).Match(out _, out _));
+					mAssert.IsFalse(F.IsSubType(mVM_Type.Int()).Match(out _, out _));
+					mAssert.IsFalse(mVM_Type.Free("t", mVM_Type.Type()).IsSubType(F).Match(out _, out _));
 					var Application = F.ApplyType(mVM_Type.Int());
 					mAssert.IsTrue(Application.KindType().IsType());
-					var Parameter = mVM_Type.Free("t");
+					var Parameter = mVM_Type.Free("t", mVM_Type.Type());
 					var Identity = mVM_Type.Generic(Parameter, Parameter);
 					mAssert.IsTrue(Application.Substitute(F, Identity).IsInt());
 					mAssert.ThrowsError(() => { mVM_Type.Sig(F, F); });
@@ -424,8 +424,8 @@ mSPO_AST_Types_Tests {
 						"",
 						__ => aDebugStream(__())
 					).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
-					DesugaredType.IsSubType(ExpandedType, mStd.cEmpty).AssertNotError(__ => __);
-					ExpandedType.IsSubType(DesugaredType, mStd.cEmpty).AssertNotError(__ => __);
+					DesugaredType.IsSubType(ExpandedType).AssertNotError(__ => __);
+					ExpandedType.IsSubType(DesugaredType).AssertNotError(__ => __);
 				}
 			),
 			mTest.Test("Literals",

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -191,7 +191,7 @@ mSPO_AST_Types {
 				if (!Sig.Contract.AsVM_Type(mStd.cEmpty).Match(out var Contract, out _)) {
 					return (aType, aType);
 				}
-				if (!aType.IsSubType(Contract, mStd.cEmpty).Match(out _, out _)) {
+				if (!aType.IsSubType(Contract).Match(out _, out _)) {
 					return (mStd.cEmpty, aType);
 				}
 				var Head = Sig.Head is mSPO_AST.tTypedPatternNode<tPos> TypedHead ? TypedHead.Pattern : Sig.Head;
@@ -216,12 +216,12 @@ mSPO_AST_Types {
 					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
 					aTypeState.TryGetValidatedType(Typed).IsSome(out var MatchType)
 				) {
-					if (aType.IsSubType(MatchType, mStd.cEmpty).Match(out _, out _)) {
+					if (aType.IsSubType(MatchType).Match(out _, out _)) {
 						return (aType, mStd.cEmpty);
 					}
 					
 					return (
-						MatchType.IsSubType(aType, mStd.cEmpty).Match(out _, out _)
+						MatchType.IsSubType(aType).Match(out _, out _)
 						? (MatchType, aType)
 						: (mStd.cEmpty, aType)
 					);
@@ -364,7 +364,7 @@ mSPO_AST_Types {
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
-			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> Mappings,
 			tTypeState<tPos> State
 		),
 		(tPos Pos, tText ErrorText)
@@ -372,7 +372,7 @@ mSPO_AST_Types {
 	TryInferArgument<tPos>(
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
-		mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> aMappings,
+		mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> aMappings,
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
@@ -390,6 +390,7 @@ mSPO_AST_Types {
 				}
 				case mVM_Type.tKind.Recursive:
 				case mVM_Type.tKind.Generic:
+				case mVM_Type.tKind.Sig:
 				case mVM_Type.tKind.Interface: {
 					return HasUnresolvedFreeType(
 						aType.Refs[1],
@@ -470,7 +471,7 @@ mSPO_AST_Types {
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
-			mStream.tStream<(mVM_Type.tType Free, mVM_Type.tType Ref)> Mappings,
+			mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> Mappings,
 			tTypeState<tPos> State
 		),
 		(tPos Pos, tText ErrorText)
@@ -503,7 +504,7 @@ mSPO_AST_Types {
 		var Done = new tBool[ArgumentCount];
 		var ArgumentTypes = new mVM_Type.tType[ArgumentCount];
 		var Errors = new mMaybe.tMaybe<(tPos Pos, tText ErrorText)>[ArgumentCount];
-		var Checked = (Mappings: mStream.Stream<(mVM_Type.tType Free, mVM_Type.tType Ref)>(), State: aTypeState);
+		var Checked = (Mappings: default(mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType>), State: aTypeState);
 		var Remaining = ArgumentCount;
 		var ArgumentsWithTypes = mStream.ZipShort(Arguments, ExpectedTypes).MapWithIndex().Reverse();
 		
@@ -578,7 +579,7 @@ mSPO_AST_Types {
 					() => (
 						IdNode.Id == "_=..."
 					) ? (
-						mStd.With(mVM_Type.Free(), TypeValue => mVM_Type.Proc(TypeValue, TypeValue, mVM_Type.Empty()))
+						mStd.With(mVM_Type.Free(mVM_Type.Type()), TypeValue => mVM_Type.Proc(TypeValue, TypeValue, mVM_Type.Empty()))
 					) : (
 						aScope.Where(
 							__ => __.Id == IdNode.Id || (__.TypeValue.IsSome(out _) && __.Id + "..." == IdNode.Id)
@@ -609,7 +610,7 @@ mSPO_AST_Types {
 					if (!Head.KindType().SameType(Binder.KindType())) {
 						return mResult.Fail((Sig.Head.Pos, "SIG head has the wrong kind"));
 					}
-					return Body.Type.IsSubType(BodyType.Substitute(Binder, Head), mStd.cEmpty).Then(
+					return Body.Type.IsSubType(BodyType.Substitute(Binder, Head)).Then(
 						_ => (Contract, Body.State.SetValidatedType(Sig.Head, Head.KindType()))
 					).ModifyError(__ => (Sig.Body.Pos, __));
 				}
@@ -914,8 +915,7 @@ mSPO_AST_Types {
 					(aChecked, Case) => aChecked.ThenTry(
 						__ => Case.Cond.UpdateTypes(aScope, __.State).FailIfNot(
 							aCondition => aCondition.Type.IsSubType(
-								mVM_Type.Bool(),
-								mStd.cEmpty
+								mVM_Type.Bool()
 							).Match(out _, out _),
 							aCondition => (Case.Cond.Pos, $"condition '{Case.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:\n  {aCondition.Type.ToText()}")
 						).ThenTry(
@@ -949,11 +949,29 @@ mSPO_AST_Types {
 			_ => throw mError.Error("not implemented: " + aNode.GetType().Name),
 		};
 		
-		return Result.ThenTry(
+		return Result.FailIfNot(
+			aInferred => !aInferred.Type.HasChildWith(
+				aHead => (
+					aHead.Kind is mVM_Type.tKind.Abstract &&
+					!aScope.Any(
+						aItem => (
+							aItem.Type.HasChildWith(__ => mStd.RefEq(__, aHead)) ||
+							aItem.TypeValue.Match(
+								aValue => aValue.HasChildWith(__ => mStd.RefEq(__, aHead)),
+								() => false
+							)
+						)
+					)
+				)
+			),
+			aInferred => (
+				aNode.Pos,
+				$"abstract SIG head escapes its scope in '{aInferred.Type.ToText()}'; pack it with §SIG"
+			)
+		).ThenTry(
 			Inferred => TypeAnnotation.Match(
 				Annotation => Inferred.Type.IsSubType(
-					Annotation,
-					mStd.cEmpty
+					Annotation
 				).Then(
 					_ => Inferred
 				).ModifyError(
@@ -963,6 +981,26 @@ mSPO_AST_Types {
 			)
 		).Then(
 			Inferred => (Inferred.Type, Inferred.State.SetValidatedType(aNode, Inferred.Type))
+		);
+	}
+	
+	private static tBool
+	HasChildWith(
+		this mVM_Type.tType aType,
+		mStd.tFunc<mVM_Type.tType, tBool> aTest,
+		mStream.tStream<mVM_Type.tType> aVisited = default
+	) {
+		if (aVisited.Any(__ => mStd.RefEq(__, aType))) {
+			return false;
+		}
+		if (aTest(aType)) {
+			return true;
+		}
+		aVisited = mStream.Stream(aType, aVisited);
+		return (
+			aType.Kind is mVM_Type.tKind.Record
+			? aType.Fields.ToStream().Any(__ => __.Value.HasChildWith(aTest, aVisited))
+			: mStream.Stream(aType.Refs).Any(__ => __.HasChildWith(aTest, aVisited))
 		);
 	}
 	
@@ -1068,7 +1106,7 @@ mSPO_AST_Types {
 								ScopeItem(
 									FreePatternId.Id,
 									__,
-									mVM_Type.Free(FreePatternId.Id)
+									mVM_Type.Free(FreePatternId.Id, __)
 								),
 								aScope
 							),
@@ -1298,8 +1336,7 @@ mSPO_AST_Types {
 				
 				if (
 					!BoolRes.Type.IsSubType(
-						mVM_Type.Bool(),
-						mStd.cEmpty
+						mVM_Type.Bool()
 					).Match(out _, out _)
 				) {
 					return mResult.Fail(
@@ -1318,13 +1355,13 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tIdNode<tPos> Id: {
-				var Type = aType.IsSome(out var T) ? T : mVM_Type.Free();
+				var Type = aType.IsSome(out var T) ? T : mVM_Type.Free(mVM_Type.Type());
 				
 				Result = (
 					Type,
 					mStream.Stream(
 						Type.IsType()
-						? ScopeItem(Id.Id, Type, mVM_Type.Free(Id.Id))
+						? ScopeItem(Id.Id, Type, mVM_Type.Free(Id.Id, Type))
 						: ScopeItem(Id.Id, Type),
 						aScope
 					),
@@ -1408,8 +1445,7 @@ mSPO_AST_Types {
 						aSource.State
 					).ThenTry(
 						aPattern => aSource.Type.IsSubType(
-							aPattern.Type,
-							mStd.cEmpty
+							aPattern.Type
 						).Then(
 							Mappings => (
 								Scope: Def.Src is mSPO_AST.tTypeNode<tPos> &&
@@ -1431,8 +1467,7 @@ mSPO_AST_Types {
 					aTypeState
 				).FailIfNot(
 					aCondition => aCondition.Type.IsSubType(
-						mVM_Type.Bool(),
-						mStd.cEmpty
+						mVM_Type.Bool()
 					).Match(out _, out _),
 					__ => (ReturnIf.Pos, $"{__.Type.ToText()} != [§TRUE | §FALSE]")
 				).ThenTry(
@@ -1478,9 +1513,9 @@ mSPO_AST_Types {
 						ScopeItem(
 							Item.Id.Id,
 							mVM_Type.Proc(
-								mVM_Type.Free("__" + Item.Id.Id + "_Obj__"),
+								mVM_Type.Free("__" + Item.Id.Id + "_Obj__", mVM_Type.Type()),
 								Result.Type,
-								mVM_Type.Free("__" + Item.Id.Id + "_Res__")
+								mVM_Type.Free("__" + Item.Id.Id + "_Res__", mVM_Type.Type())
 							)
 						),
 						Checked.Scope
@@ -1675,7 +1710,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tRecursiveTypeNode<tPos> RecursiveType: {
 				var Name = RecursiveType.HeadType.Id;
-				var RecursiveVar = mVM_Type.Free(Name);
+				var RecursiveVar = mVM_Type.Free(Name, mVM_Type.Type());
 				
 				Result = RecursiveType.BodyType.AsVM_Type(
 					mStream.Stream(
@@ -1728,7 +1763,7 @@ mSPO_AST_Types {
 				if (!Kind.KindType().IsType()) {
 					return mResult.Fail((Sig.HeadType.Pos, "SIG head kind must be a type"));
 				}
-				var Head = mVM_Type.SigHead(Sig.Head.Id, Kind);
+				var Head = mVM_Type.Free(Sig.Head.Id, Kind);
 				Result = Sig.BodyType.AsVM_Type(
 					mStream.Stream(ScopeItem(Sig.Head.Id, Head.KindType(), Head), aScope)
 				).Then(__ => mVM_Type.Sig(Head, __));
@@ -1736,7 +1771,7 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tGenericTypeNode<tPos> GenericType: {
 				var Name = GenericType.HeadType.Id;
-				var GenericVar = mVM_Type.Free(Name);
+				var GenericVar = mVM_Type.Free(Name, mVM_Type.Type());
 				
 				Result = GenericType.BodyType.AsVM_Value(
 					mStream.Stream(

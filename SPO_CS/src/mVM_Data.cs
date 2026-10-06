@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -65,6 +65,7 @@ mVM_Data {
 		TryAsType,
 		TryAsPair,
 		TryAsSig,
+		TryHasHeadType,
 		TryAsVar,
 		TryAsRef,
 		TryAsRecord,
@@ -74,11 +75,12 @@ mVM_Data {
 		Assert,
 		
 		// TYPE
+		LoadType,
 		TypeEmpty,
 		TypeAny,
 		TypeInt,
 		TypeFree,
-		TypeSigHead,
+		TypeAbstract,
 		TypePair,
 		TypeSig,
 		TypePrefix,
@@ -128,6 +130,9 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
+		
+		public mStream.tStream<mVM_Type.tType>
+		TypeDefinitions { get; init; }
 		
 		public readonly mArrayList.tArrayList<tText>
 		TypePrefixes = mArrayList.List<tText>();
@@ -490,14 +495,22 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.TryAsPair, aArgReg);
-
+	
 	public static tNat32
 	TryAsSig<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aArgReg,
-		tNat32 aContractReg
-	) => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, aContractReg);
+		tNat32 aContractTypeIndex
+	) => aDef._AddReg(aPos, tOpCode.TryAsSig, aArgReg, aContractTypeIndex);
+	
+	public static tNat32
+	TryHasHeadType<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aSigReg,
+		tNat32 aHeadReg
+	) => aDef._AddReg(aPos, tOpCode.TryHasHeadType, aSigReg, aHeadReg);
 	
 	public static tNat32
 	TryAsVar<tPos>(
@@ -524,6 +537,13 @@ mVM_Data {
 	}
 	
 	public static tNat32
+	LoadType<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aTypeIndex
+	) => aDef._AddReg(aPos, tOpCode.LoadType, aTypeIndex);
+
+	public static tNat32
 	TypeEmpty<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos
@@ -548,7 +568,7 @@ mVM_Data {
 		tNat32 aTypeReg1,
 		tNat32 aTypeReg2
 	) => aDef._AddReg(aPos, tOpCode.TypePair, aTypeReg1, aTypeReg2);
-
+	
 	public static tNat32
 	TypeSig<tPos>(
 		this tProcDef<tPos> aDef,
@@ -611,15 +631,16 @@ mVM_Data {
 	public static tNat32
 	TypeFree<tPos>(
 		this tProcDef<tPos> aDef,
-		tPos aPos
-	) => aDef._AddReg(aPos, tOpCode.TypeFree);
+		tPos aPos,
+		tNat32 aKindReg
+	) => aDef._AddReg(aPos, tOpCode.TypeFree, aKindReg);
 	
 	public static tNat32
-	TypeSigHead<tPos>(
+	TypeAbstract<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
 		tNat32 aKindReg
-	) => aDef._AddReg(aPos, tOpCode.TypeSigHead, aKindReg);
+	) => aDef._AddReg(aPos, tOpCode.TypeAbstract, aKindReg);
 	
 	public static tNat32
 	TypeRecursive<tPos>(
@@ -644,7 +665,7 @@ mVM_Data {
 		tNat32 aHeadTypeReg,
 		tNat32 aBodyTypeReg
 	) => aDef._AddReg(aPos, tOpCode.TypeGeneric, aHeadTypeReg, aBodyTypeReg);
-
+	
 	public static tNat32
 	TypeGenericApply<tPos>(
 		this tProcDef<tPos> aDef,
@@ -670,8 +691,6 @@ mVM_Data {
 		ExternDef,
 		Var,
 		Type,
-		TypeFunction,
-		SigBinding
 	}
 	
 	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
@@ -858,13 +877,12 @@ mVM_Data {
 		return Data(tDataType.Type, false, aValue);
 	}
 	
-	// Type expressions may also denote constructors or a bound SIG parameter.
+	// Type expressions may also denote constructors or type parameters.
 	public static tData
 	TypeExpression(
 		mVM_Type.tType aValue
 	) => Data(
-		aValue.Kind is mVM_Type.tKind.SigHead ? tDataType.SigBinding :
-		aValue.KindType().IsType() ? tDataType.Type : tDataType.TypeFunction,
+		tDataType.Type,
 		false,
 		aValue
 	);
@@ -876,7 +894,7 @@ mVM_Data {
 		if (aValue.IsBool(out var Bool)) {
 			return Bool ? mVM_Type.True() : mVM_Type.False();
 		}
-		mAssert.IsTrue(aValue._DataType is tDataType.Type or tDataType.TypeFunction or tDataType.SigBinding);
+		mAssert.IsTrue(aValue._DataType is tDataType.Type);
 		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
 		return Expression;
 	}

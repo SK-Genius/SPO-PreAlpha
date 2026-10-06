@@ -1,0 +1,21 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN []]
+§DEF IntPackage = §SIG Contract WITH §INT IN ()
+§DEF BoolPackage = §SIG Contract WITH §BOOL IN ()
+§DEF RecordPackage = §SIG Contract WITH [< Value: §INT >] IN ()
+
+§EXPORT §IF IntPackage MATCH {
+	§SIG Contract WITH §DEF Head IN _ : (
+		§IF IntPackage MATCH {
+			§SIG Contract WITH Head IN _ : 1
+			§SIG Contract WITH _ IN _ : 0
+		}
+		§IF BoolPackage MATCH {
+			§SIG Contract WITH Head IN _ : 1
+			§SIG Contract WITH _ IN _ : 0
+		}
+		§IF RecordPackage MATCH {
+			§SIG Contract WITH [< Value: Head >] IN _ : 1
+			§SIG Contract WITH _ IN _ : 0
+		}
+	)
+}

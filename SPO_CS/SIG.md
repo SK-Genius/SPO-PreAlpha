@@ -1,587 +1,251 @@
-# SIG and Pipes
+# SIG: AI implementation reference
 
-## SIG in one sentence
+Audience: agents changing SPO's parser, type checking, IL lowering, VM, or modules.
+This is a code map and a record of design decisions, not a language specification.
+Paths are relative to `SPO_CS/`. User-facing syntax and examples belong in
+[the SPO cheat sheet](../doc/CheatSheet_SPO.wiki).
+Verify implementation details in the linked source before changing them.
 
-A SIG value packages two things together:
+## Design context
 
-- a **Head**
-- a **Body**
+- SIG is primarily a module interface: export an abstract representation type
+  together with values and functions that use it.
+- A consumer must be able to require that two imported modules use the same
+  abstract type, so a value from one can be passed to functions from the other.
+- Inspecting representations through SIG patterns in `MATCH` is existing behavior,
+  not a requested use case. Representation leaks are neither a required feature
+  nor categorically forbidden. Do not infer either requirement from the tests.
+- Keep the implementation small. Prefer existing type operations and opcodes;
+  a new abstraction or opcode needs a concrete SPO use case.
+- Regression tests record existing behavior. A failure requires assessing the
+  change; neither preserving every old result nor replacing it is automatic.
 
-The important part is that the Head determines which type the Body must have.
+## Existing examples to read
 
-A SIG contract describes that relationship.
+Use these files instead of adding untested examples to documentation:
 
-```spo
-§DEF sContract = [§SIG_WITH t € §TYPE IN t]
-§DEF mPackage = §SIG sContract WITH §INT IN 7
+| Purpose | Files |
+| --- | --- |
+| Small real module with an abstract type constructor | [Span.SPO](Modules/Span.SPO), [Span.SIG](Modules/Span.SIG), [SpanConsumer.SPO](TestFiles/Modules/SpanConsumer.SPO), [expected result](TestFiles/Modules/SpanConsumer.result.SPO) |
+| Larger generic APIs | [List.SIG](Modules/List.SIG), [List.SPO](Modules/List.SPO); [Result.SIG](Modules/Result.SIG), [Result.SPO](Modules/Result.SPO) |
+| Shared abstract type across imports | [SigImportSameHead.SPO](TestFiles/Modules/SigImportSameHead.SPO), [expected result](TestFiles/Modules/SigImportSameHead.result.SPO) |
+| Different imported type rejected | [SigImportDifferentHead.SPO](TestFiles/Modules/SigImportDifferentHead.SPO), [expected result](TestFiles/Modules/SigImportDifferentHead.result.SPO) |
+
+The last two cases use providers in [TestFiles/Modules/_Imports](TestFiles/Modules/_Imports/).
+Their exports and consumer imports load the same `.SIG` contracts.
+`SigBoolReader.SIG` loads `SigReader.SIG` rather than duplicating it.
+
+## Semantic model and invariants
+
+### Contract, Head, and Body
+
+A contract is `mVM_Type.Sig(Binder, BodySignature)`.
+A runtime value is `mVM_Data.Sig(Contract, Head, Body)`; all three are retained.
+
+Construction checks:
+
+- `Head.KindType().SameType(Binder.KindType())`.
+- The Body's static type is a subtype of
+  `BodySignature.Substitute(Binder, Head)`.
+- The complete expression has the contract as its static type.
+
+Do not replace the Body subtype check with exact equality. Do not remove the
+stored contract because two contracts happen to produce the same Body type for
+one Head. Runtime `Matches` checks contract compatibility with `IsSubType`,
+Head kind, and the Body after substituting the actual Head.
+
+### FREE parameters and ABSTRACT witnesses
+
+- `Free` declares a parameter, including the binder of a SIG contract.
+  Substitution and inference must respect its kind.
+- Opening a SIG introduces an `Abstract` witness: a fixed unknown type-level
+  value. Inference must not solve it to a convenient concrete type.
+- Separate openings create separate witnesses. Generated helper functions for
+  one opening must retain the witness created by the SPO checker.
+- A Head pattern naming an existing type or constructor uses `SameType` on the
+  actual Head. Subtyping is insufficient. On success, substitute that Head into
+  the Body type.
+- Binding with `WITH §DEF ...` or ignoring with `WITH _` needs no exact Head test.
+  Ignoring the name still leaves an abstract type if the Body depends on it.
+- An abstract Head cannot escape its scope through a result type, function type,
+  or closure. Repackage dependent values with SIG. Results whose types no longer
+  mention that Head can leave directly.
+
+`SameType` compares bound types independently of binder names, includes record
+fields, and ignores union order. Free variables and abstract witnesses retain
+reference identity. Do not replace this operation with textual names,
+`ToText()`, or the general `tType.operator==`.
+
+### Type-level values, kinds, and signatures
+
+Keep a type-level value separate from its kind and from the type of the runtime
+register holding it.
+
+- `KindType` returns the kind of a type-level value.
+- `IsSignature` accepts ordinary types and declared generic signature families.
+  Accepting a generic abstraction as a signature does not change its function kind.
+- `[§GENERIC t Body]` in SPO and `[§ALL t => Body]` in IL use the same
+  `tKind.Generic` representation. There is no second constructor representation.
+- `ApplyType` substitutes a known Generic binder. An unknown constructor produces
+  a symbolic `TypeApply`. Partial applications may still have a function kind.
+- An abstract constructor cannot itself serve as a Body or field type when its
+  kind is still a function. Apply it until the result is a type.
+- `AsVM_Value` reads a type-level value; `AsVM_Type` additionally requires
+  `IsSignature`. VM `TypeExpressionValue()`, `SignatureValue()`, and
+  `TypeValue()` enforce the corresponding distinctions.
+- Generic function signatures still require generic behavior; a monomorphic
+  function that works for one instantiation is insufficient. Existing inference
+  is local and driven by arguments, including higher-order argument feedback.
+
+## Implementation map
+
+| Area | Source and entry points |
+| --- | --- |
+| SPO syntax and signature loading | [mSPO_Parser.cs](src/mSPO_Parser.cs): `SigType`, `Sig`, `SigPattern`, `SigHeadPattern`, `Signature`, `LoadSig` |
+| AST | [mSPO_AST.cs](src/mSPO_AST.cs): `tSigTypeNode`, `tSigNode`, `tSigPatternNode.HeadValue`, `tIdNode.TypeValue` |
+| SPO checking | [mSPO_AST_Types.cs](src/mSPO_AST_Types.cs): `AsVM_Value`, `AsVM_Type`, `UpdateTypes`, `UpdatePatternTypes`, `HasChildWith` |
+| Shared type operations | [mVM_Type.cs](src/mVM_Type.cs): `KindType`, `IsSignature`, `ApplyType`, `Substitute`, `SameType`, `IsSubType`, `ApplyMappings` |
+| Lowering | [mSPO2IL.cs](src/mSPO2IL.cs): `MapType`, `MapTypeValue`, `MapSigPattern`, `MapPattern`, `TryBindMatchedPattern`, `TryMapPatternGuard` |
+| IL syntax | [mIL_AST.cs](src/mIL_AST.cs), [mIL_Parser.cs](src/mIL_Parser.cs): command definitions, text rendering, parsing |
+| IL checking and opcode generation | [mIL_GenerateOpcodes.cs](src/mIL_GenerateOpcodes.cs): `CompileModule`, `CreateTypeExpression`, local `GetReg`, `KnownValues` |
+| Runtime | [mVM_Data.cs](src/mVM_Data.cs): SIG data and opcode definitions; [mVM.cs](src/mVM.cs): `Matches` and opcode execution |
+| Module initialization and file tests | [mModule.cs](src/mModule.cs): `ModuleSetup`, `Init`; [mE2E.Tests.cs](src/mE2E.Tests.cs): function and module consumers |
+
+The full SPO path starts in [mSPO_Interpreter.Run](src/mSPO_Interpreter.cs):
+parse, desugar, check import/commands, lower, compile IL, execute.
+SPO, IL, and VM checks intentionally serve different purposes; they are not
+redundant checks to remove merely because the compiler emitted the IL.
+
+## IL operations and operand contracts
+
+Forms below are schematic instruction syntax, not standalone example programs.
+
+| Operation / IL form | Current meaning |
+| --- | --- |
+| `Sig`: `p := §SIG Contract WITH Payload` | Payload is the pair `(Head, Body)`. Contract is a declared type reference or a type-valued register. Checks kind and dependent Body type. VM opcode: `NewSig`. |
+| `TryAsSig`: `m := §TRY p AS_SIG Contract` | Contract must name a SIG declaration in `§TYPES`, with a FREE binder. Checks the package against it; returns the entire package and gives it an abstract witness in IL typing. VM receives a type-definition index. |
+| `TryHasHeadType`: `m := §TRY p HAS_HEAD_TYPE Expected` | Input is already a SIG. Expected can be a declared type or a type-valued register, including a captured Head. Exact Head check; returns the entire package and refines its Body type. |
+| `SigHead`: `h := §SIG_HEAD p` | Projects the actual Head. IL opens a still-FREE binder with a fresh abstract witness and updates the input register's SIG type. |
+| `SigHeadAs`: `h := §SIG_HEAD p AS Witness` | Witness must name an ABSTRACT declaration of the matching kind. Opens the input using that specific witness. This preserves the identity already used by generated function signatures. No runtime Head comparison. |
+| `SigBody`: `b := §SIG_BODY p` | Projects the Body with the dependent type established for the input SIG; opens a still-FREE binder if necessary. |
+| `Alias`: `b := a` | Reuses the same register; emits no VM opcode and performs no type assertion. |
+
+`SigHead` and `SigHeadAs` both emit the VM opcode `SigHead`.
+They are distinct IL operations with fixed operands.
+`AliasAs` has been removed; do not reintroduce it as a second witness mechanism.
+
+Both `TryAsSig` and `TryHasHeadType` abort the current procedure on mismatch;
+they do not return a boolean. The different-Head import regression records the
+resulting empty module result.
+
+`MapSigPattern` emits an exact Head check only for a type/existing-Head pattern,
+then projects Head and Body. It uses `SigHeadAs` for an abstract Head recorded by
+the SPO checker. MATCH branch dispatch already checks the contract through
+`§TRY_RETURN` and the branch argument type; it does not need an additional
+`TryAsSig` solely to repeat that check.
+
+Closed type-level values can be declared once in `§TYPES` and used as value
+operands. `GetReg` resolves these references and emits the VM opcode `LoadType`;
+it does not add a textual IL load instruction. Types depending on runtime
+parameters or opened Heads must be built with their actual values inside the
+function. A raw unbound FREE parameter cannot be used as an ordinary value.
+
+The former VM opcode name `TypeValue` is now `LoadType`. The accessor
+`mVM_Data.TypeValue()` and AST/scope `TypeValue` fields still exist and have
+different roles.
+
+## State and identity when editing
+
+- `tTypeState.ValidatedTypes` is an immutable TreeMap snapshot of inferred types,
+  keyed by AST identity with hash-collision buckets. Carry the returned state
+  through child checks and branches. Failed checks must preserve the input state.
+  Declared AST annotations are separate; `HeadValue` and `TypeValue` also remain
+  AST metadata used during lowering.
+- `mVM_Type.IsSubType` returns a TreeMap of substitutions keyed by free-variable
+  identity. Rebinding replaces the entry and preserves previous snapshots.
+- `mSPO2IL.tTypeDeclarations` contains `TypeDef`, `Types`, and `TypeIds`.
+  Helpers receive this small struct by `ref` because they append declarations and
+  replace TreeMap roots. Passing only a read-only mapping would lose updates.
+  Avoid passing the whole module constructor to helpers that only need this state.
+- IL register `Types` and `KnownValues` are different: one stores register types,
+  the other known/symbolic values. Head projection records the witness as a known
+  type-level value while the register's type is the witness's kind.
+- `HasChildWith` is a private static extension that traverses the type graph,
+  including record fields, and stops cycles by reference identity. The caller
+  supplies the condition; abstractness is not hard-coded into the traversal.
+
+## Signature files and tooling
+
+A `.SIG` file contains one complete SPO type definition with optional surrounding
+whitespace, without a `§DEF`, `§IMPORT`, or `§EXPORT` wrapper. It need not be a
+SIG contract; ordinary type definitions are valid too.
+
+`[§LOAD "File.SIG"]` is a type parser form; brackets are required. Loading:
+
+- resolves paths relative to the containing source/signature file; a missing
+  source ID falls back to CWD; absolute paths are accepted;
+- accepts `.SIG` case-insensitively, allows nested and repeated independent loads,
+  and rejects missing files, incomplete/extra definitions, and load cycles;
+- propagates [mTokenizer.tFileContext](src/mTokenizer.cs) with `ReadText` and
+  `LoadPath`, so nested loads preserve the supplied reader and cycle detection;
+- reports `tLoadSigError` with the load position and nested error/load chain;
+- happens during SPO parsing; generated IL contains the type definitions, not
+  `§LOAD`, and the IL parser does not support that form.
+
+The existing reusable contracts are in `Modules/*.SIG`; test-provider contracts
+are in `TestFiles/Modules/_Imports/*.SIG`. Do not assume a `Types/` folder exists.
+
+VSCode signature diagnostics and navigation use the shared parser:
+[mSPO_Diagnostics.cs](../VSCode_Extension/server-src/mSPO_Diagnostics.cs) and
+[mSPO_Navigation.cs](../VSCode_Extension/server-src/mSPO_Navigation.cs).
+The wiki maps `.SIG` to the SPO viewer through
+[viewer.ini](../js/viewer.ini) and [viewer.spo.js](../js/viewer.spo.js).
+
+## Verification and test placement
+
+Run commands from `SPO_CS/`; filters must be the final arguments:
+
+```powershell
+# SIG regressions plus real module consumers
+dotnet src/mRunTests.cs -- -t -g -m SIG Sig HasHeadType SpanConsumer ListConsumer ResultConsumer 07_20_GenericSignatureAlias
+
+# Signature loading
+dotnet src/mRunTests.cs -- -t -g -M mSPO_Parser LOAD
+
+# Full suite
+dotnet src/mRunTests.cs -- -t -g
 ```
 
-The contract says:
-
-- the Head must be a type,
-- call that type `t`,
-- the Body must have exactly that type `t`.
-
-In `mPackage`, the Head is `§INT`. Therefore the Body must be an integer.
-The Body is `7`, so the package is valid.
-
-The static type of the complete package is `sContract`.
-
-You can think of a SIG as a package whose **label determines what is allowed inside**.
-
-## Type values and type functions
-
-Types are values in SPO.
-
-For example:
-
-```text
-§INT : §TYPE
-```
-
-A type function is a value that receives a type and produces a type.
-
-For example, a value with the type
-
-```spo
-[§TYPE => §TYPE]
-```
-
-receives one type and returns another type.
-
-If `tF...` is such a type function, then:
-
-```spo
-[.tF §INT]
-```
-
-applies it to `§INT`. The result is a type.
-
-This distinction matters for SIG contracts.
-
-```spo
-[§SIG_WITH tF... € [§TYPE => §TYPE] IN [.tF §INT]]  // valid
-[§SIG_WITH tF... € [§TYPE => §TYPE] IN tF...]        // invalid
-```
-
-In the first contract, `tF...` is applied and the result is a type.
-
-In the second contract, `tF...` itself is still a type function. A type function
-cannot directly be used where a concrete type is required, for example as the
-Body type, a record field type, an argument type, or a result type.
-
-A curried type constructor may require several applications. A partial
-application may still be a type function. Only an application whose result is a
-type can be used as a type.
-
-## Generic type abstractions
-
-In SPO:
-
-```spo
-[§GENERIC t Body...]
-```
-
-and in IL:
-
-```text
-[§ALL t => Body...]
-```
-
-represent the same kind of type abstraction.
-
-For example:
-
-```spo
-[§GENERIC t [t => t]]
-```
-
-receives a type `t` and produces the function type:
-
-```spo
-[t => t]
-```
-
-Applied to `§INT`, it produces:
-
-```spo
-[§INT => §INT]
-```
-
-The abstraction itself therefore has the type:
-
-```spo
-[§TYPE => §TYPE]
-```
-
-If the Body is itself another type abstraction, the result is a curried type
-function.
-
-## Generic function signatures
-
-A declared type abstraction can also describe a family of function signatures.
-
-```spo
-§DEF sSignature... = [§GENERIC t [t => t]]
-
-§DEF Identity... € sSignature... = (
-	§DEF t € §TYPE
-) <=> (
-	§DEF Value € t
-) => Value
-```
-
-`sSignature...` describes the family:
-
-```text
-INT  => INT
-BOOL => BOOL
-t    => t
-```
-
-Applying the signature itself:
-
-```spo
-[.sSignature §INT]
-```
-
-produces:
-
-```spo
-[§INT => §INT]
-```
-
-Calling the function is different:
-
-```spo
-.Identity 7
-```
-
-Here the function argument determines that `t` is `§INT`, and the result is
-`7`.
-
-The signature annotation does not change the value or the type of the type
-abstraction. It only states that the abstraction is used as a family of function
-signatures.
-
-When generic function signatures are compared, the existing inference from
-function arguments still applies. The names and order of bound generic
-parameters do not have to be identical if the resulting signatures describe the
-same relationship.
-
-A monomorphic function is not accepted merely because it works for one possible
-type. For example, a function that works only for integers does not satisfy:
-
-```spo
-[§GENERIC t [t => t]]
-```
-
-because that signature requires the function to work for every allowed `t`.
-
-A type abstraction is still a type function. It does not become a value of type
-`§TYPE` merely because it is used as a generic function signature.
-
-## Unpacking and matching a SIG
-
-A SIG can be unpacked with pattern matching.
-
-```spo
-§EXPORT §IF mPackage MATCH {
-	§SIG sContract WITH §INT IN §DEF Value : Value
-	§SIG sContract WITH _ IN _ : 0
-}
-```
-
-The first case means:
-
-> If the package uses `sContract` and its Head is exactly `§INT`, bind the
-> Body to `Value`.
-
-Inside that case, `Value` is known to be an integer.
-
-The second case ignores both Head and Body and acts as the fallback.
-
-### Concrete Heads use exact type equality
-
-A concrete SIG Head pattern requires **exact type equality**.
-
-Subtyping is not enough.
-
-A package with:
-
-```text
-Head = §INT
-```
-
-does not match:
-
-```spo
-WITH [§INT | §BOOL]
-```
-
-even though `§INT` is part of that union.
-
-SIG Head matching asks:
-
-```text
-Are these the same type?
-```
-
-not:
-
-```text
-Is one assignable to the other?
-```
-
-or:
-
-```text
-Is one a subtype of the other?
-```
-
-Record fields participate in this equality check. The order of union
-alternatives does not matter.
-
-The names of bound type variables do not affect equality. Free type variables,
-however, keep their identity.
-
-### Binding an unknown Head
-
-A pattern can bind the Head instead of matching one concrete type.
-
-```spo
-WITH §DEF tHead € §TYPE
-```
-
-The Body is then checked using exactly that bound Head.
-
-The important rule is:
-
-**A bound SIG Head is fixed but unknown.**
-
-It is not an inference variable.
-
-The compiler may not later decide that `tHead` should become `§INT` merely
-because that would make another expression type-check.
-
-Only a successful concrete Head match can establish that the Head really is
-`§INT`.
-
-```spo
-WITH _
-```
-
-simply ignores the Head.
-
-A concrete Head pattern covers only that concrete Head, so another case is
-required when other Heads are possible.
-
-The Body may also contain an additional pattern.
-
-## Type constructors as SIG Heads
-
-A SIG Head can itself be a type constructor.
-
-```spo
-§DEF tIdentity... = [§GENERIC t t]
-
-§DEF sContract = [
-	§SIG_WITH tF... € [§TYPE => §TYPE] IN [.tF §INT]
-]
-
-§DEF mPackage =
-	§SIG sContract WITH tIdentity... IN 7
-```
-
-The contract says:
-
-- `tF...` is a type function,
-- the Body must have the type produced by applying `tF...` to `§INT`.
-
-For this package, `tF...` is `tIdentity...`.
-
-Therefore:
-
-```spo
-[.tIdentity §INT]
-```
-
-evaluates to:
-
-```spo
-§INT
-```
-
-so the Body must be an integer. The Body `7` is valid.
-
-As long as `tF...` is unknown, the compiler keeps:
-
-```spo
-[.tF §INT]
-```
-
-as a symbolic type application.
-
-When the concrete Head becomes known, that application can be evaluated.
-
-The same rule applies to nested or curried applications such as:
-
-```text
-.(.tF tError) tValue
-```
-
-## Why this is useful for modules
-
-A SIG can keep a representation type together with the functions that operate
-on that representation.
-
-A module can therefore export:
-
-- a hidden or abstract representation as the SIG Head,
-- values and functions that depend on that representation in the SIG Body.
-
-The consumer binds the Head and uses the Body through the contract.
-
-The important property is that the relationship between the Head and the Body
-is preserved. Unpacking a SIG and packing it again must not break that
-relationship.
-
-## Implementation
-
-SIG processing stays inside the existing compiler phases:
-
-1. The parser creates SIG expressions, contracts, and patterns.
-2. Desugaring processes their parts and the pipe syntax.
-3. SPO type checking verifies the Head and the dependent Body type.
-4. IL generation emits construction, matching, and projection operations.
-5. IL checking and the VM verify the corresponding operations again.
-
-The existing structures from `src/Common` remain the basis.
-
-### Type values and their types stay separate
-
-For a type expression such as:
-
-```spo
-§INT
-```
-
-the compiler needs to keep two different pieces of information:
-
-- the value is the type `§INT`,
-- the value itself has the type `§TYPE`.
-
-The same distinction is required for symbolic type values and type functions.
-
-The SPO checker keeps known or symbolic type-level values available for IL
-generation. The IL checker evaluates type constructions locally and keeps those
-values separate from register types. Aliases and projections preserve known
-type-level values.
-
-No additional language type and no separate `§VALUE` instruction are required.
-
-### Free variables and fixed SIG Heads are different
-
-```text
-[§FREE]
-```
-
-creates a free type variable. It may participate in type inference.
-
-A SIG Head binding is different: it represents a **fixed unknown value** and must
-not be changed by inference.
-
-Internally this distinction is represented explicitly. Conceptually:
-
-```text
-tKind... := [TYPE => TYPE]
-tF... := [§SIG_HEAD tKind]
-Body... := [.tF INT]
-sContract := [§SIG_WITH tF IN Body]
-```
-
-`Body...` refers to exactly that `tF...` binding.
-
-If a concrete constructor is known, the application can be evaluated.
-Otherwise it remains symbolic.
-
-The binding is replaced only by the actual SIG Head, never by subtype inference.
-
-When a SIG is unpacked, the compiler creates a fixed reference to the Head stored
-inside that SIG.
-
-The `§SIG_HEAD` form is an internal IL representation for this fixed unknown
-binding. It is not a new user-facing kind of type.
-
-### Generic type abstractions in IL
-
-IL uses one representation for generic type abstractions:
-
-```text
-tElement := [§FREE]
-Body... := [tElement => tElement]
-tIdentity... := [§ALL tElement => Body]
-tApplied := [.tIdentity INT]
-```
-
-Here:
-
-```text
-tIdentity... : [TYPE => TYPE]
-Body...      : TYPE
-tApplied     : TYPE
-```
-
-There is no second `TypeConstructor` representation and no additional
-`[§GENERIC ...]` IL form.
-
-The parser, IL generation, type checker, and VM share the same generic type
-representation.
-
-Applying:
-
-```text
-[.tIdentity INT]
-```
-
-substitutes `INT` for the bound parameter inside the Body.
-
-The same evaluation rule is used when such a type function is called normally.
-
-### Generic signatures in the VM
-
-The VM still has to distinguish:
-
-- type values,
-- type functions,
-- fixed SIG Head bindings.
-
-A generic signature is transported as the same type abstraction that created
-it. It does not receive a second representation merely because it is used as a
-signature.
-
-`IsSignature` checks whether a type description can be used as a value
-signature or as a declared family of such signatures.
-
-`KindType` independently determines the type of the described type-level
-value.
-
-Type-constructor application and exact type equality remain part of the common
-type operations.
-
-### The contract remains part of a SIG value
-
-A SIG value keeps its contract in addition to its Head and Body.
-
-This matters because two different contracts can produce the same Body type for
-one particular Head while still being different contracts.
-
-Matching must therefore distinguish those SIG values by contract.
-
-The existing mutable AST annotation mechanism remains unchanged.
-
-## Pipes without additional arguments
-
-```spo
-7 §> .Right
-.Left §< 8
-```
-
-Only the piped value is passed.
-
-Conceptually:
-
-```text
-.Right 7
-.Left 8
-```
-
-No additional empty argument is inserted.
-
-An explicitly written `()` is still a real argument:
-
-```spo
-9 §> .RightWith ()
-.Left () Then §< 10
-```
-
-The argument positions of the called name determine where the piped value is
-inserted.
-
-## Signature files
-
-A `.SIG` file contains exactly one SPO type definition, with optional surrounding
-whitespace. It has no `§DEF`, `§IMPORT`, or `§EXPORT` wrapper. For example,
-`Types/TypeConstructor.SIG` contains:
-
-```SPO
-[§TYPE => §TYPE]
-```
-
-Use `[§LOAD "path/to/File.SIG"]` wherever a type is allowed in SPO, including
-inside another `.SIG` file. The square brackets mark a type load and are required:
-
-```SPO
-[§SIG_WITH F € [§LOAD "../Types/TypeConstructor.SIG"] IN [<
-    Some...: [§GENERIC t [t => [.F t]]]
->]]
-```
-
-Paths are resolved relative to the file containing `§LOAD`. Absolute paths
-are also accepted. Each file is parsed as one complete type; empty files,
-additional definitions, missing files, and loading other file extensions are
-errors. Direct and indirect load cycles are rejected with their load chain.
-Repeated independent loads of the same file are allowed.
-
-Loading happens during SPO parsing. Generated `.ILT` contains the resulting type
-definitions and does not support `[§LOAD "..."]`.
-
-The SIG modules and their consumer tests share the files in `Modules/*.SIG`.
-Common type definitions such as `TypeConstructor.SIG` live in `Types/`.
-VSCode recognizes `.SIG` and `.sig`, checks their syntax and types, and supports
-symbols, references, renaming, and navigation to files named by `§LOAD`.
-
-## Tests
-
-Run all tests with:
-
-```text
-dotnet src/mRunTests.cs --no-restore
-```
-
-The main existing SIG examples are:
-
-```text
-03_18_MatchSigConcrete
-03_19_MatchSigHead
-03_20_MatchSigUnion
-07_19_SigHigherKind
-07_20_GenericSignatureAlias
-```
-
-The module consumer tests contain additional SIG examples.
-
-`04_10_PipeWithoutArguments` tests both pipe directions and explicitly supplied
-empty values.
-
-The test run updates `.ILT` files. These are generated IL examples.
-The `.result.SPO` files define the expected behavior.
-
-The full test run currently contains 582 tests.
-
-Additional regression tests cover:
-
-- the separation of type values and type functions,
-- fixed SIG Head bindings,
-- normal type-constructor calls,
-- generic signatures,
-- curried type applications,
-- preventing SIG binding declarations from escaping,
-- exact Head equality.
-
-When a type application still contains an abstract SIG Head, the VM does not yet
-know the final representation of the result. SPO and IL still verify the
-binding and arguments statically.
-
-For a concrete SIG package, the actual Head is substituted before the VM checks
-the dependent Body.
+Use `-l` to list matching tests without executing them. Filters are
+case-sensitive substring matches; `-m` means any, `-M` means all.
+
+- SPO behavior belongs in `TestFiles/Functions/` (end to end) or
+  `TestFiles/Modules/` (module dependencies and shared abstract types).
+  Function cases receive Std exports directly; module cases receive the module
+  record and the providers from `_Imports/`.
+- Use focused C# tests for isolated properties not already covered by those
+  cases: [mVM_Type.Tests.cs](src/mVM_Type.Tests.cs),
+  [mSPO_AST_Types.Tests.cs](src/mSPO_AST_Types.Tests.cs),
+  [mIL_GenerateOpcodes.Tests.cs](src/mIL_GenerateOpcodes.Tests.cs),
+  [mIL_Parser.Tests.cs](src/mIL_Parser.Tests.cs), and
+  [mSPO_Parser.Tests.cs](src/mSPO_Parser.Tests.cs).
+  Keep [mModule.Tests.cs](src/mModule.Tests.cs) about the actual `Modules/` files.
+- Existing `03_18`–`03_22` SIG MATCH cases and `07_19_SigHigherKind` /
+  `07_20_GenericSignatureAlias` are regressions, not additional design use cases.
+- Check SPO output, generated IL, and IL execution against the paired
+  `.result.SPO`. Test execution and module initialization can rewrite `.ILT`
+  files; module-consumer generation checks report changed IL as a failure.
+  Inspect the generated diff before deciding whether to accept it.
+
+Keep documentation examples tied to tested source/result files. Update this
+reference when invariants or phase responsibilities change; do not record a
+transient test count or pass/fail snapshot.
+
+## Related pipe behavior
+
+[04_10_PipeWithoutArguments.SPO](TestFiles/Functions/04_10_PipeWithoutArguments.SPO)
+and its [expected result](TestFiles/Functions/04_10_PipeWithoutArguments.result.SPO)
+cover both directions: a pipe adds only the piped value, never an implicit
+`()` argument. An explicitly supplied `()` remains a real argument; the called
+name determines the insertion position. Lowering starts in
+[mSPO_Desugar.cs](src/mSPO_Desugar.cs).

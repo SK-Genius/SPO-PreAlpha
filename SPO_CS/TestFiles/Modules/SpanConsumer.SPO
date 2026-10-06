@@ -3,7 +3,7 @@
 		...==...: §DEF ...==...
 		...>...: §DEF ...>...
 	} € [§LOAD "../../Modules/Std.SIG"]
-	Span: §SIG [§LOAD "../../Modules/Span.SIG"] WITH §DEF F € [§TYPE => §TYPE] IN {
+	Span: §SIG [§LOAD "../../Modules/Span.SIG"] WITH §DEF tSpan € [§TYPE => §TYPE] IN {
 		...--...: §DEF ...--...
 		SpanAt...: §DEF SpanAt...
 		...Start: §DEF ...Start
@@ -14,12 +14,12 @@
 	}
 }
 
-§DEF A € [.F §INT] = 1 .-- 3
-§DEF SameA € [.F §INT] = 1 .-- 3
-§DEF B € [.F §INT] = 3 .-- 7
-§DEF Point € [.F §INT] = .SpanAt 4
-§DEF Merged € [.F §INT] = A .& B With ...>...
-§DEF ...Span==... € [[.F §INT, .F §INT] => §BOOL] = .==With ...==...
+§DEF A € [.tSpan §INT] = 1 .-- 3
+§DEF SameA € [.tSpan §INT] = 1 .-- 3
+§DEF B € [.tSpan §INT] = 3 .-- 7
+§DEF Point € [.tSpan §INT] = .SpanAt 4
+§DEF Merged € [.tSpan §INT] = A .& B With ...>...
+§DEF ...Span==... € [[.tSpan §INT, .tSpan §INT] => §BOOL] = .==With ...==...
 
 §EXPORT (
 	(A .Start, A .End)

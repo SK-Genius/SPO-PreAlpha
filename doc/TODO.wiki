@@ -1,4 +1,4 @@
-﻿[=Syntax=]
+[=Syntax=]
 
 - maybe rename operators:
 -- [.spo|§<.] to [.spo|<|.]
@@ -10,8 +10,6 @@
 
 [=Types=]
 
-- make types to first class citizen
--- can't uses generic types through module boarders now (do i need high order types)
 - if lambda is used as argument in a other (higher order) function, infer the argument type
 -- Example: [.spo|ListOfNumbers .Map (a => 2 .* a).] aka [.spo|ListOfNumbers .Map (=> 2 .* ...).]
 - arrays ??? [.spo|[[v1, v2, ...]].]

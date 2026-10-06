@@ -12,11 +12,13 @@ using xCallerFile = System.Runtime.CompilerServices.CallerFilePathAttribute;
 
 public static partial class
 mPerf {
+	#if MY_TRACE_PERF
 	private const tInt32 cMaxLogCount = 1 << 16;
 	private static tInt32 gStackIndex = 0;
 	
 	private static tInt32 gNextLogIndex = 0;
 	private static readonly (tNat64 Time, tText? File, tText? Name)[] gLog = new (tNat64, tText?, tText?)[cMaxLogCount];
+	#endif
 	
 	public sealed class
 	tDisposer : System.IDisposable {
@@ -46,9 +48,11 @@ mPerf {
 		tText aCallerName,
 		tText aCallerFile
 	) {
+		#if MY_TRACE_PERF
 		gLog[gNextLogIndex] = (ThreadCycles(), aCallerFile, aCallerName);
 		gNextLogIndex += 1;
 		gStackIndex += 1;
+		#endif
 	}
 	
 	#if MY_TRACE_PERF
@@ -59,11 +63,11 @@ mPerf {
 	public static void
 	ExitScope(
 	) {
+		#if MY_TRACE_PERF
 		gStackIndex -= 1;
 		gLog[gNextLogIndex] = (ThreadCycles(), null, null);
 		gNextLogIndex += 1;
 		if (gStackIndex == 0) {
-			#if MY_TRACE_PERF
 				var Stack = new (tNat64 Time, tText File, tText Name)[1 << 16];
 				var StackIndex = 0;
 				for (var I = 0; I < gNextLogIndex; I += 1) {
@@ -84,9 +88,9 @@ mPerf {
 						StackIndex += 1;
 					}
 				}
-			#endif
 			gNextLogIndex = 0;
 		}
+		#endif
 	}
 	
 	[LibraryImport("kernel32.dll", SetLastError = true)]

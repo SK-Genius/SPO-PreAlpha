@@ -90,7 +90,7 @@ mE2E_Tests {
 										aDebug(ResRes.Value.Log);
 										
 										mAssert.IsTrue(
-											ResRes.Value.Result.Type.IsSubType(SPO_Res.Type, mStd.cEmpty).Match(out _, out var Error),
+											ResRes.Value.Result.Type.IsSubType(SPO_Res.Type).Match(out _, out var Error),
 											Error
 										);
 										
@@ -136,8 +136,7 @@ mE2E_Tests {
 										
 										mAssert.IsTrue(
 											ResRes.Value.Result.Type.IsSubType(
-												IL_Res.Type,
-												mStd.cEmpty
+												IL_Res.Type
 											).Match(out _, out var Error),
 											Error
 										);
@@ -155,6 +154,20 @@ mE2E_Tests {
 				}
 				
 				var ModuleTestFolder = mFS.CWD() / "TestFiles" / "Modules";
+				var ImportFolder = ModuleTestFolder / "_Imports";
+				var TestModules = mStream.Concat(
+					mModule.Modules,
+					ImportFolder.Exists()
+					? ImportFolder.GetFiles().Where(
+						aFile => aFile.Extension is "SPO"
+					).Map(
+						aFile => (
+							Key: aFile.NameWithoutExtension,
+							Module: mModule.ModuleSetup(aFile.Path, mModule.Modules)
+						)
+					)
+					: mStd.cEmpty
+				);
 				
 				foreach (
 					var ConsumerSPO in ModuleTestFolder.GetFiles().Where(
@@ -190,7 +203,7 @@ mE2E_Tests {
 								mTest.Test(
 									".SPO == .result.SPO",
 									aDebug => {
-										var Modules = mModule.Modules.Init(aDebug).ElseThrow();
+										var Modules = TestModules.Init(aDebug).ElseThrow();
 										
 										var Actual = mSPO_Interpreter.Run(
 											ConsumerSource.Value,
@@ -202,7 +215,7 @@ mE2E_Tests {
 										var Expected_ = Expected(__ => aDebug(__()));
 										
 										mAssert.IsTrue(
-											Expected_.Type.IsSubType(Actual.Type, mStd.cEmpty).Match(out _, out var Error),
+											Expected_.Type.IsSubType(Actual.Type).Match(out _, out var Error),
 											Error
 										);
 										
@@ -232,7 +245,7 @@ mE2E_Tests {
 								mTest.Test(
 									".ILT == .result.SPO",
 									aDebug => {
-										var Modules = mModule.Modules.Init(aDebug).ElseThrow();
+										var Modules = TestModules.Init(aDebug).ElseThrow();
 										
 										var Actual = mVM.Run(
 											mIL_Parser.Module.ParseText(
@@ -248,7 +261,7 @@ mE2E_Tests {
 										var Expected_ = Expected(__ => aDebug(__()));
 										
 										mAssert.IsTrue(
-											Expected_.Type.IsSubType(Actual.Type, mStd.cEmpty).Match(out _, out var Error),
+											Expected_.Type.IsSubType(Actual.Type).Match(out _, out var Error),
 											Error
 										);
 										

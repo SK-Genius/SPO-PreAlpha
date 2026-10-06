@@ -4,7 +4,7 @@
 
 - surface [*.SPO*] lowers to [*mIL_AST.tModule*]
 - [*.ILT*] is the shared backend text boundary
-- canonical examples live in [*SPO_CS/Modules/*.ILT*] and [*SPO_CS/Regression.Tests/*.ILT*]
+- generated examples live in [.|SPO_CS/Modules/.], [.|SPO_CS/TestFiles/Functions/.], and [.|SPO_CS/TestFiles/Modules/.]
 
 [=Module Shape=]
 
@@ -49,7 +49,9 @@ Common fixed values that appear directly in IL:
 |[Arg => Res]
 |[Obj : [Arg => Res]]
 |[§VAR A]
-|[§FREE]
+|[§FREE Kind]
+|[§ABSTRACT Kind]
+|[§SIG_WITH t IN Body]
 |[§REC t => Body]
 |[§ALL t => Body]
 |[§ANY t => Body]
@@ -61,6 +63,46 @@ Notes:
 - IL uses [.ilt|§REC.], [.ilt|§ALL.], and [.ilt|§ANY.] where SPO surface syntax uses [.ilt|§RECURSIVE.], [.ilt|§GENERIC.], and [.ilt|§INTERFACE.].
 - method types in IL are written as object type plus function type, for example [.ilt|[[tObj : [tArg => tRes]]]].]
 - [.ilt|[[A & Proof]].] is parser-visible as [.ilt|TypeCond.], but it is not fully finished end-to-end
+
+[=SIG Contracts and Type Values=]
+
+[.ilt
+|t := [§FREE TYPE]
+|Contract := [§SIG_WITH t IN t]
+|Witness := [§ABSTRACT TYPE]
+.]
+
+- [.ilt|§FREE Kind.] declares a parameter with an explicit kind. It may be bound by a contract or participate in inference.
+- [.ilt|§ABSTRACT Kind.] declares a fixed unknown type-level value. Inference cannot change it.
+- a SIG contract binds its FREE parameter in the Body; opening the SIG substitutes the actual Head or a fixed abstract witness
+- a kind may be [.ilt|TYPE.] or a type-function signature such as [.ilt|[[TYPE => TYPE]].]
+
+Type declarations can also be used directly as value operands, for example [.ilt|Value := Contract.].
+The backend loads such values with the internal VM opcode [.|LoadType.]; no additional IL command is needed.
+SPO signature-file loads are resolved before IL generation, so [.spo|§LOAD.] does not appear in generated IL.
+
+[.ilt
+|Payload := HeadValue, BodyValue
+|Package := §SIG Contract WITH Payload
+|Head := §SIG_HEAD Package
+|AbstractHead := §SIG_HEAD Package AS Witness
+|Body := §SIG_BODY Package
+|Matched := §TRY Input AS_SIG Contract
+|Exact := §TRY Package HAS_HEAD_TYPE ExpectedHead
+.]
+
+[| [*IL operation*] ][ [*Effect*] ][ [*SPO use case*] |]
+[| [.ilt|§SIG_HEAD Package AS Witness.] ][ Opens the dependent Body using the declared ABSTRACT witness; extracts the actual Head at runtime. ][ Bind an abstract type in the first SIG import. |]
+[| [.ilt|§TRY Package HAS_HEAD_TYPE ExpectedHead.] ][ Requires exact Head equality and refines the dependent Body to that Head. ][ A second import must share the abstract type bound by the first. |]
+[| [.ilt|§TRY Input AS_SIG Contract.] ][ Checks an input against a declared SIG contract. ][ Available to IL callers; current SPO import lowering checks the contract through the module argument type. |]
+
+The TRY operations keep the whole SIG on success. A failed check exits the current function with an empty result.
+[.ilt|HAS_HEAD_TYPE.] accepts a declared type or a register containing a type value; subtyping is not enough.
+[.ilt|AS_SIG.] takes a contract declared in [.ilt|§TYPES.].
+
+The [.ilt|AS Witness.] annotation affects IL checking; both Head projection forms use the same VM projection.
+An ordinary alias such as [.ilt|Other := Head.] retains the source register and its type-level value.
+For an executable import example, see [<../SPO_CS/TestFiles/Modules/SigImportSameHead.ILT>].
 
 [=Common Command Forms=]
 
@@ -118,5 +160,5 @@ The forms you will see most often in checked-in `.ILT` files are:
 
 - [<../SPO_CS/Modules/Std.ILT|SPO_CS/Modules/Std.ILT>]
 - [<../SPO_CS/Modules/Text.ILT|SPO_CS/Modules/Text.ILT>]
-- [<../SPO_CS/Regression.Tests/08_02_DefIncrement.ILT|SPO_CS/Regression.Tests/08_02_DefIncrement.ILT>]
+- [<../SPO_CS/TestFiles/Functions/08_02_DefIncrement.ILT|SPO_CS/TestFiles/Functions/08_02_DefIncrement.ILT>]
 - [<../SPO_CS/src/mIL_Parser.Tests.cs|SPO_CS/src/mIL_Parser.Tests.cs>]

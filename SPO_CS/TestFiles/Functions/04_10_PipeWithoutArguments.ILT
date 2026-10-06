@@ -9,7 +9,7 @@
 	t_7 := [t_6, INT]
 	t_8 := [t_7 => INT]
 	t_9 := [EMPTY_TYPE => t_8]
-	t_10 := [§FREE]
+	t_10 := [§FREE TYPE]
 	t_11 := [EMPTY_TYPE, t_10]
 	t_12 := [t_10 => t_11]
 	t_13 := [§ALL t_10 => t_12]

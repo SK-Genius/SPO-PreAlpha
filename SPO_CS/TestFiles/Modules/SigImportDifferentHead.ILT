@@ -1,0 +1,29 @@
+§TYPES
+	t_0 := [§ABSTRACT TYPE]
+	t_1 := [§FREE TYPE]
+	t_2 := [t_1 => INT]
+	t_3 := [§SIG_WITH t_1 IN t_2]
+	t_4 := [#_SigBoolReader t_3]
+	t_5 := [{EMPTY_TYPE} + t_4]
+	t_6 := [§FREE TYPE]
+	t_7 := [§SIG_WITH t_6 IN t_6]
+	t_8 := [#_SigValue t_7]
+	t_9 := [{t_5} + t_8]
+	t_10 := [EMPTY_TYPE | INT]
+	t_11 := [t_9 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+
+§DEF d_0 € t_12
+	r_1 := {ARG} #_SigValue
+	r_2 := §SIG_HEAD r_1 AS t_0
+	r_3 := §SIG_BODY r_1
+	_t := r_2
+	_Value := r_3
+	r_4 := {ARG} #_SigBoolReader
+	r_5 := §TRY r_4 HAS_HEAD_TYPE _t
+	r_6 := §SIG_HEAD r_5 AS t_0
+	r_7 := §SIG_BODY r_5
+	_Read... := r_7
+	r_8 := ._Read... _Value
+	_Result := r_8
+	§RETURN _Result IF TRUE

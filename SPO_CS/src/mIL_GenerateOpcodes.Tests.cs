@@ -92,7 +92,7 @@ mIL_GenerateOpcodes_Tests {
 				aDebug => {
 					const tText Source = """
 					§TYPES
-						t := [§FREE]
+						t := [§FREE TYPE]
 						Body := [t => t]
 						Identity := [§ALL t => Body]
 						IdDef := [EMPTY_TYPE => Identity]
@@ -105,7 +105,7 @@ mIL_GenerateOpcodes_Tests {
 						seven := 7
 						value := .id seven
 						flag := .id TRUE
-						t := [§FREE]
+						t := [§FREE Type_TYPE]
 						Body := [t => t]
 						T := [§ALL t => Body]
 						result := .T INT_TYPE
@@ -143,7 +143,7 @@ mIL_GenerateOpcodes_Tests {
 						Func := [EMPTY_TYPE => TYPE]
 						Def := [EMPTY_TYPE => Func]
 					§DEF main € Def
-						t := [§FREE]
+						t := [§FREE Type_TYPE]
 						F := [§ALL t => t]
 						result := .F INT_TYPE
 						§RETURN result IF TRUE
@@ -163,7 +163,7 @@ mIL_GenerateOpcodes_Tests {
 						CompileModule(Source.Replace("§RETURN result", "§RETURN F") + "\n", "", _ => { });
 					});
 					mAssert.ThrowsError(() => {
-						CompileModule(Source.Replace("[§FREE]", "[§FREE € Type_TYPE]") + "\n", "", _ => { });
+						CompileModule(Source.Replace("[§FREE Type_TYPE]", "[§FREE € Type_TYPE]") + "\n", "", _ => { });
 					});
 				}
 			),
@@ -174,7 +174,7 @@ mIL_GenerateOpcodes_Tests {
 						Func := [EMPTY_TYPE => TYPE]
 						Def := [EMPTY_TYPE => Func]
 					§DEF main € Def
-						F := [§SIG_HEAD Type_TYPE]
+						F := [§FREE Type_TYPE]
 						Contract := [§SIG_WITH F IN F]
 						§RETURN Contract IF TRUE
 					
@@ -192,7 +192,7 @@ mIL_GenerateOpcodes_Tests {
 						Func := [EMPTY_TYPE => TYPE]
 						Def := [EMPTY_TYPE => Func]
 					§DEF main € Def
-						t := [§SIG_HEAD Type_TYPE]
+						t := [§FREE Type_TYPE]
 						contract := [§SIG_WITH t IN t]
 						body := 7
 						payload := INT_TYPE, body

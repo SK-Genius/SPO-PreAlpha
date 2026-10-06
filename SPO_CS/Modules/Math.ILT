@@ -363,4 +363,5 @@
 	r_33 := {r_31} + r_32
 	r_34 := +#_Sign... _Sign...
 	r_35 := {r_33} + r_34
-	§RETURN r_35 IF TRUE
+	_Module := r_35
+	§RETURN _Module IF TRUE

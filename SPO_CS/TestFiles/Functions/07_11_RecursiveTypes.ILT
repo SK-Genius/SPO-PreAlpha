@@ -1,17 +1,21 @@
 §TYPES
-	t_0 := [§FREE]
+	t_0 := [§FREE TYPE]
 	t_1 := [t_0, INT]
 	t_2 := [t_1 | EMPTY_TYPE]
 	t_3 := [§REC t_0 => t_2]
-	t_4 := [EMPTY_TYPE, t_3]
+	t_4 := [§FREE TYPE]
 	t_5 := [t_4, INT]
-	t_6 := [t_3, INT]
-	t_7 := [t_5 => t_6]
-	t_8 := [EMPTY_TYPE => t_7]
-	t_9 := [EMPTY_TYPE => t_6]
-	t_10 := [t_8 => t_9]
+	t_6 := [t_5 | EMPTY_TYPE]
+	t_7 := [§REC t_4 => t_6]
+	t_8 := [EMPTY_TYPE, t_7]
+	t_9 := [t_8, INT]
+	t_10 := [t_7, INT]
+	t_11 := [t_9 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [EMPTY_TYPE => t_10]
+	t_14 := [t_12 => t_13]
 
-§DEF d_0 € t_8
+§DEF d_0 € t_12
 	r_1 := §2ND ARG
 	_aHead := r_1
 	r_2 := §1ST ARG
@@ -22,25 +26,21 @@
 	r_5 := _aTail, _aHead
 	§RETURN r_5 IF TRUE
 
-§DEF d_1 € t_10
+§DEF d_1 € t_14
 	d_0 := ENV
-	r_1 := [§FREE]
-	r_2 := [r_1, INT_TYPE]
-	r_3 := [r_2 | EMPTY_TYPE]
-	r_4 := [§REC r_1 => r_3]
-	_tIntArray := r_4
-	r_5 := .d_0 EMPTY
-	_...Append... := r_5
-	r_6 := EMPTY, EMPTY
-	r_7 := 1
+	_tIntArray := t_3
+	r_1 := .d_0 EMPTY
+	_...Append... := r_1
+	r_2 := EMPTY, EMPTY
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...Append... r_4
+	r_6 := EMPTY, r_5
+	r_7 := 2
 	r_8 := r_6, r_7
 	r_9 := ._...Append... r_8
 	r_10 := EMPTY, r_9
-	r_11 := 2
+	r_11 := 3
 	r_12 := r_10, r_11
 	r_13 := ._...Append... r_12
-	r_14 := EMPTY, r_13
-	r_15 := 3
-	r_16 := r_14, r_15
-	r_17 := ._...Append... r_16
-	§RETURN r_17 IF TRUE
+	§RETURN r_13 IF TRUE

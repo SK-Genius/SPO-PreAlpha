@@ -115,9 +115,7 @@
 	§DEF Value: #Value Value
 }
 
-§DEF Contract = [§LOAD "Result.SIG"]
-
-§EXPORT §SIG Contract WITH tResult... IN {
+§EXPORT §SIG [§LOAD "Result.SIG"] WITH tResult... IN {
 	OK...: OK...
 	Fail...: Fail...
 	...>>...: ...>>...

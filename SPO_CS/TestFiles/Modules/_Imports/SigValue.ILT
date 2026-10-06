@@ -1,0 +1,11 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [§SIG_WITH t_0 IN t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+
+§DEF d_0 € t_3
+	r_1 := 7
+	r_2 := INT_TYPE, r_1
+	r_3 := §SIG t_1 WITH r_2
+	§RETURN r_3 IF TRUE

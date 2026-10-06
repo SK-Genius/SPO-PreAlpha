@@ -107,7 +107,7 @@ Normal wiki links use the less-than form:
 Important rules:
 
 - a target without an extension is treated as a wiki page and gets [.|.wiki.] implicitly
-- [.|.wiki.], [.|.spo.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] open in repo viewers
+- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] open in repo viewers
 - explicit targets with other extensions resolve as files or assets
 - raw URLs, [.|www.example.com.], and mail addresses are auto-linked
 - the legacy board-link form [.|[[?Title?]].] is still recognized
@@ -162,17 +162,17 @@ Hash blocks reference files or URLs:
 [|
 	[.
 	|[#
-	||../SPO_CS/Regression.Tests/01_03_AssignInt.SPO
+	||../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
 	|#]
 	.]
 ][
 	[#
-	|../SPO_CS/Regression.Tests/01_03_AssignInt.SPO
+	|../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
 	#]
 |]
 
 - paths are relative to the current wiki file
-- [.|.wiki.], [.|.spo.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] use viewers
+- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] use viewers
 - images and videos use built-in media rendering
 - plain text files without a dedicated viewer fall back to code-style rendering
 
@@ -324,7 +324,7 @@ There are two inline forms:
 - if you want full block rendering, use a standalone hash block or the multiline embedded-resource form instead
 
 [| [*Source*]                                                             ][ [*Rendered*]                                                     |]
-[| [.|See [[# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/Regression.Tests/01_03_AssignInt.SPO #] inline. |]
+[| [.|See [[# ../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO #] inline. |]
 [| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                      |]
 
 [=Viewers By Extension=]
@@ -332,7 +332,7 @@ There are two inline forms:
 There are dedicated viewers for:
 
 - [.|.wiki.]
-- [.|.spo.] and [.|.ilt.]
+- [.|.spo.], [.|.sig.], and [.|.ilt.]
 - [.|.mermaid.] and [.|.mmd.]
 
 The supported image file formats:
