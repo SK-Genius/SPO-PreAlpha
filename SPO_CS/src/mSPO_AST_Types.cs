@@ -1522,47 +1522,75 @@ mSPO_AST_Types {
 					), Result.State);
 				}
 				
-				foreach (var Item in RecLambdas.List) {
-					if (
-						!Checked.Scope.Where(
-							__ => __.Id == Item.Id.Id
-						).TryFirst(
-						).ElseFail(
-							() => (Item.Pos, $"unknown Id '{Item.Id.Id}'")
-						).Then(
-							__ => __.Type
-						).ThenTry(
-							DesType => Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).ThenDo(
-								SrcType => {
-									DesType.Kind = SrcType.Type.Kind;
-									DesType.Id = SrcType.Type.Id;
-									DesType.Prefix = SrcType.Type.Prefix;
-									DesType.Refs = SrcType.Type.Refs;
-								}
-							)
-						).Match(out var Typed, out var Error)
-					) {
-						return mResult.Fail(Error);
+				var ResultVariables = RecLambdas.List.Map(
+					aItem => Checked.Scope.Where(__ => __.Id == aItem.Id.Id).TryFirst().AssertNotEmpty().Type.Refs[2]
+				).ToArrayList();
+				
+				tBool IsResultVariable(mVM_Type.tType aType) => (
+					ResultVariables.ToStream().Any(__ => mStd.RefEq(__, aType))
+				);
+				
+				mStream.tStream<mVM_Type.tType> Alternatives(mVM_Type.tType aType) => (
+					aType.IsSet(out var Left, out var Right)
+						? mStream.Concat(Alternatives(Left), Alternatives(Right))
+						: IsResultVariable(aType) ? mStd.cEmpty : mStream.Stream(aType)
+				);
+				
+				mMaybe.tMaybe<mVM_Type.tType> ResolveResult(mVM_Type.tType aType) {
+					var Cases = Alternatives(aType);
+					// Bare recursive returns add no information. Nested unresolved results must wait.
+					if (Cases.IsEmpty() || Cases.Any(__ => __.HasChildWith(IsResultVariable))) {
+						return mStd.cEmpty;
 					}
-					Checked = (Checked.Scope, Typed.State);
+					var Distinct = Cases.Reduce(
+						mStream.Stream<mVM_Type.tType>(),
+						(aTypes, aCase) => aTypes.Any(__ => __.SameType(aCase))
+							? aTypes : mStream.Stream(aCase, aTypes)
+					).Reverse();
+					return Distinct.Skip(1).Reduce(
+						Distinct.TryFirst().AssertNotEmpty(),
+						(aLeft, aRight) => mVM_Type.Set(aLeft, aRight)
+					);
 				}
 				
-				foreach (var Item in RecLambdas.List) {
-					if (
-						!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Then(
-							__ => (mStream.Stream(
-								ScopeItem(
-									Item.Id.Id,
-									__.Type
-								),
-								Checked.Scope
-							), __.State)
-						).Match(out Checked, out var Error)
-					) {
-						return mResult.Fail(Error);
+				mVM_Type.tType WithResult(mVM_Type.tType aType, mVM_Type.tType aResult) => (
+					aType.IsGeneric(out var Parameter, out var Body)
+						? mVM_Type.Generic(Parameter, WithResult(Body, aResult))
+						: mVM_Type.Proc(aType.Refs[0], aType.Refs[1], aResult)
+				);
+				
+				// A base case can travel through at most one edge per function in the group.
+				// Keep free results for recursive data shapes that need a separate type equation.
+				var GroupSize = RecLambdas.List.Count();
+				for (var Pass = 0; Pass <= GroupSize; Pass += 1) {
+					var Changed = false;
+					foreach (var Item in RecLambdas.List) {
+						if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+							return mResult.Fail(Error);
+						}
+						Checked = (Checked.Scope, Typed.State);
+						var ProcType = Typed.Type;
+						while (ProcType.IsGeneric(out _, out var Inner)) {
+							ProcType = Inner;
+						}
+						var Signature = ResolveResult(ProcType.Refs[2]).Match(
+							aResult => WithResult(Typed.Type, aResult),
+							() => Typed.Type
+						);
+						var DesType = Checked.Scope.Where(__ => __.Id == Item.Id.Id).TryFirst().AssertNotEmpty().Type;
+						if (!DesType.SameType(Signature)) {
+							DesType.Kind = Signature.Kind;
+							DesType.Id = Signature.Id;
+							DesType.Prefix = Signature.Prefix;
+							DesType.Refs = Signature.Refs;
+							Changed = true;
+						}
+						Checked = (Checked.Scope, Checked.State.SetValidatedType(Item.Lambda, DesType));
+					}
+					if (!Changed) {
+						return Checked;
 					}
 				}
-				
 				return Checked;
 			}
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {

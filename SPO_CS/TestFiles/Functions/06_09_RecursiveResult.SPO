@@ -1,0 +1,8 @@
+§RECURSIVE {
+	§DEF Position... = §DEF aAtEnd € §BOOL => §IF aAtEnd MATCH {
+		§TRUE: (1, 2)
+		§FALSE: .Position §TRUE
+	}
+}
+(§DEF X, §DEF Y) = .Position §FALSE
+§EXPORT X
