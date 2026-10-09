@@ -105,9 +105,9 @@
 	_Position... := r_5
 	r_6 := ._Position... FALSE
 	r_7 := §2ND r_6
-	_Y := r_7
+	_cY := r_7
 	r_8 := §1ST r_6
 	r_9 := §2ND r_8
-	_X := r_9
+	_cX := r_9
 	r_10 := §1ST r_8
-	§RETURN _X IF TRUE
+	§RETURN _cX IF TRUE
