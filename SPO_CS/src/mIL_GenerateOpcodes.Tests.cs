@@ -118,6 +118,33 @@ mIL_GenerateOpcodes_Tests {
 					mAssert.IsTrue(Result.TypeValue().SameType(mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int())));
 				}
 			),
+			mTest.Test("Skipped return blocks do not narrow values used after the block",
+				aDebug => {
+					const tText cSource = """
+					§TYPES
+						Bool := [TRUE | FALSE]
+						Func := [Bool => Bool]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						§BEGIN_IF FALSE
+						§RETURN ARG IF_NOT_EMPTY
+						§END_IF
+						result := §BOOL ARG & TRUE
+						§RETURN result IF TRUE
+					""";
+					var Def = CompileModule(cSource + "\n", "", __ => aDebug(__())).Defs.TryFirst().AssertNotEmpty();
+					var Result = mVM_Data.Empty();
+					mVM.Run<tSpan>(
+						mVM_Data.Proc(Def, mVM_Data.Empty()),
+						mVM_Data.Empty(),
+						mVM_Data.Bool(false),
+						Result,
+						mTextParser.ToText,
+						__ => aDebug(__())
+					);
+					mAssert.IsTrue(Result.IsBool(out var Value) && !Value);
+				}
+			),
 			mTest.Test("Conditional blocks require balanced markers and a boolean guard",
 				aDebug => {
 					const tText cSource = """

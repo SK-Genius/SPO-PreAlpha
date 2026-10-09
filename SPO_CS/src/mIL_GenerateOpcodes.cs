@@ -324,7 +324,8 @@ mIL_GenerateOpcodes {
 			var Conditionals = mArrayList.List<(
 				tNat32 Begin,
 				mTreeMap.tTree<tText, tNat32> Regs,
-				mTreeMap.tTree<tNat32, mVM_Data.tData> KnownValues
+				mTreeMap.tTree<tNat32, mVM_Data.tData> KnownValues,
+				mVM_Type.tType[] Types
 			)>();
 			
 			foreach (var Command in Commands) {
@@ -767,7 +768,7 @@ mIL_GenerateOpcodes {
 					case { NodeType: mIL_AST.tCommandNodeType.BeginIf, Pos: var Span, _1: var RegId }: {
 						var CondReg = GetReg(RegId);
 						Types.Get(CondReg).IsSubType(mVM_Type.Bool()).AssertNotError(Fail_);
-						Conditionals.Push((NewProc.BeginIf(Span, CondReg), Regs, KnownValues));
+						Conditionals.Push((NewProc.BeginIf(Span, CondReg), Regs, KnownValues, Types.ToArray()));
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.EndIf, Pos: var Span }: {
@@ -777,6 +778,9 @@ mIL_GenerateOpcodes {
 						// A skipped block has no values, including lazily loaded type registers.
 						Regs = Conditional.Regs;
 						KnownValues = Conditional.KnownValues;
+						for (tNat32 Index = 0; Index < Conditional.Types.Length; Index += 1) {
+							Types.Set(Index, Conditional.Types[Index]);
+						}
 						break;
 					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIf, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
