@@ -904,18 +904,15 @@ mVM_Type {
 	}
 	
 	private static tText
-	ExtendError(
+	TypeError(
 		tText aError,
 		tType aSubType,
 		tType aSupType
-	) => $"""
-		{aError}
-		in:
-		{"  " + aSubType.ToText("\n  ")}
-		!<
-		{"  " + aSupType.ToText("\n  ")}
-		
-		""";
+	) => (
+		tText.IsNullOrWhiteSpace(aError)
+			? $"Expected {aSupType.ToText()}, got {aSubType.ToText()}."
+			: aError.Trim()
+	);
 	
 	public static mResult.tResult<mTreeMap.tTree<tType, tType>, tText>
 	IsSubType(
@@ -987,7 +984,7 @@ mVM_Type {
 			return SubType1.IsSubType(aSupType, aTypeMappings).ThenTry(
 				__ => SubType2.IsSubType(aSupType, __)
 			).ModifyError(
-				__ => ExtendError(__, aSubType, aSupType)
+				__ => TypeError(__, aSubType, aSupType)
 			);
 		}
 		
@@ -1019,14 +1016,14 @@ mVM_Type {
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
 					? aTypeMappings
-					: mResult.Fail(ExtendError("", aSubType, aSupType));
+					: mResult.Fail(TypeError("", aSubType, aSupType));
 			}
 			case tKind.Abstract: {
-				return mResult.Fail(ExtendError("different bound types", aSubType, aSupType));
+				return mResult.Fail(TypeError("different bound types", aSubType, aSupType));
 			}
 			case tKind.TypeApply: {
 				if (SubBaseType.Kind is not tKind.TypeApply) {
-					return mResult.Fail(ExtendError("different type constructors", aSubType, aSupType));
+					return mResult.Fail(TypeError("different type constructors", aSubType, aSupType));
 				}
 				static mResult.tResult<mTreeMap.tTree<tType, tType>, tText>
 				MatchApplication(
@@ -1053,14 +1050,14 @@ mVM_Type {
 			}
 			case tKind.Sig: {
 				if (!SubBaseType.IsSig(out var SubHead, out var SubBody)) {
-					return mResult.Fail(ExtendError("expected SIG", aSubType, aSupType));
+					return mResult.Fail(TypeError("expected SIG", aSubType, aSupType));
 				}
 				var SupHead = aSupType.Refs[0];
 				if (!SubHead.KindType().SameType(SupHead.KindType())) {
-					return mResult.Fail(ExtendError("different SIG head kinds", aSubType, aSupType));
+					return mResult.Fail(TypeError("different SIG head kinds", aSubType, aSupType));
 				}
 				if (SupHead.Kind is not tKind.Free && !SubHead.SameType(SupHead)) {
-					return mResult.Fail(ExtendError("different SIG heads", aSubType, aSupType));
+					return mResult.Fail(TypeError("different SIG heads", aSubType, aSupType));
 				}
 				var Witness = SubHead.Kind is tKind.Free
 					? Abstract(SubHead.Id!, SubHead.KindType())
@@ -1082,7 +1079,7 @@ mVM_Type {
 				) {
 					return aTypeMappings;
 				} else {
-					return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+					return mResult.Fail(TypeError(Error, aSubType, aSupType));
 				}
 			}
 			case tKind.Prefix: {
@@ -1095,16 +1092,16 @@ mVM_Type {
 						Sup,
 						aTypeMappings
 					).ElseTry(
-						__ => mResult.Fail(ExtendError(__, aSubType, aSupType))
+						__ => mResult.Fail(TypeError(__, aSubType, aSupType))
 					);
 				} else {
-					return mResult.Fail(ExtendError("", aSubType, aSupType));
+					return mResult.Fail(TypeError("", aSubType, aSupType));
 				}
 			}
 			case tKind.Record: {
 				if (!aSupType.IsRecord(out var SupFields)) {
 					return mResult.Fail(
-						ExtendError(
+						TypeError(
 							$"Expected Record but is {aSupType}",
 							aSubType,
 							aSupType
@@ -1114,7 +1111,7 @@ mVM_Type {
 				
 				if (!aSubType.IsRecord(out var SubFields)) {
 					return mResult.Fail(
-						ExtendError(
+						TypeError(
 							$"Expected Record but is {aSubType}",
 							aSubType,
 							aSupType
@@ -1125,8 +1122,8 @@ mVM_Type {
 				foreach (var SupField in SupFields.ToStream()) {
 					if (!SubFields.TryGet(SupField.Key).IsSome(out var SubField)) {
 						return mResult.Fail(
-							ExtendError(
-								$"Missing field '{SupField.Key}' in {aSubType}",
+							TypeError(
+								$"Missing field '{SupField.Key}'",
 								aSubType,
 								aSupType
 							)
@@ -1139,7 +1136,7 @@ mVM_Type {
 							out var Error
 						)
 					) {
-						return mResult.Fail(ExtendError(Error, aSubType, aSupType));
+						return mResult.Fail($"Field '{SupField.Key}': {Error}");
 					}
 				}
 				return aTypeMappings;
@@ -1156,7 +1153,7 @@ mVM_Type {
 				.ThenTry(__ => SupObj.IsSubType(SubObj, __))
 				.ThenTry(__ => SubArg.IsSubType(SupArg, __))
 				.ThenTry(__ => SubRes.IsSubType(SupRes, __))
-				.ElseTry(__ => mResult.Fail(ExtendError(__, aSubType, aSupType)));
+				.ElseTry(__ => mResult.Fail(TypeError(__, aSubType, aSupType)));
 			}
 			case tKind.Var: {
 				throw new System.NotImplementedException();
@@ -1182,14 +1179,14 @@ mVM_Type {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
+						__ => TypeError(__, aSubType, aSupType)
 					);
 				} else {
 					return aSubType.IsSubType(
 						SupBody.Substitute(SupHead, aSupType),
 						aTypeMappings
 					).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
+						__ => TypeError(__, aSubType, aSupType)
 					);
 				}
 			}
@@ -1199,14 +1196,14 @@ mVM_Type {
 				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
 					// Signature parameters are inferred from arguments; their declaration order may differ.
 					return SubBody.Substitute(SubHead, SupHead).IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
+						__ => TypeError(__, aSubType, aSupType)
 					);
 				}
 				// A monomorphic function must work for an arbitrary parameter, not just one inferred type.
 				return aSubType.IsSubType(
 					SupBody.Substitute(SupHead, Abstract(SupHead.Id!, SupHead.KindType())),
 					aTypeMappings
-				).ModifyError(__ => ExtendError(__, aSubType, aSupType));
+				).ModifyError(__ => TypeError(__, aSubType, aSupType));
 			}
 			case tKind.Interface: {
 				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
@@ -1215,11 +1212,11 @@ mVM_Type {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
 					return SubBody.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
+						__ => TypeError(__, aSubType, aSupType)
 					);
 				} else {
 					return aSubType.IsSubType(SupBody, aTypeMappings).ModifyError(
-						__ => ExtendError(__, aSubType, aSupType)
+						__ => TypeError(__, aSubType, aSupType)
 					);
 				}
 			}
@@ -1298,7 +1295,7 @@ mVM_Type {
 		
 		if (!aArg.IsSubType(ArgType).Match(out var TypeMappings, out var Error)) {
 			return mResult.Fail(
-				ExtendError(
+				TypeError(
 					$"""
 					can't convert:
 					{aArg.ToText()}

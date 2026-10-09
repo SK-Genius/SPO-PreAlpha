@@ -361,6 +361,59 @@ mSPO_AST_Types {
 		}
 	}
 	
+	private static (tPos Pos, tText ErrorText)
+	TypeErrorAt<tPos>(
+		mSPO_AST.tExpressionNode<tPos> aExpression,
+		mVM_Type.tType aExpected,
+		tTypeState<tPos> aState,
+		tText aError
+	) {
+		tBool TryChild(
+			mSPO_AST.tExpressionNode<tPos> aChild,
+			mVM_Type.tType aChildExpected,
+			out (tPos Pos, tText ErrorText) aChildError
+		) {
+			if (
+				aState.TryGetValidatedType(aChild).IsSome(out var Actual) &&
+				!Actual.IsSubType(aChildExpected).Match(out _, out var Detail)
+			) {
+				aChildError = TypeErrorAt(aChild, aChildExpected, aState, Detail);
+				return true;
+			}
+			aChildError = default;
+			return false;
+		}
+		
+		if (aExpression is mSPO_AST.tRecordNode<tPos> Record && aExpected.IsRecord(out var Fields)) {
+			foreach (var (Key, Value) in Record.Elements) {
+				if (Fields.TryGet(Key.Id).IsSome(out var Expected) && TryChild(Value, Expected, out var Error)) {
+					return (Error.Pos, $"Field '{Key.Id}': {Error.ErrorText}");
+				}
+			}
+		}
+		if (aExpression is mSPO_AST.tTupleNode<tPos> Tuple) {
+			var Expected = aExpected;
+			foreach (var Item in Tuple.Items.Reverse()) {
+				if (!Expected.IsPair(out var Tail, out var Head)) {
+					break;
+				}
+				if (TryChild(Item, Head, out var Error)) {
+					return Error;
+				}
+				Expected = Tail;
+			}
+		}
+		if (
+			aExpression is mSPO_AST.tPairNode<tPos> Pair &&
+			aExpected.IsPair(out var PairTail, out var PairHead)
+		) {
+			if (TryChild(Pair.Head, PairHead, out var Error) || TryChild(Pair.Tail, PairTail, out Error)) {
+				return Error;
+			}
+		}
+		return (aExpression.Pos, aError);
+	}
+	
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
@@ -464,7 +517,7 @@ mSPO_AST_Types {
 		).Then(
 			__ => (Checked.Type, __, Checked.State)
 		).ModifyError(
-			__ => (aArgument.Pos, __)
+			__ => TypeErrorAt(aArgument, MappedExpectedType, Checked.State, __)
 		);
 	}
 	
@@ -975,7 +1028,7 @@ mSPO_AST_Types {
 				).Then(
 					_ => Inferred
 				).ModifyError(
-					_ => (aNode.Pos, $"type annotation '{Annotation.ToText()}' contradicts inferred type '{Inferred.Type.ToText()}'")
+					aError => TypeErrorAt(aNode, Annotation, Inferred.State, "Type annotation: " + aError)
 				),
 				() => mResult.OK(Inferred).WithErrorType<(tPos Pos, tText ErrorText)>()
 			)
@@ -1456,7 +1509,7 @@ mSPO_AST_Types {
 								State: aPattern.State
 							)
 						).ModifyError(
-							__ => (Def.Src.Pos, __)
+							__ => TypeErrorAt(Def.Src, aPattern.Type, aSource.State, __)
 						)
 					)
 				);
@@ -1469,7 +1522,7 @@ mSPO_AST_Types {
 					aCondition => aCondition.Type.IsSubType(
 						mVM_Type.Bool()
 					).Match(out _, out _),
-					__ => (ReturnIf.Pos, $"{__.Type.ToText()} != [§TRUE | §FALSE]")
+					__ => (ReturnIf.Condition.Pos, $"{__.Type.ToText()} != [§TRUE | §FALSE]")
 				).ThenTry(
 					aCondition => ReturnIf.Result.UpdateTypes(aScope, aCondition.State)
 				).Then(

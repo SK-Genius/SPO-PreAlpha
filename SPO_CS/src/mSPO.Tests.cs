@@ -9,6 +9,7 @@
 #:ref mModule.Tests.cs
 #:ref mE2E.Tests.cs
 #:ref mSPO_AST_Types.Tests.cs
+#:ref mSPO_Interpreter.Tests.cs
 #:ref mSPO_Parser.Tests.cs
 #:ref mSPO2IL.Tests.cs
 #:ref mTokenizer.Tests.cs
@@ -27,6 +28,7 @@ mSPO_Tests {
 			mVM_Type_Tests.Tests,
 			mVM_Tests.Tests,
 			mSPO_AST_Types_Tests.Tests,
+			mSPO_Interpreter_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
 			mE2E_Tests.Tests,

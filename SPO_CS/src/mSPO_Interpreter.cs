@@ -91,24 +91,26 @@ mSPO_Interpreter {
 		).ModifyError(
 			aError => {
 				var ErrorSource = aError.Pos.Start.Id;
-				var Lines = (ErrorSource != aId
-					? mFS.File(ErrorSource).TryReadText().ElseThrow()
-					: aCode).Split("\n");
-				return (
-					aError.ToText() +
-					"\n" +
-					mStream.Nat32StartWith(
-						aError.Pos.Start.Row
-					).Take(
-						aError.Pos.End.Row - aError.Pos.Start.Row + 1
-					).Map(
-						aRow => $"  {aRow}: {Lines[aRow - 1].Replace('\t', ' ').TrimEnd()}" + (
-							aError.Pos.End.Row == aError.Pos.Start.Row
-							? $"\n{new tText(' ', ("" + aRow).Length + (tInt32)aError.Pos.Start.Col + 3)}{new tText('~', (tInt32)aError.Pos.End.Col - (tInt32)aError.Pos.Start.Col + 1)}"
-							: ""
-						)
-					).Join((a1, a2) => a1 + "\n" + a2, "")
-				);
+				var Source = ErrorSource == aId ? aCode : mFS.File(ErrorSource).TryReadText().Else(_ => "");
+				var Lines = Source.Split('\n');
+				var Text = new System.Text.StringBuilder(mTextParser.ToText(aError.Pos));
+				const tNat32 cMaxSourceLines = 6;
+				var LastRow = System.Math.Min(aError.Pos.End.Row, aError.Pos.Start.Row + cMaxSourceLines - 1);
+				for (var Row = aError.Pos.Start.Row; Row <= LastRow && Row > 0 && Row <= Lines.Length; Row += 1) {
+					var Line = Lines[Row - 1].Replace('\t', ' ').TrimEnd();
+					var Prefix = $"  {Row}: ";
+					Text.Append('\n').Append(Prefix).Append(Line);
+					if (Row == aError.Pos.Start.Row) {
+						var Column = System.Math.Clamp((tInt32)aError.Pos.Start.Col - 1, 0, Line.Length);
+						var End = Row == aError.Pos.End.Row ? (tInt32)aError.Pos.End.Col : Line.Length;
+						var Width = System.Math.Max(1, System.Math.Min(End, Line.Length) - Column);
+						Text.Append('\n').Append(' ', Prefix.Length + Column).Append('~', Width);
+					}
+				}
+				if (LastRow < aError.Pos.End.Row) {
+					Text.Append("\n  ...");
+				}
+				return Text.Append('\n').Append(aError.ErrorText.Trim()).ToString();
 			}
 		);
 	}
