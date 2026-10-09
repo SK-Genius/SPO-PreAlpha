@@ -58,7 +58,9 @@
 	r_2 := 2
 	r_3 := r_1, r_2
 	r_4 := ._...<... r_3
-	§RETURN _a IF r_4
+	§BEGIN_IF r_4
+	§RETURN _a IF TRUE
+	§END_IF
 	r_5 := EMPTY, _a
 	r_6 := 2
 	r_7 := r_5, r_6

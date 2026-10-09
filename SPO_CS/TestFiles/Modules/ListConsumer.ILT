@@ -527,13 +527,17 @@
 	r_1 := EMPTY, _a1
 	r_2 := r_1, _a2
 	r_3 := ._...<... r_2
+	§BEGIN_IF r_3
 	r_4 := -1
-	§RETURN r_4 IF r_3
+	§RETURN r_4 IF TRUE
+	§END_IF
 	r_5 := EMPTY, _a2
 	r_6 := r_5, _a1
 	r_7 := ._...<... r_6
+	§BEGIN_IF r_7
 	r_8 := 1
-	§RETURN r_8 IF r_7
+	§RETURN r_8 IF TRUE
+	§END_IF
 	r_9 := 0
 	§RETURN r_9 IF TRUE
 	§RETURN EMPTY IF TRUE

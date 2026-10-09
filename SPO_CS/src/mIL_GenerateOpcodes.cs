@@ -321,6 +321,11 @@ mIL_GenerateOpcodes {
 			}
 			
 			var ReturnType = Types.Get(mVM_Data.cResReg);
+			var Conditionals = mArrayList.List<(
+				tNat32 Begin,
+				mTreeMap.tTree<tText, tNat32> Regs,
+				mTreeMap.tTree<tNat32, mVM_Data.tData> KnownValues
+			)>();
 			
 			foreach (var Command in Commands) {
 				tText Fail_(tText a) => $"{Command.Pos}: {Command.ToText()}\n{a}";
@@ -759,6 +764,21 @@ mIL_GenerateOpcodes {
 						NewProc.Assert(Span, Reg1, Reg2);
 						break;
 					}
+					case { NodeType: mIL_AST.tCommandNodeType.BeginIf, Pos: var Span, _1: var RegId }: {
+						var CondReg = GetReg(RegId);
+						Types.Get(CondReg).IsSubType(mVM_Type.Bool()).AssertNotError(Fail_);
+						Conditionals.Push((NewProc.BeginIf(Span, CondReg), Regs, KnownValues));
+						break;
+					}
+					case { NodeType: mIL_AST.tCommandNodeType.EndIf, Pos: var Span }: {
+						mAssert.IsTrue(Conditionals.Size > 0, () => Fail_("END_IF without BEGIN_IF"));
+						var Conditional = Conditionals.Pop();
+						NewProc.EndIf(Span, Conditional.Begin);
+						// A skipped block has no values, including lazily loaded type registers.
+						Regs = Conditional.Regs;
+						KnownValues = Conditional.KnownValues;
+						break;
+					}
 					case { NodeType: mIL_AST.tCommandNodeType.ReturnIf, Pos: var Span, _1: var RegId1, _2: var RegId2 }: {
 						var CondReg = GetReg(RegId1);
 						var ResReg = GetReg(RegId2);
@@ -1072,6 +1092,7 @@ mIL_GenerateOpcodes {
 				
 				mAssert.AreEquals(Types.Size - 1, NewProc._LastReg);
 			}
+			mAssert.IsTrue(Conditionals.Size is 0, "BEGIN_IF without END_IF");
 			Types.Set(mVM_Data.cResReg, ReturnType);
 			mAssert.AreEquals(NewProc.Commands.Size, NewProc.PosList.Size);
 		}

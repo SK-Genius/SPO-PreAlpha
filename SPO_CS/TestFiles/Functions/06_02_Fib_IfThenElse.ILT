@@ -60,8 +60,10 @@
 	_aCond := r_5
 	r_6 := §1ST r_4
 	§RETURN r_6 IF_NOT_EMPTY
+	§BEGIN_IF _aCond
 	r_7 := ._aOnTrue EMPTY
-	§RETURN r_7 IF _aCond
+	§RETURN r_7 IF TRUE
+	§END_IF
 	r_8 := ._aOnFalse EMPTY
 	§RETURN r_8 IF TRUE
 

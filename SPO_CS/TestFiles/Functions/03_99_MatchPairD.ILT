@@ -41,8 +41,10 @@
 	r_4 := .d_1 d_0
 	r_5 := .r_4 r_3
 	r_6 := -#Result r_5
+	§BEGIN_IF r_6
 	r_7 := 1
-	§RETURN r_7 IF r_6
+	§RETURN r_7 IF TRUE
+	§END_IF
 	r_8 := 0
 	§RETURN r_8 IF TRUE
 	§RETURN EMPTY IF TRUE

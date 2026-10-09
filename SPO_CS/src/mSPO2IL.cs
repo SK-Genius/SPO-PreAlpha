@@ -1898,15 +1898,22 @@ mSPO2IL {
 		mSPO_AST.tReturnIfNode<tPos> aReturnNode,
 		out (tPos, tText) aError
 	) {
-		if (
-			aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Condition).Match(out var CondReg, out aError) &&
-			aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Result).Match(out var ResReg, out aError)
-		) {
-			aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aReturnNode.Pos, CondReg, ResReg));
-			return true;
-		} else {
+		if (!aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Condition).Match(out var CondReg, out aError)) {
 			return false;
 		}
+		
+		var IsConditional = CondReg != mIL_AST.cTrue;
+		if (IsConditional) {
+			aDefConstructor.Commands.Push(mIL_AST.BeginIf(aReturnNode.Condition.Pos, CondReg));
+		}
+		if (!aDefConstructor.TryMapExpression(aModuleConstructor, aReturnNode.Result).Match(out var ResReg, out aError)) {
+			return false;
+		}
+		aDefConstructor.Commands.Push(mIL_AST.ReturnIf(aReturnNode.Pos, mIL_AST.cTrue, ResReg));
+		if (IsConditional) {
+			aDefConstructor.Commands.Push(mIL_AST.EndIf(aReturnNode.Pos));
+		}
+		return true;
 	}
 	
 	public static tBool

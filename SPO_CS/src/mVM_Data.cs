@@ -56,6 +56,8 @@ mVM_Data {
 		CallFunc,
 		CallProc,
 		DefRecProcs,
+		BeginIf,
+		EndIf,
 		ReturnIf,
 		ReturnIfNotEmpty,
 		TryReturn,
@@ -418,6 +420,29 @@ mVM_Data {
 		tNat32 aProcReg,
 		tNat32 aArgReg
 	) => aDef._AddReg(aPos, tOpCode.CallProc, aProcReg, aArgReg);
+	
+	public static tNat32
+	BeginIf<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aCondReg
+	) {
+		var Begin = aDef.Commands.Size;
+		aDef._AddCommand(aPos, tOpCode.BeginIf, aCondReg);
+		return Begin;
+	}
+	
+	public static void
+	EndIf<tPos>(
+		this tProcDef<tPos> aDef,
+		tPos aPos,
+		tNat32 aBegin
+	) {
+		var (OpCode, CondReg, _, DebugId) = aDef.Commands.Get(aBegin);
+		mAssert.AreEquals(OpCode, tOpCode.BeginIf);
+		aDef.Commands.Set(aBegin, (OpCode, CondReg, aDef.Commands.Size, DebugId));
+		aDef._AddCommand(aPos, tOpCode.EndIf, aDef._LastReg + 1);
+	}
 	
 	public static void
 	ReturnIf<tPos>(

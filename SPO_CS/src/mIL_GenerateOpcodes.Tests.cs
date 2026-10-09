@@ -88,6 +88,56 @@ mIL_GenerateOpcodes_Tests {
 	Tests = mTest.Tests(
 		nameof(mIL_GenerateOpcodes),
 		[
+			mTest.Test("Skipped conditional blocks preserve register alignment and type loads",
+				aDebug => {
+					const tText cSource = """
+					§TYPES
+						Pair := [INT, INT]
+						Func := [EMPTY_TYPE => TYPE]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						§BEGIN_IF FALSE
+						unused := Pair
+						§BEGIN_IF TRUE
+						seven := 7
+						§END_IF
+						§END_IF
+						result := Pair
+						§RETURN result IF TRUE
+					""";
+					var Def = CompileModule(cSource + "\n", "", __ => aDebug(__())).Defs.TryFirst().AssertNotEmpty();
+					var Result = mVM_Data.Empty();
+					mVM.Run<tSpan>(
+						mVM_Data.Proc(Def, mVM_Data.Empty()),
+						mVM_Data.Empty(),
+						mVM_Data.Empty(),
+						Result,
+						mTextParser.ToText,
+						__ => aDebug(__())
+					);
+					mAssert.IsTrue(Result.TypeValue().SameType(mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int())));
+				}
+			),
+			mTest.Test("Conditional blocks require balanced markers and a boolean guard",
+				aDebug => {
+					const tText cSource = """
+					§TYPES
+						Func := [EMPTY_TYPE => INT]
+						Def := [EMPTY_TYPE => Func]
+					§DEF main € Def
+						§BEGIN_IF FALSE
+						§END_IF
+						§RETURN ONE IF TRUE
+					""";
+					foreach (var Invalid in new[] {
+						cSource.Replace("§BEGIN_IF FALSE", ""),
+						cSource.Replace("§END_IF", ""),
+						cSource.Replace("§BEGIN_IF FALSE", "§BEGIN_IF ONE")
+					}) {
+						mAssert.ThrowsError(() => CompileModule(Invalid + "\n", "", _ => { }));
+					}
+				}
+			),
 			mTest.Test("ALL is callable and describes generic function signatures",
 				aDebug => {
 					const tText Source = """

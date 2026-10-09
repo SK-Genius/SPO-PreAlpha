@@ -92,6 +92,8 @@ mIL_AST {
 		
 		_BeginCommands_ = _EndExpressions_,
 		VarSet = _BeginCommands_,   // §VAR X <- X
+		BeginIf,                    // §BEGIN_IF X
+		EndIf,                      // §END_IF
 		ReturnIf,                   // §RETURN X IF X
 		ReturnIfNotEmpty,           // §RETURN x IF_NOT_EMPTY
 		TryReturn,                  // §TRY_RETURN .X X [IF X]
@@ -223,6 +225,8 @@ mIL_AST {
 		tCommandNodeType.Assert => $"§ASSERT {a._1} => {a._2}",
 		tCommandNodeType.Proof => $"§PROOF {a._2} => {a._3}",
 		tCommandNodeType.VarSet => $"§VAR {a._1} <- {a._2}",
+		tCommandNodeType.BeginIf => $"§BEGIN_IF {a._1}",
+		tCommandNodeType.EndIf => "§END_IF",
 		tCommandNodeType.ReturnIf => $"§RETURN {a._2} IF {a._1}",
 		tCommandNodeType.ReturnIfNotEmpty => $"§RETURN {a._2} IF_NOT_EMPTY",
 		tCommandNodeType.TryReturn => $"§TRY_RETURN .{a._1} {a._2}" + a._3.Match(__ => $" IF {__}", () => ""),
@@ -602,6 +606,17 @@ mIL_AST {
 		tText aId2,
 		tText aId3
 	) => CommandNode(tCommandNodeType.Proof, aPos, aId1, aId2, aId3);
+	
+	public static tCommandNode<tPos>
+	BeginIf<tPos>(
+		tPos aPos,
+		tText aCondReg
+	) => CommandNode(tCommandNodeType.BeginIf, aPos, aCondReg);
+	
+	public static tCommandNode<tPos>
+	EndIf<tPos>(
+		tPos aPos
+	) => CommandNode(tCommandNodeType.EndIf, aPos, "");
 	
 	public static tCommandNode<tPos>
 	ReturnIf<tPos>(

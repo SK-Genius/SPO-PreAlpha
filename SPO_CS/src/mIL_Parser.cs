@@ -189,6 +189,15 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.VarDef))
 			.SetDebugName([nameof(mIL_AST.VarDef)]),
 			
+			mParserGen.Seq(-KeyWord("BEGIN_IF"), Id)
+			.Modify((_, aCond) => aCond)
+			.ModifyS(mTokenizer.X(mIL_AST.BeginIf))
+			.SetDebugName([nameof(mIL_AST.BeginIf)]),
+			
+			KeyWord("END_IF")
+			.ModifyS((aSpan, _) => mIL_AST.EndIf(aSpan))
+			.SetDebugName([nameof(mIL_AST.EndIf)]),
+			
 			mParserGen.Seq(KeyWord("RETURN"), Id, -Token("IF") +Id)
 			.Modify((_, a1, a2) => (a2, a1))
 			.ModifyS(mTokenizer.X(mIL_AST.ReturnIf))

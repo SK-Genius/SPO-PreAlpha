@@ -123,6 +123,7 @@
 	r_6 := 0
 	r_7 := r_5, r_6
 	r_8 := ._...==... r_7
+	§BEGIN_IF r_8
 	r_9 := 70
 	r_10 := +#_Char... r_9
 	r_11 := EMPTY, r_10
@@ -147,7 +148,8 @@
 	r_30 := 122
 	r_31 := +#_Char... r_30
 	r_32 := r_29, r_31
-	§RETURN r_32 IF r_8
+	§RETURN r_32 IF TRUE
+	§END_IF
 	r_33 := EMPTY, _Number
 	r_34 := 3
 	r_35 := r_33, r_34
@@ -156,6 +158,7 @@
 	r_38 := 0
 	r_39 := r_37, r_38
 	r_40 := ._...==... r_39
+	§BEGIN_IF r_40
 	r_41 := 70
 	r_42 := +#_Char... r_41
 	r_43 := EMPTY, r_42
@@ -168,7 +171,8 @@
 	r_50 := 122
 	r_51 := +#_Char... r_50
 	r_52 := r_49, r_51
-	§RETURN r_52 IF r_40
+	§RETURN r_52 IF TRUE
+	§END_IF
 	r_53 := EMPTY, _Number
 	r_54 := 5
 	r_55 := r_53, r_54
@@ -177,6 +181,7 @@
 	r_58 := 0
 	r_59 := r_57, r_58
 	r_60 := ._...==... r_59
+	§BEGIN_IF r_60
 	r_61 := 66
 	r_62 := +#_Char... r_61
 	r_63 := EMPTY, r_62
@@ -189,18 +194,21 @@
 	r_70 := 122
 	r_71 := +#_Char... r_70
 	r_72 := r_69, r_71
-	§RETURN r_72 IF r_60
+	§RETURN r_72 IF TRUE
+	§END_IF
 	r_73 := EMPTY, _Number
 	r_74 := 9
 	r_75 := r_73, r_74
 	r_76 := ._...<=... r_75
+	§BEGIN_IF r_76
 	r_77 := EMPTY, _Number
 	r_78 := 48
 	r_79 := r_77, r_78
 	r_80 := ._...+... r_79
 	r_81 := ._...AsChar r_80
 	r_82 := EMPTY, r_81
-	§RETURN r_82 IF r_76
+	§RETURN r_82 IF TRUE
+	§END_IF
 	r_83 := EMPTY, _Number
 	r_84 := 10
 	r_85 := r_83, r_84

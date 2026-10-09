@@ -23,14 +23,18 @@
 	r_2 := 1
 	r_3 := r_1, r_2
 	r_4 := ._...==... r_3
+	§BEGIN_IF r_4
 	r_5 := 11
-	§RETURN r_5 IF r_4
+	§RETURN r_5 IF TRUE
+	§END_IF
 	r_6 := EMPTY, _X
 	r_7 := 2
 	r_8 := r_6, r_7
 	r_9 := ._...==... r_8
+	§BEGIN_IF r_9
 	r_10 := 22
-	§RETURN r_10 IF r_9
+	§RETURN r_10 IF TRUE
+	§END_IF
 	§RETURN EMPTY IF TRUE
 
 §DEF d_1 € t_12

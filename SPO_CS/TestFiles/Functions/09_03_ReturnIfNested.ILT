@@ -1,0 +1,82 @@
+§TYPES
+	t_0 := [TRUE | FALSE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [EMPTY_TYPE, INT]
+	t_3 := [t_2, INT]
+	t_4 := [t_3 => INT]
+	t_5 := [t_1, t_4]
+	t_6 := [INT | EMPTY_TYPE]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [t_5 => t_7]
+	t_9 := [EMPTY_TYPE, t_4]
+	t_10 := [t_9, t_8]
+	t_11 := [t_0 => INT]
+	t_12 := [t_10 => t_11]
+	t_13 := [EMPTY_TYPE, t_8]
+	t_14 := [t_13, t_12]
+	t_15 := [#_.../... t_4]
+	t_16 := [{EMPTY_TYPE} + t_15]
+	t_17 := [t_16 => t_3]
+	t_18 := [t_14 => t_17]
+
+§DEF d_0 € t_8
+	_.../... := §2ND ENV
+	r_7 := §1ST ENV
+	_aCondition := §2ND r_7
+	r_8 := §1ST r_7
+	§RETURN ARG IF_NOT_EMPTY
+	§BEGIN_IF _aCondition
+	r_1 := 1
+	r_2 := EMPTY, r_1
+	r_3 := 0
+	r_4 := r_2, r_3
+	r_5 := ._.../... r_4
+	§RETURN r_5 IF TRUE
+	§END_IF
+	r_6 := 42
+	§RETURN r_6 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_12
+	d_0 := §2ND ENV
+	r_12 := §1ST ENV
+	_.../... := §2ND r_12
+	r_13 := §1ST r_12
+	_aCondition := ARG
+	§BEGIN_IF _aCondition
+	§BEGIN_IF FALSE
+	r_1 := 1
+	r_2 := EMPTY, r_1
+	r_3 := 0
+	r_4 := r_2, r_3
+	r_5 := ._.../... r_4
+	§RETURN r_5 IF TRUE
+	§END_IF
+	r_6 := 7
+	§RETURN r_6 IF TRUE
+	§RETURN EMPTY IF TRUE
+	§END_IF
+	r_8 := EMPTY, _aCondition
+	r_9 := r_8, _.../...
+	r_10 := .d_0 r_9
+	r_11 := .r_10 EMPTY
+	r_7 := r_11
+	_Result := r_7
+	§RETURN _Result IF TRUE
+
+§DEF d_2 € t_18
+	d_1 := §2ND ENV
+	r_9 := §1ST ENV
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	r_1 := {ARG} #_.../...
+	_.../... := r_1
+	r_2 := EMPTY, _.../...
+	r_3 := r_2, d_0
+	r_4 := .d_1 r_3
+	_Choose... := r_4
+	r_5 := ._Choose... FALSE
+	r_6 := EMPTY, r_5
+	r_7 := ._Choose... TRUE
+	r_8 := r_6, r_7
+	§RETURN r_8 IF TRUE

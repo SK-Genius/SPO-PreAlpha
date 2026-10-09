@@ -1,0 +1,17 @@
+§IMPORT {
+	.../...: §DEF .../... € [[§INT, §INT] => §INT]
+}
+
+§DEF Choose... = §DEF aCondition € §BOOL => {
+	§RETURN {
+		§RETURN (1 ./ 0) IF §FALSE
+		§RETURN 7
+	} IF aCondition
+	§DEF Result = §IF {
+		aCondition: 1 ./ 0
+		§TRUE: 42
+	}
+	§RETURN Result
+}
+
+§EXPORT ((.Choose §FALSE), (.Choose §TRUE))

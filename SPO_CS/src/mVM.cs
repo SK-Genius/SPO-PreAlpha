@@ -624,6 +624,22 @@ mVM {
 				}
 				break;
 			}
+			case mVM_Data.tOpCode.BeginIf: {
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), () => CommandLine());
+				if (!Cond) {
+					var (EndOp, RegisterCount, _, _) = aCallStack._ProcDef.Commands.Get(Arg2);
+					mAssert.AreEquals(EndOp, mVM_Data.tOpCode.EndIf);
+					// Later instructions retain their static register numbers.
+					while (aCallStack._Regs.Size < RegisterCount) {
+						aCallStack._Regs.Push(aCallStack._Regs.Get(mVM_Data.cEmptyReg));
+					}
+					aCallStack._CodePointer = Arg2 + 1;
+				}
+				break;
+			}
+			case mVM_Data.tOpCode.EndIf: {
+				break;
+			}
 			case mVM_Data.tOpCode.ReturnIf: {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), () => CommandLine());
 				if (Cond) {

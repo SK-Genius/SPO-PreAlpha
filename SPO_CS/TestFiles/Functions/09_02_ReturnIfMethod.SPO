@@ -1,0 +1,17 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§DEF Select... = §DEF aCounter € [§VAR §INT] : §DEF aCondition € §BOOL {
+	§RETURN {
+		aCounter := ((§TO_VAL aCounter) .+ 1) .
+		§RETURN §TO_VAL aCounter
+	} IF aCondition
+	§RETURN 99
+}
+
+§VAR Counter := 0 .
+Counter : Select §FALSE => §DEF Skipped .
+Counter : Select §TRUE => §DEF Selected .
+
+§EXPORT (Skipped, Selected, §TO_VAL Counter)

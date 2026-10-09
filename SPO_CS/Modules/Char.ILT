@@ -250,13 +250,17 @@
 	r_1 := EMPTY, _a1
 	r_2 := r_1, _a2
 	r_3 := ._...==... r_2
+	§BEGIN_IF r_3
 	r_4 := 0
-	§RETURN r_4 IF r_3
+	§RETURN r_4 IF TRUE
+	§END_IF
 	r_5 := EMPTY, _a1
 	r_6 := r_5, _a2
 	r_7 := ._...<=... r_6
+	§BEGIN_IF r_7
 	r_8 := -1
-	§RETURN r_8 IF r_7
+	§RETURN r_8 IF TRUE
+	§END_IF
 	r_9 := 1
 	§RETURN r_9 IF TRUE
 	§RETURN EMPTY IF TRUE
@@ -952,6 +956,7 @@
 	r_6 := +#_Char... r_5
 	r_7 := r_4, r_6
 	r_8 := ._...Char<=...<=... r_7
+	§BEGIN_IF r_8
 	r_9 := ._...Ord _a
 	r_10 := EMPTY, r_9
 	r_11 := 65
@@ -966,7 +971,8 @@
 	r_20 := r_16, r_19
 	r_21 := ._...-... r_20
 	r_22 := ._...AsChar r_21
-	§RETURN r_22 IF r_8
+	§RETURN r_22 IF TRUE
+	§END_IF
 	§RETURN _a IF TRUE
 	§RETURN EMPTY IF TRUE
 
@@ -1017,6 +1023,7 @@
 	r_6 := +#_Char... r_5
 	r_7 := r_4, r_6
 	r_8 := ._...Char<=...<=... r_7
+	§BEGIN_IF r_8
 	r_9 := ._...Ord _a
 	r_10 := EMPTY, r_9
 	r_11 := 97
@@ -1031,7 +1038,8 @@
 	r_20 := r_16, r_19
 	r_21 := ._...-... r_20
 	r_22 := ._...AsChar r_21
-	§RETURN r_22 IF r_8
+	§RETURN r_22 IF TRUE
+	§END_IF
 	§RETURN _a IF TRUE
 	§RETURN EMPTY IF TRUE
 

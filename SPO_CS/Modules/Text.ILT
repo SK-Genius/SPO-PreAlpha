@@ -1595,8 +1595,10 @@
 	r_7 := §1ST r_6
 	§RETURN ARG IF_NOT_EMPTY
 	r_1 := ._...IsSpace _Char
+	§BEGIN_IF r_1
 	r_2 := ._...TrimEnd _SubText
-	§RETURN r_2 IF r_1
+	§RETURN r_2 IF TRUE
+	§END_IF
 	§RETURN _a IF TRUE
 	§RETURN EMPTY IF TRUE
 
@@ -1712,8 +1714,10 @@
 	r_9 := §1ST r_8
 	§RETURN ARG IF_NOT_EMPTY
 	r_1 := ._...IsSpace _Char
+	§BEGIN_IF r_1
 	r_2 := ._...Trim _SubText
-	§RETURN r_2 IF r_1
+	§RETURN r_2 IF TRUE
+	§END_IF
 	r_3 := ._...TrimStart _SubText
 	r_4 := r_3, _Char
 	§RETURN r_4 IF TRUE
