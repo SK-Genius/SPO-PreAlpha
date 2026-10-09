@@ -14,6 +14,7 @@
 #:ref mTokenizer.Tests.cs
 #:ref mVM_Type.Tests.cs
 #:ref mVM.Tests.cs
+#:ref mRecord.Tests.cs
 
 public static class
 mSPO_Tests {
@@ -26,6 +27,7 @@ mSPO_Tests {
 			mIL_GenerateOpcodes_Tests.Tests,
 			mVM_Type_Tests.Tests,
 			mVM_Tests.Tests,
+			mRecord_Tests.Tests,
 			mSPO_AST_Types_Tests.Tests,
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
