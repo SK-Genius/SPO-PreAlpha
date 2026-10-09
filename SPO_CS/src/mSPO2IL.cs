@@ -1931,7 +1931,8 @@ mSPO2IL {
 			);
 		} else {
 			var Arg = mIL_AST.cArg;
-			foreach (var RecProc in aRecLambdasNode.List) {
+			// Tuples are left-associated; extract the last function first.
+			foreach (var RecProc in aRecLambdasNode.List.Reverse()) {
 				RecFactoryFunc.AddArg(
 					RecProc.Id.Id,
 					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
@@ -2053,7 +2054,7 @@ mSPO2IL {
 				TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
 			);
 		} else {
-			foreach (var RecProc in aRecLambdasNode.List) {
+			foreach (var RecProc in aRecLambdasNode.List.Reverse()) {
 				aDefConstructor.Commands.Push(
 					mIL_AST.GetSecond(
 						RecProc.Pos,

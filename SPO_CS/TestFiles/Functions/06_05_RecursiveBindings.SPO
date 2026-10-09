@@ -1,0 +1,6 @@
+§RECURSIVE {
+	§DEF First... = (§DEF aValue € §INT) => 1
+	§DEF Second... = (§DEF aValue € §INT) => 2
+}
+
+§EXPORT (.First 0, .Second 0)

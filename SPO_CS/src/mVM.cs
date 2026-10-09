@@ -391,27 +391,22 @@ mVM {
 				var Func = aCallStack._Regs.Get(Arg1);
 				var Env = aCallStack._Regs.Get(Arg2);
 				
-				//mAssert.IsTrue(
-				//	Func._DataType is mVM_Data.tDataType.Proc,
-				//	() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
-				//);
+				var RecType = aCallStack._ProcDef.Types.Get(aCallStack._Regs.Size);
+				while (RecType.IsGeneric(out _, out var BodyType)) {
+					RecType = BodyType;
+				}
 				
+				var IsSingle = !RecType.IsPair(out _, out _);
 				var RecProcList = mStream.Stream<mVM_Data.tData>();
-				
-				//mAssert.Fail();
-				var Count = 1; // TODO: count rec procs
-				
-				var RecProcs = mVM_Data.Empty(); // first place holder
-				if (Count is 1) {
+				var RecProcs = mVM_Data.Empty();
+				if (IsSingle) {
 					RecProcList = mStream.Stream(RecProcs, RecProcList);
 				} else {
-					for (var I = 0; I < Count; I += 1) {
-						var Temp = mVM_Data.Empty(); // next placeholder
-						RecProcs = mVM_Data.Pair(
-							RecProcs,
-							Temp
-						);
-						RecProcList = mStream.Stream(Temp, RecProcList);
+					while (!RecType.IsEmpty()) {
+						mAssert.IsTrue(RecType.IsPair(out RecType, out _));
+						var Placeholder = mVM_Data.Empty();
+						RecProcs = mVM_Data.Pair(RecProcs, Placeholder);
+						RecProcList = mStream.Stream(Placeholder, RecProcList);
 					}
 				}
 				aCallStack._Regs.Push(RecProcs);
@@ -501,20 +496,18 @@ mVM {
 					}
 				}
 				
-				if (Count is 1) {
-					RecProcs._DataType = Res._DataType;
-					RecProcs._Value = Res._Value;
-					RecProcs._Fields = Res._Fields;
-					RecProcs._IsMutable = Res._IsMutable;
-				} else {
-					var Pair = Res;
-					for (var I = 0; I < Count; I += 1) {
-						mAssert.IsTrue(Res.IsPair(out var RecProc, out Pair));
-						mAssert.IsTrue(RecProcList.Is(out var RecProc_, out RecProcList));
-						RecProc_._Value = RecProc._Value;
+				// Preserve the placeholder identities captured by the recursive closures.
+				while (RecProcList.Is(out var Placeholder, out RecProcList)) {
+					var RecProc = Res;
+					if (!IsSingle) {
+						mAssert.IsTrue(Res.IsPair(out Res, out RecProc));
 					}
-					mAssert.IsTrue(Pair.IsEmpty());
+					Placeholder._DataType = RecProc._DataType;
+					Placeholder._Value = RecProc._Value;
+					Placeholder._Fields = RecProc._Fields;
+					Placeholder._IsMutable = RecProc._IsMutable;
 				}
+				mAssert.IsTrue(IsSingle || Res.IsEmpty());
 				break;
 			}
 			case mVM_Data.tOpCode.CallFunc: {

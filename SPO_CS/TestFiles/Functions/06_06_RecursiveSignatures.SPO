@@ -1,0 +1,6 @@
+§RECURSIVE {
+	§DEF Number... = () => 7
+	§DEF Flag... = () => §TRUE
+}
+
+§EXPORT (.Number(), .Flag())

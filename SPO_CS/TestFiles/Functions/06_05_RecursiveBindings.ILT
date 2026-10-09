@@ -1,0 +1,61 @@
+§TYPES
+	t_0 := [INT => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [EMPTY_TYPE, t_1]
+	t_3 := [t_2, t_1]
+	t_4 := [EMPTY_TYPE, t_0]
+	t_5 := [t_4, t_0]
+	t_6 := [t_5 => t_5]
+	t_7 := [t_3 => t_6]
+	t_8 := [t_3, t_7]
+	t_9 := [EMPTY_TYPE, INT]
+	t_10 := [t_9, INT]
+	t_11 := [EMPTY_TYPE => t_10]
+	t_12 := [t_8 => t_11]
+
+§DEF d_0 € t_1
+	_aValue := ARG
+	r_1 := 1
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_1
+	_aValue := ARG
+	r_1 := 2
+	§RETURN r_1 IF TRUE
+
+§DEF d_2 € t_7
+	d_1 := §2ND ENV
+	r_7 := §1ST ENV
+	d_0 := §2ND r_7
+	r_8 := §1ST r_7
+	_Second... := §2ND ARG
+	r_1 := §1ST ARG
+	_First... := §2ND r_1
+	r_2 := §1ST r_1
+	r_3 := .d_0 EMPTY
+	r_4 := EMPTY, r_3
+	r_5 := .d_1 EMPTY
+	r_6 := r_4, r_5
+	§RETURN r_6 IF TRUE
+
+§DEF d_3 € t_12
+	d_2 := §2ND ENV
+	r_12 := §1ST ENV
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	§REC r_3 := .d_2 r_2
+	_Second... := §2ND r_3
+	r_4 := §1ST r_3
+	_First... := §2ND r_4
+	r_5 := §1ST r_4
+	r_6 := 0
+	r_7 := ._First... r_6
+	r_8 := EMPTY, r_7
+	r_9 := 0
+	r_10 := ._Second... r_9
+	r_11 := r_8, r_10
+	§RETURN r_11 IF TRUE
