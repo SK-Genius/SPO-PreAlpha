@@ -1,0 +1,23 @@
+§IMPORT {
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+}
+
+§RECURSIVE {
+	§DEF ...IsEven = (§DEF aNumber € §INT) => §IF aNumber MATCH {
+		0: §TRUE
+		§DEF Number: (Number .- 1) .IsOdd
+	}
+	§DEF ...IsOdd = (§DEF aNumber € §INT) => §IF aNumber MATCH {
+		0: §FALSE
+		§DEF Number: (Number .- 1) .IsEven
+	}
+}
+
+§EXPORT (
+	0 .IsEven
+	5 .IsEven
+	6 .IsEven
+	0 .IsOdd
+	5 .IsOdd
+	6 .IsOdd
+)

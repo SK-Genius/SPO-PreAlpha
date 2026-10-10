@@ -1,0 +1,27 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+}
+
+§DEF Cycle... = (§DEF aStart € §INT) => {
+	§RECURSIVE {
+		§DEF First... = (§DEF aSteps € §INT) => §IF aSteps MATCH {
+			0: aStart
+			§DEF Steps: .Second (Steps .- 1)
+		}
+		§DEF Second... = (§DEF aSteps € §INT) => §IF aSteps MATCH {
+			0: aStart .+ 10
+			§DEF Steps: .Third (Steps .- 1)
+		}
+		§DEF Third... = (§DEF aSteps € §INT) => §IF aSteps MATCH {
+			0: aStart .+ 20
+			§DEF Steps: .First (Steps .- 1)
+		}
+	}
+	§RETURN (.First 0, .Second 0, .Third 0, .First 1, .First 2, .First 3)
+}
+
+§EXPORT (
+	.Cycle 2
+	.Cycle 5
+)

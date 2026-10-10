@@ -391,31 +391,18 @@ mVM {
 				var Func = aCallStack._Regs.Get(Arg1);
 				var Env = aCallStack._Regs.Get(Arg2);
 				
-				//mAssert.IsTrue(
-				//	Func._DataType is mVM_Data.tDataType.Proc,
-				//	() => $"{mVM_Data.tDataType.Proc} != {Func._DataType}"
-				//);
-				
-				var RecProcList = mStream.Stream<mVM_Data.tData>();
-				
-				//mAssert.Fail();
-				var Count = 1; // TODO: count rec procs
-				
-				var RecProcs = mVM_Data.Empty(); // first place holder
-				if (Count is 1) {
-					RecProcList = mStream.Stream(RecProcs, RecProcList);
-				} else {
-					for (var I = 0; I < Count; I += 1) {
-						var Temp = mVM_Data.Empty(); // next placeholder
-						RecProcs = mVM_Data.Pair(
-							RecProcs,
-							Temp
-						);
-						RecProcList = mStream.Stream(Temp, RecProcList);
+				var RecProcs = mVM_Data.Empty();
+				{
+					// Build the result's tuple shape before the closures capture its placeholders.
+					var RecType = aCallStack._ProcDef.Types.Get(aCallStack._Regs.Size);
+					while (RecType.IsGeneric(out _, out var BodyType)) {
+						RecType = BodyType;
+					}
+					while (RecType.IsPair(out RecType, out _)) {
+						RecProcs = mVM_Data.Pair(RecProcs, mVM_Data.Empty());
 					}
 				}
 				aCallStack._Regs.Push(RecProcs);
-				
 				
 				mVM_Data.tData Res;
 				switch (0) {
@@ -470,50 +457,31 @@ mVM {
 					}
 					case 0 when Func.IsProc<tPos>(out var Def_, out var Env_): {
 						throw mError.Error("need Env as Argument");
-						// TODO:
-						//Res = mVM_Data.Empty();
-						//Run(
-						//	mVM_Data.Proc(Def_, Env_),
-						//	mVM_Data.Empty(),
-						//	RecProcs,
-						//	Res,
-						//	aPosToText,
-						//	aTraceLine => {
-						//		aCallStack._TraceOut(() => "\t" + aTraceLine());
-						//	}
-						//);
-						//break;
-						
-						//Res = mVM_Data.Empty();
-						//aCallStack._Regs.Push(Res);
-						//return NewCallStack(
-						//	aCallStack,
-						//	Def_,
-						//	Env,
-						//	mVM_Data.Empty(),
-						//	Arg,
-						//	Res,
-						//	aTraceLine => aCallStack._TraceOut(() => "\t" + aTraceLine())
-						//);
 					}
 					default: {
 						throw mError.Error("impossible: " + Func._DataType);
 					}
 				}
 				
-				if (Count is 1) {
-					RecProcs._DataType = Res._DataType;
-					RecProcs._Value = Res._Value;
-					RecProcs._Fields = Res._Fields;
-					RecProcs._IsMutable = Res._IsMutable;
-				} else {
-					var Pair = Res;
-					for (var I = 0; I < Count; I += 1) {
-						mAssert.IsTrue(Res.IsPair(out var RecProc, out Pair));
-						mAssert.IsTrue(RecProcList.Is(out var RecProc_, out RecProcList));
-						RecProc_._Value = RecProc._Value;
+				// Preserve the captured objects' identities when closing the recursive references.
+				static void
+				InitializePlaceholder(
+					mVM_Data.tData aPlaceholder,
+					mVM_Data.tData aResult
+				) {
+					aPlaceholder._DataType = aResult._DataType;
+					aPlaceholder._Value = aResult._Value;
+					aPlaceholder._Fields = aResult._Fields;
+					aPlaceholder._IsMutable = aResult._IsMutable;
+				}
+				if (RecProcs.IsPair(out _, out _)) {
+					while (RecProcs.IsPair(out RecProcs, out var Placeholder)) {
+						mAssert.IsTrue(Res.IsPair(out Res, out var Result));
+						InitializePlaceholder(Placeholder, Result);
 					}
-					mAssert.IsTrue(Pair.IsEmpty());
+					mAssert.IsTrue(RecProcs.IsEmpty() && Res.IsEmpty());
+				} else {
+					InitializePlaceholder(RecProcs, Res);
 				}
 				break;
 			}
