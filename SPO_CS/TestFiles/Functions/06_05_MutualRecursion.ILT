@@ -1,90 +1,86 @@
 §TYPES
-	t_0 := [§FREE TYPE]
+	t_0 := [FALSE | TRUE]
 	t_1 := [TRUE | t_0]
-	t_2 := [FALSE | t_1]
-	t_3 := [TRUE | t_2]
-	t_4 := [#Result t_3]
-	t_5 := [INT => t_4]
-	t_6 := [EMPTY_TYPE => t_5]
-	t_7 := [TRUE | FALSE]
-	t_8 := [INT => t_7]
-	t_9 := [EMPTY_TYPE => t_8]
-	t_10 := [INT => t_2]
-	t_11 := [EMPTY_TYPE, t_10]
-	t_12 := [EMPTY_TYPE, INT]
-	t_13 := [t_12, INT]
-	t_14 := [t_13 => INT]
-	t_15 := [t_11, t_14]
-	t_16 := [t_15 => t_5]
-	t_17 := [EMPTY_TYPE, t_6]
-	t_18 := [t_17, t_9]
-	t_19 := [t_18, t_10]
-	t_20 := [t_19, t_14]
-	t_21 := [t_20, t_16]
-	t_22 := [t_21 => t_5]
-	t_23 := [t_21, t_22]
-	t_24 := [INT => t_3]
-	t_25 := [t_23 => t_24]
-	t_26 := [FALSE | t_3]
-	t_27 := [#Result t_26]
-	t_28 := [INT => t_27]
-	t_29 := [EMPTY_TYPE => t_28]
-	t_30 := [EMPTY_TYPE, t_24]
-	t_31 := [t_30, t_14]
-	t_32 := [t_31 => t_28]
-	t_33 := [EMPTY_TYPE, t_29]
-	t_34 := [t_33, t_9]
-	t_35 := [t_34, t_24]
-	t_36 := [t_35, t_14]
-	t_37 := [t_36, t_32]
-	t_38 := [t_37 => t_28]
-	t_39 := [t_37, t_38]
-	t_40 := [INT => t_26]
-	t_41 := [t_39 => t_40]
-	t_42 := [t_18, t_14]
-	t_43 := [t_42, t_16]
-	t_44 := [t_43, t_22]
-	t_45 := [t_44, t_25]
-	t_46 := [t_45, t_29]
-	t_47 := [t_46, t_9]
-	t_48 := [t_47, t_32]
-	t_49 := [t_48, t_38]
-	t_50 := [t_49, t_41]
-	t_51 := [t_30, t_40]
-	t_52 := [t_51 => t_51]
-	t_53 := [t_50 => t_52]
-	t_54 := [t_18, t_16]
-	t_55 := [t_54, t_22]
-	t_56 := [t_55, t_25]
-	t_57 := [t_56, t_29]
-	t_58 := [t_57, t_9]
-	t_59 := [t_58, t_32]
-	t_60 := [t_59, t_38]
-	t_61 := [t_60, t_41]
-	t_62 := [t_61, t_53]
-	t_63 := [#_...-... t_14]
-	t_64 := [{EMPTY_TYPE} + t_63]
-	t_65 := [EMPTY_TYPE, t_3]
-	t_66 := [t_65, t_3]
-	t_67 := [t_66, t_3]
-	t_68 := [t_67, t_26]
-	t_69 := [t_68, t_26]
-	t_70 := [t_69, t_26]
-	t_71 := [t_64 => t_70]
-	t_72 := [t_62 => t_71]
+	t_2 := [#Result t_1]
+	t_3 := [INT => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [TRUE | FALSE]
+	t_6 := [INT => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [INT => t_0]
+	t_9 := [EMPTY_TYPE, t_8]
+	t_10 := [EMPTY_TYPE, INT]
+	t_11 := [t_10, INT]
+	t_12 := [t_11 => INT]
+	t_13 := [t_9, t_12]
+	t_14 := [t_13 => t_3]
+	t_15 := [EMPTY_TYPE, t_4]
+	t_16 := [t_15, t_7]
+	t_17 := [t_16, t_8]
+	t_18 := [t_17, t_12]
+	t_19 := [t_18, t_14]
+	t_20 := [t_19 => t_3]
+	t_21 := [t_19, t_20]
+	t_22 := [t_21 => t_6]
+	t_23 := [FALSE | t_5]
+	t_24 := [#Result t_23]
+	t_25 := [INT => t_24]
+	t_26 := [EMPTY_TYPE => t_25]
+	t_27 := [EMPTY_TYPE, t_6]
+	t_28 := [t_27, t_12]
+	t_29 := [t_28 => t_25]
+	t_30 := [EMPTY_TYPE, t_26]
+	t_31 := [t_30, t_7]
+	t_32 := [t_31, t_6]
+	t_33 := [t_32, t_12]
+	t_34 := [t_33, t_29]
+	t_35 := [t_34 => t_25]
+	t_36 := [t_34, t_35]
+	t_37 := [t_36 => t_8]
+	t_38 := [t_16, t_12]
+	t_39 := [t_38, t_14]
+	t_40 := [t_39, t_20]
+	t_41 := [t_40, t_22]
+	t_42 := [t_41, t_26]
+	t_43 := [t_42, t_7]
+	t_44 := [t_43, t_29]
+	t_45 := [t_44, t_35]
+	t_46 := [t_45, t_37]
+	t_47 := [t_27, t_8]
+	t_48 := [t_47 => t_47]
+	t_49 := [t_46 => t_48]
+	t_50 := [t_16, t_14]
+	t_51 := [t_50, t_20]
+	t_52 := [t_51, t_22]
+	t_53 := [t_52, t_26]
+	t_54 := [t_53, t_7]
+	t_55 := [t_54, t_29]
+	t_56 := [t_55, t_35]
+	t_57 := [t_56, t_37]
+	t_58 := [t_57, t_49]
+	t_59 := [#_...-... t_12]
+	t_60 := [{EMPTY_TYPE} + t_59]
+	t_61 := [EMPTY_TYPE, t_5]
+	t_62 := [t_61, t_5]
+	t_63 := [t_62, t_5]
+	t_64 := [t_63, t_0]
+	t_65 := [t_64, t_0]
+	t_66 := [t_65, t_0]
+	t_67 := [t_60 => t_66]
+	t_68 := [t_58 => t_67]
 
-§DEF d_0 € t_6
+§DEF d_0 € t_4
 	r_1 := +#Result TRUE
 	§RETURN r_1 IF TRUE
 
-§DEF d_1 € t_9
+§DEF d_1 € t_7
 	r_1 := 0
 	r_2 := §INT ARG == r_1
 	r_3 := §BOOL r_2 ^ TRUE
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_2 € t_16
+§DEF d_2 € t_14
 	_...-... := §2ND ENV
 	r_7 := §1ST ENV
 	_...IsOdd := §2ND r_7
@@ -98,7 +94,7 @@
 	r_6 := +#Result r_5
 	§RETURN r_6 IF TRUE
 
-§DEF d_3 € t_22
+§DEF d_3 € t_20
 	d_2 := §2ND ENV
 	r_6 := §1ST ENV
 	_...-... := §2ND r_6
@@ -118,7 +114,7 @@
 	§TRY_RETURN .r_5 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_25
+§DEF d_4 € t_22
 	d_3 := §2ND ENV
 	r_9 := §1ST ENV
 	d_2 := §2ND r_9
@@ -142,18 +138,18 @@
 	r_8 := -#Result r_7
 	§RETURN r_8 IF TRUE
 
-§DEF d_5 € t_29
+§DEF d_5 € t_26
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_6 € t_9
+§DEF d_6 € t_7
 	r_1 := 0
 	r_2 := §INT ARG == r_1
 	r_3 := §BOOL r_2 ^ TRUE
 	§RETURN FALSE IF r_3
 	§RETURN TRUE IF TRUE
 
-§DEF d_7 € t_32
+§DEF d_7 € t_29
 	_...-... := §2ND ENV
 	r_7 := §1ST ENV
 	_...IsEven := §2ND r_7
@@ -167,7 +163,7 @@
 	r_6 := +#Result r_5
 	§RETURN r_6 IF TRUE
 
-§DEF d_8 € t_38
+§DEF d_8 € t_35
 	d_7 := §2ND ENV
 	r_6 := §1ST ENV
 	_...-... := §2ND r_6
@@ -187,7 +183,7 @@
 	§TRY_RETURN .r_5 ARG
 	§RETURN EMPTY IF TRUE
 
-§DEF d_9 € t_41
+§DEF d_9 € t_37
 	d_8 := §2ND ENV
 	r_9 := §1ST ENV
 	d_7 := §2ND r_9
@@ -211,7 +207,7 @@
 	r_8 := -#Result r_7
 	§RETURN r_8 IF TRUE
 
-§DEF d_10 € t_53
+§DEF d_10 € t_49
 	d_9 := §2ND ENV
 	r_19 := §1ST ENV
 	d_8 := §2ND r_19
@@ -256,7 +252,7 @@
 	r_18 := r_10, r_17
 	§RETURN r_18 IF TRUE
 
-§DEF d_11 € t_72
+§DEF d_11 € t_68
 	d_10 := §2ND ENV
 	r_34 := §1ST ENV
 	d_9 := §2ND r_34

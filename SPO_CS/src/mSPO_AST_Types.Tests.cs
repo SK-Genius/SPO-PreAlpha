@@ -29,6 +29,177 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
+			mTest.Test("Recursive tuple results are inferred from base cases in either order",
+				aDebug => {
+					foreach (
+						var Cases in new[] {
+							"""
+									§TRUE: (1, 2)
+									§FALSE: .Position §TRUE
+							""",
+							"""
+									§FALSE: .Position §TRUE
+									§TRUE: (1, 2)
+							"""
+						}
+					) {
+						var Command = mSPO_Parser.Command.ParseText(
+							"""
+							§RECURSIVE {
+								§DEF Position... = §DEF aDone € §BOOL => §IF aDone MATCH {
+							
+							""" + Cases + """
+							
+								}
+							}
+							
+							""",
+							"",
+							__ => aDebug(__())
+						);
+						
+						var Checked = mSPO_AST_Types.UpdateCommandTypes(
+							Command,
+							mStd.cEmpty,
+							new()
+						).AssertNotError(
+							__ => __.ErrorText
+						);
+						
+						var Type = Checked.Scope.TryFirst().AssertNotEmpty().Type;
+						
+						mAssert.IsTrue(Type.IsProc(out _, out _, out var Result));
+						
+						mAssert.IsTrue(
+							Result.SameType(
+								mVM_Type.Pair(mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Int())
+							),
+							Result.ToText()
+						);
+					}
+				}
+			),
+			mTest.Test("Recursive inference propagates through more than two function signatures",
+				aDebug => {
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_Parser.Command.ParseText(
+							"""
+							§RECURSIVE {
+								§DEF First... = §DEF aDone € §BOOL => .Second aDone
+								§DEF Second... = §DEF aDone € §BOOL => .Third aDone
+								§DEF Third... = §DEF aDone € §BOOL => §IF aDone MATCH {
+									§TRUE: (1, 2)
+									§FALSE: .First §TRUE
+								}
+							}
+							
+							""",
+							"",
+							__ => aDebug(__())
+						),
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					);
+					
+					var Expected = mVM_Type.Pair(
+						mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()),
+						mVM_Type.Int()
+					);
+					
+					foreach (var Item in Checked.Scope) {
+						mAssert.IsTrue(Item.Type.IsProc(out _, out _, out var Result));
+						mAssert.IsTrue(Result.SameType(Expected), Result.ToText());
+					}
+				}
+			),
+			mTest.Test("Recursive inference preserves multiple base result types",
+				aDebug => {
+					var Result = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_Parser.Command.ParseText(
+							"""
+							§RECURSIVE {
+								§DEF Choose... = §DEF aCase € §INT => §IF aCase MATCH {
+									0: 1
+									1: §TRUE
+									_: .Choose 0
+								}
+							}
+							
+							""",
+							"",
+							__ => aDebug(__())
+						),
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					).Scope.TryFirst(
+					).AssertNotEmpty(
+					).Type.Refs[2];
+					
+					mAssert.IsTrue(
+						Result.SameType(mVM_Type.Set(mVM_Type.Int(), mVM_Type.True())),
+						Result.ToText()
+					);
+				}
+			),
+			mTest.Test("Mutual recursion combines base result types from both functions",
+				aDebug => {
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_Parser.Command.ParseText(
+							"""
+							§RECURSIVE {
+								§DEF First... = §DEF aDone € §BOOL => §IF aDone MATCH {
+									§TRUE: 1
+									§FALSE: .Second §TRUE
+								}
+								§DEF Second... = §DEF aDone € §BOOL => §IF aDone MATCH {
+									§TRUE: §TRUE
+									§FALSE: .First §TRUE
+								}
+							}
+							
+							""",
+							"",
+							__ => aDebug(__())
+						),
+						mStd.cEmpty,
+						new()
+					).AssertNotError(__ => __.ErrorText);
+					
+					var Expected = mVM_Type.Set(mVM_Type.Int(), mVM_Type.True());
+					foreach (var Item in Checked.Scope) {
+						mAssert.IsTrue(Item.Type.IsProc(out _, out _, out var Result));
+						mAssert.IsTrue(Result.SameType(Expected), Result.ToText());
+					}
+				}
+			),
+			mTest.Test("Recursion without a base case does not invent a concrete result type",
+				aDebug => {
+					var Checked = mSPO_AST_Types.UpdateCommandTypes(
+						mSPO_Parser.Command.ParseText(
+							"""
+							§RECURSIVE {
+								§DEF Loop... = §DEF aValue € §INT => .Loop aValue
+							}
+							
+							""",
+							"",
+							__ => aDebug(__())
+						),
+						mStd.cEmpty,
+						new()
+					).AssertNotError(
+						__ => __.ErrorText
+					);
+					
+					mAssert.IsTrue(
+						Checked.Scope.TryFirst().AssertNotEmpty().Type.Refs[2].IsFree(out _, out _)
+					);
+				}
+			),
 			mTest.Test("Declared annotations survive checks in different scopes",
 				aDebug => {
 					var Annotation = mVM_Type.Set(mVM_Type.Int(), mVM_Type.Text());
