@@ -9,6 +9,7 @@
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
 #:ref Common/mTreeMap.cs
+#:ref Common/mRecordFields.cs
 
 public static class
 mVM_Type {
@@ -43,7 +44,7 @@ mVM_Type {
 		public tText? Id;
 		public tText? Prefix;
 		public tType[] Refs = [];
-		public mTreeMap.tTree<tText, tType> Fields;
+		public mRecordFields.tFields<tText, tType> Fields;
 		public tNat64 DebugId = mStd.NewDebugId();
 		
 		public override tBool
@@ -82,6 +83,10 @@ mVM_Type {
 			}
 			if (a1.Kind is tKind.Free) {
 				return a1.KindType().SameType(a2.KindType());
+			}
+			
+			if (a1.Kind is tKind.Record) {
+				return a1.Fields.ContentsEqual(a2.Fields, (aLeft, aRight) => aLeft == aRight);
 			}
 			
 			for (var I = a1.Refs.Length; I --> 0;) {
@@ -419,12 +424,7 @@ mVM_Type {
 			);
 		}
 		if (aLeft.Kind is tKind.Record) {
-			return (
-				aLeft.Fields.ToStream().Count() == aRight.Fields.ToStream().Count() &&
-				aLeft.Fields.ToStream().All(
-					__ => aRight.Fields.TryGet(__.Key).Match(__.Value.SameType, () => false)
-				)
-			);
+			return aLeft.Fields.ContentsEqual(aRight.Fields, (aLeftType, aRightType) => aLeftType.SameType(aRightType));
 		}
 		if (aLeft.Kind is tKind.Set) {
 			static mStream.tStream<tType>
@@ -586,9 +586,9 @@ mVM_Type {
 		mAssert.IsIn(aTailType.Kind, [tKind.Record, tKind.Empty]);
 		mAssert.IsTrue(aHeadType.IsPrefix(out var Prefix, out var Type));
 		
-		mTreeMap.tTree<tText, tType> Fields;
+		mRecordFields.tFields<tText, tType> Fields;
 		if (aTailType.IsEmpty()) {
-			Fields = mTreeMap.Tree<tText, tType>((a1, a2) => a1.CompareTo(a2).Sign(), []);
+			Fields = mRecordFields.Empty<tText, tType>(tText.CompareOrdinal);
 		} else {
 			mAssert.IsTrue(aTailType.IsRecord(out Fields));
 		}
@@ -616,7 +616,7 @@ mVM_Type {
 	public static tBool
 	IsRecord(
 		this tType aType,
-		[NotNullWhen(true)]out mTreeMap.tTree<tText, tType> aFields
+		[NotNullWhen(true)]out mRecordFields.tFields<tText, tType> aFields
 	) {
 		if (aType.Kind is tKind.Free) {
 			aType = aType.Refs[0];
