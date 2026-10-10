@@ -215,7 +215,10 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Second.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Text()));
 					mAssert.IsFalse(Id.UpdateTypes(
 						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Bool())), Second.State
-					).Match(out _, out _));
+					).Match(out _, out var Error));
+					mAssert.AreEquals(Error.Pos, Id.Pos);
+					mAssert.IsTrue(Error.ErrorText.Contains("found:") && Error.ErrorText.Contains("expected:"));
+					mAssert.IsFalse(Error.ErrorText.Contains("in:"));
 					mAssert.IsTrue(mStd.RefEq(Annotation, Id.TypeAnnotation.AssertNotEmpty()));
 				}
 			),

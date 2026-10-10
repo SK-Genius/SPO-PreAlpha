@@ -975,7 +975,7 @@ mSPO_AST_Types {
 				).Then(
 					_ => Inferred
 				).ModifyError(
-					_ => (aNode.Pos, $"type annotation '{Annotation.ToText()}' contradicts inferred type '{Inferred.Type.ToText()}'")
+					Error => (aNode.Pos, "type annotation contradicts inferred type:\n" + Error)
 				),
 				() => mResult.OK(Inferred).WithErrorType<(tPos Pos, tText ErrorText)>()
 			)
