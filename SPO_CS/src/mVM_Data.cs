@@ -8,6 +8,7 @@
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
 #:ref Common/mMap.cs
+#:ref Common/mRecordFields.cs
 #:ref Common/mStream.cs
 #:ref mVM_Type.cs
 
@@ -702,8 +703,8 @@ mVM_Data {
 		public mAny.tAny
 		_Value;
 		
-		public mTreeMap.tTree<tNat32, tData>
-		_Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
+		public mRecordFields.tFields<tNat32, tData>
+		_Fields;
 		
 		public tBool
 		_IsMutable;
@@ -715,16 +716,22 @@ mVM_Data {
 		Equals(
 			tData a
 		) => (
-			a is not null
-			&& this._DataType.Equals(a._DataType)
-			&& this._Value.Equals(a._Value)
-			&& this._Fields.Equals(a._Fields)
+			ReferenceEquals(this, a) ||
+			(
+				a is not null &&
+				this._DataType == a._DataType &&
+				(
+					this._DataType is tDataType.Record
+					? this._Fields.ContentsEqual(a._Fields, (aLeft, aRight) => aLeft.Equals(aRight))
+					: this._Value.Equals(a._Value)
+				)
+			)
 		);
 		
 		public override tBool
 		Equals(
 			tUnknown? a
-		) => this.Equals((tData)a!);
+		) => a is tData Data && this.Equals(Data);
 	}
 	
 	private static tData
@@ -742,7 +749,7 @@ mVM_Data {
 	Data(
 		tDataType aType,
 		tBool aIsMutable,
-		mTreeMap.tTree<tNat32, tData> aFields
+		mRecordFields.tFields<tNat32, tData> aFields
 	) => new() {
 		_DataType = aType,
 		_IsMutable = aIsMutable,
@@ -1015,7 +1022,7 @@ mVM_Data {
 			aRecord = Data(
 				tDataType.Record,
 				aPrefix._IsMutable,
-				mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), [])
+				mRecordFields.Empty<tNat32, tData>((a1, a2) => a1.CompareTo(a2))
 			);
 		}
 		
@@ -1044,7 +1051,7 @@ mVM_Data {
 	public static tBool
 	IsRecord(
 		this tData aData,
-		[NotNullWhen(true)]out mTreeMap.tTree<tNat32, tData> aFields
+		[NotNullWhen(true)]out mRecordFields.tFields<tNat32, tData> aFields
 	) {
 		if (aData._DataType is tDataType.Record) {
 			aFields = aData._Fields;
