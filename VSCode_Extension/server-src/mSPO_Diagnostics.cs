@@ -164,14 +164,27 @@ mSPO_Diagnostics {
 	) {
 		var MaybeModule = DocumentParser(aFallback.Id).StartParse(aTokens, aDebugStream);
 		if (!MaybeModule.Match(out var ModuleResult, out var ParseErrors)) {
+			var Furthest = ParseErrors.Map(
+				a => a.Pos
+			).Sort(
+				(a, b) => mTextParser.ComparePos(b, a)
+			).TryFirst().ElseUse(aFallback);
 			return mResult.Fail(
-				ParseErrors.Map(
-					__ => Diagnostic(
-						mSpan.Span(NormalizePos(__.Pos, aFallback)),
-						tDiagnosticSeverity.Error,
-						"parser",
-						__.Message
-					)
+				ParseErrors.Where(a => mTextParser.ComparePos(a.Pos, Furthest) == 0).Map(
+					aError => {
+						var Pos = NormalizePos(aError.Pos, aFallback);
+						var Span = mSpan.Span(Pos);
+						if (aError.Message.StartsWith("[§LOAD ")) {
+							var Opening = aTokens.Where(
+								a => a.Value.Type is mTokenizer.tTokenType.SpecialToken && a.Value.Text == "[" &&
+								mTextParser.ComparePos(a.Span.Start, Pos) <= 0
+							).TryLast();
+							if (Opening.IsSome(out var Token)) {
+								Span = mSpan.Span(Token.Span.Start, Pos);
+							}
+						}
+						return Diagnostic(Span, tDiagnosticSeverity.Error, "parser", aError.Message);
+					}
 				)
 			);
 		}
@@ -199,7 +212,7 @@ mSPO_Diagnostics {
 	AnalyzeModule(
 		mSPO_AST.tModuleNode<tSpan> aModule
 	) {
-		if (!mSPO_Desugar.DesugarModule(aModule).Match(out var DesugaredModule, out var DesugarError)) {
+		if (!mSPO_Desugar.TryDesugarModule(aModule).Match(out var DesugaredModule, out var DesugarError)) {
 			return mResult.Fail(
 				mStream.Stream(
 					Diagnostic(
@@ -212,7 +225,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		var TypeArg = mVM_Type.Free();
+		var TypeArg = mVM_Type.Free(mVM_Type.Type());
 		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,

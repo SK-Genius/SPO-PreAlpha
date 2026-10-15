@@ -1,4 +1,4 @@
-TestFiles/Errors_ILT/00_01_ParserUnexpectedToken.ILT:5 ERROR 
+TestFiles/ILT_Function_Errors/00_01_ParserUnexpectedToken.ILT:5 ERROR 
 5:  value :=
  ┌──────────^
  ├ expect '+'

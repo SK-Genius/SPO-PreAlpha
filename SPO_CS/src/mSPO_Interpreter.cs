@@ -33,9 +33,11 @@ mSPO_Interpreter {
 		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream
 	) {
-		var ModuleNode = mSPO_Parser.Module.ParseText(aCode, aId, aDebugStream);
+		if (mSPO_Parser.Module.TryParseText(aCode, aId, aDebugStream).IsFail(out var ParseError, out var ModuleNode)) {
+			return ParseError;
+		}
 		
-		if (!mSPO_Desugar.DesugarModule(ModuleNode).Match(out var DesugaredModule, out var Error)) {
+		if (!mSPO_Desugar.TryDesugarModule(ModuleNode).Match(out var DesugaredModule, out var Error)) {
 			return mResult.Fail(Error.ToText());
 		}
 		
@@ -69,9 +71,17 @@ mSPO_Interpreter {
 			)
 		).ThenTry(
 			aNewScope => mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, aNewScope.Scope, aNewScope.State)
-		).Then(
+		).ModifyError(
+			aError => {
+				var ErrorSource = aError.Pos.Start.Id;
+				var Lines = (ErrorSource != aId
+					? mFS.File(ErrorSource).TryReadText().ElseThrow()
+					: aCode).Split("\n");
+				return (aError.Pos.Start, aError.ErrorText).ToText(Lines);
+			}
+		).ThenTry(
 			aModule => {
-				return mVM.Run(
+				return mVM.TryRun(
 					mIL_AST.Module(
 						aModule.TypeDeclarations.TypeDef.ToStream(),
 						aModule.Defs.ToStream(
@@ -88,31 +98,43 @@ mSPO_Interpreter {
 					aDebugStream
 				);
 			}
-		).ModifyError(
-			aError => {
-				var ErrorSource = aError.Pos.Start.Id;
-				var Lines = (ErrorSource != aId
-					? mFS.File(ErrorSource).TryReadText().ElseThrow()
-					: aCode).Split("\n");
-				return (aError.Pos.Start, aError.ErrorText).ToText(Lines);
-			}
 		);
 	}
 	
-	public static tText
-	ToILT(
+	public static mResult.tResult<tText, tText>
+	TryToILT(
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
-		tText FormatError((tSpan Pos, tText ErrorText) aError) {
+		static tText
+		FormatError(
+			(tSpan Pos, tText ErrorText) aError
+		) {
 			var File = mFS.File(aError.Pos.Start.Id);
 			if (!File.Exists()) {
 				return aError.ToText();
 			}
-			var Code = File.TryReadText().ElseThrow();
-			return (aError.Pos.Start, aError.ErrorText).ToText(Code.Split('\n'));
+			
+			return (
+				aError.Pos.Start,
+				aError.ErrorText
+			).ToText(
+				File.TryReadText().ElseThrow().Split('\n')
+			);
 		}
-
-		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(FormatError);
+		
+		if (
+			mSPO_Desugar.TryDesugarModule(
+				aModule
+			).ModifyError(
+				FormatError
+			).IsFail(
+				out var DesugarError,
+				out var Desugared
+			)
+		) {
+			return DesugarError;
+		}
+		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
@@ -121,16 +143,44 @@ mSPO_Interpreter {
 			new()
 		).Then(
 			__ => (__.Scope, __.State)
-		).AssertNotError(FormatError);
+		);
 		
 		var Scope = Desugared.Commands.Reduce(
-			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
-			(aResScope, aCommand) => aResScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
+			InitScope,
+			(
+				aResScope,
+				aCommand
+			) => aResScope.ThenTry(
+				aScope => mSPO_AST_Types.UpdateCommandTypes(
+					aCommand,
+					aScope.Scope,
+					aScope.State
+				)
 			)
-		).AssertNotError(FormatError);
+		).ModifyError(
+			FormatError
+		);
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope.Scope, Scope.State).AssertNotError(FormatError);
+		if (Scope.IsFail(out var TypeError, out var TypedScope)) {
+			return TypeError;
+		}
+		
+		if (
+			mSPO2IL.MapModule(
+				Desugared,
+				mSpan.Merge,
+				TypedScope.Scope,
+				TypedScope.State
+			).ModifyError(
+				FormatError
+			).IsFail(
+				out var MapError,
+				out var Module
+			)
+		) {
+			return MapError;
+		}
+		
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');
@@ -164,17 +214,26 @@ mSPO_Interpreter {
 		}
 		
 		foreach (var (TypeId, Commands) in Module.Defs.ToStream()) {
-			SB.Append('\n');
-			SB.Append($"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}").Append('\n');
+			SB.Append(
+				'\n'
+			).Append(
+				$"§DEF {mSPO2IL.GetDefId(DefIndex)} € {mSPO2IL.GetTypeId(Map.TryGet(TypeId).AssertNotEmpty(() => "Unknown type " + TypeId))}"
+			).Append(
+				'\n'
+			);
+			
 			foreach (var Cmd in Commands.ToStream()) {
 				var Command = Cmd;
+				
 				if (Command.NodeType is not (mIL_AST.tCommandNodeType.TypePrefix or mIL_AST.tCommandNodeType.PrefixApply or mIL_AST.tCommandNodeType.PrefixRemove)) {
 					Command._2 = Command._2.Then(__ => Map.TryGet(__).Match(() => __, mSPO2IL.GetTypeId));
 				}
+				
 				if (Command.NodeType is not (mIL_AST.tCommandNodeType.GetField or mIL_AST.tCommandNodeType.TryRemovePrefixFrom)) {
 					Command._3 = Command._3.Then(__ => Map.TryGet(__).Match(() => __, mSPO2IL.GetTypeId));
 				}
-				SB.Append("\t" + Command.ToText()).Append('\n');
+				
+				SB.Append('\t').Append(Command.ToText()).Append('\n');
 			}
 			DefIndex += 1;
 		}

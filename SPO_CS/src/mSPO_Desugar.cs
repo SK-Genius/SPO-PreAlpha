@@ -695,7 +695,7 @@ mSPO_Desugar {
 		mSPO_AST.tModuleNode<tPos>,
 		(tPos Pos, tText ErrorText)
 	>
-	DesugarModule<tPos>(
+	TryDesugarModule<tPos>(
 		this mSPO_AST.tModuleNode<tPos> aModule
 	) => aModule.Export.Expression.DesugarExpression().ThenTry(
 		aDesugaredExpr => aModule.Commands.Map(DesugarCommand).WhenAllThenTry(

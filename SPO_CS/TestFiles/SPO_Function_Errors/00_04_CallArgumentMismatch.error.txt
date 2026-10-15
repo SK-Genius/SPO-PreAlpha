@@ -1,4 +1,4 @@
-TestFiles/Errors_SPO/00_04_CallArgumentMismatch.SPO:3 ERROR 
+TestFiles/SPO_Function_Errors/00_04_CallArgumentMismatch.SPO:3 ERROR 
 3: §EXPORT .Identity §TRUE
  ┌───────────────────^
  ├ found:

@@ -1,4 +1,4 @@
-TestFiles/Errors_SPO/03_02_OldBareLoad.SPO:1 ERROR 
+TestFiles/SPO_Function_Errors/03_02_OldBareLoad.SPO:1 ERROR 
 1: §DEF Identity... = (§DEF Value € §LOAD_SIG "Int.SIG") => Value
  ┌──────────────────────────────────^
  ├ expect '"'

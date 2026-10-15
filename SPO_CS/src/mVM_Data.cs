@@ -1069,9 +1069,8 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		mAssert.IsFalse(aEnv._IsMutable);
 		// In the end this is the place where the compiler will called !!!
-		return Data(tDataType.Proc, false, aDef, aEnv);
+		return Data(tDataType.Proc, aEnv._IsMutable, aDef, aEnv);
 	}
 	
 	public static tBool
@@ -1108,8 +1107,7 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		tData aEnv
 	) {
-		mAssert.IsFalse(aEnv._IsMutable);
-		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
+		return Data(tDataType.ExternProc, aEnv._IsMutable, aExternDef, aEnv);
 	}
 	
 	public static tBool

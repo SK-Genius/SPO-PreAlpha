@@ -1,9 +1,0 @@
-mError+tError: [DebugId: 5876191] D:/Projekte/SPO-PreAlpha_main/SPO_CS/TestFiles/SPO_Function_Errors/03_04_UnclosedLoad.SPO:1 ERROR 
-1: §DEF Identity... = (§DEF Value € [§LOAD "Int.SIG") => Value
- ┌──────────────────────────────────────────────────^
- ├ expect ']'
-
-   at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream, tFileContext aFileContext) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mTokenizer.cs:line 201
-   at mE2E_Tests.<.cctor>g__ImportNames|1_3(tFile aFile, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 74
-   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 176
-   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

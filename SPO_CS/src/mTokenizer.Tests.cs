@@ -39,10 +39,11 @@ mTokenizer_Tests {
 		[
 			mTest.Test("Identifiers beginning with numbers and numeric token boundaries",
 				aDebug => {
-					var Tokens = mTokenizer.Tokenizer.ParseText(
+					var Tokens = mTokenizer.Tokenizer.TryParseText(
 						"01_03_xyz 1abc 1_234 -2 +3 1..2 1.Foo 1... 1...2",
 						"",
 						a => aDebug(a())
+					).ElseThrow(
 					).Result;
 					
 					mAssert.AreEquals(
@@ -128,7 +129,7 @@ mTokenizer_Tests {
 			),
 			mTest.Test("TwoLines",
 				aDebugStream => {
-					var TokenList = mTokenizer.Tokenizer.ParseText(
+					var TokenList = mTokenizer.Tokenizer.TryParseText(
 						"""
 						a := §INT b <=> c
 						a := [#b c d "Text"]
@@ -139,7 +140,9 @@ mTokenizer_Tests {
 						""",
 						"",
 						__ => aDebugStream(__())
+					).ElseThrow(
 					).Result;
+					
 					mAssert.AreEquals(
 						TokenList,
 						mStream.Stream(

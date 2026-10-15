@@ -101,10 +101,10 @@ mIL_Parser_Tests {
 		}.AsStream(
 		).Map(
 			aTestCase => mStream.Stream(
-				mTest.Test($"{nameof(mTextParser.ParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+				mTest.Test($"{nameof(mTextParser.TryParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
 					aStreamOut => {
 						mAssert.AreEquals(
-							mIL_Parser.Command.ParseText(aTestCase.Expr, "", __ => aStreamOut(__())),
+							mIL_Parser.Command.TryParseText(aTestCase.Expr, "", __ => aStreamOut(__())).ElseThrow(),
 							aTestCase.Command,
 							mIL_AST.Eq_(mSpan.Eq_<tPos>(mTextStream.Eq))
 						);

@@ -1,4 +1,4 @@
-TestFiles/Errors_ILT/01_05_SigPayloadMismatch.ILT:9 ERROR 
+TestFiles/ILT_Function_Errors/01_05_SigPayloadMismatch.ILT:9 ERROR 
 9:  package := §SIG contract WITH payload
  ┌──^
  ├ found:

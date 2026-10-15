@@ -1,5 +1,0 @@
-System.IO.FileNotFoundException: Module not available: 03_01_Missing
-File name: 'D:/Projekte/SPO-PreAlpha_main/SPO_CS/TestFiles/SPO_Module_Errors/_Modules/03_01_Missing.SPO'
-   at mE2E_Tests.<.cctor>g__ModuleFile|1_5(String aName, tTree`2 aModules, tFolder aModuleFolder) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 114
-   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 189
-   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

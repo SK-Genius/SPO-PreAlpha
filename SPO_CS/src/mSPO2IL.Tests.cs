@@ -103,9 +103,9 @@ mSPO2IL_Tests {
 		[
 			mTest.Test("If lowering uses validated types without changing AST annotations",
 				aStreamOut => {
-					var Expression = mSPO_Parser.Expression.ParseText(
+					var Expression = mSPO_Parser.Expression.TryParseText(
 						"§IF {\n\tFlag: Value\n\t§TRUE: 0\n}", "", __ => aStreamOut(__())
-					);
+					).ElseThrow();
 					var Scope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem("_Flag", mVM_Type.Bool()),
 						mSPO_AST_Types.ScopeItem("_Value", mVM_Type.Int())
@@ -121,13 +121,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapExpression",
 				aStreamOut => {
-					var ExpressionNode = mSPO_Parser.Expression.ParseText(
+					var ExpressionNode = mSPO_Parser.Expression.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"0 .< (1 .+ 2) < 4",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Scope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem("_...+...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]), mVM_Type.Int())),
@@ -161,13 +161,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapDef1",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF a = (1, 2)",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
@@ -194,13 +194,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapDefMatch",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, (§DEF b, §DEF c)) = (1, (2, 3))",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
@@ -238,13 +238,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MatchTuple",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, §DEF c) = (1, 2, 3)",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
@@ -278,13 +278,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapMatchPrefix",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a, §DEF b, (#bla (§DEF c , §DEF d))) = (1, 2, (#bla (3, 4)))",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, mStd.cEmpty, new()).AssertNotError(__ => __.ToText());
 					
@@ -329,13 +329,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapLambda1",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF x = §DEF a € §INT => 2 .* a",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
@@ -455,13 +455,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapLambda2",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF ...*...+... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .+ c",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
@@ -616,13 +616,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapLambda3",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"§DEF TestTest... = (§DEF a € §INT, §DEF b € §INT, §DEF c € §INT) => (a .* b) .> c",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
@@ -768,7 +768,7 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapIfMatch_1",
 				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.ParseText(
+					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
@@ -780,7 +780,7 @@ mSPO2IL_Tests {
 						""",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
@@ -900,7 +900,7 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapIfMatch_2_WithSet",
 				aStreamOut => {
-					var ModuleNode = mSPO_Parser.Module.ParseText(
+					var ModuleNode = mSPO_Parser.Module.TryParseText(
 						//       1         2         3         4         5         6         7         8
 						//345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
@@ -916,7 +916,7 @@ mSPO2IL_Tests {
 						""",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 						ModuleNode.Import.Pattern,
@@ -993,13 +993,13 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapNestedMatch",
 				aStreamOut => {
-					var LambdaNode = mSPO_Parser.Lambda.ParseText(
+					var LambdaNode = mSPO_Parser.Lambda.TryParseText(
 						//        1         2         3         4         5         6         7         8
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"(§DEF a € §INT, §DEF b € §INT, (§DEF x € §INT, §DEF y € §INT, §DEF z € §INT)) => a .* z",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
@@ -1088,7 +1088,7 @@ mSPO2IL_Tests {
 			),
 			mTest.Test("MapRecursion2",
 				aStreamOut => {
-					var ModuleNode = mSPO_Parser.Module.ParseText(
+					var ModuleNode = mSPO_Parser.Module.TryParseText(
 						//        1         2         3         4         5         6         7         8
 						//2345678901234567890123456789012345678901234567890123456789012345678901234567890
 						"""
@@ -1113,7 +1113,7 @@ mSPO2IL_Tests {
 						""",
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 						ModuleNode.Import.Pattern,
@@ -1146,7 +1146,7 @@ mSPO2IL_Tests {
 		tSpan aSpan,
 		mStd.tAction<tText> aDebugStream
 	) {
-		var Command = mIL_Parser.Command.ParseText(aCommand, "", __ => { aDebugStream(__()); });
+		var Command = mIL_Parser.Command.TryParseText(aCommand, "", __ => { aDebugStream(__()); }).ElseThrow();
 		Command.Pos = aSpan;
 		return Command;
 	}

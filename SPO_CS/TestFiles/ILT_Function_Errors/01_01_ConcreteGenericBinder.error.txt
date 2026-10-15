@@ -1,4 +1,4 @@
-FAIL: TestFiles/Errors_ILT/01_01_ConcreteGenericBinder.ILT:4 ERROR 
+TestFiles/ILT_Function_Errors/01_01_ConcreteGenericBinder.ILT:4 ERROR 
 4:  Identity := [§ALL INT => Body]
  ┌──^
  ├ expected type operand

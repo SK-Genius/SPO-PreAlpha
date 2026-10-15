@@ -1,4 +1,4 @@
-TestFiles/Errors_ILT/00_06_UnknownType.ILT:3 ERROR 
-3: §DEF main € Missing
- ┌─────────────^
+TestFiles/ILT_Function_Errors/00_06_UnknownType.ILT:4 ERROR 
+4:  §RETURN EMPTY IF TRUE
+ ┌──^
  ├ type 'Missing' not found

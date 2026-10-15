@@ -72,6 +72,7 @@ mModule {
 		if (!aModuleSetup.Dependencies.Init(aLogger).Match(out var Dependencies, out var DependencyError)) {
 			return mResult.Fail(DependencyError);
 		}
+		
 		var (Data, Type) = Dependencies;
 		
 		var Folder = mFS.Folder(aModuleSetup.ModulePath.Parent.Deref.AssertNotEmpty());
@@ -79,7 +80,10 @@ mModule {
 		switch (FileExtension) {
 			case "SPO": {
 				var SPO_File = mFS.File(aModuleSetup.ModulePath);
-				var SPO_Text = SPO_File.TryReadText().ElseThrow();
+				
+				if (SPO_File.TryReadText().IsFail(out var ReadError, out var SPO_Text)) {
+					return ReadError;
+				}
 				
 				#if true
 				{
@@ -93,11 +97,17 @@ mModule {
 						: ""
 					);
 					
-					var IL_TextNew = mSPO_Parser.Module.ParseText(
+					var IL_Result = mSPO_Parser.Module.TryParseText(
 						SPO_Text,
 						(Folder._Path / SPO_File.Name).ToText(),
 						__ => aLogger(__())
-					).ToILT();
+					).ThenTry(
+						__ => __.TryToILT()
+					);
+					
+					if (IL_Result.IsFail(out var Error, out var IL_TextNew)) {
+						return Error;
+					}
 					
 					if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
 						ILT_File.TryCreate(IL_TextNew);
@@ -117,30 +127,31 @@ mModule {
 				);
 				
 				aModuleSetup.Module = Y;
+				
 				return Y;
 			}
 			case "ILT": {
-				try {
-					var ILT_File = mFS.File(aModuleSetup.ModulePath);
-					var Res = mVM.Run(
-						mIL_Parser.Module.ParseText(
-							ILT_File.TryReadText().ElseThrow(),
-							(Folder._Path / ILT_File.Name).ToText(),
-							__ => aLogger(__())
-						),
+				var ILT_File = mFS.File(aModuleSetup.ModulePath);
+				
+				var Result = ILT_File.TryReadText(
+				).ThenTry(
+					aSource => mIL_Parser.Module.TryParseText(
+						aSource,
+						ILT_File.Path.ToText(),
+						__ => aLogger(__())
+					)
+				).ThenTry(
+					aModule => mVM.TryRun(
+						aModule,
 						(Data, Type),
 						mTextParser.ToText,
 						__ => aLogger(__())
-					);
-					
-					aModuleSetup.Module = mResult.OK(Res).WithErrorType<tText>();
-					
-					return (Res.Data, Res.Type);
-				} catch	(System.Exception e) {
-					var Error = e.ToString();
-					aModuleSetup.Module = mResult.Fail(Error).AsResult<(mVM_Data.tData, mVM_Type.tType)>();
-					return mResult.Fail(Error);
-				}
+					)
+				);
+				
+				aModuleSetup.Module = Result;
+				
+				return Result;
 			}
 			default: {
 				return mResult.Fail(

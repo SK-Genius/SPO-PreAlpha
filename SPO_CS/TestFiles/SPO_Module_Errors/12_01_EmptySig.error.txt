@@ -1,21 +1,22 @@
-TestFiles/Errors_Modules_SPO/12_01_EmptySig.SPO:1,34..1,63: [§LOAD "_Modules/12_01_Invalid.SIG"]: :0 ERROR 
-0: 
- ┌^
- ├ expect '['
- ├ expect '§ANY'
- ├ expect '§BOOL'
- ├ expect '§CHAR'
- ├ expect '§FALSE'
- ├ expect '§INT'
- ├ expect '§TEXT'
- ├ expect '§TRUE'
- ├ expect '§TYPE'
- ├ expect Identifier
- ├ expect line break
- ├ expect space
- ├ invalid LoadSig
- ├ invalid Type
-TestFiles/Errors_Modules_SPO/_Modules/12_01_Invalid.SIG:1 ERROR 
-1: 
- ┌─^
- ├ invalid Signature
+TestFiles/SPO_Module_Errors/12_01_EmptySig.SPO:1 ERROR 
+1: §DEF Identity... = (§DEF Value € [§LOAD "_Modules/12_01_Invalid.SIG"]) => Value
+ ┌─────────────────────────────────────────────────────────────────────^
+ ├ [§LOAD "_Modules/12_01_Invalid.SIG"]: TestFiles/SPO_Module_Errors/_Modules/12_01_Invalid.SIG:1 ERROR 
+ │ 1: 
+ │  ┌─^
+ │  ├ expect '['
+ │  ├ expect '§ANY'
+ │  ├ expect '§BOOL'
+ │  ├ expect '§CHAR'
+ │  ├ expect '§FALSE'
+ │  ├ expect '§INT'
+ │  ├ expect '§TEXT'
+ │  ├ expect '§TRUE'
+ │  ├ expect '§TYPE'
+ │  ├ expect Identifier
+ │  ├ expect line break
+ │  ├ expect space
+ │  ├ invalid LoadSig
+ │  ├ invalid Signature
+ │  ├ invalid Type
+ │ 

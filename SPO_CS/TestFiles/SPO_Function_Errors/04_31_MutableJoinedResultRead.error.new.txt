@@ -3,8 +3,9 @@ System.NotImplementedException: The method or operation is not implemented.
    at mVM_Type.CheckSubType(tType aSubType, tType aSupType, tTree`2 aTypeMappings) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM_Type.cs:line 1145
    at mVM_Type.CheckSubType(tType aSubType, tType aSupType, tTree`2 aTypeMappings) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM_Type.cs:line 1145
    at mVM_Type.IsSubType(tType aSubType, tType aSupType, tTree`2 aTypeMappings) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM_Type.cs:line 911
-   at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 807
-   at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 912
-   at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__3(tModuleConstructor`1 aModule) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 74
-   at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 65
-   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 270
+   at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 1072
+   at mVM.TryRun[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 912
+   at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__4(tModuleConstructor`1 aModule) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 84
+   at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 67
+   at mE2E_Tests.<>c__DisplayClass1_9.<.cctor>b__35(ValueTuple`2 aImports) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 351
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__31(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 346

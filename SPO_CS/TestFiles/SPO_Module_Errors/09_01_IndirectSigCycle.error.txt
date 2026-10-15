@@ -1,1 +1,12 @@
-TestFiles/Errors_Modules_SPO/_Modules/09_01_Package.SPO:1,14..1,32: [§LOAD "09_01_First.SIG"]: [§LOAD "09_01_Second.SIG"]: [§LOAD "09_01_First.SIG"]: recursive §LOAD: TestFiles/Errors_Modules_SPO/_Modules/09_01_Package.SPO -> TestFiles/Errors_Modules_SPO/_Modules/09_01_First.SIG -> TestFiles/Errors_Modules_SPO/_Modules/09_01_Second.SIG -> TestFiles/Errors_Modules_SPO/_Modules/09_01_First.SIG
+TestFiles/SPO_Module_Errors/_Modules/09_01_Package.SPO:1 ERROR 
+1: §EXPORT §SIG [§LOAD "09_01_First.SIG"] WITH §INT IN 7
+ ┌──────────────────────────────────────^
+ ├ [§LOAD "09_01_First.SIG"]: TestFiles/SPO_Module_Errors/_Modules/09_01_First.SIG:1 ERROR 
+ │ 1: [§LOAD "09_01_Second.SIG"]
+ │  ┌──────────────────────────^
+ │  ├ [§LOAD "09_01_Second.SIG"]: TestFiles/SPO_Module_Errors/_Modules/09_01_Second.SIG:1 ERROR 
+ │  │ 1: [§LOAD "09_01_First.SIG"]
+ │  │  ┌─────────────────────────^
+ │  │  ├ [§LOAD "09_01_First.SIG"]: recursive §LOAD: TestFiles/SPO_Module_Errors/_Modules/09_01_Package.SPO -> TestFiles/SPO_Module_Errors/_Modules/09_01_First.SIG -> TestFiles/SPO_Module_Errors/_Modules/09_01_Second.SIG -> TestFiles/SPO_Module_Errors/_Modules/09_01_First.SIG
+ │  │ 
+ │ 

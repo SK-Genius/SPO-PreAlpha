@@ -1,8 +1,6 @@
 §TYPES
 	V := [§VAR INT]
-	Cell := [#_Cell V]
-	Imports := [{EMPTY_TYPE} + Cell]
-	F := [Imports => INT]
+	F := [V => INT]
 	D := [EMPTY_TYPE => F]
 §DEF main € D
 	§RETURN ONE IF TRUE

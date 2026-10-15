@@ -43,7 +43,7 @@ mSPO_AST_Types_Tests {
 							"""
 						}
 					) {
-						var Command = mSPO_Parser.Command.ParseText(
+						var Command = mSPO_Parser.Command.TryParseText(
 							"""
 							§RECURSIVE {
 								§DEF Position... = §DEF aDone € §BOOL => §IF aDone MATCH {
@@ -56,7 +56,7 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebug(__())
-						);
+						).ElseThrow();
 						
 						var Checked = mSPO_AST_Types.UpdateCommandTypes(
 							Command,
@@ -82,7 +82,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Recursive inference propagates through more than two function signatures",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_Parser.Command.ParseText(
+						mSPO_Parser.Command.TryParseText(
 							"""
 							§RECURSIVE {
 								§DEF First... = §DEF aDone € §BOOL => .Second aDone
@@ -96,7 +96,7 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebug(__())
-						),
+						).ElseThrow(),
 						mStd.cEmpty,
 						new()
 					).AssertNotError(
@@ -117,7 +117,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Recursive inference preserves multiple base result types",
 				aDebug => {
 					var Result = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_Parser.Command.ParseText(
+						mSPO_Parser.Command.TryParseText(
 							"""
 							§RECURSIVE {
 								§DEF Choose... = §DEF aCase € §INT => §IF aCase MATCH {
@@ -130,7 +130,7 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebug(__())
-						),
+						).ElseThrow(),
 						mStd.cEmpty,
 						new()
 					).AssertNotError(
@@ -148,7 +148,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Mutual recursion combines base result types from both functions",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_Parser.Command.ParseText(
+						mSPO_Parser.Command.TryParseText(
 							"""
 							§RECURSIVE {
 								§DEF First... = §DEF aDone € §BOOL => §IF aDone MATCH {
@@ -164,7 +164,7 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebug(__())
-						),
+						).ElseThrow(),
 						mStd.cEmpty,
 						new()
 					).AssertNotError(__ => __.ErrorText);
@@ -179,7 +179,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Recursion without a base case does not invent a concrete result type",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
-						mSPO_Parser.Command.ParseText(
+						mSPO_Parser.Command.TryParseText(
 							"""
 							§RECURSIVE {
 								§DEF Loop... = §DEF aValue € §INT => .Loop aValue
@@ -188,7 +188,7 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebug(__())
-						),
+						).ElseThrow(),
 						mStd.cEmpty,
 						new()
 					).AssertNotError(
@@ -450,11 +450,11 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Generic values and signatures use the same type abstraction",
 				aDebug => {
-					var Expression = mSPO_Parser.Expression.ParseText(
+					var Expression = mSPO_Parser.Expression.TryParseText(
 						"[§GENERIC t [t => t]]",
 						"",
 						__ => aDebug(__())
-					);
+					).ElseThrow();
 					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
 					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Value.KindType().SameType(Kind));
@@ -466,9 +466,9 @@ mSPO_AST_Types_Tests {
 					mAssert.IsFalse(Expression.TypeAnnotation.IsSome(out _));
 					mAssert.IsFalse(Kind.IsSubType(mVM_Type.Type()).Match(out _, out _));
 					var Scope = mStream.Stream(mSPO_AST_Types.ScopeItem("_T", Kind, Value));
-					var Alias = mSPO_Parser.Expression.ParseText("T", "", __ => aDebug(__()));
+					var Alias = mSPO_Parser.Expression.TryParseText("T", "", __ => aDebug(__())).ElseThrow();
 					mAssert.IsTrue(Alias.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText).SameType(Value));
-					var Applied = mSPO_Parser.Expression.ParseText("[.T §INT]", "", __ => aDebug(__()))
+					var Applied = mSPO_Parser.Expression.TryParseText("[.T §INT]", "", __ => aDebug(__())).ElseThrow()
 						.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Applied.SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())));
 					var Mono = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
@@ -484,11 +484,11 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Curried type abstractions retain their function kind until fully applied",
 				aDebug => {
-					var Expression = mSPO_Parser.Expression.ParseText(
+					var Expression = mSPO_Parser.Expression.TryParseText(
 						"[§GENERIC a [§GENERIC b [a => b]]]",
 						"",
 						__ => aDebug(__())
-					);
+					).ElseThrow();
 					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					var FunctionKind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
 					mAssert.IsTrue(Value.KindType().SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), FunctionKind)));
@@ -517,18 +517,18 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("SIG heads and type literals have type TYPE",
 				aDebug => {
-					var Literal = mSPO_Parser.Expression.ParseText("§INT", "", __ => aDebug(__()));
+					var Literal = mSPO_Parser.Expression.TryParseText("§INT", "", __ => aDebug(__())).ElseThrow();
 					var Type = Literal.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText).Type;
 					
 					mAssert.IsTrue(Type.IsType() && Type.Refs.Length == 0);
 					mAssert.IsTrue(Literal.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText).IsInt());
 					mAssert.IsFalse(Literal.TypeAnnotation.IsSome(out _));
 					
-					var Pattern = mSPO_Parser.Pattern.ParseText(
+					var Pattern = mSPO_Parser.Pattern.TryParseText(
 						"§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body",
 						"",
 						__ => aDebug(__())
-					);
+					).ElseThrow();
 					
 					var Scope = mSPO_AST_Types.UpdatePatternTypes(
 						Pattern,
@@ -549,18 +549,18 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("BOOL desugars to singleton types",
 				aDebugStream => {
-					var Type = mSPO_Parser.Type.ParseText(
+					var Type = mSPO_Parser.Type.TryParseText(
 						"§BOOL",
 						"",
 						__ => aDebugStream(__())
-					).DesugarType();
+					).ElseThrow().DesugarType();
 					mAssert.IsTrue(Type is mSPO_AST.tSetTypeNode<mSpan.tSpan<mTextStream.tPos>>);
 					var DesugaredType = Type.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
-					var ExpandedType = mSPO_Parser.Type.ParseText(
+					var ExpandedType = mSPO_Parser.Type.TryParseText(
 						"[§TRUE | §FALSE]",
 						"",
 						__ => aDebugStream(__())
-					).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					).ElseThrow().AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					DesugaredType.IsSubType(ExpandedType).AssertNotError(__ => __);
 					ExpandedType.IsSubType(DesugaredType).AssertNotError(__ => __);
 				}
@@ -588,7 +588,7 @@ mSPO_AST_Types_Tests {
 			),
 			mTest.Test("Match cases consume the remaining union type",
 				aDebugStream => {
-					var Match = (mSPO_AST.tIfMatchNode<mSpan.tSpan<mTextStream.tPos>>)mSPO_Parser.Expression.ParseText(
+					var Match = (mSPO_AST.tIfMatchNode<mSpan.tSpan<mTextStream.tPos>>)mSPO_Parser.Expression.TryParseText(
 						"""
 						§IF X MATCH {
 							() : 0
@@ -597,7 +597,7 @@ mSPO_AST_Types_Tests {
 						""",
 						"",
 						__ => aDebugStream(__())
-					);
+					).ElseThrow();
 					var Checked = Match.UpdateTypes(
 							mStream.Stream(
 								mSPO_AST_Types.ScopeItem(
@@ -634,21 +634,21 @@ mSPO_AST_Types_Tests {
 				).Map(
 					((tText File, tInt32 LineNr, tText Type, tText Pattern, tText PatternTypeUsed, tText RemainingType) a) => mTest.Test($"{a.Type} : {a.Pattern}",
 						aDebugStream => {
-							var Type = mSPO_Parser.Type.ParseText(a.Type, "", __ => aDebugStream(__()))
+							var Type = mSPO_Parser.Type.TryParseText(a.Type, "", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
-							var PatternType = mSPO_Parser.Pattern.ParseText(a.Pattern, "", __ => aDebugStream(__()));
+							var PatternType = mSPO_Parser.Pattern.TryParseText(a.Pattern, "", __ => aDebugStream(__())).ElseThrow();
 							
 							var PatternTypeUsed = a.PatternTypeUsed == ""
 							? mMaybe.None<mVM_Type.tType>()
-							: mSPO_Parser.Type.ParseText(a.PatternTypeUsed, "", __ => aDebugStream(__()))
+							: mSPO_Parser.Type.TryParseText(a.PatternTypeUsed, "", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
 							var RemainingType = a.RemainingType == ""
 							? mMaybe.None<mVM_Type.tType>()
-							: mSPO_Parser.Type.ParseText(a.RemainingType, "", __ => aDebugStream(__()))
+							: mSPO_Parser.Type.TryParseText(a.RemainingType, "", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
@@ -711,11 +711,11 @@ mSPO_AST_Types_Tests {
 					);
 					
 					mAssert.AreEquals(
-						mSPO_Parser.Expression.ParseText(
+						mSPO_Parser.Expression.TryParseText(
 							"(#Bla (§DEF a € §BOOL)) => a",
 							"",
 							__ => { aDebugStream(__()); }
-						).DesugarExpression(
+						).ElseThrow().DesugarExpression(
 						).AssertNotError(
 							__ => __.ErrorText
 						).UpdateTypes(
@@ -740,7 +740,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Higher-order arguments reach a recursive fixed point",
 				aDebugStream => {
 					mAssert.AreEquals(
-						mSPO_Parser.Expression.ParseText(
+						mSPO_Parser.Expression.TryParseText(
 							"""
 							.F (
 								1
@@ -750,11 +750,11 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebugStream(__())
-						).UpdateTypes(
+						).ElseThrow().UpdateTypes(
 							mStream.Stream(
 								mSPO_AST_Types.ScopeItem(
 									"_F...",
-									mSPO_Parser.Type.ParseText(
+									mSPO_Parser.Type.TryParseText(
 										"""
 										[
 											§GENERIC tIn [
@@ -774,7 +774,7 @@ mSPO_AST_Types_Tests {
 										""",
 										"",
 										__ => aDebugStream(__())
-									).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
+									).ElseThrow().AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
 								)
 							),
 							new()
@@ -789,7 +789,7 @@ mSPO_AST_Types_Tests {
 			mTest.Test("Higher-order method arguments are retried",
 				aDebugStream => {
 					var Scope = mSPO_AST_Types.UpdateMethodCallTypes(
-						mSPO_Parser.MethodCall.ParseText(
+						mSPO_Parser.MethodCall.TryParseText(
 							"""
 							F (
 								1
@@ -798,15 +798,15 @@ mSPO_AST_Types_Tests {
 							""",
 							"",
 							__ => aDebugStream(__())
-						),
+						).ElseThrow(),
 						mStream.Stream(
 							mSPO_AST_Types.ScopeItem(
 								"_F...",
-								mSPO_Parser.Type.ParseText(
+								mSPO_Parser.Type.TryParseText(
 									"[§GENERIC tIn [§GENERIC tOut [[tIn, [tIn => tOut]] => tOut]]]",
 									"",
 									__ => aDebugStream(__())
-								).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
+								).ElseThrow().AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText)
 							)
 						),
 						new()
@@ -883,11 +883,11 @@ mSPO_AST_Types_Tests {
 						return mTest.Test(a.Code,
 							aDebugStream => {
 								mAssert.AreEquals(
-									mSPO_Parser.Expression.ParseText(
+									mSPO_Parser.Expression.TryParseText(
 										a.Code,
 										"",
 										__ => { aDebugStream(__()); }
-									).UpdateTypes(
+									).ElseThrow().UpdateTypes(
 										mStd.cEmpty,
 										new()
 									).Then(

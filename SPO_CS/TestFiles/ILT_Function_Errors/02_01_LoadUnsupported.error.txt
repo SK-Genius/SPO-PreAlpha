@@ -1,4 +1,4 @@
-TestFiles/Errors_ILT/02_01_LoadUnsupported.ILT:1 ERROR 
+TestFiles/ILT_Function_Errors/02_01_LoadUnsupported.ILT:1 ERROR 
 1: [§LOAD "Int.SIG"]
  ┌─^
  ├ expect '§TYPES'

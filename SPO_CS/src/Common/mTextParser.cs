@@ -30,8 +30,8 @@ mTextParser {
 		tPos a2
 	) => mMath.Sign(
 		a1.Row != a2.Row
-		? (System.Int32)a1.Row - (System.Int32)a2.Row
-		: (System.Int32)a1.Col - (System.Int32)a2.Col
+		? (tInt32)a1.Row - (tInt32)a2.Row
+		: (tInt32)a1.Col - (tInt32)a2.Col
 	);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
@@ -43,31 +43,40 @@ mTextParser {
 	
 	extension<tOut> (mParserGen.tParser<tPos, tChar, tOut, tError> aParser) {
 		[Pure, DebuggerHidden]
-		public (tSpan Span, tOut Result)
-		ParseText(
+		public mResult.tResult<(tSpan Span, tOut Result), tText>
+		TryParseText(
 			tText aText,
 			tText aId,
 			mStd.tAction<mStd.tFunc<tText>> aDebugStream
 		) {
 			using var _ = mPerf.Measure();
-			var Stream = aText.ToStream(aId).Map(__ => (mSpan.Span(__.Pos), __.Char));
-			var MaybeResult = aParser.StartParse(Stream, aDebugStream);
-			var Result = MaybeResult.AssertNotError(
+			
+			var Parsed = aParser.StartParse(
+				aText.ToStream(aId).Map(__ => (mSpan.Span(__.Pos), __.Char)),
+				aDebugStream
+			).ModifyError(
 				__ => __.Sort(
 					(a1, a2) => {
-						var RowComp = (System.Int32)a2.Pos.Row - (System.Int32)a1.Pos.Row;
+						var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
 						return RowComp != 0
 							? RowComp
-							: (System.Int32)a2.Pos.Col - (System.Int32)a1.Pos.Col;
+							: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
 					}
 				).DontRepeat(
-				).ToText(aText.Split('\n'))
+				).ToText(
+					aText.Split('\n')
+				)
 			);
+			
+			if (Parsed.IsFail(out var Error, out var Result)) {
+				return Error;
+			}
+			
 			if (!Result.RemainingStream.IsEmpty()) {
 				var Pos = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start;
 				var Line = aText.Split('\n')[Pos.Row - 1];
 				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
-				throw mError.Error(
+				return mResult.Fail(
 					$"""
 					{Pos.Id}:{Pos.Row} expected end of text
 					{Line}
@@ -75,6 +84,7 @@ mTextParser {
 					"""
 				);
 			}
+			
 			return Result.Result;
 		}
 		

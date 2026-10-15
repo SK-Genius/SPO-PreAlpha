@@ -28,9 +28,9 @@ mIL_GenerateOpcodes_Tests {
 		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) => mIL_GenerateOpcodes.GenerateOpcodes(
-		mIL_Parser.Module.ParseText(aSourceCode, aId, aTrace),
+		mIL_Parser.Module.TryParseText(aSourceCode, aId, aTrace).ElseThrow(),
 		aTrace
-	);
+	).ElseThrow();
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mIL_GenerateOpcodes),

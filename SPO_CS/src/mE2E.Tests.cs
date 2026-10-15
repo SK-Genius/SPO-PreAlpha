@@ -39,95 +39,134 @@ mE2E_Tests {
 				var TestRoot = mFS.CWD() / "TestFiles";
 				const tText cScopedModulePattern = @"^\d{2}_\d{2}_";
 				
-				tText RelativeDiagnostic(tText aError) {
+				static tText
+				RelativeDiagnostic(
+					tText aError
+				) {
 					var Prefix = mFS.CWD()._Path.ToText().TrimEnd('/', '\\') + "/";
+					
 					return aError.Replace(
+						new System.Uri(Prefix).AbsoluteUri,
+						""
+					).Replace(
 						Prefix,
 						""
 					).Replace(
 						Prefix.Replace('/', '\\'),
 						""
-					).Replace(
-						new System.Uri(Prefix).AbsoluteUri,
-						""
+					).TrimEnd(
+						'\r',
+						'\n'
 					);
 				}
 				
 				mStream.tStream<mFS.tFile> ModuleFiles(mFS.tFolder aFolder) => aFolder.Exists()
 					? aFolder.GetFiles(
 					).Where(
-						a => a.Path.Parent.Deref.AssertNotEmpty() == aFolder._Path && (
-							a.Extension is "SPO" ||
+						__ => __.Path.Parent.Deref.AssertNotEmpty() == aFolder._Path && (
+							__.Extension is "SPO" ||
 							(
-								a.Extension is "ILT" &&
-								!a.Folder.GetFile(a.NameWithoutExtension + ".SPO").Exists()
+								__.Extension is "ILT" &&
+								!__.Folder.GetFile(__.NameWithoutExtension + ".SPO").Exists()
 							)
 						)
 					).Sort(
-						(a, b) => tText.CompareOrdinal(a.Name, b.Name)
+						(a1, a2) => tText.CompareOrdinal(a1.Name, a2.Name)
 					)
 					: mStd.cEmpty;
 				
-				mStream.tStream<tText> ImportNames(mFS.tFile aFile, mStd.tAction<tText> aDebug) {
-					var Source = aFile.TryReadText().ElseThrow();
-					if (aFile.Extension is "SPO") {
-						var Pattern = mSPO_Parser.Module.ParseText(
-							Source, aFile.Path.ToText(), a => aDebug(a())
-						).Import.Pattern;
-						
-						while (Pattern is mSPO_AST.tTypedPatternNode<tSpan> Typed) {
-							Pattern = Typed.Pattern;
-						}
-						
-						return Pattern is mSPO_AST.tRecordPatternNode<tSpan> Record
-						? Record.Elements.Map(a => a.Id.Id[1..])
-						: mStd.cEmpty;
-					}
-					
-					var Module = mIL_GenerateOpcodes.GenerateOpcodes(
-						mIL_Parser.Module.ParseText(Source, aFile.Path.ToText(), a => aDebug(a())),
-						a => aDebug(a())
-					).Module.TryLast(
-					).AssertNotEmpty();
-					
-					mAssert.IsTrue(Module.DefType.IsProc(out _, out _, out var Function));
-					mAssert.IsTrue(Function.IsProc(out _, out var Argument, out _));
-					
-					return Argument.IsRecord(out var Fields)
-					? Fields.ToStream().Map(a => a.Key[1..])
-					: mStd.cEmpty;
-				}
-				
-				var Cache = mTreeMap.Tree<tText, mModule.tModuleSetup>(
-					(a, b) => tText.CompareOrdinal(a, b).Sign(),
-					[]
-				);
-				
-				mFS.tFile ModuleFile(
-					tText aName,
-					mTreeMap.tTree<tText, mFS.tFile> aModules,
-					mFS.tFolder aModuleFolder
+				mResult.tResult<mStream.tStream<tText>, tText> ImportNames(
+					mFS.tFile aFile,
+					mStd.tAction<tText> aDebug
 				) {
-					if (aModules.TryGet(aName).IsSome(out var File)) {
-						return File;
+					if (aFile.TryReadText().IsFail(out var ReadError, out var Source)) {
+						return ReadError;
 					}
-					throw new System.IO.FileNotFoundException(
-						"Module not available: " + aName, aModuleFolder.GetFile(aName + ".SPO").Path.ToText()
+					
+					if (aFile.Extension is "SPO") {
+						return mSPO_Parser.Module.TryParseText(
+							Source,
+							aFile.Path.ToText(),
+							__ => aDebug(__())
+						).Then(
+							aModule => {
+								var Pattern = aModule.Import.Pattern;
+								
+								while (Pattern is mSPO_AST.tTypedPatternNode<mSpan.tSpan<mTextStream.tPos>> Typed) {
+									Pattern = Typed.Pattern;
+								}
+								
+								return Pattern is mSPO_AST.tRecordPatternNode<mSpan.tSpan<mTextStream.tPos>> Record
+								? Record.Elements.Map(__ => __.Id.Id[1..])
+								: mStd.cEmpty;
+							}
+						);
+					}
+					
+					return mIL_Parser.Module.TryParseText(
+						Source,
+						aFile.Path.ToText(),
+						__ => aDebug(__())
+					).ThenTry(
+						aModule => mIL_GenerateOpcodes.GenerateOpcodes(aModule, __ => aDebug(__()))
+					).Then(
+						aModule => {
+							mAssert.IsTrue(
+								aModule.Module.TryLast(
+								).AssertNotEmpty(
+								).DefType.IsProc(
+									out _,
+									out _,
+									out var Function
+								)
+							);
+							
+							mAssert.IsTrue(
+								Function.IsProc(
+									out _,
+									out var Argument,
+									out _
+								)
+							);
+							
+							return (
+								Argument.IsRecord(
+									out var Fields
+								)
+								? Fields.ToStream(
+								).Where(
+									__ => __.Key.StartsWith("_")
+								).Map(
+									__ => __.Key[1..]
+								)
+								: mStd.cEmpty
+							);
+						}
 					);
 				}
 				
-				mModule.tModuleSetup Setup(
+				var Cache = mTreeMap.Tree<tText, mModule.tModuleSetup>(
+					(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
+					[]
+				);
+				
+				mResult.tResult<mModule.tModuleSetup, tText>
+				Setup(
 					mFS.tFile aFile,
 					mTreeMap.tTree<tText, mFS.tFile> aModules,
-					mFS.tFolder aModuleFolder,
 					mStream.tStream<tText> aAncestors,
 					mStd.tAction<tText> aDebug
 				) {
 					if (!System.Text.RegularExpressions.Regex.IsMatch(aFile.NameWithoutExtension, cScopedModulePattern)) {
 						aModules = mTreeMap.Tree<tText, mFS.tFile>(
-							(a, b) => tText.CompareOrdinal(a, b).Sign(),
-							aModules.ToStream().Where(a => !System.Text.RegularExpressions.Regex.IsMatch(a.Key, cScopedModulePattern))
-							.Map(a => (a.Key, a.Value)).ToArrayList().ToArray()
+							(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
+							aModules.ToStream(
+							).Where(
+								__ => !System.Text.RegularExpressions.Regex.IsMatch(__.Key, cScopedModulePattern)
+							).Map(
+								__ => (__.Key, __.Value)
+							).ToArrayList(
+							).ToArray()
 						);
 					}
 					
@@ -137,74 +176,110 @@ mE2E_Tests {
 						Path = Path.ToUpperInvariant();
 					}
 					
-					mAssert.IsFalse(aAncestors.Any(a => a == Path), "Module dependency cycle: " + aFile.Path.ToText());
+					if (aAncestors.Any(__ => __ == Path)) {
+						return mResult.Fail("Module dependency cycle: " + aFile.Path.ToText());
+					}
 					
 					if (Cache.TryGet(Path).IsSome(out var Cached)) {
 						return Cached;
 					}
 					
-					var Dependencies = ImportNames(aFile, aDebug).Map(
-						aName => (
-							aName,
-							Setup(
-								ModuleFile(aName, aModules, aModuleFolder),
-								aModules,
-								aModuleFolder,
-								mStream.Stream(Path, aAncestors),
-								aDebug
-							)
-						)
-					).ToArrayList(
-					).ToStream();
+					if (ImportNames(aFile, aDebug).IsFail(out var ImportError, out var Names)) {
+						return ImportError;
+					}
 					
-					var Module = mModule.ModuleSetup(aFile.Path, Dependencies);
+					var Dependencies = mArrayList.List<(tText Key, mModule.tModuleSetup Module)>();
+					foreach (var Name in Names) {
+						if (!aModules.TryGet(Name).IsSome(out var File)) {
+							return mResult.Fail("Module not available: " + Name);
+						}
+						if (Setup(File, aModules, mStream.Stream(Path, aAncestors), aDebug).IsFail(out var Error, out var Module)) {
+							return Error;
+						}
+						Dependencies.Push((Name, Module));
+					}
 					
-					Cache = Cache.Set(Path, Module);
-					
-					return Module;
+					var Result = mModule.ModuleSetup(aFile.Path, Dependencies.ToStream());
+					Cache = Cache.Set(Path, Result);
+					return Result;
 				}
 				
-				(mVM_Data.tData Data, mVM_Type.tType Type) Import(
+				mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+				Import(
 					mFS.tFile aFile,
 					mTreeMap.tTree<tText, mFS.tFile> aModules,
-					mFS.tFolder aModuleFolder,
 					mStd.tAction<tText> aDebug
 				) {
+					if (ImportNames(aFile, aDebug).IsFail(out var ImportError, out var Names)) {
+						return ImportError;
+					}
+					
 					var Data = mVM_Data.Empty();
 					var Type = mVM_Type.Empty();
 					
-					foreach (var Name in ImportNames(aFile, aDebug)) {
+					foreach (var Name in Names) {
 						(mVM_Data.tData Data, mVM_Type.tType Type) Value;
 						if (aModules.TryGet(Name).IsSome(out var File)) {
-							Value = Setup(File, aModules, aModuleFolder, mStd.cEmpty, aDebug).Init(aDebug).ElseThrow();
-						} else {
-							var Std = aModules.TryGet("Std").IsSome(out var StdFile)
-								? Setup(StdFile, aModules, aModuleFolder, mStd.cEmpty, aDebug).Init(aDebug).ElseThrow()
-								: (Data: mVM_Data.Empty(), Type: mVM_Type.Empty());
-							
-							if (Std.Type.IsRecord(out var Fields) && Fields.TryGet("_" + Name).IsSome(out var FieldType)) {
-								mAssert.IsTrue(Std.Data.IsRecord(out var Values));
-								Value = (Values.TryGet(mVM_Data.PrefixHash("_" + Name)).AssertNotEmpty(), FieldType);
-							} else {
-								Value = Setup(
-									ModuleFile(Name, aModules, aModuleFolder),
+							if (
+								Setup(
+									File,
 									aModules,
-									aModuleFolder,
 									mStd.cEmpty,
 									aDebug
-								).Init(
-									aDebug
-								).ElseThrow();
+								).ThenTry(
+									__ => __.Init(aDebug)
+								).IsFail(
+									out var Error,
+									out Value
+								)
+							) {
+								return Error;
 							}
+						} else {
+							var Std = (Data: mVM_Data.Empty(), Type: mVM_Type.Empty());
+							
+							if (aModules.TryGet("Std").IsSome(out var StdFile)) {
+								if (
+									Setup(
+										StdFile,
+										aModules,
+										mStd.cEmpty,
+										aDebug
+									).ThenTry(
+										__ => __.Init(aDebug)
+									).IsFail(
+										out var Error,
+										out Std
+									)
+								) {
+									return Error;
+								}
+							}
+							
+							if (
+								!Std.Type.IsRecord(out var Fields) ||
+								!Fields.TryGet("_" + Name).IsSome(out var FieldType)
+							) {
+								return mResult.Fail("Module not available: " + Name);
+							}
+							
+							mAssert.IsTrue(Std.Data.IsRecord(out var Values));
+							Value = (
+								Values.TryGet(mVM_Data.PrefixHash("_" + Name)).AssertNotEmpty(),
+								FieldType
+							);
 						}
+						
 						Data = mVM_Data.Record(Data, mVM_Data.Prefix("_" + Name, Value.Data));
 						Type = mVM_Type.Record(Type, mVM_Type.Prefix("_" + Name, Value.Type));
 					}
+					
 					return (Data, Type);
 				}
 				
 				foreach (
-					var Folder in TestRoot.GetFolders().Where(
+					var Folder in TestRoot.GetFolders(
+					).Where(
 						a => (
 							a._Path.Parent.Deref.AssertNotEmpty() == TestRoot._Path &&
 							!System.IO.Path.GetFileName(a._Path.ToText()).StartsWith("_")
@@ -220,16 +295,18 @@ mE2E_Tests {
 					foreach (
 						var SourceFile in Folder.GetFiles(
 						).Where(
-							a => (
-								a.Extension is "SPO" &&
-								!a.Name.StartsWith("_") &&
-								!a.Name.EndsWith(".result.SPO")
-							) || (
-								a.Extension is "ILT" &&
-								!a.Folder.GetFile(a.NameWithoutExtension + ".SPO").Exists()
+							a => a.Path.Parent.Deref.AssertNotEmpty() == Folder._Path && (
+								(
+									a.Extension is "SPO" &&
+									!a.Name.StartsWith("_") &&
+									!a.Name.EndsWith(".result.SPO")
+								) || (
+									a.Extension is "ILT" &&
+									!a.Folder.GetFile(a.NameWithoutExtension + ".SPO").Exists()
+								)
 							)
 						).Sort(
-							(a, b) => tText.CompareOrdinal(a.Name, b.Name)
+							(a1, a2) => tText.CompareOrdinal(a1.Name, a2.Name)
 						)
 					) {
 						var Extension = SourceFile.Extension;
@@ -237,7 +314,7 @@ mE2E_Tests {
 						var SourceId = "TestFiles/" + Case;
 						var BaseName = SourceFile.NameWithoutExtension;
 						var Modules = mTreeMap.Tree<tText, mFS.tFile>(
-							(a, b) => tText.CompareOrdinal(a, b).Sign(),
+							(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
 							GroupModules.Where(
 								a => (
 									!System.Text.RegularExpressions.Regex.IsMatch(
@@ -246,11 +323,12 @@ mE2E_Tests {
 									) ||
 									BaseName.Length >= 6 &&
 									a.NameWithoutExtension.StartsWith(
-										BaseName[..6], System.StringComparison.Ordinal
+										BaseName[..6],
+										System.StringComparison.Ordinal
 									)
 								)
 							).Map(
-								a => (a.NameWithoutExtension, a)
+								__ => (__.NameWithoutExtension, __)
 							).ToArrayList(
 							).ToArray()
 						);
@@ -265,24 +343,36 @@ mE2E_Tests {
 										
 										try {
 											var Source = SourceFile.TryReadText().ElseThrow();
-											var Imports = Import(SourceFile, Modules, ModuleFolder, aDebug);
-											if (Extension is "SPO") {
-												if (
-													!mSPO_Interpreter.Run(
-														Source,
-														SourceId,
-														Imports,
-														a => aDebug(a())
-													).Match(
-														out _,
-														out var Error
+											var Result = Import(
+												SourceFile,
+												Modules,
+												aDebug
+											).ThenTry(
+												aImports => Extension is "SPO"
+												? mSPO_Interpreter.Run(
+													Source,
+													SourceId,
+													aImports,
+													__ => aDebug(__())
+												).Then(
+													_ => mStd.cEmpty
+												)
+												: mIL_Parser.Module.TryParseText(
+													Source,
+													SourceId,
+													__ => aDebug(__())
+												).ThenTry(
+													aModule => mIL_GenerateOpcodes.GenerateOpcodes(
+														aModule,
+														__ => aDebug(__())
 													)
-												) {
-													Actual = Error;
-												}
-											} else {
-												var Module = mIL_Parser.Module.ParseText(Source, SourceId, a => aDebug(a()));
-												mIL_GenerateOpcodes.GenerateOpcodes(Module, a => aDebug(a()));
+												).Then(
+													_ => mStd.cEmpty
+												)
+											);
+											
+											if (!Result.Match(out _, out var Error)) {
+												Actual = Error;
 											}
 										} catch (System.Exception Error) {
 											Folder.GetFile(BaseName + ".error.new.txt").TryCreate(Error.ToString());
@@ -310,7 +400,10 @@ mE2E_Tests {
 												Expected is not null,
 												"Missing expected diagnostic: " + ExpectedFile.Path.ToText()
 											);
-											mAssert.AreEquals(Actual, Expected);
+											mAssert.AreEquals(
+												Actual,
+												Expected
+											);
 										}
 									},
 									SourceFile.Path.ToText(),
@@ -337,11 +430,13 @@ mE2E_Tests {
 						GenerateILT(
 							mStd.tAction<tText> aDebug
 						) {
-							var NewILT = mSPO_Parser.Module.ParseText(
+							var NewILT = mSPO_Parser.Module.TryParseText(
 								SourceFile.TryReadText().ElseThrow(),
 								SourceFile.Path.ToText(),
 								a => aDebug(a())
-							).ToILT();
+							).ThenTry(
+								a => a.TryToILT()
+							).ElseThrow();
 							
 							if (
 								!ILT.Exists() ||
@@ -360,7 +455,7 @@ mE2E_Tests {
 								mTest.Test(
 									"." + aExtension + " == .result.SPO",
 									aDebug => {
-										var Imports = Import(SourceFile, Modules, ModuleFolder, aDebug);
+										var Imports = Import(SourceFile, Modules, aDebug).ElseThrow();
 										
 										if (aExtension is "ILT" && Extension is "SPO") {
 											GenerateILT(aDebug);
@@ -373,18 +468,18 @@ mE2E_Tests {
 											Source,
 											aFile.Path.ToText(),
 											Imports,
-											a => aDebug(a())
+											__ => aDebug(__())
 										).ElseThrow()
-										: mVM.Run(
-											mIL_Parser.Module.ParseText(
+										: mVM.TryRun(
+											mIL_Parser.Module.TryParseText(
 												Source,
 												aFile.Path.ToText(),
-												a => aDebug(a())
-											),
+												__ => aDebug(__())
+											).ElseThrow(),
 											Imports,
 											mTextParser.ToText,
-											a => aDebug(a())
-										);
+											__ => aDebug(__())
+										).ElseThrow();
 										
 										mAssert.IsTrue(
 											Expected.Value.Type.IsSubType(Actual.Type).Match(out _, out var Error),

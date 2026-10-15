@@ -1,7 +1,0 @@
-TestFiles/SPO_Function_Errors/02_04_TupleArity.SPO:2 ERROR 
-2: §DEF cValue € [§INT, §INT, §TRUE] = (1, §TRUE)
- ┌─────────────────────────────────────^
- ├ found:
- │   [ ..., §TRUE ]
- │ expected:
- │   [ ..., §INT, §TRUE ]

@@ -1,4 +1,4 @@
-TestFiles/Errors_ILT/01_03_GenericValueUsedAsType.ILT:4 ERROR 
+TestFiles/ILT_Function_Errors/01_03_GenericValueUsedAsType.ILT:4 ERROR 
 4:  Identity := [§GENERIC t => Body]
  ┌───────────────^
  ├ expect '#...'

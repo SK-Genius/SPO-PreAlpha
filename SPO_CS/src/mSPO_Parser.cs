@@ -433,15 +433,6 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.GuardPattern)
 	.SetName(nameof(GuardPattern));
 	
-	public sealed class
-	tLoadSigError : System.Exception {
-		public readonly tSpan Pos;
-
-		internal tLoadSigError(tSpan aPos, tText aMessage) : base(aMessage) {
-			Pos = aPos;
-		}
-	}
-
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypeNode<tSpan>, tError>
 	TypeInSet = mParserGen.UndefParser<tPos, tToken, mSPO_AST.tTypeNode<tSpan>, tError>(mTextParser.ComparePos, mTextParser.AreErrorsEqual)
 	.SetName(nameof(TypeInSet));
@@ -668,12 +659,14 @@ mSPO_Parser {
 	Signature = (-NLs_Token[0..1] +Type +-NLs_Token[0..1]).SetName(nameof(Signature));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tTypeNode<tSpan>, tError>
-	LoadSig = E(-KeyWord("LOAD") +TextToken).ModifyS(
-		(aSpan, aSigFileToken) => {
-			try {
+	LoadSig = E(-KeyWord("LOAD") +TextToken).TryModifyS<tPos, tToken, tToken, mSPO_AST.tTypeNode<tSpan>, tError>(
+		(
+			aSpan,
+			aSigFileToken
+		) => mStd.Call(
+			() => {
 				var Folder = string.IsNullOrEmpty(aSpan.Start.Id) ? mFS.CWD() : mFS.File(aSpan.Start.Id).Folder;
 				var SigFile = Folder.GetFile(aSigFileToken.Text);
-				var ReadText = aSigFileToken.FileContext?.ReadText ?? (aFile => aFile.TryReadText().ElseThrow());
 				var LoadPath = aSigFileToken.FileContext?.LoadPath ?? mStd.cEmpty;
 				
 				if (LoadPath.IsEmpty() && !string.IsNullOrEmpty(aSpan.Start.Id)) {
@@ -681,23 +674,36 @@ mSPO_Parser {
 				}
 				
 				if (!SigFile.Extension.Equals("SIG", System.StringComparison.OrdinalIgnoreCase)) {
-					throw new System.Exception("expected a .SIG file");
+					return mResult.Fail("expected a .SIG file");
 				}
 				
 				if (LoadPath.Any(__ => __.IsSameFile(SigFile))) {
-					throw new System.Exception("recursive §LOAD: " + LoadPath.Reverse().Map(__ => __.Path.ToText()).Join((a, b) => a + " -> " + b, "") + " -> " + SigFile.Path);
+					return mResult.Fail(
+						"recursive §LOAD: " + LoadPath.Reverse().Map(__ => __.Path.ToText()).Join(
+							(a1, a2) => a1 + " -> " + a2, ""
+						) + " -> " + SigFile.Path
+					);
 				}
 				
-				return Signature.ParseText(
-					ReadText(SigFile),
-					SigFile.Path.ToUri(),
-					_ => {},
-					new mTokenizer.tFileContext(ReadText, mStream.Stream(SigFile, LoadPath))
+				var Source = aSigFileToken.FileContext is { } Context
+					? Context.ReadText(SigFile)
+					: SigFile.TryReadText();
+				
+				return Source.ThenTry(
+					aSource => Signature.TryParseText(
+						aSource,
+						SigFile.Path.ToUri(),
+						_ => {},
+						new mTokenizer.tFileContext(
+							aSigFileToken.FileContext?.ReadText ?? (__ => __.TryReadText()),
+							mStream.Stream(SigFile, LoadPath)
+						)
+					)
 				);
-			} catch (System.Exception Error) {
-				throw new tLoadSigError(aSpan, $"[§LOAD \"{aSigFileToken.Text}\"]: {Error.Message}");
 			}
-		}
+		).ModifyError(
+			__ => $"[§LOAD \"{aSigFileToken.Text}\"]: {__}"
+		)
 	)
 	.SetName(nameof(LoadSig));
 	

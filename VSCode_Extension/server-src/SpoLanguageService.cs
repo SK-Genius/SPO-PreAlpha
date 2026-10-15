@@ -27,13 +27,6 @@ SpoLanguageService {
 				);
 			}
 			return diagnostics;
-		} catch (mSPO_Parser.tLoadSigError exception) {
-			return [new(
-				Range: ToRange(exception.Pos),
-				Severity: (tInt32)mSPO_Diagnostics.tDiagnosticSeverity.Error,
-				Source: "parser",
-				Message: exception.Message
-			)];
 		} catch (Exception exception) {
 			return [
 				new(

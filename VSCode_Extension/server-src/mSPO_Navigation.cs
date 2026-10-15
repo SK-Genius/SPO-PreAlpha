@@ -231,7 +231,10 @@ mSPO_Navigation {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		mTokenizer.tFileContext? aFileContext = null
 	) {
-		var Tokens = mTokenizer.Tokenizer.ParseText(aCode, aId, aDebugStream).Result;
+		if (!mTokenizer.Tokenizer.TryParseText(aCode, aId, aDebugStream).Match(out var Parsed, out _)) {
+			return mStd.cEmpty;
+		}
+		var Tokens = Parsed.Result;
 		while (Tokens.TryFirst().IsSome(out var Token)) {
 			Tokens = Tokens.Skip(1);
 			if (Token.Type != mTokenizer.tTokenType.SpecialToken || Token.Text != "[") { continue; }
@@ -1822,46 +1825,41 @@ mSPO_Navigation {
 		return false;
 	}
 
-	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "invalid rename input should be rejected")]
 	private static tBool
 	TryGetRenameParts(
 		tText aOldName,
 		tText aNewName,
 		[MaybeNullWhen(false)] out tText[] aNewParts
 	) {
-		try {
-			if (
-				aNewName.Length == 0 ||
-				DisplayId(mSPO_Parser.Id.ParseText(aNewName, "", _ => {}).Id) != aNewName
-			) {
-				aNewParts = default;
-				return false;
-			}
-
-			var OldParts = aOldName.Split("...", StringSplitOptions.None);
-			var NewParts = aNewName.Split("...", StringSplitOptions.None);
-			if (OldParts.Length != NewParts.Length) {
-				aNewParts = default;
-				return false;
-			}
-
-			var Result = new System.Collections.Generic.List<tText>();
-			for (var I = 0; I < OldParts.Length; I += 1) {
-				if (OldParts[I].Length == 0 != (NewParts[I].Length == 0)) {
-					aNewParts = default;
-					return false;
-				}
-				if (NewParts[I].Length > 0) {
-					Result.Add(NewParts[I]);
-				}
-			}
-
-			aNewParts = Result.ToArray();
-			return true;
-		} catch {
+		if (
+			aNewName.Length == 0 ||
+			!mSPO_Parser.Id.TryParseText(aNewName, "", _ => {}).Match(out var Name, out _) ||
+			DisplayId(Name.Id) != aNewName
+		) {
 			aNewParts = default;
 			return false;
 		}
+
+		var OldParts = aOldName.Split("...", StringSplitOptions.None);
+		var NewParts = aNewName.Split("...", StringSplitOptions.None);
+		if (OldParts.Length != NewParts.Length) {
+			aNewParts = default;
+			return false;
+		}
+
+		var Result = new System.Collections.Generic.List<tText>();
+		for (var I = 0; I < OldParts.Length; I += 1) {
+			if (OldParts[I].Length == 0 != (NewParts[I].Length == 0)) {
+				aNewParts = default;
+				return false;
+			}
+			if (NewParts[I].Length > 0) {
+				Result.Add(NewParts[I]);
+			}
+		}
+
+		aNewParts = Result.ToArray();
+		return true;
 	}
 
 	private static void
@@ -1992,7 +1990,6 @@ mSPO_Navigation {
 		mTextParser.ComparePos(aSpan.Start, aPos) <= 0 &&
 		mTextParser.ComparePos(aPos, aSpan.End) <= 0;
 
-	[SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "navigation should degrade gracefully on parse failures")]
 	private static tBool
 	TryParseModule(
 		tText aCode,
@@ -2000,13 +1997,7 @@ mSPO_Navigation {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		[MaybeNullWhen(false)] out mSPO_AST.tModuleNode<tSpan> aModule,
 		mTokenizer.tFileContext? aFileContext
-	) {
-		try {
-			aModule = mSPO_Diagnostics.DocumentParser(aId).ParseText(aCode, aId, aDebugStream, aFileContext);
-			return true;
-		} catch {
-			aModule = default!;
-			return false;
-		}
-	}
+	) => mSPO_Diagnostics.DocumentParser(aId).TryParseText(
+		aCode, aId, aDebugStream, aFileContext
+	).Match(out aModule, out _);
 }

@@ -1,4 +1,4 @@
-TestFiles/Errors_Modules_SPO/_Modules/04_01_Broken.SPO:1 ERROR 
+TestFiles/SPO_Module_Errors/_Modules/04_01_Broken.SPO:1 ERROR 
 1: §EXPORT )
  ┌─────────^
  ├ expect '"'

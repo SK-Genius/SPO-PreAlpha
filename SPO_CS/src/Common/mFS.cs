@@ -445,9 +445,13 @@ mFS {
 		
 		public mResult.tResult<tText, tText>
 		TryReadText(
-		) => System.IO.File.ReadAllText(
-			aFile.Path.ToText()
-		);
+		) {
+			try {
+				return System.IO.File.ReadAllText(aFile.Path.ToText());
+			} catch (System.Exception Error) when (Error is System.IO.IOException or System.UnauthorizedAccessException) {
+				return mResult.Fail(Error.Message);
+			}
+		}
 		
 		public mResult.tResult<mStream.tStream<tText>, tText>
 		TryReadLines(

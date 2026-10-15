@@ -73,6 +73,41 @@ mParserGen {
 	
 	[Pure, DebuggerHidden]
 	public static tParser<tPos, tIn, tNewOut, tError>
+	TryModifyS<tPos, tIn, tOut, tNewOut, tError>(
+		this tParser<tPos, tIn, tOut, tError> aParser,
+		mStd.tFunc<mSpan.tSpan<tPos>, tOut, mResult.tResult<tNewOut, tError>> aModifyFunc
+	) {
+		var Parser = new tParser<tPos, tIn, tNewOut, tError>(aParser._ComparePos, aParser._AreErrorsEqual);
+		
+		Parser._ParseFunc = (
+			aStream,
+			aDebugStream,
+			aPath
+		) => aParser._ParseFunc(
+			aStream,
+			aDebugStream,
+			mStream.Stream(Parser, aPath)
+		).ThenTry(
+			// Rank semantic failures after consumed syntax so backtracking keeps their diagnostic.
+			aResult => aModifyFunc(
+				aResult.Result.Span,
+				aResult.Result.Value
+			).ModifyError(
+				aError => mStream.Stream((aResult.Result.Span.End, aError))
+			).Then(
+				aValue => ParserResult(
+					(aResult.Result.Span, aValue),
+					aResult.RemainingStream,
+					aResult.MaybeError
+				)
+			)
+		);
+		
+		return Parser.SetDebugDef(["{", aParser.DebugName ?? aParser.DebugDef, "}"]);
+	}
+	
+	[Pure, DebuggerHidden]
+	public static tParser<tPos, tIn, tNewOut, tError>
 	ModifyS<tPos, tIn, tOut, tNewOut, tError>(
 		this tParser<tPos, tIn, tOut, tError> aParser,
 		mStd.tFunc<mSpan.tSpan<tPos>, tNewOut> aModifyFunc

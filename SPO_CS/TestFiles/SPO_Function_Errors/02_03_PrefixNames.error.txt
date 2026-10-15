@@ -1,4 +1,4 @@
-TestFiles/Errors_SPO/02_03_PrefixNames.SPO:2 ERROR 
+TestFiles/SPO_Function_Errors/02_03_PrefixNames.SPO:2 ERROR 
 2: §DEF cValue € [#Right §INT] = #Left 1
  ┌───────────────────────────────^
  ├ found:

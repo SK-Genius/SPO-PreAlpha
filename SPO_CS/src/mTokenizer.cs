@@ -100,11 +100,11 @@ mTokenizer {
 
 	public sealed class
 	tFileContext {
-		public readonly mStd.tFunc<mFS.tFile, tText> ReadText;
+		public readonly mStd.tFunc<mFS.tFile, mResult.tResult<tText, tText>> ReadText;
 		public readonly mStream.tStream<mFS.tFile> LoadPath;
 
 		public tFileContext(
-			mStd.tFunc<mFS.tFile, tText> aReadText,
+			mStd.tFunc<mFS.tFile, mResult.tResult<tText, tText>> aReadText,
 			mStream.tStream<mFS.tFile> aLoadPath = default
 		) {
 			ReadText = aReadText;
@@ -184,23 +184,30 @@ mTokenizer {
 	public static readonly mParserGen.tParser<tPos, tChar, mStream.tStream<tToken>, tError>
 	Tokenizer = (Token +-__)[0..];
 	
-	public static tOut
-	ParseText<tOut>(
+	public static mResult.tResult<tOut, tText>
+	TryParseText<tOut>(
 		this mParserGen.tParser<tPos, tToken, tOut, tError> aParser,
 		tText aText,
 		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		tFileContext? aFileContext = null
 	) {
-		var Tokens = Tokenizer.ParseText(aText, aId, aDebugStream).Result;
+		if (Tokenizer.TryParseText(aText, aId, aDebugStream).IsFail(out var TokenError, out var TokenResult)) {
+			return TokenError;
+		}
+		var Tokens = TokenResult.Result;
 		var MaybeResult = aParser.StartParse(Tokens.Map(__ => {
 			__.FileContext = aFileContext;
 			return (__.Span, __);
 		}), aDebugStream);
 		var Lines = aText.Split("\n");
-		var Result = MaybeResult.AssertNotError(
-			__ => __.ToText(Lines)
-		);
+		if (MaybeResult.ModifyError(
+			Errors => Errors.Map(
+				a => (a.Pos.Row > 0 ? a.Pos : mTextStream.Pos(aId, 1, 1), a.Message)
+			).ToText(Lines)
+		).IsFail(out var Error, out var Result)) {
+			return Error;
+		}
 		
 		if (!Result.RemainingStream.IsEmpty()) {
 			var Row = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Row;
@@ -217,7 +224,7 @@ mTokenizer {
 				"",
 				(aString, aChar) => aString + aChar
 			);
-			throw mError.Error(
+			return mResult.Fail(
 				$"""
 				{aId}:{Row} expected end of text
 				{PrevLine}

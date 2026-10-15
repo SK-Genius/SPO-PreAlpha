@@ -223,15 +223,15 @@ mVM_Type_Tests {
 					((tText File, tInt32 LineNr, tText Type, tText _1, tText _2) a) => mTest.Test(
 						a.Type,
 						aDebugStream => {
-							var Type = mSPO_Parser.Type.ParseText(a.Type, "Pair", __ => aDebugStream(__()))
+							var Type = mSPO_Parser.Type.TryParseText(a.Type, "Pair", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
-							var _1 = mSPO_Parser.Type.ParseText(a._1, "FirstPart", __ => aDebugStream(__()))
+							var _1 = mSPO_Parser.Type.TryParseText(a._1, "FirstPart", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
-							var _2 = mSPO_Parser.Type.ParseText(a._2, "SecondPart", __ => aDebugStream(__()))
+							var _2 = mSPO_Parser.Type.TryParseText(a._2, "SecondPart", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
 							.AssertNotError(__ => __.ToText());
 							
@@ -316,11 +316,11 @@ mVM_Type_Tests {
 		).Map(
 			a => mTest.Test(a.Expr + " => " + a.Type,
 				aStreamOut => {
-					var AST =  mSPO_Parser.Expression.ParseText(
+					var AST =  mSPO_Parser.Expression.TryParseText(
 						a.Expr,
 						"",
 						__ => aStreamOut(__())
-					);
+					).ElseThrow();
 					
 					var Type = AST.UpdateTypes(
 						cTestScope,
@@ -329,11 +329,11 @@ mVM_Type_Tests {
 						__ => __.ToText()
 					).Type;
 					
-					var VM_Type = mSPO_Parser.Type.ParseText(
+					var VM_Type = mSPO_Parser.Type.TryParseText(
 						a.Type,
 						"",
 						__ => { aStreamOut(__()); }
-					).DesugarType(
+					).ElseThrow().DesugarType(
 					).AsVM_Type(
 						cTestScope
 					).AssertNotError(

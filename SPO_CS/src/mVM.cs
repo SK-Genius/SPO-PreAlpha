@@ -902,14 +902,17 @@ mVM {
 		}
 	}
 	
-	public static (mVM_Data.tData Data, mVM_Type.tType Type)
-	Run<tPos>(
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	TryRun<tPos>(
 		mIL_AST.tModule<tPos> aModule,
 		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		var (VMModule, ModuleMap) = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace);
+		if (mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace).IsFail(out var Error, out var Compiled)) {
+			return Error;
+		}
+		var (VMModule, ModuleMap) = Compiled;
 		var Res = mVM_Data.Empty();
 		var Defs = VMModule.Reverse().Skip(1).Reverse();
 		
@@ -957,16 +960,4 @@ mVM {
 		return (Res, ResType);
 	}
 	
-//	public static mVM_Data.tData
-//	Run(
-//		tText aSourceCode,
-//		tText aId,
-//		mVM_Data.tData aImport,
-//		mStd.tAction<mStd.tFunc<tText>> aTrace
-//	) => Run(
-//		mIL_Parser.Module.ParseText(aSourceCode, aId, aTrace),
-//		aImport,
-//		SpanToText,
-//		aTrace
-//	);
 }

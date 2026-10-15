@@ -1,4 +1,4 @@
-TestFiles/Errors_SPO/01_01_AbstractPayloadCall.SPO:4 ERROR 
+TestFiles/SPO_Function_Errors/01_01_AbstractPayloadCall.SPO:4 ERROR 
 4:      §SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body : .((§DEF N € §INT) => N) Body
  ┌────────────────────────────────────────────────────────────────────────────────────────────────────^
  ├ found:
