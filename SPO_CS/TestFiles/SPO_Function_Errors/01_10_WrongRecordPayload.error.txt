@@ -1,0 +1,7 @@
+TestFiles/Errors_SPO/01_10_WrongRecordPayload.SPO:3 ERROR 
+3:  §SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }
+ ┌────────────────────────────────────────────────────────────^
+ ├ found:
+ │   [{ _Value : §TRUE }]
+ │ expected:
+ │   [{ _Value : §INT }]

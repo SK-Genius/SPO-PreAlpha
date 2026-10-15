@@ -1,0 +1,12 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+	§DEF Hidden € [[§VAR §INT] | §INT] = aValue
+	§DEF Value = §IF Hidden MATCH {
+		§DEF Item € [§VAR §INT]: Item
+		_: aValue
+	}
+	§RETURN §TO_VAL Value
+	}
+)
+§EXPORT 1

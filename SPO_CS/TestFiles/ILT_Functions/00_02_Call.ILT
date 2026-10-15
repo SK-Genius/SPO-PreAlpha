@@ -1,0 +1,15 @@
+§TYPES
+	Increment := [INT => INT]
+	IncrementDef := [EMPTY_TYPE => Increment]
+	Main := [EMPTY_TYPE => INT]
+	MainDef := [IncrementDef => Main]
+
+§DEF increment € IncrementDef
+	value := §INT ARG + ONE
+	§RETURN value IF TRUE
+
+§DEF main € MainDef
+	increment := .ENV EMPTY
+	five := 5
+	value := .increment five
+	§RETURN value IF TRUE

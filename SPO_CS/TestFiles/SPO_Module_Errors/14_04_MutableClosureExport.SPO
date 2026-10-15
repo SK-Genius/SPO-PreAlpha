@@ -1,0 +1,4 @@
+§IMPORT ()
+§VAR Cell := 7 .
+§DEF Capture... = () => Cell
+§EXPORT Capture...

@@ -162,12 +162,12 @@ Hash blocks reference files or URLs:
 [|
 	[.
 	|[#
-	||../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
+	||../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO
 	|#]
 	.]
 ][
 	[#
-	|../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
+	|../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO
 	#]
 |]
 
@@ -324,7 +324,7 @@ There are two inline forms:
 - if you want full block rendering, use a standalone hash block or the multiline embedded-resource form instead
 
 [| [*Source*]                                                             ][ [*Rendered*]                                                     |]
-[| [.|See [[# ../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO #] inline. |]
+[| [.|See [[# ../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO #] inline. |]
 [| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                      |]
 
 [=Viewers By Extension=]

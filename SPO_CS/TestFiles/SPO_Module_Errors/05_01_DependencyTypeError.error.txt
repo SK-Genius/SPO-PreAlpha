@@ -1,0 +1,7 @@
+TestFiles/Errors_Modules_SPO/_Modules/05_01_Broken.ILT:5 ERROR 
+5:  §RETURN TRUE IF TRUE
+ ┌──^
+ ├ found:
+ │   §TRUE
+ │ expected:
+ │   [ §INT | [] ]

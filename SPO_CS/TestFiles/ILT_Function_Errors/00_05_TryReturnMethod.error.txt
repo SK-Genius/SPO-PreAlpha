@@ -1,0 +1,4 @@
+FAIL: TestFiles/Errors_ILT/00_05_TryReturnMethod.ILT:7 ERROR 
+7:  §TRY_RETURN .ENV ARG
+ ┌──^
+ ├ §TRY_RETURN does not accept a method

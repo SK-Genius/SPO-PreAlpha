@@ -1,0 +1,15 @@
+TestFiles/Errors_Modules_SPO/_Modules/07_01_Package.SPO:1,14..1,33: [§LOAD "07_01_Broken.SIG"]: TestFiles/Errors_Modules_SPO/_Modules/07_01_Broken.SIG:1 ERROR 
+1: [§SIG_WITH t € §TYPE IN ]
+ ┌─────────────────────────^
+ ├ expect '['
+ ├ expect '§ANY'
+ ├ expect '§BOOL'
+ ├ expect '§CHAR'
+ ├ expect '§FALSE'
+ ├ expect '§INT'
+ ├ expect '§TEXT'
+ ├ expect '§TRUE'
+ ├ expect '§TYPE'
+ ├ expect Identifier
+ ├ invalid LoadSig
+ ├ invalid Type

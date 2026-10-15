@@ -4,6 +4,7 @@
 #:ref ../../SPO_CS/src/Common/mAssert.cs
 #:ref ../../SPO_CS/src/Common/mResult.cs
 #:ref ../../SPO_CS/src/Common/mStd.cs
+#:ref ../../SPO_CS/src/Common/mFS.cs
 #:ref ../../SPO_CS/src/Common/mSpan.cs
 #:ref ../../SPO_CS/src/Common/mTextStream.cs
 #:ref ../../SPO_CS/src/mModule.cs
@@ -27,7 +28,9 @@ mProgram {
 			}
 		);
 		try {
-			var StdLib = mModule.Module_Std.Init(__ => DebugOut(() => __)).ElseThrow();
+			var StdLib = mModule.ModuleSetup(
+				mFS.File(mStd.File()).Folder._Path / "Std.ILT", mStd.cEmpty
+			).Init(__ => DebugOut(() => __)).ElseThrow();
 			
 			var Method = mSPO_Interpreter.Run(
 				System.IO.File.ReadAllText(ProjectFile.FullName),

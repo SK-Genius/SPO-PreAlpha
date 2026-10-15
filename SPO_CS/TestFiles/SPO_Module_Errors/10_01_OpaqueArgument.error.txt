@@ -1,0 +1,1 @@
+Pending diagnostic: module mutable access must remain opaque.

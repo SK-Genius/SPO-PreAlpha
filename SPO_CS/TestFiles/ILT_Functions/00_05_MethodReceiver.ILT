@@ -1,0 +1,27 @@
+§TYPES
+	Cell := [§VAR INT]
+	Message := [INT => INT]
+	Increment := [Cell : Message]
+	IncrementDef := [EMPTY_TYPE => Increment]
+	First := [EMPTY_TYPE, INT]
+	Result := [First, INT]
+	Main := [EMPTY_TYPE => Result]
+	MainDef := [IncrementDef => Main]
+
+§DEF increment € IncrementDef
+	value := §VAR OBJ ->
+	next := §INT value + ARG
+	§VAR OBJ <- next
+	§RETURN next IF TRUE
+
+§DEF main € MainDef
+	increment := .ENV EMPTY
+	seven := 7
+	cell := §VAR seven
+	receiver := cell, increment
+	five := 5
+	returned := §OBJ:receiver five
+	current := §VAR cell ->
+	first := EMPTY, returned
+	result := first, current
+	§RETURN result IF TRUE

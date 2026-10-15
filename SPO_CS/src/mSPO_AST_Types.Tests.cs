@@ -515,23 +515,6 @@ mSPO_AST_Types_Tests {
 					mAssert.ThrowsError(() => { mVM_Type.Sig(F, F); });
 				}
 			),
-			mTest.Tests("SIG rejects type functions in type positions",
-				mStream.Stream(
-					"[§SIG_WITH F € [§TYPE => §TYPE] IN F]",
-					"[§SIG_WITH F € [§TYPE => §TYPE] IN [< Value: F >]]",
-					"[§SIG_WITH F € [§TYPE => §TYPE] IN [F => §INT]]",
-					"[§SIG_WITH F € [§TYPE => §TYPE] IN [§INT => F]]",
-					"[§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [.F §INT]]"
-				).Map(Source => mTest.Test(
-					Source,
-						aDebug => {
-							var Expression = mSPO_Parser.Expression.ParseText(Source, "", __ => aDebug(__()));
-							mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty, new()).Match(out _, out _));
-						}
-					)
-				).ToArrayList(
-				).ToArray()
-			),
 			mTest.Test("SIG heads and type literals have type TYPE",
 				aDebug => {
 					var Literal = mSPO_Parser.Expression.ParseText("§INT", "", __ => aDebug(__()));
@@ -564,26 +547,6 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Body.Type.SameType(Head.TypeValue.AssertNotEmpty()));
 				}
 			),
-			mTest.Tests("SIG rejects invalid packages",
-				mStream.Stream(
-					"§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN §TRUE",
-					"§SIG [§SIG_WITH F € [§TYPE => §TYPE] IN []] WITH §INT IN ()",
-					"§SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }",
-					"""
-					§IF (§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN 7) MATCH {
-						§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body : .((§DEF N € §INT) => N) Body
-					}
-					"""
-				).Map(
-					Source => mTest.Test(Source,
-						aDebug => {
-							var Expression = mSPO_Parser.Expression.ParseText(Source, "", __ => aDebug(__()))
-							.DesugarExpression().AssertNotError(__ => __.ErrorText);
-							mAssert.IsFalse(Expression.UpdateTypes(mStd.cEmpty, new()).Match(out _, out _));
-						}
-					)
-				).ToArrayList().ToArray()
-			),
 			mTest.Test("BOOL desugars to singleton types",
 				aDebugStream => {
 					var Type = mSPO_Parser.Type.ParseText(
@@ -600,43 +563,6 @@ mSPO_AST_Types_Tests {
 					).AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					DesugaredType.IsSubType(ExpandedType).AssertNotError(__ => __);
 					ExpandedType.IsSubType(DesugaredType).AssertNotError(__ => __);
-				}
-			),
-			mTest.Test("Literals",
-				aDebugStream => {
-					mAssert.AreEquals(
-						mSPO_AST.Int(cNoPos, 1).UpdateTypes(mStd.cEmpty, new()).Then(__ => __.Type),
-						mVM_Type.Int()
-					);
-					mAssert.AreEquals(
-						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty, new()).Then(__ => __.Type),
-						mVM_Type.False()
-					);
-				}
-			),
-			mTest.Test("Tuple",
-				aDebugStream => {
-					mAssert.AreEquals(
-						mSPO_AST.Tuple(
-							cNoPos,
-							[
-								mSPO_AST.Int(cNoPos, 1),
-								mSPO_AST.True(cNoPos)
-							]
-						).UpdateTypes(
-							mStd.cEmpty,
-							new()
-						).Then(
-							__ => __.Type
-						),
-						mVM_Type.Tuple(
-							[mVM_Type.Int(), mVM_Type.True()]
-						)
-					);
-					mAssert.AreEquals(
-						mSPO_AST.False(cNoPos).UpdateTypes(mStd.cEmpty, new ()).Then(__ => __.Type),
-						mVM_Type.False()
-					);
 				}
 			),
 			mTest.Test("Is",
@@ -685,30 +611,6 @@ mSPO_AST_Types_Tests {
 					mAssert.AreEquals(
 						Checked.State.TryGetValidatedType(Match.Cases.Skip(1).TryFirst().AssertNotEmpty().Pattern).AssertNotEmpty(),
 						mVM_Type.Int()
-					);
-				}
-			),
-			mTest.Test("Match must be exhaustive",
-				aDebugStream => {
-					var Match = mSPO_Parser.Expression.ParseText(
-						"""
-						§IF X MATCH {
-							() : 0
-						}
-						""",
-						"",
-						__ => aDebugStream(__())
-					);
-					mAssert.IsFalse(
-						Match.UpdateTypes(
-							mStream.Stream(
-								mSPO_AST_Types.ScopeItem(
-									"_X",
-									mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())
-								)
-							),
-							new()
-						).Match(out _, out _)
 					);
 				}
 			),

@@ -1,0 +1,14 @@
+§TYPES
+	V := [§VAR INT]
+	t := [§FREE TYPE]
+	I := [t => t]
+	Identity := [§ALL t => I]
+	ID := [EMPTY_TYPE => Identity]
+	F := [V => INT]
+	D := [Identity => F]
+§DEF identity € ID
+	§RETURN ARG IF TRUE
+§DEF main € D
+	handle := .ENV ARG
+	value := §VAR handle ->
+§RETURN value IF TRUE

@@ -4,7 +4,7 @@
 
 - surface [*.SPO*] lowers to [*mIL_AST.tModule*]
 - [*.ILT*] is the shared backend text boundary
-- generated examples live in [.|SPO_CS/Modules/.], [.|SPO_CS/TestFiles/Functions/.], and [.|SPO_CS/TestFiles/Modules/.]
+- generated examples live in [.|SPO_CS/TestFiles/Modules_SPO/_Modules/.], [.|SPO_CS/TestFiles/Functions_SPO/.], and [.|SPO_CS/TestFiles/Modules_SPO/.]
 
 [=Module Shape=]
 
@@ -102,7 +102,7 @@ The TRY operations keep the whole SIG on success. A failed check exits the curre
 
 The [.ilt|AS Witness.] annotation affects IL checking; both Head projection forms use the same VM projection.
 An ordinary alias such as [.ilt|Other := Head.] retains the source register and its type-level value.
-For an executable import example, see [<../SPO_CS/TestFiles/Modules/SigImportSameHead.ILT>].
+For an executable import example, see [<../SPO_CS/TestFiles/Modules_SPO/00_09_SigImportSameHead.ILT>].
 
 [=Common Command Forms=]
 
@@ -158,7 +158,7 @@ The forms you will see most often in checked-in `.ILT` files are:
 
 [=Concrete References=]
 
-- [<../SPO_CS/Modules/Std.ILT|SPO_CS/Modules/Std.ILT>]
-- [<../SPO_CS/Modules/Text.ILT|SPO_CS/Modules/Text.ILT>]
-- [<../SPO_CS/TestFiles/Functions/08_02_DefIncrement.ILT|SPO_CS/TestFiles/Functions/08_02_DefIncrement.ILT>]
+- [<../SPO_CS/TestFiles/Modules_SPO/_Modules/Std.ILT|SPO_CS/TestFiles/Modules_SPO/_Modules/Std.ILT>]
+- [<../SPO_CS/TestFiles/Modules_SPO/_Modules/Text.ILT|SPO_CS/TestFiles/Modules_SPO/_Modules/Text.ILT>]
+- [<../SPO_CS/TestFiles/Functions_SPO/08_02_DefIncrement.ILT|SPO_CS/TestFiles/Functions_SPO/08_02_DefIncrement.ILT>]
 - [<../SPO_CS/src/mIL_Parser.Tests.cs|SPO_CS/src/mIL_Parser.Tests.cs>]

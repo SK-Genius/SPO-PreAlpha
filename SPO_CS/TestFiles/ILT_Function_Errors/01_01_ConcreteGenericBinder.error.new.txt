@@ -1,0 +1,10 @@
+mError+tError: [DebugId: 435880] FAIL: D:/Projekte/SPO-PreAlpha_main/SPO_CS/TestFiles/ILT_Function_Errors/01_01_ConcreteGenericBinder.ILT:4 ERROR 
+4:  Identity := [§ALL INT => Body]
+ ┌──^
+ ├ expected type operand
+
+   at mIL_GenerateOpcodes.CreateTypeExpression[tPos](tCommandNode`1 aCommand, tFunc`2 aType, tFunc`2 aError) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 48
+   at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 192
+   at mE2E_Tests.<.cctor>g__ImportNames|1_3(tFile aFile, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 87
+   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 176
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

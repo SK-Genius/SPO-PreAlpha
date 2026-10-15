@@ -1,0 +1,7 @@
+TestFiles/Errors_SPO/01_09_WrongPayload.SPO:3 ERROR 
+3:  §SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN §TRUE
+ ┌───────────────────────────────────────────────^
+ ├ found:
+ │   §TRUE
+ │ expected:
+ │   §INT

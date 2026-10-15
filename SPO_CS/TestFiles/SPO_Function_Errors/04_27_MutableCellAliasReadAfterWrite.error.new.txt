@@ -1,0 +1,13 @@
+mError+tError: [DebugId: 7220564] FAIL: TestFiles/SPO_Function_Errors/04_27_MutableCellAliasReadAfterWrite.SPO:6 ERROR 
+6:   Box := aOpaque .
+ ┌───^
+ ├ found:
+ │   [ §VAR [ §VAR §INT ] ]
+ │ expected:
+ │   [ §VAR §INT ]
+
+   at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 1048
+   at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 912
+   at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__3(tModuleConstructor`1 aModule) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 74
+   at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 65
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 270

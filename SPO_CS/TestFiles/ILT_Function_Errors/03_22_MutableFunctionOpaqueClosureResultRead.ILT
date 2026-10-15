@@ -1,0 +1,25 @@
+§TYPES
+	V := [§VAR INT]
+	R := [V, INT]
+	F := [V => R]
+	C := [EMPTY_TYPE : F]
+	D := [V => C]
+	MF := [EMPTY_TYPE => INT]
+	M := [V : MF]
+	O := [V, D]
+	MainF := [V => INT]
+	MainM := [O : MainF]
+	MainD := [M => MainM]
+§DEF pass € D
+	seven := 7
+	result := ARG, seven
+	§RETURN result IF TRUE
+§DEF main € MainD
+	allowed := §1ST OBJ
+	def := §2ND OBJ
+	closure := .def ARG
+	returned := .closure allowed
+	handle := §1ST returned
+	number := §2ND returned
+	value := §VAR handle ->
+§RETURN value IF TRUE

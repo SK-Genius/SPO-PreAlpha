@@ -1,0 +1,11 @@
+§TYPES
+	V := [§VAR INT]
+	
+	F := [V => INT]
+	P := [EMPTY_TYPE : F]
+	D := [EMPTY_TYPE => P]
+§DEF f € D
+	wrapped := +#Handle ARG
+handle := -#Handle wrapped
+value := §VAR handle ->
+§RETURN value IF TRUE

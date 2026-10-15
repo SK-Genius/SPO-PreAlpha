@@ -1,0 +1,4 @@
+§TYPES
+	F := [EMPTY_TYPE => INT]
+§DEF main € Missing
+	§RETURN EMPTY IF TRUE

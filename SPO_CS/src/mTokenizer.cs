@@ -152,8 +152,15 @@ mTokenizer {
 			.ModifyS((aSpan, aText) => new tToken { Type = tTokenType.SpecialToken, Text = aText, Span = aSpan })
 			.SetName(nameof(tTokenType.SpecialToken)),
 			
-			Number
-			.ModifyS((aSpan, aInt) => new tToken { Type = tTokenType.Number, Text = "" + aInt, Span = aSpan })
+			mParserGen.Seq(Number, Id[0..1])
+			.Assert(a => a.Item2.IsEmpty(), a => (a.Span.Start, "expect complete number"))
+			.ModifyS(
+				(aSpan, aValue) => new tToken {
+					Type = tTokenType.Number,
+					Text = "" + aValue.Item1,
+					Span = aSpan
+				}
+			)
 			.SetName(nameof(tTokenType.Number)),
 			
 			Id

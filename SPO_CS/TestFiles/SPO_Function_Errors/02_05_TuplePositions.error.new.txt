@@ -1,0 +1,7 @@
+TestFiles/SPO_Function_Errors/02_05_TuplePositions.SPO:2 ERROR 
+2: §DEF cValue € [§TRUE, §INT, §INT, §INT] = (§TRUE, 1, §TRUE, 1)
+ ┌───────────────────────────────────────────^
+ ├ found:
+ │   [ ..., ..., §TRUE, ... ]
+ │ expected:
+ │   [ ..., ..., §INT, ... ]

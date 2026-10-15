@@ -1,0 +1,2 @@
+§DEF Identity... = (§DEF Value € [§LOAD_SIG "Int.SIG"]) => Value
+§EXPORT 1

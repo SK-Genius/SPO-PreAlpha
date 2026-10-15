@@ -1,0 +1,11 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
+		§VAR Box := aSelf .
+		§DEF Alias = Box
+		Box := aOpaque .
+		§DEF Result = §TO_VAL Alias
+		§RETURN §TO_VAL Result
+	}
+)
+§EXPORT 1

@@ -1,0 +1,19 @@
+§TYPES
+	t := [§FREE TYPE]
+	Body := [t => t]
+	Identity := [§GENERIC t => Body]
+	IdDef := [EMPTY_TYPE => Identity]
+	Func := [EMPTY_TYPE => TYPE]
+	Def := [IdDef => Func]
+§DEF identity € IdDef
+	§RETURN ARG IF TRUE
+§DEF main € Def
+	id := .ENV EMPTY
+	seven := 7
+	value := .id seven
+	flag := .id TRUE
+	t := [§FREE Type_TYPE]
+	Body := [t => t]
+	T := [§GENERIC t => Body]
+	result := .T INT_TYPE
+	§RETURN result IF TRUE

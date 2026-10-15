@@ -1,0 +1,9 @@
+§TYPES
+	Missing := [#_Other INT]
+	Value := [{EMPTY_TYPE} + Missing]
+	Field := [#_TestRecordValue Value]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	§RETURN ONE IF TRUE

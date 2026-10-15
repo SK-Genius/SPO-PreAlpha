@@ -1,0 +1,8 @@
+TestFiles/Errors_ILT/00_03_CallArgumentMismatch.ILT:6 ERROR 
+6:  value := .ENV TRUE
+ ┌──^
+ ├ can't convert argument:
+ │ found:
+ │   §TRUE
+ │ expected:
+ │   §INT

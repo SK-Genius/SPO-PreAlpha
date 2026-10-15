@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/01_04_TypeFunctionAsArgument.SPO:3 ERROR 
+3:  [§SIG_WITH F € [§TYPE => §TYPE] IN [F => §INT]]
+ ┌──────────────────────────────────────^
+ ├ expected a type or declared generic signature

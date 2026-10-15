@@ -1,0 +1,15 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+		§DEF Record = {Handle: aValue, Number: 7}
+		§DEF Narrow € [< Number: §INT >] = Record
+		§DEF Pass... = (§DEF aRecord € [< Number: §INT >]) => aRecord
+		§DEF Result = .Pass Narrow
+		§DEF Observe = (§DEF aRecord € [< Number: §INT >]) : () {
+			§RETURN 0
+		}
+		Result : Observe .
+		§RETURN Result
+	}
+)
+§EXPORT 1

@@ -1,0 +1,7 @@
+§TYPES
+	R := [#Result INT]
+	F := [INT => R]
+	M := [INT : F]
+	D := [M => F]
+§DEF main € D
+	§TRY_RETURN .ENV ARG

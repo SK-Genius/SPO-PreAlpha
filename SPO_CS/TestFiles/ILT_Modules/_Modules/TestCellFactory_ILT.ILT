@@ -1,0 +1,24 @@
+§TYPES
+	V := [§VAR INT]
+	Cell := [#_Cell V]
+	R1 := [{EMPTY_TYPE} + Cell]
+	Fixed := [#_Fixed INT]
+	Record := [{R1} + Fixed]
+	Factory := [EMPTY_TYPE => Record]
+	FactoryDef := [EMPTY_TYPE => Factory]
+	Main := [EMPTY_TYPE => Factory]
+	MainDef := [FactoryDef => Main]
+
+§DEF create € FactoryDef
+	seven := 7
+	cell := §VAR seven
+	field := +#_Cell cell
+	r1 := {EMPTY} + field
+	eleven := 11
+	fixed := +#_Fixed eleven
+	record := {r1} + fixed
+	§RETURN record IF TRUE
+
+§DEF main € MainDef
+	factory := .ENV EMPTY
+	§RETURN factory IF TRUE

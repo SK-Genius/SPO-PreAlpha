@@ -38,38 +38,13 @@ mTextStream {
 	ToText(
 		this (tPos Pos, tError Message) aError,
 		tText[] aSrcLines
-	) {
-		var Line = aSrcLines.Length > 0 && aError.Pos.Row > 0
-			? aSrcLines[aError.Pos.Row - 1]
-			: "";
-		
-		var MarkerLine = mStream.Stream(
-			System.MemoryExtensions.AsSpan(Line)
-		).Take(
-			aError.Pos.Col - 1
-		).Map(
-			aChar => aChar == '\t' ? '\t' : ' '
-		).Reduce(
-			"",
-			(aString, aChar) => aString + aChar
-		);
-		
-		return (
-			$"""
-			{aError.Pos.Id}:{aError.Pos.Row} ERROR: {aError.Message}
-			{aError.Pos.Row}: {Line}
-			{new tText(' ', ("" + aError.Pos.Row).Length + 2)}{MarkerLine}^
-			
-			"""
-		);
-	}
+	) => mStream.Stream(aError).ToText(aSrcLines);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tText
 	ToText(
 		this mStream.tStream<(tPos Pos, tError Message)> aErrors,
 		tText[] aSrcLines
-	//) => aErrors.Reduce("", (aOut, aError) => aOut + "\n" + aError.ToText(aSrcLines));
 	) => aErrors.GroupAndSortBy(
 		__ => __.Pos.Id,
 		tText.CompareOrdinal
@@ -95,7 +70,7 @@ mTextStream {
 					(a1, a2) => tText.CompareOrdinal(a1.Message, a2.Message)
 				).DontRepeat(
 				).Map(
-					__ => $" ├ {__.Message}\n"
+					__ => $" ├ {__.Message.Replace("\n", "\n │ ")}\n"
 				).Join(
 					(a1, a2) => a1 + a2,
 					""

@@ -1,0 +1,8 @@
+TestFiles/SPO_Function_Errors/02_02_MissingRecordField.SPO:2 ERROR 
+2: §DEF cValue € [< Common: §INT, Missing: §TRUE >] = {Common: 1}
+ ┌────────────────────────────────────────────────────^
+ ├ missing field '_Missing'
+ │ found:
+ │   [{ ... }]
+ │ expected:
+ │   [{ ...,  _Missing : §TRUE }]

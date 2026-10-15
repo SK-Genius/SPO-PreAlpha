@@ -1,0 +1,13 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+	§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+	§DEF Package = §SIG Contract WITH [§VAR §INT] IN aValue
+	§DEF Value = §IF Package MATCH {
+		§SIG Contract WITH [§VAR §INT] IN §DEF Item: Item
+		§SIG Contract WITH _ IN _: aValue
+	}
+	§RETURN §TO_VAL Value
+	}
+)
+§EXPORT 1

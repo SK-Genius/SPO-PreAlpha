@@ -1,0 +1,6 @@
+§TYPES
+	F := [EMPTY_TYPE => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	value := 7
+	§RETURN value IF TRUE

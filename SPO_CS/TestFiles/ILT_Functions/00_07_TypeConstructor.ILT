@@ -1,0 +1,8 @@
+§TYPES
+	Func := [EMPTY_TYPE => TYPE]
+	Def := [EMPTY_TYPE => Func]
+§DEF main € Def
+	t := [§FREE Type_TYPE]
+	F := [§ALL t => t]
+	result := .F INT_TYPE
+	§RETURN result IF TRUE

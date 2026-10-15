@@ -1,0 +1,4 @@
+TestFiles/Errors_SPO/01_03_PartiallyAppliedKind.SPO:3 ERROR 
+3:  [§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [.F §INT]]
+ ┌─────────────────────────────────────────────────^
+ ├ expected a type or declared generic signature

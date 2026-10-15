@@ -1,0 +1,3 @@
+§IMPORT ()
+§DEF cValue € [§INT, §INT, §TRUE] = (1, §TRUE)
+§EXPORT cValue

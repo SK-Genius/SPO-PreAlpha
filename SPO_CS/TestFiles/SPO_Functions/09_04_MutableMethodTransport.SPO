@@ -1,0 +1,31 @@
+§IMPORT ()
+
+§DEF VarPattern... = () => (
+	(§VAR aSelf € §INT) : (§VAR aValue € §INT) {
+		§RETURN aValue
+	}
+)
+
+§DEF OpaqueMethodTransport... = () => (
+	(§VAR aSelf € §INT) : (§DEF aGet € [[§VAR §INT] : [] => [§VAR §INT]]) {
+		aSelf : aGet => §DEF Result .
+		§RETURN Result
+	}
+)
+
+
+§VAR Cell := 7 .
+§VAR Opaque := 9 .
+§DEF Get = (§VAR aTarget € §INT) : () {
+	§RETURN aTarget
+}
+
+§DEF Case01... = .VarPattern ()
+§VAR Receiver01 := 7 .
+Receiver01 : Case01 Cell => §DEF Result01 .
+
+§DEF Case02... = .OpaqueMethodTransport ()
+§VAR Receiver02 := 7 .
+Receiver02 : Case02 Get => §DEF Result02 .
+
+§EXPORT (Result01, Result02)

@@ -1,0 +1,30 @@
+TestFiles/Errors_SPO/03_03_OldLoad.SPO:1 ERROR 
+1: §DEF Identity... = (§DEF Value € [§LOAD_SIG "Int.SIG"]) => Value
+ ┌───────────────────────────────────^
+ ├ expect '#...'
+ ├ expect '.'
+ ├ expect '<'
+ ├ expect '=>'
+ ├ expect '['
+ ├ expect ']'
+ ├ expect '§ANY'
+ ├ expect '§BOOL'
+ ├ expect '§CHAR'
+ ├ expect '§FALSE'
+ ├ expect '§GENERIC'
+ ├ expect '§INT'
+ ├ expect '§INTERFACE'
+ ├ expect '§LOAD'
+ ├ expect '§RECURSIVE'
+ ├ expect '§SIG_WITH'
+ ├ expect '§TEXT'
+ ├ expect '§TRUE'
+ ├ expect '§TYPE'
+ ├ expect '§VAR'
+ ├ expect Identifier
+ ├ expect line break
+ ├ expect space
+ ├ invalid LoadSig
+ ├ invalid Type
+ ├ invalid TypeInSet
+ ├ invalid TypeInTuple

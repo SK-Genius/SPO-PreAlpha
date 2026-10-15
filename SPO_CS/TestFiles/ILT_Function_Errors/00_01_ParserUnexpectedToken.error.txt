@@ -1,0 +1,21 @@
+TestFiles/Errors_ILT/00_01_ParserUnexpectedToken.ILT:5 ERROR 
+5:  value :=
+ ┌──────────^
+ ├ expect '+'
+ ├ expect '-'
+ ├ expect '.'
+ ├ expect '['
+ ├ expect '{'
+ ├ expect '§1ST'
+ ├ expect '§2ND'
+ ├ expect '§BOOL'
+ ├ expect '§INT'
+ ├ expect '§OBJ'
+ ├ expect '§SIG'
+ ├ expect '§SIG_BODY'
+ ├ expect '§SIG_HEAD'
+ ├ expect '§TRY'
+ ├ expect '§TRY_REMOVE'
+ ├ expect '§VAR'
+ ├ expect Identifier
+ ├ expect number

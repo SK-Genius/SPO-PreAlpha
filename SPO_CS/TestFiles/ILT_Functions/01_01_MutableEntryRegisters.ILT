@@ -1,0 +1,89 @@
+§TYPES
+	Cell := [§VAR INT]
+	Transport := [Cell => Cell]
+	TransportProc := [EMPTY_TYPE : Transport]
+	ArgDef := [EMPTY_TYPE => TransportProc]
+	Get := [EMPTY_TYPE => Cell]
+	GetProc := [EMPTY_TYPE : Get]
+	EnvDef := [Cell => GetProc]
+	Read := [EMPTY_TYPE => INT]
+	Method := [Cell : Read]
+	ReceiverDef := [Method => Method]
+	TypeMethod := [TYPE : Read]
+	TypeCall := [TYPE => INT]
+	TypeCallDef := [TypeMethod => TypeCall]
+	Entry := [ANY => Read]
+
+	ReadDef := [EMPTY_TYPE => Method]
+	TypeReadDef := [EMPTY_TYPE => TypeMethod]
+	TestEnv0 := [EMPTY_TYPE, ArgDef]
+	TestEnv1 := [TestEnv0, EnvDef]
+	TestEnv2 := [TestEnv1, ReceiverDef]
+	TestEnv3 := [TestEnv2, TypeCallDef]
+	TestEnv4 := [TestEnv3, ReadDef]
+	TestEnv5 := [TestEnv4, TypeReadDef]
+	TestPair0 := [EMPTY_TYPE, INT]
+	TestPair1 := [TestPair0, INT]
+	TestPair2 := [TestPair1, INT]
+	TestValue := [TestPair2, INT]
+	TestCall := [ANY => TestValue]
+	TestMain := [TestEnv5 => TestCall]
+
+
+§DEF transport_arg € ArgDef
+	§RETURN ARG IF TRUE
+
+§DEF transport_env € EnvDef
+	§RETURN ENV IF TRUE
+
+§DEF receiver € ReceiverDef
+	one := 1
+	§VAR OBJ <- one
+	value := §VAR OBJ ->
+	pair := OBJ, ENV
+	forwarded := §OBJ:pair EMPTY
+	§RETURN value IF TRUE
+
+§DEF type_descriptor € TypeCallDef
+	pair := ARG, ENV
+	value := §OBJ:pair EMPTY
+	§RETURN value IF TRUE
+
+§DEF read € ReadDef
+	value := §VAR OBJ ->
+	§RETURN value IF TRUE
+§DEF type_read € TypeReadDef
+	§RETURN ONE IF TRUE
+
+§DEF main € TestMain
+	type_read_def := §2ND ENV
+	defs5 := §1ST ENV
+	read_def := §2ND defs5
+	defs4 := §1ST defs5
+	type_descriptor_def := §2ND defs4
+	defs3 := §1ST defs4
+	receiver_def := §2ND defs3
+	defs2 := §1ST defs3
+	transport_env_def := §2ND defs2
+	defs1 := §1ST defs2
+	transport_arg_def := §2ND defs1
+	seven := 7
+	cell := §VAR seven
+	arg := .transport_arg_def EMPTY
+	arg_handle := .arg cell
+	arg_value := §VAR arg_handle ->
+	env := .transport_env_def cell
+	env_handle := .env EMPTY
+	env_value := §VAR env_handle ->
+	read := .read_def EMPTY
+	receiver := .receiver_def read
+	pair := cell, receiver
+	receiver_value := §OBJ:pair EMPTY
+	type_read := .type_read_def EMPTY
+	type_call := .type_descriptor_def type_read
+	type_value := .type_call INT_TYPE
+	result1 := EMPTY, arg_value
+	result2 := result1, env_value
+	result3 := result2, receiver_value
+	result := result3, type_value
+	§RETURN result IF TRUE

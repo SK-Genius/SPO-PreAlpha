@@ -1,0 +1,1 @@
+TestFiles/Errors_Modules_SPO/_Modules/06_01_Package.SPO:1,14..1,34: [§LOAD "06_01_Missing.SIG"]: Could not find file 'TestFiles\Errors_Modules_SPO\_Modules\06_01_Missing.SIG'.

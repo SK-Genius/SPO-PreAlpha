@@ -26,12 +26,12 @@ Use these files instead of adding untested examples to documentation:
 
 | Purpose | Files |
 | --- | --- |
-| Small real module with an abstract type constructor | [Span.SPO](Modules/Span.SPO), [Span.SIG](Modules/Span.SIG), [SpanConsumer.SPO](TestFiles/Modules/SpanConsumer.SPO), [expected result](TestFiles/Modules/SpanConsumer.result.SPO) |
-| Larger generic APIs | [List.SIG](Modules/List.SIG), [List.SPO](Modules/List.SPO); [Result.SIG](Modules/Result.SIG), [Result.SPO](Modules/Result.SPO) |
-| Shared abstract type across imports | [SigImportSameHead.SPO](TestFiles/Modules/SigImportSameHead.SPO), [expected result](TestFiles/Modules/SigImportSameHead.result.SPO) |
-| Different imported type rejected | [SigImportDifferentHead.SPO](TestFiles/Modules/SigImportDifferentHead.SPO), [expected result](TestFiles/Modules/SigImportDifferentHead.result.SPO) |
+| Small real module with an abstract type constructor | [Span.SPO](TestFiles/Modules_SPO/_Modules/Span.SPO), [Span.SIG](TestFiles/Modules_SPO/_Modules/Span.SIG), [SpanConsumer.SPO](TestFiles/Modules_SPO/00_10_SpanConsumer.SPO), [expected result](TestFiles/Modules_SPO/00_10_SpanConsumer.result.SPO) |
+| Larger generic APIs | [List.SIG](TestFiles/Modules_SPO/_Modules/List.SIG), [List.SPO](TestFiles/Modules_SPO/_Modules/List.SPO); [Result.SIG](TestFiles/Modules_SPO/_Modules/Result.SIG), [Result.SPO](TestFiles/Modules_SPO/_Modules/Result.SPO) |
+| Shared abstract type across imports | [SigImportSameHead.SPO](TestFiles/Modules_SPO/00_09_SigImportSameHead.SPO), [expected result](TestFiles/Modules_SPO/00_09_SigImportSameHead.result.SPO) |
+| Different imported type rejected | [SigImportDifferentHead.SPO](TestFiles/Modules_SPO/00_08_SigImportDifferentHead.SPO), [expected result](TestFiles/Modules_SPO/00_08_SigImportDifferentHead.result.SPO) |
 
-The last two cases use providers in [TestFiles/Modules/_Imports](TestFiles/Modules/_Imports/).
+The last two cases use providers in [TestFiles/Modules_SPO/_Modules](TestFiles/Modules_SPO/_Modules/).
 Their exports and consumer imports load the same `.SIG` contracts.
 `SigBoolReader.SIG` loads `SigReader.SIG` rather than duplicating it.
 
@@ -192,8 +192,8 @@ SIG contract; ordinary type definitions are valid too.
 - happens during SPO parsing; generated IL contains the type definitions, not
   `§LOAD`, and the IL parser does not support that form.
 
-The existing reusable contracts are in `Modules/*.SIG`; test-provider contracts
-are in `TestFiles/Modules/_Imports/*.SIG`. Do not assume a `Types/` folder exists.
+The existing reusable contracts are in `TestFiles/Modules_SPO/_Modules/*.SIG`; group-provider
+contracts are in `TestFiles/<Group>/_Modules/*.SIG`.
 
 VSCode signature diagnostics and navigation use the shared parser:
 [mSPO_Diagnostics.cs](../VSCode_Extension/server-src/mSPO_Diagnostics.cs) and
@@ -219,23 +219,22 @@ dotnet src/mRunTests.cs -- -t -g
 Use `-l` to list matching tests without executing them. Filters are
 case-sensitive substring matches; `-m` means any, `-M` means all.
 
-- SPO behavior belongs in `TestFiles/Functions/` (end to end) or
-  `TestFiles/Modules/` (module dependencies and shared abstract types).
-  Function cases receive Std exports directly; module cases receive the module
-  record and the providers from `_Imports/`.
+- E2E group names are arbitrary. Source extensions choose SPO or ILT;
+  `.error.txt` marks negative cases and `.result.SPO` supplies positive expectations.
+  Modules are collected from `TestFiles/_Modules` and `<Group>/_Modules`.
+  Full filenames without extensions are import names; `GG_TT_` providers are
+  available only to the matching test. Imports determine which modules are loaded.
 - Use focused C# tests for isolated properties not already covered by those
   cases: [mVM_Type.Tests.cs](src/mVM_Type.Tests.cs),
   [mSPO_AST_Types.Tests.cs](src/mSPO_AST_Types.Tests.cs),
   [mIL_GenerateOpcodes.Tests.cs](src/mIL_GenerateOpcodes.Tests.cs),
   [mIL_Parser.Tests.cs](src/mIL_Parser.Tests.cs), and
   [mSPO_Parser.Tests.cs](src/mSPO_Parser.Tests.cs).
-  Keep [mModule.Tests.cs](src/mModule.Tests.cs) about the actual `Modules/` files.
 - Existing `03_18`–`03_22` SIG MATCH cases and `07_19_SigHigherKind` /
   `07_20_GenericSignatureAlias` are regressions, not additional design use cases.
-- Check SPO output, generated IL, and IL execution against the paired
-  `.result.SPO`. Test execution and module initialization can rewrite `.ILT`
-  files; module-consumer generation checks report changed IL as a failure.
-  Inspect the generated diff before deciding whether to accept it.
+- Check SPO and generated IL execution against the paired `.result.SPO`.
+  SPO E2E tests and module initialization create or update `.ILT` files directly.
+  Changes to generated IL are reviewed in Git and do not fail the tests.
 
 Keep documentation examples tied to tested source/result files. Update this
 reference when invariants or phase responsibilities change; do not record a
@@ -243,8 +242,8 @@ transient test count or pass/fail snapshot.
 
 ## Related pipe behavior
 
-[04_10_PipeWithoutArguments.SPO](TestFiles/Functions/04_10_PipeWithoutArguments.SPO)
-and its [expected result](TestFiles/Functions/04_10_PipeWithoutArguments.result.SPO)
+[04_10_PipeWithoutArguments.SPO](TestFiles/Functions_SPO/04_10_PipeWithoutArguments.SPO)
+and its [expected result](TestFiles/Functions_SPO/04_10_PipeWithoutArguments.result.SPO)
 cover both directions: a pipe adds only the piped value, never an implicit
 `()` argument. An explicitly supplied `()` remains a real argument; the called
 name determines the insertion position. Lowering starts in

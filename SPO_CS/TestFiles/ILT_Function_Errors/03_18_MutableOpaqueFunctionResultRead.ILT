@@ -1,0 +1,11 @@
+§TYPES
+	V := [§VAR INT]
+	GF := [EMPTY_TYPE => V]
+Get := [V : GF]
+	F := [EMPTY_TYPE => INT]
+	P := [V : F]
+	D := [GF => P]
+§DEF f € D
+	handle := .ENV EMPTY
+value := §VAR handle ->
+§RETURN value IF TRUE

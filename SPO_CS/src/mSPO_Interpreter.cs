@@ -94,21 +94,7 @@ mSPO_Interpreter {
 				var Lines = (ErrorSource != aId
 					? mFS.File(ErrorSource).TryReadText().ElseThrow()
 					: aCode).Split("\n");
-				return (
-					aError.ToText() +
-					"\n" +
-					mStream.Nat32StartWith(
-						aError.Pos.Start.Row
-					).Take(
-						aError.Pos.End.Row - aError.Pos.Start.Row + 1
-					).Map(
-						aRow => $"  {aRow}: {Lines[aRow - 1].Replace('\t', ' ').TrimEnd()}" + (
-							aError.Pos.End.Row == aError.Pos.Start.Row
-							? $"\n{new tText(' ', ("" + aRow).Length + (tInt32)aError.Pos.Start.Col + 3)}{new tText('~', (tInt32)aError.Pos.End.Col - (tInt32)aError.Pos.Start.Col + 1)}"
-							: ""
-						)
-					).Join((a1, a2) => a1 + "\n" + a2, "")
-				);
+				return (aError.Pos.Start, aError.ErrorText).ToText(Lines);
 			}
 		);
 	}
@@ -117,7 +103,16 @@ mSPO_Interpreter {
 	ToILT(
 		this mSPO_AST.tModuleNode<tSpan> aModule
 	) {
-		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(__ => __.ToText());
+		tText FormatError((tSpan Pos, tText ErrorText) aError) {
+			var File = mFS.File(aError.Pos.Start.Id);
+			if (!File.Exists()) {
+				return aError.ToText();
+			}
+			var Code = File.TryReadText().ElseThrow();
+			return (aError.Pos.Start, aError.ErrorText).ToText(Code.Split('\n'));
+		}
+
+		var Desugared = mSPO_Desugar.DesugarModule(aModule).AssertNotError(FormatError);
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			Desugared.Import.Pattern,
 			mStd.cEmpty,
@@ -125,17 +120,17 @@ mSPO_Interpreter {
 			mStd.cEmpty,
 			new()
 		).Then(
-			__ => (__.Scope, __.State)).AssertNotError(__ => __.ToText()
-		);
+			__ => (__.Scope, __.State)
+		).AssertNotError(FormatError);
 		
 		var Scope = Desugared.Commands.Reduce(
 			mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
 			(aResScope, aCommand) => aResScope.ThenTry(
 				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
 			)
-		).AssertNotError(__ => __.ToText());
+		).AssertNotError(FormatError);
 		
-		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope.Scope, Scope.State).AssertNotError(__ => __.ToText());
+		var Module = mSPO2IL.MapModule(Desugared, mSpan.Merge, Scope.Scope, Scope.State).AssertNotError(FormatError);
 		var SB = new System.Text.StringBuilder();
 		var DefIndex = 0u;
 		SB.Append("§TYPES").Append('\n');

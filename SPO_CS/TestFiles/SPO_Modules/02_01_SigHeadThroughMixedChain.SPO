@@ -1,0 +1,6 @@
+§IMPORT {
+	02_01_Proxy: §SIG [§LOAD "_Modules/02_01_Value.SIG"] WITH §DEF t IN §DEF Value
+	02_01_Reader: §SIG [§LOAD "_Modules/02_01_Reader.SIG"] WITH t IN §DEF Read...
+}
+§DEF Result € [§INT | []] = .Read Value
+§EXPORT Result

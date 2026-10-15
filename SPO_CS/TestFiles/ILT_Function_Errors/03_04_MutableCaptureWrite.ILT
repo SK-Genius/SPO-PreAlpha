@@ -1,0 +1,10 @@
+§TYPES
+	V := [§VAR INT]
+	
+	F := [EMPTY_TYPE => EMPTY_TYPE]
+	P := [EMPTY_TYPE : F]
+	D := [V => P]
+§DEF f € D
+	one := 1
+§VAR ENV <- one
+§RETURN EMPTY IF TRUE

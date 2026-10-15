@@ -1,0 +1,157 @@
+§TYPES
+	V := [§VAR INT]
+	MF := [EMPTY_TYPE => INT]
+	M := [ANY : MF]
+	F := [ANY => ANY]
+	P := [EMPTY_TYPE : F]
+	D := [M => P]
+	H := [#Handle V]
+	N := [#Number INT]
+	W := [{EMPTY_TYPE} + H]
+	Wide := [{W} + N]
+	Narrow := [{EMPTY_TYPE} + N]
+	Pass := [Narrow => Narrow]
+	narrowM := [Narrow : MF]
+	E := [Pass, narrowM]
+	narrowF := [Wide => Narrow]
+	narrowP := [EMPTY_TYPE : narrowF]
+	narrowD := [E => narrowP]
+	GF := [EMPTY_TYPE => V]
+	Get := [V : GF]
+	functionD := [GF => Get]
+	methodD := [Get => Get]
+	R := [#Result V]
+	try_returnF := [V => R]
+	B := [TRUE | FALSE]
+	G := [V => B]
+	FD := [V => try_returnF]
+	GD := [V => G]
+	try_returnE := [try_returnF, G]
+	try_returnD := [try_returnE => try_returnF]
+	EntryResult := [EMPTY_TYPE => INT]
+	Entry := [ANY => EntryResult]
+
+	AnyMethodDef := [EMPTY_TYPE => M]
+	PassDef := [EMPTY_TYPE => Pass]
+	NarrowMethodDef := [EMPTY_TYPE => narrowM]
+	GetDef := [V => GF]
+	GetMethodDef := [EMPTY_TYPE => Get]
+	TestPair0 := [EMPTY_TYPE, ANY]
+	TestPair1 := [TestPair0, Narrow]
+	TestPair2 := [TestPair1, V]
+	TestRecordPair := [TestPair2, V]
+
+	TestEnv0 := [EMPTY_TYPE, D]
+	TestEnv1 := [TestEnv0, narrowD]
+	TestEnv2 := [TestEnv1, functionD]
+	TestEnv3 := [TestEnv2, methodD]
+	TestEnv4 := [TestEnv3, FD]
+	TestEnv5 := [TestEnv4, GD]
+	TestEnv6 := [TestEnv5, try_returnD]
+	TestEnv7 := [TestEnv6, AnyMethodDef]
+	TestEnv8 := [TestEnv7, PassDef]
+	TestEnv9 := [TestEnv8, NarrowMethodDef]
+	TestEnv10 := [TestEnv9, GetDef]
+	TestEnv11 := [TestEnv10, GetMethodDef]
+	TestValue := [TestRecordPair, R]
+	TestCall := [ANY => TestValue]
+	TestMain := [TestEnv11 => TestCall]
+
+
+§DEF any_f € D
+	§RETURN ARG IF TRUE
+
+§DEF narrow_f € narrowD
+	pass := §1ST ENV
+	method := §2ND ENV
+	result := .pass ARG
+	§RETURN result IF TRUE
+
+§DEF function_f € functionD
+	handle := .ENV EMPTY
+	§RETURN handle IF TRUE
+
+§DEF method_f € methodD
+	pair := OBJ, ENV
+	handle := §OBJ:pair EMPTY
+	§RETURN handle IF TRUE
+
+§DEF try_return_case € FD
+	value := ARG
+	result := +#Result value
+	§RETURN result IF TRUE
+§DEF try_return_guard € GD
+	§RETURN TRUE IF TRUE
+§DEF try_return_main € try_returnD
+	callback := §1ST ENV
+	try_return_guard := §2ND ENV
+	§TRY_RETURN .callback ARG IF try_return_guard
+
+§DEF any_method € AnyMethodDef
+	§RETURN ONE IF TRUE
+§DEF narrow_pass € PassDef
+	§RETURN ARG IF TRUE
+§DEF narrow_method € NarrowMethodDef
+	§RETURN ONE IF TRUE
+§DEF get € GetDef
+	§RETURN ENV IF TRUE
+§DEF get_method € GetMethodDef
+	§RETURN OBJ IF TRUE
+
+§DEF main € TestMain
+	get_method_def := §2ND ENV
+	defs11 := §1ST ENV
+	get_def := §2ND defs11
+	defs10 := §1ST defs11
+	narrow_method_def := §2ND defs10
+	defs9 := §1ST defs10
+	narrow_pass_def := §2ND defs9
+	defs8 := §1ST defs9
+	any_method_def := §2ND defs8
+	defs7 := §1ST defs8
+	try_return_main_def := §2ND defs7
+	defs6 := §1ST defs7
+	try_return_guard_def := §2ND defs6
+	defs5 := §1ST defs6
+	try_return_case_def := §2ND defs5
+	defs4 := §1ST defs5
+	method_f_def := §2ND defs4
+	defs3 := §1ST defs4
+	function_f_def := §2ND defs3
+	defs2 := §1ST defs3
+	narrow_f_def := §2ND defs2
+	defs1 := §1ST defs2
+	any_f_def := §2ND defs1
+	seven := 7
+	cell := §VAR seven
+	method := .any_method_def EMPTY
+	any := .any_f_def method
+	any_result := .any cell
+	pass := .narrow_pass_def EMPTY
+	narrow_method := .narrow_method_def EMPTY
+	narrow_env := pass, narrow_method
+	narrow := .narrow_f_def narrow_env
+	handle_field := +#Handle cell
+	wide_handle := {EMPTY} + handle_field
+	number_field := +#Number seven
+	wide := {wide_handle} + number_field
+	narrow_result := .narrow wide
+	get := .get_def cell
+	function := .function_f_def get
+	function_pair := cell, function
+	function_result := §OBJ:function_pair EMPTY
+	get_method := .get_method_def EMPTY
+	forward := .method_f_def get_method
+	method_pair := cell, forward
+	method_result := §OBJ:method_pair EMPTY
+	callback := .try_return_case_def cell
+	guard := .try_return_guard_def cell
+	try_env := callback, guard
+	try_return := .try_return_main_def try_env
+	try_result := .try_return cell
+	result1 := EMPTY, any_result
+	result2 := result1, narrow_result
+	result3 := result2, function_result
+	result4 := result3, method_result
+	result := result4, try_result
+	§RETURN result IF TRUE

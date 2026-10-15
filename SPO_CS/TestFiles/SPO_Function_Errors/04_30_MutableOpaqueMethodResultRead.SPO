@@ -1,0 +1,8 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§VAR aSelf € §INT) : (§DEF aGet € [[§VAR §INT] : [] => [§VAR §INT]]) {
+		aSelf : aGet => §DEF Result .
+		§RETURN §TO_VAL Result
+	}
+)
+§EXPORT 1

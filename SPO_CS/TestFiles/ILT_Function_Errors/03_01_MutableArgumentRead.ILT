@@ -1,0 +1,9 @@
+§TYPES
+	V := [§VAR INT]
+	
+	F := [V => INT]
+	P := [EMPTY_TYPE : F]
+	D := [EMPTY_TYPE => P]
+§DEF f € D
+	value := §VAR ARG ->
+§RETURN value IF TRUE

@@ -1,0 +1,22 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE => t_1]
+	t_5 := [t_3 => t_4]
+
+§DEF d_0 € t_3
+	_Value := ARG
+	§RETURN _Value IF TRUE
+
+§DEF d_1 € t_5
+	d_0 := ENV
+	r_1 := .d_0 EMPTY
+	_Identity... := r_1
+	r_2 := 3
+	r_3 := EMPTY, r_2
+	r_4 := 4
+	r_5 := r_3, r_4
+	r_6 := ._Identity... r_5
+	§RETURN r_6 IF TRUE

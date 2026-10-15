@@ -905,7 +905,7 @@ mSPO_AST_Types {
 					__ => (
 						__.Type.IsVar(out var ValType)
 						? mResult.OK((ValType, __.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
-						: mResult.Fail((VarToVal.Pos, $"the type '{__.Type}' in not from type '[§VAR ...]'"))
+						: mResult.Fail((VarToVal.Pos, $"the type '{__.Type}' is not from type '[§VAR ...]'"))
 					)
 				)
 			),

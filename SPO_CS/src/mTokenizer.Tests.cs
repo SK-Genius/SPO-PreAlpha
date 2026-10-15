@@ -37,6 +37,95 @@ mTokenizer_Tests {
 	Tests = mTest.Tests(
 		nameof(mTokenizer),
 		[
+			mTest.Test("Identifiers beginning with numbers and numeric token boundaries",
+				aDebug => {
+					var Tokens = mTokenizer.Tokenizer.ParseText(
+						"01_03_xyz 1abc 1_234 -2 +3 1..2 1.Foo 1... 1...2",
+						"",
+						a => aDebug(a())
+					).Result;
+					
+					mAssert.AreEquals(
+						Tokens.Map(a => (a.Type, a.Text)),
+						mStream.Stream(
+							(mTokenizer.tTokenType.Id, "01_03_xyz"),
+							(mTokenizer.tTokenType.Id, "1abc"),
+							(mTokenizer.tTokenType.Number, "1234"),
+							(mTokenizer.tTokenType.Number, "-2"),
+							(mTokenizer.tTokenType.Number, "3"),
+							(mTokenizer.tTokenType.Number, "1"),
+							(mTokenizer.tTokenType.SpecialToken, ".."),
+							(mTokenizer.tTokenType.Number, "2"),
+							(mTokenizer.tTokenType.Number, "1"),
+							(mTokenizer.tTokenType.SpecialToken, "."),
+							(mTokenizer.tTokenType.Id, "Foo"),
+							(mTokenizer.tTokenType.Id, "1..."),
+							(mTokenizer.tTokenType.Id, "1...2")
+						)
+					);
+				}
+			),
+			mTest.Test("Numeric tokens and identifiers stop before reserved characters",
+				aDebug => {
+					foreach (
+						var (Source, Type, Text) in mStream.Stream(
+							("01_03_xyz", mTokenizer.tTokenType.Id, "01_03_xyz"),
+							("1abc", mTokenizer.tTokenType.Id, "1abc"),
+							("123", mTokenizer.tTokenType.Number, "123"),
+							("1_234", mTokenizer.tTokenType.Number, "1234"),
+							("-2", mTokenizer.tTokenType.Number, "-2"),
+							("+3", mTokenizer.tTokenType.Number, "3")
+						)
+					) {
+						foreach (
+							var Suffix in mStream.Stream(
+								"",
+								"€next",
+								"#Tag",
+								"§INT",
+								"\"Text\"",
+								".",
+								"..2",
+								":next",
+								",next",
+								";next",
+								"|next",
+								"(next",
+								")next",
+								"[next",
+								"]next",
+								"{next",
+								"}next",
+								" next",
+								"\tnext",
+								"\nnext",
+								"\r\nnext"
+							)
+						) {
+							var Input = Source + Suffix;
+							var Result = mTokenizer.Token.StartParse(
+								Input.ToStream("").Map(a => (mSpan.Span(a.Pos), a.Char)),
+								a => aDebug(a())
+							).AssertNotError(a => a.ToText(Input.Split('\n')));
+							var Token = Result.Result.Value;
+							mAssert.AreEquals(
+								(
+									Token.Type,
+									Token.Text,
+									Token.Span,
+									Result.RemainingStream.Map(a => a.Value).Reduce("", (aText, aChar) => aText + aChar)
+								),
+								(
+									Type,
+									Text,
+									Span((1, 1), (1, (tNat32)Source.Length)),
+									Suffix.Replace("\r", "")
+								)
+							);
+						}
+					}
+				}
+			),
 			mTest.Test("TwoLines",
 				aDebugStream => {
 					var TokenList = mTokenizer.Tokenizer.ParseText(

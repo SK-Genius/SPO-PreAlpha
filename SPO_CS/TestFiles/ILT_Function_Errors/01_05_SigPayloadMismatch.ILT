@@ -1,0 +1,11 @@
+§TYPES
+	Func := [EMPTY_TYPE => TYPE]
+	Def := [EMPTY_TYPE => Func]
+§DEF main € Def
+	t := [§FREE Type_TYPE]
+	contract := [§SIG_WITH t IN t]
+	body := TRUE
+	payload := INT_TYPE, body
+	package := §SIG contract WITH payload
+	head := §SIG_HEAD package
+	§RETURN head IF TRUE

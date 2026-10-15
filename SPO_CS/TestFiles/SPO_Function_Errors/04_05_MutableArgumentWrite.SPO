@@ -1,0 +1,8 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+	aValue := 1 .
+	§RETURN ()
+	}
+)
+§EXPORT 1

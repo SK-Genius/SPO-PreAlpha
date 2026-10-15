@@ -1,0 +1,5 @@
+TestFiles/Errors_SPO/01_02_NonExhaustiveMatch.SPO:3 ERROR 
+3:  (§DEF aX € [[] | §INT]) => §IF aX MATCH {
+ ┌─────────────────────────────^
+ ├ non-exhaustive match; unmatched type:
+ │ §INT

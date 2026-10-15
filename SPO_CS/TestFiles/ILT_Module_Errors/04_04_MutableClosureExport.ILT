@@ -1,0 +1,15 @@
+§TYPES
+	V := [§VAR INT]
+	Capture := [EMPTY_TYPE => V]
+	CaptureDef := [V => Capture]
+	F := [EMPTY_TYPE => Capture]
+	D := [CaptureDef => F]
+
+§DEF capture € CaptureDef
+	§RETURN ENV IF TRUE
+
+§DEF main € D
+	seven := 7
+	cell := §VAR seven
+	closure := .ENV cell
+	§RETURN closure IF TRUE

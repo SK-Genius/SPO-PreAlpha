@@ -1,0 +1,4 @@
+TestFiles/Errors_SPO/00_06_AbstractSigEscape.SPO:2 ERROR 
+2: §EXPORT (§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF t IN §DEF aValue) => aValue
+ ┌─────────^
+ ├ abstract SIG head escapes its scope in '[ [§SIG_WITH ?_t € §TYPE IN ?_t] -> ^_t ]'; pack it with §SIG

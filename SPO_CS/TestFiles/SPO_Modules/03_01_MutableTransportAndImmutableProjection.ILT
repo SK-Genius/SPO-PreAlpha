@@ -1,0 +1,54 @@
+§TYPES
+	t_0 := [§VAR INT]
+	t_1 := [t_0 => t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [#_Cell t_0]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [#_Fixed INT]
+	t_6 := [{t_4} + t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [#_TestCellFactory t_7]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [#_Fresh INT]
+	t_11 := [{EMPTY_TYPE} + t_10]
+	t_12 := [#_Left INT]
+	t_13 := [{t_11} + t_12]
+	t_14 := [#_Right INT]
+	t_15 := [{t_13} + t_14]
+	t_16 := [t_9 => t_15]
+	t_17 := [t_2 => t_16]
+
+§DEF d_0 € t_2
+	_aValue := ARG
+	§RETURN _aValue IF TRUE
+
+§DEF d_1 € t_17
+	d_0 := ENV
+	r_1 := {ARG} #_TestCellFactory
+	_Create... := r_1
+	r_2 := ._Create... EMPTY
+	r_3 := {r_2} #_Cell
+	_Left := r_3
+	r_4 := {r_2} #_Fixed
+	_cLeftFixed := r_4
+	r_5 := ._Create... EMPTY
+	r_6 := {r_5} #_Cell
+	_Right := r_6
+	r_7 := {r_5} #_Fixed
+	_cRightFixed := r_7
+	r_8 := .d_0 EMPTY
+	_Identity... := r_8
+	r_9 := ._Identity... _Left
+	_LeftTransported := r_9
+	r_10 := ._Identity... _Right
+	_RightTransported := r_10
+	r_11 := 1
+	§VAR _LeftTransported <- r_11
+	r_12 := +#_Left _cLeftFixed
+	r_13 := {EMPTY} + r_12
+	r_14 := +#_Right _cRightFixed
+	r_15 := {r_13} + r_14
+	r_16 := §VAR _RightTransported ->
+	r_17 := +#_Fresh r_16
+	r_18 := {r_15} + r_17
+	§RETURN r_18 IF TRUE

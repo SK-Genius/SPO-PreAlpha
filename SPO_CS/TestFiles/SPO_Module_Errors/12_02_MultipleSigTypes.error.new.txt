@@ -1,0 +1,177 @@
+mSPO_Parser+tLoadSigError: [§LOAD "_Modules/12_02_Invalid.SIG"]: [DebugId: 27591495] file:///D:/Projekte/SPO-PreAlpha_main/SPO_CS/TestFiles/SPO_Module_Errors/_Modules/12_02_Invalid.SIG:2 expected end of text
+
+§BOOL
+^
+
+   at mSPO_Parser.<>c.<.cctor>b__95_40(tSpan`1 aSpan, tToken aSigFileToken) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Parser.cs:line 698
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__1(tParserResult`4 aResult) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 110
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass6_0`7.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 160
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass20_0.<get_Item>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 438
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass7_0`8.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 189
+   at mParserGen.<>c__DisplayClass6_0`7.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 160
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass20_0.<get_Item>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 438
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass6_0`7.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 160
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_1.<op_BitwiseOr>b__1(tStream`1 aErrorList1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 401
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass20_0.<get_Item>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 438
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass6_0`7.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 160
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass4_0`5.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 105
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass18_0.<op_BitwiseOr>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 396
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.tParser`4.<>c__DisplayClass20_0.<get_Item>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 438
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.<>c__DisplayClass24_1`5.<__>b__1(tParserResult`4 aResult1) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 604
+   at mParserGen.<>c__DisplayClass24_0`5.<__>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 599
+   at mParserGen.<>c__DisplayClass5_0`6.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 132
+   at mParserGen.<>c__DisplayClass8_0`9.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 219
+   at mParserGen.<>c__DisplayClass6_0`7.<ModifyS>b__0(tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aPath) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 160
+   at mParserGen.Parse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream, tStream`1 aInfiniteLoopDetectionSet) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 799
+   at mParserGen.StartParse[tPos,tIn,tOut,tError](tParser`4 aParser, tStream`1 aStream, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\Common\mParserGen.cs:line 725
+   at mTokenizer.ParseText[tOut](tParser`4 aParser, String aText, String aId, tAction`1 aDebugStream, tFileContext aFileContext) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mTokenizer.cs:line 196
+   at mE2E_Tests.<.cctor>g__ImportNames|1_3(tFile aFile, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 74
+   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 176
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

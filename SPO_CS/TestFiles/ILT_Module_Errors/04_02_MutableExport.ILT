@@ -1,0 +1,8 @@
+§TYPES
+	V := [§VAR INT]
+	F := [EMPTY_TYPE => V]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	seven := 7
+	cell := §VAR seven
+	§RETURN cell IF TRUE

@@ -1,0 +1,17 @@
+§TYPES
+	V := [§VAR INT]
+	Cell := [#_Cell V]
+	R1 := [{EMPTY_TYPE} + Cell]
+	Fixed := [#_Fixed INT]
+	Record := [{R1} + Fixed]
+	F := [EMPTY_TYPE => Record]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	seven := 7
+	cell := §VAR seven
+	field := +#_Cell cell
+	r1 := {EMPTY} + field
+	eleven := 11
+	fixed := +#_Fixed eleven
+	record := {r1} + fixed
+	§RETURN record IF TRUE

@@ -1,0 +1,3 @@
+§IMPORT ()
+§VAR Cell := 7 .
+§EXPORT {Cell: Cell, Fixed: 11}

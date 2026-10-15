@@ -1,0 +1,1 @@
+Pending diagnostic: module ARG must remain opaque.

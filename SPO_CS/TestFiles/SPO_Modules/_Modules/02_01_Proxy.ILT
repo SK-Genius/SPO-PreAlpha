@@ -1,0 +1,10 @@
+§TYPES
+	t := [§FREE TYPE]
+	Contract := [§SIG_WITH t IN t]
+	Field := [#_02_01_Value Contract]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => Contract]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	package := {ARG} #_02_01_Value
+	§RETURN package IF TRUE

@@ -1,0 +1,21 @@
+§TYPES
+	V := [§VAR INT]
+	R := [#Result V]
+	F := [V => R]
+	B := [TRUE | FALSE]
+	G := [V => B]
+	FD := [V => F]
+	GD := [V => G]
+	E := [F, G]
+	D := [E => F]
+§DEF case € FD
+	read := §VAR ARG ->
+value := ARG
+	result := +#Result value
+	§RETURN result IF TRUE
+§DEF guard € GD
+	§RETURN TRUE IF TRUE
+§DEF main € D
+	callback := §1ST ENV
+	guard := §2ND ENV
+	§TRY_RETURN .callback ARG IF guard

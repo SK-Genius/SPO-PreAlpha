@@ -1,0 +1,4 @@
+TestFiles/Errors_ILT/01_04_MalformedFreeType.ILT:5 ERROR 
+5:  t := [§FREE € Type_TYPE]
+ ┌──────────────^
+ ├ expect Identifier

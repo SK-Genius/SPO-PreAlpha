@@ -1,0 +1,11 @@
+§TYPES
+	t_0 := [#_TestBoolValue INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [t_1 => INT]
+	t_3 := [EMPTY_TYPE => t_2]
+
+§DEF d_0 € t_3
+	r_1 := {ARG} #_TestBoolValue
+	_Value := r_1
+	r_2 := 1
+	§RETURN r_2 IF TRUE

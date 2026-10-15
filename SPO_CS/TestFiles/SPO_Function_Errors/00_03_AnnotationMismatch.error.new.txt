@@ -1,0 +1,7 @@
+TestFiles/SPO_Function_Errors/00_03_AnnotationMismatch.SPO:2 ERROR 
+2: §DEF cValue € §INT = §TRUE
+ ┌──────────────────────^
+ ├ found:
+ │   §TRUE
+ │ expected:
+ │   §INT

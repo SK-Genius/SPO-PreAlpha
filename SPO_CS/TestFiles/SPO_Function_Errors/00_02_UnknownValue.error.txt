@@ -1,0 +1,4 @@
+TestFiles/Errors_SPO/00_02_UnknownValue.SPO:2 ERROR 
+2: §EXPORT Missing
+ ┌─────────^
+ ├ No Identifier '_Missing' in scope

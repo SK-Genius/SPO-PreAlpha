@@ -1,0 +1,7 @@
+TestFiles/Errors_ILT/00_04_ReturnTypeMismatch.ILT:5 ERROR 
+5:  §RETURN TRUE IF TRUE
+ ┌──^
+ ├ found:
+ │   §TRUE
+ │ expected:
+ │   [ §INT | [] ]

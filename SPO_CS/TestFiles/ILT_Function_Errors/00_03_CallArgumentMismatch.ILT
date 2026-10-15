@@ -1,0 +1,7 @@
+§TYPES
+	Identity := [INT => INT]
+	F := [EMPTY_TYPE => INT]
+	D := [Identity => F]
+§DEF main € D
+	value := .ENV TRUE
+	§RETURN value IF TRUE

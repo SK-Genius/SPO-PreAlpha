@@ -1,0 +1,7 @@
+TestFiles/SPO_Function_Errors/02_01_AllRecordFields.SPO:2 ERROR 
+2: §DEF cValue € [< A: §INT, B: §TRUE, C: §INT >] = {A: §TRUE, B: 1, C: 1}
+ ┌──────────────────────────────────────────────────^
+ ├ found:
+ │   [{ _A : §TRUE,  _B : §INT,  ... }]
+ │ expected:
+ │   [{ _A : §INT,  _B : §TRUE,  ... }]

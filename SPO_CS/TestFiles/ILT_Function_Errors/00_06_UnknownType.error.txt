@@ -1,0 +1,4 @@
+TestFiles/Errors_ILT/00_06_UnknownType.ILT:3 ERROR 
+3: §DEF main € Missing
+ ┌─────────────^
+ ├ type 'Missing' not found

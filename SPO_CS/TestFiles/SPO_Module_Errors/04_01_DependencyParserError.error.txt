@@ -1,0 +1,33 @@
+TestFiles/Errors_Modules_SPO/_Modules/04_01_Broken.SPO:1 ERROR 
+1: §EXPORT )
+ ┌─────────^
+ ├ expect '"'
+ ├ expect '#...'
+ ├ expect '('
+ ├ expect '.'
+ ├ expect '=>'
+ ├ expect '['
+ ├ expect '{'
+ ├ expect '§ANY'
+ ├ expect '§BOOL'
+ ├ expect '§CHAR'
+ ├ expect '§DEF'
+ ├ expect '§FALSE'
+ ├ expect '§IF'
+ ├ expect '§INT'
+ ├ expect '§SIG'
+ ├ expect '§TEXT'
+ ├ expect '§TO_VAL'
+ ├ expect '§TRUE'
+ ├ expect '§TYPE'
+ ├ expect '§VAR'
+ ├ expect Identifier
+ ├ expect char literal
+ ├ expect number
+ ├ invalid Expression
+ ├ invalid ExpressionInCall
+ ├ invalid LoadSig
+ ├ invalid Pattern
+ ├ invalid PipeToLeft
+ ├ invalid PipeToRight
+ ├ invalid UnTypedPattern

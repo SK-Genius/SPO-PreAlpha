@@ -1,0 +1,13 @@
+§TYPES
+	V := [§VAR INT]
+	
+	F := [V => INT]
+	P := [V : F]
+	D := [EMPTY_TYPE => P]
+§DEF f € D
+	box := §VAR OBJ
+alias := box
+§VAR box <- ARG
+handle := §VAR alias ->
+value := §VAR handle ->
+§RETURN value IF TRUE

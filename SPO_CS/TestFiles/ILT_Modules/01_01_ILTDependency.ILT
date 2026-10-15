@@ -1,0 +1,8 @@
+§TYPES
+	Field := [#_TestValue_ILT INT]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	value := {ARG} #_TestValue_ILT
+	§RETURN value IF TRUE

@@ -1,0 +1,5 @@
+§IMPORT ()
+§DEF Fixture... = () => (
+	§SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }
+)
+§EXPORT 1

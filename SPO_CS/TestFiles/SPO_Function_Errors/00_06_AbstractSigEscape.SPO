@@ -1,0 +1,2 @@
+§IMPORT ()
+§EXPORT (§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF t IN §DEF aValue) => aValue

@@ -152,7 +152,7 @@ For executable function and module examples, open [<Tests.wiki|Test Examples>].
 The [.|Span.] module uses [.spo|§SIG.] to export a range type and its operations:
 
 [#
-|../SPO_CS/Modules/Span.SPO
+|../SPO_CS/TestFiles/Modules_SPO/_Modules/Span.SPO
 #]
 
 Importing and using the range type:
@@ -160,11 +160,11 @@ Importing and using the range type:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/SpanConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_10_SpanConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/SpanConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_10_SpanConsumer.result.SPO
   #]
 |]
 
@@ -176,7 +176,7 @@ Importing and using the range type:
 A [.|.SIG.] file contains a type definition shared by exports and imports:
 
 [#
-|../SPO_CS/Modules/Span.SIG
+|../SPO_CS/TestFiles/Modules_SPO/_Modules/Span.SIG
 #]
 
 - use [.spo|[[§LOAD "Span.SIG"]].] in place of a type

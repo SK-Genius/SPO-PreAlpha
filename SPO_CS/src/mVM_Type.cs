@@ -9,7 +9,6 @@
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
 #:ref Common/mTreeMap.cs
-#:ref Common/mConsole.cs
 
 public static class
 mVM_Type {
@@ -908,13 +907,12 @@ mVM_Type {
 	IsSubType(
 		this tType aSubType,
 		tType aSupType,
-		mTreeMap.tTree<tType, tType> aTypeMappings = default,
-		tBool aHighlightDifferences = true
+		mTreeMap.tTree<tType, tType> aTypeMappings = default
 	) => aSubType.CheckSubType(aSupType, aTypeMappings).ModifyError(
 		aError => (
 			(tText.IsNullOrWhiteSpace(aError) ? "" : aError + "\n") +
-			"found:\n  " + aSubType.ToText("\n  ", aSupType, aHighlightDifferences) +
-			"\nexpected:\n  " + aSupType.ToText("\n  ", aSubType, aHighlightDifferences)
+			"found:\n  " + aSubType.ToText("\n  ", aSupType) +
+			"\nexpected:\n  " + aSupType.ToText("\n  ", aSubType)
 		)
 	);
 	
@@ -1368,22 +1366,18 @@ mVM_Type {
 	ToText(
 		this tType aType,
 		tText aIndent = "\n"
-	) => aType.ToText(aIndent, null, false);
+	) => aType.ToText(aIndent, null);
 	
 	private static tText
 	ToText(
 		this tType aType,
 		tText aIndent,
-		tType? aComparedType,
-		tBool aHighlightDifferences
+		tType? aComparedType
 	) {
 		if (aComparedType is not null && aType.SameType(aComparedType)) {
 			return "...";
 		}
 		if (aComparedType?.Kind != aType.Kind) {
-			if (aHighlightDifferences) {
-				return mConsole.Color(mConsole.tColorCode.Red, aType.ToText(aIndent));
-			}
 			aComparedType = null;
 		}
 		var ComparedRefs = aComparedType?.Refs;
@@ -1402,17 +1396,16 @@ mVM_Type {
 			__ = " ";
 			____ = " ";
 		} else {
-			var OneLiner = aType.ToText("", aComparedType, false);
+			var OneLiner = aType.ToText("", aComparedType);
 			if (OneLiner.Length <= 80) {
-				return aHighlightDifferences ? aType.ToText("", aComparedType, true) : OneLiner;
+				return OneLiner;
 			}
 			
 			__ = aIndent;
 			____ = __ + "  ";
 		}
 		
-		tText Difference(tText aText) => aHighlightDifferences ? mConsole.Color(mConsole.tColorCode.Red, aText) : aText;
-		tText Child(tInt32 aIndex) => aType.Refs[aIndex].ToText(____, ComparedRefs?[aIndex], aHighlightDifferences);
+		tText Child(tInt32 aIndex) => aType.Refs[aIndex].ToText(____, ComparedRefs?[aIndex]);
 		
 		return aType.Kind switch {
 			tKind.Empty => "[]",
@@ -1421,14 +1414,12 @@ mVM_Type {
 			tKind.Int => "§INT",
 			tKind.Any => "§ANY",
 			tKind.Type => "§TYPE",
-			tKind.Free => Difference("?" + aType.Id),
-			tKind.Abstract => Difference("^" + aType.Id),
+			tKind.Free => "?" + aType.Id,
+			tKind.Abstract => "^" + aType.Id,
 			tKind.TypeApply => $"[.{Child(0)} {Child(1)}]",
 			tKind.Sig => $"[§SIG_WITH {Child(0)} € " +
-				aType.Refs[0].KindType().ToText(____, ComparedRefs?[0].KindType(), aHighlightDifferences) + $" IN {Child(1)}]",
-			tKind.Prefix => $"[{____}" + (
-				aComparedType?.Prefix == aType.Prefix ? "#" + aType.Prefix : Difference("#" + aType.Prefix)
-			) + $" {Child(0)}{__}]",
+				aType.Refs[0].KindType().ToText(____, ComparedRefs?[0].KindType()) + $" IN {Child(1)}]",
+			tKind.Prefix => $"[{____}#{aType.Prefix} {Child(0)}{__}]",
 			tKind.Record => mStd.Call(
 				() => {
 					var Text = "";
@@ -1447,10 +1438,7 @@ mVM_Type {
 							continue;
 						}
 						Omitted = false;
-						Text += ____ + (ComparedField is null
-							? Difference($"{Field.Key} : {Field.Value.ToText(____)}")
-							: $"{Field.Key} : {Field.Value.ToText(____, ComparedField, aHighlightDifferences)}"
-						);
+						Text += ____ + $"{Field.Key} : {Field.Value.ToText(____, ComparedField)}";
 						Text += ", ";
 					}
 					return "[{" + (aComparedType is null ? Text : Text.TrimEnd(' ', ',')) + __ + "}]";
@@ -1476,8 +1464,7 @@ mVM_Type {
 							var Items = Own.Items.MapWithIndex(
 								(aIndex, aItem) => aItem.ToText(
 									____,
-									Compared.Items.Skip(aIndex).TryFirst().IsSome(out var Other) ? Other : null,
-									aHighlightDifferences
+									Compared.Items.Skip(aIndex).TryFirst().IsSome(out var Other) ? Other : null
 								)
 							);
 							return "[" + ____ + Items.Join((a1, a2) => a1 + "," + ____ + a2, "") + __ + "]";
@@ -1489,19 +1476,18 @@ mVM_Type {
 					var ComparedTail = ComparedRefs?[0];
 					
 					if (Temp.Kind is tKind.Empty) {
-						Result = Temp.ToText(____, ComparedTail, aHighlightDifferences) + ";" + ____ + Result;
+						Result = Temp.ToText(____, ComparedTail) + ";" + ____ + Result;
 					} else {
 						while (Temp.Kind is tKind.Pair) {
 							Result = Temp.Refs[1].ToText(
 								____,
-								ComparedTail?.Kind is tKind.Pair ? ComparedTail.Refs[1] : null,
-								aHighlightDifferences
+								ComparedTail?.Kind is tKind.Pair ? ComparedTail.Refs[1] : null
 							) + "," + ____ + Result;
 							Temp = Temp.Refs[0];
 							ComparedTail = ComparedTail?.Kind is tKind.Pair ? ComparedTail.Refs[0] : null;
 						}
 						if (Temp.Kind is not tKind.Empty) {
-							Result = Temp.ToText(____, ComparedTail, aHighlightDifferences) + ";" + ____ + Result;
+							Result = Temp.ToText(____, ComparedTail) + ";" + ____ + Result;
 						}
 					}
 					return "[" + ____ + Result + __ + "]";
@@ -1560,8 +1546,7 @@ mVM_Type {
 						).Take(2);
 						Parts = mStream.Stream(Member.ToText(
 							____, Candidates.Count() == 1 && OwnCandidates.Count() == 1
-								? Candidates.TryFirst().AssertNotEmpty() : null,
-							aHighlightDifferences
+								? Candidates.TryFirst().AssertNotEmpty() : null
 						), Parts);
 					}
 					return "[" + ____ + Parts.Reverse().Join((a1, a2) => a1 + " |" + ____ + a2, "") + __ + "]";

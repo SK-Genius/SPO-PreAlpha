@@ -1,0 +1,1 @@
+Compilation succeeded; expected an error.

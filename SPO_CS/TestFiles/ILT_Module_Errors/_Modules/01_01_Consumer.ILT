@@ -1,0 +1,7 @@
+§TYPES
+	Field := [#_TestBoolValue INT]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	§RETURN ONE IF TRUE

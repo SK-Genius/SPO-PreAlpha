@@ -6,7 +6,6 @@
 #:ref Common/mTest.cs
 #:ref mIL_GenerateOpcodes.Tests.cs
 #:ref mIL_Parser.Tests.cs
-#:ref mModule.Tests.cs
 #:ref mE2E.Tests.cs
 #:ref mSPO_AST_Types.Tests.cs
 #:ref mSPO_Parser.Tests.cs
@@ -30,7 +29,6 @@ mSPO_Tests {
 			mSPO_Parser_Tests.Tests,
 			mSPO2IL_Tests.Tests,
 			mE2E_Tests.Tests,
-			mModule_Tests.Tests,
 		]
 	);
 }

@@ -1,0 +1,14 @@
+§TYPES
+	t_0 := [#_Other INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [#_TestRecordValue t_1]
+	t_3 := [{EMPTY_TYPE} + t_2]
+	t_4 := [t_3 => INT]
+	t_5 := [EMPTY_TYPE => t_4]
+
+§DEF d_0 € t_5
+	r_1 := {ARG} #_TestRecordValue
+	r_2 := {r_1} #_Other
+	_Value := r_2
+	r_3 := 1
+	§RETURN r_3 IF TRUE

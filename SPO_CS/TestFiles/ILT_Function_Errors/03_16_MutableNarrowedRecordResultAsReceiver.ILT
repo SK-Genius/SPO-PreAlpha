@@ -1,0 +1,21 @@
+§TYPES
+	V := [§VAR INT]
+	H := [#Handle V]
+N := [#Number INT]
+W := [{EMPTY_TYPE} + H]
+Wide := [{W} + N]
+Narrow := [{EMPTY_TYPE} + N]
+Pass := [Narrow => Narrow]
+MF := [EMPTY_TYPE => INT]
+M := [Narrow : MF]
+E := [Pass, M]
+	F := [Wide => INT]
+	P := [EMPTY_TYPE : F]
+	D := [E => P]
+§DEF f € D
+	pass := §1ST ENV
+method := §2ND ENV
+result := .pass ARG
+pair := result, method
+value := §OBJ:pair EMPTY
+§RETURN value IF TRUE

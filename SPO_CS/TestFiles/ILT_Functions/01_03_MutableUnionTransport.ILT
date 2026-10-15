@@ -1,0 +1,40 @@
+§TYPES
+	V := [§VAR INT]
+	U := [V | INT]
+	MF := [EMPTY_TYPE => INT]
+	M := [U : MF]
+	F := [U => U]
+	P := [EMPTY_TYPE : F]
+	D := [M => P]
+	EntryResult := [EMPTY_TYPE => INT]
+	Entry := [ANY => EntryResult]
+
+	ReadDef := [EMPTY_TYPE => M]
+	TestEnv0 := [EMPTY_TYPE, D]
+	TestEnv1 := [TestEnv0, ReadDef]
+	TestPair0 := [EMPTY_TYPE, U]
+	TestValue := [TestPair0, U]
+	TestCall := [ANY => TestValue]
+	TestMain := [TestEnv1 => TestCall]
+
+
+§DEF union_f € D
+	§RETURN ARG IF TRUE
+
+§DEF read € ReadDef
+	§RETURN ONE IF TRUE
+
+§DEF main € TestMain
+	read_def := §2ND ENV
+	defs1 := §1ST ENV
+	union_f_def := §2ND defs1
+	seven := 7
+	cell := §VAR seven
+	read := .read_def EMPTY
+	pass := .union_f_def read
+	mutable := .pass cell
+	nine := 9
+	immutable := .pass nine
+	first := EMPTY, mutable
+	result := first, immutable
+	§RETURN result IF TRUE

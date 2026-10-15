@@ -21,20 +21,20 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/00_00_Bla.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/00_00_Bla.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/00_00_Bla.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/00_00_Bla.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/00_01_Bla.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/00_01_Bla.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/00_01_Bla.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/00_01_Bla.result.SPO
   #]
 |]
 
@@ -42,83 +42,83 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_00_AssignEmpty.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_00_AssignEmpty.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_00_AssignEmpty.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_00_AssignEmpty.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_01_AssignTrue.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_01_AssignTrue.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_01_AssignTrue.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_01_AssignTrue.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_02_AssignFalse.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_02_AssignFalse.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_02_AssignFalse.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_02_AssignFalse.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_03_AssignInt.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_03_AssignInt.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_04_AssignTag.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_04_AssignTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_04_AssignTag.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_04_AssignTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_05_AssignText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_05_AssignText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_05_AssignText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_05_AssignText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_06_AssignMultiLineText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_06_AssignMultiLineText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_06_AssignMultiLineText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_06_AssignMultiLineText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_07_AssignChar.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_07_AssignChar.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_07_AssignChar.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_07_AssignChar.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/01_08_AssignEmptyText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_08_AssignEmptyText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/01_08_AssignEmptyText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/01_08_AssignEmptyText.result.SPO
   #]
 |]
 
@@ -126,38 +126,38 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/02_01_CreateTag.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_01_CreateTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/02_01_CreateTag.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_01_CreateTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/02_02_CreatePair.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_02_CreatePair.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/02_02_CreatePair.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_02_CreatePair.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/02_03_CreateRecord.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_03_CreateRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/02_03_CreateRecord.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_03_CreateRecord.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/02_04_InfixTag.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_04_InfixTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/02_04_InfixTag.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/02_04_InfixTag.result.SPO
   #]
 |]
 
@@ -165,326 +165,326 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_01_MatchTag.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_01_MatchTag.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_01_MatchTag.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_01_MatchTag.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_02_MatchPair.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_02_MatchPair.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_02_MatchPair.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_02_MatchPair.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_03_MatchRecord.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_03_MatchRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_03_MatchRecord.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_03_MatchRecord.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_04_Is.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_04_Is.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_04_Is.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_04_Is.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_05_MatchRecordIf.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_05_MatchRecordIf.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_05_MatchRecordIf.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_05_MatchRecordIf.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_07_MatchText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_07_MatchText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_07_MatchText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_07_MatchText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_08_MatchChar.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_08_MatchChar.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_08_MatchChar.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_08_MatchChar.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_09_MatchEmptyText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_09_MatchEmptyText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_09_MatchEmptyText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_09_MatchEmptyText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_10_MatchMultiLineText.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_10_MatchMultiLineText.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_10_MatchMultiLineText.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_10_MatchMultiLineText.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_11_MatchRecursiveLiteralFirst.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_11_MatchRecursiveLiteralFirst.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_11_MatchRecursiveLiteralFirst.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_11_MatchRecursiveLiteralFirst.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_12_MatchAny.Fail.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_12_MatchAny.Fail.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_12_MatchAny.Fail.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_12_MatchAny.Fail.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_12_MatchEmptyRecord.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_12_MatchEmptyRecord.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_12_MatchEmptyRecord.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_12_MatchEmptyRecord.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_13_MatchNestedRecordUnion.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_13_MatchNestedRecordUnion.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_13_MatchNestedRecordUnion.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_13_MatchNestedRecordUnion.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_14_MatchUnionFallthrough.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_14_MatchUnionFallthrough.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_14_MatchUnionFallthrough.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_14_MatchUnionFallthrough.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_15_MatchTypedBinding.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_15_MatchTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_15_MatchTypedBinding.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_15_MatchTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_16_MatchNestedTypedBinding.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_16_MatchNestedTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_16_MatchNestedTypedBinding.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_16_MatchNestedTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_17_MatchRecordTypedBinding.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_17_MatchRecordTypedBinding.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_17_MatchRecordTypedBinding.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_17_MatchRecordTypedBinding.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_18_MatchSigConcrete.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_18_MatchSigConcrete.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_18_MatchSigConcrete.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_18_MatchSigConcrete.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_19_MatchSigHead.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_19_MatchSigHead.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_19_MatchSigHead.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_19_MatchSigHead.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_20_MatchSigUnion.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_20_MatchSigUnion.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_20_MatchSigUnion.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_20_MatchSigUnion.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_21_MatchSigExactHead.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_21_MatchSigExactHead.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_21_MatchSigExactHead.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_21_MatchSigExactHead.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_22_MatchSigCapturedHead.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_22_MatchSigCapturedHead.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_22_MatchSigCapturedHead.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_22_MatchSigCapturedHead.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_98_If.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_98_If.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_98_If.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_98_If.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_Match.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_Match.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_Match.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_Match.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairA.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairA.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairA.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairA.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairB.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairB.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairB.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairB.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairC.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairC.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairC.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairC.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairD.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairD.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchPairD.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchPairD.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordA.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordA.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordA.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordA.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordB.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordB.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordB.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordB.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordC.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordC.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordC.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordC.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordD.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordD.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchRecordD.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchRecordD.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedA.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedA.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedA.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedA.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedB.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedB.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedB.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedB.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedC.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedC.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedC.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedC.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedD.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedD.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/03_99_MatchTaggedD.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/03_99_MatchTaggedD.result.SPO
   #]
 |]
 
@@ -492,101 +492,101 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_00_Not.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_00_Not.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_00_Not.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_00_Not.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_01_And.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_01_And.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_01_And.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_01_And.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_02_CallLambda.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_02_CallLambda.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_02_CallLambda.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_02_CallLambda.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_03_DefFunc.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_03_DefFunc.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_03_DefFunc.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_03_DefFunc.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_04_MultiArgs.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_04_MultiArgs.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_04_MultiArgs.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_04_MultiArgs.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_05_SkipArgs.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_05_SkipArgs.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_05_SkipArgs.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_05_SkipArgs.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_06_CallNoArgs.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_06_CallNoArgs.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_06_CallNoArgs.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_06_CallNoArgs.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_07_PipeToRight.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_07_PipeToRight.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_07_PipeToRight.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_07_PipeToRight.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_08_PipeToLeft.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_08_PipeToLeft.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_08_PipeToLeft.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_08_PipeToLeft.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_09_InfixCall.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_09_InfixCall.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_09_InfixCall.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_09_InfixCall.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/04_10_PipeWithoutArguments.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_10_PipeWithoutArguments.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/04_10_PipeWithoutArguments.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/04_10_PipeWithoutArguments.result.SPO
   #]
 |]
 
@@ -594,11 +594,11 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/05_01_InRange.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/05_01_InRange.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/05_01_InRange.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/05_01_InRange.result.SPO
   #]
 |]
 
@@ -606,38 +606,38 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/06_01_Fib_If.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_01_Fib_If.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/06_01_Fib_If.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_01_Fib_If.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/06_02_Fib_IfThenElse.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_02_Fib_IfThenElse.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/06_02_Fib_IfThenElse.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_02_Fib_IfThenElse.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/06_03_Fib_IfMatch.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_03_Fib_IfMatch.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/06_03_Fib_IfMatch.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_03_Fib_IfMatch.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/06_04_Fib_IfMatch2.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_04_Fib_IfMatch2.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/06_04_Fib_IfMatch2.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/06_04_Fib_IfMatch2.result.SPO
   #]
 |]
 
@@ -645,173 +645,173 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_01_AtomTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_01_AtomTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_01_AtomTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_01_AtomTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_02_ComplexTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_02_ComplexTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_02_ComplexTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_02_ComplexTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_03_CharType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_03_CharType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_03_CharType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_03_CharType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_04_EmptyTextType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_04_EmptyTextType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_04_EmptyTextType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_04_EmptyTextType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_05_SingleLineTextType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_05_SingleLineTextType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_05_SingleLineTextType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_05_SingleLineTextType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_06_MultiLineTextType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_06_MultiLineTextType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_06_MultiLineTextType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_06_MultiLineTextType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_07_RecordType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_07_RecordType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_07_RecordType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_07_RecordType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_11_RecursiveTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_11_RecursiveTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_11_RecursiveTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_11_RecursiveTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_12_GenericTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_12_GenericTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_12_GenericTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_12_GenericTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_13_HigherOrderFuncTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13_HigherOrderFuncTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_13_HigherOrderFuncTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13_HigherOrderFuncTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_13b_HigherOrderFuncTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13b_HigherOrderFuncTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_13b_HigherOrderFuncTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13b_HigherOrderFuncTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_13c_HigherOrderFuncTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13c_HigherOrderFuncTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_13c_HigherOrderFuncTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13c_HigherOrderFuncTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_13d_HigherOrderFuncTypes.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13d_HigherOrderFuncTypes.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_13d_HigherOrderFuncTypes.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_13d_HigherOrderFuncTypes.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_14_AnyType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_14_AnyType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_14_AnyType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_14_AnyType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_16_MethodType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_16_MethodType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_16_MethodType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_16_MethodType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_17_NoArgFunctionType.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_17_NoArgFunctionType.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_17_NoArgFunctionType.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_17_NoArgFunctionType.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_18_GenericApplyParenthesized.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_18_GenericApplyParenthesized.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_18_GenericApplyParenthesized.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_18_GenericApplyParenthesized.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_19_SigHigherKind.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_19_SigHigherKind.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_19_SigHigherKind.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_19_SigHigherKind.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/07_20_GenericSignatureAlias.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_20_GenericSignatureAlias.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/07_20_GenericSignatureAlias.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/07_20_GenericSignatureAlias.result.SPO
   #]
 |]
 
@@ -819,125 +819,125 @@ Run the tests from the repository root:
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/08_01_Var.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_01_Var.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/08_01_Var.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_01_Var.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/08_02_DefIncrement.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_02_DefIncrement.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/08_02_DefIncrement.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_02_DefIncrement.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/08_03_VarMethodCalls.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_03_VarMethodCalls.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/08_03_VarMethodCalls.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_03_VarMethodCalls.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Functions/08_04_MethodResult.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_04_MethodResult.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Functions/08_04_MethodResult.result.SPO
+  |../SPO_CS/TestFiles/Functions_SPO/08_04_MethodResult.result.SPO
   #]
 |]
 
 [=Module Tests=]
 
-Examples using modules from [.|SPO_CS/Modules/.] and [.|SPO_CS/TestFiles/Modules/_Imports/.].
+Examples using modules from the group folder [.|SPO_CS/TestFiles/Modules_SPO/_Modules/.].
 
 [| [*Code*] ][ [*Result*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/FizzBuzz100.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_02_FizzBuzz100.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/FizzBuzz100.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_02_FizzBuzz100.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/ListConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_03_ListConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/ListConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_03_ListConsumer.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/MathConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_04_MathConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/MathConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_04_MathConsumer.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/MaybeConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_05_MaybeConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/MaybeConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_05_MaybeConsumer.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/ResultConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_06_ResultConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/ResultConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_06_ResultConsumer.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/Rule30.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_07_Rule30.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/Rule30.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_07_Rule30.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/SigImportDifferentHead.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_08_SigImportDifferentHead.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/SigImportDifferentHead.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_08_SigImportDifferentHead.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/SigImportSameHead.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_09_SigImportSameHead.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/SigImportSameHead.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_09_SigImportSameHead.result.SPO
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/SpanConsumer.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_10_SpanConsumer.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/SpanConsumer.result.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/00_10_SpanConsumer.result.SPO
   #]
 |]
 
@@ -948,28 +948,28 @@ Modules and signatures used by the SIG import tests:
 [| [*Provider*] ][ [*Contract*] |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigValue.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigValue.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigValue.SIG
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigValue.SIG
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigReader.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigReader.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigReader.SIG
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigReader.SIG
   #]
 |]
 [|
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigBoolReader.SPO
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigBoolReader.SPO
   #]
 ][
   [#
-  |../SPO_CS/TestFiles/Modules/_Imports/SigBoolReader.SIG
+  |../SPO_CS/TestFiles/Modules_SPO/_Modules/SigBoolReader.SIG
   #]
 |]

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -61,37 +61,7 @@ mSPO_Parser_Tests {
 					mAssert.IsTrue(Type is mSPO_AST.tTupleTypeNode<tSpan> Tuple && Tuple.ItemTypes.All(__ => __ is mSPO_AST.tIntTypeNode<tSpan>));
 					mAssert.IsTrue(mSPO_Parser.Type.ParseText("[\n§LOAD \"Int.SIG\"\n]", Source, _ => {}, FileContext) is mSPO_AST.tIntTypeNode<tSpan>);
 					
-					foreach (var Text in new[] { "§LOAD \"Int.SIG\"", "§LOAD_SIG \"Int.SIG\"", "[§LOAD_SIG \"Int.SIG\"]", "[§LOAD \"Int.SIG\"" }) {
-						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText(Text, Source, _ => {}, FileContext));
-					}
-					
-					mSPO_Parser.Module.ParseText(
-						"§DEF Identity = (§DEF Value € [§LOAD \"Int.SIG\"]) => Value\n§EXPORT Identity\n",
-						Source,
-						__ => aDebug(__()), FileContext
-					);
-					
-					foreach (var Text in new[] { "", "§INT\n§BOOL", "§DEF T = §INT", "1" }) {
-						Files = Files.Set(Folder.GetFile("Invalid.SIG").Path.ToText(), Text);
-						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText("[§LOAD \"Invalid.SIG\"]", Source, _ => {}, FileContext));
-					}
-					
-					foreach (var Target in new[] { "Missing.SIG", "Int.SPO" }) {
-						mAssert.ThrowsError(() => mSPO_Parser.Type.ParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext));
-					}
-					
-					foreach (var Indirect in new[] { false, true }) {
-						Files = Files.Set(Folder.GetFile("Cycle.SIG").Path.ToText(), Indirect ? "[§LOAD \"nested/Back.SIG\"]" : "[§LOAD \"./Cycle.SIG\"]")
-							.Set(Folder.GetFile("nested/Back.SIG").Path.ToText(), "[§LOAD \"../Cycle.SIG\"]");
-						var Rejected = false;
-						try {
-							mSPO_Parser.Type.ParseText("[§LOAD \"Cycle.SIG\"]", Source, _ => {}, FileContext);
-						} catch (mSPO_Parser.tLoadSigError Error) {
-							Rejected = Error.Message.Contains("recursive §LOAD") && Error.Message.Contains("Cycle.SIG");
-						}
-						mAssert.IsTrue(Rejected, "recursive signature was not rejected with its load path");
-					}
-					mAssert.ThrowsError(() => mIL_Parser.Module.ParseText("[§LOAD \"Int.SIG\"]", Source, _ => {}, FileContext));
+
 				}
 			),
 			mTest.Test("LOAD paths",

@@ -1,0 +1,101 @@
+§TYPES
+	t_0 := [TRUE | FALSE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [§VAR INT]
+	t_3 := [t_1, t_2]
+	t_4 := [t_3, t_2]
+	t_5 := [t_2 | EMPTY_TYPE]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_4 => t_6]
+	t_8 := [EMPTY_TYPE, t_2]
+	t_9 := [t_8, t_0]
+	t_10 := [t_9 => t_2]
+	t_11 := [t_2 : t_10]
+	t_12 := [t_7 => t_11]
+	t_13 := [EMPTY_TYPE, t_7]
+	t_14 := [t_13, t_12]
+	t_15 := [EMPTY_TYPE => t_11]
+	t_16 := [t_14 => t_15]
+	t_17 := [t_14, t_16]
+	t_18 := [t_8, t_2]
+	t_19 := [EMPTY_TYPE => t_18]
+	t_20 := [t_17 => t_19]
+
+§DEF d_0 € t_7
+	_aOpaque := §2ND ENV
+	r_1 := §1ST ENV
+	_aSelf := §2ND r_1
+	r_2 := §1ST r_1
+	_aFlag := §2ND r_2
+	r_3 := §1ST r_2
+	§RETURN ARG IF_NOT_EMPTY
+	§RETURN _aSelf IF _aFlag
+	§RETURN _aOpaque IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_12
+	d_0 := ENV
+	r_1 := §2ND ARG
+	_aFlag := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aOpaque := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_6 := EMPTY, _aFlag
+	r_7 := r_6, _aSelf
+	r_8 := r_7, _aOpaque
+	r_9 := .d_0 r_8
+	r_10 := .r_9 EMPTY
+	r_5 := r_10
+	_Result := r_5
+	§RETURN _Result IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_16
+	d_1 := §2ND ENV
+	r_2 := §1ST ENV
+	d_0 := §2ND r_2
+	r_3 := §1ST r_2
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := .d_1 d_0
+	§RETURN r_1 IF TRUE
+
+§DEF d_3 € t_20
+	d_2 := §2ND ENV
+	r_20 := §1ST ENV
+	d_1 := §2ND r_20
+	r_21 := §1ST r_20
+	d_0 := §2ND r_21
+	r_22 := §1ST r_21
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := .d_2 r_2
+	_OpaqueJoinTransport... := r_3
+	r_4 := 7
+	_Cell := §VAR r_4
+	r_5 := 9
+	_Opaque := §VAR r_5
+	r_6 := ._OpaqueJoinTransport... EMPTY
+	_Case01... := r_6
+	r_7 := 7
+	_Receiver01 := §VAR r_7
+	r_8 := EMPTY, _Opaque
+	r_9 := r_8, TRUE
+	r_11 := _Receiver01, _Case01...
+	r_10 := §OBJ:r_11 r_9
+	_Result01 := r_10
+	r_12 := ._OpaqueJoinTransport... EMPTY
+	_Case02... := r_12
+	r_13 := 7
+	_Receiver02 := §VAR r_13
+	r_14 := EMPTY, _Opaque
+	r_15 := r_14, FALSE
+	r_17 := _Receiver02, _Case02...
+	r_16 := §OBJ:r_17 r_15
+	_Result02 := r_16
+	r_18 := EMPTY, _Result01
+	r_19 := r_18, _Result02
+	§RETURN r_19 IF TRUE

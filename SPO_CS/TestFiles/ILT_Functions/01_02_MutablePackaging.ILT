@@ -1,0 +1,120 @@
+§TYPES
+	V := [§VAR INT]
+	F := [V => V]
+	P := [EMPTY_TYPE : F]
+	D := [EMPTY_TYPE => P]
+	t := [§FREE TYPE]
+	I := [t => t]
+	Identity := [§ALL t => I]
+	ID := [EMPTY_TYPE => Identity]
+	genericD := [Identity => F]
+	EntryResult := [EMPTY_TYPE => INT]
+	Entry := [ANY => EntryResult]
+
+
+	TestEnv0 := [EMPTY_TYPE, D]
+	TestEnv1 := [TestEnv0, D]
+	TestEnv2 := [TestEnv1, D]
+	TestEnv3 := [TestEnv2, D]
+	TestEnv4 := [TestEnv3, D]
+	TestEnv5 := [TestEnv4, D]
+	TestEnv6 := [TestEnv5, ID]
+	TestEnv7 := [TestEnv6, genericD]
+	TestPair0 := [EMPTY_TYPE, INT]
+	TestPair1 := [TestPair0, INT]
+	TestPair2 := [TestPair1, INT]
+	TestPair3 := [TestPair2, INT]
+	TestPair4 := [TestPair3, INT]
+	TestPair5 := [TestPair4, INT]
+	TestValue := [TestPair5, INT]
+	TestCall := [ANY => TestValue]
+	TestMain := [TestEnv7 => TestCall]
+
+
+§DEF alias_f € D
+	handle := ARG
+	§RETURN handle IF TRUE
+
+§DEF pair_f € D
+	pair := EMPTY, ARG
+	handle := §2ND pair
+	§RETURN handle IF TRUE
+
+§DEF prefix_f € D
+	wrapped := +#Handle ARG
+	handle := -#Handle wrapped
+	§RETURN handle IF TRUE
+
+§DEF record_f € D
+	field := +#Handle ARG
+	record := {EMPTY} + field
+	handle := {record} #Handle
+	§RETURN handle IF TRUE
+
+§DEF box_f € D
+	box := §VAR ARG
+	handle := §VAR box ->
+	§RETURN handle IF TRUE
+
+§DEF sig_f € D
+	contract := [§SIG_WITH INT_TYPE IN V]
+	payload := INT_TYPE, ARG
+	package := §SIG contract WITH payload
+	handle := §SIG_BODY package
+	§RETURN handle IF TRUE
+
+§DEF generic_identity € ID
+	§RETURN ARG IF TRUE
+§DEF generic_main € genericD
+	handle := .ENV ARG
+	§RETURN handle IF TRUE
+
+
+§DEF main € TestMain
+	generic_main_def := §2ND ENV
+	defs7 := §1ST ENV
+	generic_identity_def := §2ND defs7
+	defs6 := §1ST defs7
+	sig_f_def := §2ND defs6
+	defs5 := §1ST defs6
+	box_f_def := §2ND defs5
+	defs4 := §1ST defs5
+	record_f_def := §2ND defs4
+	defs3 := §1ST defs4
+	prefix_f_def := §2ND defs3
+	defs2 := §1ST defs3
+	pair_f_def := §2ND defs2
+	defs1 := §1ST defs2
+	alias_f_def := §2ND defs1
+	seven := 7
+	cell := §VAR seven
+	alias_f := .alias_f_def EMPTY
+	handle1 := .alias_f cell
+	value1 := §VAR handle1 ->
+	pair_f := .pair_f_def EMPTY
+	handle2 := .pair_f cell
+	value2 := §VAR handle2 ->
+	prefix_f := .prefix_f_def EMPTY
+	handle3 := .prefix_f cell
+	value3 := §VAR handle3 ->
+	record_f := .record_f_def EMPTY
+	handle4 := .record_f cell
+	value4 := §VAR handle4 ->
+	box_f := .box_f_def EMPTY
+	handle5 := .box_f cell
+	value5 := §VAR handle5 ->
+	sig_f := .sig_f_def EMPTY
+	handle6 := .sig_f cell
+	value6 := §VAR handle6 ->
+	identity := .generic_identity_def EMPTY
+	generic := .generic_main_def identity
+	handle7 := .generic cell
+	value7 := §VAR handle7 ->
+	result1 := EMPTY, value1
+	result2 := result1, value2
+	result3 := result2, value3
+	result4 := result3, value4
+	result5 := result4, value5
+	result6 := result5, value6
+	result7 := result6, value7
+	§RETURN result7 IF TRUE

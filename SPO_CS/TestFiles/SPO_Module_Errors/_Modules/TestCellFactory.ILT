@@ -1,0 +1,27 @@
+§TYPES
+	t_0 := [§VAR INT]
+	t_1 := [#_Cell t_0]
+	t_2 := [{EMPTY_TYPE} + t_1]
+	t_3 := [#_Fixed INT]
+	t_4 := [{t_2} + t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_6 => t_6]
+
+§DEF d_0 € t_6
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	_Cell := §VAR r_1
+	r_2 := +#_Cell _Cell
+	r_3 := {EMPTY} + r_2
+	r_4 := 11
+	r_5 := +#_Fixed r_4
+	r_6 := {r_3} + r_5
+	§RETURN r_6 IF TRUE
+
+§DEF d_1 € t_7
+	d_0 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := .d_0 EMPTY
+	_Create... := r_1
+	§RETURN _Create... IF TRUE

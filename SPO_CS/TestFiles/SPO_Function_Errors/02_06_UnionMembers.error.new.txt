@@ -1,0 +1,7 @@
+TestFiles/SPO_Function_Errors/02_06_UnionMembers.SPO:3 ERROR 
+3:  §DEF Value € [[] | [§FALSE | §INT]] = aValue
+ ┌────────────────────────────────────────^
+ ├ found:
+ │   [ ... | §TRUE ]
+ │ expected:
+ │   [ ... | §FALSE ]

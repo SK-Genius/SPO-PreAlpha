@@ -1,0 +1,25 @@
+§IMPORT ()
+
+§DEF OpaqueResultTransport... = () => (
+	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
+		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
+			§RETURN {Handle: aValue, Captured: aOpaque, Number: 7}
+		}
+		§DEF Returned = .Pass aOpaque
+		{Handle: §DEF Result, Number: §DEF Number} = Returned
+		§DEF Read = (§VAR aTarget € §INT) : () {
+			§RETURN §TO_VAL aTarget
+		}
+		§RETURN Result
+	}
+)
+
+
+§VAR Cell := 7 .
+§VAR Opaque := 9 .
+
+§DEF Case01... = .OpaqueResultTransport ()
+§VAR Receiver01 := 7 .
+Receiver01 : Case01 Opaque => §DEF Result01 .
+
+§EXPORT (Result01)

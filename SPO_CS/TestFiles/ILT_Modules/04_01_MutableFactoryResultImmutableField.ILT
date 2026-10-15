@@ -1,0 +1,22 @@
+§TYPES
+	V := [§VAR INT]
+	Cell := [#_Cell V]
+	R1 := [{EMPTY_TYPE} + Cell]
+	Fixed := [#_Fixed INT]
+	Record := [{R1} + Fixed]
+	Factory := [EMPTY_TYPE => Record]
+	Field := [#_TestCellFactory_ILT Factory]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	factory := {ARG} #_TestCellFactory_ILT
+	first := .factory EMPTY
+	second := .factory EMPTY
+	first_cell := {first} #_Cell
+	§VAR first_cell <- ONE
+	second_cell := {second} #_Cell
+	fresh := §VAR second_cell ->
+	fixed := {second} #_Fixed
+	value := §INT fixed + fresh
+	§RETURN value IF TRUE

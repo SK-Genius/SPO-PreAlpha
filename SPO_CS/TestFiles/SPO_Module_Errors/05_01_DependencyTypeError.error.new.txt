@@ -1,0 +1,13 @@
+mError+tError: [DebugId: 27495527] D:/Projekte/SPO-PreAlpha_main/SPO_CS/TestFiles/SPO_Module_Errors/_Modules/05_01_Broken.ILT:5 ERROR 
+5:  §RETURN TRUE IF TRUE
+ ┌──^
+ ├ found:
+ │   §TRUE
+ │ expected:
+ │   [ §INT | [] ]
+
+   at mIL_GenerateOpcodes.GenerateOpcodes[tPos](tModule`1 aModule, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mIL_GenerateOpcodes.cs:line 807
+   at mE2E_Tests.<.cctor>g__ImportNames|1_3(tFile aFile, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 87
+   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Setup|6(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tStream`1 aAncestors, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 146
+   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 179
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

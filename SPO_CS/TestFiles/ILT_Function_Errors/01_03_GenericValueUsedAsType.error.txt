@@ -1,0 +1,14 @@
+TestFiles/Errors_ILT/01_03_GenericValueUsedAsType.ILT:4 ERROR 
+4:  Identity := [§GENERIC t => Body]
+ ┌───────────────^
+ ├ expect '#...'
+ ├ expect '.'
+ ├ expect '{'
+ ├ expect '§ABSTRACT'
+ ├ expect '§ALL'
+ ├ expect '§ANY'
+ ├ expect '§FREE'
+ ├ expect '§REC'
+ ├ expect '§SIG_WITH'
+ ├ expect '§VAR'
+ ├ expect Identifier

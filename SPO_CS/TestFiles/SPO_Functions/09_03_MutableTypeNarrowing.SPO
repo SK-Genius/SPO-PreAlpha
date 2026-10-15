@@ -1,0 +1,35 @@
+§IMPORT ()
+
+§DEF AnyNarrowing... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+		§DEF Hidden € §ANY = aValue
+		§DEF Value = §IF Hidden MATCH {
+			§DEF Item € [§VAR §INT]: Item
+			_: aValue
+		}
+		§RETURN Value
+	}
+)
+
+§DEF UnionNarrowing... = () => (
+	(§DEF aValue € [§VAR §INT]) => {
+		§DEF Hidden € [[§VAR §INT] | §INT] = aValue
+		§DEF Value = §IF Hidden MATCH {
+			§DEF Item € [§VAR §INT]: Item
+			_: aValue
+		}
+		§RETURN Value
+	}
+)
+
+
+§VAR Cell := 7 .
+§VAR Opaque := 9 .
+
+§DEF Case01... = .AnyNarrowing ()
+§DEF Result01 = .Case01 Cell
+
+§DEF Case02... = .UnionNarrowing ()
+§DEF Result02 = .Case02 Cell
+
+§EXPORT (Result01, Result02)

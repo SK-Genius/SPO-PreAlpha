@@ -1,0 +1,6 @@
+§IMPORT ()
+§DEF Create... = () => {
+	§VAR Cell := 7 .
+	§RETURN {Cell: Cell, Fixed: 11}
+}
+§EXPORT Create...

@@ -1,0 +1,8 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [EMPTY_TYPE => t_0]
+
+§DEF d_0 € t_1
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	§RETURN r_1 IF TRUE

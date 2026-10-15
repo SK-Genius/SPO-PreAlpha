@@ -1,0 +1,25 @@
+§TYPES
+	V := [§VAR INT]
+	Cell := [#_Cell V]
+	R1 := [{EMPTY_TYPE} + Cell]
+	Fixed := [#_Fixed INT]
+	Record := [{R1} + Fixed]
+	Factory := [EMPTY_TYPE => Record]
+	Field := [#_TestCellFactory_ILT Factory]
+	Imports := [{EMPTY_TYPE} + Field]
+	Read := [V => INT]
+	ReadDef := [EMPTY_TYPE => Read]
+	F := [Imports => INT]
+	D := [ReadDef => F]
+
+§DEF read_arg € ReadDef
+	value := §VAR ARG ->
+	§RETURN value IF TRUE
+
+§DEF main € D
+	factory := {ARG} #_TestCellFactory_ILT
+	record := .factory EMPTY
+	cell := {record} #_Cell
+	read := .ENV EMPTY
+	value := .read cell
+	§RETURN value IF TRUE

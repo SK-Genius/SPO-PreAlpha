@@ -1,0 +1,7 @@
+§TYPES
+	Func := [EMPTY_TYPE => TYPE]
+	Def := [EMPTY_TYPE => Func]
+§DEF main € Def
+	F := [§FREE Type_TYPE]
+	Contract := [§SIG_WITH F IN F]
+	§RETURN Contract IF TRUE

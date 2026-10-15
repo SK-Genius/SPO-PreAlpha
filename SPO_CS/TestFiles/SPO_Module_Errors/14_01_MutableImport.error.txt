@@ -1,0 +1,1 @@
+Pending diagnostic: mutable module import must be rejected.

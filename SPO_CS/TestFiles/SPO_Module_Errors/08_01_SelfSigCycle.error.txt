@@ -1,0 +1,1 @@
+TestFiles/Errors_Modules_SPO/_Modules/08_01_Package.SPO:1,14..1,31: [§LOAD "08_01_Self.SIG"]: [§LOAD "08_01_Self.SIG"]: recursive §LOAD: TestFiles/Errors_Modules_SPO/_Modules/08_01_Package.SPO -> TestFiles/Errors_Modules_SPO/_Modules/08_01_Self.SIG -> TestFiles/Errors_Modules_SPO/_Modules/08_01_Self.SIG

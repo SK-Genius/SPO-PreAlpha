@@ -1,0 +1,11 @@
+§TYPES
+	Main := [EMPTY_TYPE => INT]
+	MainDef := [EMPTY_TYPE => Main]
+
+§DEF main € MainDef
+	cell := §VAR ONE
+	alias := cell
+	two := 2
+	§VAR alias <- two
+	value := §VAR cell ->
+	§RETURN value IF TRUE

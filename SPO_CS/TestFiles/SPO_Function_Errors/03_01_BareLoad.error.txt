@@ -1,0 +1,31 @@
+TestFiles/Errors_SPO/03_01_BareLoad.SPO:1 ERROR 
+1: §DEF Identity... = (§DEF Value € §LOAD "Int.SIG") => Value
+ ┌──────────────────────────────────^
+ ├ expect '"'
+ ├ expect '#...'
+ ├ expect '('
+ ├ expect '.'
+ ├ expect '=>'
+ ├ expect '['
+ ├ expect '{'
+ ├ expect '§ANY'
+ ├ expect '§BOOL'
+ ├ expect '§CHAR'
+ ├ expect '§DEF'
+ ├ expect '§FALSE'
+ ├ expect '§IF'
+ ├ expect '§INT'
+ ├ expect '§SIG'
+ ├ expect '§TEXT'
+ ├ expect '§TO_VAL'
+ ├ expect '§TRUE'
+ ├ expect '§TYPE'
+ ├ expect '§VAR'
+ ├ expect Identifier
+ ├ expect char literal
+ ├ expect number
+ ├ invalid Expression
+ ├ invalid ExpressionInCall
+ ├ invalid LoadSig
+ ├ invalid Pattern
+ ├ invalid UnTypedPattern

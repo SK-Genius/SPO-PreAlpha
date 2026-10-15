@@ -1,0 +1,9 @@
+mError+tError: [DebugId: 27073125] 2: GetField 29884858 { , 1911322271: 7 }
+   at mVM.Step[tPos](tCallStack`1 aCallStack, tFunc`2 aPosToText) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 366
+   at mVM.Run[tPos](tData aProc, tData aObj, tData aArg, tData aRes, tFunc`2 aPosToText, tAction`1 aTraceOut) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 887
+   at mVM.Run[tPos](tModule`1 aModule, ValueTuple`2 aImport, tFunc`2 aPosToText, tAction`1 aTrace) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mVM.cs:line 935
+   at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__3(tModuleConstructor`1 aModule) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 74
+   at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 65
+   at mModule.Init(tModuleSetup aModuleSetup, tAction`1 aLogger) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mModule.cs:line 108
+   at mE2E_Tests.<>c__DisplayClass1_0.<.cctor>g__Import|7(tFile aFile, tTree`2 aModules, tFolder aModuleFolder, tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 179
+   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__27(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 268

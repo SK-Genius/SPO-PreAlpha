@@ -1,0 +1,29 @@
+§TYPES
+	t_0 := [§ABSTRACT TYPE]
+	t_1 := [§FREE TYPE]
+	t_2 := [§SIG_WITH t_1 IN t_1]
+	t_3 := [#_02_01_Proxy t_2]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [§FREE TYPE]
+	t_6 := [t_5 => INT]
+	t_7 := [§SIG_WITH t_5 IN t_6]
+	t_8 := [#_02_01_Reader t_7]
+	t_9 := [{t_4} + t_8]
+	t_10 := [EMPTY_TYPE | INT]
+	t_11 := [t_9 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+
+§DEF d_0 € t_12
+	r_1 := {ARG} #_02_01_Proxy
+	r_2 := §SIG_HEAD r_1 AS t_0
+	r_3 := §SIG_BODY r_1
+	_t := r_2
+	_Value := r_3
+	r_4 := {ARG} #_02_01_Reader
+	r_5 := §TRY r_4 HAS_HEAD_TYPE _t
+	r_6 := §SIG_HEAD r_5 AS t_0
+	r_7 := §SIG_BODY r_5
+	_Read... := r_7
+	r_8 := ._Read... _Value
+	_Result := r_8
+	§RETURN _Result IF TRUE

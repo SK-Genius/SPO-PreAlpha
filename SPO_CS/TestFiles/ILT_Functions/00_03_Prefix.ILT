@@ -1,0 +1,19 @@
+§TYPES
+	TaggedInt := [#_PRE... INT]
+	Increment := [TaggedInt => TaggedInt]
+	IncrementDef := [EMPTY_TYPE => Increment]
+	Main := [EMPTY_TYPE => TaggedInt]
+	MainDef := [IncrementDef => Main]
+
+§DEF increment € IncrementDef
+	value := -#_PRE... ARG
+	next := §INT value + ONE
+	result := +#_PRE... next
+	§RETURN result IF TRUE
+
+§DEF main € MainDef
+	increment := .ENV EMPTY
+	twelve := 12
+	argument := +#_PRE... twelve
+	value := .increment argument
+	§RETURN value IF TRUE

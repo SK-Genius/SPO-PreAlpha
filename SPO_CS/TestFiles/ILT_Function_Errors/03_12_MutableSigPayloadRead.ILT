@@ -1,0 +1,13 @@
+§TYPES
+	V := [§VAR INT]
+	
+	F := [V => INT]
+	P := [EMPTY_TYPE : F]
+	D := [EMPTY_TYPE => P]
+§DEF f € D
+	contract := [§SIG_WITH INT_TYPE IN V]
+payload := INT_TYPE, ARG
+package := §SIG contract WITH payload
+handle := §SIG_BODY package
+value := §VAR handle ->
+§RETURN value IF TRUE

@@ -1,0 +1,7 @@
+§TYPES
+	Main := [EMPTY_TYPE => INT]
+	MainDef := [EMPTY_TYPE => Main]
+
+§DEF main € MainDef
+	value := 42
+	§RETURN value IF TRUE

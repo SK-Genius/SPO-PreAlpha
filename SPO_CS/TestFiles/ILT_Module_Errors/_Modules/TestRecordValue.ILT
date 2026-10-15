@@ -1,0 +1,11 @@
+§TYPES
+	t_0 := [#_Present INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+
+§DEF d_0 € t_3
+	r_1 := 7
+	r_2 := +#_Present r_1
+	r_3 := {EMPTY} + r_2
+	§RETURN r_3 IF TRUE

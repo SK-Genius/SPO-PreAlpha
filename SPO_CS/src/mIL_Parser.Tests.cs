@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -98,7 +98,6 @@ mIL_Parser_Tests {
 			("a := §TRY b AS_SIG c", mIL_AST.TryAsSig(Span((1, 1), (1, 20)), "a", "b", "c")),
 			("a := §TRY b HAS_HEAD_TYPE c", mIL_AST.TryHasHeadType(Span((1, 1), (1, 27)), "a", "b", "c")),
 			("a := §TRY_REMOVE #c FROM b", mIL_AST.TryRemovePrefixFrom(Span((1, 1), (1, 26)), "a", "b", "c")),
-			("§ASSERT a => b", mIL_AST.Assert(Span((1, 1), (1, 14)), "a", "b")),
 		}.AsStream(
 		).Map(
 			aTestCase => mStream.Stream(

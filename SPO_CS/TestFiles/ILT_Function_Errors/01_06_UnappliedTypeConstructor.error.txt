@@ -1,0 +1,7 @@
+TestFiles/Errors_ILT/01_06_UnappliedTypeConstructor.ILT:8 ERROR 
+8:  §RETURN F IF TRUE
+ ┌──^
+ ├ found:
+ │   [ §TYPE -> §TYPE ]
+ │ expected:
+ │   [ §TYPE | [] ]

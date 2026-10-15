@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/01_07_TypeFunctionInRecord.SPO:3 ERROR 
+3:  [§SIG_WITH F € [§TYPE => §TYPE] IN [< Value: F >]]
+ ┌───────────────────────────────────────────────^
+ ├ expected a type or declared generic signature

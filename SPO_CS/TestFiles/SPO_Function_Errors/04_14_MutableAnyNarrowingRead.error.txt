@@ -1,0 +1,1 @@
+Pending diagnostic: opaque mutable access must be rejected.

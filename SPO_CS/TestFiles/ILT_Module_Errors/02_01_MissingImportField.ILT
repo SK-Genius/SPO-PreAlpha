@@ -1,0 +1,7 @@
+§TYPES
+	Field := [#_02_01_Consumer INT]
+	Imports := [{EMPTY_TYPE} + Field]
+	F := [Imports => INT]
+	D := [EMPTY_TYPE => F]
+§DEF main € D
+	§RETURN ONE IF TRUE

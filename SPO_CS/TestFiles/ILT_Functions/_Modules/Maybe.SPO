@@ -1,0 +1,61 @@
+§DEF ...>>... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF aValue € [tIn | []]
+	§DEF aOnValue... € [tIn => tOut]
+) => §IF aValue MATCH {
+	(): ()
+	§DEF Inner: .aOnValue Inner
+}
+
+§DEF ...>>?... = (
+	§DEF tIn € §TYPE
+	§DEF tOut € §TYPE
+) <=> (
+	§DEF aValue € [tIn | []]
+	§DEF aOnValue... € [tIn => [tOut | []]]
+) => §IF aValue MATCH {
+	(): ()
+	§DEF Inner: .aOnValue Inner
+}
+
+§DEF ...Or... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue €[t | []]
+	§DEF aFallback € t
+) => §IF aValue MATCH {
+	(): aFallback
+	§DEF Inner: Inner
+}
+
+§DEF ...OrDo... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [t | []]
+	§DEF aOnNone € [[] => t]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
+}
+
+§DEF ...OrTry... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € [t | []]
+	§DEF aOnNone € [[] => [t | []]]
+) => §IF aValue MATCH {
+	(): .aOnNone
+	§DEF Inner: Inner
+}
+
+§DEF Module € [§LOAD "Maybe.SIG"] = {
+	...>>...: ...>>...
+	...>>?...: ...>>?...
+	...Or...: ...Or...
+	...OrDo...: ...OrDo...
+	...OrTry...: ...OrTry...
+}
+
+§EXPORT Module
