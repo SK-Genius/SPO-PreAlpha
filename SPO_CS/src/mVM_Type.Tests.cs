@@ -50,7 +50,235 @@ mVM_Type_Tests {
 	Tests = mTest.Tests(
 		nameof(mVM_Type),
 		[
-			mTest.Tests("Type error output",
+			mTest.Test(
+				"Generic inference preserves EMPTY alternatives and distinguishes missing types",
+				aDebug => {
+					var Parameter = mVM_Type.Free("t", mVM_Type.Type());
+					var Function = mVM_Type.Generic(
+						Parameter,
+						mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(Parameter, Parameter), Parameter)
+					);
+					
+					foreach (
+						var Argument in mStream.Stream(
+							mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()),
+							mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Empty())
+						)
+					) {
+						var Result = mVM_Type.Infer(
+							Function,
+							mVM_Type.Empty(),
+							Argument,
+							__ => {}
+						).AssertNotError(
+							__ => __
+						);
+						mAssert.IsTrue(Result.SameType(mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())));
+					}
+					
+					mMaybe.tMaybe<mVM_Type.tType> Missing = default;
+					var Empty = mMaybe.Some(mVM_Type.Empty());
+					mAssert.IsTrue(mVM_Type.Union(Missing, Missing).IsNone());
+					mAssert.IsTrue(mVM_Type.Union(Empty, Missing).AssertNotEmpty().IsEmpty());
+					mAssert.IsTrue(mVM_Type.Union(Missing, Empty).AssertNotEmpty().IsEmpty());
+				}
+			),
+			mTest.Test(
+				"Type equality has one meaning for records, binders and free parameters",
+				__ => {
+					static void Check(
+						mVM_Type.tType? aLeft,
+						mVM_Type.tType? aRight,
+						tBool aEqual
+					) {
+						mAssert.AreEquals(aLeft == aRight, aEqual);
+						mAssert.AreEquals(aRight == aLeft, aEqual);
+						mAssert.AreEquals(aLeft != aRight, !aEqual);
+						mAssert.AreEquals(tUnknown.Equals(aLeft, aRight), aEqual);
+						mAssert.AreEquals(aLeft.SameType(aRight), aEqual);
+						if (aEqual && aLeft is not null && aRight is not null) {
+							mAssert.AreEquals(aLeft.GetHashCode(), aRight.GetHashCode());
+						}
+					}
+					var Record = mVM_Type.Record([("Number", mVM_Type.Int())]);
+					Check(Record, mVM_Type.Record([("Number", mVM_Type.Int())]), true);
+					Check(Record, mVM_Type.Record([("Number", mVM_Type.Bool())]), false);
+					Check(Record, mVM_Type.Record([("Other", mVM_Type.Int())]), false);
+					Check(
+						Record,
+						mVM_Type.Record([("Number", mVM_Type.Int()), ("Extra", mVM_Type.Bool())]),
+						false
+					);
+					Check(
+						mVM_Type.Set(mVM_Type.Int(), mVM_Type.Bool()),
+						mVM_Type.Set(mVM_Type.False(), mVM_Type.Set(mVM_Type.Int(), mVM_Type.True())),
+						true
+					);
+					var Binder = mVM_Type.Free("t", mVM_Type.Type());
+					var Renamed = mVM_Type.Free("other", mVM_Type.Type());
+					Check(mVM_Type.Set(mVM_Type.Int(), mVM_Type.Int()), mVM_Type.Int(), true);
+					Check(
+						mVM_Type.Set(Binder, mVM_Type.Int()).Substitute(Binder, mVM_Type.Int()),
+						mVM_Type.Int(),
+						true
+					);
+					Check(Binder, Binder, true);
+					Check(Binder, mVM_Type.Free("t", mVM_Type.Type()), false);
+					Check(
+						mVM_Type.Abstract("Head", mVM_Type.Type()),
+						mVM_Type.Abstract("Head", mVM_Type.Type()),
+						false
+					);
+					Check(
+						mVM_Type.Generic(Binder, mVM_Type.Pair(Binder, mVM_Type.Int())),
+						mVM_Type.Generic(Renamed, mVM_Type.Pair(Renamed, mVM_Type.Int())),
+						true
+					);
+					Check(
+						mVM_Type.Recursive(Binder, mVM_Type.Pair(Binder, mVM_Type.Int())),
+						mVM_Type.Recursive(Renamed, mVM_Type.Pair(Renamed, mVM_Type.Int())),
+						true
+					);
+					Check(
+						mVM_Type.Sig(Binder, Binder),
+						mVM_Type.Sig(Renamed, Renamed),
+						true
+					);
+					Check(null, null, true);
+					Check(Record, null, false);
+					mAssert.IsFalse(Record.Equals("not a type"));
+				}
+			),
+			mTest.Test(
+				"Procedure arguments are contravariant",
+				__ => {
+					var Wide = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Bool(), mVM_Type.Int());
+					var Narrow = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.False(), mVM_Type.Int());
+					mAssert.IsTrue(Wide.IsSubType(Narrow).Match(out _, out _));
+					mAssert.IsFalse(Narrow.IsSubType(Wide).Match(out _, out _));
+				}
+			),
+			mTest.Test(
+				"Invariant type applications honor bindings already inferred from other operands",
+				aDebug => {
+					var Constructor = mVM_Type.Abstract(
+						"Box",
+						mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type())
+					);
+					var Parameter = mVM_Type.Free("Value", mVM_Type.Type());
+					var Unknown = mVM_Type.Free("Unknown", mVM_Type.Type());
+					var Function = mVM_Type.Generic(
+						Parameter,
+						mVM_Type.Proc(
+							mVM_Type.Empty(),
+							mVM_Type.Pair(
+								Constructor.ApplyType(Parameter),
+								mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), Parameter)
+							),
+							Parameter
+						)
+					);
+					foreach (var ValueType in mStream.Stream(Unknown, mVM_Type.Var(mVM_Type.Int()))) {
+						var Result = mVM_Type.Infer(
+							Function,
+							mVM_Type.Empty(),
+							mVM_Type.Pair(
+								Constructor.ApplyType(ValueType),
+								mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())
+							),
+							__ => {}
+						);
+						if (mStd.RefEq(ValueType, Unknown)) {
+							mAssert.IsTrue(Result.AssertNotError(__ => __).IsInt());
+						} else {
+							mAssert.IsFalse(Result.Match(out _, out _));
+						}
+					}
+				}
+			),
+			mTest.Test(
+				"Free aliases use all known bindings without creating reciprocal cycles",
+				aDebug => {
+					foreach (
+						var ValueType in mStream.Stream(
+							mVM_Type.Int(),
+							mVM_Type.Var(mVM_Type.Int()),
+							mVM_Type.Any()
+						)
+					) {
+						var First = mVM_Type.Free("First", mVM_Type.Type());
+						var Second = mVM_Type.Free("Second", mVM_Type.Type());
+						foreach (var (Left, Right) in mStream.Stream((First, Second), (Second, First))) {
+							var Aliases = Left.IsSubType(Right).AssertNotError(__ => __);
+							Aliases = Right.IsSubType(Left, Aliases).AssertNotError(__ => __);
+							var Bound = ValueType.IsSubType(Right, Aliases).AssertNotError(__ => __);
+							mAssert.IsTrue(Left.ApplyMappings(Bound).SameType(ValueType));
+							mAssert.IsTrue(Right.ApplyMappings(Bound).SameType(ValueType));
+							mAssert.IsFalse(Left.ApplyMappings(Aliases).IsImmutable);
+							mAssert.IsTrue(First.IsFree());
+							mAssert.IsTrue(Second.IsFree());
+						}
+					}
+				}
+			),
+			mTest.Test(
+				"IsImmutable distinguishes values from callable signatures",
+				__ => {
+					mAssert.IsTrue(mVM_Type.Type().IsImmutable);
+					mAssert.IsTrue(
+						mVM_Type.Proc(
+							mVM_Type.Var(mVM_Type.Int()),
+							mVM_Type.Any(),
+							mVM_Type.Var(mVM_Type.Int())
+						).IsImmutable
+					);
+					mAssert.IsFalse(mVM_Type.Any().IsImmutable);
+					mAssert.IsFalse(mVM_Type.Var(mVM_Type.Int()).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Ref(mVM_Type.Int()).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Record([("Value", mVM_Type.Int())]).IsImmutable);
+				}
+			),
+			mTest.Test(
+				"IsImmutable is transitive through tuples, unions and SIG payloads",
+				__ => {
+					var Head = mVM_Type.Free("t", mVM_Type.Type());
+					var Immutable = mVM_Type.Pair(mVM_Type.Bool(), mVM_Type.Prefix("Value", mVM_Type.Int()));
+					var Mutable = mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Prefix("Value", mVM_Type.Var(mVM_Type.Int())));
+					mAssert.IsTrue(Immutable.IsImmutable);
+					mAssert.IsFalse(Mutable.IsImmutable);
+					mAssert.IsTrue(mVM_Type.Sig(Head, Immutable).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Sig(Head, Mutable).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Set(Immutable, Mutable).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Set(Immutable, mVM_Type.Any()).IsImmutable);
+				}
+			),
+			mTest.Test(
+				"IsImmutable is recomputed by generic substitution",
+				__ => {
+					var Head = mVM_Type.Free("t", mVM_Type.Type());
+					var Constructor = mVM_Type.Generic(Head, mVM_Type.Pair(mVM_Type.Int(), Head));
+					mAssert.IsFalse(Constructor.IsImmutable);
+					mAssert.IsTrue(Constructor.ApplyType(mVM_Type.Int()).IsImmutable);
+					mAssert.IsFalse(Constructor.ApplyType(mVM_Type.Var(mVM_Type.Int())).IsImmutable);
+					mAssert.IsFalse(Constructor.IsImmutable);
+					mAssert.IsTrue(mVM_Type.Generic(Head, mVM_Type.Proc(mVM_Type.Empty(), Head, Head)).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Interface(Head, Head).IsImmutable);
+					mAssert.IsTrue(mVM_Type.Interface(Head, mVM_Type.Int()).IsImmutable);
+				}
+			),
+			mTest.Test(
+				"IsImmutable resolves recursive structure without hiding mutable payloads",
+				__ => {
+					var Head = mVM_Type.Free("List", mVM_Type.Type());
+					var Item = mVM_Type.Free("Item", mVM_Type.Type());
+					var List = mVM_Type.Recursive(Head, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Head, Item)));
+					mAssert.IsFalse(List.IsImmutable);
+					mAssert.IsTrue(List.Substitute(Item, mVM_Type.Int()).IsImmutable);
+					mAssert.IsFalse(List.Substitute(Item, mVM_Type.Var(mVM_Type.Int())).IsImmutable);
+					mAssert.IsTrue(mVM_Type.Text().IsImmutable);
+				}
+			),
+			mTest.Tests(
 				"Type error output",
 				[
 					mTest.Test(

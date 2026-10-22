@@ -106,14 +106,15 @@ mVM {
 			aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
 			return aData.TypeExpressionValue().KindType().SameType(aType);
 		}
-		if (aType.IsFree(out _, out var Ref)) {
-			return ReferenceEquals(aType, Ref) || aData.Matches(Ref, aVisited);
-		} else if (aType.IsAny()) {
+		if (aType.IsFree() || aType.IsAny()) {
 			return true;
 		}
 		
 		if (aVisited.Any(__ => __.Data == aData._DebugId && __.Type == aType.DebugId)) {
 			return true;
+		}
+		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
+			return Definition.DefType.IsSubType(aType).Match(out _, out _);
 		}
 		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
 		if (
@@ -189,6 +190,11 @@ mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
+			mAssert.IsTrue(Def.DefType.IsProc(out _, out _, out var ProcType));
+			while (ProcType.IsGeneric(out _, out var Body)) {
+				ProcType = Body;
+			}
+			mAssert.IsTrue(ProcType.IsProc(out var ObjectType, out _, out _));
 			var Res = mVM_Data.Empty();
 			Run(
 				mVM_Data.Proc(Def, Env),
@@ -381,11 +387,12 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.VarSet: {
-				aCallStack._Regs.Get(Arg1)._Value = mAny.Any(aCallStack._Regs.Get(Arg2));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mRef.tRefBox<mVM_Data.tData> Cell));
+				Cell._Value = aCallStack._Regs.Get(Arg2);
 				break;
 			}
 			case mVM_Data.tOpCode.VarGet: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mVM_Data.tData X));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsVar(out var X));
 				aCallStack._Regs.Push(X);
 				break;
 			}
@@ -912,10 +919,36 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		if (mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace).IsFail(out var Error, out var Compiled)) {
-			return Error;
+		if (!mIL_TypeChecker.AreModuleTypesValid(aModule, out var Error)) {
+			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
 		}
-		var (VMModule, ModuleMap) = Compiled;
+		return RunValidModule(aModule, aImport, aPosToText, aTrace);
+	}
+	
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	RunValidModule<tPos>(
+		mIL_AST.tModule<tPos> aModule,
+		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) {
+		if (!mIL_TypeChecker.AreImportTypesValid(aModule, aImport.Type, out var Error)) {
+			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
+		}
+		if (aImport.Data._IsMutable) {
+			return mResult.Fail("mutable module import is not allowed");
+		}
+		var Compiled = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aImport);
+		return RunModule(Compiled.Defs, aImport.Data, aPosToText, aTrace);
+	}
+	
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	RunModule<tPos>(
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
+		mVM_Data.tData aImport,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) {
 		var Res = mVM_Data.Empty();
 		var Defs = aModule.Reverse().Skip(1).Reverse();
 		

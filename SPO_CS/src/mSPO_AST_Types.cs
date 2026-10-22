@@ -1082,30 +1082,16 @@ mSPO_AST_Types {
 			case mSPO_AST.tFreeIdPatternNode<tPos> FreePatternId: {
 				Result = aType.Then(
 					__ => (
-						__.IsType()
-						? (
-							__,
-							mStream.Stream(
-								ScopeItem(
-									FreePatternId.Id,
-									__,
-									mVM_Type.Free(FreePatternId.Id, __)
-								),
-								aScope
+						__,
+						mStream.Stream(
+							ScopeItem(
+								FreePatternId.Id,
+								__,
+								__.IsType() ? mVM_Type.Free(FreePatternId.Id, __) : mStd.cEmpty
 							),
-							aTypeState
-						)
-						: (
-							__,
-							mStream.Stream(
-								ScopeItem(
-									FreePatternId.Id,
-									__
-								),
-								aScope
-							),
-							aTypeState
-						)
+							aScope
+						),
+						aTypeState
 					)
 				).ElseFail(
 					() => (FreePatternId.Pos, $"missing type for '{FreePatternId.Id}'")
@@ -1506,71 +1492,100 @@ mSPO_AST_Types {
 				}
 				
 				var ResultVariables = RecLambdas.List.Map(
-					aItem => Checked.Scope.Where(__ => __.Id == aItem.Id.Id).TryFirst().AssertNotEmpty().Type.Refs[2]
+					aLambda => Checked.Scope.Where(
+						__ => __.Id == aLambda.Id.Id
+					).TryFirst(
+					).AssertNotEmpty(
+					).Type.Refs[2]
 				).ToArrayList();
 				
-				tBool IsResultVariable(mVM_Type.tType aType) => (
-					ResultVariables.ToStream().Any(__ => mStd.RefEq(__, aType))
+				static mStream.tStream<mVM_Type.tType>
+				Alternatives(
+					mVM_Type.tType aType,
+					mVM_Type.tType aVariable
+				) => (
+					aType.IsSet(out var Left, out var Right) ? mStream.Concat(Alternatives(Left, aVariable), Alternatives(Right, aVariable)) :
+					mStd.RefEq(aType, aVariable) ? mStd.cEmpty :
+					mStream.Stream(aType)
 				);
 				
-				mStream.tStream<mVM_Type.tType> Alternatives(mVM_Type.tType aType) => (
-					aType.IsSet(out var Left, out var Right)
-					? mStream.Concat(Alternatives(Left), Alternatives(Right))
-					: IsResultVariable(aType) ? mStd.cEmpty : mStream.Stream(aType)
-				);
-				
-				mMaybe.tMaybe<mVM_Type.tType> ResolveResult(mVM_Type.tType aType) {
-					var Cases = Alternatives(aType);
-					// Bare recursive returns add no information. Nested unresolved results must wait.
-					if (Cases.IsEmpty() || Cases.Any(__ => __.HasChildWith(IsResultVariable))) {
-						return mStd.cEmpty;
-					}
-					var Distinct = Cases.Reduce(
-						mStream.Stream<mVM_Type.tType>(),
-						(aTypes, aCase) => aTypes.Any(__ => __.SameType(aCase))
-							? aTypes : mStream.Stream(aCase, aTypes)
-					).Reverse();
-					return Distinct.Skip(1).Reduce(
-						Distinct.TryFirst().AssertNotEmpty(),
-						(aLeft, aRight) => mVM_Type.Set(aLeft, aRight)
-					);
-				}
-				
-				mVM_Type.tType WithResult(mVM_Type.tType aType, mVM_Type.tType aResult) => (
+				static mVM_Type.tType
+				WithResult(
+					mVM_Type.tType aType,
+					mVM_Type.tType aResult
+				) => (
 					aType.IsGeneric(out var Parameter, out var Body)
 					? mVM_Type.Generic(Parameter, WithResult(Body, aResult))
 					: mVM_Type.Proc(aType.Refs[0], aType.Refs[1], aResult)
 				);
 				
-				// Propagate base cases through the group, then validate with the final signatures.
-				var GroupSize = RecLambdas.List.Count();
-				for (var Pass = 0; Pass <= GroupSize; Pass += 1) {
-					var Changed = false;
-					foreach (var Item in RecLambdas.List) {
-						if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
-							return mResult.Fail(Error);
-						}
-						var ProcType = Typed.Type;
-						while (ProcType.IsGeneric(out _, out var Inner)) {
-							ProcType = Inner;
-						}
-						var Signature = ResolveResult(ProcType.Refs[2]).Match(
-							aResult => WithResult(Typed.Type, aResult),
-							() => Typed.Type
-						);
-						var Previous = Checked.Scope.Where(__ => __.Id == Item.Id.Id).TryFirst().AssertNotEmpty().Type;
-						if (!Previous.SameType(Signature)) {
-							Checked = (Checked.Scope.Map(
-								__ => mStd.RefEq(__.Type, Previous) ? ScopeItem(__.Id, Signature) : __
-							), Checked.State);
-							Changed = true;
-						}
-						Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Lambda, Signature));
+				// Collect result equations before replacing any recursive call's placeholder.
+				var Signatures = mArrayList.List<mVM_Type.tType>();
+				foreach (var Item in RecLambdas.List) {
+					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+						return mResult.Fail(Error);
 					}
-					if (!Changed) {
-						return Checked;
+					
+					Signatures.Push(Typed.Type);
+					Checked = (Checked.Scope, Typed.State);
+				}
+				
+				// Eliminate each result variable; structural self-reference becomes a recursive type.
+				for (tNat32 Index = 0; Index < Signatures.Size; Index++) {
+					var Variable = ResultVariables.Get(Index);
+					var ProcType = Signatures.Get(Index);
+					
+					while (ProcType.IsGeneric(out _, out var Inner)) {
+						ProcType = Inner;
+					}
+					
+					var Cases = Alternatives(ProcType.Refs[2], Variable).Reduce(
+						mStream.Stream<mVM_Type.tType>(),
+						(aTypes, aCase) => aTypes.Any(__ => __.SameType(aCase)) ? aTypes : mStream.Stream(aCase, aTypes)
+					).Reverse();
+					
+					if (!Cases.TryFirst().IsSome(out var Result)) {
+						// A bare cycle provides no information about its result.
+						continue;
+					}
+					
+					Result = Cases.Skip(1).Reduce(Result, mVM_Type.Set);
+					
+					if (Result.HasChildWith(__ => mStd.RefEq(__, Variable))) {
+						Result = mVM_Type.Recursive(Variable, Result);
+					}
+					
+					Signatures.Set(Index, WithResult(Signatures.Get(Index), Result));
+					
+					for (tNat32 Other = 0; Other < Signatures.Size; Other++) {
+						Signatures.Set(Other, Signatures.Get(Other).Substitute(Variable, Result));
 					}
 				}
+				
+				var SignatureIndex = 0u;
+				foreach (var Item in RecLambdas.List) {
+					var Signature = Signatures.Get(SignatureIndex++);
+					Checked = (
+						Checked.Scope.Map(
+							__ => __.Id == Item.Id.Id ? ScopeItem(__.Id, Signature) : __
+						),
+						Checked.State
+					);
+				}
+				
+				// Check every body against the solved group and retain its final use-site types.
+				SignatureIndex = 0u;
+				foreach (var Item in RecLambdas.List) {
+					var Signature = Signatures.Get(SignatureIndex++);
+					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!Typed.Type.IsSubType(Signature).Match(out _, out var TypeError)) {
+						return mResult.Fail((Item.Pos, TypeError));
+					}
+					Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Lambda, Signature));
+				}
+				
 				return Checked;
 			}
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
