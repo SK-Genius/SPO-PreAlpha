@@ -1,3 +1,2 @@
-§IMPORT ()
 §DEF cValue € [#Right §INT] = #Left 1
 §EXPORT cValue

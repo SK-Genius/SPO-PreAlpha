@@ -80,6 +80,7 @@ mIL_AST {
 		AddField,                   // X := {X} +X
 		GetField,                   // X := {X} #N
 		CallFunc,                   // X := .X X
+		Closure,                    // X := §CLOSURE X X
 		CallProc,                   // X := :X X
 		VarDef,                     // X := §VAR X
 		VarGet,                     // X := §VAR X ->
@@ -199,6 +200,7 @@ mIL_AST {
 		tCommandNodeType.AddField => $"{a._1} := {{{a._2}}} + {a._3}",
 		tCommandNodeType.GetField => $"{a._1} := {{{a._2}}} #{a._3}",
 		tCommandNodeType.CallFunc => $"{a._1} := .{a._2} {a._3}",
+		tCommandNodeType.Closure => $"{a._1} := §CLOSURE {a._2} {a._3}",
 		tCommandNodeType.CallProc => $"{a._1} := §OBJ:{a._2} {a._3}",
 		tCommandNodeType.VarDef => $"{a._1} := §VAR {a._2}",
 		tCommandNodeType.VarGet => $"{a._1} := §VAR {a._2} ->",
@@ -542,6 +544,14 @@ mIL_AST {
 		tText aRecord,
 		tText aPrefix
 	) => CommandNode(tCommandNodeType.GetField, aPos, aResReg, aRecord, aPrefix);
+	
+	public static tCommandNode<tPos>
+	Closure<tPos>(
+		tPos aPos,
+		tText aResReg,
+		tText aDefReg,
+		tText aEnvReg
+	) => CommandNode(tCommandNodeType.Closure, aPos, aResReg, aDefReg, aEnvReg);
 	
 	public static tCommandNode<tPos>
 	CallFunc<tPos>(

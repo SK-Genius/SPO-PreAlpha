@@ -36,7 +36,7 @@
 	_Right := r_6
 	r_7 := {r_5} #_Fixed
 	_cRightFixed := r_7
-	r_8 := .d_0 EMPTY
+	r_8 := §CLOSURE d_0 EMPTY
 	_Identity... := r_8
 	r_9 := ._Identity... _Left
 	_LeftTransported := r_9

@@ -1,6 +1,6 @@
-TestFiles/SPO_Function_Errors/01_09_WrongPayload.SPO:3 ERROR 
-3:  §SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN §TRUE
- ┌───────────────────────────────────────────────^
+TestFiles/SPO_Function_Errors/01_09_WrongPayload.SPO:1 ERROR 
+1: §EXPORT §SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN §TRUE
+ ┌──────────────────────────────────────────────────────^
  ├ found:
  │   §TRUE
  │ expected:

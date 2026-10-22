@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/00_05_ReadImmutableValue.SPO:2 ERROR 
-2: §EXPORT §TO_VAL 7
+TestFiles/SPO_Function_Errors/00_05_ReadImmutableValue.SPO:1 ERROR 
+1: §EXPORT §TO_VAL 7
  ┌─────────^
  ├ the type '§INT' is not from type '[§VAR ...]'

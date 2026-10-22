@@ -29,6 +29,84 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
+			mTest.Test(
+				"Recursive result variables are checked through their inferred structure",
+				aDebug => {
+					foreach (
+						var (ItemType, Immutable) in mStream.Stream(
+							("§INT", true),
+							("[§VAR §INT]", false),
+							("§ANY", false)
+						)
+					) {
+						var Source = """
+						§RECURSIVE {
+							§DEF List... = (§DEF aDone € §BOOL, §DEF aItem € ITEM_TYPE) => §IF aDone MATCH {
+								§TRUE: ()
+								§FALSE: (.List (§TRUE, aItem); aItem)
+							}
+						}
+						
+						""";
+						
+						var Checked = mSPO_AST_Types.UpdateCommandTypes(
+							mSPO_Parser.Command.TryParseText(
+								Source.Replace("ITEM_TYPE", ItemType),
+								"",
+								__ => aDebug(__())
+							).ElseThrow(),
+							mStd.cEmpty,
+							new()
+						).AssertNotError(
+							__ => __.ErrorText
+						);
+						
+						var Type = Checked.Scope.TryFirst().AssertNotEmpty().Type;
+						
+						mAssert.IsTrue(Type.IsProc(out _, out _, out var Result));
+						mAssert.IsTrue(Result.IsRecursive(out _, out _), Result.ToText());
+						mAssert.AreEquals(Result.IsImmutable, Immutable);
+					}
+				}
+			),
+			mTest.Test(
+				"Mutual structural recursion resolves result variables in either definition order",
+				aDebug => {
+					const tText cFirst = """
+						§DEF First... = (§DEF aDone € §BOOL, §DEF aItem € ITEM_TYPE) => §IF aDone MATCH {
+							§TRUE: ()
+							§FALSE: (.Second (§TRUE, aItem); 1)
+						}
+					""";
+					const tText cSecond = """
+						§DEF Second... = (§DEF aDone € §BOOL, §DEF aItem € ITEM_TYPE) => §IF aDone MATCH {
+							§TRUE: ()
+							§FALSE: (.First (§TRUE, aItem); aItem)
+						}
+					""";
+					
+					foreach (var Definitions in mStream.Stream(cFirst + "\n" + cSecond, cSecond + "\n" + cFirst)) {
+						foreach (var (ItemType, Immutable) in mStream.Stream(("§INT", true), ("[§VAR §INT]", false))) {
+							var Checked = mSPO_AST_Types.UpdateCommandTypes(
+								mSPO_Parser.Command.TryParseText(
+									"§RECURSIVE {\n" + Definitions.Replace("ITEM_TYPE", ItemType) + "\n}\n",
+									"",
+									__ => aDebug(__())
+								).ElseThrow(),
+								mStd.cEmpty,
+								new()
+							).AssertNotError(
+								__ => __.ErrorText
+							);
+							
+							foreach (var Item in Checked.Scope) {
+								mAssert.IsTrue(Item.Type.IsProc(out _, out _, out var Result));
+								mAssert.AreEquals(Result.IsImmutable, Immutable);
+							}
+						}
+					}
+				}
+			),
 			mTest.Test("Recursive tuple results are inferred from base cases in either order",
 				aDebug => {
 					foreach (
@@ -176,7 +254,8 @@ mSPO_AST_Types_Tests {
 					}
 				}
 			),
-			mTest.Test("Recursion without a base case does not invent a concrete result type",
+			mTest.Test(
+				"Recursion without a base case does not invent a concrete result type",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_Parser.Command.TryParseText(
@@ -196,7 +275,7 @@ mSPO_AST_Types_Tests {
 					);
 					
 					mAssert.IsTrue(
-						Checked.Scope.TryFirst().AssertNotEmpty().Type.Refs[2].IsFree(out _, out _)
+						Checked.Scope.TryFirst().AssertNotEmpty().Type.Refs[2].IsFree()
 					);
 				}
 			),

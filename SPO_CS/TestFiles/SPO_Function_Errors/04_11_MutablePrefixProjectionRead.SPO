@@ -1,9 +1,7 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-	§DEF Wrapped = (#Handle aValue)
+§EXPORT (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Wrapped = #Handle aValue
 	(#Handle (§DEF Value)) = Wrapped
 	§RETURN §TO_VAL Value
-	}
-)
-§EXPORT 1
+}

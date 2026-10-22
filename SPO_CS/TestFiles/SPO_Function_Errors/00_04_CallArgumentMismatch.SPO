@@ -1,3 +1,4 @@
-§IMPORT ()
-§DEF Identity... = (§DEF aValue € §INT) => aValue
+§DEF Identity... = (
+	§DEF aValue € §INT
+) => aValue
 §EXPORT .Identity §TRUE

@@ -1,1 +1,8 @@
-Pending diagnostic: mutable module import must be rejected.
+TestFiles/ILT_Module_Errors/04_01_MutableImport.ILT:6 ERROR 
+6:  §RETURN ONE IF TRUE
+ ┌──^
+ ├ expected VAR
+ │ found:
+ │   []
+ │ expected:
+ │   [ §VAR §INT ]

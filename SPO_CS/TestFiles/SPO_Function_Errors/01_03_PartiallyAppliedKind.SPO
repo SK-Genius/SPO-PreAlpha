@@ -1,5 +1,1 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	[§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [.F §INT]]
-)
-§EXPORT 1
+§EXPORT [§SIG_WITH F € [§TYPE => [§TYPE => §TYPE]] IN [.F §INT]]

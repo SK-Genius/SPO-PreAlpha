@@ -1,0 +1,19 @@
+§TYPES
+	V := [§VAR INT]
+	Box := [§VAR V]
+	Identity := [Box => Box]
+	IdentityDef := [EMPTY_TYPE => Identity]
+	Object := [V, IdentityDef]
+	F := [V => INT]
+	M := [Object : F]
+	D := [EMPTY_TYPE => M]
+§DEF f € D
+	allowed := §1ST OBJ
+	definition := §2ND OBJ
+	identity := .definition EMPTY
+	box := §VAR allowed
+	alias := .identity box
+	§VAR box <- ARG
+	handle := §VAR alias ->
+	value := §VAR handle ->
+	§RETURN value IF TRUE

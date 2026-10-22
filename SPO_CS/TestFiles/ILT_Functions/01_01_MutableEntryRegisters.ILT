@@ -3,9 +3,9 @@
 	Transport := [Cell => Cell]
 	TransportProc := [EMPTY_TYPE : Transport]
 	ArgDef := [EMPTY_TYPE => TransportProc]
-	Get := [EMPTY_TYPE => Cell]
+	Get := [EMPTY_TYPE => INT]
 	GetProc := [EMPTY_TYPE : Get]
-	EnvDef := [Cell => GetProc]
+	EnvDef := [INT => GetProc]
 	Read := [EMPTY_TYPE => INT]
 	Method := [Cell : Read]
 	ReceiverDef := [Method => Method]
@@ -72,9 +72,8 @@
 	arg := .transport_arg_def EMPTY
 	arg_handle := .arg cell
 	arg_value := §VAR arg_handle ->
-	env := .transport_env_def cell
-	env_handle := .env EMPTY
-	env_value := §VAR env_handle ->
+	env := §CLOSURE transport_env_def seven
+	env_value := .env EMPTY
 	read := .read_def EMPTY
 	receiver := .receiver_def read
 	pair := cell, receiver

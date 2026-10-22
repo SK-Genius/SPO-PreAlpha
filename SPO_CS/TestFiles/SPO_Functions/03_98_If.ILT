@@ -5,20 +5,22 @@
 	t_3 := [t_1 => t_2]
 	t_4 := [EMPTY_TYPE, t_3]
 	t_5 := [t_4, INT]
-	t_6 := [INT | EMPTY_TYPE]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [t_5 => t_7]
-	t_9 := [#_...==... t_3]
-	t_10 := [{EMPTY_TYPE} + t_9]
-	t_11 := [t_10 => INT]
-	t_12 := [t_8 => t_11]
+	t_6 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_7 := [INT | EMPTY_TYPE]
+	t_8 := [t_6 => t_7]
+	t_9 := [t_5 => t_8]
+	t_10 := [#_...==... t_3]
+	t_11 := [{EMPTY_TYPE} + t_10]
+	t_12 := [t_11 => INT]
+	t_13 := [t_9 => t_12]
 
-§DEF d_0 € t_8
+§DEF d_0 € t_9
 	_X := §2ND ENV
-	r_11 := §1ST ENV
-	_...==... := §2ND r_11
-	r_12 := §1ST r_11
-	§RETURN ARG IF_NOT_EMPTY
+	r_13 := §1ST ENV
+	_...==... := §2ND r_13
+	r_14 := §1ST r_13
+	r_12 := §1ST ARG
+	r_11 := §2ND ARG
 	r_1 := EMPTY, _X
 	r_2 := 1
 	r_3 := r_1, r_2
@@ -33,7 +35,7 @@
 	§RETURN r_10 IF r_9
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_12
+§DEF d_1 € t_13
 	d_0 := ENV
 	r_1 := {ARG} #_...==...
 	_...==... := r_1
@@ -41,8 +43,10 @@
 	_X := r_2
 	r_4 := EMPTY, _...==...
 	r_5 := r_4, _X
-	r_6 := .d_0 r_5
-	r_7 := .r_6 EMPTY
-	r_3 := r_7
+	r_6 := §CLOSURE d_0 r_5
+	r_7 := EMPTY, EMPTY
+	r_8 := OBJ, r_6
+	r_9 := §OBJ:r_8 r_7
+	r_3 := r_9
 	_Y := r_3
 	§RETURN _Y IF TRUE

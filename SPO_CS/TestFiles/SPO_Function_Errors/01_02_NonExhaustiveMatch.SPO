@@ -1,7 +1,5 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aX € [[] | §INT]) => §IF aX MATCH {
-	    () : 0
-	}
-)
-§EXPORT 1
+§EXPORT (
+	§DEF aValue € [[] | §INT]
+) => §IF aValue MATCH {
+	(): 0
+}

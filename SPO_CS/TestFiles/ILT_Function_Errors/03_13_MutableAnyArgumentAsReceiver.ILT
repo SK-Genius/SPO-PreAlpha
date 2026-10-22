@@ -6,7 +6,12 @@ M := [ANY : MF]
 	F := [ANY => INT]
 	P := [EMPTY_TYPE : F]
 	D := [M => P]
+	Module := [EMPTY_TYPE => EMPTY_TYPE]
+	ModuleDef := [D => Module]
 §DEF f € D
 	pair := ARG, ENV
 value := §OBJ:pair EMPTY
 §RETURN value IF TRUE
+
+§DEF main € ModuleDef
+	§RETURN EMPTY IF TRUE

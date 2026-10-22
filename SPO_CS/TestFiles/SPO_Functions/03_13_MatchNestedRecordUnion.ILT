@@ -1,60 +1,73 @@
 §TYPES
 	t_0 := [#_Field INT]
 	t_1 := [{EMPTY_TYPE} + t_0]
-	t_2 := [#Result INT]
-	t_3 := [t_1 => t_2]
-	t_4 := [EMPTY_TYPE => t_3]
-	t_5 := [#_Field EMPTY_TYPE]
-	t_6 := [{EMPTY_TYPE} + t_5]
-	t_7 := [t_6 => t_2]
-	t_8 := [EMPTY_TYPE => t_7]
-	t_9 := [EMPTY_TYPE, t_4]
-	t_10 := [t_9, t_8]
-	t_11 := [INT | EMPTY_TYPE]
-	t_12 := [#_Field t_11]
-	t_13 := [{EMPTY_TYPE} + t_12]
-	t_14 := [t_13 => t_2]
-	t_15 := [t_10 => t_14]
-	t_16 := [t_10, t_15]
-	t_17 := [EMPTY_TYPE => INT]
-	t_18 := [t_16 => t_17]
+	t_2 := [EMPTY_TYPE, t_1]
+	t_3 := [#Result INT]
+	t_4 := [t_2 => t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [#_Field EMPTY_TYPE]
+	t_7 := [{EMPTY_TYPE} + t_6]
+	t_8 := [EMPTY_TYPE, t_7]
+	t_9 := [t_8 => t_3]
+	t_10 := [EMPTY_TYPE => t_9]
+	t_11 := [EMPTY_TYPE, t_5]
+	t_12 := [t_11, t_10]
+	t_13 := [INT | EMPTY_TYPE]
+	t_14 := [#_Field t_13]
+	t_15 := [{EMPTY_TYPE} + t_14]
+	t_16 := [EMPTY_TYPE, t_15]
+	t_17 := [t_16 => t_3]
+	t_18 := [t_12 => t_17]
+	t_19 := [t_12, t_18]
+	t_20 := [EMPTY_TYPE => INT]
+	t_21 := [t_19 => t_20]
 
-§DEF d_0 € t_4
-	r_1 := {ARG} #_Field
+§DEF d_0 € t_5
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := {r_3} #_Field
 	_X := r_1
 	r_2 := +#Result _X
 	§RETURN r_2 IF TRUE
 
-§DEF d_1 € t_8
-	r_1 := {ARG} #_Field
+§DEF d_1 € t_10
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := {r_4} #_Field
 	r_2 := 0
 	r_3 := +#Result r_2
 	§RETURN r_3 IF TRUE
 
-§DEF d_2 € t_15
+§DEF d_2 € t_18
 	d_1 := §2ND ENV
-	r_3 := §1ST ENV
-	d_0 := §2ND r_3
-	r_4 := §1ST r_3
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
-	r_2 := .d_1 EMPTY
-	§TRY_RETURN .r_2 ARG
+	r_7 := §1ST ENV
+	d_0 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_1 EMPTY
+	r_4 := EMPTY, r_5
+	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_18
+§DEF d_3 € t_21
 	d_2 := §2ND ENV
-	r_8 := §1ST ENV
-	d_1 := §2ND r_8
-	r_9 := §1ST r_8
-	d_0 := §2ND r_9
-	r_10 := §1ST r_9
+	r_10 := §1ST ENV
+	d_1 := §2ND r_10
+	r_11 := §1ST r_10
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
 	_Value := EMPTY
 	r_1 := +#_Field _Value
 	r_2 := {EMPTY} + r_1
 	r_3 := EMPTY, d_0
 	r_4 := r_3, d_1
-	r_5 := .d_2 r_4
-	r_6 := .r_5 r_2
-	r_7 := -#Result r_6
-	§RETURN r_7 IF TRUE
+	r_5 := §CLOSURE d_2 r_4
+	r_6 := EMPTY, r_2
+	r_7 := OBJ, r_5
+	r_8 := §OBJ:r_7 r_6
+	r_9 := -#Result r_8
+	§RETURN r_9 IF TRUE

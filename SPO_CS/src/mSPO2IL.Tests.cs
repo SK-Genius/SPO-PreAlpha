@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -20,6 +20,7 @@
 #:ref mSPO_AST_Types.cs
 #:ref mSPO_Parser.cs
 #:ref mSPO2IL.cs
+#:ref mSPO_Interpreter.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -99,7 +100,8 @@ mSPO2IL_Tests {
 	}
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(nameof(mSPO2IL),
+	Tests = mTest.Tests(
+		nameof(mSPO2IL),
 		[
 			mTest.Test("If lowering uses validated types without changing AST annotations",
 				aStreamOut => {
@@ -327,7 +329,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda1",
+			mTest.Test(
+				"MapLambda1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -438,7 +441,7 @@ mSPO2IL_Tests {
 							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(2)),
 							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
 							
-							mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
+							mIL_AST.Closure(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
 							mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -453,7 +456,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda2",
+			mTest.Test(
+				"MapLambda2",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -598,7 +602,7 @@ mSPO2IL_Tests {
 							
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...+...")),
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Closure(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("...*...+..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -614,7 +618,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda3",
+			mTest.Test(
+				"MapLambda3",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -750,7 +755,7 @@ mSPO2IL_Tests {
 							
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...>...")),
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Closure(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("TestTest..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -766,229 +771,75 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapIfMatch_1",
-				aStreamOut => {
-					var DefNode = mSPO_Parser.Def.TryParseText(
-						//       1         2         3         4         5         6         7         8
-						//345678901234567890123456789012345678901234567890123456789012345678901234567890
-						"""
-						§DEF x = §IF 1 MATCH {
-							0 : 2
-							1 : 4
-							_ : 6
-						}
-						""",
-						"",
-						__ => aStreamOut(__())
-					).ElseThrow();
-					
-					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
-					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
-					var Scope = Checked.Scope;
-					mAssert.AreEquals(
-						Scope,
-						mStream.Stream(
-							mSPO_AST_Types.ScopeItem(
-								mSPO2IL.GetId("x"),
-								mVM_Type.Int()
-							),
-							InitScope
-						)
-					);
-					
-					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
-					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
-					
-					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
-					DefConstructor.FinishMapProc(
-						default,
-						Module,
-						mVM_Type.Proc(
-							mVM_Type.Empty(),
-							mVM_Type.Empty(),
-							mVM_Type.Proc(
-								mVM_Type.Empty(),
-								mVM_Type.Empty(),
-								mVM_Type.Empty()
-							)
-						)
-					);
-					
-					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
-					
-					AssertDefsAre(
-						aStreamOut,
-						Module.Defs.ToStream(),
-						[
-							"""
-							r_1 := 2
-							r_2 := +#Result r_1
-							§RETURN r_2 IF TRUE
-							""",
-							"""
-							r_1 := 0
-							r_2 := §INT ARG == r_1
-							r_3 := §BOOL r_2 ^ TRUE
-							§RETURN FALSE IF r_3
-							§RETURN TRUE IF TRUE
-							""",
-							"""
-							r_1 := 4
-							r_2 := +#Result r_1
-							§RETURN r_2 IF TRUE
-							""",
-							"""
-							r_1 := 1
-							r_2 := §INT ARG == r_1
-							r_3 := §BOOL r_2 ^ TRUE
-							§RETURN FALSE IF r_3
-							§RETURN TRUE IF TRUE
-							""",
-							"""
-							r_1 := 6
-							r_2 := +#Result r_1
-							§RETURN r_2 IF TRUE
-							""",
-							"""
-							d_4 := §2ND ENV
-							r_6 := §1ST ENV
-							d_3 := §2ND r_6
-							r_7 := §1ST r_6
-							d_2 := §2ND r_7
-							r_8 := §1ST r_7
-							d_1 := §2ND r_8
-							r_9 := §1ST r_8
-							d_0 := §2ND r_9
-							r_10 := §1ST r_9
-							r_1 := .d_0 EMPTY
-							r_2 := .d_1 EMPTY
-							§TRY_RETURN .r_1 ARG IF r_2
-							r_3 := .d_2 EMPTY
-							r_4 := .d_3 EMPTY
-							§TRY_RETURN .r_3 ARG IF r_4
-							r_5 := .d_4 EMPTY
-							§TRY_RETURN .r_5 ARG
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_5 := §2ND ENV
-							r_10 := §1ST ENV
-							d_4 := §2ND r_10
-							r_11 := §1ST r_10
-							d_3 := §2ND r_11
-							r_12 := §1ST r_11
-							d_2 := §2ND r_12
-							r_13 := §1ST r_12
-							d_1 := §2ND r_13
-							r_14 := §1ST r_13
-							d_0 := §2ND r_14
-							r_15 := §1ST r_14
-							r_1 := 1
-							r_2 := EMPTY, d_0
-							r_3 := r_2, d_1
-							r_4 := r_3, d_2
-							r_5 := r_4, d_3
-							r_6 := r_5, d_4
-							r_7 := .d_5 r_6
-							r_8 := .r_7 r_1
-							r_9 := -#Result r_8
-							_x := r_9
-							""",
-						]
-					);
-				}
-			),
-			mTest.Test("MapIfMatch_2_WithSet",
-				aStreamOut => {
-					var ModuleNode = mSPO_Parser.Module.TryParseText(
-						//       1         2         3         4         5         6         7         8
-						//345678901234567890123456789012345678901234567890123456789012345678901234567890
+			mTest.Tests(
+				"Control flow preserves explicit mutable access",
+				mStream.Stream<(tText Name, tText Source)>(
+					(
+						"Mutable fallback",
 						"""
 						§IMPORT ()
-						
-						§DEF X € [#Bla | #Blub] = #Bla
-						
-						§EXPORT §IF X MATCH {
-							(#Blub) : 1
-							(#Bla) : 2
-							_ : 3
+						§VAR Cell := 7 .
+						§DEF Result = §IF 1 MATCH {
+							0: Cell
+							_: Cell
 						}
-						""",
-						"",
-						__ => aStreamOut(__())
-					).ElseThrow();
-					
-					var InitScope = mSPO_AST_Types.UpdatePatternTypes(
-						ModuleNode.Import.Pattern,
-						mStd.cEmpty,
-						mSPO_AST_Types.tTypeRelation.Sub,
-						mStd.cEmpty,
-						new()
-					).Then(
-						__ => __.Scope
-					).AssertNotError(
-						__ => __.ToText()
-					);
-					
-					var Scope = ModuleNode.Commands.Reduce(
-						mResult.OK(InitScope).WithErrorType<(tSpan Pos, tText ErrorText)>(),
-						(aResultScope, aCommand) => aResultScope.ThenTry(
-							aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope, new()).Then(__ => __.Scope)
-						)
-					).AssertNotError(
-						__ => __.ToText()
-					);
-					
-					var Module = mSPO2IL.MapModule(ModuleNode, mSpan.Merge, InitScope, new()).AssertNotError(__ => __.ToText());
-					
-					PrintModuleDefs(Module.Defs.ToStream(), aStreamOut);
-					
-					AssertDefsAre(
-						aStreamOut,
-						Module.Defs.ToStream(),
-						[
-							"""
-							r_1 := -#_Blub ARG
-							r_2 := 1
-							r_3 := +#Result r_2
-							§RETURN r_3 IF TRUE
-							""",
-							"""
-							r_1 := -#_Bla ARG
-							r_2 := 2
-							r_3 := +#Result r_2
-							§RETURN r_3 IF TRUE
-							""",
-							"""
-							d_1 := §2ND ENV
-							r_3 := §1ST ENV
-							d_0 := §2ND r_3
-							r_4 := §1ST r_3
-							r_1 := .d_0 EMPTY
-							§TRY_RETURN .r_1 ARG
-							r_2 := .d_1 EMPTY
-							§TRY_RETURN .r_2 ARG
-							§RETURN EMPTY IF TRUE
-							""",
-							"""
-							d_2 := §2ND ENV
-							r_7 := §1ST ENV
-							d_1 := §2ND r_7
-							r_8 := §1ST r_7
-							d_0 := §2ND r_8
-							r_9 := §1ST r_8
-							§RETURN ARG IF_NOT_EMPTY
-							r_1 := +#_Bla EMPTY
-							_X := r_1
-							r_2 := EMPTY, d_0
-							r_3 := r_2, d_1
-							r_4 := .d_2 r_3
-							r_5 := .r_4 _X
-							r_6 := -#Result r_5
-							§RETURN r_6 IF TRUE
-							""",
-						]
-					);
+						§EXPORT §TO_VAL Result
+						"""
+					),
+					(
+						"Method receiver",
+						"""
+						§IMPORT ()
+						§DEF Read... = (§VAR aSelf € §INT) : (§DEF aFlag € §BOOL) {
+							§RETURN §IF aFlag MATCH {
+								§TRUE: §TO_VAL aSelf
+								§FALSE: 0
+							}
+						}
+						§VAR Cell := 7 .
+						Cell : Read §TRUE => §DEF Value .
+						§EXPORT Value
+						"""
+					),
+					(
+						"Opaque argument transport",
+						"""
+						§IMPORT ()
+						§DEF Pass... = (§DEF aCell € [§VAR §INT]) => §IF 0 MATCH {
+							0: aCell
+							_: aCell
+						}
+						§VAR Cell := 7 .
+						§DEF Returned = .Pass Cell
+						§EXPORT §TO_VAL Returned
+						"""
+					)
+				).Map(
+					aCase => mTest.Test(
+						aCase.Name,
+						aDebug => {
+							var Result = mSPO_Interpreter.Run(aCase.Source, "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__())).ElseThrow();
+							mAssert.IsTrue(Result.Data.IsInt(out var Value));
+							mAssert.AreEquals(Value, 7);
+						}
+					)
+				).ToArrayList().ToArray()
+			),
+			mTest.Test(
+				"MATCH captures immutable external callables",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT (§DEF Apply... € [§INT => §INT])
+					§EXPORT §IF 7 MATCH {
+						0: 0
+						§DEF Item: .Apply Item
+					}
+					""";
+					var Import = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aArg, mVM_Data.Empty());
+					var Type = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
+					var Result = mSPO_Interpreter.Run(cSource, "", (Import, Type), __ => aDebug(__())).ElseThrow();
+					mAssert.IsTrue(Result.Data.IsInt(out var Value));
+					mAssert.AreEquals(Value, 7);
 				}
 			),
 			mTest.Test("MapNestedMatch",

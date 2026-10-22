@@ -13,6 +13,8 @@
 #:ref ../../SPO_CS/src/mSPO_Parser.cs
 #:ref ../../SPO_CS/src/mSPO_Desugar.cs
 #:ref ../../SPO_CS/src/mSPO2IL.cs
+#:ref ../../SPO_CS/src/mIL_Parser.cs
+#:ref ../../SPO_CS/src/mIL_TypeChecker.cs
 
 using tPos = mTextStream.tPos;
 using tSpan = mSpan.tSpan<mTextStream.tPos>;
@@ -156,13 +158,14 @@ mSPO_Diagnostics {
 		).WithErrorType<mStream.tStream<tDiagnostic>>();
 	}
 	
-	private static mResult.tResult<mSPO_AST.tModuleNode<tSpan>, mStream.tStream<tDiagnostic>>
-	ParseModule(
+	private static mResult.tResult<tModule, mStream.tStream<tDiagnostic>>
+	ParseModule<tModule>(
 		mStream.tStream<(tSpan Span, tToken Value)> aTokens,
 		tPos aFallback,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mParserGen.tParser<tPos, tToken, tModule, tText> aParser
 	) {
-		var MaybeModule = DocumentParser(aFallback.Id).StartParse(aTokens, aDebugStream);
+		var MaybeModule = aParser.StartParse(aTokens, aDebugStream);
 		if (!MaybeModule.Match(out var ModuleResult, out var ParseErrors)) {
 			var Furthest = ParseErrors.Map(
 				a => a.Pos
@@ -267,7 +270,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope.Scope, Scope.State).Match(out _, out var LoweringError)) {
+		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope.Scope, Scope.State).Match(out var IL, out var LoweringError)) {
 			return mResult.Fail(
 				mStream.Stream(
 					Diagnostic(
@@ -278,6 +281,9 @@ mSPO_Diagnostics {
 					)
 				)
 			);
+		}
+		if (!mIL_TypeChecker.AreModuleTypesValid(IL.ToIL(), out var Error)) {
+			return mResult.Fail(mStream.Stream(Diagnostic(Error.Pos, tDiagnosticSeverity.Error, "types", Error.ErrorText)));
 		}
 		
 		return mResult.OK(mStd.cEmpty).WithErrorType<mStream.tStream<tDiagnostic>>();
@@ -291,15 +297,38 @@ mSPO_Diagnostics {
 		mTokenizer.tFileContext? aFileContext = null
 	) {
 		var Fallback = GetEndPos(aCode, aId);
+		if (aId.EndsWith(".ILT", System.StringComparison.OrdinalIgnoreCase) && !aCode.EndsWith('\n')) {
+			aCode += "\n";
+		}
 		
-		var Result = Tokenize(
+		var Tokens = Tokenize(
 			aCode,
 			aId,
 			Fallback,
 			aDebugStream,
 			aFileContext
-		).ThenTry(
-			aTokens => ParseModule(aTokens, Fallback, aDebugStream)
+		);
+		if (aId.EndsWith(".ILT", System.StringComparison.OrdinalIgnoreCase)) {
+			return (
+				Tokens.ThenTry(
+					aTokens => ParseModule(aTokens, Fallback, aDebugStream, mIL_Parser.Module)
+				).ThenTry(
+					aModule => (
+						mIL_TypeChecker.AreModuleTypesValid(aModule, out var Error)
+						? mResult.OK(mStd.cEmpty).WithErrorType<mStream.tStream<tDiagnostic>>()
+						: mResult.Fail(
+							mStream.Stream(
+								Diagnostic(NormalizeSpan(Error.Pos, Fallback), tDiagnosticSeverity.Error, "types", Error.ErrorText)
+							)
+						)
+					)
+				).Match(out _, out var Errors)
+				? mStd.cEmpty
+				: Errors
+			);
+		}
+		var Result = Tokens.ThenTry(
+			aTokens => ParseModule(aTokens, Fallback, aDebugStream, DocumentParser(aId))
 		).ThenTry(
 			AnalyzeModule
 		);

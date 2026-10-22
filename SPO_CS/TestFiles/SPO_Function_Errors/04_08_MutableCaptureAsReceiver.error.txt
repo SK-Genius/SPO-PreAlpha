@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_08_MutableCaptureAsReceiver.SPO:9 ERROR 
+9:  §RETURN () => {
+ ┌──────────^
+ ├ mutable closure environment is not allowed

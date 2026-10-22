@@ -1,34 +1,42 @@
 §TYPES
 	t_0 := [#_Box... INT]
-	t_1 := [#Result INT]
-	t_2 := [t_0 => t_1]
-	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [t_3 => t_2]
-	t_5 := [EMPTY_TYPE, t_3]
-	t_6 := [t_5, t_4]
-	t_7 := [EMPTY_TYPE => INT]
-	t_8 := [t_6 => t_7]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [#Result INT]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_4 => t_3]
+	t_6 := [EMPTY_TYPE, t_4]
+	t_7 := [t_6, t_5]
+	t_8 := [EMPTY_TYPE => INT]
+	t_9 := [t_7 => t_8]
 
-§DEF d_0 € t_3
-	r_1 := -#_Box... ARG
+§DEF d_0 € t_4
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := -#_Box... r_3
 	_Value := r_1
 	r_2 := +#Result _Value
 	§RETURN r_2 IF TRUE
 
-§DEF d_1 € t_4
+§DEF d_1 € t_5
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_8
+§DEF d_2 € t_9
 	d_1 := §2ND ENV
-	r_6 := §1ST ENV
-	d_0 := §2ND r_6
-	r_7 := §1ST r_6
+	r_8 := §1ST ENV
+	d_0 := §2ND r_8
+	r_9 := §1ST r_8
 	r_1 := 2
 	r_2 := +#_Box... r_1
-	r_3 := .d_1 d_0
-	r_4 := .r_3 r_2
-	r_5 := -#Result r_4
-	§RETURN r_5 IF TRUE
+	r_3 := §CLOSURE d_1 d_0
+	r_4 := EMPTY, r_2
+	r_5 := OBJ, r_3
+	r_6 := §OBJ:r_5 r_4
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE

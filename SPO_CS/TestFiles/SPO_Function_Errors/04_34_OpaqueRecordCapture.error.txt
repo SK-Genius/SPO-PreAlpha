@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/04_34_OpaqueRecordCapture.SPO:3 ERROR 
+3: ) => () => aRecord
+ ┌──────^
+ ├ mutable or opaque closure environment is not allowed

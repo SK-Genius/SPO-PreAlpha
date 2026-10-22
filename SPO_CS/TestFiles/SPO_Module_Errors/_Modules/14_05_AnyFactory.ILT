@@ -1,0 +1,14 @@
+§TYPES
+	Factory := [EMPTY_TYPE => ANY]
+	FactoryDef := [EMPTY_TYPE => Factory]
+	Main := [EMPTY_TYPE => Factory]
+	MainDef := [FactoryDef => Main]
+
+§DEF create € FactoryDef
+	seven := 7
+	cell := §VAR seven
+	§RETURN cell IF TRUE
+
+§DEF main € MainDef
+	factory := .ENV EMPTY
+	§RETURN factory IF TRUE

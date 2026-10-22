@@ -1,1 +1,4 @@
-Pending diagnostic: module mutable access must remain opaque.
+TestFiles/SPO_Module_Errors/11_01_OpaqueCapture.SPO:3 ERROR 
+3: §DEF Result = .(() => §TO_VAL Cell) ()
+ ┌─────────────────^
+ ├ mutable closure environment is not allowed

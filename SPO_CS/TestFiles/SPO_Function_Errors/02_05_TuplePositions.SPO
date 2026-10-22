@@ -1,3 +1,2 @@
-§IMPORT ()
 §DEF cValue € [§TRUE, §INT, §INT, §INT] = (§TRUE, 1, §TRUE, 1)
 §EXPORT cValue

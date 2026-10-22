@@ -1,2 +1,1 @@
-§VAR Cell := 7 .
-§EXPORT (Cell, 9)
+§EXPORT (7, 9)

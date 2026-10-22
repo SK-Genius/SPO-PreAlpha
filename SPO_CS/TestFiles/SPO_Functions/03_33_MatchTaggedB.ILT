@@ -12,7 +12,7 @@
 
 §DEF d_1 € t_4
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	r_2 := 3
 	r_3 := +#_Box... r_2
 	r_4 := .r_1 r_3

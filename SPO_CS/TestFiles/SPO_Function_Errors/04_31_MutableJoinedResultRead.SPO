@@ -1,11 +1,12 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT], §DEF aFlag € §BOOL) {
-		§DEF Result = §IF {
-			aFlag: aSelf
-			§TRUE: aOpaque
-		}
-		§RETURN §TO_VAL Result
+§EXPORT (
+	§VAR aSelf € §INT
+) : (
+	§DEF aOpaque € [§VAR §INT]
+	§DEF aFlag € §BOOL
+) {
+	§DEF Result = §IF {
+		aFlag: aSelf
+		§TRUE: aOpaque
 	}
-)
-§EXPORT 1
+	§RETURN §TO_VAL Result
+}

@@ -1,4 +1,1 @@
-§VAR Cell := 7 .
-§VAR Opaque := 9 .
-§VAR Box := Cell .
-§EXPORT (7, 7, 7, (7, 7, 7))
+§EXPORT (7, (7, 7, 7))

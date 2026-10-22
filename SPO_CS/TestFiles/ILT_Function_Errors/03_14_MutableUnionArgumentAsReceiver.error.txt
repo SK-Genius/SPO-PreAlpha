@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_14_MutableUnionArgumentAsReceiver.ILT:11 ERROR 
+11: value := §OBJ:pair EMPTY
+ ┌──^
+ ├ opaque mutable access is not allowed

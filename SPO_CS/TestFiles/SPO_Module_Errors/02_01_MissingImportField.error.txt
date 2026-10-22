@@ -1,1 +1,8 @@
-Pending diagnostic: actual import type must be checked before execution.
+TestFiles/SPO_Module_Errors/_Modules/02_01_Consumer.SPO:1 ERROR 
+1: §IMPORT {TestRecordValue: {Other: §DEF Value € §INT}}
+ ┌──────────^
+ ├ missing field '_Other'
+ │ found:
+ │   [{ _TestRecordValue : [{ _Present : §INT }] }]
+ │ expected:
+ │   [{ _TestRecordValue : [{ _Other : §INT }] }]

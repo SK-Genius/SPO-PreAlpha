@@ -1,2 +1,3 @@
-§DEF Identity... = (§DEF Value € [§LOAD_SIG "Int.SIG"]) => Value
-§EXPORT 1
+§EXPORT (
+	§DEF aValue € [§LOAD_SIG "Int.SIG"]
+) => aValue

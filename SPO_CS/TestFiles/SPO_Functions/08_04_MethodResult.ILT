@@ -14,7 +14,7 @@
 
 §DEF d_1 € t_5
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Get... := r_1
 	r_2 := 0
 	_X := §VAR r_2

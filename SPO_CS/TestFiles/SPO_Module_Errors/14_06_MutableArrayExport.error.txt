@@ -1,0 +1,4 @@
+TestFiles/SPO_Module_Errors/14_06_MutableArrayExport.SPO:3 ERROR 
+3: §EXPORT .Pass ()
+ ┌─^
+ ├ mutable module export is not allowed

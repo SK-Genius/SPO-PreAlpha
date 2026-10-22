@@ -1,0 +1,4 @@
+TestFiles/ILT_Function_Errors/03_31_MutableReceiverCellWrite.ILT:10 ERROR 
+10:  value := §VAR handle ->
+ ┌───^
+ ├ opaque mutable access is not allowed

@@ -1,9 +1,6 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aOpaque € [§VAR §INT]) => {
-		§DEF Get... = () => aOpaque
-		§DEF Result = .Get ()
-		§RETURN §TO_VAL Result
-	}
-)
-§EXPORT 1
+§EXPORT (
+	§DEF aOpaque € [§VAR §INT]
+) => {
+	§DEF Get = () => aOpaque
+	§RETURN §TO_VAL .Get
+}

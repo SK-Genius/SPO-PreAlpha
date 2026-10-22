@@ -1,55 +1,49 @@
 §TYPES
 	t_0 := [§VAR INT]
-	t_1 := [#_Captured t_0]
+	t_1 := [#_Handle t_0]
 	t_2 := [{EMPTY_TYPE} + t_1]
-	t_3 := [#_Handle t_0]
+	t_3 := [#_Number INT]
 	t_4 := [{t_2} + t_3]
-	t_5 := [#_Number INT]
-	t_6 := [{t_4} + t_5]
-	t_7 := [t_0 => t_6]
-	t_8 := [t_0 => t_7]
-	t_9 := [EMPTY_TYPE => INT]
-	t_10 := [t_0 : t_9]
-	t_11 := [EMPTY_TYPE => t_10]
-	t_12 := [EMPTY_TYPE, t_8]
-	t_13 := [t_12, t_11]
-	t_14 := [t_0 => t_0]
-	t_15 := [t_0 : t_14]
-	t_16 := [t_13 => t_15]
-	t_17 := [t_13, t_16]
-	t_18 := [EMPTY_TYPE => t_15]
-	t_19 := [t_17 => t_18]
-	t_20 := [t_17, t_19]
-	t_21 := [EMPTY_TYPE => t_0]
-	t_22 := [t_20 => t_21]
+	t_5 := [t_0 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [EMPTY_TYPE => INT]
+	t_8 := [t_0 : t_7]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [EMPTY_TYPE, t_6]
+	t_11 := [t_10, t_9]
+	t_12 := [t_0 => t_0]
+	t_13 := [t_0 : t_12]
+	t_14 := [t_11 => t_13]
+	t_15 := [t_11, t_14]
+	t_16 := [EMPTY_TYPE => t_13]
+	t_17 := [t_15 => t_16]
+	t_18 := [t_15, t_17]
+	t_19 := [t_18 => t_7]
 
-§DEF d_0 € t_8
-	_aOpaque := ENV
+§DEF d_0 € t_6
 	_aValue := ARG
 	r_1 := +#_Handle _aValue
 	r_2 := {EMPTY} + r_1
-	r_3 := +#_Captured _aOpaque
-	r_4 := {r_2} + r_3
-	r_5 := 7
-	r_6 := +#_Number r_5
-	r_7 := {r_4} + r_6
-	§RETURN r_7 IF TRUE
+	r_3 := 7
+	r_4 := +#_Number r_3
+	r_5 := {r_2} + r_4
+	§RETURN r_5 IF TRUE
 
-§DEF d_1 € t_11
+§DEF d_1 € t_9
 	§RETURN ARG IF_NOT_EMPTY
 	_aTarget := OBJ
 	r_1 := §VAR _aTarget ->
 	§RETURN r_1 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_16
+§DEF d_2 € t_14
 	d_1 := §2ND ENV
 	r_6 := §1ST ENV
 	d_0 := §2ND r_6
 	r_7 := §1ST r_6
 	_aOpaque := ARG
 	_aSelf := OBJ
-	r_1 := .d_0 _aOpaque
+	r_1 := §CLOSURE d_0 EMPTY
 	_Pass... := r_1
 	r_2 := ._Pass... _aOpaque
 	_Returned := r_2
@@ -57,12 +51,12 @@
 	_Result := r_3
 	r_4 := {_Returned} #_Number
 	_Number := r_4
-	r_5 := .d_1 EMPTY
+	r_5 := §CLOSURE d_1 EMPTY
 	_Read := r_5
 	§RETURN _Result IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_19
+§DEF d_3 € t_17
 	d_2 := §2ND ENV
 	r_4 := §1ST ENV
 	d_1 := §2ND r_4
@@ -72,10 +66,10 @@
 	§RETURN ARG IF_NOT_EMPTY
 	r_1 := EMPTY, d_0
 	r_2 := r_1, d_1
-	r_3 := .d_2 r_2
+	r_3 := §CLOSURE d_2 r_2
 	§RETURN r_3 IF TRUE
 
-§DEF d_4 € t_22
+§DEF d_4 € t_19
 	d_3 := §2ND ENV
 	r_12 := §1ST ENV
 	d_2 := §2ND r_12
@@ -88,7 +82,7 @@
 	r_1 := EMPTY, d_0
 	r_2 := r_1, d_1
 	r_3 := r_2, d_2
-	r_4 := .d_3 r_3
+	r_4 := §CLOSURE d_3 r_3
 	_OpaqueResultTransport... := r_4
 	r_5 := 7
 	_Cell := §VAR r_5
@@ -98,8 +92,8 @@
 	_Case01... := r_7
 	r_8 := 7
 	_Receiver01 := §VAR r_8
-	r_9 := §VAR _Opaque ->
-	r_11 := _Receiver01, _Case01...
-	r_10 := §OBJ:r_11 r_9
-	_Result01 := r_10
-	§RETURN _Result01 IF TRUE
+	r_10 := _Receiver01, _Case01...
+	r_9 := §OBJ:r_10 _Opaque
+	_Result01 := r_9
+	r_11 := §VAR _Result01 ->
+	§RETURN r_11 IF TRUE

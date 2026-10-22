@@ -3,43 +3,51 @@
 	t_1 := [{EMPTY_TYPE} + t_0]
 	t_2 := [#_Second INT]
 	t_3 := [{t_1} + t_2]
-	t_4 := [#Result INT]
-	t_5 := [t_3 => t_4]
-	t_6 := [EMPTY_TYPE => t_5]
-	t_7 := [#_First INT]
-	t_8 := [{EMPTY_TYPE} + t_7]
-	t_9 := [#_Second INT]
-	t_10 := [{t_8} + t_9]
-	t_11 := [t_6 => t_5]
-	t_12 := [EMPTY_TYPE, t_6]
-	t_13 := [t_12, t_11]
-	t_14 := [EMPTY_TYPE => INT]
-	t_15 := [t_13 => t_14]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [#Result INT]
+	t_6 := [t_4 => t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [#_First INT]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [#_Second INT]
+	t_11 := [{t_9} + t_10]
+	t_12 := [t_7 => t_6]
+	t_13 := [EMPTY_TYPE, t_7]
+	t_14 := [t_13, t_12]
+	t_15 := [EMPTY_TYPE => INT]
+	t_16 := [t_14 => t_15]
 
-§DEF d_0 € t_6
-	r_1 := {ARG} #_Second
+§DEF d_0 € t_7
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := {r_3} #_Second
 	_Value := r_1
 	r_2 := +#Result _Value
 	§RETURN r_2 IF TRUE
 
-§DEF d_1 € t_11
+§DEF d_1 € t_12
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_15
+§DEF d_2 € t_16
 	d_1 := §2ND ENV
-	r_10 := §1ST ENV
-	d_0 := §2ND r_10
-	r_11 := §1ST r_10
+	r_12 := §1ST ENV
+	d_0 := §2ND r_12
+	r_13 := §1ST r_12
 	r_1 := 1
 	r_2 := +#_First r_1
 	r_3 := {EMPTY} + r_2
 	r_4 := 2
 	r_5 := +#_Second r_4
 	r_6 := {r_3} + r_5
-	r_7 := .d_1 d_0
-	r_8 := .r_7 r_6
-	r_9 := -#Result r_8
-	§RETURN r_9 IF TRUE
+	r_7 := §CLOSURE d_1 d_0
+	r_8 := EMPTY, r_6
+	r_9 := OBJ, r_7
+	r_10 := §OBJ:r_9 r_8
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE

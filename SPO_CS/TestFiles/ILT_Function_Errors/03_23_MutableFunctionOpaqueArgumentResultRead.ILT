@@ -3,7 +3,7 @@
 	R := [V, INT]
 	F := [V => R]
 	C := [EMPTY_TYPE : F]
-	D := [V => C]
+	D := [EMPTY_TYPE => C]
 	MF := [EMPTY_TYPE => INT]
 	M := [V : MF]
 	O := [V, D]
@@ -17,7 +17,7 @@
 §DEF main € MainD
 	allowed := §1ST OBJ
 	def := §2ND OBJ
-	closure := .def allowed
+	closure := §CLOSURE def EMPTY
 	returned := .closure ARG
 	handle := §1ST returned
 	number := §2ND returned

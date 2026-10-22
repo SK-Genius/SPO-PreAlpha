@@ -1,2 +1,1 @@
-§VAR Cell := 7 .
-§EXPORT (Cell, {Handle: Cell, Number: 7}, Cell, Cell, (#Result Cell))
+§EXPORT (1, 7, 7, 7, 7)

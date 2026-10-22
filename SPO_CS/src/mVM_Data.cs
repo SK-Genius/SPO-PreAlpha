@@ -7,6 +7,7 @@
 #:ref Common/mArrayList.cs
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
+#:ref Common/mRef.cs
 #:ref Common/mMap.cs
 #:ref Common/mStream.cs
 #:ref mVM_Type.cs
@@ -715,10 +716,10 @@ mVM_Data {
 		Equals(
 			tData a
 		) => (
-			a is not null
-			&& this._DataType.Equals(a._DataType)
-			&& this._Value.Equals(a._Value)
-			&& this._Fields.Equals(a._Fields)
+			a is not null &&
+			this._DataType.Equals(a._DataType) &&
+			this._Value.Equals(a._Value) &&
+			this._Fields.Equals(a._Fields)
 		);
 		
 		public override tBool
@@ -1069,8 +1070,8 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		// In the end this is the place where the compiler will called !!!
-		return Data(tDataType.Proc, aEnv._IsMutable, aDef, aEnv);
+		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
+		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
 	
 	public static tBool
@@ -1107,7 +1108,8 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		tData aEnv
 	) {
-		return Data(tDataType.ExternProc, aEnv._IsMutable, aExternDef, aEnv);
+		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
+		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
 	}
 	
 	public static tBool
@@ -1145,13 +1147,20 @@ mVM_Data {
 	public static tData
 	Var(
 		tData aValue
-	) => Data(tDataType.Var, true, aValue);
+	) => Data(tDataType.Var, true, new mRef.tRefBox<tData> { _Value = aValue });
 	
 	public static tBool
 	IsVar(
 		this tData aData,
 		out tData aValue
-	) => aData.Is(tDataType.Var, out aValue);
+	) {
+		if (aData.Is(tDataType.Var, out mRef.tRefBox<tData> Cell)) {
+			aValue = Cell._Value;
+			return true;
+		}
+		aValue = default!;
+		return false;
+	}
 	
 	public static tData
 	ExternDef(

@@ -1,6 +1,6 @@
-TestFiles/SPO_Function_Errors/01_10_WrongRecordPayload.SPO:3 ERROR 
-3:  §SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }
- ┌────────────────────────────────────────────────────────────^
+TestFiles/SPO_Function_Errors/01_10_WrongRecordPayload.SPO:1 ERROR 
+1: §EXPORT §SIG [§SIG_WITH t € §TYPE IN t] WITH [< Value: §INT >] IN { Value: §TRUE }
+ ┌───────────────────────────────────────────────────────────────────^
  ├ found:
  │   [{ _Value : §TRUE }]
  │ expected:

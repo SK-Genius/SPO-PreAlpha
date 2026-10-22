@@ -1,9 +1,8 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-	§DEF Pass... = §DEF t <=> (§DEF aItem € t) => aItem
-	§DEF Value = .Pass aValue
-	§RETURN §TO_VAL Value
-	}
-)
-§EXPORT 1
+§EXPORT (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Pass... = §DEF t <=> (
+		§DEF aItem € t
+	) => aItem
+	§RETURN §TO_VAL (.Pass aValue)
+}

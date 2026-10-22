@@ -116,13 +116,13 @@
 	r_3 := r_1, r_2
 	r_4 := ._...<... r_3
 	r_5 := EMPTY, r_4
-	r_6 := .d_1 _a
+	r_6 := §CLOSURE d_1 _a
 	r_7 := r_5, r_6
 	r_8 := EMPTY, _...+...
 	r_9 := r_8, _Fib...
 	r_10 := r_9, _...-...
 	r_11 := r_10, _a
-	r_12 := .d_2 r_11
+	r_12 := §CLOSURE d_2 r_11
 	r_13 := r_7, r_12
 	r_14 := ._If...Then...Else... r_13
 	§RETURN r_14 IF TRUE
@@ -150,7 +150,7 @@
 	r_5 := r_4, _Fib...
 	r_6 := r_5, _...-...
 	r_7 := r_6, d_2
-	r_8 := .d_3 r_7
+	r_8 := §CLOSURE d_3 r_7
 	§RETURN r_8 IF TRUE
 
 §DEF d_5 € t_48
@@ -170,7 +170,7 @@
 	_...+... := r_2
 	r_3 := {ARG} #_...-...
 	_...-... := r_3
-	r_4 := .d_0 EMPTY
+	r_4 := §CLOSURE d_0 EMPTY
 	_If...Then...Else... := r_4
 	r_5 := EMPTY, _If...Then...Else...
 	r_6 := r_5, _...<...

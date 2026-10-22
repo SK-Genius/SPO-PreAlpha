@@ -1,1 +1,4 @@
-Pending diagnostic: mutable module export must be rejected.
+TestFiles/ILT_Module_Errors/04_02_MutableExport.ILT:8 ERROR 
+8:  §RETURN cell IF TRUE
+ ┌──^
+ ├ mutable module export is not allowed

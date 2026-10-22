@@ -12,7 +12,7 @@
 
 §DEF d_1 € t_5
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Identity... := r_1
 	r_2 := 3
 	r_3 := EMPTY, r_2

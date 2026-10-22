@@ -1,5 +1,5 @@
-TestFiles/SPO_Function_Errors/00_01_ParserUnexpectedToken.SPO:2 ERROR 
-2: §EXPORT )
+TestFiles/SPO_Function_Errors/00_01_ParserUnexpectedToken.SPO:1 ERROR 
+1: §EXPORT )
  ┌─────────^
  ├ expect '"'
  ├ expect '#...'

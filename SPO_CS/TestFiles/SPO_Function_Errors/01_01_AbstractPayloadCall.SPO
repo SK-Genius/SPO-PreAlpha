@@ -1,7 +1,5 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	§IF (§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN 7) MATCH {
-	    §SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body : .((§DEF N € §INT) => N) Body
-	}
-)
-§EXPORT 1
+§EXPORT §IF (§SIG [§SIG_WITH t € §TYPE IN t] WITH §INT IN 7) MATCH {
+	§SIG [§SIG_WITH t € §TYPE IN t] WITH §DEF Head € §TYPE IN §DEF Body: .((
+		§DEF aNumber € §INT
+	) => aNumber) Body
+}

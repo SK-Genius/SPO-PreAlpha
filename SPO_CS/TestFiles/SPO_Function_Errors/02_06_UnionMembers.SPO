@@ -1,6 +1,6 @@
-§IMPORT ()
-§DEF Fixture... = ((§DEF aValue € [§TRUE | [§INT | []]]) => {
+§EXPORT (
+	§DEF aValue € [§TRUE | [§INT | []]]
+) => {
 	§DEF Value € [[] | [§FALSE | §INT]] = aValue
 	§RETURN Value
-})
-§EXPORT 1
+}

@@ -236,6 +236,56 @@ const tText Uri = "file:///navigation-test.spo";
 	Assert(References[0].Range.Start.Line == 0 && References[0].Range.Start.Character == 0, "loaded reference has the wrong position");
 }
 
+{
+	const tText cILUri = "file:///independent.ILT";
+	const tText cValid = """
+	§TYPES
+		tF := [INT => INT]
+		tD := [EMPTY_TYPE => tF]
+	§DEF Main € tD
+		§RETURN ARG IF TRUE
+	""";
+	
+	var Service = new SpoLanguageService();
+	
+	Assert(
+		Service.GetDiagnostics(cILUri, cValid).Count == 0,
+		"valid IL requires concrete imports"
+	);
+	
+	var Errors = Service.GetDiagnostics(
+		cILUri,
+		cValid.Replace("§RETURN ARG IF TRUE", "value := .ARG EMPTY")
+	);
+	
+	Assert(
+		Errors.Count == 1 && Errors[0].Source == "types",
+		"IL call error is not a type diagnostic"
+	);
+	Assert(
+		Errors[0].Range.Start.Line == 4,
+		"IL type diagnostic has the wrong line"
+	);
+	Assert(
+		Service.GetDiagnostics(cILUri, cValid).Count == 0,
+		"IL type diagnostics survive a correction"
+	);
+	
+	var Mutable = """
+	§TYPES
+		tV := [§VAR INT]
+		tF := [tV => INT]
+		tD := [EMPTY_TYPE => tF]
+	§DEF Main € tD
+		Value := §VAR ARG ->
+		§RETURN Value IF TRUE
+	""";
+	
+	Errors = Service.GetDiagnostics(cILUri, Mutable);
+	
+	Assert(Errors.Count == 1 && Errors[0].Message.Contains("opaque mutable"), "IL access check requires linking");
+}
+
 return 0;
 
 static void

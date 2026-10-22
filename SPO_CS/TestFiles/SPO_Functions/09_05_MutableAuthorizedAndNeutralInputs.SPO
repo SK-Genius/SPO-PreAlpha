@@ -19,10 +19,10 @@
 	}
 )
 
-§DEF EmptyArgument... = () => (
+§DEF ExplicitHandleArgument... = () => (
 	(§VAR aSelf € §INT) : () {
-		§DEF Get... = () => aSelf
-		§DEF Result = .Get ()
+		§DEF Get... = (§DEF aValue € [§VAR §INT]) => aValue
+		§DEF Result = .Get aSelf
 		§RETURN §TO_VAL Result
 	}
 )
@@ -51,7 +51,7 @@
 §DEF OpaqueFunctionTransport... = () => (
 	(§DEF aGet... € [[] => [§VAR §INT]]) => {
 		§DEF Result = .aGet ()
-		§RETURN Result
+		§RETURN §TO_VAL Result
 	}
 )
 
@@ -62,7 +62,10 @@
 
 §VAR Cell := 7 .
 §VAR Opaque := 9 .
-§DEF Make... = () => Cell
+§DEF Make... = () => {
+	§VAR Fresh := 7 .
+	§RETURN Fresh
+}
 §DEF Number... = () => 11
 
 §DEF Case01... = .ReceiverReadWriteAndForward ()
@@ -73,7 +76,7 @@ Receiver01 : Case01 () => §DEF Result01 .
 §VAR Receiver02 := 7 .
 Receiver02 : Case02 () => §DEF Result02 .
 
-§DEF Case03... = .EmptyArgument ()
+§DEF Case03... = .ExplicitHandleArgument ()
 §VAR Receiver03 := 7 .
 Receiver03 : Case03 () => §DEF Result03 .
 

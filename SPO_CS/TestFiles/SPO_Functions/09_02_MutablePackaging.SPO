@@ -100,4 +100,15 @@
 §DEF Case07... = .ImmutableReconstruction ()
 §DEF Result07 = .Case07 {Handle: Cell, Number: 7}
 
-§EXPORT (Result01, Result02, Result03, Result04, Result05, Result06, Result07)
+{Number: §DEF Number} = Result05
+{Number: §DEF ReconstructedNumber} = Result07
+§DEF Wrapped = §TO_VAL Result06
+§EXPORT (
+	§TO_VAL Result01
+	§TO_VAL Result02
+	§TO_VAL Result03
+	§TO_VAL Result04
+	Number
+	§TO_VAL Wrapped
+	{Number: ReconstructedNumber}
+)

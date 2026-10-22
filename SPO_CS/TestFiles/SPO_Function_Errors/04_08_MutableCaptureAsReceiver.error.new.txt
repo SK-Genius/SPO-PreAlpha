@@ -1,4 +1,0 @@
-TestFiles/SPO_Function_Errors/04_08_MutableCaptureAsReceiver.SPO:8 ERROR 
-8:    aSelf : Read => §DEF Value .
- ┌────^
- ├ no '_Read' defined

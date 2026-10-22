@@ -1,3 +1,2 @@
-§IMPORT ()
 §DEF cValue € [< Common: §INT, Missing: §TRUE >] = {Common: 1}
 §EXPORT cValue

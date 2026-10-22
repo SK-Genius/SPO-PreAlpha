@@ -1,4 +1,7 @@
 TestFiles/ILT_Function_Errors/00_05_TryReturnMethod.ILT:7 ERROR 
 7:  §TRY_RETURN .ENV ARG
  ┌──^
- ├ §TRY_RETURN does not accept a method
+ ├ found:
+ │   []
+ │ expected:
+ │   §INT

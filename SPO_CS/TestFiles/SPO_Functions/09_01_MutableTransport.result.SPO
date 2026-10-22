@@ -1,4 +1,1 @@
-§VAR Cell := 7 .
-§VAR Opaque := 9 .
-§VAR Box := Cell .
-§EXPORT (Cell, (3, Cell), {Value: Cell}, (#Value Cell), Cell, §SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §INT IN Cell, Cell, Cell, Cell, (), Cell)
+§EXPORT (7, (3, 7), 7, 7, 7, 7, 7, 7, 7, 7)

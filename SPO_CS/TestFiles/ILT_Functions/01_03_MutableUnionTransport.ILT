@@ -12,8 +12,8 @@
 	ReadDef := [EMPTY_TYPE => M]
 	TestEnv0 := [EMPTY_TYPE, D]
 	TestEnv1 := [TestEnv0, ReadDef]
-	TestPair0 := [EMPTY_TYPE, U]
-	TestValue := [TestPair0, U]
+	TestPair0 := [EMPTY_TYPE, INT]
+	TestValue := [TestPair0, INT]
 	TestCall := [ANY => TestValue]
 	TestMain := [TestEnv1 => TestCall]
 
@@ -35,6 +35,9 @@
 	mutable := .pass cell
 	nine := 9
 	immutable := .pass nine
-	first := EMPTY, mutable
-	result := first, immutable
+	mutable_cell := §TRY mutable AS_VAR
+	mutable_value := §VAR mutable_cell ->
+	immutable_value := §TRY immutable AS_INT
+	first := EMPTY, mutable_value
+	result := first, immutable_value
 	§RETURN result IF TRUE

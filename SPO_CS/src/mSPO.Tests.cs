@@ -5,6 +5,7 @@
 #:ref Common/mStd.cs
 #:ref Common/mTest.cs
 #:ref mIL_GenerateOpcodes.Tests.cs
+#:ref mIL_TypeChecker.Tests.cs
 #:ref mIL_Parser.Tests.cs
 #:ref mE2E.Tests.cs
 #:ref mSPO_AST_Types.Tests.cs
@@ -23,6 +24,7 @@ mSPO_Tests {
 			mTokenizer_Tests.Tests,
 			mIL_Parser_Tests.Tests,
 			mIL_GenerateOpcodes_Tests.Tests,
+			mIL_TypeChecker_Tests.Tests,
 			mVM_Type_Tests.Tests,
 			mVM_Tests.Tests,
 			mSPO_AST_Types_Tests.Tests,

@@ -1,8 +1,0 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aGet... € [[] => [§VAR §INT]]) => {
-		§DEF Result = .aGet ()
-		§RETURN §TO_VAL Result
-	}
-)
-§EXPORT 1

@@ -77,6 +77,7 @@ mIL_Parser_Tests {
 			("a := -#b c", mIL_AST.SubPrefix(Span((1, 1), (1, 10)), "a", "b", "c")),
 			("a := {b} + c", mIL_AST.AddField(Span((1, 1), (1, 12)), "a", "b", "c")),
 			("a := {b} #c", mIL_AST.GetField(Span((1, 1), (1, 11)), "a", "b", "c")),
+			("a := §CLOSURE b c", mIL_AST.Closure(Span((1, 1), (1, 17)), "a", "b", "c")),
 			("a := .b c", mIL_AST.CallFunc(Span((1, 1), (1, 9)), "a", "b", "c")),
 			("a := §OBJ:b c", mIL_AST.CallProc(Span((1, 1), (1, 13)), "a", "b", "c")),
 			("a := §VAR b", mIL_AST.VarDef(Span((1, 1), (1, 11)), "a", "b")),

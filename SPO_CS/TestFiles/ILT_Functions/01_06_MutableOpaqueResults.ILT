@@ -24,8 +24,8 @@
 	try_returnF := [V => R]
 	B := [TRUE | FALSE]
 	G := [V => B]
-	FD := [V => try_returnF]
-	GD := [V => G]
+	FD := [EMPTY_TYPE => try_returnF]
+	GD := [EMPTY_TYPE => G]
 	try_returnE := [try_returnF, G]
 	try_returnD := [try_returnE => try_returnF]
 	EntryResult := [EMPTY_TYPE => INT]
@@ -34,12 +34,12 @@
 	AnyMethodDef := [EMPTY_TYPE => M]
 	PassDef := [EMPTY_TYPE => Pass]
 	NarrowMethodDef := [EMPTY_TYPE => narrowM]
-	GetDef := [V => GF]
+	GetDef := [EMPTY_TYPE => GF]
 	GetMethodDef := [EMPTY_TYPE => Get]
-	TestPair0 := [EMPTY_TYPE, ANY]
-	TestPair1 := [TestPair0, Narrow]
-	TestPair2 := [TestPair1, V]
-	TestRecordPair := [TestPair2, V]
+	TestPair0 := [EMPTY_TYPE, INT]
+	TestPair1 := [TestPair0, INT]
+	TestPair2 := [TestPair1, INT]
+	TestRecordPair := [TestPair2, INT]
 
 	TestEnv0 := [EMPTY_TYPE, D]
 	TestEnv1 := [TestEnv0, narrowD]
@@ -53,7 +53,7 @@
 	TestEnv9 := [TestEnv8, NarrowMethodDef]
 	TestEnv10 := [TestEnv9, GetDef]
 	TestEnv11 := [TestEnv10, GetMethodDef]
-	TestValue := [TestRecordPair, R]
+	TestValue := [TestRecordPair, INT]
 	TestCall := [ANY => TestValue]
 	TestMain := [TestEnv11 => TestCall]
 
@@ -94,7 +94,9 @@
 §DEF narrow_method € NarrowMethodDef
 	§RETURN ONE IF TRUE
 §DEF get € GetDef
-	§RETURN ENV IF TRUE
+	seven := 7
+	cell := §VAR seven
+	§RETURN cell IF TRUE
 §DEF get_method € GetMethodDef
 	§RETURN OBJ IF TRUE
 
@@ -136,7 +138,7 @@
 	number_field := +#Number seven
 	wide := {wide_handle} + number_field
 	narrow_result := .narrow wide
-	get := .get_def cell
+	get := §CLOSURE get_def EMPTY
 	function := .function_f_def get
 	function_pair := cell, function
 	function_result := §OBJ:function_pair EMPTY
@@ -144,14 +146,21 @@
 	forward := .method_f_def get_method
 	method_pair := cell, forward
 	method_result := §OBJ:method_pair EMPTY
-	callback := .try_return_case_def cell
-	guard := .try_return_guard_def cell
+	callback := §CLOSURE try_return_case_def EMPTY
+	guard := §CLOSURE try_return_guard_def EMPTY
 	try_env := callback, guard
 	try_return := .try_return_main_def try_env
 	try_result := .try_return cell
-	result1 := EMPTY, any_result
-	result2 := result1, narrow_result
-	result3 := result2, function_result
-	result4 := result3, method_result
-	result := result4, try_result
+	any_pair := any_result, method
+	any_value := §OBJ:any_pair EMPTY
+	number := {narrow_result} #Number
+	function_value := §VAR function_result ->
+	method_value := §VAR method_result ->
+	try_cell := -#Result try_result
+	try_value := §VAR try_cell ->
+	result1 := EMPTY, any_value
+	result2 := result1, number
+	result3 := result2, function_value
+	result4 := result3, method_value
+	result := result4, try_value
 	§RETURN result IF TRUE

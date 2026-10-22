@@ -22,6 +22,6 @@
 §DEF d_1 € t_7
 	d_0 := ENV
 	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Create... := r_1
 	§RETURN _Create... IF TRUE

@@ -8,273 +8,330 @@
 	t_6 := [§ALL t_5 => t_5]
 	t_7 := [TRUE | FALSE]
 	t_8 := [t_7 | INT]
-	t_9 := [#Result INT]
-	t_10 := [t_1 => t_9]
-	t_11 := [EMPTY_TYPE => t_10]
-	t_12 := [t_1 => t_7]
-	t_13 := [EMPTY_TYPE => t_12]
-	t_14 := [§ABSTRACT TYPE]
-	t_15 := [EMPTY_TYPE, t_11]
-	t_16 := [t_15, t_13]
-	t_17 := [t_16, t_11]
-	t_18 := [t_17 => t_10]
-	t_19 := [§ABSTRACT TYPE]
-	t_20 := [#_Value INT]
-	t_21 := [{EMPTY_TYPE} + t_20]
-	t_22 := [#_Value t_7]
-	t_23 := [{EMPTY_TYPE} + t_22]
-	t_24 := [§ABSTRACT TYPE]
+	t_9 := [EMPTY_TYPE, t_1]
+	t_10 := [#Result INT]
+	t_11 := [t_9 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [t_9 => t_7]
+	t_14 := [EMPTY_TYPE => t_13]
+	t_15 := [§ABSTRACT TYPE]
+	t_16 := [EMPTY_TYPE, t_12]
+	t_17 := [t_16, t_14]
+	t_18 := [t_17, t_12]
+	t_19 := [t_18 => t_11]
+	t_20 := [§ABSTRACT TYPE]
+	t_21 := [#_Value INT]
+	t_22 := [{EMPTY_TYPE} + t_21]
+	t_23 := [#_Value t_7]
+	t_24 := [{EMPTY_TYPE} + t_23]
 	t_25 := [§ABSTRACT TYPE]
-	t_26 := [t_4 => t_9]
-	t_27 := [EMPTY_TYPE => t_26]
-	t_28 := [t_4 => t_7]
+	t_26 := [§ABSTRACT TYPE]
+	t_27 := [EMPTY_TYPE, t_4]
+	t_28 := [t_27 => t_10]
 	t_29 := [EMPTY_TYPE => t_28]
-	t_30 := [§ABSTRACT t_2]
-	t_31 := [EMPTY_TYPE, t_27]
-	t_32 := [t_31, t_29]
-	t_33 := [t_32, t_27]
-	t_34 := [t_33 => t_26]
-	t_35 := [t_17, t_18]
-	t_36 := [t_35, t_11]
-	t_37 := [t_36, t_13]
-	t_38 := [t_37, t_11]
-	t_39 := [t_38, t_18]
-	t_40 := [t_39, t_11]
-	t_41 := [t_40, t_13]
-	t_42 := [t_41, t_11]
-	t_43 := [t_42, t_18]
-	t_44 := [t_43, t_11]
-	t_45 := [t_44, t_13]
-	t_46 := [t_45, t_11]
-	t_47 := [t_46, t_18]
-	t_48 := [t_47, t_27]
-	t_49 := [t_48, t_29]
-	t_50 := [t_49, t_27]
-	t_51 := [t_50, t_34]
-	t_52 := [EMPTY_TYPE, INT]
-	t_53 := [t_52, INT]
-	t_54 := [t_53, INT]
+	t_30 := [t_27 => t_7]
+	t_31 := [EMPTY_TYPE => t_30]
+	t_32 := [§ABSTRACT t_2]
+	t_33 := [EMPTY_TYPE, t_29]
+	t_34 := [t_33, t_31]
+	t_35 := [t_34, t_29]
+	t_36 := [t_35 => t_28]
+	t_37 := [t_18, t_19]
+	t_38 := [t_37, t_12]
+	t_39 := [t_38, t_14]
+	t_40 := [t_39, t_12]
+	t_41 := [t_40, t_19]
+	t_42 := [t_41, t_12]
+	t_43 := [t_42, t_14]
+	t_44 := [t_43, t_12]
+	t_45 := [t_44, t_19]
+	t_46 := [t_45, t_12]
+	t_47 := [t_46, t_14]
+	t_48 := [t_47, t_12]
+	t_49 := [t_48, t_19]
+	t_50 := [t_49, t_29]
+	t_51 := [t_50, t_31]
+	t_52 := [t_51, t_29]
+	t_53 := [t_52, t_36]
+	t_54 := [EMPTY_TYPE, INT]
 	t_55 := [t_54, INT]
 	t_56 := [t_55, INT]
-	t_57 := [EMPTY_TYPE => t_56]
-	t_58 := [t_51 => t_57]
+	t_57 := [t_56, INT]
+	t_58 := [t_57, INT]
+	t_59 := [EMPTY_TYPE => t_58]
+	t_60 := [t_53 => t_59]
 
-§DEF d_0 € t_11
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_8
+§DEF d_0 € t_12
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE t_8
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := 1
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_1 € t_13
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_8
+§DEF d_1 € t_14
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §TRY r_4 HAS_HEAD_TYPE t_8
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	§RETURN TRUE IF TRUE
 
-§DEF d_2 € t_11
-	r_1 := §SIG_HEAD ARG AS t_14
-	r_2 := §SIG_BODY ARG
+§DEF d_2 € t_12
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §SIG_HEAD r_5 AS t_15
+	r_2 := §SIG_BODY r_5
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_3 € t_18
+§DEF d_3 € t_19
 	d_2 := §2ND ENV
-	r_4 := §1ST ENV
-	d_1 := §2ND r_4
-	r_5 := §1ST r_4
-	d_0 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_0 EMPTY
-	r_2 := .d_1 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_2 EMPTY
-	§TRY_RETURN .r_3 ARG
+	r_9 := §1ST ENV
+	d_1 := §2ND r_9
+	r_10 := §1ST r_9
+	d_0 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_1 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_2 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_4 € t_11
-	r_1 := §TRY ARG HAS_HEAD_TYPE INT_TYPE
+§DEF d_4 € t_12
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE INT_TYPE
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := 1
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_5 € t_13
-	r_1 := §TRY ARG HAS_HEAD_TYPE INT_TYPE
+§DEF d_5 € t_14
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §TRY r_4 HAS_HEAD_TYPE INT_TYPE
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	§RETURN TRUE IF TRUE
 
-§DEF d_6 € t_11
-	r_1 := §SIG_HEAD ARG AS t_19
-	r_2 := §SIG_BODY ARG
+§DEF d_6 € t_12
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §SIG_HEAD r_5 AS t_20
+	r_2 := §SIG_BODY r_5
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_7 € t_18
+§DEF d_7 € t_19
 	d_6 := §2ND ENV
-	r_4 := §1ST ENV
-	d_5 := §2ND r_4
-	r_5 := §1ST r_4
-	d_4 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_4 EMPTY
-	r_2 := .d_5 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_6 EMPTY
-	§TRY_RETURN .r_3 ARG
+	r_9 := §1ST ENV
+	d_5 := §2ND r_9
+	r_10 := §1ST r_9
+	d_4 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_4 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_5 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_6 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_8 € t_11
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_23
+§DEF d_8 € t_12
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE t_24
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := 1
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_9 € t_13
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_23
+§DEF d_9 € t_14
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §TRY r_4 HAS_HEAD_TYPE t_24
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	§RETURN TRUE IF TRUE
 
-§DEF d_10 € t_11
-	r_1 := §SIG_HEAD ARG AS t_24
-	r_2 := §SIG_BODY ARG
+§DEF d_10 € t_12
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §SIG_HEAD r_5 AS t_25
+	r_2 := §SIG_BODY r_5
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_11 € t_18
+§DEF d_11 € t_19
 	d_10 := §2ND ENV
-	r_4 := §1ST ENV
-	d_9 := §2ND r_4
-	r_5 := §1ST r_4
-	d_8 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_8 EMPTY
-	r_2 := .d_9 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_10 EMPTY
-	§TRY_RETURN .r_3 ARG
+	r_9 := §1ST ENV
+	d_9 := §2ND r_9
+	r_10 := §1ST r_9
+	d_8 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_8 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_9 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_10 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_12 € t_11
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_8
+§DEF d_12 € t_12
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE t_8
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := 1
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_13 € t_13
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_8
+§DEF d_13 € t_14
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §TRY r_4 HAS_HEAD_TYPE t_8
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	§RETURN TRUE IF TRUE
 
-§DEF d_14 € t_11
-	r_1 := §SIG_HEAD ARG AS t_25
-	r_2 := §SIG_BODY ARG
+§DEF d_14 € t_12
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §SIG_HEAD r_5 AS t_26
+	r_2 := §SIG_BODY r_5
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_15 € t_18
+§DEF d_15 € t_19
 	d_14 := §2ND ENV
-	r_4 := §1ST ENV
-	d_13 := §2ND r_4
-	r_5 := §1ST r_4
-	d_12 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_12 EMPTY
-	r_2 := .d_13 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_14 EMPTY
-	§TRY_RETURN .r_3 ARG
+	r_9 := §1ST ENV
+	d_13 := §2ND r_9
+	r_10 := §1ST r_9
+	d_12 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_12 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_13 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_14 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_16 € t_27
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_6
+§DEF d_16 € t_29
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE t_6
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := 1
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_17 € t_29
-	r_1 := §TRY ARG HAS_HEAD_TYPE t_6
+§DEF d_17 € t_31
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §TRY r_4 HAS_HEAD_TYPE t_6
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	§RETURN TRUE IF TRUE
 
-§DEF d_18 € t_27
-	r_1 := §SIG_HEAD ARG AS t_30
-	r_2 := §SIG_BODY ARG
+§DEF d_18 € t_29
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §SIG_HEAD r_5 AS t_32
+	r_2 := §SIG_BODY r_5
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_19 € t_34
+§DEF d_19 € t_36
 	d_18 := §2ND ENV
-	r_4 := §1ST ENV
-	d_17 := §2ND r_4
-	r_5 := §1ST r_4
-	d_16 := §2ND r_5
-	r_6 := §1ST r_5
-	r_1 := .d_16 EMPTY
-	r_2 := .d_17 EMPTY
-	§TRY_RETURN .r_1 ARG IF r_2
-	r_3 := .d_18 EMPTY
-	§TRY_RETURN .r_3 ARG
+	r_9 := §1ST ENV
+	d_17 := §2ND r_9
+	r_10 := §1ST r_9
+	d_16 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_16 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_17 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_18 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_20 € t_58
+§DEF d_20 € t_60
 	d_19 := §2ND ENV
-	r_46 := §1ST ENV
-	d_18 := §2ND r_46
-	r_47 := §1ST r_46
-	d_17 := §2ND r_47
-	r_48 := §1ST r_47
-	d_16 := §2ND r_48
-	r_49 := §1ST r_48
-	d_15 := §2ND r_49
-	r_50 := §1ST r_49
-	d_14 := §2ND r_50
-	r_51 := §1ST r_50
-	d_13 := §2ND r_51
-	r_52 := §1ST r_51
-	d_12 := §2ND r_52
-	r_53 := §1ST r_52
-	d_11 := §2ND r_53
-	r_54 := §1ST r_53
-	d_10 := §2ND r_54
-	r_55 := §1ST r_54
-	d_9 := §2ND r_55
-	r_56 := §1ST r_55
-	d_8 := §2ND r_56
+	r_56 := §1ST ENV
+	d_18 := §2ND r_56
 	r_57 := §1ST r_56
-	d_7 := §2ND r_57
+	d_17 := §2ND r_57
 	r_58 := §1ST r_57
-	d_6 := §2ND r_58
+	d_16 := §2ND r_58
 	r_59 := §1ST r_58
-	d_5 := §2ND r_59
+	d_15 := §2ND r_59
 	r_60 := §1ST r_59
-	d_4 := §2ND r_60
+	d_14 := §2ND r_60
 	r_61 := §1ST r_60
-	d_3 := §2ND r_61
+	d_13 := §2ND r_61
 	r_62 := §1ST r_61
-	d_2 := §2ND r_62
+	d_12 := §2ND r_62
 	r_63 := §1ST r_62
-	d_1 := §2ND r_63
+	d_11 := §2ND r_63
 	r_64 := §1ST r_63
-	d_0 := §2ND r_64
+	d_10 := §2ND r_64
 	r_65 := §1ST r_64
+	d_9 := §2ND r_65
+	r_66 := §1ST r_65
+	d_8 := §2ND r_66
+	r_67 := §1ST r_66
+	d_7 := §2ND r_67
+	r_68 := §1ST r_67
+	d_6 := §2ND r_68
+	r_69 := §1ST r_68
+	d_5 := §2ND r_69
+	r_70 := §1ST r_69
+	d_4 := §2ND r_70
+	r_71 := §1ST r_70
+	d_3 := §2ND r_71
+	r_72 := §1ST r_71
+	d_2 := §2ND r_72
+	r_73 := §1ST r_72
+	d_1 := §2ND r_73
+	r_74 := §1ST r_73
+	d_0 := §2ND r_74
+	r_75 := §1ST r_74
 	_Contract := t_1
 	_ConstructorContract := t_4
 	_Identity... := t_6
@@ -284,44 +341,54 @@
 	r_3 := EMPTY, d_0
 	r_4 := r_3, d_1
 	r_5 := r_4, d_2
-	r_6 := .d_3 r_5
-	r_7 := .r_6 r_2
-	r_8 := -#Result r_7
-	r_9 := EMPTY, r_8
-	r_10 := t_8, EMPTY
-	r_11 := §SIG t_1 WITH r_10
-	r_12 := EMPTY, d_4
-	r_13 := r_12, d_5
-	r_14 := r_13, d_6
-	r_15 := .d_7 r_14
-	r_16 := .r_15 r_11
-	r_17 := -#Result r_16
-	r_18 := r_9, r_17
-	r_19 := t_21, EMPTY
-	r_20 := §SIG t_1 WITH r_19
-	r_21 := EMPTY, d_8
-	r_22 := r_21, d_9
-	r_23 := r_22, d_10
-	r_24 := .d_11 r_23
-	r_25 := .r_24 r_20
-	r_26 := -#Result r_25
-	r_27 := r_18, r_26
-	r_28 := t_8, EMPTY
-	r_29 := §SIG t_1 WITH r_28
-	r_30 := EMPTY, d_12
-	r_31 := r_30, d_13
-	r_32 := r_31, d_14
-	r_33 := .d_15 r_32
-	r_34 := .r_33 r_29
-	r_35 := -#Result r_34
-	r_36 := r_27, r_35
-	r_37 := t_6, EMPTY
-	r_38 := §SIG t_4 WITH r_37
-	r_39 := EMPTY, d_16
-	r_40 := r_39, d_17
-	r_41 := r_40, d_18
-	r_42 := .d_19 r_41
-	r_43 := .r_42 r_38
-	r_44 := -#Result r_43
-	r_45 := r_36, r_44
-	§RETURN r_45 IF TRUE
+	r_6 := §CLOSURE d_3 r_5
+	r_7 := EMPTY, r_2
+	r_8 := OBJ, r_6
+	r_9 := §OBJ:r_8 r_7
+	r_10 := -#Result r_9
+	r_11 := EMPTY, r_10
+	r_12 := t_8, EMPTY
+	r_13 := §SIG t_1 WITH r_12
+	r_14 := EMPTY, d_4
+	r_15 := r_14, d_5
+	r_16 := r_15, d_6
+	r_17 := §CLOSURE d_7 r_16
+	r_18 := EMPTY, r_13
+	r_19 := OBJ, r_17
+	r_20 := §OBJ:r_19 r_18
+	r_21 := -#Result r_20
+	r_22 := r_11, r_21
+	r_23 := t_22, EMPTY
+	r_24 := §SIG t_1 WITH r_23
+	r_25 := EMPTY, d_8
+	r_26 := r_25, d_9
+	r_27 := r_26, d_10
+	r_28 := §CLOSURE d_11 r_27
+	r_29 := EMPTY, r_24
+	r_30 := OBJ, r_28
+	r_31 := §OBJ:r_30 r_29
+	r_32 := -#Result r_31
+	r_33 := r_22, r_32
+	r_34 := t_8, EMPTY
+	r_35 := §SIG t_1 WITH r_34
+	r_36 := EMPTY, d_12
+	r_37 := r_36, d_13
+	r_38 := r_37, d_14
+	r_39 := §CLOSURE d_15 r_38
+	r_40 := EMPTY, r_35
+	r_41 := OBJ, r_39
+	r_42 := §OBJ:r_41 r_40
+	r_43 := -#Result r_42
+	r_44 := r_33, r_43
+	r_45 := t_6, EMPTY
+	r_46 := §SIG t_4 WITH r_45
+	r_47 := EMPTY, d_16
+	r_48 := r_47, d_17
+	r_49 := r_48, d_18
+	r_50 := §CLOSURE d_19 r_49
+	r_51 := EMPTY, r_46
+	r_52 := OBJ, r_50
+	r_53 := §OBJ:r_52 r_51
+	r_54 := -#Result r_53
+	r_55 := r_44, r_54
+	§RETURN r_55 IF TRUE

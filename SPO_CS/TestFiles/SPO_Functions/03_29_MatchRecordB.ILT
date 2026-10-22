@@ -17,7 +17,7 @@
 
 §DEF d_1 € t_7
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	r_2 := +#_First EMPTY
 	r_3 := {EMPTY} + r_2
 	r_4 := 3

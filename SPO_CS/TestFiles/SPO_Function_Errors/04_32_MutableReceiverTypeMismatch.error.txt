@@ -1,1 +1,9 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_32_MutableReceiverTypeMismatch.SPO:9 ERROR 
+9: aValue : Read => §DEF Res .
+ ┌─^
+ ├ can't convert receiver:
+ │ expected VAR
+ │ found:
+ │   §INT
+ │ expected:
+ │   [ §VAR §INT ]

@@ -154,6 +154,11 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.GetField))
 			.SetDebugName([nameof(mIL_AST.GetField)]),
 			
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), KeyWord("CLOSURE"), Id, Id)
+			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
+			.ModifyS(mTokenizer.X(mIL_AST.Closure))
+			.SetDebugName([nameof(mIL_AST.Closure)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), SpecialToken("."), Id, Id)
 			.Modify((a1, _, _, a2, a3) => (a1, a2, a3))
 			.ModifyS(mTokenizer.X(mIL_AST.CallFunc))

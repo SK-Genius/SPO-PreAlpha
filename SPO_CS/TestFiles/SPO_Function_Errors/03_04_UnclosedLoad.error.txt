@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/03_04_UnclosedLoad.SPO:1 ERROR 
-1: §DEF Identity... = (§DEF Value € [§LOAD "Int.SIG") => Value
- ┌──────────────────────────────────────────────────^
+TestFiles/SPO_Function_Errors/03_04_UnclosedLoad.SPO:2 ERROR 
+2:  §DEF aValue € [§LOAD "Int.SIG"
+ ┌────────────────────────────────^
  ├ expect ']'

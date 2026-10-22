@@ -1,0 +1,5 @@
+§IMPORT ()
+§VAR Cell := 7 .
+§DEF Get... = () => Cell
+§DEF Returned = .Get ()
+§EXPORT §TO_VAL Returned

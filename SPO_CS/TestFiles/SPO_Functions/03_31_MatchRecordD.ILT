@@ -3,66 +3,77 @@
 	t_1 := [{EMPTY_TYPE} + t_0]
 	t_2 := [#_Second INT]
 	t_3 := [{t_1} + t_2]
-	t_4 := [TRUE | FALSE]
-	t_5 := [#Result t_4]
-	t_6 := [t_3 => t_5]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [#_First EMPTY_TYPE]
-	t_9 := [{EMPTY_TYPE} + t_8]
-	t_10 := [#_Second INT]
-	t_11 := [{t_9} + t_10]
-	t_12 := [t_7 => t_6]
-	t_13 := [EMPTY_TYPE, t_7]
-	t_14 := [t_13, t_12]
-	t_15 := [INT | EMPTY_TYPE]
-	t_16 := [EMPTY_TYPE => t_15]
-	t_17 := [t_14 => t_16]
-	t_18 := [t_14, t_17]
-	t_19 := [EMPTY_TYPE => INT]
-	t_20 := [t_18 => t_19]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [TRUE | FALSE]
+	t_6 := [#Result t_5]
+	t_7 := [t_4 => t_6]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [#_First EMPTY_TYPE]
+	t_10 := [{EMPTY_TYPE} + t_9]
+	t_11 := [#_Second INT]
+	t_12 := [{t_10} + t_11]
+	t_13 := [t_8 => t_7]
+	t_14 := [EMPTY_TYPE, t_8]
+	t_15 := [t_14, t_13]
+	t_16 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_17 := [t_16 => INT]
+	t_18 := [t_15 => t_17]
+	t_19 := [t_15, t_18]
+	t_20 := [EMPTY_TYPE => INT]
+	t_21 := [t_19 => t_20]
 
-§DEF d_0 € t_7
-	r_1 := {ARG} #_First
-	r_2 := {ARG} #_Second
+§DEF d_0 € t_8
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := {r_4} #_First
+	r_2 := {r_4} #_Second
 	r_3 := +#Result TRUE
 	§RETURN r_3 IF TRUE
 
-§DEF d_1 € t_12
+§DEF d_1 € t_13
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_17
+§DEF d_2 € t_18
 	d_1 := §2ND ENV
-	r_11 := §1ST ENV
-	d_0 := §2ND r_11
-	r_12 := §1ST r_11
-	§RETURN ARG IF_NOT_EMPTY
+	r_15 := §1ST ENV
+	d_0 := §2ND r_15
+	r_16 := §1ST r_15
+	r_14 := §1ST ARG
+	r_13 := §2ND ARG
 	r_1 := +#_First EMPTY
 	r_2 := {EMPTY} + r_1
 	r_3 := 7
 	r_4 := +#_Second r_3
 	r_5 := {r_2} + r_4
-	r_6 := .d_1 d_0
-	r_7 := .r_6 r_5
-	r_8 := -#Result r_7
-	r_9 := 1
-	§RETURN r_9 IF r_8
-	r_10 := 0
-	§RETURN r_10 IF TRUE
+	r_6 := §CLOSURE d_1 d_0
+	r_7 := EMPTY, r_5
+	r_8 := OBJ, r_6
+	r_9 := §OBJ:r_8 r_7
+	r_10 := -#Result r_9
+	r_11 := 1
+	§RETURN r_11 IF r_10
+	r_12 := 0
+	§RETURN r_12 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_20
+§DEF d_3 € t_21
 	d_2 := §2ND ENV
-	r_6 := §1ST ENV
-	d_1 := §2ND r_6
-	r_7 := §1ST r_6
-	d_0 := §2ND r_7
-	r_8 := §1ST r_7
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
 	r_2 := EMPTY, d_0
 	r_3 := r_2, d_1
-	r_4 := .d_2 r_3
-	r_5 := .r_4 EMPTY
-	r_1 := r_5
+	r_4 := §CLOSURE d_2 r_3
+	r_5 := EMPTY, EMPTY
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_1 := r_7
 	§RETURN r_1 IF TRUE

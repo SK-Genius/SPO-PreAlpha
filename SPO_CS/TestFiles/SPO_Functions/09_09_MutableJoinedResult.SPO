@@ -22,4 +22,4 @@ Receiver01 : Case01 (Opaque, §TRUE) => §DEF Result01 .
 §VAR Receiver02 := 7 .
 Receiver02 : Case02 (Opaque, §FALSE) => §DEF Result02 .
 
-§EXPORT (Result01, Result02)
+§EXPORT (§TO_VAL Result01, §TO_VAL Result02)

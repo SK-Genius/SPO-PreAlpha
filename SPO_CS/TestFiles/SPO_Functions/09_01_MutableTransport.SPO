@@ -38,10 +38,6 @@
 	(§DEF aValue € [[§VAR §INT] | §INT]) => aValue
 )
 
-§DEF RecursiveType... = () => (
-	(§DEF aValue € [§RECURSIVE t [[] | [t; [§VAR §INT]]]]) => aValue
-)
-
 §DEF RecursiveDefinition... = () => (
 	{
 		§RECURSIVE {
@@ -62,7 +58,8 @@
 §DEF Case02... = .TuplePattern ()
 §DEF Result02 = .Case02 (3, Cell)
 
-§DEF Result03 = .RecordPattern ()
+§DEF Case03... = .RecordPattern ()
+§DEF Result03 = .Case03 {Value: Cell}
 
 §DEF Case04... = .PrefixPattern ()
 §DEF Result04 = .Case04 (#Value Cell)
@@ -82,9 +79,30 @@
 §DEF Case09... = .UnionArgument ()
 §DEF Result09 = .Case09 Cell
 
-§DEF Case10... = .RecursiveType ()
-§DEF Result10 = .Case10 ()
-
 §DEF Result11 = .RecursiveDefinition ()
+§VAR Invalid := 0 .
 
-§EXPORT (Result01, Result02, Result03, Result04, Result05, Result06, Result07, Result08, Result09, Result10, Result11)
+(§DEF First02, §DEF Cell02) = Result02
+{Value: §DEF Cell03} = Result03
+(#Value §DEF Cell04) = Result04
+(§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §INT IN §DEF Cell06) = Result06
+§DEF Cell08 = §IF Result08 MATCH {
+	§DEF Handle € [§VAR §INT]: Handle
+	_: Invalid
+}
+§DEF Cell09 = §IF Result09 MATCH {
+	§DEF Handle € [§VAR §INT]: Handle
+	_: Invalid
+}
+§EXPORT (
+	§TO_VAL Result01
+	(First02, §TO_VAL Cell02)
+	§TO_VAL Cell03
+	§TO_VAL Cell04
+	§TO_VAL Result05
+	§TO_VAL Cell06
+	§TO_VAL Result07
+	§TO_VAL Cell08
+	§TO_VAL Cell09
+	§TO_VAL Result11
+)

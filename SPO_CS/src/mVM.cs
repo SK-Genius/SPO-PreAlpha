@@ -7,6 +7,7 @@
 #:ref Common/mError.cs
 #:ref Common/mPerf.cs
 #:ref Common/mMaybe.cs
+#:ref Common/mRef.cs
 #:ref Common/mMath.cs
 #:ref Common/mStream.cs
 #:ref Common/mAny.cs
@@ -74,7 +75,7 @@ mVM {
 	}
 	
 	private static mMaybe.tMaybe<mVM_Type.tType>
-	TryGetFuncArgType(
+	TryGetProcArgType(
 		mVM_Data.tData aProc
 	) {
 		if (
@@ -180,8 +181,9 @@ mVM {
 	}
 	
 	private static mVM_Data.tData
-	RunFunc<tPos>(
+	RunProc<tPos>(
 		mVM_Data.tData aProc,
+		mVM_Data.tData aObject,
 		mVM_Data.tData aArg,
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
@@ -190,7 +192,7 @@ mVM {
 			var Res = mVM_Data.Empty();
 			Run(
 				mVM_Data.Proc(Def, Env),
-				mVM_Data.Empty(),
+				ObjectType.IsEmpty() ? mVM_Data.Empty() : aObject,
 				aArg,
 				Res,
 				aPosToText,
@@ -198,7 +200,7 @@ mVM {
 			);
 			return Res;
 		} else if (aProc.IsExternProc(out var ExternDef, out var ExternEnv)) {
-			return ExternDef(ExternEnv, mVM_Data.Empty(), aArg, aTraceOut);
+			return ExternDef(ExternEnv, aObject, aArg, aTraceOut);
 		} else {
 			throw mError.Error("expected proc but is: " + aProc._DataType);
 		}
@@ -629,18 +631,19 @@ mVM {
 				);
 				
 				var Arg = aCallStack._Regs.Get(Arg2);
+				var Object = aCallStack._Regs.Get(mVM_Data.cObjReg);
 				if (
-					TryGetFuncArgType(Proc).IsSome(out var ArgType) &&
+					TryGetProcArgType(Proc).IsSome(out var ArgType) &&
 					Arg.Matches(ArgType) &&
 					(
 						!Guard.IsSome(out var GuardProc) ||
 						(
-							RunFunc(GuardProc, Arg, aPosToText, aCallStack._TraceOut).IsBool(out var GuardResult) &&
+							RunProc(GuardProc, Object, Arg, aPosToText, aCallStack._TraceOut).IsBool(out var GuardResult) &&
 							GuardResult
 						)
 					)
 				) {
-					aCallStack._Regs.Push(RunFunc(Proc, Arg, aPosToText, aCallStack._TraceOut));
+					aCallStack._Regs.Push(RunProc(Proc, Object, Arg, aPosToText, aCallStack._TraceOut));
 				} else {
 					aCallStack._Regs.Push(mVM_Data.Empty());
 				}
@@ -914,7 +917,7 @@ mVM {
 		}
 		var (VMModule, ModuleMap) = Compiled;
 		var Res = mVM_Data.Empty();
-		var Defs = VMModule.Reverse().Skip(1).Reverse();
+		var Defs = aModule.Reverse().Skip(1).Reverse();
 		
 		var DefTuple = Defs.Take(2).Count() switch {
 			0 => mVM_Data.Empty(),
@@ -927,7 +930,7 @@ mVM {
 				)
 			),
 		};
-		var InitProc = VMModule.TryLast().AssertNotEmpty();
+		var InitProc = aModule.TryLast().AssertNotEmpty();
 		
 		#if MY_TRACE_VM
 			var TraceOut = aTrace;
@@ -938,14 +941,19 @@ mVM {
 		Run(
 			mVM_Data.Proc(InitProc, DefTuple),
 			mVM_Data.Empty(),
-			aImport.Data,
+			aImport,
 			Res,
 			aPosToText,
 			TraceOut
 		);
 		
+		mAssert.IsFalse(
+			Res._IsMutable,
+			"mutable module export is not allowed"
+		);
+		
 		mAssert.IsTrue(
-			VMModule.TryLast(
+			aModule.TryLast(
 			).AssertNotEmpty(
 			).DefType.IsProc(
 				out _,
@@ -953,10 +961,12 @@ mVM {
 				out var FuncType
 			)
 		);
+		
 		mAssert.IsTrue(
 			FuncType.IsProc(out _, out _, out var ResType),
 			() => $"{mStd.FileLine()}: {FuncType.ToText()}"
 		);
+		
 		return (Res, ResType);
 	}
 	

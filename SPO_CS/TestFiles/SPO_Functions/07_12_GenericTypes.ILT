@@ -59,9 +59,9 @@
 	d_0 := §2ND r_37
 	r_38 := §1ST r_37
 	_tStack... := t_6
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Push...To... := r_1
-	r_2 := .d_1 EMPTY
+	r_2 := §CLOSURE d_1 EMPTY
 	_...AsBool := r_2
 	r_3 := 3
 	r_4 := EMPTY, r_3

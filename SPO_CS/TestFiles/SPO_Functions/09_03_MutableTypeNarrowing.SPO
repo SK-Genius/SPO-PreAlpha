@@ -32,4 +32,4 @@
 §DEF Case02... = .UnionNarrowing ()
 §DEF Result02 = .Case02 Cell
 
-§EXPORT (Result01, Result02)
+§EXPORT (§TO_VAL Result01, §TO_VAL Result02)

@@ -47,13 +47,16 @@ mVM_Type_Tests {
 	);
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(nameof(mVM_Type),
+	Tests = mTest.Tests(
+		nameof(mVM_Type),
 		[
 			mTest.Tests("Type error output",
+				"Type error output",
 				[
-					mTest.Test("Nested differences retain their path in a single comparison",
+					mTest.Test(
+						"Nested differences retain their path in a single comparison",
 						aDebug => {
-							mVM_Type.tType Type(mVM_Type.tType aValue) => mVM_Type.Proc(
+							static mVM_Type.tType Type(mVM_Type.tType aValue) => mVM_Type.Proc(
 								mVM_Type.Empty(),
 								mVM_Type.Tuple(
 									[
@@ -78,13 +81,15 @@ mVM_Type_Tests {
 							mAssert.IsTrue(Error.Contains("-> ..."));
 						}
 					),
-					mTest.Test("Different prefix names remain visible around common payloads",
+					mTest.Test(
+						"Different prefix names remain visible around common payloads",
 						aDebug => mAssert.AreEquals(
 							TypeError(mVM_Type.Prefix("Left", mVM_Type.Int()), mVM_Type.Prefix("Right", mVM_Type.Int())),
 							"found:\n  [ #Left ... ]\nexpected:\n  [ #Right ... ]"
 						)
 					),
-					mTest.Test("Missing fields retain their names and types",
+					mTest.Test(
+						"Missing fields retain their names and types",
 						aDebug => mAssert.AreEquals(
 							TypeError(
 								mVM_Type.Record([("Common", mVM_Type.Int())]),
@@ -93,7 +98,8 @@ mVM_Type_Tests {
 							"missing field 'Missing'\nfound:\n  [{ ... }]\nexpected:\n  [{ ...,  Missing : §TRUE }]"
 						)
 					),
-					mTest.Test("Generic omissions align bound parameters by identity",
+					mTest.Test(
+						"Generic omissions align bound parameters by identity",
 						aDebug => {
 							var Left = mVM_Type.Free("t", mVM_Type.Type());
 							var Right = mVM_Type.Free("u", mVM_Type.Type());
@@ -106,7 +112,8 @@ mVM_Type_Tests {
 							);
 						}
 					),
-					mTest.Test("Recursive omissions retain the data shape without unfolding it",
+					mTest.Test(
+						"Recursive omissions retain the data shape without unfolding it",
 						aDebug => {
 							var Left = mVM_Type.Free("List", mVM_Type.Type());
 							var Right = mVM_Type.Free("Other", mVM_Type.Type());
@@ -154,11 +161,12 @@ mVM_Type_Tests {
 					mAssert.AreEquals(Updated.ToStream().Count(), 1u);
 					mAssert.IsTrue(Free.ApplyMappings(First).IsInt());
 					mAssert.IsTrue(
-						Free.ApplyMappings(Updated).SameType(mVM_Type.Union(mVM_Type.Int(), mVM_Type.False()))
+						Free.ApplyMappings(Updated).SameType(mVM_Type.Set(mVM_Type.Int(), mVM_Type.False()))
 					);
 				}
 			),
-			mTest.Test("ApplyMappings uses free type instances",
+			mTest.Test(
+				"ApplyMappings uses free type instances",
 				aDebugStream => {
 					var Outer = mVM_Type.Free("t", mVM_Type.Type());
 					var Gen = mVM_Type.Generic(
@@ -194,7 +202,8 @@ mVM_Type_Tests {
 					).AssertNotError(__ => __);
 				}
 			),
-			mTest.Tests("Pair projection",
+			mTest.Tests(
+				"Pair projection",
 				mStream.Stream(
 					[
 						(
@@ -244,12 +253,14 @@ mVM_Type_Tests {
 					)
 				).ToArrayList().ToArray()
 			),
-			mTest.Test("Pair projection fails for non pairs",
+			mTest.Test(
+				"Pair projection fails for non pairs",
 				aDebugStream => {
 					mAssert.IsFalse(mVM_Type.Int().TryProjectPair(out _, out _));
 				}
 			),
-			mTest.Test("SplitBy expands recursive types",
+			mTest.Test(
+				"SplitBy expands recursive types",
 				aDebugStream => {
 					var Head = mVM_Type.Free("RecursiveSplit", mVM_Type.Type());
 					var Recursive = mVM_Type.Recursive(
@@ -314,8 +325,9 @@ mVM_Type_Tests {
 				)
 			]
 		).Map(
-			a => mTest.Test(a.Expr + " => " + a.Type,
-				aStreamOut => {
+				a => mTest.Test(
+					a.Expr + " => " + a.Type,
+					aStreamOut => {
 					var AST =  mSPO_Parser.Expression.TryParseText(
 						a.Expr,
 						"",
@@ -360,9 +372,9 @@ mVM_Type_Tests {
 						);
 					}
 				},
-				a.File,
-				a.LineNr
-			)
+					a.File,
+					a.LineNr
+				)
 			).ToArrayList(
 			).ToArray(
 			)

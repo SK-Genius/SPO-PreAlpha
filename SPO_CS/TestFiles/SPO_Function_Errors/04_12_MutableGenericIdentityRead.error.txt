@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_12_MutableGenericIdentityRead.SPO:7 ERROR 
+7:  §RETURN §TO_VAL (.Pass aValue)
+ ┌──────────^
+ ├ opaque mutable access is not allowed

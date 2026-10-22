@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/04_33_MutableClosureCaptureTransport.SPO:3 ERROR 
+3: §DEF Get... = () => Cell
+ ┌───────────────^
+ ├ mutable closure environment is not allowed

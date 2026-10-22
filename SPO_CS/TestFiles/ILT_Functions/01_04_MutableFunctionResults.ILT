@@ -3,124 +3,68 @@
 	R := [V, INT]
 	F := [V => R]
 	C := [EMPTY_TYPE : F]
-	D := [V => C]
-	MF := [EMPTY_TYPE => INT]
-	M := [V : MF]
-	O := [V, D]
-	MainF := [V => R]
-	MainM := [O : MainF]
-	MainD := [M => MainM]
-	TestResult := [EMPTY_TYPE => INT]
-	TestEntry := [ANY => TestResult]
-	ReadDef := [EMPTY_TYPE => M]
-	TestEnv0 := [EMPTY_TYPE, D]
-	TestEnv1 := [TestEnv0, MainD]
-	TestEnv2 := [TestEnv1, MainD]
-	TestEnv3 := [TestEnv2, MainD]
-	TestEnv4 := [TestEnv3, MainD]
-	TestEnv5 := [TestEnv4, ReadDef]
-	TestPair0 := [EMPTY_TYPE, INT]
-	TestPair1 := [TestPair0, INT]
-	TestPair2 := [TestPair1, INT]
-	TestPair3 := [EMPTY_TYPE, INT]
-	TestPair4 := [TestPair3, INT]
-	TestValue := [TestPair2, TestPair4]
-	TestCall := [ANY => TestValue]
-	TestMain := [TestEnv5 => TestCall]
-
-
+	D := [EMPTY_TYPE => C]
+	ReadF := [EMPTY_TYPE => INT]
+	Read := [V : ReadF]
+	ReadD := [EMPTY_TYPE => Read]
+	E := [C, Read]
+	Main := [V : F]
+	MainD := [E => Main]
+	Defs1 := [EMPTY_TYPE, D]
+	Defs2 := [Defs1, ReadD]
+	Defs3 := [Defs2, MainD]
+	Defs4 := [Defs3, MainD]
+	Result1 := [EMPTY_TYPE, INT]
+	Result2 := [Result1, INT]
+	Result := [Result2, INT]
+	EntryF := [EMPTY_TYPE => Result]
+	Entry := [Defs4 => EntryF]
 §DEF pass € D
 	seven := 7
 	result := ARG, seven
 	§RETURN result IF TRUE
-
-§DEF closure_opaque_argument_opaque € MainD
-	allowed := §1ST OBJ
-	def := §2ND OBJ
-	closure := .def ARG
-	returned := .closure ARG
-	handle := §1ST returned
-	number := §2ND returned
-	result := handle, number
-	§RETURN result IF TRUE
-
-§DEF closure_opaque_argument_allowed € MainD
-	allowed := §1ST OBJ
-	def := §2ND OBJ
-	closure := .def ARG
-	returned := .closure allowed
-	handle := §1ST returned
-	number := §2ND returned
-	result := handle, number
-	§RETURN result IF TRUE
-
-§DEF closure_allowed_argument_opaque € MainD
-	allowed := §1ST OBJ
-	def := §2ND OBJ
-	closure := .def allowed
-	returned := .closure ARG
-	handle := §1ST returned
-	number := §2ND returned
-	result := handle, number
-	§RETURN result IF TRUE
-
-§DEF closure_allowed_argument_allowed € MainD
-	allowed := §1ST OBJ
-	def := §2ND OBJ
-	closure := .def allowed
-	returned := .closure allowed
-	handle := §1ST returned
-	number := §2ND returned
-	value := §VAR handle ->
-	pair2 := handle, ENV
-	forwarded := §OBJ:pair2 EMPTY
-	result := handle, number
-	§RETURN result IF TRUE
-
-§DEF read € ReadDef
+§DEF read € ReadD
 	value := §VAR OBJ ->
 	§RETURN value IF TRUE
-
-§DEF main € TestMain
-	read_def := §2ND ENV
-	defs5 := §1ST ENV
-	closure_allowed_argument_allowed_def := §2ND defs5
-	defs4 := §1ST defs5
-	closure_allowed_argument_opaque_def := §2ND defs4
-	defs3 := §1ST defs4
-	closure_opaque_argument_allowed_def := §2ND defs3
+§DEF argument_opaque € MainD
+	pass := §1ST ENV
+	returned := .pass ARG
+	§RETURN returned IF TRUE
+§DEF argument_allowed € MainD
+	pass := §1ST ENV
+	read := §2ND ENV
+	returned := .pass OBJ
+	handle := §1ST returned
+	value := §VAR handle ->
+	read_pair := handle, read
+	forwarded := §OBJ:read_pair EMPTY
+	§RETURN returned IF TRUE
+§DEF main € Entry
+	allowed_def := §2ND ENV
+	defs3 := §1ST ENV
+	opaque_def := §2ND defs3
 	defs2 := §1ST defs3
-	closure_opaque_argument_opaque_def := §2ND defs2
+	read_def := §2ND defs2
 	defs1 := §1ST defs2
 	pass_def := §2ND defs1
 	seven := 7
 	nine := 9
 	cell := §VAR seven
-	opaque := §VAR nine
-	read := .read_def EMPTY
-	object := cell, pass_def
-	case1 := .closure_opaque_argument_opaque_def read
-	pair1 := object, case1
-	returned1 := §OBJ:pair1 opaque
+	other := §VAR nine
+	pass := §CLOSURE pass_def EMPTY
+	read := §CLOSURE read_def EMPTY
+	env := pass, read
+	opaque := §CLOSURE opaque_def env
+	allowed := §CLOSURE allowed_def env
+	pair1 := cell, opaque
+	returned1 := §OBJ:pair1 other
 	number1 := §2ND returned1
-	case2 := .closure_opaque_argument_allowed_def read
-	pair2 := object, case2
-	returned2 := §OBJ:pair2 opaque
+	pair2 := cell, allowed
+	returned2 := §OBJ:pair2 other
 	number2 := §2ND returned2
-	case3 := .closure_allowed_argument_opaque_def read
-	pair3 := object, case3
-	returned3 := §OBJ:pair3 opaque
-	number3 := §2ND returned3
-	case4 := .closure_allowed_argument_allowed_def read
-	pair4 := object, case4
-	returned4 := §OBJ:pair4 opaque
-	number4 := §2ND returned4
-	handle := §1ST returned4
+	handle := §1ST returned2
 	value := §VAR handle ->
-	last := EMPTY, number4
-	last_pair := last, value
 	result1 := EMPTY, number1
 	result2 := result1, number2
-	result3 := result2, number3
-	result := result3, last_pair
+	result := result2, value
 	§RETURN result IF TRUE

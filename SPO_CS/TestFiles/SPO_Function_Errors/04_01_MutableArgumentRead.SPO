@@ -1,5 +1,3 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aValue € [§VAR §INT]) => §TO_VAL aValue
-)
-§EXPORT 1
+§EXPORT (
+	§DEF aValue € [§VAR §INT]
+) => §TO_VAL aValue

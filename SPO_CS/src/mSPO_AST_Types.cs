@@ -11,7 +11,7 @@
 #:ref Common/mTreeMap.cs
 #:ref mVM_Type.cs
 #:ref mSPO_AST.cs
-#:ref mIL_GenerateOpcodes.cs
+#:ref mIL_TypeChecker.cs
 
 public static class
 mSPO_AST_Types {
@@ -125,7 +125,7 @@ mSPO_AST_Types {
 				return (aType, mStd.cEmpty);
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsAny():
-			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(out _, out var Ref) && ReferenceEquals(aType, Ref): {
+			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(): {
 				mVM_Type.tType
 				PatternType(
 					mSPO_AST.tPatternNode<tPos> aPattern_,
@@ -221,9 +221,8 @@ mSPO_AST_Types {
 					}
 					
 					return (
-						MatchType.IsSubType(aType).Match(out _, out _)
-						? (MatchType, aType)
-						: (mStd.cEmpty, aType)
+						MatchType.IsSubType(aType).Match(out _, out _) ? MatchType : mStd.cEmpty,
+						aType
 					);
 				}
 				return aType.SplitForPatternType(Typed.Pattern, aTypeState);
@@ -271,19 +270,16 @@ mSPO_AST_Types {
 				
 				return (
 					Coverage.Matched.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __)),
-					(
-						Coverage.Remaining.IsSome(out var RemainingInner) && RemainingInner == InnerType
-						? mMaybe.Some(aType)
-						: Coverage.Remaining.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __))
-					)
+					Coverage.Remaining.IsSome(out var RemainingInner) && RemainingInner == InnerType
+					? mMaybe.Some(aType)
+					: Coverage.Remaining.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __))
 				);
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> Record: {
 				if (!aType.IsRecord(out var Fields)) {
 					return (
-						aType.IsFree(out _, out _)
-						? (aType, aType)
-						: (mStd.cEmpty, aType)
+						aType.IsFree() ? aType : mStd.cEmpty,
+						aType
 					);
 				}
 				
@@ -329,29 +325,28 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIntNode<tPos>: {
 				return (
-					aType.IsInt() ? (aType, aType) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
-					(mStd.cEmpty, aType)
+					aType.IsInt() || aType.IsFree() ? aType : mStd.cEmpty,
+					aType
 				);
 			}
 			case mSPO_AST.tEmptyNode<tPos>: {
 				return (
 					aType.IsEmpty() ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
 			case mSPO_AST.tTrueNode<tPos>: {
 				return (
 					aType.Kind is mVM_Type.tKind.True ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
 			case mSPO_AST.tFalseNode<tPos>: {
 				return (
 					aType.Kind is mVM_Type.tKind.False ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
@@ -384,9 +379,7 @@ mSPO_AST_Types {
 			switch (aType.Kind) {
 				case mVM_Type.tKind.Abstract: return false;
 				case mVM_Type.tKind.Free: {
-					return ReferenceEquals(aType, aType.Refs[0])
-					? !aBoundTypes.Any(__ => ReferenceEquals(__, aType))
-					: HasUnresolvedFreeType(aType.Refs[0], aBoundTypes);
+					return !aBoundTypes.Any(__ => ReferenceEquals(__, aType));
 				}
 				case mVM_Type.tKind.Recursive:
 				case mVM_Type.tKind.Generic:
@@ -987,22 +980,12 @@ mSPO_AST_Types {
 	private static tBool
 	HasChildWith(
 		this mVM_Type.tType aType,
-		mStd.tFunc<mVM_Type.tType, tBool> aTest,
-		mStream.tStream<mVM_Type.tType> aVisited = default
-	) {
-		if (aVisited.Any(__ => mStd.RefEq(__, aType))) {
-			return false;
-		}
-		if (aTest(aType)) {
-			return true;
-		}
-		aVisited = mStream.Stream(aType, aVisited);
-		return (
-			aType.Kind is mVM_Type.tKind.Record
-			? aType.Fields.ToStream().Any(__ => __.Value.HasChildWith(aTest, aVisited))
-			: mStream.Stream(aType.Refs).Any(__ => __.HasChildWith(aTest, aVisited))
-		);
-	}
+		mStd.tFunc<mVM_Type.tType, tBool> aTest
+	) => aTest(aType) || (
+		aType.Kind is mVM_Type.tKind.Record
+		? aType.Fields.ToStream().Any(__ => __.Value.HasChildWith(aTest))
+		: mStream.Stream(aType.Refs).Any(__ => __.HasChildWith(aTest))
+	);
 	
 	public static mResult.tResult<
 		(

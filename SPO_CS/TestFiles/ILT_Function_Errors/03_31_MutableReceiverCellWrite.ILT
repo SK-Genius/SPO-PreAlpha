@@ -1,0 +1,11 @@
+§TYPES
+	V := [§VAR INT]
+	Box := [§VAR V]
+	F := [V => INT]
+	M := [Box : F]
+	D := [EMPTY_TYPE => M]
+§DEF f € D
+	§VAR OBJ <- ARG
+	handle := §VAR OBJ ->
+	value := §VAR handle ->
+	§RETURN value IF TRUE

@@ -1,1 +1,8 @@
-Pending diagnostic: mutable module import must be rejected.
+TestFiles/SPO_Module_Errors/14_01_MutableImport.SPO:1 ERROR 
+1: §IMPORT §VAR Cell € §INT
+ ┌─────────^
+ ├ expected VAR
+ │ found:
+ │   []
+ │ expected:
+ │   [ §VAR §INT ]

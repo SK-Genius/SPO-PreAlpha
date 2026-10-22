@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_04_MutableCaptureWrite.ILT:8 ERROR 
+8:  one := 1
+ ┌──^
+ ├ mutable closure environment is not allowed

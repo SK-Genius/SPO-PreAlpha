@@ -15,7 +15,7 @@
 
 §DEF d_1 € t_7
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Read... := r_1
 	r_2 := t_0, _Read...
 	r_3 := §SIG t_5 WITH r_2

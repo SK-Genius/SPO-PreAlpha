@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_26_MutableNestedCellRead.SPO:5 ERROR 
+5:  §RETURN §TO_VAL (§TO_VAL Box)
+ ┌──────────^
+ ├ opaque mutable access is not allowed
