@@ -70,7 +70,7 @@
 	§RETURN EMPTY IF TRUE
 
 §DEF d_3 € t_34
-	r_1 := §INTERFACE_VIEW t_29 WITH ARG
+	r_1 := §SUBINTERFACE t_29 WITH ARG
 	_aReader := r_1
 	§RETURN _aReader IF TRUE
 
@@ -94,7 +94,7 @@
 	r_3 := §CLOSURE d_2 EMPTY
 	_LegacyConsumer := r_3
 	r_4 := §CLOSURE d_3 EMPTY
-	r_5 := §INTERFACE_VIEW t_33 WITH r_4
+	r_5 := §SUBINTERFACE t_33 WITH r_4
 	_Forward... := r_5
 	r_6 := 18
 	_Cell := §VAR r_6
@@ -102,7 +102,7 @@
 	r_8 := {EMPTY} + r_7
 	r_9 := _Cell, r_8
 	r_10 := §INTERFACE t_29 WITH r_9
-	r_11 := §INTERFACE_VIEW t_29 WITH r_10
+	r_11 := §SUBINTERFACE t_29 WITH r_10
 	_Original := r_11
 	_Previous := §VAR _Original
 	r_13 := _Previous, _LegacyConsumer
@@ -114,11 +114,11 @@
 	r_17 := {r_15} + r_16
 	r_18 := _Cell, r_17
 	r_19 := §INTERFACE t_19 WITH r_18
-	r_20 := §INTERFACE_VIEW t_19 WITH r_19
+	r_20 := §SUBINTERFACE t_19 WITH r_19
 	_Extended := r_20
-	r_21 := §INTERFACE_VIEW t_29 WITH _Extended
+	r_21 := §SUBINTERFACE t_29 WITH _Extended
 	_Reader := r_21
-	r_22 := §INTERFACE_VIEW t_11 WITH _Extended
+	r_22 := §SUBINTERFACE t_11 WITH _Extended
 	_Writer := r_22
 	_Current := §VAR _Reader
 	r_24 := _Current, _LegacyConsumer
@@ -132,7 +132,7 @@
 	r_28 := §OBJ:r_29 EMPTY
 	_Third := r_28
 	r_30 := ._Forward... _Extended
-	r_31 := §INTERFACE_VIEW t_29 WITH r_30
+	r_31 := §SUBINTERFACE t_29 WITH r_30
 	_Relayed := r_31
 	_Forwarded := §VAR _Relayed
 	r_33 := _Forwarded, _LegacyConsumer

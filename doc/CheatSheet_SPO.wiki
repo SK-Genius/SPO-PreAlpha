@@ -152,8 +152,9 @@ The method implementation [.|IntRead.] is defined in the linked construction exa
 An interface can be assigned to a contract with fewer endpoints when their
 signatures are compatible. Consumers typed against the smaller contract continue
 to work when the producer adds endpoints. The assignment keeps the same hidden
-object and method implementations in a new restricted view. Only the endpoints
-in the smaller contract remain available. Assigning that view back to a contract
+object and selected method implementations in a new subinterface. A subinterface
+contains a subset of the original endpoints and stores its hidden object and
+methods directly. Assigning that subinterface back to a contract
 with additional endpoints is rejected; runtime type matching cannot recover them,
 including after transport through [.|§ANY.] or a container. The original wider
 interface retains its endpoints.

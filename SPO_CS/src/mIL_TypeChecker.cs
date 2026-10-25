@@ -519,7 +519,7 @@ mIL_TypeChecker {
 				or tCommand.IntsAreEq or tCommand.IntsComp or tCommand.IntsAdd or tCommand.IntsSub
 				or tCommand.IntsMul or tCommand.IntsDiv or tCommand.Pair or tCommand.AddField
 				or tCommand.CallFunc or tCommand.Closure or tCommand.CallProc or tCommand.DefRecProcs
-				or tCommand.Sig or tCommand.Interface or tCommand.InterfaceView or tCommand.TryHasHeadType => mStream.Stream(Command._2, Command._3),
+				or tCommand.Sig or tCommand.Interface or tCommand.Subinterface or tCommand.TryHasHeadType => mStream.Stream(Command._2, Command._3),
 				_ => mStream.Stream<mMaybe.tMaybe<tText>>(),
 			};
 			
@@ -540,7 +540,7 @@ mIL_TypeChecker {
 			}
 			
 			var TypeOperand = Command.NodeType switch {
-				tCommand.Sig or tCommand.Interface or tCommand.InterfaceView => 0,
+				tCommand.Sig or tCommand.Interface or tCommand.Subinterface => 0,
 				tCommand.TryHasHeadType => 1,
 				tCommand.Pair when Operands[0].Type.IsType() || Operands[0].Type.IsTypeFunctionKind() => 0,
 				_ => -1,
@@ -700,7 +700,7 @@ mIL_TypeChecker {
 					_ => new tTypeStep(new tValueType(Contract))
 				);
 			}
-			case tCommand.InterfaceView: {
+			case tCommand.Subinterface: {
 				var Type = Input.Data.AssertNotEmpty().TypeExpressionValue();
 				return aInputs[1].Type.IsSubType(Type).Then(
 					_ => new tTypeStep(new tValueType(Type))
@@ -1190,7 +1190,7 @@ mIL_TypeChecker {
 				case tCommand.Interface:
 					Access = Aggregate(Values.Get(Inputs[1].Id));
 					break;
-				case tCommand.InterfaceView:
+				case tCommand.Subinterface:
 					Access = Project(Values.Get(Inputs[1].Id), ResultType.AssertNotEmpty());
 					break;
 				case tCommand.First:

@@ -38,7 +38,7 @@ mVM_Data {
 		// SIG
 		NewSig,
 		NewInterface,
-		InterfaceView,
+		Subinterface,
 		SigHead,
 		SigBody,
 		

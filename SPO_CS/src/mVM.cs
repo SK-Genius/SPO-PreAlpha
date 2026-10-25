@@ -45,9 +45,9 @@ mVM {
 			ProcType = Body;
 		}
 		mAssert.IsTrue(ProcType.IsProc(out var ObjectType, out var ArgumentType, out _));
-		aEnv = ViewInterfaces(aEnv, EnvType);
-		aObj = ViewInterfaces(aObj, ObjectType);
-		aArg = ViewInterfaces(aArg, ArgumentType);
+		aEnv = RestrictInterfaces(aEnv, EnvType);
+		aObj = RestrictInterfaces(aObj, ObjectType);
+		aArg = RestrictInterfaces(aArg, ArgumentType);
 		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
 			_Parent = aParent,
@@ -204,7 +204,7 @@ mVM {
 	}
 	
 	private static mVM_Data.tData
-	ViewInterfaces(
+	RestrictInterfaces(
 		mVM_Data.tData aData,
 		mVM_Type.tType aType,
 		mStream.tStream<(tNat64 Data, tNat64 Type)> aVisited = default
@@ -219,7 +219,7 @@ mVM {
 		}
 		if (aType.IsInterface(out _, out var Body)) {
 			mAssert.IsTrue(aData.IsInterface(out var Contract, out var Object, out var Methods));
-			mAssert.IsTrue(Contract.IsSubType(aType).Match(out _, out _), "interface view cannot add endpoints");
+			mAssert.IsTrue(Contract.IsSubType(aType).Match(out _, out _), "subinterface cannot add endpoints");
 			if (Contract.SameType(aType)) {
 				return aData;
 			}
@@ -233,13 +233,13 @@ mVM {
 			return mVM_Data.Interface(aType, Object, Restricted);
 		}
 		if (aType.IsPair(out var FirstType, out var SecondType) && aData.IsPair(out var First, out var Second)) {
-			var FirstView = ViewInterfaces(First, FirstType, aVisited);
-			var SecondView = ViewInterfaces(Second, SecondType, aVisited);
-			return mStd.RefEq(First, FirstView) && mStd.RefEq(Second, SecondView) ? aData : mVM_Data.Pair(FirstView, SecondView);
+			var RestrictedFirst = RestrictInterfaces(First, FirstType, aVisited);
+			var RestrictedSecond = RestrictInterfaces(Second, SecondType, aVisited);
+			return mStd.RefEq(First, RestrictedFirst) && mStd.RefEq(Second, RestrictedSecond) ? aData : mVM_Data.Pair(RestrictedFirst, RestrictedSecond);
 		}
 		if (aType.IsPrefix(out var Prefix, out var InnerType) && aData.IsPrefix(Prefix.PrefixHash(), out var Inner)) {
-			var View = ViewInterfaces(Inner, InnerType, aVisited);
-			return mStd.RefEq(Inner, View) ? aData : mVM_Data.Prefix(Prefix, View);
+			var Restricted = RestrictInterfaces(Inner, InnerType, aVisited);
+			return mStd.RefEq(Inner, Restricted) ? aData : mVM_Data.Prefix(Prefix, Restricted);
 		}
 		if (aType.IsRecord(out var FieldTypes) && aData.IsRecord(out var Record)) {
 			var Fields = Record;
@@ -247,9 +247,9 @@ mVM {
 			foreach (var Field in FieldTypes.ToStream()) {
 				var Key = Field.Key.PrefixHash();
 				var Value = Fields.TryGet(Key).AssertNotEmpty();
-				var View = ViewInterfaces(Value, Field.Value, aVisited);
-				if (!mStd.RefEq(Value, View)) {
-					Fields = Fields.Set(Key, View);
+				var Restricted = RestrictInterfaces(Value, Field.Value, aVisited);
+				if (!mStd.RefEq(Value, Restricted)) {
+					Fields = Fields.Set(Key, Restricted);
 					Changed = true;
 				}
 			}
@@ -260,14 +260,14 @@ mVM {
 			};
 		}
 		if (aType.IsSet(out var Type1, out var Type2)) {
-			return ViewInterfaces(aData, aData.Matches(Type1) ? Type1 : Type2, aVisited);
+			return RestrictInterfaces(aData, aData.Matches(Type1) ? Type1 : Type2, aVisited);
 		}
 		if (aType.IsRecursive(out var Head, out var RecursiveBody)) {
-			return ViewInterfaces(aData, RecursiveBody.Substitute(Head, aType), aVisited);
+			return RestrictInterfaces(aData, RecursiveBody.Substitute(Head, aType), aVisited);
 		}
 		if (aType.IsSig(out var Binder, out var SigBody) && aData.IsSig(out _, out var Witness, out var ValueBody)) {
-			var View = ViewInterfaces(ValueBody, SigBody.Substitute(Binder, Witness.TypeExpressionValue()), aVisited);
-			return mStd.RefEq(ValueBody, View) ? aData : mVM_Data.Sig(aType, Witness, View);
+			var Restricted = RestrictInterfaces(ValueBody, SigBody.Substitute(Binder, Witness.TypeExpressionValue()), aVisited);
+			return mStd.RefEq(ValueBody, Restricted) ? aData : mVM_Data.Sig(aType, Witness, Restricted);
 		}
 		return aData;
 	}
@@ -279,9 +279,9 @@ mVM {
 			Proc = Body;
 		}
 		mAssert.IsTrue(Proc.IsProc(out _, out _, out var Result));
-		aValue = ViewInterfaces(aValue, Result);
+		aValue = RestrictInterfaces(aValue, Result);
 		foreach (var Type in aStack._ReturnTypes) {
-			aValue = ViewInterfaces(aValue, Type);
+			aValue = RestrictInterfaces(aValue, Type);
 		}
 		return aValue;
 	}
@@ -298,8 +298,8 @@ mVM {
 				Type = Body;
 			}
 			mAssert.IsTrue(Type.IsProc(out var Object, out var Argument, out var Result));
-			aObject = ViewInterfaces(aObject, Object);
-			aArgument = ViewInterfaces(aArgument, Argument);
+			aObject = RestrictInterfaces(aObject, Object);
+			aArgument = RestrictInterfaces(aArgument, Argument);
 			aReturnTypes = mStream.Stream(Result, aReturnTypes);
 			aProc = Inner;
 		}
@@ -353,7 +353,7 @@ mVM {
 			throw mError.Error("expected proc but is: " + aProc._DataType);
 		}
 		foreach (var Type in ReturnTypes) {
-			Result = ViewInterfaces(Result, Type);
+			Result = RestrictInterfaces(Result, Type);
 		}
 		return Result;
 	}
@@ -593,7 +593,7 @@ mVM {
 					}
 				}
 				foreach (var Type in FactoryReturnTypes) {
-					Closed = ViewInterfaces(Closed, Type);
+					Closed = RestrictInterfaces(Closed, Type);
 				}
 				var Res = mVM_Data.Empty();
 				Run(Closed, mVM_Data.Empty(), RecProcs, Res, aPosToText, aCallStack._TraceOut);
@@ -624,7 +624,7 @@ mVM {
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg = aCallStack._Regs.Get(Arg2);
 				if (CallType.IsSome(out var Signature)) {
-					Arg = ViewInterfaces(Arg, Signature.Refs[1]);
+					Arg = RestrictInterfaces(Arg, Signature.Refs[1]);
 				}
 				var Object = mVM_Data.Empty();
 				Proc = UnwrapProcViews(Proc, ref Object, ref Arg, ref ReturnTypes);
@@ -690,8 +690,8 @@ mVM {
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
 				if (CallType.IsSome(out var Signature)) {
-					Obj = ViewInterfaces(Obj, Signature.Refs[0]);
-					Arg = ViewInterfaces(Arg, Signature.Refs[1]);
+					Obj = RestrictInterfaces(Obj, Signature.Refs[0]);
+					Arg = RestrictInterfaces(Arg, Signature.Refs[1]);
 				}
 				if (Proc.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
 					(Obj, Proc) = ResolveInterfaceCall(Obj, Name);
@@ -840,8 +840,8 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Interface(Contract, Object, Methods));
 				break;
 			}
-			case mVM_Data.tOpCode.InterfaceView: {
-				aCallStack._Regs.Push(ViewInterfaces(aCallStack._Regs.Get(Arg2), aCallStack._Regs.Get(Arg1).TypeExpressionValue()));
+			case mVM_Data.tOpCode.Subinterface: {
+				aCallStack._Regs.Push(RestrictInterfaces(aCallStack._Regs.Get(Arg2), aCallStack._Regs.Get(Arg1).TypeExpressionValue()));
 				break;
 			}
 			case mVM_Data.tOpCode.NewSig: {
@@ -1017,7 +1017,7 @@ mVM {
 		}
 		var ResultIndex = aCallStack._Regs.Size - 1;
 		foreach (var Type in ReturnTypes) {
-			aCallStack._Regs.Set(ResultIndex, ViewInterfaces(aCallStack._Regs.Get(ResultIndex), Type));
+			aCallStack._Regs.Set(ResultIndex, RestrictInterfaces(aCallStack._Regs.Get(ResultIndex), Type));
 		}
 		aCallStack._TraceOut(
 			() => $@"    \ {aCallStack._Regs.Size - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size - 1).ToText(20)}"
@@ -1062,7 +1062,7 @@ mVM {
 			case 0 when aProc.IsExternProc(out var ExternDef, out var Env): {
 				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
 				foreach (var Type in ReturnTypes) {
-					Res = ViewInterfaces(Res, Type);
+					Res = RestrictInterfaces(Res, Type);
 				}
 				aRes._DataType = Res._DataType;
 				aRes._Value = Res._Value;

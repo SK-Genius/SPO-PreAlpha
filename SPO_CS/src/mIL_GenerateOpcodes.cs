@@ -106,7 +106,7 @@ mIL_GenerateOpcodes {
 						tIL_CommandType.Second => mVM_Data.tOpCode.Second,
 						tIL_CommandType.Sig => mVM_Data.tOpCode.NewSig,
 						tIL_CommandType.Interface => mVM_Data.tOpCode.NewInterface,
-						tIL_CommandType.InterfaceView => mVM_Data.tOpCode.InterfaceView,
+						tIL_CommandType.Subinterface => mVM_Data.tOpCode.Subinterface,
 						tIL_CommandType.SigBody => mVM_Data.tOpCode.SigBody,
 						tIL_CommandType.SigHead or tIL_CommandType.SigHeadAs => mVM_Data.tOpCode.SigHead,
 						tIL_CommandType.TryAsBool => mVM_Data.tOpCode.TryAsBool,
@@ -445,7 +445,7 @@ mIL_GenerateOpcodes {
 							tIL_CommandType.CallFunc or
 							tIL_CommandType.Closure => mVM_Type.Infer(Reg1_Type, mVM_Type.Empty(), Reg2_Type, __ => {}).ElseThrow(),
 							
-							tIL_CommandType.Sig or tIL_CommandType.Interface or tIL_CommandType.InterfaceView => TypeValue(Reg1),
+							tIL_CommandType.Sig or tIL_CommandType.Interface or tIL_CommandType.Subinterface => TypeValue(Reg1),
 							
 							_ => throw mError.Error("unsupported valid IL command: " + IL_CommandType),
 						};

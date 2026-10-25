@@ -174,9 +174,9 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.CreateInterface))
 			.SetDebugName([nameof(mIL_AST.CreateInterface)]),
 
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("INTERFACE_VIEW") +Id, -Token("WITH") +Id)
-			.ModifyS((aSpan, aId, _, aType, aValue) => mIL_AST.InterfaceView(aSpan, aId.Text, aType.Text, aValue.Text))
-			.SetDebugName([nameof(mIL_AST.InterfaceView)]),
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("SUBINTERFACE") +Id, -Token("WITH") +Id)
+			.ModifyS((aSpan, aId, _, aType, aValue) => mIL_AST.Subinterface(aSpan, aId.Text, aType.Text, aValue.Text))
+			.SetDebugName([nameof(mIL_AST.Subinterface)]),
 
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), Id)
 			.Modify((aId, _, aSource) => (aId, aSource))

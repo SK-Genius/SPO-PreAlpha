@@ -1476,7 +1476,7 @@ mSPO2IL {
 			case mSPO_AST.tVarPatternNode<tPos>: {
 				var Id = aMatch.TryGetId().AssertNotEmpty();
 				var Type = aCaseFunc.TypeState.TryGetValidatedType(aMatch).AssertNotEmpty();
-				aInputReg = aCaseFunc.MapInterfaceView(ref aTypeDeclarations, aMatch.Pos, aInputReg, Type);
+				aInputReg = aCaseFunc.MapSubinterface(ref aTypeDeclarations, aMatch.Pos, aInputReg, Type);
 				
 				aCaseFunc.Commands.Push(
 					mIL_AST.Alias(aMatch.Pos, Id, aInputReg)
@@ -1833,7 +1833,7 @@ mSPO2IL {
 	}
 	
 	private static tText
-	MapInterfaceView<tPos>(
+	MapSubinterface<tPos>(
 		this ref tDefConstructor<tPos> aDef,
 		ref tTypeDeclarations<tPos> aTypes,
 		tPos aPos,
@@ -1845,9 +1845,9 @@ mSPO2IL {
 		}
 		// A static alias alone would let runtime type matching recover omitted endpoints.
 		var Type = aDef.MapTypeValue(ref aTypes, aPos, aType);
-		aDef.Commands.Push(mIL_AST.InterfaceView(aPos, aDef.CreateTempReg(out var View), Type, aValue));
-		aDef.AddLocal(View, aType);
-		return View;
+		aDef.Commands.Push(mIL_AST.Subinterface(aPos, aDef.CreateTempReg(out var Subinterface), Type, aValue));
+		aDef.AddLocal(Subinterface, aType);
+		return Subinterface;
 	}
 
 	public static tBool
@@ -1877,7 +1877,7 @@ mSPO2IL {
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Name }: {
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
-				aRegId = aDefConstructor.MapInterfaceView(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
+				aRegId = aDefConstructor.MapSubinterface(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
@@ -1907,7 +1907,7 @@ mSPO2IL {
 			case mSPO_AST.tFreeIdPatternNode<tPos> { Pos: var Pos, Id: var Name }: {
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
-				aRegId = aDefConstructor.MapInterfaceView(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
+				aRegId = aDefConstructor.MapSubinterface(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;

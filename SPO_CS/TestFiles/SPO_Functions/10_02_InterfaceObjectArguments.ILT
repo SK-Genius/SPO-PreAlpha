@@ -93,7 +93,7 @@
 	r_10 := {EMPTY} + r_9
 	r_11 := _Source, r_10
 	r_12 := §INTERFACE t_12 WITH r_11
-	r_13 := §INTERFACE_VIEW t_12 WITH r_12
+	r_13 := §SUBINTERFACE t_12 WITH r_12
 	_Account := r_13
 	r_14 := EMPTY, _Account
 	r_15 := r_14, _Target

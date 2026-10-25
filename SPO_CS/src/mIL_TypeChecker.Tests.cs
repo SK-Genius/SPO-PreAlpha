@@ -62,11 +62,11 @@ mIL_TypeChecker_Tests {
 					var Extract = Valid.Replace("§RETURN ONE IF TRUE", "Method := {Object} #Read\n§RETURN ONE IF TRUE");
 					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(Extract), out Error));
 					mAssert.IsTrue(Error.ErrorText.Contains("expected record"), Error.ErrorText);
-					var View = Valid.Replace("§RETURN ONE IF TRUE", "View := §INTERFACE_VIEW tInterface WITH Object\n§RETURN ONE IF TRUE");
-					mAssert.IsTrue(mIL_TypeChecker.AreModuleTypesValid(Parse(View), out Error), () => mIL_TypeChecker.ErrorText(Error));
-					var Widen = View.Replace(
+					var Subset = Valid.Replace("§RETURN ONE IF TRUE", "Subset := §SUBINTERFACE tInterface WITH Object\n§RETURN ONE IF TRUE");
+					mAssert.IsTrue(mIL_TypeChecker.AreModuleTypesValid(Parse(Subset), out Error), () => mIL_TypeChecker.ErrorText(Error));
+					var Widen = Subset.Replace(
 						"tWrongMethod :=", "tAdminField := [#Admin tMethod]\ntAdminBody := [{tBody} + tAdminField]\ntAdmin := [§ANY t => tAdminBody]\ntWrongMethod :="
-					).Replace("§RETURN ONE IF TRUE", "Restored := §INTERFACE_VIEW tAdmin WITH View\n§RETURN ONE IF TRUE");
+					).Replace("§RETURN ONE IF TRUE", "Restored := §SUBINTERFACE tAdmin WITH Subset\n§RETURN ONE IF TRUE");
 					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(Widen), out Error));
 					mAssert.IsTrue(Error.ErrorText.Contains("missing field 'Admin'"), Error.ErrorText);
 				}

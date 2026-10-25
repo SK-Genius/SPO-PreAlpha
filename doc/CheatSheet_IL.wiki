@@ -153,7 +153,7 @@ The forms you will see most often in checked-in `.ILT` files are:
 [.ilt
 |payload := hiddenObject, methods
 |capability := §INTERFACE Contract WITH payload
-|reader := §INTERFACE_VIEW ReaderContract WITH capability
+|reader := §SUBINTERFACE ReaderContract WITH capability
 |endpoint := +#Read EMPTY
 |call := reader, endpoint
 |result := §OBJ:call EMPTY
@@ -166,10 +166,12 @@ through the first object's static interface type. Calling it substitutes the hid
 object in that position and preserves further object arguments. Interface objects
 do not support field projection.
 
-[.|§INTERFACE_VIEW.] checks that the input is a subtype of the requested view and
-restricts interface endpoints at runtime. It also restricts interfaces contained
-in pairs, records and prefixes. Function arguments and results preserve these
-restrictions when crossing a narrower declared type.
+[.|§SUBINTERFACE.] checks that the input is a subtype of the requested contract and
+constructs an interface object containing only the selected endpoints. It stores
+the same hidden object and the selected methods directly, without referring to
+the original interface object. It also restricts interfaces contained in pairs,
+records and prefixes. Function arguments and results preserve these restrictions
+when crossing a narrower declared type.
 
 [=SPO vs IL Notation=]
 
