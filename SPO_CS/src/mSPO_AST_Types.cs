@@ -211,6 +211,48 @@ mSPO_AST_Types {
 				);
 			}
 			case mSPO_AST.tTypedPatternNode<tPos> Typed: {
+				static tBool
+				CanMatchInterfaceViews(
+					mVM_Type.tType aSource,
+					mVM_Type.tType aPatternType,
+					mStream.tStream<(tNat64 Source, tNat64 Pattern)> aVisited = default
+				) {
+					if (!aSource.HasInterfaceValues() || aVisited.Any(__ => __.Source == aSource.DebugId && __.Pattern == aPatternType.DebugId)) {
+						return true;
+					}
+					aVisited = mStream.Stream((aSource.DebugId, aPatternType.DebugId), aVisited);
+					if (aSource.IsSet(out var Left, out var Right)) {
+						return CanMatchInterfaceViews(Left, aPatternType, aVisited) || CanMatchInterfaceViews(Right, aPatternType, aVisited);
+					}
+					if (aPatternType.IsSet(out Left, out Right)) {
+						return CanMatchInterfaceViews(aSource, Left, aVisited) || CanMatchInterfaceViews(aSource, Right, aVisited);
+					}
+					if (aSource.IsRecursive(out var Head, out var Body)) {
+						return CanMatchInterfaceViews(Body.Substitute(Head, aSource), aPatternType, aVisited);
+					}
+					if (aPatternType.IsRecursive(out Head, out Body)) {
+						return CanMatchInterfaceViews(aSource, Body.Substitute(Head, aPatternType), aVisited);
+					}
+					if (aSource.Kind == aPatternType.Kind && aSource.Kind is mVM_Type.tKind.Interface or mVM_Type.tKind.Proc or mVM_Type.tKind.Generic) {
+						// Runtime views keep their declared capability and callable contracts.
+						return aSource.IsSubType(aPatternType).Match(out _, out _);
+					}
+					if (aSource.IsRecord(out var Fields) && aPatternType.IsRecord(out var PatternFields)) {
+						return PatternFields.ToStream().All(
+							__ => !Fields.TryGet(__.Key).IsSome(out var Field) || CanMatchInterfaceViews(Field, __.Value, aVisited)
+						);
+					}
+					if (aSource.IsPair(out var First, out var Second) && aPatternType.IsPair(out var PatternFirst, out var PatternSecond)) {
+						return CanMatchInterfaceViews(First, PatternFirst, aVisited) && CanMatchInterfaceViews(Second, PatternSecond, aVisited);
+					}
+					if (aSource.IsPrefix(out var Prefix, out var Inner) && aPatternType.IsPrefix(Prefix, out var PatternInner)) {
+						return CanMatchInterfaceViews(Inner, PatternInner, aVisited);
+					}
+					if (aSource.IsSig(out var SourceHead, out var SourceBody) && aPatternType.IsSig(out var PatternHead, out var PatternBody)) {
+						return CanMatchInterfaceViews(SourceBody.Substitute(SourceHead, PatternHead), PatternBody, aVisited);
+					}
+					return true;
+				}
 				if (
 					Typed.TypeExpression.IsSome(out _) &&
 					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
@@ -221,7 +263,7 @@ mSPO_AST_Types {
 					}
 					
 					return (
-						MatchType.IsSubType(aType).Match(out _, out _) ? MatchType : mStd.cEmpty,
+						MatchType.IsSubType(aType).Match(out _, out _) && CanMatchInterfaceViews(aType, MatchType) ? MatchType : mStd.cEmpty,
 						aType
 					);
 				}

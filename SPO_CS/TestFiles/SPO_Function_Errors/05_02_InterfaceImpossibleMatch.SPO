@@ -1,0 +1,9 @@
+§IMPORT ()
+
+§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF iAdmin = [§INTERFACE t [< Read: [t : [] => §INT], Admin...: [t : §INT => []] >]]
+
+§EXPORT (§DEF aReader € iReader) => §IF aReader MATCH {
+	§DEF Candidate € iAdmin: §TRUE
+	_: §FALSE
+}

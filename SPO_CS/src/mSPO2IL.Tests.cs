@@ -227,6 +227,26 @@ mSPO2IL_Tests {
 					mAssert.IsTrue(Error.Contains("missing field") && Error.Contains("_Admin"), Error);
 				}
 			),
+			mTest.Test("Typed matches refine ordinary fields beside restricted interface values",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT ()
+					§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+					§DEF ReadCell = (§VAR aSelf € §INT) : () {
+						§RETURN §TO_VAL aSelf
+					}
+					§DEF HasFlag... = (§DEF aPackage € [< Reader: iReader, Flag: §BOOL >]) => §IF aPackage MATCH {
+						§DEF Candidate € [< Reader: iReader, Flag: §TRUE >]: §TRUE
+						_: §FALSE
+					}
+					§VAR Cell := 7 .
+					§DEF Reader = §INTERFACE iReader WITH Cell IN {Read: ReadCell}
+					§EXPORT (.HasFlag {Reader: Reader, Flag: §TRUE}, .HasFlag {Reader: Reader, Flag: §FALSE})
+					""";
+					var Result = mSPO_Interpreter.Run(cSource + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__())).ElseThrow();
+					mAssert.AreEquals(Result.Data.ToText(1000), "(§TRUE, §FALSE)");
+				}
+			),
 			mTest.Test("If lowering uses validated types without changing AST annotations",
 				aStreamOut => {
 					var Expression = mSPO_Parser.Expression.TryParseText(
