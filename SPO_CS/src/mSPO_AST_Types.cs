@@ -608,6 +608,25 @@ mSPO_AST_Types {
 					).ModifyError(__ => (Sig.Body.Pos, __));
 				}
 			),
+			mSPO_AST.tInterfaceNode<tPos> Interface => mStd.Call(
+				() => {
+					if (!Interface.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!Contract.IsInterface(out var Parameter, out var Body)) {
+						return mResult.Fail((Interface.Contract.Pos, "expected interface contract"));
+					}
+					if (
+						!Interface.Object.UpdateTypes(aScope, aTypeState).Match(out var Object, out Error) ||
+						!Interface.Methods.UpdateTypes(aScope, Object.State).Match(out var Methods, out Error)
+					) {
+						return mResult.Fail(Error);
+					}
+					return Contract.CheckInterfaceImplementation(Object.Type, Methods.Type).Then(
+						_ => (Contract, Methods.State)
+					).ModifyError(__ => (Interface.Methods.Pos, "incompatible interface methods: " + __));
+				}
+			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Reduce(
 					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
@@ -1254,7 +1273,15 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
 				Result = (mVM_Type.Empty(), aScope, aTypeState);
+				var InputType = aType;
+				if (aType.IsSome(out var Interface) && Interface.IsInterface(out var Parameter, out var Body)) {
+					aType = Body.Substitute(Parameter, Interface);
+				}
 				foreach (var Item in RecordPattern.Elements) {
+					if (InputType.IsSome(out Interface) && Interface.IsInterface(out _, out _) &&
+						!Interface.TryGetInterfaceMethod(Item.Id.Id).IsSome(out _)) {
+						return mResult.Fail((Item.Id.Pos, $"Unknown interface method '{Item.Id.Id}'"));
+					}
 					var Type = aType.IsSome(out var RecordType)
 					? RecordType.GetFieldType(Item.Id.Id)
 					: mMaybe.None<mVM_Type.tType>();
@@ -1277,6 +1304,9 @@ mSPO_AST_Types {
 							)
 						)
 					);
+				}
+				if (InputType.IsSome(out Interface) && Interface.IsInterface(out _, out _)) {
+					Result = Result.Then(__ => (Interface, __.Scope, __.State));
 				}
 				break;
 			}
@@ -1359,9 +1389,15 @@ mSPO_AST_Types {
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
 		mStream.tStream<tScopeItem> aScope,
-		tTypeState<tPos> aTypeState
+		tTypeState<tPos> aTypeState,
+		mMaybe.tMaybe<mVM_Type.tType> aObjectType = default
 	) {
-		return aMethodCall.Method.UpdateTypes(aScope, aTypeState).ThenTry(
+		var BoundMethod = aObjectType.ThenTry(__ => __.FirstObjectType().TryGetInterfaceMethod(aMethodCall.Method.Id));
+		var Method = BoundMethod.Match(
+			Type => mResult.OK((Type, State: aTypeState.SetValidatedType(aMethodCall.Method, Type))).WithErrorType<(tPos Pos, tText ErrorText)>(),
+			() => aMethodCall.Method.UpdateTypes(aScope, aTypeState)
+		);
+		return Method.ThenTry(
 			aMethodType => mStd.Call(
 				() => {
 					var ProcType = aMethodType.Type;
@@ -1380,17 +1416,20 @@ mSPO_AST_Types {
 						aScope,
 						aMethodType.State
 					).ThenTry(
-						aArgument => (
+						aArgument => (BoundMethod.IsSome(out _)
+							? mVM_Type.Infer(aMethodType.Type, aObjectType.AssertNotEmpty(), aArgument.Type, __ => {})
+							: mResult.OK(MethResType.ApplyMappings(aArgument.Mappings)).WithErrorType<tText>()
+						).ModifyError(__ => (aMethodCall.Pos, __)).ThenTry(ResultType => (
 							!aMethodCall.Result.IsSome(out var Result)
 							? mResult.OK((Scope: aScope, State: aArgument.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
 							: UpdatePatternTypes(
 								Result,
-								MethResType.ApplyMappings(aArgument.Mappings),
+								ResultType,
 								tTypeRelation.Sub,
 								aScope,
 								aArgument.State
 							).Then(__ => (__.Scope, __.State))
-						)
+						))
 					);
 				}
 			)
@@ -1593,7 +1632,7 @@ mSPO_AST_Types {
 					aObject => MethodCalls.MethodCalls.Reduce(
 						mResult.OK((Scope: aScope, State: aObject.State)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 						(aChecked, MethodCall) => aChecked.ThenTry(
-							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State)
+							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State, aObject.Type)
 						)
 					)
 				);
@@ -1804,6 +1843,17 @@ mSPO_AST_Types {
 				).Then(
 					__ => mVM_Type.Generic(GenericVar, __)
 				);
+				break;
+			}
+			case mSPO_AST.tInterfaceTypeNode<tPos> InterfaceType: {
+				var Name = InterfaceType.HeadType.Id;
+				var Parameter = mVM_Type.Free(Name, mVM_Type.Type());
+				Result = InterfaceType.BodyType.AsVM_Type(
+					mStream.Stream(ScopeItem(Name, mVM_Type.Type(), Parameter), aScope)
+				).FailIfNot(
+					__ => mVM_Type.IsInterfaceBody(Parameter, __),
+					_ => (InterfaceType.Pos, "interface methods must use the hidden type only as their object argument")
+				).Then(__ => mVM_Type.Interface(Parameter, __));
 				break;
 			}
 			case mSPO_AST.tGenericApplyTypeNode<tPos> GenericApplyType: {

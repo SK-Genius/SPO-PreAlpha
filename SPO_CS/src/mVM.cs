@@ -116,6 +116,21 @@ mVM {
 		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
 			return Definition.DefType.IsSubType(aType).Match(out _, out _);
 		}
+		if (aData.IsInterfaceMethod(out var Required, out _) && aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic) {
+			var Expected = aType;
+			while (Expected.IsGeneric(out _, out var Body)) {
+				Expected = Body;
+			}
+			if (!Expected.IsProc(out var Object, out _, out _)) {
+				return false;
+			}
+			var Receiver = Object.FirstObjectType();
+			var Field = Required.Refs[1].Fields.ToStream().TryFirst().AssertNotEmpty();
+			return Receiver.IsSubType(Required).Match(out _, out _) &&
+				Receiver.TryGetInterfaceMethod(Field.Key).Match(
+					__ => __.IsSubType(aType).Match(out _, out _), () => false
+				);
+		}
 		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
 		if (
 			aData.IsProc(out var Def, out _) &&
@@ -138,7 +153,9 @@ mVM {
 			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
 		} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
 			return aData.Matches(BodyType.Substitute(HeadType, aType), aVisited);
-		} else if (aType.IsInterface(out _, out BodyType) || aType.IsGeneric(out _, out BodyType)) {
+		} else if (aType.IsInterface(out _, out _)) {
+			return aData.IsInterface(out var Contract, out _, out _) && Contract.IsSubType(aType).Match(out _, out _);
+		} else if (aType.IsGeneric(out _, out BodyType)) {
 			return aData.Matches(BodyType, aVisited);
 		} else {
 			return aType.Kind switch {
@@ -181,6 +198,27 @@ mVM {
 		}
 	}
 	
+	private static (mVM_Data.tData Object, mVM_Data.tData Method)
+	ResolveInterfaceMethod(mVM_Data.tData aObject, mVM_Data.tData aMethod) {
+		static (mVM_Type.tType Contract, mVM_Data.tData Object, mVM_Data.tData Methods)
+		UnwrapFirst(mVM_Data.tData aObject) {
+			if (aObject.IsInterface(out var Contract, out var Hidden, out var Methods)) {
+				return (Contract, Hidden, Methods);
+			}
+			mAssert.IsTrue(aObject.IsPair(out var Tail, out var Head), "expected interface as first object argument");
+			var First = UnwrapFirst(Tail.IsEmpty() ? Head : Tail);
+			return (First.Contract, Tail.IsEmpty() ? mVM_Data.Pair(Tail, First.Object) : mVM_Data.Pair(First.Object, Head), First.Methods);
+		}
+		while (aMethod.IsInterfaceMethod(out var Contract, out var Name)) {
+			var Bound = UnwrapFirst(aObject);
+			mAssert.IsTrue(Bound.Contract.IsSubType(Contract).Match(out _, out _), "incompatible interface receiver");
+			mAssert.IsTrue(Bound.Methods.IsRecord(out var Methods));
+			aObject = Bound.Object;
+			aMethod = Methods.TryGet(Name).AssertNotEmpty();
+		}
+		return (aObject, aMethod);
+	}
+
 	private static mVM_Data.tData
 	RunProc<tPos>(
 		mVM_Data.tData aProc,
@@ -189,6 +227,7 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
+		(aObject, aProc) = ResolveInterfaceMethod(aObject, aProc);
 		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
 			mAssert.IsTrue(Def.DefType.IsProc(out _, out _, out var ProcType));
 			while (ProcType.IsGeneric(out _, out var Body)) {
@@ -370,6 +409,11 @@ mVM {
 			}
 			case mVM_Data.tOpCode.GetField: {
 				var Arg = aCallStack._Regs.Get(Arg1);
+				if (Arg.IsInterface(out var Contract, out _, out var Methods)) {
+					mAssert.IsTrue(Methods.IsRecord(out var BoundMethods) && BoundMethods.TryGet(Arg2).IsSome(out _));
+					aCallStack._Regs.Push(mVM_Data.InterfaceMethod(Contract, Arg2));
+					break;
+				}
 				mAssert.IsTrue(Arg.IsRecord(out var Fields));
 				aCallStack._Regs.Push(
 					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {Arg2} {Arg.ToText(3)}").ElseThrow()
@@ -557,6 +601,7 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
+				(Obj, Proc) = ResolveInterfaceMethod(Obj, Proc);
 				
 				switch (0) {
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -691,6 +736,13 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.TypeExpression(Type));
 				break;
 			}
+			case mVM_Data.tOpCode.NewInterface: {
+				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
+				mAssert.IsTrue(Contract.IsInterface(out _, out _));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Object, out var Methods));
+				aCallStack._Regs.Push(mVM_Data.Interface(Contract, Object, Methods));
+				break;
+			}
 			case mVM_Data.tOpCode.NewSig: {
 				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Head, out var Body));
@@ -804,11 +856,13 @@ mVM {
 				);
 				break;
 			}
+			case mVM_Data.tOpCode.TypeInterface:
 			case mVM_Data.tOpCode.TypeRecursive: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(mVM_Type.Recursive(
-					aCallStack._Regs.Get(Arg1).TypeValue(),
-					aCallStack._Regs.Get(Arg2).SignatureValue()
-				)));
+				var Parameter = aCallStack._Regs.Get(Arg1).TypeValue();
+				var Body = aCallStack._Regs.Get(Arg2).SignatureValue();
+				aCallStack._Regs.Push(mVM_Data.TypeExpression(
+					OpCode is mVM_Data.tOpCode.TypeInterface ? mVM_Type.Interface(Parameter, Body) : mVM_Type.Recursive(Parameter, Body)
+				));
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsEmpty: {

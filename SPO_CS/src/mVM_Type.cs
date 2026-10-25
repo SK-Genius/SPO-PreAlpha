@@ -88,7 +88,7 @@ mVM_Type {
 		IsImmutable = aKind switch {
 			tKind.Empty or tKind.True or tKind.False or tKind.Int or tKind.Type or tKind.Proc => true,
 			tKind.Pair or tKind.Prefix or tKind.Set => mStream.Stream(aRefs).All(__ => __.IsImmutable),
-			tKind.Sig or tKind.Generic or tKind.Interface => aRefs[1].IsImmutable,
+			tKind.Sig or tKind.Generic => aRefs[1].IsImmutable,
 			tKind.Recursive => aRefs[1].Substitute(aRefs[0], Empty()).IsImmutable,
 			_ => false,
 		},
@@ -505,6 +505,9 @@ mVM_Type {
 		this tType aType,
 		tText aKey
 	) {
+		if (aType.IsInterface(out var Parameter, out var Body)) {
+			return aType.TryGetInterfaceMethod(aKey).ElseFail(() => $"Unknown interface method '{aKey}'").ElseThrow();
+		}
 		mAssert.IsTrue(aType.IsRecord(out var Fields));
 		mAssert.IsTrue(
 			Fields.TryGet(aKey).IsSome(out var FieldType),
@@ -792,6 +795,66 @@ mVM_Type {
 		tType aTypeBody
 	) => NewType(tKind.Interface, [aTypeHead, aTypeBody]);
 	
+	public static tBool
+	IsInterfaceBody(tType aParameter, tType aBody) {
+		static tInt32 Occurrences(tType aType, tType aParameter)
+		=> mStd.RefEq(aType, aParameter) ? 1 : (
+			aType.IsRecord(out var Fields)
+			? Fields.ToStream().Reduce(0, (Count, Field) => Count + Occurrences(Field.Value, aParameter))
+			: mStream.Stream(aType.Refs).Reduce(0, (Count, Child) => Count + Occurrences(Child, aParameter))
+		);
+		if (aBody.IsEmpty()) {
+			return true;
+		}
+		return aBody.IsRecord(out var Methods) && Methods.ToStream().All(
+			Field => {
+				var Method = Field.Value;
+				while (Method.IsGeneric(out _, out var Body)) {
+					Method = Body;
+				}
+				return Method.IsProc(out var Object, out var Argument, out var Result) &&
+					Object.FirstObjectType().SameType(aParameter) && Occurrences(Object, aParameter) == 1 &&
+					Occurrences(Argument, aParameter) == 0 && Occurrences(Result, aParameter) == 0;
+			}
+		);
+	}
+
+	public static tType
+	FirstObjectType(this tType aType) {
+		while (aType.IsPair(out var Tail, out var Head)) {
+			if (Tail.IsEmpty()) {
+				return Head;
+			}
+			aType = Tail;
+		}
+		return aType;
+	}
+
+	public static mMaybe.tMaybe<tType>
+	TryGetInterfaceMethod(this tType aType, tText aName)
+	=> aType.IsInterface(out var Parameter, out var Body) && Body.IsRecord(out var Methods)
+		? Methods.TryGet(aName).Then(__ => __.Substitute(Parameter, aType))
+		: mStd.cEmpty;
+
+	public static mResult.tResult<tType, tText>
+	CheckInterfaceImplementation(this tType aContract, tType aObject, tType aMethods) {
+		if (!aContract.IsInterface(out var Head, out var Body)) {
+			return mResult.Fail("expected interface contract");
+		}
+		var Parameter = Free(Head.KindType());
+		return aMethods.IsSubType(Body.Substitute(Head, Parameter)).ThenTry(
+			Mappings => {
+				var Object = Parameter.ApplyMappings(Mappings);
+				if (mStd.RefEq(Object, Parameter)) {
+					Object = aObject;
+				}
+				return aMethods.IsSubType(Body.Substitute(Head, Object)).ThenTry(
+					_ => aObject.IsSubType(Object)
+				).Then(_ => aContract);
+			}
+		);
+	}
+
 	public static tBool
 	IsInterface(
 		this tType aType,
@@ -1126,14 +1189,11 @@ mVM_Type {
 			}
 			case tKind.Interface: {
 				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
-				if (aSubType.IsInterface(out var SubHead, out var SubBody)) {
-					if (!ReferenceEquals(SubHead, SupHead)) {
-						SubBody = SubBody.Substitute(SubHead, SupHead);
-					}
-					return SubBody.CheckSubType(SupBody, aTypeMappings);
-				} else {
-					return aSubType.CheckSubType(SupBody, aTypeMappings);
+				if (!aSubType.IsInterface(out var SubHead, out var SubBody)) {
+					return mResult.Fail("expected interface object");
 				}
+				var Object = Abstract(SupHead.Id!, SupHead.KindType());
+				return SubBody.Substitute(SubHead, Object).CheckSubType(SupBody.Substitute(SupHead, Object), aTypeMappings);
 			}
 			default: {
 				mAssert.Impossible();
@@ -1513,7 +1573,7 @@ mVM_Type {
 			tKind.Var => $"[{____}§VAR {Child(0)}{__}]",
 			tKind.Recursive => $"[{____}§RECURSIVE {Child(0)} = {Child(1)}{__}]",
 			tKind.Generic => $"[{____}§ALL {Child(0)} => {Child(1)}{__}]",
-			tKind.Interface => $"[{____}§LET {Child(0)} IN {Child(1)}{__}]",
+			tKind.Interface => $"[{____}§INTERFACE {Child(0)} {Child(1)}{__}]",
 			tKind.Cond => $"[{____ + Child(0)} ? ...{__}]", // TODO
 			_ => throw mError.Error("impossible")
 		};

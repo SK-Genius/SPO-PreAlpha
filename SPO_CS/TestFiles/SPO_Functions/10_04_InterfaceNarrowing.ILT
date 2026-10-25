@@ -1,0 +1,154 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [EMPTY_TYPE => INT]
+	t_2 := [t_0 : t_1]
+	t_3 := [#_Read t_2]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [§ANY t_0 => t_4]
+	t_6 := [§FREE TYPE]
+	t_7 := [t_6 : t_1]
+	t_8 := [#_Read t_7]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [INT => EMPTY_TYPE]
+	t_11 := [t_6 : t_10]
+	t_12 := [#_Write... t_11]
+	t_13 := [{t_9} + t_12]
+	t_14 := [§ANY t_6 => t_13]
+	t_15 := [§VAR INT]
+	t_16 := [t_15 : t_1]
+	t_17 := [EMPTY_TYPE => t_16]
+	t_18 := [t_15 : t_10]
+	t_19 := [EMPTY_TYPE => t_18]
+	t_20 := [§FREE TYPE]
+	t_21 := [t_20 : t_1]
+	t_22 := [#_Read t_21]
+	t_23 := [{EMPTY_TYPE} + t_22]
+	t_24 := [§ANY t_20 => t_23]
+	t_25 := [t_24 : t_1]
+	t_26 := [EMPTY_TYPE => t_25]
+	t_27 := [t_24 : t_26]
+	t_28 := [EMPTY_TYPE => t_27]
+	t_29 := [EMPTY_TYPE, t_25]
+	t_30 := [#Result t_25]
+	t_31 := [t_29 => t_30]
+	t_32 := [EMPTY_TYPE => t_31]
+	t_33 := [t_32 => t_31]
+	t_34 := [EMPTY_TYPE, t_17]
+	t_35 := [t_34, t_19]
+	t_36 := [t_35, t_26]
+	t_37 := [t_36, t_28]
+	t_38 := [t_37, t_32]
+	t_39 := [t_38, t_33]
+	t_40 := [EMPTY_TYPE, INT]
+	t_41 := [t_40, INT]
+	t_42 := [t_41, INT]
+	t_43 := [EMPTY_TYPE => t_42]
+	t_44 := [t_39 => t_43]
+
+§DEF d_0 € t_17
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_19
+	_aValue := ARG
+	_aSelf := OBJ
+	§VAR _aSelf <- _aValue
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_26
+	§RETURN ARG IF_NOT_EMPTY
+	_aReader := OBJ
+	r_1 := {_aReader} #_Read
+	r_3 := _aReader, r_1
+	r_2 := §OBJ:r_3 EMPTY
+	_Value := r_2
+	§RETURN _Value IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_28
+	§RETURN ARG IF_NOT_EMPTY
+	_aReader := OBJ
+	r_1 := {_aReader} #_Read
+	_Method := r_1
+	§RETURN _Method IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_32
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Method := r_2
+	r_1 := +#Result _Method
+	§RETURN r_1 IF TRUE
+
+§DEF d_5 € t_33
+	d_4 := ENV
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_4 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
+	§RETURN EMPTY IF TRUE
+
+§DEF d_6 € t_44
+	d_5 := §2ND ENV
+	r_31 := §1ST ENV
+	d_4 := §2ND r_31
+	r_32 := §1ST r_31
+	d_3 := §2ND r_32
+	r_33 := §1ST r_32
+	d_2 := §2ND r_33
+	r_34 := §1ST r_33
+	d_1 := §2ND r_34
+	r_35 := §1ST r_34
+	d_0 := §2ND r_35
+	r_36 := §1ST r_35
+	§RETURN ARG IF_NOT_EMPTY
+	_iReader := t_5
+	_iCell := t_14
+	r_1 := §CLOSURE d_0 EMPTY
+	_ReadCell := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_WriteCell... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_Observe := r_3
+	r_4 := §CLOSURE d_3 EMPTY
+	_GetRead := r_4
+	r_5 := 18
+	_Cell := §VAR r_5
+	r_6 := +#_Read _ReadCell
+	r_7 := {EMPTY} + r_6
+	r_8 := +#_Write... _WriteCell...
+	r_9 := {r_7} + r_8
+	r_10 := _Cell, r_9
+	r_11 := §INTERFACE t_14 WITH r_10
+	_Capability := r_11
+	_Narrow := _Capability
+	r_13 := _Narrow, _Observe
+	r_12 := §OBJ:r_13 EMPTY
+	_First := r_12
+	r_14 := 23
+	r_15 := {_Capability} #_Write...
+	r_16 := _Capability, r_15
+	EMPTY := §OBJ:r_16 r_14
+	r_18 := _Narrow, _Observe
+	r_17 := §OBJ:r_18 EMPTY
+	_Second := r_17
+	r_20 := _Capability, _GetRead
+	r_19 := §OBJ:r_20 EMPTY
+	_Captured := r_19
+	r_21 := §CLOSURE d_5 d_4
+	r_22 := EMPTY, _Captured
+	r_23 := OBJ, r_21
+	r_24 := §OBJ:r_23 r_22
+	r_25 := -#Result r_24
+	_Checked := r_25
+	r_27 := _Narrow, _Checked
+	r_26 := §OBJ:r_27 EMPTY
+	_Third := r_26
+	r_28 := EMPTY, _First
+	r_29 := r_28, _Second
+	r_30 := r_29, _Third
+	§RETURN r_30 IF TRUE

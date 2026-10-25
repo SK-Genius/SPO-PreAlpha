@@ -103,6 +103,74 @@ mSPO2IL_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO2IL),
 		[
+			mTest.Test("Interface type expressions capture runtime type arguments",
+				aDebug => {
+					const tText cSource = """
+					§DEF Build... = (§DEF result € §TYPE) => [§INTERFACE hidden [< Read: [hidden : [] => result] >]]
+					§EXPORT .Build §INT
+					""";
+					var Result = mSPO_Interpreter.Run(cSource + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__())).ElseThrow();
+					mAssert.IsTrue(Result.Data.TypeValue().IsInterface(out var Hidden, out var Methods));
+					mAssert.IsTrue(Methods.GetFieldType("_Read").IsProc(out var Object, out _, out var Return));
+					mAssert.IsTrue(Object.SameType(Hidden) && Return.IsInt());
+				}
+			),
+			mTest.Test("Interface dispatch gives native methods the hidden first object and the remaining objects",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT (§DEF Native... € [[§INT, §BOOL] : §INT => §INT])
+					§DEF Contract = [§INTERFACE t [< Fetch...: [[t, §BOOL] : §INT => §INT] >]]
+					§DEF Capability = §INTERFACE Contract WITH 7 IN {Fetch...: Native...}
+					(Capability, §TRUE) : Fetch 3 => §DEF Value .
+					§EXPORT Value
+					""";
+					var Native = mVM_Data.ExternProc((aEnv, aObjects, aArg, aTrace) => {
+						mAssert.IsTrue(aObjects.IsPair(out var Tail, out var Flag));
+						mAssert.IsTrue(Tail.IsPair(out var Empty, out var Hidden) && Empty.IsEmpty());
+						mAssert.IsTrue(Hidden.IsInt(out var Value));
+						mAssert.IsTrue(Flag.IsBool(out var Bool) && Bool);
+						mAssert.IsTrue(aArg.IsInt(out var Input));
+						return mVM_Data.Int(Value + Input);
+					}, mVM_Data.Empty());
+					var Type = mVM_Type.Proc(mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Bool()]), mVM_Type.Int(), mVM_Type.Int());
+					var Result = mSPO_Interpreter.Run(cSource + "\n", "", (Native, Type), __ => aDebug(__())).ElseThrow();
+					mAssert.AreEquals(Result.Data, mVM_Data.Int(10));
+				}
+			),
+			mTest.Test("Interface validation rejects invalid contracts, receivers and methods",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT ()
+					§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+					§DEF Read = (§DEF aSelf € §INT) : () {
+						§RETURN 7
+					}
+					§DEF Capability = §INTERFACE iReader WITH 1 IN {Read: Read}
+					Capability : Read => §DEF Value .
+					§EXPORT Value
+					""";
+					foreach (var (Source, Expected) in mStream.Stream(
+						(cSource.Replace("[t : []", "[§INT : []"), "hidden type"),
+						(cSource.Replace("[t : []", "[[§INT, t] : []"), "hidden type"),
+						(cSource.Replace("[t : []", "[[t, t] : []"), "hidden type"),
+						(cSource.Replace("[t : []", "[t : t"), "hidden type"),
+						(cSource.Replace("[] => §INT]", "[] => t]"), "hidden type"),
+						(cSource.Replace("aSelf € §INT", "aSelf € §BOOL"), "incompatible interface methods"),
+						(cSource.Replace("{Read: Read}", "{Missing: Read}"), "incompatible interface methods"),
+						(cSource.Replace("{Read: Read}", "{Read: 7}"), "incompatible interface methods"),
+						(cSource.Replace("Capability : Read", "(Capability, 2) : Read"), "receiver"),
+						(cSource.Replace("WITH 1 IN", "WITH §TRUE IN"), "incompatible interface methods"),
+						(cSource.Replace("Capability : Read", "{Hidden: §DEF Secret} = Capability\nCapability : Read"), "Unknown interface method"),
+						(cSource.Replace("§INTERFACE iReader WITH 1 IN {Read: Read}", "{Read: Read}").Replace(
+							"§DEF Capability =", "§DEF Capability € iReader ="
+						), "expected interface object")
+					)) {
+						var Checked = mSPO_Interpreter.Run(Source + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__()));
+						mAssert.IsFalse(Checked.Match(out _, out var Error), Source);
+						mAssert.IsTrue(Error.Contains(Expected), Error);
+					}
+				}
+			),
 			mTest.Test("If lowering uses validated types without changing AST annotations",
 				aStreamOut => {
 					var Expression = mSPO_Parser.Expression.TryParseText(

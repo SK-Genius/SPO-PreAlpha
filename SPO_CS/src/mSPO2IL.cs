@@ -349,6 +349,13 @@ mSPO2IL {
 				
 				return NewId;
 			}
+			case var a when a.IsInterface(out var HeadType, out var BodyType): {
+				var HeadId = aTypeDeclarations.MapType(HeadType);
+				var BodyId = aTypeDeclarations.MapType(BodyType);
+				var Id = $"[§ANY {HeadId} => {BodyId}]";
+				aTypeDeclarations.EnsureTypeDefinition(Id, a, () => mIL_AST.TypeInterface(default(tPos)!, Id, HeadId, BodyId));
+				return Id;
+			}
 			default: {
 				throw new System.NotImplementedException("" + aType.Kind);
 			}
@@ -744,6 +751,7 @@ mSPO2IL {
 			}
 			case mVM_Type.tKind.Generic:
 			case mVM_Type.tKind.Recursive:
+			case mVM_Type.tKind.Interface:
 			case mVM_Type.tKind.Sig: {
 				var Head = aType.Refs[0];
 				var HeadReg = aDef.CreateTempReg();
@@ -764,6 +772,7 @@ mSPO2IL {
 					aType.Kind switch {
 						mVM_Type.tKind.Generic => mIL_AST.TypeGeneric(aPos, Reg, HeadReg, BodyReg),
 						mVM_Type.tKind.Recursive => mIL_AST.TypeRecursive(aPos, Reg, HeadReg, BodyReg),
+						mVM_Type.tKind.Interface => mIL_AST.TypeInterface(aPos, Reg, HeadReg, BodyReg),
 						_ => mIL_AST.TypeSig(aPos, Reg, HeadReg, BodyReg),
 					}
 				);
@@ -989,6 +998,22 @@ mSPO2IL {
 				
 				aDefConstructor.AddLocal(Result, aDefConstructor.TypeState.TryGetValidatedType(Sig).AssertNotEmpty());
 				
+				return Result;
+			}
+			case mSPO_AST.tInterfaceNode<tPos> Interface: {
+				var ContractType = aDefConstructor.TypeState.TryGetValidatedType(Interface).AssertNotEmpty();
+				var Contract = aDefConstructor.MapTypeValue(ref aModuleConstructor.TypeDeclarations, Interface.Pos, ContractType);
+				if (
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Interface.Object).Match(out var Object, out var Error) ||
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Interface.Methods).Match(out var Methods, out Error)
+				) {
+					return mResult.Fail(Error);
+				}
+				aDefConstructor.Commands.Push(
+					mIL_AST.CreatePair(Interface.Pos, aDefConstructor.CreateTempReg(out var Payload), Object, Methods),
+					mIL_AST.CreateInterface(Interface.Pos, aDefConstructor.CreateTempReg(out var Result), Contract, Payload)
+				);
+				aDefConstructor.AddLocal(Result, ContractType);
 				return Result;
 			}
 			case mSPO_AST.tPairNode<tPos> { Pos: var Pos, Tail: var Tail, Head: var Head }: {
@@ -2219,8 +2244,25 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}
-			if (!aDefConstructor.TryMapExpression(aModuleConstructor, Call.Method).Match(out MethodId, out aError)) {
-				return false;
+			var ObjectType = TypeState.TryGetValidatedType(aMethodCallsNode.Object).AssertNotEmpty();
+			if (ObjectType.FirstObjectType().TryGetInterfaceMethod(MethodId).IsSome(out _)) {
+				var Interface = Object;
+				while (ObjectType.IsPair(out var Tail, out _)) {
+					if (Tail.IsEmpty()) {
+						aDefConstructor.Commands.Push(mIL_AST.GetSecond(Call.Pos, aDefConstructor.CreateTempReg(out var First), Interface));
+						Interface = First;
+						break;
+					}
+					aDefConstructor.Commands.Push(mIL_AST.GetFirst(Call.Pos, aDefConstructor.CreateTempReg(out var Rest), Interface));
+					Interface = Rest;
+					ObjectType = Tail;
+				}
+				aDefConstructor.Commands.Push(mIL_AST.GetField(Call.Pos, aDefConstructor.CreateTempReg(out var Bound), Interface, MethodId));
+				MethodId = Bound;
+			} else {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Call.Method).Match(out MethodId, out aError)) {
+					return false;
+				}
 			}
 			
 			var Result = Call.Result.IsNone() ? mIL_AST.cEmptyValue : aDefConstructor.CreateTempReg();

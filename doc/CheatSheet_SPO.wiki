@@ -130,6 +130,28 @@ For executable function and module examples, open [<Tests.wiki|Test Examples>].
 |}
 .]
 
+[=Interfaces=]
+
+An interface object binds a hidden receiver to its methods. The hidden type appears
+once, as the first object argument of each method. Other object arguments are allowed.
+Calls pass the interface object in that position; the implementation receives the
+hidden object. Ordinary arguments and results cannot expose the hidden type.
+
+See [<../SPO_CS/TestFiles/SPO_Functions/10_01_InterfaceObject.SPO|construction, calls and forwarding>],
+[<../SPO_CS/TestFiles/SPO_Functions/10_02_InterfaceObjectArguments.SPO|multiple object arguments>] and
+[<../SPO_CS/TestFiles/SPO_Functions/10_03_InterfaceMutableObjects.SPO|mutable receivers>].
+
+[.spo
+|§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+|§DEF First = §INTERFACE iReader WITH 7 IN {Read: IntRead}
+|First : Read => §DEF A .
+.]
+
+The method implementation [.|IntRead.] is defined in the linked construction example.
+An interface can be narrowed to a contract with fewer methods. Its receiver keeps
+the existing mutable-access rules: passing it as an ordinary argument permits
+transport; using mutable state requires an authorized object argument.
+
 [=Modules and Pipes=]
 [.spo
 |§IMPORT {
@@ -187,4 +209,3 @@ A [.|.SIG.] file contains a type definition shared by exports and imports:
 - [.spo|§IMPORT.] is a pattern match, not just a name list.
 - [.spo|§IS.] is syntax sugar over [.spo|§IF value MATCH { ... }.].
 - surface type keywords and IL type keywords differ: [.spo|§RECURSIVE.]/[.spo|§GENERIC.]/[.spo|§INTERFACE.] become [.spo|§REC.]/[.spo|§ALL.]/[.spo|§ANY.] in [.|.ILT.].
-- [.spo|§INTERFACE.] is parser-visible, but broader end-to-end support is still incomplete.

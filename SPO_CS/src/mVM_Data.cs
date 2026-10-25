@@ -37,6 +37,7 @@ mVM_Data {
 
 		// SIG
 		NewSig,
+		NewInterface,
 		SigHead,
 		SigBody,
 		
@@ -684,6 +685,8 @@ mVM_Data {
 		Int,
 		Pair,
 		Sig,
+		Interface,
+		InterfaceMethod,
 		Prefix,
 		Record,
 		Proc,
@@ -870,6 +873,42 @@ mVM_Data {
 		return true;
 	}
 	
+	public static tData
+	Interface(mVM_Type.tType aContract, tData aObject, tData aMethods)
+	=> Data(tDataType.Interface, aObject._IsMutable || aMethods._IsMutable, (aContract, aObject, aMethods));
+
+	public static tBool
+	IsInterface(this tData aData, out mVM_Type.tType aContract, out tData aObject, out tData aMethods) {
+		aContract = default!;
+		aObject = default!;
+		aMethods = default!;
+		if (!aData.Is(tDataType.Interface, out (mVM_Type.tType Contract, tData Object, tData Methods) Value)) {
+			return false;
+		}
+		(aContract, aObject, aMethods) = Value;
+		return true;
+	}
+
+	public static tData
+	InterfaceMethod(mVM_Type.tType aContract, tNat32 aName) {
+		mAssert.IsTrue(aContract.IsInterface(out var Parameter, out var Body));
+		mAssert.IsTrue(Body.IsRecord(out var Fields));
+		var Field = Fields.ToStream().Where(__ => __.Key.PrefixHash() == aName).TryFirst().AssertNotEmpty();
+		var Required = mVM_Type.Interface(Parameter, mVM_Type.Record([(Field.Key, Field.Value)]));
+		return Data(tDataType.InterfaceMethod, false, (Required, aName));
+	}
+
+	public static tBool
+	IsInterfaceMethod(this tData aData, out mVM_Type.tType aContract, out tNat32 aName) {
+		aContract = default!;
+		aName = default;
+		if (!aData.Is(tDataType.InterfaceMethod, out (mVM_Type.tType Contract, tNat32 Name) Value)) {
+			return false;
+		}
+		(aContract, aName) = Value;
+		return true;
+	}
+
 	public static tData
 	Type(
 		mVM_Type.tType aValue
@@ -1243,6 +1282,12 @@ mVM_Data {
 			_ when a.IsSig(out _, out var Head, out var Body)
 			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
 			
+			_ when a.IsInterface(out _, out _, out _)
+			=> "(§INTERFACE)",
+
+			_ when a.IsInterfaceMethod(out _, out var Name)
+			=> $"(Interface method #{Name})",
+
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",
 			

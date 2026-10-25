@@ -1,0 +1,37 @@
+§IMPORT ()
+
+§DEF iCell = [§INTERFACE t [<
+	Read: [t : [] => §INT]
+	Write...: [t : §INT => []]
+	Exchange: [[t, [§VAR §INT]] : [] => [§INT, §INT]]
+>]]
+
+§DEF ReadCell = (§VAR aSelf € §INT) : () {
+	§RETURN §TO_VAL aSelf
+}
+§DEF WriteCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
+	aSelf := aValue .
+}
+§DEF ExchangeCells = (§VAR aSelf € §INT, §VAR aOther € §INT) : () {
+	§DEF First = §TO_VAL aSelf
+	§DEF Second = §TO_VAL aOther
+	aSelf := Second .
+	aOther := First .
+	§RETURN (First, Second)
+}
+
+§VAR Cell := 7 .
+§VAR Other := 9 .
+§DEF Capability = §INTERFACE iCell WITH Cell IN {
+	Read: ReadCell
+	Write...: WriteCell...
+	Exchange: ExchangeCells
+}
+§DEF Pass... = (§DEF aCapability € iCell) => aCapability
+§DEF Relayed = .Pass Capability
+
+Relayed : Write 11 .
+(Relayed, Other) : Exchange => §DEF Before .
+Capability : Read => §DEF After .
+
+§EXPORT (Before, After, §TO_VAL Other)

@@ -736,6 +736,15 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Sig)
 	.SetName(nameof(Sig));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tInterfaceNode<tSpan>, tError>
+	Interface = mParserGen.Seq(
+		-KeyWord("INTERFACE") +Type,
+		-Token("WITH") +Expression,
+		-Token("IN") +Expression
+	)
+	.ModifyS(mSPO_AST.Interface)
+	.SetName(nameof(Interface));
+
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tSigPatternNode<tSpan>, tError>
 	SigPattern = mParserGen.Seq(
 		-KeyWord("SIG") +Type,
@@ -1009,6 +1018,7 @@ mSPO_Parser {
 					Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Pair.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Sig.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					Interface.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

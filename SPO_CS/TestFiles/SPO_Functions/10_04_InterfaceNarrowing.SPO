@@ -1,0 +1,33 @@
+§IMPORT ()
+
+§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF iCell = [§INTERFACE t [< Read: [t : [] => §INT], Write...: [t : §INT => []] >]]
+
+§DEF ReadCell = (§VAR aSelf € §INT) : () {
+	§RETURN §TO_VAL aSelf
+}
+§DEF WriteCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
+	aSelf := aValue .
+}
+§DEF Observe = (§DEF aReader € iReader) : () {
+	aReader : Read => §DEF Value .
+	§RETURN Value
+}
+§DEF GetRead = (§DEF aReader € iReader) : () {
+	{Read: §DEF Method} = aReader
+	§RETURN Method
+}
+
+§VAR Cell := 18 .
+§DEF Capability = §INTERFACE iCell WITH Cell IN {Read: ReadCell, Write...: WriteCell...}
+§DEF Narrow € iReader = Capability
+Narrow : Observe => §DEF First .
+Capability : Write 23 .
+Narrow : Observe => §DEF Second .
+Capability : GetRead => §DEF Captured .
+§DEF Checked = §IF Captured MATCH {
+	§DEF Method € [iReader : [] => §INT]: Method
+}
+Narrow : Checked => §DEF Third .
+
+§EXPORT (First, Second, Third)

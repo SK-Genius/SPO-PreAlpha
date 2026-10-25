@@ -148,6 +148,21 @@ The forms you will see most often in checked-in `.ILT` files are:
 |r_8 := §TRY_REMOVE #Tag FROM x
 .]
 
+[=Interface Objects=]
+
+[.ilt
+|payload := hiddenObject, methods
+|capability := §INTERFACE Contract WITH payload
+|method := {capability} #Read
+|call := capability, method
+|result := §OBJ:call EMPTY
+.]
+
+The contract is declared with [.|§ANY.]. The IL checker verifies the hidden object
+against the implementation methods. Field projection exposes callable methods
+with the interface as their first object argument. Calling one substitutes the
+hidden object in that position and preserves further object arguments.
+
 [=SPO vs IL Notation=]
 
 [| [*Concept*]    ][ [*SPO*]                      ][ [*IL*]                           |]

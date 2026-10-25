@@ -30,6 +30,33 @@ mIL_TypeChecker_Tests {
 	Tests = mTest.Tests(
 		nameof(mIL_TypeChecker),
 		[
+			mTest.Test("IL interface construction checks the hidden receiver against its methods",
+				aDebug => {
+					const tText cSource = """
+					§TYPES
+						t := [§FREE TYPE]
+						tF := [EMPTY_TYPE => INT]
+						tMethod := [t : tF]
+						tField := [#Read tMethod]
+						tBody := [{EMPTY_TYPE} + tField]
+						tInterface := [§ANY t => tBody]
+						tWrongMethod := [TRUE : tF]
+						tMain := [tWrongMethod => tF]
+					§DEF Main € tMain
+						Field := +#Read ENV
+						Methods := {EMPTY} + Field
+						Payload := ONE, Methods
+						Object := §INTERFACE tInterface WITH Payload
+						§RETURN ONE IF TRUE
+					""";
+					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(cSource), out var Error));
+					var Valid = cSource.Replace("tWrongMethod := [TRUE : tF]", "tWrongMethod := [INT : tF]");
+					mAssert.IsTrue(mIL_TypeChecker.AreModuleTypesValid(Parse(Valid), out Error), () => mIL_TypeChecker.ErrorText(Error));
+					var InvalidHead = Valid.Replace("[t : tF]", "[INT : tF]");
+					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(InvalidHead), out Error));
+					mAssert.IsTrue(Error.ErrorText.Contains("hidden type"), Error.ErrorText);
+				}
+			),
 			mTest.Test(
 				"Record cell writes require matching field types",
 				aDebug => {

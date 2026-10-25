@@ -1,0 +1,64 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [EMPTY_TYPE, INT]
+	t_2 := [t_1, INT]
+	t_3 := [TRUE | FALSE]
+	t_4 := [t_2, t_3]
+	t_5 := [t_4, INT]
+	t_6 := [INT => t_5]
+	t_7 := [EMPTY_TYPE, t_0]
+	t_8 := [t_7, INT]
+	t_9 := [t_8, t_3]
+	t_10 := [t_9 : t_6]
+	t_11 := [#_Inspect... t_10]
+	t_12 := [{EMPTY_TYPE} + t_11]
+	t_13 := [§ANY t_0 => t_12]
+	t_14 := [t_4 : t_6]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [EMPTY_TYPE => t_5]
+	t_17 := [t_15 => t_16]
+
+§DEF d_0 € t_15
+	_aInput := ARG
+	r_1 := §2ND OBJ
+	_aFlag := r_1
+	r_2 := §1ST OBJ
+	r_3 := §2ND r_2
+	_aOther := r_3
+	r_4 := §1ST r_2
+	r_5 := §2ND r_4
+	_aHidden := r_5
+	r_6 := §1ST r_4
+	§RETURN r_6 IF_NOT_EMPTY
+	r_7 := EMPTY, _aHidden
+	r_8 := r_7, _aOther
+	r_9 := r_8, _aFlag
+	r_10 := r_9, _aInput
+	§RETURN r_10 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_17
+	d_0 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	_iInspect := t_13
+	r_1 := §CLOSURE d_0 EMPTY
+	_Inspect... := r_1
+	r_2 := 13
+	r_3 := +#_Inspect... _Inspect...
+	r_4 := {EMPTY} + r_3
+	r_5 := r_2, r_4
+	r_6 := §INTERFACE t_13 WITH r_5
+	_Capability := r_6
+	r_7 := EMPTY, _Capability
+	r_8 := 42
+	r_9 := r_7, r_8
+	r_10 := r_9, TRUE
+	r_11 := 5
+	r_12 := §1ST r_10
+	r_13 := §1ST r_12
+	r_14 := §2ND r_13
+	r_15 := {r_14} #_Inspect...
+	r_17 := r_10, r_15
+	r_16 := §OBJ:r_17 r_11
+	_Result := r_16
+	§RETURN _Result IF TRUE

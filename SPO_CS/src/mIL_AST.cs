@@ -72,6 +72,7 @@ mIL_AST {
 		First,                      // X := §1ST X
 		Second,                     // X := §2ND X
 		Sig,                        // X := §SIG T WITH X (T may be a declared type or a type-valued register)
+		Interface,                  // X := §INTERFACE T WITH (object, methods)
 		SigHead,                    // X := §SIG_HEAD X
 		SigHeadAs,                  // X := §SIG_HEAD X AS T
 		SigBody,                    // X := §SIG_BODY X
@@ -192,6 +193,7 @@ mIL_AST {
 		tCommandNodeType.First => $"{a._1} := §1ST {a._2}",
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
 		tCommandNodeType.Sig => $"{a._1} := §SIG {a._2} WITH {a._3}",
+		tCommandNodeType.Interface => $"{a._1} := §INTERFACE {a._2} WITH {a._3}",
 		tCommandNodeType.SigHead => $"{a._1} := §SIG_HEAD {a._2}",
 		tCommandNodeType.SigHeadAs => $"{a._1} := §SIG_HEAD {a._2} AS {a._3}",
 		tCommandNodeType.SigBody => $"{a._1} := §SIG_BODY {a._2}",
@@ -825,6 +827,10 @@ mIL_AST {
 		tText aId3
 	) => CommandNode(tCommandNodeType.TypeInterface, aPos, aId1, aId2, aId3);
 	
+	public static tCommandNode<tPos>
+	CreateInterface<tPos>(tPos aPos, tText aId, tText aContract, tText aPayload)
+	=> CommandNode(tCommandNodeType.Interface, aPos, aId, aContract, aPayload);
+
 	public static tCommandNode<tPos>
 	TypeGeneric<tPos>(
 		tPos aPos,

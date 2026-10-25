@@ -439,6 +439,16 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tInterfaceNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tTypeNode<tPos> Contract = default!;
+		public tExpressionNode<tPos> Object = default!;
+		public tExpressionNode<tPos> Methods = default!;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tGenericTypeNode<tPos> : tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -928,6 +938,10 @@ mSPO_AST {
 		BodyType = aBodyType,
 	};
 	
+	public static tInterfaceNode<tPos>
+	Interface<tPos>(tPos aPos, tTypeNode<tPos> aContract, tExpressionNode<tPos> aObject, tExpressionNode<tPos> aMethods)
+	=> new() { Pos = aPos, Contract = aContract, Object = aObject, Methods = aMethods };
+
 	public static tGenericTypeNode<tPos>
 	GenericType<tPos>(
 		tPos aPos,
@@ -1706,8 +1720,12 @@ mSPO_AST {
 			case tRecursiveTypeNode<tPos>: {
 				break;
 			}
-			case tInterfaceTypeNode<tPos>: {
-				break;
+			case tInterfaceTypeNode<tPos> Node1: {
+				return a2 is tInterfaceTypeNode<tPos> Node2 && AreEqual(Node1.HeadType, Node2.HeadType) && AreEqual(Node1.BodyType, Node2.BodyType);
+			}
+			case tInterfaceNode<tPos> Node1: {
+				return a2 is tInterfaceNode<tPos> Node2 && AreEqual(Node1.Contract, Node2.Contract) &&
+					AreEqual(Node1.Object, Node2.Object) && AreEqual(Node1.Methods, Node2.Methods);
 			}
 			case tGenericTypeNode<tPos>: {
 				break;
@@ -1830,6 +1848,7 @@ mSPO_AST {
 			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tSigNode<t> Node => $"§SIG {Node.Contract.ToText(____)} WITH {Node.Head.ToText(____)} IN {Node.Body.ToText(____)}",
+			tInterfaceNode<t> Node => $"§INTERFACE {Node.Contract.ToText(____)} WITH {Node.Object.ToText(____)} IN {Node.Methods.ToText(____)}",
 			tLambdaNode<t> Node => $"({____}{Node.Head.ToText(____)} => {Node.Body.ToText(____)}{__})",
 			tShortLambdaNode<t> Node => $"({____}=> {Node.Body.ToText(____)}{__})",
 			tCallNode<t> Node => $"({____}.{Node.Func.ToText(____)} {Node.Arg.ToText(____)}{__})",
@@ -1897,6 +1916,7 @@ mSPO_AST {
 			tSetTypeNode<t> Node => $"[{____}{Node.Expressions.Map(aChild => aChild.ToText(____)).Join((a1, a2) => a1 + " | " + a2, "")}{__}]",
 			tVarTypeNode<t> Node => $"[{____}§VAR {Node.Type}]",
 			tGenericTypeNode<t> Node => $"[{____}{Node.HeadType.ToText(____)} <=> {Node.BodyType.ToText(____)}{__}]",
+			tInterfaceTypeNode<t> Node => $"[{____}§INTERFACE {Node.HeadType.ToText(____)} {Node.BodyType.ToText(____)}{__}]",
 			tGenericApplyTypeNode<t> Node => $"[{____}.{Node.GenericType.ToText(____)} {Node.ArgType.ToText(____)}{__}]",
 			tRecursiveTypeNode<t> Node => $"[{____}§RECURSIVE {Node.HeadType.ToText(____)} {Node.BodyType.ToText(____)}{__}]",
 			

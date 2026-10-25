@@ -263,7 +263,8 @@ mVM_Type_Tests {
 					mAssert.IsFalse(Constructor.IsImmutable);
 					mAssert.IsTrue(mVM_Type.Generic(Head, mVM_Type.Proc(mVM_Type.Empty(), Head, Head)).IsImmutable);
 					mAssert.IsFalse(mVM_Type.Interface(Head, Head).IsImmutable);
-					mAssert.IsTrue(mVM_Type.Interface(Head, mVM_Type.Int()).IsImmutable);
+					// The hidden receiver may be mutable even when the method table is immutable.
+					mAssert.IsFalse(mVM_Type.Interface(Head, mVM_Type.Int()).IsImmutable);
 				}
 			),
 			mTest.Test(

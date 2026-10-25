@@ -1,0 +1,18 @@
+§IMPORT ()
+
+§DEF iInspect = [§INTERFACE t [<
+	Inspect...: [[t, §INT, §BOOL] : §INT => [§INT, §INT, §BOOL, §INT]]
+>]]
+
+§DEF Inspect... = (
+	§DEF aHidden € §INT
+	§DEF aOther € §INT
+	§DEF aFlag € §BOOL
+) : (§DEF aInput € §INT) {
+	§RETURN (aHidden, aOther, aFlag, aInput)
+}
+
+§DEF Capability = §INTERFACE iInspect WITH 13 IN {Inspect...: Inspect...}
+(Capability, 42, §TRUE) : Inspect 5 => §DEF Result .
+
+§EXPORT Result
