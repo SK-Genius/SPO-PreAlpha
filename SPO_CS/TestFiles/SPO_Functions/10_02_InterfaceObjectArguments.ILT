@@ -2,63 +2,114 @@
 	t_0 := [§FREE TYPE]
 	t_1 := [EMPTY_TYPE, INT]
 	t_2 := [t_1, INT]
-	t_3 := [TRUE | FALSE]
-	t_4 := [t_2, t_3]
-	t_5 := [t_4, INT]
-	t_6 := [INT => t_5]
-	t_7 := [EMPTY_TYPE, t_0]
-	t_8 := [t_7, INT]
-	t_9 := [t_8, t_3]
-	t_10 := [t_9 : t_6]
-	t_11 := [#_Inspect... t_10]
-	t_12 := [{EMPTY_TYPE} + t_11]
-	t_13 := [§ANY t_0 => t_12]
-	t_14 := [t_4 : t_6]
-	t_15 := [EMPTY_TYPE => t_14]
-	t_16 := [EMPTY_TYPE => t_5]
-	t_17 := [t_15 => t_16]
+	t_3 := [t_2, INT]
+	t_4 := [INT => t_3]
+	t_5 := [EMPTY_TYPE, t_0]
+	t_6 := [§VAR INT]
+	t_7 := [t_5, t_6]
+	t_8 := [t_7, t_6]
+	t_9 := [t_8 : t_4]
+	t_10 := [#_Transfer... t_9]
+	t_11 := [{EMPTY_TYPE} + t_10]
+	t_12 := [§ANY t_0 => t_11]
+	t_13 := [t_2 => INT]
+	t_14 := [EMPTY_TYPE, t_13]
+	t_15 := [t_14, t_13]
+	t_16 := [EMPTY_TYPE, t_6]
+	t_17 := [t_16, t_6]
+	t_18 := [t_17, t_6]
+	t_19 := [t_18 : t_4]
+	t_20 := [t_15 => t_19]
+	t_21 := [#_...+... t_13]
+	t_22 := [{EMPTY_TYPE} + t_21]
+	t_23 := [#_...-... t_13]
+	t_24 := [{t_22} + t_23]
+	t_25 := [EMPTY_TYPE, t_3]
+	t_26 := [t_25, INT]
+	t_27 := [t_26, INT]
+	t_28 := [t_27, INT]
+	t_29 := [t_24 => t_28]
+	t_30 := [t_20 => t_29]
 
-§DEF d_0 € t_15
-	_aInput := ARG
+§DEF d_0 € t_20
+	_...+... := §2ND ENV
+	r_26 := §1ST ENV
+	_...-... := §2ND r_26
+	r_27 := §1ST r_26
+	_aAmount := ARG
 	r_1 := §2ND OBJ
-	_aFlag := r_1
+	_aBookings := r_1
 	r_2 := §1ST OBJ
 	r_3 := §2ND r_2
-	_aOther := r_3
+	_aTarget := r_3
 	r_4 := §1ST r_2
 	r_5 := §2ND r_4
-	_aHidden := r_5
+	_aSource := r_5
 	r_6 := §1ST r_4
 	§RETURN r_6 IF_NOT_EMPTY
-	r_7 := EMPTY, _aHidden
-	r_8 := r_7, _aOther
-	r_9 := r_8, _aFlag
-	r_10 := r_9, _aInput
-	§RETURN r_10 IF TRUE
+	r_7 := §VAR _aSource ->
+	r_8 := EMPTY, r_7
+	r_9 := r_8, _aAmount
+	r_10 := ._...-... r_9
+	§VAR _aSource <- r_10
+	r_11 := §VAR _aTarget ->
+	r_12 := EMPTY, r_11
+	r_13 := r_12, _aAmount
+	r_14 := ._...+... r_13
+	§VAR _aTarget <- r_14
+	r_15 := §VAR _aBookings ->
+	r_16 := EMPTY, r_15
+	r_17 := 1
+	r_18 := r_16, r_17
+	r_19 := ._...+... r_18
+	§VAR _aBookings <- r_19
+	r_20 := §VAR _aSource ->
+	r_21 := EMPTY, r_20
+	r_22 := §VAR _aTarget ->
+	r_23 := r_21, r_22
+	r_24 := §VAR _aBookings ->
+	r_25 := r_23, r_24
+	§RETURN r_25 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_17
+§DEF d_1 € t_30
 	d_0 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	_iInspect := t_13
-	r_1 := §CLOSURE d_0 EMPTY
-	_Inspect... := r_1
-	r_2 := 13
-	r_3 := +#_Inspect... _Inspect...
-	r_4 := {EMPTY} + r_3
-	r_5 := r_2, r_4
-	r_6 := §INTERFACE t_13 WITH r_5
-	_Capability := r_6
-	r_7 := EMPTY, _Capability
-	r_8 := 42
-	r_9 := r_7, r_8
-	r_10 := r_9, TRUE
-	r_11 := 5
-	r_12 := §1ST r_10
-	r_13 := §1ST r_12
-	r_14 := §2ND r_13
-	r_15 := {r_14} #_Inspect...
-	r_17 := r_10, r_15
-	r_16 := §OBJ:r_17 r_11
-	_Result := r_16
-	§RETURN _Result IF TRUE
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := {ARG} #_...-...
+	_...-... := r_2
+	_iAccount := t_12
+	r_3 := EMPTY, _...-...
+	r_4 := r_3, _...+...
+	r_5 := §CLOSURE d_0 r_4
+	_Transfer... := r_5
+	r_6 := 100
+	_Source := §VAR r_6
+	r_7 := 10
+	_Target := §VAR r_7
+	r_8 := 0
+	_Bookings := §VAR r_8
+	r_9 := +#_Transfer... _Transfer...
+	r_10 := {EMPTY} + r_9
+	r_11 := _Source, r_10
+	r_12 := §INTERFACE t_12 WITH r_11
+	_Account := r_12
+	r_13 := EMPTY, _Account
+	r_14 := r_13, _Target
+	r_15 := r_14, _Bookings
+	r_16 := 20
+	r_17 := §1ST r_15
+	r_18 := §1ST r_17
+	r_19 := §2ND r_18
+	r_20 := {r_19} #_Transfer...
+	r_22 := r_15, r_20
+	r_21 := §OBJ:r_22 r_16
+	_Result := r_21
+	r_23 := EMPTY, _Result
+	r_24 := §VAR _Source ->
+	r_25 := r_23, r_24
+	r_26 := §VAR _Target ->
+	r_27 := r_25, r_26
+	r_28 := §VAR _Bookings ->
+	r_29 := r_27, r_28
+	§RETURN r_29 IF TRUE
