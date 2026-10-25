@@ -1272,16 +1272,11 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
-				Result = (mVM_Type.Empty(), aScope, aTypeState);
-				var InputType = aType;
-				if (aType.IsSome(out var Interface) && Interface.IsInterface(out var Parameter, out var Body)) {
-					aType = Body.Substitute(Parameter, Interface);
+				if (aType.IsSome(out var InputType) && InputType.IsInterface(out _, out _)) {
+					return mResult.Fail((RecordPattern.Pos, "interface methods cannot be extracted; call them through the interface object"));
 				}
+				Result = (mVM_Type.Empty(), aScope, aTypeState);
 				foreach (var Item in RecordPattern.Elements) {
-					if (InputType.IsSome(out Interface) && Interface.IsInterface(out _, out _) &&
-						!Interface.TryGetInterfaceMethod(Item.Id.Id).IsSome(out _)) {
-						return mResult.Fail((Item.Id.Pos, $"Unknown interface method '{Item.Id.Id}'"));
-					}
 					var Type = aType.IsSome(out var RecordType)
 					? RecordType.GetFieldType(Item.Id.Id)
 					: mMaybe.None<mVM_Type.tType>();
@@ -1304,9 +1299,6 @@ mSPO_AST_Types {
 							)
 						)
 					);
-				}
-				if (InputType.IsSome(out Interface) && Interface.IsInterface(out _, out _)) {
-					Result = Result.Then(__ => (Interface, __.Scope, __.State));
 				}
 				break;
 			}

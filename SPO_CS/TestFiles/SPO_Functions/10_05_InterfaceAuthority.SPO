@@ -1,0 +1,70 @@
+§IMPORT ()
+
+§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF iAdmin = [§INTERFACE t [< Read: [t : [] => §INT], Admin...: [t : §INT => []] >]]
+
+§DEF ReadCell = (§VAR aSelf € §INT) : () {
+	§RETURN §TO_VAL aSelf
+}
+§DEF AdminCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
+	aSelf := aValue .
+}
+§DEF HasAdmin... = (§DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € iAdmin: §TRUE
+	_: §FALSE
+}
+§DEF Forward... = (§DEF aReader € iReader) => aReader
+§DEF GiveReader... € [iAdmin => iReader] = (§DEF aAdmin € iAdmin) => aAdmin
+§DEF InspectReader... € [iReader => §BOOL] = HasAdmin...
+§RECURSIVE {
+	§DEF Relay... = (§DEF aReader € iReader, §DEF aAgain € §BOOL) => §IF aAgain MATCH {
+		§TRUE: .Relay (aReader, §FALSE)
+		§FALSE: aReader
+	}
+}
+
+§VAR Cell := 7 .
+§DEF Full = §INTERFACE iAdmin WITH Cell IN {Read: ReadCell, Admin...: AdminCell...}
+§DEF Limited € iReader = Full
+§DEF Erased € §ANY = Limited
+§DEF Relayed = .Forward Full
+§DEF Returned = .GiveReader Full
+§DEF RecursiveReader = .Relay (Full, §TRUE)
+§DEF ErasedFunction € §ANY = GiveReader...
+§DEF FunctionHasAdmin = §IF ErasedFunction MATCH {
+	§DEF Candidate € [iAdmin => iAdmin]: §TRUE
+	_: §FALSE
+}
+§VAR Stored := Limited .
+
+§DEF Package € [< Reader: iReader >] = {Reader: Full}
+§DEF ErasedPackage € §ANY = Package
+§DEF RecordHasAdmin = §IF ErasedPackage MATCH {
+	§DEF Candidate € [< Reader: iAdmin >]: §TRUE
+	_: §FALSE
+}
+§DEF Pair € [iReader, §INT] = (Full, 1)
+(§DEF Paired, _) = Pair
+§DEF Tagged € [#Reader iReader] = #Reader Full
+(#Reader (§DEF Untagged)) = Tagged
+§DEF Union € [iReader | §INT] = Full
+
+Full : Admin 19 .
+Limited : Read => §DEF Value .
+
+§EXPORT (
+	.HasAdmin Full
+	.HasAdmin Limited
+	.HasAdmin Erased
+	.HasAdmin Relayed
+	.HasAdmin Returned
+	.InspectReader Full
+	FunctionHasAdmin
+	.HasAdmin RecursiveReader
+	.HasAdmin (§TO_VAL Stored)
+	RecordHasAdmin
+	.HasAdmin Paired
+	.HasAdmin Untagged
+	.HasAdmin Union
+	Value
+)

@@ -505,9 +505,6 @@ mVM_Type {
 		this tType aType,
 		tText aKey
 	) {
-		if (aType.IsInterface(out var Parameter, out var Body)) {
-			return aType.TryGetInterfaceMethod(aKey).ElseFail(() => $"Unknown interface method '{aKey}'").ElseThrow();
-		}
 		mAssert.IsTrue(aType.IsRecord(out var Fields));
 		mAssert.IsTrue(
 			Fields.TryGet(aKey).IsSome(out var FieldType),
@@ -835,6 +832,21 @@ mVM_Type {
 	=> aType.IsInterface(out var Parameter, out var Body) && Body.IsRecord(out var Methods)
 		? Methods.TryGet(aName).Then(__ => __.Substitute(Parameter, aType))
 		: mStd.cEmpty;
+
+	public static tBool
+	HasInterfaceValues(this tType aType, mStream.tStream<tNat64> aVisited = default) {
+		if (aVisited.Any(__ => __ == aType.DebugId)) {
+			return false;
+		}
+		aVisited = mStream.Stream(aType.DebugId, aVisited);
+		return aType.Kind switch {
+			tKind.Interface => true,
+			tKind.Record => aType.Fields.ToStream().Any(__ => __.Value.HasInterfaceValues(aVisited)),
+			tKind.Pair or tKind.Prefix or tKind.Set or tKind.Proc => mStream.Stream(aType.Refs).Any(__ => __.HasInterfaceValues(aVisited)),
+			tKind.Recursive or tKind.Sig or tKind.Generic => aType.Refs[1].HasInterfaceValues(aVisited),
+			_ => false,
+		};
+	}
 
 	public static mResult.tResult<tType, tText>
 	CheckInterfaceImplementation(this tType aContract, tType aObject, tType aMethods) {
@@ -1248,9 +1260,17 @@ mVM_Type {
 		tType aObj,
 		tType aArg,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) => InferCall(aProc, aObj, aArg, aTrace).Then(__ => __.Result);
+
+	public static mResult.tResult<(tType Object, tType Argument, tType Result), tText>
+	InferCall(
+		tType aProc,
+		tType aObj,
+		tType aArg,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		if (aProc.IsGeneric(out var FreeType, out var InnerType)) {
-			return Infer(InnerType, aObj, aArg, aTrace);
+			return InferCall(InnerType, aObj, aArg, aTrace);
 		}
 		
 		if (!aProc.IsProc(out var ObjType, out var ArgType, out var ResType)) {
@@ -1271,7 +1291,7 @@ mVM_Type {
 			return mResult.Fail("can't convert argument:\n" + Error);
 		}
 		
-		return ResType.ApplyMappings(TypeMappings);
+		return (ObjType.ApplyMappings(TypeMappings), ArgType.ApplyMappings(TypeMappings), ResType.ApplyMappings(TypeMappings));
 	}
 	
 	public static (mMaybe.tMaybe<tType> Matched, mMaybe.tMaybe<tType> Remainder)

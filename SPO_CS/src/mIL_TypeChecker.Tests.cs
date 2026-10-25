@@ -55,6 +55,20 @@ mIL_TypeChecker_Tests {
 					var InvalidHead = Valid.Replace("[t : tF]", "[INT : tF]");
 					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(InvalidHead), out Error));
 					mAssert.IsTrue(Error.ErrorText.Contains("hidden type"), Error.ErrorText);
+					var Call = Valid.Replace("§RETURN ONE IF TRUE", "Endpoint := +#Read EMPTY\nCall := Object, Endpoint\nValue := §OBJ:Call EMPTY\n§RETURN Value IF TRUE");
+					mAssert.IsTrue(mIL_TypeChecker.AreModuleTypesValid(Parse(Call), out Error), () => mIL_TypeChecker.ErrorText(Error));
+					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(Call.Replace("Endpoint := +#Read", "Endpoint := +#Missing")), out Error));
+					mAssert.IsTrue(Error.ErrorText.Contains("Unknown interface method"), Error.ErrorText);
+					var Extract = Valid.Replace("§RETURN ONE IF TRUE", "Method := {Object} #Read\n§RETURN ONE IF TRUE");
+					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(Extract), out Error));
+					mAssert.IsTrue(Error.ErrorText.Contains("expected record"), Error.ErrorText);
+					var View = Valid.Replace("§RETURN ONE IF TRUE", "View := §INTERFACE_VIEW tInterface WITH Object\n§RETURN ONE IF TRUE");
+					mAssert.IsTrue(mIL_TypeChecker.AreModuleTypesValid(Parse(View), out Error), () => mIL_TypeChecker.ErrorText(Error));
+					var Widen = View.Replace(
+						"tWrongMethod :=", "tAdminField := [#Admin tMethod]\ntAdminBody := [{tBody} + tAdminField]\ntAdmin := [§ANY t => tAdminBody]\ntWrongMethod :="
+					).Replace("§RETURN ONE IF TRUE", "Restored := §INTERFACE_VIEW tAdmin WITH View\n§RETURN ONE IF TRUE");
+					mAssert.IsFalse(mIL_TypeChecker.AreModuleTypesValid(Parse(Widen), out Error));
+					mAssert.IsTrue(Error.ErrorText.Contains("missing field 'Admin'"), Error.ErrorText);
 				}
 			),
 			mTest.Test(

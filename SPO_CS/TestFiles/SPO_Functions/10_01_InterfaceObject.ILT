@@ -5,60 +5,41 @@
 	t_3 := [#_Read t_2]
 	t_4 := [{EMPTY_TYPE} + t_3]
 	t_5 := [§ANY t_0 => t_4]
-	t_6 := [INT : t_1]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [EMPTY_TYPE, TRUE]
-	t_9 := [#Result INT]
-	t_10 := [t_8 => t_9]
-	t_11 := [TRUE | FALSE]
-	t_12 := [t_11 : t_10]
-	t_13 := [EMPTY_TYPE => t_12]
-	t_14 := [EMPTY_TYPE, FALSE]
-	t_15 := [t_14 => t_9]
-	t_16 := [t_11 : t_15]
-	t_17 := [EMPTY_TYPE => t_16]
-	t_18 := [EMPTY_TYPE, t_13]
-	t_19 := [t_18, t_17]
-	t_20 := [EMPTY_TYPE, t_11]
-	t_21 := [t_20 => t_9]
-	t_22 := [t_11 : t_21]
-	t_23 := [t_19 => t_22]
-	t_24 := [t_19, t_23]
-	t_25 := [t_11 : t_1]
-	t_26 := [t_24 => t_25]
-	t_27 := [t_5 => t_5]
-	t_28 := [EMPTY_TYPE => t_27]
-	t_29 := [t_5 : t_1]
-	t_30 := [EMPTY_TYPE, t_29]
-	t_31 := [#Result t_29]
-	t_32 := [t_30 => t_31]
-	t_33 := [t_29 => t_32]
-	t_34 := [t_30, t_33]
-	t_35 := [t_34 => t_32]
-	t_36 := [EMPTY_TYPE, t_7]
-	t_37 := [t_36, t_13]
-	t_38 := [t_37, t_17]
-	t_39 := [t_38, t_23]
-	t_40 := [t_39, t_26]
-	t_41 := [t_40, t_28]
-	t_42 := [t_41, t_33]
-	t_43 := [t_42, t_35]
-	t_44 := [EMPTY_TYPE, INT]
-	t_45 := [t_44, INT]
-	t_46 := [t_45, INT]
-	t_47 := [t_46, INT]
-	t_48 := [t_47, INT]
-	t_49 := [t_48, INT]
-	t_50 := [EMPTY_TYPE => t_49]
-	t_51 := [t_43 => t_50]
+	t_6 := [§VAR INT]
+	t_7 := [t_6 : t_1]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [EMPTY_TYPE, TRUE]
+	t_10 := [#Result INT]
+	t_11 := [t_9 => t_10]
+	t_12 := [§VAR TRUE]
+	t_13 := [t_12 : t_11]
+	t_14 := [EMPTY_TYPE => t_13]
+	t_15 := [t_14 => t_13]
+	t_16 := [EMPTY_TYPE, t_14]
+	t_17 := [t_16, t_15]
+	t_18 := [t_12 : t_1]
+	t_19 := [t_17 => t_18]
+	t_20 := [t_5 => t_5]
+	t_21 := [EMPTY_TYPE => t_20]
+	t_22 := [EMPTY_TYPE, t_8]
+	t_23 := [t_22, t_14]
+	t_24 := [t_23, t_15]
+	t_25 := [t_24, t_19]
+	t_26 := [t_25, t_21]
+	t_27 := [EMPTY_TYPE, INT]
+	t_28 := [t_27, INT]
+	t_29 := [t_28, INT]
+	t_30 := [EMPTY_TYPE => t_29]
+	t_31 := [t_26 => t_30]
 
-§DEF d_0 € t_7
+§DEF d_0 € t_8
 	§RETURN ARG IF_NOT_EMPTY
 	_aValue := OBJ
-	§RETURN _aValue IF TRUE
+	r_1 := §VAR _aValue ->
+	§RETURN r_1 IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_13
+§DEF d_1 € t_14
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
 	_aValue := OBJ
@@ -66,155 +47,90 @@
 	r_2 := +#Result r_1
 	§RETURN r_2 IF TRUE
 
-§DEF d_2 € t_17
+§DEF d_2 € t_15
+	d_1 := ENV
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	_aValue := OBJ
-	r_1 := 0
-	r_2 := +#Result r_1
-	§RETURN r_2 IF TRUE
-
-§DEF d_3 € t_23
-	d_2 := §2ND ENV
-	r_7 := §1ST ENV
-	d_1 := §2ND r_7
-	r_8 := §1ST r_7
-	r_6 := §1ST ARG
-	r_5 := §2ND ARG
 	_aValue := OBJ
 	r_1 := §CLOSURE d_1 EMPTY
-	r_2 := EMPTY, r_5
-	§TRY_RETURN .r_1 r_2
-	r_3 := §CLOSURE d_2 EMPTY
-	r_4 := EMPTY, r_5
-	§TRY_RETURN .r_3 r_4
-	§RETURN EMPTY IF TRUE
-
-§DEF d_4 € t_26
-	d_3 := §2ND ENV
-	r_8 := §1ST ENV
-	d_2 := §2ND r_8
-	r_9 := §1ST r_8
-	d_1 := §2ND r_9
-	r_10 := §1ST r_9
-	§RETURN ARG IF_NOT_EMPTY
-	_aValue := OBJ
-	r_1 := EMPTY, d_1
-	r_2 := r_1, d_2
-	r_3 := §CLOSURE d_3 r_2
-	r_4 := EMPTY, _aValue
-	r_5 := OBJ, r_3
-	r_6 := §OBJ:r_5 r_4
-	r_7 := -#Result r_6
-	§RETURN r_7 IF TRUE
-	§RETURN EMPTY IF TRUE
-
-§DEF d_5 € t_28
-	_aCapability := ARG
-	§RETURN _aCapability IF TRUE
-
-§DEF d_6 € t_33
-	_Captured := ENV
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_Method := r_2
-	r_1 := +#Result _Captured
-	§RETURN r_1 IF TRUE
-
-§DEF d_7 € t_35
-	d_6 := §2ND ENV
-	r_5 := §1ST ENV
-	_Captured := §2ND r_5
-	r_6 := §1ST r_5
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
-	r_1 := §CLOSURE d_6 _Captured
 	r_2 := EMPTY, r_3
 	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_8 € t_51
-	d_7 := §2ND ENV
-	r_51 := §1ST ENV
-	d_6 := §2ND r_51
-	r_52 := §1ST r_51
-	d_5 := §2ND r_52
-	r_53 := §1ST r_52
-	d_4 := §2ND r_53
-	r_54 := §1ST r_53
-	d_3 := §2ND r_54
-	r_55 := §1ST r_54
-	d_2 := §2ND r_55
-	r_56 := §1ST r_55
-	d_1 := §2ND r_56
-	r_57 := §1ST r_56
-	d_0 := §2ND r_57
-	r_58 := §1ST r_57
+§DEF d_3 € t_19
+	d_2 := §2ND ENV
+	r_7 := §1ST ENV
+	d_1 := §2ND r_7
+	r_8 := §1ST r_7
+	§RETURN ARG IF_NOT_EMPTY
+	_aValue := OBJ
+	r_1 := §VAR _aValue ->
+	r_2 := §CLOSURE d_2 d_1
+	r_3 := EMPTY, r_1
+	r_4 := OBJ, r_2
+	r_5 := §OBJ:r_4 r_3
+	r_6 := -#Result r_5
+	§RETURN r_6 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_21
+	r_1 := §INTERFACE_VIEW t_5 WITH ARG
+	_aCapability := r_1
+	§RETURN _aCapability IF TRUE
+
+§DEF d_5 € t_31
+	d_4 := §2ND ENV
+	r_32 := §1ST ENV
+	d_3 := §2ND r_32
+	r_33 := §1ST r_32
+	d_2 := §2ND r_33
+	r_34 := §1ST r_33
+	d_1 := §2ND r_34
+	r_35 := §1ST r_34
+	d_0 := §2ND r_35
+	r_36 := §1ST r_35
 	§RETURN ARG IF_NOT_EMPTY
 	_iReader := t_5
 	r_1 := §CLOSURE d_0 EMPTY
 	_IntRead := r_1
 	r_2 := EMPTY, d_1
 	r_3 := r_2, d_2
-	r_4 := r_3, d_3
-	r_5 := §CLOSURE d_4 r_4
-	_BoolRead := r_5
-	r_6 := 7
-	r_7 := +#_Read _IntRead
-	r_8 := {EMPTY} + r_7
-	r_9 := r_6, r_8
-	r_10 := §INTERFACE t_5 WITH r_9
+	r_4 := §CLOSURE d_3 r_3
+	_BoolRead := r_4
+	r_5 := 7
+	_Number := §VAR r_5
+	_Flag := §VAR TRUE
+	r_6 := +#_Read _IntRead
+	r_7 := {EMPTY} + r_6
+	r_8 := _Number, r_7
+	r_9 := §INTERFACE t_5 WITH r_8
+	r_10 := §INTERFACE_VIEW t_5 WITH r_9
 	_First := r_10
 	r_11 := +#_Read _BoolRead
 	r_12 := {EMPTY} + r_11
-	r_13 := TRUE, r_12
+	r_13 := _Flag, r_12
 	r_14 := §INTERFACE t_5 WITH r_13
-	_Second := r_14
-	r_15 := §CLOSURE d_5 EMPTY
-	_Pass... := r_15
-	r_16 := ._Pass... _Second
-	_Relayed := r_16
-	r_17 := {_First} #_Read
-	r_19 := _First, r_17
-	r_18 := §OBJ:r_19 EMPTY
-	_A := r_18
-	r_20 := {_Second} #_Read
-	r_22 := _Second, r_20
+	r_15 := §INTERFACE_VIEW t_5 WITH r_14
+	_Second := r_15
+	r_16 := §CLOSURE d_4 EMPTY
+	r_17 := §INTERFACE_VIEW t_20 WITH r_16
+	_Pass... := r_17
+	r_18 := ._Pass... _Second
+	r_19 := §INTERFACE_VIEW t_5 WITH r_18
+	_Relayed := r_19
+	r_20 := +#_Read EMPTY
+	r_22 := _First, r_20
 	r_21 := §OBJ:r_22 EMPTY
-	_B := r_21
-	r_23 := {_Relayed} #_Read
-	r_25 := _Relayed, r_23
+	_A := r_21
+	r_23 := +#_Read EMPTY
+	r_25 := _Second, r_23
 	r_24 := §OBJ:r_25 EMPTY
-	_C := r_24
-	r_26 := {_First} #_Read
-	_Captured := r_26
-	r_28 := _Second, _Captured
+	_B := r_24
+	r_26 := +#_Read EMPTY
+	r_28 := _Relayed, r_26
 	r_27 := §OBJ:r_28 EMPTY
-	_D := r_27
-	r_29 := +#_Read _Captured
-	r_30 := {EMPTY} + r_29
-	r_31 := _First, r_30
-	r_32 := §INTERFACE t_5 WITH r_31
-	_Wrapped := r_32
-	r_33 := {_Wrapped} #_Read
-	r_35 := _Wrapped, r_33
-	r_34 := §OBJ:r_35 EMPTY
-	_E := r_34
-	r_36 := EMPTY, _Captured
-	r_37 := r_36, d_6
-	r_38 := §CLOSURE d_7 r_37
-	r_39 := EMPTY, _Captured
-	r_40 := OBJ, r_38
-	r_41 := §OBJ:r_40 r_39
-	r_42 := -#Result r_41
-	_Checked := r_42
-	r_44 := _Second, _Checked
-	r_43 := §OBJ:r_44 EMPTY
-	_F := r_43
-	r_45 := EMPTY, _A
-	r_46 := r_45, _B
-	r_47 := r_46, _C
-	r_48 := r_47, _D
-	r_49 := r_48, _E
-	r_50 := r_49, _F
-	§RETURN r_50 IF TRUE
+	_C := r_27
+	r_29 := EMPTY, _A
+	r_30 := r_29, _B
+	r_31 := r_30, _C
+	§RETURN r_31 IF TRUE

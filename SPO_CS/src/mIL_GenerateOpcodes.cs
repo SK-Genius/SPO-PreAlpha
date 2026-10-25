@@ -106,6 +106,7 @@ mIL_GenerateOpcodes {
 						tIL_CommandType.Second => mVM_Data.tOpCode.Second,
 						tIL_CommandType.Sig => mVM_Data.tOpCode.NewSig,
 						tIL_CommandType.Interface => mVM_Data.tOpCode.NewInterface,
+						tIL_CommandType.InterfaceView => mVM_Data.tOpCode.InterfaceView,
 						tIL_CommandType.SigBody => mVM_Data.tOpCode.SigBody,
 						tIL_CommandType.SigHead or tIL_CommandType.SigHeadAs => mVM_Data.tOpCode.SigHead,
 						tIL_CommandType.TryAsBool => mVM_Data.tOpCode.TryAsBool,
@@ -140,6 +141,21 @@ mIL_GenerateOpcodes {
 						_ => throw mError.Error($"invalid IL command: {aKind}"),
 					};
 					
+					if (aKind is tIL_CommandType.CallFunc or tIL_CommandType.Closure or tIL_CommandType.CallProc) {
+						var Function = RegBuffer.Get(aReg1Index).Type;
+						var Object = mVM_Type.Empty();
+						if (aKind is tIL_CommandType.CallProc) {
+							mAssert.IsTrue(Function.IsPair(out Object, out Function));
+							if (Function.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
+								Function = Object.FirstObjectType().TryGetInterfaceMethod(Name).AssertNotEmpty();
+							}
+						}
+						var Call = mVM_Type.InferCall(Function, Object, RegBuffer.Get(aReg2Index).Type, __ => {}).ElseThrow();
+						if (Call.Object.HasInterfaceValues() || Call.Argument.HasInterfaceValues() || Call.Result.HasInterfaceValues()) {
+							// Later MATCH refinements may change the register types, not this call's contract.
+							Proc.CallTypes = Proc.CallTypes.Set(Proc.Commands.Size, mVM_Type.Proc(Call.Object, Call.Argument, Call.Result));
+						}
+					}
 					Proc.PosList.Push(Command.Pos);
 					Proc.Commands.Push((Opcode, aReg1Index, aReg2Index, mStd.NewDebugId()));
 					
@@ -362,6 +378,9 @@ mIL_GenerateOpcodes {
 					case tIL_CommandType.CallProc: {
 						Reg2_Id = GetRegIndex(Reg2);
 						mAssert.IsTrue(Reg1_Type.IsPair(out var Object, out var Method));
+						if (Method.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
+							Method = Object.FirstObjectType().TryGetInterfaceMethod(Name).AssertNotEmpty();
+						}
 						Res_Type = mVM_Type.Infer(Method, Object, RegBuffer.Get(Reg2_Id).Type, __ => {}).ElseThrow();
 						break;
 					}
@@ -426,7 +445,7 @@ mIL_GenerateOpcodes {
 							tIL_CommandType.CallFunc or
 							tIL_CommandType.Closure => mVM_Type.Infer(Reg1_Type, mVM_Type.Empty(), Reg2_Type, __ => {}).ElseThrow(),
 							
-							tIL_CommandType.Sig or tIL_CommandType.Interface => TypeValue(Reg1),
+							tIL_CommandType.Sig or tIL_CommandType.Interface or tIL_CommandType.InterfaceView => TypeValue(Reg1),
 							
 							_ => throw mError.Error("unsupported valid IL command: " + IL_CommandType),
 						};

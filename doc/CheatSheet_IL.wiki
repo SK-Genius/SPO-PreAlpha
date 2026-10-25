@@ -153,15 +153,23 @@ The forms you will see most often in checked-in `.ILT` files are:
 [.ilt
 |payload := hiddenObject, methods
 |capability := §INTERFACE Contract WITH payload
-|method := {capability} #Read
-|call := capability, method
+|reader := §INTERFACE_VIEW ReaderContract WITH capability
+|endpoint := +#Read EMPTY
+|call := reader, endpoint
 |result := §OBJ:call EMPTY
 .]
 
 The contract is declared with [.|§ANY.]. The IL checker verifies the hidden object
-against the implementation methods. Field projection exposes callable methods
-with the interface as their first object argument. Calling one substitutes the
-hidden object in that position and preserves further object arguments.
+against the implementation methods. An object/method pair whose method is an empty
+prefixed value names an interface endpoint. The checker resolves that endpoint
+through the first object's static interface type. Calling it substitutes the hidden
+object in that position and preserves further object arguments. Interface objects
+do not support field projection.
+
+[.|§INTERFACE_VIEW.] checks that the input is a subtype of the requested view and
+restricts interface endpoints at runtime. It also restricts interfaces contained
+in pairs, records and prefixes. Function arguments and results preserve these
+restrictions when crossing a narrower declared type.
 
 [=SPO vs IL Notation=]
 

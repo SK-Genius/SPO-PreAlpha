@@ -24,6 +24,7 @@ mVM {
 		internal mMaybe.tMaybe<tCallStack<tPos>> _Parent;
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs = default!;
 		internal mVM_Data.tProcDef<tPos> _ProcDef = default!;
+		internal mStream.tStream<mVM_Type.tType> _ReturnTypes;
 		internal tNat32 _CodePointer = 0;
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut = default!;
 	}
@@ -36,12 +37,22 @@ mVM {
 		mVM_Data.tData aObj,
 		mVM_Data.tData aArg,
 		mVM_Data.tData aRes,
-		mStd.tAction<mStd.tFunc<tText>> aTraceOut
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut,
+		mStream.tStream<mVM_Type.tType> aReturnTypes = default
 	) {
+		mAssert.IsTrue(aProcDef.DefType.IsProc(out _, out var EnvType, out var ProcType));
+		while (ProcType.IsGeneric(out _, out var Body)) {
+			ProcType = Body;
+		}
+		mAssert.IsTrue(ProcType.IsProc(out var ObjectType, out var ArgumentType, out _));
+		aEnv = ViewInterfaces(aEnv, EnvType);
+		aObj = ViewInterfaces(aObj, ObjectType);
+		aArg = ViewInterfaces(aArg, ArgumentType);
 		var Result = new tCallStack<tPos> {
 			_TraceOut = aTraceOut,
 			_Parent = aParent,
 			_ProcDef = aProcDef,
+			_ReturnTypes = aReturnTypes,
 			_Regs = mArrayList.List(
 				mVM_Data.Empty(),
 				mVM_Data.Int(1),
@@ -78,6 +89,12 @@ mVM {
 	TryGetProcArgType(
 		mVM_Data.tData aProc
 	) {
+		if (aProc.IsProcView(out var ViewType, out _)) {
+			while (ViewType.IsGeneric(out _, out var Body)) {
+				ViewType = Body;
+			}
+			return ViewType.IsProc(out _, out var Argument, out _) ? Argument : mStd.cEmpty;
+		}
 		if (
 			!aProc.IsProc(out var Def, out _) ||
 			!Def.DefType.IsProc(out _, out _, out var FuncType)
@@ -116,20 +133,8 @@ mVM {
 		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
 			return Definition.DefType.IsSubType(aType).Match(out _, out _);
 		}
-		if (aData.IsInterfaceMethod(out var Required, out _) && aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic) {
-			var Expected = aType;
-			while (Expected.IsGeneric(out _, out var Body)) {
-				Expected = Body;
-			}
-			if (!Expected.IsProc(out var Object, out _, out _)) {
-				return false;
-			}
-			var Receiver = Object.FirstObjectType();
-			var Field = Required.Refs[1].Fields.ToStream().TryFirst().AssertNotEmpty();
-			return Receiver.IsSubType(Required).Match(out _, out _) &&
-				Receiver.TryGetInterfaceMethod(Field.Key).Match(
-					__ => __.IsSubType(aType).Match(out _, out _), () => false
-				);
+		if (aData.IsProcView(out var ViewType, out _) && aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic) {
+			return ViewType.IsSubType(aType).Match(out _, out _);
 		}
 		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
 		if (
@@ -198,25 +203,121 @@ mVM {
 		}
 	}
 	
-	private static (mVM_Data.tData Object, mVM_Data.tData Method)
-	ResolveInterfaceMethod(mVM_Data.tData aObject, mVM_Data.tData aMethod) {
-		static (mVM_Type.tType Contract, mVM_Data.tData Object, mVM_Data.tData Methods)
-		UnwrapFirst(mVM_Data.tData aObject) {
-			if (aObject.IsInterface(out var Contract, out var Hidden, out var Methods)) {
-				return (Contract, Hidden, Methods);
+	private static mVM_Data.tData
+	ViewInterfaces(
+		mVM_Data.tData aData,
+		mVM_Type.tType aType,
+		mStream.tStream<(tNat64 Data, tNat64 Type)> aVisited = default
+	) {
+		if (!aType.HasInterfaceValues() || aVisited.Any(__ => __.Data == aData._DebugId && __.Type == aType.DebugId)) {
+			return aData;
+		}
+		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
+		if (aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic) {
+			// Keep a callable's exposed signature and its capability restrictions together.
+			return aData.IsProcView(out var ViewType, out _) && ViewType.SameType(aType) ? aData : mVM_Data.ProcView(aType, aData);
+		}
+		if (aType.IsInterface(out _, out var Body)) {
+			mAssert.IsTrue(aData.IsInterface(out var Contract, out var Object, out var Methods));
+			mAssert.IsTrue(Contract.IsSubType(aType).Match(out _, out _), "interface view cannot add endpoints");
+			if (Contract.SameType(aType)) {
+				return aData;
 			}
-			mAssert.IsTrue(aObject.IsPair(out var Tail, out var Head), "expected interface as first object argument");
-			var First = UnwrapFirst(Tail.IsEmpty() ? Head : Tail);
-			return (First.Contract, Tail.IsEmpty() ? mVM_Data.Pair(Tail, First.Object) : mVM_Data.Pair(First.Object, Head), First.Methods);
+			var Restricted = mVM_Data.Empty();
+			if (Body.IsRecord(out var Required)) {
+				mAssert.IsTrue(Methods.IsRecord(out var Fields));
+				foreach (var Field in Required.ToStream()) {
+					Restricted = mVM_Data.Record(Restricted, mVM_Data.Prefix(Field.Key, Fields.TryGet(Field.Key.PrefixHash()).AssertNotEmpty()));
+				}
+			}
+			return mVM_Data.Interface(aType, Object, Restricted);
 		}
-		while (aMethod.IsInterfaceMethod(out var Contract, out var Name)) {
-			var Bound = UnwrapFirst(aObject);
-			mAssert.IsTrue(Bound.Contract.IsSubType(Contract).Match(out _, out _), "incompatible interface receiver");
-			mAssert.IsTrue(Bound.Methods.IsRecord(out var Methods));
-			aObject = Bound.Object;
-			aMethod = Methods.TryGet(Name).AssertNotEmpty();
+		if (aType.IsPair(out var FirstType, out var SecondType) && aData.IsPair(out var First, out var Second)) {
+			var FirstView = ViewInterfaces(First, FirstType, aVisited);
+			var SecondView = ViewInterfaces(Second, SecondType, aVisited);
+			return mStd.RefEq(First, FirstView) && mStd.RefEq(Second, SecondView) ? aData : mVM_Data.Pair(FirstView, SecondView);
 		}
-		return (aObject, aMethod);
+		if (aType.IsPrefix(out var Prefix, out var InnerType) && aData.IsPrefix(Prefix.PrefixHash(), out var Inner)) {
+			var View = ViewInterfaces(Inner, InnerType, aVisited);
+			return mStd.RefEq(Inner, View) ? aData : mVM_Data.Prefix(Prefix, View);
+		}
+		if (aType.IsRecord(out var FieldTypes) && aData.IsRecord(out var Record)) {
+			var Fields = Record;
+			var Changed = false;
+			foreach (var Field in FieldTypes.ToStream()) {
+				var Key = Field.Key.PrefixHash();
+				var Value = Fields.TryGet(Key).AssertNotEmpty();
+				var View = ViewInterfaces(Value, Field.Value, aVisited);
+				if (!mStd.RefEq(Value, View)) {
+					Fields = Fields.Set(Key, View);
+					Changed = true;
+				}
+			}
+			return !Changed ? aData : new mVM_Data.tData {
+				_DataType = mVM_Data.tDataType.Record,
+				_Fields = Fields,
+				_IsMutable = aData._IsMutable
+			};
+		}
+		if (aType.IsSet(out var Type1, out var Type2)) {
+			return ViewInterfaces(aData, aData.Matches(Type1) ? Type1 : Type2, aVisited);
+		}
+		if (aType.IsRecursive(out var Head, out var RecursiveBody)) {
+			return ViewInterfaces(aData, RecursiveBody.Substitute(Head, aType), aVisited);
+		}
+		if (aType.IsSig(out var Binder, out var SigBody) && aData.IsSig(out _, out var Witness, out var ValueBody)) {
+			var View = ViewInterfaces(ValueBody, SigBody.Substitute(Binder, Witness.TypeExpressionValue()), aVisited);
+			return mStd.RefEq(ValueBody, View) ? aData : mVM_Data.Sig(aType, Witness, View);
+		}
+		return aData;
+	}
+
+	private static mVM_Data.tData
+	ReturnValue<tPos>(tCallStack<tPos> aStack, mVM_Data.tData aValue) {
+		mAssert.IsTrue(aStack._ProcDef.DefType.IsProc(out _, out _, out var Proc));
+		while (Proc.IsGeneric(out _, out var Body)) {
+			Proc = Body;
+		}
+		mAssert.IsTrue(Proc.IsProc(out _, out _, out var Result));
+		aValue = ViewInterfaces(aValue, Result);
+		foreach (var Type in aStack._ReturnTypes) {
+			aValue = ViewInterfaces(aValue, Type);
+		}
+		return aValue;
+	}
+
+	private static mVM_Data.tData
+	UnwrapProcViews(
+		mVM_Data.tData aProc,
+		ref mVM_Data.tData aObject,
+		ref mVM_Data.tData aArgument,
+		ref mStream.tStream<mVM_Type.tType> aReturnTypes
+	) {
+		while (aProc.IsProcView(out var Type, out var Inner)) {
+			while (Type.IsGeneric(out _, out var Body)) {
+				Type = Body;
+			}
+			mAssert.IsTrue(Type.IsProc(out var Object, out var Argument, out var Result));
+			aObject = ViewInterfaces(aObject, Object);
+			aArgument = ViewInterfaces(aArgument, Argument);
+			aReturnTypes = mStream.Stream(Result, aReturnTypes);
+			aProc = Inner;
+		}
+		return aProc;
+	}
+
+	private static (mVM_Data.tData Object, mVM_Data.tData Method)
+	ResolveInterfaceCall(mVM_Data.tData aObject, tNat32 aName) {
+		if (aObject.IsInterface(out _, out var Hidden, out var Methods)) {
+			mAssert.IsTrue(Methods.IsRecord(out var Fields));
+			return (Hidden, Fields.TryGet(aName).AssertNotEmpty());
+		}
+		mAssert.IsTrue(aObject.IsPair(out var Tail, out var Head), "expected interface as first object argument");
+		var First = ResolveInterfaceCall(Tail.IsEmpty() ? Head : Tail, aName);
+		return (
+			Tail.IsEmpty() ? mVM_Data.Pair(Tail, First.Object) : mVM_Data.Pair(First.Object, Head),
+			First.Method
+		);
 	}
 
 	private static mVM_Data.tData
@@ -227,7 +328,9 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
-		(aObject, aProc) = ResolveInterfaceMethod(aObject, aProc);
+		var ReturnTypes = mStream.Stream<mVM_Type.tType>();
+		aProc = UnwrapProcViews(aProc, ref aObject, ref aArg, ref ReturnTypes);
+		mVM_Data.tData Result;
 		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
 			mAssert.IsTrue(Def.DefType.IsProc(out _, out _, out var ProcType));
 			while (ProcType.IsGeneric(out _, out var Body)) {
@@ -243,12 +346,16 @@ mVM {
 				aPosToText,
 				aTraceOut
 			);
-			return Res;
+			Result = Res;
 		} else if (aProc.IsExternProc(out var ExternDef, out var ExternEnv)) {
-			return ExternDef(ExternEnv, aObject, aArg, aTraceOut);
+			Result = ExternDef(ExternEnv, aObject, aArg, aTraceOut);
 		} else {
 			throw mError.Error("expected proc but is: " + aProc._DataType);
 		}
+		foreach (var Type in ReturnTypes) {
+			Result = ViewInterfaces(Result, Type);
+		}
+		return Result;
 	}
 	
 	public static mMaybe.tMaybe<tCallStack<tPos>>
@@ -258,6 +365,8 @@ mVM {
 	) {
 		var (OpCode, Arg1, Arg2, DebugId) = aCallStack._ProcDef.Commands.Get(aCallStack._CodePointer);
 		var Pos = aCallStack._ProcDef.PosList.Get(aCallStack._CodePointer);
+		var CallType = aCallStack._ProcDef.CallTypes.TryGet(aCallStack._CodePointer);
+		var ReturnTypes = CallType.Match(__ => mStream.Stream(__.Refs[2]), () => mStream.Stream<mVM_Type.tType>());
 		tText CommandLine() => $">>>   {aCallStack._Regs.Size:#0} := {OpCode} {Arg1} {Arg2} // CommandDebugId:{DebugId} // {Pos}";
 		aCallStack._TraceOut(CommandLine);
 		aCallStack._TraceOut(() => $"{mStd.NewDebugId()}");
@@ -409,11 +518,6 @@ mVM {
 			}
 			case mVM_Data.tOpCode.GetField: {
 				var Arg = aCallStack._Regs.Get(Arg1);
-				if (Arg.IsInterface(out var Contract, out _, out var Methods)) {
-					mAssert.IsTrue(Methods.IsRecord(out var BoundMethods) && BoundMethods.TryGet(Arg2).IsSome(out _));
-					aCallStack._Regs.Push(mVM_Data.InterfaceMethod(Contract, Arg2));
-					break;
-				}
 				mAssert.IsTrue(Arg.IsRecord(out var Fields));
 				aCallStack._Regs.Push(
 					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {Arg2} {Arg.ToText(3)}").ElseThrow()
@@ -443,6 +547,9 @@ mVM {
 			case mVM_Data.tOpCode.DefRecProcs: {
 				var Func = aCallStack._Regs.Get(Arg1);
 				var Env = aCallStack._Regs.Get(Arg2);
+				var Object = mVM_Data.Empty();
+				var FactoryReturnTypes = mStream.Stream<mVM_Type.tType>();
+				Func = UnwrapProcViews(Func, ref Object, ref Env, ref FactoryReturnTypes);
 				
 				var RecProcs = mVM_Data.Empty();
 				{
@@ -457,37 +564,17 @@ mVM {
 				}
 				aCallStack._Regs.Push(RecProcs);
 				
-				mVM_Data.tData Res;
+				mVM_Data.tData Closed;
 				switch (0) {
 					case 0 when Func.IsExternDef(out var ExternDef): {
-						Res = mVM_Data.Empty();
-						Run(
-							mVM_Data.ExternProc(ExternDef, Env),
-							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
-						);
+						Closed = mVM_Data.ExternProc(ExternDef, Env);
 						break;
 					}
 					case 0 when Func.IsExternProc(out var ExternDef, out var Env_): {
-						Res = mVM_Data.Empty();
-						Run(
-							ExternDef(
-								Env_,
-								mVM_Data.Empty(),
-								Env,
-								aTraceLine => {
-									aCallStack._TraceOut(() => "\t" + aTraceLine());
-								}
-							),
+						Closed = ExternDef(
+							Env_,
 							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
+							Env,
 							aTraceLine => {
 								aCallStack._TraceOut(() => "\t" + aTraceLine());
 							}
@@ -495,17 +582,7 @@ mVM {
 						break;
 					}
 					case 0 when Func.IsDef<tPos>(out var Def): {
-						Res = mVM_Data.Empty();
-						Run(
-							mVM_Data.Proc(Def, Env),
-							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
-						);
+						Closed = mVM_Data.Proc(Def, Env);
 						break;
 					}
 					case 0 when Func.IsProc<tPos>(out var Def_, out var Env_): {
@@ -515,6 +592,11 @@ mVM {
 						throw mError.Error("impossible: " + Func._DataType);
 					}
 				}
+				foreach (var Type in FactoryReturnTypes) {
+					Closed = ViewInterfaces(Closed, Type);
+				}
+				var Res = mVM_Data.Empty();
+				Run(Closed, mVM_Data.Empty(), RecProcs, Res, aPosToText, aCallStack._TraceOut);
 				
 				// Preserve the captured objects' identities when closing the recursive references.
 				static void
@@ -541,6 +623,11 @@ mVM {
 			case mVM_Data.tOpCode.CallFunc: {
 				var Proc = aCallStack._Regs.Get(Arg1);
 				var Arg = aCallStack._Regs.Get(Arg2);
+				if (CallType.IsSome(out var Signature)) {
+					Arg = ViewInterfaces(Arg, Signature.Refs[1]);
+				}
+				var Object = mVM_Data.Empty();
+				Proc = UnwrapProcViews(Proc, ref Object, ref Arg, ref ReturnTypes);
 				
 				switch (0) {
 					case 0 when (
@@ -587,7 +674,8 @@ mVM {
 							Res,
 							aTraceLine => {
 								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
+							},
+							ReturnTypes
 						);
 					}
 					default: {
@@ -601,7 +689,14 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
-				(Obj, Proc) = ResolveInterfaceMethod(Obj, Proc);
+				if (CallType.IsSome(out var Signature)) {
+					Obj = ViewInterfaces(Obj, Signature.Refs[0]);
+					Arg = ViewInterfaces(Arg, Signature.Refs[1]);
+				}
+				if (Proc.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
+					(Obj, Proc) = ResolveInterfaceCall(Obj, Name);
+				}
+				Proc = UnwrapProcViews(Proc, ref Obj, ref Arg, ref ReturnTypes);
 				
 				switch (0) {
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -637,7 +732,8 @@ mVM {
 							Res,
 							aTraceLine => {
 								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
+							},
+							ReturnTypes
 						);
 					}
 					default: {
@@ -649,7 +745,7 @@ mVM {
 			case mVM_Data.tOpCode.ReturnIf: {
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), () => CommandLine());
 				if (Cond) {
-					var Res = aCallStack._Regs.Get(Arg2);
+					var Res = ReturnValue(aCallStack, aCallStack._Regs.Get(Arg2));
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
@@ -663,6 +759,7 @@ mVM {
 			case mVM_Data.tOpCode.ReturnIfNotEmpty: {
 				var Res = aCallStack._Regs.Get(Arg1);
 				if (Res._DataType is not mVM_Data.tDataType.Empty) {
+					Res = ReturnValue(aCallStack, Res);
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
@@ -741,6 +838,10 @@ mVM {
 				mAssert.IsTrue(Contract.IsInterface(out _, out _));
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Object, out var Methods));
 				aCallStack._Regs.Push(mVM_Data.Interface(Contract, Object, Methods));
+				break;
+			}
+			case mVM_Data.tOpCode.InterfaceView: {
+				aCallStack._Regs.Push(ViewInterfaces(aCallStack._Regs.Get(Arg2), aCallStack._Regs.Get(Arg1).TypeExpressionValue()));
 				break;
 			}
 			case mVM_Data.tOpCode.NewSig: {
@@ -914,6 +1015,10 @@ mVM {
 				throw mError.Error("TODO " + OpCode);
 			}
 		}
+		var ResultIndex = aCallStack._Regs.Size - 1;
+		foreach (var Type in ReturnTypes) {
+			aCallStack._Regs.Set(ResultIndex, ViewInterfaces(aCallStack._Regs.Get(ResultIndex), Type));
+		}
 		aCallStack._TraceOut(
 			() => $@"    \ {aCallStack._Regs.Size - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size - 1).ToText(20)}"
 		);
@@ -944,9 +1049,11 @@ mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		using var _ = mPerf.Measure();
+		var ReturnTypes = mStream.Stream<mVM_Type.tType>();
+		aProc = UnwrapProcViews(aProc, ref aObj, ref aArg, ref ReturnTypes);
 		switch (0) {
 			case 0 when aProc.IsProc<tPos>(out var Def, out var Env): {
-				var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
+				var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut, ReturnTypes);
 				while (CallStack.IsSome(out var CallStack_)) {
 					CallStack = CallStack_.Step(aPosToText);
 				}
@@ -954,6 +1061,9 @@ mVM {
 			}
 			case 0 when aProc.IsExternProc(out var ExternDef, out var Env): {
 				var Res = ExternDef(Env, aObj, aArg, aTraceOut);
+				foreach (var Type in ReturnTypes) {
+					Res = ViewInterfaces(Res, Type);
+				}
 				aRes._DataType = Res._DataType;
 				aRes._Value = Res._Value;
 				aRes._Fields = Res._Fields;

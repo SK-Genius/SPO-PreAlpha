@@ -72,18 +72,19 @@
 	§RETURN EMPTY IF TRUE
 
 §DEF d_3 € t_28
-	_aCapability := ARG
+	r_1 := §INTERFACE_VIEW t_18 WITH ARG
+	_aCapability := r_1
 	§RETURN _aCapability IF TRUE
 
 §DEF d_4 € t_37
 	d_3 := §2ND ENV
-	r_33 := §1ST ENV
-	d_2 := §2ND r_33
-	r_34 := §1ST r_33
-	d_1 := §2ND r_34
+	r_34 := §1ST ENV
+	d_2 := §2ND r_34
 	r_35 := §1ST r_34
-	d_0 := §2ND r_35
+	d_1 := §2ND r_35
 	r_36 := §1ST r_35
+	d_0 := §2ND r_36
+	r_37 := §1ST r_36
 	§RETURN ARG IF_NOT_EMPTY
 	_iCell := t_18
 	r_1 := §CLOSURE d_0 EMPTY
@@ -104,29 +105,30 @@
 	r_11 := {r_9} + r_10
 	r_12 := _Cell, r_11
 	r_13 := §INTERFACE t_18 WITH r_12
-	_Capability := r_13
-	r_14 := §CLOSURE d_3 EMPTY
-	_Pass... := r_14
-	r_15 := ._Pass... _Capability
-	_Relayed := r_15
-	r_16 := 11
-	r_17 := {_Relayed} #_Write...
-	r_18 := _Relayed, r_17
-	EMPTY := §OBJ:r_18 r_16
-	r_19 := EMPTY, _Relayed
-	r_20 := r_19, _Other
-	r_21 := §1ST r_20
-	r_22 := §2ND r_21
-	r_23 := {r_22} #_Exchange
-	r_25 := r_20, r_23
-	r_24 := §OBJ:r_25 EMPTY
-	_Before := r_24
-	r_26 := {_Capability} #_Read
-	r_28 := _Capability, r_26
-	r_27 := §OBJ:r_28 EMPTY
-	_After := r_27
-	r_29 := EMPTY, _Before
-	r_30 := r_29, _After
-	r_31 := §VAR _Other ->
-	r_32 := r_30, r_31
-	§RETURN r_32 IF TRUE
+	r_14 := §INTERFACE_VIEW t_18 WITH r_13
+	_Capability := r_14
+	r_15 := §CLOSURE d_3 EMPTY
+	r_16 := §INTERFACE_VIEW t_27 WITH r_15
+	_Pass... := r_16
+	r_17 := ._Pass... _Capability
+	r_18 := §INTERFACE_VIEW t_18 WITH r_17
+	_Relayed := r_18
+	r_19 := 11
+	r_20 := +#_Write... EMPTY
+	r_21 := _Relayed, r_20
+	EMPTY := §OBJ:r_21 r_19
+	r_22 := EMPTY, _Relayed
+	r_23 := r_22, _Other
+	r_24 := +#_Exchange EMPTY
+	r_26 := r_23, r_24
+	r_25 := §OBJ:r_26 EMPTY
+	_Before := r_25
+	r_27 := +#_Read EMPTY
+	r_29 := _Capability, r_27
+	r_28 := §OBJ:r_29 EMPTY
+	_After := r_28
+	r_30 := EMPTY, _Before
+	r_31 := r_30, _After
+	r_32 := §VAR _Other ->
+	r_33 := r_31, r_32
+	§RETURN r_33 IF TRUE

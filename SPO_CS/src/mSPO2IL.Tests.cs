@@ -160,7 +160,8 @@ mSPO2IL_Tests {
 						(cSource.Replace("{Read: Read}", "{Read: 7}"), "incompatible interface methods"),
 						(cSource.Replace("Capability : Read", "(Capability, 2) : Read"), "receiver"),
 						(cSource.Replace("WITH 1 IN", "WITH §TRUE IN"), "incompatible interface methods"),
-						(cSource.Replace("Capability : Read", "{Hidden: §DEF Secret} = Capability\nCapability : Read"), "Unknown interface method"),
+						(cSource.Replace("Capability : Read", "{Hidden: §DEF Secret} = Capability\nCapability : Read"), "cannot be extracted"),
+						(cSource.Replace("Capability : Read", "{Read: §DEF Method} = Capability\nCapability : Read"), "cannot be extracted"),
 						(cSource.Replace("§INTERFACE iReader WITH 1 IN {Read: Read}", "{Read: Read}").Replace(
 							"§DEF Capability =", "§DEF Capability € iReader ="
 						), "expected interface object")
@@ -169,6 +170,61 @@ mSPO2IL_Tests {
 						mAssert.IsFalse(Checked.Match(out _, out var Error), Source);
 						mAssert.IsTrue(Error.Contains(Expected), Error);
 					}
+				}
+			),
+			mTest.Test("Interface subsets preserve endpoint signatures and hide additional endpoints",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT ()
+					§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+					§DEF iCell = [§INTERFACE t [< Read: [t : [] => §INT], Write...: [t : §INT => []] >]]
+					§DEF ReadCell = (§VAR aSelf € §INT) : () {
+						§RETURN §TO_VAL aSelf
+					}
+					§DEF WriteCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
+						aSelf := aValue .
+					}
+					§VAR Cell := 7 .
+					§DEF Capability = §INTERFACE iCell WITH Cell IN {Read: ReadCell, Write...: WriteCell...}
+					§DEF Narrow € iReader = Capability
+					Narrow : Read => §DEF Value .
+					§EXPORT Value
+					""";
+					var Valid = mSPO_Interpreter.Run(cSource + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__())).ElseThrow();
+					mAssert.AreEquals(Valid.Data, mVM_Data.Int(7));
+					foreach (var Source in mStream.Stream(
+						cSource.Replace("§DEF Narrow € iReader = Capability", "§DEF Narrow € iCell = §INTERFACE iReader WITH Cell IN {Read: ReadCell}"),
+						cSource.Replace("§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]", "§DEF iReader = [§INTERFACE t [< Read: [t : [] => §BOOL] >]]"),
+						cSource.Replace("§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]", "§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT], Missing: [t : [] => §INT] >]]"),
+						cSource.Replace("Narrow : Read", "Narrow : Write 9 .\nNarrow : Read"),
+						cSource.Replace("Narrow : Read", "{Read: §DEF Method} = Narrow\nNarrow : Read")
+					)) {
+						var Checked = mSPO_Interpreter.Run(Source + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__()));
+						mAssert.IsFalse(Checked.Match(out _, out _), Source);
+					}
+				}
+			),
+			mTest.Test("Interface subsets cannot regain an omitted admin endpoint by assignment",
+				aDebug => {
+					const tText cSource = """
+					§IMPORT ()
+					§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+					§DEF iAdmin = [§INTERFACE t [< Read: [t : [] => §INT], Admin...: [t : §INT => []] >]]
+					§DEF ReadCell = (§VAR aSelf € §INT) : () {
+						§RETURN §TO_VAL aSelf
+					}
+					§DEF AdminCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
+						aSelf := aValue .
+					}
+					§VAR Cell := 7 .
+					§DEF Full = §INTERFACE iAdmin WITH Cell IN {Read: ReadCell, Admin...: AdminCell...}
+					§DEF Limited € iReader = Full
+					§DEF Escalated € iAdmin = Limited
+					§EXPORT ()
+					""";
+					var Checked = mSPO_Interpreter.Run(cSource + "\n", "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__()));
+					mAssert.IsFalse(Checked.Match(out _, out var Error), cSource);
+					mAssert.IsTrue(Error.Contains("missing field") && Error.Contains("_Admin"), Error);
 				}
 			),
 			mTest.Test("If lowering uses validated types without changing AST annotations",

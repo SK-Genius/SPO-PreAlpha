@@ -143,13 +143,26 @@ See [<../SPO_CS/TestFiles/SPO_Functions/10_01_InterfaceObject.SPO|construction, 
 
 [.spo
 |§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
-|§DEF First = §INTERFACE iReader WITH 7 IN {Read: IntRead}
+|§VAR Number := 7 .
+|§DEF First = §INTERFACE iReader WITH Number IN {Read: IntRead}
 |First : Read => §DEF A .
 .]
 
 The method implementation [.|IntRead.] is defined in the linked construction example.
-An interface can be narrowed to a contract with fewer methods. Its receiver keeps
-the existing mutable-access rules: passing it as an ordinary argument permits
+An interface can be assigned to a contract with fewer endpoints when their
+signatures are compatible. Consumers typed against the smaller contract continue
+to work when the producer adds endpoints. The assignment keeps the same hidden
+object and method implementations in a new restricted view. Only the endpoints
+in the smaller contract remain available. Assigning that view back to a contract
+with additional endpoints is rejected; runtime type matching cannot recover them,
+including after transport through [.|§ANY.] or a container. The original wider
+interface retains its endpoints.
+
+See [<../SPO_CS/TestFiles/SPO_Functions/10_04_InterfaceNarrowing.SPO|an existing consumer using an extended interface>].
+The [<../SPO_CS/TestFiles/SPO_Functions/10_05_InterfaceAuthority.SPO|authority test>]
+checks that an omitted admin endpoint cannot be recovered.
+Methods are called through the interface object and cannot be extracted as record
+fields. The existing mutable-access rules apply: ordinary arguments permit
 transport; using mutable state requires an authorized object argument.
 
 [=Modules and Pipes=]

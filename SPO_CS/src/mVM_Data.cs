@@ -38,6 +38,7 @@ mVM_Data {
 		// SIG
 		NewSig,
 		NewInterface,
+		InterfaceView,
 		SigHead,
 		SigBody,
 		
@@ -132,6 +133,9 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
+
+		public mTreeMap.tTree<tNat32, mVM_Type.tType>
+		CallTypes = mTreeMap.Tree<tNat32, mVM_Type.tType>((a1, a2) => a1.CompareTo(a2), []);
 		
 		public mStream.tStream<mVM_Type.tType>
 		TypeDefinitions { get; init; }
@@ -686,10 +690,10 @@ mVM_Data {
 		Pair,
 		Sig,
 		Interface,
-		InterfaceMethod,
 		Prefix,
 		Record,
 		Proc,
+		ProcView,
 		ExternProc,
 		Def,
 		ExternDef,
@@ -886,26 +890,6 @@ mVM_Data {
 			return false;
 		}
 		(aContract, aObject, aMethods) = Value;
-		return true;
-	}
-
-	public static tData
-	InterfaceMethod(mVM_Type.tType aContract, tNat32 aName) {
-		mAssert.IsTrue(aContract.IsInterface(out var Parameter, out var Body));
-		mAssert.IsTrue(Body.IsRecord(out var Fields));
-		var Field = Fields.ToStream().Where(__ => __.Key.PrefixHash() == aName).TryFirst().AssertNotEmpty();
-		var Required = mVM_Type.Interface(Parameter, mVM_Type.Record([(Field.Key, Field.Value)]));
-		return Data(tDataType.InterfaceMethod, false, (Required, aName));
-	}
-
-	public static tBool
-	IsInterfaceMethod(this tData aData, out mVM_Type.tType aContract, out tNat32 aName) {
-		aContract = default!;
-		aName = default;
-		if (!aData.Is(tDataType.InterfaceMethod, out (mVM_Type.tType Contract, tNat32 Name) Value)) {
-			return false;
-		}
-		(aContract, aName) = Value;
 		return true;
 	}
 
@@ -1112,6 +1096,21 @@ mVM_Data {
 		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
+
+	public static tData
+	ProcView(mVM_Type.tType aType, tData aProc)
+	=> Data(tDataType.ProcView, aProc._IsMutable, (aType, aProc));
+
+	public static tBool
+	IsProcView(this tData aData, out mVM_Type.tType aType, out tData aProc) {
+		aType = default!;
+		aProc = default!;
+		if (!aData.Is(tDataType.ProcView, out (mVM_Type.tType Type, tData Proc) View)) {
+			return false;
+		}
+		(aType, aProc) = View;
+		return true;
+	}
 	
 	public static tBool
 	IsProc(
@@ -1285,8 +1284,8 @@ mVM_Data {
 			_ when a.IsInterface(out _, out _, out _)
 			=> "(§INTERFACE)",
 
-			_ when a.IsInterfaceMethod(out _, out var Name)
-			=> $"(Interface method #{Name})",
+			_ when a.IsProcView(out _, out _)
+			=> "(Proc view)",
 
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",

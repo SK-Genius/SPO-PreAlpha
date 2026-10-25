@@ -1,6 +1,7 @@
 §IMPORT ()
 
 §DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF iWriter = [§INTERFACE t [< Write...: [t : §INT => []] >]]
 §DEF iCell = [§INTERFACE t [< Read: [t : [] => §INT], Write...: [t : §INT => []] >]]
 
 §DEF ReadCell = (§VAR aSelf € §INT) : () {
@@ -9,25 +10,27 @@
 §DEF WriteCell... = (§VAR aSelf € §INT) : (§DEF aValue € §INT) {
 	aSelf := aValue .
 }
-§DEF Observe = (§DEF aReader € iReader) : () {
-	aReader : Read => §DEF Value .
+§DEF LegacyConsumer = (§VAR aReader € iReader) : () {
+	(§TO_VAL aReader) : Read => §DEF Value .
 	§RETURN Value
 }
-§DEF GetRead = (§DEF aReader € iReader) : () {
-	{Read: §DEF Method} = aReader
-	§RETURN Method
-}
+§DEF Forward... = (§DEF aReader € iReader) => aReader
 
 §VAR Cell := 18 .
-§DEF Capability = §INTERFACE iCell WITH Cell IN {Read: ReadCell, Write...: WriteCell...}
-§DEF Narrow € iReader = Capability
-Narrow : Observe => §DEF First .
-Capability : Write 23 .
-Narrow : Observe => §DEF Second .
-Capability : GetRead => §DEF Captured .
-§DEF Checked = §IF Captured MATCH {
-	§DEF Method € [iReader : [] => §INT]: Method
-}
-Narrow : Checked => §DEF Third .
+§DEF Original = §INTERFACE iReader WITH Cell IN {Read: ReadCell}
+§VAR Previous := Original .
+Previous : LegacyConsumer => §DEF First .
 
-§EXPORT (First, Second, Third)
+§DEF Extended = §INTERFACE iCell WITH Cell IN {Read: ReadCell, Write...: WriteCell...}
+§DEF Reader € iReader = Extended
+§DEF Writer € iWriter = Extended
+§VAR Current := Reader .
+Current : LegacyConsumer => §DEF Second .
+Writer : Write 23 .
+Current : LegacyConsumer => §DEF Third .
+
+§DEF Relayed = .Forward Extended
+§VAR Forwarded := Relayed .
+Forwarded : LegacyConsumer => §DEF Fourth .
+
+§EXPORT (First, Second, Third, Fourth)

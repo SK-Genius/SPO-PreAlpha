@@ -2,31 +2,23 @@
 
 §DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
 
-§DEF IntRead = (§DEF aValue € §INT) : () {
-	§RETURN aValue
+§DEF IntRead = (§VAR aValue € §INT) : () {
+	§RETURN §TO_VAL aValue
 }
-§DEF BoolRead = (§DEF aValue € §BOOL) : () {
-	§RETURN §IF aValue MATCH {
+§DEF BoolRead = (§VAR aValue € §TRUE) : () {
+	§RETURN §IF (§TO_VAL aValue) MATCH {
 		§TRUE: 21
-		§FALSE: 0
 	}
 }
 
-§DEF First = §INTERFACE iReader WITH 7 IN {Read: IntRead}
-§DEF Second = §INTERFACE iReader WITH §TRUE IN {Read: BoolRead}
+§VAR Number := 7 .
+§VAR Flag := §TRUE .
+§DEF First = §INTERFACE iReader WITH Number IN {Read: IntRead}
+§DEF Second = §INTERFACE iReader WITH Flag IN {Read: BoolRead}
 §DEF Pass... = (§DEF aCapability € iReader) => aCapability
 §DEF Relayed = .Pass Second
 
 First : Read => §DEF A .
 Second : Read => §DEF B .
 Relayed : Read => §DEF C .
-{Read: §DEF Captured} = First
-Second : Captured => §DEF D .
-§DEF Wrapped = §INTERFACE iReader WITH First IN {Read: Captured}
-Wrapped : Read => §DEF E .
-§DEF Checked = §IF Captured MATCH {
-	§DEF Method € [[iReader : [] => §INT] | §INT]: Captured
-}
-Second : Checked => §DEF F .
-
-§EXPORT (A, B, C, D, E, F)
+§EXPORT (A, B, C)
