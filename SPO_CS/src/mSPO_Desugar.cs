@@ -661,23 +661,23 @@ mSPO_Desugar {
 			)
 		),
 		
-		mSPO_AST.tRecLambdasNode<tPos> { Pos: var Pos, List: var List }
+		mSPO_AST.tRecProcsNode<tPos> { Pos: var Pos, List: var List }
 		=> DesugarAll(
 			List,
 			aNextArgIndex,
-			(aListItem, aNext) => aListItem.Lambda.DesugarExpression(aNext).Then(
+			(aListItem, aNext) => aListItem.Proc.DesugarExpression(aNext).Then(
 				aDesugaredLambda => (
-					mSPO_AST.RecLambdaItem(
+					mSPO_AST.RecProcItem(
 						aListItem.Pos,
 						aListItem.Id,
-						(mSPO_AST.tLambdaNode<tPos>)aDesugaredLambda.Expression
+						aDesugaredLambda.Expression
 					),
 					aDesugaredLambda.NextArgIndex
 				)
 			)
 		).Then(
 			__ => (
-				(mSPO_AST.tCommandNode<tPos>)mSPO_AST.RecLambdas(
+				(mSPO_AST.tCommandNode<tPos>)mSPO_AST.RecProcs(
 					Pos,
 					__.Values
 				),

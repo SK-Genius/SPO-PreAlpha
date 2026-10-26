@@ -32,12 +32,19 @@ mRegression_Tests {
 				"Empty prefix expressions distinguish omitted and explicit arguments",
 				aDebug => {
 					foreach (var Parser in new[] { mSPO_Parser.Expression, mSPO_Parser.ExpressionInCall }) {
-						foreach (var (Source, Name) in new[] {
-							("#Prefix", "_Prefix"), ("(#Prefix)", "_Prefix"), ("(#Prefix ())", "_Prefix...")
-						}) {
+						foreach (
+							var (Source, Name) in new[] {
+								("#Prefix", "_Prefix"),
+								("(#Prefix)", "_Prefix"),
+								("(#Prefix ())", "_Prefix...")
+							}
+						) {
 							var Prefix = (mSPO_AST.tPrefixNode<tSpan>)Parser.TryParseText(
-								Source, "", __ => aDebug(__())
+								Source,
+								"",
+								__ => aDebug(__())
 							).ElseThrow();
+							
 							mAssert.AreEquals(Prefix.Prefix, Name);
 							mAssert.IsTrue(Prefix.Element is mSPO_AST.tEmptyNode<tSpan>);
 						}
@@ -51,6 +58,7 @@ mRegression_Tests {
 						var Prefix = (mSPO_AST.tPrefixTypeNode<tSpan>)mSPO_Parser.Type.TryParseText(
 							Source, "", __ => aDebug(__())
 						).ElseThrow();
+						
 						mAssert.AreEquals(Prefix.Prefix.Id, Name);
 						mAssert.IsTrue(Prefix.Expressions.All(__ => __ is mSPO_AST.tEmptyTypeNode<tSpan>));
 					}
@@ -59,9 +67,13 @@ mRegression_Tests {
 			mTest.Test(
 				"Empty prefix patterns distinguish omitted and explicit arguments",
 				aDebug => {
-					foreach (var (Source, Name) in new[] {
-						("#Prefix", "_Prefix"), ("(#Prefix)", "_Prefix"), ("(#Prefix ())", "_Prefix...")
-					}) {
+					foreach (
+						var (Source, Name) in new[] {
+							("#Prefix", "_Prefix"),
+							("(#Prefix)", "_Prefix"),
+							("(#Prefix ())", "_Prefix...")
+						}
+					) {
 						var Prefix = (mSPO_AST.tPrefixPatternNode<tSpan>)mSPO_Parser.Pattern.TryParseText(
 							Source, "", __ => aDebug(__())
 						).ElseThrow();
@@ -107,8 +119,11 @@ mRegression_Tests {
 				"Method expression bodies retain their expression node",
 				aDebug => {
 					var Method = mSPO_Parser.Method.TryParseText(
-						"(§VAR aSelf € §INT) : () => §TO_VAL aSelf", "", __ => aDebug(__())
+						"(§VAR aSelf € §INT) : () => §TO_VAL aSelf",
+						"",
+						__ => aDebug(__())
 					).ElseThrow();
+					
 					mAssert.IsTrue((mSPO_AST.tExpressionNode<tSpan>)Method.Body is mSPO_AST.tVarToValNode<tSpan>);
 				}
 			),
@@ -116,15 +131,189 @@ mRegression_Tests {
 				"Method expression bodies preserve opaque argument access checks",
 				aDebug => {
 					const tText cSource = """
-						§DEF Read... = (§VAR aSelf € §INT) : (§DEF aValue € [§VAR §INT]) => §TO_VAL aValue
-						§EXPORT 1
-						""";
+					§DEF Read... = (
+						§VAR aSelf € §INT
+					) : (
+						§DEF aValue € [§VAR §INT]
+					) => §TO_VAL aValue
+					
+					§EXPORT 1
+					""";
+					
 					var Result = mSPO_Interpreter.Run(
-						cSource, "", (mVM_Data.Empty(), mVM_Type.Empty()), __ => aDebug(__())
+						cSource,
+						"",
+						(mVM_Data.Empty(), mVM_Type.Empty()),
+						__ => aDebug(__())
 					);
+					
 					mAssert.IsFalse(Result.Match(out _, out var Error));
 					mAssert.IsTrue(Error.Contains("opaque mutable access is not allowed"));
 				}
+			),
+			mTest.Test(
+				"Recursive definitions accept method blocks and expressions with optional parentheses",
+				aDebug => {
+					foreach (var Body in new[] { "{\n§RETURN §TO_VAL aSelf\n}", "=> §TO_VAL aSelf" }) {
+						foreach (var Parenthesized in new[] { false, true }) {
+							var Method = "(§VAR aSelf € §INT) : () " + Body;
+							var Source = "§DEF Read = " + (Parenthesized ? "(" + Method + ")" : Method);
+							var Item = mSPO_Parser.RecProcItem.TryParseText(
+								Source,
+								"",
+								__ => aDebug(__())
+							).ElseThrow();
+							
+							mSPO_AST.tExpressionNode<tSpan> Definition = Item.Proc;
+							mAssert.IsTrue(Definition is mSPO_AST.tMethodNode<tSpan>);
+						}
+					}
+				}
+			),
+			mTest.Test(
+				"Recursive definitions reject non-callable expressions",
+				aDebug => mAssert.IsFalse(
+					mSPO_Parser.RecProcItem.TryParseText(
+						"§DEF Value = 1",
+						"",
+						__ => aDebug(__())
+					).Match(
+						out _,
+						out _
+					)
+				)
+			),
+			mTest.Tests(
+				"Recursive methods enforce receiver and mutable access restrictions",
+				mStream.Stream<(tText Name, tText Source, tText Error)>(
+					(
+						"Opaque argument",
+						"""
+						§RECURSIVE {
+							§DEF Read... = (
+								§VAR aSelf € §INT
+							) : (
+								§DEF aValue € [§VAR §INT]
+							) => §TO_VAL aValue
+						}
+						
+						§EXPORT 1
+						""",
+						"opaque mutable access is not allowed"
+					),
+					(
+						"Mutable capture",
+						"""
+						§VAR Cell := 7 .
+						
+						§RECURSIVE {
+							§DEF Read = (
+								§VAR aSelf € §INT
+							) : () => §TO_VAL Cell
+						}
+						
+						§EXPORT 1
+						""",
+						"mutable closure environment is not allowed"
+					),
+					(
+						"Wrong receiver type",
+						"""
+						§RECURSIVE {
+							§DEF Read = (
+								§VAR aSelf € §INT
+							) : () => §TO_VAL aSelf
+						}
+						
+						§VAR Cell :
+							= §TRUE
+							Read => §DEF Value
+						.
+						
+						§EXPORT Value
+						""",
+						"INT"
+					)
+				).Map(
+					aCase => mTest.Test(
+						aCase.Name,
+						aDebug => {
+							mSPO_Parser.Module.TryParseText(aCase.Source, "", __ => aDebug(__())).ElseThrow();
+							
+							var Result = mSPO_Interpreter.Run(
+								aCase.Source,
+								"",
+								(mVM_Data.Empty(), mVM_Type.Empty()),
+								__ => aDebug(__())
+							);
+							
+							mAssert.IsFalse(Result.Match(out _, out var Error));
+							mAssert.IsTrue(Error.Contains(aCase.Error));
+						}
+					)
+				).ToArrayList().ToArray()
+			),
+			mTest.Tests(
+				"IF skips unselected result expressions",
+				mStream.Stream<(tText Name, tText Expression, mVM_Data.tData Expected)>(
+					(
+						"False case with fallback",
+						"""
+						§IF {
+							§FALSE: .Probe
+							§TRUE: 7
+						}
+						""",
+						mVM_Data.Int(7)
+					),
+					(
+						"False case without fallback",
+						"""
+						§IF {
+							§FALSE: .Probe
+						}
+						""",
+						mVM_Data.Empty()
+					),
+					(
+						"Selected empty result",
+						"""
+						§IF {
+							§TRUE: ()
+							§TRUE: .Probe
+						}
+						""",
+						mVM_Data.Empty()
+					)
+				).Map(
+					aCase => mTest.Test(
+						aCase.Name,
+						aDebug => {
+							var CallCount = 0;
+							var Import = mVM_Data.ExternProc(
+								(aEnv, aObj, aArg, aTrace) => {
+									CallCount++;
+									return mVM_Data.Int(99);
+								},
+								mVM_Data.Empty()
+							);
+							var ImportType = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int());
+							var Result = mSPO_Interpreter.Run(
+								$"""
+								§IMPORT (§DEF Probe € [[] => §INT])
+								§EXPORT {aCase.Expression}
+								""",
+								"",
+								(Import, ImportType),
+								__ => aDebug(__())
+							).ElseThrow();
+							
+							mAssert.AreEquals(CallCount, 0);
+							mAssert.AreEquals(Result.Data.ToText(1000), aCase.Expected.ToText(1000));
+						}
+					)
+				).ToArrayList(
+				).ToArray()
 			),
 			mTest.Tests(
 				"Removing from a two entry tree preserves the other entry and the original tree",
@@ -136,20 +325,26 @@ mRegression_Tests {
 								(aLeft, aRight) => aLeft.CompareTo(aRight),
 								[(1, "one"), (2, "two")]
 							);
+							
 							var Removed = Tree.Remove(aKey);
+							
 							mAssert.AreEquals(Removed.TryGet(1).IsNone(), aKey == 1);
 							mAssert.AreEquals(Removed.TryGet(2).IsNone(), aKey == 2);
+							
 							if (aKey != 1) {
 								mAssert.AreEquals(Removed.TryGet(1).AssertNotEmpty(), "one");
 							}
+							
 							if (aKey != 2) {
 								mAssert.AreEquals(Removed.TryGet(2).AssertNotEmpty(), "two");
 							}
+							
 							mAssert.AreEquals(Tree.TryGet(1).AssertNotEmpty(), "one");
 							mAssert.AreEquals(Tree.TryGet(2).AssertNotEmpty(), "two");
 						}
 					)
-				).ToArrayList().ToArray()
+				).ToArrayList(
+				).ToArray()
 			),
 			mTest.Test(
 				"Distinct record field names do not collide at runtime",
@@ -290,6 +485,7 @@ mRegression_Tests {
 								),
 								__ => {}
 							);
+							
 							if (aMutable) {
 								mAssert.IsFalse(Result.Match(out _, out _));
 							} else {
@@ -337,19 +533,22 @@ mRegression_Tests {
 						aCase.Name,
 						aDebug => {
 							const tText cSource = """
-								§TYPES
-									F := [ANY => INT]
-									D := [EMPTY_TYPE => F]
-								§DEF main € D
-									§RETURN ONE IF TRUE
-								""";
+							§TYPES
+								F := [ANY => INT]
+								D := [EMPTY_TYPE => F]
+							§DEF main € D
+								§RETURN ONE IF TRUE
+							""";
+							
 							var Module = mIL_Parser.Module.TryParseText(cSource + "\n", "", __ => aDebug(__())).ElseThrow();
+							
 							var Result = mVM.TryRun(
 								Module,
 								(aCase.Value, mVM_Type.Any()),
 								mTextParser.ToText,
 								__ => aDebug(__())
 							);
+							
 							if (aCase.Denied) {
 								mAssert.IsFalse(Result.Match(out _, out var Error));
 								mAssert.AreEquals(Error, "mutable module import is not allowed");

@@ -1,41 +1,366 @@
-0)	All of the following rules should be applied with good judgment. They serve readability, navigation, and clean "git diff" output.
+SPO_CS C# code style
 
-1)	Blank lines are indented. TrimEOL does not apply to the indentation of blank lines.
+0) Scope and intent
 
-2)	Opening parentheses are either closed on the same line, or a line break is inserted immediately after the opening parenthesis. The closing parenthesis then starts on a new line, and list items between them each get their own line.
-	a(b, c)
-	a(
-		b,
-		c
-	)
+	These rules describe SPO_CS/src, including Common and tests. They serve
+	readability, navigation, small implementations, and clean git diffs. Apply them
+	with judgment. Section 12 separates established exceptions from inconsistencies.
 
-3)	Indentation always increases by one unit, usually one tab. Indentation should be determined by parentheses.
-	- Correct:
+	This is a prototype. Backwards compatibility does not justify unused non-API
+	helpers, wrappers, overloads, or classes. Keep changes focused and remove unused
+	internal code in the affected area. Avoid abstractions without concrete consumers.
+
+	Microsoft's conventions are comparison points, not C# language requirements.
+	The applicable configuration is SPO_CS/.editorconfig: root = true stops inheritance
+	from ../.editorconfig. Some rules need manual review: IDE0055 (formatting) and
+	the configured type naming rule are disabled. Clean diagnostics do not establish
+	compliance, and a disabled diagnostic does not make every existing pattern a rule.
+
+1) Modules, files, and dependencies
+
+	- A module is a public static class named mPascalCase, such as mMaybe or mSPO_AST.
+	  Keep related data types and operations together, usually in mModule.cs.
+	  Multiple related nested types per file are intentional.
+	- Modules live in the global namespace. Qualify cross-module names, for example
+	  mVM_Type.tType and mResult.Fail(...). Use local type aliases for repeated
+	  compound types rather than adding namespaces or broad using static imports.
+	- Preserve the file-based #:property, #:include, and #:ref structure. Source
+	  dependencies use relative paths; _GlobalUsings.cs supplies shared settings and
+	  aliases. Keep imports local unless they are useful across modules.
+	- Use the .NET base class library and Common. Do not add external libraries or
+	  NuGet dependencies to SPO_CS.
+	- Prefer mStream, mArrayList, mMap, and mTreeMap over System.Collections.* and LINQ
+	  for project data processing. Use their Map, Where, Reduce, and other operations.
+	  The old System.Collection.* rule meant System.Collections.*; narrow framework
+	  adapters are exceptions. It does not prohibit arrays, spans, System.IO,
+	  StringBuilder, or other base-library functionality.
+
+2) Names: PascalCase plus role prefixes
+
+	Use English names. The meaningful part uses PascalCase, including local variables,
+	pattern bindings, foreach variables, and tuple element names.
+
+	Role                         Form / examples
+	Module                       mMaybe, mIL_TypeChecker
+	Type, enum, delegate, alias   tToken, tKind, tFunc, tSpan
+	Generic type parameter       t, tPos, tIn, tOut, tError
+	Interface                    iProcDef; established tNode/tTest families also exist
+	Argument / named callback    aType, aSource, aOnFail; short a, a1, a2 are also used
+	Named constant data          cEmpty, cEmptyReg, cNoPos
+	Global state                 gDebugId, gNextDebugId, gHashToPrefix
+	Local value                  Result, Error, Index, RemainingStream
+	Member / tuple element       Type, Value, Start, ErrorText
+	Representation field         _Value, _HasValue, _CodePointer
+	Method / local function      TryGet, Map, UpdateTypes
+
+	- This differs from Microsoft's camelCase locals/arguments, T-prefixed generic
+	  parameters, I-prefixed interfaces, _camelCase instance fields, s_ static fields,
+	  and unprefixed constants.
+	- Apply a to ordinary arguments, including out/ref arguments, extension receivers,
+	  local-function parameters, and descriptive lambda parameters. Positional record
+	  parameters instead name the generated members: Id, Type, Defs.
+	- The AST interfaces tNode/tPatternNode/etc. and mTest.tTest use t as a common
+	  data-contract/variant family. Preserve those families. iProcDef is the existing
+	  i-prefixed interface; interface naming is not uniform across the repo.
+	- c denotes named constant data, including appropriate static readonly values,
+	  not just C# const declarations. readonly alone does not make referenced mutable
+	  data constant: global mutable storage such as mPerf.gLog uses g. Local computed
+	  results normally have no prefix. Reusable parser/test definitions have names
+	  such as Module, Tokenizer, and Tests.
+	- _PascalCase marks representation details, including some internal/public fields.
+	  Ordinary data fields can use PascalCase even when internal. Access modifiers,
+	  rather than prefixes, express visibility.
+	- Use __ for a lambda with exactly one parameter when its name is redundant in
+	  the surrounding context and its body contains no nested lambdas:
+
+		Items.Where(__ => __.HasSomething)
+
+	  Keep descriptive a-prefixed parameter names when they add meaning or when the
+	  lambda contains nested lambdas. Keep __ unambiguous in the enclosing scope.
+	  Short lambdas with multiple parameters may use _1 and _2. _ can be a real
+	  parameter (for example (_, __) => _ == __); do not assume it is always unused.
+	- Underscores are allowed: mSPO_AST, mMaybe_Tests, Eq_, ToText_. Eq_ and similar
+	  helpers return a configured delegate. Parser names such as _ and __ are
+	  established grammar notation, not a general pattern for new business code.
+	- Keep framework contract names such as ToString, Equals, MoveNext, and Dispose.
+
+3) Types and inference
+
+	- Use _GlobalUsings.cs aliases: tBool, tChar, tText, tUnknown, tCPtr,
+	  tInt8/16/32/64, and tNat8/16/32/64. Prefer tText to string/String, tInt32 to
+	  int/Int32, and tNat32 to uint/UInt32. This deliberately differs from Microsoft's
+	  preference for C# keyword types.
+	- Use mStd.tFunc/tAction instead of System.Func/Action, and project wrappers such
+	  as mMaybe.tMaybe, mResult.tResult, and mRef.tRef where their semantics apply.
+	- Prefer var for local values, foreach, out var, and deconstruction. Configuration
+	  enables var in all categories, beyond Microsoft's "type apparent" guidance.
+	- Keep explicit types where C# requires them or inference would select the wrong
+	  width, signedness, overload, delegate type, or result type. var Index = 0 is
+	  signed; use tNat32 Index = 0 when that distinction matters.
+	- Use target-typed new() and collection expressions [] when context supplies the
+	  type. Name meaningful tuple elements; repeat labels where helpful, for example
+	  (Value: Value, Type: Type), rather than relying on Item1/Item2 in contracts.
+
+4) Data and operations: functional and imperative, with dot programming
+
+	- Separate data from behavior. Prefer plain structs, records, sealed data classes,
+	  and tuples with operations in the containing module. Public fields and small
+	  data interfaces are intentional. Avoid forwarding properties, service objects,
+	  inheritance hierarchies, or virtual dispatch solely to satisfy OOP guidelines.
+	- Prefer extension operations: Type.IsInt(), Values.Map(...).Reduce(...), and
+	  Result.ThenTry(...). Both declaration forms exist; choose one per operation:
+
+		public static tBool
+		IsEmpty<t>(
+			this tMaybe<t> aValue
+		) => aValue.IsNone();
+
+		extension<t> (tMaybe<t> aValue) {
+			public tBool
+			IsEmpty(
+			) => aValue.IsNone();
+		}
+
+	  Extension-block members are extensions even without static/this in each method.
+	- Instance constructors, operators/conversions, properties, framework overrides,
+	  enumeration members, and IDisposable implementations remain appropriate where
+	  C# or the framework needs them. Avoid ordinary instance business operations.
+	- Prefer immutable data and return updated values. Tree.Set(...) returns a new
+	  tree; keep that result. readonly and record do not imply deep immutability.
+	- Local mutation and loops are appropriate for result construction and VM
+	  execution. Lists, call stacks, caches, and native arenas are intentionally
+	  mutable. Make affected data visible in parameters; use this ref when updating
+	  the caller's struct. Avoid redundant state.
+
+5) Locality and state
+
+	- Prefer local variables to fields/globals and keep their scope small.
+	  Standalone { ... } blocks to limit variable lifetimes are welcome.
+	- Prefer local functions to module-level helpers used by one operation. Local
+	  functions should be static, with context passed explicitly; the configuration
+	  sets IDE0062 to error. Existing captures are discussed in section 12.
+	- Inline once-used non-API helpers/constants when that improves readability.
+	  Avoid forwarding functions and alias chains. Retain a useful local name or
+	  function when it explains a substantial step or supports recursion.
+	- Derive values instead of storing synchronized copies unless a concrete cache
+	  or runtime representation needs them.
+	- Lambdas are appropriate for callbacks and actual closures. Keep captures small
+	  and visible; avoid hidden mutations of unrelated outer state.
+
+6) Whitespace and file format
+
+	- Use UTF-8, LF, and tabs with a width of four. The configured target is UTF-8
+	  without BOM and no final newline.
+	  Tabs deliberately differ from Microsoft's four-space indentation convention.
+	- Indent blank lines to the surrounding scope. Preserve that indentation when
+	  trimming: trim_trailing_whitespace is deliberately false. Do not add trailing
+	  spaces after actual code/comments. This differs from whitespace-free blank lines.
+	- Increase indentation one tab per nested delimiter/block. Do not align
+	  continuations under an argument's screen column using extra spaces.
+	- Keep lines short enough for side-by-side diffs; no hard maximum is configured.
+	  Break compound types, lists, chains, and expressions at structural boundaries.
+	- Use an indented blank line between declarations or logical steps. Avoid
+	  decorative vertical spacing and unrelated reformatting.
+
+7) Braces and declarations
+
+	- Opening braces stay on the introducing line, unlike Allman style.
+	  Write } else {, } catch (...) {, and } finally { together.
+	- For longer declarations, place modifiers and return type on one line and the
+	  declared name at the start of the next. Types follow the same pattern:
+
+		public static class
+		mExample {
+			public readonly struct
+			tValue {
+				public readonly tText Text;
+			}
+		}
+
+	- Short fields, delegates, properties, and helpers may stay on one line.
+	- Use expression bodies for simple value-producing operations and blocks for
+	  sequences of steps. Neither form is universally required.
+	- Prefer braces for control flow; short empty callbacks/simple blocks may remain
+	  inline, as allowed by the configuration.
+	- Use spaces around binary operators and after commas; none around member access
+	  or inside call parentheses. Write if (...), but Function(...).
+
+8) Multiline delimiters and expressions
+
+	- Keep a parenthesized list/expression on one line, or break immediately after its
+	  opening delimiter. Put multiline list items on separate lines and the closing
+	  delimiter on its own line at the enclosing indentation. A list item may itself
+	  be multiline. Use the same structure for long generic lists, tuples, collection
+	  expressions, and indexer arguments.
+
+		Function(aFirst, aSecond)
+		Function(
+			aFirst,
+			aSecond
+		)
+
+	- Indentation follows delimiters, not an arbitrary continuation offset.
+	  In particular, parenthesize a multiline conditional value:
+
 		return (
-			a
-			? b
-			: c
+			aCondition
+			? aWhenTrue
+			: aWhenFalse
 		);
-	
-	- Incorrect:
-		return a
-			? b
-			: c;
 
-4)	Lines should not be too long. This also helps when reviewing code changes in a side-by-side git diff.
+	  Avoid return aCondition followed by increasingly indented ? and : lines.
+	  Short conditionals may stay inline.
+	- Format nested ?: chains like switch cases: each condition and its result share
+	  one line, ending with a colon. Put the final fallback on its own last line.
+	  Align all rows and parenthesize the chain as a whole:
 
-5)	Names use PascalCase, but may have a lowercase prefix:
-	- g Global
-	- a Argument
-	- t Type
-	- i Interface
-	- c Constant
-	- m Module
+		return (
+			aType.Kind is mVM_Type.tKind.True ? (aType, mStd.cEmpty) :
+			aType.IsFree() ? (aType, aType) :
+			(mStd.cEmpty, aType)
+		);
 
-6)	Internal types such as tStream, tMaybe, tResult, tFunc, ... should be used, as well as aliases such as tBool, tInt32, tText, ... .
+	  Do not put ? or : on separate lines in a nested chain, or squeeze the next
+	  condition into the preceding fallback line. If a condition or result is too
+	  complex for a readable row, simplify it or use if/switch.
+	  Keep related tuple results together per branch when distributing the decision
+	  over individual tuple elements would repeat the same condition.
+	- Put wrapped && and || at the end of the preceding line.
+	- When combining && and || in one logical expression, explicitly parenthesize
+	  their groups: (X && Y) || Z, or X && (Y || Z).
+	  Chains using only && or only || need no extra parentheses. Comparisons also
+	  need no additional parentheses: A == B || C == D is allowed.
+	- Put a continued member-access dot at the next line's start.
+	  Chains stay at their enclosing indentation; arguments add one level:
 
-7)	Don't use System.Collection.* .
+		var Names = Values.Map(
+			aValue => aValue.Name
+		).Where(
+			aName => aName.Length > 0
+		);
 
-8)	No external libraries are used.
+	- Keep ) {, ) => ..., );, and ).Next(...) together where they close the current
+	  list and continue the declaration/expression, without extra hanging indentation.
+	- Group complex boolean clauses when helpful, without parenthesizing every simple
+	  comparison. Natural range order, 0 <= Index && Index < Length, is intentional.
 
-9)	Functional style and immutable data are preferred, while OOP style should be avoided.
+9) Control flow and errors
+
+	- Prefer pattern matching, deconstruction, and switch expressions for variants.
+	  Use switch statements for multi-step cases, with local scopes:
+	  case tKind.Pair: { ... }.
+	- Prefer early returns for special/failure cases over deeply nested success paths.
+	  Keep imperative loops when they express the algorithm directly.
+	- Expected absence uses tMaybe; expected failure with error information uses
+	  tResult. Propagate with Then/ThenTry/ElseTry or IsFail/IsSome checks.
+	  Then maps a value; ThenTry chains an operation already returning a result.
+	- Try is not restricted to the BCL bool-plus-out pattern: TryGet can return
+	  tMaybe and TryParseText can return tResult. Inspect the actual contract.
+	- Use mAssert for invariants and mError.Error for internal errors. AssertNotEmpty,
+	  AssertNotError, and ElseThrow belong at deliberate exception/invariant boundaries,
+	  rather than in ordinary error propagation. Handle .NET exceptions at framework
+	  boundaries such as file access.
+	- Nullable references and default! exist in low-level representations. They need
+	  real initialization/presence invariants, not blind copying into new code.
+
+10) Attributes, comments, and tests
+
+	- Small Common primitives often use Pure, AggressiveInlining, and DebuggerHidden;
+	  data types may have debugger displays/proxies. Preserve useful debugging behavior
+	  without copying every attribute everywhere. Attributes do not prove purity.
+	- Explain invariants and surprising choices near the code with concise // comments.
+	  Useful end-of-line comments and TODOs are allowed. XML documentation on every
+	  public member is not an established requirement.
+	- Keep unit tests beside modules in mModule.Tests.cs, with mModule_Tests exposing
+	  Tests built from mTest.Tests/mTest.Test. Use descriptive English names and
+	  mAssert; register groups in the existing aggregation. File-based integration
+	  cases live in TestFiles. Runner commands are in TestFramework.txt.
+
+11) Source reference points
+
+	_GlobalUsings.cs                Primitive aliases and compiler settings
+	Common/mStd.cs                  Delegates and extension helpers
+	Common/mMaybe.cs, mResult.cs     Optional values, errors, extension blocks
+	Common/mMap.cs, mTreeMap.cs      Data/operation separation and persistent updates
+	mSPO_AST.cs, mIL_AST.cs          Nested contracts and factory functions
+	mSPO_Parser.cs                  Fluent grammar construction
+	mSPO_Interpreter.cs             Result pipelines and error propagation
+	mVM.cs, Common/mArrayList.cs     Intentional imperative/mutable implementation
+	Common/mMaybe.Tests.cs          Test layout (also contains name/formatting drift)
+
+12) Consistency and exceptions: baseline before style cleanup, 2026-10-21
+
+	Scope: 66 .cs files in SPO_CS/src, including tests and current uncommitted work.
+	This snapshot predates the style cleanup; its counts are historical reference values.
+	Counts describe source text/declarations, not runtime behavior or a successful
+	build. Naming/member counts use C# syntax, excluding inactive #if branches.
+	File-format counts include all files. This is not an exhaustive lint report.
+
+	Consistent or strongly established:
+	- No namespace declarations; modules and nested types dominate throughout.
+	- All source line endings are LF. No nonblank line begins with space indentation.
+	  There are 2,054 tab-indented blank lines; unindented separators also exist.
+	- Project aliases/collections, PascalCase values, and extension operations dominate.
+	  There are 381 extension methods, 424 other static methods, and 28 direct
+	  instance methods, excluding constructors/properties.
+	- No #:package directives. Tests consistently use the in-house framework.
+
+	Established exceptions with concrete purposes:
+	- Seven AST/test interfaces use t, versus one iProcDef. Preserve existing families.
+	- Public fields, marker interfaces, nested types, and mutable VM/build structures
+	  support the data-oriented design.
+	- Most instance methods implement framework/value behavior: Equals, ToString,
+	  GetHashCode, enumeration, disposal, and mStream's IComparer adapter. Three
+	  ordinary helpers remain instance methods: mResult.AsResult/WithErrorType and
+	  mParserGen.tParser.Cast. Reconsider their placement when changing those APIs.
+	- mStream.cs uses System.Collections.Generic.IComparer/Comparer for sorting;
+	  mFS.cs imports System.Linq for framework-array conversion. These are narrow
+	  interop exceptions, not alternative project collection APIs.
+	- gDebugId/gNextDebugId, gHashToPrefix, and optional mPerf trace storage provide
+	  global debugging/runtime state. Immutable structures coexist with mutable lists,
+	  memoized lazy values, module caches, and execution stacks.
+
+	Inconsistencies to improve when editing affected code:
+	- Argument prefixes dominate, but 29 non-record/non-lambda parameters lack a or
+	  an unused-parameter name: for example mIL_AST.Def's Id/Type/Commands and local
+	  helpers in mIL_TypeChecker.cs. Among lambda parameters, 1,059 have a, 809 use
+	  underscore shorthand, and 120 use other names (A/B, Source/Module, etc.).
+	  Descriptive unprefixed arguments are drift, not another naming rule.
+	- Common/mLazy.Tests.cs has x/lazy/calls/func; mIL_AST.Eq has res. Twenty of 47
+	  local const declarations omit c, including Source in mIL_TypeChecker.Tests.cs.
+	  NextPlaceholderId in mVM_Type.cs is mutable static state without g and already
+	  has a TODO to remove that static state.
+	- Only 12 of 50 local functions are static. Captures include Builtin/Emit in
+	  mIL_GenerateOpcodes.cs and CommandLine in mVM.cs; Alternatives/WithResult in
+	  mSPO_AST_Types.cs already express their inputs as arguments. This is a gap
+	  against section 5/configuration, not a blanket exemption for local closures.
+	- Of 1,853 multiline invocation argument lists, 181 start the first argument on
+	  the opening line, often mTest.Test("name", followed by a multiline callback.
+	  These violate section 8. Some multiline conditionals also omit their enclosing
+	  parentheses, for example mResult.AddContext/ModifyError.
+	- Operator wrapping was mixed: multiline &&/|| appeared both at the start and
+	  at the end of a line. Fluent member-access dots already began lines.
+	- 390 lines exceed 120 columns counting each tab as four spaces. This indicates
+	  readability pressure; 120 is not a configured hard limit.
+	- Keyword/runtime spellings remain: string in mStd.ToUTF8, System.Object in
+	  mIL_AST.Equals, System.Int32 in mStream.tGenComp.Compare, and System.String
+	  in some aliases. Prefer tText/tUnknown/tInt32 in new declarations.
+	- 61 files have a final newline and 32 start with a UTF-8 BOM, contrary to the
+	  configured target. Eleven nonblank lines have trailing whitespace. Preserve
+	  indentation-only blank lines when cleaning those cases.
+	- Locality/cleanup is not fully enforced: mArena.New/NewArena duplicate a factory,
+	  mTokenizer.X forwards callbacks, and mTreeMap.cs retains commented-out helpers.
+	  Check actual callers and API purpose before removing or inlining them.
+	- Pure annotations need scrutiny: mResult.ThenDo invokes an action, and arena
+	  allocation helpers also carry Pure. Judge effects from implementation/contract;
+	  the functional preference does not establish transitive purity.
+
+13) Microsoft comparison sources
+
+	Microsoft's documentation, runtime, and compiler conventions have different goals.
+	There is no single C# language-mandated coding style. The explicit comparisons
+	above use these primary sources:
+
+	https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
+	https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
+	https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/coding-style.md

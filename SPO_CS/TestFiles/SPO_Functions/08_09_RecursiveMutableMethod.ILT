@@ -1,0 +1,192 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [TRUE | FALSE]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [t_4, INT]
+	t_6 := [t_1 => INT]
+	t_7 := [t_5, t_6]
+	t_8 := [t_7, t_6]
+	t_9 := [INT => EMPTY_TYPE]
+	t_10 := [§VAR INT]
+	t_11 := [t_10 : t_9]
+	t_12 := [t_8, t_11]
+	t_13 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_14 := [#Result EMPTY_TYPE]
+	t_15 := [EMPTY_TYPE | t_14]
+	t_16 := [t_13 => t_15]
+	t_17 := [t_10 : t_16]
+	t_18 := [t_12 => t_17]
+	t_19 := [t_12, t_18]
+	t_20 := [t_13 => t_14]
+	t_21 := [t_10 : t_20]
+	t_22 := [t_19 => t_21]
+	t_23 := [t_4, t_6]
+	t_24 := [t_23, t_6]
+	t_25 := [t_24, t_11]
+	t_26 := [t_25, t_18]
+	t_27 := [t_26, t_22]
+	t_28 := [t_27 => t_11]
+	t_29 := [t_24, t_18]
+	t_30 := [t_29, t_22]
+	t_31 := [t_30, t_28]
+	t_32 := [t_11 => t_11]
+	t_33 := [t_31 => t_32]
+	t_34 := [EMPTY_TYPE, t_18]
+	t_35 := [t_34, t_22]
+	t_36 := [t_35, t_28]
+	t_37 := [t_36, t_33]
+	t_38 := [#_...!=... t_3]
+	t_39 := [{EMPTY_TYPE} + t_38]
+	t_40 := [#_...+... t_6]
+	t_41 := [{t_39} + t_40]
+	t_42 := [#_...-... t_6]
+	t_43 := [{t_41} + t_42]
+	t_44 := [t_43 => INT]
+	t_45 := [t_37 => t_44]
+
+§DEF d_0 € t_18
+	_Add... := §2ND ENV
+	r_20 := §1ST ENV
+	_...-... := §2ND r_20
+	r_21 := §1ST r_20
+	_...+... := §2ND r_21
+	r_22 := §1ST r_21
+	_aCount := §2ND r_22
+	r_23 := §1ST r_22
+	_...!=... := §2ND r_23
+	r_24 := §1ST r_23
+	r_19 := §1ST ARG
+	r_18 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := EMPTY, _aCount
+	r_2 := 0
+	r_3 := r_1, r_2
+	r_4 := ._...!=... r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := §VAR _aSelf ->
+	r_7 := EMPTY, r_6
+	r_8 := 1
+	r_9 := r_7, r_8
+	r_10 := ._...+... r_9
+	§VAR _aSelf <- r_10
+	r_11 := EMPTY, _aCount
+	r_12 := 1
+	r_13 := r_11, r_12
+	r_14 := ._...-... r_13
+	r_16 := _aSelf, _Add...
+	r_15 := §OBJ:r_16 r_14
+	r_17 := +#Result EMPTY
+	§RETURN r_17 IF TRUE
+
+§DEF d_1 € t_22
+	d_0 := §2ND ENV
+	r_11 := §1ST ENV
+	_Add... := §2ND r_11
+	r_12 := §1ST r_11
+	_...-... := §2ND r_12
+	r_13 := §1ST r_12
+	_...+... := §2ND r_13
+	r_14 := §1ST r_13
+	_aCount := §2ND r_14
+	r_15 := §1ST r_14
+	_...!=... := §2ND r_15
+	r_16 := §1ST r_15
+	r_10 := §1ST ARG
+	r_9 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := EMPTY, _...!=...
+	r_2 := r_1, _aCount
+	r_3 := r_2, _...+...
+	r_4 := r_3, _...-...
+	r_5 := r_4, _Add...
+	r_6 := §CLOSURE d_0 r_5
+	r_7 := EMPTY, EMPTY
+	§TRY_RETURN .r_6 r_7
+	r_8 := +#Result EMPTY
+	§RETURN r_8 IF TRUE
+
+§DEF d_2 € t_28
+	d_1 := §2ND ENV
+	r_12 := §1ST ENV
+	d_0 := §2ND r_12
+	r_13 := §1ST r_12
+	_Add... := §2ND r_13
+	r_14 := §1ST r_13
+	_...-... := §2ND r_14
+	r_15 := §1ST r_14
+	_...+... := §2ND r_15
+	r_16 := §1ST r_15
+	_...!=... := §2ND r_16
+	r_17 := §1ST r_16
+	_aCount := ARG
+	_aSelf := OBJ
+	r_1 := EMPTY, _...!=...
+	r_2 := r_1, _aCount
+	r_3 := r_2, _...+...
+	r_4 := r_3, _...-...
+	r_5 := r_4, _Add...
+	r_6 := r_5, d_0
+	r_7 := §CLOSURE d_1 r_6
+	r_8 := EMPTY, EMPTY
+	r_9 := OBJ, r_7
+	r_10 := §OBJ:r_9 r_8
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_33
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	_...-... := §2ND r_10
+	r_11 := §1ST r_10
+	_...+... := §2ND r_11
+	r_12 := §1ST r_11
+	_...!=... := §2ND r_12
+	r_13 := §1ST r_12
+	_Add... := ARG
+	r_1 := EMPTY, _...!=...
+	r_2 := r_1, _...+...
+	r_3 := r_2, _...-...
+	r_4 := r_3, _Add...
+	r_5 := r_4, d_0
+	r_6 := r_5, d_1
+	r_7 := §CLOSURE d_2 r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_45
+	d_3 := §2ND ENV
+	r_16 := §1ST ENV
+	d_2 := §2ND r_16
+	r_17 := §1ST r_16
+	d_1 := §2ND r_17
+	r_18 := §1ST r_17
+	d_0 := §2ND r_18
+	r_19 := §1ST r_18
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := {ARG} #_...-...
+	_...-... := r_2
+	r_3 := {ARG} #_...!=...
+	_...!=... := r_3
+	r_4 := EMPTY, _...!=...
+	r_5 := r_4, _...+...
+	r_6 := r_5, _...-...
+	r_7 := r_6, d_0
+	r_8 := r_7, d_1
+	r_9 := r_8, d_2
+	§REC r_10 := .d_3 r_9
+	_Add... := r_10
+	r_11 := 1
+	_Value := §VAR r_11
+	r_12 := 3
+	r_14 := _Value, _Add...
+	r_13 := §OBJ:r_14 r_12
+	r_15 := §VAR _Value ->
+	§RETURN r_15 IF TRUE

@@ -1,0 +1,28 @@
+§DEF Select... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aChoose € §BOOL
+) => §IF {
+	aChoose: {
+		aSelf := 7 .
+		§RETURN ()
+	}
+	§TRUE: §TO_VAL aSelf
+}
+
+§VAR FalseCase :
+	= 0
+	Select §FALSE => §DEF FalseResult
+.
+
+§VAR TrueCase :
+	= 0
+	Select §TRUE => §DEF TrueResult
+.
+
+§EXPORT (
+	§TO_VAL FalseCase
+	FalseResult
+	§TO_VAL TrueCase
+	TrueResult
+)

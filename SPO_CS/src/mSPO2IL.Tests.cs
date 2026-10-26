@@ -116,7 +116,6 @@ mSPO2IL_Tests {
 					Def.TryMapExpression(Module, Expression).AssertNotError(__ => __.ToText());
 					mAssert.IsFalse(Expression.TypeAnnotation.IsSome(out _));
 					mAssert.AreEquals(Def.TypeState, Checked.State);
-					mAssert.AreEquals(Module.Defs.Size, 1u);
 				}
 			),
 			mTest.Test("MapExpression",

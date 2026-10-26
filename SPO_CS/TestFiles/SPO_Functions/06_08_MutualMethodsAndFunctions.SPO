@@ -1,0 +1,57 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+	...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
+}
+
+§RECURSIVE {
+	§DEF Run... = (
+		§DEF aCount € §INT
+	) => {
+		§VAR Value := 1 .
+		
+		Value : Even aCount => §DEF Result .
+		
+		§RETURN Result
+	}
+	
+	§DEF Even... = (
+		§VAR aSelf € §INT
+	) : (
+		§DEF aCount € §INT
+	) => §IF aCount MATCH {
+		0: §TO_VAL aSelf
+		_: {
+			aSelf :
+				= ((§TO_VAL aSelf) .+ 2)
+				Odd (aCount .- 1) => §DEF Result
+			.
+			
+			§RETURN Result
+		}
+	}
+	
+	§DEF Odd... = (
+		§VAR aSelf € §INT
+	) : (
+		§DEF aCount € §INT
+	) => §IF aCount MATCH {
+		0: §TO_VAL aSelf
+		_: {
+			aSelf :
+				= ((§TO_VAL aSelf) .+ 3)
+				Even (aCount .- 1) => §DEF Result
+			.
+			
+			§RETURN Result
+		}
+	}
+}
+
+§EXPORT (
+	.Run 0
+	.Run 1
+	.Run 2
+	.Run 3
+	.Run 4
+)

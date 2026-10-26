@@ -16,11 +16,18 @@
 	t_14 := [EMPTY_TYPE, t_8]
 	t_15 := [t_14, t_13]
 	t_16 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_17 := [t_16 => INT]
-	t_18 := [t_15 => t_17]
-	t_19 := [t_15, t_18]
-	t_20 := [EMPTY_TYPE => INT]
-	t_21 := [t_19 => t_20]
+	t_17 := [#Result INT]
+	t_18 := [EMPTY_TYPE | t_17]
+	t_19 := [t_16 => t_18]
+	t_20 := [t_15 => t_19]
+	t_21 := [EMPTY_TYPE => t_19]
+	t_22 := [t_15, t_20]
+	t_23 := [t_22, t_21]
+	t_24 := [t_16 => t_17]
+	t_25 := [t_23 => t_24]
+	t_26 := [t_23, t_25]
+	t_27 := [EMPTY_TYPE => INT]
+	t_28 := [t_26 => t_27]
 
 §DEF d_0 € t_8
 	r_5 := §1ST ARG
@@ -39,13 +46,13 @@
 	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_18
+§DEF d_2 € t_20
 	d_1 := §2ND ENV
-	r_15 := §1ST ENV
-	d_0 := §2ND r_15
-	r_16 := §1ST r_15
-	r_14 := §1ST ARG
-	r_13 := §2ND ARG
+	r_16 := §1ST ENV
+	d_0 := §2ND r_16
+	r_17 := §1ST r_16
+	r_15 := §1ST ARG
+	r_14 := §2ND ARG
 	r_1 := +#_First EMPTY
 	r_2 := {EMPTY} + r_1
 	r_3 := 7
@@ -56,24 +63,60 @@
 	r_8 := OBJ, r_6
 	r_9 := §OBJ:r_8 r_7
 	r_10 := -#Result r_9
-	r_11 := 1
-	§RETURN r_11 IF r_10
-	r_12 := 0
-	§RETURN r_12 IF TRUE
-	§RETURN EMPTY IF TRUE
+	r_11 := §BOOL r_10 ^ TRUE
+	§RETURN EMPTY IF r_11
+	r_12 := 1
+	r_13 := +#Result r_12
+	§RETURN r_13 IF TRUE
 
 §DEF d_3 € t_21
-	d_2 := §2ND ENV
-	r_8 := §1ST ENV
-	d_1 := §2ND r_8
-	r_9 := §1ST r_8
-	d_0 := §2ND r_9
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §BOOL TRUE ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := 0
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_4 € t_25
+	d_3 := §2ND ENV
+	r_9 := §1ST ENV
+	d_2 := §2ND r_9
 	r_10 := §1ST r_9
-	r_2 := EMPTY, d_0
-	r_3 := r_2, d_1
-	r_4 := §CLOSURE d_2 r_3
-	r_5 := EMPTY, EMPTY
-	r_6 := OBJ, r_4
-	r_7 := §OBJ:r_6 r_5
-	r_1 := r_7
-	§RETURN r_1 IF TRUE
+	d_1 := §2ND r_10
+	r_11 := §1ST r_10
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := §CLOSURE d_2 r_2
+	r_4 := EMPTY, EMPTY
+	§TRY_RETURN .r_3 r_4
+	r_5 := §CLOSURE d_3 EMPTY
+	r_6 := EMPTY, EMPTY
+	§TRY_RETURN .r_5 r_6
+	§RETURN EMPTY IF TRUE
+
+§DEF d_5 € t_28
+	d_4 := §2ND ENV
+	r_10 := §1ST ENV
+	d_3 := §2ND r_10
+	r_11 := §1ST r_10
+	d_2 := §2ND r_11
+	r_12 := §1ST r_11
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := r_2, d_2
+	r_4 := r_3, d_3
+	r_5 := §CLOSURE d_4 r_4
+	r_6 := EMPTY, EMPTY
+	r_7 := OBJ, r_5
+	r_8 := §OBJ:r_7 r_6
+	r_9 := -#Result r_8
+	§RETURN r_9 IF TRUE

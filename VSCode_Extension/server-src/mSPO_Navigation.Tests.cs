@@ -236,6 +236,46 @@ const tText Uri = "file:///navigation-test.spo";
 	Assert(References[0].Range.Start.Line == 0 && References[0].Range.Start.Character == 0, "loaded reference has the wrong position");
 }
 
+{
+	var Code = """
+		§RECURSIVE {
+			§DEF First... = (§VAR aSelf € §INT) : (§DEF aStop € §BOOL) {
+				§RETURN §TO_VAL aSelf IF aStop
+				aSelf : Second §TRUE => §DEF Value .
+				§RETURN Value
+			}
+			§DEF Second... = (§VAR aSelf € §INT) : (§DEF aStop € §BOOL) => {
+				aSelf : First §TRUE => §DEF Value .
+				§RETURN Value
+			}
+		}
+		§VAR Cell := 7 .
+		Cell : First §FALSE => §DEF Value .
+		§EXPORT Value
+		""";
+	foreach (var Name in new[] { "First", "Second" }) {
+		var Definition = mSPO_Navigation.GetDefinition(
+			Code,
+			Uri,
+			FindPosition(Code, Name + " §TRUE", 0),
+			_ => {}
+		);
+		Assert(Definition.IsSome(out var Location), "recursive method definition missing: " + Name);
+		var Declaration = FindPosition(Code, Name + "...", 0);
+		Assert(mTextStream.Eq(Location.Range.Start, Declaration), "wrong recursive method definition: " + Name);
+	}
+	var References = ToArray(
+		mSPO_Navigation.GetReferences(
+			Code,
+			Uri,
+			FindPosition(Code, "First", 0),
+			true,
+			_ => {}
+		)
+	);
+	Assert(References.Length == 3, "recursive method references missing");
+}
+
 return 0;
 
 static void
@@ -267,7 +307,7 @@ FindPosition(
 			throw new InvalidOperationException($"'{aNeedle}' occurrence {aOccurrence} not found");
 		}
 	}
-
+	
 	var Row = 1u;
 	var Col = 1u;
 	for (var I = 0; I < Index; I += 1) {

@@ -1137,81 +1137,91 @@ mSPO2IL {
 				return mIL_AST.cEmptyValue;
 			}
 			case mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases }: {
-				var Ifs = mArrayList.List<mSPO_AST.tCommandNode<tPos>>();
+				var ResultType = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode).AssertNotEmpty();
+				var TaggedType = mVM_Type.Prefix("Result", ResultType);
 				
-				foreach (var (Test, Run) in Cases) {
-					Ifs.Push(
-						mSPO_AST.ReturnIf(
-							aModuleConstructor.MergePos(Test.Pos, Run.Pos),
-							Test,
-							Run
-						)
-					);
-				}
-				
-				Ifs.Push(
-					mSPO_AST.ReturnIf(
-						Pos,
-						mSPO_AST.True(Pos),
-						mSPO_AST.Empty(Pos)
-					)
-				); // TODO: ASSERT FALSE
-				
-				var ResultReg = aDefConstructor.CreateTempReg();
-				
-				var TypeState = aDefConstructor.TypeState;
-				var ResultTypes = Cases.Reduce(
-					mStream.Stream<mVM_Type.tType>(),
-					(aTypes, Case) => {
-						var Type = TypeState.TryGetValidatedType(Case.Result).AssertNotEmpty();
-						return (
-							aTypes.All(__ => !Equals(__, Type))
-							? mStream.Stream(Type, aTypes)
-							: aTypes
-						);
-					}
-				);
-				
-				var EmptyType = mVM_Type.Empty();
-				if (
-					!Cases.Any(
-						__ => __.Cond is mSPO_AST.tTrueNode<tPos>
-					) &&
-					ResultTypes.All(
-						__ => !Equals(__, EmptyType)
-					)
-				) {
-					ResultTypes = mStream.Stream(EmptyType, ResultTypes);
-				}
-				
-				var ResultType = ResultTypes.Join((a1, a2) => mVM_Type.Set(a2, a1), EmptyType);
 				if (!aDefConstructor.NewLocalDef(aModuleConstructor).Match(out var IfDef, out var Error)) {
 					return mResult.Fail(Error);
 				}
-				foreach (var Command in Ifs.ToStream()) {
-					if (!IfDef.MapCommand(aModuleConstructor, Command, out Error)) {
+				
+				foreach (var (Test, Run) in Cases) {
+					if (!aDefConstructor.NewLocalDef(aModuleConstructor).Match(out var CaseDef, out Error)) {
 						return mResult.Fail(Error);
 					}
+					
+					if (!CaseDef.TryMapExpression(aModuleConstructor, Test).Match(out var Condition, out Error)) {
+						return mResult.Fail(Error);
+					}
+					
+					// Leave an unselected case before evaluating its result or side effects.
+					CaseDef.Commands.Push(
+						mIL_AST.XOr(Test.Pos, CaseDef.CreateTempReg(out var Skip), Condition, mIL_AST.cTrue),
+						mIL_AST.ReturnIf(Test.Pos, Skip, mIL_AST.cEmptyValue)
+					);
+					
+					var CasePos = aModuleConstructor.MergePos(Test.Pos, Run.Pos);
+					
+					if (
+						!aModuleConstructor.TryMapMatchedCase(
+							ref CaseDef,
+							(mSPO_AST.IgnorePattern(Test.Pos), Run),
+							CasePos,
+							out Error
+						)
+					) {
+						return mResult.Fail(Error);
+					}
+					
+					var CaseCaptures = CaseDef.EnvIds.ToStream().Map(
+						__ => mSPO_AST_Types.ScopeItem(__, CaseDef.TypeDict.TryGet(__).AssertNotEmpty())
+					);
+					
+					var CaseCall = IfDef.InitLocalCall(
+						aModuleConstructor,
+						ref CaseDef,
+						CasePos,
+						mVM_Type.Empty(),
+						mVM_Type.Set(mVM_Type.Empty(), TaggedType),
+						mIL_AST.cEmptyValue,
+						CaseCaptures
+					);
+					
+					// The tag distinguishes a selected empty result from an unselected case.
+					IfDef.Commands.Push(mIL_AST.TryReturn(CasePos, CaseCall.Proc, CaseCall.Argument));
 				}
+				
+				var Fallback = mIL_AST.cEmptyValue;
+				
+				if (!Cases.Any(__ => __.Cond is mSPO_AST.tTrueNode<tPos>)) {
+					IfDef.Commands.Push(
+						mIL_AST.AddPrefix(Pos, IfDef.CreateTempReg(out Fallback), "Result", mIL_AST.cEmptyValue)
+					);
+				}
+				
+				IfDef.Commands.Push(mIL_AST.ReturnIf(Pos, mIL_AST.cTrue, Fallback));
+				
 				var Captures = IfDef.EnvIds.ToStream().Map(
 					__ => mSPO_AST_Types.ScopeItem(__, IfDef.TypeDict.TryGet(__).AssertNotEmpty())
 				);
+				
 				var Call = aDefConstructor.InitLocalCall(
 					aModuleConstructor,
 					ref IfDef,
 					Pos,
 					mVM_Type.Empty(),
-					ResultType,
+					TaggedType,
 					mIL_AST.cEmptyValue,
 					Captures
 				);
+				
 				aDefConstructor.Commands.Push(
 					mIL_AST.CreatePair(Pos, aDefConstructor.CreateTempReg(out var Method), mIL_AST.cObj, Call.Proc),
 					mIL_AST.CallProc(Pos, aDefConstructor.CreateTempReg(out var CallReg), Method, Call.Argument),
-					mIL_AST.Alias(Pos, ResultReg, CallReg)
+					mIL_AST.SubPrefix(Pos, aDefConstructor.CreateTempReg(out var ResultReg), "Result", CallReg)
 				);
-				aDefConstructor.AddLocal(CallReg, ResultType);
-				aDefConstructor.AddArg(ResultReg, ResultType);
+				
+				aDefConstructor.AddLocal(ResultReg, ResultType);
+				
 				return ResultReg;
 			}
 			case mSPO_AST.tIfMatchNode<tPos> {Pos: var Pos, Expression: var MatchExpression, Cases: var Cases }: {
@@ -2016,28 +2026,28 @@ mSPO2IL {
 	MapRecursiveLambdas<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
 		tModuleConstructor<tPos> aModuleConstructor,
-		mSPO_AST.tRecLambdasNode<tPos> aRecLambdasNode,
+		mSPO_AST.tRecProcsNode<tPos> aRecProcsNode,
 		out (tPos, tText) aError
 	) {
 		var TypeState = aDefConstructor.TypeState;
-		var IsSingle = aRecLambdasNode.List.Count() is 1;
+		var IsSingle = aRecProcsNode.List.Count() is 1;
 		var RecFactoryFunc = NewDefConstructor(aDefConstructor.TypeState);
 		
 		if (IsSingle) {
-			var RecProc = aRecLambdasNode.List.TryFirst().AssertNotEmpty();
+			var RecProc = aRecProcsNode.List.TryFirst().AssertNotEmpty();
 			RecFactoryFunc.AddArg(
 				RecProc.Id.Id,
-				TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
+				TypeState.TryGetValidatedType(RecProc.Proc).AssertNotEmpty()
 			);
 			RecFactoryFunc.Commands.Push(
 				mIL_AST.Alias(RecProc.Pos, RecProc.Id.Id, mIL_AST.cArg)
 			);
 		} else {
 			var Arg = mIL_AST.cArg;
-			foreach (var RecProc in aRecLambdasNode.List.Reverse()) {
+			foreach (var RecProc in aRecProcsNode.List.Reverse()) {
 				RecFactoryFunc.AddArg(
 					RecProc.Id.Id,
-					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Proc).AssertNotEmpty()
 				);
 				RecFactoryFunc.Commands.Push(
 					mIL_AST.GetSecond(RecProc.Pos, RecProc.Id.Id, Arg),
@@ -2049,14 +2059,15 @@ mSPO2IL {
 		
 		var ResultTupleReg = mIL_AST.cEmptyValue;
 		
-		foreach (var RecProc in aRecLambdasNode.List) {
+		foreach (var RecProc in aRecProcsNode.List) {
 			var RecProcConstructor = NewDefConstructor(aDefConstructor.TypeState);
-			if (
-				!RecProcConstructor.MapLambda(
-					aModuleConstructor,
-					RecProc.Lambda
-				).Match(out var Def, out aError)
-			) {
+			var Mapped = RecProc.Proc switch {
+				mSPO_AST.tLambdaNode<tPos> Function => RecProcConstructor.MapLambda(aModuleConstructor, Function),
+				mSPO_AST.tMethodNode<tPos> Method => RecProcConstructor.MapMethod(aModuleConstructor, Method),
+				_ => throw mError.Error("expected a recursive function or method")
+			};
+			
+			if (!Mapped.Match(out var Def, out aError)) {
 				return false;
 			}
 			
@@ -2090,7 +2101,7 @@ mSPO2IL {
 		
 		RecFactoryFunc.Commands.Push(
 			mIL_AST.ReturnIf(
-				aRecLambdasNode.Pos,
+				aRecProcsNode.Pos,
 				mIL_AST.cTrue,
 				ResultTupleReg
 			)
@@ -2098,12 +2109,12 @@ mSPO2IL {
 		
 		var RecProcsType = (
 			IsSingle
-			? aDefConstructor.TypeState.TryGetValidatedType(aRecLambdasNode.List.TryFirst().AssertNotEmpty().Lambda).AssertNotEmpty()
-			: aRecLambdasNode.List.Reduce(
+			? aDefConstructor.TypeState.TryGetValidatedType(aRecProcsNode.List.TryFirst().AssertNotEmpty().Proc).AssertNotEmpty()
+			: aRecProcsNode.List.Reduce(
 				mVM_Type.Empty(),
 				(Acc, RecProc) => mVM_Type.Pair(
 					Acc,
-					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Proc).AssertNotEmpty()
 				)
 			)
 		);
@@ -2118,18 +2129,18 @@ mSPO2IL {
 				)
 			).Match(out var RecFactoryDefType, out var Error)
 		) {
-			aError = (aRecLambdasNode.Pos, Error);
+			aError = (aRecProcsNode.Pos, Error);
 			return false;
 		}
 		
 		var RecFactoryDefIndex = RecFactoryFunc.FinishMapProc(
-			aRecLambdasNode.Pos,
+			aRecProcsNode.Pos,
 			aModuleConstructor,
 			RecFactoryDefType
 		);
 		
 		var RecProcsTupleReg = aDefConstructor.InitProc(
-			aRecLambdasNode.Pos,
+			aRecProcsNode.Pos,
 			RecFactoryDefIndex,
 			RecFactoryDefType,
 			RecFactoryFunc.EnvIds.ToStream(
@@ -2143,7 +2154,7 @@ mSPO2IL {
 		);
 		
 		if (IsSingle) {
-			var RecProc = aRecLambdasNode.List.TryFirst().AssertNotEmpty();
+			var RecProc = aRecProcsNode.List.TryFirst().AssertNotEmpty();
 			aDefConstructor.Commands.Push(
 				mIL_AST.Alias(
 					RecProc.Pos,
@@ -2153,10 +2164,10 @@ mSPO2IL {
 			);
 			aDefConstructor.AddLocal(
 				RecProc.Id.Id,
-				TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
+				TypeState.TryGetValidatedType(RecProc.Proc).AssertNotEmpty()
 			);
 		} else {
-			foreach (var RecProc in aRecLambdasNode.List.Reverse()) {
+			foreach (var RecProc in aRecProcsNode.List.Reverse()) {
 				aDefConstructor.Commands.Push(
 					mIL_AST.GetSecond(
 						RecProc.Pos,
@@ -2172,7 +2183,7 @@ mSPO2IL {
 				RecProcsTupleReg = TempReg;
 				aDefConstructor.AddLocal(
 					RecProc.Id.Id,
-					TypeState.TryGetValidatedType(RecProc.Lambda).AssertNotEmpty()
+					TypeState.TryGetValidatedType(RecProc.Proc).AssertNotEmpty()
 				);
 			}
 		}
@@ -2271,7 +2282,7 @@ mSPO2IL {
 		mSPO_AST.tDefNode<tPos> Node
 			=> aDefConstructor.MapDef(aModuleConstructor, Node, out aError),
 			
-		mSPO_AST.tRecLambdasNode<tPos> Node
+		mSPO_AST.tRecProcsNode<tPos> Node
 			=> aDefConstructor.MapRecursiveLambdas(aModuleConstructor, Node, out aError),
 			
 		mSPO_AST.tReturnIfNode<tPos> Node

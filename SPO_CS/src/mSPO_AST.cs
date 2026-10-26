@@ -301,18 +301,18 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tRecLambdaItemNode<tPos> : tNode<tPos> {
+	tRecProcItemNode<tPos> : tNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tFreeIdPatternNode<tPos> Id = default!;
-		public tLambdaNode<tPos> Lambda = default!;
+		public tExpressionNode<tPos> Proc = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tRecLambdasNode<tPos> : tCommandNode<tPos> {
+	tRecProcsNode<tPos> : tCommandNode<tPos> {
 		public tPos Pos { get; init; }
-		public mStream.tStream<tRecLambdaItemNode<tPos>> List;
+		public mStream.tStream<tRecProcItemNode<tPos>> List;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -1133,21 +1133,21 @@ mSPO_AST {
 		__ => { __.TypeAnnotation = aTypeAnnotation; }
 	);
 	
-	public static tRecLambdaItemNode<tPos>
-	RecLambdaItem<tPos>(
+	public static tRecProcItemNode<tPos>
+	RecProcItem<tPos>(
 		tPos aPos,
 		tFreeIdPatternNode<tPos> aId,
-		tLambdaNode<tPos> aLambda
+		tExpressionNode<tPos> aLambda
 	) => new() {
 		Pos = aPos,
 		Id = aId,
-		Lambda = aLambda,
+		Proc = aLambda,
 	};
 	
-	public static tRecLambdasNode<tPos>
-	RecLambdas<tPos>(
+	public static tRecProcsNode<tPos>
+	RecProcs<tPos>(
 		tPos aPos,
-		mStream.tStream<tRecLambdaItemNode<tPos>> aList
+		mStream.tStream<tRecProcItemNode<tPos>> aList
 	) => new() {
 		Pos = aPos,
 		List = aList,
@@ -1635,16 +1635,16 @@ mSPO_AST {
 					AreEqual(Node1.Des, Node2.Des)
 				);
 			}
-			case tRecLambdaItemNode<tPos> Node1: {
+			case tRecProcItemNode<tPos> Node1: {
 				return (
-					a2 is tRecLambdaItemNode<tPos> Node2 &&
+					a2 is tRecProcItemNode<tPos> Node2 &&
 					AreEqual(Node1.Id, Node2.Id) &&
-					AreEqual(Node1.Lambda, Node2.Lambda)
+					AreEqual(Node1.Proc, Node2.Proc)
 				);
 			}
-			case tRecLambdasNode<tPos> Node1: {
+			case tRecProcsNode<tPos> Node1: {
 				return (
-					a2 is tRecLambdasNode<tPos> Node2 &&
+					a2 is tRecProcsNode<tPos> Node2 &&
 					mStream.ZipExtend(Node1.List, Node2.List).All(
 						__ => (
 							__._1.IsSome(out var a1) &&
@@ -1907,7 +1907,7 @@ mSPO_AST {
 			tReturnIfNode<t> Node => $"RETURN {Node.Result.ToText(____)} IF {Node.Condition.ToText(____)}",
 			tDefNode<t> Node => $"DEF {Node.Des.ToText(____)} = {Node.Src.ToText(____)}",
 			tDefVarNode<t> Node => $"DEF {Node.Id.ToText(____)} := {____}{Node.Expression.ToText(____)}{Node.MethodCalls.Map(_ => "," + ____ + _.ToText(____)).Join((a1, a2) => a1 + a2, "")}{____}.",
-			tRecLambdasNode<t> Node => $@"""
+			tRecProcsNode<t> Node => $@"""
 			§REC {{
 			{Node.List.Map(_ => tText.Join('\n',  _.ToText(____)))}
 			}}

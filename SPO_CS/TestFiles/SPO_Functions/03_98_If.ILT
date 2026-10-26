@@ -6,47 +6,99 @@
 	t_4 := [EMPTY_TYPE, t_3]
 	t_5 := [t_4, INT]
 	t_6 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_7 := [INT | EMPTY_TYPE]
-	t_8 := [t_6 => t_7]
-	t_9 := [t_5 => t_8]
-	t_10 := [#_...==... t_3]
-	t_11 := [{EMPTY_TYPE} + t_10]
-	t_12 := [EMPTY_TYPE | INT]
-	t_13 := [t_11 => t_12]
-	t_14 := [t_9 => t_13]
+	t_7 := [EMPTY_TYPE | INT]
+	t_8 := [#Result t_7]
+	t_9 := [EMPTY_TYPE | t_8]
+	t_10 := [t_6 => t_9]
+	t_11 := [t_5 => t_10]
+	t_12 := [t_5, t_11]
+	t_13 := [t_12, t_11]
+	t_14 := [t_6 => t_8]
+	t_15 := [t_13 => t_14]
+	t_16 := [EMPTY_TYPE, t_11]
+	t_17 := [t_16, t_11]
+	t_18 := [t_17, t_15]
+	t_19 := [#_...==... t_3]
+	t_20 := [{EMPTY_TYPE} + t_19]
+	t_21 := [t_20 => t_7]
+	t_22 := [t_18 => t_21]
 
-§DEF d_0 € t_9
+§DEF d_0 € t_11
 	_X := §2ND ENV
-	r_13 := §1ST ENV
-	_...==... := §2ND r_13
-	r_14 := §1ST r_13
-	r_12 := §1ST ARG
-	r_11 := §2ND ARG
+	r_10 := §1ST ENV
+	_...==... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
 	r_1 := EMPTY, _X
 	r_2 := 1
 	r_3 := r_1, r_2
 	r_4 := ._...==... r_3
-	r_5 := 11
-	§RETURN r_5 IF r_4
-	r_6 := EMPTY, _X
-	r_7 := 2
-	r_8 := r_6, r_7
-	r_9 := ._...==... r_8
-	r_10 := 22
-	§RETURN r_10 IF r_9
-	§RETURN EMPTY IF TRUE
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 11
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
-§DEF d_1 € t_14
-	d_0 := ENV
+§DEF d_1 € t_11
+	_X := §2ND ENV
+	r_10 := §1ST ENV
+	_...==... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := EMPTY, _X
+	r_2 := 2
+	r_3 := r_1, r_2
+	r_4 := ._...==... r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 22
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_2 € t_15
+	d_1 := §2ND ENV
+	r_12 := §1ST ENV
+	d_0 := §2ND r_12
+	r_13 := §1ST r_12
+	_X := §2ND r_13
+	r_14 := §1ST r_13
+	_...==... := §2ND r_14
+	r_15 := §1ST r_14
+	r_11 := §1ST ARG
+	r_10 := §2ND ARG
+	r_1 := EMPTY, _...==...
+	r_2 := r_1, _X
+	r_3 := §CLOSURE d_0 r_2
+	r_4 := EMPTY, EMPTY
+	§TRY_RETURN .r_3 r_4
+	r_5 := EMPTY, _...==...
+	r_6 := r_5, _X
+	r_7 := §CLOSURE d_1 r_6
+	r_8 := EMPTY, EMPTY
+	§TRY_RETURN .r_7 r_8
+	r_9 := +#Result EMPTY
+	§RETURN r_9 IF TRUE
+
+§DEF d_3 € t_22
+	d_2 := §2ND ENV
+	r_12 := §1ST ENV
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
 	r_1 := {ARG} #_...==...
 	_...==... := r_1
 	r_2 := 1
 	_X := r_2
-	r_4 := EMPTY, _...==...
-	r_5 := r_4, _X
-	r_6 := §CLOSURE d_0 r_5
-	r_7 := EMPTY, EMPTY
-	r_8 := OBJ, r_6
-	r_9 := §OBJ:r_8 r_7
-	r_3 := r_9
-	§RETURN r_3 IF TRUE
+	r_3 := EMPTY, _...==...
+	r_4 := r_3, _X
+	r_5 := r_4, d_0
+	r_6 := r_5, d_1
+	r_7 := §CLOSURE d_2 r_6
+	r_8 := EMPTY, EMPTY
+	r_9 := OBJ, r_7
+	r_10 := §OBJ:r_9 r_8
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE

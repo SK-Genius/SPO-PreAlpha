@@ -424,7 +424,7 @@ mSPO_Navigation {
 				GetMethodCallSymbols(MethodCalls.MethodCalls)
 			)
 		),
-		mSPO_AST.tRecLambdasNode<tSpan> RecLambdas => RecLambdas.List.Map(
+		mSPO_AST.tRecProcsNode<tSpan> RecProcs => RecProcs.List.Map(
 			aItem => DocumentSymbol(
 				DisplayId(aItem.Id.Id),
 				"recursive",
@@ -982,9 +982,9 @@ mSPO_Navigation {
 				break;
 			}
 
-			case mSPO_AST.tRecLambdasNode<tSpan> RecLambdas: {
+			case mSPO_AST.tRecProcsNode<tSpan> RecProcs: {
 				var Scope = CopyScope(aScope);
-				foreach (var Item in RecLambdas.List) {
+				foreach (var Item in RecProcs.List) {
 					Scope.Add(Binding(Item.Id.Id, Item.Id.NamePos, GetBindingKind(Item.Lambda, Item.Id.Id)));
 					AddDefinitionOccurrence(aQueryPos, Item.Id.Id, Item.Id.NamePos);
 					if (Contains(Item.Id.NamePos, aQueryPos.QueryPos)) {
@@ -994,7 +994,7 @@ mSPO_Navigation {
 					}
 				}
 
-				foreach (var Item in RecLambdas.List) {
+				foreach (var Item in RecProcs.List) {
 					if (
 						TryResolveExpression(
 							Item.Lambda,

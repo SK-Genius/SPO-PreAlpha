@@ -25,63 +25,84 @@
 	t_23 := [t_17, INT]
 	t_24 := [t_23, INT]
 	t_25 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_26 := [t_25 => INT]
-	t_27 := [t_24 => t_26]
-	t_28 := [t_17, t_27]
-	t_29 := [t_28 => t_21]
-	t_30 := [EMPTY_TYPE, t_21]
-	t_31 := [t_30, t_21]
-	t_32 := [t_7, t_15]
-	t_33 := [t_32 => INT]
-	t_34 := [t_31 => t_33]
-	t_35 := [t_30, INT]
-	t_36 := [t_35 => t_5]
-	t_37 := [t_8, t_21]
-	t_38 := [t_37, t_36]
-	t_39 := [t_38 => t_13]
-	t_40 := [t_18, t_21]
-	t_41 := [t_40, t_36]
-	t_42 := [t_41, t_39]
-	t_43 := [INT => INT]
-	t_44 := [t_42 => t_43]
-	t_45 := [t_23, t_16]
-	t_46 := [t_45 => t_26]
-	t_47 := [t_17, t_16]
-	t_48 := [t_47, t_46]
-	t_49 := [t_48 => t_43]
-	t_50 := [EMPTY_TYPE, t_3]
-	t_51 := [t_50, t_6]
-	t_52 := [t_51, t_14]
-	t_53 := [t_52, t_22]
-	t_54 := [t_53, t_27]
-	t_55 := [t_54, t_29]
-	t_56 := [t_55, t_34]
-	t_57 := [t_56, t_3]
-	t_58 := [t_57, t_36]
-	t_59 := [t_58, t_39]
-	t_60 := [t_59, t_44]
-	t_61 := [t_60, t_46]
-	t_62 := [t_61, t_49]
-	t_63 := [#_...-... t_21]
-	t_64 := [{EMPTY_TYPE} + t_63]
-	t_65 := [#_...<... t_16]
-	t_66 := [{t_64} + t_65]
-	t_67 := [#_...==... t_16]
-	t_68 := [{t_66} + t_67]
-	t_69 := [#_Std t_68]
-	t_70 := [{EMPTY_TYPE} + t_69]
-	t_71 := [#_...Clamp... t_33]
-	t_72 := [{EMPTY_TYPE} + t_71]
-	t_73 := [#_Abs... t_43]
-	t_74 := [{t_72} + t_73]
-	t_75 := [#_Max... t_21]
-	t_76 := [{t_74} + t_75]
-	t_77 := [#_Min... t_21]
-	t_78 := [{t_76} + t_77]
-	t_79 := [#_Sign... t_43]
-	t_80 := [{t_78} + t_79]
-	t_81 := [t_70 => t_80]
-	t_82 := [t_62 => t_81]
+	t_26 := [EMPTY_TYPE | t_1]
+	t_27 := [t_25 => t_26]
+	t_28 := [t_24 => t_27]
+	t_29 := [INT => t_27]
+	t_30 := [t_24, t_28]
+	t_31 := [t_30, t_29]
+	t_32 := [t_25 => t_1]
+	t_33 := [t_31 => t_32]
+	t_34 := [t_17, t_28]
+	t_35 := [t_34, t_29]
+	t_36 := [t_35, t_33]
+	t_37 := [t_36 => t_21]
+	t_38 := [EMPTY_TYPE, t_21]
+	t_39 := [t_38, t_21]
+	t_40 := [t_7, t_15]
+	t_41 := [t_40 => INT]
+	t_42 := [t_39 => t_41]
+	t_43 := [t_38, INT]
+	t_44 := [t_43 => t_5]
+	t_45 := [t_8, t_21]
+	t_46 := [t_45, t_44]
+	t_47 := [t_46 => t_13]
+	t_48 := [t_18, t_21]
+	t_49 := [t_48, t_44]
+	t_50 := [t_49, t_47]
+	t_51 := [INT => INT]
+	t_52 := [t_50 => t_51]
+	t_53 := [t_23 => t_27]
+	t_54 := [EMPTY_TYPE => t_27]
+	t_55 := [t_23, t_53]
+	t_56 := [t_55, t_16]
+	t_57 := [t_56, t_53]
+	t_58 := [t_57, t_54]
+	t_59 := [t_58 => t_32]
+	t_60 := [t_17, t_53]
+	t_61 := [t_60, t_16]
+	t_62 := [t_61, t_53]
+	t_63 := [t_62, t_54]
+	t_64 := [t_63, t_59]
+	t_65 := [t_64 => t_51]
+	t_66 := [EMPTY_TYPE, t_3]
+	t_67 := [t_66, t_6]
+	t_68 := [t_67, t_14]
+	t_69 := [t_68, t_22]
+	t_70 := [t_69, t_28]
+	t_71 := [t_70, t_29]
+	t_72 := [t_71, t_33]
+	t_73 := [t_72, t_37]
+	t_74 := [t_73, t_42]
+	t_75 := [t_74, t_3]
+	t_76 := [t_75, t_44]
+	t_77 := [t_76, t_47]
+	t_78 := [t_77, t_52]
+	t_79 := [t_78, t_53]
+	t_80 := [t_79, t_53]
+	t_81 := [t_80, t_54]
+	t_82 := [t_81, t_59]
+	t_83 := [t_82, t_65]
+	t_84 := [#_...-... t_21]
+	t_85 := [{EMPTY_TYPE} + t_84]
+	t_86 := [#_...<... t_16]
+	t_87 := [{t_85} + t_86]
+	t_88 := [#_...==... t_16]
+	t_89 := [{t_87} + t_88]
+	t_90 := [#_Std t_89]
+	t_91 := [{EMPTY_TYPE} + t_90]
+	t_92 := [#_...Clamp... t_41]
+	t_93 := [{EMPTY_TYPE} + t_92]
+	t_94 := [#_Abs... t_51]
+	t_95 := [{t_93} + t_94]
+	t_96 := [#_Max... t_21]
+	t_97 := [{t_95} + t_96]
+	t_98 := [#_Min... t_21]
+	t_99 := [{t_97} + t_98]
+	t_100 := [#_Sign... t_51]
+	t_101 := [{t_99} + t_100]
+	t_102 := [t_91 => t_101]
+	t_103 := [t_83 => t_102]
 
 §DEF d_0 € t_3
 	_a1 := ENV
@@ -146,27 +167,65 @@
 	r_16 := -#Result r_15
 	§RETURN r_16 IF TRUE
 
-§DEF d_4 € t_27
+§DEF d_4 € t_28
 	_a1 := §2ND ENV
-	r_6 := §1ST ENV
-	_a2 := §2ND r_6
-	r_7 := §1ST r_6
-	_...<... := §2ND r_7
-	r_8 := §1ST r_7
-	r_5 := §1ST ARG
-	r_4 := §2ND ARG
+	r_8 := §1ST ENV
+	_a2 := §2ND r_8
+	r_9 := §1ST r_8
+	_...<... := §2ND r_9
+	r_10 := §1ST r_9
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
 	r_1 := EMPTY, _a2
 	r_2 := r_1, _a1
 	r_3 := ._...<... r_2
-	§RETURN _a1 IF r_3
-	§RETURN _a2 IF TRUE
-	§RETURN EMPTY IF TRUE
+	r_4 := §BOOL r_3 ^ TRUE
+	§RETURN EMPTY IF r_4
+	r_5 := +#Result _a1
+	§RETURN r_5 IF TRUE
 
 §DEF d_5 € t_29
-	d_4 := §2ND ENV
-	r_13 := §1ST ENV
+	_a2 := ENV
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §BOOL TRUE ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := +#Result _a2
+	§RETURN r_2 IF TRUE
+
+§DEF d_6 € t_33
+	d_5 := §2ND ENV
+	r_10 := §1ST ENV
+	d_4 := §2ND r_10
+	r_11 := §1ST r_10
+	_a1 := §2ND r_11
+	r_12 := §1ST r_11
+	_a2 := §2ND r_12
+	r_13 := §1ST r_12
 	_...<... := §2ND r_13
 	r_14 := §1ST r_13
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := EMPTY, _...<...
+	r_2 := r_1, _a2
+	r_3 := r_2, _a1
+	r_4 := §CLOSURE d_4 r_3
+	r_5 := EMPTY, EMPTY
+	§TRY_RETURN .r_4 r_5
+	r_6 := §CLOSURE d_5 _a2
+	r_7 := EMPTY, EMPTY
+	§TRY_RETURN .r_6 r_7
+	§RETURN EMPTY IF TRUE
+
+§DEF d_7 € t_37
+	d_6 := §2ND ENV
+	r_15 := §1ST ENV
+	d_5 := §2ND r_15
+	r_16 := §1ST r_15
+	d_4 := §2ND r_16
+	r_17 := §1ST r_16
+	_...<... := §2ND r_17
+	r_18 := §1ST r_17
 	r_1 := §2ND ARG
 	_a2 := r_1
 	r_2 := §1ST ARG
@@ -174,17 +233,19 @@
 	_a1 := r_3
 	r_4 := §1ST r_2
 	§RETURN r_4 IF_NOT_EMPTY
-	r_6 := EMPTY, _...<...
-	r_7 := r_6, _a2
-	r_8 := r_7, _a1
-	r_9 := §CLOSURE d_4 r_8
-	r_10 := EMPTY, EMPTY
-	r_11 := OBJ, r_9
-	r_12 := §OBJ:r_11 r_10
-	r_5 := r_12
-	§RETURN r_5 IF TRUE
+	r_5 := EMPTY, _...<...
+	r_6 := r_5, _a2
+	r_7 := r_6, _a1
+	r_8 := r_7, d_4
+	r_9 := r_8, d_5
+	r_10 := §CLOSURE d_6 r_9
+	r_11 := EMPTY, EMPTY
+	r_12 := OBJ, r_10
+	r_13 := §OBJ:r_12 r_11
+	r_14 := -#Result r_13
+	§RETURN r_14 IF TRUE
 
-§DEF d_6 € t_34
+§DEF d_8 € t_42
 	_Max... := §2ND ENV
 	r_15 := §1ST ENV
 	_Min... := §2ND r_15
@@ -210,14 +271,14 @@
 	r_14 := ._Min... r_13
 	§RETURN r_14 IF TRUE
 
-§DEF d_7 € t_3
+§DEF d_9 € t_3
 	_a := ENV
 	r_3 := §1ST ARG
 	r_2 := §2ND ARG
 	r_1 := +#Result _a
 	§RETURN r_1 IF TRUE
 
-§DEF d_8 € t_36
+§DEF d_10 € t_44
 	_a := §2ND ENV
 	r_8 := §1ST ENV
 	_...-... := §2ND r_8
@@ -231,35 +292,35 @@
 	r_5 := +#Result r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_9 € t_39
-	d_8 := §2ND ENV
+§DEF d_11 € t_47
+	d_10 := §2ND ENV
 	r_9 := §1ST ENV
 	_...-... := §2ND r_9
 	r_10 := §1ST r_9
-	d_7 := §2ND r_10
+	d_9 := §2ND r_10
 	r_11 := §1ST r_10
 	_a := §2ND r_11
 	r_12 := §1ST r_11
 	r_8 := §1ST ARG
 	r_7 := §2ND ARG
-	r_1 := §CLOSURE d_7 _a
+	r_1 := §CLOSURE d_9 _a
 	r_2 := EMPTY, r_7
 	§TRY_RETURN .r_1 r_2
 	r_3 := EMPTY, _...-...
 	r_4 := r_3, _a
-	r_5 := §CLOSURE d_8 r_4
+	r_5 := §CLOSURE d_10 r_4
 	r_6 := EMPTY, r_7
 	§TRY_RETURN .r_5 r_6
 	§RETURN EMPTY IF TRUE
 
-§DEF d_10 € t_44
-	d_9 := §2ND ENV
+§DEF d_12 € t_52
+	d_11 := §2ND ENV
 	r_14 := §1ST ENV
-	d_8 := §2ND r_14
+	d_10 := §2ND r_14
 	r_15 := §1ST r_14
 	_...-... := §2ND r_15
 	r_16 := §1ST r_15
-	d_7 := §2ND r_16
+	d_9 := §2ND r_16
 	r_17 := §1ST r_16
 	_...<... := §2ND r_17
 	r_18 := §1ST r_17
@@ -269,86 +330,153 @@
 	r_3 := r_2, _a
 	r_4 := ._...<... r_3
 	r_5 := EMPTY, _a
-	r_6 := r_5, d_7
+	r_6 := r_5, d_9
 	r_7 := r_6, _...-...
-	r_8 := r_7, d_8
-	r_9 := §CLOSURE d_9 r_8
+	r_8 := r_7, d_10
+	r_9 := §CLOSURE d_11 r_8
 	r_10 := EMPTY, r_4
 	r_11 := OBJ, r_9
 	r_12 := §OBJ:r_11 r_10
 	r_13 := -#Result r_12
 	§RETURN r_13 IF TRUE
 
-§DEF d_11 € t_46
-	_...==... := §2ND ENV
-	r_14 := §1ST ENV
-	_a := §2ND r_14
-	r_15 := §1ST r_14
-	_...<... := §2ND r_15
-	r_16 := §1ST r_15
-	r_13 := §1ST ARG
-	r_12 := §2ND ARG
+§DEF d_13 € t_53
+	_a := §2ND ENV
+	r_10 := §1ST ENV
+	_...<... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
 	r_1 := EMPTY, _a
 	r_2 := 0
 	r_3 := r_1, r_2
 	r_4 := ._...<... r_3
-	r_5 := -1
-	§RETURN r_5 IF r_4
-	r_6 := EMPTY, _a
-	r_7 := 0
-	r_8 := r_6, r_7
-	r_9 := ._...==... r_8
-	r_10 := 0
-	§RETURN r_10 IF r_9
-	r_11 := 1
-	§RETURN r_11 IF TRUE
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := -1
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_14 € t_53
+	_a := §2ND ENV
+	r_10 := §1ST ENV
+	_...==... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := EMPTY, _a
+	r_2 := 0
+	r_3 := r_1, r_2
+	r_4 := ._...==... r_3
+	r_5 := §BOOL r_4 ^ TRUE
+	§RETURN EMPTY IF r_5
+	r_6 := 0
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_15 € t_54
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §BOOL TRUE ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := 1
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_16 € t_59
+	d_15 := §2ND ENV
+	r_13 := §1ST ENV
+	d_14 := §2ND r_13
+	r_14 := §1ST r_13
+	_...==... := §2ND r_14
+	r_15 := §1ST r_14
+	d_13 := §2ND r_15
+	r_16 := §1ST r_15
+	_a := §2ND r_16
+	r_17 := §1ST r_16
+	_...<... := §2ND r_17
+	r_18 := §1ST r_17
+	r_12 := §1ST ARG
+	r_11 := §2ND ARG
+	r_1 := EMPTY, _...<...
+	r_2 := r_1, _a
+	r_3 := §CLOSURE d_13 r_2
+	r_4 := EMPTY, EMPTY
+	§TRY_RETURN .r_3 r_4
+	r_5 := EMPTY, _...==...
+	r_6 := r_5, _a
+	r_7 := §CLOSURE d_14 r_6
+	r_8 := EMPTY, EMPTY
+	§TRY_RETURN .r_7 r_8
+	r_9 := §CLOSURE d_15 EMPTY
+	r_10 := EMPTY, EMPTY
+	§TRY_RETURN .r_9 r_10
 	§RETURN EMPTY IF TRUE
 
-§DEF d_12 € t_49
-	d_11 := §2ND ENV
-	r_9 := §1ST ENV
-	_...==... := §2ND r_9
-	r_10 := §1ST r_9
-	_...<... := §2ND r_10
-	r_11 := §1ST r_10
+§DEF d_17 € t_65
+	d_16 := §2ND ENV
+	r_12 := §1ST ENV
+	d_15 := §2ND r_12
+	r_13 := §1ST r_12
+	d_14 := §2ND r_13
+	r_14 := §1ST r_13
+	_...==... := §2ND r_14
+	r_15 := §1ST r_14
+	d_13 := §2ND r_15
+	r_16 := §1ST r_15
+	_...<... := §2ND r_16
+	r_17 := §1ST r_16
 	_a := ARG
-	r_2 := EMPTY, _...<...
-	r_3 := r_2, _a
+	r_1 := EMPTY, _...<...
+	r_2 := r_1, _a
+	r_3 := r_2, d_13
 	r_4 := r_3, _...==...
-	r_5 := §CLOSURE d_11 r_4
-	r_6 := EMPTY, EMPTY
-	r_7 := OBJ, r_5
-	r_8 := §OBJ:r_7 r_6
-	r_1 := r_8
-	§RETURN r_1 IF TRUE
+	r_5 := r_4, d_14
+	r_6 := r_5, d_15
+	r_7 := §CLOSURE d_16 r_6
+	r_8 := EMPTY, EMPTY
+	r_9 := OBJ, r_7
+	r_10 := §OBJ:r_9 r_8
+	r_11 := -#Result r_10
+	§RETURN r_11 IF TRUE
 
-§DEF d_13 € t_82
-	d_12 := §2ND ENV
-	r_36 := §1ST ENV
-	d_11 := §2ND r_36
-	r_37 := §1ST r_36
-	d_10 := §2ND r_37
-	r_38 := §1ST r_37
-	d_9 := §2ND r_38
-	r_39 := §1ST r_38
-	d_8 := §2ND r_39
-	r_40 := §1ST r_39
-	d_7 := §2ND r_40
-	r_41 := §1ST r_40
-	d_6 := §2ND r_41
+§DEF d_18 € t_103
+	d_17 := §2ND ENV
+	r_41 := §1ST ENV
+	d_16 := §2ND r_41
 	r_42 := §1ST r_41
-	d_5 := §2ND r_42
+	d_15 := §2ND r_42
 	r_43 := §1ST r_42
-	d_4 := §2ND r_43
+	d_14 := §2ND r_43
 	r_44 := §1ST r_43
-	d_3 := §2ND r_44
+	d_13 := §2ND r_44
 	r_45 := §1ST r_44
-	d_2 := §2ND r_45
+	d_12 := §2ND r_45
 	r_46 := §1ST r_45
-	d_1 := §2ND r_46
+	d_11 := §2ND r_46
 	r_47 := §1ST r_46
-	d_0 := §2ND r_47
+	d_10 := §2ND r_47
 	r_48 := §1ST r_47
+	d_9 := §2ND r_48
+	r_49 := §1ST r_48
+	d_8 := §2ND r_49
+	r_50 := §1ST r_49
+	d_7 := §2ND r_50
+	r_51 := §1ST r_50
+	d_6 := §2ND r_51
+	r_52 := §1ST r_51
+	d_5 := §2ND r_52
+	r_53 := §1ST r_52
+	d_4 := §2ND r_53
+	r_54 := §1ST r_53
+	d_3 := §2ND r_54
+	r_55 := §1ST r_54
+	d_2 := §2ND r_55
+	r_56 := §1ST r_55
+	d_1 := §2ND r_56
+	r_57 := §1ST r_56
+	d_0 := §2ND r_57
+	r_58 := §1ST r_57
 	r_1 := {ARG} #_Std
 	r_2 := {r_1} #_...-...
 	_...-... := r_2
@@ -364,33 +492,38 @@
 	_Min... := r_9
 	r_10 := EMPTY, _...<...
 	r_11 := r_10, d_4
-	r_12 := §CLOSURE d_5 r_11
-	_Max... := r_12
-	r_13 := EMPTY, _Min...
-	r_14 := r_13, _Max...
-	r_15 := §CLOSURE d_6 r_14
-	_...Clamp... := r_15
-	r_16 := EMPTY, _...<...
-	r_17 := r_16, d_7
-	r_18 := r_17, _...-...
-	r_19 := r_18, d_8
-	r_20 := r_19, d_9
-	r_21 := §CLOSURE d_10 r_20
-	_Abs... := r_21
-	r_22 := EMPTY, _...<...
-	r_23 := r_22, _...==...
-	r_24 := r_23, d_11
-	r_25 := §CLOSURE d_12 r_24
-	_Sign... := r_25
-	r_26 := +#_Min... _Min...
-	r_27 := {EMPTY} + r_26
-	r_28 := +#_Max... _Max...
-	r_29 := {r_27} + r_28
-	r_30 := +#_...Clamp... _...Clamp...
-	r_31 := {r_29} + r_30
-	r_32 := +#_Abs... _Abs...
-	r_33 := {r_31} + r_32
-	r_34 := +#_Sign... _Sign...
-	r_35 := {r_33} + r_34
-	_Module := r_35
+	r_12 := r_11, d_5
+	r_13 := r_12, d_6
+	r_14 := §CLOSURE d_7 r_13
+	_Max... := r_14
+	r_15 := EMPTY, _Min...
+	r_16 := r_15, _Max...
+	r_17 := §CLOSURE d_8 r_16
+	_...Clamp... := r_17
+	r_18 := EMPTY, _...<...
+	r_19 := r_18, d_9
+	r_20 := r_19, _...-...
+	r_21 := r_20, d_10
+	r_22 := r_21, d_11
+	r_23 := §CLOSURE d_12 r_22
+	_Abs... := r_23
+	r_24 := EMPTY, _...<...
+	r_25 := r_24, d_13
+	r_26 := r_25, _...==...
+	r_27 := r_26, d_14
+	r_28 := r_27, d_15
+	r_29 := r_28, d_16
+	r_30 := §CLOSURE d_17 r_29
+	_Sign... := r_30
+	r_31 := +#_Min... _Min...
+	r_32 := {EMPTY} + r_31
+	r_33 := +#_Max... _Max...
+	r_34 := {r_32} + r_33
+	r_35 := +#_...Clamp... _...Clamp...
+	r_36 := {r_34} + r_35
+	r_37 := +#_Abs... _Abs...
+	r_38 := {r_36} + r_37
+	r_39 := +#_Sign... _Sign...
+	r_40 := {r_38} + r_39
+	_Module := r_40
 	§RETURN _Module IF TRUE

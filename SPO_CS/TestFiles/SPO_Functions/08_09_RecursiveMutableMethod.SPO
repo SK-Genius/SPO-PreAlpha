@@ -1,0 +1,26 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+	...!=...: §DEF ...!=... € [[§INT, §INT] => §BOOL]
+}
+
+§RECURSIVE {
+	§DEF Add... = (
+		§VAR aSelf € §INT
+	) : (
+		§DEF aCount € §INT
+	) {
+		§RETURN §IF {
+			aCount .!= 0 : {
+				aSelf :
+					= ((§TO_VAL aSelf) .+ 1)
+					Add (aCount .- 1)
+				.
+			}
+		}
+	}
+}
+
+§VAR Value : = 1, Add 3 .
+
+§EXPORT §TO_VAL Value

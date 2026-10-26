@@ -1465,35 +1465,90 @@ mSPO_AST_Types {
 					)
 				);
 			}
-			case mSPO_AST.tRecLambdasNode<tPos> RecLambdas: {
+			case mSPO_AST.tRecProcsNode<tPos> RecProcs: {
 				var Checked = (Scope: aScope, State: aTypeState);
-				foreach (var Item in RecLambdas.List) {
+				foreach (var Item in RecProcs.List) {
 					var Head = Checked;
-					if (Item.Lambda.Generic.IsSome(out var GenericPattern)) {
-						if (!UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, Head.Scope, Head.State).Match(out var GenScope, out var GenError)) {
+					if (
+						Item.Proc is mSPO_AST.tLambdaNode<tPos> GenericFunction &&
+						GenericFunction.Generic.IsSome(out var GenericPattern)
+					) {
+						if (
+							!UpdatePatternTypes(
+								GenericPattern,
+								mVM_Type.Type(),
+								tTypeRelation.Equal,
+								Head.Scope,
+								Head.State
+							).Match(
+								out var GenScope,
+								out var GenError
+							)
+						) {
 							return mResult.Fail(GenError);
 						}
 						Head = (GenScope.Scope, GenScope.State);
 					}
 					
-					if (!UpdatePatternTypes(Item.Lambda.Head, mStd.cEmpty, tTypeRelation.Equal, Head.Scope, Head.State).Match(out var Result, out var Error)) {
+					var ObjType = mVM_Type.Empty();
+					if (Item.Proc is mSPO_AST.tMethodNode<tPos> Method) {
+						if (
+							!UpdatePatternTypes(
+								Method.Obj,
+								mStd.cEmpty,
+								tTypeRelation.Equal,
+								Head.Scope,
+								Head.State
+							).Match(
+								out var Obj,
+								out var ObjError
+							)
+						) {
+							return mResult.Fail(ObjError);
+						}
+						
+						Head = (Obj.Scope, Obj.State);
+						ObjType = Obj.Type;
+					}
+					
+					var ArgPattern = Item.Proc switch {
+						mSPO_AST.tLambdaNode<tPos> Function => Function.Head,
+						mSPO_AST.tMethodNode<tPos> Operation => Operation.Arg,
+						_ => throw mError.Error("expected a recursive function or method")
+					};
+					
+					if (
+						!UpdatePatternTypes(
+							ArgPattern,
+							mStd.cEmpty,
+							tTypeRelation.Equal,
+							Head.Scope,
+							Head.State
+						).Match(
+							out var Result,
+							out var Error
+						)
+					) {
 						return mResult.Fail(Error);
 					}
 					
-					Checked = (mStream.Stream(
-						ScopeItem(
-							Item.Id.Id,
-							mVM_Type.Proc(
-								mVM_Type.Free("__" + Item.Id.Id + "_Obj__", mVM_Type.Type()),
-								Result.Type,
-								mVM_Type.Free("__" + Item.Id.Id + "_Res__", mVM_Type.Type())
-							)
+					Checked = (
+						mStream.Stream(
+							ScopeItem(
+								Item.Id.Id,
+								mVM_Type.Proc(
+									ObjType,
+									Result.Type,
+									mVM_Type.Free("__" + Item.Id.Id + "_Res__", mVM_Type.Type())
+								)
+							),
+							Checked.Scope
 						),
-						Checked.Scope
-					), Result.State);
+						Result.State
+					);
 				}
 				
-				var ResultVariables = RecLambdas.List.Map(
+				var ResultVariables = RecProcs.List.Map(
 					aLambda => Checked.Scope.Where(
 						__ => __.Id == aLambda.Id.Id
 					).TryFirst(
@@ -1523,8 +1578,8 @@ mSPO_AST_Types {
 				
 				// Collect result equations before replacing any recursive call's placeholder.
 				var Signatures = mArrayList.List<mVM_Type.tType>();
-				foreach (var Item in RecLambdas.List) {
-					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+				foreach (var Item in RecProcs.List) {
+					if (!Item.Proc.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					
@@ -1565,7 +1620,7 @@ mSPO_AST_Types {
 				}
 				
 				var SignatureIndex = 0u;
-				foreach (var Item in RecLambdas.List) {
+				foreach (var Item in RecProcs.List) {
 					var Signature = Signatures.Get(SignatureIndex++);
 					Checked = (
 						Checked.Scope.Map(
@@ -1577,15 +1632,15 @@ mSPO_AST_Types {
 				
 				// Check every body against the solved group and retain its final use-site types.
 				SignatureIndex = 0u;
-				foreach (var Item in RecLambdas.List) {
+				foreach (var Item in RecProcs.List) {
 					var Signature = Signatures.Get(SignatureIndex++);
-					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+					if (!Item.Proc.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
 						return mResult.Fail(Error);
 					}
 					if (!Typed.Type.IsSubType(Signature).Match(out _, out var TypeError)) {
 						return mResult.Fail((Item.Pos, TypeError));
 					}
-					Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Lambda, Signature));
+					Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Proc, Signature));
 				}
 				
 				return Checked;

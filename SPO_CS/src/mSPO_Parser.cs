@@ -769,22 +769,31 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Method)
 	.SetName(nameof(Method));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecLambdaItemNode<tSpan>, tError>
-	RecLambdaItem = mParserGen.Seq(FreeIdPattern, Token("="), Lambda | C( Lambda ))
-	.Modify((aId, _, aLambda) => (aId, aLambda))
-	.ModifyS(mSPO_AST.RecLambdaItem)
-	.SetName(nameof(RecLambdaItem));
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecProcItemNode<tSpan>, tError>
+	RecProcItem = mParserGen.Seq(
+		FreeIdPattern,
+		-Token("="),
+		(
+			Lambda.Cast<mSPO_AST.tExpressionNode<tSpan>>() |
+			C(Lambda).Cast<mSPO_AST.tExpressionNode<tSpan>>() |
+			Method.Cast<mSPO_AST.tExpressionNode<tSpan>>() |
+			C(Method).Cast<mSPO_AST.tExpressionNode<tSpan>>()
+		)
+	)
+	.Modify((aId, _, aProc) => (aId, aProc))
+	.ModifyS(mSPO_AST.RecProcItem)
+	.SetName(nameof(RecProcItem));
 	
-	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecLambdasNode<tSpan>, tError>
-	RecLambda = mParserGen.Seq(
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecProcsNode<tSpan>, tError>
+	RecProcs = mParserGen.Seq(
 		KeyWord("RECURSIVE"),
 		SpecialToken("{"),
 		NLs_Token,
-		(RecLambdaItem +-NLs_Token)[1..],
+		(RecProcItem +-NLs_Token)[1..],
 		SpecialToken("}")
 	).Modify((_, _, _, a, _) => a)
-	.ModifyS(mSPO_AST.RecLambdas)
-	.SetName(nameof(RecLambda));
+	.ModifyS(mSPO_AST.RecProcs)
+	.SetName(nameof(RecProcs));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tIfNode<tSpan>, tError>
 	If = mParserGen.Seq(
@@ -1056,7 +1065,7 @@ mSPO_Parser {
 					Def.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					DefVar.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					MethodCallStatement.Cast<mSPO_AST.tCommandNode<tSpan>>(),
-					RecLambda.Cast<mSPO_AST.tCommandNode<tSpan>>(),
+					RecProcs.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					ReturnIf.Cast<mSPO_AST.tCommandNode<tSpan>>(),
 					Return.Cast<mSPO_AST.tCommandNode<tSpan>>()
 				]

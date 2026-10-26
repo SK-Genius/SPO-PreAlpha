@@ -12,25 +12,39 @@
 	t_10 := [EMPTY_TYPE => t_9]
 	t_11 := [TRUE | FALSE]
 	t_12 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_13 := [t_12 => INT]
-	t_14 := [t_1 : t_13]
-	t_15 := [t_11 => t_14]
-	t_16 := [t_11 => INT]
-	t_17 := [t_1 : t_16]
-	t_18 := [t_15 => t_17]
-	t_19 := [EMPTY_TYPE, t_3]
-	t_20 := [t_19, t_10]
-	t_21 := [t_20, t_15]
-	t_22 := [t_21, t_18]
-	t_23 := [t_22, t_3]
-	t_24 := [EMPTY_TYPE, INT]
-	t_25 := [t_24, INT]
-	t_26 := [t_24, t_25]
-	t_27 := [t_26, INT]
-	t_28 := [t_27, INT]
-	t_29 := [t_28, INT]
-	t_30 := [EMPTY_TYPE => t_29]
-	t_31 := [t_23 => t_30]
+	t_13 := [#Result INT]
+	t_14 := [EMPTY_TYPE | t_13]
+	t_15 := [t_12 => t_14]
+	t_16 := [t_1 : t_15]
+	t_17 := [t_11 => t_16]
+	t_18 := [EMPTY_TYPE => t_16]
+	t_19 := [EMPTY_TYPE, t_11]
+	t_20 := [t_19, t_17]
+	t_21 := [t_20, t_18]
+	t_22 := [t_12 => t_13]
+	t_23 := [t_1 : t_22]
+	t_24 := [t_21 => t_23]
+	t_25 := [EMPTY_TYPE, t_17]
+	t_26 := [t_25, t_18]
+	t_27 := [t_26, t_24]
+	t_28 := [t_11 => INT]
+	t_29 := [t_1 : t_28]
+	t_30 := [t_27 => t_29]
+	t_31 := [EMPTY_TYPE, t_3]
+	t_32 := [t_31, t_10]
+	t_33 := [t_32, t_17]
+	t_34 := [t_33, t_18]
+	t_35 := [t_34, t_24]
+	t_36 := [t_35, t_30]
+	t_37 := [t_36, t_3]
+	t_38 := [EMPTY_TYPE, INT]
+	t_39 := [t_38, INT]
+	t_40 := [t_38, t_39]
+	t_41 := [t_40, INT]
+	t_42 := [t_41, INT]
+	t_43 := [t_42, INT]
+	t_44 := [EMPTY_TYPE => t_43]
+	t_45 := [t_37 => t_44]
 
 §DEF d_0 € t_3
 	§RETURN ARG IF_NOT_EMPTY
@@ -48,80 +62,123 @@
 	r_5 := {r_2} + r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_2 € t_15
+§DEF d_2 € t_17
 	_aFlag := ENV
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
 	_aSelf := OBJ
-	r_1 := §VAR _aSelf ->
-	§RETURN r_1 IF _aFlag
-	r_2 := 0
-	§RETURN r_2 IF TRUE
-	§RETURN EMPTY IF TRUE
+	r_1 := §BOOL _aFlag ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := §VAR _aSelf ->
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
 
 §DEF d_3 € t_18
-	d_2 := ENV
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §BOOL TRUE ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := 0
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_4 € t_24
+	d_3 := §2ND ENV
+	r_7 := §1ST ENV
+	d_2 := §2ND r_7
+	r_8 := §1ST r_7
+	_aFlag := §2ND r_8
+	r_9 := §1ST r_8
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_2 _aFlag
+	r_2 := EMPTY, EMPTY
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_3 EMPTY
+	r_4 := EMPTY, EMPTY
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_5 € t_30
+	d_4 := §2ND ENV
+	r_9 := §1ST ENV
+	d_3 := §2ND r_9
+	r_10 := §1ST r_9
+	d_2 := §2ND r_10
+	r_11 := §1ST r_10
 	_aFlag := ARG
 	_aSelf := OBJ
-	r_2 := §CLOSURE d_2 _aFlag
-	r_3 := EMPTY, EMPTY
-	r_4 := OBJ, r_2
-	r_5 := §OBJ:r_4 r_3
-	r_1 := r_5
-	§RETURN r_1 IF TRUE
+	r_1 := EMPTY, _aFlag
+	r_2 := r_1, d_2
+	r_3 := r_2, d_3
+	r_4 := §CLOSURE d_4 r_3
+	r_5 := EMPTY, EMPTY
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE
 
-§DEF d_4 € t_3
+§DEF d_6 € t_3
 	§RETURN ARG IF_NOT_EMPTY
 	_aSelf := OBJ
 	r_1 := §VAR _aSelf ->
 	§RETURN r_1 IF TRUE
 
-§DEF d_5 € t_31
-	d_4 := §2ND ENV
-	r_26 := §1ST ENV
-	d_3 := §2ND r_26
-	r_27 := §1ST r_26
-	d_2 := §2ND r_27
-	r_28 := §1ST r_27
-	d_1 := §2ND r_28
-	r_29 := §1ST r_28
-	d_0 := §2ND r_29
+§DEF d_7 € t_45
+	d_6 := §2ND ENV
+	r_29 := §1ST ENV
+	d_5 := §2ND r_29
 	r_30 := §1ST r_29
+	d_4 := §2ND r_30
+	r_31 := §1ST r_30
+	d_3 := §2ND r_31
+	r_32 := §1ST r_31
+	d_2 := §2ND r_32
+	r_33 := §1ST r_32
+	d_1 := §2ND r_33
+	r_34 := §1ST r_33
+	d_0 := §2ND r_34
+	r_35 := §1ST r_34
 	r_1 := §CLOSURE d_0 EMPTY
 	_Read := r_1
 	r_2 := §CLOSURE d_1 EMPTY
 	_Box... := r_2
-	r_3 := §CLOSURE d_3 d_2
-	_Select... := r_3
-	r_4 := §CLOSURE d_4 EMPTY
-	_ReadBlock := r_4
-	r_5 := 7
-	_Cell := §VAR r_5
-	r_7 := _Cell, _Read
-	r_6 := §OBJ:r_7 EMPTY
-	_ReadValue := r_6
-	r_8 := 9
-	r_10 := _Cell, _Box...
-	r_9 := §OBJ:r_10 r_8
-	_BoxValue := r_9
-	r_12 := _Cell, _Select...
-	r_11 := §OBJ:r_12 TRUE
-	_Selected := r_11
-	r_14 := _Cell, _Select...
-	r_13 := §OBJ:r_14 FALSE
-	_Other := r_13
-	r_16 := _Cell, _ReadBlock
-	r_15 := §OBJ:r_16 EMPTY
-	_BlockValue := r_15
-	r_17 := {_BoxValue} #_Value
-	_BoxArgument := r_17
-	r_18 := {_BoxValue} #_Self
-	_BoxReceiver := r_18
-	r_19 := EMPTY, _ReadValue
-	r_20 := EMPTY, _BoxArgument
-	r_21 := r_20, _BoxReceiver
-	r_22 := r_19, r_21
-	r_23 := r_22, _Selected
-	r_24 := r_23, _Other
-	r_25 := r_24, _BlockValue
-	§RETURN r_25 IF TRUE
+	r_3 := EMPTY, d_2
+	r_4 := r_3, d_3
+	r_5 := r_4, d_4
+	r_6 := §CLOSURE d_5 r_5
+	_Select... := r_6
+	r_7 := §CLOSURE d_6 EMPTY
+	_ReadBlock := r_7
+	r_8 := 7
+	_Cell := §VAR r_8
+	r_10 := _Cell, _Read
+	r_9 := §OBJ:r_10 EMPTY
+	_ReadValue := r_9
+	r_11 := 9
+	r_13 := _Cell, _Box...
+	r_12 := §OBJ:r_13 r_11
+	_BoxValue := r_12
+	r_15 := _Cell, _Select...
+	r_14 := §OBJ:r_15 TRUE
+	_Selected := r_14
+	r_17 := _Cell, _Select...
+	r_16 := §OBJ:r_17 FALSE
+	_Other := r_16
+	r_19 := _Cell, _ReadBlock
+	r_18 := §OBJ:r_19 EMPTY
+	_BlockValue := r_18
+	r_20 := {_BoxValue} #_Value
+	_BoxArgument := r_20
+	r_21 := {_BoxValue} #_Self
+	_BoxReceiver := r_21
+	r_22 := EMPTY, _ReadValue
+	r_23 := EMPTY, _BoxArgument
+	r_24 := r_23, _BoxReceiver
+	r_25 := r_22, r_24
+	r_26 := r_25, _Selected
+	r_27 := r_26, _Other
+	r_28 := r_27, _BlockValue
+	§RETURN r_28 IF TRUE
