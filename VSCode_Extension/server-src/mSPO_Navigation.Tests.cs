@@ -276,6 +276,24 @@ const tText Uri = "file:///navigation-test.spo";
 	Assert(References.Length == 3, "recursive method references missing");
 }
 
+{
+	var Code = """
+		§DEF t = [§INT]
+		§DEF Echo... = (§DEF t) <=> (§VAR aSelf € §INT) : (§DEF aValue € t) => aValue
+		§VAR Cell := 7 .
+		Cell : Echo §TRUE => §DEF Value .
+		§EXPORT Value
+		""";
+	var BeforeType = FindPosition(Code, "€ t", 0);
+	var TypeUse = mTextStream.Pos(Uri, BeforeType.Row, BeforeType.Col + 2);
+	var Declaration = FindPosition(Code, "t)", 0);
+	var Definition = mSPO_Navigation.GetDefinition(Code, Uri, TypeUse, _ => {});
+	Assert(Definition.IsSome(out var Location), "generic method type parameter definition missing");
+	Assert(mTextStream.Eq(Location.Range.Start, Declaration), "generic method type parameter did not shadow outer t");
+	var References = ToArray(mSPO_Navigation.GetReferences(Code, Uri, Declaration, true, _ => {}));
+	Assert(References.Length == 2, "generic method type parameter references missing or include outer t");
+}
+
 return 0;
 
 static void

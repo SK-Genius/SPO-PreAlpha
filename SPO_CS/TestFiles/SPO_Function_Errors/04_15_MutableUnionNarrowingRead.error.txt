@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_15_MutableUnionNarrowingRead.SPO:9 ERROR 
-9:  §RETURN §TO_VAL Value
- ┌──────────^
+TestFiles/SPO_Function_Errors/04_15_MutableUnionNarrowingRead.SPO:11 ERROR 
+11:  §RETURN §TO_VAL Value
+ ┌───────────^
  ├ opaque mutable access is not allowed

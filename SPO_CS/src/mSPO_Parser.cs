@@ -760,13 +760,20 @@ mSPO_Parser {
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodNode<tSpan>, tError>
 	Method = mParserGen.Seq(
+		mParserGen.Seq(Pattern, -Token("<=>"))[0..1].Modify(a => a.TryFirst().Then(__ => __.Item1)),
 		Pattern,
 		-SpecialToken(":"),
 		Pattern,
 		(-SpecialToken("=>") +Expression) | Block.Cast<mSPO_AST.tExpressionNode<tSpan>>()
 	)
-	.Modify((aObjPattern, _, aArgPattern, aBody) => (aObjPattern, aArgPattern, aBody))
-	.ModifyS(mSPO_AST.Method)
+	.ModifyS(
+		(aSpan, aGeneric, aObject, _, aArgument, aBody) => mSPO_AST.Method(
+			aSpan,
+			aObject,
+			aArgument,
+			aBody
+		) with { Generic = aGeneric }
+	)
 	.SetName(nameof(Method));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecProcItemNode<tSpan>, tError>

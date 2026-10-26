@@ -1,7 +1,0 @@
-TestFiles/SPO_Function_Errors/04_27_MutableCellAliasReadAfterWrite.SPO:6 ERROR 
-6:   Box := aOpaque .
- ┌───^
- ├ found:
- │ 	[ §VAR [ §VAR §INT ] ]
- │ expected:
- │ 	[ §VAR §INT ]

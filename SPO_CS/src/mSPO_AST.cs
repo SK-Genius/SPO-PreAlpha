@@ -269,6 +269,7 @@ mSPO_AST {
 	tMethodNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<tPatternNode<tPos>> Generic;
 		public tPatternNode<tPos> Obj = default!;
 		public tPatternNode<tPos> Arg = default!;
 		public tExpressionNode<tPos> Body = default!;

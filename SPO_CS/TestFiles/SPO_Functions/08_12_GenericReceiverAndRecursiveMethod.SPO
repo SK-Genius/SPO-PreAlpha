@@ -1,0 +1,68 @@
+§DEF Read = (
+	§DEF t
+) <=> (
+	§VAR aSelf € t
+) : (
+) => §TO_VAL aSelf
+
+§DEF Replace... = (
+	§DEF t
+) <=> (
+	§VAR aSelf € t
+) : (
+	§DEF aValue € t
+) {
+	aSelf := aValue .
+	§RETURN §TO_VAL aSelf
+}
+
+§DEF Pair... = (
+	§DEF tSelf
+	§DEF tValue
+) <=> (
+	§VAR aSelf € tSelf
+) : (
+	§DEF aValue € tValue
+) => (§TO_VAL aSelf, aValue)
+
+§RECURSIVE {
+	§DEF Keep... = (
+		§DEF t
+	) <=> (
+		§VAR aSelf € t
+	) : (
+		§DEF aDone € §BOOL
+	) => §IF {
+		aDone: §TO_VAL aSelf
+		
+		§TRUE: {
+			aSelf : Keep §TRUE => §DEF Result .
+			§RETURN Result
+		}
+	}
+}
+
+§VAR Number :
+	= 7
+	Read => §DEF InitialNumber
+	Replace 9 => §DEF NumberResult
+	Pair "label" => §DEF PairResult
+	Keep §FALSE => §DEF KeptNumber
+.
+
+§VAR Text :
+	= "first"
+	Read => §DEF InitialText
+	Replace "other" => §DEF TextResult
+	Keep §FALSE => §DEF KeptText
+.
+
+§EXPORT (
+	InitialNumber
+	NumberResult
+	PairResult
+	InitialText
+	TextResult
+	KeptNumber
+	KeptText
+)

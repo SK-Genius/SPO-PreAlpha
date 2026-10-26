@@ -1,0 +1,17 @@
+§DEF Run... = (§DEF tResult) <=> (§VAR aSelf € §INT) : (
+	§DEF aRun € [[§VAR §INT] : [] => tResult]
+) {
+	aSelf : aRun => §DEF Result .
+	§RETURN Result
+}
+
+§VAR Cell := 7 .
+§VAR Other := 9 .
+
+Cell : Run (
+	(§VAR aSelf) : () {
+		Other := 42 .
+	}
+) .
+
+§EXPORT ()

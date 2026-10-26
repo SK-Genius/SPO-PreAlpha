@@ -315,6 +315,75 @@ mRegression_Tests {
 				).ToArrayList(
 				).ToArray()
 			),
+			mTest.Test(
+				"Generic methods accept single and multiple type parameters with either body form",
+				aDebug => {
+					foreach (var Parameters in new[] { "(§DEF t)", "(§DEF t € §TYPE)", "(§DEF t, §DEF u)" }) {
+						foreach (var Body in new[] { "=> aValue", "{\n§RETURN aValue\n}" }) {
+							var Source = Parameters + " <=> (§VAR aSelf € §INT) : (§DEF aValue € t) " + Body;
+							mSPO_Parser.Method.TryParseText(Source, "", __ => aDebug(__())).ElseThrow();
+						}
+					}
+				}
+			),
+			mTest.Tests(
+				"Generic methods preserve type constraints and parameter scope",
+				mStream.Stream<(tText Name, tText Source, tText Error)>(
+					(
+						"Receiver and argument use the same type parameter",
+						"""
+						§DEF Same... = (
+							§DEF t
+						) <=> (
+							§VAR aSelf € t
+						) : (
+							§DEF aValue € t
+						) => aValue
+						
+						§VAR Cell :
+							= 7
+							Same §TRUE => §DEF Result
+						.
+						
+						§EXPORT Result
+						""",
+						"INT"
+					),
+					(
+						"Type parameters do not escape the method",
+						"""
+						§DEF Same... = (
+							§DEF t
+						) <=> (
+							§VAR aSelf € §INT
+						) : (
+							§DEF aValue € t
+						) => aValue
+						
+						§DEF Outside € t = 7
+						
+						§EXPORT Outside
+						""",
+						"_t"
+					)
+				).Map(
+					aCase => mTest.Test(
+						aCase.Name,
+						aDebug => {
+							mSPO_Parser.Module.TryParseText(aCase.Source, "", __ => aDebug(__())).ElseThrow();
+							var Result = mSPO_Interpreter.Run(
+								aCase.Source,
+								"",
+								(mVM_Data.Empty(), mVM_Type.Empty()),
+								__ => aDebug(__())
+							);
+							mAssert.IsFalse(Result.Match(out _, out var Error));
+							mAssert.IsTrue(Error.Contains(aCase.Error));
+						}
+					)
+				).ToArrayList(
+				).ToArray()
+			),
 			mTest.Tests(
 				"Removing from a two entry tree preserves the other entry and the original tree",
 				mStream.Stream(0, 1, 2, 3).Map(

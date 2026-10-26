@@ -1,0 +1,292 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [§VAR t_0]
+	t_3 := [t_2 : t_1]
+	t_4 := [§ALL t_0 => t_3]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [§FREE TYPE]
+	t_7 := [t_6 => t_6]
+	t_8 := [§VAR t_6]
+	t_9 := [t_8 : t_7]
+	t_10 := [§ALL t_6 => t_9]
+	t_11 := [EMPTY_TYPE => t_10]
+	t_12 := [§FREE TYPE]
+	t_13 := [§FREE TYPE]
+	t_14 := [EMPTY_TYPE, t_12]
+	t_15 := [t_14, t_13]
+	t_16 := [t_13 => t_15]
+	t_17 := [§VAR t_12]
+	t_18 := [t_17 : t_16]
+	t_19 := [§ALL t_13 => t_18]
+	t_20 := [§ALL t_12 => t_19]
+	t_21 := [EMPTY_TYPE => t_20]
+	t_22 := [TRUE | FALSE]
+	t_23 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_24 := [§FREE TYPE]
+	t_25 := [#Result t_24]
+	t_26 := [EMPTY_TYPE | t_25]
+	t_27 := [t_23 => t_26]
+	t_28 := [§VAR t_24]
+	t_29 := [t_28 : t_27]
+	t_30 := [t_22 => t_29]
+	t_31 := [§FREE TYPE]
+	t_32 := [t_22 => t_31]
+	t_33 := [§VAR t_31]
+	t_34 := [t_33 : t_32]
+	t_35 := [§ALL t_31 => t_34]
+	t_36 := [t_35 => t_29]
+	t_37 := [EMPTY_TYPE, t_22]
+	t_38 := [t_37, t_30]
+	t_39 := [t_38, t_35]
+	t_40 := [t_39, t_36]
+	t_41 := [t_23 => t_25]
+	t_42 := [t_28 : t_41]
+	t_43 := [t_40 => t_42]
+	t_44 := [EMPTY_TYPE, t_30]
+	t_45 := [t_44, t_35]
+	t_46 := [t_45, t_36]
+	t_47 := [t_46, t_43]
+	t_48 := [t_47 => t_35]
+	t_49 := [t_44, t_36]
+	t_50 := [t_49, t_43]
+	t_51 := [t_50, t_48]
+	t_52 := [t_35 => t_35]
+	t_53 := [t_51 => t_52]
+	t_54 := [EMPTY_TYPE, t_5]
+	t_55 := [t_54, t_11]
+	t_56 := [t_55, t_21]
+	t_57 := [t_56, t_30]
+	t_58 := [t_57, t_36]
+	t_59 := [t_58, t_43]
+	t_60 := [t_59, t_48]
+	t_61 := [t_60, t_53]
+	t_62 := [EMPTY_TYPE, INT]
+	t_63 := [t_62, INT]
+	t_64 := [#_Char... INT]
+	t_65 := [EMPTY_TYPE, t_64]
+	t_66 := [t_65, t_64]
+	t_67 := [t_66, t_64]
+	t_68 := [t_67, t_64]
+	t_69 := [t_68, t_64]
+	t_70 := [t_62, t_69]
+	t_71 := [t_63, t_70]
+	t_72 := [t_71, t_69]
+	t_73 := [t_72, t_69]
+	t_74 := [t_73, INT]
+	t_75 := [t_74, t_69]
+	t_76 := [EMPTY_TYPE => t_75]
+	t_77 := [t_61 => t_76]
+
+§DEF d_0 € t_5
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_11
+	_aValue := ARG
+	_aSelf := OBJ
+	§VAR _aSelf <- _aValue
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_21
+	_aValue := ARG
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	r_2 := EMPTY, r_1
+	r_3 := r_2, _aValue
+	§RETURN r_3 IF TRUE
+
+§DEF d_3 € t_30
+	_aDone := ENV
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §BOOL _aDone ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_2 := §VAR _aSelf ->
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
+
+§DEF d_4 € t_36
+	_Keep... := ENV
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §BOOL TRUE ^ TRUE
+	§RETURN EMPTY IF r_1
+	r_3 := _aSelf, _Keep...
+	r_2 := §OBJ:r_3 TRUE
+	_Result := r_2
+	r_4 := +#Result _Result
+	§RETURN r_4 IF TRUE
+
+§DEF d_5 € t_43
+	d_4 := §2ND ENV
+	r_7 := §1ST ENV
+	_Keep... := §2ND r_7
+	r_8 := §1ST r_7
+	d_3 := §2ND r_8
+	r_9 := §1ST r_8
+	_aDone := §2ND r_9
+	r_10 := §1ST r_9
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_3 _aDone
+	r_2 := EMPTY, EMPTY
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_4 _Keep...
+	r_4 := EMPTY, EMPTY
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_6 € t_48
+	d_5 := §2ND ENV
+	r_10 := §1ST ENV
+	d_4 := §2ND r_10
+	r_11 := §1ST r_10
+	_Keep... := §2ND r_11
+	r_12 := §1ST r_11
+	d_3 := §2ND r_12
+	r_13 := §1ST r_12
+	_aDone := ARG
+	_aSelf := OBJ
+	r_1 := EMPTY, _aDone
+	r_2 := r_1, d_3
+	r_3 := r_2, _Keep...
+	r_4 := r_3, d_4
+	r_5 := §CLOSURE d_5 r_4
+	r_6 := EMPTY, EMPTY
+	r_7 := OBJ, r_5
+	r_8 := §OBJ:r_7 r_6
+	r_9 := -#Result r_8
+	§RETURN r_9 IF TRUE
+
+§DEF d_7 € t_53
+	d_6 := §2ND ENV
+	r_6 := §1ST ENV
+	d_5 := §2ND r_6
+	r_7 := §1ST r_6
+	d_4 := §2ND r_7
+	r_8 := §1ST r_7
+	d_3 := §2ND r_8
+	r_9 := §1ST r_8
+	_Keep... := ARG
+	r_1 := EMPTY, d_3
+	r_2 := r_1, _Keep...
+	r_3 := r_2, d_4
+	r_4 := r_3, d_5
+	r_5 := §CLOSURE d_6 r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_8 € t_77
+	d_7 := §2ND ENV
+	r_77 := §1ST ENV
+	d_6 := §2ND r_77
+	r_78 := §1ST r_77
+	d_5 := §2ND r_78
+	r_79 := §1ST r_78
+	d_4 := §2ND r_79
+	r_80 := §1ST r_79
+	d_3 := §2ND r_80
+	r_81 := §1ST r_80
+	d_2 := §2ND r_81
+	r_82 := §1ST r_81
+	d_1 := §2ND r_82
+	r_83 := §1ST r_82
+	d_0 := §2ND r_83
+	r_84 := §1ST r_83
+	r_1 := §CLOSURE d_0 EMPTY
+	_Read := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_Replace... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_Pair... := r_3
+	r_4 := EMPTY, d_3
+	r_5 := r_4, d_4
+	r_6 := r_5, d_5
+	r_7 := r_6, d_6
+	§REC r_8 := .d_7 r_7
+	_Keep... := r_8
+	r_9 := 7
+	_Number := §VAR r_9
+	r_11 := _Number, _Read
+	r_10 := §OBJ:r_11 EMPTY
+	_InitialNumber := r_10
+	r_12 := 9
+	r_14 := _Number, _Replace...
+	r_13 := §OBJ:r_14 r_12
+	_NumberResult := r_13
+	r_15 := 108
+	r_16 := +#_Char... r_15
+	r_17 := EMPTY, r_16
+	r_18 := 97
+	r_19 := +#_Char... r_18
+	r_20 := r_17, r_19
+	r_21 := 98
+	r_22 := +#_Char... r_21
+	r_23 := r_20, r_22
+	r_24 := 101
+	r_25 := +#_Char... r_24
+	r_26 := r_23, r_25
+	r_27 := 108
+	r_28 := +#_Char... r_27
+	r_29 := r_26, r_28
+	r_31 := _Number, _Pair...
+	r_30 := §OBJ:r_31 r_29
+	_PairResult := r_30
+	r_33 := _Number, _Keep...
+	r_32 := §OBJ:r_33 FALSE
+	_KeptNumber := r_32
+	r_34 := 102
+	r_35 := +#_Char... r_34
+	r_36 := EMPTY, r_35
+	r_37 := 105
+	r_38 := +#_Char... r_37
+	r_39 := r_36, r_38
+	r_40 := 114
+	r_41 := +#_Char... r_40
+	r_42 := r_39, r_41
+	r_43 := 115
+	r_44 := +#_Char... r_43
+	r_45 := r_42, r_44
+	r_46 := 116
+	r_47 := +#_Char... r_46
+	r_48 := r_45, r_47
+	_Text := §VAR r_48
+	r_50 := _Text, _Read
+	r_49 := §OBJ:r_50 EMPTY
+	_InitialText := r_49
+	r_51 := 111
+	r_52 := +#_Char... r_51
+	r_53 := EMPTY, r_52
+	r_54 := 116
+	r_55 := +#_Char... r_54
+	r_56 := r_53, r_55
+	r_57 := 104
+	r_58 := +#_Char... r_57
+	r_59 := r_56, r_58
+	r_60 := 101
+	r_61 := +#_Char... r_60
+	r_62 := r_59, r_61
+	r_63 := 114
+	r_64 := +#_Char... r_63
+	r_65 := r_62, r_64
+	r_67 := _Text, _Replace...
+	r_66 := §OBJ:r_67 r_65
+	_TextResult := r_66
+	r_69 := _Text, _Keep...
+	r_68 := §OBJ:r_69 FALSE
+	_KeptText := r_68
+	r_70 := EMPTY, _InitialNumber
+	r_71 := r_70, _NumberResult
+	r_72 := r_71, _PairResult
+	r_73 := r_72, _InitialText
+	r_74 := r_73, _TextResult
+	r_75 := r_74, _KeptNumber
+	r_76 := r_75, _KeptText
+	§RETURN r_76 IF TRUE

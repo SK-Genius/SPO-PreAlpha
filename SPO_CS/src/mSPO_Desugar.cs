@@ -278,17 +278,26 @@ mSPO_Desugar {
 			)
 		),
 		
-		mSPO_AST.tMethodNode<tPos> { Pos: var Pos, Obj: var Obj, Arg: var Arg, Body: var Body, TypeAnnotation: var Type }
+		mSPO_AST.tMethodNode<tPos> {
+			Pos: var Pos,
+			Generic: var Generic,
+			Obj: var Obj,
+			Arg: var Arg,
+			Body: var Body,
+			TypeAnnotation: var Type
+		}
 		=> Body.DesugarExpression(aNextArgIndex).ThenTry(
 			aDesugaredBody => Obj.DesugarPattern().ThenTry(
 				aDesugaredObj => Arg.DesugarPattern().Then(
 					aDesugaredArg => (
-						(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Method(
-							Pos,
-							aDesugaredObj,
-							aDesugaredArg,
-							aDesugaredBody.Expression,
-							Type
+						(mSPO_AST.tExpressionNode<tPos>)(
+							mSPO_AST.Method(
+								Pos,
+								aDesugaredObj,
+								aDesugaredArg,
+								aDesugaredBody.Expression,
+								Type
+							) with { Generic = Generic }
 						),
 						aDesugaredBody.NextArgIndex
 					)
@@ -591,13 +600,31 @@ mSPO_Desugar {
 		_ => throw new System.NotImplementedException(aExpr.GetType().Name)
 	};
 	
+	private static mResult.tResult<
+		(mSPO_AST.tMethodCallNode<tPos> Call, tInt32 NextArgIndex),
+		(tPos Pos, tText ErrorText)
+	>
+	DesugarMethodCall<tPos>(
+		this mSPO_AST.tMethodCallNode<tPos> aCall,
+		tInt32 aNextArgIndex
+	) => aCall.Argument.DesugarExpression(
+		aNextArgIndex
+	).Then(
+		aArgument => (
+			aCall with { Argument = aArgument.Expression },
+			aArgument.NextArgIndex
+		)
+	);
+	
 	public static mResult.tResult<
 		mSPO_AST.tCommandNode<tPos>,
 		(tPos Pos, tText ErrorText)
 	>
 	DesugarCommand<tPos>(
 		this mSPO_AST.tCommandNode<tPos> aCmd
-	) => aCmd.DesugarCommand(cNoUnnamedArgs).Then(__ => __.Command);
+	) => aCmd.DesugarCommand(
+		cNoUnnamedArgs
+	).Then(__ => __.Command);
 	
 	private static mResult.tResult<
 		(mSPO_AST.tCommandNode<tPos> Command, tInt32 NextArgIndex),
@@ -638,17 +665,7 @@ mSPO_Desugar {
 			aDesugaredObj => DesugarAll(
 				Calls,
 				aDesugaredObj.NextArgIndex,
-				(aCall, aNextArgIndex) => aCall.Argument.DesugarExpression(aNextArgIndex).Then(
-					aDesugaredArg => (
-						mSPO_AST.MethodCall(
-							aCall.Pos,
-							aCall.Method,
-							aDesugaredArg.Expression,
-							aCall.Result
-						),
-						aDesugaredArg.NextArgIndex
-					)
-				)
+				DesugarMethodCall
 			).Then(
 				__ => (
 					(mSPO_AST.tCommandNode<tPos>)mSPO_AST.MethodCallStatement(
@@ -685,8 +702,24 @@ mSPO_Desugar {
 			)
 		),
 		
-		mSPO_AST.tDefVarNode<tPos>
-		=> (aCmd, aNextArgIndex),
+		mSPO_AST.tDefVarNode<tPos> { Pos: var Pos, Id: var Id, Expression: var Expr, MethodCalls: var Calls }
+		=> Expr.DesugarExpression(aNextArgIndex).ThenTry(
+			aDesugaredValue => DesugarAll(
+				Calls,
+				aDesugaredValue.NextArgIndex,
+				DesugarMethodCall
+			).Then(
+				aDesugaredCalls => (
+					(mSPO_AST.tCommandNode<tPos>)mSPO_AST.DefVar(
+						Pos,
+						Id,
+						aDesugaredValue.Expression,
+						aDesugaredCalls.Values
+					),
+					aDesugaredCalls.NextArgIndex
+				)
+			)
+		),
 		
 		_ => throw new System.NotImplementedException(aCmd.GetType().Name)
 	};

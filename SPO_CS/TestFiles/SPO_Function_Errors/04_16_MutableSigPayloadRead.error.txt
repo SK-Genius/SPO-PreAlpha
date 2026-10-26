@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_16_MutableSigPayloadRead.SPO:10 ERROR 
-10:  §RETURN §TO_VAL Value
+TestFiles/SPO_Function_Errors/04_16_MutableSigPayloadRead.SPO:13 ERROR 
+13:  §RETURN §TO_VAL Value
  ┌───────────^
  ├ opaque mutable access is not allowed

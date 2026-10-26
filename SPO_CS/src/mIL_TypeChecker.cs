@@ -391,7 +391,7 @@ mIL_TypeChecker {
 		if (!NullType.IsEmpty()) {
 			return mResult.Fail((Position, "definition must have an empty object type"));
 		}
-		if (ProcType.IsGeneric(out _, out var InnerType)) {
+		while (ProcType.IsGeneric(out _, out var InnerType)) {
 			ProcType = InnerType;
 		}
 		if (!ProcType.IsProc(out var ObjType, out var ArgType, out var ResType)) {

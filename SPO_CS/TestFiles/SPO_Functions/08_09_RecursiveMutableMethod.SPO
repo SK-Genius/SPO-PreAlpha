@@ -9,14 +9,12 @@
 		§VAR aSelf € §INT
 	) : (
 		§DEF aCount € §INT
-	) {
-		§RETURN §IF {
-			aCount .!= 0 : {
-				aSelf :
-					= ((§TO_VAL aSelf) .+ 1)
-					Add (aCount .- 1)
-				.
-			}
+	) => §IF {
+		aCount .!= 0 : {
+			aSelf :
+				= ((§TO_VAL aSelf) .+ 1)
+				Add (aCount .- 1)
+			.
 		}
 	}
 }

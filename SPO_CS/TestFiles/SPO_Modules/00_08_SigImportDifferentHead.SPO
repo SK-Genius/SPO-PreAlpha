@@ -4,4 +4,5 @@
 }
 
 §DEF Result € [§INT | []] = .Read Value
+
 §EXPORT Result

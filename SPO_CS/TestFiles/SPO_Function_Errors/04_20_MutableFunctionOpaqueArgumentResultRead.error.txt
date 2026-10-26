@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_20_MutableFunctionOpaqueArgumentResultRead.SPO:4 ERROR 
-4:   §DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
- ┌──────────────────^
+TestFiles/SPO_Function_Errors/04_20_MutableFunctionOpaqueArgumentResultRead.SPO:6 ERROR 
+6:  §DEF Pass... = (
+ ┌─────────────────^
  ├ mutable closure environment is not allowed

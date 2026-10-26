@@ -1,11 +1,14 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Read = (§VAR aSelf € §INT) : () {
-			§RETURN §TO_VAL aSelf
-		}
-		aValue : Read => §DEF Value .
-		§RETURN Value
-	}
-)
-§EXPORT 1
+§DEF Fixture... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Read = (
+		§VAR aSelf € §INT
+	) : (
+	) => §TO_VAL aSelf
+	
+	aValue : Read => §DEF Value .
+	
+	§RETURN Value
+}
+
+§EXPORT ()

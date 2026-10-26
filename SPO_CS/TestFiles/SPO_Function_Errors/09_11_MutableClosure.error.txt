@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/09_11_MutableClosure.SPO:3 ERROR 
-3: §DEF Get... = () => Cell
+TestFiles/SPO_Function_Errors/09_11_MutableClosure.SPO:4 ERROR 
+4: §DEF Get... = () => Cell
  ┌───────────────^
  ├ mutable closure environment is not allowed

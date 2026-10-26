@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/04_37_GenericMethodMutableCapture.SPO:12 ERROR 
+12:  (§VAR aSelf) : () {
+ ┌───^
+ ├ mutable closure environment is not allowed

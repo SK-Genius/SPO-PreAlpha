@@ -1,8 +1,7 @@
 TestFiles/SPO_Function_Errors/04_32_MutableReceiverTypeMismatch.SPO:7 ERROR 
 7:   aValue : Read => §DEF Value .
- ┌───^
- ├ can't convert receiver:
- │ expected VAR
+ ┌────────────^
+ ├ expected VAR
  │ found:
  │   §INT
  │ expected:

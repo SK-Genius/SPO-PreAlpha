@@ -1,10 +1,11 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
+§DEF Fixture... = (
+	§DEF aValue € [§VAR §INT]
+) => {
 	§DEF Value = §IF aValue MATCH {
-	§DEF Item: Item
+		§DEF Item: Item
 	}
+	
 	§RETURN §TO_VAL Value
-	}
-)
-§EXPORT 1
+}
+
+§EXPORT ()

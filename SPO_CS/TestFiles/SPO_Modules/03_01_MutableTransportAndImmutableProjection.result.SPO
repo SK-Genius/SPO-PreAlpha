@@ -1,1 +1,5 @@
-§EXPORT {Left: 11, Right: 11, Fresh: 7}
+§EXPORT {
+	Left: 11
+	Right: 11
+	Fresh: 7
+}

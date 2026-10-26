@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_13_MutableMatchResultRead.SPO:7 ERROR 
-7:  §RETURN §TO_VAL Value
+TestFiles/SPO_Function_Errors/04_13_MutableMatchResultRead.SPO:8 ERROR 
+8:  §RETURN §TO_VAL Value
  ┌──────────^
  ├ opaque mutable access is not allowed

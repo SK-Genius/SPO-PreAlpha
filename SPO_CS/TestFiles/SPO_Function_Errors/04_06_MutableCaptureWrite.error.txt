@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_06_MutableCaptureWrite.SPO:3 ERROR 
-3:  (§DEF aValue € [§VAR §INT]) => (() => {
- ┌──────────────────────────────────^
+TestFiles/SPO_Function_Errors/04_06_MutableCaptureWrite.SPO:4 ERROR 
+4:  () => {
+ ┌──^
  ├ mutable closure environment is not allowed

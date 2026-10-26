@@ -1,18 +1,22 @@
-§IMPORT { Text: {
-	...==...: §DEF ...==... € [[§TEXT, §TEXT] => §BOOL]
-	...ToUpper: §DEF ...ToUpper € [§TEXT => §TEXT]
-	...ToLower: §DEF ...ToLower € [§TEXT => §TEXT]
-	...Trim: §DEF ...Trim € [§TEXT => §TEXT]
-	...TrimStart: §DEF ...TrimStart € [§TEXT => §TEXT]
-	...TrimEnd: §DEF ...TrimEnd € [§TEXT => §TEXT]
-} }
+§IMPORT {
+	Text: {
+		...==...: §DEF ...==... € [[§TEXT, §TEXT] => §BOOL]
+		...ToUpper: §DEF ...ToUpper € [§TEXT => §TEXT]
+		...ToLower: §DEF ...ToLower € [§TEXT => §TEXT]
+		...Trim: §DEF ...Trim € [§TEXT => §TEXT]
+		...TrimStart: §DEF ...TrimStart € [§TEXT => §TEXT]
+		...TrimEnd: §DEF ...TrimEnd € [§TEXT => §TEXT]
+	}
+}
 
 §EXPORT (
 	("abc" .ToUpper) .== "ABC"
 	("ABC" .ToLower) .== "abc"
-	("
-	|  hello  
-	" .Trim) .== "hello"
+	(
+		"
+		|  hello  
+		" .Trim
+	) .== "hello"
 	("  hello  " .TrimStart) .== "hello  "
 	("  hello  " .TrimEnd) .== "  hello"
 )

@@ -1,10 +1,21 @@
 §IMPORT {
 	TestCellFactory: §DEF Create... € [§LOAD "_Modules/TestCellFactory.SIG"]
 }
+
 {Cell: §VAR Left € §INT, Fixed: §DEF cLeftFixed} = .Create ()
 {Cell: §VAR Right € §INT, Fixed: §DEF cRightFixed} = .Create ()
-§DEF Identity... = (§VAR aValue € §INT) => aValue
+
+§DEF Identity... = (
+	§VAR aValue € §INT
+) => aValue
+
 §DEF LeftTransported = .Identity Left
 §DEF RightTransported = .Identity Right
+
 LeftTransported := 1 .
-§EXPORT {Left: cLeftFixed, Right: cRightFixed, Fresh: §TO_VAL RightTransported}
+
+§EXPORT {
+	Left: cLeftFixed
+	Right: cRightFixed
+	Fresh: §TO_VAL RightTransported
+}

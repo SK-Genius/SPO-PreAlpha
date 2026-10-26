@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/04_36_GenericMethodOpaqueContext.SPO:11 ERROR 
+11:  (aSelf, aOpaque) : Run (
+ ┌───^
+ ├ opaque mutable access is not allowed

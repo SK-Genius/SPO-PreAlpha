@@ -1,0 +1,17 @@
+§DEF Run... = (§DEF tContext, §DEF tResult) <=> (
+	§VAR aSelf € §INT
+	§DEF aContext € tContext
+) : (
+	§DEF aRun € [[[§VAR §INT], tContext] : [] => tResult]
+) {
+	(aSelf, aContext) : aRun => §DEF Result .
+	§RETURN Result
+}
+§DEF Forward... = (§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
+	(aSelf, aOpaque) : Run (
+		(§VAR aSelf, §VAR aOther) : () {
+			aOther := 42 .
+		}
+	) .
+}
+§EXPORT ()

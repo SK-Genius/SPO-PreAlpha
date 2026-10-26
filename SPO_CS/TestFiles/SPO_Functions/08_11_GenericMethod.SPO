@@ -1,0 +1,61 @@
+§DEF RunWith... = (
+	§DEF tResult
+) <=> (
+	§VAR aSelf € §INT
+) : (
+	§DEF aRun € [[§VAR §INT] : [] => tResult]
+) {
+	aSelf : aRun => §DEF Result .
+	§RETURN Result
+}
+
+§VAR Value := 7 .
+
+Value :
+	RunWith ((§VAR aSelf) : () => §TO_VAL aSelf) => §DEF Number
+	RunWith ((§VAR aSelf) : () => "text") => §DEF Text .
+
+§DEF RunWithContext... = (
+	§DEF tContext
+	§DEF tResult
+) <=> (
+	§VAR aSelf € §INT
+	§DEF aContext € tContext
+) : (
+	§DEF aRun € [[[§VAR §INT], tContext] : [] => tResult]
+) {
+	(aSelf, aContext) : aRun => §DEF Result .
+	§RETURN Result
+}
+
+§VAR Other := 3 .
+
+(Value, Other) : RunWithContext (
+	(
+		§VAR aSelf
+		§VAR aOther
+	) : (
+	) {
+		aOther := 9 .
+		§RETURN (§TO_VAL aSelf, §TO_VAL aOther)
+	}
+) => §DEF Both .
+
+(Value, (Other, Value)) : RunWithContext (
+	(
+		§VAR aSelf
+		(§VAR aOther, §VAR aAlias)
+	) : (
+	) {
+		aAlias := 11 .
+		aOther := 13 .
+	}
+) .
+
+§EXPORT (
+	Number
+	Text
+	Both
+	§TO_VAL Value
+	§TO_VAL Other
+)

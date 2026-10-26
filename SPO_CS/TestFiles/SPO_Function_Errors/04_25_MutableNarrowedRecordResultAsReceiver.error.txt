@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_25_MutableNarrowedRecordResultAsReceiver.SPO:11 ERROR 
-11:   Result : Observe .
- ┌────^
+TestFiles/SPO_Function_Errors/04_25_MutableNarrowedRecordResultAsReceiver.SPO:17 ERROR 
+17:  Result : Observe .
+ ┌───^
  ├ opaque mutable access is not allowed

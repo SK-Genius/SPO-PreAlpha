@@ -1,8 +1,10 @@
-§IMPORT { Char: {
-	...==...: §DEF ...==... € [[§CHAR, §CHAR] => §BOOL]
-	...ToUpper: §DEF ...ToUpper € [§CHAR => §CHAR]
-	...ToLower: §DEF ...ToLower € [§CHAR => §CHAR]
-} }
+§IMPORT {
+	Char: {
+		...==...: §DEF ...==... € [[§CHAR, §CHAR] => §BOOL]
+		...ToUpper: §DEF ...ToUpper € [§CHAR => §CHAR]
+		...ToLower: §DEF ...ToLower € [§CHAR => §CHAR]
+	}
+}
 
 §EXPORT (
 	(§a .ToUpper) .== §A

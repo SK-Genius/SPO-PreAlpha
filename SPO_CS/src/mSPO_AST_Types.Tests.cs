@@ -799,6 +799,7 @@ mSPO_AST_Types_Tests {
 							"",
 							__ => aDebugStream(__())
 						).ElseThrow(),
+						mVM_Type.Empty(),
 						mStream.Stream(
 							mSPO_AST_Types.ScopeItem(
 								"_F...",

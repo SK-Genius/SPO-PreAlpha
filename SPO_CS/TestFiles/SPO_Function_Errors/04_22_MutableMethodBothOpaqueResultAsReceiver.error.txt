@@ -1,4 +1,4 @@
-TestFiles/SPO_Function_Errors/04_22_MutableMethodBothOpaqueResultAsReceiver.SPO:4 ERROR 
-4:   §DEF Pass... = (§VAR aObject € §INT) : (§DEF aValue € [§VAR §INT]) {
- ┌──────────────────^
+TestFiles/SPO_Function_Errors/04_22_MutableMethodBothOpaqueResultAsReceiver.SPO:7 ERROR 
+7:  §DEF Pass... = (
+ ┌─────────────────^
  ├ mutable closure environment is not allowed

@@ -1,15 +1,24 @@
-§IMPORT ()
-§DEF Fixture... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
-			§RETURN {Handle: aValue, Captured: aOpaque, Number: 7}
-		}
-		§DEF Returned = .Pass aOpaque
-		{Handle: §DEF Result, Number: §DEF Number} = Returned
-		§DEF Read = (§VAR aTarget € §INT) : () {
-			§RETURN §TO_VAL aTarget
-		}
-		§RETURN §TO_VAL Result
+§DEF Fixture... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aOpaque € [§VAR §INT]
+) {
+	§DEF Pass... = (
+		§DEF aValue € [§VAR §INT]
+	) => {
+		Handle: aValue
+		Captured: aOpaque
+		Number: 7
 	}
-)
-§EXPORT 1
+	
+	{Handle: §DEF Result, Number: §DEF Number} = .Pass aOpaque
+	
+	§DEF Read = (
+		§VAR aTarget € §INT
+	) : (
+	) => §TO_VAL aTarget
+	
+	§RETURN §TO_VAL Result
+}
+
+§EXPORT ()

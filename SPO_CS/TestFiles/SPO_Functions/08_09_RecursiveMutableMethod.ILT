@@ -135,7 +135,6 @@
 	r_10 := §OBJ:r_9 r_8
 	r_11 := -#Result r_10
 	§RETURN r_11 IF TRUE
-	§RETURN EMPTY IF TRUE
 
 §DEF d_3 € t_33
 	d_2 := §2ND ENV

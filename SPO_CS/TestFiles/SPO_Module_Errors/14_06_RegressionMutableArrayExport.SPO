@@ -1,5 +1,5 @@
-§DEF Pass... = (
+§DEF Pass = (
 	§DEF aValues € [§RECURSIVE t [[] | [t; [§VAR §INT]]]]
 ) => aValues
 
-§EXPORT .Pass ()
+§EXPORT .Pass

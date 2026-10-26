@@ -407,48 +407,69 @@ mSPO_AST_Types {
 		
 		var MappedExpectedType = aExpectedType.ApplyMappings(aMappings);
 		if (!aArgument.UpdateTypes(aScope, aTypeState).Match(out var Checked, out var Error)) {
-			var LambdaType = MappedExpectedType;
-			while (LambdaType.IsGeneric(out _, out var InnerType)) {
-				LambdaType = InnerType;
+			var ProcType = MappedExpectedType;
+			while (ProcType.IsGeneric(out _, out var InnerType)) {
+				ProcType = InnerType;
 			}
 			
-			if (
-				aArgument is not mSPO_AST.tLambdaNode<tPos> Lambda ||
-				Lambda.Generic.IsSome(out _) ||
-				!LambdaType.IsProc(out _, out var LambdaArgType, out var LambdaExpectedResultType) ||
-				HasUnresolvedFreeType(LambdaArgType, mStd.cEmpty)
-			) {
+			if (!ProcType.IsProc(out var ObjectType, out var ArgumentType, out var ResultType)) {
 				return mResult.Fail(Error);
 			}
-			
+			var Head = (Scope: aScope, State: aTypeState);
+			mSPO_AST.tPatternNode<tPos> Argument;
+			mSPO_AST.tExpressionNode<tPos> Body;
+			switch (aArgument) {
+				case mSPO_AST.tLambdaNode<tPos> Lambda when Lambda.Generic.IsNone(): {
+					if (!ObjectType.IsEmpty()) {
+						return mResult.Fail(Error);
+					}
+					Argument = Lambda.Head;
+					Body = Lambda.Body;
+					break;
+				}
+				case mSPO_AST.tMethodNode<tPos> Method when Method.Generic.IsNone(): {
+					if (
+						HasUnresolvedFreeType(ObjectType, mStd.cEmpty) ||
+						!UpdatePatternTypes(
+							Method.Obj,
+							ObjectType,
+							tTypeRelation.Equal,
+							Head.Scope,
+							Head.State
+						).Match(out var Object, out Error)
+					) {
+						return mResult.Fail(Error);
+					}
+					Head = (Object.Scope, Object.State);
+					ObjectType = Object.Type;
+					Argument = Method.Arg;
+					Body = Method.Body;
+					break;
+				}
+				default:
+					return mResult.Fail(Error);
+			}
 			if (
+				HasUnresolvedFreeType(ArgumentType, mStd.cEmpty) ||
 				!UpdatePatternTypes(
-					Lambda.Head,
-					LambdaArgType,
+					Argument,
+					ArgumentType,
 					tTypeRelation.Sub,
-					aScope,
-					aTypeState
-				).Match(out var LambdaArg, out Error) ||
-				!Lambda.Body.TryInferArgument(
-					LambdaExpectedResultType,
+					Head.Scope,
+					Head.State
+				).Match(out var Parameter, out Error) ||
+				!Body.TryInferArgument(
+					ResultType,
 					aMappings,
-					LambdaArg.Scope,
-					LambdaArg.State
-				).Match(out var LambdaResult, out Error)
+					Parameter.Scope,
+					Parameter.State
+				).Match(out var Result, out Error)
 			) {
 				return mResult.Fail(Error);
 			}
-			
-			Checked = (
-				mVM_Type.Proc(
-					mVM_Type.Empty(),
-					LambdaArg.Type,
-					LambdaResult.Type
-				),
-				LambdaResult.State
-			);
-			Checked.State = Checked.State.SetValidatedType(Lambda, Checked.Type);
-			aMappings = LambdaResult.Mappings;
+			Checked = (mVM_Type.Proc(ObjectType, Parameter.Type, Result.Type), Result.State);
+			Checked.State = Checked.State.SetValidatedType(aArgument, Checked.Type);
+			aMappings = Result.Mappings;
 		}
 		
 		return Checked.Type.IsSubType(
@@ -473,7 +494,8 @@ mSPO_AST_Types {
 		this mSPO_AST.tExpressionNode<tPos> aArgument,
 		mVM_Type.tType aExpectedType,
 		mStream.tStream<tScopeItem> aScope,
-		tTypeState<tPos> aTypeState
+		tTypeState<tPos> aTypeState,
+		mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> aMappings = default
 	) {
 		var Arguments = mStream.Stream(aArgument);
 		var ExpectedTypes = mStream.Stream(aExpectedType);
@@ -497,7 +519,7 @@ mSPO_AST_Types {
 		var Done = new tBool[ArgumentCount];
 		var ArgumentTypes = new mVM_Type.tType[ArgumentCount];
 		var Errors = new mMaybe.tMaybe<(tPos Pos, tText ErrorText)>[ArgumentCount];
-		var Checked = (Mappings: default(mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType>), State: aTypeState);
+		var Checked = (Mappings: aMappings, State: aTypeState);
 		var Remaining = ArgumentCount;
 		var ArgumentsWithTypes = mStream.ZipShort(Arguments, ExpectedTypes).MapWithIndex().Reverse();
 		
@@ -713,29 +735,53 @@ mSPO_AST_Types {
 					);
 				}
 			),
-			mSPO_AST.tMethodNode<tPos> Method => (
-				UpdatePatternTypes(
-					Method.Obj,
-					mStd.cEmpty,
-					tTypeRelation.Equal,
-					aScope,
-					aTypeState
-				).ThenTry(
-					aObj => UpdatePatternTypes(
+			mSPO_AST.tMethodNode<tPos> Method => mStd.Call(
+				() => {
+					var Head = (Scope: aScope, State: aTypeState);
+					if (Method.Generic.IsSome(out var Generic)) {
+						if (!UpdatePatternTypes(
+							Generic,
+							mVM_Type.Type(),
+							tTypeRelation.Equal,
+							Head.Scope,
+							Head.State
+						).Match(out var Bound, out var Error)) {
+							return mResult.Fail(Error);
+						}
+						Head = (Bound.Scope, Bound.State);
+					}
+					if (!UpdatePatternTypes(
+						Method.Obj,
+						mStd.cEmpty,
+						tTypeRelation.Equal,
+						Head.Scope,
+						Head.State
+					).Match(out var Object, out var ObjectError)) {
+						return mResult.Fail(ObjectError);
+					}
+					if (!UpdatePatternTypes(
 						Method.Arg,
 						mStd.cEmpty,
 						tTypeRelation.Sub,
-						aObj.Scope,
-						aObj.State
-					).ThenTry(
-						aArg => Method.Body.UpdateTypes(
-							aArg.Scope,
-							aArg.State
-						).Then(
-							aResType => (mVM_Type.Proc(aObj.Type, aArg.Type, aResType.Type), aResType.State)
-						)
-					)
-				)
+						Object.Scope,
+						Object.State
+					).Match(out var Argument, out var ArgumentError)) {
+						return mResult.Fail(ArgumentError);
+					}
+					if (!Method.Body.UpdateTypes(
+						Argument.Scope,
+						Argument.State
+					).Match(out var Result, out var BodyError)) {
+						return mResult.Fail(BodyError);
+					}
+					var Proc = mVM_Type.Proc(Object.Type, Argument.Type, Result.Type);
+					foreach (var Parameter in Head.Scope.Take(Head.Scope.Count() - aScope.Count())) {
+						Proc = mVM_Type.Generic(Parameter.TypeValue.AssertNotEmpty(), Proc);
+					}
+					return mResult.OK(
+						(Type: Proc, State: Result.State)
+					).WithErrorType<(tPos Pos, tText ErrorText)>();
+				}
 			),
 			mSPO_AST.tBlockNode<tPos> Block => (
 				mStd.Call(
@@ -1360,6 +1406,7 @@ mSPO_AST_Types {
 	>
 	UpdateMethodCallTypes<tPos>(
 		mSPO_AST.tMethodCallNode<tPos> aMethodCall,
+		mVM_Type.tType aObjectType,
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
@@ -1371,16 +1418,25 @@ mSPO_AST_Types {
 						ProcType = InnerType;
 					}
 					
-					if (!ProcType.IsProc(out _, out var MethArgType, out var MethResType)) {
+					if (!ProcType.IsProc(out var MethObjectType, out var MethArgType, out var MethResType)) {
 						return mResult.Fail(
 							(aMethodCall.Argument.Pos, $"'{aMethodType.Type.ToText()}' is not a Proc")
 						);
 					}
 					
+					var Mappings = default(mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType>);
+					// Assignment becomes VAR_SET, which checks the receiver itself.
+					if (
+						aMethodCall.Method.Id is not "_=..." &&
+						!aObjectType.IsSubType(MethObjectType).Match(out Mappings, out var ObjectError)
+					) {
+						return mResult.Fail((aMethodCall.Method.Pos, ObjectError));
+					}
 					return aMethodCall.Argument.TryInferArguments(
 						MethArgType,
 						aScope,
-						aMethodType.State
+						aMethodType.State,
+						Mappings
 					).ThenTry(
 						aArgument => (
 							!aMethodCall.Result.IsSome(out var Result)
@@ -1452,7 +1508,7 @@ mSPO_AST_Types {
 					aValue => DefVar.MethodCalls.Reduce(
 						mResult.OK((Scope: aScope, State: aValue.State)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 						(aChecked, MethodCall) => aChecked.ThenTry(
-							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State)
+							__ => UpdateMethodCallTypes(MethodCall, mVM_Type.Var(aValue.Type), __.Scope, __.State)
 						)
 					).ThenTry(
 						aChecked => {
@@ -1469,10 +1525,12 @@ mSPO_AST_Types {
 				var Checked = (Scope: aScope, State: aTypeState);
 				foreach (var Item in RecProcs.List) {
 					var Head = Checked;
-					if (
-						Item.Proc is mSPO_AST.tLambdaNode<tPos> GenericFunction &&
-						GenericFunction.Generic.IsSome(out var GenericPattern)
-					) {
+					var Generic = Item.Proc switch {
+						mSPO_AST.tLambdaNode<tPos> Function => Function.Generic,
+						mSPO_AST.tMethodNode<tPos> Operation => Operation.Generic,
+						_ => default
+					};
+					if (Generic.IsSome(out var GenericPattern)) {
 						if (
 							!UpdatePatternTypes(
 								GenericPattern,
@@ -1650,7 +1708,7 @@ mSPO_AST_Types {
 					aObject => MethodCalls.MethodCalls.Reduce(
 						mResult.OK((Scope: aScope, State: aObject.State)).WithErrorType<(tPos Pos, tText ErrorText)>(),
 						(aChecked, MethodCall) => aChecked.ThenTry(
-							__ => UpdateMethodCallTypes(MethodCall, __.Scope, __.State)
+							__ => UpdateMethodCallTypes(MethodCall, aObject.Type, __.Scope, __.State)
 						)
 					)
 				);

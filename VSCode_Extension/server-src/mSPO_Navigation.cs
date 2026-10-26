@@ -428,10 +428,10 @@ mSPO_Navigation {
 			aItem => DocumentSymbol(
 				DisplayId(aItem.Id.Id),
 				"recursive",
-				GetBindingKind(aItem.Lambda, aItem.Id.Id),
+				GetBindingKind(aItem.Proc, aItem.Id.Id),
 				aItem.Pos,
 				aItem.Id.NamePos,
-				GetExpressionSymbols(aItem.Lambda)
+				GetExpressionSymbols(aItem.Proc)
 			)
 		),
 		mSPO_AST.tReturnIfNode<tSpan> ReturnIf => JoinSymbolStreams(
@@ -657,6 +657,19 @@ mSPO_Navigation {
 		mSPO_AST.tMethodNode<tSpan> aMethod
 	) {
 		var Result = new System.Collections.Generic.List<tDocumentSymbol>();
+
+		if (aMethod.Generic.IsSome(out var GenericPattern)) {
+			AddSymbols(
+				Result,
+				GetPatternSymbols(
+					GenericPattern,
+					GenericPattern.Pos,
+					"type parameter",
+					tSymbolKind.TypeParameter,
+					mStd.cEmpty
+				)
+			);
+		}
 
 		AddSymbols(
 			Result,
@@ -985,7 +998,7 @@ mSPO_Navigation {
 			case mSPO_AST.tRecProcsNode<tSpan> RecProcs: {
 				var Scope = CopyScope(aScope);
 				foreach (var Item in RecProcs.List) {
-					Scope.Add(Binding(Item.Id.Id, Item.Id.NamePos, GetBindingKind(Item.Lambda, Item.Id.Id)));
+					Scope.Add(Binding(Item.Id.Id, Item.Id.NamePos, GetBindingKind(Item.Proc, Item.Id.Id)));
 					AddDefinitionOccurrence(aQueryPos, Item.Id.Id, Item.Id.NamePos);
 					if (Contains(Item.Id.NamePos, aQueryPos.QueryPos)) {
 						aDefinitionSpan = Item.Id.NamePos;
@@ -997,7 +1010,7 @@ mSPO_Navigation {
 				foreach (var Item in RecProcs.List) {
 					if (
 						TryResolveExpression(
-							Item.Lambda,
+							Item.Proc,
 							aQueryPos,
 							Scope,
 							out aDefinitionSpan
@@ -1326,11 +1339,25 @@ mSPO_Navigation {
 			}
 
 			case mSPO_AST.tMethodNode<tSpan> Method: {
+				var Scope = CopyScope(aScope);
+				if (
+					Method.Generic.IsSome(out var GenericPattern) &&
+					TryResolvePattern(
+						GenericPattern,
+						aQueryPos,
+						Scope,
+						out aDefinitionSpan,
+						out Scope
+					)
+				) {
+					return true;
+				}
+
 				if (
 					TryResolvePattern(
 						Method.Obj,
 						aQueryPos,
-						aScope,
+						Scope,
 						out aDefinitionSpan,
 						out var ObjScope
 					) ||

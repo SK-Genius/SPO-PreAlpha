@@ -1,9 +1,11 @@
-§IMPORT { Std: {
-	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
-	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
-	...*...: §DEF ...*... € [[§INT, §INT] => §INT]
-	.../...: §DEF .../... € [[§INT, §INT] => §INT]
-} }
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+		...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+		...*...: §DEF ...*... € [[§INT, §INT] => §INT]
+		.../...: §DEF .../... € [[§INT, §INT] => §INT]
+	}
+}
 
 §EXPORT (
 	2 .+ 5
