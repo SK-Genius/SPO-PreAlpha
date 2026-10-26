@@ -2,38 +2,46 @@
 	t_0 := [§FREE TYPE]
 	t_1 := [§SIG_WITH t_0 IN t_0]
 	t_2 := [§ABSTRACT TYPE]
-	t_3 := [#Result TYPE]
-	t_4 := [t_1 => t_3]
-	t_5 := [EMPTY_TYPE => t_4]
-	t_6 := [t_5 => t_4]
-	t_7 := [EMPTY_TYPE, t_5]
-	t_8 := [t_7, t_6]
-	t_9 := [EMPTY_TYPE => TYPE]
-	t_10 := [t_8 => t_9]
+	t_3 := [EMPTY_TYPE, t_1]
+	t_4 := [#Result TYPE]
+	t_5 := [t_3 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_6 => t_5]
+	t_8 := [EMPTY_TYPE, t_6]
+	t_9 := [t_8, t_7]
+	t_10 := [EMPTY_TYPE => TYPE]
+	t_11 := [t_9 => t_10]
 
-§DEF d_0 € t_5
-	r_1 := §SIG_HEAD ARG AS t_2
-	r_2 := §SIG_BODY ARG
+§DEF d_0 € t_6
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §SIG_HEAD r_4 AS t_2
+	r_2 := §SIG_BODY r_4
 	_Head := r_1
 	r_3 := +#Result _Head
 	§RETURN r_3 IF TRUE
 
-§DEF d_1 € t_6
+§DEF d_1 € t_7
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_10
+§DEF d_2 € t_11
 	d_1 := §2ND ENV
-	r_7 := §1ST ENV
-	d_0 := §2ND r_7
-	r_8 := §1ST r_7
+	r_9 := §1ST ENV
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
 	_Contract := t_1
 	r_1 := 1
 	r_2 := INT_TYPE, r_1
 	r_3 := §SIG t_1 WITH r_2
-	r_4 := .d_1 d_0
-	r_5 := .r_4 r_3
-	r_6 := -#Result r_5
-	§RETURN r_6 IF TRUE
+	r_4 := §CLOSURE d_1 d_0
+	r_5 := EMPTY, r_3
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE

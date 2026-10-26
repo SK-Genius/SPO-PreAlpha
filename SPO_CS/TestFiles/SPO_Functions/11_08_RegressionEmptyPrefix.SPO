@@ -1,0 +1,26 @@
+§DEF tShort = [#Prefix]
+§DEF tExplicit = [#Prefix []]
+§DEF cShort € tShort = #Prefix
+§DEF cExplicit € tExplicit = (#Prefix ())
+
+§DEF Classify... = (
+	§DEF aValue € [tShort | tExplicit]
+) => §IF aValue MATCH {
+	#Prefix: 1
+	(#Prefix ()): 2
+}
+
+§EXPORT (
+	.Classify cShort
+	.Classify cExplicit
+	.Classify #Prefix
+	.Classify (#Prefix ())
+	§IF (#First, #Second) MATCH {
+		(#First, #Second): 3
+	}
+	§IF (#Box #Prefix) MATCH {
+		(#Box #Prefix): 4
+	}
+	cShort
+	cExplicit
+)

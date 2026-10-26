@@ -1,0 +1,4 @@
+TestFiles/ILT_Function_Errors/03_32_MutableReceiverAliasAfterCall.ILT:16 ERROR 
+16:  value := §VAR handle ->
+ ┌───^
+ ├ opaque mutable access is not allowed

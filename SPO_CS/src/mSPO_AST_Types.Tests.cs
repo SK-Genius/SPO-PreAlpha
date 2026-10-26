@@ -196,7 +196,7 @@ mSPO_AST_Types_Tests {
 					);
 					
 					mAssert.IsTrue(
-						Checked.Scope.TryFirst().AssertNotEmpty().Type.Refs[2].IsFree(out _, out _)
+						Checked.Scope.TryFirst().AssertNotEmpty().Type.Refs[2].IsFree()
 					);
 				}
 			),

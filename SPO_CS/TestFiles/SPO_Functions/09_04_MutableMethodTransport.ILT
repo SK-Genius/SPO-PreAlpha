@@ -3,37 +3,26 @@
 	t_1 := [t_0 => t_0]
 	t_2 := [t_0 : t_1]
 	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [t_3 => t_3]
-	t_5 := [EMPTY_TYPE => t_0]
-	t_6 := [t_0 : t_5]
-	t_7 := [t_6 => t_0]
-	t_8 := [t_0 : t_7]
-	t_9 := [EMPTY_TYPE => t_8]
-	t_10 := [t_9 => t_9]
-	t_11 := [EMPTY_TYPE => t_6]
-	t_12 := [EMPTY_TYPE, t_3]
-	t_13 := [t_12, t_4]
-	t_14 := [t_13, t_9]
-	t_15 := [t_14, t_10]
-	t_16 := [t_15, t_11]
-	t_17 := [EMPTY_TYPE, t_0]
-	t_18 := [t_17, t_0]
-	t_19 := [EMPTY_TYPE => t_18]
-	t_20 := [t_16 => t_19]
+	t_4 := [EMPTY_TYPE => t_0]
+	t_5 := [t_0 : t_4]
+	t_6 := [t_5 => t_0]
+	t_7 := [t_0 : t_6]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [EMPTY_TYPE => t_5]
+	t_10 := [EMPTY_TYPE, t_3]
+	t_11 := [t_10, t_8]
+	t_12 := [t_11, t_9]
+	t_13 := [EMPTY_TYPE, INT]
+	t_14 := [t_13, INT]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [t_12 => t_15]
 
 §DEF d_0 € t_3
 	_aValue := ARG
 	_aSelf := OBJ
 	§RETURN _aValue IF TRUE
-	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_4
-	d_0 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_0 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_2 € t_9
+§DEF d_1 € t_8
 	_aGet := ARG
 	_aSelf := OBJ
 	r_2 := _aSelf, _aGet
@@ -42,55 +31,40 @@
 	§RETURN _Result IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_10
-	d_2 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_2 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_4 € t_11
+§DEF d_2 € t_9
 	§RETURN ARG IF_NOT_EMPTY
 	_aTarget := OBJ
 	§RETURN _aTarget IF TRUE
-	§RETURN EMPTY IF TRUE
 
-§DEF d_5 € t_20
-	d_4 := §2ND ENV
-	r_17 := §1ST ENV
-	d_3 := §2ND r_17
+§DEF d_3 € t_16
+	d_2 := §2ND ENV
+	r_16 := §1ST ENV
+	d_1 := §2ND r_16
+	r_17 := §1ST r_16
+	d_0 := §2ND r_17
 	r_18 := §1ST r_17
-	d_2 := §2ND r_18
-	r_19 := §1ST r_18
-	d_1 := §2ND r_19
-	r_20 := §1ST r_19
-	d_0 := §2ND r_20
-	r_21 := §1ST r_20
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_1 d_0
+	r_1 := §CLOSURE d_0 EMPTY
 	_VarPattern... := r_1
-	r_2 := .d_3 d_2
+	r_2 := §CLOSURE d_1 EMPTY
 	_OpaqueMethodTransport... := r_2
 	r_3 := 7
 	_Cell := §VAR r_3
 	r_4 := 9
 	_Opaque := §VAR r_4
-	r_5 := .d_4 EMPTY
+	r_5 := §CLOSURE d_2 EMPTY
 	_Get := r_5
-	r_6 := ._VarPattern... EMPTY
-	_Case01... := r_6
-	r_7 := 7
-	_Receiver01 := §VAR r_7
-	r_8 := §VAR _Cell ->
-	r_10 := _Receiver01, _Case01...
-	r_9 := §OBJ:r_10 r_8
-	_Result01 := r_9
-	r_11 := ._OpaqueMethodTransport... EMPTY
-	_Case02... := r_11
-	r_12 := 7
-	_Receiver02 := §VAR r_12
-	r_14 := _Receiver02, _Case02...
-	r_13 := §OBJ:r_14 _Get
-	_Result02 := r_13
-	r_15 := EMPTY, _Result01
-	r_16 := r_15, _Result02
-	§RETURN r_16 IF TRUE
+	r_6 := 7
+	_Receiver01 := §VAR r_6
+	r_8 := _Receiver01, _VarPattern...
+	r_7 := §OBJ:r_8 _Cell
+	_Result01 := r_7
+	r_9 := 7
+	_Receiver02 := §VAR r_9
+	r_11 := _Receiver02, _OpaqueMethodTransport...
+	r_10 := §OBJ:r_11 _Get
+	_Result02 := r_10
+	r_12 := §VAR _Result01 ->
+	r_13 := EMPTY, r_12
+	r_14 := §VAR _Result02 ->
+	r_15 := r_13, r_14
+	§RETURN r_15 IF TRUE

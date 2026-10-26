@@ -1,85 +1,54 @@
 §TYPES
-	t_0 := [§VAR INT]
-	t_1 := [#Result INT]
-	t_2 := [t_0 => t_1]
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [§VAR INT]
+	t_2 := [t_1 : t_0]
 	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [t_3 => t_2]
-	t_5 := [EMPTY_TYPE, t_3]
-	t_6 := [t_5, t_4]
-	t_7 := [EMPTY_TYPE => INT]
-	t_8 := [t_0 : t_7]
-	t_9 := [t_6 => t_8]
-	t_10 := [#_Handle t_0]
-	t_11 := [{EMPTY_TYPE} + t_10]
-	t_12 := [#_Number INT]
-	t_13 := [{t_11} + t_12]
-	t_14 := [t_13 => INT]
-	t_15 := [EMPTY_TYPE => t_14]
-	t_16 := [t_6, t_9]
-	t_17 := [t_16, t_15]
-	t_18 := [EMPTY_TYPE, INT]
-	t_19 := [t_18, INT]
-	t_20 := [EMPTY_TYPE => t_19]
-	t_21 := [t_17 => t_20]
+	t_4 := [#_Handle t_1]
+	t_5 := [{EMPTY_TYPE} + t_4]
+	t_6 := [#_Number INT]
+	t_7 := [{t_5} + t_6]
+	t_8 := [t_7 => INT]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [EMPTY_TYPE, t_3]
+	t_11 := [t_10, t_9]
+	t_12 := [EMPTY_TYPE, INT]
+	t_13 := [t_12, INT]
+	t_14 := [EMPTY_TYPE => t_13]
+	t_15 := [t_11 => t_14]
 
 §DEF d_0 € t_3
-	_Current := ARG
-	r_1 := §VAR _Current ->
-	r_2 := +#Result r_1
-	§RETURN r_2 IF TRUE
-
-§DEF d_1 € t_4
-	d_0 := ENV
-	r_1 := .d_0 EMPTY
-	§TRY_RETURN .r_1 ARG
-	§RETURN EMPTY IF TRUE
-
-§DEF d_2 € t_9
-	d_1 := §2ND ENV
-	r_4 := §1ST ENV
-	d_0 := §2ND r_4
-	r_5 := §1ST r_4
 	§RETURN ARG IF_NOT_EMPTY
 	_aSelf := OBJ
-	r_1 := .d_1 d_0
-	r_2 := .r_1 _aSelf
-	r_3 := -#Result r_2
-	§RETURN r_3 IF TRUE
-	§RETURN EMPTY IF TRUE
+	_Current := _aSelf
+	r_1 := §VAR _Current ->
+	§RETURN r_1 IF TRUE
 
-§DEF d_3 € t_15
+§DEF d_1 € t_9
 	_aRecord := ARG
 	r_1 := {_aRecord} #_Number
 	_Number := r_1
 	§RETURN _Number IF TRUE
 
-§DEF d_4 € t_21
-	d_3 := §2ND ENV
-	r_16 := §1ST ENV
-	d_2 := §2ND r_16
-	r_17 := §1ST r_16
-	d_1 := §2ND r_17
-	r_18 := §1ST r_17
-	d_0 := §2ND r_18
-	r_19 := §1ST r_18
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := EMPTY, d_0
-	r_2 := r_1, d_1
-	r_3 := .d_2 r_2
-	_Read := r_3
-	r_4 := .d_3 EMPTY
-	_Number... := r_4
-	r_5 := 7
-	_Cell := §VAR r_5
-	r_7 := _Cell, _Read
-	r_6 := §OBJ:r_7 EMPTY
-	_Value := r_6
-	r_8 := EMPTY, _Value
-	r_9 := +#_Handle _Cell
-	r_10 := {EMPTY} + r_9
-	r_11 := 9
-	r_12 := +#_Number r_11
-	r_13 := {r_10} + r_12
-	r_14 := ._Number... r_13
-	r_15 := r_8, r_14
-	§RETURN r_15 IF TRUE
+§DEF d_2 € t_15
+	d_1 := §2ND ENV
+	r_14 := §1ST ENV
+	d_0 := §2ND r_14
+	r_15 := §1ST r_14
+	r_1 := §CLOSURE d_0 EMPTY
+	_Read := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_Number... := r_2
+	r_3 := 7
+	_Cell := §VAR r_3
+	r_5 := _Cell, _Read
+	r_4 := §OBJ:r_5 EMPTY
+	_Value := r_4
+	r_6 := EMPTY, _Value
+	r_7 := +#_Handle _Cell
+	r_8 := {EMPTY} + r_7
+	r_9 := 9
+	r_10 := +#_Number r_9
+	r_11 := {r_8} + r_10
+	r_12 := ._Number... r_11
+	r_13 := r_6, r_12
+	§RETURN r_13 IF TRUE

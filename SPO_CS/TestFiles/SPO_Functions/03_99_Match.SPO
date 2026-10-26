@@ -1,6 +1,6 @@
 §DEF X = 1
-§DEF Y = §IF X MATCH {
+
+§EXPORT §IF X MATCH {
 	1 : 0
 	§DEF Z : Z
 }
-§EXPORT Y

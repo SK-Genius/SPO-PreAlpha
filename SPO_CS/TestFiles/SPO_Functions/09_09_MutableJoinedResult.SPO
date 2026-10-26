@@ -1,25 +1,27 @@
-§IMPORT ()
-
-§DEF OpaqueJoinTransport... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT], §DEF aFlag € §BOOL) {
-		§DEF Result = §IF {
-			aFlag: aSelf
-			§TRUE: aOpaque
-		}
-		§RETURN Result
+§DEF OpaqueJoinTransport... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aOpaque € [§VAR §INT]
+	§DEF aFlag € §BOOL
+) {
+	§DEF Result = §IF {
+		aFlag: aSelf
+		§TRUE: aOpaque
 	}
-)
+	
+	§RETURN Result
+}
 
-
-§VAR Cell := 7 .
 §VAR Opaque := 9 .
 
-§DEF Case01... = .OpaqueJoinTransport ()
-§VAR Receiver01 := 7 .
-Receiver01 : Case01 (Opaque, §TRUE) => §DEF Result01 .
+§VAR Receiver01 :
+	= 7
+	OpaqueJoinTransport (Opaque, §TRUE) => §DEF Result01
+.
 
-§DEF Case02... = .OpaqueJoinTransport ()
-§VAR Receiver02 := 7 .
-Receiver02 : Case02 (Opaque, §FALSE) => §DEF Result02 .
+§VAR Receiver02 :
+	= 7
+	OpaqueJoinTransport (Opaque, §FALSE) => §DEF Result02
+.
 
-§EXPORT (Result01, Result02)
+§EXPORT (§TO_VAL Result01, §TO_VAL Result02)

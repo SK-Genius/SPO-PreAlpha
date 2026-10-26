@@ -1,12 +1,12 @@
 §TYPES
 	V := [§VAR INT]
 	U := [V | INT]
-MF := [EMPTY_TYPE => INT]
-M := [U : MF]
+	MF := [EMPTY_TYPE => INT]
+	M := [U : MF]
 	F := [U => INT]
 	P := [EMPTY_TYPE : F]
 	D := [M => P]
 §DEF f € D
 	pair := ARG, ENV
-value := §OBJ:pair EMPTY
-§RETURN value IF TRUE
+	value := §OBJ:pair EMPTY
+	§RETURN value IF TRUE

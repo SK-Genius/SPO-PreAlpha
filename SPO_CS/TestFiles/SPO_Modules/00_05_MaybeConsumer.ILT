@@ -113,13 +113,13 @@
 	_NoneInt := EMPTY
 	r_8 := 0
 	_ZeroValue := r_8
-	r_9 := .d_0 EMPTY
+	r_9 := §CLOSURE d_0 EMPTY
 	_ToTrue := r_9
-	r_10 := .d_1 EMPTY
+	r_10 := §CLOSURE d_1 EMPTY
 	_ToFalse := r_10
-	r_11 := .d_2 EMPTY
+	r_11 := §CLOSURE d_2 EMPTY
 	_Zero := r_11
-	r_12 := .d_3 EMPTY
+	r_12 := §CLOSURE d_3 EMPTY
 	_Two := r_12
 	r_13 := EMPTY, _SomeInt
 	r_14 := r_13, _ToTrue

@@ -1,6 +1,0 @@
-mError+tError: [DebugId: 24274958] expected definition symbol but was '_Cell'
-   at mSPO2IL.MapModule[tPos](tModuleNode`1 aModuleNode, tFunc`3 aMergePos, tStream`1 aScope, tTypeState`1 aTypeState) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO2IL.cs:line 2245
-   at mSPO_Interpreter.<>c__DisplayClass0_0.<Run>b__2(ValueTuple`2 aNewScope) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 73
-   at mSPO_Interpreter.Run(String aCode, String aId, ValueTuple`2 aImport, tAction`1 aDebugStream) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mSPO_Interpreter.cs:line 67
-   at mE2E_Tests.<>c__DisplayClass1_9.<.cctor>b__35(ValueTuple`2 aImports) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 351
-   at mE2E_Tests.<>c__DisplayClass1_7.<.cctor>b__31(tAction`1 aDebug) in D:\Projekte\SPO-PreAlpha_main\SPO_CS\src\mE2E.Tests.cs:line 346

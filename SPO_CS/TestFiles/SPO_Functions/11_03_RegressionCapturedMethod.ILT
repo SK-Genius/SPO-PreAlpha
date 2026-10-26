@@ -1,0 +1,35 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [INT : t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [INT => INT]
+	t_4 := [t_1 => t_3]
+	t_5 := [EMPTY_TYPE, t_2]
+	t_6 := [t_5, t_4]
+	t_7 := [t_6 => t_0]
+
+§DEF d_0 € t_2
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	§RETURN _aSelf IF TRUE
+
+§DEF d_1 € t_4
+	_Get := ENV
+	_aValue := ARG
+	r_2 := _aValue, _Get
+	r_1 := §OBJ:r_2 EMPTY
+	_Result := r_1
+	§RETURN _Result IF TRUE
+
+§DEF d_2 € t_7
+	d_1 := §2ND ENV
+	r_5 := §1ST ENV
+	d_0 := §2ND r_5
+	r_6 := §1ST r_5
+	r_1 := §CLOSURE d_0 EMPTY
+	_Get := r_1
+	r_2 := §CLOSURE d_1 _Get
+	_Read... := r_2
+	r_3 := 42
+	r_4 := ._Read... r_3
+	§RETURN r_4 IF TRUE

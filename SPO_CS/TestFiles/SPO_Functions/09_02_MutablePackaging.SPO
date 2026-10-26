@@ -1,103 +1,90 @@
-§IMPORT ()
+§DEF StructuredTransport... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	(_, §DEF FromPair) = (0, aValue)
+	(#Handle (§DEF FromPrefix)) = (#Handle FromPair)
+	{Handle: §DEF FromRecord} = {Handle: FromPrefix, Number: 7}
+	
+	§RETURN FromRecord
+}
 
-§DEF StructuredTransport... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Alias = aValue
-		§DEF Pair = (0, Alias)
-		(_, §DEF FromPair) = Pair
-		§DEF Wrapped = (#Handle FromPair)
-		(#Handle (§DEF FromPrefix)) = Wrapped
-		§DEF Record = {Handle: FromPrefix, Number: 7}
-		{Handle: §DEF FromRecord} = Record
-		§RETURN FromRecord
+§DEF GenericIdentity... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Pass... = §DEF t <=> (§DEF aItem € t) => aItem
+	
+	§RETURN .Pass aValue
+}
+
+§DEF MatchBinding... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Value = §IF aValue MATCH {
+		§DEF Item: Item
 	}
-)
+	
+	§RETURN Value
+}
 
-§DEF GenericIdentity... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Pass... = §DEF t <=> (§DEF aItem € t) => aItem
-		§DEF Value = .Pass aValue
-		§RETURN Value
+§DEF SigPackage... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+	§DEF Package = §SIG Contract WITH [§VAR §INT] IN aValue
+	§RETURN §IF Package MATCH {
+		§SIG Contract WITH [§VAR §INT] IN §DEF Item: Item
+		§SIG Contract WITH _ IN _: aValue
 	}
-)
+}
 
-§DEF MatchBinding... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Value = §IF aValue MATCH {
-			§DEF Item: Item
-		}
-		§RETURN Value
+§DEF NarrowRecord... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§DEF Narrow € [< Number: §INT >] = {Handle: aValue, Number: 7}
+	§DEF Pass... = (§DEF aRecord € [< Number: §INT >]) => aRecord
+	§DEF Observe = (§DEF aRecord € [< Number: §INT >]) : () {
+		§RETURN 0
 	}
-)
+	
+	§RETURN .Pass Narrow
+}
 
-§DEF SigPackage... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Contract = [§SIG_WITH t € §TYPE IN t]
-		§DEF Package = §SIG Contract WITH [§VAR §INT] IN aValue
-		§DEF Value = §IF Package MATCH {
-			§SIG Contract WITH [§VAR §INT] IN §DEF Item: Item
-			§SIG Contract WITH _ IN _: aValue
-		}
-		§RETURN Value
+§DEF VariableWrapper... = (
+	§DEF aValue € [§VAR §INT]
+) => {
+	§VAR Box := aValue .
+	§RETURN Box
+}
+
+§DEF ImmutableReconstruction... = (
+	§DEF aRecord € [< Handle: [§VAR §INT], Number: §INT >]
+) => {
+	{Number: §DEF Number} = aRecord
+	
+	§DEF Projected = {Number: Number}
+	§DEF Observe = (§DEF aValue € [< Number: §INT >]) : () {
+		§RETURN 0
 	}
-)
-
-§DEF NarrowRecord... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§DEF Record = {Handle: aValue, Number: 7}
-		§DEF Narrow € [< Number: §INT >] = Record
-		§DEF Pass... = (§DEF aRecord € [< Number: §INT >]) => aRecord
-		§DEF Result = .Pass Narrow
-		§DEF Observe = (§DEF aRecord € [< Number: §INT >]) : () {
-			§RETURN 0
-		}
-
-		§RETURN Result
-	}
-)
-
-§DEF VariableWrapper... = () => (
-	(§DEF aValue € [§VAR §INT]) => {
-		§VAR Box := aValue .
-		§RETURN Box
-	}
-)
-
-§DEF ImmutableReconstruction... = () => (
-	(§DEF aRecord € [< Handle: [§VAR §INT], Number: §INT >]) => {
-		{Number: §DEF Number} = aRecord
-		§DEF Projected = {Number: Number}
-		§DEF Observe = (§DEF aValue € [< Number: §INT >]) : () {
-			§RETURN 0
-		}
-		Projected : Observe .
-		§RETURN Projected
-	}
-)
-
+	
+	Projected : Observe .
+	
+	§RETURN Projected
+}
 
 §VAR Cell := 7 .
 §VAR Opaque := 9 .
 
-§DEF Case01... = .StructuredTransport ()
-§DEF Result01 = .Case01 Cell
+{Number: §DEF Number} = .NarrowRecord Cell
+{Number: §DEF ReconstructedNumber} = .ImmutableReconstruction {Handle: Cell, Number: 7}
 
-§DEF Case02... = .GenericIdentity ()
-§DEF Result02 = .Case02 Cell
+§DEF Wrapped = §TO_VAL .VariableWrapper Cell
 
-§DEF Case03... = .MatchBinding ()
-§DEF Result03 = .Case03 Cell
-
-§DEF Case04... = .SigPackage ()
-§DEF Result04 = .Case04 Cell
-
-§DEF Case05... = .NarrowRecord ()
-§DEF Result05 = .Case05 Cell
-
-§DEF Case06... = .VariableWrapper ()
-§DEF Result06 = .Case06 Cell
-
-§DEF Case07... = .ImmutableReconstruction ()
-§DEF Result07 = .Case07 {Handle: Cell, Number: 7}
-
-§EXPORT (Result01, Result02, Result03, Result04, Result05, Result06, Result07)
+§EXPORT (
+	§TO_VAL (.StructuredTransport Cell)
+	§TO_VAL (.GenericIdentity Cell)
+	§TO_VAL (.MatchBinding Cell)
+	§TO_VAL (.SigPackage Cell)
+	Number
+	§TO_VAL Wrapped
+	{Number: ReconstructedNumber}
+)

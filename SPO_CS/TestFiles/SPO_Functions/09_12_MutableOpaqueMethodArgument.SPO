@@ -1,11 +1,20 @@
-§IMPORT ()
-§DEF Relay... = (§VAR aSelf € §INT) : (§DEF aValue € [§VAR §INT]) {
-	§RETURN aValue
-}
-§DEF Forward... = (§VAR aSelf € §INT) : (§DEF aValue € [§VAR §INT]) {
+§DEF Relay... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aValue € [§VAR §INT]
+) => aValue
+
+§DEF Forward... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aValue € [§VAR §INT]
+) {
 	aSelf : Relay aValue => §DEF Returned .
 	§RETURN Returned
 }
+
 §VAR Cell := 7 .
+
 Cell : Forward Cell => §DEF Returned .
+
 §EXPORT §TO_VAL Returned

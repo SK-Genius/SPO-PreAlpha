@@ -23,5 +23,4 @@
 	r_12 := 4
 	r_13 := r_11, r_12
 	r_14 := ._...+... r_13
-	_X := r_14
-	§RETURN _X IF TRUE
+	§RETURN r_14 IF TRUE

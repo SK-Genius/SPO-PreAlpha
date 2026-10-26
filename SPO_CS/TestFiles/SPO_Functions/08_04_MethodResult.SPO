@@ -2,11 +2,11 @@
 	§DEF o € [§VAR §INT]
 ) : (
 	§DEF a € §INT
-) {
-	§RETURN a
-}
+) => a
 
-§VAR X := 0 .
-X : Get 42 => §DEF Result .
+§VAR X :
+	= 0
+	Get 42 => §DEF Result
+.
 
 §EXPORT Result

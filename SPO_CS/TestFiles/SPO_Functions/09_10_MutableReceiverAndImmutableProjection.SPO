@@ -1,15 +1,18 @@
-§IMPORT ()
-
-§DEF Read = (§VAR aSelf € §INT) : () {
-	§RETURN §IF aSelf MATCH {
-		§DEF Current: §TO_VAL Current
-	}
+§DEF Read = (
+	§VAR aSelf € §INT
+) : () => §IF aSelf MATCH {
+	§DEF Current: §TO_VAL Current
 }
-§DEF Number... = (§DEF aRecord € [< Handle: [§VAR §INT], Number: §INT >]) => {
+
+§DEF Number... = (
+	§DEF aRecord € [< Handle: [§VAR §INT], Number: §INT >]
+) => {
 	{Number: §DEF Number} = aRecord
 	§RETURN Number
 }
 
 §VAR Cell := 7 .
+
 Cell : Read => §DEF Value .
+
 §EXPORT (Value, .Number {Handle: Cell, Number: 9})

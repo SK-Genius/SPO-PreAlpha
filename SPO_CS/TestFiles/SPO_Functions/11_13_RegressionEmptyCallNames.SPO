@@ -1,0 +1,20 @@
+§DEF F = () => 1
+§DEF F... = () => 2
+
+§DEF M = (
+	§VAR aSelf € §INT
+) : (
+) => 3
+
+§DEF M... = (
+	§VAR aSelf € §INT
+) : (
+) => 4
+
+§VAR Cell :
+	= 7
+	M => §DEF BareMethod
+	M () => §DEF ExplicitMethod
+.
+
+§EXPORT (.F, .F (), BareMethod, ExplicitMethod)

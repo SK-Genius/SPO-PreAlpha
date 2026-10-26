@@ -1,0 +1,66 @@
+§DEF Container = [
+	§SIG_WITH tBox € [§TYPE => §TYPE] IN [<
+		Box...: [§GENERIC t [t => [.tBox t]]]
+	>]
+]
+
+§DEF Package = [
+	§SIG_WITH t € §TYPE IN [<
+		Value: t
+		Identity...: [t => t]
+	>]
+]
+
+§DEF tBox... = [§GENERIC t [t, t]]
+
+§DEF Box... = (
+	§DEF t € §TYPE
+) <=> (
+	§DEF aValue € t
+) => (aValue, aValue)
+
+§DEF Wrap... = (
+	§SIG Container WITH §DEF tBox IN {Box...: §DEF aBox...}
+	§DEF aBool € §BOOL
+) => {
+	§DEF tState = [<
+		Ints: [.tBox §INT]
+		Bools: [.tBox §BOOL]
+	>]
+	
+	§DEF Identity... = (§DEF aState € tState) => aState
+	
+	§RETURN §SIG Package WITH tState IN {
+		Value: {Ints: (.aBox 7), Bools: (.aBox aBool)}
+		Identity...: Identity...
+	}
+}
+
+§DEF Wrapped = .Wrap (
+	§SIG Container WITH tBox... IN {Box...: Box...}
+	§TRUE
+)
+
+§DEF Result = §IF Wrapped MATCH {
+	§SIG Package WITH [<
+		Ints: [§INT, §INT]
+		Bools: [§BOOL, §BOOL]
+	>] IN {
+		Value: §DEF Value
+		Identity...: §DEF Identity...
+	}: .Identity Value
+	
+	§SIG Package WITH _ IN _: ()
+}
+
+§DEF Values € [[§INT, §INT], [§BOOL, §BOOL]] = §IF Result MATCH {
+	{Ints: §DEF Ints, Bools: §DEF Bools}: (Ints, Bools)
+	_: ((0, 0), (§FALSE, §FALSE))
+}
+
+(§DEF Ints, §DEF Bools) = Values
+
+§EXPORT {
+	Ints: Ints
+	Bools: Bools
+}

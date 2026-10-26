@@ -154,7 +154,7 @@ mVM_Type_Tests {
 					mAssert.AreEquals(Updated.ToStream().Count(), 1u);
 					mAssert.IsTrue(Free.ApplyMappings(First).IsInt());
 					mAssert.IsTrue(
-						Free.ApplyMappings(Updated).SameType(mVM_Type.Union(mVM_Type.Int(), mVM_Type.False()))
+						Free.ApplyMappings(Updated).SameType(mVM_Type.Set(mVM_Type.Int(), mVM_Type.False()))
 					);
 				}
 			),

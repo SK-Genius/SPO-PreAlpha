@@ -7,7 +7,8 @@
 #:ref Common/mArrayList.cs
 #:ref Common/mAssert.cs
 #:ref Common/mMaybe.cs
-#:ref Common/mMap.cs
+#:ref Common/mRef.cs
+#:ref Common/mTreeMap.cs
 #:ref Common/mStream.cs
 #:ref mVM_Type.cs
 
@@ -715,10 +716,10 @@ mVM_Data {
 		Equals(
 			tData a
 		) => (
-			a is not null
-			&& this._DataType.Equals(a._DataType)
-			&& this._Value.Equals(a._Value)
-			&& this._Fields.Equals(a._Fields)
+			a is not null &&
+			this._DataType.Equals(a._DataType) &&
+			this._Value.Equals(a._Value) &&
+			this._Fields.Equals(a._Fields)
 		);
 		
 		public override tBool
@@ -1069,8 +1070,8 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		// In the end this is the place where the compiler will called !!!
-		return Data(tDataType.Proc, aEnv._IsMutable, aDef, aEnv);
+		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
+		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
 	
 	public static tBool
@@ -1107,7 +1108,8 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		tData aEnv
 	) {
-		return Data(tDataType.ExternProc, aEnv._IsMutable, aExternDef, aEnv);
+		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
+		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
 	}
 	
 	public static tBool
@@ -1145,13 +1147,20 @@ mVM_Data {
 	public static tData
 	Var(
 		tData aValue
-	) => Data(tDataType.Var, true, aValue);
+	) => Data(tDataType.Var, true, new mRef.tRefBox<tData> { _Value = aValue });
 	
 	public static tBool
 	IsVar(
 		this tData aData,
 		out tData aValue
-	) => aData.Is(tDataType.Var, out aValue);
+	) {
+		if (aData.Is(tDataType.Var, out mRef.tRefBox<tData> Cell)) {
+			aValue = Cell._Value;
+			return true;
+		}
+		aValue = default!;
+		return false;
+	}
 	
 	public static tData
 	ExternDef(
@@ -1245,30 +1254,32 @@ mVM_Data {
 		};
 	}
 	
-	public static mMap.tMap<tNat32, tText> gHashToPrefix = mMap.Map<tNat32, tText>((a1, a2) => a1 == a2);
+	public static mTreeMap.tTree<tNat32, tText> gHashToPrefix = mTreeMap.Tree<tNat32, tText>(
+		(aLeft, aRight) => aLeft.CompareTo(aRight),
+		[]
+	);
 	
 	public static tNat32
 	PrefixHash(
-		this tText a
+		this tText aPrefix
 	) {
-		if (a is null) {
+		if (aPrefix is null) {
 			return 0;
 		}
 		
-		var Hash = (tNat32)a.Length ^ 0xDEADBEEF;
-		
+		// FNV-1a over UTF-16 code units; IDs stay deterministic across runs.
+		var Hash = 2166136261u;
 		unchecked {
-			foreach (var ch in a) {
-				Hash ^= ch;
-				var Shift = Hash & 31;
-				var Rot = (Hash << (tInt32)Shift) | (Hash << ((tInt32)Shift - 32));
-				Hash ^= Rot;
+			foreach (var Character in aPrefix) {
+				Hash = (Hash ^ Character) * 16777619u;
 			}
-			Hash ^= Hash >> 16;
 		}
 		
-		gHashToPrefix = gHashToPrefix.Set(Hash, a);
-		
+		if (!gHashToPrefix.TryGet(Hash).IsSome(out var Existing)) {
+			gHashToPrefix = gHashToPrefix.Set(Hash, aPrefix);
+		} else {
+			mAssert.IsTrue(Existing == aPrefix, "prefix hash collision");
+		}
 		return Hash;
 	}
 }

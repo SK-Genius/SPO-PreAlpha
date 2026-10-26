@@ -1,14 +1,14 @@
 §TYPES
 	V := [§VAR INT]
 	MF := [EMPTY_TYPE => INT]
-M := [V : MF]
-E := [V, M]
+	M := [V : MF]
+	E := [V, M]
 	F := [EMPTY_TYPE => INT]
 	P := [EMPTY_TYPE : F]
 	D := [E => P]
 §DEF f € D
 	handle := §1ST ENV
-method := §2ND ENV
-pair := handle, method
-value := §OBJ:pair EMPTY
-§RETURN value IF TRUE
+	method := §2ND ENV
+	pair := handle, method
+	value := §OBJ:pair EMPTY
+	§RETURN value IF TRUE

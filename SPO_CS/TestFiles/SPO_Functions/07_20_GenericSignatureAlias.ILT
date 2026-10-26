@@ -39,9 +39,9 @@
 	d_0 := §2ND r_10
 	r_11 := §1ST r_10
 	_Signature... := t_2
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_Identity... := r_1
-	r_2 := .d_1 EMPTY
+	r_2 := §CLOSURE d_1 EMPTY
 	_Use... := r_2
 	r_3 := 7
 	r_4 := ._Identity... r_3

@@ -1,0 +1,72 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => EMPTY_TYPE]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [EMPTY_TYPE => INT]
+	t_3 := [§VAR INT]
+	t_4 := [t_3 : t_2]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE, t_1]
+	t_7 := [t_6, t_1]
+	t_8 := [t_7, t_5]
+	t_9 := [t_8, t_5]
+	t_10 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_11 := [t_10, EMPTY_TYPE]
+	t_12 := [t_11, INT]
+	t_13 := [t_12, INT]
+	t_14 := [t_13, EMPTY_TYPE]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [t_9 => t_15]
+
+§DEF d_0 € t_1
+	§RETURN ARG IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_1
+	§RETURN ARG IF_NOT_EMPTY
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_5
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_3 € t_5
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_4 € t_16
+	d_3 := §2ND ENV
+	r_17 := §1ST ENV
+	d_2 := §2ND r_17
+	r_18 := §1ST r_17
+	d_1 := §2ND r_18
+	r_19 := §1ST r_18
+	d_0 := §2ND r_19
+	r_20 := §1ST r_19
+	r_1 := §CLOSURE d_0 EMPTY
+	_Empty := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_Empty... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_Read := r_3
+	r_4 := §CLOSURE d_3 EMPTY
+	_Read... := r_4
+	r_5 := 7
+	_Cell := §VAR r_5
+	r_7 := _Cell, _Read
+	r_6 := §OBJ:r_7 EMPTY
+	_BareMethod := r_6
+	r_9 := _Cell, _Read...
+	r_8 := §OBJ:r_9 EMPTY
+	_ExplicitMethod := r_8
+	r_10 := ._Empty EMPTY
+	r_11 := EMPTY, r_10
+	r_12 := ._Empty... EMPTY
+	r_13 := r_11, r_12
+	r_14 := r_13, _BareMethod
+	r_15 := r_14, _ExplicitMethod
+	r_16 := r_15, EMPTY
+	§RETURN r_16 IF TRUE

@@ -1,1 +1,4 @@
-Pending diagnostic: mutable module export must be rejected.
+TestFiles/SPO_Module_Errors/14_04_MutableClosureExport.SPO:3 ERROR 
+3: §EXPORT () => Cell
+ ┌─────────^
+ ├ mutable closure environment is not allowed

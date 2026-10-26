@@ -1,0 +1,77 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => TRUE]
+	t_1 := [§VAR INT]
+	t_2 := [t_1 : t_0]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE, TRUE]
+	t_5 := [#_Char... INT]
+	t_6 := [EMPTY_TYPE, t_5]
+	t_7 := [t_6, t_5]
+	t_8 := [EMPTY_TYPE, t_7]
+	t_9 := [t_8, INT]
+	t_10 := [#Result t_9]
+	t_11 := [t_4 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [t_12 => t_11]
+	t_14 := [EMPTY_TYPE, t_3]
+	t_15 := [t_14, t_12]
+	t_16 := [t_15, t_13]
+	t_17 := [EMPTY_TYPE, t_9]
+	t_18 := [t_17, INT]
+	t_19 := [EMPTY_TYPE => t_18]
+	t_20 := [t_16 => t_19]
+
+§DEF d_0 € t_3
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	§RETURN TRUE IF TRUE
+
+§DEF d_1 € t_12
+	r_12 := §1ST ARG
+	r_11 := §2ND ARG
+	r_1 := 111
+	r_2 := +#_Char... r_1
+	r_3 := EMPTY, r_2
+	r_4 := 107
+	r_5 := +#_Char... r_4
+	r_6 := r_3, r_5
+	r_7 := EMPTY, r_6
+	r_8 := 7
+	r_9 := r_7, r_8
+	r_10 := +#Result r_9
+	§RETURN r_10 IF TRUE
+
+§DEF d_2 € t_13
+	d_1 := ENV
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §CLOSURE d_1 EMPTY
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_20
+	d_2 := §2ND ENV
+	r_15 := §1ST ENV
+	d_1 := §2ND r_15
+	r_16 := §1ST r_15
+	d_0 := §2ND r_16
+	r_17 := §1ST r_16
+	r_1 := §CLOSURE d_0 EMPTY
+	_Probe := r_1
+	r_2 := 0
+	_Value := §VAR r_2
+	r_4 := _Value, _Probe
+	r_3 := §OBJ:r_4 EMPTY
+	r_5 := §CLOSURE d_2 d_1
+	r_6 := EMPTY, TRUE
+	r_7 := OBJ, r_5
+	r_8 := §OBJ:r_7 r_6
+	r_9 := -#Result r_8
+	_Result := r_9
+	r_11 := _Value, _Probe
+	r_10 := §OBJ:r_11 EMPTY
+	r_12 := EMPTY, _Result
+	r_13 := §VAR _Value ->
+	r_14 := r_12, r_13
+	§RETURN r_14 IF TRUE

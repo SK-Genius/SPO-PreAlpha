@@ -4,18 +4,25 @@
 	F := [V => R]
 	B := [TRUE | FALSE]
 	G := [V => B]
-	FD := [V => F]
+	FD := [EMPTY_TYPE => F]
 	GD := [V => G]
 	E := [F, G]
 	D := [E => F]
+	Definitions1 := [EMPTY_TYPE, FD]
+	Definitions2 := [Definitions1, GD]
+	Definitions := [Definitions2, D]
+	Module := [EMPTY_TYPE => EMPTY_TYPE]
+	ModuleDef := [Definitions => Module]
 §DEF case € FD
 	read := §VAR ARG ->
-value := ARG
+	value := ARG
 	result := +#Result value
 	§RETURN result IF TRUE
 §DEF guard € GD
 	§RETURN TRUE IF TRUE
-§DEF main € D
+§DEF try_return € D
 	callback := §1ST ENV
 	guard := §2ND ENV
 	§TRY_RETURN .callback ARG IF guard
+§DEF main € ModuleDef
+	§RETURN EMPTY IF TRUE

@@ -1,1 +1,7 @@
-Pending diagnostic: actual import type must be checked before execution.
+TestFiles/SPO_Module_Errors/_Modules/01_01_Consumer.SPO:1 ERROR 
+1: §IMPORT { TestBoolValue: §DEF Value € §INT }
+ ┌───────────^
+ ├ found:
+ │   [{ _TestBoolValue : §TRUE }]
+ │ expected:
+ │   [{ _TestBoolValue : §INT }]

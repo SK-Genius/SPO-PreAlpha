@@ -1,0 +1,19 @@
+§DEF Probe = (
+	§VAR aSelf € §INT
+) : () => §TRUE
+
+§VAR Value :
+	= 0
+	Probe
+.
+
+§DEF Result = §IF §TRUE MATCH {
+	§TRUE: ("ok", 7)
+}
+
+Value : Probe => _ .
+
+§EXPORT (
+	Result
+	§TO_VAL Value
+)

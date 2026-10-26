@@ -7,6 +7,7 @@
 #:ref Common/mError.cs
 #:ref Common/mPerf.cs
 #:ref Common/mMaybe.cs
+#:ref Common/mRef.cs
 #:ref Common/mMath.cs
 #:ref Common/mStream.cs
 #:ref Common/mAny.cs
@@ -74,7 +75,7 @@ mVM {
 	}
 	
 	private static mMaybe.tMaybe<mVM_Type.tType>
-	TryGetFuncArgType(
+	TryGetProcArgType(
 		mVM_Data.tData aProc
 	) {
 		if (
@@ -105,14 +106,15 @@ mVM {
 			aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
 			return aData.TypeExpressionValue().KindType().SameType(aType);
 		}
-		if (aType.IsFree(out _, out var Ref)) {
-			return ReferenceEquals(aType, Ref) || aData.Matches(Ref, aVisited);
-		} else if (aType.IsAny()) {
+		if (aType.IsFree() || aType.IsAny()) {
 			return true;
 		}
 		
 		if (aVisited.Any(__ => __.Data == aData._DebugId && __.Type == aType.DebugId)) {
 			return true;
+		}
+		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
+			return Definition.DefType.IsSubType(aType).Match(out _, out _);
 		}
 		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
 		if (
@@ -123,6 +125,36 @@ mVM {
 			while (aType.Kind is mVM_Type.tKind.Proc && FuncType.IsGeneric(out _, out var FuncBody)) {
 				FuncType = FuncBody;
 			}
+			// Compiled closures retain symbolic witnesses from opened SIGs. Their
+			// identities are checked statically; runtime matching instantiates the
+			// erased symbols locally against the concrete package signature.
+			var Opened = mStream.Stream<(mVM_Type.tType Symbol, mVM_Type.tType Type)>([]);
+			mVM_Type.tType OpenWitnesses(mVM_Type.tType aValue) {
+				var Constructor = aValue;
+				while (Constructor.Kind is mVM_Type.tKind.TypeApply) {
+					Constructor = Constructor.Refs[0];
+				}
+				if (Constructor.Kind is mVM_Type.tKind.Abstract) {
+					if (Opened.Where(__ => __.Symbol.SameType(aValue)).TryFirst().IsSome(out var Existing)) {
+						return Existing.Type;
+					}
+					// An application of an opaque constructor is itself an erased type.
+					// Opening only its constructor cannot match a concrete list representation.
+					var Type = mVM_Type.Free(aValue.Id ?? "witness", aValue.KindType());
+					Opened = mStream.Stream((aValue, Type), Opened);
+					return Type;
+				}
+				if (aValue.IsRecord(out var Fields)) {
+					return mVM_Type.Record(Fields.ToStream().Map(
+						__ => (__.Key, OpenWitnesses(__.Value))
+					).ToArrayList().ToArray());
+				}
+				return aValue.Kind is mVM_Type.tKind.Free || aValue.Refs.Length == 0 ? aValue : new() {
+					Kind = aValue.Kind, Id = aValue.Id, Prefix = aValue.Prefix,
+					Refs = mStream.Stream(aValue.Refs).Map(OpenWitnesses).ToArrayList().ToArray()
+				};
+			}
+			FuncType = OpenWitnesses(FuncType);
 			return FuncType.IsSubType(aType).Match(out _, out _);
 		}
 		if (aType.IsSig(out var Binder, out var SigBody)) {
@@ -147,7 +179,7 @@ mVM {
 
 				// An opaque application has no known representation here. The IL checks its
 				// binding and arguments; SIG matching substitutes the concrete head first.
-				mVM_Type.tKind.TypeApply => true,
+				mVM_Type.tKind.Abstract or mVM_Type.tKind.TypeApply => true,
 				mVM_Type.tKind.Pair => (
 					aData.IsPair(out var First, out var Second) &&
 					aType.IsPair(out var FirstType, out var SecondType) &&
@@ -180,17 +212,23 @@ mVM {
 	}
 	
 	private static mVM_Data.tData
-	RunFunc<tPos>(
+	RunProc<tPos>(
 		mVM_Data.tData aProc,
+		mVM_Data.tData aObject,
 		mVM_Data.tData aArg,
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
+			mAssert.IsTrue(Def.DefType.IsProc(out _, out _, out var ProcType));
+			while (ProcType.IsGeneric(out _, out var Body)) {
+				ProcType = Body;
+			}
+			mAssert.IsTrue(ProcType.IsProc(out var ObjectType, out _, out _));
 			var Res = mVM_Data.Empty();
 			Run(
 				mVM_Data.Proc(Def, Env),
-				mVM_Data.Empty(),
+				ObjectType.IsEmpty() ? mVM_Data.Empty() : aObject,
 				aArg,
 				Res,
 				aPosToText,
@@ -198,7 +236,7 @@ mVM {
 			);
 			return Res;
 		} else if (aProc.IsExternProc(out var ExternDef, out var ExternEnv)) {
-			return ExternDef(ExternEnv, mVM_Data.Empty(), aArg, aTraceOut);
+			return ExternDef(ExternEnv, aObject, aArg, aTraceOut);
 		} else {
 			throw mError.Error("expected proc but is: " + aProc._DataType);
 		}
@@ -379,11 +417,12 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.VarSet: {
-				aCallStack._Regs.Get(Arg1)._Value = mAny.Any(aCallStack._Regs.Get(Arg2));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mRef.tRefBox<mVM_Data.tData> Cell));
+				Cell._Value = aCallStack._Regs.Get(Arg2);
 				break;
 			}
 			case mVM_Data.tOpCode.VarGet: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mVM_Data.tData X));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsVar(out var X));
 				aCallStack._Regs.Push(X);
 				break;
 			}
@@ -629,18 +668,19 @@ mVM {
 				);
 				
 				var Arg = aCallStack._Regs.Get(Arg2);
+				var Object = aCallStack._Regs.Get(mVM_Data.cObjReg);
 				if (
-					TryGetFuncArgType(Proc).IsSome(out var ArgType) &&
+					TryGetProcArgType(Proc).IsSome(out var ArgType) &&
 					Arg.Matches(ArgType) &&
 					(
 						!Guard.IsSome(out var GuardProc) ||
 						(
-							RunFunc(GuardProc, Arg, aPosToText, aCallStack._TraceOut).IsBool(out var GuardResult) &&
+							RunProc(GuardProc, Object, Arg, aPosToText, aCallStack._TraceOut).IsBool(out var GuardResult) &&
 							GuardResult
 						)
 					)
 				) {
-					aCallStack._Regs.Push(RunFunc(Proc, Arg, aPosToText, aCallStack._TraceOut));
+					aCallStack._Regs.Push(RunProc(Proc, Object, Arg, aPosToText, aCallStack._TraceOut));
 				} else {
 					aCallStack._Regs.Push(mVM_Data.Empty());
 				}
@@ -909,12 +949,39 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		if (mIL_GenerateOpcodes.GenerateOpcodes(aModule, aTrace).IsFail(out var Error, out var Compiled)) {
-			return Error;
+		if (!mIL_TypeChecker.AreModuleTypesValid(aModule, out var Error)) {
+			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
 		}
-		var (VMModule, ModuleMap) = Compiled;
+		return RunValidModule(aModule, aImport, aPosToText, aTrace);
+	}
+	
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	RunValidModule<tPos>(
+		mIL_AST.tModule<tPos> aModule,
+		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) {
+		if (!mIL_TypeChecker.AreImportTypesValid(aModule, aImport.Type, out var Error)) {
+			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
+		}
+		if (aImport.Data._IsMutable) {
+			return mResult.Fail("mutable module import is not allowed");
+		}
+		var Compiled = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aImport);
+		return RunModule(Compiled.Defs, aImport.Data, aPosToText, aTrace);
+	}
+	
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	RunModule<tPos>(
+		mStream.tStream<mVM_Data.tProcDef<tPos>> aModule,
+		mVM_Data.tData aImport,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) {
+		mAssert.IsFalse(aImport._IsMutable, "mutable module import is not allowed");
 		var Res = mVM_Data.Empty();
-		var Defs = VMModule.Reverse().Skip(1).Reverse();
+		var Defs = aModule.Reverse().Skip(1).Reverse();
 		
 		var DefTuple = Defs.Take(2).Count() switch {
 			0 => mVM_Data.Empty(),
@@ -927,7 +994,7 @@ mVM {
 				)
 			),
 		};
-		var InitProc = VMModule.TryLast().AssertNotEmpty();
+		var InitProc = aModule.TryLast().AssertNotEmpty();
 		
 		#if MY_TRACE_VM
 			var TraceOut = aTrace;
@@ -938,14 +1005,19 @@ mVM {
 		Run(
 			mVM_Data.Proc(InitProc, DefTuple),
 			mVM_Data.Empty(),
-			aImport.Data,
+			aImport,
 			Res,
 			aPosToText,
 			TraceOut
 		);
 		
+		mAssert.IsFalse(
+			Res._IsMutable,
+			"mutable module export is not allowed"
+		);
+		
 		mAssert.IsTrue(
-			VMModule.TryLast(
+			aModule.TryLast(
 			).AssertNotEmpty(
 			).DefType.IsProc(
 				out _,
@@ -953,10 +1025,12 @@ mVM {
 				out var FuncType
 			)
 		);
+		
 		mAssert.IsTrue(
 			FuncType.IsProc(out _, out _, out var ResType),
 			() => $"{mStd.FileLine()}: {FuncType.ToText()}"
 		);
+		
 		return (Res, ResType);
 	}
 	

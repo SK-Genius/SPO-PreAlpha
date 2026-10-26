@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include ../_GlobalUsings.cs
@@ -176,13 +176,14 @@ mTreeMap {
 		var SubTree1 = aNode.SubTree1;
 		var SubTree2 = aNode.SubTree2;
 		
-		if (aNode.SubTree1.IsEmpty() || aNode.SubTree2.IsEmpty()) {
-			mAssert.AreEquals(aKey, Key);
-			return mStd.cEmpty;
-		}
-		
 		switch (aKeyCompare(aKey, Key)) {
 			case 0: {
+				if (SubTree1.IsEmpty()) {
+					return SubTree2;
+				}
+				if (SubTree2.IsEmpty()) {
+					return SubTree1;
+				}
 				if (aNode.SubTree1.Deep() > aNode.SubTree2.Deep()) {
 					mAssert.IsTrue(SubTree1.Is(out var SubTree1_));
 					SubTree1 = SubTree1_.RemoveMax(out Key, out Value);

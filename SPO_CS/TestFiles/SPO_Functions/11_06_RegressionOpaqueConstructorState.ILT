@@ -1,0 +1,319 @@
+§TYPES
+	t_0 := [TYPE => TYPE]
+	t_1 := [§FREE t_0]
+	t_2 := [§FREE TYPE]
+	t_3 := [.t_1 t_2]
+	t_4 := [t_2 => t_3]
+	t_5 := [§ALL t_2 => t_4]
+	t_6 := [#_Box... t_5]
+	t_7 := [{EMPTY_TYPE} + t_6]
+	t_8 := [§SIG_WITH t_1 IN t_7]
+	t_9 := [§FREE TYPE]
+	t_10 := [t_9 => t_9]
+	t_11 := [#_Identity... t_10]
+	t_12 := [{EMPTY_TYPE} + t_11]
+	t_13 := [#_Value t_9]
+	t_14 := [{t_12} + t_13]
+	t_15 := [§SIG_WITH t_9 IN t_14]
+	t_16 := [§FREE TYPE]
+	t_17 := [EMPTY_TYPE, t_16]
+	t_18 := [t_17, t_16]
+	t_19 := [§ALL t_16 => t_18]
+	t_20 := [§FREE TYPE]
+	t_21 := [EMPTY_TYPE, t_20]
+	t_22 := [t_21, t_20]
+	t_23 := [t_20 => t_22]
+	t_24 := [§ALL t_20 => t_23]
+	t_25 := [EMPTY_TYPE => t_24]
+	t_26 := [§ABSTRACT t_0]
+	t_27 := [TRUE | FALSE]
+	t_28 := [.t_26 t_27]
+	t_29 := [#_Bools t_28]
+	t_30 := [{EMPTY_TYPE} + t_29]
+	t_31 := [.t_26 INT]
+	t_32 := [#_Ints t_31]
+	t_33 := [{t_30} + t_32]
+	t_34 := [t_33 => t_33]
+	t_35 := [EMPTY_TYPE => t_34]
+	t_36 := [§FREE t_0]
+	t_37 := [§FREE TYPE]
+	t_38 := [.t_36 t_37]
+	t_39 := [t_37 => t_38]
+	t_40 := [§ALL t_37 => t_39]
+	t_41 := [#_Box... t_40]
+	t_42 := [{EMPTY_TYPE} + t_41]
+	t_43 := [§SIG_WITH t_36 IN t_42]
+	t_44 := [EMPTY_TYPE, t_43]
+	t_45 := [t_44, t_27]
+	t_46 := [t_45 => t_15]
+	t_47 := [t_35 => t_46]
+	t_48 := [EMPTY_TYPE, t_27]
+	t_49 := [t_48, t_27]
+	t_50 := [#_Bools t_49]
+	t_51 := [{EMPTY_TYPE} + t_50]
+	t_52 := [EMPTY_TYPE, INT]
+	t_53 := [t_52, INT]
+	t_54 := [#_Ints t_53]
+	t_55 := [{t_51} + t_54]
+	t_56 := [EMPTY_TYPE, t_15]
+	t_57 := [t_55 | EMPTY_TYPE]
+	t_58 := [#Result t_57]
+	t_59 := [t_56 => t_58]
+	t_60 := [EMPTY_TYPE => t_59]
+	t_61 := [t_56 => t_27]
+	t_62 := [EMPTY_TYPE => t_61]
+	t_63 := [§ABSTRACT TYPE]
+	t_64 := [EMPTY_TYPE, t_60]
+	t_65 := [t_64, t_62]
+	t_66 := [t_65, t_60]
+	t_67 := [t_66 => t_59]
+	t_68 := [#_Bools t_49]
+	t_69 := [{EMPTY_TYPE} + t_68]
+	t_70 := [#_Ints t_53]
+	t_71 := [{t_69} + t_70]
+	t_72 := [EMPTY_TYPE, t_71]
+	t_73 := [EMPTY_TYPE, t_53]
+	t_74 := [t_73, t_49]
+	t_75 := [EMPTY_TYPE, FALSE]
+	t_76 := [t_75, FALSE]
+	t_77 := [t_73, t_76]
+	t_78 := [t_74 | t_77]
+	t_79 := [#Result t_78]
+	t_80 := [t_72 => t_79]
+	t_81 := [EMPTY_TYPE => t_80]
+	t_82 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_83 := [t_82 => t_79]
+	t_84 := [EMPTY_TYPE => t_83]
+	t_85 := [EMPTY_TYPE, t_81]
+	t_86 := [t_85, t_84]
+	t_87 := [EMPTY_TYPE, t_57]
+	t_88 := [t_87 => t_79]
+	t_89 := [t_86 => t_88]
+	t_90 := [EMPTY_TYPE, t_25]
+	t_91 := [t_90, t_35]
+	t_92 := [t_91, t_47]
+	t_93 := [t_92, t_60]
+	t_94 := [t_93, t_62]
+	t_95 := [t_94, t_60]
+	t_96 := [t_95, t_67]
+	t_97 := [t_96, t_81]
+	t_98 := [t_97, t_84]
+	t_99 := [t_98, t_89]
+	t_100 := [#_Bools t_49]
+	t_101 := [{EMPTY_TYPE} + t_100]
+	t_102 := [#_Ints t_53]
+	t_103 := [{t_101} + t_102]
+	t_104 := [EMPTY_TYPE => t_103]
+	t_105 := [t_99 => t_104]
+
+§DEF d_0 € t_25
+	_aValue := ARG
+	r_1 := EMPTY, _aValue
+	r_2 := r_1, _aValue
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_35
+	_aState := ARG
+	§RETURN _aState IF TRUE
+
+§DEF d_2 € t_47
+	d_1 := ENV
+	r_1 := §2ND ARG
+	_aBool := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	r_4 := §SIG_HEAD r_3 AS t_26
+	r_5 := §SIG_BODY r_3
+	_tBox := r_4
+	r_6 := {r_5} #_Box...
+	_aBox... := r_6
+	r_7 := §1ST r_2
+	§RETURN r_7 IF_NOT_EMPTY
+	r_8 := [._tBox t_27]
+	r_9 := [#_Bools r_8]
+	r_10 := [{EMPTY_TYPE} + r_9]
+	r_11 := [._tBox INT_TYPE]
+	r_12 := [#_Ints r_11]
+	r_13 := [{r_10} + r_12]
+	_tState := r_13
+	r_14 := §CLOSURE d_1 EMPTY
+	_Identity... := r_14
+	r_15 := [._tBox t_27]
+	r_16 := [#_Bools r_15]
+	r_17 := [{EMPTY_TYPE} + r_16]
+	r_18 := [._tBox INT_TYPE]
+	r_19 := [#_Ints r_18]
+	r_20 := [{r_17} + r_19]
+	r_21 := 7
+	r_22 := ._aBox... r_21
+	r_23 := +#_Ints r_22
+	r_24 := {EMPTY} + r_23
+	r_25 := ._aBox... _aBool
+	r_26 := +#_Bools r_25
+	r_27 := {r_24} + r_26
+	r_28 := +#_Value r_27
+	r_29 := {EMPTY} + r_28
+	r_30 := +#_Identity... _Identity...
+	r_31 := {r_29} + r_30
+	r_32 := r_20, r_31
+	r_33 := §SIG t_15 WITH r_32
+	§RETURN r_33 IF TRUE
+
+§DEF d_3 € t_60
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §TRY r_8 HAS_HEAD_TYPE t_103
+	r_2 := §SIG_HEAD r_1
+	r_3 := §SIG_BODY r_1
+	r_4 := {r_3} #_Value
+	_Value := r_4
+	r_5 := {r_3} #_Identity...
+	_Identity... := r_5
+	r_6 := ._Identity... _Value
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_62
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §TRY r_6 HAS_HEAD_TYPE t_103
+	r_2 := §SIG_HEAD r_1
+	r_3 := §SIG_BODY r_1
+	r_4 := {r_3} #_Value
+	_Value := r_4
+	r_5 := {r_3} #_Identity...
+	_Identity... := r_5
+	§RETURN TRUE IF TRUE
+
+§DEF d_5 € t_60
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §SIG_HEAD r_4 AS t_63
+	r_2 := §SIG_BODY r_4
+	r_3 := +#Result EMPTY
+	§RETURN r_3 IF TRUE
+
+§DEF d_6 € t_67
+	d_5 := §2ND ENV
+	r_9 := §1ST ENV
+	d_4 := §2ND r_9
+	r_10 := §1ST r_9
+	d_3 := §2ND r_10
+	r_11 := §1ST r_10
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §CLOSURE d_3 EMPTY
+	r_2 := EMPTY, r_7
+	r_3 := §CLOSURE d_4 EMPTY
+	r_4 := EMPTY, r_7
+	§TRY_RETURN .r_1 r_2 IF r_3
+	r_5 := §CLOSURE d_5 EMPTY
+	r_6 := EMPTY, r_7
+	§TRY_RETURN .r_5 r_6
+	§RETURN EMPTY IF TRUE
+
+§DEF d_7 € t_81
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := {r_6} #_Ints
+	_Ints := r_1
+	r_2 := {r_6} #_Bools
+	_Bools := r_2
+	r_3 := EMPTY, _Ints
+	r_4 := r_3, _Bools
+	r_5 := +#Result r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_8 € t_84
+	r_11 := §1ST ARG
+	r_10 := §2ND ARG
+	r_1 := 0
+	r_2 := EMPTY, r_1
+	r_3 := 0
+	r_4 := r_2, r_3
+	r_5 := EMPTY, r_4
+	r_6 := EMPTY, FALSE
+	r_7 := r_6, FALSE
+	r_8 := r_5, r_7
+	r_9 := +#Result r_8
+	§RETURN r_9 IF TRUE
+
+§DEF d_9 € t_89
+	d_8 := §2ND ENV
+	r_7 := §1ST ENV
+	d_7 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	r_1 := §CLOSURE d_7 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_8 EMPTY
+	r_4 := EMPTY, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_10 € t_105
+	d_9 := §2ND ENV
+	r_33 := §1ST ENV
+	d_8 := §2ND r_33
+	r_34 := §1ST r_33
+	d_7 := §2ND r_34
+	r_35 := §1ST r_34
+	d_6 := §2ND r_35
+	r_36 := §1ST r_35
+	d_5 := §2ND r_36
+	r_37 := §1ST r_36
+	d_4 := §2ND r_37
+	r_38 := §1ST r_37
+	d_3 := §2ND r_38
+	r_39 := §1ST r_38
+	d_2 := §2ND r_39
+	r_40 := §1ST r_39
+	d_1 := §2ND r_40
+	r_41 := §1ST r_40
+	d_0 := §2ND r_41
+	r_42 := §1ST r_41
+	_Container := t_8
+	_Package := t_15
+	_tBox... := t_19
+	r_1 := §CLOSURE d_0 EMPTY
+	_Box... := r_1
+	r_2 := §CLOSURE d_2 d_1
+	_Wrap... := r_2
+	r_3 := +#_Box... _Box...
+	r_4 := {EMPTY} + r_3
+	r_5 := t_19, r_4
+	r_6 := §SIG t_43 WITH r_5
+	r_7 := EMPTY, r_6
+	r_8 := r_7, TRUE
+	r_9 := ._Wrap... r_8
+	_Wrapped := r_9
+	r_10 := EMPTY, d_3
+	r_11 := r_10, d_4
+	r_12 := r_11, d_5
+	r_13 := §CLOSURE d_6 r_12
+	r_14 := EMPTY, _Wrapped
+	r_15 := OBJ, r_13
+	r_16 := §OBJ:r_15 r_14
+	r_17 := -#Result r_16
+	_Result := r_17
+	r_18 := EMPTY, d_7
+	r_19 := r_18, d_8
+	r_20 := §CLOSURE d_9 r_19
+	r_21 := EMPTY, _Result
+	r_22 := OBJ, r_20
+	r_23 := §OBJ:r_22 r_21
+	r_24 := -#Result r_23
+	_Values := r_24
+	r_25 := §2ND _Values
+	_Bools := r_25
+	r_26 := §1ST _Values
+	r_27 := §2ND r_26
+	_Ints := r_27
+	r_28 := §1ST r_26
+	r_29 := +#_Ints _Ints
+	r_30 := {EMPTY} + r_29
+	r_31 := +#_Bools _Bools
+	r_32 := {r_30} + r_31
+	§RETURN r_32 IF TRUE

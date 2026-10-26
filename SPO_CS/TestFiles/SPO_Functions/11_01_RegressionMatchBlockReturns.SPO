@@ -1,0 +1,13 @@
+§DEF Choose... = (
+	§DEF aValue € §BOOL
+) => §IF aValue MATCH {
+	§TRUE: {
+		§RETURN 7 IF §TRUE
+		§RETURN 8
+	}
+	§FALSE: {
+		§RETURN §FALSE
+	}
+}
+
+§EXPORT (.Choose §TRUE, .Choose §FALSE)

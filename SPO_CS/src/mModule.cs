@@ -3,29 +3,28 @@
 #:property OutputType = Library
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
-#:ref Common/mTest.cs
 #:ref Common/mStream.cs
 #:ref Common/mResult.cs
-#:ref Common/mAssert.cs
-#:ref Common/mLazy.cs
 #:ref Common/mFS.cs
-#:ref mVM_Data.cs
-#:ref mVM_Type.cs
 #:ref mIL_Parser.cs
 #:ref mSPO_Interpreter.cs
+#:ref mIL_GenerateOpcodes.cs
+#:ref mIL_TypeChecker.cs
+#:ref mVM_Data.cs
+#:ref mVM_Type.cs
+#:ref mVM.cs
 #:ref mSPO_Parser.cs
+
+using tSpan = mSpan.tSpan<mTextStream.tPos>;
 
 public static class
 mModule {
 	public class tModuleSetup {
 		public mFS.tPath ModulePath;
 		public mStream.tStream<(tText Key, tModuleSetup Module)> Dependencies;
-		public mMaybe.tMaybe<
-			mResult.tResult<
-				(mVM_Data.tData Data, mVM_Type.tType Type),
-				tText
-			>
-		> Module;
+		public mMaybe.tMaybe<mResult.tResult<mStd.tEmpty, tText>> Checked;
+		public mIL_AST.tModule<tSpan>? IL;
+		public mMaybe.tMaybe<mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>> Module;
 	}
 	
 	public static tModuleSetup
@@ -37,128 +36,116 @@ mModule {
 		Dependencies = aDependencies,
 	};
 	
-	public static mResult.tResult<
-		(mVM_Data.tData Data, mVM_Type.tType Type),
-		tText
-	>
-	Init(
-		this mStream.tStream<(tText Key, tModuleSetup Module)> aModules,
+	public static mResult.tResult<mStd.tEmpty, tText>
+	Check(
+		this tModuleSetup aModule,
 		mStd.tAction<tText> aLogger
 	) {
-		var Data = mVM_Data.Empty();
-		var Type = mVM_Type.Empty();
-		foreach (var (Key, ModuleSetup) in aModules) {
-			if (!ModuleSetup.Init(aLogger).Match(out var Module, out var Error)) {
-				return mResult.Fail(Error);
-			}
-			Data = mVM_Data.Record(Data, mVM_Data.Prefix("_" + Key, Module.Data));
-			Type = mVM_Type.Record(Type, mVM_Type.Prefix("_" + Key, Module.Type));
+		if (aModule.Checked.IsSome(out var Cached)) {
+			return Cached;
 		}
-		return (Data, Type);
+		foreach (var (_, Dependency) in aModule.Dependencies) {
+			if (Dependency.Check(aLogger).IsFail(out var Error, out _)) {
+				return Error;
+			}
+		}
+		var File = mFS.File(aModule.ModulePath);
+		var Result = File.TryReadText().ThenTry(
+			aSource => {
+				if (File.Extension is "SPO") {
+					return mSPO_Parser.Module.TryParseText(aSource, File.Path.ToText(), __ => aLogger(__())).ThenTry(
+						__ => __.Check()
+					).Then(
+						__ => {
+							var ILT = File.Folder.GetFile(File.NameWithoutExtension + ".ILT");
+							var Text = __.ToILT();
+							if (!ILT.Exists() || ILT.TryReadText().ElseThrow().Replace("\r", "") != Text.Replace("\r", "")) {
+								ILT.TryCreate(Text);
+							}
+							aModule.IL = __;
+							return mStd.cEmpty;
+						}
+					);
+				}
+				if (File.Extension is "ILT") {
+					return mIL_Parser.Module.TryParseText(aSource, File.Path.ToText(), __ => aLogger(__())).ThenTry(
+						__ => {
+							if (!mIL_TypeChecker.AreModuleTypesValid(__, out var Error)) {
+								return mResult.Fail(mIL_TypeChecker.ErrorText(Error)).AsResult<mStd.tEmpty>();
+							}
+							aModule.IL = __;
+							return mResult.OK(mStd.cEmpty).WithErrorType<tText>();
+						}
+					);
+				}
+				return mResult.Fail($"file '{File.Path.ToText()}' wrong extension. (expect .SPO or .ILT)");
+			}
+		);
+		aModule.Checked = Result;
+		return Result;
 	}
 	
-	public static mResult.tResult<
-		(mVM_Data.tData Data, mVM_Type.tType Type),
-		tText
-	>
-	Init(
-		this tModuleSetup aModuleSetup,
+	public static mResult.tResult<mStd.tEmpty, tText>
+	Link(
+		this tModuleSetup aModule,
 		mStd.tAction<tText> aLogger
 	) {
-		if (aModuleSetup.Module.IsSome(out var X)) {
-			return X;
+		if (aModule.Check(aLogger).IsFail(out var Error, out _)) {
+			return Error;
 		}
-		
-		if (!aModuleSetup.Dependencies.Init(aLogger).Match(out var Dependencies, out var DependencyError)) {
-			return mResult.Fail(DependencyError);
-		}
-		
-		var (Data, Type) = Dependencies;
-		
-		var Folder = mFS.Folder(aModuleSetup.ModulePath.Parent.Deref.AssertNotEmpty());
-		var FileExtension = mStream.Stream(aModuleSetup.ModulePath.ToText().Split('.')).TryLast().AssertNotEmpty();
-		switch (FileExtension) {
-			case "SPO": {
-				var SPO_File = mFS.File(aModuleSetup.ModulePath);
-				
-				if (SPO_File.TryReadText().IsFail(out var ReadError, out var SPO_Text)) {
-					return ReadError;
+		static mResult.tResult<mStd.tEmpty, tText>
+		CheckConnections(
+			tModuleSetup aModule
+		) {
+			var Imports = mVM_Type.Empty();
+			foreach (var (Key, Dependency) in aModule.Dependencies) {
+				if (CheckConnections(Dependency).IsFail(out var Error, out _)) {
+					return Error;
 				}
-				
-				#if true
-				{
-					var ILT_File = Folder.GetFile(
-						SPO_File.Name.Replace(".SPO", ".ILT")
-					);
-					
-					var IL_Text = (
-						ILT_File.Exists()
-						? mLazy.Lazy(() => ILT_File.TryReadText().ElseThrow())
-						: ""
-					);
-					
-					var IL_Result = mSPO_Parser.Module.TryParseText(
-						SPO_Text,
-						(Folder._Path / SPO_File.Name).ToText(),
-						__ => aLogger(__())
-					).ThenTry(
-						__ => __.TryToILT()
-					);
-					
-					if (IL_Result.IsFail(out var Error, out var IL_TextNew)) {
-						return Error;
-					}
-					
-					if (IL_TextNew.Replace("\r", "") != IL_Text.Value.Replace("\r", "")) {
-						ILT_File.TryCreate(IL_TextNew);
-					}
-				}
-				#endif
-				
-				var Y = mSPO_Interpreter.Run(
-					SPO_Text,
-					(Folder._Path / SPO_File.Name).ToText(),
-					(Data, Type),
-					__ => aLogger(__())
-				).Then(
-					__ => (__.Data, __.Type)
-				).ModifyError(
-					__ => "" + __
-				);
-				
-				aModuleSetup.Module = Y;
-				
-				return Y;
+				var Export = mIL_TypeChecker.ModuleSignature(Dependency.IL!).ModifyError(mIL_TypeChecker.ErrorText).ElseThrow().Export;
+				Imports = mVM_Type.Record(Imports, mVM_Type.Prefix("_" + Key, Export));
 			}
-			case "ILT": {
-				var ILT_File = mFS.File(aModuleSetup.ModulePath);
-				
-				var Result = ILT_File.TryReadText(
-				).ThenTry(
-					aSource => mIL_Parser.Module.TryParseText(
-						aSource,
-						ILT_File.Path.ToText(),
-						__ => aLogger(__())
-					)
-				).ThenTry(
-					aModule => mVM.TryRun(
-						aModule,
-						(Data, Type),
-						mTextParser.ToText,
-						__ => aLogger(__())
-					)
-				);
-				
-				aModuleSetup.Module = Result;
-				
-				return Result;
-			}
-			default: {
-				return mResult.Fail(
-					$"file '{aModuleSetup.ModulePath.ToText()}' wrong extension. (expect .SPO or .ILT)"
-				);
-			}
+			return (
+				mIL_TypeChecker.AreImportTypesValid(aModule.IL!, Imports, out var ImportError)
+				? mResult.OK(mStd.cEmpty).WithErrorType<tText>()
+				: mResult.Fail(mIL_TypeChecker.ErrorText(ImportError))
+			);
 		}
+		return CheckConnections(aModule);
 	}
 	
+	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+	Init(
+		this tModuleSetup aModule,
+		mStd.tAction<tText> aLogger
+	) {
+		if (aModule.Module.IsSome(out var Cached)) {
+			return Cached;
+		}
+		if (aModule.Link(aLogger).IsFail(out var Error, out _)) {
+			return Error;
+		}
+		static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+		Initialize(
+			tModuleSetup aModule,
+			mStd.tAction<tText> aLogger
+		) {
+			if (aModule.Module.IsSome(out var Cached)) {
+				return Cached;
+			}
+			var Imports = (Data: mVM_Data.Empty(), Type: mVM_Type.Empty());
+			foreach (var (Key, Dependency) in aModule.Dependencies) {
+				if (Initialize(Dependency, aLogger).IsFail(out var Error, out var Value)) {
+					return Error;
+				}
+				Imports.Data = mVM_Data.Record(Imports.Data, mVM_Data.Prefix("_" + Key, Value.Data));
+				Imports.Type = mVM_Type.Record(Imports.Type, mVM_Type.Prefix("_" + Key, Value.Type));
+			}
+			var Compiled = mIL_GenerateOpcodes.GenerateOpcodes(aModule.IL!, Imports);
+			var Result = mVM.RunModule(Compiled.Defs, Imports.Data, mTextParser.ToText, __ => aLogger(__()));
+			aModule.Module = Result;
+			return Result;
+		}
+		return Initialize(aModule, aLogger);
+	}
 }

@@ -1,90 +1,88 @@
 §IMPORT ()
 
-§DEF DirectPattern... = () => (
-	(§VAR aValue € §INT) => aValue
+§DEF DirectPattern... = (
+	§VAR aValue € §INT
+) => aValue
+
+§DEF TuplePattern... = (
+	§DEF aOther € §INT
+	§VAR aValue € §INT
+) => (aOther, aValue)
+
+§DEF RecordPattern... = {
+	Value: §VAR aValue € §INT
+} => {Value: aValue}
+
+§DEF PrefixPattern... = (
+	#Value (§VAR aValue € §INT)
+) => (#Value aValue)
+
+§DEF GuardedPattern... = (
+	(§VAR aValue € §INT) & §TRUE
+) => aValue
+
+§DEF SigBinder... = (
+	§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §DEF t IN §VAR aValue
+) => (
+	§SIG [§SIG_WITH u € §TYPE IN [§VAR u]] WITH t IN aValue
 )
 
-§DEF TuplePattern... = () => (
-	(§DEF aOther € §INT, §VAR aValue € §INT) => (aOther, aValue)
-)
+§DEF AnnotatedHandle... = (
+	§DEF aValue € [§VAR §INT]
+) => aValue
 
-§DEF RecordPattern... = () => (
-	{Value: §VAR aValue € §INT} => {Value: aValue}
-)
+§DEF AnyArgument... = (
+	§DEF aValue € §ANY
+) => aValue
 
-§DEF PrefixPattern... = () => (
-	(#Value (§VAR aValue € §INT)) => (#Value aValue)
-)
+§DEF UnionArgument... = (
+	§DEF aValue € [[§VAR §INT] | §INT]
+) => aValue
 
-§DEF GuardedPattern... = () => (
-	((§VAR aValue € §INT) & §TRUE) => aValue
-)
-
-§DEF SigBinder... = () => (
-	(§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §DEF t IN §VAR aValue) => (
-		§SIG [§SIG_WITH u € §TYPE IN [§VAR u]] WITH t IN aValue
-	)
-)
-
-§DEF AnnotatedHandle... = () => (
-	(§DEF aValue € [§VAR §INT]) => aValue
-)
-
-§DEF AnyArgument... = () => (
-	(§DEF aValue € §ANY) => aValue
-)
-
-§DEF UnionArgument... = () => (
-	(§DEF aValue € [[§VAR §INT] | §INT]) => aValue
-)
-
-§DEF RecursiveType... = () => (
-	(§DEF aValue € [§RECURSIVE t [[] | [t; [§VAR §INT]]]]) => aValue
-)
-
-§DEF RecursiveDefinition... = () => (
-	{
-		§RECURSIVE {
-			§DEF Pass... = (§VAR aValue € §INT) => aValue
-		}
-		§VAR Cell := 7 .
-		§RETURN .Pass Cell
+§DEF RecursiveDefinition = (
+) => {
+	§RECURSIVE {
+		§DEF Pass... = (§VAR aValue € §INT) => aValue
 	}
-)
-
+	
+	§VAR Cell := 7 .
+	
+	§RETURN .Pass Cell
+}
 
 §VAR Cell := 7 .
 §VAR Opaque := 9 .
+§VAR Invalid := 0 .
 
-§DEF Case01... = .DirectPattern ()
-§DEF Result01 = .Case01 Cell
+(§DEF First02, §DEF Cell02) = .TuplePattern (3, Cell)
 
-§DEF Case02... = .TuplePattern ()
-§DEF Result02 = .Case02 (3, Cell)
+{Value: §DEF Cell03} = .RecordPattern {Value: Cell}
 
-§DEF Result03 = .RecordPattern ()
+(#Value §DEF Cell04) = .PrefixPattern (#Value Cell)
 
-§DEF Case04... = .PrefixPattern ()
-§DEF Result04 = .Case04 (#Value Cell)
+(§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §INT IN §DEF Cell06) = .SigBinder (
+	§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §INT IN Cell
+)
 
-§DEF Case05... = .GuardedPattern ()
-§DEF Result05 = .Case05 Cell
+§DEF Cell08 = §IF (.AnyArgument Cell) MATCH {
+	§DEF Handle € [§VAR §INT]: Handle
+	_: Invalid
+}
 
-§DEF Case06... = .SigBinder ()
-§DEF Result06 = .Case06 (§SIG [§SIG_WITH t € §TYPE IN [§VAR t]] WITH §INT IN Cell)
+§DEF Cell09 = §IF (.UnionArgument Cell) MATCH {
+	§DEF Handle € [§VAR §INT]: Handle
+	_: Invalid
+}
 
-§DEF Case07... = .AnnotatedHandle ()
-§DEF Result07 = .Case07 Cell
-
-§DEF Case08... = .AnyArgument ()
-§DEF Result08 = .Case08 Cell
-
-§DEF Case09... = .UnionArgument ()
-§DEF Result09 = .Case09 Cell
-
-§DEF Case10... = .RecursiveType ()
-§DEF Result10 = .Case10 ()
-
-§DEF Result11 = .RecursiveDefinition ()
-
-§EXPORT (Result01, Result02, Result03, Result04, Result05, Result06, Result07, Result08, Result09, Result10, Result11)
+§EXPORT (
+	§TO_VAL .DirectPattern Cell
+	(First02, §TO_VAL Cell02)
+	§TO_VAL Cell03
+	§TO_VAL Cell04
+	§TO_VAL .GuardedPattern Cell
+	§TO_VAL Cell06
+	§TO_VAL .AnnotatedHandle Cell
+	§TO_VAL Cell08
+	§TO_VAL Cell09
+	§TO_VAL .RecursiveDefinition
+)

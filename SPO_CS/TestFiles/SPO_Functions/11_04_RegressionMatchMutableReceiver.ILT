@@ -1,0 +1,113 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, INT]
+	t_1 := [t_0, INT]
+	t_2 := [t_1 => INT]
+	t_3 := [INT => EMPTY_TYPE]
+	t_4 := [§VAR INT]
+	t_5 := [t_4 : t_3]
+	t_6 := [t_2 => t_5]
+	t_7 := [EMPTY_TYPE, TRUE]
+	t_8 := [#Result INT]
+	t_9 := [t_7 => t_8]
+	t_10 := [t_4 : t_9]
+	t_11 := [t_5 => t_10]
+	t_12 := [EMPTY_TYPE, t_5]
+	t_13 := [t_12, t_11]
+	t_14 := [t_13 => t_10]
+	t_15 := [t_13, t_14]
+	t_16 := [EMPTY_TYPE => INT]
+	t_17 := [t_4 : t_16]
+	t_18 := [t_15 => t_17]
+	t_19 := [EMPTY_TYPE, t_6]
+	t_20 := [t_19, t_11]
+	t_21 := [t_20, t_14]
+	t_22 := [t_21, t_18]
+	t_23 := [#_...+... t_2]
+	t_24 := [{EMPTY_TYPE} + t_23]
+	t_25 := [t_24 => t_1]
+	t_26 := [t_22 => t_25]
+
+§DEF d_0 € t_6
+	_...+... := ENV
+	_aAmount := ARG
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	r_2 := EMPTY, r_1
+	r_3 := r_2, _aAmount
+	r_4 := ._...+... r_3
+	§VAR _aSelf <- r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_1 € t_11
+	_Add... := ENV
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := 2
+	r_3 := _aSelf, _Add...
+	r_2 := §OBJ:r_3 r_1
+	r_4 := 0
+	r_5 := +#Result r_4
+	§RETURN r_5 IF FALSE
+	r_6 := §VAR _aSelf ->
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_2 € t_14
+	d_1 := §2ND ENV
+	r_5 := §1ST ENV
+	_Add... := §2ND r_5
+	r_6 := §1ST r_5
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_1 _Add...
+	r_2 := EMPTY, r_3
+	§TRY_RETURN .r_1 r_2
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_18
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	_Add... := §2ND r_9
+	r_10 := §1ST r_9
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := EMPTY, _Add...
+	r_2 := r_1, d_1
+	r_3 := §CLOSURE d_2 r_2
+	r_4 := EMPTY, TRUE
+	r_5 := OBJ, r_3
+	r_6 := §OBJ:r_5 r_4
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_26
+	d_3 := §2ND ENV
+	r_13 := §1ST ENV
+	d_2 := §2ND r_13
+	r_14 := §1ST r_13
+	d_1 := §2ND r_14
+	r_15 := §1ST r_14
+	d_0 := §2ND r_15
+	r_16 := §1ST r_15
+	r_1 := {ARG} #_...+...
+	_...+... := r_1
+	r_2 := §CLOSURE d_0 _...+...
+	_Add... := r_2
+	r_3 := EMPTY, _Add...
+	r_4 := r_3, d_1
+	r_5 := r_4, d_2
+	r_6 := §CLOSURE d_3 r_5
+	_Run := r_6
+	r_7 := 1
+	_Value := §VAR r_7
+	r_9 := _Value, _Run
+	r_8 := §OBJ:r_9 EMPTY
+	_Result := r_8
+	r_10 := EMPTY, _Result
+	r_11 := §VAR _Value ->
+	r_12 := r_10, r_11
+	§RETURN r_12 IF TRUE

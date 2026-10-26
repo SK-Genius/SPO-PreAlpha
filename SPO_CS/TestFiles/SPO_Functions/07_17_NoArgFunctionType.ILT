@@ -10,7 +10,7 @@
 
 §DEF d_1 € t_2
 	d_0 := ENV
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_LazyInt := r_1
 	r_2 := ._LazyInt EMPTY
 	§RETURN r_2 IF TRUE

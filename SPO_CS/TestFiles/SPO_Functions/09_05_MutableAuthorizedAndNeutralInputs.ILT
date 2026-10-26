@@ -1,0 +1,228 @@
+§TYPES
+	t_0 := [EMPTY_TYPE => INT]
+	t_1 := [§VAR INT]
+	t_2 := [t_1 : t_0]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [t_3 => t_2]
+	t_5 := [t_1 => t_1]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [t_6 => t_2]
+	t_8 := [EMPTY_TYPE => t_1]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [t_9 => t_0]
+	t_11 := [TYPE : t_0]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [TYPE => TYPE]
+	t_14 := [t_12 => t_13]
+	t_15 := [t_8 => INT]
+	t_16 := [EMPTY_TYPE => t_15]
+	t_17 := [t_0 => INT]
+	t_18 := [EMPTY_TYPE => t_17]
+	t_19 := [EMPTY_TYPE => t_0]
+	t_20 := [EMPTY_TYPE, t_3]
+	t_21 := [t_20, t_4]
+	t_22 := [t_21, t_6]
+	t_23 := [t_22, t_7]
+	t_24 := [t_23, t_6]
+	t_25 := [t_24, t_7]
+	t_26 := [t_25, t_9]
+	t_27 := [t_26, t_10]
+	t_28 := [t_27, t_12]
+	t_29 := [t_28, t_14]
+	t_30 := [t_29, t_16]
+	t_31 := [t_30, t_18]
+	t_32 := [t_31, t_9]
+	t_33 := [t_32, t_19]
+	t_34 := [EMPTY_TYPE, INT]
+	t_35 := [t_34, INT]
+	t_36 := [t_35, INT]
+	t_37 := [t_36, INT]
+	t_38 := [t_37, TYPE]
+	t_39 := [t_38, INT]
+	t_40 := [t_39, INT]
+	t_41 := [EMPTY_TYPE => t_40]
+	t_42 := [t_33 => t_41]
+
+§DEF d_0 € t_3
+	§RETURN ARG IF_NOT_EMPTY
+	_aTarget := OBJ
+	r_1 := §VAR _aTarget ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_4
+	d_0 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_0 EMPTY
+	_Read := r_1
+	r_2 := 1
+	§VAR _aSelf <- r_2
+	r_4 := _aSelf, _Read
+	r_3 := §OBJ:r_4 EMPTY
+	_Value := r_3
+	§RETURN _Value IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_6
+	_aValue := ARG
+	§RETURN _aValue IF TRUE
+
+§DEF d_3 € t_7
+	d_2 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_2 EMPTY
+	_Pass... := r_1
+	r_2 := ._Pass... _aSelf
+	r_3 := §VAR r_2 ->
+	§RETURN r_3 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_4 € t_6
+	_aValue := ARG
+	§RETURN _aValue IF TRUE
+
+§DEF d_5 € t_7
+	d_4 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_4 EMPTY
+	_Get... := r_1
+	r_2 := ._Get... _aSelf
+	r_3 := §VAR r_2 ->
+	§RETURN r_3 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_6 € t_9
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	_Cell := §VAR r_1
+	§RETURN _Cell IF TRUE
+
+§DEF d_7 € t_10
+	d_6 := ENV
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := §CLOSURE d_6 EMPTY
+	_Make... := r_1
+	r_2 := ._Make... EMPTY
+	_Result := r_2
+	r_3 := §VAR _Result ->
+	§RETURN r_3 IF TRUE
+
+§DEF d_8 € t_12
+	§RETURN ARG IF_NOT_EMPTY
+	_aObject := OBJ
+	r_1 := 0
+	§RETURN r_1 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_9 € t_14
+	d_8 := ENV
+	_aType := ARG
+	r_1 := §CLOSURE d_8 EMPTY
+	_Observe := r_1
+	r_3 := _aType, _Observe
+	r_2 := §OBJ:r_3 EMPTY
+	§RETURN _aType IF TRUE
+
+§DEF d_10 € t_16
+	_aGet... := ARG
+	r_1 := ._aGet... EMPTY
+	_Result := r_1
+	r_2 := §VAR _Result ->
+	§RETURN r_2 IF TRUE
+
+§DEF d_11 € t_18
+	_aGet... := ARG
+	r_1 := ._aGet... EMPTY
+	§RETURN r_1 IF TRUE
+
+§DEF d_12 € t_9
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	_Fresh := §VAR r_1
+	§RETURN _Fresh IF TRUE
+
+§DEF d_13 € t_19
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 11
+	§RETURN r_1 IF TRUE
+
+§DEF d_14 € t_42
+	d_13 := §2ND ENV
+	r_32 := §1ST ENV
+	d_12 := §2ND r_32
+	r_33 := §1ST r_32
+	d_11 := §2ND r_33
+	r_34 := §1ST r_33
+	d_10 := §2ND r_34
+	r_35 := §1ST r_34
+	d_9 := §2ND r_35
+	r_36 := §1ST r_35
+	d_8 := §2ND r_36
+	r_37 := §1ST r_36
+	d_7 := §2ND r_37
+	r_38 := §1ST r_37
+	d_6 := §2ND r_38
+	r_39 := §1ST r_38
+	d_5 := §2ND r_39
+	r_40 := §1ST r_39
+	d_4 := §2ND r_40
+	r_41 := §1ST r_40
+	d_3 := §2ND r_41
+	r_42 := §1ST r_41
+	d_2 := §2ND r_42
+	r_43 := §1ST r_42
+	d_1 := §2ND r_43
+	r_44 := §1ST r_43
+	d_0 := §2ND r_44
+	r_45 := §1ST r_44
+	r_1 := §CLOSURE d_1 d_0
+	_ReceiverReadWriteAndForward := r_1
+	r_2 := §CLOSURE d_3 d_2
+	_ImmutableClosure := r_2
+	r_3 := §CLOSURE d_5 d_4
+	_ExplicitHandleArgument := r_3
+	r_4 := §CLOSURE d_7 d_6
+	_FreshResult := r_4
+	r_5 := §CLOSURE d_9 d_8
+	_TypeDescriptor... := r_5
+	r_6 := §CLOSURE d_10 EMPTY
+	_OpaqueFunctionTransport... := r_6
+	r_7 := §CLOSURE d_11 EMPTY
+	_OpaqueFunctionImmutableResult... := r_7
+	r_8 := 7
+	_Cell := §VAR r_8
+	r_9 := 9
+	_Opaque := §VAR r_9
+	r_10 := §CLOSURE d_12 EMPTY
+	_Make... := r_10
+	r_11 := §CLOSURE d_13 EMPTY
+	_Number... := r_11
+	r_12 := 7
+	_Receiver01 := §VAR r_12
+	r_14 := _Receiver01, _ReceiverReadWriteAndForward
+	r_13 := §OBJ:r_14 EMPTY
+	_Result01 := r_13
+	r_15 := 7
+	_Receiver02 := §VAR r_15
+	r_17 := _Receiver02, _ImmutableClosure
+	r_16 := §OBJ:r_17 EMPTY
+	_Result02 := r_16
+	r_18 := 7
+	_Receiver03 := §VAR r_18
+	r_20 := _Receiver03, _ExplicitHandleArgument
+	r_19 := §OBJ:r_20 EMPTY
+	_Result03 := r_19
+	r_21 := EMPTY, _Result01
+	r_22 := r_21, _Result02
+	r_23 := r_22, _Result03
+	r_24 := ._FreshResult EMPTY
+	r_25 := r_23, r_24
+	r_26 := ._TypeDescriptor... INT_TYPE
+	r_27 := r_25, r_26
+	r_28 := ._OpaqueFunctionTransport... _Make...
+	r_29 := r_27, r_28
+	r_30 := ._OpaqueFunctionImmutableResult... _Number...
+	r_31 := r_29, r_30
+	§RETURN r_31 IF TRUE

@@ -1,1 +1,9 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_05_MutableReceiverTypeMismatch.ILT:10 ERROR 
+10:  value := §OBJ:pair EMPTY
+ ┌───^
+ ├ can't convert receiver:
+ │ expected VAR
+ │ found:
+ │   §INT
+ │ expected:
+ │   [ §VAR §INT ]

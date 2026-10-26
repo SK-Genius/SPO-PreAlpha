@@ -2,100 +2,91 @@
 	t_0 := [§VAR INT]
 	t_1 := [t_0 => t_0]
 	t_2 := [EMPTY_TYPE => t_1]
-	t_3 := [t_2 => t_2]
-	t_4 := [EMPTY_TYPE, INT]
-	t_5 := [t_4, t_0]
-	t_6 := [t_5 => t_5]
-	t_7 := [EMPTY_TYPE => t_6]
-	t_8 := [t_7 => t_7]
+	t_3 := [EMPTY_TYPE, INT]
+	t_4 := [t_3, t_0]
+	t_5 := [t_4 => t_4]
+	t_6 := [EMPTY_TYPE => t_5]
+	t_7 := [#_Value t_0]
+	t_8 := [{EMPTY_TYPE} + t_7]
 	t_9 := [#_Value t_0]
 	t_10 := [{EMPTY_TYPE} + t_9]
-	t_11 := [#_Value t_0]
-	t_12 := [{EMPTY_TYPE} + t_11]
-	t_13 := [t_12 => t_12]
-	t_14 := [EMPTY_TYPE => t_13]
-	t_15 := [t_14 => t_14]
-	t_16 := [#_Value... t_0]
-	t_17 := [t_16 => t_16]
-	t_18 := [EMPTY_TYPE => t_17]
-	t_19 := [t_18 => t_18]
-	t_20 := [§ABSTRACT TYPE]
-	t_21 := [§FREE TYPE]
-	t_22 := [§VAR t_21]
-	t_23 := [§SIG_WITH t_21 IN t_22]
-	t_24 := [§FREE TYPE]
-	t_25 := [§VAR t_24]
-	t_26 := [§SIG_WITH t_24 IN t_25]
-	t_27 := [t_26 => t_23]
-	t_28 := [EMPTY_TYPE => t_27]
-	t_29 := [t_28 => t_28]
-	t_30 := [ANY => ANY]
-	t_31 := [EMPTY_TYPE => t_30]
-	t_32 := [t_31 => t_31]
-	t_33 := [INT | t_0]
-	t_34 := [t_33 => t_33]
-	t_35 := [EMPTY_TYPE => t_34]
-	t_36 := [t_35 => t_35]
-	t_37 := [§FREE TYPE]
-	t_38 := [t_37, t_0]
-	t_39 := [t_38 | EMPTY_TYPE]
-	t_40 := [§REC t_37 => t_39]
-	t_41 := [t_40 => t_40]
+	t_11 := [t_10 => t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [#_Value... t_0]
+	t_14 := [t_13 => t_13]
+	t_15 := [EMPTY_TYPE => t_14]
+	t_16 := [§ABSTRACT TYPE]
+	t_17 := [§FREE TYPE]
+	t_18 := [§VAR t_17]
+	t_19 := [§SIG_WITH t_17 IN t_18]
+	t_20 := [§FREE TYPE]
+	t_21 := [§VAR t_20]
+	t_22 := [§SIG_WITH t_20 IN t_21]
+	t_23 := [t_22 => t_19]
+	t_24 := [EMPTY_TYPE => t_23]
+	t_25 := [ANY => ANY]
+	t_26 := [EMPTY_TYPE => t_25]
+	t_27 := [INT | t_0]
+	t_28 := [t_27 => t_27]
+	t_29 := [EMPTY_TYPE => t_28]
+	t_30 := [t_1 => t_1]
+	t_31 := [t_2 => t_30]
+	t_32 := [EMPTY_TYPE, t_2]
+	t_33 := [t_32, t_31]
+	t_34 := [EMPTY_TYPE => t_0]
+	t_35 := [t_33 => t_34]
+	t_36 := [EMPTY_TYPE, t_0]
+	t_37 := [#Result t_0]
+	t_38 := [t_36 => t_37]
+	t_39 := [EMPTY_TYPE => t_38]
+	t_40 := [t_0, ANY]
+	t_41 := [t_40 => t_37]
 	t_42 := [EMPTY_TYPE => t_41]
-	t_43 := [t_42 => t_42]
-	t_44 := [t_1 => t_1]
-	t_45 := [t_2 => t_44]
-	t_46 := [EMPTY_TYPE, t_2]
-	t_47 := [t_46, t_45]
-	t_48 := [EMPTY_TYPE => t_0]
-	t_49 := [t_47 => t_48]
-	t_50 := [t_46, t_3]
-	t_51 := [t_50, t_7]
-	t_52 := [t_51, t_8]
-	t_53 := [t_52, t_14]
-	t_54 := [t_53, t_15]
-	t_55 := [t_54, t_18]
-	t_56 := [t_55, t_19]
-	t_57 := [t_56, t_2]
-	t_58 := [t_57, t_3]
-	t_59 := [t_58, t_28]
+	t_43 := [EMPTY_TYPE, t_39]
+	t_44 := [t_43, t_42]
+	t_45 := [t_44 => t_41]
+	t_46 := [t_0, INT]
+	t_47 := [t_46 => t_37]
+	t_48 := [EMPTY_TYPE => t_47]
+	t_49 := [t_43, t_48]
+	t_50 := [t_0, t_27]
+	t_51 := [t_50 => t_37]
+	t_52 := [t_49 => t_51]
+	t_53 := [t_32, t_6]
+	t_54 := [t_53, t_12]
+	t_55 := [t_54, t_15]
+	t_56 := [t_55, t_2]
+	t_57 := [t_56, t_24]
+	t_58 := [t_57, t_2]
+	t_59 := [t_58, t_26]
 	t_60 := [t_59, t_29]
 	t_61 := [t_60, t_2]
-	t_62 := [t_61, t_3]
-	t_63 := [t_62, t_31]
-	t_64 := [t_63, t_32]
-	t_65 := [t_64, t_35]
-	t_66 := [t_65, t_36]
-	t_67 := [t_66, t_42]
-	t_68 := [t_67, t_43]
-	t_69 := [t_68, t_2]
-	t_70 := [t_69, t_45]
-	t_71 := [t_70, t_49]
-	t_72 := [EMPTY_TYPE, t_0]
-	t_73 := [t_72, t_5]
-	t_74 := [t_73, t_13]
-	t_75 := [t_74, t_16]
-	t_76 := [t_75, t_0]
-	t_77 := [t_76, t_23]
-	t_78 := [t_77, t_0]
-	t_79 := [t_78, ANY]
-	t_80 := [t_79, t_33]
-	t_81 := [t_80, t_40]
-	t_82 := [t_81, t_0]
-	t_83 := [EMPTY_TYPE => t_82]
-	t_84 := [t_71 => t_83]
+	t_62 := [t_61, t_31]
+	t_63 := [t_62, t_35]
+	t_64 := [t_63, t_39]
+	t_65 := [t_64, t_42]
+	t_66 := [t_65, t_45]
+	t_67 := [t_66, t_39]
+	t_68 := [t_67, t_48]
+	t_69 := [t_68, t_52]
+	t_70 := [t_3, INT]
+	t_71 := [t_3, t_70]
+	t_72 := [t_71, INT]
+	t_73 := [t_72, INT]
+	t_74 := [t_73, INT]
+	t_75 := [t_74, INT]
+	t_76 := [t_75, INT]
+	t_77 := [t_76, INT]
+	t_78 := [t_77, INT]
+	t_79 := [t_78, INT]
+	t_80 := [EMPTY_TYPE => t_79]
+	t_81 := [t_69 => t_80]
 
 §DEF d_0 € t_2
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_1 € t_3
-	d_0 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_0 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_2 € t_7
+§DEF d_1 € t_6
 	r_1 := §2ND ARG
 	_aValue := r_1
 	r_2 := §1ST ARG
@@ -107,256 +98,261 @@
 	r_6 := r_5, _aValue
 	§RETURN r_6 IF TRUE
 
-§DEF d_3 € t_8
-	d_2 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_2 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_4 € t_14
+§DEF d_2 € t_12
 	r_1 := {ARG} #_Value
 	_aValue := r_1
 	r_2 := +#_Value _aValue
 	r_3 := {EMPTY} + r_2
 	§RETURN r_3 IF TRUE
 
-§DEF d_5 € t_15
-	d_4 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_4 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_6 € t_18
+§DEF d_3 € t_15
 	r_1 := -#_Value... ARG
 	_aValue := r_1
 	r_2 := +#_Value... _aValue
 	§RETURN r_2 IF TRUE
 
-§DEF d_7 € t_19
-	d_6 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_6 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_8 € t_2
+§DEF d_4 € t_2
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_9 € t_3
-	d_8 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_8 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_10 € t_28
-	r_1 := §SIG_HEAD ARG AS t_20
+§DEF d_5 € t_24
+	r_1 := §SIG_HEAD ARG AS t_16
 	r_2 := §SIG_BODY ARG
 	_t := r_1
 	_aValue := r_2
 	r_3 := _t, _aValue
-	r_4 := §SIG t_23 WITH r_3
+	r_4 := §SIG t_19 WITH r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_11 € t_29
-	d_10 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_10 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_12 € t_2
+§DEF d_6 € t_2
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_13 € t_3
-	d_12 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_12 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_14 € t_31
+§DEF d_7 € t_26
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_15 € t_32
-	d_14 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_14 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_16 € t_35
+§DEF d_8 € t_29
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_17 € t_36
-	d_16 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_16 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_18 € t_42
+§DEF d_9 € t_2
 	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
-§DEF d_19 € t_43
-	d_18 := ENV
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_18 EMPTY
-	§RETURN r_1 IF TRUE
-
-§DEF d_20 € t_2
-	_aValue := ARG
-	§RETURN _aValue IF TRUE
-
-§DEF d_21 € t_45
-	d_20 := ENV
+§DEF d_10 € t_31
+	d_9 := ENV
 	_Pass... := ARG
-	r_1 := .d_20 EMPTY
+	r_1 := §CLOSURE d_9 EMPTY
 	§RETURN r_1 IF TRUE
 
-§DEF d_22 € t_49
-	d_21 := §2ND ENV
+§DEF d_11 € t_35
+	d_10 := §2ND ENV
 	r_4 := §1ST ENV
-	d_20 := §2ND r_4
+	d_9 := §2ND r_4
 	r_5 := §1ST r_4
 	§RETURN ARG IF_NOT_EMPTY
-	§REC r_1 := .d_21 d_20
+	§REC r_1 := .d_10 d_9
 	_Pass... := r_1
 	r_2 := 7
 	_Cell := §VAR r_2
 	r_3 := ._Pass... _Cell
 	§RETURN r_3 IF TRUE
 
-§DEF d_23 € t_84
-	d_22 := §2ND ENV
-	r_53 := §1ST ENV
-	d_21 := §2ND r_53
-	r_54 := §1ST r_53
-	d_20 := §2ND r_54
-	r_55 := §1ST r_54
-	d_19 := §2ND r_55
-	r_56 := §1ST r_55
-	d_18 := §2ND r_56
-	r_57 := §1ST r_56
-	d_17 := §2ND r_57
-	r_58 := §1ST r_57
-	d_16 := §2ND r_58
-	r_59 := §1ST r_58
-	d_15 := §2ND r_59
-	r_60 := §1ST r_59
-	d_14 := §2ND r_60
-	r_61 := §1ST r_60
-	d_13 := §2ND r_61
-	r_62 := §1ST r_61
-	d_12 := §2ND r_62
-	r_63 := §1ST r_62
-	d_11 := §2ND r_63
-	r_64 := §1ST r_63
-	d_10 := §2ND r_64
-	r_65 := §1ST r_64
-	d_9 := §2ND r_65
-	r_66 := §1ST r_65
-	d_8 := §2ND r_66
-	r_67 := §1ST r_66
-	d_7 := §2ND r_67
-	r_68 := §1ST r_67
-	d_6 := §2ND r_68
-	r_69 := §1ST r_68
-	d_5 := §2ND r_69
-	r_70 := §1ST r_69
-	d_4 := §2ND r_70
-	r_71 := §1ST r_70
-	d_3 := §2ND r_71
-	r_72 := §1ST r_71
-	d_2 := §2ND r_72
-	r_73 := §1ST r_72
-	d_1 := §2ND r_73
-	r_74 := §1ST r_73
-	d_0 := §2ND r_74
-	r_75 := §1ST r_74
+§DEF d_12 € t_39
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Handle := r_2
+	r_1 := +#Result _Handle
+	§RETURN r_1 IF TRUE
+
+§DEF d_13 € t_42
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Invalid := r_3
+	r_1 := +#Result _Invalid
+	§RETURN r_1 IF TRUE
+
+§DEF d_14 € t_45
+	d_13 := §2ND ENV
+	r_7 := §1ST ENV
+	d_12 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_Invalid := r_6
+	r_1 := §CLOSURE d_12 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_13 EMPTY
+	r_4 := _Invalid, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_15 € t_39
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Handle := r_2
+	r_1 := +#Result _Handle
+	§RETURN r_1 IF TRUE
+
+§DEF d_16 € t_48
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Invalid := r_3
+	r_1 := +#Result _Invalid
+	§RETURN r_1 IF TRUE
+
+§DEF d_17 € t_52
+	d_16 := §2ND ENV
+	r_7 := §1ST ENV
+	d_15 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_Invalid := r_6
+	r_1 := §CLOSURE d_15 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_16 EMPTY
+	r_4 := _Invalid, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_18 € t_81
+	d_17 := §2ND ENV
+	r_79 := §1ST ENV
+	d_16 := §2ND r_79
+	r_80 := §1ST r_79
+	d_15 := §2ND r_80
+	r_81 := §1ST r_80
+	d_14 := §2ND r_81
+	r_82 := §1ST r_81
+	d_13 := §2ND r_82
+	r_83 := §1ST r_82
+	d_12 := §2ND r_83
+	r_84 := §1ST r_83
+	d_11 := §2ND r_84
+	r_85 := §1ST r_84
+	d_10 := §2ND r_85
+	r_86 := §1ST r_85
+	d_9 := §2ND r_86
+	r_87 := §1ST r_86
+	d_8 := §2ND r_87
+	r_88 := §1ST r_87
+	d_7 := §2ND r_88
+	r_89 := §1ST r_88
+	d_6 := §2ND r_89
+	r_90 := §1ST r_89
+	d_5 := §2ND r_90
+	r_91 := §1ST r_90
+	d_4 := §2ND r_91
+	r_92 := §1ST r_91
+	d_3 := §2ND r_92
+	r_93 := §1ST r_92
+	d_2 := §2ND r_93
+	r_94 := §1ST r_93
+	d_1 := §2ND r_94
+	r_95 := §1ST r_94
+	d_0 := §2ND r_95
+	r_96 := §1ST r_95
 	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_1 d_0
+	r_1 := §CLOSURE d_0 EMPTY
 	_DirectPattern... := r_1
-	r_2 := .d_3 d_2
+	r_2 := §CLOSURE d_1 EMPTY
 	_TuplePattern... := r_2
-	r_3 := .d_5 d_4
+	r_3 := §CLOSURE d_2 EMPTY
 	_RecordPattern... := r_3
-	r_4 := .d_7 d_6
+	r_4 := §CLOSURE d_3 EMPTY
 	_PrefixPattern... := r_4
-	r_5 := .d_9 d_8
+	r_5 := §CLOSURE d_4 EMPTY
 	_GuardedPattern... := r_5
-	r_6 := .d_11 d_10
+	r_6 := §CLOSURE d_5 EMPTY
 	_SigBinder... := r_6
-	r_7 := .d_13 d_12
+	r_7 := §CLOSURE d_6 EMPTY
 	_AnnotatedHandle... := r_7
-	r_8 := .d_15 d_14
+	r_8 := §CLOSURE d_7 EMPTY
 	_AnyArgument... := r_8
-	r_9 := .d_17 d_16
+	r_9 := §CLOSURE d_8 EMPTY
 	_UnionArgument... := r_9
-	r_10 := .d_19 d_18
-	_RecursiveType... := r_10
-	r_11 := EMPTY, d_20
-	r_12 := r_11, d_21
-	r_13 := .d_22 r_12
-	_RecursiveDefinition... := r_13
-	r_14 := 7
-	_Cell := §VAR r_14
-	r_15 := 9
-	_Opaque := §VAR r_15
-	r_16 := ._DirectPattern... EMPTY
-	_Case01... := r_16
-	r_17 := ._Case01... _Cell
-	_Result01 := r_17
-	r_18 := ._TuplePattern... EMPTY
-	_Case02... := r_18
-	r_19 := 3
-	r_20 := EMPTY, r_19
-	r_21 := r_20, _Cell
-	r_22 := ._Case02... r_21
-	_Result02 := r_22
-	r_23 := ._RecordPattern... EMPTY
-	_Result03 := r_23
-	r_24 := ._PrefixPattern... EMPTY
-	_Case04... := r_24
-	r_25 := +#_Value... _Cell
-	r_26 := ._Case04... r_25
-	_Result04 := r_26
-	r_27 := ._GuardedPattern... EMPTY
-	_Case05... := r_27
-	r_28 := ._Case05... _Cell
-	_Result05 := r_28
-	r_29 := ._SigBinder... EMPTY
-	_Case06... := r_29
-	r_30 := INT_TYPE, _Cell
-	r_31 := §SIG t_23 WITH r_30
-	r_32 := ._Case06... r_31
-	_Result06 := r_32
-	r_33 := ._AnnotatedHandle... EMPTY
-	_Case07... := r_33
-	r_34 := ._Case07... _Cell
-	_Result07 := r_34
-	r_35 := ._AnyArgument... EMPTY
-	_Case08... := r_35
-	r_36 := ._Case08... _Cell
-	_Result08 := r_36
-	r_37 := ._UnionArgument... EMPTY
-	_Case09... := r_37
-	r_38 := ._Case09... _Cell
-	_Result09 := r_38
-	r_39 := ._RecursiveType... EMPTY
-	_Case10... := r_39
-	r_40 := ._Case10... EMPTY
-	_Result10 := r_40
-	r_41 := ._RecursiveDefinition... EMPTY
-	_Result11 := r_41
-	r_42 := EMPTY, _Result01
-	r_43 := r_42, _Result02
-	r_44 := r_43, _Result03
-	r_45 := r_44, _Result04
-	r_46 := r_45, _Result05
-	r_47 := r_46, _Result06
-	r_48 := r_47, _Result07
-	r_49 := r_48, _Result08
-	r_50 := r_49, _Result09
-	r_51 := r_50, _Result10
-	r_52 := r_51, _Result11
-	§RETURN r_52 IF TRUE
+	r_10 := EMPTY, d_9
+	r_11 := r_10, d_10
+	r_12 := §CLOSURE d_11 r_11
+	_RecursiveDefinition := r_12
+	r_13 := 7
+	_Cell := §VAR r_13
+	r_14 := 9
+	_Opaque := §VAR r_14
+	r_15 := 0
+	_Invalid := §VAR r_15
+	r_16 := 3
+	r_17 := EMPTY, r_16
+	r_18 := r_17, _Cell
+	r_19 := ._TuplePattern... r_18
+	r_20 := §2ND r_19
+	_Cell02 := r_20
+	r_21 := §1ST r_19
+	r_22 := §2ND r_21
+	_First02 := r_22
+	r_23 := §1ST r_21
+	r_24 := +#_Value _Cell
+	r_25 := {EMPTY} + r_24
+	r_26 := ._RecordPattern... r_25
+	r_27 := {r_26} #_Value
+	_Cell03 := r_27
+	r_28 := +#_Value... _Cell
+	r_29 := ._PrefixPattern... r_28
+	r_30 := -#_Value... r_29
+	_Cell04 := r_30
+	r_31 := INT_TYPE, _Cell
+	r_32 := §SIG t_19 WITH r_31
+	r_33 := ._SigBinder... r_32
+	r_34 := §TRY r_33 HAS_HEAD_TYPE INT_TYPE
+	r_35 := §SIG_HEAD r_34
+	r_36 := §SIG_BODY r_34
+	_Cell06 := r_36
+	r_37 := ._AnyArgument... _Cell
+	r_38 := EMPTY, d_12
+	r_39 := r_38, d_13
+	r_40 := §CLOSURE d_14 r_39
+	r_41 := _Invalid, r_37
+	r_42 := OBJ, r_40
+	r_43 := §OBJ:r_42 r_41
+	r_44 := -#Result r_43
+	_Cell08 := r_44
+	r_45 := ._UnionArgument... _Cell
+	r_46 := EMPTY, d_15
+	r_47 := r_46, d_16
+	r_48 := §CLOSURE d_17 r_47
+	r_49 := _Invalid, r_45
+	r_50 := OBJ, r_48
+	r_51 := §OBJ:r_50 r_49
+	r_52 := -#Result r_51
+	_Cell09 := r_52
+	r_53 := ._DirectPattern... _Cell
+	r_54 := §VAR r_53 ->
+	r_55 := EMPTY, r_54
+	r_56 := EMPTY, _First02
+	r_57 := §VAR _Cell02 ->
+	r_58 := r_56, r_57
+	r_59 := r_55, r_58
+	r_60 := §VAR _Cell03 ->
+	r_61 := r_59, r_60
+	r_62 := §VAR _Cell04 ->
+	r_63 := r_61, r_62
+	r_64 := ._GuardedPattern... _Cell
+	r_65 := §VAR r_64 ->
+	r_66 := r_63, r_65
+	r_67 := §VAR _Cell06 ->
+	r_68 := r_66, r_67
+	r_69 := ._AnnotatedHandle... _Cell
+	r_70 := §VAR r_69 ->
+	r_71 := r_68, r_70
+	r_72 := §VAR _Cell08 ->
+	r_73 := r_71, r_72
+	r_74 := §VAR _Cell09 ->
+	r_75 := r_73, r_74
+	r_76 := ._RecursiveDefinition EMPTY
+	r_77 := §VAR r_76 ->
+	r_78 := r_75, r_77
+	§RETURN r_78 IF TRUE

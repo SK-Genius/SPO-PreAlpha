@@ -1,0 +1,4 @@
+TestFiles/SPO_Module_Errors/14_05_RegressionMutableAnyExport.SPO:2 ERROR 
+2: §EXPORT .Create
+ ┌─^
+ ├ mutable module export is not allowed

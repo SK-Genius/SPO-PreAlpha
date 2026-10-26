@@ -26,20 +26,20 @@
 	d_0 := ENV
 	r_1 := {ARG} #_...+...
 	_...+... := r_1
-	r_2 := .d_0 _...+...
+	r_2 := §CLOSURE d_0 _...+...
 	_+... := r_2
 	r_3 := 1
 	_X := §VAR r_3
 	r_4 := 2
-	r_5 := _X, _+...
-	EMPTY := §OBJ:r_5 r_4
-	r_6 := 3
-	_Y := §VAR r_6
-	r_7 := 4
-	r_8 := _Y, _+...
-	EMPTY := §OBJ:r_8 r_7
-	r_9 := §VAR _X ->
-	r_10 := EMPTY, r_9
-	r_11 := §VAR _Y ->
-	r_12 := r_10, r_11
-	§RETURN r_12 IF TRUE
+	r_6 := _X, _+...
+	r_5 := §OBJ:r_6 r_4
+	r_7 := 3
+	_Y := §VAR r_7
+	r_8 := 4
+	r_10 := _Y, _+...
+	r_9 := §OBJ:r_10 r_8
+	r_11 := §VAR _X ->
+	r_12 := EMPTY, r_11
+	r_13 := §VAR _Y ->
+	r_14 := r_12, r_13
+	§RETURN r_14 IF TRUE

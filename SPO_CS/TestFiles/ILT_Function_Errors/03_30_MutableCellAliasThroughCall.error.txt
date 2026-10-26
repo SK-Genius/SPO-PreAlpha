@@ -1,0 +1,4 @@
+TestFiles/ILT_Function_Errors/03_30_MutableCellAliasThroughCall.ILT:18 ERROR 
+18:  value := §VAR handle ->
+ ┌───^
+ ├ opaque mutable access is not allowed

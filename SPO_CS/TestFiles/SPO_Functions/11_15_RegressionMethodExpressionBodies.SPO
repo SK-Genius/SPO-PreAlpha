@@ -1,0 +1,38 @@
+§DEF Read = (
+	§VAR aSelf € §INT
+) : () => §TO_VAL aSelf
+
+§DEF Box... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aValue € §INT
+) => {
+	Value: aValue
+	Self: §TO_VAL aSelf
+}
+
+§DEF Select... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aFlag € §BOOL
+) => §IF {
+	aFlag: §TO_VAL aSelf
+	§TRUE: 0
+}
+
+§DEF ReadBlock = (
+	§VAR aSelf € §INT
+) : () => §TO_VAL aSelf
+
+§VAR Cell :
+	= 7
+	Read => §DEF ReadValue
+	Box 9 => §DEF BoxValue
+	Select §TRUE => §DEF Selected
+	Select §FALSE => §DEF Other
+	ReadBlock => §DEF BlockValue
+.
+
+{Value: §DEF BoxArgument, Self: §DEF BoxReceiver} = BoxValue
+
+§EXPORT (ReadValue, (BoxArgument, BoxReceiver), Selected, Other, BlockValue)

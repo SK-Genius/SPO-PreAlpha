@@ -1,0 +1,4 @@
+§EXPORT {
+	Ints: (7, 7)
+	Bools: (§TRUE, §TRUE)
+}

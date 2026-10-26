@@ -3,42 +3,40 @@
 	t_1 := [t_0 => t_0]
 	t_2 := [t_0 : t_1]
 	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [EMPTY_TYPE, t_3]
-	t_5 := [t_4, t_3]
-	t_6 := [EMPTY_TYPE => INT]
-	t_7 := [t_5 => t_6]
+	t_4 := [t_2 => t_2]
+	t_5 := [EMPTY_TYPE, t_3]
+	t_6 := [t_5, t_4]
+	t_7 := [EMPTY_TYPE => INT]
+	t_8 := [t_6 => t_7]
 
 §DEF d_0 € t_3
 	_aValue := ARG
 	_aSelf := OBJ
 	§RETURN _aValue IF TRUE
-	§RETURN EMPTY IF TRUE
 
-§DEF d_1 € t_3
+§DEF d_1 € t_4
+	_Relay... := ENV
 	_aValue := ARG
 	_aSelf := OBJ
-	r_1 := §VAR _aValue ->
-	r_3 := _aSelf, _Relay...
-	r_2 := §OBJ:r_3 r_1
-	_Returned := r_2
+	r_2 := _aSelf, _Relay...
+	r_1 := §OBJ:r_2 _aValue
+	_Returned := r_1
 	§RETURN _Returned IF TRUE
 	§RETURN EMPTY IF TRUE
 
-§DEF d_2 € t_7
+§DEF d_2 € t_8
 	d_1 := §2ND ENV
-	r_8 := §1ST ENV
-	d_0 := §2ND r_8
-	r_9 := §1ST r_8
-	§RETURN ARG IF_NOT_EMPTY
-	r_1 := .d_0 EMPTY
+	r_7 := §1ST ENV
+	d_0 := §2ND r_7
+	r_8 := §1ST r_7
+	r_1 := §CLOSURE d_0 EMPTY
 	_Relay... := r_1
-	r_2 := .d_1 EMPTY
+	r_2 := §CLOSURE d_1 _Relay...
 	_Forward... := r_2
 	r_3 := 7
 	_Cell := §VAR r_3
-	r_4 := §VAR _Cell ->
-	r_6 := _Cell, _Forward...
-	r_5 := §OBJ:r_6 r_4
-	_Returned := r_5
-	r_7 := §VAR _Returned ->
-	§RETURN r_7 IF TRUE
+	r_5 := _Cell, _Forward...
+	r_4 := §OBJ:r_5 _Cell
+	_Returned := r_4
+	r_6 := §VAR _Returned ->
+	§RETURN r_6 IF TRUE

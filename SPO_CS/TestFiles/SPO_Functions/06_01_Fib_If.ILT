@@ -10,8 +10,8 @@
 	t_8 := [INT => INT]
 	t_9 := [t_7, t_8]
 	t_10 := [t_9, t_6]
-	t_11 := [INT | EMPTY_TYPE]
-	t_12 := [EMPTY_TYPE => t_11]
+	t_11 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_12 := [t_11 => INT]
 	t_13 := [t_10 => t_12]
 	t_14 := [t_4, t_6]
 	t_15 := [t_14, t_8]
@@ -44,16 +44,17 @@
 
 §DEF d_0 € t_13
 	_...-... := §2ND ENV
-	r_18 := §1ST ENV
-	_Fib... := §2ND r_18
-	r_19 := §1ST r_18
-	_...+... := §2ND r_19
-	r_20 := §1ST r_19
-	_a := §2ND r_20
+	r_20 := §1ST ENV
+	_Fib... := §2ND r_20
 	r_21 := §1ST r_20
-	_...<... := §2ND r_21
+	_...+... := §2ND r_21
 	r_22 := §1ST r_21
-	§RETURN ARG IF_NOT_EMPTY
+	_a := §2ND r_22
+	r_23 := §1ST r_22
+	_...<... := §2ND r_23
+	r_24 := §1ST r_23
+	r_19 := §1ST ARG
+	r_18 := §2ND ARG
 	r_1 := EMPTY, _a
 	r_2 := 2
 	r_3 := r_1, r_2
@@ -77,24 +78,26 @@
 
 §DEF d_1 € t_18
 	d_0 := §2ND ENV
-	r_9 := §1ST ENV
-	_...-... := §2ND r_9
-	r_10 := §1ST r_9
-	_Fib... := §2ND r_10
-	r_11 := §1ST r_10
-	_...+... := §2ND r_11
+	r_11 := §1ST ENV
+	_...-... := §2ND r_11
 	r_12 := §1ST r_11
-	_...<... := §2ND r_12
+	_Fib... := §2ND r_12
 	r_13 := §1ST r_12
+	_...+... := §2ND r_13
+	r_14 := §1ST r_13
+	_...<... := §2ND r_14
+	r_15 := §1ST r_14
 	_a := ARG
 	r_2 := EMPTY, _...<...
 	r_3 := r_2, _a
 	r_4 := r_3, _...+...
 	r_5 := r_4, _Fib...
 	r_6 := r_5, _...-...
-	r_7 := .d_0 r_6
-	r_8 := .r_7 EMPTY
-	r_1 := r_8
+	r_7 := §CLOSURE d_0 r_6
+	r_8 := EMPTY, EMPTY
+	r_9 := OBJ, r_7
+	r_10 := §OBJ:r_9 r_8
+	r_1 := r_10
 	§RETURN r_1 IF TRUE
 
 §DEF d_2 € t_23
@@ -114,7 +117,7 @@
 	r_3 := r_2, _Fib...
 	r_4 := r_3, _...-...
 	r_5 := r_4, d_0
-	r_6 := .d_1 r_5
+	r_6 := §CLOSURE d_1 r_5
 	§RETURN r_6 IF TRUE
 
 §DEF d_3 € t_41

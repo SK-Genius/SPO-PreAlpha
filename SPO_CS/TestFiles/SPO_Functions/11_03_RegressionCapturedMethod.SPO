@@ -1,0 +1,12 @@
+§DEF Get = (
+	§DEF aSelf € §INT
+) : () => aSelf
+
+§DEF Read... = (
+	§DEF aValue € §INT
+) => {
+	aValue : Get => §DEF Result .
+	§RETURN Result
+}
+
+§EXPORT .Read 42

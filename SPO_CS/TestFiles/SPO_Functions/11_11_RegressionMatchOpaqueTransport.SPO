@@ -1,0 +1,10 @@
+§DEF Pass... = (
+	§DEF aCell € [§VAR §INT]
+) => §IF 0 MATCH {
+	0: aCell
+	_: aCell
+}
+
+§VAR Cell := 7 .
+
+§EXPORT §TO_VAL .Pass Cell

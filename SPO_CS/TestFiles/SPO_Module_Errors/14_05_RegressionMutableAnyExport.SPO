@@ -1,0 +1,2 @@
+§IMPORT { 14_05_AnyFactory: §DEF Create € [[] => §ANY] }
+§EXPORT .Create

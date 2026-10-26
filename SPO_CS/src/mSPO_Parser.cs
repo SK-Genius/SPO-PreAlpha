@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -70,7 +70,7 @@ mSPO_Parser {
 	.SetDebugName([aName]);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tEmptyNode<tSpan>, tError>
-	Empty = (-SpecialToken("(") -SpecialToken(")"))
+	Empty = (-SpecialToken("(") -NLs_Token[0..1] -SpecialToken(")"))
 	.ModifyS(mSPO_AST.Empty)
 	.SetName(nameof(Empty));
 	
@@ -331,14 +331,6 @@ mSPO_Parser {
 				Children: mStream.Stream(aFirstChild, aInfix.Children)
 			)
 		)
-	) | (
-		SpecialId('#')
-		.ModifyS(
-			(aSpan, aId) => (
-				Id: mSPO_AST.Id(aSpan, aId.Text[1..], mStream.Stream(aId.Span)),
-				Children: mStream.Stream<tChild>([])
-			)
-		)
 	);
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tCallNode<tSpan>, tError>
@@ -369,12 +361,17 @@ mSPO_Parser {
 	.SetName(nameof(VarPattern));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tPrefixPatternNode<tSpan>, tError>
-	PrefixPattern = C( InfixPrefix(Pattern) )
-	.ModifyS(
-		(aSpan, aId, aChildren) => mSPO_AST.PrefixPattern(
-			aSpan,
-			aId.Id,
-			aChildren.Any(_ => true) ? mSPO_AST.TuplePattern(aSpan, aChildren) : mSPO_AST.Empty(aSpan)
+	PrefixPattern = (
+		C( InfixPrefix(Pattern) )
+		.ModifyS(
+			(aSpan, aId, aChildren) => mSPO_AST.PrefixPattern(
+				aSpan,
+				aId.Id,
+				aChildren.Any(_ => true) ? mSPO_AST.TuplePattern(aSpan, aChildren) : mSPO_AST.Empty(aSpan)
+			)
+		) |
+		SpecialId('#').ModifyS(
+			(aSpan, aId) => mSPO_AST.PrefixPattern(aSpan, "_" + aId.Text[1..], mSPO_AST.Empty(aSpan))
 		)
 	)
 	.SetName(nameof(PrefixPattern));
@@ -762,8 +759,13 @@ mSPO_Parser {
 	.SetName(nameof(Lambda));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tMethodNode<tSpan>, tError>
-	Method = mParserGen.Seq(Pattern, SpecialToken(":"), Pattern, Block)
-	.Modify((aObjPattern, _, aArgPattern, aBlock) => (aObjPattern, aArgPattern, aBlock))
+	Method = mParserGen.Seq(
+		Pattern,
+		-SpecialToken(":"),
+		Pattern,
+		(-SpecialToken("=>") +Expression) | Block.Cast<mSPO_AST.tExpressionNode<tSpan>>()
+	)
+	.Modify((aObjPattern, _, aArgPattern, aBody) => (aObjPattern, aArgPattern, aBody))
 	.ModifyS(mSPO_AST.Method)
 	.SetName(nameof(Method));
 	
@@ -1026,6 +1028,9 @@ mSPO_Parser {
 					Pair.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					SpecialId('#').ModifyS(
+						(aSpan, aId) => mSPO_AST.Prefix(aSpan, "_" + aId.Text[1..], mSPO_AST.Empty(aSpan))
+					).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Id.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Type.Cast<mSPO_AST.tExpressionNode<tSpan>>(),

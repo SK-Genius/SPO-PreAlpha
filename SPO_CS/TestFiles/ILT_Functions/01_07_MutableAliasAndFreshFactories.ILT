@@ -1,0 +1,37 @@
+§TYPES
+	V := [§VAR INT]
+	Box := [§VAR V]
+	Identity := [Box => Box]
+	IdentityDef := [EMPTY_TYPE => Identity]
+	Factory := [EMPTY_TYPE => V]
+	FactoryDef := [EMPTY_TYPE => Factory]
+	Environment0 := [EMPTY_TYPE, IdentityDef]
+	Environment := [Environment0, FactoryDef]
+	Pair0 := [EMPTY_TYPE, INT]
+	Result := [Pair0, INT]
+	Main := [EMPTY_TYPE => Result]
+	MainDef := [Environment => Main]
+§DEF identity € IdentityDef
+	§RETURN ARG IF TRUE
+§DEF factory € FactoryDef
+	seven := 7
+	cell := §VAR seven
+	§RETURN cell IF TRUE
+§DEF main € MainDef
+	definitions := §1ST ENV
+	identity_def := §2ND definitions
+	factory_def := §2ND ENV
+	identity := .identity_def EMPTY
+	factory := .factory_def EMPTY
+	first := .factory EMPTY
+	second := .factory EMPTY
+	box := §VAR first
+	alias := .identity box
+	§VAR box <- second
+	§VAR second <- ONE
+	handle := §VAR alias ->
+	alias_value := §VAR handle ->
+	fresh_value := §VAR first ->
+	pair := EMPTY, alias_value
+	result := pair, fresh_value
+	§RETURN result IF TRUE

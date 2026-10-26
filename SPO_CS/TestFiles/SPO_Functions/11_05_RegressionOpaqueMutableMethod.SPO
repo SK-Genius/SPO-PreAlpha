@@ -1,0 +1,50 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§DEF Contract = [§SIG_WITH t € §TYPE IN [[§VAR t] : §INT => []]]
+
+§DEF Add... = (§VAR aSelf € §INT) : (§DEF aAmount € §INT) {
+	aSelf := ((§TO_VAL aSelf) .+ aAmount) .
+}
+
+§DEF Wrap... = (
+	§SIG Contract WITH §DEF t IN §DEF aOperation...
+) => {
+	§DEF Relay... = (
+		§VAR aSelf € t
+	) : (
+		§DEF aAmount € §INT
+	) {
+		§DEF Done = §IF aAmount MATCH {
+			§DEF Value: {
+				aSelf : aOperation Value .
+				§RETURN ()
+			}
+		}
+	}
+	
+	§RETURN §SIG Contract WITH t IN Relay...
+}
+
+§DEF Wrapped = .Wrap (§SIG Contract WITH [§INT] IN Add...)
+
+§DEF ApplyWrapped... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aWrapped € Contract
+) => §IF aWrapped MATCH {
+	§SIG Contract WITH [§INT] IN §DEF Apply...: {
+		aSelf : Apply 3 .
+		§RETURN §TO_VAL aSelf
+	}
+	
+	§SIG Contract WITH _ IN _: -1
+}
+
+§VAR Value :
+	= 1
+	ApplyWrapped Wrapped => §DEF Result
+.
+
+§EXPORT (Result, §TO_VAL Value)

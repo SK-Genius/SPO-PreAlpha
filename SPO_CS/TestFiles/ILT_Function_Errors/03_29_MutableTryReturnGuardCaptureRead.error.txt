@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_29_MutableTryReturnGuardCaptureRead.ILT:17 ERROR 
+17:  value := ARG
+ ┌───^
+ ├ mutable closure environment is not allowed

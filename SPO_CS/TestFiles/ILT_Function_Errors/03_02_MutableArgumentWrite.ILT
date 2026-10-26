@@ -1,10 +1,9 @@
 §TYPES
 	V := [§VAR INT]
-	
 	F := [V => EMPTY_TYPE]
 	P := [EMPTY_TYPE : F]
 	D := [EMPTY_TYPE => P]
 §DEF f € D
 	one := 1
-§VAR ARG <- one
-§RETURN EMPTY IF TRUE
+	§VAR ARG <- one
+	§RETURN EMPTY IF TRUE

@@ -1,1 +1,4 @@
-Compilation succeeded; expected an error.
+TestFiles/SPO_Module_Errors/10_01_OpaqueArgument.SPO:5 ERROR 
+5: §DEF Result = .((§VAR aValue € §INT) => §TO_VAL aValue) Cell
+ ┌─────────────────────────────────────────^
+ ├ opaque mutable access is not allowed

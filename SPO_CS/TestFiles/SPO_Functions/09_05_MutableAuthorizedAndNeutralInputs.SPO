@@ -1,91 +1,97 @@
-§IMPORT ()
+§DEF ReceiverReadWriteAndForward = (
+	§VAR aSelf € §INT
+) : () {
+	§DEF Read = (
+		§VAR aTarget € §INT
+	) : () => §TO_VAL aTarget
+	
+	aSelf :
+		= 1
+		Read => §DEF Value
+	.
+	
+	§RETURN Value
+}
 
-§DEF ReceiverReadWriteAndForward... = () => (
-	(§VAR aSelf € §INT) : () {
-		§DEF Read = (§VAR aTarget € §INT) : () {
-			§RETURN §TO_VAL aTarget
-		}
-		aSelf := 1 .
-		aSelf : Read => §DEF Value .
-		§RETURN Value
+§DEF ImmutableClosure = (
+	§VAR aSelf € §INT
+) : () {
+	§DEF Pass... = (§DEF aValue € [§VAR §INT]) => aValue
+	
+	§RETURN §TO_VAL (.Pass aSelf)
+}
+
+§DEF ExplicitHandleArgument = (
+	§VAR aSelf € §INT
+) : () {
+	§DEF Get... = (§DEF aValue € [§VAR §INT]) => aValue
+	
+	§RETURN §TO_VAL (.Get aSelf)
+}
+
+§DEF FreshResult = () => {
+	§DEF Make... = () => {
+		§VAR Cell := 7 .
+		§RETURN Cell
 	}
-)
+	
+	§DEF Result = .Make ()
+	
+	§RETURN §TO_VAL Result
+}
 
-§DEF ImmutableClosure... = () => (
-	(§VAR aSelf € §INT) : () {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => aValue
-		§DEF Result = .Pass aSelf
-		§RETURN §TO_VAL Result
+§DEF TypeDescriptor... = (
+	§DEF aType € §TYPE
+) => {
+	§DEF Observe = (§DEF aObject € §TYPE) : () {
+		§RETURN 0
 	}
-)
+	aType : Observe .
+	§RETURN aType
+}
 
-§DEF EmptyArgument... = () => (
-	(§VAR aSelf € §INT) : () {
-		§DEF Get... = () => aSelf
-		§DEF Result = .Get ()
-		§RETURN §TO_VAL Result
-	}
-)
+§DEF OpaqueFunctionTransport... = (
+	§DEF aGet... € [[] => [§VAR §INT]]
+) => {
+	§DEF Result = .aGet ()
+	§RETURN §TO_VAL Result
+}
 
-§DEF FreshResult... = () => (
-	{
-		§DEF Make... = () => {
-			§VAR Cell := 7 .
-			§RETURN Cell
-		}
-		§DEF Result = .Make ()
-		§RETURN §TO_VAL Result
-	}
-)
-
-§DEF TypeDescriptor... = () => (
-	(§DEF aType € §TYPE) => {
-		§DEF Observe = (§DEF aObject € §TYPE) : () {
-			§RETURN 0
-		}
-		aType : Observe .
-		§RETURN aType
-	}
-)
-
-§DEF OpaqueFunctionTransport... = () => (
-	(§DEF aGet... € [[] => [§VAR §INT]]) => {
-		§DEF Result = .aGet ()
-		§RETURN Result
-	}
-)
-
-§DEF OpaqueFunctionImmutableResult... = () => (
-	(§DEF aGet... € [[] => §INT]) => .aGet ()
-)
-
+§DEF OpaqueFunctionImmutableResult... = (
+	§DEF aGet... € [[] => §INT]
+) => .aGet ()
 
 §VAR Cell := 7 .
 §VAR Opaque := 9 .
-§DEF Make... = () => Cell
+
+§DEF Make... = () => {
+	§VAR Fresh := 7 .
+	§RETURN Fresh
+}
+
 §DEF Number... = () => 11
 
-§DEF Case01... = .ReceiverReadWriteAndForward ()
-§VAR Receiver01 := 7 .
-Receiver01 : Case01 () => §DEF Result01 .
+§VAR Receiver01 :
+	= 7
+	ReceiverReadWriteAndForward => §DEF Result01
+.
 
-§DEF Case02... = .ImmutableClosure ()
-§VAR Receiver02 := 7 .
-Receiver02 : Case02 () => §DEF Result02 .
+§VAR Receiver02 :
+	= 7
+	ImmutableClosure => §DEF Result02
+.
 
-§DEF Case03... = .EmptyArgument ()
-§VAR Receiver03 := 7 .
-Receiver03 : Case03 () => §DEF Result03 .
+§VAR Receiver03 :
+	= 7
+	ExplicitHandleArgument => §DEF Result03
+.
 
-§DEF Result04 = .FreshResult ()
-
-§DEF Case05... = .TypeDescriptor ()
-§DEF Result05 = .Case05 §INT
-
-§DEF Case06... = .OpaqueFunctionTransport ()
-§DEF Result06 = .Case06 Make...
-
-§DEF Case07... = .OpaqueFunctionImmutableResult ()
-§DEF Result07 = .Case07 Number...
-
-§EXPORT (Result01, Result02, Result03, Result04, Result05, Result06, Result07)
+§EXPORT (
+	Result01
+	Result02
+	Result03
+	.FreshResult
+	.TypeDescriptor §INT
+	.OpaqueFunctionTransport Make...
+	.OpaqueFunctionImmutableResult Number...
+)

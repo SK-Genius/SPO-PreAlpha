@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_26_MutableMethodOpaqueClosureResultRead.ILT:14 ERROR 
+14:  seven := 7
+ ┌───^
+ ├ mutable closure environment is not allowed

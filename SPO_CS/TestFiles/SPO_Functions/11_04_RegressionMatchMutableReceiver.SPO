@@ -1,0 +1,29 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§DEF Add... € [[§VAR §INT] : §INT => []] = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aAmount € §INT
+) {
+	aSelf := ((§TO_VAL aSelf) .+ aAmount) .
+}
+
+§DEF Run = (
+	§VAR aSelf € §INT
+) : () => §IF §TRUE MATCH {
+	§TRUE: {
+		aSelf : Add 2 .
+		§RETURN 0 IF §FALSE
+		§RETURN §TO_VAL aSelf
+	}
+	_: 0
+}
+
+§VAR Value :
+	= 1
+	Run => §DEF Result
+.
+
+§EXPORT (Result, §TO_VAL Value)

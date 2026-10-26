@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_17_MutableFunctionBothOpaqueResultRead.SPO:4 ERROR 
+4:   §DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
+ ┌──────────────────^
+ ├ mutable closure environment is not allowed

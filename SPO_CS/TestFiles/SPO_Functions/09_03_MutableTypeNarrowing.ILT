@@ -1,0 +1,167 @@
+§TYPES
+	t_0 := [§VAR INT]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [#Result t_0]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [t_0, ANY]
+	t_6 := [t_5 => t_2]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE, t_4]
+	t_9 := [t_8, t_7]
+	t_10 := [t_9 => t_6]
+	t_11 := [t_9, t_10]
+	t_12 := [t_0 => t_0]
+	t_13 := [t_11 => t_12]
+	t_14 := [t_0, INT]
+	t_15 := [t_14 => t_2]
+	t_16 := [EMPTY_TYPE => t_15]
+	t_17 := [t_8, t_16]
+	t_18 := [INT | t_0]
+	t_19 := [t_0, t_18]
+	t_20 := [t_19 => t_2]
+	t_21 := [t_17 => t_20]
+	t_22 := [t_17, t_21]
+	t_23 := [t_22 => t_12]
+	t_24 := [t_11, t_13]
+	t_25 := [t_24, t_4]
+	t_26 := [t_25, t_16]
+	t_27 := [t_26, t_21]
+	t_28 := [t_27, t_23]
+	t_29 := [EMPTY_TYPE, INT]
+	t_30 := [t_29, INT]
+	t_31 := [EMPTY_TYPE => t_30]
+	t_32 := [t_28 => t_31]
+
+§DEF d_0 € t_4
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Item := r_2
+	r_1 := +#Result _Item
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_7
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_aValue := r_3
+	r_1 := +#Result _aValue
+	§RETURN r_1 IF TRUE
+
+§DEF d_2 € t_10
+	d_1 := §2ND ENV
+	r_7 := §1ST ENV
+	d_0 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aValue := r_6
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_1 EMPTY
+	r_4 := _aValue, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_13
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	_aValue := ARG
+	_Hidden := _aValue
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := §CLOSURE d_2 r_2
+	r_4 := _aValue, _Hidden
+	r_5 := OBJ, r_3
+	r_6 := §OBJ:r_5 r_4
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_4
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_Item := r_2
+	r_1 := +#Result _Item
+	§RETURN r_1 IF TRUE
+
+§DEF d_5 € t_16
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	_aValue := r_3
+	r_1 := +#Result _aValue
+	§RETURN r_1 IF TRUE
+
+§DEF d_6 € t_21
+	d_5 := §2ND ENV
+	r_7 := §1ST ENV
+	d_4 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aValue := r_6
+	r_1 := §CLOSURE d_4 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_5 EMPTY
+	r_4 := _aValue, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_7 € t_23
+	d_6 := §2ND ENV
+	r_8 := §1ST ENV
+	d_5 := §2ND r_8
+	r_9 := §1ST r_8
+	d_4 := §2ND r_9
+	r_10 := §1ST r_9
+	_aValue := ARG
+	_Hidden := _aValue
+	r_1 := EMPTY, d_4
+	r_2 := r_1, d_5
+	r_3 := §CLOSURE d_6 r_2
+	r_4 := _aValue, _Hidden
+	r_5 := OBJ, r_3
+	r_6 := §OBJ:r_5 r_4
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_8 € t_32
+	d_7 := §2ND ENV
+	r_16 := §1ST ENV
+	d_6 := §2ND r_16
+	r_17 := §1ST r_16
+	d_5 := §2ND r_17
+	r_18 := §1ST r_17
+	d_4 := §2ND r_18
+	r_19 := §1ST r_18
+	d_3 := §2ND r_19
+	r_20 := §1ST r_19
+	d_2 := §2ND r_20
+	r_21 := §1ST r_20
+	d_1 := §2ND r_21
+	r_22 := §1ST r_21
+	d_0 := §2ND r_22
+	r_23 := §1ST r_22
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := r_2, d_2
+	r_4 := §CLOSURE d_3 r_3
+	_AnyNarrowing... := r_4
+	r_5 := EMPTY, d_4
+	r_6 := r_5, d_5
+	r_7 := r_6, d_6
+	r_8 := §CLOSURE d_7 r_7
+	_UnionNarrowing... := r_8
+	r_9 := 7
+	_Cell := §VAR r_9
+	r_10 := ._AnyNarrowing... _Cell
+	r_11 := §VAR r_10 ->
+	r_12 := EMPTY, r_11
+	r_13 := ._UnionNarrowing... _Cell
+	r_14 := §VAR r_13 ->
+	r_15 := r_12, r_14
+	§RETURN r_15 IF TRUE

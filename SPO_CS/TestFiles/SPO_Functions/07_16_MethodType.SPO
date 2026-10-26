@@ -10,6 +10,9 @@
 	o := ((§TO_VAL o) .+ a) .
 }
 
-§VAR X := 1, Add 2 .
+§VAR X :
+	= 1
+	Add 2
+.
 
 §EXPORT §TO_VAL X

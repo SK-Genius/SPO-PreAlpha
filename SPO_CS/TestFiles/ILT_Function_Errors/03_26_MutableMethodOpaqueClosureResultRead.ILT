@@ -19,8 +19,8 @@
 	def := §2ND OBJ
 	closure := .def ARG
 	pair := allowed, closure
-returned := §OBJ:pair allowed
+	returned := §OBJ:pair allowed
 	handle := §1ST returned
 	number := §2ND returned
 	value := §VAR handle ->
-§RETURN value IF TRUE
+	§RETURN value IF TRUE

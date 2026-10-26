@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_04_MutableMethodArgumentRead.SPO:4 ERROR 
+4:  §RETURN §TO_VAL aValue
+ ┌──────────^
+ ├ opaque mutable access is not allowed

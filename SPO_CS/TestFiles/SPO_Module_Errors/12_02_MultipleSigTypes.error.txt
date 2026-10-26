@@ -1,6 +1,6 @@
-TestFiles/SPO_Module_Errors/12_02_MultipleSigTypes.SPO:1 ERROR 
-1: §DEF Identity... = (§DEF Value € [§LOAD "_Modules/12_02_Invalid.SIG"]) => Value
- ┌─────────────────────────────────────────────────────────────────────^
+TestFiles/SPO_Module_Errors/12_02_MultipleSigTypes.SPO:2 ERROR 
+2:  §DEF Value € [§LOAD "_Modules/12_02_Invalid.SIG"]
+ ┌──────────────────────────────────────────────────^
  ├ [§LOAD "_Modules/12_02_Invalid.SIG"]: TestFiles/SPO_Module_Errors/_Modules/12_02_Invalid.SIG:2 expected end of text
  │ 
  │ §BOOL

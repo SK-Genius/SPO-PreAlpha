@@ -22,4 +22,4 @@
 	handle := §1ST returned
 	number := §2ND returned
 	value := §VAR handle ->
-§RETURN value IF TRUE
+	§RETURN value IF TRUE

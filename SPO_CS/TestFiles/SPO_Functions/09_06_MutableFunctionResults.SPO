@@ -1,71 +1,51 @@
 §IMPORT ()
 
-§DEF ClosureOpaqueArgumentOpaque... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
-			§RETURN {Handle: aValue, Captured: aOpaque, Number: 7}
-		}
-		§DEF Returned = .Pass aOpaque
-		{Handle: §DEF Result, Number: §DEF Number} = Returned
-		§RETURN Number
-	}
-)
+§DEF ArgumentOpaque... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aOpaque € [§VAR §INT]
+) {
+	§DEF Pass... = (
+		§DEF aValue € [§VAR §INT]
+	) => {Handle: aValue, Number: 7}
+	
+	{Number: §DEF Number} = .Pass aOpaque
+	
+	§RETURN Number
+}
 
-§DEF ClosureOpaqueArgumentAllowed... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
-			§RETURN {Handle: aValue, Captured: aOpaque, Number: 7}
-		}
-		§DEF Returned = .Pass aSelf
-		{Handle: §DEF Result, Number: §DEF Number} = Returned
-		§RETURN Number
-	}
-)
-
-§DEF ClosureAllowedArgumentOpaque... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
-			§RETURN {Handle: aValue, Captured: aSelf, Number: 7}
-		}
-		§DEF Returned = .Pass aOpaque
-		{Handle: §DEF Result, Number: §DEF Number} = Returned
-		§RETURN Number
-	}
-)
-
-§DEF ClosureAllowedArgumentAllowed... = () => (
-	(§VAR aSelf € §INT) : (§DEF aOpaque € [§VAR §INT]) {
-		§DEF Pass... = (§DEF aValue € [§VAR §INT]) => {
-			§RETURN {Handle: aValue, Captured: aSelf, Number: 7}
-		}
-		§DEF Returned = .Pass aSelf
-		{Handle: §DEF Result, Number: §DEF Number} = Returned
-		§DEF Read = (§VAR aTarget € §INT) : () {
-			§RETURN §TO_VAL aTarget
-		}
-		Result : Read => §DEF Value .
-		§RETURN (Number, §TO_VAL Result, Value)
-	}
-)
-
+§DEF ArgumentAllowed... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aOpaque € [§VAR §INT]
+) {
+	§DEF Pass... = (
+		§DEF aValue € [§VAR §INT]
+	) => {Handle: aValue, Number: 7}
+	
+	{Handle: §DEF Result, Number: §DEF Number} = .Pass aSelf
+	
+	§DEF Read = (
+		§VAR aTarget € §INT
+	) : (
+	) => §TO_VAL aTarget
+	
+	Result : Read => §DEF Value .
+	
+	§RETURN (Number, §TO_VAL Result, Value)
+}
 
 §VAR Cell := 7 .
 §VAR Opaque := 9 .
 
-§DEF Case01... = .ClosureOpaqueArgumentOpaque ()
-§VAR Receiver01 := 7 .
-Receiver01 : Case01 Opaque => §DEF Result01 .
+§VAR Receiver03 :
+	= 7
+	ArgumentOpaque Opaque => §DEF Result03
+.
 
-§DEF Case02... = .ClosureOpaqueArgumentAllowed ()
-§VAR Receiver02 := 7 .
-Receiver02 : Case02 Opaque => §DEF Result02 .
+§VAR Receiver04 :
+	= 7
+	ArgumentAllowed Opaque => §DEF Result04
+.
 
-§DEF Case03... = .ClosureAllowedArgumentOpaque ()
-§VAR Receiver03 := 7 .
-Receiver03 : Case03 Opaque => §DEF Result03 .
-
-§DEF Case04... = .ClosureAllowedArgumentAllowed ()
-§VAR Receiver04 := 7 .
-Receiver04 : Case04 Opaque => §DEF Result04 .
-
-§EXPORT (Result01, Result02, Result03, Result04)
+§EXPORT (Result03, Result04)

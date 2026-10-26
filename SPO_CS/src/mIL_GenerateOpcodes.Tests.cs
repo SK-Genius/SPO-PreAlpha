@@ -27,31 +27,36 @@ mIL_GenerateOpcodes_Tests {
 		tText aSourceCode,
 		tText aId,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
-	) => mIL_GenerateOpcodes.GenerateOpcodes(
-		mIL_Parser.Module.TryParseText(aSourceCode, aId, aTrace).ElseThrow(),
-		aTrace
-	).ElseThrow();
+	) {
+		var IL = mIL_Parser.Module.TryParseText(aSourceCode, aId, aTrace).ElseThrow();
+		mAssert.IsTrue(
+			mIL_TypeChecker.AreModuleTypesValid(IL, out var Error),
+			() => mIL_TypeChecker.ErrorText(Error)
+		);
+		return mIL_GenerateOpcodes.GenerateOpcodes(IL, (mVM_Data.Empty(), mVM_Type.Empty()));
+	}
 	
 	public static readonly mTest.tTest
 	Tests = mTest.Tests(nameof(mIL_GenerateOpcodes),
 		[
-			mTest.Tests("Mutable access: mutable closure environments can execute",
+			mTest.Tests(
+				"Regressions: mutable values cannot enter closure environments",
 				mStream.Stream(false, true).Map(
 					aExtern => mTest.Test(
 						aExtern ? "External closure" : "ILT closure",
 						aDebug => {
-							var Cell = mVM_Data.Var(mVM_Data.Int(7));
-							
+							var Mutable = mVM_Data.Record([("Cell", mVM_Data.Var(mVM_Data.Int(7)))]);
+							var Constant = mVM_Data.Int(7);
 							mVM_Data.tData Closure;
 							if (aExtern) {
-								Closure = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Cell);
+								mAssert.ThrowsError(() => mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Mutable));
+								Closure = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Constant);
 							} else {
 								var Module = CompileModule(
 									"""
 									§TYPES
-										V := [§VAR INT]
-										F := [EMPTY_TYPE => V]
-										D := [V => F]
+										F := [EMPTY_TYPE => INT]
+										D := [INT => F]
 									§DEF f € D
 										§RETURN ENV IF TRUE
 									
@@ -59,26 +64,14 @@ mIL_GenerateOpcodes_Tests {
 									"",
 									__ => aDebug(__())
 								);
-								
-								Closure = mVM_Data.Proc(
-									Module.Defs.TryFirst().AssertNotEmpty(),
-									Cell
-								);
+								var Def = Module.Defs.TryFirst().AssertNotEmpty();
+								mAssert.ThrowsError(() => mVM_Data.Proc(Def, Mutable));
+								Closure = mVM_Data.Proc(Def, Constant);
 							}
-							
-							mAssert.IsTrue(Closure._IsMutable);
+							mAssert.IsFalse(Closure._IsMutable);
 							var Result = mVM_Data.Empty();
-							mVM.Run<tSpan>(
-								Closure,
-								mVM_Data.Empty(),
-								mVM_Data.Empty(),
-								Result,
-								mTextParser.ToText,
-								__ => aDebug(__())
-							);
-							
-							mAssert.IsTrue(Result.IsVar(out var Content));
-							mAssert.IsTrue(Content.IsInt(out var Value));
+							mVM.Run<tSpan>(Closure, mVM_Data.Empty(), mVM_Data.Empty(), Result, mTextParser.ToText, __ => aDebug(__()));
+							mAssert.IsTrue(Result.IsInt(out var Value));
 							mAssert.AreEquals(Value, 7);
 						}
 					)

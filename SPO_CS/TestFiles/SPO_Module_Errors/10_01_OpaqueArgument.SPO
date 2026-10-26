@@ -1,4 +1,7 @@
 §IMPORT { TestCellFactory: §DEF Create... € [§LOAD "_Modules/TestCellFactory.SIG"] }
+
 {Cell: §VAR Cell € §INT, Fixed: §DEF cFixed} = .Create ()
+
 §DEF Result = .((§VAR aValue € §INT) => §TO_VAL aValue) Cell
+
 §EXPORT cFixed

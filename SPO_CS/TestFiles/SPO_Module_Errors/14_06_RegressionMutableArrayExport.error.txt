@@ -1,0 +1,4 @@
+TestFiles/SPO_Module_Errors/14_06_RegressionMutableArrayExport.SPO:5 ERROR 
+5: §EXPORT .Pass ()
+ ┌─^
+ ├ mutable module export is not allowed

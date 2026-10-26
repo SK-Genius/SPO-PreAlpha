@@ -1,2 +1,5 @@
-§DEF Identity... = (§DEF Value € [§LOAD "_Modules/12_02_Invalid.SIG"]) => Value
+§DEF Identity... = (
+	§DEF Value € [§LOAD "_Modules/12_02_Invalid.SIG"]
+) => Value
+
 §EXPORT 1

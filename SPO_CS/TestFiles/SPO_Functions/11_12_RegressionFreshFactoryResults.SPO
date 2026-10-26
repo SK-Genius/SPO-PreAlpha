@@ -1,0 +1,27 @@
+§DEF ReadFactory... = (
+	§DEF aFactory... € [[] => [§VAR §INT]]
+) => §TO_VAL .aFactory ()
+
+§DEF ReadMethod... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aFactory € [[§VAR §INT] : [] => [§VAR §INT]]
+) {
+	aSelf : aFactory => §DEF Cell .
+	§RETURN §TO_VAL Cell
+}
+
+§DEF Fresh... = (
+) => {
+	§VAR Cell := 7 .
+	§RETURN Cell
+}
+
+§DEF Same = (§VAR aSelf € §INT) : () => aSelf
+
+§VAR Value :
+	= 9
+	ReadMethod Same => §DEF Result
+.
+
+§EXPORT (.ReadFactory Fresh..., Result)

@@ -271,7 +271,7 @@ mSPO_AST {
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public tPatternNode<tPos> Obj = default!;
 		public tPatternNode<tPos> Arg = default!;
-		public tBlockNode<tPos> Body = default!;
+		public tExpressionNode<tPos> Body = default!;
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
@@ -1114,7 +1114,7 @@ mSPO_AST {
 		tPos aPos,
 		tPatternNode<tPos> aObjPattern,
 		tPatternNode<tPos> aArgPattern,
-		tBlockNode<tPos> aBody
+		tExpressionNode<tPos> aBody
 	) => new() {
 		Pos = aPos,
 		Obj = aObjPattern,
@@ -1127,7 +1127,7 @@ mSPO_AST {
 		tPos aPos,
 		tPatternNode<tPos> aObjPattern,
 		tPatternNode<tPos> aArgPattern,
-		tBlockNode<tPos> aBody,
+		tExpressionNode<tPos> aBody,
 		mMaybe.tMaybe<mVM_Type.tType> aTypeAnnotation
 	) => Method(aPos, aObjPattern, aArgPattern, aBody).Do(
 		__ => { __.TypeAnnotation = aTypeAnnotation; }

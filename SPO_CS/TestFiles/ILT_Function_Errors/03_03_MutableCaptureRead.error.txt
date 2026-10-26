@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_03_MutableCaptureRead.ILT:7 ERROR 
+7:  value := §VAR ENV ->
+ ┌──^
+ ├ mutable closure environment is not allowed

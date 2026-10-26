@@ -1,0 +1,14 @@
+§DEF Read... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aFlag € §BOOL
+) => §IF aFlag MATCH {
+	§TRUE: §TO_VAL aSelf
+	§FALSE: 0
+}
+
+§VAR Cell := 7 .
+
+Cell : Read §TRUE => §DEF Value .
+
+§EXPORT Value

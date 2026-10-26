@@ -1,0 +1,17 @@
+§TYPES
+	V := [§VAR INT]
+	Box := [§VAR V]
+	WriteF := [V => EMPTY_TYPE]
+	Write := [Box : WriteF]
+	Object := [Box, Write]
+	F := [V => INT]
+	M := [Object : F]
+	D := [EMPTY_TYPE => M]
+§DEF f € D
+	box := §1ST OBJ
+	method := §2ND OBJ
+	pair := box, method
+	ignored := §OBJ:pair ARG
+	handle := §VAR box ->
+	value := §VAR handle ->
+	§RETURN value IF TRUE

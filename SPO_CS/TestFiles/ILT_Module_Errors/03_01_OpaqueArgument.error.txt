@@ -1,1 +1,4 @@
-Pending diagnostic: module ARG must remain opaque.
+TestFiles/ILT_Module_Errors/03_01_OpaqueArgument.ILT:16 ERROR 
+16:  value := §VAR ARG ->
+ ┌───^
+ ├ opaque mutable access is not allowed

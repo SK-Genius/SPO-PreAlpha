@@ -11,4 +11,4 @@
 §DEF main € D
 	handle := .ENV ARG
 	value := §VAR handle ->
-§RETURN value IF TRUE
+	§RETURN value IF TRUE

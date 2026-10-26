@@ -1,1 +1,4 @@
-Pending diagnostic: mutable module export must be rejected.
+TestFiles/ILT_Module_Errors/04_03_MutableRecordExport.ILT:17 ERROR 
+17:  §RETURN record IF TRUE
+ ┌───^
+ ├ mutable module export is not allowed

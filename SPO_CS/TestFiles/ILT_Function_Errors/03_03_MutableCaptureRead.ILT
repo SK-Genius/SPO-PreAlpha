@@ -1,9 +1,8 @@
 §TYPES
 	V := [§VAR INT]
-	
 	F := [EMPTY_TYPE => INT]
 	P := [EMPTY_TYPE : F]
 	D := [V => P]
 §DEF f € D
 	value := §VAR ENV ->
-§RETURN value IF TRUE
+	§RETURN value IF TRUE

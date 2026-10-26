@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
 #:property OutputType = Library
 #:include _GlobalUsings.cs
@@ -438,7 +438,7 @@ mSPO2IL_Tests {
 							mIL_AST.GetSecond(Span((0, 0), (0, 0)), mSPO2IL.GetId("...*..."), mSPO2IL.GetRegId(2)),
 							mIL_AST.GetFirst(Span((0, 0), (0, 0)), mSPO2IL.GetRegId(3), mSPO2IL.GetRegId(2)),
 							
-							mIL_AST.CallFunc(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
+							mIL_AST.Closure(Span((1, 10), (1, 32)), mSPO2IL.GetRegId(1), mSPO2IL.GetDefId(0), mSPO2IL.GetId("...*...")),
 							mIL_AST.Alias(Span((1, 1), (1, 6)), mSPO2IL.GetId("x"), mSPO2IL.GetRegId(1))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -598,7 +598,7 @@ mSPO2IL_Tests {
 							
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...+...")),
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Closure(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("...*...+..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -750,7 +750,7 @@ mSPO2IL_Tests {
 							
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(1), mIL_AST.cEmptyValue, mSPO2IL.GetId("...>...")),
 							mIL_AST.CreatePair(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(2), mSPO2IL.GetRegId(1), mSPO2IL.GetId("...*...")),
-							mIL_AST.CallFunc(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
+							mIL_AST.Closure(Span((1, 20), (1, 81)), mSPO2IL.GetRegId(3), mSPO2IL.GetDefId(0), mSPO2IL.GetRegId(2)),
 							mIL_AST.Alias(Span((1, 1), (1, 16)), mSPO2IL.GetId("TestTest..."), mSPO2IL.GetRegId(3))
 						),
 						mStream.Eq(mIL_AST.Eq_<tSpan>(EqSpan))
@@ -821,78 +821,97 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
+							r_4 := §1ST ARG
+							r_3 := §2ND ARG
 							r_1 := 2
 							r_2 := +#Result r_1
 							§RETURN r_2 IF TRUE
 							""",
 							"""
+							r_5 := §1ST ARG
+							r_4 := §2ND ARG
 							r_1 := 0
-							r_2 := §INT ARG == r_1
+							r_2 := §INT r_4 == r_1
 							r_3 := §BOOL r_2 ^ TRUE
 							§RETURN FALSE IF r_3
 							§RETURN TRUE IF TRUE
 							""",
 							"""
+							r_4 := §1ST ARG
+							r_3 := §2ND ARG
 							r_1 := 4
 							r_2 := +#Result r_1
 							§RETURN r_2 IF TRUE
 							""",
 							"""
+							r_5 := §1ST ARG
+							r_4 := §2ND ARG
 							r_1 := 1
-							r_2 := §INT ARG == r_1
+							r_2 := §INT r_4 == r_1
 							r_3 := §BOOL r_2 ^ TRUE
 							§RETURN FALSE IF r_3
 							§RETURN TRUE IF TRUE
 							""",
 							"""
+							r_4 := §1ST ARG
+							r_3 := §2ND ARG
 							r_1 := 6
 							r_2 := +#Result r_1
 							§RETURN r_2 IF TRUE
 							""",
 							"""
 							d_4 := §2ND ENV
-							r_6 := §1ST ENV
-							d_3 := §2ND r_6
-							r_7 := §1ST r_6
-							d_2 := §2ND r_7
-							r_8 := §1ST r_7
-							d_1 := §2ND r_8
-							r_9 := §1ST r_8
-							d_0 := §2ND r_9
-							r_10 := §1ST r_9
-							r_1 := .d_0 EMPTY
-							r_2 := .d_1 EMPTY
-							§TRY_RETURN .r_1 ARG IF r_2
-							r_3 := .d_2 EMPTY
-							r_4 := .d_3 EMPTY
-							§TRY_RETURN .r_3 ARG IF r_4
-							r_5 := .d_4 EMPTY
-							§TRY_RETURN .r_5 ARG
+							r_13 := §1ST ENV
+							d_3 := §2ND r_13
+							r_14 := §1ST r_13
+							d_2 := §2ND r_14
+							r_15 := §1ST r_14
+							d_1 := §2ND r_15
+							r_16 := §1ST r_15
+							d_0 := §2ND r_16
+							r_17 := §1ST r_16
+							r_12 := §1ST ARG
+							r_11 := §2ND ARG
+							r_1 := §CLOSURE d_0 EMPTY
+							r_2 := EMPTY, r_11
+							r_3 := §CLOSURE d_1 EMPTY
+							r_4 := EMPTY, r_11
+							§TRY_RETURN .r_1 r_2 IF r_3
+							r_5 := §CLOSURE d_2 EMPTY
+							r_6 := EMPTY, r_11
+							r_7 := §CLOSURE d_3 EMPTY
+							r_8 := EMPTY, r_11
+							§TRY_RETURN .r_5 r_6 IF r_7
+							r_9 := §CLOSURE d_4 EMPTY
+							r_10 := EMPTY, r_11
+							§TRY_RETURN .r_9 r_10
 							§RETURN EMPTY IF TRUE
 							""",
 							"""
 							d_5 := §2ND ENV
-							r_10 := §1ST ENV
-							d_4 := §2ND r_10
-							r_11 := §1ST r_10
-							d_3 := §2ND r_11
-							r_12 := §1ST r_11
-							d_2 := §2ND r_12
+							r_12 := §1ST ENV
+							d_4 := §2ND r_12
 							r_13 := §1ST r_12
-							d_1 := §2ND r_13
+							d_3 := §2ND r_13
 							r_14 := §1ST r_13
-							d_0 := §2ND r_14
+							d_2 := §2ND r_14
 							r_15 := §1ST r_14
+							d_1 := §2ND r_15
+							r_16 := §1ST r_15
+							d_0 := §2ND r_16
+							r_17 := §1ST r_16
 							r_1 := 1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
 							r_4 := r_3, d_2
 							r_5 := r_4, d_3
 							r_6 := r_5, d_4
-							r_7 := .d_5 r_6
-							r_8 := .r_7 r_1
-							r_9 := -#Result r_8
-							_x := r_9
+							r_7 := §CLOSURE d_5 r_6
+							r_8 := EMPTY, r_1
+							r_9 := OBJ, r_7
+							r_10 := §OBJ:r_9 r_8
+							r_11 := -#Result r_10
+							_x := r_11
 							""",
 						]
 					);
@@ -948,44 +967,54 @@ mSPO2IL_Tests {
 						Module.Defs.ToStream(),
 						[
 							"""
-							r_1 := -#_Blub ARG
+							r_5 := §1ST ARG
+							r_4 := §2ND ARG
+							r_1 := -#_Blub r_4
 							r_2 := 1
 							r_3 := +#Result r_2
 							§RETURN r_3 IF TRUE
 							""",
 							"""
-							r_1 := -#_Bla ARG
+							r_5 := §1ST ARG
+							r_4 := §2ND ARG
+							r_1 := -#_Bla r_4
 							r_2 := 2
 							r_3 := +#Result r_2
 							§RETURN r_3 IF TRUE
 							""",
 							"""
 							d_1 := §2ND ENV
-							r_3 := §1ST ENV
-							d_0 := §2ND r_3
-							r_4 := §1ST r_3
-							r_1 := .d_0 EMPTY
-							§TRY_RETURN .r_1 ARG
-							r_2 := .d_1 EMPTY
-							§TRY_RETURN .r_2 ARG
+							r_7 := §1ST ENV
+							d_0 := §2ND r_7
+							r_8 := §1ST r_7
+							r_6 := §1ST ARG
+							r_5 := §2ND ARG
+							r_1 := §CLOSURE d_0 EMPTY
+							r_2 := EMPTY, r_5
+							§TRY_RETURN .r_1 r_2
+							r_3 := §CLOSURE d_1 EMPTY
+							r_4 := EMPTY, r_5
+							§TRY_RETURN .r_3 r_4
 							§RETURN EMPTY IF TRUE
 							""",
 							"""
 							d_2 := §2ND ENV
-							r_7 := §1ST ENV
-							d_1 := §2ND r_7
-							r_8 := §1ST r_7
-							d_0 := §2ND r_8
-							r_9 := §1ST r_8
+							r_9 := §1ST ENV
+							d_1 := §2ND r_9
+							r_10 := §1ST r_9
+							d_0 := §2ND r_10
+							r_11 := §1ST r_10
 							§RETURN ARG IF_NOT_EMPTY
 							r_1 := +#_Bla EMPTY
 							_X := r_1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
-							r_4 := .d_2 r_3
-							r_5 := .r_4 _X
-							r_6 := -#Result r_5
-							§RETURN r_6 IF TRUE
+							r_4 := §CLOSURE d_2 r_3
+							r_5 := EMPTY, _X
+							r_6 := OBJ, r_4
+							r_7 := §OBJ:r_6 r_5
+							r_8 := -#Result r_7
+							§RETURN r_8 IF TRUE
 							""",
 						]
 					);

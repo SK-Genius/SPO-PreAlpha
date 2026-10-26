@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/SPO_Function_Errors/04_07_MutableArgumentAsReceiver.SPO:7 ERROR 
+7:   aValue : Read => §DEF Value .
+ ┌───^
+ ├ opaque mutable access is not allowed

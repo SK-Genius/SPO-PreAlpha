@@ -1,11 +1,10 @@
 §TYPES
 	V := [§VAR INT]
-	
 	F := [V => INT]
 	P := [EMPTY_TYPE : F]
 	D := [EMPTY_TYPE => P]
 §DEF f € D
 	box := §VAR ARG
-handle := §VAR box ->
-value := §VAR handle ->
-§RETURN value IF TRUE
+	handle := §VAR box ->
+	value := §VAR handle ->
+	§RETURN value IF TRUE

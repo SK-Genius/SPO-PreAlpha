@@ -29,7 +29,7 @@
 §DEF d_1 € t_14
 	d_0 := ENV
 	_tIntArray := t_3
-	r_1 := .d_0 EMPTY
+	r_1 := §CLOSURE d_0 EMPTY
 	_...Append... := r_1
 	r_2 := EMPTY, EMPTY
 	r_3 := 1

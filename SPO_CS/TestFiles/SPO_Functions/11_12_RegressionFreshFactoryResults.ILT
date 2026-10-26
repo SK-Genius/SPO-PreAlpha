@@ -1,0 +1,73 @@
+§TYPES
+	t_0 := [§VAR INT]
+	t_1 := [EMPTY_TYPE => t_0]
+	t_2 := [t_1 => INT]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [t_0 : t_1]
+	t_5 := [t_4 => INT]
+	t_6 := [t_0 : t_5]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE => t_1]
+	t_9 := [EMPTY_TYPE => t_4]
+	t_10 := [EMPTY_TYPE, t_3]
+	t_11 := [t_10, t_7]
+	t_12 := [t_11, t_8]
+	t_13 := [t_12, t_9]
+	t_14 := [EMPTY_TYPE, INT]
+	t_15 := [t_14, INT]
+	t_16 := [EMPTY_TYPE => t_15]
+	t_17 := [t_13 => t_16]
+
+§DEF d_0 € t_3
+	_aFactory... := ARG
+	r_1 := ._aFactory... EMPTY
+	r_2 := §VAR r_1 ->
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_7
+	_aFactory := ARG
+	_aSelf := OBJ
+	r_2 := _aSelf, _aFactory
+	r_1 := §OBJ:r_2 EMPTY
+	_Cell := r_1
+	r_3 := §VAR _Cell ->
+	§RETURN r_3 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_8
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := 7
+	_Cell := §VAR r_1
+	§RETURN _Cell IF TRUE
+
+§DEF d_3 € t_9
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	§RETURN _aSelf IF TRUE
+
+§DEF d_4 € t_17
+	d_3 := §2ND ENV
+	r_11 := §1ST ENV
+	d_2 := §2ND r_11
+	r_12 := §1ST r_11
+	d_1 := §2ND r_12
+	r_13 := §1ST r_12
+	d_0 := §2ND r_13
+	r_14 := §1ST r_13
+	r_1 := §CLOSURE d_0 EMPTY
+	_ReadFactory... := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_ReadMethod... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_Fresh... := r_3
+	r_4 := §CLOSURE d_3 EMPTY
+	_Same := r_4
+	r_5 := 9
+	_Value := §VAR r_5
+	r_7 := _Value, _ReadMethod...
+	r_6 := §OBJ:r_7 _Same
+	_Result := r_6
+	r_8 := ._ReadFactory... _Fresh...
+	r_9 := EMPTY, r_8
+	r_10 := r_9, _Result
+	§RETURN r_10 IF TRUE

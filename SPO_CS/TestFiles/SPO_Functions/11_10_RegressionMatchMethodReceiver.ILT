@@ -1,0 +1,96 @@
+§TYPES
+	t_0 := [EMPTY_TYPE, TRUE]
+	t_1 := [#Result INT]
+	t_2 := [t_0 => t_1]
+	t_3 := [§VAR INT]
+	t_4 := [t_3 : t_2]
+	t_5 := [EMPTY_TYPE => t_4]
+	t_6 := [EMPTY_TYPE, FALSE]
+	t_7 := [t_6 => t_1]
+	t_8 := [t_3 : t_7]
+	t_9 := [EMPTY_TYPE => t_8]
+	t_10 := [EMPTY_TYPE, t_5]
+	t_11 := [t_10, t_9]
+	t_12 := [TRUE | FALSE]
+	t_13 := [EMPTY_TYPE, t_12]
+	t_14 := [t_13 => t_1]
+	t_15 := [t_3 : t_14]
+	t_16 := [t_11 => t_15]
+	t_17 := [t_11, t_16]
+	t_18 := [t_12 => INT]
+	t_19 := [t_3 : t_18]
+	t_20 := [t_17 => t_19]
+	t_21 := [t_17, t_20]
+	t_22 := [EMPTY_TYPE => INT]
+	t_23 := [t_21 => t_22]
+
+§DEF d_0 € t_5
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_9
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := 0
+	r_2 := +#Result r_1
+	§RETURN r_2 IF TRUE
+
+§DEF d_2 € t_16
+	d_1 := §2ND ENV
+	r_7 := §1ST ENV
+	d_0 := §2ND r_7
+	r_8 := §1ST r_7
+	r_6 := §1ST ARG
+	r_5 := §2ND ARG
+	_aSelf := OBJ
+	r_1 := §CLOSURE d_0 EMPTY
+	r_2 := EMPTY, r_5
+	§TRY_RETURN .r_1 r_2
+	r_3 := §CLOSURE d_1 EMPTY
+	r_4 := EMPTY, r_5
+	§TRY_RETURN .r_3 r_4
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_20
+	d_2 := §2ND ENV
+	r_8 := §1ST ENV
+	d_1 := §2ND r_8
+	r_9 := §1ST r_8
+	d_0 := §2ND r_9
+	r_10 := §1ST r_9
+	_aFlag := ARG
+	_aSelf := OBJ
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := §CLOSURE d_2 r_2
+	r_4 := EMPTY, _aFlag
+	r_5 := OBJ, r_3
+	r_6 := §OBJ:r_5 r_4
+	r_7 := -#Result r_6
+	§RETURN r_7 IF TRUE
+
+§DEF d_4 € t_23
+	d_3 := §2ND ENV
+	r_8 := §1ST ENV
+	d_2 := §2ND r_8
+	r_9 := §1ST r_8
+	d_1 := §2ND r_9
+	r_10 := §1ST r_9
+	d_0 := §2ND r_10
+	r_11 := §1ST r_10
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := r_2, d_2
+	r_4 := §CLOSURE d_3 r_3
+	_Read... := r_4
+	r_5 := 7
+	_Cell := §VAR r_5
+	r_7 := _Cell, _Read...
+	r_6 := §OBJ:r_7 TRUE
+	_Value := r_6
+	§RETURN _Value IF TRUE

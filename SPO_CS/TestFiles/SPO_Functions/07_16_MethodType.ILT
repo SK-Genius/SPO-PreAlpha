@@ -26,12 +26,12 @@
 	d_0 := ENV
 	r_1 := {ARG} #_...+...
 	_...+... := r_1
-	r_2 := .d_0 _...+...
+	r_2 := §CLOSURE d_0 _...+...
 	_Add... := r_2
 	r_3 := 1
 	_X := §VAR r_3
 	r_4 := 2
-	r_5 := _X, _Add...
-	EMPTY := §OBJ:r_5 r_4
-	r_6 := §VAR _X ->
-	§RETURN r_6 IF TRUE
+	r_6 := _X, _Add...
+	r_5 := §OBJ:r_6 r_4
+	r_7 := §VAR _X ->
+	§RETURN r_7 IF TRUE

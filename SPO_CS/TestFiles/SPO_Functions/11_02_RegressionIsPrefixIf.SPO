@@ -1,0 +1,21 @@
+§DEF tPhase = [[#Running []] | [#Paused []]]
+
+§DEF Step... € [tPhase => §INT] = (
+	§DEF aPhase € tPhase
+) => §IF {
+	(aPhase §IS (#Running ())): 1
+	§TRUE: 0
+}
+
+§DEF Optional... = (
+	§DEF aEnabled € §BOOL
+) => §IF {
+	aEnabled: 7
+}
+
+§EXPORT (
+	.Step (#Running ())
+	.Step (#Paused ())
+	.Optional §TRUE
+	.Optional §FALSE
+)

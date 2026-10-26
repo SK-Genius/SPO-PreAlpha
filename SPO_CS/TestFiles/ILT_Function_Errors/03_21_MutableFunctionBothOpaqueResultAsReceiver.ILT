@@ -22,5 +22,5 @@
 	handle := §1ST returned
 	number := §2ND returned
 	pair2 := handle, ENV
-value := §OBJ:pair2 EMPTY
-§RETURN value IF TRUE
+	value := §OBJ:pair2 EMPTY
+	§RETURN value IF TRUE

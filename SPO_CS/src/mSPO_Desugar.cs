@@ -287,7 +287,7 @@ mSPO_Desugar {
 							Pos,
 							aDesugaredObj,
 							aDesugaredArg,
-							(mSPO_AST.tBlockNode<tPos>)aDesugaredBody.Expression,
+							aDesugaredBody.Expression,
 							Type
 						),
 						aDesugaredBody.NextArgIndex

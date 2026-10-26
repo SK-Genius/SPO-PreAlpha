@@ -1,1 +1,4 @@
-Pending diagnostic: opaque mutable access must be rejected.
+TestFiles/ILT_Function_Errors/03_07_MutableCaptureAsReceiver.ILT:10 ERROR 
+10:  handle := §1ST ENV
+ ┌───^
+ ├ mutable closure environment is not allowed

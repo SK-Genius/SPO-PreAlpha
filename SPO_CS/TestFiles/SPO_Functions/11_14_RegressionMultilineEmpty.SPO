@@ -1,0 +1,30 @@
+§DEF Empty = (
+) => (
+)
+
+§DEF Empty... = (
+) => (
+)
+
+§DEF Read = (§VAR aSelf € §INT) : (
+) => §TO_VAL aSelf
+
+§DEF Read... = (§VAR aSelf € §INT) : (
+) => §TO_VAL aSelf
+
+§VAR Cell :
+	= 7
+	Read => §DEF BareMethod
+	Read (
+	) => §DEF ExplicitMethod
+.
+
+§EXPORT (
+	.Empty
+	.Empty (
+	)
+	BareMethod
+	ExplicitMethod
+	(
+	)
+)

@@ -1,9 +1,10 @@
 §IMPORT {
 	...==...: §DEF ...==... € [[§INT, §INT] => §BOOL]
 }
+
 §DEF X = 1
-§DEF Y = §IF {
+
+§EXPORT §IF {
 	X .== 1: 11
 	X .== 2: 22
 }
-§EXPORT Y

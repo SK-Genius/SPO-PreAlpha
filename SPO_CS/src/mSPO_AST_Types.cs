@@ -11,7 +11,7 @@
 #:ref Common/mTreeMap.cs
 #:ref mVM_Type.cs
 #:ref mSPO_AST.cs
-#:ref mIL_GenerateOpcodes.cs
+#:ref mIL_TypeChecker.cs
 
 public static class
 mSPO_AST_Types {
@@ -125,7 +125,7 @@ mSPO_AST_Types {
 				return (aType, mStd.cEmpty);
 			}
 			case mSPO_AST.tPatternNode<tPos> when aType.IsAny():
-			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(out _, out var Ref) && ReferenceEquals(aType, Ref): {
+			case mSPO_AST.tPatternNode<tPos> when aType.IsFree(): {
 				mVM_Type.tType
 				PatternType(
 					mSPO_AST.tPatternNode<tPos> aPattern_,
@@ -221,9 +221,8 @@ mSPO_AST_Types {
 					}
 					
 					return (
-						MatchType.IsSubType(aType).Match(out _, out _)
-						? (MatchType, aType)
-						: (mStd.cEmpty, aType)
+						MatchType.IsSubType(aType).Match(out _, out _) ? MatchType : mStd.cEmpty,
+						aType
 					);
 				}
 				return aType.SplitForPatternType(Typed.Pattern, aTypeState);
@@ -271,19 +270,16 @@ mSPO_AST_Types {
 				
 				return (
 					Coverage.Matched.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __)),
-					(
-						Coverage.Remaining.IsSome(out var RemainingInner) && RemainingInner == InnerType
-						? mMaybe.Some(aType)
-						: Coverage.Remaining.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __))
-					)
+					Coverage.Remaining.IsSome(out var RemainingInner) && RemainingInner == InnerType
+					? mMaybe.Some(aType)
+					: Coverage.Remaining.Then(__ => mVM_Type.Prefix(Prefix.Prefix, __))
 				);
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> Record: {
 				if (!aType.IsRecord(out var Fields)) {
 					return (
-						aType.IsFree(out _, out _)
-						? (aType, aType)
-						: (mStd.cEmpty, aType)
+						aType.IsFree() ? aType : mStd.cEmpty,
+						aType
 					);
 				}
 				
@@ -329,29 +325,28 @@ mSPO_AST_Types {
 			}
 			case mSPO_AST.tIntNode<tPos>: {
 				return (
-					aType.IsInt() ? (aType, aType) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
-					(mStd.cEmpty, aType)
+					aType.IsInt() || aType.IsFree() ? aType : mStd.cEmpty,
+					aType
 				);
 			}
 			case mSPO_AST.tEmptyNode<tPos>: {
 				return (
 					aType.IsEmpty() ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
 			case mSPO_AST.tTrueNode<tPos>: {
 				return (
 					aType.Kind is mVM_Type.tKind.True ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
 			case mSPO_AST.tFalseNode<tPos>: {
 				return (
 					aType.Kind is mVM_Type.tKind.False ? (aType, mStd.cEmpty) :
-					aType.IsFree(out _, out _) ? (aType, aType) :
+					aType.IsFree() ? (aType, aType) :
 					(mStd.cEmpty, aType)
 				);
 			}
@@ -384,9 +379,7 @@ mSPO_AST_Types {
 			switch (aType.Kind) {
 				case mVM_Type.tKind.Abstract: return false;
 				case mVM_Type.tKind.Free: {
-					return ReferenceEquals(aType, aType.Refs[0])
-					? !aBoundTypes.Any(__ => ReferenceEquals(__, aType))
-					: HasUnresolvedFreeType(aType.Refs[0], aBoundTypes);
+					return !aBoundTypes.Any(__ => ReferenceEquals(__, aType));
 				}
 				case mVM_Type.tKind.Recursive:
 				case mVM_Type.tKind.Generic:
@@ -927,7 +920,9 @@ mSPO_AST_Types {
 				).Then(
 					aChecked => {
 						var X = aChecked.Types.Reverse().Reduce(
-							mStream.Stream<mVM_Type.tType>([]),
+							If.Cases.Any(__ => __.Cond is mSPO_AST.tTrueNode<tPos>)
+							? mStream.Stream<mVM_Type.tType>()
+							: mStream.Stream(mVM_Type.Empty()),
 							(aList, aItem) => aList.All(__ => __ != aItem)
 							? mStream.Stream(aItem, aList)
 							: aList
@@ -937,8 +932,8 @@ mSPO_AST_Types {
 							0 => mVM_Type.Empty(),
 							1 => X.TryFirst().AssertNotEmpty(),
 							_ => X.Reduce(
-								mVM_Type.Empty(),
-								(aTypeSet, aType) => mVM_Type.Set(aType, aTypeSet)
+								(mVM_Type.tType)null!,
+								(aTypeSet, aType) => aTypeSet is null ? aType : mVM_Type.Set(aType, aTypeSet)
 							)
 						};
 						return (Type, aChecked.State);
@@ -987,22 +982,12 @@ mSPO_AST_Types {
 	private static tBool
 	HasChildWith(
 		this mVM_Type.tType aType,
-		mStd.tFunc<mVM_Type.tType, tBool> aTest,
-		mStream.tStream<mVM_Type.tType> aVisited = default
-	) {
-		if (aVisited.Any(__ => mStd.RefEq(__, aType))) {
-			return false;
-		}
-		if (aTest(aType)) {
-			return true;
-		}
-		aVisited = mStream.Stream(aType, aVisited);
-		return (
-			aType.Kind is mVM_Type.tKind.Record
-			? aType.Fields.ToStream().Any(__ => __.Value.HasChildWith(aTest, aVisited))
-			: mStream.Stream(aType.Refs).Any(__ => __.HasChildWith(aTest, aVisited))
-		);
-	}
+		mStd.tFunc<mVM_Type.tType, tBool> aTest
+	) => aTest(aType) || (
+		aType.Kind is mVM_Type.tKind.Record
+		? aType.Fields.ToStream().Any(__ => __.Value.HasChildWith(aTest))
+		: mStream.Stream(aType.Refs).Any(__ => __.HasChildWith(aTest))
+	);
 	
 	public static mResult.tResult<
 		(
@@ -1099,30 +1084,16 @@ mSPO_AST_Types {
 			case mSPO_AST.tFreeIdPatternNode<tPos> FreePatternId: {
 				Result = aType.Then(
 					__ => (
-						__.IsType()
-						? (
-							__,
-							mStream.Stream(
-								ScopeItem(
-									FreePatternId.Id,
-									__,
-									mVM_Type.Free(FreePatternId.Id, __)
-								),
-								aScope
+						__,
+						mStream.Stream(
+							ScopeItem(
+								FreePatternId.Id,
+								__,
+								__.IsType() ? mVM_Type.Free(FreePatternId.Id, __) : mStd.cEmpty
 							),
-							aTypeState
-						)
-						: (
-							__,
-							mStream.Stream(
-								ScopeItem(
-									FreePatternId.Id,
-									__
-								),
-								aScope
-							),
-							aTypeState
-						)
+							aScope
+						),
+						aTypeState
 					)
 				).ElseFail(
 					() => (FreePatternId.Pos, $"missing type for '{FreePatternId.Id}'")
@@ -1523,71 +1494,100 @@ mSPO_AST_Types {
 				}
 				
 				var ResultVariables = RecLambdas.List.Map(
-					aItem => Checked.Scope.Where(__ => __.Id == aItem.Id.Id).TryFirst().AssertNotEmpty().Type.Refs[2]
+					aLambda => Checked.Scope.Where(
+						__ => __.Id == aLambda.Id.Id
+					).TryFirst(
+					).AssertNotEmpty(
+					).Type.Refs[2]
 				).ToArrayList();
 				
-				tBool IsResultVariable(mVM_Type.tType aType) => (
-					ResultVariables.ToStream().Any(__ => mStd.RefEq(__, aType))
+				static mStream.tStream<mVM_Type.tType>
+				Alternatives(
+					mVM_Type.tType aType,
+					mVM_Type.tType aVariable
+				) => (
+					aType.IsSet(out var Left, out var Right) ? mStream.Concat(Alternatives(Left, aVariable), Alternatives(Right, aVariable)) :
+					mStd.RefEq(aType, aVariable) ? mStd.cEmpty :
+					mStream.Stream(aType)
 				);
 				
-				mStream.tStream<mVM_Type.tType> Alternatives(mVM_Type.tType aType) => (
-					aType.IsSet(out var Left, out var Right)
-					? mStream.Concat(Alternatives(Left), Alternatives(Right))
-					: IsResultVariable(aType) ? mStd.cEmpty : mStream.Stream(aType)
-				);
-				
-				mMaybe.tMaybe<mVM_Type.tType> ResolveResult(mVM_Type.tType aType) {
-					var Cases = Alternatives(aType);
-					// Bare recursive returns add no information. Nested unresolved results must wait.
-					if (Cases.IsEmpty() || Cases.Any(__ => __.HasChildWith(IsResultVariable))) {
-						return mStd.cEmpty;
-					}
-					var Distinct = Cases.Reduce(
-						mStream.Stream<mVM_Type.tType>(),
-						(aTypes, aCase) => aTypes.Any(__ => __.SameType(aCase))
-							? aTypes : mStream.Stream(aCase, aTypes)
-					).Reverse();
-					return Distinct.Skip(1).Reduce(
-						Distinct.TryFirst().AssertNotEmpty(),
-						(aLeft, aRight) => mVM_Type.Set(aLeft, aRight)
-					);
-				}
-				
-				mVM_Type.tType WithResult(mVM_Type.tType aType, mVM_Type.tType aResult) => (
+				static mVM_Type.tType
+				WithResult(
+					mVM_Type.tType aType,
+					mVM_Type.tType aResult
+				) => (
 					aType.IsGeneric(out var Parameter, out var Body)
 					? mVM_Type.Generic(Parameter, WithResult(Body, aResult))
 					: mVM_Type.Proc(aType.Refs[0], aType.Refs[1], aResult)
 				);
 				
-				// Propagate base cases through the group, then validate with the final signatures.
-				var GroupSize = RecLambdas.List.Count();
-				for (var Pass = 0; Pass <= GroupSize; Pass += 1) {
-					var Changed = false;
-					foreach (var Item in RecLambdas.List) {
-						if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
-							return mResult.Fail(Error);
-						}
-						var ProcType = Typed.Type;
-						while (ProcType.IsGeneric(out _, out var Inner)) {
-							ProcType = Inner;
-						}
-						var Signature = ResolveResult(ProcType.Refs[2]).Match(
-							aResult => WithResult(Typed.Type, aResult),
-							() => Typed.Type
-						);
-						var Previous = Checked.Scope.Where(__ => __.Id == Item.Id.Id).TryFirst().AssertNotEmpty().Type;
-						if (!Previous.SameType(Signature)) {
-							Checked = (Checked.Scope.Map(
-								__ => mStd.RefEq(__.Type, Previous) ? ScopeItem(__.Id, Signature) : __
-							), Checked.State);
-							Changed = true;
-						}
-						Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Lambda, Signature));
+				// Collect result equations before replacing any recursive call's placeholder.
+				var Signatures = mArrayList.List<mVM_Type.tType>();
+				foreach (var Item in RecLambdas.List) {
+					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+						return mResult.Fail(Error);
 					}
-					if (!Changed) {
-						return Checked;
+					
+					Signatures.Push(Typed.Type);
+					Checked = (Checked.Scope, Typed.State);
+				}
+				
+				// Eliminate each result variable; structural self-reference becomes a recursive type.
+				for (tNat32 Index = 0; Index < Signatures.Size; Index++) {
+					var Variable = ResultVariables.Get(Index);
+					var ProcType = Signatures.Get(Index);
+					
+					while (ProcType.IsGeneric(out _, out var Inner)) {
+						ProcType = Inner;
+					}
+					
+					var Cases = Alternatives(ProcType.Refs[2], Variable).Reduce(
+						mStream.Stream<mVM_Type.tType>(),
+						(aTypes, aCase) => aTypes.Any(__ => __.SameType(aCase)) ? aTypes : mStream.Stream(aCase, aTypes)
+					).Reverse();
+					
+					if (!Cases.TryFirst().IsSome(out var Result)) {
+						// A bare cycle provides no information about its result.
+						continue;
+					}
+					
+					Result = Cases.Skip(1).Reduce(Result, mVM_Type.Set);
+					
+					if (Result.HasChildWith(__ => mStd.RefEq(__, Variable))) {
+						Result = mVM_Type.Recursive(Variable, Result);
+					}
+					
+					Signatures.Set(Index, WithResult(Signatures.Get(Index), Result));
+					
+					for (tNat32 Other = 0; Other < Signatures.Size; Other++) {
+						Signatures.Set(Other, Signatures.Get(Other).Substitute(Variable, Result));
 					}
 				}
+				
+				var SignatureIndex = 0u;
+				foreach (var Item in RecLambdas.List) {
+					var Signature = Signatures.Get(SignatureIndex++);
+					Checked = (
+						Checked.Scope.Map(
+							__ => __.Id == Item.Id.Id ? ScopeItem(__.Id, Signature) : __
+						),
+						Checked.State
+					);
+				}
+				
+				// Check every body against the solved group and retain its final use-site types.
+				SignatureIndex = 0u;
+				foreach (var Item in RecLambdas.List) {
+					var Signature = Signatures.Get(SignatureIndex++);
+					if (!Item.Lambda.UpdateTypes(Checked.Scope, Checked.State).Match(out var Typed, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!Typed.Type.IsSubType(Signature).Match(out _, out var TypeError)) {
+						return mResult.Fail((Item.Pos, TypeError));
+					}
+					Checked = (Checked.Scope, Typed.State.SetValidatedType(Item.Lambda, Signature));
+				}
+				
 				return Checked;
 			}
 			case mSPO_AST.tMethodCallsNode<tPos> MethodCalls: {
@@ -1616,6 +1616,7 @@ mSPO_AST_Types {
 		this mSPO_AST.tPatternNode<tPos> aPattern
 	) => aPattern switch {
 		mSPO_AST.tFreeIdPatternNode<tPos> Free => Free.Id,
+		mSPO_AST.tVarPatternNode<tPos> Variable => Variable.Id,
 		mSPO_AST.tIdNode<tPos> IdNode => IdNode.Id,
 		mSPO_AST.tTypedPatternNode<tPos> Pattern => TryGetId(Pattern),
 		_ => mStd.cEmpty,

@@ -1,0 +1,6 @@
+§VAR Cell := 7 .
+
+§EXPORT §TO_VAL §IF 1 MATCH {
+	0: Cell
+	_: Cell
+}
