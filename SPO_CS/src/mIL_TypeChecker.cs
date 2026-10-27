@@ -67,6 +67,7 @@ mIL_TypeChecker {
 						mIL_AST.tCommandNodeType.TypeAbstract => (
 							Value.KindType().IsType()
 						),
+						mIL_AST.tCommandNodeType.TypeInterface => Value.Kind is mVM_Type.tKind.Free && Value.KindType().IsType(),
 						mIL_AST.tCommandNodeType.TypeGeneric => Value.Kind is mVM_Type.tKind.Free,
 						_ => Value.IsSignature(),
 					}
@@ -109,6 +110,9 @@ mIL_TypeChecker {
 		}
 		if (aCommand.NodeType is mIL_AST.tCommandNodeType.TypeCond) {
 			return mResult.Fail(aError("unsupported IL type command: " + aCommand.NodeType));
+		}
+		if (aCommand.NodeType is tCommand.TypeInterface && !mVM_Type.IsInterfaceBody(Type2, Type3)) {
+			return mResult.Fail(aError("interface methods must use the hidden type only as their object argument"));
 		}
 		return TypeExpression(aCommand, Type2, Type3);
 	}
@@ -515,7 +519,7 @@ mIL_TypeChecker {
 				or tCommand.IntsAreEq or tCommand.IntsComp or tCommand.IntsAdd or tCommand.IntsSub
 				or tCommand.IntsMul or tCommand.IntsDiv or tCommand.Pair or tCommand.AddField
 				or tCommand.CallFunc or tCommand.Closure or tCommand.CallProc or tCommand.DefRecProcs
-				or tCommand.Sig or tCommand.TryHasHeadType => mStream.Stream(Command._2, Command._3),
+				or tCommand.Sig or tCommand.Interface or tCommand.SubInterface or tCommand.TryHasHeadType => mStream.Stream(Command._2, Command._3),
 				_ => mStream.Stream<mMaybe.tMaybe<tText>>(),
 			};
 			
@@ -536,7 +540,7 @@ mIL_TypeChecker {
 			}
 			
 			var TypeOperand = Command.NodeType switch {
-				tCommand.Sig => 0,
+				tCommand.Sig or tCommand.Interface or tCommand.SubInterface => 0,
 				tCommand.TryHasHeadType => 1,
 				tCommand.Pair when Operands[0].Type.IsType() || Operands[0].Type.IsTypeFunctionKind() => 0,
 				_ => -1,
@@ -683,6 +687,24 @@ mIL_TypeChecker {
 					return mResult.Fail($"Unknown field '{Key}' in record [{Names}\n]");
 				}
 				return new tTypeStep(new tValueType(Type));
+			}
+			case tCommand.Interface: {
+				var Contract = Input.Data.AssertNotEmpty().TypeExpressionValue();
+				if (!Contract.IsInterface(out var Parameter, out var Body)) {
+					return mResult.Fail("expected interface contract");
+				}
+				if (!aInputs[1].Type.IsPair(out var Object, out var Methods)) {
+					return mResult.Fail("expected interface payload (object, methods)");
+				}
+				return Contract.CheckInterfaceImplementation(Object, Methods).Then(
+					_ => new tTypeStep(new tValueType(Contract))
+				);
+			}
+			case tCommand.SubInterface: {
+				var Type = Input.Data.AssertNotEmpty().TypeExpressionValue();
+				return aInputs[1].Type.IsSubType(Type).Then(
+					_ => new tTypeStep(new tValueType(Type))
+				);
 			}
 			case tCommand.VarDef:
 				return new tTypeStep(new tValueType(mVM_Type.Var(Input.Type)));
@@ -839,6 +861,11 @@ mIL_TypeChecker {
 			var Object = mVM_Type.Empty();
 			if (aCommand.NodeType is tCommand.CallProc && !Function.IsPair(out Object, out Function)) {
 				return mResult.Fail("expected object/method pair");
+			}
+			if (aCommand.NodeType is tCommand.CallProc && Function.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
+				if (!Object.FirstObjectType().TryGetInterfaceMethod(Name).IsSome(out Function)) {
+					return mResult.Fail($"Unknown interface method '{Name}'");
+				}
 			}
 			if (!mVM_Type.Infer(Function, Object, Argument, __ => {}).Match(out var Result, out var Error)) {
 				return mResult.Fail(Error);
@@ -1160,7 +1187,11 @@ mIL_TypeChecker {
 					Access = Aggregate(Values.Get(Inputs[0].Id));
 					break;
 				case tCommand.Sig:
+				case tCommand.Interface:
 					Access = Aggregate(Values.Get(Inputs[1].Id));
+					break;
+				case tCommand.SubInterface:
+					Access = Project(Values.Get(Inputs[1].Id), ResultType.AssertNotEmpty());
 					break;
 				case tCommand.First:
 				case tCommand.Second:

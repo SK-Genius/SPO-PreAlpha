@@ -1,0 +1,41 @@
+§DEF iEcho = [
+	§INTERFACE self [<
+		Read: [self : [] => §INT]
+		Read...: [self : [] => §TRUE]
+		Echo...: [§GENERIC t [self : t => t]]
+	>]
+]
+
+§DEF Read = (
+	§VAR aSelf € §INT
+) : (
+) => §TO_VAL aSelf
+
+§DEF ReadEmpty... = (
+	§VAR aSelf € §INT
+) : (
+) => §TRUE
+
+§DEF Echo... = (
+	§DEF t
+) <=> (
+	§VAR aSelf € §INT
+) : (
+	§DEF aValue € t
+) => aValue
+
+§VAR Cell := 7 .
+§DEF Object = §INTERFACE iEcho WITH Cell IN {
+	Read: Read
+	Read...: ReadEmpty...
+	Echo...: Echo...
+}
+
+Object :
+	Read => §DEF Number
+	Read () => §DEF EmptyCall
+	Echo 9 => §DEF EchoedNumber
+	Echo §TRUE => §DEF EchoedFlag
+.
+
+§EXPORT (Number, EmptyCall, EchoedNumber, EchoedFlag)

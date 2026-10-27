@@ -1,0 +1,143 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [EMPTY_TYPE => INT]
+	t_2 := [t_0 : t_1]
+	t_3 := [#_Read t_2]
+	t_4 := [{EMPTY_TYPE} + t_3]
+	t_5 := [§ANY t_0 => t_4]
+	t_6 := [§FREE TYPE]
+	t_7 := [INT => EMPTY_TYPE]
+	t_8 := [t_6 : t_7]
+	t_9 := [#_Write... t_8]
+	t_10 := [{EMPTY_TYPE} + t_9]
+	t_11 := [§ANY t_6 => t_10]
+	t_12 := [§FREE TYPE]
+	t_13 := [t_12 : t_1]
+	t_14 := [#_Read t_13]
+	t_15 := [{EMPTY_TYPE} + t_14]
+	t_16 := [t_12 : t_7]
+	t_17 := [#_Write... t_16]
+	t_18 := [{t_15} + t_17]
+	t_19 := [§ANY t_12 => t_18]
+	t_20 := [§VAR INT]
+	t_21 := [t_20 : t_1]
+	t_22 := [EMPTY_TYPE => t_21]
+	t_23 := [t_20 : t_7]
+	t_24 := [EMPTY_TYPE => t_23]
+	t_25 := [§FREE TYPE]
+	t_26 := [t_25 : t_1]
+	t_27 := [#_Read t_26]
+	t_28 := [{EMPTY_TYPE} + t_27]
+	t_29 := [§ANY t_25 => t_28]
+	t_30 := [§VAR t_29]
+	t_31 := [t_30 : t_1]
+	t_32 := [EMPTY_TYPE => t_31]
+	t_33 := [t_29 => t_29]
+	t_34 := [EMPTY_TYPE => t_33]
+	t_35 := [EMPTY_TYPE, t_22]
+	t_36 := [t_35, t_24]
+	t_37 := [t_36, t_32]
+	t_38 := [t_37, t_34]
+	t_39 := [EMPTY_TYPE, INT]
+	t_40 := [t_39, INT]
+	t_41 := [t_40, INT]
+	t_42 := [t_41, INT]
+	t_43 := [EMPTY_TYPE => t_42]
+	t_44 := [t_38 => t_43]
+
+§DEF d_0 € t_22
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_24
+	_aValue := ARG
+	_aSelf := OBJ
+	§VAR _aSelf <- _aValue
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_32
+	§RETURN ARG IF_NOT_EMPTY
+	_aReader := OBJ
+	r_1 := §VAR _aReader ->
+	r_2 := +#_Read EMPTY
+	r_4 := r_1, r_2
+	r_3 := §OBJ:r_4 EMPTY
+	_Value := r_3
+	§RETURN _Value IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_34
+	r_1 := §SUBINTERFACE t_29 WITH ARG
+	_aReader := r_1
+	§RETURN _aReader IF TRUE
+
+§DEF d_4 € t_44
+	d_3 := §2ND ENV
+	r_39 := §1ST ENV
+	d_2 := §2ND r_39
+	r_40 := §1ST r_39
+	d_1 := §2ND r_40
+	r_41 := §1ST r_40
+	d_0 := §2ND r_41
+	r_42 := §1ST r_41
+	_iReader := t_5
+	_iWriter := t_11
+	_iCell := t_19
+	r_1 := §CLOSURE d_0 EMPTY
+	_ReadCell := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_WriteCell... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_LegacyConsumer := r_3
+	r_4 := §CLOSURE d_3 EMPTY
+	r_5 := §SUBINTERFACE t_33 WITH r_4
+	_Forward... := r_5
+	r_6 := 18
+	_Cell := §VAR r_6
+	r_7 := +#_Read _ReadCell
+	r_8 := {EMPTY} + r_7
+	r_9 := _Cell, r_8
+	r_10 := §INTERFACE t_29 WITH r_9
+	r_11 := §SUBINTERFACE t_29 WITH r_10
+	_Original := r_11
+	_Previous := §VAR _Original
+	r_13 := _Previous, _LegacyConsumer
+	r_12 := §OBJ:r_13 EMPTY
+	_First := r_12
+	r_14 := +#_Read _ReadCell
+	r_15 := {EMPTY} + r_14
+	r_16 := +#_Write... _WriteCell...
+	r_17 := {r_15} + r_16
+	r_18 := _Cell, r_17
+	r_19 := §INTERFACE t_19 WITH r_18
+	r_20 := §SUBINTERFACE t_19 WITH r_19
+	_Extended := r_20
+	r_21 := §SUBINTERFACE t_29 WITH _Extended
+	_Reader := r_21
+	r_22 := §SUBINTERFACE t_11 WITH _Extended
+	_Writer := r_22
+	_Current := §VAR _Reader
+	r_24 := _Current, _LegacyConsumer
+	r_23 := §OBJ:r_24 EMPTY
+	_Second := r_23
+	r_25 := 23
+	r_26 := +#_Write... EMPTY
+	r_28 := _Writer, r_26
+	r_27 := §OBJ:r_28 r_25
+	r_30 := _Current, _LegacyConsumer
+	r_29 := §OBJ:r_30 EMPTY
+	_Third := r_29
+	r_31 := ._Forward... _Extended
+	r_32 := §SUBINTERFACE t_29 WITH r_31
+	_Relayed := r_32
+	_Forwarded := §VAR _Relayed
+	r_34 := _Forwarded, _LegacyConsumer
+	r_33 := §OBJ:r_34 EMPTY
+	_Fourth := r_33
+	r_35 := EMPTY, _First
+	r_36 := r_35, _Second
+	r_37 := r_36, _Third
+	r_38 := r_37, _Fourth
+	§RETURN r_38 IF TRUE

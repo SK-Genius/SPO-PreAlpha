@@ -40,6 +40,174 @@ mIL_GenerateOpcodes_Tests {
 	Tests = mTest.Tests(nameof(mIL_GenerateOpcodes),
 		[
 			mTest.Tests(
+				"Interface adapters are ordinary compiled procedures",
+				mStream.Stream(
+					"Function",
+					"Method",
+					"Generic function",
+					"External function"
+				).Map(
+					aCase => mTest.Test(
+						aCase,
+						aDebug => {
+							const tText cSource = """
+							§TYPES
+								t := [§FREE TYPE]
+								u := [§FREE TYPE]
+								tRead := [EMPTY_TYPE => INT]
+								tMethod := [t : tRead]
+								tField := [#Read tMethod]
+								tBody := [{EMPTY_TYPE} + tField]
+								tReader := [§ANY t => tBody]
+								tAdminField := [#Admin tMethod]
+								tAdminBody := [{tBody} + tAdminField]
+								tAdmin := [§ANY t => tAdminBody]
+								tOriginal := [tAdmin => tAdmin]
+								tView := [tAdmin => tReader]
+								tOriginalDef := [EMPTY_TYPE => tOriginal]
+								tMain := [EMPTY_TYPE => tView]
+								tMainDef := [tOriginalDef => tMain]
+							§DEF original € tOriginalDef
+								§RETURN ARG IF TRUE
+							§DEF main € tMainDef
+								Original := §CLOSURE ENV EMPTY
+								Adapter := §SUBINTERFACE tView WITH Original
+								§RETURN Adapter IF TRUE
+							
+							""";
+							
+							var Source = aCase switch {
+								"Method" => cSource.Replace(
+									"tOriginal := [tAdmin => tAdmin]",
+									"""
+									tResult := [EMPTY_TYPE => tAdmin]
+									tOriginal := [tAdmin : tResult]
+									"""
+								).Replace(
+									"tView := [tAdmin => tReader]",
+									"""
+									tViewResult := [EMPTY_TYPE => tReader]
+									tView := [tAdmin : tViewResult]
+									"""
+								).Replace(
+									"§RETURN ARG",
+									"§RETURN OBJ"
+								),
+								"Generic function" => cSource.Replace(
+									"tOriginal := [tAdmin => tAdmin]",
+									"""
+									tArgument := [u, tAdmin]
+									tGenericBody := [tArgument => tAdmin]
+									tOriginal := [§ALL u => tGenericBody]
+									"""
+								).Replace(
+									"tView := [tAdmin => tReader]",
+									"""
+									tViewBody := [tArgument => tReader]
+									tView := [§ALL u => tViewBody]
+									"""
+								).Replace(
+									"§RETURN ARG IF TRUE",
+									"""
+									Value := §2ND ARG
+									§RETURN Value IF TRUE
+									"""
+								),
+								_ => cSource,
+							};
+							
+							var Module = CompileModule(Source, "", __ => aDebug(__()));
+							
+							var Original = Module.Defs.TryGet(
+								Module.DefLookup.TryGet("original").AssertNotEmpty()
+							).AssertNotEmpty();
+							
+							var Main = Module.Defs.TryGet(
+								Module.DefLookup.TryGet("main").AssertNotEmpty()
+							).AssertNotEmpty();
+							
+							var Result = mVM_Data.Empty();
+							
+							var Implementation = (
+								aCase == "External function"
+								? mVM_Data.ExternDef((aEnv, aObject, aArgument, aTrace) => aArgument)
+								: mVM_Data.Def(Original)
+							);
+							
+							mVM.Run<tSpan>(
+								mVM_Data.Proc(Main, Implementation),
+								mVM_Data.Empty(),
+								mVM_Data.Empty(),
+								Result,
+								mTextParser.ToText,
+								__ => aDebug(__())
+							);
+							
+							mAssert.IsTrue(
+								Result.IsProc<tSpan>(out var Adapter, out _),
+								"expected an ordinary compiled adapter"
+							);
+							
+							mAssert.IsTrue(
+								Adapter.Commands.ToStream().Any(
+									__ => __.Item1 is mVM_Data.tOpCode.CallFunc or mVM_Data.tOpCode.CallProc
+								)
+							);
+							
+							var Callable = Adapter.DefType.Refs[2];
+							
+							while (Callable.IsGeneric(out _, out var Body)) {
+								Callable = Body;
+							}
+							
+							mAssert.IsTrue(
+								Callable.IsProc(out var ObjectType, out var ArgumentType, out var Reader)
+							);
+							
+							var Admin = aCase == "Method" ? ObjectType : ArgumentType;
+							
+							if (aCase == "Generic function") {
+								mAssert.IsTrue(Admin.IsPair(out _, out Admin));
+							}
+							
+							var Method = mVM_Data.ExternProc(
+								(aEnv, aObject, aArgument, aTrace) => mVM_Data.Int(7), mVM_Data.Empty()
+							);
+							
+							var Full = mVM_Data.Interface(
+								Admin,
+								mVM_Data.Int(7),
+								mVM_Data.Record([("Read", Method), ("Admin", Method)])
+							);
+							
+							var Argument = aCase switch {
+								"Method" => mVM_Data.Empty(),
+								"Generic function" => mVM_Data.Pair(mVM_Data.Int(1), Full),
+								_ => Full,
+							};
+							
+							var Returned = mVM_Data.Empty();
+							
+							mVM.Run<tSpan>(
+								Result,
+								aCase == "Method" ? Full : mVM_Data.Empty(),
+								Argument,
+								Returned,
+								mTextParser.ToText,
+								__ => aDebug(__())
+							);
+							
+							mAssert.IsTrue(Returned.IsInterface(out var Contract, out _, out var Methods));
+							mAssert.IsTrue(Contract.SameType(Reader));
+							mAssert.IsTrue(Methods.IsRecord(out var Fields));
+							mAssert.IsTrue(Fields.TryGet(mVM_Data.PrefixHash("Read")).IsSome(out _));
+							mAssert.IsTrue(Fields.TryGet(mVM_Data.PrefixHash("Admin")).IsNone());
+						}
+					)
+				).ToArrayList(
+				).ToArray()
+			),
+			mTest.Tests(
 				"Regressions: mutable values cannot enter closure environments",
 				mStream.Stream(false, true).Map(
 					aExtern => mTest.Test(
@@ -47,9 +215,13 @@ mIL_GenerateOpcodes_Tests {
 						aDebug => {
 							var Mutable = mVM_Data.Record([("Cell", mVM_Data.Var(mVM_Data.Int(7)))]);
 							var Constant = mVM_Data.Int(7);
+							
 							mVM_Data.tData Closure;
 							if (aExtern) {
-								mAssert.ThrowsError(() => mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Mutable));
+								mAssert.ThrowsError(
+									() => mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Mutable)
+								);
+								
 								Closure = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Constant);
 							} else {
 								var Module = CompileModule(
@@ -64,13 +236,27 @@ mIL_GenerateOpcodes_Tests {
 									"",
 									__ => aDebug(__())
 								);
+								
 								var Def = Module.Defs.TryFirst().AssertNotEmpty();
+								
 								mAssert.ThrowsError(() => mVM_Data.Proc(Def, Mutable));
+								
 								Closure = mVM_Data.Proc(Def, Constant);
 							}
+							
 							mAssert.IsFalse(Closure._IsMutable);
+							
 							var Result = mVM_Data.Empty();
-							mVM.Run<tSpan>(Closure, mVM_Data.Empty(), mVM_Data.Empty(), Result, mTextParser.ToText, __ => aDebug(__()));
+							
+							mVM.Run<tSpan>(
+								Closure,
+								mVM_Data.Empty(),
+								mVM_Data.Empty(),
+								Result,
+								mTextParser.ToText,
+								__ => aDebug(__())
+							);
+							
 							mAssert.IsTrue(Result.IsInt(out var Value));
 							mAssert.AreEquals(Value, 7);
 						}

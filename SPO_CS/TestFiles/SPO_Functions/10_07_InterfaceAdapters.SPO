@@ -1,0 +1,77 @@
+§DEF tReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF tAdmin = [§INTERFACE t [< Read: [t : [] => §INT], Admin: [t : [] => §INT] >]]
+
+§DEF ReadCell = (§VAR aSelf € §INT) : (
+) => §TO_VAL aSelf
+
+§DEF HasAdmin... = (
+	§DEF aValue € §ANY
+) => §IF aValue MATCH {
+	§DEF aCandidate € tAdmin: §TRUE
+	_: §FALSE
+}
+
+§DEF Identity... = (
+	§DEF aValue € tAdmin
+) => aValue
+
+§DEF Adapt... € [[tAdmin => tAdmin] => [tAdmin => tReader]] = (
+	§DEF aFunction € [tAdmin => tAdmin]
+) => aFunction
+
+§DEF Inspect... = (
+	§DEF aValue € tReader
+) => .HasAdmin aValue
+
+§DEF InspectAdmin... € [tAdmin => §BOOL] = Inspect...
+
+§DEF Make € [[] => [tAdmin => tReader]] = (
+) => Identity...
+
+§DEF Give = (
+	§DEF aSelf € tAdmin
+) : (
+) => aSelf
+
+§DEF GiveReader € [tAdmin : [] => tReader] = Give
+
+§VAR Cell := 17 .
+
+§DEF Full = §INTERFACE tAdmin WITH Cell IN {Read: ReadCell, Admin: ReadCell}
+
+§DEF Adapted... = .Adapt Identity...
+
+§DEF Made... = .Make
+
+§DEF Package € [< Run: [tAdmin => tReader] >] = {Run: Identity..., Tag: 31}
+
+{Run: §DEF Run...} = Package
+
+§DEF Erased € §ANY = Package
+
+§DEF Tag = §IF Erased MATCH {
+	{Tag: §DEF aTag € §INT}: aTag
+	_: 0
+}
+
+§DEF Selected € [[tAdmin => tReader] | §INT] = Identity...
+
+§DEF SelectedHasAdmin = §IF Selected MATCH {
+	§DEF aFunction... € [tAdmin => tReader]: .HasAdmin (.aFunction Full)
+	_: §TRUE
+}
+
+Full : GiveReader => §DEF Returned .
+
+Returned : Read => §DEF Number .
+
+§EXPORT (
+	Number
+	.HasAdmin (.Adapted Full)
+	.HasAdmin (.Made Full)
+	.HasAdmin (.Run Full)
+	.InspectAdmin Full
+	SelectedHasAdmin
+	Tag
+	.HasAdmin Returned
+)

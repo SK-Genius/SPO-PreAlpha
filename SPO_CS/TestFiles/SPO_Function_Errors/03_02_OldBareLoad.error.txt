@@ -15,6 +15,7 @@ TestFiles/SPO_Function_Errors/03_02_OldBareLoad.SPO:1 ERROR
  ├ expect '§FALSE'
  ├ expect '§IF'
  ├ expect '§INT'
+ ├ expect '§INTERFACE'
  ├ expect '§SIG'
  ├ expect '§TEXT'
  ├ expect '§TO_VAL'

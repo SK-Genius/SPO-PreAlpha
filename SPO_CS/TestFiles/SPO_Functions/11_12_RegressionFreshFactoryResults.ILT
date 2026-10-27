@@ -19,8 +19,8 @@
 	t_17 := [t_13 => t_16]
 
 §DEF d_0 € t_3
-	_aFactory... := ARG
-	r_1 := ._aFactory... EMPTY
+	_aFactory := ARG
+	r_1 := ._aFactory EMPTY
 	r_2 := §VAR r_1 ->
 	§RETURN r_2 IF TRUE
 
@@ -59,7 +59,7 @@
 	r_2 := §CLOSURE d_1 EMPTY
 	_ReadMethod... := r_2
 	r_3 := §CLOSURE d_2 EMPTY
-	_Fresh... := r_3
+	_Fresh := r_3
 	r_4 := §CLOSURE d_3 EMPTY
 	_Same := r_4
 	r_5 := 9
@@ -67,7 +67,7 @@
 	r_7 := _Value, _ReadMethod...
 	r_6 := §OBJ:r_7 _Same
 	_Result := r_6
-	r_8 := ._ReadFactory... _Fresh...
+	r_8 := ._ReadFactory... _Fresh
 	r_9 := EMPTY, r_8
 	r_10 := r_9, _Result
 	§RETURN r_10 IF TRUE

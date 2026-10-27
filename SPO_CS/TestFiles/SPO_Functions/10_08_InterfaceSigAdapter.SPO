@@ -1,0 +1,32 @@
+§DEF tReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF tAdmin = [§INTERFACE t [< Read: [t : [] => §INT], Admin: [t : [] => §INT] >]]
+§DEF tSource = [§SIG_WITH t € §TYPE IN [< Run: [[t, tAdmin] => tAdmin] >]]
+§DEF tLimited = [§SIG_WITH t € §TYPE IN [< Run: [[t, tAdmin] => tReader] >]]
+
+§DEF ReadCell = (
+	§VAR aSelf € §INT
+) : (
+) => §TO_VAL aSelf
+
+§DEF HasAdmin... = (
+	§DEF aValue € §ANY
+) => §IF aValue MATCH {
+	§DEF aCandidate € tAdmin: §TRUE
+	_: §FALSE
+}
+
+§DEF Run... = (
+	§DEF aNumber € §INT
+	§DEF aAdmin € tAdmin
+) => aAdmin
+
+§DEF Source = §SIG tSource WITH §INT IN {Run: Run...}
+§DEF Limited € tLimited = Source
+
+§VAR Cell := 23 .
+§DEF Full = §INTERFACE tAdmin WITH Cell IN {Read: ReadCell, Admin: ReadCell}
+
+§EXPORT §IF Limited MATCH {
+	§SIG tLimited WITH §INT IN {Run: §DEF aRun...}: .HasAdmin (.aRun (1, Full))
+	_: §TRUE
+}

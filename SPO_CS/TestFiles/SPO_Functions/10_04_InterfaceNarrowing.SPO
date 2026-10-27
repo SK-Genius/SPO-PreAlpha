@@ -1,0 +1,55 @@
+§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+§DEF iWriter = [§INTERFACE t [< Write...: [t : §INT => []] >]]
+§DEF iCell = [§INTERFACE t [< Read: [t : [] => §INT], Write...: [t : §INT => []] >]]
+
+§DEF ReadCell = (
+	§VAR aSelf € §INT
+) : (
+) => §TO_VAL aSelf
+
+§DEF WriteCell... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aValue € §INT
+) {
+	aSelf := aValue .
+}
+
+§DEF LegacyConsumer = (
+	§VAR aReader € iReader
+) : (
+) {
+	(§TO_VAL aReader) : Read => §DEF Value .
+	§RETURN Value
+}
+
+§DEF Forward... = (§DEF aReader € iReader) => aReader
+
+§VAR Cell := 18 .
+§DEF Original = §INTERFACE iReader WITH Cell IN {Read: ReadCell}
+§VAR Previous :
+	= Original
+	LegacyConsumer => §DEF First
+.
+
+§DEF Extended = §INTERFACE iCell WITH Cell IN {Read: ReadCell, Write...: WriteCell...}
+§DEF Reader € iReader = Extended
+§DEF Writer € iWriter = Extended
+
+§VAR Current :
+	= Reader
+	LegacyConsumer => §DEF Second
+.
+
+Writer : Write 23 .
+
+Current : LegacyConsumer => §DEF Third .
+
+§DEF Relayed = .Forward Extended
+
+§VAR Forwarded :
+	= Relayed
+	LegacyConsumer => §DEF Fourth
+.
+
+§EXPORT (First, Second, Third, Fourth)

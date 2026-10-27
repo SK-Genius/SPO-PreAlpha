@@ -34,9 +34,11 @@ mVM_Data {
 		NewPair,
 		First,
 		Second,
-
+		
 		// SIG
 		NewSig,
+		NewInterface,
+		SubInterface,
 		SigHead,
 		SigBody,
 		
@@ -46,6 +48,7 @@ mVM_Data {
 		
 		// RECORD
 		AddField,
+		SetField,
 		GetField,
 		
 		// VAR
@@ -75,8 +78,10 @@ mVM_Data {
 		// ASSERT
 		Assert,
 		
+		// CONSTANTS
+		LoadConstant,
+		
 		// TYPE
-		LoadType,
 		TypeEmpty,
 		TypeAny,
 		TypeInt,
@@ -131,9 +136,10 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
-		
-		public mStream.tStream<mVM_Type.tType>
-		TypeDefinitions { get; init; }
+
+				
+		public mStream.tStream<tData>
+		Constants;
 		
 		public readonly mArrayList.tArrayList<tText>
 		TypePrefixes = mArrayList.List<tText>();
@@ -538,11 +544,11 @@ mVM_Data {
 	}
 	
 	public static tNat32
-	LoadType<tPos>(
+	LoadConstant<tPos>(
 		this tProcDef<tPos> aDef,
 		tPos aPos,
-		tNat32 aTypeIndex
-	) => aDef._AddReg(aPos, tOpCode.LoadType, aTypeIndex);
+		tNat32 aConstantIndex
+	) => aDef._AddReg(aPos, tOpCode.LoadConstant, aConstantIndex);
 
 	public static tNat32
 	TypeEmpty<tPos>(
@@ -684,6 +690,7 @@ mVM_Data {
 		Int,
 		Pair,
 		Sig,
+		Interface,
 		Prefix,
 		Record,
 		Proc,
@@ -870,6 +877,22 @@ mVM_Data {
 		return true;
 	}
 	
+	public static tData
+	Interface(mVM_Type.tType aContract, tData aObject, tData aMethods)
+	=> Data(tDataType.Interface, aObject._IsMutable || aMethods._IsMutable, (aContract, aObject, aMethods));
+
+	public static tBool
+	IsInterface(this tData aData, out mVM_Type.tType aContract, out tData aObject, out tData aMethods) {
+		aContract = default!;
+		aObject = default!;
+		aMethods = default!;
+		if (!aData.Is(tDataType.Interface, out (mVM_Type.tType Contract, tData Object, tData Methods) Value)) {
+			return false;
+		}
+		(aContract, aObject, aMethods) = Value;
+		return true;
+	}
+
 	public static tData
 	Type(
 		mVM_Type.tType aValue
@@ -1073,7 +1096,7 @@ mVM_Data {
 		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
 		return Data(tDataType.Proc, false, aDef, aEnv);
 	}
-	
+
 	public static tBool
 	IsProc(
 		this tData aData,
@@ -1243,6 +1266,9 @@ mVM_Data {
 			_ when a.IsSig(out _, out var Head, out var Body)
 			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
 			
+			_ when a.IsInterface(out _, out _, out _)
+			=> "(§INTERFACE)",
+
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",
 			

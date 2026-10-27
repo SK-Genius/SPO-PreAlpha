@@ -294,6 +294,28 @@ const tText Uri = "file:///navigation-test.spo";
 	Assert(References.Length == 2, "generic method type parameter references missing or include outer t");
 }
 
+{
+	var Code = """
+		§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+		§VAR Number := 7 .
+		§DEF Reader = §INTERFACE iReader WITH Number IN {
+			Read: (§VAR aValue € §INT) : () => §TO_VAL aValue
+		}
+		§EXPORT 7
+		""";
+	foreach (var Name in new[] { "iReader", "Number", "aValue" }) {
+		var Use = FindPosition(Code, Name, 1);
+		var Definition = mSPO_Navigation.GetDefinition(Code, Uri, Use, _ => {});
+		Assert(Definition.IsSome(out var Location), "interface definition missing: " + Name);
+		Assert(mTextStream.Eq(Location.Range.Start, FindPosition(Code, Name, 0)), "wrong interface definition: " + Name);
+		var References = ToArray(mSPO_Navigation.GetReferences(Code, Uri, Use, true, _ => {}));
+		Assert(References.Length == 2, "interface references missing: " + Name);
+	}
+	var Symbols = ToArray(mSPO_Navigation.GetDocumentSymbols(Code, Uri, _ => {}));
+	var Reader = Symbols.Single(Symbol => Symbol.Name == "Reader");
+	Assert(ToArray(Reader.Children).Any(Symbol => Symbol.Name == "aValue"), "interface method parameter symbol missing");
+}
+
 return 0;
 
 static void

@@ -12,7 +12,8 @@
 
 §DEF Run = (
 	§VAR aSelf € §INT
-) : () => §IF §TRUE MATCH {
+) : (
+) => §IF §TRUE MATCH {
 	§TRUE: {
 		aSelf : Add 2 .
 		§RETURN 0 IF §FALSE

@@ -322,9 +322,29 @@ mSPO_Desugar {
 			aHead => Node.Body.DesugarExpression(aHead.NextArgIndex).Then(
 				aBody => (
 					(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Sig(
-						Node.Pos, Node.Contract, aHead.Expression, aBody.Expression, Node.TypeAnnotation
+						Node.Pos,
+						Node.Contract,
+						aHead.Expression,
+						aBody.Expression,
+						Node.TypeAnnotation
 					),
 					aBody.NextArgIndex
+				)
+			)
+		),
+		mSPO_AST.tInterfaceNode<tPos> Node
+		=> Node.Object.DesugarExpression(aNextArgIndex).ThenTry(
+			aObject => Node.Methods.DesugarExpression(aObject.NextArgIndex).Then(
+				aMethods => (
+					(mSPO_AST.tExpressionNode<tPos>)(
+						mSPO_AST.Interface(
+							Node.Pos,
+							Node.Contract,
+							aObject.Expression,
+							aMethods.Expression
+						) with { TypeAnnotation = Node.TypeAnnotation }
+					),
+					aMethods.NextArgIndex
 				)
 			)
 		),

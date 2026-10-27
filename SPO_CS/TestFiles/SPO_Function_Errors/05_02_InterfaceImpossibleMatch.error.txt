@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/05_02_InterfaceImpossibleMatch.SPO:7 ERROR 
+7:  §DEF Candidate € iAdmin: §TRUE
+ ┌──^
+ ├ pattern '( §DEF _Candidate € _iAdmin)' cannot match '[ §INTERFACE ?_t [{ _Read : [ ?_t : -> §INT ],  }] ]'

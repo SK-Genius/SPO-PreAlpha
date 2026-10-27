@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/05_01_InterfaceRecordImpossibleMatch.SPO:7 ERROR 
+7:  §DEF Candidate € [< Reader: iAdmin >]: §TRUE
+ ┌──^
+ ├ pattern '( §DEF _Candidate € [< _Reader: _iAdmin>])' cannot match '[{ _Reader : [ §INTERFACE ?_t [{ _Read : [ ?_t : -> §INT ],  }] ],  }]'

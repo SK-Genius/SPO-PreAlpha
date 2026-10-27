@@ -15,6 +15,7 @@ TestFiles/SPO_Module_Errors/_Modules/04_01_Broken.SPO:1 ERROR
  ├ expect '§FALSE'
  ├ expect '§IF'
  ├ expect '§INT'
+ ├ expect '§INTERFACE'
  ├ expect '§SIG'
  ├ expect '§TEXT'
  ├ expect '§TO_VAL'

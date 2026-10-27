@@ -1,0 +1,34 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+	...-...: §DEF ...-... € [[§INT, §INT] => §INT]
+}
+
+§DEF iAccount = [
+	§INTERFACE t [<
+		Transfer...: [[t, [§VAR §INT], [§VAR §INT]] : §INT => [§INT, §INT, §INT]]
+	>]
+]
+
+§DEF Transfer... = (
+	§VAR aSource € §INT
+	§VAR aTarget € §INT
+	§VAR aBookings € §INT
+) : (
+	§DEF aAmount € §INT
+) {
+	aSource := ((§TO_VAL aSource) .- aAmount) .
+	aTarget := ((§TO_VAL aTarget) .+ aAmount) .
+	aBookings := ((§TO_VAL aBookings) .+ 1) .
+	
+	§RETURN (§TO_VAL aSource, §TO_VAL aTarget, §TO_VAL aBookings)
+}
+
+§VAR Source := 100 .
+§VAR Target := 10 .
+§VAR Bookings := 0 .
+
+§DEF Account = §INTERFACE iAccount WITH Source IN {Transfer...: Transfer...}
+
+(Account, Target, Bookings) : Transfer 20 => §DEF Result .
+
+§EXPORT (Result, §TO_VAL Source, §TO_VAL Target, §TO_VAL Bookings)

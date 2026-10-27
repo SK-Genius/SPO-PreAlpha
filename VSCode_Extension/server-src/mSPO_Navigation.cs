@@ -450,6 +450,13 @@ mSPO_Navigation {
 		mSPO_AST.tLambdaNode<tSpan> Lambda => GetLambdaSymbols(Lambda),
 		mSPO_AST.tShortLambdaNode<tSpan> Lambda => GetExpressionSymbols(Lambda.Body),
 		mSPO_AST.tMethodNode<tSpan> Method => GetMethodSymbols(Method),
+		mSPO_AST.tInterfaceNode<tSpan> Interface => JoinSymbolStreams(
+			mStream.Stream(
+				GetExpressionSymbols(Interface.Contract),
+				GetExpressionSymbols(Interface.Object),
+				GetExpressionSymbols(Interface.Methods)
+			)
+		),
 		mSPO_AST.tBlockNode<tSpan> Block => GetBlockSymbols(Block),
 		mSPO_AST.tIfNode<tSpan> If => JoinSymbolStreams(
 			If.Cases.Map(
@@ -1336,6 +1343,12 @@ mSPO_Navigation {
 
 			case mSPO_AST.tShortLambdaNode<tSpan> Lambda: {
 				return TryResolveExpression(Lambda.Body, aQueryPos, aScope, out aDefinitionSpan);
+			}
+
+			case mSPO_AST.tInterfaceNode<tSpan> Interface: {
+				return TryResolveExpression(Interface.Contract, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolveExpression(Interface.Object, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolveExpression(Interface.Methods, aQueryPos, aScope, out aDefinitionSpan);
 			}
 
 			case mSPO_AST.tMethodNode<tSpan> Method: {

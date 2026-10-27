@@ -1,0 +1,28 @@
+§DEF iReader = [§INTERFACE t [< Read: [t : [] => §INT] >]]
+
+§DEF IntRead = (
+	§VAR aValue € §INT
+) : (
+) => §TO_VAL aValue
+
+§DEF BoolRead = (
+	§VAR aValue € §TRUE
+) : (
+) => §IF (§TO_VAL aValue) MATCH {
+	§TRUE: 21
+}
+
+§VAR Number := 7 .
+§VAR Flag := §TRUE .
+
+§DEF First = §INTERFACE iReader WITH Number IN {Read: IntRead}
+§DEF Second = §INTERFACE iReader WITH Flag IN {Read: BoolRead}
+
+§DEF Pass... = (§DEF aCapability € iReader) => aCapability
+§DEF Relayed = .Pass Second
+
+First : Read => §DEF A .
+Second : Read => §DEF B .
+Relayed : Read => §DEF C .
+
+§EXPORT (A, B, C)

@@ -1,6 +1,7 @@
 §DEF Get = (
 	§DEF aSelf € §INT
-) : () => aSelf
+) : (
+) => aSelf
 
 §DEF Read... = (
 	§DEF aValue € §INT

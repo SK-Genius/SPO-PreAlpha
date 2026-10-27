@@ -1,0 +1,132 @@
+§TYPES
+	t_0 := [§FREE TYPE]
+	t_1 := [EMPTY_TYPE, INT]
+	t_2 := [t_1, INT]
+	t_3 := [EMPTY_TYPE => t_2]
+	t_4 := [EMPTY_TYPE, t_0]
+	t_5 := [§VAR INT]
+	t_6 := [t_4, t_5]
+	t_7 := [t_6 : t_3]
+	t_8 := [#_Exchange t_7]
+	t_9 := [{EMPTY_TYPE} + t_8]
+	t_10 := [EMPTY_TYPE => INT]
+	t_11 := [t_0 : t_10]
+	t_12 := [#_Read t_11]
+	t_13 := [{t_9} + t_12]
+	t_14 := [INT => EMPTY_TYPE]
+	t_15 := [t_0 : t_14]
+	t_16 := [#_Write... t_15]
+	t_17 := [{t_13} + t_16]
+	t_18 := [§ANY t_0 => t_17]
+	t_19 := [t_5 : t_10]
+	t_20 := [EMPTY_TYPE => t_19]
+	t_21 := [t_5 : t_14]
+	t_22 := [EMPTY_TYPE => t_21]
+	t_23 := [EMPTY_TYPE, t_5]
+	t_24 := [t_23, t_5]
+	t_25 := [t_24 : t_3]
+	t_26 := [EMPTY_TYPE => t_25]
+	t_27 := [t_18 => t_18]
+	t_28 := [EMPTY_TYPE => t_27]
+	t_29 := [EMPTY_TYPE, t_20]
+	t_30 := [t_29, t_22]
+	t_31 := [t_30, t_26]
+	t_32 := [t_31, t_28]
+	t_33 := [EMPTY_TYPE, t_2]
+	t_34 := [t_33, INT]
+	t_35 := [t_34, INT]
+	t_36 := [EMPTY_TYPE => t_35]
+	t_37 := [t_32 => t_36]
+
+§DEF d_0 € t_20
+	§RETURN ARG IF_NOT_EMPTY
+	_aSelf := OBJ
+	r_1 := §VAR _aSelf ->
+	§RETURN r_1 IF TRUE
+
+§DEF d_1 € t_22
+	_aValue := ARG
+	_aSelf := OBJ
+	§VAR _aSelf <- _aValue
+	§RETURN EMPTY IF TRUE
+
+§DEF d_2 € t_26
+	§RETURN ARG IF_NOT_EMPTY
+	r_1 := §2ND OBJ
+	_aOther := r_1
+	r_2 := §1ST OBJ
+	r_3 := §2ND r_2
+	_aSelf := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := §VAR _aSelf ->
+	_First := r_5
+	r_6 := §VAR _aOther ->
+	_Second := r_6
+	§VAR _aSelf <- _Second
+	§VAR _aOther <- _First
+	r_7 := EMPTY, _First
+	r_8 := r_7, _Second
+	§RETURN r_8 IF TRUE
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_28
+	r_1 := §SUBINTERFACE t_18 WITH ARG
+	_aCapability := r_1
+	§RETURN _aCapability IF TRUE
+
+§DEF d_4 € t_37
+	d_3 := §2ND ENV
+	r_35 := §1ST ENV
+	d_2 := §2ND r_35
+	r_36 := §1ST r_35
+	d_1 := §2ND r_36
+	r_37 := §1ST r_36
+	d_0 := §2ND r_37
+	r_38 := §1ST r_37
+	_iCell := t_18
+	r_1 := §CLOSURE d_0 EMPTY
+	_ReadCell := r_1
+	r_2 := §CLOSURE d_1 EMPTY
+	_WriteCell... := r_2
+	r_3 := §CLOSURE d_2 EMPTY
+	_ExchangeCells := r_3
+	r_4 := 7
+	_Cell := §VAR r_4
+	r_5 := 9
+	_Other := §VAR r_5
+	r_6 := +#_Read _ReadCell
+	r_7 := {EMPTY} + r_6
+	r_8 := +#_Write... _WriteCell...
+	r_9 := {r_7} + r_8
+	r_10 := +#_Exchange _ExchangeCells
+	r_11 := {r_9} + r_10
+	r_12 := _Cell, r_11
+	r_13 := §INTERFACE t_18 WITH r_12
+	r_14 := §SUBINTERFACE t_18 WITH r_13
+	_Capability := r_14
+	r_15 := §CLOSURE d_3 EMPTY
+	r_16 := §SUBINTERFACE t_27 WITH r_15
+	_Pass... := r_16
+	r_17 := ._Pass... _Capability
+	r_18 := §SUBINTERFACE t_18 WITH r_17
+	_Relayed := r_18
+	r_19 := 11
+	r_20 := +#_Write... EMPTY
+	r_22 := _Relayed, r_20
+	r_21 := §OBJ:r_22 r_19
+	r_23 := EMPTY, _Relayed
+	r_24 := r_23, _Other
+	r_25 := +#_Exchange EMPTY
+	r_27 := r_24, r_25
+	r_26 := §OBJ:r_27 EMPTY
+	_Before := r_26
+	r_28 := +#_Read EMPTY
+	r_30 := _Capability, r_28
+	r_29 := §OBJ:r_30 EMPTY
+	_After := r_29
+	r_31 := EMPTY, _Before
+	r_32 := r_31, _After
+	r_33 := §VAR _Other ->
+	r_34 := r_32, r_33
+	§RETURN r_34 IF TRUE

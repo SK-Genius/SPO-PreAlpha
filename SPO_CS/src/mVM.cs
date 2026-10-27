@@ -109,14 +109,15 @@ mVM {
 		if (aType.IsFree() || aType.IsAny()) {
 			return true;
 		}
-		
 		if (aVisited.Any(__ => __.Data == aData._DebugId && __.Type == aType.DebugId)) {
 			return true;
 		}
 		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
 			return Definition.DefType.IsSubType(aType).Match(out _, out _);
 		}
+		
 		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
+		
 		if (
 			aData.IsProc(out var Def, out _) &&
 			Def.DefType.IsProc(out _, out _, out var FuncType) &&
@@ -134,21 +135,31 @@ mVM {
 				while (Constructor.Kind is mVM_Type.tKind.TypeApply) {
 					Constructor = Constructor.Refs[0];
 				}
+				
 				if (Constructor.Kind is mVM_Type.tKind.Abstract) {
 					if (Opened.Where(__ => __.Symbol.SameType(aValue)).TryFirst().IsSome(out var Existing)) {
 						return Existing.Type;
 					}
+					
 					// An application of an opaque constructor is itself an erased type.
 					// Opening only its constructor cannot match a concrete list representation.
 					var Type = mVM_Type.Free(aValue.Id ?? "witness", aValue.KindType());
+					
 					Opened = mStream.Stream((aValue, Type), Opened);
+					
 					return Type;
 				}
+				
 				if (aValue.IsRecord(out var Fields)) {
-					return mVM_Type.Record(Fields.ToStream().Map(
-						__ => (__.Key, OpenWitnesses(__.Value))
-					).ToArrayList().ToArray());
+					return mVM_Type.Record(
+						Fields.ToStream(
+						).Map(
+							__ => (__.Key, OpenWitnesses(__.Value))
+						).ToArrayList(
+						).ToArray()
+					);
 				}
+				
 				return aValue.Kind is mVM_Type.tKind.Free || aValue.Refs.Length == 0 ? aValue : new() {
 					Kind = aValue.Kind, Id = aValue.Id, Prefix = aValue.Prefix,
 					Refs = mStream.Stream(aValue.Refs).Map(OpenWitnesses).ToArrayList().ToArray()
@@ -168,7 +179,9 @@ mVM {
 			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
 		} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
 			return aData.Matches(BodyType.Substitute(HeadType, aType), aVisited);
-		} else if (aType.IsInterface(out _, out BodyType) || aType.IsGeneric(out _, out BodyType)) {
+		} else if (aType.IsInterface(out _, out _)) {
+			return aData.IsInterface(out var Contract, out _, out _) && Contract.IsSubType(aType).Match(out _, out _);
+		} else if (aType.IsGeneric(out _, out BodyType)) {
 			return aData.Matches(BodyType, aVisited);
 		} else {
 			return aType.Kind switch {
@@ -176,7 +189,7 @@ mVM {
 				mVM_Type.tKind.True => aData.IsBool(out var Bool) && Bool,
 				mVM_Type.tKind.False => aData.IsBool(out var Bool) && !Bool,
 				mVM_Type.tKind.Int => aData.IsInt(out _),
-
+				
 				// An opaque application has no known representation here. The IL checks its
 				// binding and arguments; SIG matching substitutes the concrete head first.
 				mVM_Type.tKind.Abstract or mVM_Type.tKind.TypeApply => true,
@@ -209,6 +222,29 @@ mVM {
 				_ => false,
 			};
 		}
+	}
+	
+	private static (mVM_Data.tData Object, mVM_Data.tData Method)
+	ResolveInterfaceCall(
+		mVM_Data.tData aObject,
+		tNat32 aName
+	) {
+		if (aObject.IsInterface(out _, out var Hidden, out var Methods)) {
+			mAssert.IsTrue(Methods.IsRecord(out var Fields));
+			return (Hidden, Fields.TryGet(aName).AssertNotEmpty());
+		}
+		
+		mAssert.IsTrue(
+			aObject.IsPair(out var Tail, out var Head),
+			"expected interface as first object argument"
+		);
+		
+		var First = ResolveInterfaceCall(Tail.IsEmpty() ? Head : Tail, aName);
+		
+		return (
+			Tail.IsEmpty() ? mVM_Data.Pair(Tail, First.Object) : mVM_Data.Pair(First.Object, Head),
+			First.Method
+		);
 	}
 	
 	private static mVM_Data.tData
@@ -398,6 +434,19 @@ mVM {
 				);
 				break;
 			}
+			case mVM_Data.tOpCode.SetField: {
+				var Record = aCallStack._Regs.Get(Arg1);
+				mAssert.IsTrue(Record.IsRecord(out var Fields));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPrefix(out var Key, out var Value));
+				aCallStack._Regs.Push(
+					new mVM_Data.tData {
+						_DataType = mVM_Data.tDataType.Record,
+						_Fields = Fields.Set(Key, Value),
+						_IsMutable = Record._IsMutable || Value._IsMutable
+					}
+				);
+				break;
+			}
 			case mVM_Data.tOpCode.GetField: {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Arg.IsRecord(out var Fields));
@@ -443,37 +492,17 @@ mVM {
 				}
 				aCallStack._Regs.Push(RecProcs);
 				
-				mVM_Data.tData Res;
+				mVM_Data.tData Closed;
 				switch (0) {
 					case 0 when Func.IsExternDef(out var ExternDef): {
-						Res = mVM_Data.Empty();
-						Run(
-							mVM_Data.ExternProc(ExternDef, Env),
-							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
-						);
+						Closed = mVM_Data.ExternProc(ExternDef, Env);
 						break;
 					}
 					case 0 when Func.IsExternProc(out var ExternDef, out var Env_): {
-						Res = mVM_Data.Empty();
-						Run(
-							ExternDef(
-								Env_,
-								mVM_Data.Empty(),
-								Env,
-								aTraceLine => {
-									aCallStack._TraceOut(() => "\t" + aTraceLine());
-								}
-							),
+						Closed = ExternDef(
+							Env_,
 							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
+							Env,
 							aTraceLine => {
 								aCallStack._TraceOut(() => "\t" + aTraceLine());
 							}
@@ -481,26 +510,19 @@ mVM {
 						break;
 					}
 					case 0 when Func.IsDef<tPos>(out var Def): {
-						Res = mVM_Data.Empty();
-						Run(
-							mVM_Data.Proc(Def, Env),
-							mVM_Data.Empty(),
-							RecProcs,
-							Res,
-							aPosToText,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
-						);
+						Closed = mVM_Data.Proc(Def, Env);
 						break;
 					}
-					case 0 when Func.IsProc<tPos>(out var Def_, out var Env_): {
-						throw mError.Error("need Env as Argument");
+					case 0 when Func.IsProc<tPos>(out _, out _): {
+						Closed = RunProc(Func, mVM_Data.Empty(), Env, aPosToText, aCallStack._TraceOut);
+						break;
 					}
 					default: {
 						throw mError.Error("impossible: " + Func._DataType);
 					}
 				}
+				var Res = mVM_Data.Empty();
+				Run(Closed, mVM_Data.Empty(), RecProcs, Res, aPosToText, aCallStack._TraceOut);
 				
 				// Preserve the captured objects' identities when closing the recursive references.
 				static void
@@ -587,6 +609,9 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
+				if (Proc.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
+					(Obj, Proc) = ResolveInterfaceCall(Obj, Name);
+				}
 				
 				switch (0) {
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -716,9 +741,33 @@ mVM {
 				}
 				break;
 			}
-			case mVM_Data.tOpCode.LoadType: {
-				var Type = aCallStack._ProcDef.TypeDefinitions.TryGet(Arg1).AssertNotEmpty();
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(Type));
+			case mVM_Data.tOpCode.LoadConstant: {
+				aCallStack._Regs.Push(aCallStack._ProcDef.Constants.TryGet(Arg1).AssertNotEmpty());
+				break;
+			}
+			case mVM_Data.tOpCode.NewInterface: {
+				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
+				mAssert.IsTrue(Contract.IsInterface(out _, out _));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Object, out var Methods));
+				aCallStack._Regs.Push(mVM_Data.Interface(Contract, Object, Methods));
+				break;
+			}
+			case mVM_Data.tOpCode.SubInterface: {
+				var Type = aCallStack._Regs.Get(Arg1).TypeExpressionValue();
+				mAssert.IsTrue(Type.IsInterface(out _, out var Body));
+				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsInterface(out var Contract, out var Object, out var Methods));
+				mAssert.IsTrue(Contract.IsSubType(Type).Match(out _, out _), "subinterface cannot add endpoints");
+				var Restricted = mVM_Data.Empty();
+				if (Body.IsRecord(out var Required)) {
+					mAssert.IsTrue(Methods.IsRecord(out var Fields));
+					foreach (var Field in Required.ToStream()) {
+						Restricted = mVM_Data.Record(
+							Restricted,
+							mVM_Data.Prefix(Field.Key, Fields.TryGet(Field.Key.PrefixHash()).AssertNotEmpty())
+						);
+					}
+				}
+				aCallStack._Regs.Push(mVM_Data.Interface(Type, Object, Restricted));
 				break;
 			}
 			case mVM_Data.tOpCode.NewSig: {
@@ -732,7 +781,7 @@ mVM {
 			}
 			case mVM_Data.tOpCode.TryAsSig: {
 				var Arg = aCallStack._Regs.Get(Arg1);
-				var Contract = aCallStack._ProcDef.TypeDefinitions.TryGet(Arg2).AssertNotEmpty();
+				var Contract = aCallStack._ProcDef.Constants.TryGet(Arg2).AssertNotEmpty().TypeExpressionValue();
 				if (!Arg.Matches(Contract)) {
 					return aCallStack._Parent;
 				}
@@ -834,11 +883,26 @@ mVM {
 				);
 				break;
 			}
+			case mVM_Data.tOpCode.TypeInterface: {
+				aCallStack._Regs.Push(
+					mVM_Data.TypeExpression(
+						mVM_Type.Interface(
+							aCallStack._Regs.Get(Arg1).TypeValue(),
+							aCallStack._Regs.Get(Arg2).SignatureValue()
+						)
+					)
+				);
+				break;
+			}
 			case mVM_Data.tOpCode.TypeRecursive: {
-				aCallStack._Regs.Push(mVM_Data.TypeExpression(mVM_Type.Recursive(
-					aCallStack._Regs.Get(Arg1).TypeValue(),
-					aCallStack._Regs.Get(Arg2).SignatureValue()
-				)));
+				aCallStack._Regs.Push(
+					mVM_Data.TypeExpression(
+						mVM_Type.Recursive(
+							aCallStack._Regs.Get(Arg1).TypeValue(),
+							aCallStack._Regs.Get(Arg2).SignatureValue()
+						)
+					)
+				);
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsEmpty: {

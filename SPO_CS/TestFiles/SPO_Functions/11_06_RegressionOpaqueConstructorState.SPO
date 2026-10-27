@@ -28,7 +28,9 @@
 		Bools: [.tBox §BOOL]
 	>]
 	
-	§DEF Identity... = (§DEF aState € tState) => aState
+	§DEF Identity... = (
+		§DEF aState € tState
+	) => aState
 	
 	§RETURN §SIG Package WITH tState IN {
 		Value: {Ints: (.aBox 7), Bools: (.aBox aBool)}

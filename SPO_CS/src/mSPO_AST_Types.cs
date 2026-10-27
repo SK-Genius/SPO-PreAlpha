@@ -211,6 +211,71 @@ mSPO_AST_Types {
 				);
 			}
 			case mSPO_AST.tTypedPatternNode<tPos> Typed: {
+				static tBool
+				CanMatchSubinterfaces(
+					mVM_Type.tType aSource,
+					mVM_Type.tType aPatternType,
+					mStream.tStream<(tNat64 Source, tNat64 Pattern)> aVisited = default
+				) {
+					if (
+						!aSource.HasInterfaceValues() ||
+						aVisited.Any(__ => __.Source == aSource.DebugId && __.Pattern == aPatternType.DebugId)
+					) {
+						return true;
+					}
+					aVisited = mStream.Stream((aSource.DebugId, aPatternType.DebugId), aVisited);
+					if (aSource.IsSet(out var Left, out var Right)) {
+						return CanMatchSubinterfaces(Left, aPatternType, aVisited) || CanMatchSubinterfaces(Right, aPatternType, aVisited);
+					}
+					if (aPatternType.IsSet(out Left, out Right)) {
+						return CanMatchSubinterfaces(aSource, Left, aVisited) || CanMatchSubinterfaces(aSource, Right, aVisited);
+					}
+					if (aSource.IsRecursive(out var Head, out var Body)) {
+						return CanMatchSubinterfaces(Body.Substitute(Head, aSource), aPatternType, aVisited);
+					}
+					if (aPatternType.IsRecursive(out Head, out Body)) {
+						return CanMatchSubinterfaces(aSource, Body.Substitute(Head, aPatternType), aVisited);
+					}
+					if (
+						aSource.Kind == aPatternType.Kind &&
+						aSource.Kind is mVM_Type.tKind.Interface or mVM_Type.tKind.Proc or mVM_Type.tKind.Generic
+					) {
+						// Restricted interfaces and callables keep their declared contracts.
+						return aSource.IsSubType(aPatternType).Match(out _, out _);
+					}
+					if (
+						aSource.IsRecord(out var Fields) &&
+						aPatternType.IsRecord(out var PatternFields)
+					) {
+						return PatternFields.ToStream(
+						).All(
+							__ => (
+								!Fields.TryGet(__.Key).IsSome(out var Field) ||
+								CanMatchSubinterfaces(Field, __.Value, aVisited)
+							)
+						);
+					}
+					if (
+						aSource.IsPair(out var First, out var Second) &&
+						aPatternType.IsPair(out var PatternFirst, out var PatternSecond)
+					) {
+						return CanMatchSubinterfaces(First, PatternFirst, aVisited) && CanMatchSubinterfaces(Second, PatternSecond, aVisited);
+					}
+					if (
+						aSource.IsPrefix(out var Prefix, out var Inner) &&
+						aPatternType.IsPrefix(Prefix, out var PatternInner)
+					) {
+						return CanMatchSubinterfaces(Inner, PatternInner, aVisited);
+					}
+					if (
+						aSource.IsSig(out var SourceHead, out var SourceBody) &&
+						aPatternType.IsSig(out var PatternHead, out var PatternBody)
+					) {
+						return CanMatchSubinterfaces(SourceBody.Substitute(SourceHead, PatternHead), PatternBody, aVisited);
+					}
+					return true;
+				}
+				
 				if (
 					Typed.TypeExpression.IsSome(out _) &&
 					Typed.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
@@ -221,10 +286,13 @@ mSPO_AST_Types {
 					}
 					
 					return (
-						MatchType.IsSubType(aType).Match(out _, out _) ? MatchType : mStd.cEmpty,
+						MatchType.IsSubType(aType).Match(out _, out _) && CanMatchSubinterfaces(aType, MatchType)
+						? MatchType
+						: mStd.cEmpty,
 						aType
 					);
 				}
+				
 				return aType.SplitForPatternType(Typed.Pattern, aTypeState);
 			}
 			case mSPO_AST.tPairPatternNode<tPos> Pair: {
@@ -630,9 +698,37 @@ mSPO_AST_Types {
 					).ModifyError(__ => (Sig.Body.Pos, __));
 				}
 			),
+			mSPO_AST.tInterfaceNode<tPos> Interface => mStd.Call(
+				() => {
+					if (!Interface.Contract.AsVM_Type(aScope).Match(out var Contract, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					if (!Contract.IsInterface(out var Parameter, out var Body)) {
+						return mResult.Fail((Interface.Contract.Pos, "expected interface contract"));
+					}
+					if (
+						!Interface.Object.UpdateTypes(aScope, aTypeState).Match(out var Object, out Error) ||
+						!Interface.Methods.UpdateTypes(aScope, Object.State).Match(out var Methods, out Error)
+					) {
+						return mResult.Fail(Error);
+					}
+					
+					return Contract.CheckInterfaceImplementation(
+						Object.Type,
+						Methods.Type
+					).Then(
+						_ => (Contract, Methods.State)
+					).ModifyError(
+						__ => (Interface.Methods.Pos, "incompatible interface methods: " + __)
+					);
+				}
+			),
 			mSPO_AST.tTupleNode<tPos> Tuple => (
 				Tuple.Items.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK(
+						(Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)
+					).WithErrorType<(tPos Pos, tText ErrorText)>(
+					),
 					(aChecked, Item) => aChecked.ThenTry(
 						__ => Item.UpdateTypes(aScope, __.State).Then(
 							aItem => (mStream.Stream(aItem.Type, __.Types), aItem.State)
@@ -662,7 +758,10 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (
 				Record.Elements.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK(
+						(Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)
+					).WithErrorType<(tPos Pos, tText ErrorText)>(
+					),
 					(aChecked, Item) => aChecked.ThenTry(
 						__ => Item.Value.UpdateTypes(aScope, __.State).Then(
 							aItem => (mStream.Stream(mVM_Type.Prefix(Item.Key.Id, aItem.Type), __.Types), aItem.State)
@@ -682,7 +781,13 @@ mSPO_AST_Types {
 				() => {
 					if (Lambda.Generic.IsSome(out var GenericPattern)) {
 						// TODO: AI generated code has to be reviewed
-						return UpdatePatternTypes(GenericPattern, mVM_Type.Type(), tTypeRelation.Equal, aScope, aTypeState).ThenTry(
+						return UpdatePatternTypes(
+							GenericPattern,
+							mVM_Type.Type(),
+							tTypeRelation.Equal,
+							aScope,
+							aTypeState
+						).ThenTry(
 							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
 								mStd.cEmpty,
@@ -950,13 +1055,22 @@ mSPO_AST_Types {
 			),
 			mSPO_AST.tIfNode<tPos> If => (
 				If.Cases.Reduce(
-					mResult.OK((Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)).WithErrorType<(tPos Pos, tText ErrorText)>(),
+					mResult.OK(
+						(Types: mStream.Stream<mVM_Type.tType>(), State: aTypeState)
+					).WithErrorType<(tPos Pos, tText ErrorText)>(
+					),
 					(aChecked, Case) => aChecked.ThenTry(
 						__ => Case.Cond.UpdateTypes(aScope, __.State).FailIfNot(
 							aCondition => aCondition.Type.IsSubType(
 								mVM_Type.Bool()
 							).Match(out _, out _),
-							aCondition => (Case.Cond.Pos, $"condition '{Case.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:\n  {aCondition.Type.ToText()}")
+							aCondition => (
+								Case.Cond.Pos,
+								$"""
+								condition '{Case.Cond.ToText()}' has to be [§TRUE | §FALSE] but is of type:
+									{aCondition.Type.ToText()}
+								"""
+							)
 						).ThenTry(
 							aCondition => Case.Result.UpdateTypes(aScope, aCondition.State)
 						).Then(
@@ -1156,10 +1270,17 @@ mSPO_AST_Types {
 							).TryFirst(
 							).Match(
 								() => {
-									var NewType = __.IsVar(out _)
+									var NewType = (
+										__.IsVar(out _)
 										? __
-										: mVM_Type.Var(__);
-									return (Type: NewType, Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope), State: aTypeState);
+										: mVM_Type.Var(__)
+									);
+									
+									return (
+										Type: NewType,
+										Scope: mStream.Stream(ScopeItem(VarPattern.Id, NewType), aScope),
+										State: aTypeState
+									);
 								},
 								aScopeItem => {
 									var ExistingType = aScopeItem.Type;
@@ -1211,7 +1332,18 @@ mSPO_AST_Types {
 				var Checked = (Scope: aScope, State: aTypeState);
 				if (!aType.IsSome(out var Type)) {
 					foreach (var Pattern in TuplePattern.Items) {
-						if (!UpdatePatternTypes(Pattern, mStd.cEmpty, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
+						if (
+							!UpdatePatternTypes(
+								Pattern,
+								mStd.cEmpty,
+								aTypeRelation,
+								Checked.Scope,
+								Checked.State
+							).Match(
+								out var TS,
+								out var Error
+							)
+						) {
 							return mResult.Fail(Error);
 						}
 						
@@ -1229,7 +1361,18 @@ mSPO_AST_Types {
 						// TODO: this part looks wrong. i expect TypeStack is never empty.
 						//   and why should i use aType for each item in the list?
 						foreach (var Pattern in TuplePattern.Items) {
-							if (!UpdatePatternTypes(Pattern, Type, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
+							if (
+								!UpdatePatternTypes(
+									Pattern,
+									Type,
+									aTypeRelation,
+									Checked.Scope,
+									Checked.State
+								).Match(
+									out var TS,
+									out var Error
+								)
+							) {
 								return mResult.Fail(Error);
 							}
 							
@@ -1238,11 +1381,27 @@ mSPO_AST_Types {
 						}
 					} else {
 						if (!WalkType.IsEmpty() || TypeStack.Count() != TuplePattern.Items.Count()) {
-							return mResult.Fail((TuplePattern.Pos, $"can't unify '{TuplePattern.ToText()} and '{Type.ToText()}'"));
+							return mResult.Fail(
+								(
+									TuplePattern.Pos,
+									$"can't unify '{TuplePattern.ToText()} and '{Type.ToText()}'"
+								)
+							);
 						}
 						
 						foreach (var (Pattern, ItemType) in mStream.ZipShort(TuplePattern.Items, TypeStack)) {
-							if (!UpdatePatternTypes(Pattern, ItemType, aTypeRelation, Checked.Scope, Checked.State).Match(out var TS, out var Error)) {
+							if (
+								!UpdatePatternTypes(
+									Pattern,
+									ItemType,
+									aTypeRelation,
+									Checked.Scope,
+									Checked.State
+								).Match(
+									out var TS,
+									out var Error
+								)
+							) {
 								return mResult.Fail(Error);
 							}
 							
@@ -1301,7 +1460,17 @@ mSPO_AST_Types {
 				break;
 			}
 			case mSPO_AST.tRecordPatternNode<tPos> RecordPattern: {
+				if (aType.IsSome(out var InputType) && InputType.IsInterface(out _, out _)) {
+					return mResult.Fail(
+						(
+							RecordPattern.Pos,
+							"interface methods cannot be extracted; call them through the interface object"
+						)
+					);
+				}
+				
 				Result = (mVM_Type.Empty(), aScope, aTypeState);
+				
 				foreach (var Item in RecordPattern.Elements) {
 					var Type = aType.IsSome(out var RecordType)
 					? RecordType.GetFieldType(Item.Id.Id)
@@ -1326,6 +1495,7 @@ mSPO_AST_Types {
 						)
 					);
 				}
+				
 				break;
 			}
 			case mSPO_AST.tGuardPatternNode<tPos> GuardPattern: {
@@ -1410,7 +1580,16 @@ mSPO_AST_Types {
 		mStream.tStream<tScopeItem> aScope,
 		tTypeState<tPos> aTypeState
 	) {
-		return aMethodCall.Method.UpdateTypes(aScope, aTypeState).ThenTry(
+		return aObjectType.FirstObjectType(
+		).TryGetInterfaceMethod(
+			aMethodCall.Method.Id
+		).Match(
+			aType => mResult.OK(
+				(Type: aType, State: aTypeState.SetValidatedType(aMethodCall.Method, aType))
+			).WithErrorType<(tPos Pos, tText ErrorText)>(
+			),
+			() => aMethodCall.Method.UpdateTypes(aScope, aTypeState)
+		).ThenTry(
 			aMethodType => mStd.Call(
 				() => {
 					var ProcType = aMethodType.Type;
@@ -1432,6 +1611,7 @@ mSPO_AST_Types {
 					) {
 						return mResult.Fail((aMethodCall.Method.Pos, ObjectError));
 					}
+					
 					return aMethodCall.Argument.TryInferArguments(
 						MethArgType,
 						aScope,
@@ -1440,14 +1620,18 @@ mSPO_AST_Types {
 					).ThenTry(
 						aArgument => (
 							!aMethodCall.Result.IsSome(out var Result)
-							? mResult.OK((Scope: aScope, State: aArgument.State)).WithErrorType<(tPos Pos, tText ErrorText)>()
+							? mResult.OK(
+								(Scope: aScope, State: aArgument.State)
+							).WithErrorType<(tPos Pos, tText ErrorText)>()
 							: UpdatePatternTypes(
 								Result,
 								MethResType.ApplyMappings(aArgument.Mappings),
 								tTypeRelation.Sub,
 								aScope,
 								aArgument.State
-							).Then(__ => (__.Scope, __.State))
+							).Then(
+								__ => (__.Scope, __.State)
+							)
 						)
 					);
 				}
@@ -1922,17 +2106,46 @@ mSPO_AST_Types {
 				);
 				break;
 			}
+			case mSPO_AST.tInterfaceTypeNode<tPos> InterfaceType: {
+				var Name = InterfaceType.HeadType.Id;
+				var Parameter = mVM_Type.Free(Name, mVM_Type.Type());
+				
+				Result = InterfaceType.BodyType.AsVM_Type(
+					mStream.Stream(
+						ScopeItem(Name, mVM_Type.Type(), Parameter),
+						aScope
+					)
+				).FailIfNot(
+					__ => mVM_Type.IsInterfaceBody(Parameter, __),
+					_ => (
+						InterfaceType.Pos,
+						"interface methods must use the hidden type only as their object argument"
+					)
+				).Then(
+					__ => mVM_Type.Interface(Parameter, __)
+				);
+				
+				break;
+			}
 			case mSPO_AST.tGenericApplyTypeNode<tPos> GenericApplyType: {
-				Result = GenericApplyType.GenericType.AsVM_Value(aScope).ThenTry(
-					aGenericType => GenericApplyType.ArgType.AsVM_Value(aScope).ThenTry(
+				Result = GenericApplyType.GenericType.AsVM_Value(
+					aScope
+				).ThenTry(
+					aGenericType => GenericApplyType.ArgType.AsVM_Value(
+						aScope
+					).ThenTry(
 						aArgType => (
-							aGenericType.KindType().IsProc(out var Obj, out var Arg, out _) &&
-							Obj.IsEmpty() && Arg.SameType(aArgType.KindType())
+							(
+								aGenericType.KindType().IsProc(out var Obj, out var Arg, out _) &&
+								Obj.IsEmpty() &&
+								Arg.SameType(aArgType.KindType())
+							)
 							? mResult.OK(aGenericType.ApplyType(aArgType)).WithErrorType<(tPos Pos, tText ErrorText)>()
 							: mResult.Fail((GenericApplyType.Pos, "invalid type constructor or argument kind"))
 						)
 					)
 				);
+				
 				break;
 			}
 			default: {

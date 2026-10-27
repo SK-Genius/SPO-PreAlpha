@@ -4,7 +4,11 @@
 
 §DEF Contract = [§SIG_WITH t € §TYPE IN [[§VAR t] : §INT => []]]
 
-§DEF Add... = (§VAR aSelf € §INT) : (§DEF aAmount € §INT) {
+§DEF Add... = (
+	§VAR aSelf € §INT
+) : (
+	§DEF aAmount € §INT
+) {
 	aSelf := ((§TO_VAL aSelf) .+ aAmount) .
 }
 

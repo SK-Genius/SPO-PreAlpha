@@ -349,6 +349,15 @@ mSPO2IL {
 				
 				return NewId;
 			}
+			case var a when a.IsInterface(out var HeadType, out var BodyType): {
+				var HeadId = aTypeDeclarations.MapType(HeadType);
+				var BodyId = aTypeDeclarations.MapType(BodyType);
+				var Id = $"[§ANY {HeadId} => {BodyId}]";
+				
+				aTypeDeclarations.EnsureTypeDefinition(Id, a, () => mIL_AST.TypeInterface(default(tPos)!, Id, HeadId, BodyId));
+				
+				return Id;
+			}
 			default: {
 				throw new System.NotImplementedException("" + aType.Kind);
 			}
@@ -744,6 +753,7 @@ mSPO2IL {
 			}
 			case mVM_Type.tKind.Generic:
 			case mVM_Type.tKind.Recursive:
+			case mVM_Type.tKind.Interface:
 			case mVM_Type.tKind.Sig: {
 				var Head = aType.Refs[0];
 				var HeadReg = aDef.CreateTempReg();
@@ -764,6 +774,7 @@ mSPO2IL {
 					aType.Kind switch {
 						mVM_Type.tKind.Generic => mIL_AST.TypeGeneric(aPos, Reg, HeadReg, BodyReg),
 						mVM_Type.tKind.Recursive => mIL_AST.TypeRecursive(aPos, Reg, HeadReg, BodyReg),
+						mVM_Type.tKind.Interface => mIL_AST.TypeInterface(aPos, Reg, HeadReg, BodyReg),
 						_ => mIL_AST.TypeSig(aPos, Reg, HeadReg, BodyReg),
 					}
 				);
@@ -988,6 +999,26 @@ mSPO2IL {
 				);
 				
 				aDefConstructor.AddLocal(Result, aDefConstructor.TypeState.TryGetValidatedType(Sig).AssertNotEmpty());
+				
+				return Result;
+			}
+			case mSPO_AST.tInterfaceNode<tPos> Interface: {
+				var ContractType = aDefConstructor.TypeState.TryGetValidatedType(Interface).AssertNotEmpty();
+				var Contract = aDefConstructor.MapTypeValue(ref aModuleConstructor.TypeDeclarations, Interface.Pos, ContractType);
+				
+				if (
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Interface.Object).Match(out var Object, out var Error) ||
+					!aDefConstructor.TryMapExpression(aModuleConstructor, Interface.Methods).Match(out var Methods, out Error)
+				) {
+					return mResult.Fail(Error);
+				}
+				
+				aDefConstructor.Commands.Push(
+					mIL_AST.CreatePair(Interface.Pos, aDefConstructor.CreateTempReg(out var Payload), Object, Methods),
+					mIL_AST.CreateInterface(Interface.Pos, aDefConstructor.CreateTempReg(out var Result), Contract, Payload)
+				);
+				
+				aDefConstructor.AddLocal(Result, ContractType);
 				
 				return Result;
 			}
@@ -1480,12 +1511,15 @@ mSPO2IL {
 			case mSPO_AST.tIdNode<tPos>:
 			case mSPO_AST.tVarPatternNode<tPos>: {
 				var Id = aMatch.TryGetId().AssertNotEmpty();
+				var Type = aCaseFunc.TypeState.TryGetValidatedType(aMatch).AssertNotEmpty();
+				
+				aInputReg = aCaseFunc.MapSubinterface(ref aTypeDeclarations, aMatch.Pos, aInputReg, Type);
 				
 				aCaseFunc.Commands.Push(
 					mIL_AST.Alias(aMatch.Pos, Id, aInputReg)
 				);
 				
-				aCaseFunc.AddLocal(Id, aCaseFunc.TypeState.TryGetValidatedType(aMatch).AssertNotEmpty());
+				aCaseFunc.AddLocal(Id, Type);
 				
 				break;
 			}
@@ -1835,6 +1869,27 @@ mSPO2IL {
 		return true;
 	}
 	
+	private static tText
+	MapSubinterface<tPos>(
+		this ref tDefConstructor<tPos> aDef,
+		ref tTypeDeclarations<tPos> aTypes,
+		tPos aPos,
+		tText aValue,
+		mVM_Type.tType aType
+	) {
+		if (!aType.HasInterfaceValues()) {
+			return aValue;
+		}
+		
+		// A static alias alone would let runtime type matching recover omitted endpoints.
+		var Type = aDef.MapTypeValue(ref aTypes, aPos, aType);
+		
+		aDef.Commands.Push(mIL_AST.Subinterface(aPos, aDef.CreateTempReg(out var Subinterface), Type, aValue));
+		aDef.AddLocal(Subinterface, aType);
+		
+		return Subinterface;
+	}
+	
 	public static tBool
 	MapPattern<tPos>(
 		this ref tDefConstructor<tPos> aDefConstructor,
@@ -1862,6 +1917,7 @@ mSPO2IL {
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Name }: {
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
+				aRegId = aDefConstructor.MapSubinterface(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
@@ -1891,6 +1947,7 @@ mSPO2IL {
 			case mSPO_AST.tFreeIdPatternNode<tPos> { Pos: var Pos, Id: var Name }: {
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
+				aRegId = aDefConstructor.MapSubinterface(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());
 				aDefConstructor.Commands.Push(mIL_AST.Alias(aPatternNode.Pos, Name, aRegId));
 				aDefConstructor.AddArg(Name, Type.AssertNotEmpty());
 				break;
@@ -2247,8 +2304,17 @@ mSPO2IL {
 				aDefConstructor.Commands.Push(mIL_AST.VarSet(aMethodCallsNode.Pos, Object, Arg));
 				continue;
 			}
-			if (!aDefConstructor.TryMapExpression(aModuleConstructor, Call.Method).Match(out MethodId, out aError)) {
-				return false;
+			
+			var ObjectType = aDefConstructor.TypeState.TryGetValidatedType(aMethodCallsNode.Object).AssertNotEmpty();
+			if (ObjectType.FirstObjectType().TryGetInterfaceMethod(MethodId).IsSome(out _)) {
+				aDefConstructor.Commands.Push(
+					mIL_AST.AddPrefix(Call.Pos, aDefConstructor.CreateTempReg(out var Endpoint), MethodId, mIL_AST.cEmptyValue)
+				);
+				MethodId = Endpoint;
+			} else {
+				if (!aDefConstructor.TryMapExpression(aModuleConstructor, Call.Method).Match(out MethodId, out aError)) {
+					return false;
+				}
 			}
 			
 			// A discarded result still needs storage; EMPTY is a shared constant.

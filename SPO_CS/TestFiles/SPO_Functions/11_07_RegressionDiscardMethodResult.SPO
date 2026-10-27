@@ -1,6 +1,7 @@
 §DEF Probe = (
 	§VAR aSelf € §INT
-) : () => §TRUE
+) : (
+) => §TRUE
 
 §VAR Value :
 	= 0
