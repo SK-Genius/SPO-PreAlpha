@@ -36,6 +36,19 @@ For executable function and module examples, open [<Tests.wiki|Test Examples>].
 |{ Name: "Ada", Age: 42 }
 .]
 
+[=Record Updates=]
+[.spo
+|§DEF SrcRec = { Name: "Ada", Age: 42 }
+|§DEF DesRec = { SrcRec; Age = 43, Active = §TRUE }
+.]
+
+- creates a new record; [.|SrcRec.] remains unchanged
+- replaces existing fields and adds missing fields; other fields are copied
+- accepts one or more assignments, separated by commas or newlines
+- the source expression is evaluated once, followed by the assigned values in source order
+- desugars after the source type is known into a record pattern extracting unchanged fields and a record construction
+- requires a known record type and rejects duplicate assignment names
+
 [=Patterns=]
 [.spo
 |x

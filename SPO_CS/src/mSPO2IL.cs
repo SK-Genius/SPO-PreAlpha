@@ -871,6 +871,21 @@ mSPO2IL {
 		var TypeDict = aDefConstructor.TypeDict;
 		
 		switch (aExpressionNode) {
+			case mSPO_AST.tRecordUpdateNode<tPos> Update: {
+				var Expression = aDefConstructor.TypeState.RecordUpdates.Where(
+					__ => mStd.RefEq(__.Node, Update)
+				).TryFirst().AssertNotEmpty().Expression;
+				// The generated block is an expression binding, so its final return stays local.
+				foreach (var Command in Expression.Commands) {
+					if (Command is mSPO_AST.tReturnIfNode<tPos> Return) {
+						return aDefConstructor.TryMapExpression(aModuleConstructor, Return.Result);
+					}
+					if (!aDefConstructor.MapCommand(aModuleConstructor, Command, out var Error)) {
+						return mResult.Fail(Error);
+					}
+				}
+				throw mError.Error("record update must end in a record construction");
+			}
 			case mSPO_AST.tEmptyNode<tPos> EmptyNode: {
 				return mIL_AST.cEmptyValue;
 			}
