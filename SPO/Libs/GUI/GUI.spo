@@ -89,15 +89,15 @@
 		(§DEF aSplit € tSplitWords, §DEF aCharacter € §CHAR) => {
 			{Words: §DEF Words, Word: §DEF Word} = aSplit
 			§RETURN §IF (aCharacter .IsSpace, Word) MATCH {
-				(§TRUE, ()): {Words: Words, Word: ""}
+				(§TRUE, ()): aSplit
 				(§TRUE, _): {Words: (Words; Word), Word: ""}
-				(§FALSE, _): {Words: Words, Word: (Word; aCharacter)}
+				(§FALSE, _): { aSplit; Word: (Word; aCharacter) }
 			}
 		}
 	)
 	§DEF FinishWords... = (§DEF aSplit € tSplitWords) => {
 		{Words: §DEF Words, Word: §DEF Word} = aSplit
-		§RETURN §IF (Word) MATCH {
+		§RETURN §IF Word MATCH {
 			(): Words
 			_: (Words; Word)
 		}
@@ -114,12 +114,12 @@
 			§DEF WordWidth = (aWord .Length) .* cCharacterWidth
 			§DEF NextWidth = LineWidth .+ cCharacterWidth §> .+ WordWidth
 			§DEF Next € tWrapped = §IF (LineWords, aWidth .< NextWidth) MATCH {
-				((), _): {Lines: Lines, Line: {Words: ((); aWord), Width: WordWidth}}
+				((), _): { aResult; Line: {Words: ((); aWord), Width: WordWidth} }
 				(_, §TRUE): {
 					Lines: (Lines; {Words: LineWords, Width: LineWidth})
 					Line: {Words: ((); aWord), Width: WordWidth}
 				}
-				(_, §FALSE): {Lines: Lines, Line: {Words: (LineWords; aWord), Width: NextWidth}}
+				(_, §FALSE): { aResult; Line: {Words: (LineWords; aWord), Width: NextWidth} }
 			}
 			§RETURN Next
 		}
@@ -183,7 +183,7 @@
 		{X: §DEF X, Y: §DEF Y, Width: §DEF Width, Height: §DEF AvailableHeight} = aBounds
 		{Height: §DEF ContentHeight} = aElement .MeasuredWithin Width
 		§DEF Height = .Max (AvailableHeight, ContentHeight)
-		§DEF Bounds = {X: X, Y: Y, Width: Width, Height: Height}
+		§DEF Bounds = { aBounds; Height: Height }
 		§DEF cEmptyItems € [.tList tItem] = ()
 		§DEF ...Items = (
 			§DEF aLayout € [<
@@ -330,10 +330,8 @@
 }
 
 §DEF cEmptyPanel = {
+	cInitial;
 	Event: #Redraw
-	Targets: ()
-	Interaction: {Focus: 0, Active: 0, Mouse: (-1, -1)}
-	Scroll: 0
 	Children: ()
 }
 
@@ -346,7 +344,7 @@
 	§DEF aState € tState
 ) => {
 	{Interaction: §DEF Interaction, Targets: §DEF Targets, Scroll: §DEF Scroll} = aState
-	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
+	{Focus: §DEF Focus} = Interaction
 	§DEF cEmptyIds € [.tList §INT] = ()
 	§DEF FocusIds = Targets .Reduce (
 		cEmptyIds
@@ -383,11 +381,11 @@
 					§DEF Id: Id
 				}
 			}
-			§RETURN {Focus: NextFocus, Active: 0, Mouse: Mouse}
+			§RETURN { Interaction; Focus: NextFocus, Active: 0 }
 		}
 		(#Pointer {Position: §DEF Position, Action: #Press}): {Focus: 0, Active: 0, Mouse: Position}
-		(#Pointer {Position: §DEF Position}): {Focus: Focus, Active: Active, Mouse: Position}
-		(#Focus §FALSE): {Focus: Focus, Active: 0, Mouse: (-1, -1)}
+		(#Pointer {Position: §DEF Position}): { Interaction; Mouse: Position }
+		(#Focus §FALSE): { Interaction; Active: 0, Mouse: (-1, -1) }
 		_: Interaction
 	}
 	§DEF NextScroll = §IF aEvent MATCH {
@@ -395,8 +393,8 @@
 		_: Scroll
 	}
 	§DEF Panel € tPanel = {
+		aState;
 		Event: aEvent
-		Targets: Targets
 		Interaction: NextInteraction
 		Scroll: NextScroll
 		Children: ()
@@ -412,30 +410,18 @@
 }
 
 §DEF AddElement... = (§VAR aPanel € tPanel) : (§DEF aElement € tElement) {
-	{
-		Event: §DEF Event
-		Targets: §DEF Targets
-		Interaction: §DEF Interaction
-		Scroll: §DEF Scroll
-		Children: §DEF Children
-	} = §TO_VAL aPanel
-	aPanel : ReplaceWith {
-		Event: Event
-		Targets: Targets
-		Interaction: Interaction
-		Scroll: Scroll
-		Children: (Children; aElement)
-	} .
+	§DEF Panel = §TO_VAL aPanel
+	{Children: §DEF Children} = Panel
+	aPanel : ReplaceWith { Panel; Children: (Children; aElement) } .
 }
 
 §DEF InteractWith... = (§VAR aPanel € tPanel) : (§DEF aId € §INT) {
+	§DEF Panel = §TO_VAL aPanel
 	{
 		Event: §DEF Event
 		Targets: §DEF Targets
 		Interaction: §DEF Interaction
-		Scroll: §DEF Scroll
-		Children: §DEF Children
-	} = §TO_VAL aPanel
+	} = Panel
 	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
 	§DEF Hovered = Targets .Reduce (
 		§FALSE
@@ -452,22 +438,16 @@
 	}
 	§DEF NextInteraction € tInteraction = §IF Event MATCH {
 		(#Pointer {Action: #Press}): §IF Hovered MATCH {
-			§TRUE: {Focus: aId, Active: aId, Mouse: Mouse}
+			§TRUE: { Interaction; Focus: aId, Active: aId }
 			§FALSE: Interaction
 		}
 		(#Pointer {Action: #Release}): §IF (Active .== aId) MATCH {
-			§TRUE: {Focus: Focus, Active: 0, Mouse: Mouse}
+			§TRUE: { Interaction; Active: 0 }
 			§FALSE: Interaction
 		}
 		_: Interaction
 	}
-	aPanel : ReplaceWith {
-		Event: Event
-		Targets: Targets
-		Interaction: NextInteraction
-		Scroll: Scroll
-		Children: Children
-	} .
+	aPanel : ReplaceWith { Panel; Interaction: NextInteraction } .
 	§RETURN Clicked
 }
 
@@ -518,42 +498,10 @@
 	§RETURN Value
 }
 
-§DEF ListWith...AndChildren... = (§DEF aStyle € tListStyle, §DEF aChildren € [.tList tElement]) => {
-	{
-		Axis: §DEF Axis
-		Alignment: §DEF Alignment
-		CrossAlignment: §DEF CrossAlignment
-		Padding: §DEF Padding
-		Spacing: §DEF Spacing
-		Color: §DEF Color
-	} = aStyle
-	§DEF Element € tElement = (#List {
-		Axis: Axis
-		Alignment: Alignment
-		CrossAlignment: CrossAlignment
-		Padding: Padding
-		Spacing: Spacing
-		Color: Color
-		Children: aChildren
-	})
-	§RETURN Element
-}
-
 §DEF TakeChildren = (§VAR aPanel € tPanel) : () {
-	{
-		Event: §DEF Event
-		Targets: §DEF Targets
-		Interaction: §DEF Interaction
-		Scroll: §DEF Scroll
-		Children: §DEF Children
-	} = §TO_VAL aPanel
-	aPanel : ReplaceWith {
-		Event: Event
-		Targets: Targets
-		Interaction: Interaction
-		Scroll: Scroll
-		Children: ()
-	} .
+	§DEF Panel = §TO_VAL aPanel
+	{Children: §DEF Children} = Panel
+	aPanel : ReplaceWith { Panel; Children: () } .
 	§RETURN Children
 }
 
@@ -561,19 +509,12 @@
 	§DEF aStyle € tListStyle
 	§DEF aBefore € [.tList tElement]
 ) {
-	{
-		Event: §DEF Event
-		Targets: §DEF Targets
-		Interaction: §DEF Interaction
-		Scroll: §DEF Scroll
-		Children: §DEF Children
-	} = §TO_VAL aPanel
+	§DEF Panel = §TO_VAL aPanel
+	{Children: §DEF Children} = Panel
+	§DEF Element € tElement = (#List { aStyle; Children: Children })
 	aPanel : ReplaceWith {
-		Event: Event
-		Targets: Targets
-		Interaction: Interaction
-		Scroll: Scroll
-		Children: (aBefore; (.ListWith aStyle AndChildren Children))
+		Panel;
+		Children: (aBefore; Element)
 	} .
 }
 
@@ -601,11 +542,11 @@
 §DEF FinishWith...In... = (§VAR aPanel € tPanel) : (§DEF aStyle € tListStyle, §DEF aSize € tSize) {
 	{Children: §DEF Children, Interaction: §DEF Interaction, Scroll: §DEF Scroll} = §TO_VAL aPanel
 	{Width: §DEF Width, Height: §DEF Height} = aSize
-	§DEF Root = .ListWith aStyle AndChildren Children
+	§DEF Root € tElement = (#List { aStyle; Children: Children })
 	{Height: §DEF ContentHeight} = Root .MeasuredWithin Width
 	§DEF NextScroll = .Min (Scroll, (.Max (0, ContentHeight .- Height)))
 	§DEF Frame = Root .LayoutWithin {X: 0, Y: 0 .- NextScroll, Width: Width, Height: Height}
-	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
+	{Focus: §DEF Focus, Active: §DEF Active} = Interaction
 	{Items: §DEF Items} = Frame
 	§DEF cEmptyTargets € [.tList tTarget] = ()
 	§DEF Targets = Items .Reduce (
@@ -641,7 +582,7 @@
 	}
 	§DEF State € tState = {
 		Targets: Targets
-		Interaction: {Focus: NextFocus, Active: NextActive, Mouse: Mouse}
+		Interaction: { Interaction; Focus: NextFocus, Active: NextActive }
 		Scroll: NextScroll
 	}
 	§RETURN (State, Frame)
@@ -703,7 +644,7 @@
 					}
 				}
 				(#TextInput {Id: §DEF Id, Label: §DEF Label, Value: §DEF Value}): {
-					§DEF Field = {X: X, Y: Y .+ cLineHeight, Width: Width, Height: cControlHeight}
+					§DEF Field = { Bounds; Y: Y .+ cLineHeight, Height: cControlHeight }
 					§DEF Border = §IF (Focus .== Id) MATCH {
 						§TRUE: cFocusBorder
 						§FALSE: cBorder
@@ -728,10 +669,7 @@
 						Draw Label At (X, Y .+ ((cLineHeight .- cGlyphHeight) ./ 2)) InColor cMuted
 						Fill Field With (21, 30, 38)
 						Stroke Field With Border
-						ClipTo {
-							X: X .+ cControlPadding, Y: Y .+ cLineHeight
-							Width: InnerWidth, Height: cControlHeight
-						}
+						ClipTo { Field; X: X .+ cControlPadding, Width: InnerWidth }
 						Draw DisplayText At TextPosition InColor cForeground
 						ResetClip
 						.

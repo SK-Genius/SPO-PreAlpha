@@ -1,6 +1,6 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mStream.cs
@@ -14,6 +14,55 @@ public static class
 mSPO_Desugar {
 	private const tInt32
 	cNoUnnamedArgs = -1;
+	
+	public static mResult.tResult<
+		mSPO_AST.tIfMatchNode<tPos>,
+		(tPos Pos, tText ErrorText)
+	>
+	DesugarRecordUpdate<tPos>(
+		this mSPO_AST.tRecordNode<tPos> aRecord,
+		mStream.tStream<tText> aSourceFields,
+		tNat32 aUpdateIndex
+	) {
+		var Seen = mStream.Stream<tText>();
+		foreach (var (Key, _) in aRecord.Elements) {
+			if (Seen.Any(__ => __ == Key.Id)) {
+				return mResult.Fail((Key.Pos, $"duplicate record update field '{Key.Id}'"));
+			}
+			Seen = mStream.Stream(Key.Id, Seen);
+		}
+		
+		var Source = aRecord.Source.AssertNotEmpty();
+		var Patterns = mStream.Stream<(mSPO_AST.tIdNode<tPos>, mSPO_AST.tPatternNode<tPos>)>();
+		var Elements = mStream.Stream<(mSPO_AST.tIdNode<tPos>, mSPO_AST.tExpressionNode<tPos>)>();
+		var Index = 0;
+		
+		foreach (var Field in aSourceFields.Where(aField => !Seen.Any(__ => __ == aField))) {
+			var Key = new mSPO_AST.tIdNode<tPos> { Pos = Source.Pos, Id = Field };
+			var Name = "§record" + aUpdateIndex + "Field" + Index;
+			Patterns = mStream.Stream((Key, mSPO_AST.FreeIdPattern(Source.Pos, Name)), Patterns);
+			Elements = mStream.Stream((Key, mSPO_AST.Id(Source.Pos, Name)), Elements);
+			Index += 1;
+		}
+		
+		return mSPO_AST.IfMatch(
+			aRecord.Pos,
+			Source,
+			mStream.Stream(
+				(
+					(
+						Patterns.IsEmpty()
+						? (mSPO_AST.tPatternNode<tPos>)mSPO_AST.IgnorePattern(Source.Pos)
+						: mSPO_AST.RecordPattern(Source.Pos, Patterns.Reverse())
+					),
+					(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Record(
+						aRecord.Pos,
+						mStream.Concat(Elements.Reverse(), aRecord.Elements)
+					)
+				)
+			)
+		);
+	}
 	
 	public static mSPO_AST.tTypeNode<tPos>
 	DesugarType<tPos>(
@@ -400,25 +449,34 @@ mSPO_Desugar {
 			)
 		),
 		
-		mSPO_AST.tRecordNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }
-		=> DesugarAll(
-			Elements,
-			aNextArgIndex,
-			(aElement, aNextArgIndex) => aElement.Value.DesugarExpression(aNextArgIndex).Then(
-				aDesugaredValue => (
-					(Key: aElement.Key, Value: aDesugaredValue.Expression),
-					aDesugaredValue.NextArgIndex
-				)
-			)
-		).Then(
-			__ => (
-				(mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Record(
-					Pos,
-					__.Values,
-					Type
-				),
-				__.NextArgIndex
-			)
+		mSPO_AST.tRecordNode<tPos> Record
+		=> mStd.Call(
+			() => {
+				var Source = Record.Source;
+				var NextArgIndex = aNextArgIndex;
+				if (Source.IsSome(out var Expression)) {
+					if (!Expression.DesugarExpression(NextArgIndex).Match(out var Desugared, out var Error)) {
+						return mResult.Fail(Error);
+					}
+					Source = mMaybe.Some(Desugared.Expression);
+					NextArgIndex = Desugared.NextArgIndex;
+				}
+				return DesugarAll(
+					Record.Elements,
+					NextArgIndex,
+					(aElement, aNext) => aElement.Value.DesugarExpression(aNext).Then(
+						aValue => ((aElement.Key, aValue.Expression), aValue.NextArgIndex)
+					)
+				).Then(
+					aElements => (
+						(mSPO_AST.tExpressionNode<tPos>)(Record with {
+							Source = Source,
+							Elements = aElements.Values
+						}),
+						aElements.NextArgIndex
+					)
+				);
+			}
 		),
 		
 		mSPO_AST.tIfNode<tPos> { Pos: var Pos, Cases: var Cases, TypeAnnotation: var Type }

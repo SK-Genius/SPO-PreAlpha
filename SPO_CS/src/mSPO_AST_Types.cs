@@ -1,6 +1,6 @@
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mAssert.cs
@@ -11,6 +11,7 @@
 #:ref Common/mTreeMap.cs
 #:ref mVM_Type.cs
 #:ref mSPO_AST.cs
+#:ref mSPO_Desugar.cs
 #:ref mIL_TypeChecker.cs
 
 public static class
@@ -18,6 +19,9 @@ mSPO_AST_Types {
 	// Updates share unchanged tree branches; only successful results publish a new snapshot.
 	public sealed record
 	tTypeState<tPos> {
+		public mStream.tStream<(mSPO_AST.tRecordNode<tPos> Record, mSPO_AST.tIfMatchNode<tPos> Expression)>
+		RecordUpdates { get; init; }
+		
 		public mTreeMap.tTree<
 			tInt32,
 			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
@@ -754,6 +758,37 @@ mSPO_AST_Types {
 					aTypeState
 				).Then(
 					__ => (mVM_Type.Prefix(Prefix.Prefix, __.Type), __.State)
+				)
+			),
+			mSPO_AST.tRecordNode<tPos> Record when Record.Source.IsSome(out var Source) => (
+				Source.UpdateTypes(aScope, aTypeState).ThenTry(
+					aSource => {
+						if (!aSource.Type.IsRecord(out var Fields)) {
+							return mResult.Fail((Source.Pos, "record update requires a record source"));
+						}
+						
+						return Record.DesugarRecordUpdate(
+							Fields.ToStream().Map(__ => __.Key),
+							aSource.State.RecordUpdates.Count()
+						).ThenTry(
+							aDesugared => {
+								var Case = aDesugared.Cases.TryFirst().AssertNotEmpty();
+								return UpdatePatternTypes(
+									Case.Pattern,
+									aSource.Type,
+									tTypeRelation.Super,
+									aScope,
+									aSource.State with {
+										RecordUpdates = mStream.Stream((Record, aDesugared), aSource.State.RecordUpdates)
+									}
+								).ThenTry(
+									aPattern => Case.Expression.UpdateTypes(aPattern.Scope, aPattern.State)
+								).Then(
+									__ => (__.Type, __.State.SetValidatedType(aDesugared, __.Type))
+								);
+							}
+						);
+					}
 				)
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (

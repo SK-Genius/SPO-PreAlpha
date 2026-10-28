@@ -22,8 +22,8 @@ Explizite Bedeutung, einfache Strukturen und lesbarer Kontrollfluss ergänzen di
 1. **Den Aufruf zuerst schreiben.**
    Er soll sich mit Empfänger, Argumenten und Ergebnis als verständlicher Satz lesen.
    Kürze ist kein eigenes Qualitätsziel.
-2. **Funktionen liefern Werte.**
-   `Style .WithForeground Color` liefert einen neuen Style;
+2. **Berechnungen liefern neue Werte.**
+   `{ Style; Foreground: Color }` erzeugt einen neuen Style;
    `State .After Action` einen neuen Spielzustand.
    Bestehende Werte bleiben erhalten.
    Methoden mit `§VAR`-Empfänger machen externe Effekte sichtbar.
@@ -75,14 +75,14 @@ Explizite Bedeutung, einfache Strukturen und lesbarer Kontrollfluss ergänzen di
     Von ihnen direkt, indirekt oder durch Fallauswahl abhängige lokale Werte erhalten kein `c`.
     Methoden lesen veränderliche Ressourcen;
     ihre Ergebnisse sind ebenfalls keine Konstanten.
-    Feldnamen beschreiben den Vertrag, Präfixe die lokale Bindung: `DefaultStyle: §DEF cDefaultStyle`.
+    Feldnamen beschreiben den Vertrag, Präfixe die lokale Bindung: `InitialState: §DEF cInitialState`.
     Funktionen behalten ihre Aufrufnamen.
 13. **Vektoroperatoren beim Import markieren.**
     `...+...` aus Vector2 wird als `..._+_...` gebunden, `...==...` als `..._==_...`.
     Entsprechend liest sich die Bewegung als `HeadPosition ._+_ Step` und ein Positionsvergleich als `NextHead ._==_ FoodPosition`.
 
 ```spo
-§DEF cFoodStyle = cDefaultStyle .WithForeground #Red §> .WithBlink §TRUE
+§DEF cFoodStyle = { cDefaultStyle; Foreground: #Red, Blink: §TRUE }
 §DEF NextState = State .After Action
 aTerminal : HideCursor, Draw "*" At FoodPosition WithStyle cFoodStyle .
 ```

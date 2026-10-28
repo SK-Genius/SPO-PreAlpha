@@ -1,0 +1,14 @@
+§TYPES
+	t_0 := [#_A TRUE]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+
+§DEF d_0 € t_3
+	r_1 := 1
+	r_2 := +#_A r_1
+	r_3 := {EMPTY} + r_2
+	_Src := r_3
+	r_4 := +#_A TRUE
+	r_5 := {EMPTY} + r_4
+	§RETURN r_5 IF TRUE

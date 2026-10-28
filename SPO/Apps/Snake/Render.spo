@@ -23,10 +23,14 @@
 	Vector2: {
 		...+...: §DEF ..._+_...
 	} € [§LOAD "../../Libs/Vector2.SIG"]
-	Style: {
-		DefaultStyle: §DEF cDefaultStyle
-		...WithBlink...: §DEF ...WithBlink...
-	} € [§LOAD "../../Libs/Style.SIG"]
+}
+
+§DEF cDefaultStyle = {
+	Foreground: #Gray
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
 }
 
 §DEF cScoreRow = 1
@@ -38,41 +42,11 @@
 §DEF cScoreLabel = "Score: "
 §DEF cHorizontalBorder = "+" .FollowedBy ("-" .Repeated cBoardWidth) §> .FollowedBy "+"
 §DEF cEmptyBoardRow = "|" .FollowedBy (" " .Repeated cBoardWidth) §> .FollowedBy "|"
-§DEF cGreenStyle = {
-	Foreground: #Green
-	Background: #Black
-	Blink: §FALSE
-	Underline: §FALSE
-	Inverse: §FALSE
-}
-§DEF cScoreStyle = {
-	Foreground: #Yellow
-	Background: #Black
-	Blink: §FALSE
-	Underline: §FALSE
-	Inverse: §FALSE
-}
-§DEF cBorderStyle = {
-	Foreground: #DarkGray
-	Background: #Black
-	Blink: §FALSE
-	Underline: §FALSE
-	Inverse: §FALSE
-}
-§DEF cFoodStyle = {
-	Foreground: #Red
-	Background: #Black
-	Blink: §TRUE
-	Underline: §FALSE
-	Inverse: §FALSE
-}
-§DEF cBodyStyle = {
-	Foreground: #DarkGreen
-	Background: #Black
-	Blink: §FALSE
-	Underline: §FALSE
-	Inverse: §FALSE
-}
+§DEF cGreenStyle = { cDefaultStyle; Foreground: #Green }
+§DEF cScoreStyle = { cDefaultStyle; Foreground: #Yellow }
+§DEF cBorderStyle = { cDefaultStyle; Foreground: #DarkGray }
+§DEF cFoodStyle = { cDefaultStyle; Foreground: #Red, Blink: §TRUE }
+§DEF cBodyStyle = { cDefaultStyle; Foreground: #DarkGreen }
 
 §DEF ...CanFitSnake = (
 	§DEF aWindowSize € [§LOAD "../../Libs/Size.SIG"]
@@ -136,7 +110,7 @@
 				#GameOver: "Game over - R"
 				#Won: "You won! - R"
 			}
-			§DEF StatusStyle = cScoreStyle .WithBlink (.Not (Phase §IS #Playing))
+			§DEF StatusStyle = { cScoreStyle; Blink: .Not (Phase §IS #Playing) }
 			§DEF StatusColumn = (cScoreLabel .Length) .+ (ScoreText .Length) §> .+ 2
 			{Width: §DEF WindowWidth} = WindowSize
 			

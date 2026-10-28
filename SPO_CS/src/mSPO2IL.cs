@@ -1,6 +1,6 @@
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mAssert.cs
@@ -108,6 +108,12 @@ mSPO2IL {
 	public static tText GetDefId(tNat32 a) => "d_" + a;
 	public static tText GetTypeId(tNat32 a) => "t_" + a;
 	public static tText GetId(tText a) => "_" + a;
+	
+	// Source identifiers start with '_'; internal record bindings use a separate IL namespace.
+	private static tText
+	MapInternalId(
+		tText aId
+	) => aId.StartsWith("_§record", System.StringComparison.Ordinal) ? aId[2..] : aId;
 	
 	public static tText
 	CreateTempReg<tPos>(
@@ -894,6 +900,7 @@ mSPO2IL {
 				return ResultReg;
 			}
 			case mSPO_AST.tIdNode<tPos> { Pos: var Pos, Id: var Id, TypeValue: var Value }: {
+				Id = MapInternalId(Id);
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
 				if (Value.IsSome(out var Known)) {
 					return aDefConstructor.MapTypeValue(ref aModuleConstructor.TypeDeclarations, Pos, Known);
@@ -1060,6 +1067,12 @@ mSPO2IL {
 				aDefConstructor.AddLocal(ResultReg, Type.AssertNotEmpty());
 				
 				return ResultReg;
+			}
+			case mSPO_AST.tRecordNode<tPos> Record when Record.Source.IsSome(out _): {
+				var Desugared = aDefConstructor.TypeState.RecordUpdates.Where(
+					__ => mStd.RefEq(__.Record, Record)
+				).TryFirst().AssertNotEmpty().Expression;
+				return aDefConstructor.TryMapExpression(aModuleConstructor, Desugared);
 			}
 			case mSPO_AST.tRecordNode<tPos> { Elements: var Elements }: {
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aExpressionNode);
@@ -1269,14 +1282,33 @@ mSPO2IL {
 					return mResult.Fail(Error);
 				}
 				
-				// An irrefutable binding needs no helper call, which would hide receiver access.
+				// Exhaustive bindings can stay inline, preserving access facts and receiver access.
+				TypeDict = aDefConstructor.TypeDict;
 				if (
 					Cases.Take(2).Count() == 1 &&
 					Cases.TryFirst().IsSome(out var OnlyCase) &&
-					OnlyCase.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> &&
 					!OnlyCase.Pattern.HasGuards() &&
 					OnlyCase.Expression is not mSPO_AST.tBlockNode<tPos> &&
-					!aDefConstructor.TypeDict.TryGet(OnlyCase.Pattern.TryGetId().AssertNotEmpty()).IsSome(out _)
+					(
+						OnlyCase.Pattern switch {
+							mSPO_AST.tIgnorePatternNode<tPos>
+							=> true,
+							
+							mSPO_AST.tFreeIdPatternNode<tPos> Binding
+							=> TypeDict.TryGet(MapInternalId(Binding.Id)).IsNone(),
+							
+							mSPO_AST.tRecordPatternNode<tPos> Record
+							=> Record.Elements.All(
+								__ => (
+									__.Pattern is mSPO_AST.tFreeIdPatternNode<tPos> Field &&
+									TypeDict.TryGet(MapInternalId(Field.Id)).IsNone()
+								)
+							),
+							
+							_
+							=> false
+						}
+					)
 				) {
 					if (
 						!aDefConstructor.TryBindMatchedPattern(
@@ -1510,7 +1542,7 @@ mSPO2IL {
 			case mSPO_AST.tFreeIdPatternNode<tPos>:
 			case mSPO_AST.tIdNode<tPos>:
 			case mSPO_AST.tVarPatternNode<tPos>: {
-				var Id = aMatch.TryGetId().AssertNotEmpty();
+				var Id = MapInternalId(aMatch.TryGetId().AssertNotEmpty());
 				var Type = aCaseFunc.TypeState.TryGetValidatedType(aMatch).AssertNotEmpty();
 				
 				aInputReg = aCaseFunc.MapSubinterface(ref aTypeDeclarations, aMatch.Pos, aInputReg, Type);
@@ -1945,6 +1977,7 @@ mSPO2IL {
 				break;
 			}
 			case mSPO_AST.tFreeIdPatternNode<tPos> { Pos: var Pos, Id: var Name }: {
+				Name = MapInternalId(Name);
 				var Type = aDefConstructor.TypeState.TryGetValidatedType(aPatternNode);
 				mAssert.AreNotEquals(Name, "_");
 				aRegId = aDefConstructor.MapSubinterface(ref aTypeDeclarations, Pos, aRegId, Type.AssertNotEmpty());

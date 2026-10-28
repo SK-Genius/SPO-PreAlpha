@@ -1,7 +1,7 @@
 #!dotnet
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include ../../../SPO_CS/src/_GlobalUsings.cs
 #:ref mGUI.cs
 

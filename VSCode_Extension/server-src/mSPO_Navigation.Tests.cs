@@ -1,7 +1,7 @@
 #!dotnet
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property ExperimentalFileBasedProgramEnableTransitiveDirectives = true
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property OutputType = Exe
 #:include _GlobalUsings.cs
 #:include mSPO_Diagnostics.cs
@@ -594,6 +594,26 @@ const tText SourcePath = "navigation-test.spo";
 		ToArray(Reader.Children).Any(Symbol => Symbol.Name == "aValue"),
 		"interface method parameter symbol missing"
 	);
+}
+
+{
+	const tText cCode = """
+	§DEF cSource = { A: 1 }
+	§DEF cValue = 2
+	§DEF cUpdated = { cSource; A: cValue }
+	§EXPORT cUpdated
+	""";
+	foreach (var Name in new[] { "cSource", "cValue" }) {
+		var Use = FindPosition(cCode, Name, 1);
+		var Definition = mSPO_Navigation.GetDefinition(cCode, SourcePath, Use, _ => {});
+		Assert(Definition.IsSome(out var Location), "record update definition missing: " + Name);
+		Assert(
+			mTextStream.Eq(Location.Range.Start, FindPosition(cCode, Name, 0)),
+			"wrong record update definition: " + Name
+		);
+		var References = ToArray(mSPO_Navigation.GetReferences(cCode, SourcePath, Use, true, _ => {}));
+		Assert(References.Length == 2, "record update references missing: " + Name);
+	}
 }
 
 return 0;

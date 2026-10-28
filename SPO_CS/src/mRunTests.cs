@@ -1,6 +1,6 @@
 ﻿#!dotnet
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = Exe
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs

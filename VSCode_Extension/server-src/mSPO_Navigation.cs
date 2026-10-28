@@ -510,9 +510,10 @@ mSPO_Navigation {
 		),
 		mSPO_AST.tPrefixNode<tSpan> Prefix => GetExpressionSymbols(Prefix.Element),
 		mSPO_AST.tRecordNode<tSpan> Record => JoinSymbolStreams(
-			Record.Elements.Map(
-				aElement => GetExpressionSymbols(
-					aElement.Value
+			mStream.Stream(
+				Record.Source.Match(GetExpressionSymbols, () => mStream.Stream<tDocumentSymbol>()),
+				Record.Elements.Map(
+					aElement => GetExpressionSymbols(aElement.Value)
 				)
 			)
 		),
@@ -1174,6 +1175,13 @@ mSPO_Navigation {
 			}
 			
 			case mSPO_AST.tRecordNode<tSpan> Record: {
+				if (
+					Record.Source.IsSome(out var Source) &&
+					TryResolveExpression(Source, aQueryPos, aScope, out aDefinitionSpan)
+				) {
+					return true;
+				}
+				
 				foreach (var Element in Record.Elements) {
 					if (TryResolveExpression(Element.Value, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;

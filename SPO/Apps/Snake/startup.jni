@@ -27,7 +27,6 @@ modules:
 |||List=List
 |||Logic=Logic
 |||Vector2=Vector2
-|||Style=Style
 |Std:
 ||path=../../src/Std.*
 |Math:
@@ -55,5 +54,3 @@ modules:
 ||path=../../Libs/Vector2.*
 ||imports:
 |||Std=Std
-|Style:
-||path=../../Libs/Style.*

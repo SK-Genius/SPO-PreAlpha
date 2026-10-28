@@ -1,6 +1,6 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mArrayList.cs
@@ -217,6 +217,7 @@ mSPO_AST {
 	tRecordNode<tPos> : tExpressionNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public mMaybe.tMaybe<tExpressionNode<tPos>> Source;
 		public mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
 	}
 	
@@ -1587,6 +1588,10 @@ mSPO_AST {
 			case tRecordNode<tPos> Node1: {
 				return (
 					a2 is tRecordNode<tPos> Node2 &&
+					Node1.Source.Match(
+						aSource => Node2.Source.Match(__ => AreEqual(aSource, __), () => false),
+						() => Node2.Source.IsNone()
+					) &&
 					mStream.ZipExtend(
 						Node1.Elements,
 						Node2.Elements
@@ -1863,7 +1868,15 @@ mSPO_AST {
 			tPrefixNode<t> Node => $"({____}#{Node.Prefix} {Node.Element.ToText(____)}{__})",
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
 			tTupleNode<t> Node => $"({Node.Items.Map(aChild => ____ + aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
-			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
+			tRecordNode<t> Node => (
+				"{ " + Node.Source.Match(__ => __.ToText(____) + "; ", () => "") +
+				Node.Elements.Map(
+					aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)
+				).Join(
+					(a1, a2) => a1 + ", " + a2,
+					""
+				) + __ + " }"
+			),
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tSigNode<t> Node => $"§SIG {Node.Contract.ToText(____)} WITH {Node.Head.ToText(____)} IN {Node.Body.ToText(____)}",
 			tInterfaceNode<t> Node => $"§INTERFACE {Node.Contract.ToText(____)} WITH {Node.Object.ToText(____)} IN {Node.Methods.ToText(____)}",

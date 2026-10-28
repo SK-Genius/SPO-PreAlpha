@@ -1,0 +1,6 @@
+§DEF record0Field0 = 100
+§DEF cSource = { A: 1, B: 2 }
+§DEF cFirst = { cSource; B: record0Field0 }
+§DEF cSecond = { cSource; B: 30 }
+§DEF cNested = { cFirst; C: { cSecond; B: 40 } }
+§EXPORT (cSource, cFirst, cSecond, cNested, record0Field0)

@@ -1,6 +1,6 @@
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref Common/mStd.cs
 #:ref Common/mFS.cs
@@ -379,6 +379,7 @@ mSPO_Parser {
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordNode<tSpan>, tError>
 	Record = mParserGen.Seq(
 		SpecialToken("{") +-NLs_Token[0..1],
+		(Expression +-SpecialToken(";") +-NLs_Token[0..1])[0..1],
 		mParserGen.Seq(
 			Id,
 			SpecialToken(":"),
@@ -392,8 +393,8 @@ mSPO_Parser {
 		).Modify((_, aId, _, aExpression) => (Key: aId, Value: aExpression))[0..],
 		-NLs_Token[0..1] +SpecialToken("}")
 	)
-	.Modify((_, aHead, aTail, _) => mStream.Stream(aHead, aTail))
-	.ModifyS(mSPO_AST.Record)
+	.Modify((_, aSource, aHead, aTail, _) => (Source: aSource.TryFirst(), Elements: mStream.Stream(aHead, aTail)))
+	.ModifyS((aSpan, aRecord) => mSPO_AST.Record(aSpan, aRecord.Elements) with { Source = aRecord.Source })
 	.SetName(nameof(Record));
 	
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordPatternNode<tSpan>, tError>

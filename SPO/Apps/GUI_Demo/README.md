@@ -171,11 +171,19 @@ Commit-Text von SDL wird verarbeitet.
 Die Event-Brücke setzt einen 64-Bit-Prozess voraus;
 ihre Struct-Offsets entsprechen dem stabilen SDL3-ABI in [SDL_events.h](https://github.com/libsdl-org/SDL/blob/release-3.2.28/include/SDL3/SDL_events.h).
 
-Im aktuellen Compiler können leere Seeds und gefüllte Ergebnisse von `List.Reduce` eine Union verschiedener Record-Typen ergeben.
-Das direkte Zerlegen dieses Ergebnisses scheitert dann in der IL-Erzeugung.
-Die lokale Funktion `Layout .Items` nimmt einen strukturellen Record mit typisiertem `Items`-Feld entgegen und liest dieses Feld innerhalb dieser Typgrenze.
-`FinishWords` schließt das letzte Wort ab, `FinishWrapping` die letzte Textzeile.
-Die rekursiven Berechnungen und ihre Aggregat-Parameter haben explizite gemeinsame Typen.
+Die Folds und ihre Aggregat-Parameter haben explizite gemeinsame Typen.
+Ihre Ergebnisse können im erzeugten IL trotzdem eine Union verschiedener Record-Typen behalten.
+Beispielsweise scheitert `{Words: §DEF Words, Word: §DEF Word} = SplitText`
+auch mit `SplitText € tSplitWords` noch mit `expected record`.
+`FinishWords`, `FinishWrapping` und der lokale Zugriff `Layout .Items` stellen deshalb
+über ihre typisierten Parameter eine gemeinsame Record-Grenze her.
+Auch `ReplaceWith` setzt eine notwendige Typgrenze:
+Bei `aPanel := Panel .` mit leerem `Children`-Feld erwartet die Zuweisungsinferenz
+derzeit einen Empfänger vom Typ `§VAR` eines Panels mit ausschließlich leerer Kinderliste.
+Der typisierte Parameter `aValue € tPanel` hält die Zuweisung stattdessen beim vollständigen Paneltyp.
+`PanelFor...With...` hält die Event-Auswertung rein.
+Wird ihr Match direkt in `BeginFor...With...` mit seinem veränderlichen Panel-Empfänger verschoben,
+scheitert aktuell bereits die Berechnung von `NextScroll` mit `opaque mutable access is not allowed`.
 
 Match-Zweige werden derzeit als Funktionen übersetzt.
 Ein darin eingefangener `var`-Empfänger würde eine veränderliche Funktions-Closure erzeugen.

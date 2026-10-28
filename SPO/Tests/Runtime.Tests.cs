@@ -1,6 +1,6 @@
 #!dotnet
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = Exe
 #:property PublishAot = false
 #:include ../../SPO_CS/src/_GlobalUsings.cs
@@ -185,8 +185,7 @@ mRuntime_Tests {
 					var Startup = mStartup.Load(StartupPath);
 					var Libraries = Startup.Modules.Where(
 						aModule => aModule.Key is "Std" or "Math" or "Random" or "Char" or "Text" or "List" or
-						"Vector2" or
-						"Style"
+						"Vector2"
 					).Init(
 						_ => {}
 					).ElseThrow();
@@ -456,38 +455,46 @@ mRuntime_Tests {
 					}
 					
 					{
-						var Imports = """
-						§IMPORT {
-							Style: {
-								DefaultStyle: §DEF cDefaultStyle
-								...WithForeground...: §DEF ...WithForeground...
-								...WithBackground...: §DEF ...WithBackground...
-								...WithBlink...: §DEF ...WithBlink...
-								...WithUnderline...: §DEF ...WithUnderline...
-								...WithInverse...: §DEF ...WithInverse...
-							} € [§LOAD "../../Libs/Style.SIG"]
+						const tText cStylePrelude = """
+						§IMPORT {}
+						§DEF cDefaultStyle € [§LOAD "../../Libs/TextStyle.SIG"] = {
+							Foreground: #Gray
+							Background: #Black
+							Blink: §FALSE
+							Underline: §FALSE
+							Inverse: §FALSE
 						}
 						""" +
 						"\n";
 						var Styles = mSPO_Interpreter.Run(
-							Imports +
+							cStylePrelude +
 							"""
 							§EXPORT () => {
-								§DEF cUnderlineStyle = cDefaultStyle .WithUnderline §TRUE
-								§DEF cColored = (cUnderlineStyle .WithForeground (#Green)) .WithBackground (#DarkBlue)
-								§DEF cOldStyle = (cColored .WithBlink §TRUE) .WithInverse §TRUE
-								§DEF cNewStyle = cOldStyle .WithBlink §FALSE
-								§DEF cNoUnderline = cNewStyle .WithUnderline §FALSE
-								§DEF cNoInverse = cNewStyle .WithInverse §FALSE
-								§DEF cRecolored = (cNewStyle .WithForeground (#Red)) .WithBackground (#Yellow)
+								§DEF cUnderlineStyle = { cDefaultStyle; Underline: §TRUE }
+								§DEF cColored = { cUnderlineStyle; Foreground: #Green, Background: #DarkBlue }
+								§DEF cOldStyle = { cColored; Blink: §TRUE, Inverse: §TRUE }
+								§DEF cNewStyle = { cOldStyle; Blink: §FALSE }
+								§DEF cNoUnderline = { cNewStyle; Underline: §FALSE }
+								§DEF cNoInverse = { cNewStyle; Inverse: §FALSE }
+								§DEF cRecolored = { cNewStyle; Foreground: #Red, Background: #Yellow }
 								§DEF Draw = (§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]) : (
 									§DEF aStyle € [§LOAD "../../Libs/TextStyle.SIG"]
 								) {
 									aTerminal : Draw "Bla" At (0, 0) WithStyle aStyle .
 								}
+								§DEF DrawInColor... = (§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]) : (
+									§DEF aColor € [§LOAD "../../Libs/Color.SIG"]
+								) {
+									aTerminal : Draw "x" At (0, 0) WithStyle {
+										cNewStyle;
+										Foreground: aColor
+										Background: aColor
+									} .
+								}
 
 								§RETURN {
 									Draw: Draw
+									DrawInColor...: DrawInColor...
 									DefaultStyle: cDefaultStyle
 									UnderlineStyle: cUnderlineStyle
 									OldStyle: cOldStyle
@@ -499,7 +506,7 @@ mRuntime_Tests {
 							}
 							""",
 							Path,
-							Libraries,
+							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow().Data.Call(mVM_Data.Empty());
 						Styles.Field("Draw").Call(Styles.Field("NewStyle"), aCapability);
@@ -554,7 +561,6 @@ mRuntime_Tests {
 						}
 						
 						var ColorType = mTerminal.LoadSignature("Color");
-						var OperationsStyle = Libraries.Data.Field("Style");
 						foreach (var Color in System.Enum.GetValues<mTerminal.tColor>()) {
 							var Value = mVM_Data.Prefix("_" + Color, mVM_Data.Empty());
 							mAssert.IsTrue(
@@ -563,42 +569,7 @@ mRuntime_Tests {
 									out _
 								)
 							);
-							var Styled = OperationsStyle.Field("...WithForeground...").Call(
-								mVM_Data.Tuple(
-									[
-										Styles.Field(
-											"NewStyle"
-										),
-										Value
-									]
-								)
-							);
-							Styled = OperationsStyle.Field("...WithBackground...").Call(
-								mVM_Data.Tuple(
-									[
-										Styled,
-										Value
-									]
-								)
-							);
-							aCapability.CallMethod(
-								"Draw...At...WithStyle...",
-								mVM_Data.Tuple(
-									[
-										mVM_Data.Pair(
-											mVM_Data.Empty(),
-											mVM_Data.Prefix(
-												"_Char...",
-												mVM_Data.Int(
-													'x'
-												)
-											)
-										),
-										mVM_Data.Tuple([mVM_Data.Int(0), mVM_Data.Int(0)]),
-										Styled
-									]
-								)
-							);
+							Styles.Field("DrawInColor...").Call(Value, aCapability);
 							mAssert.AreEquals(Expected with { Foreground = Color, Background = Color }, LastStyle);
 						}
 						
@@ -653,22 +624,19 @@ mRuntime_Tests {
 						
 						foreach (var Invalid in new[] {
 								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle 3 .",
-								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle (cDefaultStyle .WithForeground 10) .",
+								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle { cDefaultStyle; Foreground: 10 } .",
+								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle { cDefaultStyle; Foreground: #Orange } .",
 								(
-									"aTerminal : Draw \"Bla\" At (0, 0) WithStyle (cDefaultStyle .WithForeground " +
-									"(#Orange ())) ."
+									"aTerminal : Draw \"Bla\" At (0, 0) WithStyle " +
+									"{ cDefaultStyle; Background: (#Black 1) } ."
 								),
-								(
-									"aTerminal : Draw \"Bla\" At (0, 0) WithStyle (cDefaultStyle .WithBackground " +
-									"(#Black 1)) ."
-								),
-								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle (cDefaultStyle .WithBlink 1) ."
+								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle { cDefaultStyle; Blink: 1 } ."
 							}
 						
 						) {
 							mAssert.IsFalse(
 								mSPO_Interpreter.Run(
-									Imports +
+									cStylePrelude +
 									"""
 									§EXPORT (§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]) : () {
 									""" +
@@ -676,7 +644,7 @@ mRuntime_Tests {
 									Invalid +
 									"\n§RETURN ()\n}",
 									Path,
-									Libraries,
+									(mVM_Data.Empty(), mVM_Type.Empty()),
 									_ => {}
 								).Match(out _, out _),
 								Invalid

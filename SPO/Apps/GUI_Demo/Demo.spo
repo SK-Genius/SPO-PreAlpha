@@ -67,9 +67,25 @@
 ) {
 	§DEF Quit = (aEvent §IS #Quit) .Or (aEvent §IS (#Key {Key: #Escape}))
 	§RETURN (aState, §FALSE) IF Quit
+	
 	aSurface : Size => §DEF WindowSize .
+	
 	{Name: §DEF Name, Status: §DEF Status, Alignment: §DEF Alignment, UI: §DEF UI} = aState
-	§VAR Panel := cEmptyPanel, BeginFor aEvent With UI .
+	
+	§DEF cButtonRowStyle = {
+		Axis: #Horizontal
+		Alignment: #Center
+		CrossAlignment: #Center
+		Padding: 2
+		Spacing: 8
+		Color: (24, 30, 37)
+	}
+	
+	§VAR Panel :
+		= cEmptyPanel
+		BeginFor aEvent With UI
+	.
+	
 	Panel :
 		AddText "Immediate UI Demo in SPO (SDL3)" InColor cForeground
 		AddText "TAB / SHIFT+TAB focus, ENTER / SPACE activate, ESC quits" InColor cMuted
@@ -85,14 +101,7 @@
 				aPanel :
 					AddText "User Data" InColor cMuted
 					AddTextInput cNameId WithLabel "Name" Value Name => §DEF NextName
-					AddListWith {
-						Axis: #Horizontal
-						Alignment: #Center
-						CrossAlignment: #Center
-						Padding: 2
-						Spacing: 8
-						Color: (24, 30, 37)
-					} Do (
+					AddListWith cButtonRowStyle Do (
 						(§VAR aPanel) : () {
 							aPanel :
 								AddButton cSaveId WithText "Save" Selected §FALSE => §DEF SaveClicked
@@ -112,51 +121,33 @@
 			}
 		) => (§DEF NextName, §DEF NextStatus)
 	.
+	
 	{Interaction: {Focus: §DEF Focus}} = §TO_VAL Panel
+	
 	Panel :
 		AddText ("Focus: " .FollowedBy (Focus .AsDecimalText)) InColor cMuted
 		AddText "Layout, widgets, focus, editing and word wrapping: SPO" InColor cMuted
 		AddText NextStatus InColor cForeground
-		AddListWith {
-			Axis: #Horizontal
-			Alignment: #Center
-			CrossAlignment: #Center
-			Padding: 0
-			Spacing: 8
-			Color: cBackground
-		} Do (
+		AddListWith { cButtonRowStyle; Padding: 0, Color: cBackground } Do (
 			(§VAR aPanel) : () {
 				aPanel :
 					AddButton cLeftId WithText "Left" Selected (Alignment §IS #Start) => §DEF LeftClicked
+					AddButton cBlockId WithText "Block" Selected (Alignment §IS #SpaceBetween) => §DEF BlockClicked
+					AddButton cCenterId WithText "Center" Selected (Alignment §IS #Center) => §DEF CenterClicked
+					AddButton cRightId WithText "Right" Selected (Alignment §IS #End) => §DEF RightClicked
 				.
-				§DEF AfterLeft = §IF LeftClicked MATCH {
-					§TRUE: #Start
-					§FALSE: Alignment
-				}
-				aPanel : AddButton cBlockId WithText "Block" Selected (
-					AfterLeft §IS #SpaceBetween
-				) => §DEF BlockClicked .
-				§DEF AfterBlock = §IF BlockClicked MATCH {
-					§TRUE: #SpaceBetween
-					§FALSE: AfterLeft
-				}
-				aPanel : AddButton cCenterId WithText "Center" Selected (
-					AfterBlock §IS #Center
-				) => §DEF CenterClicked .
-				§DEF AfterCenter = §IF CenterClicked MATCH {
-					§TRUE: #Center
-					§FALSE: AfterBlock
-				}
-				aPanel : AddButton cRightId WithText "Right" Selected (
-					AfterCenter §IS #End
-				) => §DEF RightClicked .
-				§RETURN §IF RightClicked MATCH {
-					§TRUE: #End
-					§FALSE: AfterCenter
+				
+				§RETURN §IF {
+					LeftClicked: #Start
+					BlockClicked: #SpaceBetween
+					CenterClicked: #Center
+					RightClicked: #End
+					§TRUE: Alignment
 				}
 			}
 		) => §DEF NextAlignment
 	.
+	
 	Panel :
 		AddText "Typography" InColor cForeground
 		AddParagraph cTypographyText WithAlignment NextAlignment InColor cForeground
@@ -173,12 +164,15 @@
 			§DEF Frame
 		)
 	.
+	
 	{Interaction: §DEF NextInteraction} = NextUI
+	
 	aSurface :
 		ClearWith cBackground
 		Draw Frame With NextInteraction
 		SetTitle ("Immediate UI in SPO | Name: " .FollowedBy NextName)
 	.
+	
 	§RETURN ({Name: NextName, Status: NextStatus, Alignment: NextAlignment, UI: NextUI}, §TRUE)
 }
 

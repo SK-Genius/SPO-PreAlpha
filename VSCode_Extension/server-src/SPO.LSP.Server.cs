@@ -1,6 +1,6 @@
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property ExperimentalFileBasedProgramEnableTransitiveDirectives = true
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property OutputType = Exe
 #:property AllowUnsafeBlocks = true
 #:property PublishAot=false

@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/06_01_RecordUpdateSource.SPO:1 ERROR 
+1: §EXPORT { 1; A: 2 }
+ ┌───────────^
+ ├ record update requires a record source

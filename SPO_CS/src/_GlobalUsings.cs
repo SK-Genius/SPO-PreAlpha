@@ -1,14 +1,14 @@
-﻿#:property LangVersion = preview
-#:property TargetFramework = net11.0
+﻿#:property LangVersion = "preview"
+#:property TargetFramework = "net11.0"
 
-#:property DefineConstants = noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN
-#:property InvariantGlobalization = true
-#:property Nullable = enable
-#:property Deterministic = true
-#:property AnalysisLevel = preview-all
-#:property NoWarn = 659,661,8604,8618
-#:property EnableSourceControlManagerQueries = false
-#:property Optimize = true
+#:property DefineConstants = "noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN"
+#:property InvariantGlobalization = "true"
+#:property Nullable = "enable"
+#:property Deterministic = "true"
+#:property AnalysisLevel = "preview-all"
+#:property NoWarn = "659,661,8604,8618"
+#:property EnableSourceControlManagerQueries = "false"
+#:property Optimize = "true"
 
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;

@@ -1,7 +1,7 @@
 #!dotnet
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:property OutputType = Library
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
+#:property OutputType = "Library"
 #:include ../../SPO_CS/src/_GlobalUsings.cs
 #:ref ../../SPO_CS/src/mModule.cs
 #:ref ../../SPO_CS/src/Common/mTreeMap.cs

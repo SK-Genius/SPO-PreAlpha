@@ -1,7 +1,7 @@
-﻿﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+﻿﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property AllowUnsafeBlocks = true
-#:property OutputType = Library
+#:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
 #:ref mFS.cs
 

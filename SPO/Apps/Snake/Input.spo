@@ -1,5 +1,3 @@
-§IMPORT {}
-
 §DEF ActionForEvent... = (
 	§DEF aEvent € [§LOAD "../../Libs/Event.SIG"]
 ) => §IF aEvent MATCH {

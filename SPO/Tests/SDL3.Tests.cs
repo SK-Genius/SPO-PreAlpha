@@ -1,6 +1,6 @@
 #!dotnet
-#:property ExperimentalFileBasedProgramEnableRefDirective = true
-#:property ExperimentalFileBasedProgramEnableIncludeDirective = true
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = Exe
 #:property PublishAot = false
 #:include ../../SPO_CS/src/_GlobalUsings.cs

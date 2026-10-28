@@ -54,12 +54,13 @@ Daher heißen die Größenhinweise im Renderer `cWidthHint` und `cHeightHint`, w
 ```spo
 §DEF NextState = State .After Action
 §DEF NextBody = BodyAfterTailMove .FollowedBy NextHead
-§DEF cFoodStyle = cDefaultStyle .WithForeground #Red §> .WithBlink §TRUE
+§DEF cFoodStyle = { cDefaultStyle; Foreground: #Red, Blink: §TRUE }
 aTerminal : Draw "*" At FoodPosition WithStyle cFoodStyle .
 ```
 
 FollowedBy hängt eine Zelle an eine neue Liste an.
-WithForeground und WithBlink liefern neue Style-Records.
+Record-Updates übernehmen unveränderte Felder und erzeugen neue Style-Records.
+Der Default-Style steht direkt im Renderer.
 Draw nennt Text, Position und Style in einem Aufruf.
 Positionen beginnen bei `(0, 0)` im sichtbaren Fenster;
 die Runtime übernimmt Buffer-Offsets und Clipping.
@@ -87,8 +88,8 @@ Die beiden Richtungen verhindern Kehrtwenden auch bei mehreren Eingaben zwischen
 Die Gegenrichtungen werden direkt als benannte Paare geprüft.
 Der Score wird aus Körperlänge minus Anfangslänge berechnet.
 
-AdvancedState... ist eine lokale Berechnung innerhalb von `...After...`.
-Sie berechnet den nächsten Kopf und entfernt den Schwanz, sofern kein Futter gefressen wird.
+Der `#Advance`-Zweig von `...After...` berechnet den nächsten Kopf
+und entfernt den Schwanz, sofern kein Futter gefressen wird.
 Erst dann erfolgt die Kollisionsprüfung.
 So darf der Kopf die im selben Schritt frei werdende Schwanzzelle betreten.
 
