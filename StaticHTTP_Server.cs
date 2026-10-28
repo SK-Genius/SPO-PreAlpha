@@ -240,7 +240,7 @@ static string GetContentType(string path)
 		".ico" => "image/x-icon",
 		".jpeg" => "image/jpeg",
 		".jpg" => "image/jpeg",
-		".js" => "text/javascript; charset=utf-8",
+		".js" or ".mjs" => "text/javascript; charset=utf-8",
 		".json" => "application/json; charset=utf-8",
 		".map" => "application/json; charset=utf-8",
 		".mp3" => "audio/mpeg",

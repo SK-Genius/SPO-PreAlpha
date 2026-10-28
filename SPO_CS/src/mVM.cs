@@ -104,127 +104,150 @@ mVM {
 	Matches(
 		this mVM_Data.tData aData,
 		mVM_Type.tType aType,
-		mStream.tStream<(tNat64 Data, tNat64 Type)> aVisited = default
+		mTreeMap.tTree<(tNat64 Data, tNat64 Type), tBool> aVisited = default
 	) {
-		if (aData._DataType is mVM_Data.tDataType.Type &&
-			aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
-			return aData.TypeExpressionValue().KindType().SameType(aType);
-		}
-		if (aType.IsFree() || aType.IsAny()) {
-			return true;
-		}
-		if (aVisited.Any(__ => __.Data == aData._DebugId && __.Type == aType.DebugId)) {
-			return true;
-		}
-		if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
-			return Definition.DefType.IsSubType(aType).Match(out _, out _);
-		}
-		
-		aVisited = mStream.Stream((aData._DebugId, aType.DebugId), aVisited);
-		
-		if (
-			aData.IsProc(out var Def, out _) &&
-			Def.DefType.IsProc(out _, out _, out var FuncType) &&
-			aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic
-		) {
-			while (aType.Kind is mVM_Type.tKind.Proc && FuncType.IsGeneric(out _, out var FuncBody)) {
-				FuncType = FuncBody;
+		while (true) {
+			if (aData._DataType is mVM_Data.tDataType.Type &&
+				aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
+				return aData.TypeExpressionValue().KindType().SameType(aType);
 			}
-			// Compiled closures retain symbolic witnesses from opened SIGs. Their
-			// identities are checked statically; runtime matching instantiates the
-			// erased symbols locally against the concrete package signature.
-			var Opened = mStream.Stream<(mVM_Type.tType Symbol, mVM_Type.tType Type)>([]);
-			mVM_Type.tType OpenWitnesses(mVM_Type.tType aValue) {
-				var Constructor = aValue;
-				while (Constructor.Kind is mVM_Type.tKind.TypeApply) {
-					Constructor = Constructor.Refs[0];
+			if (aType.IsFree() || aType.IsAny()) {
+				return true;
+			}
+			if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
+				return Definition.DefType.IsSubType(aType).Match(out _, out _);
+			}
+			// Leaves cannot form cycles. Match them before allocating a visited tree.
+			switch (aType.Kind) {
+				case mVM_Type.tKind.Empty: return aData.IsEmpty();
+				case mVM_Type.tKind.Int: return aData.IsInt(out _);
+				case mVM_Type.tKind.True: return aData.IsBool(out var True) && True;
+				case mVM_Type.tKind.False: return aData.IsBool(out var False) && !False;
+				// Opaque types have no representation to inspect at runtime.
+				case mVM_Type.tKind.Abstract or mVM_Type.tKind.TypeApply: return true;
+			}
+			if (aVisited.Deep() == 0) {
+				aVisited = mTreeMap.Tree<(tNat64 Data, tNat64 Type), tBool>(
+					(aLeft, aRight) => (
+						aLeft.Data != aRight.Data
+						? aLeft.Data.CompareTo(aRight.Data)
+						: aLeft.Type.CompareTo(aRight.Type)
+					),
+					[]
+				);
+			}
+			
+			if (aVisited.TryGet((aData._DebugId, aType.DebugId)).IsSome(out _)) {
+				return true;
+			}
+			aVisited = aVisited.Set((aData._DebugId, aType.DebugId), true);
+			if (
+				aData.IsProc(out var Def, out _) &&
+				Def.DefType.IsProc(out _, out _, out var FuncType) &&
+				aType.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic
+			) {
+				while (aType.Kind is mVM_Type.tKind.Proc && FuncType.IsGeneric(out _, out var FuncBody)) {
+					FuncType = FuncBody;
 				}
-				
-				if (Constructor.Kind is mVM_Type.tKind.Abstract) {
-					if (Opened.Where(__ => __.Symbol.SameType(aValue)).TryFirst().IsSome(out var Existing)) {
-						return Existing.Type;
+				// Compiled closures retain symbolic witnesses from opened SIGs. Their
+				// identities are checked statically; runtime matching instantiates the
+				// erased symbols locally against the concrete package signature.
+				var Opened = mStream.Stream<(mVM_Type.tType Symbol, mVM_Type.tType Type)>([]);
+				mVM_Type.tType OpenWitnesses(mVM_Type.tType aValue) {
+					var Constructor = aValue;
+					while (Constructor.Kind is mVM_Type.tKind.TypeApply) {
+						Constructor = Constructor.Refs[0];
 					}
 					
-					// An application of an opaque constructor is itself an erased type.
-					// Opening only its constructor cannot match a concrete list representation.
-					var Type = mVM_Type.Free(aValue.Id ?? "witness", aValue.KindType());
+					if (Constructor.Kind is mVM_Type.tKind.Abstract) {
+						if (Opened.Where(__ => __.Symbol.SameType(aValue)).TryFirst().IsSome(out var Existing)) {
+							return Existing.Type;
+						}
+						
+						// An application of an opaque constructor is itself an erased type.
+						// Opening only its constructor cannot match a concrete list representation.
+						var Type = mVM_Type.Free(aValue.Id ?? "witness", aValue.KindType());
+						
+						Opened = mStream.Stream((aValue, Type), Opened);
+						
+						return Type;
+					}
 					
-					Opened = mStream.Stream((aValue, Type), Opened);
+					if (aValue.IsRecord(out var Fields)) {
+						return mVM_Type.Record(
+							Fields.ToStream(
+							).Map(
+								__ => (__.Key, OpenWitnesses(__.Value))
+							).ToArrayList(
+							).ToArray()
+						);
+					}
 					
-					return Type;
+					return aValue.Kind is mVM_Type.tKind.Free || aValue.Refs.Length == 0 ? aValue : new() {
+						Kind = aValue.Kind, Id = aValue.Id, Prefix = aValue.Prefix,
+						Refs = mStream.Stream(aValue.Refs).Map(OpenWitnesses).ToArrayList().ToArray()
+					};
 				}
-				
-				if (aValue.IsRecord(out var Fields)) {
-					return mVM_Type.Record(
-						Fields.ToStream(
-						).Map(
-							__ => (__.Key, OpenWitnesses(__.Value))
-						).ToArrayList(
-						).ToArray()
-					);
+				FuncType = OpenWitnesses(FuncType);
+				return FuncType.IsSubType(aType).Match(out _, out _);
+			}
+			if (aType.IsSig(out var Binder, out var SigBody)) {
+				return (
+					aData.IsSig(out var Contract, out var Head, out var Body) &&
+					Contract.IsSubType(aType).Match(out _, out _) &&
+					Head.TypeExpressionValue().KindType().SameType(Binder.KindType()) &&
+					Body.Matches(SigBody.Substitute(Binder, Head.TypeExpressionValue()), aVisited)
+				);
+			} else if (aType.IsSet(out var Type1, out var Type2)) {
+				// Avoid native recursion along recursive snoc lists (text and app state).
+				if (Type1.IsEmpty() || Type2.IsEmpty()) {
+					if (aData.IsEmpty()) {
+						return true;
+					}
+					aType = Type1.IsEmpty() ? Type2 : Type1;
+					continue;
 				}
-				
-				return aValue.Kind is mVM_Type.tKind.Free || aValue.Refs.Length == 0 ? aValue : new() {
-					Kind = aValue.Kind, Id = aValue.Id, Prefix = aValue.Prefix,
-					Refs = mStream.Stream(aValue.Refs).Map(OpenWitnesses).ToArrayList().ToArray()
+				return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
+			} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
+				aType = BodyType.Substitute(HeadType, aType);
+				continue;
+			} else if (aType.IsInterface(out _, out _)) {
+				return aData.IsInterface(out var Contract, out _, out _) && Contract.IsSubType(aType).Match(out _, out _);
+			} else if (aType.IsGeneric(out _, out BodyType)) {
+				aType = BodyType;
+				continue;
+			} else if (aType.IsPair(out var FirstType, out var SecondType)) {
+				if (!aData.IsPair(out var First, out var Second) || !Second.Matches(SecondType, aVisited)) {
+					return false;
+				}
+				aData = First;
+				aType = FirstType;
+				continue;
+			} else {
+				return aType.Kind switch {
+					mVM_Type.tKind.Prefix => (
+						aType.IsPrefix(out var Prefix, out var InnerType) &&
+						aData.IsPrefix(Prefix, out var Inner) &&
+						Inner.Matches(InnerType, aVisited)
+					),
+					mVM_Type.tKind.Record => (
+						aType.IsRecord(out var FieldTypes) &&
+						aData.IsRecord(out var Fields) &&
+						FieldTypes.ToStream().All(
+							__ => (
+								Fields.TryGet(__.Key.PrefixHash()).IsSome(out var Field) &&
+								Field.Matches(__.Value, aVisited)
+							)
+						)
+					),
+					mVM_Type.tKind.Var => (
+						aType.IsVar(out var ValueType) &&
+						aData.IsVar(out var Value) &&
+						Value.Matches(ValueType, aVisited)
+					),
+					_ => false,
 				};
 			}
-			FuncType = OpenWitnesses(FuncType);
-			return FuncType.IsSubType(aType).Match(out _, out _);
-		}
-		if (aType.IsSig(out var Binder, out var SigBody)) {
-			return (
-				aData.IsSig(out var Contract, out var Head, out var Body) &&
-				Contract.IsSubType(aType).Match(out _, out _) &&
-				Head.TypeExpressionValue().KindType().SameType(Binder.KindType()) &&
-				Body.Matches(SigBody.Substitute(Binder, Head.TypeExpressionValue()), aVisited)
-			);
-		} else if (aType.IsSet(out var Type1, out var Type2)) {
-			return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
-		} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
-			return aData.Matches(BodyType.Substitute(HeadType, aType), aVisited);
-		} else if (aType.IsInterface(out _, out _)) {
-			return aData.IsInterface(out var Contract, out _, out _) && Contract.IsSubType(aType).Match(out _, out _);
-		} else if (aType.IsGeneric(out _, out BodyType)) {
-			return aData.Matches(BodyType, aVisited);
-		} else {
-			return aType.Kind switch {
-				mVM_Type.tKind.Empty => aData.IsEmpty(),
-				mVM_Type.tKind.True => aData.IsBool(out var Bool) && Bool,
-				mVM_Type.tKind.False => aData.IsBool(out var Bool) && !Bool,
-				mVM_Type.tKind.Int => aData.IsInt(out _),
-				
-				// An opaque application has no known representation here. The IL checks its
-				// binding and arguments; SIG matching substitutes the concrete head first.
-				mVM_Type.tKind.Abstract or mVM_Type.tKind.TypeApply => true,
-				mVM_Type.tKind.Pair => (
-					aData.IsPair(out var First, out var Second) &&
-					aType.IsPair(out var FirstType, out var SecondType) &&
-					First.Matches(FirstType, aVisited) &&
-					Second.Matches(SecondType, aVisited)
-				),
-				mVM_Type.tKind.Prefix => (
-					aType.IsPrefix(out var Prefix, out var InnerType) &&
-					aData.IsPrefix(Prefix, out var Inner) &&
-					Inner.Matches(InnerType, aVisited)
-				),
-				mVM_Type.tKind.Record => (
-					aType.IsRecord(out var FieldTypes) &&
-					aData.IsRecord(out var Fields) &&
-					FieldTypes.ToStream().All(
-						__ => (
-							Fields.TryGet(__.Key.PrefixHash()).IsSome(out var Field) &&
-							Field.Matches(__.Value, aVisited)
-						)
-					)
-				),
-				mVM_Type.tKind.Var => (
-					aType.IsVar(out var ValueType) &&
-					aData.IsVar(out var Value) &&
-					Value.Matches(ValueType, aVisited)
-				),
-				_ => false,
-			};
 		}
 	}
 	
@@ -736,7 +759,7 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.LoadConstant: {
-				aCallStack._Regs.Push(aCallStack._ProcDef.Constants.TryGet(Arg1).AssertNotEmpty());
+				aCallStack._Regs.Push(aCallStack._ProcDef.Constants[Arg1]);
 				break;
 			}
 			case mVM_Data.tOpCode.NewInterface: {
@@ -775,7 +798,7 @@ mVM {
 			}
 			case mVM_Data.tOpCode.TryAsSig: {
 				var Arg = aCallStack._Regs.Get(Arg1);
-				var Contract = aCallStack._ProcDef.Constants.TryGet(Arg2).AssertNotEmpty().TypeExpressionValue();
+				var Contract = aCallStack._ProcDef.Constants[Arg2].TypeExpressionValue();
 				if (!Arg.Matches(Contract)) {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;

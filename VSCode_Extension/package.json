@@ -2,19 +2,25 @@
 	"name": "spo-lang",
 	"publisher": "local",
 	"displayName": "SPO Language",
-	"description": "Syntax highlighting and language server for SPO.",
+	"description": "Syntax highlighting for SPO and JNI, and language server for SPO.",
 	"version": "0.1.0",
 	"engines": {
-		"vscode": "^1.82.0"
+		"vscode": "^1.98.0"
 	},
 	"activationEvents": [
-		"onLanguage:spo"
+		"onLanguage:spo",
+		"onLanguage:jni"
 	],
 	"main": "./src/extension.js",
+	"scripts": {
+		"test": "node --test test/jni.test.mjs",
+		"test:enter": "code --extensionDevelopmentPath=. --extensionTestsPath=./test/enter.integration.cjs --user-data-dir=../.tmp/jni-enter-vscode-profile --extensions-dir=../.tmp/jni-enter-vscode-extensions --disable-extensions --skip-welcome --skip-release-notes --wait"
+	},
 	"files": [
 		"package.json",
 		"SPO.configuration.json",
 		"SPO.tmLanguage.json",
+		"JNI.configuration.json",
 		"wiki.configuration.json",
 		"wiki.tmLanguage.json",
 		"src/**",
@@ -22,7 +28,25 @@
 		"node_modules/**"
 	],
 	"contributes": {
+		"keybindings": [
+			{
+				"key": "enter",
+				"command": "spo.jniEnter",
+				"when": "editorTextFocus && editorLangId == jni && !editorReadonly && (!suggestWidgetVisible || config.editor.acceptSuggestionOnEnter == 'off')"
+			}
+		],
+		"configurationDefaults": {
+			"[jni]": {
+				"editor.fontLigatures": false
+			}
+		},
 		"languages": [
+			{
+				"id": "jni",
+				"extensions": [".JNI", ".jni"],
+				"aliases": ["JNI", "jni"],
+				"configuration": "./JNI.configuration.json"
+			},
 			{
 				"id": "spo",
 				"extensions": [".SPO", ".spo", ".ILT", ".ilt", ".SIG", ".sig"],

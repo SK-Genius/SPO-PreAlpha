@@ -1,0 +1,32 @@
+# Snake – Startkonfiguration
+runtime=../../Runtime/Terminal/Program.cs
+entry=Snake
+
+modules:
+|# Module auf Ebene 1
+|
+|Snake:
+||path=Snake.*
+||
+||imports:
+|||# Kommentar auf Ebene 3
+|||Std=Std
+|||
+|||Logic=Logic
+||# Kommentar auf Ebene 2
+||options=theme=dark
+||message:
+|||Erste Textzeile auf Ebene 3.
+||# Ebene 2: mitten im Textblock
+|||Zweite Textzeile auf Ebene 3.
+||
+|||
+|# Ebene 1: ebenfalls im Textblock
+|||# bleibt Teil des Klartexts
+# Ebene 0: der Text geht danach weiter
+
+|||weiter=ebenfalls Klartext
+|Render:
+||path=Render.*
+||imports:
+|||Std=Std

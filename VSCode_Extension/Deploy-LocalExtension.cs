@@ -80,7 +80,17 @@ Run(
 			);
 		}
 		
+		if (PathsEqual(targetParentDir, extensionsRootDir)) {
+			var extensionsJsonPath = Path.Combine(extensionsRootDir, "extensions.json");
+			if (File.Exists(extensionsJsonPath)) {
+				// VS Code keys its manifest cache by the extension profile's modification time.
+				// Replacing an installed version's files alone leaves old language registrations cached.
+				File.SetLastWriteTimeUtc(extensionsJsonPath, DateTime.UtcNow);
+			}
+		}
+		
 		Console.WriteLine($"SPO extension installed to \"{targetDir}\"");
+		Console.WriteLine("Reload the VS Code window (Developer: Reload Window) to load the updated extension.");
 		return 0;
 	} catch (Exception exception) {
 		Console.Error.WriteLine(exception);

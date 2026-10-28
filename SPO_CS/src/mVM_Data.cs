@@ -138,8 +138,8 @@ mVM_Data {
 		Types = mArrayList.List<mVM_Type.tType>();
 
 				
-		public mStream.tStream<tData>
-		Constants;
+		public tData[]
+		Constants = [];
 		
 		public readonly mArrayList.tArrayList<tText>
 		TypePrefixes = mArrayList.List<tText>();

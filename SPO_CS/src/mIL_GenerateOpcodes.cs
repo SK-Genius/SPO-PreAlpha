@@ -794,7 +794,7 @@ mIL_GenerateOpcodes {
 			Definitions.Push(Proc);
 		}
 		
-		var Pool = Constants.ToStream();
+		var Pool = Constants.ToArray();
 		foreach (var Definition in mStream.Concat(Definitions.ToStream(), Helpers.ToStream())) {
 			Definition.Constants = Pool;
 		}
