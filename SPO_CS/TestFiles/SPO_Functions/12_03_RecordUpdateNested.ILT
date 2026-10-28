@@ -1,0 +1,64 @@
+§TYPES
+	t_0 := [#_A INT]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [#_B INT]
+	t_3 := [{t_1} + t_2]
+	t_4 := [EMPTY_TYPE, t_3]
+	t_5 := [#_A INT]
+	t_6 := [{EMPTY_TYPE} + t_5]
+	t_7 := [#_B INT]
+	t_8 := [{t_6} + t_7]
+	t_9 := [#_C INT]
+	t_10 := [{t_8} + t_9]
+	t_11 := [t_4, t_10]
+	t_12 := [EMPTY_TYPE => t_11]
+	t_13 := [EMPTY_TYPE => t_12]
+
+§DEF d_0 € t_13
+	r_1 := 1
+	r_2 := +#_A r_1
+	r_3 := {EMPTY} + r_2
+	r_4 := 2
+	r_5 := +#_B r_4
+	r_6 := {r_3} + r_5
+	_Src := r_6
+	r_7 := EMPTY, _Src
+	r_8 := 20
+	r_9 := r_7, r_8
+	r_10 := §2ND r_9
+	record5Value1 := r_10
+	r_11 := §1ST r_9
+	r_12 := §2ND r_11
+	record5Source := r_12
+	r_13 := §1ST r_11
+	§RETURN r_13 IF_NOT_EMPTY
+	r_14 := {record5Source} #_A
+	record5Field0 := r_14
+	r_15 := +#_A record5Field0
+	r_16 := {EMPTY} + r_15
+	r_17 := +#_B record5Value1
+	r_18 := {r_16} + r_17
+	r_19 := EMPTY, r_18
+	r_20 := 30
+	r_21 := r_19, r_20
+	r_22 := §2ND r_21
+	record4Value2 := r_22
+	r_23 := §1ST r_21
+	r_24 := §2ND r_23
+	record4Source := r_24
+	r_25 := §1ST r_23
+	§RETURN r_25 IF_NOT_EMPTY
+	r_26 := {record4Source} #_A
+	record4Field0 := r_26
+	r_27 := {record4Source} #_B
+	record4Field1 := r_27
+	r_28 := +#_A record4Field0
+	r_29 := {EMPTY} + r_28
+	r_30 := +#_B record4Field1
+	r_31 := {r_29} + r_30
+	r_32 := +#_C record4Value2
+	r_33 := {r_31} + r_32
+	_Des := r_33
+	r_34 := EMPTY, _Src
+	r_35 := r_34, _Des
+	§RETURN r_35 IF TRUE

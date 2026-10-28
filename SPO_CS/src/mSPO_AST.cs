@@ -222,6 +222,15 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
+	tRecordUpdateNode<tPos> : tExpressionNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+		public tExpressionNode<tPos> Source = default!;
+		public mStream.tStream<(tIdNode<tPos> Key, tExpressionNode<tPos> Value)> Elements;
+	}
+
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
 	tRecordPatternNode<tPos> : tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
@@ -1600,6 +1609,13 @@ mSPO_AST {
 					)
 				);
 			}
+			case tRecordUpdateNode<tPos> Node1: {
+				return (
+					a2 is tRecordUpdateNode<tPos> Node2 &&
+					AreEqual(Node1.Source, Node2.Source) &&
+					AreEqual(Record(Node1.Pos, Node1.Elements), Record(Node2.Pos, Node2.Elements))
+				);
+			}
 			case tRecordPatternNode<tPos> Node1: {
 				return (
 					a2 is tRecordPatternNode<tPos> Node2 &&
@@ -1864,6 +1880,7 @@ mSPO_AST {
 			tVarToValNode<t> Node => $"({____}({__}§VAR_TO_VAL {Node.Obj.ToText(____)}{__})",
 			tTupleNode<t> Node => $"({Node.Items.Map(aChild => ____ + aChild.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__})",
 			tRecordNode<t> Node => $"{{ {Node.Elements.Map(aChild => ____ + aChild.Key.Id + ": " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")}{__} }}",
+			tRecordUpdateNode<t> Node => $"{{ {Node.Source.ToText(____)}; {Node.Elements.Map(aChild => aChild.Key.Id + " = " + aChild.Value.ToText(____)).Join((a1, a2) => a1 + ", " + a2, "")} }}",
 			tPairNode<t> Node => $"[{____}{Node.Tail.ToText(____)} ; {Node.Head.ToText(____)}{__}]",
 			tSigNode<t> Node => $"§SIG {Node.Contract.ToText(____)} WITH {Node.Head.ToText(____)} IN {Node.Body.ToText(____)}",
 			tInterfaceNode<t> Node => $"§INTERFACE {Node.Contract.ToText(____)} WITH {Node.Object.ToText(____)} IN {Node.Methods.ToText(____)}",

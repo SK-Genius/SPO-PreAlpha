@@ -9,12 +9,88 @@
 #:ref Common/mAssert.cs
 #:ref Common/mResult.cs
 #:ref mSPO_AST.cs
+#:ref mVM_Type.cs
 
 public static class
 mSPO_Desugar {
 	private const tInt32
 	cNoUnnamedArgs = -1;
 	
+	// Field enumeration needs the source type, so this lowering runs during type checking.
+	public static mResult.tResult<mSPO_AST.tBlockNode<tPos>, (tPos Pos, tText ErrorText)>
+	DesugarRecordUpdate<tPos>(
+		this mSPO_AST.tRecordUpdateNode<tPos> aUpdate,
+		mVM_Type.tType aSourceType,
+		tNat32 aId
+	) {
+		if (!aSourceType.IsRecord(out var Fields)) {
+			return mResult.Fail((aUpdate.Source.Pos, "record update requires a record source"));
+		}
+
+		var Seen = mStream.Stream<tText>();
+		foreach (var (Key, _) in aUpdate.Elements) {
+			if (Seen.Any(__ => __ == Key.Id)) {
+				return mResult.Fail((Key.Pos, $"duplicate record update field '{Key.Id}'"));
+			}
+			Seen = mStream.Stream(Key.Id, Seen);
+		}
+
+		var Patterns = mStream.Stream<(mSPO_AST.tIdNode<tPos>, mSPO_AST.tPatternNode<tPos>)>();
+		var Elements = mStream.Stream<(mSPO_AST.tIdNode<tPos> Key, mSPO_AST.tExpressionNode<tPos> Value)>();
+		var Index = 0;
+		foreach (var Field in Fields.ToStream()) {
+			if (Seen.Any(__ => __ == Field.Key)) {
+				continue;
+			}
+			// These names cannot be written as source identifiers, including in nested updates.
+			var Name = $"§record{aId}Field{Index++}";
+			var Key = mSPO_AST.Id(aUpdate.Pos, Field.Key[1..]);
+			Patterns = mStream.Stream((Key, mSPO_AST.FreeIdPattern(aUpdate.Pos, Name)), Patterns);
+			Elements = mStream.Stream((Key, mSPO_AST.Id(aUpdate.Pos, Name)), Elements);
+		}
+
+		var Arguments = mStream.Stream<mSPO_AST.tExpressionNode<tPos>>(aUpdate.Source);
+		var Parameters = mStream.Stream<mSPO_AST.tPatternNode<tPos>>(
+			mSPO_AST.FreeIdPattern(aUpdate.Pos, $"§record{aId}Source")
+		);
+		Elements = Elements.Reverse();
+		foreach (var (Key, Value) in aUpdate.Elements) {
+			var Name = $"§record{aId}Value{Index++}";
+			Arguments = mStream.Concat(Arguments, mStream.Stream(Value));
+			Parameters = mStream.Concat(Parameters, mStream.Stream<mSPO_AST.tPatternNode<tPos>>(mSPO_AST.FreeIdPattern(Key.Pos, Name)));
+			Elements = mStream.Concat(Elements, mStream.Stream((Key, (mSPO_AST.tExpressionNode<tPos>)mSPO_AST.Id(Key.Pos, Name))));
+		}
+
+		var Commands = mStream.Stream<mSPO_AST.tCommandNode<tPos>>();
+		if (!Patterns.IsEmpty()) {
+			Commands = mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
+				mSPO_AST.Def(
+					aUpdate.Pos,
+					mSPO_AST.RecordPattern(aUpdate.Pos, Patterns.Reverse()),
+					mSPO_AST.Id(aUpdate.Pos, $"§record{aId}Source")
+				)
+			);
+		}
+		Commands = mStream.Concat(
+			Commands,
+			mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
+				mSPO_AST.ReturnIf(aUpdate.Pos, mSPO_AST.True(aUpdate.Pos), mSPO_AST.Record(aUpdate.Pos, Elements))
+			)
+		);
+
+		// Bind all inputs once, in source order, before constructing the new record.
+		return mSPO_AST.TuplePattern(aUpdate.Pos, Parameters).DesugarPattern().Then(
+			aHead => mSPO_AST.Block(
+				aUpdate.Pos,
+				mStream.Stream<mSPO_AST.tCommandNode<tPos>>(
+					mSPO_AST.Def(aUpdate.Pos, aHead, mSPO_AST.Tuple(aUpdate.Pos, Arguments)),
+					Commands
+				),
+				aUpdate.TypeAnnotation
+			)
+		);
+	}
+
 	public static mSPO_AST.tTypeNode<tPos>
 	DesugarType<tPos>(
 		this mSPO_AST.tTypeNode<tPos> aType
@@ -400,6 +476,22 @@ mSPO_Desugar {
 			)
 		),
 		
+		mSPO_AST.tRecordUpdateNode<tPos> Node
+		=> Node.Source.DesugarExpression(aNextArgIndex).ThenTry(
+			aSource => DesugarAll(
+				Node.Elements,
+				aSource.NextArgIndex,
+				(aElement, aNext) => aElement.Value.DesugarExpression(aNext).Then(
+					aValue => ((aElement.Key, aValue.Expression), aValue.NextArgIndex)
+				)
+			).Then(
+				__ => (
+					(mSPO_AST.tExpressionNode<tPos>)(Node with { Source = aSource.Expression, Elements = __.Values }),
+					__.NextArgIndex
+				)
+			)
+		),
+
 		mSPO_AST.tRecordNode<tPos> { Pos: var Pos, Elements: var Elements, TypeAnnotation: var Type }
 		=> DesugarAll(
 			Elements,

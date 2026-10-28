@@ -396,6 +396,27 @@ mSPO_Parser {
 	.ModifyS(mSPO_AST.Record)
 	.SetName(nameof(Record));
 	
+	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordUpdateNode<tSpan>, tError>
+	RecordUpdate = mParserGen.Seq(
+		-SpecialToken("{") -NLs_Token[0..1],
+		(PipeExpression | Expression) +-NLs_Token[0..1] +-SpecialToken(";") +-NLs_Token[0..1],
+		mParserGen.Seq(Id, Token("="), PipeExpression | Expression)
+		.Modify((aId, _, aValue) => (Key: aId, Value: aValue)),
+		mParserGen.Seq(
+			-SpecialToken(",") | -NLs_Token,
+			Id,
+			Token("="),
+			PipeExpression | Expression
+		).Modify((_, aId, _, aValue) => (Key: aId, Value: aValue))[0..],
+		-NLs_Token[0..1] -SpecialToken("}")
+	)
+	.ModifyS((aSpan, _, aSource, aHead, aTail, _) => new mSPO_AST.tRecordUpdateNode<tSpan> {
+		Pos = aSpan,
+		Source = aSource,
+		Elements = mStream.Stream(aHead, aTail)
+	})
+	.SetName(nameof(RecordUpdate));
+
 	public static readonly mParserGen.tParser<tPos, tToken, mSPO_AST.tRecordPatternNode<tSpan>, tError>
 	RecordPattern = (
 		mParserGen.Seq(
@@ -1037,6 +1058,7 @@ mSPO_Parser {
 					Pair.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Sig.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Interface.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					RecordUpdate.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Literal.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
@@ -1052,6 +1074,7 @@ mSPO_Parser {
 					Block.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Tuple.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Pair.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
+					RecordUpdate.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					Record.Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					C( PipeExpression | Expression ).Cast<mSPO_AST.tExpressionNode<tSpan>>(),
 					SpecialId('#').ModifyS(

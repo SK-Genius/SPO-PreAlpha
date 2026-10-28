@@ -1,0 +1,2 @@
+§DEF Src = { A: 1 }
+§EXPORT { Src; A = 2, A = 3 }

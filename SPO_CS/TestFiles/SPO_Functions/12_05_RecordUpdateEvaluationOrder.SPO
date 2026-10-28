@@ -1,0 +1,27 @@
+§DEF Build = (§VAR Self € §INT) : () => {
+	§DEF Result = {
+		§IF {
+			§TRUE: {
+				§DEF Before = §TO_VAL Self
+				Self := 7 .
+				§RETURN { A: Before, B: Before }
+			}
+		};
+		A = §TO_VAL Self
+		C = §IF {
+			§TRUE: {
+				§DEF Before = §TO_VAL Self
+				Self := 9 .
+				§RETURN Before
+			}
+		}
+		D = §TO_VAL Self
+	}
+	{ A: §DEF A, B: §DEF B, C: §DEF C, D: §DEF D } = Result
+	§RETURN (A, B, C, D, §TO_VAL Self)
+}
+§VAR Counter :
+	= 0
+	Build => §DEF Result
+.
+§EXPORT Result

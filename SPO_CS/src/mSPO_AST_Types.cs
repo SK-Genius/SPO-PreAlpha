@@ -11,6 +11,7 @@
 #:ref Common/mTreeMap.cs
 #:ref mVM_Type.cs
 #:ref mSPO_AST.cs
+#:ref mSPO_Desugar.cs
 #:ref mIL_TypeChecker.cs
 
 public static class
@@ -18,6 +19,10 @@ mSPO_AST_Types {
 	// Updates share unchanged tree branches; only successful results publish a new snapshot.
 	public sealed record
 	tTypeState<tPos> {
+		public mStream.tStream<(mSPO_AST.tRecordUpdateNode<tPos> Node, mSPO_AST.tBlockNode<tPos> Expression)>
+		RecordUpdates { get; init; }
+		public tNat32 NextRecordUpdateId { get; init; }
+
 		public mTreeMap.tTree<
 			tInt32,
 			mStream.tStream<(mSPO_AST.tNode<tPos> Node, mVM_Type.tType Type)>
@@ -754,6 +759,24 @@ mSPO_AST_Types {
 					aTypeState
 				).Then(
 					__ => (mVM_Type.Prefix(Prefix.Prefix, __.Type), __.State)
+				)
+			),
+			mSPO_AST.tRecordUpdateNode<tPos> Update => Update.Source.UpdateTypes(aScope, aTypeState).ThenTry(
+				aSource => Update.DesugarRecordUpdate(aSource.Type, aSource.State.NextRecordUpdateId).ThenTry(
+					aExpression => aExpression.UpdateTypes(
+						aScope,
+						aSource.State with { NextRecordUpdateId = aSource.State.NextRecordUpdateId + 1 }
+					).Then(
+						__ => (
+							__.Type,
+							__.State with {
+								RecordUpdates = mStream.Stream(
+									(Update, aExpression),
+									__.State.RecordUpdates.Where(aItem => !mStd.RefEq(aItem.Node, Update))
+								)
+							}
+						)
+					)
 				)
 			),
 			mSPO_AST.tRecordNode<tPos> Record => (
