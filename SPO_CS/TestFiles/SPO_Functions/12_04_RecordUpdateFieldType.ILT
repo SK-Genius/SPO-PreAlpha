@@ -1,0 +1,23 @@
+§TYPES
+	t_0 := [#_A TRUE]
+	t_1 := [{EMPTY_TYPE} + t_0]
+	t_2 := [EMPTY_TYPE => t_1]
+	t_3 := [EMPTY_TYPE => t_2]
+
+§DEF d_0 € t_3
+	r_1 := 1
+	r_2 := +#_A r_1
+	r_3 := {EMPTY} + r_2
+	_Src := r_3
+	r_4 := EMPTY, _Src
+	r_5 := r_4, TRUE
+	r_6 := §2ND r_5
+	record0Value0 := r_6
+	r_7 := §1ST r_5
+	r_8 := §2ND r_7
+	record0Source := r_8
+	r_9 := §1ST r_7
+	§RETURN r_9 IF_NOT_EMPTY
+	r_10 := +#_A record0Value0
+	r_11 := {EMPTY} + r_10
+	§RETURN r_11 IF TRUE

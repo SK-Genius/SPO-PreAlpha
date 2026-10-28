@@ -1,0 +1,4 @@
+TestFiles/SPO_Function_Errors/06_02_RecordUpdateDuplicate.SPO:2 ERROR 
+2: §EXPORT { Src; A = 2, A = 3 }
+ ┌───────────────────────^
+ ├ duplicate record update field '_A'
