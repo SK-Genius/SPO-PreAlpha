@@ -1,0 +1,37 @@
+§IMPORT {}
+
+§DEF ActionForEvent... = (
+	§DEF aEvent € [§LOAD "../../Libs/Event.SIG"]
+) => §IF aEvent MATCH {
+	(#Key {IsDown: §TRUE, Key: §DEF Key, IsRepeat: §DEF IsRepeat, Modifiers: {Control: §DEF Control}}): (
+		§IF Key MATCH {
+			#Escape: #Quit
+			(#Character §Q): #Quit
+			(#Character §C): §IF Control MATCH {
+				§TRUE: #Quit
+				§FALSE: #Ignore
+			}
+			(#Character §R): #Restart
+			#Space: §IF IsRepeat MATCH {
+				§TRUE: #Ignore
+				§FALSE: #TogglePause
+			}
+			#ArrowLeft: #Turn #Left
+			(#Character §A): #Turn #Left
+			#ArrowUp: #Turn #Up
+			(#Character §W): #Turn #Up
+			#ArrowRight: #Turn #Right
+			(#Character §D): #Turn #Right
+			#ArrowDown: #Turn #Down
+			(#Character §S): #Turn #Down
+			_: #Ignore
+		}
+	)
+	(#Mouse {PressedButtons: {Left: §TRUE}}): #TogglePause
+	(#Focus §FALSE): #Pause
+	(#Tick _): #Advance
+	_: #Ignore
+}
+
+§DEF cModule € [§LOAD "Input.SIG"] = {ActionForEvent...: ActionForEvent...}
+§EXPORT cModule

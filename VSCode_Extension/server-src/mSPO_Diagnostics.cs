@@ -23,15 +23,19 @@ mSPO_Diagnostics {
 	public static mParserGen.tParser<tPos, tToken, mSPO_AST.tModuleNode<tSpan>, tText>
 	DocumentParser(
 		tText aId
-	) => aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
-		? mSPO_Parser.Signature.ModifyS((aSpan, aType) => mSPO_AST.Module(
-			aSpan,
-			mSPO_AST.Import(aSpan, mSPO_AST.RecordPattern<tSpan>(aSpan, mStd.cEmpty)),
-			mStd.cEmpty,
-			mSPO_AST.Export(aSpan, aType)
-		))
-		: mSPO_Parser.Module;
-
+	) => (
+		aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
+		? mSPO_Parser.Signature.ModifyS(
+			(aSpan, aType) => mSPO_AST.Module(
+				aSpan,
+				mSPO_AST.Import(aSpan, mSPO_AST.RecordPattern<tSpan>(aSpan, mStd.cEmpty)),
+				mStd.cEmpty,
+				mSPO_AST.Export(aSpan, aType)
+			)
+		)
+		: mSPO_Parser.Module
+	);
+	
 	public enum
 	tDiagnosticSeverity {
 		Error = 1,
@@ -69,12 +73,7 @@ mSPO_Diagnostics {
 		tDiagnosticSeverity aSeverity,
 		tText aSource,
 		tText aMessage
-	) => new(
-		aPos,
-		aSeverity,
-		aSource,
-		aMessage
-	);
+	) => new(aPos, aSeverity, aSource, aMessage);
 	
 	private static tPos
 	GetEndPos(
@@ -85,7 +84,12 @@ mSPO_Diagnostics {
 		return mTextStream.Pos(
 			aId,
 			(tNat32)mMath.Max(Lines.Length, 1),
-			(tNat32)(Lines.Length == 0 ? 1 : Lines[^1].Length + 1)
+			(tNat32)(
+				Lines.Length == 0
+				? 1
+				: Lines[^1].Length +
+				1
+			)
 		);
 	}
 	
@@ -94,18 +98,18 @@ mSPO_Diagnostics {
 	NormalizePos(
 		tPos aPos,
 		tPos aFallback
-	) => aPos.Row > 0 && aPos.Col > 0
-		? aPos
-		: aFallback;
+	) => (aPos.Row > 0 && aPos.Col > 0 ? aPos : aFallback);
 	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tSpan
 	NormalizeSpan(
 		tSpan aPos,
 		tPos aFallback
-	) => aPos.Start.Row > 0 && aPos.Start.Col > 0 && aPos.End.Row > 0 && aPos.End.Col > 0
+	) => (
+		aPos.Start.Row > 0 && aPos.Start.Col > 0 && aPos.End.Row > 0 && aPos.End.Col > 0
 		? aPos
-		: mSpan.Span(aFallback);
+		: mSpan.Span(aFallback)
+	);
 	
 	private static mResult.tResult<mStream.tStream<(tSpan Span, tToken Value)>, mStream.tStream<tDiagnostic>>
 	Tokenize(
@@ -115,9 +119,7 @@ mSPO_Diagnostics {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		mTokenizer.tFileContext? aFileContext
 	) {
-		var CharStream = aCode.ToStream(aId).Map(
-			__ => (mSpan.Span(__.Pos), __.Char)
-		);
+		var CharStream = aCode.ToStream(aId).Map(__ => (mSpan.Span(__.Pos), __.Char));
 		var MaybeTokens = mTokenizer.Tokenizer.StartParse(CharStream, aDebugStream);
 		if (!MaybeTokens.Match(out var TokenResult, out var TokenErrors)) {
 			return mResult.Fail(
@@ -164,11 +166,9 @@ mSPO_Diagnostics {
 	) {
 		var MaybeModule = DocumentParser(aFallback.Id).StartParse(aTokens, aDebugStream);
 		if (!MaybeModule.Match(out var ModuleResult, out var ParseErrors)) {
-			var Furthest = ParseErrors.Map(
-				a => a.Pos
-			).Sort(
-				(a, b) => mTextParser.ComparePos(b, a)
-			).TryFirst().ElseUse(aFallback);
+			var Furthest = ParseErrors.Map(a => a.Pos).Sort((a, b) => mTextParser.ComparePos(b, a)).TryFirst().ElseUse(
+				aFallback
+			);
 			return mResult.Fail(
 				ParseErrors.Where(a => mTextParser.ComparePos(a.Pos, Furthest) == 0).Map(
 					aError => {
@@ -183,6 +183,7 @@ mSPO_Diagnostics {
 								Span = mSpan.Span(Token.Span.Start, Pos);
 							}
 						}
+						
 						return Diagnostic(Span, tDiagnosticSeverity.Error, "parser", aError.Message);
 					}
 				)
@@ -203,9 +204,7 @@ mSPO_Diagnostics {
 			);
 		}
 		
-		return mResult.OK(
-			ModuleResult.Result.Value
-		).WithErrorType<mStream.tStream<tDiagnostic>>();
+		return mResult.OK(ModuleResult.Result.Value).WithErrorType<mStream.tStream<tDiagnostic>>();
 	}
 	
 	private static mResult.tResult<mStd.tEmpty, mStream.tStream<tDiagnostic>>
@@ -226,7 +225,6 @@ mSPO_Diagnostics {
 		}
 		
 		var TypeArg = mVM_Type.Free(mVM_Type.Type());
-		
 		var InitScope = mSPO_AST_Types.UpdatePatternTypes(
 			DesugaredModule.Import.Pattern,
 			mStd.cEmpty,
@@ -234,48 +232,37 @@ mSPO_Diagnostics {
 			mStream.Stream(
 				mSPO_AST_Types.ScopeItem(
 					"_=...",
-					mVM_Type.Generic(
-						TypeArg,
-						mVM_Type.Proc(
-							mVM_Type.Var(TypeArg),
-							TypeArg,
-							mVM_Type.Empty()
-						)
-					)
+					mVM_Type.Generic(TypeArg, mVM_Type.Proc(mVM_Type.Var(TypeArg), TypeArg, mVM_Type.Empty()))
 				)
 			),
 			new()
-		).Then(
-			__ => (__.Scope, __.State)
-		);
-		
-		if (!DesugaredModule.Commands.Reduce(
-			InitScope,
-			(aResultScope, aCommand) => aResultScope.ThenTry(
-				aScope => mSPO_AST_Types.UpdateCommandTypes(aCommand, aScope.Scope, aScope.State)
-			)
-		).Match(out var Scope, out var TypeError)) {
-			return mResult.Fail(
-				mStream.Stream(
-					Diagnostic(
-						TypeError.Pos,
-						tDiagnosticSeverity.Error,
-						"types",
-						TypeError.ErrorText
+		).Then(__ => (__.Scope, __.State));
+		if (
+			!DesugaredModule.Commands.Reduce(
+				InitScope,
+				(aResultScope, aCommand) => aResultScope.ThenTry(
+					aScope => mSPO_AST_Types.UpdateCommandTypes(
+						aCommand,
+						aScope.Scope,
+						aScope.State
 					)
 				)
+			).Match(out var Scope, out var TypeError)
+		) {
+			return mResult.Fail(
+				mStream.Stream(Diagnostic(TypeError.Pos, tDiagnosticSeverity.Error, "types", TypeError.ErrorText))
 			);
 		}
 		
-		if (!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope.Scope, Scope.State).Match(out _, out var LoweringError)) {
+		if (
+			!mSPO2IL.MapModule(DesugaredModule, mSpan.Merge, Scope.Scope, Scope.State).Match(
+				out _,
+				out var LoweringError
+			)
+		) {
 			return mResult.Fail(
 				mStream.Stream(
-					Diagnostic(
-						LoweringError.Pos,
-						tDiagnosticSeverity.Error,
-						"lowering",
-						LoweringError.ErrorText
-					)
+					Diagnostic(LoweringError.Pos, tDiagnosticSeverity.Error, "lowering", LoweringError.ErrorText)
 				)
 			);
 		}
@@ -291,21 +278,15 @@ mSPO_Diagnostics {
 		mTokenizer.tFileContext? aFileContext = null
 	) {
 		var Fallback = GetEndPos(aCode, aId);
-		
-		var Result = Tokenize(
-			aCode,
-			aId,
-			Fallback,
-			aDebugStream,
-			aFileContext
-		).ThenTry(
-			aTokens => ParseModule(aTokens, Fallback, aDebugStream)
+		var Result = Tokenize(aCode, aId, Fallback, aDebugStream, aFileContext).ThenTry(
+			aTokens => ParseModule(
+				aTokens,
+				Fallback,
+				aDebugStream
+			)
 		).ThenTry(
 			AnalyzeModule
 		);
-		
-		return Result.Match(out _, out var Diagnostics)
-			? mStd.cEmpty
-			: Diagnostics;
+		return (Result.Match(out _, out var Diagnostics) ? mStd.cEmpty : Diagnostics);
 	}
 }

@@ -10,16 +10,23 @@
 #:include mSPO_Navigation.cs
 #:include SpoLanguageService.cs
 
-
 using System.Text;
 
 Console.InputEncoding = new UTF8Encoding(false);
 Console.OutputEncoding = new UTF8Encoding(false);
-
-var server = new LspServer(
-	Console.OpenStandardInput(),
-	Console.OpenStandardOutput(),
-	new SpoLanguageService()
+var ExitCode = 1;
+// The unoptimized recursive compiler needs more than the Windows main-thread stack.
+var ServerThread = new System.Threading.Thread(
+	() => {
+		var Server = new LspServer(
+			Console.OpenStandardInput(),
+			Console.OpenStandardOutput(),
+			new SpoLanguageService()
+		);
+		ExitCode = Server.Run();
+	},
+	maxStackSize: 32 * 1024 * 1024
 );
-
-return server.Run();
+ServerThread.Start();
+ServerThread.Join();
+return ExitCode;

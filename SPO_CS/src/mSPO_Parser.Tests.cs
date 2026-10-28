@@ -71,22 +71,20 @@ mSPO_Parser_Tests {
 						mAssert.IsTrue(aFile.IsSameFile(File));
 						return "§INT";
 					});
-					foreach (var Source in new[] { "", "Test.SPO", mFS.CWD().GetFile("Test.SPO").Path.ToText(), mFS.CWD().GetFile("Test.SPO").Path.ToUri() }) {
+					foreach (var Source in new[] { "", "Test.SPO", mFS.CWD().GetFile("Test.SPO").Path.ToText() }) {
 						foreach (var Target in new[] { "Signature Tests/Int #1.sig", File.Path.ToText() }) {
 							var Type = mSPO_Parser.Type.TryParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext).ElseThrow();
 							mAssert.IsTrue(Type is mSPO_AST.tIntTypeNode<tSpan>);
-							mAssert.AreEquals(Type.Pos.Start.Id, File.Path.ToUri());
+							mAssert.AreEquals(Type.Pos.Start.Id, File.Path.ToText());
 						}
 					}
 
-					foreach (var Source in new[] { File.Path.ToText(), File.Path.ToUri() }) {
-						foreach (var Target in System.OperatingSystem.IsWindows() ? new[] { "./Int #1.sig", "./INT #1.SIG" } : new[] { "./Int #1.sig" }) {
-							var Result = mSPO_Parser.Type.TryParseText(
-								$"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext
-							);
-							mAssert.IsFalse(Result.Match(out _, out var Error));
-							mAssert.IsTrue(Error.Contains("recursive §LOAD"));
-						}
+					foreach (var Target in System.OperatingSystem.IsWindows() ? new[] { "./Int #1.sig", "./INT #1.SIG" } : new[] { "./Int #1.sig" }) {
+						var Result = mSPO_Parser.Type.TryParseText(
+							$"[§LOAD \"{Target}\"]", File.Path.ToText(), _ => {}, FileContext
+						);
+						mAssert.IsFalse(Result.Match(out _, out var Error));
+						mAssert.IsTrue(Error.Contains("recursive §LOAD"));
 					}
 				}
 			),

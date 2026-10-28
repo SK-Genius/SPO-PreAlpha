@@ -1,0 +1,12 @@
+[<
+	...X: [[§INT, §INT] => §INT]
+	...Y: [[§INT, §INT] => §INT]
+	-...: [[§INT, §INT] => [§INT, §INT]]
+	...+...: [[[§INT, §INT], [§INT, §INT]] => [§INT, §INT]]
+	...-...: [[[§INT, §INT], [§INT, §INT]] => [§INT, §INT]]
+	...*...: [[[§INT, §INT], §INT] => [§INT, §INT]]
+	.../...: [[[§INT, §INT], §INT] => [§INT, §INT]]
+	...==...: [[[§INT, §INT], [§INT, §INT]] => §BOOL]
+	...!=...: [[[§INT, §INT], [§INT, §INT]] => §BOOL]
+	...Dot...: [[[§INT, §INT], [§INT, §INT]] => §INT]
+>]

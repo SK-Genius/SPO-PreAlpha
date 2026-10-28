@@ -1,0 +1,79 @@
+§IMPORT {
+	Std: {
+		...-...: §DEF ...-...
+		...==...: §DEF ...==...
+		...<...: §DEF ...<...
+		...<=...: §DEF ...<=...
+		...And...: §DEF ...And...
+	} € [§LOAD "Std.SIG"]
+}
+
+§DEF Min... = (
+	§DEF aLeft € §INT
+	§DEF aRight € §INT
+) => §IF (aLeft .< aRight) MATCH {
+	§TRUE: aLeft
+	_: aRight
+}
+
+§DEF Max... = (
+	§DEF aLeft € §INT
+	§DEF aRight € §INT
+) => §IF {
+	aRight .< aLeft: aLeft
+	§TRUE: aRight
+}
+
+§DEF ...Clamp... = (
+	§DEF a € §INT
+	(
+		§DEF aMin € §INT
+		§DEF aMax € §INT
+	)
+) => .Min (.Max (aMin, a), aMax)
+
+§DEF Abs... = (
+	§DEF a € §INT
+) => §IF (0 .< a) MATCH {
+	§TRUE: a
+	_: 0 .- a
+}
+
+§DEF Sign... = (
+	§DEF a € §INT
+) => §IF {
+	a .< 0: -1
+	a .== 0: 0
+	§TRUE: 1
+}
+
+§DEF ...<...<... = (
+	§DEF aMin € §INT
+	§DEF aValue € §INT
+	§DEF aMax € §INT
+) => (aMin .< aValue) .And (aValue .< aMax)
+
+§DEF ...<=...<=... = (
+	§DEF aMin € §INT
+	§DEF aValue € §INT
+	§DEF aMax € §INT
+) => (aMin .<= aValue) .And (aValue .<= aMax)
+
+§DEF ...<=...<... = (
+	§DEF aMin € §INT
+	§DEF aValue € §INT
+	§DEF aMax € §INT
+) => (aMin .<= aValue) .And (aValue .< aMax)
+
+§DEF cModule € [§LOAD "Math.SIG"] = {
+	...<...<...: ...<...<...
+	...<=...<=...: ...<=...<=...
+	...<=...<...: ...<=...<...
+	Min...: Min...
+	Max...: Max...
+	...Clamp...: ...Clamp...
+	Abs...: Abs...
+	Sign...: Sign...
+}
+
+§EXPORT cModule

@@ -1,97 +1,126 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = true
+#!dotnet
+#:property ExperimentalFileBasedProgramEnableRefDirective = true
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = true
-#:include ../../SPO_CS/src/_GlobalUsings.cs
-#:ref ../../SPO_CS/src/Common/mAssert.cs
-#:ref ../../SPO_CS/src/Common/mResult.cs
-#:ref ../../SPO_CS/src/Common/mStd.cs
-#:ref ../../SPO_CS/src/Common/mFS.cs
-#:ref ../../SPO_CS/src/Common/mSpan.cs
-#:ref ../../SPO_CS/src/Common/mTextStream.cs
-#:ref ../../SPO_CS/src/mModule.cs
-#:ref ../../SPO_CS/src/mVM.cs
-#:ref ../../SPO_CS/src/mVM_Data.cs
-#:ref ../../SPO_CS/src/mVM_Type.cs
 #:property OutputType = Exe
+#:property PublishAot = false
+#:include ../../SPO_CS/src/_GlobalUsings.cs
+#:ref ../../SPO_CS/src/Common/mJNI.cs
+#:ref ../../SPO_CS/src/Common/mFS.cs
 
 public static class
 mProgram {
-	public static void
+	public static tInt32
 	Main(
 		tText[] aArgs
 	) {
-		var ProjectFile = new System.IO.FileInfo(aArgs.Length > 0 ? aArgs[0] : "src/_.spo");
-		var Folder = ProjectFile.Directory.FullName;
-		var DebugOut = mStd.Action(
-			(mStd.tFunc<tText> a) => {
-				System.Console.Error.WriteLine(a());
-				System.Console.Error.Flush();
-			}
-		);
-		try {
-			var StdLib = mModule.ModuleSetup(
-				mFS.File(mStd.File()).Folder._Path / "Std.ILT", mStd.cEmpty
-			).Init(__ => DebugOut(() => __)).ElseThrow();
-			
-			var Method = mSPO_Interpreter.Run(
-				System.IO.File.ReadAllText(ProjectFile.FullName),
-				ProjectFile.FullName,
-				(
-					mVM_Data.Record(new (tText, mVM_Data.tData)[] {
-						("_StdLib", StdLib.Data),
-						(
-							"_LoadModule...",
-							mVM_Data.ExternProc(
-								(aDef, aObj, aArg, _) => {
-									mAssert.IsTrue(aObj.IsPrefix("IO", out var X));
-									mAssert.IsTrue(X.IsEmpty());
-									
-									var File = "";
-									var RestText = aArg;
-									while (RestText.IsPair(out var Char, out RestText)) {
-										mAssert.IsTrue(Char.IsPrefix("Char", out var Int));
-										mAssert.IsTrue(Int.IsInt(out var Ord));
-										File += (char)Ord;
-									}
-									
-									var Path = System.IO.Path.Combine(Folder, File);
-									return mVM_Data.ExternProc(
-										(aDef2, aObj2, aArg2, aDebugOut) => mSPO_Interpreter.Run(
-											System.IO.File.ReadAllText(Path),
-											Path,
-											(aArg2, mVM_Type.Empty()),
-											aDebugOut
-										).ElseThrow().Data,
-										mVM_Data.Empty()
-									);
-								},
-								mVM_Data.Empty()
-							)
-						)
-					}),
-					mVM_Type.Record(new (tText, mVM_Type.tType)[] {
-						("_StdLib", StdLib.Type),
-						("_LoadModule...", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Empty()))
-					})
-				),
-				DebugOut
-			).ElseThrow();
-			
-			var Result = mVM_Data.Empty();
-			mVM.Run<mSpan.tSpan<mTextStream.tPos>>(
-				Method.Data,
-				mVM_Data.Prefix("IO", mVM_Data.Empty()),
-				mVM_Data.Empty(),
-				Result,
-				a => $"{a.Start.Id}({a.Start.Row}:{a.Start.Col} .. {a.End.Row}:{a.End.Col})",
-				a => {} //DebugOut
+		var Args = mStream.Stream(System.MemoryExtensions.AsSpan(aArgs));
+		if (Args.Any(__ => __ == "--help")) {
+			System.Console.WriteLine(
+				"""
+				SPO [--check] [app-folder | startup.jni]
+				The startup.jni runtime path selects a .cs, .dll or .exe runtime plugin.
+				Options are forwarded to the runtime; --check validates without opening a window.
+				Default app: Apps/Snake/startup.jni
+				"""
 			);
+			return 0;
+		}
+		
+		var Options = Args.Where(__ => __ == "--check");
+		var Paths = Args.Where(__ => __ != "--check");
+		if (Paths.Count() > 1 || Paths.Any(__ => __.StartsWith("--"))) {
+			System.Console.Error.WriteLine("Unknown option or multiple app paths; use --help.");
+			return 1;
+		}
+		
+		try {
+			var StartupFile = mFS.File(
+				Paths.TryFirst().Then(mFS.Path).ElseUse(
+					mFS.File(mStd.File()).Folder._Path / "../Apps/Snake/startup.jni"
+				).ToAbsolute()
+			);
+			if (mFS.Folder(StartupFile.Path).Exists()) {
+				StartupFile = mFS.Folder(StartupFile.Path).GetFile("startup.jni");
+			}
 			
-			mAssert.IsTrue(Result.IsBool(out var IsOK));
-			mAssert.IsTrue(IsOK);
-			DebugOut(() => "OK");
-		} catch (mError.tError Error) {
-			DebugOut(() => Error.Message);
-			System.Environment.Exit(-1);
+			if (
+				!StartupFile.TryReadText().ThenTry(
+					aText => mJNI.TryParseTree(
+						mJNI.ToLines(aText, 0),
+						StartupFile.Path.ToText()
+					)
+				).Match(
+					out var Startup,
+					out var ParseError
+				)
+			) {
+				System.Console.Error.WriteLine(ParseError);
+				return 1;
+			}
+			
+			if (
+				!Startup.TryGet("runtime").Then(mJNI.ToText).IsSome(out var RuntimePath) ||
+				tText.IsNullOrWhiteSpace(RuntimePath)
+			) {
+				throw new System.FormatException("Startup requires a nonempty 'runtime' plugin path.");
+			}
+			
+			var Folder = StartupFile.Folder;
+			var RuntimeFile = Folder.GetFile(RuntimePath.Trim());
+			var Launcher = mFS.File(typeof(mProgram).Assembly.Location);
+			if (
+				mStream.Stream(
+					mFS.File(mStd.File()),
+					Launcher,
+					Launcher.Folder.GetFile(Launcher.NameWithoutExtension + ".exe")
+				).Any(aFile => RuntimeFile.IsSameFile(aFile))
+			) {
+				throw new System.FormatException("The runtime must be a plugin, not the launcher itself.");
+			}
+			
+			if (!RuntimeFile.Exists()) {
+				System.Console.Error.WriteLine("Runtime plugin was not found: " + RuntimeFile.Path.ToText());
+				return 1;
+			}
+			
+			var Extension = RuntimeFile.Extension.ToLowerInvariant();
+			if (Extension is not ("cs" or "dll" or "exe")) {
+				throw new System.FormatException(
+					"Runtime plugins must be .cs, .dll or .exe files: " +
+					RuntimeFile.Path
+				);
+			}
+			
+			var Start = new System.Diagnostics.ProcessStartInfo {
+				FileName = (
+					Extension == "exe"
+					? RuntimeFile.Path.ToText()
+					: System.Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet"
+				),
+				WorkingDirectory = Folder._Path.ToText(),
+				UseShellExecute = false
+			};
+			if (Extension != "exe") {
+				Start.ArgumentList.Add(RuntimeFile.Path.ToText());
+				if (Extension == "cs") {
+					Start.ArgumentList.Add("--");
+				}
+			}
+			
+			Start.ArgumentList.Add(StartupFile.Path.ToText());
+			foreach (var Option in Options) {
+				Start.ArgumentList.Add(Option);
+			}
+			
+			using var Runtime = System.Diagnostics.Process.Start(Start) ?? throw new System.InvalidOperationException(
+				"Runtime plugin could not be started: " +
+				RuntimeFile.Path
+			);
+			Runtime.WaitForExit();
+			return Runtime.ExitCode;
+		} catch (System.Exception Error) {
+			System.Console.Error.WriteLine(Error.Message);
+			return 1;
 		}
 	}
 }

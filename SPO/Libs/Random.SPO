@@ -1,0 +1,36 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...*...: §DEF ...*...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...<...: §DEF ...<...
+	} € [§LOAD "Std.SIG"]
+}
+
+§DEF cModulus = 2147483647
+§DEF cMultiplier = 16807
+§DEF cStateCount = cModulus .- 1
+§DEF cQuotient = cModulus ./ cMultiplier
+§DEF cRemainder = cModulus .% cMultiplier
+
+§DEF ...NextRandom = (
+	§DEF aState € §INT
+) => {
+	§DEF SeedRemainder = aState .% cStateCount
+	§DEF Seed = §IF (0 .< SeedRemainder) MATCH {
+		§TRUE: SeedRemainder
+		§FALSE: SeedRemainder .+ cStateCount
+	}
+	§DEF Candidate = (cMultiplier .* (Seed .% cQuotient)) .- (cRemainder .* (Seed ./ cQuotient))
+	§RETURN §IF (0 .< Candidate) MATCH {
+		§TRUE: Candidate
+		§FALSE: Candidate .+ cModulus
+	}
+}
+
+§DEF cModule € [§LOAD "Random.SIG"] = {
+	...NextRandom: ...NextRandom
+}
+§EXPORT cModule

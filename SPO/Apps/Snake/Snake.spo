@@ -1,0 +1,56 @@
+§IMPORT {
+	Std: {
+		Not...: §DEF Not...
+		...And...: §DEF ...And...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Logic: {
+		InitialState: §DEF cInitialState
+		...After...: §DEF ...After...
+	} € [§LOAD "Logic.SIG"]
+	Input: {
+		ActionForEvent...: §DEF ActionForEvent...
+	} € [§LOAD "Input.SIG"]
+	Render: {
+		DrawGame...: §DEF DrawGame...
+		...CanFitSnake: §DEF ...CanFitSnake
+	} € [§LOAD "Render.SIG"]
+}
+
+§DEF tGameState = [§LOAD "State.SIG"]
+
+§DEF Frame... = (
+	§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+) : (
+	§DEF aState € tGameState
+	§DEF aEvent € [§LOAD "../../Libs/Event.SIG"]
+) {
+	§DEF Result € [tGameState, §BOOL] = §IF aEvent MATCH {
+		(#Resize _): {
+			aTerminal : Clear .
+			§RETURN (aState, §TRUE)
+		}
+		_: {
+			aTerminal : Size => §DEF WindowSize .
+			§DEF Action = .ActionForEvent aEvent
+			§DEF WaitForResize = (
+				Action §IS #Advance
+			) .And (.Not (WindowSize .CanFitSnake))
+			§DEF NextState = §IF WaitForResize MATCH {
+				§TRUE: aState
+				§FALSE: aState .After Action
+			}
+			§DEF ContinueRunning = .Not (Action §IS #Quit)
+			§RETURN (NextState, ContinueRunning)
+		}
+	}
+	(§DEF NextState, _) = Result
+	aTerminal : DrawGame NextState .
+	§RETURN Result
+}
+
+
+§EXPORT §SIG [§LOAD "../../Libs/App.SIG"] WITH tGameState IN {
+	Initial: cInitialState
+	Frame...: Frame...
+	TickMilliseconds: 140
+}

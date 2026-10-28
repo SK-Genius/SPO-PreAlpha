@@ -1,0 +1,193 @@
+§IMPORT {
+	Std: {
+		...Or...: §DEF ...Or...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Text: {
+		...FollowedBy...: §DEF ...FollowedBy...
+		...AsDecimalText: §DEF ...AsDecimalText
+		...Trim: §DEF ...Trim
+	} € [§LOAD "../../Libs/Text.SIG"]
+	List: §SIG [§LOAD "../../Libs/List.SIG"] WITH [§LOAD "../../Libs/ListType.SIG"] IN {
+		...Reduce...: §DEF ...Reduce...
+	}
+	GUI: {
+		Initial: §DEF cInitialUI
+		EmptyPanel: §DEF cEmptyPanel
+		BeginFor...With...: §DEF BeginFor...With...
+		AddText...InColor...: §DEF AddText...InColor...
+		AddParagraph...WithAlignment...InColor...: §DEF AddParagraph...WithAlignment...InColor...
+		AddButton...WithText...Selected...: §DEF AddButton...WithText...Selected...
+		AddTextInput...WithLabel...Value...: §DEF AddTextInput...WithLabel...Value...
+		AddListWith...Do...: §DEF AddListWith...Do...
+		FinishWith...In...: §DEF FinishWith...In...
+		Draw...With...: §DEF Draw...With...
+	} € [§LOAD "../../Libs/GUI/GUI.SIG"]
+}
+
+§DEF tState = [§LOAD "State.SIG"]
+§DEF cForeground = (233, 238, 244)
+§DEF cMuted = (153, 169, 183)
+§DEF cBackground = (17, 21, 26)
+§DEF cNameId = 1
+§DEF cSaveId = 2
+§DEF cLeftId = 3
+§DEF cBlockId = 4
+§DEF cCenterId = 5
+§DEF cRightId = 6
+
+§DEF JoinText... = (§DEF aParts € [.([§LOAD "../../Libs/ListType.SIG"]) §TEXT]) => aParts .Reduce (
+	""
+	(§DEF aText € §TEXT, §DEF aPart € §TEXT) => aText .FollowedBy aPart
+)
+
+§DEF cTypographyText = .JoinText (
+	"Typography is the art and technique of arranging type "
+	"to make written language legible, readable and appealing "
+	"when displayed. The arrangement of type involves selecting "
+	"typefaces, point sizes, line lengths, line spacing, "
+	"letter spacing, and spaces between pairs of letters. "
+	"Type design is a closely related craft."
+)
+
+§DEF cDesignersText = .JoinText (
+	"Typography is also the work of graphic designers, "
+	"art directors, comic book artists, and anyone who arranges "
+	"words, letters, numbers, and symbols for publication, "
+	"display, or distribution. Personal computers opened up "
+	"typography to new generations of designers and lay users. "
+	"Resize the window to reflow this text. Use the mouse wheel "
+	"when the content exceeds the window."
+)
+
+§DEF Frame... = (
+	§DEF aSurface € [§LOAD "../../Libs/GUI/Surface.SIG"]
+) : (
+	§DEF aState € tState
+	§DEF aEvent € [§LOAD "../../Libs/GUI/Event.SIG"]
+) {
+	§DEF Quit = (aEvent §IS #Quit) .Or (aEvent §IS (#Key {Key: #Escape}))
+	§RETURN (aState, §FALSE) IF Quit
+	aSurface : Size => §DEF WindowSize .
+	{Name: §DEF Name, Status: §DEF Status, Alignment: §DEF Alignment, UI: §DEF UI} = aState
+	§VAR Panel := cEmptyPanel, BeginFor aEvent With UI .
+	Panel :
+		AddText "Immediate UI Demo in SPO (SDL3)" InColor cForeground
+		AddText "TAB / SHIFT+TAB focus, ENTER / SPACE activate, ESC quits" InColor cMuted
+		AddListWith {
+			Axis: #Vertical
+			Alignment: #Start
+			CrossAlignment: #Stretch
+			Padding: 12
+			Spacing: 8
+			Color: (0, 0, 0)
+		} Do (
+			(§VAR aPanel) : () {
+				aPanel :
+					AddText "User Data" InColor cMuted
+					AddTextInput cNameId WithLabel "Name" Value Name => §DEF NextName
+					AddListWith {
+						Axis: #Horizontal
+						Alignment: #Center
+						CrossAlignment: #Center
+						Padding: 2
+						Spacing: 8
+						Color: (24, 30, 37)
+					} Do (
+						(§VAR aPanel) : () {
+							aPanel :
+								AddButton cSaveId WithText "Save" Selected §FALSE => §DEF SaveClicked
+								AddText "Press Save to commit" InColor cMuted
+							.
+							§RETURN §IF SaveClicked MATCH {
+								§FALSE: Status
+								§TRUE: §IF (NextName .Trim) MATCH {
+									(): "Saved empty value"
+									_: "Saved: " .FollowedBy NextName
+								}
+							}
+						}
+					) => §DEF NextStatus
+				.
+				§RETURN (NextName, NextStatus)
+			}
+		) => (§DEF NextName, §DEF NextStatus)
+	.
+	{Interaction: {Focus: §DEF Focus}} = §TO_VAL Panel
+	Panel :
+		AddText ("Focus: " .FollowedBy (Focus .AsDecimalText)) InColor cMuted
+		AddText "Layout, widgets, focus, editing and word wrapping: SPO" InColor cMuted
+		AddText NextStatus InColor cForeground
+		AddListWith {
+			Axis: #Horizontal
+			Alignment: #Center
+			CrossAlignment: #Center
+			Padding: 0
+			Spacing: 8
+			Color: cBackground
+		} Do (
+			(§VAR aPanel) : () {
+				aPanel :
+					AddButton cLeftId WithText "Left" Selected (Alignment §IS #Start) => §DEF LeftClicked
+				.
+				§DEF AfterLeft = §IF LeftClicked MATCH {
+					§TRUE: #Start
+					§FALSE: Alignment
+				}
+				aPanel : AddButton cBlockId WithText "Block" Selected (
+					AfterLeft §IS #SpaceBetween
+				) => §DEF BlockClicked .
+				§DEF AfterBlock = §IF BlockClicked MATCH {
+					§TRUE: #SpaceBetween
+					§FALSE: AfterLeft
+				}
+				aPanel : AddButton cCenterId WithText "Center" Selected (
+					AfterBlock §IS #Center
+				) => §DEF CenterClicked .
+				§DEF AfterCenter = §IF CenterClicked MATCH {
+					§TRUE: #Center
+					§FALSE: AfterBlock
+				}
+				aPanel : AddButton cRightId WithText "Right" Selected (
+					AfterCenter §IS #End
+				) => §DEF RightClicked .
+				§RETURN §IF RightClicked MATCH {
+					§TRUE: #End
+					§FALSE: AfterCenter
+				}
+			}
+		) => §DEF NextAlignment
+	.
+	Panel :
+		AddText "Typography" InColor cForeground
+		AddParagraph cTypographyText WithAlignment NextAlignment InColor cForeground
+		AddParagraph cDesignersText WithAlignment NextAlignment InColor cForeground
+		FinishWith {
+			Axis: #Vertical
+			Alignment: #SpaceEvenly
+			CrossAlignment: #Stretch
+			Padding: 24
+			Spacing: 12
+			Color: cBackground
+		} In WindowSize => (
+			§DEF NextUI
+			§DEF Frame
+		)
+	.
+	{Interaction: §DEF NextInteraction} = NextUI
+	aSurface :
+		ClearWith cBackground
+		Draw Frame With NextInteraction
+		SetTitle ("Immediate UI in SPO | Name: " .FollowedBy NextName)
+	.
+	§RETURN ({Name: NextName, Status: NextStatus, Alignment: NextAlignment, UI: NextUI}, §TRUE)
+}
+
+§EXPORT §SIG [§LOAD "../../Libs/GUI/App.SIG"] WITH tState IN {
+	Initial: {
+		Name: ""
+		Status: "Click the text field and type. TAB switches focus."
+		Alignment: #SpaceBetween
+		UI: cInitialUI
+	}
+	Frame...: Frame...
+}

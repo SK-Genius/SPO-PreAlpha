@@ -1,0 +1,172 @@
+§IMPORT {
+	Std: {
+		Not...: §DEF Not...
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...<=...: §DEF ...<=...
+		...And...: §DEF ...And...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Text: {
+		...Length: §DEF ...Length
+		...FollowedBy...: §DEF ...FollowedBy...
+		...Repeated...: §DEF ...Repeated...
+		...AsDecimalText: §DEF ...AsDecimalText
+	} € [§LOAD "../../Libs/Text.SIG"]
+	List: §SIG [§LOAD "../../Libs/List.SIG"] WITH [§LOAD "../../Libs/ListType.SIG"] IN {
+		...Count: §DEF ...Count
+		...TrySplitLast: §DEF ...TrySplitLast
+	}
+	Logic: {
+		BoardSize: (§DEF cBoardWidth, §DEF cBoardHeight)
+		InitialSnakeLength: §DEF cInitialSnakeLength
+	} € [§LOAD "Logic.SIG"]
+	Vector2: {
+		...+...: §DEF ..._+_...
+	} € [§LOAD "../../Libs/Vector2.SIG"]
+	Style: {
+		DefaultStyle: §DEF cDefaultStyle
+		...WithBlink...: §DEF ...WithBlink...
+	} € [§LOAD "../../Libs/Style.SIG"]
+}
+
+§DEF cScoreRow = 1
+§DEF cBoardTop = 3
+§DEF cBorderThickness = 1
+§DEF cBoardPosition = (0, cBoardTop)
+§DEF cHelpRow = cBoardTop .+ cBoardHeight §> .+ cBorderThickness §> .+ cBorderThickness §> .+ 1
+§DEF cHelpText = "Arrows/WASD: move | Space/click: pause | R: restart | Esc/Q: quit"
+§DEF cScoreLabel = "Score: "
+§DEF cHorizontalBorder = "+" .FollowedBy ("-" .Repeated cBoardWidth) §> .FollowedBy "+"
+§DEF cEmptyBoardRow = "|" .FollowedBy (" " .Repeated cBoardWidth) §> .FollowedBy "|"
+§DEF cGreenStyle = {
+	Foreground: #Green
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+§DEF cScoreStyle = {
+	Foreground: #Yellow
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+§DEF cBorderStyle = {
+	Foreground: #DarkGray
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+§DEF cFoodStyle = {
+	Foreground: #Red
+	Background: #Black
+	Blink: §TRUE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+§DEF cBodyStyle = {
+	Foreground: #DarkGreen
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+
+§DEF ...CanFitSnake = (
+	§DEF aWindowSize € [§LOAD "../../Libs/Size.SIG"]
+) => {
+	{Width: §DEF Width, Height: §DEF Height} = aWindowSize
+	§RETURN ((cHelpText .Length) .<= Width) .And ((cHelpRow .+ 1) .<= Height)
+}
+
+§DEF DrawGame... = (
+	§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+) : (
+	§DEF aState € [§LOAD "State.SIG"]
+) {
+	§RECURSIVE {
+		§DEF DrawBoardRowsFrom... = (
+			§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+		) : (
+			§DEF aRow € §INT
+		) {
+			§RETURN () IF .Not (aRow .<= cBoardHeight)
+			aTerminal :
+				Draw cEmptyBoardRow At (cBoardPosition ._+_ (0, aRow)) WithStyle cBorderStyle
+				DrawBoardRowsFrom (aRow .+ 1)
+			.
+		}
+	}
+	
+	§RECURSIVE {
+		§DEF DrawBody... = (
+			§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+		) : (
+			§DEF aSegments € [§LOAD "SnakeBody.SIG"]
+		) {
+			§RETURN §IF (aSegments .TrySplitLast) MATCH {
+				(): ()
+				(§DEF Remaining, §DEF Position): {
+					aTerminal :
+						Draw "o" At (cBoardPosition ._+_ Position) WithStyle cBodyStyle
+						DrawBody Remaining
+					.
+					§RETURN ()
+				}
+			}
+		}
+	}
+	
+	{SnakeBody: §DEF SnakeBody, FoodPosition: §DEF FoodPosition, Phase: §DEF Phase} = aState
+	aTerminal : Size => §DEF WindowSize, HideCursor .
+	§RETURN §IF (WindowSize .CanFitSnake) MATCH {
+		§FALSE: {
+			§DEF cWidthHint = "Resize to at least " .FollowedBy ((cHelpText .Length) .AsDecimalText)
+			§DEF cHeightHint = " x " .FollowedBy ((cHelpRow .+ 1) .AsDecimalText)
+			aTerminal : Draw (cWidthHint .FollowedBy cHeightHint) At (0, 0) WithStyle cGreenStyle .
+			§RETURN ()
+		}
+		§TRUE: {
+			§DEF ScoreText = ((SnakeBody .Count) .- cInitialSnakeLength) .AsDecimalText
+			§DEF StatusText = §IF Phase MATCH {
+				#Playing: "Playing"
+				#Paused: "Paused"
+				#GameOver: "Game over - R"
+				#Won: "You won! - R"
+			}
+			§DEF StatusStyle = cScoreStyle .WithBlink (.Not (Phase §IS #Playing))
+			§DEF StatusColumn = (cScoreLabel .Length) .+ (ScoreText .Length) §> .+ 2
+			{Width: §DEF WindowWidth} = WindowSize
+			
+			aTerminal :
+				Draw "SNAKE in SPO" At (0, 0) WithStyle cGreenStyle
+				Draw (" " .Repeated WindowWidth) At (0, cScoreRow) WithStyle cDefaultStyle
+				Draw cScoreLabel At (0, cScoreRow) WithStyle cDefaultStyle
+				Draw ScoreText At (cScoreLabel .Length, cScoreRow) WithStyle cScoreStyle
+				Draw StatusText At (StatusColumn, cScoreRow) WithStyle StatusStyle
+				Draw cHorizontalBorder At cBoardPosition WithStyle cBorderStyle
+				Draw cHorizontalBorder At (0, cBoardTop .+ cBoardHeight §> .+ cBorderThickness) WithStyle cBorderStyle
+				DrawBoardRowsFrom cBorderThickness
+				Draw "*" At (cBoardPosition ._+_ FoodPosition) WithStyle cFoodStyle
+				Draw cHelpText At (0, cHelpRow) WithStyle cDefaultStyle
+			.
+			§RETURN §IF (SnakeBody .TrySplitLast) MATCH {
+				(): ()
+				(§DEF Body, §DEF Head): {
+					aTerminal :
+						DrawBody Body
+						Draw "@" At (cBoardPosition ._+_ Head) WithStyle cGreenStyle
+					.
+					§RETURN ()
+				}
+			}
+		}
+	}
+}
+
+§EXPORT {
+	DrawGame...: DrawGame...
+	...CanFitSnake: ...CanFitSnake
+}

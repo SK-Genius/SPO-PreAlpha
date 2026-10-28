@@ -1,0 +1,62 @@
+§IMPORT {
+	Std: {...+...: §DEF ...+...} € [§LOAD "../Libs/Std.SIG"]
+	GUI: {
+		Initial: §DEF cInitial
+		EmptyPanel: §DEF cEmptyPanel
+		BeginFor...With...: §DEF BeginFor...With...
+		AddButton...WithText...Selected...: §DEF AddButton...WithText...Selected...
+		AddListWith...Do...: §DEF AddListWith...Do...
+		AddListWith...DoWithContext...: §DEF AddListWith...DoWithContext...
+		FinishWith...In...: §DEF FinishWith...In...
+	} € [§LOAD "../Libs/GUI/GUI.SIG"]
+}
+§DEF cStyle = {
+	Axis: #Vertical
+	Alignment: #Start
+	CrossAlignment: #Stretch
+	Padding: 0
+	Spacing: 0
+	Color: (0, 0, 0)
+}
+§DEF Increment = (§VAR aValue € §INT) : () {
+	aValue := ((§TO_VAL aValue) .+ 1) .
+}
+§EXPORT () => {
+	§VAR Panel := cEmptyPanel, BeginFor (#Redraw) With cInitial .
+	§VAR Count := 0 .
+	§VAR Other := 7 .
+	Panel : AddButton 21 WithText "Before" Selected §FALSE .
+	(Panel, (Count, Other)) : AddListWith cStyle DoWithContext (
+		(§VAR aPanel, (§VAR aCount, §VAR aOther)) : () {
+			aCount : Increment .
+			aPanel : AddButton 22 WithText "Outer" Selected §FALSE .
+			(aPanel, aCount) : AddListWith cStyle DoWithContext (
+				(§VAR aPanel, §VAR aCount) : () {
+					aCount : Increment .
+					aPanel : AddButton 23 WithText "Inner" Selected §FALSE .
+					§RETURN 42 IF §TRUE
+					aCount := 99 .
+					§RETURN 0
+				}
+			) => §DEF Number .
+			aPanel : AddListWith cStyle Do (
+				(§VAR aPanel) : () {
+					aPanel : AddButton 24 WithText "Plain" Selected §FALSE .
+					§RETURN "plain"
+				}
+			) => §DEF Text .
+			aOther := 91 .
+			§RETURN {Number: Number, Text: Text}
+		}
+	) => §DEF Outcome .
+	Panel :
+		AddListWith cStyle Do (
+			(§VAR aPanel) : () {
+				aPanel : AddButton 25 WithText "Void" Selected §FALSE .
+			}
+		)
+		AddButton 26 WithText "After" Selected §FALSE
+		FinishWith cStyle In {Width: 300, Height: 400} => (§DEF UI, _)
+	.
+	§RETURN {Outcome: Outcome, Count: §TO_VAL Count, Other: §TO_VAL Other, UI: UI}
+}

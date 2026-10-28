@@ -46,9 +46,6 @@ mE2E_Tests {
 					var Prefix = mFS.CWD()._Path.ToText().TrimEnd('/', '\\') + "/";
 					
 					return aError.Replace(
-						new System.Uri(Prefix).AbsoluteUri,
-						""
-					).Replace(
 						Prefix,
 						""
 					).Replace(

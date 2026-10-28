@@ -8,7 +8,6 @@ LspServer {
 	private readonly Stream Output;
 	private readonly SpoLanguageService LanguageService;
 	private readonly Dictionary<tText, tText> Documents = [];
-	
 	private tBool ShutdownRequested;
 	
 	public
@@ -23,8 +22,7 @@ LspServer {
 	}
 	
 	public tInt32
-	Run(
-	) {
+	Run() {
 		try {
 			while (true) {
 				var payload = this.ReadMessage();
@@ -49,10 +47,7 @@ LspServer {
 	) {
 		var hasId = message.TryGetProperty("id", out var idProperty);
 		var id = hasId ? idProperty.Clone() : default;
-		var method = message.TryGetProperty("method", out var methodProperty)
-			? methodProperty.GetString()
-			: null;
-		
+		var method = (message.TryGetProperty("method", out var methodProperty) ? methodProperty.GetString() : null);
 		switch (method) {
 			case "initialize": {
 				this.WriteResult(
@@ -83,63 +78,79 @@ LspServer {
 				);
 				return false;
 			}
+			
 			case "initialized": {
 				return false;
 			}
+			
 			case "shutdown": {
 				this.ShutdownRequested = true;
 				this.WriteResult(id, writeResult: null);
 				return false;
 			}
+			
 			case "exit": {
 				return true;
 			}
+			
 			case "textDocument/didOpen": {
 				this.HandleDidOpen(message);
 				return false;
 			}
+			
 			case "textDocument/didChange": {
 				this.HandleDidChange(message);
 				return false;
 			}
+			
 			case "textDocument/didClose": {
 				this.HandleDidClose(message);
 				return false;
 			}
+			
 			case "textDocument/didSave": {
 				this.HandleDidSave(message);
 				return false;
 			}
+			
 			case "workspace/didChangeWatchedFiles": {
 				foreach (var (uri, text) in this.Documents) {
 					this.PublishDiagnostics(uri, text);
 				}
+				
 				return false;
 			}
+			
 			case "textDocument/definition": {
 				this.HandleDefinition(message, id);
 				return false;
 			}
+			
 			case "textDocument/references": {
 				this.HandleReferences(message, id);
 				return false;
 			}
+			
 			case "textDocument/prepareRename": {
 				this.HandlePrepareRename(message, id);
 				return false;
 			}
+			
 			case "textDocument/rename": {
 				this.HandleRename(message, id);
 				return false;
 			}
+			
 			case "textDocument/documentSymbol": {
 				this.HandleDocumentSymbol(message, id);
 				return false;
 			}
+			
 			default: {
 				if (hasId) {
 					this.WriteError(id, -32601, "Method not found");
 				}
+				
 				return false;
 			}
 		}
@@ -175,10 +186,11 @@ LspServer {
 		}
 		
 		var uri = GetRequiredString(textDocument, "uri");
-		var text = contentChanges.GetArrayLength() > 0
+		var text = (
+			contentChanges.GetArrayLength() > 0
 			? GetRequiredString(contentChanges[contentChanges.GetArrayLength() - 1], "text")
-			: this.Documents.GetValueOrDefault(uri, "");
-		
+			: this.Documents.GetValueOrDefault(uri, "")
+		);
 		this.Documents[uri] = text;
 		this.PublishDiagnostics(uri, text);
 	}
@@ -238,19 +250,21 @@ LspServer {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
+		
 		var location = this.LanguageService.GetDefinition(
 			uri,
 			text,
 			GetRequiredInt(position, "line"),
-			GetRequiredInt(position, "character")
+			GetRequiredInt(
+				position,
+				"character"
+			)
 		);
-		
 		if (location is null) {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
+		
 		this.WriteResult(id, writer => WriteLocation(writer, location));
 	}
 	
@@ -263,41 +277,59 @@ LspServer {
 			!message.TryGetProperty("params", out var paramsProperty) ||
 			!paramsProperty.TryGetProperty("textDocument", out var textDocument)
 		) {
-			this.WriteResult(id, writer => {
-				writer.WriteStartArray();
-				writer.WriteEndArray();
-			});
+			this.WriteResult(
+				id,
+				writer => {
+					writer.WriteStartArray();
+					writer.WriteEndArray();
+				}
+			);
 			return;
 		}
 		
 		var uri = GetRequiredString(textDocument, "uri");
 		var text = this.Documents.GetValueOrDefault(uri, "");
 		var symbols = this.LanguageService.GetDocumentSymbols(uri, text);
-		this.WriteResult(id, writer => {
-			writer.WriteStartArray();
-			foreach (var symbol in symbols) {
-				WriteDocumentSymbol(writer, symbol);
+		this.WriteResult(
+			id,
+			writer => {
+				writer.WriteStartArray();
+				foreach (var symbol in symbols) {
+					WriteDocumentSymbol(writer, symbol);
+				}
+				
+				writer.WriteEndArray();
 			}
-			writer.WriteEndArray();
-		});
+		);
 	}
-
+	
 	private void
 	HandleReferences(
 		JsonElement message,
 		JsonElement? id
 	) {
-		if (!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out var paramsProperty)) {
-			this.WriteResult(id, writer => {
-				writer.WriteStartArray();
-				writer.WriteEndArray();
-			});
+		if (
+			!TryGetTextDocumentPosition(
+				message,
+				out var uri,
+				out var text,
+				out var position,
+				out var paramsProperty
+			)
+		) {
+			this.WriteResult(
+				id,
+				writer => {
+					writer.WriteStartArray();
+					writer.WriteEndArray();
+				}
+			);
 			return;
 		}
-
+		
 		var includeDeclaration = !paramsProperty.TryGetProperty("context", out var context) ||
-			!context.TryGetProperty("includeDeclaration", out var include) ||
-			include.ValueKind != JsonValueKind.False;
+		!context.TryGetProperty("includeDeclaration", out var include) ||
+		include.ValueKind != JsonValueKind.False;
 		var locations = this.LanguageService.GetReferences(
 			uri,
 			text,
@@ -305,15 +337,19 @@ LspServer {
 			GetRequiredInt(position, "character"),
 			includeDeclaration
 		);
-		this.WriteResult(id, writer => {
-			writer.WriteStartArray();
-			foreach (var location in locations) {
-				WriteLocation(writer, location);
+		this.WriteResult(
+			id,
+			writer => {
+				writer.WriteStartArray();
+				foreach (var location in locations) {
+					WriteLocation(writer, location);
+				}
+				
+				writer.WriteEndArray();
 			}
-			writer.WriteEndArray();
-		});
+		);
 	}
-
+	
 	private void
 	HandlePrepareRename(
 		JsonElement message,
@@ -323,40 +359,52 @@ LspServer {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
+		
 		var target = this.LanguageService.PrepareRename(
 			uri,
 			text,
 			GetRequiredInt(position, "line"),
-			GetRequiredInt(position, "character")
+			GetRequiredInt(
+				position,
+				"character"
+			)
 		);
 		if (target is null) {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
-		this.WriteResult(id, writer => {
-			writer.WriteStartObject();
-			writer.WritePropertyName("range");
-			WriteRange(writer, target.Range);
-			writer.WriteString("placeholder", target.Placeholder);
-			writer.WriteEndObject();
-		});
+		
+		this.WriteResult(
+			id,
+			writer => {
+				writer.WriteStartObject();
+				writer.WritePropertyName("range");
+				WriteRange(writer, target.Range);
+				writer.WriteString("placeholder", target.Placeholder);
+				writer.WriteEndObject();
+			}
+		);
 	}
-
+	
 	private void
 	HandleRename(
 		JsonElement message,
 		JsonElement? id
 	) {
 		if (
-			!TryGetTextDocumentPosition(message, out var uri, out var text, out var position, out var paramsProperty) ||
+			!TryGetTextDocumentPosition(
+				message,
+				out var uri,
+				out var text,
+				out var position,
+				out var paramsProperty
+			) ||
 			!paramsProperty.TryGetProperty("newName", out var newNameProperty)
 		) {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
+		
 		var edits = this.LanguageService.Rename(
 			uri,
 			text,
@@ -368,22 +416,26 @@ LspServer {
 			this.WriteResult(id, writeResult: null);
 			return;
 		}
-
-		this.WriteResult(id, writer => {
-			writer.WriteStartObject();
-			writer.WriteStartObject("changes");
-			writer.WriteStartArray(uri);
-			foreach (var edit in edits) {
+		
+		this.WriteResult(
+			id,
+			writer => {
 				writer.WriteStartObject();
-				writer.WritePropertyName("range");
-				WriteRange(writer, edit.Range);
-				writer.WriteString("newText", edit.NewText);
+				writer.WriteStartObject("changes");
+				writer.WriteStartArray(uri);
+				foreach (var edit in edits) {
+					writer.WriteStartObject();
+					writer.WritePropertyName("range");
+					WriteRange(writer, edit.Range);
+					writer.WriteString("newText", edit.NewText);
+					writer.WriteEndObject();
+				}
+				
+				writer.WriteEndArray();
+				writer.WriteEndObject();
 				writer.WriteEndObject();
 			}
-			writer.WriteEndArray();
-			writer.WriteEndObject();
-			writer.WriteEndObject();
-		});
+		);
 	}
 	
 	private void
@@ -407,6 +459,7 @@ LspServer {
 					writer.WriteString("message", diagnostic.Message);
 					writer.WriteEndObject();
 				}
+				
 				writer.WriteEndArray();
 				writer.WriteEndObject();
 			}
@@ -414,8 +467,7 @@ LspServer {
 	}
 	
 	private tText?
-	ReadMessage(
-	) {
+	ReadMessage() {
 		var contentLength = 0;
 		while (true) {
 			var line = this.ReadHeaderLine();
@@ -450,6 +502,7 @@ LspServer {
 			if (read <= 0) {
 				throw new EndOfStreamException("Unexpected end of stream while reading message body.");
 			}
+			
 			offset += read;
 		}
 		
@@ -457,8 +510,7 @@ LspServer {
 	}
 	
 	private tText?
-	ReadHeaderLine(
-	) {
+	ReadHeaderLine() {
 		var buffer = new List<tNat8>();
 		while (true) {
 			var value = this.Input.ReadByte();
@@ -466,6 +518,7 @@ LspServer {
 				if (buffer.Count == 0) {
 					return null;
 				}
+				
 				throw new EndOfStreamException("Unexpected end of stream while reading message headers.");
 			}
 			
@@ -474,6 +527,7 @@ LspServer {
 				if (lineFeed != '\n') {
 					throw new InvalidDataException("Invalid LSP header termination.");
 				}
+				
 				return Encoding.ASCII.GetString(buffer.ToArray());
 			}
 			
@@ -485,57 +539,66 @@ LspServer {
 	WriteResult(
 		JsonElement? id,
 		Action<Utf8JsonWriter>? writeResult
-	) => this.WriteMessage(writer => {
-		writer.WriteStartObject();
-		writer.WriteString("jsonrpc", "2.0");
-		writer.WritePropertyName("id");
-		if (id is {} idValue) {
-			idValue.WriteTo(writer);
-		} else {
-			writer.WriteNullValue();
+	) => this.WriteMessage(
+		writer => {
+			writer.WriteStartObject();
+			writer.WriteString("jsonrpc", "2.0");
+			writer.WritePropertyName("id");
+			if (id is {} idValue) {
+				idValue.WriteTo(writer);
+			} else {
+				writer.WriteNullValue();
+			}
+			
+			writer.WritePropertyName("result");
+			if (writeResult is null) {
+				writer.WriteNullValue();
+			} else {
+				writeResult(writer);
+			}
+			
+			writer.WriteEndObject();
 		}
-		writer.WritePropertyName("result");
-		if (writeResult is null) {
-			writer.WriteNullValue();
-		} else {
-			writeResult(writer);
-		}
-		writer.WriteEndObject();
-	});
+	);
 	
 	private void
 	WriteError(
 		JsonElement? id,
 		tInt32 code,
 		tText message
-	) => this.WriteMessage(writer => {
-		writer.WriteStartObject();
-		writer.WriteString("jsonrpc", "2.0");
-		writer.WritePropertyName("id");
-		if (id is {} idValue) {
-			idValue.WriteTo(writer);
-		} else {
-			writer.WriteNullValue();
+	) => this.WriteMessage(
+		writer => {
+			writer.WriteStartObject();
+			writer.WriteString("jsonrpc", "2.0");
+			writer.WritePropertyName("id");
+			if (id is {} idValue) {
+				idValue.WriteTo(writer);
+			} else {
+				writer.WriteNullValue();
+			}
+			
+			writer.WriteStartObject("error");
+			writer.WriteNumber("code", code);
+			writer.WriteString("message", message);
+			writer.WriteEndObject();
+			writer.WriteEndObject();
 		}
-		writer.WriteStartObject("error");
-		writer.WriteNumber("code", code);
-		writer.WriteString("message", message);
-		writer.WriteEndObject();
-		writer.WriteEndObject();
-	});
+	);
 	
 	private void
 	WriteNotification(
 		tText method,
 		Action<Utf8JsonWriter> writeParams
-	) => this.WriteMessage(writer => {
-		writer.WriteStartObject();
-		writer.WriteString("jsonrpc", "2.0");
-		writer.WriteString("method", method);
-		writer.WritePropertyName("params");
-		writeParams(writer);
-		writer.WriteEndObject();
-	});
+	) => this.WriteMessage(
+		writer => {
+			writer.WriteStartObject();
+			writer.WriteString("jsonrpc", "2.0");
+			writer.WriteString("method", method);
+			writer.WritePropertyName("params");
+			writeParams(writer);
+			writer.WriteEndObject();
+		}
+	);
 	
 	private void
 	WriteMessage(
@@ -546,8 +609,8 @@ LspServer {
 			writeMessage(writer);
 			writer.Flush();
 		}
-		var header = Encoding.ASCII.GetBytes($"Content-Length: {payload.WrittenCount}\r\n\r\n");
 		
+		var header = Encoding.ASCII.GetBytes($"Content-Length: {payload.WrittenCount}\r\n\r\n");
 		this.Output.Write(header, 0, header.Length);
 		this.Output.Write(payload.WrittenSpan);
 		this.Output.Flush();
@@ -566,20 +629,19 @@ LspServer {
 	GetRequiredString(
 		JsonElement element,
 		tText name
-	) => element.TryGetProperty(name, out var value)
-		? value.GetString() ?? ""
-		: "";
+	) => (element.TryGetProperty(name, out var value) ? value.GetString() ?? "" : "");
 	
 	private static tInt32
 	GetRequiredInt(
 		JsonElement element,
 		tText name
-	) => element.TryGetProperty(name, out var value) &&
-		value.ValueKind == JsonValueKind.Number &&
+	) => (
+		element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Number &&
 		value.TryGetInt32(out var result)
 		? result
-		: 0;
-
+		: 0
+	);
+	
 	private tBool
 	TryGetTextDocumentPosition(
 		JsonElement message,
@@ -597,7 +659,7 @@ LspServer {
 			text = this.Documents.GetValueOrDefault(uri, "");
 			return true;
 		}
-
+		
 		uri = "";
 		text = "";
 		position = default;
@@ -621,10 +683,11 @@ LspServer {
 		foreach (var child in symbol.Children) {
 			WriteDocumentSymbol(writer, child);
 		}
+		
 		writer.WriteEndArray();
 		writer.WriteEndObject();
 	}
-
+	
 	private static void
 	WriteLocation(
 		Utf8JsonWriter writer,

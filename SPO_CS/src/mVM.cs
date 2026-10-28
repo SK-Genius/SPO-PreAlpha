@@ -19,6 +19,9 @@
 
 public static class
 mVM {
+	const tText cEnterMarker = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+	const tText cExitMarker = "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+	
 	public sealed class
 	tCallStack<tPos> {
 		internal mMaybe.tMaybe<tCallStack<tPos>> _Parent;
@@ -57,6 +60,7 @@ mVM {
 				aRes
 			),
 		};
+		aTraceOut(() => cEnterMarker);
 		aTraceOut(() => "______________________________________");
 		aTraceOut(() => " 0 := EMPTY");
 		aTraceOut(() => " 1 := 1");
@@ -420,7 +424,7 @@ mVM {
 				if (Data.IsPrefix(out var PrefixId, out var Inner) && PrefixId == Arg1) {
 					aCallStack._Regs.Push(Inner);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -503,9 +507,7 @@ mVM {
 							Env_,
 							mVM_Data.Empty(),
 							Env,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
+							aCallStack._TraceOut
 						);
 						break;
 					}
@@ -572,9 +574,7 @@ mVM {
 								Env,
 								mVM_Data.Empty(),
 								Arg,
-								aTraceLine => {
-									aCallStack._TraceOut(() => "\t" + aTraceLine());
-								}
+								aCallStack._TraceOut
 							)
 						);
 						break;
@@ -593,9 +593,7 @@ mVM {
 							mVM_Data.Empty(),
 							Arg,
 							Res,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
+							aCallStack._TraceOut
 						);
 					}
 					default: {
@@ -624,9 +622,7 @@ mVM {
 								Env,
 								Obj,
 								Arg,
-								aTraceLine => {
-									aCallStack._TraceOut(() => "\t" + aTraceLine());
-								}
+								aCallStack._TraceOut
 							)
 						);
 						break;
@@ -645,9 +641,7 @@ mVM {
 							Obj,
 							Arg,
 							Res,
-							aTraceLine => {
-								aCallStack._TraceOut(() => "\t" + aTraceLine());
-							}
+							aCallStack._TraceOut
 						);
 					}
 					default: {
@@ -665,7 +659,7 @@ mVM {
 					Des._Value = Res._Value;
 					Des._Fields = Res._Fields;
 					Des._IsMutable = Res._IsMutable;
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -678,7 +672,7 @@ mVM {
 					Des._Value = Res._Value;
 					Des._Fields = Res._Fields;
 					Des._IsMutable = Res._IsMutable;
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -716,7 +710,7 @@ mVM {
 				if (Arg.IsPair(out _, out _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -726,7 +720,7 @@ mVM {
 				if (Arg.IsRecord(out var _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -736,7 +730,7 @@ mVM {
 				if (Arg.IsVar(out var _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -783,6 +777,7 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				var Contract = aCallStack._ProcDef.Constants.TryGet(Arg2).AssertNotEmpty().TypeExpressionValue();
 				if (!Arg.Matches(Contract)) {
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				aCallStack._Regs.Push(Arg);
@@ -793,6 +788,7 @@ mVM {
 				mAssert.IsTrue(Arg.IsSig(out _, out var Head, out _));
 				var Expected = aCallStack._Regs.Get(Arg2).TypeExpressionValue();
 				if (!Head.TypeExpressionValue().SameType(Expected)) {
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				aCallStack._Regs.Push(Arg);
@@ -910,7 +906,7 @@ mVM {
 				if (Data.IsEmpty()) {
 					aCallStack._Regs.Push(Data);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -920,7 +916,7 @@ mVM {
 				if (Data.IsBool(out _)) {
 					aCallStack._Regs.Push(Data);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;
@@ -930,7 +926,7 @@ mVM {
 				if (Data.IsInt(out _)) {
 					aCallStack._Regs.Push(Data);
 				} else {
-					aCallStack._TraceOut(() => "====================================");
+					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
 				break;

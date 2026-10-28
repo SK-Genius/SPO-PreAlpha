@@ -1,0 +1,764 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...*...: §DEF ...*...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...==...: §DEF ...==...
+		...<...: §DEF ...<...
+		...<=...: §DEF ...<=...
+		...And...: §DEF ...And...
+		...Or...: §DEF ...Or...
+	} € [§LOAD "../Std.SIG"]
+	Math: {
+		Min...: §DEF Min...
+		Max...: §DEF Max...
+	} € [§LOAD "../Math.SIG"]
+	Text: {
+		...Length: §DEF ...Length
+		...FollowedBy...: §DEF ...FollowedBy...
+	} € [§LOAD "../Text.SIG"]
+	Char: {
+		...IsSpace: §DEF ...IsSpace
+	} € [§LOAD "../Char.SIG"]
+	List: §SIG [§LOAD "../List.SIG"] WITH [§LOAD "../ListType.SIG"] IN {
+		...Count: §DEF ...Count
+		...Reverse: §DEF ...Reverse
+		...Reduce...: §DEF ...Reduce...
+		...TryGet...: §DEF ...TryGet...
+		Concat...: §DEF Concat...
+	}
+}
+
+§DEF tElement = [§LOAD "Element.SIG"]
+§DEF tRect = [§LOAD "Rect.SIG"]
+§DEF tSize = [§LOAD "../Size.SIG"]
+§DEF tFrame = [§LOAD "Frame.SIG"]
+§DEF tInteraction = [§LOAD "Interaction.SIG"]
+§DEF tEvent = [§LOAD "Event.SIG"]
+§DEF tPanel = [§LOAD "Panel.SIG"]
+§DEF tState = [§LOAD "State.SIG"]
+§DEF tTarget = [§LOAD "Target.SIG"]
+§DEF tListStyle = [§LOAD "ListStyle.SIG"]
+§DEF tAlignment = [§LOAD "Alignment.SIG"]
+§DEF tList... = [§LOAD "../ListType.SIG"]
+§DEF tItem = [§LOAD "Placed.SIG"]
+§DEF cCharacterWidth = 8
+§DEF cGlyphHeight = 8
+§DEF cLineHeight = 16
+§DEF cControlHeight = 32
+§DEF cControlPadding = 8
+§DEF cForeground = (233, 238, 244)
+§DEF cMuted = (153, 169, 183)
+§DEF cBorder = (58, 72, 86)
+§DEF cFocusBorder = (248, 216, 105)
+
+§DEF ...Contains... = (
+	§DEF aBounds € tRect
+	(§DEF aX € §INT, §DEF aY € §INT)
+) => {
+	{X: §DEF X, Y: §DEF Y, Width: §DEF Width, Height: §DEF Height} = aBounds
+	§RETURN (X .<= aX) .And (aX .< (X .+ Width)) §> .And (Y .<= aY) §> .And (aY .< (Y .+ Height))
+}
+
+§DEF ...OffsetFor... = (
+	§DEF aAlignment € tAlignment
+	§DEF aFreeSpace € §INT
+) => §IF (aAlignment) MATCH {
+	#End: aFreeSpace
+	#Center: aFreeSpace ./ 2
+	_: 0
+}
+
+§DEF tLine = [<
+	Words: [.tList §TEXT]
+	Width: §INT
+>]
+
+§DEF ...WrappedWithin... = (
+	§DEF aText € §TEXT
+	§DEF aWidth € §INT
+) => {
+	§DEF tSplitWords = [<
+		Words: [.tList §TEXT]
+		Word: §TEXT
+	>]
+	§DEF SplitText = aText .Reduce (
+		{Words: (), Word: ""}
+		(§DEF aSplit € tSplitWords, §DEF aCharacter € §CHAR) => {
+			{Words: §DEF Words, Word: §DEF Word} = aSplit
+			§RETURN §IF (aCharacter .IsSpace, Word) MATCH {
+				(§TRUE, ()): {Words: Words, Word: ""}
+				(§TRUE, _): {Words: (Words; Word), Word: ""}
+				(§FALSE, _): {Words: Words, Word: (Word; aCharacter)}
+			}
+		}
+	)
+	§DEF FinishWords... = (§DEF aSplit € tSplitWords) => {
+		{Words: §DEF Words, Word: §DEF Word} = aSplit
+		§RETURN §IF (Word) MATCH {
+			(): Words
+			_: (Words; Word)
+		}
+	}
+	§DEF AllWords = .FinishWords SplitText
+	§DEF tWrapped = [<
+		Lines: [.tList tLine]
+		Line: tLine
+	>]
+	§DEF Wrapped € tWrapped = AllWords .Reduce (
+		{Lines: (), Line: {Words: (), Width: 0}}
+		(§DEF aResult € tWrapped, §DEF aWord € §TEXT) => {
+			{Lines: §DEF Lines, Line: {Words: §DEF LineWords, Width: §DEF LineWidth}} = aResult
+			§DEF WordWidth = (aWord .Length) .* cCharacterWidth
+			§DEF NextWidth = LineWidth .+ cCharacterWidth §> .+ WordWidth
+			§DEF Next € tWrapped = §IF (LineWords, aWidth .< NextWidth) MATCH {
+				((), _): {Lines: Lines, Line: {Words: ((); aWord), Width: WordWidth}}
+				(_, §TRUE): {
+					Lines: (Lines; {Words: LineWords, Width: LineWidth})
+					Line: {Words: ((); aWord), Width: WordWidth}
+				}
+				(_, §FALSE): {Lines: Lines, Line: {Words: (LineWords; aWord), Width: NextWidth}}
+			}
+			§RETURN Next
+		}
+	)
+	§DEF FinishWrapping... = (§DEF aWrapped € tWrapped) => {
+		{Lines: §DEF Lines, Line: §DEF Line} = aWrapped
+		§RETURN (Lines; Line)
+	}
+	§RETURN .FinishWrapping Wrapped
+}
+
+§RECURSIVE {
+	§DEF ...MeasuredWithin... = (
+		§DEF aElement € tElement
+		§DEF aWidth € §INT
+	) => {
+		§DEF Size € tSize = §IF (aElement) MATCH {
+			(#Text {Text: §DEF Text}): {Width: (Text .Length) .* cCharacterWidth, Height: cLineHeight}
+			(#Button {Text: §DEF Text}): {
+				Width: .Max (54, ((Text .Length) .* cCharacterWidth) .+ (2 .* cControlPadding))
+				Height: cControlHeight
+			}
+			(#TextInput _): {Width: .Min (340, aWidth), Height: cLineHeight .+ cControlHeight}
+			(#Paragraph {Text: §DEF Text}): {
+				Width: aWidth
+				Height: ((Text .WrappedWithin aWidth) .Count) .* cLineHeight
+			}
+			(#List {
+					Axis: §DEF Axis, Children: §DEF Children, Padding: §DEF Padding, Spacing: §DEF Spacing
+			}): {
+				§DEF InnerWidth = .Max (0, aWidth .- (2 .* Padding))
+				§DEF Content € tSize = Children .Reduce (
+					{Width: 0, Height: 0}
+					(§DEF aSize € tSize, §DEF aChild € tElement) => {
+						{Width: §DEF Width, Height: §DEF Height} = aSize
+						§DEF ChildSize € tSize = aChild .MeasuredWithin InnerWidth
+						{Width: §DEF ChildWidth, Height: §DEF ChildHeight} = ChildSize
+						§RETURN §IF (Axis) MATCH {
+							#Horizontal: {Width: Width .+ ChildWidth, Height: .Max (Height, ChildHeight)}
+							#Vertical: {Width: .Max (Width, ChildWidth), Height: Height .+ ChildHeight}
+						}
+					}
+				)
+				{Width: §DEF Width, Height: §DEF Height} = Content
+				§DEF Gaps = (.Max (0, (Children .Count) .- 1)) .* Spacing
+				§RETURN §IF (Axis) MATCH {
+					#Horizontal: {Width: (Width .+ Gaps §> .+ (2 .* Padding)), Height: Height .+ (2 .* Padding)}
+					#Vertical: {Width: Width .+ (2 .* Padding), Height: (Height .+ Gaps §> .+ (2 .* Padding))}
+				}
+			}
+		}
+		§RETURN Size
+	}
+}
+
+§RECURSIVE {
+	§DEF ...LayoutWithin... = (
+		§DEF aElement € tElement
+		§DEF aBounds € tRect
+	) => {
+		{X: §DEF X, Y: §DEF Y, Width: §DEF Width, Height: §DEF AvailableHeight} = aBounds
+		{Height: §DEF ContentHeight} = aElement .MeasuredWithin Width
+		§DEF Height = .Max (AvailableHeight, ContentHeight)
+		§DEF Bounds = {X: X, Y: Y, Width: Width, Height: Height}
+		§DEF cEmptyItems € [.tList tItem] = ()
+		§DEF ...Items = (
+			§DEF aLayout € [<
+				Items: [.tList tItem]
+			>]
+		) => {
+			{Items: §DEF PlacedItems} = aLayout
+			§RETURN PlacedItems
+		}
+		§DEF Items € [.tList tItem] = §IF (aElement) MATCH {
+			(#List {
+					Axis: §DEF Axis, Alignment: §DEF Alignment, CrossAlignment: §DEF CrossAlignment
+					Padding: §DEF Padding, Spacing: §DEF Spacing, Children: §DEF Children
+			}): {
+				§DEF Horizontal = Axis §IS #Horizontal
+				§DEF InnerWidth = .Max (0, Width .- (2 .* Padding))
+				§DEF InnerHeight = .Max (0, Height .- (2 .* Padding))
+				§DEF Count = Children .Count
+				§DEF ContentMain = Children .Reduce (
+					0
+					(§DEF aTotal € §INT, §DEF aChild € tElement) => {
+						{Width: §DEF ChildWidth, Height: §DEF ChildHeight} = aChild .MeasuredWithin InnerWidth
+						§DEF ChildMain = §IF Horizontal MATCH {
+							§TRUE: ChildWidth
+							§FALSE: ChildHeight
+						}
+						§RETURN aTotal .+ ChildMain
+					}
+				)
+				§DEF AvailableMain = §IF (Horizontal) MATCH {
+					§TRUE: InnerWidth
+					§FALSE: InnerHeight
+				}
+				§DEF FreeSpace = .Max (0, AvailableMain .- ContentMain §> .- ((.Max (0, Count .- 1)) .* Spacing))
+				§DEF Distribution = §IF ((Alignment, 1 .< Count)) MATCH {
+					(#SpaceBetween, §TRUE): {Offset: 0, Gap: Spacing .+ (FreeSpace ./ (Count .- 1))}
+					(#SpaceEvenly, _): {
+						Offset: FreeSpace ./ (Count .+ 1)
+						Gap: Spacing .+ (FreeSpace ./ (Count .+ 1))
+					}
+					_: {Offset: Alignment .OffsetFor FreeSpace, Gap: Spacing}
+				}
+				{Offset: §DEF Offset, Gap: §DEF Gap} = Distribution
+				§DEF tArrangement = [<
+					Items: [.tList tItem]
+					Cursor: §INT
+				>]
+				§DEF Arranged € tArrangement = Children .Reduce (
+					{Items: (cEmptyItems; {Element: aElement, Bounds: Bounds}), Cursor: Offset}
+					(§DEF aResult € tArrangement, §DEF aChild € tElement) => {
+						{Items: §DEF Previous, Cursor: §DEF Cursor} = aResult
+						{Width: §DEF ChildWidth, Height: §DEF ChildHeight} = aChild .MeasuredWithin InnerWidth
+						§DEF ChildMain = §IF (Horizontal) MATCH {
+							§TRUE: ChildWidth
+							§FALSE: ChildHeight
+						}
+						§DEF AvailableCross = §IF (Horizontal) MATCH {
+							§TRUE: InnerHeight
+							§FALSE: InnerWidth
+						}
+						§DEF MeasuredCross = §IF (Horizontal) MATCH {
+							§TRUE: ChildHeight
+							§FALSE: ChildWidth
+						}
+						§DEF ChildCross = §IF (CrossAlignment) MATCH {
+							#Stretch: AvailableCross
+							_: .Min (MeasuredCross, AvailableCross)
+						}
+						§DEF CrossOffset = CrossAlignment .OffsetFor (AvailableCross .- ChildCross)
+						§DEF ChildBounds = §IF (Horizontal) MATCH {
+							§TRUE: {
+								X: (X .+ Padding §> .+ Cursor), Y: (Y .+ Padding §> .+ CrossOffset)
+								Width: ChildMain, Height: ChildCross
+							}
+							§FALSE: {
+								X: (X .+ Padding §> .+ CrossOffset), Y: (Y .+ Padding §> .+ Cursor)
+								Width: ChildCross, Height: ChildMain
+							}
+						}
+						§DEF ChildFrame € tFrame = aChild .LayoutWithin ChildBounds
+						{Items: §DEF ChildItems} = ChildFrame
+						§RETURN {Items: .Concat (Previous, ChildItems), Cursor: (Cursor .+ ChildMain §> .+ Gap)}
+					}
+				)
+				§RETURN Arranged .Items
+			}
+			(#Paragraph {Text: §DEF Text, Alignment: §DEF Alignment, Color: §DEF Color}): {
+				§DEF Lines = Text .WrappedWithin Width
+				§DEF LineCount = Lines .Count
+				§DEF tRow = [<
+					Items: [.tList tItem]
+					Row: §INT
+				>]
+				§DEF Wrapped € tRow = Lines .Reduce (
+					{Items: cEmptyItems, Row: 0}
+					(§DEF aResult € tRow, §DEF aLine € tLine) => {
+						{Items: §DEF Previous, Row: §DEF Row} = aResult
+						{Words: §DEF Words, Width: §DEF LineWidth} = aLine
+						§DEF WordCount = Words .Count
+						§DEF Justified = (Alignment §IS #SpaceBetween) .And (Row .< (LineCount .- 1))
+						§DEF ExtraGap = §IF ((Justified, 1 .< WordCount)) MATCH {
+							(§TRUE, §TRUE): (.Max (0, Width .- LineWidth)) ./ (WordCount .- 1)
+							_: 0
+						}
+						§DEF tColumn = [<
+							Items: [.tList tItem]
+							Column: §INT
+						>]
+						§DEF PlacedWords € tColumn = Words .Reduce (
+							{Items: Previous, Column: Alignment .OffsetFor (.Max (0, Width .- LineWidth))}
+							(§DEF aPlaced € tColumn, §DEF aWord € §TEXT) => {
+								{Items: §DEF Before, Column: §DEF Column} = aPlaced
+								§DEF WordWidth = (aWord .Length) .* cCharacterWidth
+								§DEF WordItem = {
+									Element: (#Text {Text: aWord, Color: Color})
+									Bounds: {
+										X: X .+ Column, Y: Y .+ (Row .* cLineHeight)
+										Width: WordWidth, Height: cLineHeight
+									}
+								}
+								§DEF NextColumn € tColumn = {
+									Items: (Before; WordItem)
+									Column: (Column .+ WordWidth §> .+ cCharacterWidth §> .+ ExtraGap)
+								}
+								§RETURN NextColumn
+							}
+						)
+						§RETURN {Items: PlacedWords .Items, Row: Row .+ 1}
+					}
+				)
+				§RETURN Wrapped .Items
+			}
+			_: (cEmptyItems; {Element: aElement, Bounds: Bounds})
+		}
+		§DEF Result € tFrame = {Size: {Width: Width, Height: Height}, Items: Items}
+		§RETURN Result
+	}
+}
+
+§DEF cInitial = {
+	Interaction: {Focus: 0, Active: 0, Mouse: (-1, -1)}
+	Targets: ()
+	Scroll: 0
+}
+
+§DEF cEmptyPanel = {
+	Event: #Redraw
+	Targets: ()
+	Interaction: {Focus: 0, Active: 0, Mouse: (-1, -1)}
+	Scroll: 0
+	Children: ()
+}
+
+§DEF ReplaceWith... = (§VAR aPanel € tPanel) : (§DEF aValue € tPanel) {
+	aPanel := aValue .
+}
+
+§DEF PanelFor...With... = (
+	§DEF aEvent € tEvent
+	§DEF aState € tState
+) => {
+	{Interaction: §DEF Interaction, Targets: §DEF Targets, Scroll: §DEF Scroll} = aState
+	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
+	§DEF cEmptyIds € [.tList §INT] = ()
+	§DEF FocusIds = Targets .Reduce (
+		cEmptyIds
+		(§DEF aIds € [.tList §INT], {Id: §DEF aId} € tTarget) => (aIds; aId)
+	)
+	§DEF NextInteraction € tInteraction = §IF aEvent MATCH {
+		(#Key {Key: #Tab, Shift: §DEF Shift}): {
+			§DEF Order = §IF Shift MATCH {
+				§TRUE: FocusIds .Reverse
+				§FALSE: FocusIds
+			}
+			§DEF tSearch = [<
+				Index: §INT
+				Position: §INT
+			>]
+			§DEF Found € tSearch = Order .Reduce (
+				{Index: -1, Position: 0}
+				(§DEF aFound € tSearch, §DEF aId € §INT) => {
+					{Index: §DEF Index, Position: §DEF Position} = aFound
+					§RETURN {
+						Index: §IF (aId .== Focus) MATCH {
+							§TRUE: Position
+							§FALSE: Index
+						}
+						Position: Position .+ 1
+					}
+				}
+			)
+			{Index: §DEF Index} = Found
+			§DEF NextFocus = §IF (Order .Count) MATCH {
+				0: 0
+				§DEF Count: §IF (Order .TryGet ((Index .+ 1) .% Count)) MATCH {
+					(): 0
+					§DEF Id: Id
+				}
+			}
+			§RETURN {Focus: NextFocus, Active: 0, Mouse: Mouse}
+		}
+		(#Pointer {Position: §DEF Position, Action: #Press}): {Focus: 0, Active: 0, Mouse: Position}
+		(#Pointer {Position: §DEF Position}): {Focus: Focus, Active: Active, Mouse: Position}
+		(#Focus §FALSE): {Focus: Focus, Active: 0, Mouse: (-1, -1)}
+		_: Interaction
+	}
+	§DEF NextScroll = §IF aEvent MATCH {
+		(#Scroll §DEF Delta): .Max (0, Scroll .- Delta)
+		_: Scroll
+	}
+	§DEF Panel € tPanel = {
+		Event: aEvent
+		Targets: Targets
+		Interaction: NextInteraction
+		Scroll: NextScroll
+		Children: ()
+	}
+	§RETURN Panel
+}
+
+§DEF BeginFor...With... = (§VAR aPanel € tPanel) : (
+	§DEF aEvent € tEvent
+	§DEF aState € tState
+) {
+	aPanel : ReplaceWith (.PanelFor aEvent With aState) .
+}
+
+§DEF AddElement... = (§VAR aPanel € tPanel) : (§DEF aElement € tElement) {
+	{
+		Event: §DEF Event
+		Targets: §DEF Targets
+		Interaction: §DEF Interaction
+		Scroll: §DEF Scroll
+		Children: §DEF Children
+	} = §TO_VAL aPanel
+	aPanel : ReplaceWith {
+		Event: Event
+		Targets: Targets
+		Interaction: Interaction
+		Scroll: Scroll
+		Children: (Children; aElement)
+	} .
+}
+
+§DEF InteractWith... = (§VAR aPanel € tPanel) : (§DEF aId € §INT) {
+	{
+		Event: §DEF Event
+		Targets: §DEF Targets
+		Interaction: §DEF Interaction
+		Scroll: §DEF Scroll
+		Children: §DEF Children
+	} = §TO_VAL aPanel
+	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
+	§DEF Hovered = Targets .Reduce (
+		§FALSE
+		(§DEF aHit € §BOOL, {Id: §DEF aTargetId, Bounds: §DEF aBounds} € tTarget) => {
+			§RETURN aHit .Or ((aTargetId .== aId) .And (aBounds .Contains Mouse))
+		}
+	)
+	§DEF Clicked = §IF Event MATCH {
+		(#Pointer {Action: #Release}): (Active .== aId) .And Hovered
+		(#Key {Key: §DEF Key, IsRepeat: §FALSE}): (
+			(Focus .== aId) .And ((Key §IS #Enter) .Or (Key §IS #Space))
+		)
+		_: §FALSE
+	}
+	§DEF NextInteraction € tInteraction = §IF Event MATCH {
+		(#Pointer {Action: #Press}): §IF Hovered MATCH {
+			§TRUE: {Focus: aId, Active: aId, Mouse: Mouse}
+			§FALSE: Interaction
+		}
+		(#Pointer {Action: #Release}): §IF (Active .== aId) MATCH {
+			§TRUE: {Focus: Focus, Active: 0, Mouse: Mouse}
+			§FALSE: Interaction
+		}
+		_: Interaction
+	}
+	aPanel : ReplaceWith {
+		Event: Event
+		Targets: Targets
+		Interaction: NextInteraction
+		Scroll: Scroll
+		Children: Children
+	} .
+	§RETURN Clicked
+}
+
+§DEF AddText...InColor... = (§VAR aPanel € tPanel) : (§DEF aText € §TEXT, §DEF aColor € [§INT, §INT, §INT]) {
+	aPanel : AddElement (#Text {Text: aText, Color: aColor}) .
+}
+
+§DEF AddParagraph...WithAlignment...InColor... = (§VAR aPanel € tPanel) : (
+	§DEF aText € §TEXT
+	§DEF aAlignment € tAlignment
+	§DEF aColor € [§INT, §INT, §INT]
+) {
+	aPanel : AddElement (#Paragraph {Text: aText, Alignment: aAlignment, Color: aColor}) .
+}
+
+§DEF AddButton...WithText...Selected... = (§VAR aPanel € tPanel) : (
+	§DEF aId € §INT
+	§DEF aText € §TEXT
+	§DEF aSelected € §BOOL
+) {
+	aPanel :
+		InteractWith aId => §DEF Clicked
+		AddElement (#Button {Id: aId, Text: aText, Selected: aSelected})
+	.
+	§RETURN Clicked
+}
+
+§DEF AddTextInput...WithLabel...Value... = (§VAR aPanel € tPanel) : (
+	§DEF aId € §INT
+	§DEF aLabel € §TEXT
+	§DEF aValue € §TEXT
+) {
+	aPanel : InteractWith aId => _ .
+	{Event: §DEF Event, Interaction: {Focus: §DEF Focus}} = §TO_VAL aPanel
+	§DEF Edited = §IF Event MATCH {
+		(#Text §DEF Inserted): aValue .FollowedBy Inserted
+		(#Key {Key: #Backspace}): §IF aValue MATCH {
+			(): ""
+			(§DEF Prefix; _): Prefix
+		}
+		_: aValue
+	}
+	§DEF Value = §IF (Focus .== aId) MATCH {
+		§TRUE: Edited
+		§FALSE: aValue
+	}
+	aPanel : AddElement (#TextInput {Id: aId, Label: aLabel, Value: Value}) .
+	§RETURN Value
+}
+
+§DEF ListWith...AndChildren... = (§DEF aStyle € tListStyle, §DEF aChildren € [.tList tElement]) => {
+	{
+		Axis: §DEF Axis
+		Alignment: §DEF Alignment
+		CrossAlignment: §DEF CrossAlignment
+		Padding: §DEF Padding
+		Spacing: §DEF Spacing
+		Color: §DEF Color
+	} = aStyle
+	§DEF Element € tElement = (#List {
+		Axis: Axis
+		Alignment: Alignment
+		CrossAlignment: CrossAlignment
+		Padding: Padding
+		Spacing: Spacing
+		Color: Color
+		Children: aChildren
+	})
+	§RETURN Element
+}
+
+§DEF TakeChildren = (§VAR aPanel € tPanel) : () {
+	{
+		Event: §DEF Event
+		Targets: §DEF Targets
+		Interaction: §DEF Interaction
+		Scroll: §DEF Scroll
+		Children: §DEF Children
+	} = §TO_VAL aPanel
+	aPanel : ReplaceWith {
+		Event: Event
+		Targets: Targets
+		Interaction: Interaction
+		Scroll: Scroll
+		Children: ()
+	} .
+	§RETURN Children
+}
+
+§DEF NestChildrenWith...After... = (§VAR aPanel € tPanel) : (
+	§DEF aStyle € tListStyle
+	§DEF aBefore € [.tList tElement]
+) {
+	{
+		Event: §DEF Event
+		Targets: §DEF Targets
+		Interaction: §DEF Interaction
+		Scroll: §DEF Scroll
+		Children: §DEF Children
+	} = §TO_VAL aPanel
+	aPanel : ReplaceWith {
+		Event: Event
+		Targets: Targets
+		Interaction: Interaction
+		Scroll: Scroll
+		Children: (aBefore; (.ListWith aStyle AndChildren Children))
+	} .
+}
+
+§DEF AddListWith...Do... = (§DEF tResult) <=> (§VAR aPanel € tPanel) : (
+	§DEF aStyle € tListStyle
+	§DEF aBuild € [[§VAR tPanel] : [] => tResult]
+) {
+	aPanel : TakeChildren => §DEF Before, aBuild => §DEF Result, NestChildrenWith aStyle After Before .
+	§RETURN Result
+}
+
+§DEF AddListWith...DoWithContext... = (§DEF tContext, §DEF tResult) <=> (
+	§VAR aPanel € tPanel
+	§DEF aContext € tContext
+) : (
+	§DEF aStyle € tListStyle
+	§DEF aBuild € [[[§VAR tPanel], tContext] : [] => tResult]
+) {
+	aPanel : TakeChildren => §DEF Before .
+	(aPanel, aContext) : aBuild => §DEF Result .
+	aPanel : NestChildrenWith aStyle After Before .
+	§RETURN Result
+}
+
+§DEF FinishWith...In... = (§VAR aPanel € tPanel) : (§DEF aStyle € tListStyle, §DEF aSize € tSize) {
+	{Children: §DEF Children, Interaction: §DEF Interaction, Scroll: §DEF Scroll} = §TO_VAL aPanel
+	{Width: §DEF Width, Height: §DEF Height} = aSize
+	§DEF Root = .ListWith aStyle AndChildren Children
+	{Height: §DEF ContentHeight} = Root .MeasuredWithin Width
+	§DEF NextScroll = .Min (Scroll, (.Max (0, ContentHeight .- Height)))
+	§DEF Frame = Root .LayoutWithin {X: 0, Y: 0 .- NextScroll, Width: Width, Height: Height}
+	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = Interaction
+	{Items: §DEF Items} = Frame
+	§DEF cEmptyTargets € [.tList tTarget] = ()
+	§DEF Targets = Items .Reduce (
+		cEmptyTargets
+		(§DEF aTargets € [.tList tTarget], §DEF aItem € tItem) => {
+			{Element: §DEF Element, Bounds: §DEF Bounds} = aItem
+			§DEF Id = §IF Element MATCH {
+				(#Button {Id: §DEF Id}): Id
+				(#TextInput {Id: §DEF Id}): Id
+				_: 0
+			}
+			§RETURN §IF (0 .< Id) MATCH {
+				§TRUE: (aTargets; {Id: Id, Bounds: Bounds})
+				§FALSE: aTargets
+			}
+		}
+	)
+	§DEF Presence € [§BOOL, §BOOL] = Targets .Reduce (
+		(§FALSE, §FALSE)
+		(§DEF aPresence € [§BOOL, §BOOL], {Id: §DEF aId} € tTarget) => {
+			(§DEF FocusFound, §DEF ActiveFound) = aPresence
+			§RETURN (FocusFound .Or (aId .== Focus), ActiveFound .Or (aId .== Active))
+		}
+	)
+	(§DEF FocusPresent, §DEF ActivePresent) = Presence
+	§DEF NextFocus = §IF FocusPresent MATCH {
+		§TRUE: Focus
+		§FALSE: 0
+	}
+	§DEF NextActive = §IF ActivePresent MATCH {
+		§TRUE: Active
+		§FALSE: 0
+	}
+	§DEF State € tState = {
+		Targets: Targets
+		Interaction: {Focus: NextFocus, Active: NextActive, Mouse: Mouse}
+		Scroll: NextScroll
+	}
+	§RETURN (State, Frame)
+}
+
+§DEF Draw...With... = (
+	§DEF aSurface € [§LOAD "Surface.SIG"]
+) : (
+	§DEF aFrame € tFrame
+	§DEF aInteraction € tInteraction
+) {
+	{Focus: §DEF Focus, Active: §DEF Active, Mouse: §DEF Mouse} = aInteraction
+	{Items: §DEF Items} = aFrame
+	§DEF tDrawing = [[§LOAD "Surface.SIG"] : [] => []]
+	§DEF DrawItems € tDrawing = Items .Reduce (
+		(§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+			§RETURN ()
+		}
+		(
+			§DEF aDrawBefore € tDrawing
+			§DEF aItem € tItem
+		) => {
+			{Element: §DEF Element, Bounds: §DEF Bounds} = aItem
+			{X: §DEF X, Y: §DEF Y, Width: §DEF Width, Height: §DEF Height} = Bounds
+			§DEF DrawItem = §IF Element MATCH {
+				(#Text {Text: §DEF Text, Color: §DEF Color}): (
+					§DEF aSurface € [§LOAD "Surface.SIG"]
+				) : () {
+					aSurface :
+					ClipTo {X: X, Y: Y, Width: Width, Height: Height}
+					Draw Text At (X, Y .+ ((cLineHeight .- cGlyphHeight) ./ 2)) InColor Color
+					ResetClip
+					.
+				}
+				(#List {Color: §DEF Color}): (§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+					aSurface : Fill {X: X, Y: Y, Width: Width, Height: Height} With Color .
+				}
+				(#Button {Id: §DEF Id, Text: §DEF Text, Selected: §DEF Selected}): {
+					§DEF Hovered = Bounds .Contains Mouse
+					§DEF Background = §IF (Active .== Id, Selected, Hovered) MATCH {
+						(§TRUE, _, _): (71, 98, 122)
+						(_, §TRUE, _): (53, 77, 98)
+						(_, _, §TRUE): (43, 55, 68)
+						_: (28, 37, 46)
+					}
+					§DEF Border = §IF (Focus .== Id) MATCH {
+						§TRUE: cFocusBorder
+						§FALSE: cBorder
+					}
+					§DEF TextX = X .+ ((Width .- ((Text .Length) .* cCharacterWidth)) ./ 2)
+					§RETURN (§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+						aSurface :
+						Fill {X: X, Y: Y, Width: Width, Height: Height} With Background
+						Stroke {X: X, Y: Y, Width: Width, Height: Height} With Border
+						ClipTo {X: X, Y: Y, Width: Width, Height: Height}
+						Draw Text At (TextX, Y .+ ((Height .- cGlyphHeight) ./ 2)) InColor cForeground
+						ResetClip
+						.
+					}
+				}
+				(#TextInput {Id: §DEF Id, Label: §DEF Label, Value: §DEF Value}): {
+					§DEF Field = {X: X, Y: Y .+ cLineHeight, Width: Width, Height: cControlHeight}
+					§DEF Border = §IF (Focus .== Id) MATCH {
+						§TRUE: cFocusBorder
+						§FALSE: cBorder
+					}
+					§DEF Shown = §IF Value MATCH {
+						(): "<empty>"
+						_: Value
+					}
+					§DEF Caret = §IF (Focus .== Id) MATCH {
+						§TRUE: "|"
+						§FALSE: ""
+					}
+					§DEF InnerWidth = .Max (0, Width .- (2 .* cControlPadding))
+					§DEF DisplayText = Shown .FollowedBy Caret
+					§DEF TextOffset = .Min (0, InnerWidth .- ((DisplayText .Length) .* cCharacterWidth))
+					§DEF TextPosition = (
+						X .+ cControlPadding §> .+ TextOffset
+						Y .+ cLineHeight §> .+ ((cControlHeight .- cGlyphHeight) ./ 2)
+					)
+					§RETURN (§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+						aSurface :
+						Draw Label At (X, Y .+ ((cLineHeight .- cGlyphHeight) ./ 2)) InColor cMuted
+						Fill Field With (21, 30, 38)
+						Stroke Field With Border
+						ClipTo {
+							X: X .+ cControlPadding, Y: Y .+ cLineHeight
+							Width: InnerWidth, Height: cControlHeight
+						}
+						Draw DisplayText At TextPosition InColor cForeground
+						ResetClip
+						.
+					}
+				}
+				_: (§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+					§RETURN ()
+				}
+			}
+			§RETURN (§DEF aSurface € [§LOAD "Surface.SIG"]) : () {
+				aSurface : aDrawBefore, DrawItem .
+			}
+		}
+	)
+	aSurface : DrawItems .
+}
+§EXPORT {
+	...LayoutWithin...: ...LayoutWithin...
+	Initial: cInitial
+	EmptyPanel: cEmptyPanel
+	BeginFor...With...: BeginFor...With...
+	AddText...InColor...: AddText...InColor...
+	AddParagraph...WithAlignment...InColor...: AddParagraph...WithAlignment...InColor...
+	AddButton...WithText...Selected...: AddButton...WithText...Selected...
+	AddTextInput...WithLabel...Value...: AddTextInput...WithLabel...Value...
+	AddListWith...Do...: AddListWith...Do...
+	AddListWith...DoWithContext...: AddListWith...DoWithContext...
+	FinishWith...In...: FinishWith...In...
+	Draw...With...: Draw...With...
+}

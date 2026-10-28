@@ -6,6 +6,7 @@
 #:ref mTest.cs
 #:ref mAny.Tests.cs
 #:ref mFS.Tests.cs
+#:ref mJNI.Tests.cs
 #:ref mLazy.Tests.cs
 #:ref mMaybe.Tests.cs
 #:ref mResult.Tests.cs
@@ -32,6 +33,7 @@ mCommon_Tests {
 			mTreeMap_Tests.Tests,
 			mParserGen_Tests.Tests,
 			mFS_Tests.Tests,
+			mJNI_Tests.Tests,
 			mTextParser_Tests.Tests,
 		]
 	);

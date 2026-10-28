@@ -1,4 +1,4 @@
-﻿global using System.Diagnostics;
+global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Diagnostics.Contracts;
 global using System.Runtime.CompilerServices;
@@ -35,5 +35,6 @@ global using tCPtr = System.IntPtr;
 		System.AttributeTargets.Method |
 		System.AttributeTargets.Property
 	)]
-	internal sealed class MyFakeAttribute : System.Attribute { } 
+	internal sealed class
+	MyFakeAttribute : System.Attribute {}
 #endif

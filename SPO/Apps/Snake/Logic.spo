@@ -1,0 +1,230 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...*...: §DEF ...*...
+		...%...: §DEF ...%...
+		...<...: §DEF ...<...
+		...==...: §DEF ...==...
+		...And...: §DEF ...And...
+		...Or...: §DEF ...Or...
+		Not...: §DEF Not...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Math: {
+		...<=...<=...: §DEF ...<=...<=...
+	} € [§LOAD "../../Libs/Math.SIG"]
+	Random: {
+		...NextRandom: §DEF ...NextRandom
+	} € [§LOAD "../../Libs/Random.SIG"]
+	List: §SIG [§LOAD "../../Libs/List.SIG"] WITH [§LOAD "../../Libs/ListType.SIG"] IN {
+		List...: §DEF List...
+		...FollowedBy...: §DEF ...FollowedBy...
+		...TrySplitLast: §DEF ...TrySplitLast
+		...Count: §DEF ...Count
+		...Skip...: §DEF ...Skip...
+		...Any...: §DEF ...Any...
+		...Where...: §DEF ...Where...
+	}
+	Vector2: {
+		...+...: §DEF ..._+_...
+		...==...: §DEF ..._==_...
+		...X: §DEF ...X
+		...Y: §DEF ...Y
+	} € [§LOAD "../../Libs/Vector2.SIG"]
+}
+
+§DEF tGameState = [§LOAD "State.SIG"]
+
+§DEF cBoardSize = (28, 16)
+§DEF cBoardWidth = cBoardSize .X
+§DEF cBoardHeight = cBoardSize .Y
+§DEF cInitialTailPosition = (5, 8)
+§DEF cInitialMiddlePosition = (6, 8)
+§DEF cInitialHeadPosition = (7, 8)
+§DEF cInitialSnakeBody = (
+	.List cInitialTailPosition §> .FollowedBy cInitialMiddlePosition §> .FollowedBy cInitialHeadPosition
+)
+§DEF cInitialState = {
+	SnakeBody: cInitialSnakeBody
+	MoveDirection: #Right
+	PendingDirection: #Right
+	FoodPosition: (20, 8)
+	RandomState: 1
+	Phase: #Playing
+}
+
+§DEF ...ContainsPosition... = (
+	§DEF aSnakeBody € [§LOAD "SnakeBody.SIG"]
+	§DEF aPosition € [§INT, §INT]
+) => aSnakeBody .Any (=> ... ._==_ aPosition)
+
+§DEF ...WithPhase... = (
+	§DEF aState € tGameState
+	§DEF aPhase € [§LOAD "Phase.SIG"]
+) => {
+	{
+		SnakeBody: §DEF SnakeBody
+		MoveDirection: §DEF MoveDirection
+		PendingDirection: §DEF PendingDirection
+		FoodPosition: §DEF FoodPosition
+		RandomState: §DEF RandomState
+	} = aState
+	§RETURN {
+		SnakeBody: SnakeBody
+		MoveDirection: MoveDirection
+		PendingDirection: PendingDirection
+		FoodPosition: FoodPosition
+		RandomState: RandomState
+		Phase: aPhase
+	}
+}
+
+§DEF ...After... = (
+	§DEF aState € tGameState
+	§DEF aAction € [§LOAD "Action.SIG"]
+) => {
+	{
+		SnakeBody: §DEF SnakeBody
+		MoveDirection: §DEF MoveDirection
+		PendingDirection: §DEF PendingDirection
+		FoodPosition: §DEF FoodPosition
+		RandomState: §DEF RandomState
+		Phase: §DEF Phase
+	} = aState
+	§DEF FindFreeCellOutside...Skipping... = (
+		§DEF aSnakeBody € [§LOAD "SnakeBody.SIG"]
+		§DEF aFreeCellsToSkip € §INT
+	) => {
+		§RECURSIVE {
+			§DEF FindFreeColumnIn...From...Skipping... = (
+				§DEF aRowBody € [§LOAD "SnakeBody.SIG"]
+				§DEF aColumn € §INT
+				§DEF aFreeCellsToSkip € §INT
+			) => {
+				§DEF IsOccupied = aRowBody .Any (=> (... .X) .== aColumn)
+				§RETURN §IF (IsOccupied, aFreeCellsToSkip) MATCH {
+					(§FALSE, 0): aColumn
+					(§TRUE, _): .FindFreeColumnIn aRowBody From (aColumn .+ 1) Skipping aFreeCellsToSkip
+					_: .FindFreeColumnIn aRowBody From (aColumn .+ 1) Skipping (aFreeCellsToSkip .- 1)
+				}
+			}
+		}
+		§RECURSIVE {
+			§DEF FindFreeCellInRow...Skipping... = (
+				§DEF aRow € §INT
+				§DEF aFreeCellsToSkip € §INT
+			) => {
+				§DEF RowBody = aSnakeBody .Where (=> (... .Y) .== aRow)
+				§DEF FreeCellsInRow = cBoardWidth .- (RowBody .Count)
+				§RETURN §IF (aFreeCellsToSkip .< FreeCellsInRow) MATCH {
+					§TRUE: {
+						§DEF Column = .FindFreeColumnIn RowBody From 1 Skipping aFreeCellsToSkip
+						§RETURN (Column, aRow)
+					}
+					§FALSE: .FindFreeCellInRow (aRow .+ 1) Skipping (aFreeCellsToSkip .- FreeCellsInRow)
+				}
+			}
+		}
+		§DEF Position € [§INT, §INT] = .FindFreeCellInRow 1 Skipping aFreeCellsToSkip
+		§RETURN Position
+	}
+	§DEF AdvancedState... = (§DEF aCurrentState € tGameState) => {
+		§DEF Step = §IF PendingDirection MATCH {
+			#Up: (0, -1)
+			#Down: (0, 1)
+			#Left: (-1, 0)
+			#Right: (1, 0)
+		}
+		§RETURN §IF (SnakeBody .TrySplitLast) MATCH {
+			(): aCurrentState
+			(_, §DEF HeadPosition): {
+				§DEF NextHead = HeadPosition ._+_ Step
+				§DEF EatsFood = NextHead ._==_ FoodPosition
+				§DEF BodyAfterTailMove = §IF EatsFood MATCH {
+					§TRUE: SnakeBody
+					§FALSE: SnakeBody .Skip 1
+				}
+				§DEF IsInsideBoard = (
+					1 .<= (NextHead .X) <= cBoardWidth
+				) .And (
+					1 .<= (NextHead .Y) <= cBoardHeight
+				)
+				§DEF HitsWall = .Not IsInsideBoard
+				§DEF HitsSnake = BodyAfterTailMove .ContainsPosition NextHead
+				§RETURN (aCurrentState .WithPhase #GameOver) IF HitsWall .Or HitsSnake
+				
+				§DEF NextBody = BodyAfterTailMove .FollowedBy NextHead
+				§DEF FreeCellCount = (cBoardWidth .* cBoardHeight) .- (NextBody .Count)
+				§DEF BoardIsFull = FreeCellCount .== 0
+				{
+					RandomState: §DEF NextRandomState
+					FoodPosition: §DEF NextFood
+				} = §IF (EatsFood, BoardIsFull) MATCH {
+					(§TRUE, §FALSE): {
+						§DEF NextRandomState = RandomState .NextRandom
+						§DEF FreeCellIndex = (NextRandomState .- 1) .% FreeCellCount
+						§DEF NextFood = .FindFreeCellOutside NextBody Skipping FreeCellIndex
+						§RETURN {RandomState: NextRandomState, FoodPosition: NextFood}
+					}
+					_: {RandomState: RandomState, FoodPosition: FoodPosition}
+				}
+				§RETURN {
+					SnakeBody: NextBody
+					MoveDirection: PendingDirection
+					PendingDirection: PendingDirection
+					FoodPosition: NextFood
+					RandomState: NextRandomState
+					Phase: §IF BoardIsFull MATCH {
+						§TRUE: #Won
+						§FALSE: #Playing
+					}
+				}
+			}
+		}
+	}
+	§RETURN §IF aAction MATCH {
+		#Restart: cInitialState
+		(#Turn §DEF Direction): {
+			§DEF WouldReverse = §IF (MoveDirection, Direction) MATCH {
+				(#Up, #Down): §TRUE
+				(#Down, #Up): §TRUE
+				(#Left, #Right): §TRUE
+				(#Right, #Left): §TRUE
+				_: §FALSE
+			}
+			§RETURN aState IF WouldReverse
+			§RETURN {
+				SnakeBody: SnakeBody
+				MoveDirection: MoveDirection
+				PendingDirection: Direction
+				FoodPosition: FoodPosition
+				RandomState: RandomState
+				Phase: Phase
+			}
+		}
+		#TogglePause: aState .WithPhase (
+			§IF Phase MATCH {
+				#Playing: #Paused
+				#Paused: #Playing
+				_: Phase
+			}
+		)
+		#Pause: §IF Phase MATCH {
+			#Playing: aState .WithPhase #Paused
+			_: aState
+		}
+		#Advance: §IF Phase MATCH {
+			#Playing: .AdvancedState aState
+			_: aState
+		}
+		_: aState
+	}
+}
+
+§DEF cModule € [§LOAD "Logic.SIG"] = {
+	InitialState: cInitialState
+	...After...: ...After...
+	BoardSize: cBoardSize
+	InitialSnakeLength: cInitialSnakeBody .Count
+}
+§EXPORT cModule

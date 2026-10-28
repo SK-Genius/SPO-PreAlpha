@@ -952,10 +952,10 @@ mVM_Data {
 		out tData a1,
 		out tData a2
 	) {
-		a2 = default!;
+		a1 = default!;
 		return (
-			aData.IsPair(out a1, out var Rest2) &&
-			Rest2.IsPair(out a2, out var Rest_) &&
+			aData.IsPair(out var Rest2, out a2) &&
+			Rest2.IsPair(out var Rest_, out a1) &&
 			Rest_.IsEmpty()
 		);
 	}
@@ -967,12 +967,12 @@ mVM_Data {
 		out tData a2,
 		out tData a3
 	) {
+		a1 = default!;
 		a2 = default!;
-		a3 = default!;
 		return (
-			aData.IsPair(out a1, out var Rest23) &&
-			Rest23.IsPair(out a2, out var Rest3) &&
-			Rest3.IsPair(out a3, out var Rest_) &&
+			aData.IsPair(out var Rest23, out a3) &&
+			Rest23.IsPair(out var Rest3, out a2) &&
+			Rest3.IsPair(out var Rest_, out a1) &&
 			Rest_.IsEmpty()
 		);
 	}
@@ -985,14 +985,14 @@ mVM_Data {
 		out tData a3,
 		out tData a4
 	) {
+		a1 = default!;
 		a2 = default!;
 		a3 = default!;
-		a4 = default!;
 		return (
-			aData.IsPair(out a1, out var Rest234) &&
-			Rest234.IsPair(out a2, out var Rest34) &&
-			Rest34.IsPair(out a3, out var Rest4) &&
-			Rest4.IsPair(out a4, out var Rest_) &&
+			aData.IsPair(out var Rest234, out a4) &&
+			Rest234.IsPair(out var Rest34, out a3) &&
+			Rest34.IsPair(out var Rest4, out a2) &&
+			Rest4.IsPair(out var Rest_, out a1) &&
 			Rest_.IsEmpty()
 		);
 	}

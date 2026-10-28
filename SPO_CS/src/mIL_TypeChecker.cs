@@ -999,7 +999,8 @@ mIL_TypeChecker {
 	private sealed record tAccessValue(
 		tBool Mutable = false,
 		tBool Opaque = false,
-		mMaybe.tMaybe<tNat32> Cell = default
+		mMaybe.tMaybe<tNat32> Cell = default,
+		tBool BoundReceiver = false
 	);
 	
 	private static tAccessValue
@@ -1028,12 +1029,13 @@ mIL_TypeChecker {
 			),
 			mVM_Type.tKind.Prefix => FromType(aType.Refs[0], aOpaque, aImmutable),
 			mVM_Type.tKind.Var => new(true, aOpaque),
+			mVM_Type.tKind.Interface => new(true, aOpaque, BoundReceiver: true),
 			mVM_Type.tKind.Record => aType.Fields.ToStream().Reduce(
 				new tAccessValue(!aImmutable, aOpaque && !aImmutable),
 				(aSummary, aField) => Join(aSummary, FromType(aField.Value, aOpaque, aImmutable))
 			),
 			mVM_Type.tKind.Sig or mVM_Type.tKind.Recursive
-			or mVM_Type.tKind.Generic or mVM_Type.tKind.Interface => FromType(aType.Refs[1], aOpaque, aImmutable),
+			or mVM_Type.tKind.Generic => FromType(aType.Refs[1], aOpaque, aImmutable),
 			_ => new(!aImmutable, aOpaque && !aImmutable),
 		};
 	}
@@ -1104,10 +1106,10 @@ mIL_TypeChecker {
 					Cells = Cells.Set(Cell, Content with { Opaque = true });
 				}
 			}
-			// Previously built composites must also remain opaque when projected later.
+			// Composites stay opaque; bound interfaces retain their fixed receiver identity.
 			for (tNat32 Id = 0; Id < Values.Size; Id++) {
 				var Value = Values.Get(Id);
-				if (Value.Cell.IsNone() && Value.Mutable) {
+				if (Value.Cell.IsNone() && Value.Mutable && !Value.BoundReceiver) {
 					Values.Set(Id, Value with { Opaque = true });
 				}
 			}
@@ -1188,7 +1190,9 @@ mIL_TypeChecker {
 					break;
 				case tCommand.Sig:
 				case tCommand.Interface:
-					Access = Aggregate(Values.Get(Inputs[1].Id));
+					Access = Aggregate(Values.Get(Inputs[1].Id)) with {
+						BoundReceiver = AST_Node.NodeType is tCommand.Interface
+					};
 					break;
 				case tCommand.SubInterface:
 					Access = Project(Values.Get(Inputs[1].Id), ResultType.AssertNotEmpty());

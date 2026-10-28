@@ -1,0 +1,3 @@
+[<
+	...NextRandom: [§INT => §INT]
+>]

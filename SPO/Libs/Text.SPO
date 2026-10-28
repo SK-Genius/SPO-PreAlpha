@@ -1,0 +1,263 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...<...: §DEF ...<...
+		...==...: §DEF ...==...
+		...!=...: §DEF ...!=...
+		...<=...: §DEF ...<=...
+	} € [§LOAD "Std.SIG"]
+	Char: {
+		...<=>...: §DEF ...Char<=>...
+		...Ord: §DEF ...Ord
+		...AsChar: §DEF ...AsChar
+		...ToUpper: §DEF ...ToUpperChar
+		...ToLower: §DEF ...ToLowerChar
+		...IsSpace: §DEF ...IsSpace
+	} € [§LOAD "Char.SIG"]
+}
+
+§RECURSIVE {
+	§DEF ...ToUpper = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		(): (
+			""
+		)
+		(§DEF SubText; §DEF Char): (
+			(SubText .ToUpper; Char .ToUpperChar)
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...ToLower = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		(): (
+			""
+		)
+		(§DEF SubText; §DEF Char): (
+			(SubText .ToLower; Char .ToLowerChar)
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Text<=>... = (
+		§DEF aLeft € §TEXT
+		§DEF aRight € §TEXT
+	) => §IF (aLeft, aRight) MATCH {
+		((), ()): (
+			0
+		)
+		((), _): (
+			-1
+		)
+		(_, ()): (
+			1
+		)
+		((§DEF SubText1; §DEF Char1), (§DEF SubText2; §DEF Char2)): (
+			§IF (SubText1 .Text<=> SubText2) MATCH {
+				0: Char1 .Char<=> Char2
+				§DEF Res: Res
+			}
+		)
+	}
+}
+
+§DEF ...Text==... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	0: §TRUE
+	_: §FALSE
+}
+
+§DEF ...Text!=... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	0: §FALSE
+	_: §TRUE
+}
+
+§DEF ...Text>... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	1: §TRUE
+	_: §FALSE
+}
+
+§DEF ...Text<... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	-1: §TRUE
+	_: §FALSE
+}
+
+§DEF ...Text>=... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	-1: §FALSE
+	_: §TRUE
+}
+
+§DEF ...Text<=... = (
+	§DEF aLeft € §TEXT
+	§DEF aRight € §TEXT
+) => §IF (aLeft .Text<=> aRight) MATCH {
+	1: §FALSE
+	_: §TRUE
+}
+
+§RECURSIVE {
+	§DEF ...TrimStart = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		(): (
+			""
+		)
+		((); §DEF Char): (
+			§IF (Char .IsSpace) MATCH {
+				§TRUE: ""
+				_: a
+			}
+		)
+		(§DEF SubText; §DEF Char): (
+			§IF (SubText .TrimStart, Char .IsSpace) MATCH {
+				((), §TRUE): (
+					""
+				)
+				(§DEF TrimmedSubText, _): (
+					(TrimmedSubText; Char)
+				)
+			}
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...TrimEnd = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		(): (
+			""
+		)
+		(§DEF SubText; §DEF Char): (
+			§IF {
+				Char .IsSpace: (
+					SubText .TrimEnd
+				)
+				§TRUE: (
+					a
+				)
+			}
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Trim = (
+		§DEF a € §TEXT
+	) => §IF a MATCH {
+		(): (
+			""
+		)
+		(§DEF SubText; §DEF Char): (
+			§IF {
+				Char .IsSpace: (
+					SubText .Trim
+				)
+				§TRUE: (
+					(SubText .TrimStart; Char)
+				)
+			}
+		)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Length = (
+		§DEF aText € §TEXT
+	) => §IF aText MATCH {
+		(): 0
+		(§DEF Prefix; _): (Prefix .Length) .+ 1
+	}
+}
+
+§RECURSIVE {
+	§DEF ...FollowedBy... = (
+		§DEF aText € §TEXT
+		§DEF aSuffix € §TEXT
+	) => §IF aSuffix MATCH {
+		(): aText
+		(§DEF Prefix; §DEF Last): (aText .FollowedBy Prefix; Last)
+	}
+}
+
+§RECURSIVE {
+	§DEF ...Repeated... = (
+		§DEF aText € §TEXT
+		§DEF aCount € §INT
+	) => {
+		§RETURN "" IF aText §IS ()
+		§RETURN §IF (aCount .<= 0) MATCH {
+			§TRUE: ""
+			§FALSE: (aText .Repeated (aCount .- 1)) .FollowedBy aText
+		}
+	}
+}
+
+§DEF ...AsDecimalText = (
+	§DEF aNumber € §INT
+) => {
+	§RECURSIVE {
+		§DEF DigitsFor... = (
+			§DEF aNumber € §INT
+		) => {
+			§DEF Remainder = aNumber .% 10
+			§DEF DigitValue = §IF (Remainder .< 0) MATCH {
+				§TRUE: 0 .- Remainder
+				§FALSE: Remainder
+			}
+			§DEF Digit = ((§0 .Ord) .+ DigitValue) .AsChar
+			§RETURN §IF (aNumber ./ 10) MATCH {
+				0: (""; Digit)
+				§DEF Remaining: (.DigitsFor Remaining; Digit)
+			}
+		}
+	}
+	§DEF Digits = .DigitsFor aNumber
+	§RETURN §IF (aNumber .< 0) MATCH {
+		§TRUE: "-" .FollowedBy Digits
+		§FALSE: Digits
+	}
+}
+
+§DEF cModule € [§LOAD "Text.SIG"] = {
+	...Length: ...Length
+	...FollowedBy...: ...FollowedBy...
+	...Repeated...: ...Repeated...
+	...AsDecimalText: ...AsDecimalText
+	...<=>...: ...Text<=>...
+	...==...: ...Text==...
+	...!=...: ...Text!=...
+	...>...: ...Text>...
+	...<...: ...Text<...
+	...>=...: ...Text>=...
+	...<=...: ...Text<=...
+	...ToUpper: ...ToUpper
+	...ToLower: ...ToLower
+	...IsSpace: ...IsSpace
+	...TrimStart: ...TrimStart
+	...TrimEnd: ...TrimEnd
+	...Trim: ...Trim
+}
+
+§EXPORT cModule

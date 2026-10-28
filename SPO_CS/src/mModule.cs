@@ -52,7 +52,7 @@ mModule {
 		var File = mFS.File(aModule.ModulePath);
 		var Result = File.TryReadText().ThenTry(
 			aSource => {
-				if (File.Extension is "SPO") {
+				if (File.Extension.Equals("SPO", System.StringComparison.OrdinalIgnoreCase)) {
 					return mSPO_Parser.Module.TryParseText(aSource, File.Path.ToText(), __ => aLogger(__())).ThenTry(
 						__ => __.Check()
 					).Then(
@@ -67,7 +67,7 @@ mModule {
 						}
 					);
 				}
-				if (File.Extension is "ILT") {
+				if (File.Extension.Equals("ILT", System.StringComparison.OrdinalIgnoreCase)) {
 					return mIL_Parser.Module.TryParseText(aSource, File.Path.ToText(), __ => aLogger(__())).ThenTry(
 						__ => {
 							if (!mIL_TypeChecker.AreModuleTypesValid(__, out var Error)) {

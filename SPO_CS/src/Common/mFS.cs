@@ -216,10 +216,6 @@ mFS {
 	Path(
 		tText aPath
 	) {
-		if (System.Uri.TryCreate(aPath, System.UriKind.Absolute, out var Uri) && Uri.IsFile) {
-			aPath = Uri.LocalPath;
-		}
-
 		if (aPath is [_, ':']) {
 			return new (aPath);
 		}
@@ -272,10 +268,6 @@ mFS {
 		public tPath
 		ToAbsolute(
 		) => Path(System.IO.Path.GetFullPath(aPath.ToText()));
-
-		public tText
-		ToUri(
-		) => new System.Uri(aPath.ToAbsolute().ToText()).AbsoluteUri;
 
 		public tInt32
 		Length(

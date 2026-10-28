@@ -25,7 +25,7 @@ mSPO_Navigation {
 		Operator = 25,
 		TypeParameter = 26,
 	}
-
+	
 	public readonly struct
 	tDocumentSymbol {
 		public readonly tText Name;
@@ -34,7 +34,7 @@ mSPO_Navigation {
 		public readonly tSpan Range;
 		public readonly tSpan SelectionRange;
 		public readonly mStream.tStream<tDocumentSymbol> Children;
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tDocumentSymbol(
@@ -53,28 +53,28 @@ mSPO_Navigation {
 			this.Children = aChildren;
 		}
 	}
-
+	
 	public readonly struct
 	tLocation {
-		public readonly tText Uri;
+		public readonly tText Path;
 		public readonly tSpan Range;
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tLocation(
-			tText aUri,
+			tText aPath,
 			tSpan aRange
 		) {
-			this.Uri = aUri;
+			this.Path = aPath;
 			this.Range = aRange;
 		}
 	}
-
+	
 	public readonly struct
 	tTextEdit {
 		public readonly tSpan Range;
 		public readonly tText NewText;
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tTextEdit(
@@ -85,12 +85,12 @@ mSPO_Navigation {
 			this.NewText = aNewText;
 		}
 	}
-
+	
 	public readonly struct
 	tRenameTarget {
 		public readonly tSpan Range;
 		public readonly tText Placeholder;
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tRenameTarget(
@@ -101,13 +101,13 @@ mSPO_Navigation {
 			this.Placeholder = aPlaceholder;
 		}
 	}
-
+	
 	private readonly struct
 	tBinding {
 		public readonly tText Id;
 		public readonly tSpan Span;
 		public readonly tSymbolKind Kind;
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		internal
 		tBinding(
@@ -120,14 +120,14 @@ mSPO_Navigation {
 			this.Kind = aKind;
 		}
 	}
-
+	
 	private readonly struct
 	tOccurrence {
 		public readonly tText Id;
 		public readonly tSpan DefinitionSpan;
 		public readonly mStream.tStream<tSpan> NameParts;
 		public readonly tBool IsDefinition;
-
+		
 		internal
 		tOccurrence(
 			tText aId,
@@ -141,12 +141,12 @@ mSPO_Navigation {
 			this.IsDefinition = aIsDefinition;
 		}
 	}
-
+	
 	private readonly struct
 	tResolveContext {
 		public readonly tPos QueryPos;
 		public readonly System.Collections.Generic.List<tOccurrence>? Occurrences;
-
+		
 		internal
 		tResolveContext(
 			tPos aQueryPos,
@@ -156,7 +156,7 @@ mSPO_Navigation {
 			this.Occurrences = aOccurrences;
 		}
 	}
-
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tDocumentSymbol
 	DocumentSymbol(
@@ -166,45 +166,29 @@ mSPO_Navigation {
 		tSpan aRange,
 		tSpan aSelectionRange,
 		mStream.tStream<tDocumentSymbol> aChildren
-	) => new(
-		aName,
-		aDetail,
-		aKind,
-		aRange,
-		aSelectionRange,
-		aChildren
-	);
-
+	) => new(aName, aDetail, aKind, aRange, aSelectionRange, aChildren);
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tLocation
 	Location(
-		tText aUri,
+		tText aPath,
 		tSpan aRange
-	) => new(
-		aUri,
-		aRange
-	);
-
+	) => new(aPath, aRange);
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tTextEdit
 	TextEdit(
 		tSpan aRange,
 		tText aNewText
-	) => new(
-		aRange,
-		aNewText
-	);
-
+	) => new(aRange, aNewText);
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	public static tRenameTarget
 	RenameTarget(
 		tSpan aRange,
 		tText aPlaceholder
-	) => new(
-		aRange,
-		aPlaceholder
-	);
-
+	) => new(aRange, aPlaceholder);
+	
 	public static mStream.tStream<tDocumentSymbol>
 	GetDocumentSymbols(
 		tText aCode,
@@ -212,17 +196,33 @@ mSPO_Navigation {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		mTokenizer.tFileContext? aFileContext = null
 	) {
-		mStream.tStream<tDocumentSymbol> LocalSymbols(mStream.tStream<tDocumentSymbol> aSymbols)
-			=> aSymbols.Where(__ => __.Range.Start.Id == aId).Map(__ => DocumentSymbol(
-				__.Name, __.Detail, __.Kind, __.Range, __.SelectionRange, LocalSymbols(__.Children)
-			));
-		return TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext)
-		? LocalSymbols(aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
-			? GetExpressionSymbols(Module.Export.Expression)
-			: GetModuleSymbols(Module))
-		: mStd.cEmpty;
+		mStream.tStream<tDocumentSymbol>
+		LocalSymbols(
+			mStream.tStream<tDocumentSymbol> aSymbols
+		) => aSymbols.Where(__ => __.Range.Start.Id == aId).Map(
+			__ => DocumentSymbol(
+				__.Name,
+				__.Detail,
+				__.Kind,
+				__.Range,
+				__.SelectionRange,
+				LocalSymbols(__.Children)
+			)
+		);
+		
+		return (
+			TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext)
+			? LocalSymbols(
+				(
+					aId.EndsWith(".SIG", System.StringComparison.OrdinalIgnoreCase)
+					? GetExpressionSymbols(Module.Export.Expression)
+					: GetModuleSymbols(Module)
+				)
+			)
+			: mStd.cEmpty
+		);
 	}
-
+	
 	public static mMaybe.tMaybe<tLocation>
 	GetDefinition(
 		tText aCode,
@@ -234,40 +234,43 @@ mSPO_Navigation {
 		if (!mTokenizer.Tokenizer.TryParseText(aCode, aId, aDebugStream).Match(out var Parsed, out _)) {
 			return mStd.cEmpty;
 		}
+		
 		var Tokens = Parsed.Result;
 		while (Tokens.TryFirst().IsSome(out var Token)) {
 			Tokens = Tokens.Skip(1);
-			if (Token.Type != mTokenizer.tTokenType.SpecialToken || Token.Text != "[") { continue; }
-			var Load = Tokens.SkipWhile(__ => __.Type == mTokenizer.tTokenType.SpecialToken && __.Text is "\n" or " " or "\t");
-			if (Load.TryFirst().IsSome(out var Keyword) && Keyword.Type == mTokenizer.tTokenType.SpecialId && Keyword.Text == "§LOAD" &&
-				Load.Skip(1).TryFirst().IsSome(out var File) && File.Type == mTokenizer.tTokenType.Text &&
-				Contains(File.Span, aPos)) {
+			if (Token.Type != mTokenizer.tTokenType.SpecialToken || Token.Text != "[") {
+				continue;
+			}
+			
+			var Load = Tokens.SkipWhile(
+				__ => __.Type == mTokenizer.tTokenType.SpecialToken &&
+				__.Text is "\n" or
+				" " or
+				"\t"
+			);
+			if (
+				Load.TryFirst().IsSome(out var Keyword) && Keyword.Type == mTokenizer.tTokenType.SpecialId &&
+				Keyword.Text == "§LOAD" &&
+				Load.Skip(1).TryFirst().IsSome(out var File) &&
+				File.Type == mTokenizer.tTokenType.Text &&
+				Contains(File.Span, aPos)
+			) {
 				var Folder = string.IsNullOrEmpty(aId) ? mFS.CWD() : mFS.File(aId).Folder;
-				var Target = Folder.GetFile(File.Text).Path.ToUri();
+				var Target = Folder.GetFile(File.Text).Path.ToAbsolute().ToText();
 				return Location(Target, mSpan.Span(mTextStream.Pos(Target, 1, 1)));
 			}
 		}
+		
 		if (
-			!TryParseModule(
-				aCode,
-				aId,
-				aDebugStream,
-				out var Module,
-				aFileContext
-			) ||
-			!TryResolveModule(
-				Module,
-				new(aPos, null),
-				[],
-				out var DefinitionSpan
-			)
+			!TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext) ||
+			!TryResolveModule(Module, new(aPos, null), [], out var DefinitionSpan)
 		) {
 			return mStd.cEmpty;
 		}
-
+		
 		return Location(DefinitionSpan.Start.Id, DefinitionSpan);
 	}
-
+	
 	public static mStream.tStream<tLocation>
 	GetReferences(
 		tText aCode,
@@ -283,7 +286,7 @@ mSPO_Navigation {
 		) {
 			return mStd.cEmpty;
 		}
-
+		
 		var Result = new System.Collections.Generic.List<tLocation>();
 		foreach (var Occurrence in Occurrences) {
 			if (
@@ -294,9 +297,10 @@ mSPO_Navigation {
 				Result.Add(Location(Range.Start.Id, Range));
 			}
 		}
+		
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	public static mMaybe.tMaybe<tRenameTarget>
 	PrepareRename(
 		tText aCode,
@@ -304,12 +308,17 @@ mSPO_Navigation {
 		tPos aPos,
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		mTokenizer.tFileContext? aFileContext = null
-	) => TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) &&
+	) => (
+		TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) &&
 		TryFindOccurrence(Occurrences, aPos, out var Occurrence, out var SelectedPart) &&
-		Occurrences.TrueForAll(__ => !SameSpan(__.DefinitionSpan, Occurrence.DefinitionSpan) || __.NameParts.All(aPart => aPart.Start.Id == aId))
+		Occurrences.TrueForAll(
+			__ => !SameSpan(__.DefinitionSpan, Occurrence.DefinitionSpan) ||
+			__.NameParts.All(aPart => aPart.Start.Id == aId)
+		)
 		? RenameTarget(SelectedPart, DisplayId(Occurrence.Id))
-		: mStd.cEmpty;
-
+		: mStd.cEmpty
+	);
+	
 	public static mMaybe.tMaybe<mStream.tStream<tTextEdit>>
 	Rename(
 		tText aCode,
@@ -322,46 +331,52 @@ mSPO_Navigation {
 		if (
 			!TryCollectOccurrences(aCode, aId, aDebugStream, out var Occurrences, aFileContext) ||
 			!TryFindOccurrence(Occurrences, aPos, out var Selected, out _) ||
-			!Occurrences.TrueForAll(__ => !SameSpan(__.DefinitionSpan, Selected.DefinitionSpan) || __.NameParts.All(aPart => aPart.Start.Id == aId)) ||
+			!Occurrences.TrueForAll(
+				__ => !SameSpan(__.DefinitionSpan, Selected.DefinitionSpan) ||
+				__.NameParts.All(aPart => aPart.Start.Id == aId)
+			) ||
 			!TryGetRenameParts(DisplayId(Selected.Id), aNewName, out var NewParts)
 		) {
 			return mStd.cEmpty;
 		}
-
+		
 		var Result = new System.Collections.Generic.List<tTextEdit>();
 		foreach (var Occurrence in Occurrences) {
 			if (!SameSpan(Occurrence.DefinitionSpan, Selected.DefinitionSpan)) {
 				continue;
 			}
-
+			
 			if (Occurrence.IsDefinition) {
 				if (Occurrence.NameParts.TryFirst().IsSome(out var Range)) {
 					Result.Add(TextEdit(Range, aNewName));
 				}
+				
 				continue;
 			}
-
+			
 			var I = 0;
 			foreach (var Range in Occurrence.NameParts) {
 				if (I >= NewParts.Length) {
 					return mStd.cEmpty;
 				}
+				
 				Result.Add(TextEdit(Range, NewParts[I]));
 				I += 1;
 			}
+			
 			if (I != NewParts.Length) {
 				return mStd.cEmpty;
 			}
 		}
+		
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetModuleSymbols(
 		mSPO_AST.tModuleNode<tSpan> aModule
 	) {
 		var Result = new System.Collections.Generic.List<tDocumentSymbol>();
-
 		var ImportChildren = GetPatternSymbols(
 			aModule.Import.Pattern,
 			aModule.Import.Pos,
@@ -381,17 +396,14 @@ mSPO_Navigation {
 				)
 			);
 		}
-
+		
 		foreach (var Command in aModule.Commands) {
-			AddSymbols(
-				Result,
-				GetCommandSymbols(Command)
-			);
+			AddSymbols(Result, GetCommandSymbols(Command));
 		}
-
+		
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetCommandSymbols(
 		mSPO_AST.tCommandNode<tSpan> aCommand
@@ -419,10 +431,7 @@ mSPO_Navigation {
 			)
 		),
 		mSPO_AST.tMethodCallsNode<tSpan> MethodCalls => JoinSymbolStreams(
-			mStream.Stream(
-				GetExpressionSymbols(MethodCalls.Object),
-				GetMethodCallSymbols(MethodCalls.MethodCalls)
-			)
+			mStream.Stream(GetExpressionSymbols(MethodCalls.Object), GetMethodCallSymbols(MethodCalls.MethodCalls))
 		),
 		mSPO_AST.tRecProcsNode<tSpan> RecProcs => RecProcs.List.Map(
 			aItem => DocumentSymbol(
@@ -436,13 +445,17 @@ mSPO_Navigation {
 		),
 		mSPO_AST.tReturnIfNode<tSpan> ReturnIf => JoinSymbolStreams(
 			mStream.Stream(
-				GetExpressionSymbols(ReturnIf.Result),
-				GetExpressionSymbols(ReturnIf.Condition)
+				GetExpressionSymbols(
+					ReturnIf.Result
+				),
+				GetExpressionSymbols(
+					ReturnIf.Condition
+				)
 			)
 		),
 		_ => mStd.cEmpty,
 	};
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetExpressionSymbols(
 		mSPO_AST.tExpressionNode<tSpan> aExpression
@@ -462,7 +475,9 @@ mSPO_Navigation {
 			If.Cases.Map(
 				aCase => JoinSymbolStreams(
 					GetExpressionSymbols(aCase.Cond),
-					GetExpressionSymbols(aCase.Result)
+					GetExpressionSymbols(
+						aCase.Result
+					)
 				)
 			)
 		),
@@ -488,19 +503,25 @@ mSPO_Navigation {
 		mSPO_AST.tCallNode<tSpan> Call => JoinSymbolStreams(
 			mStream.Stream(
 				GetExpressionSymbols(Call.Func),
-				GetExpressionSymbols(Call.Arg)
+				GetExpressionSymbols(
+					Call.Arg
+				)
 			)
 		),
 		mSPO_AST.tPrefixNode<tSpan> Prefix => GetExpressionSymbols(Prefix.Element),
 		mSPO_AST.tRecordNode<tSpan> Record => JoinSymbolStreams(
 			Record.Elements.Map(
-				aElement => GetExpressionSymbols(aElement.Value)
+				aElement => GetExpressionSymbols(
+					aElement.Value
+				)
 			)
 		),
 		mSPO_AST.tPairNode<tSpan> Pair => JoinSymbolStreams(
 			mStream.Stream(
 				GetExpressionSymbols(Pair.Tail),
-				GetExpressionSymbols(Pair.Head)
+				GetExpressionSymbols(
+					Pair.Head
+				)
 			)
 		),
 		mSPO_AST.tSigNode<tSpan> Sig => JoinSymbolStreams(
@@ -510,35 +531,19 @@ mSPO_Navigation {
 				GetExpressionSymbols(Sig.Body)
 			)
 		),
-		mSPO_AST.tTupleNode<tSpan> Tuple => JoinSymbolStreams(
-			Tuple.Items.Map(
-				GetExpressionSymbols
-			)
-		),
+		mSPO_AST.tTupleNode<tSpan> Tuple => JoinSymbolStreams(Tuple.Items.Map(GetExpressionSymbols)),
 		mSPO_AST.tIsNode<tSpan> Is => JoinSymbolStreams(
 			mStream.Stream(
 				GetExpressionSymbols(Is.Expression),
-				GetPatternSymbols(
-					Is.Pattern,
-					Is.Pattern.Pos,
-					"",
-					tSymbolKind.Variable,
-					mStd.cEmpty
-				)
+				GetPatternSymbols(Is.Pattern, Is.Pattern.Pos, "", tSymbolKind.Variable, mStd.cEmpty)
 			)
 		),
 		mSPO_AST.tVarToValNode<tSpan> VarToVal => GetExpressionSymbols(VarToVal.Obj),
 		mSPO_AST.tPipeToRightNode<tSpan> Pipe => JoinSymbolStreams(
-			mStream.Stream(
-				GetExpressionSymbols(Pipe.Head),
-				JoinSymbolStreams(Pipe.Pipe.Map(GetExpressionSymbols))
-			)
+			mStream.Stream(GetExpressionSymbols(Pipe.Head), JoinSymbolStreams(Pipe.Pipe.Map(GetExpressionSymbols)))
 		),
 		mSPO_AST.tPipeToLeftNode<tSpan> Pipe => JoinSymbolStreams(
-			mStream.Stream(
-				JoinSymbolStreams(Pipe.Pipe.Map(GetExpressionSymbols)),
-				GetExpressionSymbols(Pipe.Head)
-			)
+			mStream.Stream(JoinSymbolStreams(Pipe.Pipe.Map(GetExpressionSymbols)), GetExpressionSymbols(Pipe.Head))
 		),
 		mSPO_AST.tRecursiveTypeNode<tSpan> RecursiveType => mStream.Stream(
 			DocumentSymbol(
@@ -578,15 +583,19 @@ mSPO_Navigation {
 		),
 		mSPO_AST.tVarTypeNode<tSpan> VarType => GetExpressionSymbols(VarType.Type),
 		mSPO_AST.tPrefixTypeNode<tSpan> PrefixType => JoinSymbolStreams(
-			PrefixType.Expressions.Map(GetExpressionSymbols)
+			PrefixType.Expressions.Map(
+				GetExpressionSymbols
+			)
 		),
-		mSPO_AST.tTupleTypeNode<tSpan> TupleType => JoinSymbolStreams(
-			TupleType.ItemTypes.Map(GetExpressionSymbols)
-		),
+		mSPO_AST.tTupleTypeNode<tSpan> TupleType => JoinSymbolStreams(TupleType.ItemTypes.Map(GetExpressionSymbols)),
 		mSPO_AST.tPairTypeNode<tSpan> PairType => JoinSymbolStreams(
 			mStream.Stream(
-				GetExpressionSymbols(PairType.TailType),
-				GetExpressionSymbols(PairType.HeadType)
+				GetExpressionSymbols(
+					PairType.TailType
+				),
+				GetExpressionSymbols(
+					PairType.HeadType
+				)
 			)
 		),
 		mSPO_AST.tSigTypeNode<tSpan> SigType => mStream.Stream(
@@ -597,21 +606,18 @@ mSPO_Navigation {
 				SigType.Pos,
 				SigType.Head.Pos,
 				JoinSymbolStreams(
-					mStream.Stream(
-						GetExpressionSymbols(SigType.HeadType),
-						GetExpressionSymbols(SigType.BodyType)
-					)
+					mStream.Stream(GetExpressionSymbols(SigType.HeadType), GetExpressionSymbols(SigType.BodyType))
 				)
 			)
 		),
 		mSPO_AST.tRecordTypeNode<tSpan> RecordType => JoinSymbolStreams(
 			RecordType.Elements.Map(
-				aElement => GetExpressionSymbols(aElement.Type)
+				aElement => GetExpressionSymbols(
+					aElement.Type
+				)
 			)
 		),
-		mSPO_AST.tSetTypeNode<tSpan> SetType => JoinSymbolStreams(
-			SetType.Expressions.Map(GetExpressionSymbols)
-		),
+		mSPO_AST.tSetTypeNode<tSpan> SetType => JoinSymbolStreams(SetType.Expressions.Map(GetExpressionSymbols)),
 		mSPO_AST.tProcTypeNode<tSpan> ProcType => JoinSymbolStreams(
 			mStream.Stream(
 				GetExpressionSymbols(ProcType.ObjType),
@@ -621,13 +627,12 @@ mSPO_Navigation {
 		),
 		_ => mStd.cEmpty,
 	};
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetLambdaSymbols(
 		mSPO_AST.tLambdaNode<tSpan> aLambda
 	) {
 		var Result = new System.Collections.Generic.List<tDocumentSymbol>();
-
 		if (aLambda.Generic.IsSome(out var GenericPattern)) {
 			AddSymbols(
 				Result,
@@ -640,31 +645,17 @@ mSPO_Navigation {
 				)
 			);
 		}
-
-		AddSymbols(
-			Result,
-			GetPatternSymbols(
-				aLambda.Head,
-				aLambda.Head.Pos,
-				"",
-				tSymbolKind.Variable,
-				mStd.cEmpty
-			)
-		);
-		AddSymbols(
-			Result,
-			GetExpressionSymbols(aLambda.Body)
-		);
-
+		
+		AddSymbols(Result, GetPatternSymbols(aLambda.Head, aLambda.Head.Pos, "", tSymbolKind.Variable, mStd.cEmpty));
+		AddSymbols(Result, GetExpressionSymbols(aLambda.Body));
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetMethodSymbols(
 		mSPO_AST.tMethodNode<tSpan> aMethod
 	) {
 		var Result = new System.Collections.Generic.List<tDocumentSymbol>();
-
 		if (aMethod.Generic.IsSome(out var GenericPattern)) {
 			AddSymbols(
 				Result,
@@ -677,7 +668,7 @@ mSPO_Navigation {
 				)
 			);
 		}
-
+		
 		AddSymbols(
 			Result,
 			GetPatternSymbols(
@@ -688,65 +679,37 @@ mSPO_Navigation {
 				mStd.cEmpty
 			)
 		);
-		AddSymbols(
-			Result,
-			GetPatternSymbols(
-				aMethod.Arg,
-				aMethod.Arg.Pos,
-				"",
-				tSymbolKind.Variable,
-				mStd.cEmpty
-			)
-		);
-		AddSymbols(
-			Result,
-			GetExpressionSymbols(aMethod.Body)
-		);
-
+		AddSymbols(Result, GetPatternSymbols(aMethod.Arg, aMethod.Arg.Pos, "", tSymbolKind.Variable, mStd.cEmpty));
+		AddSymbols(Result, GetExpressionSymbols(aMethod.Body));
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetBlockSymbols(
 		mSPO_AST.tBlockNode<tSpan> aBlock
-	) => JoinSymbolStreams(
-		aBlock.Commands.Map(GetCommandSymbols)
-	);
-
+	) => JoinSymbolStreams(aBlock.Commands.Map(GetCommandSymbols));
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetMethodCallSymbols(
 		mStream.tStream<mSPO_AST.tMethodCallNode<tSpan>> aMethodCalls
-	) => JoinSymbolStreams(
-		aMethodCalls.Map(GetMethodCallSymbols)
-	);
-
+	) => JoinSymbolStreams(aMethodCalls.Map(GetMethodCallSymbols));
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetMethodCallSymbols(
 		mSPO_AST.tMethodCallNode<tSpan> aMethodCall
 	) {
 		var Result = new System.Collections.Generic.List<tDocumentSymbol>();
-
-		AddSymbols(
-			Result,
-			GetExpressionSymbols(aMethodCall.Argument)
-		);
-
+		AddSymbols(Result, GetExpressionSymbols(aMethodCall.Argument));
 		if (aMethodCall.Result.IsSome(out var ResultPattern)) {
 			AddSymbols(
 				Result,
-				GetPatternSymbols(
-					ResultPattern,
-					ResultPattern.Pos,
-					"",
-					tSymbolKind.Variable,
-					mStd.cEmpty
-				)
+				GetPatternSymbols(ResultPattern, ResultPattern.Pos, "", tSymbolKind.Variable, mStd.cEmpty)
 			);
 		}
-
+		
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	GetPatternSymbols(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
@@ -756,16 +719,11 @@ mSPO_Navigation {
 		mStream.tStream<tDocumentSymbol> aChildren
 	) {
 		var Bindings = new System.Collections.Generic.List<tBinding>();
-		CollectPatternBindings(
-			aPattern,
-			aKind,
-			Bindings
-		);
-
+		CollectPatternBindings(aPattern, aKind, Bindings);
 		if (Bindings.Count == 0) {
 			return mStd.cEmpty;
 		}
-
+		
 		if (Bindings.Count == 1) {
 			var Binding = Bindings[0];
 			return mStream.Stream(
@@ -779,7 +737,7 @@ mSPO_Navigation {
 				)
 			);
 		}
-
+		
 		return mStream.Stream(Bindings.ToArray()).Map(
 			aBinding => DocumentSymbol(
 				DisplayId(aBinding.Id),
@@ -791,7 +749,7 @@ mSPO_Navigation {
 			)
 		);
 	}
-
+	
 	private static void
 	CollectPatternBindings(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
@@ -804,53 +762,65 @@ mSPO_Navigation {
 				CollectPatternBindings(Pattern.Body, aKind, aBindings);
 				break;
 			}
+			
 			case mSPO_AST.tTypePatternNode<tSpan>: {
 				break;
 			}
+			
 			case mSPO_AST.tTypedPatternNode<tSpan> Pattern: {
 				CollectPatternBindings(Pattern.Pattern, aKind, aBindings);
 				break;
 			}
+			
 			case mSPO_AST.tGuardPatternNode<tSpan> Pattern: {
 				CollectPatternBindings(Pattern.Pattern, aKind, aBindings);
 				break;
 			}
+			
 			case mSPO_AST.tPrefixPatternNode<tSpan> Pattern: {
 				CollectPatternBindings(Pattern.Pattern, aKind, aBindings);
 				break;
 			}
+			
 			case mSPO_AST.tTuplePatternNode<tSpan> Pattern: {
 				foreach (var Item in Pattern.Items) {
 					CollectPatternBindings(Item, aKind, aBindings);
 				}
+				
 				break;
 			}
+			
 			case mSPO_AST.tPairPatternNode<tSpan> Pattern: {
 				CollectPatternBindings(Pattern.Tail, aKind, aBindings);
 				CollectPatternBindings(Pattern.Head, aKind, aBindings);
 				break;
 			}
+			
 			case mSPO_AST.tRecordPatternNode<tSpan> Pattern: {
 				foreach (var Element in Pattern.Elements) {
 					CollectPatternBindings(Element.Pattern, aKind, aBindings);
 				}
+				
 				break;
 			}
+			
 			case mSPO_AST.tFreeIdPatternNode<tSpan> Pattern: {
 				aBindings.Add(Binding(Pattern.Id, Pattern.NamePos, aKind));
 				break;
 			}
+			
 			case mSPO_AST.tVarPatternNode<tSpan> Pattern: {
 				aBindings.Add(Binding(Pattern.Id, Pattern.NamePos, tSymbolKind.Variable));
 				break;
 			}
+			
 			case mSPO_AST.tIdNode<tSpan> Pattern: {
 				aBindings.Add(Binding(Pattern.Id, Pattern.Pos, aKind));
 				break;
 			}
 		}
 	}
-
+	
 	private static tBool
 	TryResolveModule(
 		mSPO_AST.tModuleNode<tSpan> aModule,
@@ -858,40 +828,19 @@ mSPO_Navigation {
 		System.Collections.Generic.List<tBinding> aScope,
 		out tSpan aDefinitionSpan
 	) {
-		if (
-			TryResolvePattern(
-				aModule.Import.Pattern,
-				aQueryPos,
-				aScope,
-				out aDefinitionSpan,
-				out var Scope
-			)
-		) {
+		if (TryResolvePattern(aModule.Import.Pattern, aQueryPos, aScope, out aDefinitionSpan, out var Scope)) {
 			return true;
 		}
-
+		
 		foreach (var Command in aModule.Commands) {
-			if (
-				TryResolveCommand(
-					Command,
-					aQueryPos,
-					Scope,
-					out aDefinitionSpan,
-					out Scope
-				)
-			) {
+			if (TryResolveCommand(Command, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 				return true;
 			}
 		}
-
-		return TryResolveExpression(
-			aModule.Export.Expression,
-			aQueryPos,
-			Scope,
-			out aDefinitionSpan
-		);
+		
+		return TryResolveExpression(aModule.Export.Expression, aQueryPos, Scope, out aDefinitionSpan);
 	}
-
+	
 	private static tBool
 	TryResolveCommand(
 		mSPO_AST.tCommandNode<tSpan> aCommand,
@@ -901,107 +850,60 @@ mSPO_Navigation {
 		out System.Collections.Generic.List<tBinding> aNewScope
 	) {
 		aNewScope = CopyScope(aScope);
-
 		switch (aCommand) {
 			case mSPO_AST.tDefNode<tSpan> Def: {
-				if (
-					TryResolvePattern(
-						Def.Des,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan,
-						out aNewScope
-					)
-				) {
+				if (TryResolvePattern(Def.Des, aQueryPos, aScope, out aDefinitionSpan, out aNewScope)) {
 					return true;
 				}
-
-				if (
-					TryResolveExpression(
-						Def.Src,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				
+				if (TryResolveExpression(Def.Src, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				return false;
 			}
-
+			
 			case mSPO_AST.tDefVarNode<tSpan> DefVar: {
-				if (
-					TryResolveExpression(
-						DefVar.Expression,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				if (TryResolveExpression(DefVar.Expression, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				var Scope = CopyScope(aScope);
 				foreach (var MethodCall in DefVar.MethodCalls) {
-					if (
-						TryResolveMethodCall(
-							MethodCall,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan,
-							out Scope
-						)
-					) {
+					if (TryResolveMethodCall(MethodCall, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 						aNewScope = Scope;
 						return true;
 					}
 				}
-
+				
 				Scope.Add(Binding(DefVar.Id.Id, DefVar.Id.Pos, tSymbolKind.Variable));
 				AddDefinitionOccurrence(aQueryPos, DefVar.Id.Id, DefVar.Id.Pos);
 				aNewScope = Scope;
-
 				if (Contains(DefVar.Id.Pos, aQueryPos.QueryPos)) {
 					aDefinitionSpan = DefVar.Id.Pos;
 					return true;
 				}
-
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tMethodCallsNode<tSpan> MethodCalls: {
-				if (
-					TryResolveExpression(
-						MethodCalls.Object,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				if (TryResolveExpression(MethodCalls.Object, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				var Scope = CopyScope(aScope);
 				foreach (var MethodCall in MethodCalls.MethodCalls) {
-					if (
-						TryResolveMethodCall(
-							MethodCall,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan,
-							out Scope
-						)
-					) {
+					if (TryResolveMethodCall(MethodCall, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 						aNewScope = Scope;
 						return true;
 					}
 				}
-
+				
 				aNewScope = Scope;
 				break;
 			}
-
+			
 			case mSPO_AST.tRecProcsNode<tSpan> RecProcs: {
 				var Scope = CopyScope(aScope);
 				foreach (var Item in RecProcs.List) {
@@ -1013,50 +915,34 @@ mSPO_Navigation {
 						return true;
 					}
 				}
-
+				
 				foreach (var Item in RecProcs.List) {
-					if (
-						TryResolveExpression(
-							Item.Proc,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Item.Proc, aQueryPos, Scope, out aDefinitionSpan)) {
 						aNewScope = Scope;
 						return true;
 					}
 				}
-
+				
 				aNewScope = Scope;
 				break;
 			}
-
+			
 			case mSPO_AST.tReturnIfNode<tSpan> ReturnIf: {
 				if (
-					TryResolveExpression(
-						ReturnIf.Condition,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					) ||
-					TryResolveExpression(
-						ReturnIf.Result,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
+					TryResolveExpression(ReturnIf.Condition, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolveExpression(ReturnIf.Result, aQueryPos, aScope, out aDefinitionSpan)
 				) {
 					return true;
 				}
+				
 				break;
 			}
 		}
-
+		
 		aDefinitionSpan = default;
 		return false;
 	}
-
+	
 	private static tBool
 	TryResolveMethodCall(
 		mSPO_AST.tMethodCallNode<tSpan> aMethodCall,
@@ -1066,37 +952,20 @@ mSPO_Navigation {
 		out System.Collections.Generic.List<tBinding> aNewScope
 	) {
 		aNewScope = CopyScope(aScope);
-
 		if (
-			TryResolveReference(
-				aMethodCall.Method,
-				aQueryPos,
-				aScope,
-				out aDefinitionSpan
-			) ||
-			TryResolveExpression(
-				aMethodCall.Argument,
-				aQueryPos,
-				aScope,
-				out aDefinitionSpan
-			)
+			TryResolveReference(aMethodCall.Method, aQueryPos, aScope, out aDefinitionSpan) ||
+			TryResolveExpression(aMethodCall.Argument, aQueryPos, aScope, out aDefinitionSpan)
 		) {
 			return true;
 		}
-
+		
 		if (!aMethodCall.Result.IsSome(out var ResultPattern)) {
 			return false;
 		}
-
-		return TryResolvePattern(
-			ResultPattern,
-			aQueryPos,
-			aScope,
-			out aDefinitionSpan,
-			out aNewScope
-		);
+		
+		return TryResolvePattern(ResultPattern, aQueryPos, aScope, out aDefinitionSpan, out aNewScope);
 	}
-
+	
 	private static tBool
 	TryResolvePattern(
 		mSPO_AST.tPatternNode<tSpan> aPattern,
@@ -1106,164 +975,83 @@ mSPO_Navigation {
 		out System.Collections.Generic.List<tBinding> aNewScope
 	) {
 		aNewScope = CopyScope(aScope);
-
 		switch (aPattern) {
 			case mSPO_AST.tSigPatternNode<tSpan> Pattern: {
 				if (
-					TryResolveExpression(
-						Pattern.Contract,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					) ||
-					TryResolvePattern(
-						Pattern.Head,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan,
-						out var HeadScope
-					) ||
-					TryResolvePattern(
-						Pattern.Body,
-						aQueryPos,
-						HeadScope,
-						out aDefinitionSpan,
-						out aNewScope
-					)
+					TryResolveExpression(Pattern.Contract, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolvePattern(Pattern.Head, aQueryPos, aScope, out aDefinitionSpan, out var HeadScope) ||
+					TryResolvePattern(Pattern.Body, aQueryPos, HeadScope, out aDefinitionSpan, out aNewScope)
 				) {
 					return true;
 				}
-
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tTypePatternNode<tSpan> Pattern: {
-				return TryResolveExpression(
-					Pattern.Type,
-					aQueryPos,
-					aScope,
-					out aDefinitionSpan
-				);
+				return TryResolveExpression(Pattern.Type, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tTypedPatternNode<tSpan> Pattern: {
 				if (
 					Pattern.TypeExpression.IsSome(out var TypeExpression) &&
-					TryResolveExpression(
-						TypeExpression,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
+					TryResolveExpression(TypeExpression, aQueryPos, aScope, out aDefinitionSpan)
 				) {
 					return true;
 				}
-
-				return TryResolvePattern(
-					Pattern.Pattern,
-					aQueryPos,
-					aScope,
-					out aDefinitionSpan,
-					out aNewScope
-				);
+				
+				return TryResolvePattern(Pattern.Pattern, aQueryPos, aScope, out aDefinitionSpan, out aNewScope);
 			}
-
+			
 			case mSPO_AST.tGuardPatternNode<tSpan> Pattern: {
-				if (
-					TryResolvePattern(
-						Pattern.Pattern,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan,
-						out aNewScope
-					)
-				) {
+				if (TryResolvePattern(Pattern.Pattern, aQueryPos, aScope, out aDefinitionSpan, out aNewScope)) {
 					return true;
 				}
-
-				return TryResolveExpression(
-					Pattern.Guard,
-					aQueryPos,
-					aNewScope,
-					out aDefinitionSpan
-				);
+				
+				return TryResolveExpression(Pattern.Guard, aQueryPos, aNewScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tPrefixPatternNode<tSpan> Pattern: {
-				return TryResolvePattern(
-					Pattern.Pattern,
-					aQueryPos,
-					aScope,
-					out aDefinitionSpan,
-					out aNewScope
-				);
+				return TryResolvePattern(Pattern.Pattern, aQueryPos, aScope, out aDefinitionSpan, out aNewScope);
 			}
-
+			
 			case mSPO_AST.tTuplePatternNode<tSpan> Pattern: {
 				var Scope = CopyScope(aScope);
 				foreach (var Item in Pattern.Items) {
-					if (
-						TryResolvePattern(
-							Item,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan,
-							out Scope
-						)
-					) {
+					if (TryResolvePattern(Item, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 						aNewScope = Scope;
 						return true;
 					}
 				}
-
+				
 				aNewScope = Scope;
 				break;
 			}
-
+			
 			case mSPO_AST.tPairPatternNode<tSpan> Pattern: {
 				if (
-					TryResolvePattern(
-						Pattern.Tail,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan,
-						out var TailScope
-					) ||
-					TryResolvePattern(
-						Pattern.Head,
-						aQueryPos,
-						TailScope,
-						out aDefinitionSpan,
-						out aNewScope
-					)
+					TryResolvePattern(Pattern.Tail, aQueryPos, aScope, out aDefinitionSpan, out var TailScope) ||
+					TryResolvePattern(Pattern.Head, aQueryPos, TailScope, out aDefinitionSpan, out aNewScope)
 				) {
 					return true;
 				}
-
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tRecordPatternNode<tSpan> Pattern: {
 				var Scope = CopyScope(aScope);
 				foreach (var Element in Pattern.Elements) {
-					if (
-						TryResolvePattern(
-							Element.Pattern,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan,
-							out Scope
-						)
-					) {
+					if (TryResolvePattern(Element.Pattern, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 						aNewScope = Scope;
 						return true;
 					}
 				}
-
+				
 				aNewScope = Scope;
 				break;
 			}
-
+			
 			case mSPO_AST.tFreeIdPatternNode<tSpan> Pattern: {
 				aNewScope.Add(Binding(Pattern.Id, Pattern.NamePos, tSymbolKind.Variable));
 				AddDefinitionOccurrence(aQueryPos, Pattern.Id, Pattern.NamePos);
@@ -1271,9 +1059,10 @@ mSPO_Navigation {
 					aDefinitionSpan = Pattern.NamePos;
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tVarPatternNode<tSpan> Pattern: {
 				aNewScope.Add(Binding(Pattern.Id, Pattern.NamePos, tSymbolKind.Variable));
 				AddDefinitionOccurrence(aQueryPos, Pattern.Id, Pattern.NamePos);
@@ -1281,9 +1070,10 @@ mSPO_Navigation {
 					aDefinitionSpan = Pattern.NamePos;
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tIdNode<tSpan> Pattern: {
 				aNewScope.Add(Binding(Pattern.Id, Pattern.Pos, tSymbolKind.Variable));
 				AddDefinitionOccurrence(aQueryPos, Pattern.Id, Pattern.Pos);
@@ -1291,14 +1081,15 @@ mSPO_Navigation {
 					aDefinitionSpan = Pattern.Pos;
 					return true;
 				}
+				
 				break;
 			}
 		}
-
+		
 		aDefinitionSpan = default;
 		return false;
 	}
-
+	
 	private static tBool
 	TryResolveExpression(
 		mSPO_AST.tExpressionNode<tSpan> aExpression,
@@ -1310,102 +1101,63 @@ mSPO_Navigation {
 			case mSPO_AST.tIdNode<tSpan> Id: {
 				return TryResolveReference(Id, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tLambdaNode<tSpan> Lambda: {
 				var Scope = CopyScope(aScope);
 				if (
 					Lambda.Generic.IsSome(out var GenericPattern) &&
-					TryResolvePattern(
-						GenericPattern,
-						aQueryPos,
-						Scope,
-						out aDefinitionSpan,
-						out Scope
-					)
+					TryResolvePattern(GenericPattern, aQueryPos, Scope, out aDefinitionSpan, out Scope)
 				) {
 					return true;
 				}
-
-				if (
-					TryResolvePattern(
-						Lambda.Head,
-						aQueryPos,
-						Scope,
-						out aDefinitionSpan,
-						out Scope
-					)
-				) {
+				
+				if (TryResolvePattern(Lambda.Head, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 					return true;
 				}
-
+				
 				return TryResolveExpression(Lambda.Body, aQueryPos, Scope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tShortLambdaNode<tSpan> Lambda: {
 				return TryResolveExpression(Lambda.Body, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tInterfaceNode<tSpan> Interface: {
 				return TryResolveExpression(Interface.Contract, aQueryPos, aScope, out aDefinitionSpan) ||
-					TryResolveExpression(Interface.Object, aQueryPos, aScope, out aDefinitionSpan) ||
-					TryResolveExpression(Interface.Methods, aQueryPos, aScope, out aDefinitionSpan);
+				TryResolveExpression(Interface.Object, aQueryPos, aScope, out aDefinitionSpan) ||
+				TryResolveExpression(Interface.Methods, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tMethodNode<tSpan> Method: {
 				var Scope = CopyScope(aScope);
 				if (
 					Method.Generic.IsSome(out var GenericPattern) &&
-					TryResolvePattern(
-						GenericPattern,
-						aQueryPos,
-						Scope,
-						out aDefinitionSpan,
-						out Scope
-					)
+					TryResolvePattern(GenericPattern, aQueryPos, Scope, out aDefinitionSpan, out Scope)
 				) {
 					return true;
 				}
-
+				
 				if (
-					TryResolvePattern(
-						Method.Obj,
-						aQueryPos,
-						Scope,
-						out aDefinitionSpan,
-						out var ObjScope
-					) ||
-					TryResolvePattern(
-						Method.Arg,
-						aQueryPos,
-						ObjScope,
-						out aDefinitionSpan,
-						out var ArgScope
-					)
+					TryResolvePattern(Method.Obj, aQueryPos, Scope, out aDefinitionSpan, out var ObjScope) ||
+					TryResolvePattern(Method.Arg, aQueryPos, ObjScope, out aDefinitionSpan, out var ArgScope)
 				) {
 					return true;
 				}
-
+				
 				return TryResolveExpression(Method.Body, aQueryPos, ArgScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tBlockNode<tSpan> Block: {
 				var Scope = CopyScope(aScope);
 				foreach (var Command in Block.Commands) {
-					if (
-						TryResolveCommand(
-							Command,
-							aQueryPos,
-							Scope,
-							out aDefinitionSpan,
-							out Scope
-						)
-					) {
+					if (TryResolveCommand(Command, aQueryPos, Scope, out aDefinitionSpan, out Scope)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tCallNode<tSpan> Call: {
 				if (
 					TryResolveExpression(Call.Func, aQueryPos, aScope, out aDefinitionSpan) ||
@@ -1413,29 +1165,24 @@ mSPO_Navigation {
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tPrefixNode<tSpan> Prefix: {
 				return TryResolveExpression(Prefix.Element, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tRecordNode<tSpan> Record: {
 				foreach (var Element in Record.Elements) {
-					if (
-						TryResolveExpression(
-							Element.Value,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Element.Value, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tPairNode<tSpan> Pair: {
 				if (
 					TryResolveExpression(Pair.Tail, aQueryPos, aScope, out aDefinitionSpan) ||
@@ -1443,9 +1190,10 @@ mSPO_Navigation {
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tSigNode<tSpan> Sig: {
 				if (
 					TryResolveExpression(Sig.Contract, aQueryPos, aScope, out aDefinitionSpan) ||
@@ -1454,25 +1202,20 @@ mSPO_Navigation {
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tTupleNode<tSpan> Tuple: {
 				foreach (var Item in Tuple.Items) {
-					if (
-						TryResolveExpression(
-							Item,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Item, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tIfNode<tSpan> If: {
 				foreach (var Case in If.Cases) {
 					if (
@@ -1482,156 +1225,94 @@ mSPO_Navigation {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tIfMatchNode<tSpan> IfMatch: {
-				if (
-					TryResolveExpression(
-						IfMatch.Expression,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				if (TryResolveExpression(IfMatch.Expression, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				foreach (var Case in IfMatch.Cases) {
 					if (
-						TryResolvePattern(
-							Case.Pattern,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan,
-							out var CaseScope
-						) ||
-						TryResolveExpression(
-							Case.Expression,
-							aQueryPos,
-							CaseScope,
-							out aDefinitionSpan
-						)
+						TryResolvePattern(Case.Pattern, aQueryPos, aScope, out aDefinitionSpan, out var CaseScope) ||
+						TryResolveExpression(Case.Expression, aQueryPos, CaseScope, out aDefinitionSpan)
 					) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tIsNode<tSpan> Is: {
 				if (
-					TryResolveExpression(
-						Is.Expression,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					) ||
-					TryResolvePattern(
-						Is.Pattern,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan,
-						out _
-					)
+					TryResolveExpression(Is.Expression, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolvePattern(Is.Pattern, aQueryPos, aScope, out aDefinitionSpan, out _)
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tVarToValNode<tSpan> VarToVal: {
 				return TryResolveExpression(VarToVal.Obj, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tPipeToRightNode<tSpan> Pipe: {
-				if (
-					TryResolveExpression(Pipe.Head, aQueryPos, aScope, out aDefinitionSpan)
-				) {
+				if (TryResolveExpression(Pipe.Head, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				foreach (var Item in Pipe.Pipe) {
-					if (
-						TryResolvePipeItem(
-							Item,
-							true,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolvePipeItem(Item, true, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tPipeToLeftNode<tSpan> Pipe: {
 				foreach (var Item in Pipe.Pipe) {
-					if (
-						TryResolvePipeItem(
-							Item,
-							false,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolvePipeItem(Item, false, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
-
+				
 				return TryResolveExpression(Pipe.Head, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tVarTypeNode<tSpan> VarType: {
 				return TryResolveExpression(VarType.Type, aQueryPos, aScope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tPrefixTypeNode<tSpan> PrefixType: {
-				if (
-					TryResolveReference(
-						PrefixType.Prefix,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				if (TryResolveReference(PrefixType.Prefix, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				foreach (var Item in PrefixType.Expressions) {
-					if (
-						TryResolveExpression(
-							Item,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Item, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tTupleTypeNode<tSpan> TupleType: {
 				foreach (var Item in TupleType.ItemTypes) {
-					if (
-						TryResolveExpression(
-							Item,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Item, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tPairTypeNode<tSpan> PairType: {
 				if (
 					TryResolveExpression(PairType.TailType, aQueryPos, aScope, out aDefinitionSpan) ||
@@ -1639,21 +1320,15 @@ mSPO_Navigation {
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tSigTypeNode<tSpan> SigType: {
-				if (
-					TryResolveExpression(
-						SigType.HeadType,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
-				) {
+				if (TryResolveExpression(SigType.HeadType, aQueryPos, aScope, out aDefinitionSpan)) {
 					return true;
 				}
-
+				
 				var Scope = CopyScope(aScope);
 				Scope.Add(Binding(SigType.Head.Id, SigType.Head.Pos, tSymbolKind.TypeParameter));
 				AddDefinitionOccurrence(aQueryPos, SigType.Head.Id, SigType.Head.Pos);
@@ -1661,42 +1336,30 @@ mSPO_Navigation {
 					aDefinitionSpan = SigType.Head.Pos;
 					return true;
 				}
-
+				
 				return TryResolveExpression(SigType.BodyType, aQueryPos, Scope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tRecordTypeNode<tSpan> RecordType: {
 				foreach (var Element in RecordType.Elements) {
-					if (
-						TryResolveExpression(
-							Element.Type,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Element.Type, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tSetTypeNode<tSpan> SetType: {
 				foreach (var Item in SetType.Expressions) {
-					if (
-						TryResolveExpression(
-							Item,
-							aQueryPos,
-							aScope,
-							out aDefinitionSpan
-						)
-					) {
+					if (TryResolveExpression(Item, aQueryPos, aScope, out aDefinitionSpan)) {
 						return true;
 					}
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tProcTypeNode<tSpan> ProcType: {
 				if (
 					TryResolveExpression(ProcType.ObjType, aQueryPos, aScope, out aDefinitionSpan) ||
@@ -1705,9 +1368,10 @@ mSPO_Navigation {
 				) {
 					return true;
 				}
+				
 				break;
 			}
-
+			
 			case mSPO_AST.tRecursiveTypeNode<tSpan> RecursiveType: {
 				var Scope = CopyScope(aScope);
 				Scope.Add(Binding(RecursiveType.HeadType.Id, RecursiveType.HeadType.Pos, tSymbolKind.TypeParameter));
@@ -1716,10 +1380,10 @@ mSPO_Navigation {
 					aDefinitionSpan = RecursiveType.HeadType.Pos;
 					return true;
 				}
-
+				
 				return TryResolveExpression(RecursiveType.BodyType, aQueryPos, Scope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tInterfaceTypeNode<tSpan> InterfaceType: {
 				var Scope = CopyScope(aScope);
 				Scope.Add(Binding(InterfaceType.HeadType.Id, InterfaceType.HeadType.Pos, tSymbolKind.TypeParameter));
@@ -1728,10 +1392,10 @@ mSPO_Navigation {
 					aDefinitionSpan = InterfaceType.HeadType.Pos;
 					return true;
 				}
-
+				
 				return TryResolveExpression(InterfaceType.BodyType, aQueryPos, Scope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tGenericTypeNode<tSpan> GenericType: {
 				var Scope = CopyScope(aScope);
 				Scope.Add(Binding(GenericType.HeadType.Id, GenericType.HeadType.Pos, tSymbolKind.TypeParameter));
@@ -1740,35 +1404,26 @@ mSPO_Navigation {
 					aDefinitionSpan = GenericType.HeadType.Pos;
 					return true;
 				}
-
+				
 				return TryResolveExpression(GenericType.BodyType, aQueryPos, Scope, out aDefinitionSpan);
 			}
-
+			
 			case mSPO_AST.tGenericApplyTypeNode<tSpan> GenericApplyType: {
 				if (
-					TryResolveExpression(
-						GenericApplyType.GenericType,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					) ||
-					TryResolveExpression(
-						GenericApplyType.ArgType,
-						aQueryPos,
-						aScope,
-						out aDefinitionSpan
-					)
+					TryResolveExpression(GenericApplyType.GenericType, aQueryPos, aScope, out aDefinitionSpan) ||
+					TryResolveExpression(GenericApplyType.ArgType, aQueryPos, aScope, out aDefinitionSpan)
 				) {
 					return true;
 				}
+				
 				break;
 			}
 		}
-
+		
 		aDefinitionSpan = default;
 		return false;
 	}
-
+	
 	private static tBool
 	TryResolvePipeItem(
 		mSPO_AST.tExpressionNode<tSpan> aExpression,
@@ -1777,25 +1432,19 @@ mSPO_Navigation {
 		System.Collections.Generic.List<tBinding> aScope,
 		out tSpan aDefinitionSpan
 	) {
-		if (
-			aExpression is not mSPO_AST.tCallNode<tSpan> Call ||
-			Call.Func is not mSPO_AST.tIdNode<tSpan> Id
-		) {
+		if (aExpression is not mSPO_AST.tCallNode<tSpan> Call || Call.Func is not mSPO_AST.tIdNode<tSpan> Id) {
 			return TryResolveExpression(aExpression, aQueryPos, aScope, out aDefinitionSpan);
 		}
-
+		
 		return TryResolveReference(
-			mSPO_AST.Id(
-				Id.Pos,
-				aAddHoleAtStart ? "..." + Id.Id[1..] : Id.Id[1..] + "...",
-				Id.NameParts
-			),
+			mSPO_AST.Id(Id.Pos, aAddHoleAtStart ? "..." + Id.Id[1..] : Id.Id[1..] + "...", Id.NameParts),
 			aQueryPos,
 			aScope,
 			out aDefinitionSpan
-		) || TryResolveExpression(Call.Arg, aQueryPos, aScope, out aDefinitionSpan);
+		) ||
+		TryResolveExpression(Call.Arg, aQueryPos, aScope, out aDefinitionSpan);
 	}
-
+	
 	private static tBool
 	TryResolveReference(
 		mSPO_AST.tIdNode<tSpan> aId,
@@ -1807,20 +1456,18 @@ mSPO_Navigation {
 			aDefinitionSpan = default;
 			return false;
 		}
-
-		var NameParts = aId.NameParts.IsEmpty()
-			? mStream.Stream(aId.Pos)
-			: aId.NameParts;
+		
+		var NameParts = (aId.NameParts.IsEmpty() ? mStream.Stream(aId.Pos) : aId.NameParts);
 		aQueryPos.Occurrences?.Add(new(Binding.Id, Binding.Span, NameParts, false));
 		if (!NameParts.Any(aPart => Contains(aPart, aQueryPos.QueryPos))) {
 			aDefinitionSpan = default;
 			return false;
 		}
-
+		
 		aDefinitionSpan = Binding.Span;
 		return true;
 	}
-
+	
 	private static tBool
 	TryCollectOccurrences(
 		tText aCode,
@@ -1833,16 +1480,11 @@ mSPO_Navigation {
 		if (!TryParseModule(aCode, aId, aDebugStream, out var Module, aFileContext)) {
 			return false;
 		}
-
-		TryResolveModule(
-			Module,
-			new(default, aOccurrences),
-			[],
-			out _
-		);
+		
+		TryResolveModule(Module, new(default, aOccurrences), [], out _);
 		return true;
 	}
-
+	
 	private static tBool
 	TryFindOccurrence(
 		System.Collections.Generic.List<tOccurrence> aOccurrences,
@@ -1859,12 +1501,12 @@ mSPO_Navigation {
 				}
 			}
 		}
-
+		
 		aOccurrence = default;
 		aSelectedPart = default;
 		return false;
 	}
-
+	
 	private static tBool
 	TryGetRenameParts(
 		tText aOldName,
@@ -1873,58 +1515,59 @@ mSPO_Navigation {
 	) {
 		if (
 			aNewName.Length == 0 ||
-			!mSPO_Parser.Id.TryParseText(aNewName, "", _ => {}).Match(out var Name, out _) ||
+			!mSPO_Parser.Id.TryParseText(
+				aNewName,
+				"",
+				_ => {}
+			).Match(out var Name, out _) ||
 			DisplayId(Name.Id) != aNewName
 		) {
 			aNewParts = default;
 			return false;
 		}
-
+		
 		var OldParts = aOldName.Split("...", StringSplitOptions.None);
 		var NewParts = aNewName.Split("...", StringSplitOptions.None);
 		if (OldParts.Length != NewParts.Length) {
 			aNewParts = default;
 			return false;
 		}
-
+		
 		var Result = new System.Collections.Generic.List<tText>();
 		for (var I = 0; I < OldParts.Length; I += 1) {
 			if (OldParts[I].Length == 0 != (NewParts[I].Length == 0)) {
 				aNewParts = default;
 				return false;
 			}
+			
 			if (NewParts[I].Length > 0) {
 				Result.Add(NewParts[I]);
 			}
 		}
-
+		
 		aNewParts = Result.ToArray();
 		return true;
 	}
-
+	
 	private static void
 	AddDefinitionOccurrence(
 		tResolveContext aContext,
 		tText aId,
 		tSpan aSpan
-	) => aContext.Occurrences?.Add(
-		new(aId, aSpan, mStream.Stream(aSpan), true)
-	);
-
+	) => aContext.Occurrences?.Add(new(aId, aSpan, mStream.Stream(aSpan), true));
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tBool
 	SameSpan(
 		tSpan a1,
 		tSpan a2
 	) => mSpan.Eq(a1, a2, mTextStream.Eq);
-
+	
 	private static mStream.tStream<tDocumentSymbol>
 	JoinSymbolStreams(
 		params System.ReadOnlySpan<mStream.tStream<tDocumentSymbol>> aSymbolStreams
-	) => JoinSymbolStreams(
-		mStream.Stream(aSymbolStreams)
-	);
-
+	) => JoinSymbolStreams(mStream.Stream(aSymbolStreams));
+	
 	private static mStream.tStream<tDocumentSymbol>
 	JoinSymbolStreams(
 		mStream.tStream<mStream.tStream<tDocumentSymbol>> aSymbolStreams
@@ -1933,20 +1576,17 @@ mSPO_Navigation {
 		foreach (var Symbols in aSymbolStreams) {
 			AddSymbols(Result, Symbols);
 		}
+		
 		return mStream.Stream(Result.ToArray());
 	}
-
+	
 	private static tBinding
 	Binding(
 		tText aId,
 		tSpan aSpan,
 		tSymbolKind aKind
-	) => new(
-		aId,
-		aSpan,
-		aKind
-	);
-
+	) => new(aId, aSpan, aKind);
+	
 	private static void
 	AddSymbols(
 		System.Collections.Generic.List<tDocumentSymbol> aTarget,
@@ -1956,12 +1596,12 @@ mSPO_Navigation {
 			aTarget.Add(Symbol);
 		}
 	}
-
+	
 	private static System.Collections.Generic.List<tBinding>
 	CopyScope(
 		System.Collections.Generic.List<tBinding> aScope
-	) => [.. aScope];
-
+	) => [..aScope];
+	
 	private static tBool
 	TryFindBinding(
 		System.Collections.Generic.List<tBinding> aScope,
@@ -1969,38 +1609,41 @@ mSPO_Navigation {
 		out tBinding aBinding
 	) {
 		for (var I = aScope.Count - 1; I >= 0; I -= 1) {
-			if (aScope[I].Id == aId || (aScope[I].Kind == tSymbolKind.TypeParameter && aScope[I].Id + "..." == aId)) {
+			if (
+				aScope[I].Id == aId ||
+				(aScope[I].Kind == tSymbolKind.TypeParameter && aScope[I].Id + "..." == aId)
+			) {
 				aBinding = aScope[I];
 				return true;
 			}
 		}
-
+		
 		aBinding = default;
 		return false;
 	}
-
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tText
 	DisplayId(
 		tText aId
-	) => aId.StartsWith('_')
-		? aId[1..]
-		: aId;
-
+	) => (aId.StartsWith('_') ? aId[1..] : aId);
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tSymbolKind
 	GetBindingKind(
 		mSPO_AST.tExpressionNode<tSpan> aExpression,
 		mMaybe.tMaybe<tText> aId
 	) => aId.Match(
-		aName => aName.Contains("...")
+		aName => (
+			aName.Contains("...")
 			? tSymbolKind.Operator
 			: aExpression switch {
 				mSPO_AST.tLambdaNode<tSpan> => tSymbolKind.Function,
 				mSPO_AST.tShortLambdaNode<tSpan> => tSymbolKind.Function,
 				mSPO_AST.tMethodNode<tSpan> => tSymbolKind.Method,
 				_ => tSymbolKind.Variable,
-			},
+			}
+		),
 		() => aExpression switch {
 			mSPO_AST.tLambdaNode<tSpan> => tSymbolKind.Function,
 			mSPO_AST.tShortLambdaNode<tSpan> => tSymbolKind.Function,
@@ -2008,7 +1651,7 @@ mSPO_Navigation {
 			_ => tSymbolKind.Variable,
 		}
 	);
-
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static mMaybe.tMaybe<tText>
 	TryGetPatternDisplayId(
@@ -2020,16 +1663,15 @@ mSPO_Navigation {
 		mSPO_AST.tIdNode<tSpan> Pattern => Pattern.Id,
 		_ => mStd.cEmpty,
 	};
-
+	
 	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 	private static tBool
 	Contains(
 		tSpan aSpan,
 		tPos aPos
-	) => aSpan.Start.Id == aPos.Id &&
-		mTextParser.ComparePos(aSpan.Start, aPos) <= 0 &&
-		mTextParser.ComparePos(aPos, aSpan.End) <= 0;
-
+	) => aSpan.Start.Id == aPos.Id && mTextParser.ComparePos(aSpan.Start, aPos) <= 0 &&
+	mTextParser.ComparePos(aPos, aSpan.End) <= 0;
+	
 	private static tBool
 	TryParseModule(
 		tText aCode,
@@ -2037,7 +1679,8 @@ mSPO_Navigation {
 		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
 		[MaybeNullWhen(false)] out mSPO_AST.tModuleNode<tSpan> aModule,
 		mTokenizer.tFileContext? aFileContext
-	) => mSPO_Diagnostics.DocumentParser(aId).TryParseText(
-		aCode, aId, aDebugStream, aFileContext
-	).Match(out aModule, out _);
+	) => mSPO_Diagnostics.DocumentParser(aId).TryParseText(aCode, aId, aDebugStream, aFileContext).Match(
+		out aModule,
+		out _
+	);
 }

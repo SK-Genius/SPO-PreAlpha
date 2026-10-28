@@ -689,7 +689,7 @@ mSPO_Parser {
 				return Source.ThenTry(
 					aSource => Signature.TryParseText(
 						aSource,
-						SigFile.Path.ToUri(),
+						SigFile.Path.ToAbsolute().ToText(),
 						_ => {},
 						new mTokenizer.tFileContext(
 							aSigFileToken.FileContext?.ReadText ?? (__ => __.TryReadText()),

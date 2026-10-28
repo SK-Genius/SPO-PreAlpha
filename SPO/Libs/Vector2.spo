@@ -1,0 +1,106 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...Int+...
+		...-...: §DEF ...Int-...
+		...*...: §DEF ...Int*...
+		.../...: §DEF ...Int/...
+		...==...: §DEF ...Int==...
+		...And...: §DEF ...And...
+		Not...: §DEF Not...
+	} € [§LOAD "Std.SIG"]
+}
+
+§DEF tPoint = [§INT, §INT]
+
+§DEF ...X = (
+	§DEF aPoint € tPoint
+) => {
+	(§DEF X, _) = aPoint
+	§RETURN X
+}
+
+§DEF ...Y = (
+	§DEF aPoint € tPoint
+) => {
+	(_, §DEF Y) = aPoint
+	§RETURN Y
+}
+
+§DEF -... = (
+	§DEF aPoint € tPoint
+) => {
+	(§DEF X, §DEF Y) = aPoint
+	§RETURN (0 .Int- X, 0 .Int- Y)
+}
+
+§DEF ...+... = (
+	§DEF aLeft € tPoint
+	§DEF aRight € tPoint
+) => {
+	(§DEF LeftX, §DEF LeftY) = aLeft
+	(§DEF RightX, §DEF RightY) = aRight
+	§RETURN (LeftX .Int+ RightX, LeftY .Int+ RightY)
+}
+
+§DEF ...-... = (
+	§DEF aLeft € tPoint
+	§DEF aRight € tPoint
+) => {
+	(§DEF LeftX, §DEF LeftY) = aLeft
+	(§DEF RightX, §DEF RightY) = aRight
+	§RETURN (LeftX .Int- RightX, LeftY .Int- RightY)
+}
+
+§DEF ...*... = (
+	§DEF aPoint € tPoint
+	§DEF aFactor € §INT
+) => {
+	(§DEF X, §DEF Y) = aPoint
+	§RETURN (X .Int* aFactor, Y .Int* aFactor)
+}
+
+§DEF .../... = (
+	§DEF aPoint € tPoint
+	§DEF aDivisor € §INT
+) => {
+	(§DEF X, §DEF Y) = aPoint
+	§RETURN (X .Int/ aDivisor, Y .Int/ aDivisor)
+}
+
+§DEF ...==... = (
+	§DEF aLeft € tPoint
+	§DEF aRight € tPoint
+) => {
+	(§DEF LeftX, §DEF LeftY) = aLeft
+	(§DEF RightX, §DEF RightY) = aRight
+	§RETURN (LeftX .Int== RightX) .And (LeftY .Int== RightY)
+}
+
+§DEF ...!=... = (
+	§DEF aLeft € tPoint
+	§DEF aRight € tPoint
+) => .Not (aLeft .== aRight)
+
+§DEF ...Dot... = (
+	§DEF aLeft € tPoint
+	§DEF aRight € tPoint
+) => {
+	(§DEF LeftX, §DEF LeftY) = aLeft
+	(§DEF RightX, §DEF RightY) = aRight
+	§RETURN (LeftX .Int* RightX) .Int+ (LeftY .Int* RightY)
+}
+
+§DEF cModule € [§LOAD "Vector2.SIG"] = {
+	...X: ...X
+	...Y: ...Y
+	-...: -...
+	...+...: ...+...
+	...-...: ...-...
+	...*...: ...*...
+	.../...: .../...
+	...==...: ...==...
+	...!=...: ...!=...
+	...Dot...: ...Dot...
+}
+
+§EXPORT cModule

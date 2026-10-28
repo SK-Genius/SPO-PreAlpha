@@ -29,6 +29,121 @@ mRegression_Tests {
 		"Regressions",
 		[
 			mTest.Test(
+				"Bound interface receivers survive opaque arguments while argument receivers stay opaque",
+				aDebug => {
+					const tText cSource = """
+					§DEF iCell = [
+						§INTERFACE t [<
+							Read: [t : [] => §INT]
+							Write...: [t : [< Value: §INT >] => []]
+						>]
+					]
+					
+					§DEF Read = (
+						§VAR aCell € §INT
+					) : (
+					) => §TO_VAL aCell
+					
+					§DEF Write... = (
+						§VAR aCell € §INT
+					) : (
+						§DEF aPayload € [< Value: §INT >]
+					) {
+						{Value: §DEF Value} = aPayload
+						aCell := Value .
+					}
+					
+					§DEF Exercise... = (
+						§DEF aPayload € [< Value: §INT >]
+					) => {
+						§VAR Cell := 7 .
+						§DEF Capability = §INTERFACE iCell WITH Cell IN {
+							Read: Read
+							Write...: Write...
+						}
+						
+						Capability :
+							Write aPayload
+							Read => §DEF Value
+						.
+						
+						§RETURN Value
+					}
+					
+					§EXPORT .Exercise {Value: 19}
+					""";
+					
+					var Import = (mVM_Data.Empty(), mVM_Type.Empty());
+					
+					var Result = mSPO_Interpreter.Run(
+						cSource,
+						"Bound receiver",
+						Import,
+						__ => aDebug(__())
+					);
+					
+					mAssert.AreEquals(mVM_Data.Int(19), Result.ElseThrow().Data);
+					
+					var Opaque = cSource.Replace(
+						"§EXPORT .Exercise {Value: 19}",
+						"""
+						§DEF ReadArgument... = (
+							§DEF aCapability € iCell
+						) => {
+							aCapability : Read => §DEF Value .
+							§RETURN Value
+						}
+						
+						§EXPORT ()
+						"""
+					);
+					
+					var Denied = mSPO_Interpreter.Run(
+						Opaque,
+						"Opaque receiver",
+						Import,
+						__ => aDebug(__())
+					);
+					
+					mAssert.IsFalse(Denied.Match(out _, out var Error));
+					mAssert.IsTrue(Error.Contains("opaque mutable access"), Error);
+				}
+			),
+			mTest.Test(
+				"Host unpacks SPO tuples in source order",
+				aDebug => {
+					var Value = mSPO_Interpreter.Run(
+						"""
+						§EXPORT (
+							(11, 22)
+							(33, 44, 55)
+							(66, 77, 88, 99)
+						)
+						""",
+						"Host tuples",
+						(mVM_Data.Empty(), mVM_Type.Empty()),
+						aTrace => aDebug(aTrace())
+					).ElseThrow(
+					).Data;
+					
+					mAssert.IsTrue(Value.IsTuple(out var Pair, out var Triple, out var Quad));
+					mAssert.IsTrue(Pair.IsTuple(out var A, out var B));
+					mAssert.AreEquals(mVM_Data.Int(11), A);
+					mAssert.AreEquals(mVM_Data.Int(22), B);
+					mAssert.IsTrue(Triple.IsTuple(out A, out B, out var C));
+					mAssert.AreEquals(mVM_Data.Int(33), A);
+					mAssert.AreEquals(mVM_Data.Int(44), B);
+					mAssert.AreEquals(mVM_Data.Int(55), C);
+					mAssert.IsTrue(Quad.IsTuple(out A, out B, out C, out var D));
+					mAssert.AreEquals(mVM_Data.Int(66), A);
+					mAssert.AreEquals(mVM_Data.Int(77), B);
+					mAssert.AreEquals(mVM_Data.Int(88), C);
+					mAssert.AreEquals(mVM_Data.Int(99), D);
+					mAssert.IsFalse(Pair.IsTuple(out _, out _, out _));
+					mAssert.IsFalse(Triple.IsTuple(out _, out _));
+				}
+			),
+			mTest.Test(
 				"Empty prefix expressions distinguish omitted and explicit arguments",
 				aDebug => {
 					foreach (var Parser in new[] { mSPO_Parser.Expression, mSPO_Parser.ExpressionInCall }) {

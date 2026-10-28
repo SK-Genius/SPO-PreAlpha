@@ -8,7 +8,7 @@
 #:property AnalysisLevel = preview-all
 #:property NoWarn = 659,661,8604,8618
 #:property EnableSourceControlManagerQueries = false
-#:property Optimize = false
+#:property Optimize = true
 
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;

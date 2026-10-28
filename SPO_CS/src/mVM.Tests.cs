@@ -73,6 +73,92 @@ mVM_Tests {
 					);
 					mAssert.AreEquals(Res, mVM_Data.Int(2));
 				}
+			),
+			mTest.Test(
+				"Nested calls share the trace callback and emit balanced frame markers",
+				aDebug => {
+					var Lines = new System.Collections.Generic.List<tText>();
+					var Trace = mStd.Action<mStd.tFunc<tText>>(aLine => Lines.Add(aLine()));
+					var Native = mVM_Data.ExternProc((aEnv, aObject, aArgument, aTrace) => {
+						mAssert.IsTrue(ReferenceEquals(Trace, aTrace));
+						aTrace(() => "native trace");
+						return aArgument;
+					}, mVM_Data.Empty());
+					
+					static mVM_Data.tProcDef<mStd.tEmpty> Definition() => new(
+						mVM_Type.Proc(
+							mVM_Type.Empty(), mVM_Type.Any(),
+							mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Any(), mVM_Type.Int())
+						)
+					);
+					
+					var Method = Definition();
+					Method.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, mVM_Data.cArgReg);
+					var Child = Definition();
+					var NativeReg = Child.First(mStd.cEmpty, mVM_Data.cEnvReg);
+					Child.Call(mStd.cEmpty, NativeReg, mVM_Data.cOneReg);
+					var NativeMethod = Child.Pair(mStd.cEmpty, mVM_Data.cEmptyReg, NativeReg);
+					Child.Exec(mStd.cEmpty, NativeMethod, mVM_Data.cOneReg);
+					var MethodReg = Child.Second(mStd.cEmpty, mVM_Data.cEnvReg);
+					var BoundMethod = Child.Pair(mStd.cEmpty, mVM_Data.cEmptyReg, MethodReg);
+					var Returned = Child.Exec(mStd.cEmpty, BoundMethod, mVM_Data.cOneReg);
+					Child.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Returned);
+					var Root = Definition();
+					var Called = Root.Call(mStd.cEmpty, mVM_Data.cEnvReg, mVM_Data.cEmptyReg);
+					Root.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Called);
+					var Result = mVM_Data.Empty();
+					mVM.Run<mStd.tEmpty>(
+						mVM_Data.Proc(Root, mVM_Data.Proc(Child, mVM_Data.Pair(
+							Native, mVM_Data.Proc(Method, mVM_Data.Empty())
+						))),
+						mVM_Data.Empty(), mVM_Data.Empty(), Result, _ => "", Trace
+					);
+					mAssert.AreEquals(mVM_Data.Int(1), Result);
+					
+					var Depth = 0;
+					var Entries = 0;
+					var MaxDepth = 0;
+					var NativeLines = 0;
+					foreach (var Line in Lines) {
+						mAssert.IsFalse(Line.StartsWith('\t'));
+						if (Line == new tText('>', 40)) {
+							Depth += 1;
+							Entries += 1;
+							MaxDepth = System.Math.Max(MaxDepth, Depth);
+						} else if (Line == new tText('<', 40)) {
+							Depth -= 1;
+							mAssert.IsTrue(Depth >= 0);
+						} else if (Line == "native trace") {
+							mAssert.AreEquals(2, Depth);
+							NativeLines += 1;
+						}
+					}
+					mAssert.AreEquals(0, Depth);
+					mAssert.AreEquals(3, Entries);
+					mAssert.AreEquals(3, MaxDepth);
+					mAssert.AreEquals(2, NativeLines);
+				}
+			),
+			mTest.Test(
+				"A failed pattern closes its frame in the trace",
+				aDebug => {
+					var Lines = new System.Collections.Generic.List<tText>();
+					var Definition = new mVM_Data.tProcDef<mStd.tEmpty>(
+						mVM_Type.Proc(
+							mVM_Type.Empty(), mVM_Type.Empty(),
+							mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Empty())
+						)
+					);
+					Definition.TryAsPair(mStd.cEmpty, mVM_Data.cArgReg);
+					var Result = mVM_Data.Empty();
+					mVM.Run<mStd.tEmpty>(
+						mVM_Data.Proc(Definition, mVM_Data.Empty()),
+						mVM_Data.Empty(), mVM_Data.Int(1), Result, _ => "", aLine => Lines.Add(aLine())
+					);
+					mAssert.IsTrue(Result.IsEmpty());
+					mAssert.AreEquals(new tText('>', 40), Lines[0]);
+					mAssert.AreEquals(new tText('<', 40), Lines[^1]);
+				}
 			)
 		]
 	);
