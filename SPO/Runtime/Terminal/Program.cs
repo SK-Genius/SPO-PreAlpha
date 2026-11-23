@@ -58,7 +58,7 @@ mTerminal_Program {
 							_ => {}
 						).ElseThrow();
 						
-						mAssert.IsTrue(App.Data.IsSig(out var Contract, out _, out var Body));
+						mAssert.IsTrue(App.OpenSig(out var Contract, out _, out var Body));
 						
 						mAssert.IsTrue(
 							Contract.SameType(mTerminal.LoadSignature("App")),

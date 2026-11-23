@@ -1,52 +1,54 @@
 §TYPES
-	t_0 := [EMPTY_TYPE, INT]
-	t_1 := [#Result INT]
-	t_2 := [t_0 => t_1]
-	t_3 := [EMPTY_TYPE => t_2]
-	t_4 := [EMPTY_TYPE, EMPTY_TYPE]
-	t_5 := [t_4 => t_1]
-	t_6 := [EMPTY_TYPE => t_5]
-	t_7 := [EMPTY_TYPE, t_3]
-	t_8 := [t_7, t_6]
-	t_9 := [INT | EMPTY_TYPE]
-	t_10 := [EMPTY_TYPE, t_9]
-	t_11 := [t_10 => t_1]
-	t_12 := [t_8 => t_11]
+	t_0 := [INT | EMPTY_TYPE]
+	t_1 := [EMPTY_TYPE, INT]
+	t_2 := [#Result INT]
+	t_3 := [t_1 => t_2]
+	t_4 := [EMPTY_TYPE => t_3]
+	t_5 := [EMPTY_TYPE, EMPTY_TYPE]
+	t_6 := [t_5 => t_2]
+	t_7 := [EMPTY_TYPE => t_6]
+	t_8 := [EMPTY_TYPE, t_4]
+	t_9 := [t_8, t_7]
+	t_10 := [EMPTY_TYPE, t_0]
+	t_11 := [t_10 => t_2]
+	t_12 := [t_9 => t_11]
 	t_13 := [EMPTY_TYPE, ANY]
-	t_14 := [t_13 => t_1]
+	t_14 := [t_13 => t_2]
 	t_15 := [EMPTY_TYPE => t_14]
-	t_16 := [t_7, t_15]
+	t_16 := [t_8, t_15]
 	t_17 := [t_16 => t_14]
-	t_18 := [t_8, t_12]
-	t_19 := [t_18, t_3]
-	t_20 := [t_19, t_6]
+	t_18 := [t_9, t_12]
+	t_19 := [t_18, t_4]
+	t_20 := [t_19, t_7]
 	t_21 := [t_20, t_12]
-	t_22 := [t_21, t_3]
+	t_22 := [t_21, t_4]
 	t_23 := [t_22, t_15]
 	t_24 := [t_23, t_17]
-	t_25 := [t_24, t_3]
+	t_25 := [t_24, t_4]
 	t_26 := [t_25, t_15]
 	t_27 := [t_26, t_17]
-	t_28 := [t_0, INT]
+	t_28 := [t_1, INT]
 	t_29 := [t_28, INT]
 	t_30 := [t_29, INT]
 	t_31 := [EMPTY_TYPE => t_30]
 	t_32 := [t_27 => t_31]
 
-§DEF d_0 € t_3
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_N := r_2
-	r_1 := +#Result _N
-	§RETURN r_1 IF TRUE
-
-§DEF d_1 € t_6
+§DEF d_0 € t_4
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	_E := r_3
-	r_1 := 0
-	r_2 := +#Result r_1
+	r_1 := §WITH_TYPE INT_TYPE WITH r_3
+	_N := r_1
+	r_2 := +#Result _N
 	§RETURN r_2 IF TRUE
+
+§DEF d_1 € t_7
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §WITH_TYPE EMPTY_TYPE WITH r_4
+	_E := r_1
+	r_2 := 0
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
 
 §DEF d_2 € t_12
 	d_1 := §2ND ENV
@@ -63,20 +65,22 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_3 € t_3
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_N := r_2
-	r_1 := +#Result _N
-	§RETURN r_1 IF TRUE
-
-§DEF d_4 € t_6
+§DEF d_3 € t_4
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	_E := r_3
-	r_1 := 0
-	r_2 := +#Result r_1
+	r_1 := §WITH_TYPE INT_TYPE WITH r_3
+	_N := r_1
+	r_2 := +#Result _N
 	§RETURN r_2 IF TRUE
+
+§DEF d_4 € t_7
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §WITH_TYPE EMPTY_TYPE WITH r_4
+	_E := r_1
+	r_2 := 0
+	r_3 := +#Result r_2
+	§RETURN r_3 IF TRUE
 
 §DEF d_5 € t_12
 	d_4 := §2ND ENV
@@ -93,12 +97,13 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_6 € t_3
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_N := r_2
-	r_1 := +#Result _N
-	§RETURN r_1 IF TRUE
+§DEF d_6 € t_4
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_3
+	_N := r_1
+	r_2 := +#Result _N
+	§RETURN r_2 IF TRUE
 
 §DEF d_7 € t_15
 	r_4 := §1ST ARG
@@ -122,12 +127,13 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_9 € t_3
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_N := r_2
-	r_1 := +#Result _N
-	§RETURN r_1 IF TRUE
+§DEF d_9 € t_4
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_3
+	_N := r_1
+	r_2 := +#Result _N
+	§RETURN r_2 IF TRUE
 
 §DEF d_10 € t_15
 	r_4 := §1ST ARG
@@ -153,65 +159,69 @@
 
 §DEF d_12 € t_32
 	d_11 := §2ND ENV
-	r_35 := §1ST ENV
-	d_10 := §2ND r_35
-	r_36 := §1ST r_35
-	d_9 := §2ND r_36
-	r_37 := §1ST r_36
-	d_8 := §2ND r_37
-	r_38 := §1ST r_37
-	d_7 := §2ND r_38
-	r_39 := §1ST r_38
-	d_6 := §2ND r_39
+	r_39 := §1ST ENV
+	d_10 := §2ND r_39
 	r_40 := §1ST r_39
-	d_5 := §2ND r_40
+	d_9 := §2ND r_40
 	r_41 := §1ST r_40
-	d_4 := §2ND r_41
+	d_8 := §2ND r_41
 	r_42 := §1ST r_41
-	d_3 := §2ND r_42
+	d_7 := §2ND r_42
 	r_43 := §1ST r_42
-	d_2 := §2ND r_43
+	d_6 := §2ND r_43
 	r_44 := §1ST r_43
-	d_1 := §2ND r_44
+	d_5 := §2ND r_44
 	r_45 := §1ST r_44
-	d_0 := §2ND r_45
+	d_4 := §2ND r_45
 	r_46 := §1ST r_45
-	_EmptyValue := EMPTY
-	r_1 := 7
-	_IntValue := r_1
-	_AnyEmptyValue := EMPTY
-	r_2 := 9
-	_AnyIntValue := r_2
-	r_3 := EMPTY, d_0
-	r_4 := r_3, d_1
-	r_5 := §CLOSURE d_2 r_4
-	r_6 := EMPTY, _EmptyValue
-	r_7 := OBJ, r_5
-	r_8 := §OBJ:r_7 r_6
-	r_9 := -#Result r_8
-	r_10 := EMPTY, r_9
-	r_11 := EMPTY, d_3
-	r_12 := r_11, d_4
-	r_13 := §CLOSURE d_5 r_12
-	r_14 := EMPTY, _IntValue
-	r_15 := OBJ, r_13
-	r_16 := §OBJ:r_15 r_14
-	r_17 := -#Result r_16
-	r_18 := r_10, r_17
-	r_19 := EMPTY, d_6
-	r_20 := r_19, d_7
-	r_21 := §CLOSURE d_8 r_20
-	r_22 := EMPTY, _AnyEmptyValue
-	r_23 := OBJ, r_21
-	r_24 := §OBJ:r_23 r_22
-	r_25 := -#Result r_24
-	r_26 := r_18, r_25
-	r_27 := EMPTY, d_9
-	r_28 := r_27, d_10
-	r_29 := §CLOSURE d_11 r_28
-	r_30 := EMPTY, _AnyIntValue
-	r_31 := OBJ, r_29
-	r_32 := §OBJ:r_31 r_30
-	r_33 := -#Result r_32
-	r_34 := r_26, r_33
-	§RETURN r_34 IF TRUE
+	d_3 := §2ND r_46
+	r_47 := §1ST r_46
+	d_2 := §2ND r_47
+	r_48 := §1ST r_47
+	d_1 := §2ND r_48
+	r_49 := §1ST r_48
+	d_0 := §2ND r_49
+	r_50 := §1ST r_49
+	r_1 := §WITH_TYPE t_0 WITH EMPTY
+	_EmptyValue := r_1
+	r_2 := 7
+	r_3 := §WITH_TYPE t_0 WITH r_2
+	_IntValue := r_3
+	r_4 := §WITH_TYPE ANY WITH EMPTY
+	_AnyEmptyValue := r_4
+	r_5 := 9
+	r_6 := §WITH_TYPE ANY WITH r_5
+	_AnyIntValue := r_6
+	r_7 := EMPTY, d_0
+	r_8 := r_7, d_1
+	r_9 := §CLOSURE d_2 r_8
+	r_10 := EMPTY, _EmptyValue
+	r_11 := OBJ, r_9
+	r_12 := §OBJ:r_11 r_10
+	r_13 := -#Result r_12
+	r_14 := EMPTY, r_13
+	r_15 := EMPTY, d_3
+	r_16 := r_15, d_4
+	r_17 := §CLOSURE d_5 r_16
+	r_18 := EMPTY, _IntValue
+	r_19 := OBJ, r_17
+	r_20 := §OBJ:r_19 r_18
+	r_21 := -#Result r_20
+	r_22 := r_14, r_21
+	r_23 := EMPTY, d_6
+	r_24 := r_23, d_7
+	r_25 := §CLOSURE d_8 r_24
+	r_26 := EMPTY, _AnyEmptyValue
+	r_27 := OBJ, r_25
+	r_28 := §OBJ:r_27 r_26
+	r_29 := -#Result r_28
+	r_30 := r_22, r_29
+	r_31 := EMPTY, d_9
+	r_32 := r_31, d_10
+	r_33 := §CLOSURE d_11 r_32
+	r_34 := EMPTY, _AnyIntValue
+	r_35 := OBJ, r_33
+	r_36 := §OBJ:r_35 r_34
+	r_37 := -#Result r_36
+	r_38 := r_30, r_37
+	§RETURN r_38 IF TRUE

@@ -1,0 +1,26 @@
+§DEF Contract = [§SIG_WITH t € §TYPE IN t]
+
+§DEF Examine... = (
+	§DEF aPackage € Contract
+	§DEF aPrevious € §ANY
+) => §IF aPackage MATCH {
+	§SIG Contract WITH §DEF Head IN §DEF Value: {
+		§DEF Boxed € §ANY = Value
+		§RETURN {
+			Boxed: Boxed
+			Matches: §IF aPrevious MATCH {
+				§DEF Candidate € Head: §TRUE
+				_: §FALSE
+			}
+		}
+	}
+}
+
+§DEF cInteger = §SIG Contract WITH §INT IN 7
+§DEF cOtherInteger = §SIG Contract WITH §INT IN 9
+§DEF cBoolean = §SIG Contract WITH §BOOL IN §TRUE
+{Boxed: §DEF cPrevious, Matches: §DEF cFirst} = .Examine (cInteger, ())
+{Matches: §DEF cSecond} = .Examine (cBoolean, cPrevious)
+{Matches: §DEF cThird} = .Examine (cOtherInteger, cPrevious)
+
+§EXPORT (cFirst, cSecond, cThird)

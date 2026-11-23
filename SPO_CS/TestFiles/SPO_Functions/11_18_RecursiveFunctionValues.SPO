@@ -1,0 +1,24 @@
+§IMPORT {
+	...+...: §DEF ...+... € [[§INT, §INT] => §INT]
+}
+
+§DEF tFunctions = [§RECURSIVE t [[] | [t; [§INT => §INT]]]]
+
+§DEF ...Append... = (
+	§DEF aTail € tFunctions
+	§DEF aHead € [§INT => §INT]
+) => (aTail; aHead)
+
+§RECURSIVE {
+	§DEF Evaluate... = (
+		§DEF aFunctions € tFunctions
+	) => §IF aFunctions MATCH {
+		(): 0
+		(§DEF Tail; §DEF Function...): (.Evaluate Tail) .+ (.Function 0)
+	}
+}
+
+§DEF cFirst = (§DEF aValue € §INT) => 17
+§DEF cSecond = (§DEF aValue € §INT) => 23
+
+§EXPORT .Evaluate (() .Append cFirst §> .Append cSecond)

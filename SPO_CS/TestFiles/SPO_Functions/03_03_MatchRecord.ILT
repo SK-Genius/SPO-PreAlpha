@@ -9,5 +9,6 @@
 	r_4 := +#_Second r_3
 	r_5 := {r_2} + r_4
 	r_6 := {r_5} #_Second
-	_X := r_6
+	r_7 := §WITH_TYPE INT_TYPE WITH r_6
+	_X := r_7
 	§RETURN _X IF TRUE

@@ -124,8 +124,63 @@ mRuntime_Call_Tests {
 				"""
 			);
 			
+			var CallbackMethod = Compile(
+				"""
+				§EXPORT (
+					§DEF aTerminal € [§LOAD "../Libs/Terminal.SIG"]
+				) : (
+					§DEF aCallback € [§INT => §INT]
+				) {
+					aTerminal : Clear .
+					§RETURN 7
+				}
+				"""
+			);
+			
+			var ValidCallback = Compile("§EXPORT (§DEF aValue € §INT) => aValue");
+			
+			var Package = mSPO_Interpreter.Run(
+				"""
+				§DEF tTerminal = [§LOAD "../Libs/Terminal.SIG"]
+				§DEF tContract = [§SIG_WITH t € §TYPE IN [[tTerminal] : t => §INT]]
+				§DEF Operation... = (
+					§DEF aTerminal € tTerminal
+				) : (
+					§DEF aValue € §INT
+				) {
+					aTerminal : Clear .
+					§RETURN 7
+				}
+				§EXPORT §SIG tContract WITH §INT IN Operation...
+				""",
+				mStd.File(),
+				(mVM_Data.Empty(), mVM_Type.Empty()),
+				_ => {}
+			).ElseThrow();
+			
+			mAssert.IsTrue(Package.OpenSig(out _, out _, out var OpaqueMethod));
+			var InvalidCallback = Compile("§EXPORT (§DEF aValue € §BOOL) => 7");
+			var InvalidResult = Compile("§EXPORT (§DEF aValue € §INT) => §TRUE");
+			
 			Terminal.WithCapability(
 				aCapability => {
+					Reject(() => OpaqueMethod.Call(mVM_Data.Bool(true), aCapability));
+					
+					var InvalidOpaque = new mVM_Data.tData {
+						_Value = mAny.Any(new mVM_Data.tOpaqueValue(mVM_Data.Bool(true)))
+					};
+					
+					Reject(() => OpaqueMethod.Call(InvalidOpaque, aCapability));
+					mAssert.AreEquals(0, Clears);
+					mAssert.IsTrue(OpaqueMethod.Call(mVM_Data.Int(42), aCapability).IsInt(out Result) && Result == 7);
+					mAssert.AreEquals(1, Clears);
+					Clears = 0;
+					Reject(() => CallbackMethod.Call(InvalidCallback, aCapability));
+					Reject(() => CallbackMethod.Call(InvalidResult, aCapability));
+					mAssert.AreEquals(0, Clears);
+					mAssert.IsTrue(CallbackMethod.Call(ValidCallback, aCapability).IsInt(out Result) && Result == 7);
+					mAssert.AreEquals(1, Clears);
+					Clears = 0;
 					Reject(() => Method.Call(InvalidKey, aCapability));
 					Message = Reject(() => Method.Call(Tick, mVM_Data.Int(0)));
 					mAssert.IsTrue(Message.Contains("Empfänger"));

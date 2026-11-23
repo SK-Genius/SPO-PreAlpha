@@ -3,6 +3,7 @@ const MAX_STICKY_LINES = 6;
 let activeStandaloneLayoutCleanup = null;
 
 // createLines supplies text, optional indent/bracket links and format-specific data.
+// pinPreviousSibling keeps a line together with its preceding same-indent context.
 // appendLine draws the contents; this module adds gutters, layout and sticky copies.
 export function renderSource(source, context, {
 	language,
@@ -41,7 +42,12 @@ export function renderSource(source, context, {
 	const ancestors = [];
 	for (const [index, line] of lineModels.entries()) {
 		if (line.isBlank) continue;
-		while (ancestors.length && lineModels[ancestors.at(-1)].indent >= line.indent) ancestors.pop();
+		while (ancestors.length && lineModels[ancestors.at(-1)].indent >= line.indent) {
+			const previousIndex = ancestors.pop();
+			if (line.pinPreviousSibling && lineModels[previousIndex].indent === line.indent) {
+				line.leadingOpenerIndices.push(previousIndex);
+			}
+		}
 		line.parentIndex = ancestors.at(-1) ?? null;
 		if (line.parentIndex !== null) lineModels[line.parentIndex].startsBlock = true;
 		ancestors.push(index);
@@ -524,15 +530,18 @@ function resolveStickyLineIndices(
 	let lastKey = "";
 
 	for (let iteration = 0; iteration < MAX_STICKY_LINES + 2; iteration += 1) {
-		const baseStickyLineIndices = resolveStickyLineIndicesForOffset(
+		const baseStickyLineIndices = [...new Set(resolveStickyLineIndicesForOffset(
 			effectiveOffset,
 			lineModels,
 			lineElements
-		);
+		))];
+		// Limit ancestor levels without cutting a required chain of preceding siblings.
+		const preserveGroups = baseStickyLineIndices.some(index => lineModels[index].pinPreviousSibling);
 		stickyLineIndices = expandStickyLineIndices(
-			[...new Set(baseStickyLineIndices)],
+			preserveGroups ? baseStickyLineIndices.slice(-MAX_STICKY_LINES) : baseStickyLineIndices,
 			lineModels
-		).slice(-MAX_STICKY_LINES);
+		);
+		if (!preserveGroups) stickyLineIndices = stickyLineIndices.slice(-MAX_STICKY_LINES);
 
 		const stickyKey = stickyLineIndices.join(",");
 		if (stickyKey === lastKey) {
@@ -669,7 +678,7 @@ function expandStickyLineIndices(
 		);
 	}
 
-	return expandedIndices;
+	return expandedIndices.sort((left, right) => left - right);
 }
 
 function appendStickyLineIndex(

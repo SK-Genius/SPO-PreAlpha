@@ -9,6 +9,7 @@
 §DEF d_0 € t_5
 	r_1 := {ARG} #_TestRecordValue
 	r_2 := {r_1} #_Other
-	_Value := r_2
-	r_3 := 1
-	§RETURN r_3 IF TRUE
+	r_3 := §WITH_TYPE INT_TYPE WITH r_2
+	_Value := r_3
+	r_4 := 1
+	§RETURN r_4 IF TRUE

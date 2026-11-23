@@ -59,16 +59,27 @@ Eine externe Runtime kann ihren eigenen Einstieg verwenden und erhält dieselbe 
 Die VM stellt mit `mVM.Call<tPos>` und `mVM.CallMethod<tPos>` Aufrufe für Runtime-Implementierungen bereit.
 Diese Aufrufe vertrauen den statisch geprüften Verträgen.
 Native Hosts und Callbacks müssen Werte passend zu ihren deklarierten Typen liefern.
-Argumente, Empfänger und native Ergebnisse werden nicht bei jedem Aufruf vollständig erneut geprüft.
+An nativen Aufrufgrenzen werden Argumente, Empfänger und Ergebnisse gegen ihre deklarierten Verträge geprüft.
+Ungültige Eingaben werden vor dem Aufruf der Implementierung zurückgewiesen.
 `CallMethod` verwendet den im Interface hinterlegten Empfänger.
 `mRuntime.Call` und `mRuntime.CallMethod` ergänzen die SPO-Namenskonvention und die Quellpositionsformatierung.
 
-Typverengungen ändern nur den statischen Vertrag.
+Alle ausführbaren Spezialisierungen und Konvertierungen werden vor dem ersten VM-Aufruf vorbereitet.
+Generische native Einstiegspunkte müssen ihre statischen Aufruftypen beim Laden über `aNativeCalls` angeben.
+`ExternProc` und `ExternDef` erhalten die deklarierte Funktionssignatur als erstes Argument.
+Liefert nativer Code SPO-Funktionen zurück, nennt `aResultOrigins` deren mögliche Implementierungen,
+damit der Linker auch diese vor Ausführungsbeginn vorbereiten kann.
+Der Linker führt dafür keinen nativen Funktionskörper aus.
+
+Typverengungen ändern den zugeordneten sichtbaren Typ und bewahren die Nutzdaten.
 Ein Record behält seine zusätzlichen Felder, ein Interface seine ursprünglichen Methoden.
 Das gilt auch innerhalb von Containern, SIGs und Funktionsergebnissen.
-Ein späteres `MATCH` über `ANY` kann diese erhaltenen Bestandteile wiederfinden.
-Die VM erzeugt dafür weder Typ-Wrapper noch konvertierte Kopien.
-Mutabilität und Zugriffsrechte werden vom Compiler geprüft und nicht zusätzlich an jedem Laufzeitwert gespeichert.
+Ein späteres `MATCH` über `ANY` kann verborgene Bestandteile nicht wieder sichtbar machen.
+Nur `ANY` und Unions besitzen ein `ActualType`-Feld; es beschreibt ausschließlich die sichtbare Sicht.
+Überlappende Union-Alternativen bleiben getrennte Sichten und werden nicht zu einem Record zusammengeführt.
+Vergleiche und Textdarstellungen berücksichtigen ausschließlich sichtbare Bestandteile.
+Statisch typisierte Werte tragen keine allgemeine Laufzeit-Typinformation.
+Explizite `TYPE`-Werte und SIG-Köpfe können Typidentitäten binden; opake Nutzdaten erhalten dadurch keine sichtbare Darstellung.
 
 Dynamische Musterprüfungen bleiben Teil der Programmausführung.
 Der Generator beschränkt sie auf Bestandteile, die aus den statischen Typen noch nicht feststehen.

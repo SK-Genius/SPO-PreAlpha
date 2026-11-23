@@ -1,0 +1,1 @@
+dotnet ../src/Program.cs -- 2048

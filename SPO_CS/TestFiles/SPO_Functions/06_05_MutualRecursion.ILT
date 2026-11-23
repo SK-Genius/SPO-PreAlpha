@@ -87,19 +87,20 @@
 
 §DEF d_2 € t_14
 	_...-... := §2ND ENV
-	r_9 := §1ST ENV
-	_...IsOdd := §2ND r_9
-	r_10 := §1ST r_9
-	r_8 := §1ST ARG
-	r_7 := §2ND ARG
-	_Number := r_7
-	r_1 := EMPTY, _Number
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._...IsOdd r_4
-	r_6 := +#Result r_5
-	§RETURN r_6 IF TRUE
+	r_10 := §1ST ENV
+	_...IsOdd := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_8
+	_Number := r_1
+	r_2 := EMPTY, _Number
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._...IsOdd r_5
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
 §DEF d_3 € t_20
 	d_2 := §2ND ENV
@@ -169,19 +170,20 @@
 
 §DEF d_7 € t_30
 	_...-... := §2ND ENV
-	r_9 := §1ST ENV
-	_...IsEven := §2ND r_9
-	r_10 := §1ST r_9
-	r_8 := §1ST ARG
-	r_7 := §2ND ARG
-	_Number := r_7
-	r_1 := EMPTY, _Number
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._...IsEven r_4
-	r_6 := +#Result r_5
-	§RETURN r_6 IF TRUE
+	r_10 := §1ST ENV
+	_...IsEven := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_8
+	_Number := r_1
+	r_2 := EMPTY, _Number
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._...IsEven r_5
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
 §DEF d_8 € t_36
 	d_7 := §2ND ENV

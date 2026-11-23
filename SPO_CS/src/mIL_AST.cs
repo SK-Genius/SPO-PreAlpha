@@ -74,6 +74,7 @@ mIL_AST {
 		Sig,                        // X := §SIG T WITH X (T may be a declared type or a type-valued register)
 		Interface,                  // X := §INTERFACE T WITH (object, methods)
 		WithType,                   // X := §WITH_TYPE T WITH X
+		BindType,                   // X := §BIND_TYPE X AS T; bind an explicit TYPE value to a static symbol
 		SigHead,                    // X := §SIG_HEAD X
 		SigHeadAs,                  // X := §SIG_HEAD X AS T
 		SigBody,                    // X := §SIG_BODY X
@@ -199,6 +200,7 @@ mIL_AST {
 		tCommandNodeType.WithType => $"{a._1} := §WITH_TYPE {a._2} WITH {a._3}",
 		tCommandNodeType.SigHead => $"{a._1} := §SIG_HEAD {a._2}",
 		tCommandNodeType.SigHeadAs => $"{a._1} := §SIG_HEAD {a._2} AS {a._3}",
+		tCommandNodeType.BindType => $"{a._1} := §BIND_TYPE {a._2} AS {a._3}",
 		tCommandNodeType.SigBody => $"{a._1} := §SIG_BODY {a._2}",
 		tCommandNodeType.PrefixApply => $"{a._1} := +#{a._2} {a._3}",
 		tCommandNodeType.PrefixRemove => $"{a._1} := -#{a._2} {a._3}",
@@ -513,6 +515,10 @@ mIL_AST {
 		tText aSigReg,
 		tText aWitness
 	) => CommandNode(tCommandNodeType.SigHeadAs, aPos, aResReg, aSigReg, aWitness);
+	
+	public static tCommandNode<tPos>
+	BindType<tPos>(tPos aPos, tText aResult, tText aValue, tText aSymbol)
+	=> CommandNode(tCommandNodeType.BindType, aPos, aResult, aValue, aSymbol);
 
 	public static tCommandNode<tPos>
 	GetSigBody<tPos>(

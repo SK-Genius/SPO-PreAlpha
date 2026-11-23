@@ -123,14 +123,15 @@ m2048_Tests {
 				System.IO.Path.Combine(System.IO.Path.GetDirectoryName(mStd.File())!, "../Apps/2048/startup.jni")
 			);
 			
-			var App = Startup.Entry.Init(_ => {}).ElseThrow().Data;
-			mAssert.IsTrue(App.IsSig(out var Contract, out _, out var Body));
+			var App = Startup.Entry.Init(_ => {}).ElseThrow();
+			mAssert.IsTrue(App.OpenSig(out var Contract, out _, out var Body));
 			mAssert.IsTrue(Contract.SameType(mTerminal.LoadSignature("App")));
 			var Modules = Startup.Modules.Where(__ => __.Key is "Logic" or "Render").Init(_ => {}).ElseThrow();
 			var Logic = Modules.Data.Field("Logic");
 			var Move = Logic.Field("...AfterMove...");
 			var CanMove = Logic.Field("...CanMove");
-			var Initial = Body.Field("Initial");
+			// This fixture knows the implementation's state representation.
+			var Initial = Body.Field("Initial")._Value.To<mVM_Data.tOpaqueValue>().Data;
 			System.Console.WriteLine("OK: 2048 module graph and App.SIG.");
 			
 			{
@@ -229,7 +230,7 @@ m2048_Tests {
 						mAssert.AreEquals(17 + Score, Int(Next.Field("Score")));
 						mAssert.AreEquals(1, Int(Start.Field("RandomState")));
 						mAssert.IsTrue(System.MemoryExtensions.SequenceEqual(Before.AsSpan(), Tiles(Start).AsSpan()));
-						mAssert.IsFalse(Start.Field("RandomState").Equals(Next.Field("RandomState")));
+						mAssert.IsTrue(Int(Start.Field("RandomState")) != Int(Next.Field("RandomState")));
 						
 						mAssert.IsTrue(
 							Next.HasSameStateAs(
@@ -329,6 +330,7 @@ m2048_Tests {
 						mStd.tFunc<mVM_Data.tData, tBool> Send = aEvent => {
 							var Result = Frame.Call(mVM_Data.Tuple([Current, aEvent]), aCapability);
 							mAssert.IsTrue(Result.IsTuple(out Current, out var Continue));
+							Current = Current._Value.To<mVM_Data.tOpaqueValue>().Data;
 							mAssert.IsTrue(Continue.IsBool(out var Running));
 							return Running;
 						};
@@ -363,13 +365,17 @@ m2048_Tests {
 						mAssert.IsTrue(new tText(Screen, 2 * 80, 80).Contains("Keine Zuege mehr"));
 						Send(Key("R"));
 						mAssert.AreEquals(0, Int(Current.Field("Score")));
-						mAssert.IsFalse(Current.Field("Board").Equals(Initial.Field("Board")));
+						
+						mAssert.IsFalse(
+							System.MemoryExtensions.SequenceEqual(Tiles(Current).AsSpan(), Tiles(Initial).AsSpan())
+						);
+						
 						Current = State([131072, 2048, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 						Send(mVM_Data.Prefix("_Resize...", Size.ToData()));
 						mAssert.IsTrue(new tText(Screen, 2 * 80, 80).Contains("2048 erreicht"));
 						mAssert.AreEquals(" 131072 ", new tText(Screen, 5 * 80 + 1, 8));
 						mAssert.IsTrue(Send(Key("D")));
-						mAssert.IsFalse(Current.Field("RandomState").Equals(mVM_Data.Int(1)));
+						mAssert.IsTrue(Int(Current.Field("RandomState")) != 1);
 						mAssert.IsFalse(Send(Key("Escape")));
 						mAssert.IsFalse(Send(Key("Q")));
 						mAssert.IsTrue(Send(Key("C")));

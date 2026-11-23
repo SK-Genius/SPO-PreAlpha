@@ -1,0 +1,27 @@
+§DEF tPackage = [§SIG_WITH t € §TYPE IN [[] => t]]
+
+§DEF MakeBox... = (§DEF t € §TYPE) <=> (§DEF Value € [[] => t]) => () => {
+	§DEF Boxed € §ANY = .Value
+	§RETURN Boxed
+}
+
+§DEF Make... = (§DEF aPackage € tPackage) => §IF aPackage MATCH {
+	§SIG tPackage WITH §DEF Head IN §DEF Value: .MakeBox Value
+}
+
+§DEF Probe... = (§DEF aType € §TYPE, §DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € aType: §TRUE
+	_: §FALSE
+}
+
+§DEF IntegerBox = .Make (§SIG tPackage WITH §INT IN (() => 7))
+§DEF BooleanBox = .Make (§SIG tPackage WITH §BOOL IN (() => §TRUE))
+§DEF cInteger = .IntegerBox
+§DEF cBoolean = .BooleanBox
+
+§EXPORT (
+	.Probe (§INT, cInteger)
+	.Probe (§BOOL, cInteger)
+	.Probe (§BOOL, cBoolean)
+	.Probe (§INT, cBoolean)
+)

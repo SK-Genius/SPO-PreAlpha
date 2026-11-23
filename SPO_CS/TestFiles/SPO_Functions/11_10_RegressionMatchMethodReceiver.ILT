@@ -76,13 +76,13 @@
 
 §DEF d_4 € t_23
 	d_3 := §2ND ENV
-	r_8 := §1ST ENV
-	d_2 := §2ND r_8
-	r_9 := §1ST r_8
-	d_1 := §2ND r_9
+	r_9 := §1ST ENV
+	d_2 := §2ND r_9
 	r_10 := §1ST r_9
-	d_0 := §2ND r_10
+	d_1 := §2ND r_10
 	r_11 := §1ST r_10
+	d_0 := §2ND r_11
+	r_12 := §1ST r_11
 	r_1 := EMPTY, d_0
 	r_2 := r_1, d_1
 	r_3 := r_2, d_2
@@ -92,5 +92,6 @@
 	_Cell := §VAR r_5
 	r_7 := _Cell, _Read...
 	r_6 := §OBJ:r_7 TRUE
-	_Value := r_6
+	r_8 := §WITH_TYPE INT_TYPE WITH r_6
+	_Value := r_8
 	§RETURN _Value IF TRUE

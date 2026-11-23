@@ -8,6 +8,7 @@ TestFiles/ILT_Function_Errors/00_01_ParserUnexpectedToken.ILT:5 ERROR
  ├ expect '{'
  ├ expect '§1ST'
  ├ expect '§2ND'
+ ├ expect '§BIND_TYPE'
  ├ expect '§BOOL'
  ├ expect '§CLOSURE'
  ├ expect '§INT'

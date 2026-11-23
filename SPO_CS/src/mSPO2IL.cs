@@ -45,6 +45,7 @@ mSPO2IL {
 		public mArrayList.tArrayList<tText> EnvIds;
 		public mArrayList.tArrayList<tText> LocalIds;
 		public mTreeMap.tTree<tText, mVM_Type.tType> TypeDict;
+		public mTreeMap.tTree<tNat64, tText> BoundTypes;
 	}
 	
 	public static void
@@ -102,6 +103,7 @@ mSPO2IL {
 		ArgIds = mArrayList.List<tText>(),
 		LocalIds = mArrayList.List<tText>(),
 		TypeDict = mTreeMap.Tree<tText, mVM_Type.tType>((a1, a2) => mMath.Sign(tText.CompareOrdinal(a1, a2)), []),
+		BoundTypes = mTreeMap.Tree<tNat64, tText>((a1, a2) => a1.CompareTo(a2), []),
 	};
 	
 	public static tText GetRegId(tNat32 a) => "r_" + a;
@@ -752,7 +754,7 @@ mSPO2IL {
 			return aTypeDeclarations.MapType(aType);
 		}
 		
-		static tBool
+		tBool
 		NeedsRuntimeValue(
 			mVM_Type.tType aType,
 			mStream.tStream<mVM_Type.tType> aBound
@@ -761,9 +763,11 @@ mSPO2IL {
 				return false;
 			}
 			
+			if (aBindings.Any(__ => mStd.RefEq(__.Type, aType))) { return true; }
+			
 			return aType.Kind switch {
-				mVM_Type.tKind.Abstract
-				or mVM_Type.tKind.Free => true,
+				mVM_Type.tKind.Abstract => true,
+				mVM_Type.tKind.Free => false,
 				
 				mVM_Type.tKind.Sig
 				or mVM_Type.tKind.Generic
@@ -792,13 +796,18 @@ mSPO2IL {
 			case mVM_Type.tKind.True: return mIL_AST.cTrue;
 			case mVM_Type.tKind.False: return mIL_AST.cFalse;
 			case mVM_Type.tKind.Type: return mIL_AST.cTypeType;
-			case mVM_Type.tKind.Abstract:
-			case mVM_Type.tKind.Free: {
+			case mVM_Type.tKind.Free: return aTypeDeclarations.MapType(aType);
+			case mVM_Type.tKind.Abstract: {
+				if (aDef.BoundTypes.TryGet(aType.DebugId).IsSome(out var Bound)) { return Bound; }
+				
 				if (!aDef.TypeDict.TryGet(aType.Id!).IsSome(out _)) {
 					aDef.AddEnv(aType.Id!, aType.KindType());
 				}
 				
-				return aType.Id!;
+				var Register = aDef.CreateTempReg();
+				aDef.Commands.Push(mIL_AST.BindType(aPos, Register, aType.Id!, aTypeDeclarations.MapType(aType)));
+				aDef.BoundTypes = aDef.BoundTypes.Set(aType.DebugId, Register);
+				return Register;
 			}
 			case mVM_Type.tKind.Generic:
 			case mVM_Type.tKind.Recursive:
@@ -913,6 +922,11 @@ mSPO2IL {
 		);
 		
 		aDef.TypeDict = aDef.TypeDict.Set(HeadReg, HeadValue.KindType());
+		
+		if (Head is mSPO_AST.tIgnorePatternNode<tPos>) {
+			aDef.Commands.Push(mIL_AST.Alias(aPattern.Pos, HeadValue.Id!, HeadReg));
+			aDef.AddLocal(HeadValue.Id!, HeadValue.KindType());
+		}
 		
 		if (aDef.TypeState.TryGetValidatedType(aPattern.Body).IsSome(out var BodyType)) {
 			aDef.TypeDict = aDef.TypeDict.Set(BodyReg, BodyType);
@@ -1428,6 +1442,7 @@ mSPO2IL {
 					}
 					
 					var CasePos = aModuleConstructor.MergePos(Case.Pattern.Pos, Case.Expression.Pos);
+					SwitchDef.BindTypeSymbols(ref aModuleConstructor.TypeDeclarations, CasePos, MatchedType);
 					
 					if (
 						!aDefConstructor.NewLocalDef(aModuleConstructor).Match(out var CaseFunc, out Error) ||
@@ -2008,6 +2023,34 @@ mSPO2IL {
 		return true;
 	}
 	
+	private static void
+	BindTypeSymbols<tPos>(
+		this ref tDefConstructor<tPos> aDef,
+		ref tTypeDeclarations<tPos> aTypes,
+		tPos aPos,
+		mVM_Type.tType aType,
+		mStream.tStream<mVM_Type.tType> aBound = default
+	) {
+		if (aBound.Any(__ => mStd.RefEq(__, aType))) { return; }
+		if (aType.Kind is mVM_Type.tKind.Free) { return; }
+		
+		if (aType.Kind is mVM_Type.tKind.Abstract) {
+			aDef.MapTypeValue(ref aTypes, aPos, aType);
+			return;
+		}
+		
+		if (aType.Kind is mVM_Type.tKind.Generic or mVM_Type.tKind.Sig or mVM_Type.tKind.Interface or mVM_Type.tKind.Recursive) {
+			aDef.BindTypeSymbols(ref aTypes, aPos, aType.Refs[1], mStream.Stream(aType.Refs[0], aBound));
+			return;
+		}
+		
+		if (aType.IsRecord(out var Fields)) {
+			foreach (var Field in Fields.ToStream()) { aDef.BindTypeSymbols(ref aTypes, aPos, Field.Value, aBound); }
+		} else {
+			foreach (var Child in aType.Refs) { aDef.BindTypeSymbols(ref aTypes, aPos, Child, aBound); }
+		}
+	}
+	
 	private static tText
 	MapTypeView<tPos>(
 		this ref tDefConstructor<tPos> aDef,
@@ -2016,21 +2059,19 @@ mSPO2IL {
 		tText aValue,
 		mVM_Type.tType aType
 	) {
+		aDef.BindTypeSymbols(ref aTypes, aPos, aType);
+		if (aDef.TypeDict.TryGet(aValue).IsSome(out var Source)) { aDef.BindTypeSymbols(ref aTypes, aPos, Source); }
+		
 		if (
-			!aType.TypeOrChildsMatch(
-				__ => __.Kind is mVM_Type.tKind.Record or mVM_Type.tKind.Interface or mVM_Type.tKind.Sig or mVM_Type.tKind.Proc
-			) ||
-			(aDef.TypeDict.TryGet(aValue).IsSome(out var SourceType) && SourceType.SameType(aType))
+			(aDef.TypeDict.TryGet(aValue).IsSome(out var SourceType) && SourceType.SameType(aType)) ||
+			(aValue == mIL_AST.cTrue && aType.Kind is mVM_Type.tKind.True) ||
+			(aValue == mIL_AST.cFalse && aType.Kind is mVM_Type.tKind.False)
 		) {
 			return aValue;
 		}
 		
 		// Record the static view for subsequent type and authority checks; the data stays unchanged.
-		var Type = (
-			aType.ContainsInterface()
-			? aDef.MapTypeValue(ref aTypes, aPos, aType)
-			: aTypes.MapType(aType)
-		);
+		var Type = aDef.MapTypeValue(ref aTypes, aPos, aType);
 		
 		aDef.Commands.Push(mIL_AST.WithType(aPos, aDef.CreateTempReg(out var WithType), Type, aValue));
 		aDef.AddLocal(WithType, aType);

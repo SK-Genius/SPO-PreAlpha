@@ -1,0 +1,245 @@
+§TYPES
+	t_0 := [§ABSTRACT TYPE]
+	t_1 := [EMPTY_TYPE, t_0]
+	t_2 := [TRUE | FALSE]
+	t_3 := [#Result t_2]
+	t_4 := [t_1 => t_3]
+	t_5 := [TYPE => t_4]
+	t_6 := [EMPTY_TYPE, ANY]
+	t_7 := [t_6 => t_3]
+	t_8 := [EMPTY_TYPE => t_7]
+	t_9 := [EMPTY_TYPE, TYPE]
+	t_10 := [t_9, t_5]
+	t_11 := [t_10, t_8]
+	t_12 := [t_11 => t_7]
+	t_13 := [EMPTY_TYPE, t_5]
+	t_14 := [t_13, t_8]
+	t_15 := [t_14, t_12]
+	t_16 := [t_9, ANY]
+	t_17 := [t_16 => t_2]
+	t_18 := [t_15 => t_17]
+	t_19 := [§ABSTRACT TYPE]
+	t_20 := [EMPTY_TYPE, t_19]
+	t_21 := [t_20 => t_3]
+	t_22 := [TYPE => t_21]
+	t_23 := [t_9, t_22]
+	t_24 := [t_23, t_8]
+	t_25 := [t_24 => t_7]
+	t_26 := [t_24, t_25]
+	t_27 := [ANY => t_2]
+	t_28 := [t_26 => t_27]
+	t_29 := [EMPTY_TYPE, t_22]
+	t_30 := [t_29, t_8]
+	t_31 := [t_30, t_25]
+	t_32 := [t_31, t_28]
+	t_33 := [TYPE => t_27]
+	t_34 := [t_32 => t_33]
+	t_35 := [t_15, t_18]
+	t_36 := [t_35, t_22]
+	t_37 := [t_36, t_8]
+	t_38 := [t_37, t_25]
+	t_39 := [t_38, t_28]
+	t_40 := [t_39, t_34]
+	t_41 := [EMPTY_TYPE, t_2]
+	t_42 := [t_41, t_2]
+	t_43 := [t_42, t_2]
+	t_44 := [t_43, t_2]
+	t_45 := [t_44, t_2]
+	t_46 := [t_45, t_2]
+	t_47 := [t_46, t_2]
+	t_48 := [t_47, t_2]
+	t_49 := [EMPTY_TYPE => t_48]
+	t_50 := [t_40 => t_49]
+
+§DEF d_0 € t_5
+	_aType := ENV
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §BIND_TYPE _aType AS t_0
+	r_2 := §WITH_TYPE r_1 WITH r_4
+	_Candidate := r_2
+	r_3 := +#Result TRUE
+	§RETURN r_3 IF TRUE
+
+§DEF d_1 € t_8
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_2 € t_12
+	d_1 := §2ND ENV
+	r_8 := §1ST ENV
+	d_0 := §2ND r_8
+	r_9 := §1ST r_8
+	_aType := §2ND r_9
+	r_10 := §1ST r_9
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §BIND_TYPE _aType AS t_0
+	r_2 := §CLOSURE d_0 _aType
+	r_3 := EMPTY, r_6
+	§TRY_RETURN .r_2 r_3
+	r_4 := §CLOSURE d_1 EMPTY
+	r_5 := EMPTY, r_6
+	§TRY_RETURN .r_4 r_5
+	§RETURN EMPTY IF TRUE
+
+§DEF d_3 € t_18
+	d_2 := §2ND ENV
+	r_13 := §1ST ENV
+	d_1 := §2ND r_13
+	r_14 := §1ST r_13
+	d_0 := §2ND r_14
+	r_15 := §1ST r_14
+	r_1 := §2ND ARG
+	_aValue := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aType := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _aType
+	r_6 := r_5, d_0
+	r_7 := r_6, d_1
+	r_8 := §CLOSURE d_2 r_7
+	r_9 := EMPTY, _aValue
+	r_10 := OBJ, r_8
+	r_11 := §OBJ:r_10 r_9
+	r_12 := -#Result r_11
+	§RETURN r_12 IF TRUE
+
+§DEF d_4 € t_22
+	_aType := ENV
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := §BIND_TYPE _aType AS t_19
+	r_2 := §WITH_TYPE r_1 WITH r_4
+	_Candidate := r_2
+	r_3 := +#Result TRUE
+	§RETURN r_3 IF TRUE
+
+§DEF d_5 € t_8
+	r_3 := §1ST ARG
+	r_2 := §2ND ARG
+	r_1 := +#Result FALSE
+	§RETURN r_1 IF TRUE
+
+§DEF d_6 € t_25
+	d_5 := §2ND ENV
+	r_8 := §1ST ENV
+	d_4 := §2ND r_8
+	r_9 := §1ST r_8
+	_aType := §2ND r_9
+	r_10 := §1ST r_9
+	r_7 := §1ST ARG
+	r_6 := §2ND ARG
+	r_1 := §BIND_TYPE _aType AS t_19
+	r_2 := §CLOSURE d_4 _aType
+	r_3 := EMPTY, r_6
+	§TRY_RETURN .r_2 r_3
+	r_4 := §CLOSURE d_5 EMPTY
+	r_5 := EMPTY, r_6
+	§TRY_RETURN .r_4 r_5
+	§RETURN EMPTY IF TRUE
+
+§DEF d_7 € t_28
+	d_6 := §2ND ENV
+	r_9 := §1ST ENV
+	d_5 := §2ND r_9
+	r_10 := §1ST r_9
+	d_4 := §2ND r_10
+	r_11 := §1ST r_10
+	_aType := §2ND r_11
+	r_12 := §1ST r_11
+	_aValue := ARG
+	r_1 := EMPTY, _aType
+	r_2 := r_1, d_4
+	r_3 := r_2, d_5
+	r_4 := §CLOSURE d_6 r_3
+	r_5 := EMPTY, _aValue
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE
+
+§DEF d_8 € t_34
+	d_7 := §2ND ENV
+	r_6 := §1ST ENV
+	d_6 := §2ND r_6
+	r_7 := §1ST r_6
+	d_5 := §2ND r_7
+	r_8 := §1ST r_7
+	d_4 := §2ND r_8
+	r_9 := §1ST r_8
+	_aType := ARG
+	r_1 := EMPTY, _aType
+	r_2 := r_1, d_4
+	r_3 := r_2, d_5
+	r_4 := r_3, d_6
+	r_5 := §CLOSURE d_7 r_4
+	§RETURN r_5 IF TRUE
+
+§DEF d_9 € t_50
+	d_8 := §2ND ENV
+	r_40 := §1ST ENV
+	d_7 := §2ND r_40
+	r_41 := §1ST r_40
+	d_6 := §2ND r_41
+	r_42 := §1ST r_41
+	d_5 := §2ND r_42
+	r_43 := §1ST r_42
+	d_4 := §2ND r_43
+	r_44 := §1ST r_43
+	d_3 := §2ND r_44
+	r_45 := §1ST r_44
+	d_2 := §2ND r_45
+	r_46 := §1ST r_45
+	d_1 := §2ND r_46
+	r_47 := §1ST r_46
+	d_0 := §2ND r_47
+	r_48 := §1ST r_47
+	r_1 := EMPTY, d_0
+	r_2 := r_1, d_1
+	r_3 := r_2, d_2
+	r_4 := §CLOSURE d_3 r_3
+	_Probe... := r_4
+	r_5 := EMPTY, d_4
+	r_6 := r_5, d_5
+	r_7 := r_6, d_6
+	r_8 := r_7, d_7
+	r_9 := §CLOSURE d_8 r_8
+	_MakeProbe... := r_9
+	r_10 := ._MakeProbe... INT_TYPE
+	_IntegerProbe... := r_10
+	r_11 := ._MakeProbe... t_2
+	_BooleanProbe... := r_11
+	r_12 := EMPTY, INT_TYPE
+	r_13 := 7
+	r_14 := r_12, r_13
+	r_15 := ._Probe... r_14
+	r_16 := EMPTY, r_15
+	r_17 := EMPTY, t_2
+	r_18 := 7
+	r_19 := r_17, r_18
+	r_20 := ._Probe... r_19
+	r_21 := r_16, r_20
+	r_22 := EMPTY, t_2
+	r_23 := r_22, TRUE
+	r_24 := ._Probe... r_23
+	r_25 := r_21, r_24
+	r_26 := EMPTY, INT_TYPE
+	r_27 := r_26, TRUE
+	r_28 := ._Probe... r_27
+	r_29 := r_25, r_28
+	r_30 := 7
+	r_31 := ._IntegerProbe... r_30
+	r_32 := r_29, r_31
+	r_33 := 7
+	r_34 := ._BooleanProbe... r_33
+	r_35 := r_32, r_34
+	r_36 := ._IntegerProbe... TRUE
+	r_37 := r_35, r_36
+	r_38 := ._BooleanProbe... TRUE
+	r_39 := r_37, r_38
+	§RETURN r_39 IF TRUE

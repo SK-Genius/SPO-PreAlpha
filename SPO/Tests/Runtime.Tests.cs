@@ -9,6 +9,10 @@
 
 public static class
 mRuntime_Tests {
+	private static tBool SamePoint(mVM_Data.tData aLeft, mVM_Data.tData aRight) {
+		var Type = mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]);
+		return (aLeft, Type).SameVisibleValue((aRight, Type));
+	}
 	private static tInt32
 	Int(
 		mVM_Data.tData aData
@@ -58,11 +62,8 @@ mRuntime_Tests {
 					
 					var Setup = mStartup.Load(ConfigPath);
 					
-					mAssert.IsTrue(
-						Setup.Entry.Init(
-							_ => {}
-						).ElseThrow().Data.Equals(mVM_Data.Tuple([mVM_Data.Int(37), mVM_Data.Int(37)]))
-					);
+					var Initialized = Setup.Entry.Init(_ => {}).ElseThrow();
+					mAssert.IsTrue(Initialized.SameVisibleValue((mVM_Data.Tuple([mVM_Data.Int(37), mVM_Data.Int(37)]), Initialized.Type)));
 					
 					var Dependencies = Setup.Entry.Dependencies.ToArrayList().ToArray();
 					
@@ -259,7 +260,7 @@ mRuntime_Tests {
 						var First = NextRandom.Call(mVM_Data.Int(1));
 						
 						mAssert.IsTrue(
-							First.Equals(NextRandom.Call(mVM_Data.Int(1))),
+							Int(First) == Int(NextRandom.Call(mVM_Data.Int(1))),
 							"Generator state is explicit and immutable."
 						);
 						
@@ -358,7 +359,7 @@ mRuntime_Tests {
 						).ElseThrow();
 						
 						mAssert.IsTrue(
-							TextExamples.Data.Equals(ExpectedText.Data),
+							TextExamples.SameVisibleValue(ExpectedText),
 							"Pure text operations and integer boundaries."
 						);
 						
@@ -389,7 +390,7 @@ mRuntime_Tests {
 							_ => {}
 						).ElseThrow();
 						
-						mAssert.IsTrue(Actual.Data.Equals(Expected.Data), "Copied List module API");
+						mAssert.IsTrue(Actual.SameVisibleValue(Expected), "Copied List module API");
 						var MathPath = ConsumerPath.Replace("00_03_ListConsumer.SPO", "00_04_MathConsumer.SPO");
 						
 						var MathActual = mSPO_Interpreter.Run(
@@ -407,7 +408,7 @@ mRuntime_Tests {
 						).ElseThrow();
 						
 						mAssert.IsTrue(
-							MathActual.Data.Equals(MathExpected.Data),
+							MathActual.SameVisibleValue(MathExpected),
 							"Copied Math module and range boundaries"
 						);
 					}
@@ -443,8 +444,11 @@ mRuntime_Tests {
 							}
 						
 						) {
+							var Signature = Libraries.Type.GetFieldType("_Vector2").GetFieldType("_" + Operation);
+							var ResultType = Signature.Refs[2];
+							
 							mAssert.IsTrue(
-								Libraries.Data.Field("Vector2").Field(Operation).Call(Argument).Equals(Expected),
+								(Libraries.Data.Field("Vector2").Field(Operation).Call(Argument), ResultType).SameVisibleValue((Expected.Normalize(ResultType), ResultType)),
 								"Vector2 " + Operation
 							);
 						}
@@ -480,20 +484,9 @@ mRuntime_Tests {
 							_ => {}
 						).ElseThrow();
 						
-						mAssert.IsTrue(
-							CursorTest.Data.Call(mVM_Data.Empty(), aCapability).Equals(
-								mVM_Data.Tuple(
-									[
-										mVM_Data.Bool(
-											true
-										),
-										mVM_Data.Bool(
-											false
-										)
-									]
-								)
-							)
-						);
+						var CursorResult = CursorTest.Data.Call(mVM_Data.Empty(), aCapability);
+						var ResultType = mVM_Type.Tuple([mVM_Type.Bool(), mVM_Type.Bool()]);
+						mAssert.IsTrue((CursorResult, ResultType).SameVisibleValue((mVM_Data.Tuple([mVM_Data.Bool(true), mVM_Data.Bool(false)]).Normalize(ResultType), ResultType)));
 						
 						mAssert.AreEquals(18, X);
 						mAssert.AreEquals(24, Y);
@@ -766,8 +759,10 @@ mRuntime_Tests {
 						);
 					}
 					
-					mAssert.IsTrue(App.Data.IsSig(out _, out _, out var Body));
-					var Initial = Body.Field("Initial");
+					mAssert.IsTrue(App.OpenSig(out _, out var StateHead, out var Body));
+					var StateType = StateHead.TypeExpressionValue();
+					// This fixture knows the implementation's state representation.
+					var Initial = Body.Field("Initial")._Value.To<mVM_Data.tOpaqueValue>().Data;
 					var InitialRandomState = Initial.Field("RandomState");
 					var State = Initial;
 					var Frame = Body.Field("Frame...");
@@ -861,6 +856,7 @@ mRuntime_Tests {
 					) {
 						var Result = Frame.Call(mVM_Data.Tuple([State, aEvent]), aCapability);
 						mAssert.IsTrue(Result.IsTuple(out State, out var Continue));
+						State = State._Value.To<mVM_Data.tOpaqueValue>().Data;
 						mAssert.IsTrue(Continue.IsBool(out var Running));
 						return Running;
 					}
@@ -924,32 +920,27 @@ mRuntime_Tests {
 					Send(mVM_Data.Prefix("_Focus...", mVM_Data.Bool(false)));
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_Paused", out _));
 					Send(Key("R"));
-					mAssert.AreEquals(InitialRandomState, State.Field("RandomState"));
+					mAssert.AreEquals(Int(InitialRandomState), Int(State.Field("RandomState")));
 					
 					for (var I = 0; I < 12; I += 1) {
 						Send(Tick);
 					}
 					
 					mAssert.IsTrue(
-						InitialRandomState.Equals(State.Field("RandomState")),
+						Int(InitialRandomState) == Int(State.Field("RandomState")),
 						"Movement does not consume randomness."
 					);
 					
 					Send(Tick);
 					Head(20, 8);
 					mAssert.AreEquals(4, Length());
-					mAssert.AreEquals(mVM_Data.Int(16807), State.Field("RandomState"));
+					mAssert.AreEquals(16807, Int(State.Field("RandomState")));
 					
-					mAssert.AreEquals(
-						mVM_Data.Tuple([mVM_Data.Int(19), mVM_Data.Int(14)]),
-						State.Field(
-							"FoodPosition"
-						)
-					);
+					mAssert.IsTrue(SamePoint(mVM_Data.Tuple([mVM_Data.Int(19), mVM_Data.Int(14)]), State.Field("FoodPosition")));
 					
 					mAssert.AreEquals('1', Screen[21 * 100 + 17]);
 					mAssert.IsTrue(State.Field("SnakeBody").IsPair(out _, out var Eaten));
-					mAssert.IsFalse(State.Field("FoodPosition").Equals(Eaten));
+					mAssert.IsFalse(SamePoint(State.Field("FoodPosition"), Eaten));
 					
 					for (var I = 0; I < 9; I += 1) {
 						Send(Tick);
@@ -960,7 +951,7 @@ mRuntime_Tests {
 					Send(Key("R"));
 					
 					mAssert.IsTrue(
-						InitialRandomState.Equals(State.Field("RandomState")),
+						Int(InitialRandomState) == Int(State.Field("RandomState")),
 						"Restart restores the initial sequence."
 					);
 					
@@ -990,10 +981,10 @@ mRuntime_Tests {
 					
 					var BeforeIgnoredKey = State;
 					Send(Key("F"));
-					mAssert.AreEquals(BeforeIgnoredKey.ToText(1000), State.ToText(1000));
+					mAssert.IsTrue((BeforeIgnoredKey, StateType).SameVisibleValue((State, StateType)));
 					mAssert.IsTrue(Initial.Field("MoveDirection").IsPrefix("_Right", out _));
 					mAssert.IsTrue(Initial.Field("SnakeBody").IsPair(out _, out var InitialHead));
-					mAssert.IsTrue(InitialHead.Equals(mVM_Data.Tuple([mVM_Data.Int(7), mVM_Data.Int(8)])));
+					mAssert.IsTrue(SamePoint(InitialHead, mVM_Data.Tuple([mVM_Data.Int(7), mVM_Data.Int(8)])));
 					
 					mVM_Data.tData
 					MakeState(
@@ -1043,7 +1034,7 @@ mRuntime_Tests {
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_GameOver", out _));
 					
 					mAssert.IsTrue(
-						InitialRandomState.Equals(State.Field("RandomState")),
+						Int(InitialRandomState) == Int(State.Field("RandomState")),
 						"A collision does not consume randomness."
 					);
 					
@@ -1062,11 +1053,12 @@ mRuntime_Tests {
 						
 						var BeforeEating = MakeState([(3, 2), (2, 2)], (1, 2));
 						var First = Move(BeforeEating);
-						mAssert.AreEquals(First.ToText(1000), Move(BeforeEating).ToText(1000));
-						mAssert.AreEquals(mVM_Data.Int(1), BeforeEating.Field("RandomState"));
+						mAssert.IsTrue((First, StateType).SameVisibleValue((Move(BeforeEating), StateType)));
+						mAssert.AreEquals(1, Int(BeforeEating.Field("RandomState")));
 						
 						mAssert.IsFalse(
-							First.Field("FoodPosition").Equals(
+							SamePoint(
+								First.Field("FoodPosition"),
 								Move(MakeState([(3, 2), (2, 2)], (1, 2), 2)).Field(
 									"FoodPosition"
 								)
@@ -1094,7 +1086,7 @@ mRuntime_Tests {
 							var Items = Next.Field("SnakeBody");
 							
 							while (Items.IsPair(out Items, out var Point)) {
-								mAssert.IsFalse(Food.Equals(Point), "The apple must be on a free cell.");
+								mAssert.IsFalse(SamePoint(Food, Point), "The apple must be on a free cell.");
 							}
 						}
 						
@@ -1110,7 +1102,7 @@ mRuntime_Tests {
 						
 						) {
 							var Next = After.Call(mVM_Data.Tuple([SeededState, Action]));
-							mAssert.AreEquals(SeededState.Field("RandomState"), Next.Field("RandomState"));
+							mAssert.AreEquals(Int(SeededState.Field("RandomState")), Int(Next.Field("RandomState")));
 						}
 						
 						System.Console.WriteLine("OK: random apple selection, replay and state preservation.");
@@ -1128,12 +1120,9 @@ mRuntime_Tests {
 						Points[PointIndex] = (2, 1);
 						var AlmostWon = Move(MakeState(Points, (1, 1), 16807));
 						
-						mAssert.AreEquals(
-							mVM_Data.Tuple([mVM_Data.Int(28), mVM_Data.Int(16)]),
-							AlmostWon.Field("FoodPosition")
-						);
+						mAssert.IsTrue(SamePoint(mVM_Data.Tuple([mVM_Data.Int(28), mVM_Data.Int(16)]), AlmostWon.Field("FoodPosition")));
 						
-						mAssert.AreEquals(mVM_Data.Int(282475249), AlmostWon.Field("RandomState"));
+						mAssert.AreEquals(282475249, Int(AlmostWon.Field("RandomState")));
 						mAssert.IsTrue(AlmostWon.Field("Phase").IsPrefix("_Playing", out _));
 						System.Console.WriteLine("OK: random apple on the last free cell.");
 					}
@@ -1157,7 +1146,7 @@ mRuntime_Tests {
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_Won", out _));
 					
 					mAssert.IsTrue(
-						InitialRandomState.Equals(State.Field("RandomState")),
+						Int(InitialRandomState) == Int(State.Field("RandomState")),
 						"A full board needs no random choice."
 					);
 					
@@ -1181,7 +1170,7 @@ mRuntime_Tests {
 					mAssert.IsTrue(Send(Key("C")));
 					// A copied interface retains authority; a different hidden receiver does not.
 					mAssert.IsTrue(aCapability.IsInterface(out var Contract, out _, out var Methods));
-					var Forged = mVM_Data.Interface(Contract, mVM_Data.Var(mVM_Data.Empty()), Methods);
+					var Forged = mVM_Data.DynamicInterface(Contract, mVM_Data.Var(mVM_Data.Empty()), Methods);
 					
 					foreach (
 						var Name in new[] {

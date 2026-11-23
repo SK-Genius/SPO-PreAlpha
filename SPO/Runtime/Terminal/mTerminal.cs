@@ -112,11 +112,14 @@ mTerminal {
 		// Only the interface binds this private receiver. Native pointers remain
 		// in the backend; operations check receiver identity and lifetime.
 		var Handle = mVM_Data.Var(mVM_Data.Empty());
+		var Contract = LoadSignature("Terminal");
 		
 		mVM_Data.tData
 		Bind(
+			tText aName,
 			mStd.tFunc<mVM_Data.tData, mVM_Data.tData> aOperation
 		) => mVM_Data.ExternProc(
+			Contract.TryGetInterfaceMethod(aName).AssertNotEmpty(),
 			(_, aObject, aArgument, _) => {
 				if (!Active || !ReferenceEquals(aObject, Handle)) {
 					throw new System.InvalidOperationException("Invalid or expired terminal capability.");
@@ -132,6 +135,7 @@ mTerminal {
 				(
 					"_Size",
 					Bind(
+						"_Size",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							return aTerminal.Size().ToData();
@@ -141,6 +145,7 @@ mTerminal {
 				(
 					"_MoveCursorTo...",
 					Bind(
+						"_MoveCursorTo...",
 						a => {
 							mAssert.IsTrue(a.IsTuple(out var X, out var Y));
 							mAssert.IsTrue(X.IsInt(out var Column));
@@ -162,6 +167,7 @@ mTerminal {
 				(
 					"_IsCursorVisible",
 					Bind(
+						"_IsCursorVisible",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							return mVM_Data.Bool(aTerminal.CursorVisible());
@@ -171,6 +177,7 @@ mTerminal {
 				(
 					"_ShowCursor",
 					Bind(
+						"_ShowCursor",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							aTerminal.SetCursorVisible(true);
@@ -181,6 +188,7 @@ mTerminal {
 				(
 					"_HideCursor",
 					Bind(
+						"_HideCursor",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							aTerminal.SetCursorVisible(false);
@@ -191,6 +199,7 @@ mTerminal {
 				(
 					"_Draw...At...WithStyle...",
 					Bind(
+						"_Draw...At...WithStyle...",
 						a => {
 							mAssert.IsTrue(a.IsTuple(out var Text, out var Position, out var Style));
 							mAssert.IsTrue(Position.IsTuple(out var X, out var Y));
@@ -255,6 +264,7 @@ mTerminal {
 				(
 					"_Clear",
 					Bind(
+						"_Clear",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							aTerminal.Clear();
@@ -266,7 +276,7 @@ mTerminal {
 		);
 		
 		try {
-			aRun(mVM_Data.Interface(LoadSignature("Terminal"), Handle, Operations));
+			aRun(mVM_Data.DynamicInterface(Contract, Handle, Operations));
 		} finally {
 			Active = false;
 		}

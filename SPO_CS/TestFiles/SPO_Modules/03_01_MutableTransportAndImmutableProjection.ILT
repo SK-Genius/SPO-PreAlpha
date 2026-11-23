@@ -31,25 +31,27 @@
 	r_4 := {r_3} #_Cell
 	_Left := r_4
 	r_5 := {r_3} #_Fixed
-	_cLeftFixed := r_5
-	r_6 := ._Create... EMPTY
-	r_7 := {r_6} #_Cell
-	_Right := r_7
-	r_8 := {r_6} #_Fixed
-	_cRightFixed := r_8
-	r_9 := §CLOSURE d_0 EMPTY
-	_Identity... := r_9
-	r_10 := ._Identity... _Left
-	_LeftTransported := r_10
-	r_11 := ._Identity... _Right
-	_RightTransported := r_11
-	r_12 := 1
-	§VAR _LeftTransported <- r_12
-	r_13 := +#_Left _cLeftFixed
-	r_14 := {EMPTY} + r_13
-	r_15 := +#_Right _cRightFixed
-	r_16 := {r_14} + r_15
-	r_17 := §VAR _RightTransported ->
-	r_18 := +#_Fresh r_17
-	r_19 := {r_16} + r_18
-	§RETURN r_19 IF TRUE
+	r_6 := §WITH_TYPE INT_TYPE WITH r_5
+	_cLeftFixed := r_6
+	r_7 := ._Create... EMPTY
+	r_8 := {r_7} #_Cell
+	_Right := r_8
+	r_9 := {r_7} #_Fixed
+	r_10 := §WITH_TYPE INT_TYPE WITH r_9
+	_cRightFixed := r_10
+	r_11 := §CLOSURE d_0 EMPTY
+	_Identity... := r_11
+	r_12 := ._Identity... _Left
+	_LeftTransported := r_12
+	r_13 := ._Identity... _Right
+	_RightTransported := r_13
+	r_14 := 1
+	§VAR _LeftTransported <- r_14
+	r_15 := +#_Left _cLeftFixed
+	r_16 := {EMPTY} + r_15
+	r_17 := +#_Right _cRightFixed
+	r_18 := {r_16} + r_17
+	r_19 := §VAR _RightTransported ->
+	r_20 := +#_Fresh r_19
+	r_21 := {r_18} + r_20
+	§RETURN r_21 IF TRUE

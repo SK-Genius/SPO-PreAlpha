@@ -44,17 +44,18 @@
 
 §DEF d_3 € t_12
 	d_2 := §2ND ENV
-	r_8 := §1ST ENV
-	d_1 := §2ND r_8
-	r_9 := §1ST r_8
-	d_0 := §2ND r_9
+	r_9 := §1ST ENV
+	d_1 := §2ND r_9
 	r_10 := §1ST r_9
-	_Value := EMPTY
-	r_1 := EMPTY, d_0
-	r_2 := r_1, d_1
-	r_3 := §CLOSURE d_2 r_2
-	r_4 := EMPTY, _Value
-	r_5 := OBJ, r_3
-	r_6 := §OBJ:r_5 r_4
-	r_7 := -#Result r_6
-	§RETURN r_7 IF TRUE
+	d_0 := §2ND r_10
+	r_11 := §1ST r_10
+	r_1 := §WITH_TYPE ANY WITH EMPTY
+	_Value := r_1
+	r_2 := EMPTY, d_0
+	r_3 := r_2, d_1
+	r_4 := §CLOSURE d_2 r_3
+	r_5 := EMPTY, _Value
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE

@@ -99,6 +99,55 @@ mIL_TypeChecker_Tests {
 						"Unknown interface method"
 					),
 					(
+						"Explicit TYPE bindings cannot overwrite an existing identity",
+						"""
+						§TYPES
+							tWitness := [§ABSTRACT TYPE]
+							tFunction := [EMPTY_TYPE => INT]
+							tMain := [TYPE => tFunction]
+						§DEF Main € tMain
+							First := §BIND_TYPE ENV AS tWitness
+							Second := §BIND_TYPE TYPE AS tWitness
+							§RETURN ONE IF TRUE
+						""",
+						false,
+						"cannot rebind an existing type identity"
+					),
+					(
+						"SIG head identity cannot be overwritten by another TYPE value",
+						"""
+						§TYPES
+							t := [§FREE TYPE]
+							tPackage := [§SIG_WITH t IN t]
+							tWitness := [§ABSTRACT TYPE]
+							tFunction := [EMPTY_TYPE => INT]
+							tMain := [tPackage => tFunction]
+						§DEF Main € tMain
+							Head := §SIG_HEAD ENV AS tWitness
+							Spoofed := §BIND_TYPE INT AS tWitness
+							§RETURN ONE IF TRUE
+						""",
+						false,
+						"cannot rebind an existing type identity"
+					),
+					(
+						"Captured SIG head keeps its existing identity",
+						"""
+						§TYPES
+							t := [§FREE TYPE]
+							tPackage := [§SIG_WITH t IN t]
+							tWitness := [§ABSTRACT TYPE]
+							tFunction := [EMPTY_TYPE => INT]
+							tMain := [tPackage => tFunction]
+						§DEF Main € tMain
+							Head := §SIG_HEAD ENV AS tWitness
+							Captured := §BIND_TYPE Head AS tWitness
+							§RETURN ONE IF TRUE
+						""",
+						true,
+						""
+					),
+					(
 						"Payload cannot be projected as a record",
 						cValid.Replace(
 							"§RETURN ONE IF TRUE",

@@ -1,0 +1,1010 @@
+[§ ILT: Typregeln und operationale Semantik §]
+
+[=Status und Geltungsbereich=]
+
+Dieser Entwurf beschreibt den am 7. November 2026 gelesenen Arbeitsstand von ILT.
+Er rekonstruiert die Sprache aus Parser, Typprüfer, Opcode-Erzeugung, Spezialisierung und VM.
+Er ist eine mathematische Arbeitsbeschreibung, kein maschinell geprüfter Kalkül und kein Beweis der Typsicherheit.
+Die Quellen im Arbeitsverzeichnis enthalten laufende Änderungen; die Beschreibung bezieht sich auf diese Dateien,
+nicht allein auf den letzten Git-Commit.
+
+Alle 63 eigentlichen Operationsarten aus [<../SPO_CS/src/mIL_AST.cs|mIL_AST.tCommandNodeType>]
+werden unten behandelt: 15 Typoperationen und 48 Wert- bzw. Kontrolloperationen.
+Bereichsmarkierungen wie [.|_BeginTypes_.] sind keine Operationen.
+Fehlende Implementierung wird ausdrücklich als solche ausgewiesen.
+
+Die Regeln unterscheiden drei Aussagen:
+
+- [*Rekonstruktion:*] aus der gegenwärtigen Implementierung abgeleitetes Verhalten.
+- [*Formalisierung:*] hier gewählte mathematische Darstellung dieses Verhaltens.
+- [*Offen:*] eine noch nicht festgelegte oder nicht ausreichend abgesicherte Eigenschaft.
+
+Die kompakte Befehlssyntax ist in [<CheatSheet_IL.wiki>] beschrieben.
+Die vorliegende Datei ergänzt sie um Voraussetzungen, Zustandsänderungen und Fehlerfälle.
+SPO-Ausdrücke wie [.|§LOAD.] und interne VM-Opcodes wie [.|Narrow.] sind keine zusätzlichen ILT-Operationen.
+
+[=Vorbild aus der Forschung=]
+
+Plotkin beschreibt Ausführung durch Regeln über Konfigurationen und deren Übergänge.
+Besonders passend sind die Trennung von Syntax, dynamischen Fehlern und Typprüfung in Kapitel 3
+sowie die Behandlung von Definitionen und Prozeduren in den folgenden Kapiteln.
+Für ILT übernehmen wir diese Form als kleine Schritte über Register, Speicher und Aufrufstapel.
+[<https://homepages.inf.ed.ac.uk/gdp/publications/sos_jlap.pdf|G. D. Plotkin: A Structural Approach to Operational Semantics, 1981; Neufassung 2004>]
+
+Wright und Felleisen verbinden eine operationale Semantik mit syntaktischen Beweisen der Typsicherheit.
+Die heute übliche Aufteilung in Typerhaltung und Fortschritt liefert die Beweisziele für ILT.
+Solche Sätze folgen nicht schon daraus, dass jede Operation eine Typregel besitzt.
+[<https://courses.grainger.illinois.edu/cs522/sp2016/ASyntacticApproachToTypeSoundness.pdf|A. K. Wright und M. Felleisen: A Syntactic Approach to Type Soundness, 1994>]
+
+Vellvm ist das unmittelbare Vorbild für eine Zwischensprache:
+Zhao, Nagarakatte, Martin und Zdancewic definieren getrennt Syntax, statische Eigenschaften,
+Speichermodell und operationale Semantik von LLVM IR und prüfen einen daraus gewonnenen Interpreter
+gegen die Implementierung. Für ILT ist entsprechend die Beziehung zwischen Typprüfung,
+Spezialisierung, Darstellungskonvertierungen und VM eigens nachzuweisen.
+[<https://www.cis.upenn.edu/~stevez/papers/ZNMZ12.pdf|Formalizing the LLVM Intermediate Representation for Verified Program Transformations, POPL 2012>]
+
+Mitchell und Plotkin beschreiben Datenabstraktion durch existentielle Typen und Regeln zum Verpacken
+und Öffnen einer verborgenen Repräsentation. Das ist eine Grundlage für ILT-Interfaces und SIG-Pakete.
+Die Übertragung ist unsere Interpretation: SIG besitzt zusätzlich einen expliziten Typkopf,
+dessen Identität ILT zur Laufzeit vergleichen kann.
+[<https://homepages.inf.ed.ac.uk/gdp/publications/Abstract_existential.pdf|J. C. Mitchell und G. D. Plotkin: Abstract Types Have Existential Type, 1988>]
+
+[=Implementierungsquellen=]
+
+[| [*Bereich*] ][ [*Quelle*] |]
+[| Textsyntax ][ [<../SPO_CS/src/mIL_Parser.cs|mIL_Parser.cs>] |]
+[| Operationsinventar ][ [<../SPO_CS/src/mIL_AST.cs|mIL_AST.cs>] |]
+[| Typ- und Zugriffsregeln ][ [<../SPO_CS/src/mIL_TypeChecker.cs|mIL_TypeChecker.cs>] |]
+[| Typgleichheit, Subtyping, Inferenz ][ [<../SPO_CS/src/mVM_Type.cs|mVM_Type.cs>] |]
+[| Übersetzung der ILT-Befehle ][ [<../SPO_CS/src/mIL_GenerateOpcodes.cs|mIL_GenerateOpcodes.cs>] |]
+[| Spezialisierung und statisches Verknüpfen ][ [<../SPO_CS/src/mIL_Specialize.cs|mIL_Specialize.cs>], [<../SPO_CS/src/mIL_Specialize.Flow.cs|mIL_Specialize.Flow.cs>] |]
+[| Ausführung ][ [<../SPO_CS/src/mVM.cs|mVM.cs>] |]
+[| Sichtbare Typen und Konvertierungen ][ [<../SPO_CS/src/mVM_View.cs|mVM_View.cs>], [<../SPO_CS/src/mVM_Visible.cs|mVM_Visible.cs>] |]
+[| Datenrepräsentation ][ [<../SPO_CS/src/mVM_Data.cs|mVM_Data.cs>] |]
+
+[=Notation und Syntax=]
+
+Die mathematischen Definitionen und Inferenzregeln stehen in TeX-Blöcken und werden vom lokalen KaTeX-Viewer gesetzt.
+Einzelne Formeln können auch im Fließtext stehen, zum Beispiel [.tex|\rho(y)=\ell.].
+Syntaxbeispiele und Ablaufbeschreibungen bleiben Text- bzw. ILT-Blöcke.
+Die Einbettung ist in [<CheatSheet_Wiki.wiki|der Wiki-Syntaxübersicht>] beschrieben.
+Großbuchstaben A, B, E, O, R, S und T bezeichnen Typausdrücke;
+x, y und z Registernamen; p einen Präfix- oder Feldnamen; d eine Definition.
+α bezeichnet einen bindbaren FREE-Parameter, a eine feste ABSTRACT-Identität.
+Gleiche Anzeigenamen bedeuten bei diesen Identitäten noch keine Gleichheit.
+
+[.
+|κ ::= TYPE | κ => κ                         Kind eines Typwerts
+|
+|T ::= EMPTY_TYPE | TRUE | FALSE | INT | TYPE | ANY
+|    | α:κ | a:κ | (T,T) | #p T | {p_i:T_i}
+|    | Proc(O,A,R) | Var(T) | Ref(T) | (T | T)
+|    | μ α.T | ∀ α:κ.T | Interface(α,T) | Sig(h,T) | F(T)
+|
+|module ::= §TYPES NL type-command+ definition+
+|definition ::= §DEF d € T NL command+
+|
+|B[T/α]          capture-vermeidende Substitution in B
+|S ≡ T           exakte Typwertgleichheit, entsprechend SameType
+|S <: T          erfolgreicher Subtypvergleich ohne offene Inferenzbindungen
+|M ⊢ S <: T ⇒ M' Subtypprüfung mit Inferenzsubstitution M
+|⊥               kein statisch verbleibender Fall; KEIN ILT-Typ
+|()              der Wert EMPTY; sein Typ ist EMPTY_TYPE
+.]
+
+In der Typgrammatik ist der Ausdruck mit senkrechtem Strich die binäre Vereinigung.
+Die Schreibweise [.|Proc(O,A,R).] ist Metanotation für einen Aufruf mit Empfänger O,
+Argument A und Ergebnis R. Eine reine Funktion hat O = EMPTY_TYPE.
+ILT schreibt [.|[[A => R]].] für diesen Funktionstyp und [.|[[O : F]].] für eine Methode,
+wobei F ein zuvor definierter Funktionstyp sein muss. Inline verschachtelte Typausdrücke
+sind in den Befehlsproduktionen nicht allgemein erlaubt: die Operanden sind Namen.
+
+[.|BOOL.] ist keine fest eingebaute Typdeklaration des ILT-Modulprüfers.
+Erforderlichenfalls deklariert ein Modul [.|BOOL := [[TRUE | FALSE]].].
+Die eingebauten Typnamen sind [.|EMPTY_TYPE.], [.|ANY.], [.|INT.], [.|TYPE.], [.|TRUE.] und [.|FALSE.].
+TRUE und FALSE dienen sowohl als Singleton-Typen als auch als die entsprechenden Werte.
+
+[=Statische Konfiguration und Typurteile=]
+
+[.tex
+|\begin{aligned}
+|\Delta &: \text{Typname}\to\text{Typausdruck}\\
+|N &: \text{Registername}\to\text{Wert-ID}\\
+|\Gamma &: \text{Wert-ID}\to\text{Typ}\\
+|K &: \text{Wert-ID}\to\text{bekannte Typwert- oder Paarinformation}\\
+|B &: \text{feste Typidentität}\to\text{Wert-ID ihres Laufzeitzeugen}\\
+|P &: \text{gebundene generische Parameter}\\
+|R &: \text{erwarteter Rückgabetyp}\\[0.5em]
+|\Theta &= (\Delta,N,\Gamma,K,B,P)\\[0.5em]
+|\Theta &\vdash e:T\\
+|\Theta;R &\vdash c\Rightarrow\Theta';R'\\
+|\Delta &\vdash q\Downarrow T:\kappa
+|\end{aligned}
+.]
+
+Ein gewöhnlicher Ergebnisbefehl erweitert N und Γ um eine neue Wert-ID.
+Ein Alias verwendet dieselbe Wert-ID. Dadurch wirken spätere Verfeinerungen auf sämtliche Aliasnamen.
+Der Parser erzwingt keine globale Einmaligkeit der Anzeigenamen:
+eine neue Definition desselben Registernamens überschreibt dessen Namenszuordnung.
+Die mathematischen Regeln können deshalb nach Umbenennung mit frischen Wert-IDs arbeiten.
+
+K speichert ausschließlich für die Typprüfung relevante bekannte Information.
+Das ist keine allgemeine Konstantenfaltung. Beim Konstruieren eines Paares kann insbesondere
+der bekannte Typkopf erhalten bleiben, obwohl der andere Bestandteil unbekannt ist.
+Ein unbekannter Operand vom Typ TYPE erhält beim Gebrauch als Typ eine feste symbolische Identität.
+Ein noch ungebundener FREE-Parameter darf nicht als gewöhnlicher Wert aus einer Typdeklaration entweichen;
+die in P gebundenen Parameter einer generischen Definition sind davon ausgenommen.
+
+Die Typregeln in den folgenden Tabellen sind Instanzen des Schemas:
+
+[.tex
+|\frac{
+|  \Theta\vdash e:T\qquad\operatorname{Access}(\Theta,c)\text{ ist zulässig}
+|}{
+|  \Theta;R\vdash x:=e\Rightarrow\Theta[x:T];R
+|}\quad\text{(T-Bind)}
+.]
+
+Θ[[x:T]] bezeichnet hier die Erweiterung um eine frische Wert-ID vom Typ T.
+
+Access verwendet zusätzlich die weiter unten definierten Umgebungen A und L der Zugriffsanalyse.
+Die Zugriffsprüfung wird dort präzisiert und gilt zusätzlich zu jeder Werttypregel.
+Eine passende Struktur vom Typ Var(T) allein erlaubt daher noch keinen Zugriff auf die Zelle.
+
+[=Typgleichheit, Subtyping und Inferenz=]
+
+Exakte Gleichheit ist strukturell, mit folgenden Ausnahmen und Bindungsregeln:
+
+- FREE und ABSTRACT behalten außerhalb eines Binders ihre eigene Identität.
+- Gebundene FREE-Parameter können α-umbenannt werden; Kind und substituierter Körper müssen gleich sein.
+- Die Reihenfolge der Recordfelder spielt keine Rolle.
+- Vereinigungen werden für Gleichheit als Mengen ihrer flach gesammelten Alternativen verglichen.
+- Ein rekursiver Typ ist nicht durch bloße Entfaltung exakt gleich zu seinem Körper;
+  Entfaltung ist eine Regel des Subtypvergleichs bzw. der Projektion.
+
+Für geschlossene Typen ergeben sich die wesentlichen Strukturregeln:
+
+[.tex
+|\begin{gathered}
+|T<:T\qquad T<:\mathsf{ANY}\\[1em]
+|\frac{S_1<:T\qquad S_2<:T}{S_1\mid S_2<:T}
+|\qquad
+|\frac{S<:T_1\text{ oder }S<:T_2}{S<:T_1\mid T_2}\\[1em]
+|\frac{S_1<:T_1\qquad S_2<:T_2}{(S_1,S_2)<:(T_1,T_2)}
+|\qquad
+|\frac{S<:T}{\#p\,S<:\#p\,T}\\[1em]
+|\frac{J\subseteq I\qquad\forall j\in J:\ S_j<:T_j}
+|{\{p_i:S_i\}_{i\in I}<:\{p_j:T_j\}_{j\in J}}\\[1em]
+|\frac{\begin{gathered}O_1<:O_2\qquad O_2<:O_1\\A_2<:A_1\qquad R_1<:R_2\end{gathered}}
+|{\operatorname{Proc}(O_1,A_1,R_1)<:\operatorname{Proc}(O_2,A_2,R_2)}\\[1em]
+|\frac{S<:T\qquad T<:S}{\operatorname{Var}(S)<:\operatorname{Var}(T)}
+|\end{gathered}
+.]
+
+Empfänger sind im Prozedur-Subtyping invariant, Argumente kontravariant und Ergebnisse kovariant.
+Für Var gilt Invarianz des Inhalts. Das ist stärker als eine nur kovariante Lesereferenz.
+EMPTY_TYPE ist der Typ des einzelnen Werts (); er ist kein leerer Bottom-Typ.
+
+Beim Vergleich gegen einen SIG-Vertrag muss die Art des Kopfes übereinstimmen.
+Ein FREE-Zielkopf akzeptiert einen passenden Zeugen; ein fester Zielkopf verlangt dessen exakte Identität.
+Die Körper werden nach Substitution desselben Zeugen verglichen.
+Interface-Subtyping vergleicht entsprechend die Methodenkörper unter einem gemeinsamen frischen ABSTRACT-Zeugen.
+
+Generisches Subtyping öffnet die universellen Parameter der Implementierung mit frischen FREE-Variablen
+und die Parameter des Vertrags mit frischen festen ABSTRACT-Zeugen.
+Es prüft den instanziierten Vergleich erneut und verhindert, dass die lokalen festen Zeugen
+über eine Inferenzbindung in die äußere Umgebung entweichen.
+Das ist eine algorithmische Rekonstruktion; daraus wird hier kein vollständiger deklarativer
+Vollständigkeitssatz über System F oder F-Sub abgeleitet.
+
+Bei rekursiven Vergleichen werden Typen entfaltet und bereits besuchte Typ-Paare gespeichert.
+Eine zyklische Wiederaufnahme zählt nur dann als Erfolg, wenn inzwischen ein struktureller Konstruktor
+durchlaufen wurde. Ein unbewachter Kreis allein begründet keinen Subtypbeweis.
+
+Inferenz ersetzt FREE-Variablen durch passende Typausdrücke desselben Kinds.
+Mehrere Anforderungen an einen Parameter vom Kind TYPE können durch Vereinigung zusammengeführt werden;
+Bindungen von Typfunktionen müssen exakt übereinstimmen. Zyklische Bindungen werden verworfen.
+ABSTRACT-Identitäten werden dabei nicht inferiert.
+
+[.tex
+|\frac{
+|\begin{gathered}
+|\operatorname{inst}(F)=\operatorname{Proc}(O,A,R)\quad\text{mit frischen FREE-Parametern}\\
+|\varnothing\vdash O_{\mathrm{actual}}<:O\Rightarrow M_1\\
+|M_1\vdash A_{\mathrm{actual}}<:A\Rightarrow M_2\\
+|M_2(O_{\mathrm{actual}})<:M_2(O)\qquad M_2(A_{\mathrm{actual}})<:M_2(A)
+|\end{gathered}
+|}{\operatorname{Infer}(F,O_{\mathrm{actual}},A_{\mathrm{actual}})=M_2(R)}
+|\quad\text{(T-InferCall)}
+.]
+
+Die erneute Prüfung ist notwendig, weil das Argument eine zuvor aus dem Empfänger gewonnene Bindung verändern kann.
+Ref-Subtyping und bedingte Typen sind nicht allgemein implementiert.
+Die obigen Regeln sind ein Kern der implementierten Relation; die geordnete Inferenz mit ihren
+Fehlermeldungen steht in [.|CheckSubType.], [.|BindCall.] und [.|ApplyMappings.] der Implementierung.
+
+[=Alle Typoperationen=]
+
+Ein Typname in §TYPES wird in Δ eingetragen. Dieselben Typbefehle können auch innerhalb einer Definition stehen;
+dort erzeugen sie ein Register mit einem Typwert. Für einen Typwert T ist dessen Werttyp [.|kind(T).].
+
+[.tex
+|\begin{aligned}
+|\operatorname{kind}(\alpha:\kappa)&=\kappa&\operatorname{kind}(a:\kappa)&=\kappa\\
+|\operatorname{kind}(\forall\alpha:\kappa.B)&=\kappa\Rightarrow\operatorname{kind}(B)\\
+|\operatorname{kind}(F(A))&=\kappa_2&&\text{falls }\operatorname{kind}(F)=\kappa_1\Rightarrow\kappa_2\\
+|\operatorname{kind}(T)&=\mathsf{TYPE}&&\text{für die übrigen Konstruktoren}\\[0.5em]
+|\operatorname{SigOK}(T)&\iff\operatorname{kind}(T)=\mathsf{TYPE}\\
+|&\quad\lor\bigl(T=\forall\alpha.B\ \land\operatorname{SigOK}(B)\bigr)
+|\end{aligned}
+.]
+
+Die zweite Alternative ist eine Besonderheit von ILT:
+eine deklarierte generische Signatur darf als Signaturbestandteil vorkommen,
+obwohl der Typwert der Abstraktion selbst einen Funktionskind hat.
+Eine bloß unbekannte Typfunktion muss dagegen vor Verwendung als Datentyp angewendet werden.
+
+Alle Operanden werden vor der Konstruktion aufgelöst. [.|SigOK.] gilt für die gewöhnlichen
+Typoperanden, sofern die Tabelle keine speziellere Bedingung angibt.
+Anwendungen fordern exakte Übereinstimmung der Kinds.
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Voraussetzungen und konstruierter Typwert*] |]
+[| TypePair ][ [.|X := [[A, B]].] ][ SigOK(A), SigOK(B); X = (A,B). |]
+[| TypeAbstract ][ [.|X := [[§ABSTRACT K]].] ][ K ist TYPE oder ein gültiger Typfunktionskind; X = frische feste Identität a:K. |]
+[| TypeSig ][ [.|X := [[§SIG_WITH h IN B]].] ][ SigOK(B); X = Sig(h,B). FREE h bindet die entsprechenden Vorkommen in B; ein fester h bezeichnet ein Paket mit festem Kopf. |]
+[| TypePrefix ][ [.|X := [[#p B]].] ][ p ist ein Label, kein Wertoperand; SigOK(B); X = #p B. |]
+[| TypeRecord ][ [.|X := [[{A} + B]].] ][ A ist EMPTY_TYPE oder ein Record; B = #p T; p fehlt in A; X = A erweitert um p:T. |]
+[| TypeFunc ][ [.|X := [[A => B]].] ][ SigOK(A), SigOK(B); X = Proc(EMPTY_TYPE,A,B). |]
+[| TypeMethod ][ [.|X := [[O : F]].] ][ SigOK(O); F = Proc(EMPTY_TYPE,A,R); X = Proc(O,A,R). |]
+[| TypeSet ][ [.|X := [[A | B]].] ][ SigOK(A), SigOK(B); X = A | B; bei exakt gleichen Operanden genügt A. |]
+[| TypeCond ][ [.|X := [[A & P]].] ][ Parser und AST vorhanden; CreateTypeExpression weist die Operation als unsupported zurück. Keine ausführbare Semantik festgelegt. |]
+[| TypeVar ][ [.|X := [[§VAR A]].] ][ SigOK(A); X = Var(A). Es wird noch keine Zelle angelegt. |]
+[| TypeFree ][ [.|X := [[§FREE K]].] ][ K ist TYPE oder ein gültiger Typfunktionskind; X = frischer bindbarer Parameter α:K. |]
+[| TypeRecursive ][ [.|X := [[§REC α => B]].] ][ SigOK(α), SigOK(B); X = μ α.B. Die spätere IsRecursive-Verwendung verlangt einen FREE-Kopf; die Konstruktionsprüfung erzwingt das noch nicht vollständig. |]
+[| TypeInterface ][ [.|X := [[§ANY α => M]].] ][ α ist FREE vom Kind TYPE; M ist ein zulässiger Methodensatz; X = Interface(α,M). |]
+[| TypeGeneric ][ [.|X := [[§ALL α => B]].] ][ α ist FREE mit gültigem Kind; B ist ein Typausdruck oder eine weitere Typabstraktion; X = ∀α.B. |]
+[| TypeGenericApply ][ [.|X := [[.F A]].] ][ kind(F) = κ1 => κ2 und kind(A) ≡ κ1; bei F = ∀α.B ist X = B[[A/α]], sonst bleibt X die symbolische Anwendung F(A). |]
+
+Bei §TYPES sind FREE und ABSTRACT frisch pro verarbeiteter Deklaration.
+Werden diese Befehle im Rumpf tatsächlich ausgeführt, erzeugt auch jede Ausführung einen frischen Parameter
+bzw. eine frische feste Identität. Anzeigenamen dienen dabei der Diagnose.
+Typkonstruktion ist damit nicht pauschal ein vollständig wegzulöschender Laufzeit-No-op.
+
+Der Prüfer und die Typkonstruktoren teilen sich einige Voraussetzungen.
+Beispielsweise können ein ungültiger Record-Tail oder ein doppeltes Feld gegenwärtig an einer Assertion
+des Konstruktors scheitern, statt einen sauber strukturierten Typfehler zu liefern.
+Die Tabelle nennt die Voraussetzungen gültiger Konstruktionen und behauptet keine vollständige Fehlerbehandlung.
+
+Ein gültiger Interface-Methodensatz ist EMPTY_TYPE oder ein Record von eventuell generischen Prozedursignaturen.
+Nach Entfernen führender ∀-Binder muss bei jeder Methode gelten:
+
+[.tex
+|\begin{aligned}
+|\mathrm{Method}_i&=\operatorname{Proc}(O_i,A_i,R_i)\\
+|\operatorname{firstObject}(O_i)&\equiv\alpha\\
+|\operatorname{occurrences}(\alpha,O_i)&=1\\
+|\operatorname{occurrences}(\alpha,A_i)&=\operatorname{occurrences}(\alpha,R_i)=0
+|\end{aligned}
+.]
+
+firstObject folgt bei den links aufgebauten Empfängertupeln dem linken Teil,
+bis es beim Tupel (EMPTY_TYPE,Head) Head erreicht.
+Der verborgene Repräsentationstyp darf somit ausschließlich an der vorgesehenen Empfängerposition auftreten.
+
+[=Dynamische Konfiguration=]
+
+[.tex
+|\begin{aligned}
+|\rho &: \text{Wert-ID}\to\text{Wert mit sichtbarer Typsicht}\\
+|H &: \text{Zelladresse}\to\text{Zellinhalt}\\
+|\omega &: \text{statische Typidentität}\to\text{geschlossener Laufzeitzeuge}\\
+|D &: \text{Definitionsreferenz}\to\text{Code und deklarierter Typ}\\
+|C &: \text{verbleibende Befehle}\\
+|k &: \text{Aufruf-Fortsetzung}\\
+|F &= (C,\rho,\omega,E,O,A,R,k)\qquad\text{Aufrufrahmen}\\
+|S &= (H,\mathrm{Stack})\qquad\text{Maschinenzustand}\\[0.5em]
+|S&\longrightarrow S'\qquad\text{ein Ausführungsschritt}\\
+|\operatorname{ret}(v)&\qquad\text{erfolgreicher Abschluss}\\
+|\operatorname{fail}&\qquad\text{erfolgloser Abschluss}\\
+|\operatorname{trap}(\mathrm{reason})&\qquad\text{Laufzeit-/Implementierungsfehler}
+|\end{aligned}
+.]
+
+E, O und A sind die anfänglichen Werte für ENV, OBJ und ARG.
+RES ist der Rückgabeplatz der VM; er ist kein zusätzliches gewöhnliches Argument.
+Die Unterscheidung von [.|ret(()) .] und [.|fail.] modelliert das vorhandene Succeeded/Maybe-Protokoll.
+Beide können an bestimmten äußeren Grenzen zu einem leeren Ergebnis führen;
+ein gewöhnlicher interner Aufruf verlangt dagegen einen erfolgreichen Abschluss.
+
+Mögliche Werte sind Zahlen, boolesche Werte, (), Paare, Präfixwerte, Records,
+Typwerte, Definitionsreferenzen, Closures, Zellreferenzen, SIG-Pakete und gebundene Interfaces.
+Rekursive Closures können zyklische Wertgraphen bilden.
+
+Die Beschreibung abstrahiert von Registerindizes, Hashwerten für Präfixnamen,
+Memoisierung und konkreten Adapterobjekten. Zwei Hilfsrelationen bleiben ausdrücklich sichtbar:
+
+[.tex
+|\begin{aligned}
+|\operatorname{match}(v:S,T)&\qquad\text{Passung unter der sichtbaren Quellsicht }S\\
+|\operatorname{view}(v:S\Rightarrow T)&\qquad\text{Konvertierung zur vorbereiteten Zielsicht }T
+|\end{aligned}
+.]
+
+Sie sind Teil der Semantik, keine beliebigen Host-Casts.
+ANY und Vereinigungen transportieren sichtbare Typbeschreibungen ihrer Werte.
+Eine Vereinigung kann mehrere sichtbare Alternativen desselben transportierten Werts erhalten.
+Ein Laufzeit-Match prüft diese Alternativen; er darf dafür keine zuvor verborgenen Recordfelder
+oder die Repräsentation einer abstrakten Identität wieder sichtbar machen.
+
+Wesentliche Regeln dieser Hilfsrelationen sind:
+
+- Identische Sichten benötigen keine Änderung; ANY als Ziel akzeptiert jeden sichtbaren Wert.
+- Ein Record-Match fordert die Zielfelder in der sichtbaren Quelle und prüft deren Werte rekursiv.
+- Paare und gleiche Präfixe werden komponentenweise geprüft und konvertiert.
+- Eine Record-Konvertierung beschränkt die sichtbaren Felder auf den Vertrag.
+  Der Speicher darf weitere Felder behalten; spätere Casts erhalten dadurch keinen Zugriff darauf.
+- Eine Funktion kann einen vorbereiteten Adapter für Argument- und Ergebnissichten erhalten.
+  Der Adapter ändert den sichtbaren Vertrag, nicht die Identität der ursprünglichen Implementierung.
+- SIG-Körper werden unter dem zum Paket gehörenden Typzeugen konvertiert.
+- Eine Zellkonvertierung erhält die Aliasbeziehung zur ursprünglichen Zelle und konvertiert Lesen und Schreiben.
+- Opaque/ABSTRACT-Sichten schützen die Repräsentation. Geschlossene opaque Identitäten bleiben bei Matches relevant.
+- Rekursive Strukturen werden mit Besuchsinformation behandelt; zyklische Daten erfordern keine unendliche Entfaltung.
+
+Eine vollständige unabhängige Definition von match und view einschließlich aller generischen Adapter
+ist noch eine Beweisaufgabe. Dieser Entwurf gibt ihre semantischen Verpflichtungen an und verwendet
+die konkrete Implementierung in mVM_View als ausführbare Referenz.
+
+[=Sequenz und Aufrufrahmen=]
+
+Für eine lokale Berechnung steht [.|e ⇓ (v,H').] im Folgenden für die jeweils definierte elementare Operation.
+Die Ergebnistabellen sind Instanzen dieser Übergangsregel:
+
+[.tex
+|\frac{
+|\langle e,\rho,H,\omega\rangle\Downarrow\langle v,H'\rangle
+|}{
+|\langle x:=e;C,\rho,H,\omega\rangle
+|\longrightarrow
+|\langle C,\rho[x\mapsto v],H',\omega\rangle
+|}\quad\text{(E-Bind)}
+.]
+
+Lokale Übergänge führen die jeweils benötigten Teile des Aufrufrahmens explizit auf.
+Nicht aufgeführte Rahmenbestandteile und der übrige Stapel bleiben erhalten.
+Alias-Ziel x und Quelle y erhalten dieselbe Wert-ID.
+Ein fail entfernt nur den aktuellen Aufrufrahmen und meldet Misserfolg an k.
+Ein ret(v) entfernt den Rahmen und liefert v an k.
+Der jeweils aktuelle Speicher H wird in beiden Fällen weitergegeben.
+
+Aufrufe werden nicht als atomare Operation mit garantierter Terminierung vorausgesetzt:
+ein Closure-Aufruf legt den Code mit seinen ENV-, OBJ- und ARG-Werten auf den Stapel.
+Die Fortsetzung bestimmt, wie Erfolg und Misserfolg behandelt werden.
+Damit kann eine unendliche Ausführung als unendliche Folge kleiner Schritte beschrieben werden.
+
+Gewöhnliche Aufrufe verwenden eine Fortsetzung [.|bind(x,C).].
+Sie setzen bei ret(v) die Berechnung mit dem konvertierten Ergebnis fort und erzeugen bei fail einen trap.
+TRY_RETURN verwendet stattdessen eine Fortsetzung, die bei leerem Ergebnis bzw. fail den aufrufenden
+Rumpf fortsetzt und bei einem nichtleeren Erfolg dessen Rückgabe auslöst.
+
+Eine fehlgeschlagene TRY-Prüfung rollt bereits erfolgte Zelländerungen nicht zurück.
+Die VM implementiert keine Transaktion für Musterprüfungen.
+Ein Rumpf muss einen Abschluss erreichen; der aktuelle Typprüfer beweist keine vollständige Rückgabeabdeckung.
+Für das Erreichen des Codeendes ohne Return legt dieser Entwurf keine erfundene implizite Rückgabe fest.
+
+[=Alias, Literale, Ganzzahlen und Boolesche Operationen=]
+
+INT ist der Bereich vorzeichenbehafteter 32-Bit-Ganzzahlen.
+wrap32 bezeichnet die Reduktion auf diesen Bereich mit Zweierkomplementdarstellung.
+Die gegenwärtigen C#-Operationen verwenden die gewöhnliche ungeprüfte Addition, Subtraktion und Multiplikation.
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel*] ][ [*Dynamisches Ergebnis*] |]
+[| Alias ][ [.|x := y.] ][ Γ(x) = Γ(y); K und Wert-ID bleiben geteilt. ][ Derselbe Wert; keine Kopie und kein frischer Zellinhalt. |]
+[| Int ][ [.|x := n.] ][ n ist als Int32 parsebar; x:INT. ][ Die Zahl n. Ein vorangestelltes §INT ist beim Literal keine Parserproduktion. |]
+[| IntsAreEq ][ [.|x := §INT y == z.] ][ y:INT, z:INT; x:TRUE | FALSE. ][ Boolescher Wert von y = z. |]
+[| IntsComp ][ [.|x := §INT y <=> z.] ][ y:INT, z:INT; x:INT. ][ sign(wrap32(y-z)); der aktuelle Code berechnet zuerst die Subtraktion. |]
+[| IntsAdd ][ [.|x := §INT y + z.] ][ y:INT, z:INT; x:INT. ][ wrap32(y+z). |]
+[| IntsSub ][ [.|x := §INT y - z.] ][ y:INT, z:INT; x:INT. ][ wrap32(y-z). |]
+[| IntsMul ][ [.|x := §INT y * z.] ][ y:INT, z:INT; x:INT. ][ wrap32(y*z). |]
+[| IntsDiv ][ [.|x := §INT y / z.] ][ y:INT, z:INT; x:(INT,INT). ][ (q,r), q = trunc(y/z) gegen null, r = y-q*z. z=0 und Int32.MinValue/-1 verursachen einen Host-Laufzeitfehler. |]
+[| BoolAnd ][ [.|x := §BOOL y & z.] ][ Γ(y) <: TRUE | FALSE; ebenso z; x:TRUE | FALSE. ][ Boolesches Und der bereits berechneten Operanden. |]
+[| BoolOr ][ [.|x := §BOOL y | z.] ][ Wie BoolAnd. ][ Boolesches Oder der bereits berechneten Operanden. |]
+[| BoolXOr ][ [.|x := §BOOL y ^ z.] ][ Wie BoolAnd. ][ Wahr genau dann, wenn die Operanden verschieden sind. |]
+
+Boolesche Operatoren sind auf ILT-Ebene keine Verzweigung, die die Berechnung eines Operanden auslässt:
+beide Operanden benennen vorher verfügbare Register.
+Die INT-Operandprüfung verlangt gegenwärtig exakten Typ INT, nicht nur ein beliebiges erfolgreiches Subtyping.
+
+Die Implementierung von IntsComp ist bei Überlauf kein korrekter mathematischer Vergleich.
+Beispiel: für 2147483647 und -1 läuft die Differenz über und ergibt ein negatives Vorzeichen.
+Eine Spezifikation [.|sign(y-z).] über unbeschränkten mathematischen Ganzzahlen wäre hier eine Verhaltensänderung.
+
+[=Paare, Präfixe und Records=]
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel*] ][ [*Dynamisches Ergebnis*] |]
+[| Pair ][ [.|x := y, z.] ][ y:A, z:B; x:(A,B). Bekannte Typwertbestandteile werden in K mitgeführt. ][ Paar (ρ(y),ρ(z)). |]
+[| First ][ [.|x := §1ST y.] ][ PairProjection(Γ(y)) = (A,B); x:A. ][ Erste Komponente unter der vorbereiteten Projektion. |]
+[| Second ][ [.|x := §2ND y.] ][ PairProjection(Γ(y)) = (A,B); x:B. ][ Zweite Komponente unter der vorbereiteten Projektion. |]
+[| PrefixApply ][ [.|x := +#p y.] ][ y:A; x:#p A. ][ Präfixwert #p ρ(y). |]
+[| PrefixRemove ][ [.|x := -#p y.] ][ Γ(y) ist direkt #p A; x:A. ][ Nutzlast des Präfixwerts; kein fehlertoleranter Test. |]
+[| AddField ][ [.|x := {y} + z.] ][ y:EMPTY_TYPE oder Record R; z:#p A; p fehlt in R; x:R erweitert um p:A. ][ Neuer Record mit dem zusätzlichen Feld; der alte Record bleibt bestehen. |]
+[| GetField ][ [.|x := {y} #p.] ][ Γ(y) ist Record R und p∈dom(R); x:R(p). ][ Feldwert p; p bleibt kein Bestandteil des Ergebniswerts. |]
+
+PairProjection sammelt mittels SubSet die erreichbaren Paartypen aus Vereinigungen und rekursiven Entfaltungen
+und vereinigt jeweils deren erste bzw. zweite Komponenten.
+Der aktuelle Prüfer fordert dabei nur, dass mindestens eine passende Alternative existiert;
+er prüft nicht, dass jede mögliche Alternative ein Paar ist.
+Eine Typsicherheitsbehauptung braucht hier eine stärkere Vorbedingung oder einen geregelten Misserfolgsfall.
+
+ILT-AddField ist keine Record-Update-Operation: ein vorhandener Feldname ist bei der Typkonstruktion unzulässig.
+SPO-Record-Updates werden vor dieser Ebene entsprechend zerlegt.
+Die direkte GetField-Prüfung öffnet keine Interface-Pakete und entfaltet nicht allgemein beliebige Vereinigungen.
+
+[=Funktionen, Closures und Methoden=]
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel*] ][ [*Ausführung*] |]
+[| CallFunc ][ [.|x := .f y.] ][ x:Infer(Γ(f),EMPTY_TYPE,Γ(y)). ][ Ruft f mit leerem Empfänger und y auf; Ergebnis wird in x gebunden. Bei einer Definitionsreferenz wird die Umgebung gebunden, bei einem Typkonstruktor wird ein Typwert angewendet. |]
+[| Closure ][ [.|x := §CLOSURE d e.] ][ Dieselbe Inferenzform wie CallFunc; e muss zusätzlich als Closure-Umgebung zulässig sein. ][ Wird auf denselben VM-Aufrufmechanismus abgebildet. Für eine Definitionsreferenz d entsteht close(d,e), ohne den Rumpf auszuführen. |]
+[| CallProc ][ [.|x := §OBJ:m y.] ][ Γ(m) = (O,F); x:Infer(F,O,Γ(y)). ][ Zerlegt m in Empfänger o und Methode f; führt f mit OBJ=o und ARG=y aus. |]
+[| DefRecProcs ][ [.|§REC x := .d e.] ][ d:Proc(EMPTY_TYPE,E,Proc(EMPTY_TYPE,P,P)); Γ(e) und E sind gegenseitig Subtypen; P ist eine Prozedur oder ein links aufgebautes Tupel von Prozeduren; x:P. ][ Bindet e, erzeugt Platzhalter für P, ruft den Konstruktor auf und füllt anschließend die Platzhalter mit den zurückgegebenen Closures. |]
+
+Die ILT-Schreibweise [.|§OBJ:m.] ist wörtlich die Verwendung des Schlüsselworts OBJ.
+Der wirkliche Empfänger steckt im Paar m; sie bedeutet keine beliebige Oberflächenform [.|o:m.].
+
+Definitionsreferenzen sind Funktionen von einer Umgebung zu einer Closure:
+
+[.tex
+|\begin{gathered}
+|\frac{d:\operatorname{Proc}(\mathsf{EMPTY\_TYPE},E,F)\qquad e:E}
+|{\operatorname{close}(d,e):F}\quad\text{(T-Close)}\\[0.8em]
+|\operatorname{close}(d,e)\text{ speichert }(\operatorname{Code}(d),e)\\
+|\operatorname{invoke}(\operatorname{close}(d,e),o,a)
+|\text{ startet Code}(d)\text{ mit ENV}=e,\ \text{OBJ}=o,\ \text{ARG}=a
+|\end{gathered}
+.]
+
+Closure ist im AST nicht strenger als der allgemeine Aufruf typisiert.
+Ist der Operand bereits eine normale Funktion, gilt deshalb der gewöhnliche Aufrufmechanismus;
+die übliche und beabsichtigte Form ist die Definitionsreferenz mit Umgebung.
+
+Ein CallProc-Paar darf statt einer direkten Methode auch einen Marker [.|#Name ().] enthalten.
+Dann wird Name im sichtbaren Vertrag des ersten Interface-Empfängers gesucht.
+Der Methodentyp entsteht durch Ersetzen des verborgenen Repräsentationstyps durch den Interface-Typ;
+die VM nimmt den wirklichen Empfänger und die Methodenschließung aus dem gebundenen Interface.
+Zusätzliche Empfänger in einem Empfängertupel bleiben erhalten.
+
+DefRecProcs baut die interne Fixpunktgleichung [.|p = invoke(close(d,e),(),p).] durch Platzhalter auf.
+Es ist keine Aufforderung, diese Gleichung vor dem Programmstart vollständig auszurechnen.
+Das Benutzen eines noch ungefüllten Platzhalters während der Konstruktion ist nicht durch eine
+explizite Produktivitätsprüfung abgesichert und gehört zu den offenen Voraussetzungen.
+
+Native Funktionen stehen unter deklarierten Signaturen und vorbereiteten Aufrufkonvertierungen.
+Ihre Effekte und ihr Verhalten sind Parameter der ILT-Semantik; sie werden durch diese Datei nicht
+aus ihrem C#-Code hergeleitet. Eine Gesamtbeweisführung braucht passende Annahmen über jede native Implementierung.
+
+[=Interface und explizite Typsichten=]
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel*] ][ [*Dynamisches Ergebnis*] |]
+[| Interface ][ [.|x := §INTERFACE I WITH payload.] ][ I bezeichnet Interface(α,M); payload:(O,Methods); es gibt T mit O <: T und Methods <: M[[T/α]]; x:I. ][ Gebundenes Paket mit Empfänger und Methoden unter dem sichtbaren Interface-Vertrag. |]
+[| WithType ][ [.|x := §WITH_TYPE T WITH y.] ][ T ist ein bekannter oder symbolisch repräsentierter Typwert; Γ(y) <: T; x:T. ][ view(ρ(y):Γ(y) => T). Versteckte Felder bzw. Methoden werden durch diesen Befehl nicht neu zugänglich. |]
+[| BindType ][ [.|x := §BIND_TYPE y AS A.] ][ A ist ein deklarierter FREE- oder ABSTRACT-Symbolwert; Γ(y) ≡ kind(A); bestehende Bindung darf nicht auf eine andere Identität umgebogen werden; x:kind(A), K(x)=A. ][ Bindet ω(A) an den Laufzeittypwert in y; x ist auf VM-Ebene ein Alias von y. |]
+
+Bei Interface wird T durch Inferenz der Methoden gegen den Vertrag gesucht und anschließend erneut geprüft.
+Wenn die Methoden T nicht festlegen, wird der Empfängertyp O verwendet.
+Das Paket ist für den Konsumenten kein frei projizierbares Paar oder Record.
+Eine sichtbare Methode kann nur über den gebundenen Empfänger aufgerufen werden.
+
+BindType ist keine frei wählbare Umetikettierung eines Datenwerts.
+Der Operand ist selbst ein expliziter Typwert oder Typfunktionswert passenden Kinds.
+Statisch bleibt A fest; dynamisch stellt der Zeuge die Verbindung zu seiner tatsächlichen Identität her.
+Bereits durch SIG_HEAD gewonnene Bindungen unterliegen derselben Regel gegen Umbenennung einer Identität.
+
+[=SIG-Pakete und abhängige Körper=]
+
+Sig(h,B) verbindet einen Kopf mit einem von diesem Kopf abhängigen Körper.
+Ist h FREE, beschreibt es einen Vertrag mit gebundenem Zeugen.
+Ist h ein fester Typwert, ist die Kopfidentität bereits Bestandteil des Vertrags.
+
+[.tex
+|\frac{
+|\begin{gathered}
+|C=\operatorname{Sig}(\alpha:\kappa,B)\qquad H:\kappa\text{ ist als Typwert bekannt}\\
+|\mathrm{payload}:(\kappa,V)\qquad K(\mathrm{payload}).\mathrm{first}=H\\
+|V<:B[H/\alpha]
+|\end{gathered}
+|}{\Theta\vdash\S\mathtt{SIG}\ C\ \mathtt{WITH}\ \mathrm{payload}:C}
+|\quad\text{(T-Sig)}
+.]
+
+Der aktuelle Konstruktorprüfer verwendet dieselbe Substitutionsprüfung auch bei einem festen Vertragskopf.
+Er fordert an dieser Stelle nicht zusätzlich H ≡ Vertragskopf. Diese fehlende Identitätsbedingung
+ist eine offene Inkonsistenz zur Bedeutung fester SIG-Köpfe im Subtyping und in HAS_HEAD_TYPE.
+Kinds werden exakt verglichen.
+Die Payload ist ein gewöhnliches Paar aus explizitem Typwert und Körperwert;
+das fertige SIG ist ein eigener Wertkonstruktor.
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel*] ][ [*Ausführung*] |]
+[| Sig ][ [.|x := §SIG C WITH payload.] ][ C ist ein SIG-Vertrag; bekannter Typkopf H passenden Kinds und Körper passend zur substituierten Signatur; x:C. ][ Paket sig(H,view(body => Vertragskörper unter H)). |]
+[| SigHead ][ [.|x := §SIG_HEAD s.] ][ s:Sig(h,B). Bei FREE h wird einmal ein fester Zeuge a erzeugt und s zu Sig(a,B[[a/h]]) verfeinert; x:kind(a), K(x)=a. Bei festem Kopf bleibt dieser erhalten. ][ Der tatsächliche Typkopf des Pakets. |]
+[| SigHeadAs ][ [.|x := §SIG_HEAD s AS A.] ][ A ist deklariert ABSTRACT; bisheriger Kopf ist FREE oder ABSTRACT desselben Kinds; s wird zu Sig(A,B[[A/h]]) verfeinert; vorhandene widersprechende Bindung ist verboten. ][ Dieselbe Kopfprojektion wie SigHead; A wird mit dem Laufzeitzeugen verbunden. |]
+[| SigBody ][ [.|x := §SIG_BODY s.] ][ s:Sig(h,B). Ist h FREE, wird s zuerst mit einem festen frischen Zeugen a geöffnet; x:B[[a/h]]. Bei festem h gilt x:B. ][ Körperwert mit der vorbereiteten Sicht unter diesem Zeugen. |]
+[| TryAsSig ][ [.|x := §TRY y AS_SIG C.] ][ C ist ein in §TYPES benannter geschlossener SIG-Vertrag mit FREE-Kopf α; x:Sig(a,B[[a/α]]) mit frischem ABSTRACT a. Der Eingabetyp muss nicht schon ein SIG sein. ][ Prüft den sichtbaren Wert gegen C; bei Erfolg ganzes SIG unter der geöffneten Sicht, andernfalls fail des aktuellen Aufrufs. |]
+[| TryHasHeadType ][ [.|x := §TRY s HAS_HEAD_TYPE H.] ][ s:Sig(h,B); H ist ein Typwert mit kind(H) ≡ kind(h); x:Sig(H,B[[H/h]]). ][ Vergleicht den Paketkopf exakt mit H; bei Erfolg ganzes verfeinertes Paket, sonst fail. |]
+
+SIG_HEAD AS öffnet eine Identität unter einem deklarierten lokalen Namen;
+es testet nicht, ob der Kopf bereits genau diesen Anzeigenamen besitzt.
+HAS_HEAD_TYPE ist dagegen ein echter Laufzeittest auf exakte Typwertgleichheit.
+Ein bloßer Subtypbeweis genügt dafür nicht.
+
+Wenn SIG_BODY vor SIG_HEAD benutzt wird, muss die beim ersten Öffnen gewählte feste Identität
+bei der späteren Kopfprojektion erhalten bleiben.
+Zwei unabhängig geöffnete Pakete sind nicht deshalb identisch, weil ihre Köpfe gleich angezeigt werden.
+Das exakte Teilen einer bereits bekannten Identität wird durch HAS_HEAD_TYPE ausgedrückt.
+
+[=Veränderliche Zellen=]
+
+[.tex
+|\begin{gathered}
+|\frac{\rho(y)=v\qquad\ell\notin\operatorname{dom}(H)}
+|{\langle x:=\S\mathtt{VAR}\ y;C,\rho,H\rangle
+| \longrightarrow\langle C,\rho[x\mapsto\ell],H[\ell\mapsto v]\rangle}
+|\quad\text{(E-VarDef)}\\[1.5em]
+|\frac{\rho(y)=\ell\qquad H(\ell)=v}
+|{\langle x:=\S\mathtt{VAR}\ y\to;C,\rho,H\rangle
+| \longrightarrow\langle C,\rho[x\mapsto v],H\rangle}
+|\quad\text{(E-VarGet)}\\[1.5em]
+|\frac{\rho(y)=\ell\qquad\rho(z)=v}
+|{\langle\S\mathtt{VAR}\ y\leftarrow z;C,\rho,H\rangle
+| \longrightarrow\langle C,\rho,H[\ell\mapsto\operatorname{view}(v)]\rangle}
+|\quad\text{(E-VarSet)}
+|\end{gathered}
+.]
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Typregel und Zugriff*] ][ [*Verhalten*] |]
+[| VarDef ][ [.|x := §VAR y.] ][ y:T; x:Var(T). Die frische äußere Zelle ist lokal autorisiert. ][ Neue Zelladresse mit Anfangsinhalt y. Ein eventuell gesperrter innerer Wert bleibt gesperrt. |]
+[| VarGet ][ [.|x := §VAR y ->.] ][ y:Var(T); y darf nicht als opaque gesperrt sein; x:T. ][ Aktueller Zellinhalt, einschließlich erhaltener Referenzen auf innere Zellen. |]
+[| VarSet ][ [.|§VAR y <- z.] ][ Γ(y) ≡ Var(Γ(z)); äußere Zelle nicht opaque gesperrt. ][ Schreibt den zur Zellensicht konvertierten Wert. Andere Aliasse sehen denselben Speicher. |]
+
+Die exakte Gleichheit beim Schreiben ist die aktuelle zusätzliche Prüferbedingung.
+Es wird nicht allein getestet, ob der neue Wert irgendein Subtyp des Zellinhalts ist.
+Die Zugriffsanalyse vereinigt bekannte Inhaltsrechte konservativ mit bisherigen Inhaltsrechten;
+sie ersetzt diese Fakten nicht einfach durch die Rechte des zuletzt geschriebenen Werts.
+
+[=Kontrollfluss und fehlertolerante Prüfungen=]
+
+Für TRY-Operationen beschreibt split(T,pred) die Implementierung SplitBy:
+rekursive Typen werden entfaltet, Vereinigungen komponentenweise zerlegt und die Ergebnisse vereinigt.
+Das Resultat ist ein Paar (passende Alternativen, übrige Alternativen), wobei eine Seite fehlen kann.
+ANY wird dabei nicht als Vereinigung aller Typkonstruktoren expandiert.
+Deshalb ist beispielsweise AS_INT bei einem ausschließlich als ANY typisierten Register gegenwärtig
+nicht schon durch seine dynamische Bedeutung statisch zulässig.
+
+[.tex
+|\begin{gathered}
+|\frac{\operatorname{split}(\Gamma(y),\mathrm{pred})=(S,U)\qquad S\ne\bot}
+|{\Theta;R\vdash x:=\S\mathtt{TRY}\ y\ \mathtt{AS}_{\mathrm{shape}}
+| \Rightarrow\Theta[x:S];R}\quad\text{(T-Try)}\\[1.5em]
+|\frac{\operatorname{match}(\rho(y):\Gamma(y),S)}
+|{\langle x:=\S\mathtt{TRY}\ y\ \mathtt{AS}_{\mathrm{shape}};C,\rho,H\rangle
+| \longrightarrow
+| \langle C,\rho[x\mapsto\operatorname{view}(\rho(y):\Gamma(y)\Rightarrow S)],H\rangle}
+|\quad\text{(E-Try-Yes)}\\[1.5em]
+|\frac{\neg\operatorname{match}(\rho(y):\Gamma(y),S)}
+|{\langle x:=\S\mathtt{TRY}\ y\ \mathtt{AS}_{\mathrm{shape}};C,\rho,H\rangle
+| \longrightarrow\langle\operatorname{fail},H\rangle}
+|\quad\text{(E-Try-No)}
+|\end{gathered}
+.]
+
+Die Regel verfeinert das Ergebnisregister auf dem Erfolgspfad.
+Sie liefert kein BOOL und keinen Maybe-Wert in x.
+Der Misserfolg ist ein Abschluss des aktuellen Aufrufs und keine Fortsetzung mit EMPTY in x.
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Ausgewählte statische Alternativen und Ergebnis*] |]
+[| TryAsEmpty ][ [.|x := §TRY y AS_EMPTY.] ][ Alle direkt leeren Alternativen; x:EMPTY_TYPE. Laufzeiterfolg genau für die leere Sicht. |]
+[| TryAsBool ][ [.|x := §TRY y AS_BOOL.] ][ TRUE- und FALSE-Alternativen; x hat deren Vereinigung. |]
+[| TryAsInt ][ [.|x := §TRY y AS_INT.] ][ INT-Alternativen; x:INT. |]
+[| TryAsPair ][ [.|x := §TRY y AS_PAIR.] ][ Direkt als Paar erkannte Alternativen; x behält deren Vereinigung und Komponentenbeziehungen. |]
+[| TryAsRecord ][ [.|x := §TRY y AS_RECORD.] ][ Record-Alternativen; x behält die ermittelte Vereinigung. EMPTY_TYPE zählt hier nicht als Record. |]
+[| TryAsVar ][ [.|x := §TRY y AS_VAR.] ][ Var-Alternativen; x behält den ermittelten Zelltyp. Die Prüfung erteilt keine neuen Zugriffsrechte. |]
+[| TryAsRef ][ [.|x := §TRY y AS_REF.] ][ Ref-Alternativen S; x:S. Zusätzlich wird R um die übrigen Alternativen U erweitert, soweit vorhanden. Nur partiell unterstützte Ref-Infrastruktur. |]
+[| TryAsType ][ [.|x := §TRY y AS_TYPE.] ][ TYPE-Alternativen; x:TYPE. Ein Typfunktionskind ist nicht automatisch TYPE. |]
+[| TryRemovePrefixFrom ][ [.|x := §TRY_REMOVE #p FROM y.] ][ split nach direktem Präfix #p muss einen zusammen als #p A erkennbaren Typ liefern; x:A. Bei Erfolg wird das Präfix entfernt, sonst fail. |]
+
+Alle neun Zeilen benutzen dieselbe dynamische Erfolgs-/Misserfolgsregel.
+Bei TryRemovePrefixFrom wird nach erfolgreicher Konvertierung zusätzlich die Nutzlast projiziert.
+Eine Vereinigung mehrerer unterschiedlicher #p-Typen wird im Prüfer nicht automatisch zu einem
+einzigen Präfixtyp mit vereinigter Nutzlast normalisiert; die anschließende direkte IsPrefix-Prüfung kann scheitern.
+
+TryAsRef steht im Operationsinventar und besitzt Prüfer-/VM-Zweige,
+aber keinen allgemeinen Ref-Typkonstruktor in der ILT-Textsyntax.
+Seine spezielle Erweiterung von R, fehlendes allgemeines Ref-Subtyping und fehlende vollständige Ref-Ausarbeitung
+werden hier nicht zu einem fertigen Sprachmerkmal ergänzt.
+
+[=Rückgaben und TRY_RETURN=]
+
+[| [*AST-Operation*] ][ [*ILT-Syntax*] ][ [*Statische Regel*] ][ [*Dynamisches Verhalten*] |]
+[| ReturnIf ][ [.|§RETURN y IF b.] ][ Γ(b) <: TRUE | FALSE; Γ(y) <: R | EMPTY_TYPE. ][ b=false: fortsetzen. b=true: aktuellen Aufruf mit dem Rückgabewert beenden; ein direkt leerer, nicht zu R passender Wert markiert fail. |]
+[| ReturnIfNotEmpty ][ [.|§RETURN y IF_NOT_EMPTY.] ][ Im aktuellen Prüfer keine zusätzliche Ergebnistypprüfung; auf dem Fortsetzungspfad Γ(y):=EMPTY_TYPE. ][ Leerer Wert: fortsetzen. Nichtleerer Wert: nach vorbereiteter Ergebniskonvertierung zurückgeben. |]
+[| TryReturn ][ [.|§TRY_RETURN .f y IF g.] ][ f, Eingabe, optionaler Guard und #Result-Erfolg müssen die untenstehenden Bedingungen erfüllen. ][ Erst Musterpassung, dann optional Guard, dann f; ein nichtleeres Ergebnis wird unverändert als Rückgabewert weitergereicht. Sonst fortsetzen. |]
+
+Bei TRY_RETURN ist [.|IF g.] optional und g ist eine Guard-Funktion, kein boolesches Register.
+Der Präfix #Result wird bei der Rückgabe nicht entfernt.
+Für gewöhnliche Musterzweige ist die Signatur von f somit A => (EMPTY_TYPE | #Result B).
+
+[.tex
+|\frac{
+|\begin{gathered}
+|\operatorname{inst}(\Gamma(f))=\operatorname{Proc}(O_f,A_f,R_f)\\
+|A_f<:\Gamma(y)\qquad O_f\ne\mathsf{EMPTY\_TYPE}\Rightarrow\Gamma(\mathsf{OBJ})<:O_f\\
+|\operatorname{split}(R_f,\operatorname{isEmpty})=(E,S)
+|\qquad S=\#\mathrm{Result}\ V\qquad S<:R\\[0.5em]
+|\text{Falls Guard }g\text{ vorhanden:}\\
+|\operatorname{stripForAll}(\Gamma(g))=\operatorname{Proc}(O_g,A_g,R_g)\\
+|A_f<:A_g\qquad R_g<:\mathsf{TRUE}\mid\mathsf{FALSE}\\
+|O_g\ne\mathsf{EMPTY\_TYPE}\Rightarrow\Gamma(\mathsf{OBJ})<:O_g
+|\end{gathered}
+|}{
+|\Theta;R\vdash\S\mathtt{TRY\_RETURN}\ .f\ y\ [\mathtt{IF}\ g]
+|\Rightarrow\Theta';R
+|}\quad\text{(T-TryReturn)}
+.]
+
+Ohne Guard und mit nichtleerem Subtract(Γ(y),Af) verfeinert Θ' dieselbe Eingabe-Wert-ID auf diesen Resttyp.
+Mit Guard bleibt Γ(y) auf dem Fortsetzungspfad unverändert.
+
+Die ungewöhnliche Richtung [.|Af <: Γ(y).] entspricht der derzeitigen Prüferregel für Musterzweige:
+f soll einen in der Eingabe enthaltenen Teilfall abdecken.
+Die Opcode-Erzeugung berechnet RequiredMatch und kann die aufgrund des Quelltyps bereits garantierten
+Teile einer Musterprüfung auslassen.
+
+Der Ablauf einschließlich möglicher Zelländerungen lautet:
+
+[.
+|1. Passt y nicht zum erforderlichen Muster: C fortsetzen.
+|2. Gibt es g: g mit demselben ARG und dem aktuellen OBJ ausführen.
+|   Bei fail oder false: C fortsetzen, Speicheränderungen behalten.
+|3. f mit y und gegebenenfalls dem aktuellen OBJ ausführen.
+|   Bei fail oder leerem Ergebnis: C fortsetzen, Speicheränderungen behalten.
+|4. Bei nichtleerem Ergebnis: diesen Wert aus dem umgebenden Aufruf zurückgeben.
+.]
+
+Für einen vollständig abgesicherten deklarativen Kalkül wäre außerdem eine Fallabdeckungsregel nötig:
+ohne Guard darf die Eingabe nur dann um Af verkleinert werden, wenn ein passender Aufruf von f
+auf jedem solchen Pfad sicher zu einer nichtleeren Rückgabe führt.
+Der gegenwärtige lokale Typprüfer beweist diese Eigenschaft nicht.
+Af zu treffen allein schließt noch nicht aus, dass f intern fail auslöst oder EMPTY zurückgibt.
+
+ReturnIfNotEmpty hat eine ähnliche Grenze: die statische Fortsetzung ist zwar leer,
+aber der lokale Prüfer überprüft den nichtleeren Rückgabeteil nicht gegen R.
+Die spätere Ergebniskonvertierung ist kein Ersatz für den fehlenden Beweis im Typkalkül.
+
+[=Assertions und Beweise=]
+
+[| [*AST-Operation*] ][ [*Parser-Syntax*] ][ [*Typprüfung und Verhalten*] |]
+[| Assert ][ [.|§ASSERT p => q.] ][ Der aktuelle Prüfer verlangt lediglich definierte Operanden p und q. Die VM liest boolesche Werte und prüft: falls p wahr, muss q wahr sein; sonst Assertion-Fehler. Keine statische Beweisführung. |]
+[| Proof ][ [.|p => q : evidence.] ][ Parser und AST vorhanden; der Typprüfer weist die Operation als unsupported IL command zurück. Keine ausführbare Beweissemantik. Die ToText-Ausgabe weicht von dieser Parserproduktion ab. |]
+
+Für ein typsicheres Assert müsste zusätzlich gelten:
+
+[.tex
+|\frac{\Gamma(p)<:\mathsf{TRUE}\mid\mathsf{FALSE}
+| \qquad\Gamma(q)<:\mathsf{TRUE}\mid\mathsf{FALSE}}
+|{\Theta;R\vdash\S\mathtt{ASSERT}\ p\Rightarrow q\ \Longrightarrow\Theta;R}
+|\quad\text{(T-Assert-Proposed)}
+.]
+
+Diese letzte Regel ist ein ausdrücklich markierter Vorschlag für eine fehlende Prüferbedingung.
+Sie ist keine Behauptung über bereits vorhandenes Verhalten.
+Ein Refined-/Proof-System lässt sich aus den vorhandenen Syntaxnamen allein nicht ableiten.
+
+[=Zugriffsrechte als zweite statische Analyse=]
+
+Die Zugriffsprüfung läuft nach der Werttypprüfung und verwendet deren Fakten an jeder Verwendungsstelle.
+Sie besitzt bewusst keine getrennten Rechtekarten für einzelne Recordfelder oder Paarkomponenten.
+Für eine genaue Rekonstruktion braucht sie folgende Fakten:
+
+[.tex
+|\begin{aligned}
+|a&=(m,o,c,b)\\
+|m&:\text{ Wert kann veränderliche Daten erreichen}\\
+|o&:\text{ äußerer Zugriff ist opaque gesperrt}\\
+|c&:\text{ optionale Identität einer direkt verfolgten Zelle}\\
+|b&:\text{ Interface mit fest gebundenem Empfänger}\\
+|A&:\text{ Wert-ID}\to a\\
+|L&:\text{ statische Zellidentität}\to\text{Inhaltsrechte}\\
+|0&=(\mathrm{false},\mathrm{false},\mathrm{kein},\mathrm{false})\\[0.5em]
+|\operatorname{join}(a_1,a_2)&=(m_1\lor m_2,o_1\lor o_2,c',\mathrm{false})\\
+|c'&=\begin{cases}c_1&c_1=c_2\\\mathrm{kein}&\text{sonst}\end{cases}\\
+|\operatorname{has}_m(a)&=a.m\lor\operatorname{has}_m(L[a.c])\quad\text{bei unbesuchtem }a.c\\
+|\operatorname{has}_o(a)&=a.o\lor\operatorname{has}_o(L[a.c])\quad\text{bei unbesuchtem }a.c\\
+|\operatorname{aggregate}(a)&=(\operatorname{has}_m(a),\operatorname{has}_o(a),\mathrm{kein},\mathrm{false})
+|\end{aligned}
+.]
+
+Diese opaque Sperre ist ein Fakt der Zugriffsanalyse.
+Sie ist begrifflich von einer abstrakten Typidentität bzw. dem internen VM-Typ Opaque zu unterscheiden.
+Ein Wert kann eine verborgene Typrepräsentation besitzen und dennoch unveränderlich sein.
+
+Die implementierte Typfunktion imm(T) gibt an, ob alle Werte des Typs transitiv unveränderlich sind:
+
+[.tex
+|\begin{aligned}
+|\operatorname{imm}(\mathsf{EMPTY\_TYPE})&=\operatorname{imm}(\mathsf{TRUE})
+| =\operatorname{imm}(\mathsf{FALSE})=\mathrm{true}\\
+|\operatorname{imm}(\mathsf{INT})&=\operatorname{imm}(\mathsf{TYPE})=\mathrm{true}\\
+|\operatorname{imm}(\operatorname{Proc}(O,A,R))&=\mathrm{true}\\
+|\operatorname{imm}((A,B))&=\operatorname{imm}(A)\land\operatorname{imm}(B)\\
+|\operatorname{imm}(A\mid B)&=\operatorname{imm}(A)\land\operatorname{imm}(B)\\
+|\operatorname{imm}(\#p\,A)&=\operatorname{imm}(A)\\
+|\operatorname{imm}(\mathrm{Record})&=\text{Konjunktion der Feldtypen}\\
+|\operatorname{imm}(\operatorname{Sig}(h,B))&=\operatorname{imm}(B)\\
+|\operatorname{imm}(\forall\alpha.B)&=\operatorname{imm}(B)\\
+|\operatorname{imm}(\mu\alpha.B)&=\operatorname{imm}(B[\mathsf{EMPTY\_TYPE}/\alpha])\\
+|\operatorname{imm}(T)&=\mathrm{false}\qquad\text{für die übrigen Fälle}
+|\end{aligned}
+.]
+
+Die Regel für rekursive Typen ist die implementierte Näherung.
+Sie ersetzt keinen separaten Nachweis für beliebige unbewachte Typgleichungen.
+Prozedurwerte sind unveränderlich, weil veränderliche Closure-Umgebungen separat ausgeschlossen werden.
+
+from(T,o,i) rekonstruiert die Grundrechte eines Werts aus seinem Typ,
+der opaken Eingangsmarkierung o und einer zusätzlich zugesagten Unveränderlichkeit i:
+
+[.tex
+|\operatorname{from}(T,o,i)=
+|\begin{cases}
+|0&\operatorname{imm}(T)\\
+|\operatorname{join}(\operatorname{from}(A,o,i),\operatorname{from}(B,o,i))&T=(A,B)\text{ oder }A\mid B\\
+|\operatorname{from}(A,o,i)&T=\#p\,A\\
+|(\mathrm{true},o,\mathrm{kein},\mathrm{false})&T=\operatorname{Var}(A)\\
+|(\mathrm{true},o,\mathrm{kein},\mathrm{true})&T=\operatorname{Interface}(\alpha,M)\\
+|\operatorname{join}\text{ über die Feldtypen}&T\text{ ist Record}\\
+|\operatorname{from}(B,o,i)&T=\operatorname{Sig}(h,B),\ \mu h.B\text{ oder }\forall h.B\\
+|(\neg i,o\land\neg i,\mathrm{kein},\mathrm{false})&\text{übrige Fälle}
+|\end{cases}
+.]
+
+bind(T,o,i) ist from(T,o,i), ergänzt bei direktem Var(A) um eine neue statische Zellidentität c
+mit L(c)=from(A,o,i).
+Die Projektion von Rechten ist:
+
+[.tex
+|\operatorname{project}(a,T)=
+|\begin{cases}
+|0&\operatorname{imm}(T)\text{ oder }\neg\operatorname{has}_m(a)\\
+|\operatorname{bind}(T,\operatorname{has}_o(a),\mathrm{false})&\text{sonst}
+|\end{cases}
+.]
+
+Am Anfang einer Definition gelten:
+
+[| [*Register*] ][ [*Zugriffsgrundlage*] |]
+[| ENV ][ bind(E,false,true); wenn danach veränderliche Daten erreichbar sind, wird die Definition abgewiesen. |]
+[| OBJ ][ bind(O,false,false): der ausdrücklich übergebene Empfänger ist autorisiert. |]
+[| ARG ][ bind(A,true,isEntry): veränderliche Argumente gewöhnlicher Funktionen dürfen transportiert werden, sind für direkte Zugriffe gesperrt. |]
+[| RES ][ bind(R,false,false), als Fakt zum Rückgabeplatz. |]
+
+Bei einem Moduleinstieg werden unbekannte Argumentteile als unveränderlicher Import behandelt;
+ein ausdrücklich als VAR oder Interface deklarierter Teil wird dadurch nicht automatisch unveränderlich.
+Die Regeln des tatsächlichen Importvertrags bleiben maßgeblich.
+
+Vor jeder Operation setzt ein an dieser Verwendungsstelle als imm(T) erwiesener Operand seine Rechte auf 0.
+Eine Verfeinerung auf einen nachweislich unveränderlichen Typ kann somit Rechtefakten präzisieren.
+Eine mutable Projektion rekonstruiert hingegen keine zuvor verlorenen komponentenspezifischen Rechte.
+
+[=Zugriffsregel für jede Operationsfamilie=]
+
+Die Typoperationen und alle primitiven Zahlen-/Booloperationen erzeugen 0.
+Ebenso erzeugen TryAsEmpty, TryAsBool, TryAsInt, TryAsType, SigHead, SigHeadAs und BindType keine veränderlichen Rechte.
+Assert verändert diese Fakten nicht. Proof und TypeCond erreichen diese Analyse nicht als gültige Befehle.
+
+[| [*Operationen*] ][ [*Fortschreibung der Rechte*] |]
+[| Alias ][ Beide Namen benutzen denselben Eintrag A; auch direkte Zellidentität bleibt erhalten. |]
+[| Pair, AddField ][ join(aggregate(linker Operand),aggregate(rechter Operand)). |]
+[| PrefixApply ][ aggregate(Nutzlast). |]
+[| Sig ][ aggregate(Payload); der Vertrag erteilt keine zusätzlichen Rechte. |]
+[| Interface ][ aggregate(Payload), zusätzlich b=true für den fest gebundenen Empfänger. |]
+[| WithType ][ project(Rechte des Werts,Zieltyp). |]
+[| First, Second, PrefixRemove, TryRemovePrefixFrom, SigBody, GetField ][ project(Rechte des Eingabewerts,Ergebnistyp). |]
+[| TryAsSig, TryHasHeadType, TryAsRecord, TryAsPair, TryAsRef ][ Bei imm(Ergebnistyp): 0; sonst bestehende Eingaberechte. |]
+[| TryAsVar ][ Vorhandene direkte Zellidentität wird übernommen; sonst bind(Ergebnistyp,has_o(Eingabe),false). Auch der Eingabeeintrag bekommt diese Zellidentität. |]
+[| Closure, DefRecProcs ][ has_m(Umgebung) muss false sein; danach callAccess auf den Ergebnistyp mit dieser Umgebung als Argument. |]
+[| CallFunc ][ callAccess(Ergebnistyp,Argument), ohne Empfänger. |]
+[| CallProc ][ Empfängerrechte aus dem Methodenpaar mit project bestimmen; has_o(Empfänger) muss false sein; dann callAccess mit Argument und Empfänger. |]
+[| VarDef ][ Neue Zellidentität c mit L(c)=Rechte des Anfangswerts; Ergebnis (true,false,c,false). |]
+[| VarGet ][ Äußeres o muss false sein. Bei unveränderlichem Ergebnis: 0; sonst verfolgter Inhalt L(c), falls vorhanden; andernfalls project. |]
+[| VarSet ][ Äußeres o muss false sein. Beim Schreiben eines Werts mit has_o=true werden Inhaltsfakten invalidiert; für bekannte Zelle L(c):=join(L(c),Rechte des neuen Werts). |]
+[| ReturnIf, ReturnIfNotEmpty ][ Ein als mutable markierter Modulexport wird abgewiesen. Bei ReturnIfNotEmpty werden die Rechte des leeren Fortsetzungsfalls auf 0 gesetzt. |]
+[| TryReturn ][ Berechnet Rechte des möglichen Erfolgs mit callAccess und gegebenenfalls aktuellem OBJ. Mutable Erfolge dürfen den Moduleinstieg nicht als Export verlassen. |]
+
+callAccess und die Invalidierung sind wie folgt bestimmt:
+
+[.tex
+|\begin{gathered}
+|\mathrm{denied}=\operatorname{has}_o(\mathrm{Argument})\\
+|\text{Falls Empfänger vorhanden, }\operatorname{has}_m(\text{Empfänger})\land\mathrm{denied}:
+| \operatorname{invalidate}()\\[0.5em]
+|\operatorname{callAccess}(T,\mathrm{Argument},\text{Empfänger?})=
+|\begin{cases}0&\operatorname{imm}(T)\\
+|\operatorname{bind}(T,\mathrm{denied},\mathrm{false})&\text{sonst}\end{cases}\\[0.5em]
+|\operatorname{invalidate}():\\
+|\text{Für jeden Zellinhalt mit }\operatorname{has}_m=\mathrm{true}:\ o:=\mathrm{true}\\
+|\text{Für jeden Wert ohne Zell-ID mit }m=\mathrm{true}\text{ und }b=\mathrm{false}:\ o:=\mathrm{true}
+|\end{gathered}
+.]
+
+Bei einem direkt verfolgten Zellzugriff wird zunächst das äußere o geprüft,
+nicht automatisch jedes o eines erreichbaren inneren Werts.
+Eine frische lokale Box darf daher einen gesperrten Wert transportieren;
+das Lesen der äußeren Box macht die innere Ressource nicht autorisiert.
+
+Diese Analyse ist konservativ und absichtlich gröber als eine pfadgenaue Capability-Logik.
+Sie erklärt, warum Verpacken in Paare, Präfixe, Records, ANY oder SIG die Sperre nicht zuverlässig beseitigen kann.
+Ein eigenständiger Beweis, dass diese Regeln alle nicht autorisierten Effekte ausschließen,
+ist durch die Rekonstruktion noch nicht erbracht.
+
+[=Definitionen und Module=]
+
+Eine gewöhnliche Definition besitzt nach höchstens der im Prüfer vorgesehenen äußeren rekursiven Entfaltung
+die Form:
+
+[.tex
+|\begin{gathered}
+|\mathrm{DefType}=\operatorname{Proc}\bigl(\mathsf{EMPTY\_TYPE},E,
+| \forall\alpha_1\ldots\forall\alpha_n.\operatorname{Proc}(O,A,R)\bigr)\\[0.5em]
+|\mathsf{ENV}:E\qquad\mathsf{OBJ}:O\qquad\mathsf{ARG}:A\qquad\mathsf{RES}:R\\
+|\mathsf{EMPTY}:\mathsf{EMPTY\_TYPE}\qquad\mathsf{ONE}:\mathsf{INT}\\
+|\mathsf{FALSE}:\mathsf{FALSE}\qquad\mathsf{TRUE}:\mathsf{TRUE}\\
+|\mathsf{EMPTY\_TYPE}:\mathsf{TYPE}\qquad\mathsf{INT\_TYPE}:\mathsf{TYPE}
+| \qquad\mathsf{Type\_TYPE}:\mathsf{TYPE}
+|\end{gathered}
+.]
+
+Die Groß-/Kleinschreibung [.|Type_TYPE.] ist die tatsächliche Konstante des AST.
+Ein Namensverweis auf eine sonstige Modul-Typdeklaration lädt ebenfalls deren Typwert;
+es gibt keinen zusätzlichen textuellen ILT-Befehl LoadType.
+
+Jede Definition wird mit denselben Typdeklarationen geprüft;
+Werte vorheriger Definitionen werden nicht automatisch zu lexikalischen Registern.
+Der Moduleinstieg ist die letzte Definition.
+Seine Umgebung erhält die Referenzen auf alle vorherigen Definitionen:
+
+- keine Vorgänger: EMPTY;
+- genau ein Vorgänger: dessen Definitionsreferenz direkt;
+- mehrere Vorgänger: links aufgebautes Tupel, mit EMPTY als Anfang.
+
+Der Einstieg erhält den Modulimport als ARG und EMPTY als OBJ.
+Sein Export ist das Ergebnis seiner Ausführung; die Zugriffsanalyse verbietet mutable Exporte.
+Die Importsignatur wird gegen den tatsächlichen Importtyp geprüft.
+Die bestehende Umgebungskonvention wird in diesem Entwurf nicht durch freie globale Definitionsnamen ersetzt.
+
+Vor dem Eintritt in die VM müssen erreichbare generische Aufrufe spezialisiert,
+Aufrufziele verknüpft und benötigte Sichtkonvertierungen vorbereitet sein.
+Compiler-Templates dürfen nicht als ausführbare Aufrufrahmen starten.
+Die abstrakte Aufrufregel setzt diese Vorbereitung voraus; eine vollständige Spezifikation der
+Vorbereitung und ihrer Terminierung bleibt eine eigene Aufgabe.
+
+[=Zwei konkrete Ableitungen=]
+
+Die Division zeigt den Unterschied zwischen Operandtyp und Ergebnistyp:
+
+[.ilt
+|§TYPES
+|    PairInt := [INT, INT]
+|    Main := [EMPTY_TYPE => PairInt]
+|    MainDef := [EMPTY_TYPE => Main]
+|
+|§DEF main € MainDef
+|    a := 7
+|    b := 3
+|    result := §INT a / b
+|    §RETURN result IF TRUE
+.]
+
+[.tex
+|\begin{gathered}
+|\frac{\Gamma(a)=\mathsf{INT}\qquad\Gamma(b)=\mathsf{INT}}
+|{\Gamma(\mathrm{result})=(\mathsf{INT},\mathsf{INT})}
+|\quad\text{(T-IntsDiv)}\\[1em]
+|\frac{\operatorname{trunc}(7/3)=2\qquad7-2\cdot3=1}
+|{\rho(\mathrm{result})=(2,1)}\quad\text{(E-IntsDiv)}
+|\end{gathered}
+.]
+
+Ein SIG verbirgt den konkreten Datentyp seines Körpers, lässt aber seine feste Kopfidentität verwenden:
+
+[.ilt
+|§TYPES
+|    t := [§FREE TYPE]
+|    Contract := [§SIG_WITH t IN t]
+|    Main := [EMPTY_TYPE => TYPE]
+|    MainDef := [EMPTY_TYPE => Main]
+|
+|§DEF main € MainDef
+|    value := 7
+|    payload := INT, value
+|    package := §SIG Contract WITH payload
+|    head := §SIG_HEAD package
+|    body := §SIG_BODY package
+|    exact := §TRY package HAS_HEAD_TYPE head
+|    §RETURN head IF TRUE
+.]
+
+[.tex
+|\begin{gathered}
+|\frac{K(\mathrm{payload}).\mathrm{first}=\mathsf{INT}\qquad\mathsf{INT}<:t[\mathsf{INT}/t]}
+|{\mathrm{package}:\operatorname{Sig}(t,t)}\quad\text{(T-Sig)}\\[1em]
+|\mathrm{head}\text{ öffnet einen festen Zeugen }a\text{ mit }\operatorname{kind}(a)=\mathsf{TYPE}\\
+|\mathrm{package}:\operatorname{Sig}(a,a)\qquad K(\mathrm{head})=a\\
+|\mathrm{body}:a\qquad\mathrm{exact}:\operatorname{Sig}(a,a)\\[0.5em]
+|\text{Zur Laufzeit ist der explizite Kopf }\mathsf{INT}.\\
+|\text{Der Konsument erhält für body statisch }a,\text{ nicht automatisch }\mathsf{INT}.
+|\end{gathered}
+.]
+
+Beide Beispiele wurden am 7. November 2026 mit dem vorhandenen Parser, Typprüfer und der VM
+ausgeführt. Ein temporärer gemeinsamer Build der benötigten Quellen lieferte die erwarteten Ergebnisse
+[.|(2; 1).] und [.|§INT.]. Das prüft diese beiden Ableitungen, nicht sämtliche Regeln dieses Entwurfs.
+Die Beispiele sind kein Ersatz für einen unabhängigen ausführbaren Referenzinterpreter.
+Für bereits vorhandene ausführbare Beispiele und Gegenbeispiele sind insbesondere
+[<../SPO_CS/TestFiles/ILT_Functions/00_07_TypeConstructor.ILT>],
+[<../SPO_CS/TestFiles/ILT_Functions/00_08_SigContract.ILT>],
+[<../SPO_CS/TestFiles/ILT_Functions/00_09_SigHead.ILT>] und die
+[<../SPO_CS/TestFiles/ILT_Function_Errors/03_01_MutableArgumentRead.ILT|Negativfälle für mutable Zugriffe>]
+relevant.
+
+[=Offene Stellen vor einem Typsicherheitsbeweis=]
+
+Die folgenden Punkte sind aus der gelesenen Implementierung abgeleitete Grenzen,
+keine in dieser Arbeit ausgeführten Reparaturen:
+
+- TypeCond und Proof sind syntaktisch sichtbar und werden semantisch abgewiesen.
+- Ref ist nur teilweise ausgebaut; TryAsRef allein definiert noch keine vollständige Referenzsprache.
+- Assert prüft seine booleschen Operandtypen nicht vollständig.
+- ReturnIfNotEmpty prüft den nichtleeren Rückgabeteil lokal nicht gegen R.
+- First/Second wählen passende Paaralternativen aus, ohne alle anderen Eingabefälle statisch auszuschließen.
+- Die Resttypverfeinerung nach TRY_RETURN benötigt eine Garantie über erfolgreiche Fallabdeckung,
+   die sich aus der lokalen Signaturprüfung allein nicht ergibt.
+- Weder vollständige Rückgabeabdeckung noch die sichere initiale Benutzung rekursiver Closure-Platzhalter
+   werden hier als bewiesene Eigenschaften behandelt.
+- IntsComp besitzt ein Überlaufproblem; Division hat mögliche Laufzeitfehler trotz gültiger Operandtypen.
+- Manche ungültigen Typkonstruktionen führen zu Assertions anstelle strukturierter Typfehler.
+- Beim Verpacken eines SIG fehlt die zusätzliche Identitätsprüfung für einen bereits festen Vertragskopf.
+- match, view, native Verträge und die Spezialisierung brauchen eine eigenständige vollständige
+    relationale Definition und einen Nachweis ihrer Übereinstimmung mit den Operationsregeln.
+
+Für einen abgeschlossenen Kalkül wären mindestens folgende Sätze zu formulieren und zu beweisen:
+
+[.
+|Typerhaltung:
+|  WellTyped(S,R) und S -> S'
+|  => WellTyped(S',R), mit zulässiger Erweiterung der Speicher-/Zeugenumgebung.
+|
+|Fortschritt mit ausdrücklich modellierten Ausgängen:
+|  WellTyped(S,R)
+|  => weiterer Schritt oder ret(v) oder fail oder spezifizierter trap.
+|
+|Ergebnisverträglichkeit:
+|  erfolgreicher Abschluss einer Definition mit Ergebnis v
+|  => v ist unter dem deklarierten Ergebnistyp darstellbar.
+|
+|Sichtschutz:
+|  Beobachtungen nach view(S=>T) hängen nur von der in T erlaubten Sicht ab.
+|
+|Zugriffsschutz:
+|  kein Zell-Lese-/Schreibschritt über eine statisch gesperrte Ressource.
+|
+|Korrektheit der Übersetzung:
+|  ILT-Schritte und spezialisierte VM-Schritte simulieren einander
+|  bis auf administrative Schritte, Sichtadapter und Registerumbenennung.
+.]
+
+Ein Fortschrittssatz, der jeden beliebigen Implementierungsfehler als erlaubten trap aufnimmt,
+wäre inhaltlich zu schwach. Die zulässigen traps müssen deshalb unabhängig von der VM festgelegt werden.
+Insbesondere sind Assertion-Fehler des Compilers keine automatische semantische Erlaubnis für gültige Programme.
+
+Der Entwurf liefert das vollständige Operationsinventar mit lokalen Typ- und Verhaltensregeln,
+die separate Zugriffsanalyse und explizite Beweisverpflichtungen.
+Er lässt die noch offenen Hilfsrelationen und Implementierungslücken sichtbar,
+statt daraus schon einen vollständigen Typsicherheitsbeweis abzuleiten.

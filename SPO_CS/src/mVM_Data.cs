@@ -39,6 +39,7 @@ mVM_Data {
 		NewSig,
 		NewInterface,
 		WithType,
+		Narrow,
 		SigHead,
 		SigBody,
 		
@@ -106,6 +107,79 @@ mVM_Data {
 	iProcDef {
 		tText FirstPosText { get; }
 		mVM_Type.tType DefType { get; }
+		mVM_Type.tType[] TypeCaptures { get; }
+		mVM_Type.tWitnessMap? SignatureProof { get; }
+	}
+	
+	public sealed class tNativeCode {
+		public required mVM_Type.tType Signature { get; init; }
+		public required mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> Execute { get; init; }
+		// Representative results supply code origins to the static linker. Their
+		// ordinary payload values do not determine types or execute during linking.
+		public tData[] ResultOrigins { get; init; } = [];
+	}
+	
+	public delegate mMaybe.tMaybe<tData>
+	tExecute<tPos>(tCallSite<tPos> aSite, tData aFunction, tData aObject, tData aArgument, mStd.tAction<mStd.tFunc<tText>> aTrace, mVM_Type.tTypeResolver? aTypes = null);
+	
+	public sealed class
+	tPreparedCall<tPos> {
+		public required tProcDef<tPos> Code;
+		public required tConversion Environment;
+		public required tConversion Object;
+		public required tConversion Argument;
+		public required tConversion Result;
+	}
+	
+	public sealed class
+	tCallSite<tPos> {
+		public required mVM_Type.tType SourceSignature;
+		public required mVM_Type.tType Signature;
+		public required mVM_Type.tType ArgumentType;
+		public required mVM_Type.tType ObjectType;
+		public mVM_Type.tType? PhysicalObjectType;
+		public tConversion? NativeArgument;
+		public tConversion? NativeObject;
+		public readonly System.Collections.Generic.Dictionary<tNativeCode, (tConversion Object, tConversion Argument, tConversion Result)> NativeTargets = [];
+		public tCloseSite<tPos>? Closure;
+		public mTreeMap.tTree<tNat64, tPreparedCall<tPos>> Targets = mTreeMap.Tree<tNat64, tPreparedCall<tPos>>((a1, a2) => a1.CompareTo(a2), []);
+	}
+	
+	public sealed class
+	tPreparedClose<tPos> {
+		public required tProcDef<tPos> Code;
+		public required tConversion Environment;
+	}
+	
+	public sealed class
+	tCloseSite<tPos> {
+		public required mVM_Type.tType Signature;
+		public required mVM_Type.tType Environment;
+		public mTreeMap.tTree<tNat64, tPreparedClose<tPos>> Targets = mTreeMap.Tree<tNat64, tPreparedClose<tPos>>((a1, a2) => a1.CompareTo(a2), []);
+	}
+	
+	public sealed class
+	tConversionMemo {
+		public readonly System.Collections.Generic.Dictionary<(tConversion Plan, tData Data), tData> Values = [];
+		public System.Collections.Generic.Dictionary<(tData Data, mVM_Type.tType Source, mVM_Type.tType Target), tData>? Structural;
+	}
+	
+	public sealed class
+	tConversion {
+		public required mVM_Type.tType Source;
+		public required mVM_Type.tType Target;
+		public mStd.tFunc<tData, mVM_Type.tTypeResolver?, tConversionMemo, tData>? Apply;
+		public tBool Memoize;
+		public tBool Dynamic;
+		public tBool RevealOpaque;
+		public mVM_Type.tWitnessMap? Proof;
+		public iProcDef? Adapter;
+		public tConversion? Inner;
+		public tConversion? After;
+		public tConversion? Before;
+		public tInt32 Projection = -1;
+		public readonly mArrayList.tArrayList<(mVM_Type.tType Type, tConversion Plan)> Alternatives = mArrayList.List<(mVM_Type.tType, tConversion)>();
+		public ConditionalWeakTable<mVM_Type.tType, System.Tuple<tNat32, (mVM_Type.tType Type, tConversion Plan)[]>>? CandidateSchemas;
 	}
 	
 	// standard stack indexes
@@ -125,6 +199,36 @@ mVM_Data {
 	[DebuggerDisplay("{this.DefType.ToText()}")]
 	public sealed class
 	tProcDef<tPos> : iProcDef {
+		public readonly tNat64 CodeId = mStd.NewDebugId();
+		public tBool IsTemplate;
+		public tUnknown? Compilation;
+		public tCallSite<tPos>?[] Calls = [];
+		public tCallSite<tPos>?[] Guards = [];
+		public tCallSite<tPos>?[] RecursiveCalls = [];
+		public tCloseSite<tPos>?[] Closures = [];
+		public tConversion?[] Views = [];
+		public tConversion?[] ObjectViews = [];
+		public tConversion? EntryArgument;
+		public readonly mArrayList.tArrayList<(mVM_Type.tType Symbol, tNat32 Register)> TypeBindings = mArrayList.List<(mVM_Type.tType, tNat32)>();
+		// Static symbols whose explicit TYPE witnesses are stored in the environment.
+		public mVM_Type.tType[] TypeCaptures { get; init; } = [];
+		public mVM_Type.tWitnessMap? SignatureProof { get; init; }
+		public mStd.tFunc<mVM_Type.tType, mVM_Type.tType, tBool, mVM_Type.tWitnessMap?, tProcDef<tPos>>? AdapterFactory;
+		
+		public readonly mArrayList.tArrayList<(mVM_Type.tType First, mVM_Type.tType Second, mVM_Type.tType? Result)>
+		OperandTypes = mArrayList.List<(mVM_Type.tType, mVM_Type.tType, mVM_Type.tType?)>();
+		
+		public mArrayList.tArrayList<tConversion>
+		Conversions = mArrayList.List<tConversion>();
+		
+		public System.Collections.Generic.Dictionary<(tInt32 Source, tInt32 Target, tInt32 Projection, tBool Reveal), System.Collections.Generic.List<tConversion>> ConversionIndex = [];
+		
+		public mStd.tAction<mVM_Type.tType>? RegisterActual;
+		public mStd.tAction<mVM_Type.tType>? RegisterWitness;
+		
+		public System.Func<mVM_Type.tTypeResolver?, tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tExecute<tPos>, tConversionMemo, mMaybe.tMaybe<tData>>?
+		Entry;
+		
 		public readonly mArrayList.tArrayList<(tOpCode, tNat32, tNat32, tNat64)>
 		Commands = mArrayList.List<(tOpCode, tNat32, tNat32, tNat64)>();
 		
@@ -139,6 +243,8 @@ mVM_Data {
 		
 		public mTreeMap.tTree<tNat32, mVM_Type.tType>
 		TryReturnTypes = mTreeMap.Tree<tNat32, mVM_Type.tType>((a1, a2) => a1.CompareTo(a2), []);
+		
+		public mTreeMap.tTree<tNat32, mVM_Type.tType> SigHeads = mTreeMap.Tree<tNat32, mVM_Type.tType>((a1, a2) => a1.CompareTo(a2), []);
 		
 		public tData[]
 		Constants = [];
@@ -186,8 +292,36 @@ mVM_Data {
 		tNat32 aReg1,
 		tNat32 aReg2
 	) { 
+		if (aDef.Types.IsEmpty) {
+			mAssert.IsTrue(aDef.DefType.IsProc(out _, out var Environment, out var Function));
+			while (Function.IsGeneric(out _, out var Body)) { Function = Body; }
+			mAssert.IsTrue(Function.IsProc(out var Object, out var Argument, out var Result));
+			
+			aDef.Types.Push(
+				mVM_Type.Empty(),
+				mVM_Type.Int(),
+				mVM_Type.False(),
+				mVM_Type.True(),
+				mVM_Type.Type(),
+				mVM_Type.Type(),
+				mVM_Type.Type(),
+				Environment,
+				Object,
+				Argument,
+				Result
+			);
+		}
+		
 		aDef.PosList.Push(aPos);
 		aDef.Commands.Push((aCommand, aReg1, aReg2, mStd.NewDebugId()));
+		
+		aDef.OperandTypes.Push(
+			(
+				aReg1 < aDef.Types.Size ? aDef.Types.Get(aReg1) : mVM_Type.Empty(),
+				aReg2 < aDef.Types.Size ? aDef.Types.Get(aReg2) : mVM_Type.Empty(),
+				null
+			)
+		);
 	}
 	
 	internal static tNat32
@@ -215,6 +349,40 @@ mVM_Data {
 	) {
 		aDef._AddCommand(aPos, aCommand, aReg1, aReg2);
 		aDef._LastReg += 1;
+		var (First, Second, _) = aDef.OperandTypes.Get(aDef.Commands.Size - 1);
+		
+		var Result = aCommand switch {
+			tOpCode.NewInt or tOpCode.IntsComp or tOpCode.IntsAdd or tOpCode.IntsSub or tOpCode.IntsMul => mVM_Type.Int(),
+			tOpCode.And or tOpCode.Or or tOpCode.XOr or tOpCode.IntsAreEq => mVM_Type.Bool(),
+			tOpCode.IntsDiv => mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()),
+			tOpCode.NewPair => mVM_Type.Pair(First, Second),
+			tOpCode.First => First.TryProjectPair(out var Left, out _) ? Left : mVM_Type.Any(),
+			tOpCode.Second => First.TryProjectPair(out _, out var Right) ? Right : mVM_Type.Any(),
+			tOpCode.AddPrefix => mVM_Type.Prefix(gHashToPrefix.TryGet(aReg1).AssertNotEmpty(), Second),
+			tOpCode.DelPrefix => Second.Refs[0],
+			tOpCode.AddField => mVM_Type.Record(First, Second),
+			tOpCode.GetField => First.GetFieldType(gHashToPrefix.TryGet(aReg2).AssertNotEmpty()),
+			tOpCode.VarDef => mVM_Type.Var(First),
+			tOpCode.VarGet => First.Refs[0],
+			tOpCode.CallFunc => mVM_Type.Infer(First, mVM_Type.Empty(), Second, _ => {}).ElseThrow(),
+			tOpCode.CallProc => mVM_Type.Infer(First.Refs[1], First.Refs[0], Second, _ => {}).ElseThrow(),
+			tOpCode.DefRecProcs => First.Refs[2].Refs[2],
+			tOpCode.LoadConstant => aDef.Constants[aReg1].TypeExpressionValue().KindType(),
+			tOpCode.TryAsEmpty => mVM_Type.Empty(),
+			tOpCode.TryAsInt => mVM_Type.Int(),
+			tOpCode.TryAsBool => mVM_Type.Bool(),
+			tOpCode.TryAsPair => First.SubSet(__ => __.IsPair(out _, out _) ? __ : mStd.cEmpty).ElseUse(mVM_Type.Pair(mVM_Type.Any(), mVM_Type.Any())),
+			tOpCode.TryAsVar => First.SubSet(__ => __.IsVar(out _) ? __ : mStd.cEmpty).ElseUse(mVM_Type.Var(mVM_Type.Any())),
+			tOpCode.TryAsRecord => First,
+			tOpCode.TryAsSig => aDef.Constants[aReg2].TypeExpressionValue(),
+			tOpCode.TryHasHeadType => First,
+			tOpCode.SigHead => mVM_Type.Type(),
+			tOpCode.SigBody => First.Refs[1],
+			_ => mVM_Type.Type(),
+		};
+		
+		aDef.Types.Push(Result);
+		aDef.OperandTypes.Set(aDef.Commands.Size - 1, (First, Second, Result));
 		return aDef._LastReg;
 	}
 	
@@ -685,32 +853,73 @@ mVM_Data {
 	
 	// TODO: Pattern Types
 	
-	public enum
-	tDataType {
-		Empty,
-		Bool,
-		Int,
-		Pair,
-		Sig,
-		Interface,
-		Prefix,
-		Record,
-		Proc,
-		ExternProc,
-		Def,
-		ExternDef,
-		Var,
-		Type,
+	public sealed class
+	tDynamicValue(mVM_Type.tType aActualType, tData aData) {
+		public readonly mVM_Type.tType ActualType = aActualType;
+		public readonly tData Data = aData;
 	}
 	
-	[DebuggerDisplay("{mVM_Data.ToText(this, 10)}")]
+	public sealed class
+	tOpaqueValue(tData aData) {
+		public readonly tData Data = aData;
+	}
+	
+	public sealed class
+	tCellView(tData aCell, mStd.tFunc<tData, tData> aRead, mStd.tFunc<tData, tData>? aWrite) {
+		public readonly tData Cell = aCell;
+		public readonly mStd.tFunc<tData, tData> Read = aRead;
+		public readonly mStd.tFunc<tData, tData>? Write = aWrite;
+	}
+	
+	public static tData
+	ReadCell(this tData aCell) => aCell._Value.Is(out tCellView View) ? View.Read(View.Cell.ReadCell()) : aCell._Value.To<mRef.tRefBox<tData>>()._Value;
+	
+	public static void
+	WriteCell(this tData aCell, tData aValue) {
+		if (aCell._Value.Is(out tCellView View)) { View.Cell.WriteCell(View.Write!(aValue)); }
+		else { aCell._Value.To<mRef.tRefBox<tData>>()._Value = aValue; }
+	}
+	
+	public static tData
+	Dynamic(
+		tData aData,
+		mVM_Type.tType aActualType
+	) => new() {_Value = mAny.Any(new tDynamicValue(aActualType, aData))};
+	
+	public static tData
+	JoinDynamic(tData aLeft, tData aRight) {
+		var Left = aLeft._Value.To<tDynamicValue>();
+		var Right = aRight._Value.To<tDynamicValue>();
+		var Views = mArrayList.List<(tData Data, mVM_Type.tType Type)>();
+		
+		foreach (var View in mStream.Concat(Left.Alternatives(), Right.Alternatives())) {
+			if (!Views.ToStream().Any(__ => __.Type.SameType(View.Type))) { Views.Push(View); }
+		}
+		
+		var Result = Dynamic(Views.Get(0).Data, Views.Get(0).Type);
+		
+		foreach (var View in Views.ToStream().Skip(1)) {
+			var Previous = Result._Value.To<tDynamicValue>();
+			Result = Dynamic(Pair(Previous.Data, View.Data), mVM_Type.Set(Previous.ActualType, View.Type));
+		}
+		
+		return Result;
+	}
+	
+	public static mStream.tStream<(tData Data, mVM_Type.tType Type)>
+	Alternatives(this tDynamicValue aValue) {
+		if (aValue.ActualType.IsSet(out var Left, out var Right)) {
+			var Pair = aValue.Data._Value.To<(tData, tData)>();
+			return mStream.Concat(new tDynamicValue(Left, Pair.Item1).Alternatives(), new tDynamicValue(Right, Pair.Item2).Alternatives());
+		}
+		
+		return mStream.Stream((aValue.Data, aValue.ActualType));
+	}
+	
 	public sealed class
 	tData {
-		public tDataType
-		_DataType;
-		
 		public mAny.tAny
-		_Value;
+		_Value = mAny.Any(mStd.cEmpty);
 		
 		public mTreeMap.tTree<tNat32, tData>
 		_Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
@@ -718,68 +927,38 @@ mVM_Data {
 		public tNat64
 		_DebugId = mStd.NewDebugId();
 		
-		public tBool
-		Equals(
-			tData a
-		) {
-			if (a is null) {
-				return false;
-			}
-			
-			return (
-				this._DataType == a._DataType &&
-				(
-					this._DataType is tDataType.Record
-					? this._Fields.Equals(a._Fields)
-					: this._Value.Equals(a._Value)
-				)
-			);
-		}
-		
-		public override tBool
-		Equals(
-			tUnknown? a
-		) => this.Equals((tData)a!);
 	}
 	
 	private static tData
 	Data<t>(
-		tDataType aType,
 		t aValue
 	) => new() {
-		_DataType = aType,
 		_Value = mAny.Any(aValue)
 	};
 	
 	private static tData
 	Data(
-		tDataType aType,
 		mTreeMap.tTree<tNat32, tData> aFields
 	) => new() {
-		_DataType = aType,
 		_Fields = aFields,
 	};
 	
 	private static tData
 	Data<t1, t2>(
-		tDataType aType,
 		t1 aValue1,
 		t2 aValue2
 	) => new() {
-		_DataType = aType,
 		_Value = mAny.Any((aValue1, aValue2))
 	};
 	
 	private static tBool
 	Is<t>(
 		this tData aData,
-		tDataType aType,
 		out t aValue
 	) {
 		aValue = default!;
 		
 		return (
-			aData._DataType.Equals(aType) &&
 			aData._Value.Is(out aValue)
 		);
 	}
@@ -787,12 +966,10 @@ mVM_Data {
 	private static tBool
 	Is<t1, t2>(
 		this tData aData,
-		tDataType aType,
 		out t1 aValue1,
 		out t2 aValue2
 	) {
 		if (
-			aData._DataType.Equals(aType) &&
 			aData._Value.Is(out (t1, t2) Tuple)
 		) {
 			(aValue1, aValue2) = Tuple;
@@ -806,40 +983,46 @@ mVM_Data {
 	
 	public static tData
 	Empty(
-	) => Data(tDataType.Empty, 1);
+	) => new();
 	
 	public static tBool
 	IsEmpty(
 		this tData aData
-	) => aData._DataType == tDataType.Empty;
+	) => aData._Value.Is(out tDynamicValue Dynamic) ? Dynamic.Alternatives().Any(__ => __.Type.IsEmpty()) : aData._Fields.Deep() == 0 && aData._Value.Is(out mStd.tEmpty _);
 	
 	public static tData
 	Bool(
 		tBool aValue
-	) => Data(tDataType.Bool, aValue);
+	) => Data(aValue);
 	
 	public static tBool
 	IsBool(
 		this tData aData,
 		out tBool aValue
-	) => aData.Is(tDataType.Bool, out aValue);
+	) {
+		if (aData._Value.Is(out tDynamicValue Dynamic) && Dynamic.ActualType.Kind is mVM_Type.tKind.True or mVM_Type.tKind.False) { aData = Dynamic.Data; }
+		return aData.Is(out aValue);
+	}
 	
 	public static tData
 	Int(
 		tInt32 aValue
-	) => Data(tDataType.Int, aValue);
+	) => Data(aValue);
 	
 	public static tBool
 	IsInt(
 		this tData aData,
 		out tInt32 aValue
-	) => aData.Is(tDataType.Int, out aValue);
+	) {
+		if (aData._Value.Is(out tDynamicValue Dynamic) && Dynamic.ActualType.IsInt()) { aData = Dynamic.Data; }
+		return aData.Is(out aValue);
+	}
 	
 	public static tData
 	Pair(
 		tData aFirst,
 		tData aSecond
-	) => Data(tDataType.Pair, aFirst, aSecond);
+	) => Data(aFirst, aSecond);
 	
 	public static tBool
 	IsPair(
@@ -847,7 +1030,12 @@ mVM_Data {
 		out tData aFirst,
 		out tData aSecond
 	) {
-		if (!aData.Is(tDataType.Pair, out aFirst, out aSecond)) {
+		if (aData._Value.Is(out tDynamicValue Dynamic)) {
+			if (Dynamic.Alternatives().Where(__ => __.Type.Kind is mVM_Type.tKind.Pair).TryFirst().IsSome(out var View)) { aData = View.Data; }
+			else { aFirst = aData; aSecond = Empty(); return false; }
+		}
+		
+		if (!aData.Is(out aFirst, out aSecond)) {
 			aFirst = aData;
 			aSecond = Empty();
 			return false;
@@ -856,15 +1044,19 @@ mVM_Data {
 		return true;
 	}
 	
-	public static tData
-	Sig(
-		mVM_Type.tType aContract,
-		tData aHead,
-		tData aBody
-	) => Data(
-		tDataType.Sig,
-		(aContract, aHead, aBody)
-	);
+	public readonly struct tSig(tData aHead, tData aBody) {
+		public readonly tData Head = aHead;
+		public readonly tData Body = aBody;
+	}
+	public readonly struct tInterface(tData aObject, tData aMethods) {
+		public readonly tData Object = aObject;
+		public readonly tData Methods = aMethods;
+	}
+	
+	public static tData Sig(tData aHead, tData aBody) => Data(new tSig(aHead, aBody));
+	public static tData Interface(tData aObject, tData aMethods) => Data(new tInterface(aObject, aMethods));
+	public static tData DynamicSig(mVM_Type.tType aContract, tData aHead, tData aBody) => Dynamic(Sig(aHead, aBody), aContract);
+	public static tData DynamicInterface(mVM_Type.tType aContract, tData aObject, tData aMethods) => Dynamic(Interface(aObject._Value.Is(out tOpaqueValue _) ? aObject : new tData {_Value = mAny.Any(new tOpaqueValue(aObject))}, aMethods), aContract);
 	
 	public static tBool
 	IsSig(
@@ -873,20 +1065,27 @@ mVM_Data {
 		out tData aHead,
 		out tData aBody
 	) {
-		if (!aData.Is(tDataType.Sig, out (mVM_Type.tType Contract, tData Head, tData Body) Sig)) {
+		if (!aData._Value.Is(out tDynamicValue Dynamic) || !Dynamic.ActualType.IsSig(out _, out _)) {
 			aContract = default!;
 			aHead = default!;
 			aBody = default!;
 			return false;
 		}
 		
-		(aContract, aHead, aBody) = Sig;
+		var Sig = Dynamic.Data._Value.To<tSig>();
+		(aContract, aHead, aBody) = (Dynamic.ActualType, Sig.Head, Sig.Body);
 		return true;
 	}
 	
-	public static tData
-	Interface(mVM_Type.tType aContract, tData aObject, tData aMethods)
-	=> Data(tDataType.Interface, (aContract, aObject, aMethods));
+	public static tBool
+	IsSig(this (tData Data, mVM_Type.tType Type) aValue, out mVM_Type.tType aContract, out tData aHead, out tData aBody) {
+		aContract = aValue.Type;
+		aHead = default!;
+		aBody = default!;
+		if (!aContract.IsSig(out _, out _) || !aValue.Data._Value.Is(out tSig Sig)) { return false; }
+		(aHead, aBody) = (Sig.Head, Sig.Body);
+		return true;
+	}
 
 	public static tBool
 	IsInterface(this tData aData, out mVM_Type.tType aContract, out tData aObject, out tData aMethods) {
@@ -894,11 +1093,22 @@ mVM_Data {
 		aObject = default!;
 		aMethods = default!;
 		
-		if (!aData.Is(tDataType.Interface, out (mVM_Type.tType Contract, tData Object, tData Methods) Value)) {
+		if (!aData._Value.Is(out tDynamicValue Dynamic) || !Dynamic.ActualType.IsInterface(out _, out _)) {
 			return false;
 		}
 		
-		(aContract, aObject, aMethods) = Value;
+		var Value = Dynamic.Data._Value.To<tInterface>();
+		(aContract, aObject, aMethods) = (Dynamic.ActualType, Value.Object, Value.Methods);
+		return true;
+	}
+	
+	public static tBool
+	IsInterface(this (tData Data, mVM_Type.tType Type) aValue, out mVM_Type.tType aContract, out tData aObject, out tData aMethods) {
+		aContract = aValue.Type;
+		aObject = default!;
+		aMethods = default!;
+		if (!aContract.IsInterface(out _, out _) || !aValue.Data._Value.Is(out tInterface Value)) { return false; }
+		(aObject, aMethods) = (Value.Object, Value.Methods);
 		return true;
 	}
 	
@@ -907,7 +1117,7 @@ mVM_Data {
 		mVM_Type.tType aValue
 	) {
 		mAssert.IsTrue(aValue.KindType().IsType(), "expected type value");
-		return Data(tDataType.Type, aValue);
+		return Data(aValue);
 	}
 	
 	// Type expressions may also denote constructors or type parameters.
@@ -915,7 +1125,6 @@ mVM_Data {
 	TypeExpression(
 		mVM_Type.tType aValue
 	) => Data(
-		tDataType.Type,
 		aValue
 	);
 	
@@ -927,7 +1136,6 @@ mVM_Data {
 			return Bool ? mVM_Type.True() : mVM_Type.False();
 		}
 		
-		mAssert.IsTrue(aValue._DataType is tDataType.Type);
 		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
 		return Expression;
 	}
@@ -954,6 +1162,34 @@ mVM_Data {
 	Tuple(
 		System.Span<tData> a
 	) => mStream.Stream(a).Reduce(Empty(), Pair);
+	
+	public static tData CaptureTypes(this tData aEnvironment, mVM_Type.tType[] aSymbols, mVM_Type.tTypeResolver? aTypes) => aSymbols.Length == 0 ? aEnvironment : Pair(Tuple(aSymbols.Select(__ => TypeExpression(__.Resolve(aTypes))).ToArray()), aEnvironment);
+	
+	public static (tData Environment, mVM_Type.tTypeResolver? Types) OpenTypeCaptures(this tData aEnvironment, mVM_Type.tType[] aSymbols, mVM_Type.tTypeResolver? aTypes) {
+		if (aSymbols.Length == 0) { return (aEnvironment, aTypes); }
+		var Pair = aEnvironment._Value.To<(tData, tData)>();
+		var Values = new mVM_Type.tType[aSymbols.Length];
+		var Tail = Pair.Item1;
+		
+		for (var Index = Values.Length - 1; Index >= 0; Index -= 1) {
+			var Item = Tail._Value.To<(tData, tData)>();
+			Values[Index] = Item.Item2.TypeExpressionValue();
+			Tail = Item.Item1;
+		}
+		
+		var Cache = new System.Collections.Generic.Dictionary<tNat64, mVM_Type.tType>();
+		
+		mVM_Type.tType Resolve(mVM_Type.tType aType) {
+			if (Cache.TryGetValue(aType.DebugId, out var Previous)) { return Previous; }
+			var Original = aType;
+			for (var Index = 0; Index < Values.Length; Index += 1) { aType = aType.Substitute(aSymbols[Index], Values[Index]); }
+			aType = aType.Resolve(aTypes);
+			Cache.Add(Original.DebugId, aType);
+			return aType;
+		}
+		
+		return (Pair.Item2, Resolve);
+	}
 	
 	public static tBool
 	IsTuple(
@@ -1013,14 +1249,21 @@ mVM_Data {
 	Prefix(
 		tNat32 aPrefixId,
 		tData aData
-	) => Data(tDataType.Prefix, aPrefixId, aData);
+	) => Data(aPrefixId, aData);
 	
 	public static tBool
 	IsPrefix(
 		this tData aData,
 		out tNat32 aPrefixId,
 		out tData aValue
-	) => aData.Is(tDataType.Prefix, out aPrefixId, out aValue);
+	) {
+		if (aData._Value.Is(out tDynamicValue Dynamic)) {
+			if (Dynamic.Alternatives().Where(__ => __.Type.Kind is mVM_Type.tKind.Prefix).TryFirst().IsSome(out var View)) { aData = View.Data; }
+			else { aPrefixId = 0; aValue = Empty(); return false; }
+		}
+		
+		return aData.Is(out aPrefixId, out aValue);
+	}
 	
 	public static tBool
 	IsPrefix(
@@ -1033,7 +1276,7 @@ mVM_Data {
 	Prefix(
 		tText aPrefix,
 		tData aData
-	) => Data(tDataType.Prefix, aPrefix.PrefixHash(), aData);
+	) => Data(aPrefix.PrefixHash(), aData);
 	
 	public static tBool
 	IsPrefix(
@@ -1047,19 +1290,12 @@ mVM_Data {
 		tData aRecord,
 		tData aPrefix
 	) {
-		if (aRecord.IsEmpty()) {
-			aRecord = Data(
-				tDataType.Record,
-				mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), [])
-			);
-		}
-		
 		mAssert.IsTrue(aPrefix.IsPrefix(out var PrefixHash, out var Data_));
-		mAssert.IsTrue(aRecord.IsRecord(out var Fields));
+		mAssert.IsTrue(aRecord.IsEmpty() || aRecord.IsRecord(out _));
+		var Fields = aRecord._Fields;
 		mAssert.IsTrue(Fields.TryGet(PrefixHash).IsNone());
 		
 		return Data(
-			tDataType.Record,
 			Fields.Set(PrefixHash, Data_)
 		);
 	}
@@ -1080,7 +1316,9 @@ mVM_Data {
 		this tData aData,
 		[NotNullWhen(true)]out mTreeMap.tTree<tNat32, tData> aFields
 	) {
-		if (aData._DataType is tDataType.Record) {
+		if (aData._Value.Is(out tDynamicValue Dynamic) && Dynamic.ActualType.IsRecord(out _)) { aData = Dynamic.Data; }
+		
+		if (aData._Fields.Deep() != 0) {
 			aFields = aData._Fields;
 			return true;
 		} else {
@@ -1100,8 +1338,13 @@ mVM_Data {
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		return Data(tDataType.Proc, aDef, aEnv);
+		var Environment = aDef.DefType.Refs[1];
+		mAssert.IsTrue(Environment.IsImmutable, "A closure environment must be statically immutable.");
+		return Closure(aDef, aEnv.Normalize(Environment, "Umgebung"));
 	}
+	
+	public static tData
+	Closure<tPos>(tProcDef<tPos> aDef, tData aEnv) => Data(aDef, aEnv);
 	
 	public static tBool
 	IsProc(
@@ -1109,11 +1352,9 @@ mVM_Data {
 		[MaybeNullWhen(false)]out iProcDef aDef,
 		[MaybeNullWhen(false)]out tData aEnv
 	) {
-		if (aData._DataType is tDataType.Proc) {
-			mAssert.IsTrue(aData._Value.Is(out ITuple Data));
-			mAssert.AreEquals(Data.Length, 2);
+		if (aData._Value.Is(out ITuple Data) && Data.Length == 2 && Data[0] is iProcDef Definition) {
 			
-			aDef = (iProcDef)Data[0]!;
+			aDef = Definition;
 			aEnv = (tData)Data[1]!;
 			
 			return true;
@@ -1130,59 +1371,63 @@ mVM_Data {
 		this tData aData,
 		out tProcDef<tPos> aDef,
 		out tData aEnv
-	) => aData.Is(tDataType.Proc, out aDef, out aEnv);
+	) => aData.Is(out aDef, out aEnv);
 	
 	public static tData
 	ExternProc(
+		mVM_Type.tType aSignature,
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
-		tData aEnv
+		tData aEnv,
+		mVM_Type.tType? aEnvironmentType = null,
+		tData[]? aResultOrigins = null
 	) {
-		return Data(tDataType.ExternProc, aExternDef, aEnv);
+		var Type = aEnvironmentType ?? mVM_Type.Empty();
+		mAssert.IsTrue(Type.IsImmutable, "A native closure environment must be statically immutable.");
+		return NativeClosure(new tNativeCode {Signature = aSignature, Execute = aExternDef, ResultOrigins = aResultOrigins ?? []}, aEnv.Normalize(Type, "Umgebung"));
 	}
+	
+	public static tData
+	NativeClosure(tNativeCode aCode, tData aEnvironment) => Data(aCode, aEnvironment);
 	
 	public static tBool
 	IsExternProc(
 		this tData aData,
-		out mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
+		out tNativeCode aExternDef,
 		out tData aEnv
-	) => aData.Is(tDataType.ExternProc, out aExternDef, out aEnv);
+	) => aData.Is(out aExternDef, out aEnv);
 	
 	public static tData
 	Def<tPos>(
 		tProcDef<tPos> aDef
-	) => Data(tDataType.Def, aDef);
+	) => Data(aDef);
 	
 	public static tBool
 	IsDef(
 		this tData aData,
 		out iProcDef aDef
 	) {
-		if (aData._DataType is tDataType.Def) {
-			mAssert.IsTrue(aData._Value.Is(out aDef));
-			return true;
-		} else {
-			aDef = default!;
-			return false;
-		}
+		return aData._Value.Is(out aDef);
 	}
 	
 	public static tBool
 	IsDef<tPos>(
 		this tData aData,
 		out tProcDef<tPos> aDef
-	) => aData.Is(tDataType.Def, out aDef);
+	) => aData.Is(out aDef);
 	
 	public static tData
 	Var(
 		tData aValue
-	) => Data(tDataType.Var, new mRef.tRefBox<tData> { _Value = aValue });
+	) => Data(new mRef.tRefBox<tData> { _Value = aValue });
 	
 	public static tBool
 	IsVar(
 		this tData aData,
 		out tData aValue
 	) {
-		if (aData.Is(tDataType.Var, out mRef.tRefBox<tData> Cell)) {
+		if (aData._Value.Is(out tCellView _)) { aValue = aData.ReadCell(); return true; }
+		
+		if (aData.Is(out mRef.tRefBox<tData> Cell)) {
 			aValue = Cell._Value;
 			return true;
 		}
@@ -1193,108 +1438,37 @@ mVM_Data {
 	
 	public static tData
 	ExternDef(
-		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a
-	) => Data(tDataType.ExternDef, a);
+		mVM_Type.tType aSignature,
+		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a,
+		tData[]? aResultOrigins = null
+	) => Data(new tNativeCode {Signature = aSignature, Execute = a, ResultOrigins = aResultOrigins ?? []});
 	
 	public static tBool
 	IsExternDef(
 		this tData aData,
-		out mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a
-	) => aData.Is(tDataType.ExternDef, out a);
+		out tNativeCode a
+	) => aData.Is(out a);
 	
 	public static tData
 	TypeType(
-	) => Data(tDataType.Type, mVM_Type.Type());
+	) => Data(mVM_Type.Type());
 	
 	// TODO: Matches for Types ???
 	
 	public static tData
 	TypeEmpty(
-	) => Data(tDataType.Type, mVM_Type.Empty());
+	) => Data(mVM_Type.Empty());
 	
 	public static tData
 	TypeInt(
-	) => Data(tDataType.Type, mVM_Type.Int());
+	) => Data(mVM_Type.Int());
 	
 	public static tData
 	TypePair(
 		mVM_Type.tType aType1,
 		mVM_Type.tType aType2
-	) => Data(tDataType.Type, mVM_Type.Pair(aType1, aType2));
+	) => Data(mVM_Type.Pair(aType1, aType2));
 	
-	public static tText
-	ToText(
-		this tData a,
-		tInt32 aLimit
-	) {
-		if (aLimit == 0) {
-			return "...";
-		}
-		
-		var NextLimit = aLimit - 1;
-		
-		return 0 switch {
-			_ when a.IsEmpty()
-			=> "()",
-			
-			_ when a.IsBool(out var Bool)
-			=> Bool ? "§TRUE" : "§FALSE",
-			
-			_ when a.IsInt(out var Int)
-			=> $"{Int}",
-			
-			_ when a.IsPrefix(out var Prefix, out var Value)
-			=> $"(#{Prefix} {Value.ToText(NextLimit)})",
-			
-			_ when a.IsRecord(out var Fields)
-			=> mStd.Call(
-				() => {
-					var Result = $"{{ ";
-					
-					foreach (var (Key, Value) in Fields.ToStream()) {
-						Result += $", {Key}: {Value.ToText(NextLimit)}";
-					}
-					
-					return Result + " }";
-				}
-			),
-			
-			_ when a.IsVar(out var Value)
-			=> $"(§VAR {Value.ToText(NextLimit)})",
-			
-			_ when a.IsPair(out var Left, out var Right)
-			=> mStd.Call(
-				() => {
-					var Result = Right.ToText(NextLimit) + ")";
-					
-					while (Left.IsPair(out Left, out Right)) {
-						Result = Right.ToText(NextLimit) + ", " + Result;
-					}
-					
-					if (!Left.IsEmpty()) {
-						Result = Left.ToText(NextLimit) + "; " + Result;
-					}
-					
-					return "(" + Result;
-				}
-			),
-			
-			_ when a.IsSig(out _, out var Head, out var Body)
-			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
-			
-			_ when a.IsInterface(out _, out _, out _)
-			=> "(§INTERFACE)",
-			
-			_ when a.IsProc(out var Def, out var Env)
-			=> $"(Proc @ {Def.FirstPosText})",
-			
-			_ when a.IsDef(out var Def_)
-			=> $"(Def @ {Def_.FirstPosText})",
-			
-			_
-			=> $"(?{a._DataType}?)",
-		};
-	}
 	
 	public static mTreeMap.tTree<tNat32, tText> gHashToPrefix = mTreeMap.Tree<tNat32, tText>(
 		(aLeft, aRight) => aLeft.CompareTo(aRight),
@@ -1325,5 +1499,320 @@ mVM_Data {
 		}
 		
 		return Hash;
+	}
+}
+
+public static class
+mVM_Native {
+	private sealed class tNode(mVM_Data.tData aData, mVM_Type.tType aType) {
+		public readonly mVM_Data.tData Data = aData;
+		public readonly mVM_Type.tType Type = aType;
+		public mVM_Type.tTypeResolver? Types;
+		public mVM_Type.tType? Function;
+		public mVM_Data.tData Output = aData;
+		public readonly System.Collections.Generic.List<tNode> Children = [];
+		public readonly System.Collections.Generic.List<tNode> Parents = [];
+		public tBool Valid = true;
+		public tBool Choice;
+		public tBool Alias;
+		public tBool Changed;
+		public tBool RequireIdentity;
+		public mStd.tAction? Build;
+	}
+	
+	public static mVM_Data.tData
+	Normalize(this mVM_Data.tData aData, mVM_Type.tType aType, tText aRole = "Argument", tBool aRevealOpaque = false) {
+		var Nodes = new System.Collections.Generic.List<tNode>();
+		var Cache = new System.Collections.Generic.Dictionary<(tNat64 Data, mVM_Type.tType Type, mVM_Type.tType? Function), tNode>();
+		var Expanded = new System.Collections.Generic.Dictionary<tNat64, mVM_Type.tType>();
+		
+		tNode Get(mVM_Data.tData aValue, mVM_Type.tType aExpected, mVM_Type.tTypeResolver? aTypes = null) {
+			var Original = aValue;
+			aExpected = aExpected.Resolve(aTypes);
+			
+			if (aRevealOpaque && aExpected.Kind is not (mVM_Type.tKind.Any or mVM_Type.tKind.Abstract or mVM_Type.tKind.Free or mVM_Type.tKind.TypeApply or mVM_Type.tKind.Opaque)) {
+				while (aValue._Value.Is(out mVM_Data.tOpaqueValue Opaque)) { aValue = Opaque.Data; }
+			}
+			
+			mVM_Type.tType? Function = null;
+			
+			if (aValue.IsProc(out var Definition, out var Environment)) {
+				aTypes = Environment.OpenTypeCaptures(Definition.TypeCaptures, aTypes).Types.WithProof(Definition.SignatureProof);
+				aExpected = aExpected.Resolve(aTypes);
+				Function = Definition.DefType.Refs[2].Resolve(aTypes);
+			}
+			
+			var Key = (Original._DebugId, aExpected, Function);
+			if (Cache.TryGetValue(Key, out var Previous)) { return Previous; }
+			var Node = new tNode(aValue, aExpected) {Changed = !ReferenceEquals(Original, aValue), Types = aTypes, Function = Function};
+			Cache.Add(Key, Node);
+			Nodes.Add(Node);
+			return Node;
+		}
+		
+		static void Depend(tNode aParent, tNode aChild) { aParent.Children.Add(aChild); aChild.Parents.Add(aParent); }
+		
+		static tBool Implements(mVM_Type.tType aSource, mVM_Type.tType aTarget) {
+			if (aSource.IsGeneric(out _, out _) && aTarget.IsProc(out var Object, out var Argument, out _)) {
+				if (!mVM_Type.InferCall(aSource, Object, Argument, _ => {}).Match(out var Bound, out _)) { return false; }
+				aSource = mVM_Type.Proc(Bound.Object, Bound.Argument, Bound.Result);
+			}
+			
+			return aSource.IsSubType(aTarget, aDescribeError: false).Match(out var Mappings, out _) && Mappings.Deep() == 0;
+		}
+		
+		static tBool NativeImplements(mVM_Type.tType aSource, mVM_Type.tType aTarget) {
+			if (Implements(aSource, aTarget)) { return true; }
+			var Function = aTarget;
+			var Parameters = new System.Collections.Generic.HashSet<tNat64>();
+			while (Function.IsGeneric(out var Parameter, out var Body)) { Parameters.Add(Parameter.DebugId); Function = Body; }
+			var Receiver = Function.Refs[0].FirstObjectType();
+			foreach (var Parameter in Parameters) { if (Receiver.FreeParameters().TryGet(Parameter).IsSome(out _)) { return false; } }
+			
+			// Only an existential receiver may hide the native representation.
+			// Ordinary receiver contracts remain invariant, including ANY and ().
+			var Identity = Receiver.Kind is mVM_Type.tKind.Opaque ? Receiver.Refs[0] : Receiver;
+			var Hidden = Identity.Kind is mVM_Type.tKind.Abstract or mVM_Type.tKind.Free or mVM_Type.tKind.TypeApply;
+			if (!Hidden && Receiver.Kind is not mVM_Type.tKind.Opaque) { return false; }
+			
+			static mVM_Type.tType ReplaceReceiver(mVM_Type.tType aObject, mVM_Type.tType aReceiver) {
+				if (!aObject.IsPair(out var Tail, out var Head)) { return aReceiver; }
+				return Tail.IsEmpty() ? mVM_Type.Pair(Tail, aReceiver) : mVM_Type.Pair(ReplaceReceiver(Tail, aReceiver), Head);
+			}
+			
+			mVM_Type.tType Contract(mVM_Type.tType aFunction, tBool aSource) => aFunction.IsGeneric(out var Parameter, out var Body)
+			? mVM_Type.Generic(Parameter, Contract(Body, aSource))
+			: mVM_Type.Proc(ReplaceReceiver(aFunction.Refs[0], Hidden ? mVM_Type.Empty() : aSource ? aFunction.Refs[0].FirstObjectType() : Identity), aFunction.Refs[1], aFunction.Refs[2]);
+			
+			return Implements(Contract(aSource, true), Contract(aTarget, false));
+		}
+		
+		var Root = Get(aData, aType);
+		
+		for (var Index = 0; Index < Nodes.Count; Index += 1) {
+			var Node = Nodes[Index];
+			var Value = Node.Data;
+			var Expected = Node.Type;
+			
+			if (Expected.IsRecursive(out var Head, out var Body)) {
+				if (!Expanded.TryGetValue(Expected.DebugId, out var Shape)) { Shape = Body.Substitute(Head, Expected); Expanded.Add(Expected.DebugId, Shape); }
+				Node.Alias = true;
+				Depend(Node, Get(Value, Shape, Node.Types));
+				continue;
+			}
+			
+			if (Expected.Kind is mVM_Type.tKind.Any or mVM_Type.tKind.Set) {
+				var Alternatives = new System.Collections.Generic.List<(mVM_Type.tType Type, tNode Value)>();
+				
+				if (Value._Value.Is(out mVM_Data.tDynamicValue Dynamic)) {
+					foreach (var Alternative in Dynamic.Alternatives()) {
+						if (Expected.IsAny()) {
+							var Child = Get(Alternative.Data, Alternative.Type, Node.Types);
+							Depend(Node, Child);
+							Alternatives.Add((Alternative.Type, Child));
+						} else {
+							Node.Choice = true;
+							var Types = new System.Collections.Generic.Stack<mVM_Type.tType>();
+							Types.Push(Expected);
+							
+							while (Types.TryPop(out var Type)) {
+								if (Type.IsSet(out var Left, out var Right)) { Types.Push(Right); Types.Push(Left); continue; }
+								if (!mVM_Type.CanMatch(Alternative.Type, Type)) { continue; }
+								var Visible = Alternative.Type.LimitVisibility(Type);
+								var Child = Get(Alternative.Data, Visible, Node.Types);
+								Depend(Node, Child);
+								Alternatives.Add((Visible, Child));
+							}
+						}
+					}
+					
+					var Original = Dynamic.Alternatives();
+					Node.Changed |= Alternatives.Count != Original.Count() || Alternatives.Exists(aView => !Original.Any(__ => __.Type.SameType(aView.Type)));
+				} else if (Expected.IsSet(out _, out _)) {
+					Node.Choice = true;
+					Node.Changed = true;
+					var Types = new System.Collections.Generic.Stack<mVM_Type.tType>();
+					Types.Push(Expected);
+					
+					while (Types.TryPop(out var Type)) {
+						if (Type.IsSet(out var Left, out var Right)) { Types.Push(Right); Types.Push(Left); }
+						else { var Child = Get(Value, Type, Node.Types); Depend(Node, Child); Alternatives.Add((Type, Child)); }
+					}
+				} else { Node.Valid = false; }
+				
+				Node.Valid &= Node.Children.Count != 0;
+				
+				Node.Build = () => {
+					mVM_Data.tData? Result = null;
+					
+					foreach (var Alternative in Alternatives) {
+						if (!Alternative.Value.Valid) { continue; }
+						var Box = mVM_Data.Dynamic(Alternative.Value.Output, Alternative.Type);
+						Result = Result is null ? Box : mVM_Data.JoinDynamic(Result, Box);
+					}
+					
+					Node.Output._Value = Result!._Value;
+				};
+				
+				continue;
+			}
+			
+			if (Value._Value.Is(out mVM_Data.tDynamicValue Boxed)) {
+				Node.Alias = true;
+				Node.Choice = true;
+				Node.Changed = true;
+				
+				foreach (var Alternative in Boxed.Alternatives()) {
+					if (Alternative.Type.IsSubType(Expected).Match(out _, out _)) { Depend(Node, Get(Alternative.Data, Expected, Node.Types)); }
+				}
+				
+				Node.Valid = Node.Children.Count != 0;
+				continue;
+			}
+			
+			switch (Expected.Kind) {
+				case mVM_Type.tKind.Empty: Node.Valid = Value.IsEmpty();
+				break;
+				case mVM_Type.tKind.Int: Node.Valid = Value._Value.Is(out tInt32 _);
+				break;
+				case mVM_Type.tKind.True:
+				case mVM_Type.tKind.False: Node.Valid = Value._Value.Is(out tBool Flag) && Flag == (Expected.Kind is mVM_Type.tKind.True);
+				break;
+				case mVM_Type.tKind.Type: Node.Valid = Value._Value.Is(out mVM_Type.tType Type) && Type.KindType().IsType();
+				break;
+				case mVM_Type.tKind.Pair:
+				if (Value._Value.Is(out (mVM_Data.tData, mVM_Data.tData) Pair)) {
+					var Left = Get(Pair.Item1, Expected.Refs[0], Node.Types);
+					var Right = Get(Pair.Item2, Expected.Refs[1], Node.Types);
+					Depend(Node, Left);
+					Depend(Node, Right);
+					Node.Build = () => Node.Output._Value = mVM_Data.Pair(Left.Output, Right.Output)._Value;
+				} else { Node.Valid = false; }
+				
+				break;
+				case mVM_Type.tKind.Prefix:
+				if (Value._Value.Is(out (tNat32, mVM_Data.tData) Prefix) && Prefix.Item1 == Expected.Prefix!.PrefixHash()) {
+					var Child = Get(Prefix.Item2, Expected.Refs[0], Node.Types);
+					Depend(Node, Child);
+					Node.Build = () => Node.Output._Value = mVM_Data.Prefix(Prefix.Item1, Child.Output)._Value;
+				} else { Node.Valid = false; }
+				
+				break;
+				case mVM_Type.tKind.Record: {
+					var Fields = new System.Collections.Generic.List<(tNat32 Key, tNode Value)>();
+					
+					foreach (var Field in Expected.Fields.ToStream()) {
+						if (!Value._Fields.TryGet(Field.Key.PrefixHash()).IsSome(out var Data)) { Node.Valid = false; break; }
+						var Child = Get(Data, Field.Value, Node.Types);
+						Depend(Node, Child);
+						Fields.Add((Field.Key.PrefixHash(), Child));
+					}
+					
+					Node.Build = () => {
+						var Values = Value._Fields;
+						foreach (var Field in Fields) { Values = Values.Set(Field.Key, Field.Value.Output); }
+						Node.Output._Fields = Values;
+					};
+					
+					break;
+				}
+				case mVM_Type.tKind.Var:
+				case mVM_Type.tKind.Ref:
+				if (Value._Value.Is(out mVM_Data.tCellView _) || Value._Value.Is(out mRef.tRefBox<mVM_Data.tData> _)) { Depend(Node, Get(Value.ReadCell(), Expected.Refs[0], Node.Types)); Node.RequireIdentity = true; }
+				else { Node.Valid = false; }
+				
+				break;
+				case mVM_Type.tKind.Generic:
+				if (Expected.Refs[1].Kind is not (mVM_Type.tKind.Proc or mVM_Type.tKind.Generic)) { Node.Alias = true; Depend(Node, Get(Value, Expected.Refs[1], Node.Types)); break; }
+				goto case mVM_Type.tKind.Proc;
+				case mVM_Type.tKind.Proc:
+				if (Value.IsProc(out var Definition, out var Environment)) {
+					Node.Valid = Definition.DefType.Refs[1].IsImmutable && Implements(Node.Function!, Expected);
+					Node.RequireIdentity = true;
+					Depend(Node, Get(Environment, Definition.DefType.Refs[1], Node.Types));
+				} else if (Value._Value.Is(out mVM_Type.tType Constructor)) { Node.Valid = Constructor.KindType().IsSubType(Expected).Match(out _, out _); }
+				else if (Value.IsExternProc(out var Native, out _)) { Node.Valid = NativeImplements(Native.Signature, Expected); }
+				else if (Value.IsExternDef(out Native)) { Node.Valid = Expected.IsProc(out _, out _, out var Closed) && Closed.Kind is mVM_Type.tKind.Proc or mVM_Type.tKind.Generic && NativeImplements(Native.Signature, Closed); }
+				else { Node.Valid = Value.IsDef(out _); }
+				
+				break;
+				case mVM_Type.tKind.Sig:
+				if (Value._Value.Is(out mVM_Data.tSig Sig) && Sig.Head._Value.Is(out mVM_Type.tType Witness)) {
+					var Binder = Expected.Refs[0];
+					Node.Valid = Binder.IsFree() ? Witness.KindType().SameType(Binder.KindType()) : Witness.SameType(Binder);
+					var Child = Get(Sig.Body, Binder.IsFree() ? Expected.Refs[1].Substitute(Binder, mVM_Type.Opaque(Witness)) : Expected.Refs[1], Node.Types.WithWitness(Binder.ErasedHead(), Witness));
+					Depend(Node, Child);
+					Node.Build = () => Node.Output._Value = mVM_Data.Sig(Sig.Head, Child.Output)._Value;
+				} else { Node.Valid = false; }
+				
+				break;
+				case mVM_Type.tKind.Interface:
+				if (Value._Value.Is(out mVM_Data.tInterface Interface)) {
+					var Child = Get(Interface.Methods, Expected.Refs[1].Substitute(Expected.Refs[0], Expected.Refs[0].ErasedHead()), Node.Types);
+					Depend(Node, Child);
+					Node.Build = () => Node.Output._Value = mVM_Data.Interface(Interface.Object, Child.Output)._Value;
+				} else { Node.Valid = false; }
+				
+				break;
+				case mVM_Type.tKind.Abstract:
+				case mVM_Type.tKind.Free:
+				case mVM_Type.tKind.TypeApply:
+				if (!Value._Value.Is(out mVM_Data.tOpaqueValue _)) { Node.Changed = true; Node.Build = () => Node.Output._Value = mAny.Any(new mVM_Data.tOpaqueValue(Value)); }
+				break;
+				case mVM_Type.tKind.Opaque: {
+					var Wrapped = Value._Value.Is(out mVM_Data.tOpaqueValue Opaque);
+					Node.Changed |= !Wrapped;
+					var Identity = Expected.Refs[0];
+					
+					if (Identity.Kind is mVM_Type.tKind.Abstract or mVM_Type.tKind.Free or mVM_Type.tKind.TypeApply) {
+						if (!Wrapped) { Node.Build = () => Node.Output._Value = mAny.Any(new mVM_Data.tOpaqueValue(Value)); }
+						break;
+					}
+					
+					var Child = Get(Wrapped ? Opaque!.Data : Value, Identity, Node.Types);
+					Depend(Node, Child);
+					Node.Build = () => Node.Output._Value = mAny.Any(new mVM_Data.tOpaqueValue(Child.Output));
+					break;
+				}
+				default: Node.Valid = false;
+				break;
+			}
+		}
+		
+		var Pending = new System.Collections.Generic.Queue<tNode>();
+		foreach (var Node in Nodes) { if (Node.Changed) { Pending.Enqueue(Node); } }
+		
+		while (Pending.TryDequeue(out var Child)) {
+			foreach (var Parent in Child.Parents) { if (!Parent.Changed && !Parent.RequireIdentity) { Parent.Changed = true; Pending.Enqueue(Parent); } }
+		}
+		
+		foreach (var Node in Nodes) {
+			if (Node.RequireIdentity && Node.Children.Exists(__ => __.Changed)) { Node.Valid = false; }
+			if (!Node.Valid) { Pending.Enqueue(Node); }
+		}
+		
+		while (Pending.TryDequeue(out var Child)) {
+			foreach (var Parent in Child.Parents) {
+				if (Parent.Valid && (Parent.Choice ? Parent.Children.TrueForAll(__ => !__.Valid) : true)) { Parent.Valid = false; Pending.Enqueue(Parent); }
+			}
+		}
+		
+		if (!Root.Valid) {
+			var Actual = aData._Value.Is(out tBool Flag) ? Flag ? "§TRUE" : "§FALSE" : "<native value; Diagnose gekürzt>";
+			throw mError.Error($"{aRole}: Native value does not implement its declared contract.\nErwarteter Typ:\n  {aType.ToText()}\nAktueller Typ:\n  {Actual}");
+		}
+		
+		foreach (var Node in Nodes) { if (Node.Valid && Node.Changed && !Node.Alias && Node.Build is not null) { Node.Output = mVM_Data.Empty(); } }
+		
+		foreach (var Node in Nodes) {
+			if (!Node.Valid || !Node.Alias || !Node.Changed) { continue; }
+			var Target = Node;
+			var Seen = new System.Collections.Generic.HashSet<tNode>();
+			while (Target.Alias) { mAssert.IsTrue(Seen.Add(Target), "An unproductive recursive type has no native representation."); Target = Target.Children.Find(__ => __.Valid)!; }
+			Node.Output = Target.Output;
+		}
+		
+		foreach (var Node in Nodes) { if (Node.Valid && Node.Changed && !Node.Alias) { Node.Build?.Invoke(); } }
+		return Root.Output;
 	}
 }

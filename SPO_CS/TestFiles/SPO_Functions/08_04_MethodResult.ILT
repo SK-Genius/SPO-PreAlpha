@@ -20,5 +20,6 @@
 	r_3 := 42
 	r_5 := _X, _Get...
 	r_4 := §OBJ:r_5 r_3
-	_Result := r_4
+	r_6 := §WITH_TYPE INT_TYPE WITH r_4
+	_Result := r_6
 	§RETURN _Result IF TRUE

@@ -1,5 +1,8 @@
 [§ IL Cheat Sheet §]
 
+For typing rules, operational semantics, and the implementation status of every operation,
+see [<ILT_Formal_Semantics.wiki|ILT: Typregeln und operationale Semantik>].
+
 [=How IL Sits In The Repo=]
 
 - surface [*.SPO*] lowers to [*mIL_AST.tModule*]

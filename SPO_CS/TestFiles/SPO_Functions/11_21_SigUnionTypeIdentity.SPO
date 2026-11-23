@@ -1,0 +1,28 @@
+§DEF tPackage = [§SIG_WITH t € §TYPE IN [t | []]]
+
+§DEF Probe... = (§DEF aPackage € tPackage, §DEF aPrevious € §ANY) => §IF aPackage MATCH {
+	§SIG tPackage WITH §DEF Head IN §DEF Value: {
+		§DEF Boxed € §ANY = Value
+		§RETURN {
+			Boxed: Boxed
+			Matches: §IF aPrevious MATCH {
+				§DEF Candidate € Head: §TRUE
+				_: §FALSE
+			}
+		}
+	}
+}
+
+§DEF IsInteger... = (§DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € §INT: §TRUE
+	_: §FALSE
+}
+
+§DEF cFirst = §SIG tPackage WITH §INT IN 7
+§DEF cSecond = §SIG tPackage WITH §INT IN 9
+§DEF cBoolean = §SIG tPackage WITH §BOOL IN §TRUE
+{Boxed: §DEF cValue, Matches: §DEF cFirstMatch} = .Probe (cFirst, ())
+{Matches: §DEF cSameHead} = .Probe (cSecond, cValue)
+{Matches: §DEF cOtherHead} = .Probe (cBoolean, cValue)
+
+§EXPORT (cFirstMatch, cSameHead, cOtherHead, .IsInteger cValue)

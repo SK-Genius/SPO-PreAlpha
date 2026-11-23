@@ -26,7 +26,8 @@ mIL_GenerateOpcodes_Tests {
 	CompileModule(
 		tText aSourceCode,
 		tText aId,
-		mStd.tAction<mStd.tFunc<tText>> aTrace
+		mStd.tAction<mStd.tFunc<tText>> aTrace,
+		tBool aGenericView = false
 	) {
 		var IL = mIL_Parser.Module.TryParseText(aSourceCode, aId, aTrace).ElseThrow();
 		
@@ -35,7 +36,14 @@ mIL_GenerateOpcodes_Tests {
 			() => mIL_TypeChecker.ErrorText(Error)
 		);
 		
-		return mIL_GenerateOpcodes.GenerateOpcodes(IL, (mVM_Data.Empty(), mVM_Type.Empty()));
+		var Entries = mStream.Stream<(mVM_Type.tType Function, mVM_Type.tType Object, mVM_Type.tType Argument)>();
+		
+		if (aGenericView) {
+			var Types = mIL_TypeChecker.ModuleTypes(IL).ModifyError(mIL_TypeChecker.ErrorText).ElseThrow();
+			Entries = mStream.Stream((Types.TryGet("tView").AssertNotEmpty(), mVM_Type.Empty(), mVM_Type.Pair(mVM_Type.Int(), Types.TryGet("tAdmin").AssertNotEmpty())));
+		}
+		
+		return mIL_GenerateOpcodes.GenerateOpcodes(IL, (mVM_Data.Empty(), mVM_Type.Empty()), Entries);
 	}
 	
 	public static readonly mTest.tTest
@@ -43,7 +51,7 @@ mIL_GenerateOpcodes_Tests {
 		nameof(mIL_GenerateOpcodes),
 		[
 			mTest.Tests(
-				"Function views retain their original implementations",
+				"Function views retain implementations and data under static result contracts",
 				mStream.Stream(
 					"Function",
 					"Method",
@@ -119,7 +127,7 @@ mIL_GenerateOpcodes_Tests {
 								_ => cSource,
 							};
 							
-							var Module = CompileModule(Source, "", __ => aDebug(__()));
+							var Module = CompileModule(Source, "", __ => aDebug(__()), aCase == "Generic function");
 							
 							var Original = Module.Defs.TryGet(
 								Module.DefLookup.TryGet("original").AssertNotEmpty()
@@ -131,25 +139,31 @@ mIL_GenerateOpcodes_Tests {
 							
 							var Implementation = (
 								aCase == "External function"
-								? mVM_Data.ExternDef((aEnv, aObject, aArgument, aTrace) => aArgument)
+								? mVM_Data.ExternDef(Original.DefType.Refs[2], (aEnv, aObject, aArgument, aTrace) => aArgument)
 								: mVM_Data.Def(Original)
 							);
 							
+							var Factory = mVM_Data.Proc(Main, Implementation);
+							mIL_Specialize.PrepareNativeCall<tSpan>((Factory, Main.DefType.Refs[2]), (mVM_Data.Empty(), mVM_Type.Empty()), (mVM_Data.Empty(), mVM_Type.Empty()));
+							
 							var Result = mVM.Call<tSpan>(
-								mVM_Data.Proc(Main, Implementation),
+								Factory,
 								mVM_Data.Empty(),
 								mVM_Data.Empty(),
 								mTextParser.ToText,
 								__ => aDebug(__())
 							);
 							
-							mAssert.IsTrue(Result.IsTyped(out var Callable, out _));
+							mAssert.IsTrue(Main.DefType.IsProc(out _, out _, out var MainFunction));
+							mAssert.IsTrue(MainFunction.IsProc(out _, out _, out var Callable));
+							mAssert.IsTrue(Main.Types.Get(Main._LastReg).SameType(Callable));
 							
-							if (aCase == "External function") {
-								mAssert.IsTrue(Result.IsExternProc(out _, out _));
-							} else {
-								mAssert.IsTrue(Result.IsProc<tSpan>(out var OriginalDefinition, out _));
-								mAssert.IsTrue(mStd.RefEq(OriginalDefinition, Original));
+							mAssert.IsTrue(Result.IsProc<tSpan>(out _, out var Retained));
+							
+							if (aCase == "External function") { mAssert.IsTrue(Retained.IsExternProc(out _, out _)); }
+							else {
+								mAssert.IsTrue(Retained.IsProc<tSpan>(out var OriginalDefinition, out _));
+								mAssert.IsTrue(ReferenceEquals(OriginalDefinition, Original));
 							}
 
 							while (Callable.IsGeneric(out _, out var Body)) {
@@ -167,11 +181,12 @@ mIL_GenerateOpcodes_Tests {
 							}
 							
 							var Method = mVM_Data.ExternProc(
+								Admin.TryGetInterfaceMethod("Read").AssertNotEmpty(),
 								(aEnv, aObject, aArgument, aTrace) => mVM_Data.Int(7),
 								mVM_Data.Empty()
 							);
 							
-							var Full = mVM_Data.Interface(
+							var Full = mVM_Data.DynamicInterface(
 								Admin,
 								mVM_Data.Int(7),
 								mVM_Data.Record([("Read", Method), ("Admin", Method)])
@@ -188,14 +203,15 @@ mIL_GenerateOpcodes_Tests {
 								aCase == "Method" ? Full : mVM_Data.Empty(),
 								Argument,
 								mTextParser.ToText,
-								__ => aDebug(__())
+								__ => aDebug(__()),
+								aCase == "Generic function" ? mVM_Type.Pair(mVM_Type.Int(), Admin) : ArgumentType
 							);
 							
-							mAssert.IsTrue(Returned.IsInterface(out var Contract, out _, out var Methods));
-							mAssert.IsTrue(Contract.SameType(Reader));
+							mAssert.IsTrue(Reader.IsInterface(out _, out _));
+							mAssert.IsTrue((Returned, Reader).IsInterface(out _, out _, out var Methods));
 							mAssert.IsTrue(Methods.IsRecord(out var Fields));
 							mAssert.IsTrue(Fields.TryGet(mVM_Data.PrefixHash("Read")).IsSome(out _));
-							mAssert.IsTrue(Fields.TryGet(mVM_Data.PrefixHash("Admin")).IsNone());
+							mAssert.IsTrue(Fields.TryGet(mVM_Data.PrefixHash("Admin")).IsSome(out _));
 						}
 					)
 				).ToArrayList(
@@ -214,10 +230,10 @@ mIL_GenerateOpcodes_Tests {
 							
 							if (aExtern) {
 								mAssert.ThrowsError(
-									() => mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Mutable)
+									() => mVM_Data.ExternProc(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int()), (aEnv, aObj, aArg, aTrace) => aEnv, Mutable)
 								);
 								
-								Closure = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Constant);
+								Closure = mVM_Data.ExternProc(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int()), (aEnv, aObj, aArg, aTrace) => aEnv, Constant, mVM_Type.Int());
 							} else {
 								var Module = CompileModule(
 									"""
@@ -237,6 +253,7 @@ mIL_GenerateOpcodes_Tests {
 								mAssert.ThrowsError(() => mVM_Data.Proc(Def, Mutable));
 								
 								Closure = mVM_Data.Proc(Def, Constant);
+								mIL_Specialize.PrepareNativeCall<tSpan>((Closure, Def.DefType.Refs[2]), (mVM_Data.Empty(), mVM_Type.Empty()), (mVM_Data.Empty(), mVM_Type.Empty()));
 							}
 							
 							var Contract = mVM_Type.Interface(
@@ -246,7 +263,7 @@ mIL_GenerateOpcodes_Tests {
 								)
 							);
 							
-							var Capability = mVM_Data.Interface(
+							var Capability = mVM_Data.DynamicInterface(
 								Contract,
 								mVM_Data.Empty(),
 								mVM_Data.Record([("Read", Closure)])

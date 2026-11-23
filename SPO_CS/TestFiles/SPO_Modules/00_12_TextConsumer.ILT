@@ -21,65 +21,29 @@
 	t_19 := [t_18 | EMPTY_TYPE]
 	t_20 := [§REC t_17 => t_19]
 	t_21 := [t_16 => t_20]
-	t_22 := [§FREE TYPE]
-	t_23 := [t_22, t_1]
-	t_24 := [t_23 | EMPTY_TYPE]
-	t_25 := [§REC t_22 => t_24]
-	t_26 := [§FREE TYPE]
-	t_27 := [t_26, t_1]
-	t_28 := [t_27 | EMPTY_TYPE]
-	t_29 := [§REC t_26 => t_28]
-	t_30 := [t_25 => t_29]
-	t_31 := [§FREE TYPE]
-	t_32 := [t_31, t_1]
-	t_33 := [t_32 | EMPTY_TYPE]
-	t_34 := [§REC t_31 => t_33]
-	t_35 := [§FREE TYPE]
-	t_36 := [t_35, t_1]
-	t_37 := [t_36 | EMPTY_TYPE]
-	t_38 := [§REC t_35 => t_37]
-	t_39 := [t_34 => t_38]
-	t_40 := [§FREE TYPE]
-	t_41 := [t_40, t_1]
-	t_42 := [t_41 | EMPTY_TYPE]
-	t_43 := [§REC t_40 => t_42]
-	t_44 := [§FREE TYPE]
-	t_45 := [t_44, t_1]
-	t_46 := [t_45 | EMPTY_TYPE]
-	t_47 := [§REC t_44 => t_46]
-	t_48 := [t_43 => t_47]
-	t_49 := [§FREE TYPE]
-	t_50 := [t_49, t_1]
-	t_51 := [t_50 | EMPTY_TYPE]
-	t_52 := [§REC t_49 => t_51]
-	t_53 := [§FREE TYPE]
-	t_54 := [t_53, t_1]
-	t_55 := [t_54 | EMPTY_TYPE]
-	t_56 := [§REC t_53 => t_55]
-	t_57 := [t_52 => t_56]
-	t_58 := [#_...==... t_12]
-	t_59 := [{EMPTY_TYPE} + t_58]
-	t_60 := [#_...ToLower t_30]
-	t_61 := [{t_59} + t_60]
-	t_62 := [#_...ToUpper t_21]
-	t_63 := [{t_61} + t_62]
-	t_64 := [#_...Trim t_39]
-	t_65 := [{t_63} + t_64]
-	t_66 := [#_...TrimEnd t_57]
-	t_67 := [{t_65} + t_66]
-	t_68 := [#_...TrimStart t_48]
-	t_69 := [{t_67} + t_68]
-	t_70 := [#_Text t_69]
-	t_71 := [{EMPTY_TYPE} + t_70]
-	t_72 := [EMPTY_TYPE, t_11]
-	t_73 := [t_72, t_11]
-	t_74 := [t_73, t_11]
-	t_75 := [t_74, t_11]
-	t_76 := [t_75, t_11]
-	t_77 := [t_71 => t_76]
-	t_78 := [EMPTY_TYPE => t_77]
+	t_22 := [#_...==... t_12]
+	t_23 := [{EMPTY_TYPE} + t_22]
+	t_24 := [#_...ToLower t_21]
+	t_25 := [{t_23} + t_24]
+	t_26 := [#_...ToUpper t_21]
+	t_27 := [{t_25} + t_26]
+	t_28 := [#_...Trim t_21]
+	t_29 := [{t_27} + t_28]
+	t_30 := [#_...TrimEnd t_21]
+	t_31 := [{t_29} + t_30]
+	t_32 := [#_...TrimStart t_21]
+	t_33 := [{t_31} + t_32]
+	t_34 := [#_Text t_33]
+	t_35 := [{EMPTY_TYPE} + t_34]
+	t_36 := [EMPTY_TYPE, t_11]
+	t_37 := [t_36, t_11]
+	t_38 := [t_37, t_11]
+	t_39 := [t_38, t_11]
+	t_40 := [t_39, t_11]
+	t_41 := [t_35 => t_40]
+	t_42 := [EMPTY_TYPE => t_41]
 
-§DEF d_0 € t_78
+§DEF d_0 € t_42
 	r_1 := {ARG} #_Text
 	r_2 := {r_1} #_...==...
 	r_3 := §WITH_TYPE t_12 WITH r_2
@@ -88,16 +52,16 @@
 	r_5 := §WITH_TYPE t_21 WITH r_4
 	_...ToUpper := r_5
 	r_6 := {r_1} #_...ToLower
-	r_7 := §WITH_TYPE t_30 WITH r_6
+	r_7 := §WITH_TYPE t_21 WITH r_6
 	_...ToLower := r_7
 	r_8 := {r_1} #_...Trim
-	r_9 := §WITH_TYPE t_39 WITH r_8
+	r_9 := §WITH_TYPE t_21 WITH r_8
 	_...Trim := r_9
 	r_10 := {r_1} #_...TrimStart
-	r_11 := §WITH_TYPE t_48 WITH r_10
+	r_11 := §WITH_TYPE t_21 WITH r_10
 	_...TrimStart := r_11
 	r_12 := {r_1} #_...TrimEnd
-	r_13 := §WITH_TYPE t_57 WITH r_12
+	r_13 := §WITH_TYPE t_21 WITH r_12
 	_...TrimEnd := r_13
 	r_14 := 97
 	r_15 := +#_Char... r_14

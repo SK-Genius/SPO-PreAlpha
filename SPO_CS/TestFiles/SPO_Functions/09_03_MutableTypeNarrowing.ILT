@@ -13,19 +13,19 @@
 	t_11 := [t_9, t_10]
 	t_12 := [t_0 => t_0]
 	t_13 := [t_11 => t_12]
-	t_14 := [t_0, INT]
-	t_15 := [t_14 => t_2]
-	t_16 := [EMPTY_TYPE => t_15]
-	t_17 := [t_8, t_16]
-	t_18 := [INT | t_0]
-	t_19 := [t_0, t_18]
+	t_14 := [INT | t_0]
+	t_15 := [t_0, INT]
+	t_16 := [t_15 => t_2]
+	t_17 := [EMPTY_TYPE => t_16]
+	t_18 := [t_8, t_17]
+	t_19 := [t_0, t_14]
 	t_20 := [t_19 => t_2]
-	t_21 := [t_17 => t_20]
-	t_22 := [t_17, t_21]
+	t_21 := [t_18 => t_20]
+	t_22 := [t_18, t_21]
 	t_23 := [t_22 => t_12]
 	t_24 := [t_11, t_13]
 	t_25 := [t_24, t_4]
-	t_26 := [t_25, t_16]
+	t_26 := [t_25, t_17]
 	t_27 := [t_26, t_21]
 	t_28 := [t_27, t_23]
 	t_29 := [EMPTY_TYPE, INT]
@@ -34,11 +34,12 @@
 	t_32 := [t_28 => t_31]
 
 §DEF d_0 € t_4
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_Item := r_2
-	r_1 := +#Result _Item
-	§RETURN r_1 IF TRUE
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §WITH_TYPE t_0 WITH r_3
+	_Item := r_1
+	r_2 := +#Result _Item
+	§RETURN r_2 IF TRUE
 
 §DEF d_1 € t_7
 	r_3 := §1ST ARG
@@ -65,30 +66,32 @@
 
 §DEF d_3 € t_13
 	d_2 := §2ND ENV
-	r_8 := §1ST ENV
-	d_1 := §2ND r_8
-	r_9 := §1ST r_8
-	d_0 := §2ND r_9
+	r_9 := §1ST ENV
+	d_1 := §2ND r_9
 	r_10 := §1ST r_9
+	d_0 := §2ND r_10
+	r_11 := §1ST r_10
 	_aValue := ARG
-	_Hidden := _aValue
-	r_1 := EMPTY, d_0
-	r_2 := r_1, d_1
-	r_3 := §CLOSURE d_2 r_2
-	r_4 := _aValue, _Hidden
-	r_5 := OBJ, r_3
-	r_6 := §OBJ:r_5 r_4
-	r_7 := -#Result r_6
-	§RETURN r_7 IF TRUE
+	r_1 := §WITH_TYPE ANY WITH _aValue
+	_Hidden := r_1
+	r_2 := EMPTY, d_0
+	r_3 := r_2, d_1
+	r_4 := §CLOSURE d_2 r_3
+	r_5 := _aValue, _Hidden
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE
 
 §DEF d_4 € t_4
-	r_3 := §1ST ARG
-	r_2 := §2ND ARG
-	_Item := r_2
-	r_1 := +#Result _Item
-	§RETURN r_1 IF TRUE
+	r_4 := §1ST ARG
+	r_3 := §2ND ARG
+	r_1 := §WITH_TYPE t_0 WITH r_3
+	_Item := r_1
+	r_2 := +#Result _Item
+	§RETURN r_2 IF TRUE
 
-§DEF d_5 € t_16
+§DEF d_5 € t_17
 	r_3 := §1ST ARG
 	r_2 := §2ND ARG
 	_aValue := r_3
@@ -113,21 +116,22 @@
 
 §DEF d_7 € t_23
 	d_6 := §2ND ENV
-	r_8 := §1ST ENV
-	d_5 := §2ND r_8
-	r_9 := §1ST r_8
-	d_4 := §2ND r_9
+	r_9 := §1ST ENV
+	d_5 := §2ND r_9
 	r_10 := §1ST r_9
+	d_4 := §2ND r_10
+	r_11 := §1ST r_10
 	_aValue := ARG
-	_Hidden := _aValue
-	r_1 := EMPTY, d_4
-	r_2 := r_1, d_5
-	r_3 := §CLOSURE d_6 r_2
-	r_4 := _aValue, _Hidden
-	r_5 := OBJ, r_3
-	r_6 := §OBJ:r_5 r_4
-	r_7 := -#Result r_6
-	§RETURN r_7 IF TRUE
+	r_1 := §WITH_TYPE t_14 WITH _aValue
+	_Hidden := r_1
+	r_2 := EMPTY, d_4
+	r_3 := r_2, d_5
+	r_4 := §CLOSURE d_6 r_3
+	r_5 := _aValue, _Hidden
+	r_6 := OBJ, r_4
+	r_7 := §OBJ:r_6 r_5
+	r_8 := -#Result r_7
+	§RETURN r_8 IF TRUE
 
 §DEF d_8 € t_32
 	d_7 := §2ND ENV

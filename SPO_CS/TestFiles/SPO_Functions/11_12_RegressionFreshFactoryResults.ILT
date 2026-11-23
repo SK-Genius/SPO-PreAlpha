@@ -29,9 +29,10 @@
 	_aSelf := OBJ
 	r_2 := _aSelf, _aFactory
 	r_1 := §OBJ:r_2 EMPTY
-	_Cell := r_1
-	r_3 := §VAR _Cell ->
-	§RETURN r_3 IF TRUE
+	r_3 := §WITH_TYPE t_0 WITH r_1
+	_Cell := r_3
+	r_4 := §VAR _Cell ->
+	§RETURN r_4 IF TRUE
 	§RETURN EMPTY IF TRUE
 
 §DEF d_2 € t_8
@@ -47,13 +48,13 @@
 
 §DEF d_4 € t_17
 	d_3 := §2ND ENV
-	r_11 := §1ST ENV
-	d_2 := §2ND r_11
-	r_12 := §1ST r_11
-	d_1 := §2ND r_12
+	r_12 := §1ST ENV
+	d_2 := §2ND r_12
 	r_13 := §1ST r_12
-	d_0 := §2ND r_13
+	d_1 := §2ND r_13
 	r_14 := §1ST r_13
+	d_0 := §2ND r_14
+	r_15 := §1ST r_14
 	r_1 := §CLOSURE d_0 EMPTY
 	_ReadFactory... := r_1
 	r_2 := §CLOSURE d_1 EMPTY
@@ -66,8 +67,9 @@
 	_Value := §VAR r_5
 	r_7 := _Value, _ReadMethod...
 	r_6 := §OBJ:r_7 _Same
-	_Result := r_6
-	r_8 := ._ReadFactory... _Fresh
-	r_9 := EMPTY, r_8
-	r_10 := r_9, _Result
-	§RETURN r_10 IF TRUE
+	r_8 := §WITH_TYPE INT_TYPE WITH r_6
+	_Result := r_8
+	r_9 := ._ReadFactory... _Fresh
+	r_10 := EMPTY, r_9
+	r_11 := r_10, _Result
+	§RETURN r_11 IF TRUE

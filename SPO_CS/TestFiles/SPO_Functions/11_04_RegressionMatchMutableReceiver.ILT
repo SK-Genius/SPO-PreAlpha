@@ -86,13 +86,13 @@
 
 §DEF d_4 € t_26
 	d_3 := §2ND ENV
-	r_14 := §1ST ENV
-	d_2 := §2ND r_14
-	r_15 := §1ST r_14
-	d_1 := §2ND r_15
+	r_15 := §1ST ENV
+	d_2 := §2ND r_15
 	r_16 := §1ST r_15
-	d_0 := §2ND r_16
+	d_1 := §2ND r_16
 	r_17 := §1ST r_16
+	d_0 := §2ND r_17
+	r_18 := §1ST r_17
 	r_1 := {ARG} #_...+...
 	r_2 := §WITH_TYPE t_2 WITH r_1
 	_...+... := r_2
@@ -107,8 +107,9 @@
 	_Value := §VAR r_8
 	r_10 := _Value, _Run
 	r_9 := §OBJ:r_10 EMPTY
-	_Result := r_9
-	r_11 := EMPTY, _Result
-	r_12 := §VAR _Value ->
-	r_13 := r_11, r_12
-	§RETURN r_13 IF TRUE
+	r_11 := §WITH_TYPE INT_TYPE WITH r_9
+	_Result := r_11
+	r_12 := EMPTY, _Result
+	r_13 := §VAR _Value ->
+	r_14 := r_12, r_13
+	§RETURN r_14 IF TRUE

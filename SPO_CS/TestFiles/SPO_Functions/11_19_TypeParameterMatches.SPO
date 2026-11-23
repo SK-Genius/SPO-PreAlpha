@@ -1,0 +1,23 @@
+§DEF Probe... = (§DEF aType € §TYPE, §DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € aType: §TRUE
+	_: §FALSE
+}
+
+§DEF MakeProbe... = (§DEF aType € §TYPE) => (§DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € aType: §TRUE
+	_: §FALSE
+}
+
+§DEF IntegerProbe... = .MakeProbe §INT
+§DEF BooleanProbe... = .MakeProbe §BOOL
+
+§EXPORT (
+	.Probe (§INT, 7)
+	.Probe (§BOOL, 7)
+	.Probe (§BOOL, §TRUE)
+	.Probe (§INT, §TRUE)
+	.IntegerProbe 7
+	.BooleanProbe 7
+	.IntegerProbe §TRUE
+	.BooleanProbe §TRUE
+)

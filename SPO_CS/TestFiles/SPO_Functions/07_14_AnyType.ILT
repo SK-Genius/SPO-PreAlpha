@@ -4,5 +4,6 @@
 
 §DEF d_0 € t_1
 	r_1 := 1
-	_X := r_1
+	r_2 := §WITH_TYPE ANY WITH r_1
+	_X := r_2
 	§RETURN _X IF TRUE

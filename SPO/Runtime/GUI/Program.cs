@@ -58,7 +58,7 @@ mGUI_Program {
 							_ => {}
 						).ElseThrow();
 						
-						mAssert.IsTrue(App.Data.IsSig(out var Contract, out _, out var Body));
+						mAssert.IsTrue(App.OpenSig(out var Contract, out _, out var Body));
 						mAssert.IsTrue(Contract.SameType(mGUI.Signature("App")), "Expected GUI/App.SIG export.");
 						
 						if (Args.Any(a => a == "--check")) {

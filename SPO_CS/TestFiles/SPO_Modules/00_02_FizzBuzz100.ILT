@@ -46,27 +46,27 @@
 	t_44 := [t_43, t_35]
 	t_45 := [t_10 => t_22]
 	t_46 := [t_44 => t_45]
-	t_47 := [t_8, t_25]
-	t_48 := [t_47, t_25]
-	t_49 := [t_48, t_25]
-	t_50 := [t_49, t_4]
-	t_51 := [t_50, t_6]
-	t_52 := [t_51, t_2]
-	t_53 := [t_52, t_29]
-	t_54 := [t_53, t_2]
-	t_55 := [t_54, t_35]
-	t_56 := [t_55, t_46]
-	t_57 := [§FREE TYPE]
-	t_58 := [t_57, t_5]
-	t_59 := [t_58 | EMPTY_TYPE]
-	t_60 := [§REC t_57 => t_59]
-	t_61 := [INT => t_60]
-	t_62 := [t_56 => t_61]
+	t_47 := [§FREE TYPE]
+	t_48 := [t_47, t_5]
+	t_49 := [t_48 | EMPTY_TYPE]
+	t_50 := [§REC t_47 => t_49]
+	t_51 := [t_8, t_25]
+	t_52 := [t_51, t_25]
+	t_53 := [t_52, t_25]
+	t_54 := [t_53, t_4]
+	t_55 := [t_54, t_6]
+	t_56 := [t_55, t_2]
+	t_57 := [t_56, t_29]
+	t_58 := [t_57, t_2]
+	t_59 := [t_58, t_35]
+	t_60 := [t_59, t_46]
+	t_61 := [INT => t_50]
+	t_62 := [t_60 => t_61]
 	t_63 := [§FREE TYPE]
-	t_64 := [t_63, t_60]
+	t_64 := [t_63, t_50]
 	t_65 := [EMPTY_TYPE | t_64]
 	t_66 := [§REC t_63 => t_65]
-	t_67 := [t_66, t_60]
+	t_67 := [t_66, t_50]
 	t_68 := [EMPTY_TYPE | t_67]
 	t_69 := [#Result t_68]
 	t_70 := [t_0 => t_69]
@@ -370,29 +370,29 @@
 
 §DEF d_6 € t_62
 	d_5 := §2ND ENV
-	r_18 := §1ST ENV
-	d_4 := §2ND r_18
-	r_19 := §1ST r_18
-	_.../... := §2ND r_19
+	r_19 := §1ST ENV
+	d_4 := §2ND r_19
 	r_20 := §1ST r_19
-	d_3 := §2ND r_20
+	_.../... := §2ND r_20
 	r_21 := §1ST r_20
-	_...+... := §2ND r_21
+	d_3 := §2ND r_21
 	r_22 := §1ST r_21
-	_...AsChar := §2ND r_22
+	_...+... := §2ND r_22
 	r_23 := §1ST r_22
-	_...<=... := §2ND r_23
+	_...AsChar := §2ND r_23
 	r_24 := §1ST r_23
-	d_2 := §2ND r_24
+	_...<=... := §2ND r_24
 	r_25 := §1ST r_24
-	d_1 := §2ND r_25
+	d_2 := §2ND r_25
 	r_26 := §1ST r_25
-	d_0 := §2ND r_26
+	d_1 := §2ND r_26
 	r_27 := §1ST r_26
-	_...%... := §2ND r_27
+	d_0 := §2ND r_27
 	r_28 := §1ST r_27
-	_...==... := §2ND r_28
+	_...%... := §2ND r_28
 	r_29 := §1ST r_28
+	_...==... := §2ND r_29
+	r_30 := §1ST r_29
 	_Number := ARG
 	r_1 := EMPTY, _...==...
 	r_2 := r_1, _...%...
@@ -411,7 +411,8 @@
 	r_15 := OBJ, r_13
 	r_16 := §OBJ:r_15 r_14
 	r_17 := -#Result r_16
-	_Result := r_17
+	r_18 := §WITH_TYPE t_50 WITH r_17
+	_Result := r_18
 	§RETURN _Result IF TRUE
 
 §DEF d_7 € t_71
@@ -431,23 +432,24 @@
 
 §DEF d_9 € t_78
 	_FizzBuzz... := §2ND ENV
-	r_11 := §1ST ENV
-	_...-... := §2ND r_11
-	r_12 := §1ST r_11
-	_FizzBuzzTo... := §2ND r_12
+	r_12 := §1ST ENV
+	_...-... := §2ND r_12
 	r_13 := §1ST r_12
-	r_10 := §1ST ARG
-	r_9 := §2ND ARG
-	_Number := r_9
-	r_1 := EMPTY, _Number
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._FizzBuzzTo... r_4
-	r_6 := ._FizzBuzz... _Number
-	r_7 := r_5, r_6
-	r_8 := +#Result r_7
-	§RETURN r_8 IF TRUE
+	_FizzBuzzTo... := §2ND r_13
+	r_14 := §1ST r_13
+	r_11 := §1ST ARG
+	r_10 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_10
+	_Number := r_1
+	r_2 := EMPTY, _Number
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._FizzBuzzTo... r_5
+	r_7 := ._FizzBuzz... _Number
+	r_8 := r_6, r_7
+	r_9 := +#Result r_8
+	§RETURN r_9 IF TRUE
 
 §DEF d_10 € t_85
 	d_9 := §2ND ENV

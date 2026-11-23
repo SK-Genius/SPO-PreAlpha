@@ -78,7 +78,8 @@
 	_Value := §VAR r_1
 	r_3 := _Value, _Even...
 	r_2 := §OBJ:r_3 _aCount
-	_Result := r_2
+	r_4 := §WITH_TYPE INT_TYPE WITH r_2
+	_Result := r_4
 	§RETURN _Result IF TRUE
 
 §DEF d_1 € t_12
@@ -101,15 +102,15 @@
 
 §DEF d_3 € t_20
 	_Odd... := §2ND ENV
-	r_15 := §1ST ENV
-	_aCount := §2ND r_15
-	r_16 := §1ST r_15
-	_...-... := §2ND r_16
+	r_16 := §1ST ENV
+	_aCount := §2ND r_16
 	r_17 := §1ST r_16
-	_...+... := §2ND r_17
+	_...-... := §2ND r_17
 	r_18 := §1ST r_17
-	r_14 := §1ST ARG
-	r_13 := §2ND ARG
+	_...+... := §2ND r_18
+	r_19 := §1ST r_18
+	r_15 := §1ST ARG
+	r_14 := §2ND ARG
 	_aSelf := OBJ
 	r_1 := §VAR _aSelf ->
 	r_2 := EMPTY, r_1
@@ -123,9 +124,10 @@
 	r_9 := ._...-... r_8
 	r_11 := _aSelf, _Odd...
 	r_10 := §OBJ:r_11 r_9
-	_Result := r_10
-	r_12 := +#Result _Result
-	§RETURN r_12 IF TRUE
+	r_12 := §WITH_TYPE INT_TYPE WITH r_10
+	_Result := r_12
+	r_13 := +#Result _Result
+	§RETURN r_13 IF TRUE
 
 §DEF d_4 € t_28
 	d_3 := §2ND ENV
@@ -210,15 +212,15 @@
 
 §DEF d_8 € t_20
 	_Even... := §2ND ENV
-	r_15 := §1ST ENV
-	_aCount := §2ND r_15
-	r_16 := §1ST r_15
-	_...-... := §2ND r_16
+	r_16 := §1ST ENV
+	_aCount := §2ND r_16
 	r_17 := §1ST r_16
-	_...+... := §2ND r_17
+	_...-... := §2ND r_17
 	r_18 := §1ST r_17
-	r_14 := §1ST ARG
-	r_13 := §2ND ARG
+	_...+... := §2ND r_18
+	r_19 := §1ST r_18
+	r_15 := §1ST ARG
+	r_14 := §2ND ARG
 	_aSelf := OBJ
 	r_1 := §VAR _aSelf ->
 	r_2 := EMPTY, r_1
@@ -232,9 +234,10 @@
 	r_9 := ._...-... r_8
 	r_11 := _aSelf, _Even...
 	r_10 := §OBJ:r_11 r_9
-	_Result := r_10
-	r_12 := +#Result _Result
-	§RETURN r_12 IF TRUE
+	r_12 := §WITH_TYPE INT_TYPE WITH r_10
+	_Result := r_12
+	r_13 := +#Result _Result
+	§RETURN r_13 IF TRUE
 
 §DEF d_9 € t_28
 	d_8 := §2ND ENV

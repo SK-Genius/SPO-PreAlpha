@@ -921,17 +921,17 @@ mSPO2IL_Tests {
 							""",
 							"""
 							d_5 := §2ND ENV
-							r_12 := §1ST ENV
-							d_4 := §2ND r_12
-							r_13 := §1ST r_12
-							d_3 := §2ND r_13
+							r_13 := §1ST ENV
+							d_4 := §2ND r_13
 							r_14 := §1ST r_13
-							d_2 := §2ND r_14
+							d_3 := §2ND r_14
 							r_15 := §1ST r_14
-							d_1 := §2ND r_15
+							d_2 := §2ND r_15
 							r_16 := §1ST r_15
-							d_0 := §2ND r_16
+							d_1 := §2ND r_16
 							r_17 := §1ST r_16
+							d_0 := §2ND r_17
+							r_18 := §1ST r_17
 							r_1 := 1
 							r_2 := EMPTY, d_0
 							r_3 := r_2, d_1
@@ -943,7 +943,8 @@ mSPO2IL_Tests {
 							r_9 := OBJ, r_7
 							r_10 := §OBJ:r_9 r_8
 							r_11 := -#Result r_10
-							_x := r_11
+							r_12 := §WITH_TYPE INT_TYPE WITH r_11
+							_x := r_12
 							""",
 						]
 					);
@@ -1032,22 +1033,23 @@ mSPO2IL_Tests {
 							""",
 							"""
 							d_2 := §2ND ENV
-							r_9 := §1ST ENV
-							d_1 := §2ND r_9
-							r_10 := §1ST r_9
-							d_0 := §2ND r_10
+							r_10 := §1ST ENV
+							d_1 := §2ND r_10
 							r_11 := §1ST r_10
+							d_0 := §2ND r_11
+							r_12 := §1ST r_11
 							§RETURN ARG IF_NOT_EMPTY
 							r_1 := +#_Bla EMPTY
-							_X := r_1
-							r_2 := EMPTY, d_0
-							r_3 := r_2, d_1
-							r_4 := §CLOSURE d_2 r_3
-							r_5 := EMPTY, _X
-							r_6 := OBJ, r_4
-							r_7 := §OBJ:r_6 r_5
-							r_8 := -#Result r_7
-							§RETURN r_8 IF TRUE
+							r_2 := §WITH_TYPE [[#_Blub:EMPTY_TYPE]|[#_Bla:EMPTY_TYPE]] WITH r_1
+							_X := r_2
+							r_3 := EMPTY, d_0
+							r_4 := r_3, d_1
+							r_5 := §CLOSURE d_2 r_4
+							r_6 := EMPTY, _X
+							r_7 := OBJ, r_5
+							r_8 := §OBJ:r_7 r_6
+							r_9 := -#Result r_8
+							§RETURN r_9 IF TRUE
 							""",
 						]
 					);

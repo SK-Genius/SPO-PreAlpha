@@ -29,9 +29,9 @@ mSDL3_Tests {
 						
 						var App = Startup.Entry.Init(
 							_ => {}
-						).ElseThrow().Data;
+						).ElseThrow();
 						
-						mAssert.IsTrue(App.IsSig(out _, out _, out var Body));
+						mAssert.IsTrue(App.OpenSig(out _, out _, out var Body));
 						var State = Body.Field("Initial");
 						
 						void

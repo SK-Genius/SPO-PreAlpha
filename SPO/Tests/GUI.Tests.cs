@@ -50,9 +50,9 @@ mGUI_Tests {
 			
 			var App = Startup.Entry.Init(
 				_ => {}
-			).ElseThrow().Data;
+			).ElseThrow();
 			
-			mAssert.IsTrue(App.IsSig(out var Contract, out _, out var Body));
+			mAssert.IsTrue(App.OpenSig(out var Contract, out _, out var Body));
 			mAssert.IsTrue(Contract.SameType(mGUI.Signature("App")));
 			mAssert.IsTrue(DrawCount == 0, "App initialization needs no host operations.");
 			mVM_Data.tData? SavedCapability = null;
@@ -62,6 +62,8 @@ mGUI_Tests {
 					SavedCapability = aCapability;
 					var State = Body.Field("Initial");
 					var Frame = Body.Field("Frame...");
+					// The fixture knows this application's concrete state representation.
+					mVM_Data.tData StateData() => State._Value.To<mVM_Data.tOpaqueValue>().Data;
 					
 					tBool
 					Send(
@@ -195,15 +197,15 @@ mGUI_Tests {
 						mStd.File(),
 						Imports,
 						_ => {}
-					).ElseThrow().Data;
+					).ElseThrow();
 					
-					var WidgetState = Widgets.Field("Initial");
+					var WidgetState = Widgets.Data.Field("Initial");
 					var WidgetDrawCount = DrawCount;
 					
 					void
 					WidgetSend(
 						mVM_Data.tData aEvent
-					) => WidgetState = Widgets.Field("Frame...").Call(mVM_Data.Tuple([WidgetState, aEvent]));
+					) => WidgetState = Widgets.Data.Field("Frame...").Call(mVM_Data.Tuple([WidgetState, aEvent]));
 					
 					static mGUI.tRect
 					BoundsFor(
@@ -262,22 +264,22 @@ mGUI_Tests {
 					WidgetSend(mVM_Data.Prefix("_Text...", mGUI.Text("Other")));
 					mAssert.AreEquals("Other", WidgetState.Field("Other").Text());
 					WidgetSend(Pointer(13, "Press"));
-					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked1) && !Clicked1);
 					WidgetSend(Pointer(11, "Release"));
-					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked2) && !Clicked2);
 					WidgetSend(Pointer(13, "Press"));
 					WidgetSend(Pointer(13, "Release"));
-					mAssert.AreEquals(mVM_Data.Bool(true), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked6) && Clicked6);
 					WidgetSend(mVM_Data.Prefix("_Redraw", mVM_Data.Empty()));
-					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked3) && !Clicked3);
 					WidgetSend(Key("Enter", aRepeat: true));
-					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked4) && !Clicked4);
 					WidgetSend(Key("Space"));
-					mAssert.AreEquals(mVM_Data.Bool(true), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked7) && Clicked7);
 					WidgetSend(Pointer(13, "Press"));
 					WidgetSend(mVM_Data.Prefix("_Focus...", mVM_Data.Bool(false)));
 					WidgetSend(Pointer(13, "Release"));
-					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
+					mAssert.IsTrue(WidgetState.Field("Clicked").IsBool(out var Clicked5) && !Clicked5);
 					mAssert.AreEquals(WidgetDrawCount, DrawCount);
 					
 					System.Console.WriteLine(
@@ -332,30 +334,30 @@ mGUI_Tests {
 					mAssert.IsTrue(Send(mVM_Data.Prefix("_Redraw", mVM_Data.Empty())));
 					mAssert.IsTrue(DrawCount > 80, "Demo emits a complete frame through drawing primitives.");
 					Send(Key("Tab"));
-					mAssert.AreEquals(1, State.Field("UI").Field("Interaction").Field("Focus").Int());
+					mAssert.AreEquals(1, StateData().Field("UI").Field("Interaction").Field("Focus").Int());
 					Send(mVM_Data.Prefix("_Text...", mGUI.Text("Ada")));
-					mAssert.AreEquals("Ada", State.Field("Name").Text());
+					mAssert.AreEquals("Ada", StateData().Field("Name").Text());
 					mAssert.IsTrue(Title.EndsWith("Ada"));
 					Send(Key("Backspace"));
-					mAssert.AreEquals("Ad", State.Field("Name").Text());
+					mAssert.AreEquals("Ad", StateData().Field("Name").Text());
 					Send(mVM_Data.Prefix("_Text...", mGUI.Text("a")));
 					Send(Key("Tab"));
 					Send(Key("Enter"));
-					mAssert.AreEquals("Saved: Ada", State.Field("Status").Text());
+					mAssert.AreEquals("Saved: Ada", StateData().Field("Status").Text());
 					Send(mVM_Data.Prefix("_Text...", mGUI.Text(" ignored")));
-					mAssert.AreEquals("Ada", State.Field("Name").Text());
+					mAssert.AreEquals("Ada", StateData().Field("Name").Text());
 					Send(Key("Tab", true));
-					mAssert.AreEquals(1, State.Field("UI").Field("Interaction").Field("Focus").Int());
+					mAssert.AreEquals(1, StateData().Field("UI").Field("Interaction").Field("Focus").Int());
 					Send(Key("Tab", true));
-					mAssert.AreEquals(6, State.Field("UI").Field("Interaction").Field("Focus").Int());
+					mAssert.AreEquals(6, StateData().Field("UI").Field("Interaction").Field("Focus").Int());
 					Send(Key("Space"));
-					mAssert.IsTrue(State.Field("Alignment").IsPrefix("_End", out _));
+					mAssert.IsTrue(StateData().Field("Alignment").IsPrefix("_End", out _));
 					mAssert.AreEquals(1, SelectedButtons);
-					mAssert.AreEquals(BoundsFor(State.Field("UI"), 6), SelectedBounds!.Value);
+					mAssert.AreEquals(BoundsFor(StateData().Field("UI"), 6), SelectedBounds!.Value);
 					Dimensions = (320, 240);
 					Send(mVM_Data.Prefix("_Redraw", mVM_Data.Empty()));
 					Send(mVM_Data.Prefix("_Scroll...", mVM_Data.Int(-48)));
-					mAssert.AreEquals(48, State.Field("UI").Field("Scroll").Int());
+					mAssert.AreEquals(48, StateData().Field("UI").Field("Scroll").Int());
 					mAssert.IsTrue(!Send(Key("Escape")), "Escape exits the GUI application.");
 					
 					System.Console.WriteLine(
@@ -364,7 +366,7 @@ mGUI_Tests {
 					
 					try {
 						mAssert.IsTrue(aCapability.IsInterface(out var SurfaceType, out _, out var Methods));
-						var Forged = mVM_Data.Interface(SurfaceType, mVM_Data.Var(mVM_Data.Empty()), Methods);
+						var Forged = mVM_Data.DynamicInterface(SurfaceType, mVM_Data.Var(mVM_Data.Empty()), Methods);
 						Forged.CallMethod("Size", mVM_Data.Empty());
 						mAssert.Fail("Forged GUI handle was accepted.");
 					} catch (System.InvalidOperationException) {}

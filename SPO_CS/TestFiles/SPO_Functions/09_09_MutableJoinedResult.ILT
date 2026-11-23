@@ -99,13 +99,13 @@
 
 §DEF d_4 € t_30
 	d_3 := §2ND ENV
-	r_20 := §1ST ENV
-	d_2 := §2ND r_20
-	r_21 := §1ST r_20
-	d_1 := §2ND r_21
-	r_22 := §1ST r_21
-	d_0 := §2ND r_22
+	r_22 := §1ST ENV
+	d_2 := §2ND r_22
 	r_23 := §1ST r_22
+	d_1 := §2ND r_23
+	r_24 := §1ST r_23
+	d_0 := §2ND r_24
+	r_25 := §1ST r_24
 	r_1 := EMPTY, d_0
 	r_2 := r_1, d_1
 	r_3 := r_2, d_2
@@ -119,16 +119,18 @@
 	r_8 := r_7, TRUE
 	r_10 := _Receiver01, _OpaqueJoinTransport...
 	r_9 := §OBJ:r_10 r_8
-	_Result01 := r_9
-	r_11 := 7
-	_Receiver02 := §VAR r_11
-	r_12 := EMPTY, _Opaque
-	r_13 := r_12, FALSE
-	r_15 := _Receiver02, _OpaqueJoinTransport...
-	r_14 := §OBJ:r_15 r_13
-	_Result02 := r_14
-	r_16 := §VAR _Result01 ->
-	r_17 := EMPTY, r_16
-	r_18 := §VAR _Result02 ->
-	r_19 := r_17, r_18
-	§RETURN r_19 IF TRUE
+	r_11 := §WITH_TYPE t_2 WITH r_9
+	_Result01 := r_11
+	r_12 := 7
+	_Receiver02 := §VAR r_12
+	r_13 := EMPTY, _Opaque
+	r_14 := r_13, FALSE
+	r_16 := _Receiver02, _OpaqueJoinTransport...
+	r_15 := §OBJ:r_16 r_14
+	r_17 := §WITH_TYPE t_2 WITH r_15
+	_Result02 := r_17
+	r_18 := §VAR _Result01 ->
+	r_19 := EMPTY, r_18
+	r_20 := §VAR _Result02 ->
+	r_21 := r_19, r_20
+	§RETURN r_21 IF TRUE

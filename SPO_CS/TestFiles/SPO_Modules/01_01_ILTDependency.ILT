@@ -6,5 +6,6 @@
 
 §DEF d_0 € t_3
 	r_1 := {ARG} #_TestValue_ILT
-	_Value := r_1
+	r_2 := §WITH_TYPE INT_TYPE WITH r_1
+	_Value := r_2
 	§RETURN _Value IF TRUE

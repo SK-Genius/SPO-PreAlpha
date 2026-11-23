@@ -20,15 +20,16 @@
 	_aSelf := OBJ
 	r_2 := _aSelf, _Relay...
 	r_1 := §OBJ:r_2 _aValue
-	_Returned := r_1
+	r_3 := §WITH_TYPE t_0 WITH r_1
+	_Returned := r_3
 	§RETURN _Returned IF TRUE
 	§RETURN EMPTY IF TRUE
 
 §DEF d_2 € t_8
 	d_1 := §2ND ENV
-	r_7 := §1ST ENV
-	d_0 := §2ND r_7
-	r_8 := §1ST r_7
+	r_8 := §1ST ENV
+	d_0 := §2ND r_8
+	r_9 := §1ST r_8
 	r_1 := §CLOSURE d_0 EMPTY
 	_Relay... := r_1
 	r_2 := §CLOSURE d_1 _Relay...
@@ -37,6 +38,7 @@
 	_Cell := §VAR r_3
 	r_5 := _Cell, _Forward...
 	r_4 := §OBJ:r_5 _Cell
-	_Returned := r_4
-	r_6 := §VAR _Returned ->
-	§RETURN r_6 IF TRUE
+	r_6 := §WITH_TYPE t_0 WITH r_4
+	_Returned := r_6
+	r_7 := §VAR _Returned ->
+	§RETURN r_7 IF TRUE

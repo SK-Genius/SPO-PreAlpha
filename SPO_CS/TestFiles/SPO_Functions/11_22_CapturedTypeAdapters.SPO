@@ -1,0 +1,29 @@
+§DEF tPackage = [§SIG_WITH t € §TYPE IN [t => §ANY]]
+
+§DEF Make... = (§DEF aType € §TYPE) => {
+	§DEF Identity... = (§DEF Value € aType) => Value
+	§RETURN §SIG tPackage WITH aType IN Identity...
+}
+
+§DEF Probe... = (§DEF aType € §TYPE, §DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € aType: §TRUE
+	_: §FALSE
+}
+
+§DEF cInteger = .Make §INT
+§DEF cBoolean = .Make §BOOL
+§DEF cIntegerValue = §IF cInteger MATCH {
+	§SIG tPackage WITH §INT IN §DEF Function...: .Function 7
+	_: ()
+}
+§DEF cBooleanValue = §IF cBoolean MATCH {
+	§SIG tPackage WITH §BOOL IN §DEF Function...: .Function §TRUE
+	_: ()
+}
+
+§EXPORT (
+	.Probe (§INT, cIntegerValue)
+	.Probe (§BOOL, cIntegerValue)
+	.Probe (§BOOL, cBooleanValue)
+	.Probe (§INT, cBooleanValue)
+)

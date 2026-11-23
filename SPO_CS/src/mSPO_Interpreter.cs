@@ -31,7 +31,8 @@ mSPO_Interpreter {
 		tText aCode,
 		tText aId,
 		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
-		mStd.tAction<mStd.tFunc<tText>> aDebugStream
+		mStd.tAction<mStd.tFunc<tText>> aDebugStream,
+		mStream.tStream<(mVM_Type.tType Function, mVM_Type.tType Object, mVM_Type.tType Argument)> aNativeCalls = default
 	) => mSPO_Parser.Module.TryParseText(
 		aCode,
 		aId,
@@ -39,7 +40,7 @@ mSPO_Interpreter {
 	).ThenTry(
 		aModule => aModule.Check()
 	).ThenTry(
-		aModule => mVM.RunValidModule(aModule, aImport, mTextParser.ToText, aDebugStream)
+		aModule => mVM.RunValidModule(aModule, aImport, mTextParser.ToText, aDebugStream, aNativeCalls)
 	);
 	
 	public static mResult.tResult<mIL_AST.tModule<tSpan>, tText>

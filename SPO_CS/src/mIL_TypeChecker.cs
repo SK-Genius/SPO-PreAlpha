@@ -390,7 +390,10 @@ mIL_TypeChecker {
 			return mResult.Fail((Position, "definition must have an empty object type"));
 		}
 		
-		while (ProcType.IsGeneric(out _, out var InnerType)) {
+		var GenericParameters = new System.Collections.Generic.HashSet<tNat64>();
+		
+		while (ProcType.IsGeneric(out var Parameter, out var InnerType)) {
+			GenericParameters.Add(Parameter.DebugId);
 			ProcType = InnerType;
 		}
 		
@@ -424,6 +427,7 @@ mIL_TypeChecker {
 		var Obj = DefineReg(mIL_AST.cObj, new(ObjType));
 		var Arg = DefineReg(mIL_AST.cArg, new(ArgType));
 		var Res = DefineReg(mIL_AST.cRes, new(ResType));
+		var TypeBindings = new System.Collections.Generic.Dictionary<tNat64, tNat32>();
 		
 		foreach (var Command in aDef.Commands) {
 			mResult.tResult<tReg, (tPos Pos, tText ErrorText)>
@@ -436,7 +440,7 @@ mIL_TypeChecker {
 						return mResult.Fail((Command.Pos, $"no '{aRegId}' defined"));
 					}
 					
-					if (aIsValueRequired && Type.HasUnboundParameter()) {
+					if (aIsValueRequired && Type.FreeParameters().ToStream().Any(__ => !GenericParameters.Contains(__.Key))) {
 						return mResult.Fail((Command.Pos, "unbound type parameter used as a value"));
 					}
 					
@@ -448,8 +452,8 @@ mIL_TypeChecker {
 				if (
 					aIsValueRequired &&
 					Value.Data.IsSome(out var Data) &&
-					Data._DataType is mVM_Data.tDataType.Type &&
-					Data.TypeExpressionValue().HasUnboundParameter()
+					Data._Value.Is(out mVM_Type.tType Expression) &&
+					Expression.FreeParameters().ToStream().Any(__ => !GenericParameters.Contains(__.Key))
 				) {
 					return mResult.Fail((Command.Pos, "unbound type parameter used as a value"));
 				}
@@ -462,6 +466,9 @@ mIL_TypeChecker {
 				tReg aOperand,
 				mArrayList.tArrayList<tValueType> aValues
 			) {
+				if (aOperand.Type.Kind is mVM_Type.tKind.True) { return mVM_Type.True(); }
+				if (aOperand.Type.Kind is mVM_Type.tKind.False) { return mVM_Type.False(); }
+				
 				if (!aOperand.Type.IsType() && !aOperand.Type.IsTypeFunctionKind()) {
 					return mResult.Fail("expected type or type function");
 				}
@@ -521,6 +528,7 @@ mIL_TypeChecker {
 				=> mStream.Stream(Command._3),
 				
 				tCommand.Alias or
+				tCommand.BindType or
 				tCommand.First or
 				tCommand.Second or
 				tCommand.GetField or
@@ -587,6 +595,22 @@ mIL_TypeChecker {
 				continue;
 			}
 			
+			if (Command.NodeType is tCommand.BindType) {
+				if (!aModuleTypes.TryGet(Command._3.AssertNotEmpty()).IsSome(out var Symbol) || Symbol.Kind is not (mVM_Type.tKind.Free or mVM_Type.tKind.Abstract) || !Operands[0].Type.SameType(Symbol.KindType())) {
+					return mResult.Fail((Command.Pos, "BIND_TYPE requires a type value and a symbol of the same kind"));
+				}
+				
+				if (TypeBindings.TryGetValue(Symbol.DebugId, out var Existing) && Existing != Operands[0].Index && !(Operands[0].Data.IsSome(out var BoundValue) && BoundValue.TypeExpressionValue().SameType(Symbol))) {
+					return mResult.Fail((Command.Pos, "cannot rebind an existing type identity"));
+				}
+				
+				TypeBindings.TryAdd(Symbol.DebugId, Operands[0].Index);
+				
+				var Bound = DefineReg(Command._1, new(Symbol.KindType(), mVM_Data.TypeExpression(Symbol)));
+				TypedCommands.Push(new tTypedCommand<tPos>(Command, mStream.Stream(new tTypedReg(Operands[0].Index, Operands[0].Type)), Bound, default));
+				continue;
+			}
+			
 			var TypeOperand = Command.NodeType switch {
 				tCommand.Sig or tCommand.Interface or tCommand.WithType => 0,
 				tCommand.TryHasHeadType => 1,
@@ -612,6 +636,10 @@ mIL_TypeChecker {
 				
 				if (NamedType.IsNone()) {
 					return mResult.Fail((Command.Pos, $"type '{Name}' not found"));
+				}
+				
+				if (Command.NodeType is tCommand.SigHeadAs && TypeBindings.ContainsKey(NamedType.AssertNotEmpty().DebugId) && !Operands[0].Type.Refs[0].SameType(NamedType.AssertNotEmpty())) {
+					return mResult.Fail((Command.Pos, "cannot rebind an existing type identity"));
 				}
 			}
 			
@@ -664,6 +692,10 @@ mIL_TypeChecker {
 			).ToArray();
 			
 			var Output = Step.Result.Then(__ => DefineReg(Command._1, __));
+			
+			if (Command.NodeType is tCommand.SigHead or tCommand.SigHeadAs && Output.IsSome(out var HeadResult) && Step.Result.AssertNotEmpty().Data.IsSome(out var HeadValue)) {
+				TypeBindings.TryAdd(HeadValue.TypeExpressionValue().DebugId, HeadResult.Id);
+			}
 			
 			TypedCommands.Push(new tTypedCommand<tPos>(Command, mStream.Stream(Uses), Output, Step.TryReturn));
 			
@@ -1366,6 +1398,7 @@ mIL_TypeChecker {
 				case tCommand.TryAsType:
 				case tCommand.SigHead:
 				case tCommand.SigHeadAs:
+				case tCommand.BindType:
 				case tCommand.Assert: {
 					break;
 				}

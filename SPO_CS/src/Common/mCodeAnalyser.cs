@@ -2,8 +2,8 @@
 #:property LangVersion = "preview"
 #:property TargetFramework = "net11.0"
 #:property Nullable = "enable"
-#:property OutputType = "Exe"
-#:property PublishAot = "false"
+//#:property OutputType = "Exe"
+//#:property PublishAot = "false"
 #:include $(MSBuildBinPath)/Roslyn/bincore/Microsoft.CodeAnalysis.dll
 #:include $(MSBuildBinPath)/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll
 #:include $(MSBuildBinPath)/DotnetTools/dotnet-format/Microsoft.CodeAnalysis.Workspaces.dll

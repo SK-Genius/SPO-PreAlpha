@@ -107,7 +107,7 @@ Normal wiki links use the less-than form:
 Important rules:
 
 - a target without an extension is treated as a wiki page and gets [.|.wiki.] implicitly
-- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] open in repo viewers
+- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.cs.], [.|.tex.], [.|.mermaid.], and [.|.mmd.] open in repo viewers
 - explicit targets with other extensions resolve as files or assets
 - raw URLs, [.|www.example.com.], and mail addresses are auto-linked
 - the legacy board-link form [.|[[?Title?]].] is still recognized
@@ -162,17 +162,17 @@ Hash blocks reference files or URLs:
 [|
 	[.
 	|[#
-	||../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO
+	||../SPO_CS/TestFiles/SPO_Functions/01_03_AssignInt.SPO
 	|#]
 	.]
 ][
 	[#
-	|../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO
+	|../SPO_CS/TestFiles/SPO_Functions/01_03_AssignInt.SPO
 	#]
 |]
 
 - paths are relative to the current wiki file
-- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.mermaid.], and [.|.mmd.] use viewers
+- [.|.wiki.], [.|.spo.], [.|.sig.], [.|.ilt.], [.|.cs.], [.|.mermaid.], [.|.mmd.], and [.|.tex.] use viewers
 - images and videos use built-in media rendering
 - plain text files without a dedicated viewer fall back to code-style rendering
 
@@ -324,8 +324,83 @@ There are two inline forms:
 - if you want full block rendering, use a standalone hash block or the multiline embedded-resource form instead
 
 [| [*Source*]                                                             ][ [*Rendered*]                                                     |]
-[| [.|See [[# ../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/TestFiles/Functions_SPO/01_03_AssignInt.SPO #] inline. |]
+[| [.|See [[# ../SPO_CS/TestFiles/SPO_Functions/01_03_AssignInt.SPO #]] inline.] ][ See [# ../SPO_CS/TestFiles/SPO_Functions/01_03_AssignInt.SPO #] inline. |]
 [| [.|Use [[.|first line.]] inline.]                                      ][ Use [.|first line.] inline.                                      |]
+
+[=TeX Formulas and Inference Rules=]
+
+The [.|.tex.] viewer renders mathematical TeX with a local copy of KaTeX, including its fonts.
+It accepts a math expression without dollar delimiters or a LaTeX document preamble.
+For the supported commands, see [<https://katex.org/docs/supported.html|the KaTeX reference>].
+
+Use an embedded block for a display formula:
+
+[.
+|[.tex
+||\frac{\Gamma\vdash x:A \quad \Gamma\vdash y:B}
+||     {\Gamma\vdash(x,y):A\times B}
+||\quad\text{(T-Pair)}
+|.]
+.]
+
+[.tex
+|\frac{\Gamma\vdash x:A \quad \Gamma\vdash y:B}
+|     {\Gamma\vdash(x,y):A\times B}
+|\quad\text{(T-Pair)}
+.]
+
+Inline formulas use the existing compact embed syntax:
+
+[.
+|A typing judgment is [.tex|\Gamma\vdash x:T.].
+.]
+
+A typing judgment is [.tex|\Gamma\vdash x:T.].
+Inline square brackets must be escaped as [.|[[[[.] and [.|]]]].], as in other inline objects.
+Within a multiline TeX block, square brackets are written normally.
+External [.|.tex.] files work with resource references and can also be opened directly.
+Invalid TeX is shown with its diagnostic and original source.
+
+[=Source Sticky Context=]
+
+The [.|.spo.], [.|.sig.], [.|.ilt.], and [.|.cs.] viewers pin context lines while scrolling.
+When a sticky line begins with [.|).], [.|}.], [.|]].], or [.|>.],
+the preceding nonblank line at the same indentation is pinned too.
+This repeats backwards until a line without leading closing punctuation has been included.
+Characters inside string literals do not extend the sticky context; C# comments are excluded too.
+The SPO, SIG, and ILT viewers also retain the matching opening bracket as context.
+
+[=C# Source Highlighting=]
+
+The [.|.cs.] viewer uses the shared source layout, including line numbers and sticky context lines.
+It highlights keywords, numbers, comments, directives, and string and character literals.
+Interpolated strings, verbatim strings, and raw strings remain whole literal tokens.
+
+Project naming prefixes add the following hints outside comments and literals:
+
+[| [*Prefix*] ][ [*Role*] ][ [*Examples*] |]
+[| [.|t.], [.|i.] ][ Types, type parameters, and interfaces ][ [.cs|tMyType t tPos iProcDef.] |]
+[| [.|a.] ][ Arguments and named callbacks ][ [.cs|aMyArgs a a1 _1.] |]
+[| [.|c.] ][ Named constants ][ [.cs|cMyConst.] |]
+[| [.|m.] ][ Modules ][ [.cs|mMyModule.] |]
+[| [.|g.] ][ Global state ][ [.cs|gMyState.] |]
+[| [.|_.] ][ Representation fields ][ [.cs|_MyField.] |]
+
+Prefixes normally require a following uppercase letter; ordinary words such as [.cs|title array caller.]
+are not marked as types, arguments, or constants. Short forms such as [.cs|t a a1 _1.] are also recognized.
+These are naming hints based on [<../SPO_CS/CodeStyle.txt|the C# style guide>], not semantic type resolution.
+
+Use [.|.cs.] in embedded blocks, inline objects, or external resource references:
+
+[.cs
+|public static class
+|mExample {
+|	public const tInt32 cStep = 1;
+|
+|	public static tInt32
+|	Increment(tInt32 aValue) => aValue + cStep;
+|}
+.]
 
 [=Viewers By Extension=]
 
@@ -333,6 +408,8 @@ There are dedicated viewers for:
 
 - [.|.wiki.]
 - [.|.spo.], [.|.sig.], and [.|.ilt.]
+- [.|.cs.] for C# source with project naming hints
+- [.|.tex.] for mathematical formulas and inference rules
 - [.|.mermaid.] and [.|.mmd.]
 
 The supported image file formats:

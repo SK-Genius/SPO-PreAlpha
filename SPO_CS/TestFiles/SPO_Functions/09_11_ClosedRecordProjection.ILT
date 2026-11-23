@@ -51,7 +51,7 @@
 	t_49 := [t_48, t_29]
 	t_50 := [t_49, t_40]
 	t_51 := [EMPTY_TYPE, t_1]
-	t_52 := [t_51, INT]
+	t_52 := [t_51, t_12]
 	t_53 := [t_52, t_23]
 	t_54 := [t_53, t_23]
 	t_55 := [EMPTY_TYPE => t_54]
@@ -99,12 +99,13 @@
 	§RETURN _Result IF TRUE
 
 §DEF d_4 € t_26
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
-	r_1 := {r_3} #_Handle
-	_Hidden := r_1
-	r_2 := +#Result TRUE
-	§RETURN r_2 IF TRUE
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := {r_4} #_Handle
+	r_2 := §WITH_TYPE ANY WITH r_1
+	_Hidden := r_2
+	r_3 := +#Result TRUE
+	§RETURN r_3 IF TRUE
 
 §DEF d_5 € t_29
 	r_3 := §1ST ARG
@@ -128,12 +129,13 @@
 	§RETURN EMPTY IF TRUE
 
 §DEF d_7 € t_37
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
-	r_1 := {r_3} #_Number
-	_Number := r_1
-	r_2 := +#Result TRUE
-	§RETURN r_2 IF TRUE
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := {r_4} #_Number
+	r_2 := §WITH_TYPE ANY WITH r_1
+	_Number := r_2
+	r_3 := +#Result TRUE
+	§RETURN r_3 IF TRUE
 
 §DEF d_8 € t_29
 	r_3 := §1ST ARG
@@ -187,12 +189,11 @@
 	_Cell := §VAR r_5
 	r_6 := ._Fixture... _Cell
 	_Reduced := r_6
-	_Erased := _Reduced
-	r_7 := {_Reduced} #_Number
-	_Number := r_7
+	r_7 := §WITH_TYPE ANY WITH _Reduced
+	_Erased := r_7
 	r_8 := ._Create EMPTY
 	r_9 := EMPTY, r_8
-	r_10 := r_9, _Number
+	r_10 := r_9, _Reduced
 	r_11 := EMPTY, d_4
 	r_12 := r_11, d_5
 	r_13 := §CLOSURE d_6 r_12

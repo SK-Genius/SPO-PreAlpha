@@ -131,7 +131,8 @@ mModule {
 	public static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
 	Init(
 		this tModuleSetup aModule,
-		mStd.tAction<tText> aLogger
+		mStd.tAction<tText> aLogger,
+		mStream.tStream<(mVM_Type.tType Function, mVM_Type.tType Object, mVM_Type.tType Argument)> aNativeCalls = default
 	) {
 		if (aModule.Module.IsSome(out var Cached)) {
 			return Cached;
@@ -141,7 +142,50 @@ mModule {
 			return Error;
 		}
 		
-		static mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
+		var Compiler = new mIL_Specialize.tContext<tSpan>();
+		var Prepared = new System.Collections.Generic.Dictionary<tModuleSetup, (mStream.tStream<mVM_Data.tProcDef<tSpan>> Definitions, mIL_Specialize.tFrame<tSpan> Frame)>();
+		
+		mResult.tResult<(mVM_Type.tType Type, mIL_Specialize.tFlow<tSpan> Value), tText>
+		Prepare(
+			tModuleSetup aCurrent
+		) {
+			if (aCurrent.Module.IsSome(out var CachedModule)) {
+				return CachedModule.Then(
+					aValue => {
+						var Value = (Data: aValue.Data.Normalize(aValue.Type, "Import"), aValue.Type);
+						aCurrent.Module = mResult.OK(Value).WithErrorType<tText>();
+						return (Value.Type, Compiler.FromData(Value));
+					}
+				);
+			}
+			
+			if (Prepared.TryGetValue(aCurrent, out var Existing)) {
+				return (Existing.Frame.Code.DefType.Refs[2].Refs[2], Existing.Frame.Result);
+			}
+			
+			var ImportType = mVM_Type.Empty();
+			var Import = new mIL_Specialize.tFlow<tSpan>();
+			
+			foreach (var (Key, Dependency) in aCurrent.Dependencies) {
+				if (!Prepare(Dependency).Match(out var Export, out var Error)) {
+					return mResult.Fail(Error);
+				}
+				
+				ImportType = mVM_Type.Record(ImportType, mVM_Type.Prefix("_" + Key, Export.Type));
+				Import.Fields = Import.Fields.Set(("_" + Key).PrefixHash(), Export.Value);
+			}
+			
+			var Definitions = mIL_GenerateOpcodes.GenerateTemplates(aCurrent.IL!).Defs.ToArrayList();
+			var Frame = Compiler.PrepareModule(Definitions.ToStream(), ImportType, Import);
+			Definitions.Set(Definitions.Size - 1, Frame.Code);
+			Prepared.Add(aCurrent, (Definitions.ToStream(), Frame));
+			return (Frame.Code.DefType.Refs[2].Refs[2], Frame.Result);
+		}
+		
+		if (!Prepare(aModule).Match(out _, out var PrepareError)) { return mResult.Fail(PrepareError); }
+		Compiler.PrepareExports(mStream.Stream(Prepared.Values.Select(__ => (__.Frame.Code.DefType.Refs[2].Refs[2], __.Frame.Result)).ToArray()), aNativeCalls);
+		
+		mResult.tResult<(mVM_Data.tData Data, mVM_Type.tType Type), tText>
 		Initialize(
 			tModuleSetup aModule,
 			mStd.tAction<tText> aLogger
@@ -161,8 +205,7 @@ mModule {
 				Imports.Type = mVM_Type.Record(Imports.Type, mVM_Type.Prefix("_" + Key, Value.Type));
 			}
 			
-			var Compiled = mIL_GenerateOpcodes.GenerateOpcodes(aModule.IL!, Imports);
-			var Result = mVM.RunModule(Compiled.Defs, Imports.Data, mTextParser.ToText, __ => aLogger(__()));
+			var Result = mVM.RunModule(Prepared[aModule].Definitions, Imports.Data, mTextParser.ToText, __ => aLogger(__()));
 			aModule.Module = Result;
 			return Result;
 		}

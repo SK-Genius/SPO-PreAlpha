@@ -17,15 +17,16 @@
 	t_15 := [t_13 => t_14]
 
 §DEF d_0 € t_5
-	r_7 := §1ST ARG
-	r_6 := §2ND ARG
-	r_1 := §1ST r_6
-	r_2 := §2ND r_6
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §1ST r_7
+	r_2 := §2ND r_7
 	r_3 := §1ST r_1
 	r_4 := §2ND r_1
-	_Second := r_2
-	r_5 := +#Result _Second
-	§RETURN r_5 IF TRUE
+	r_5 := §WITH_TYPE INT_TYPE WITH r_2
+	_Second := r_5
+	r_6 := +#Result _Second
+	§RETURN r_6 IF TRUE
 
 §DEF d_1 € t_8
 	r_9 := §1ST ARG
@@ -42,15 +43,16 @@
 	§RETURN TRUE IF TRUE
 
 §DEF d_2 € t_5
-	r_7 := §1ST ARG
-	r_6 := §2ND ARG
-	r_1 := §1ST r_6
-	r_2 := §2ND r_6
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §1ST r_7
+	r_2 := §2ND r_7
 	r_3 := §1ST r_1
 	r_4 := §2ND r_1
-	_First := r_4
-	r_5 := +#Result _First
-	§RETURN r_5 IF TRUE
+	r_5 := §WITH_TYPE INT_TYPE WITH r_4
+	_First := r_5
+	r_6 := +#Result _First
+	§RETURN r_6 IF TRUE
 
 §DEF d_3 € t_12
 	d_2 := §2ND ENV

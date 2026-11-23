@@ -7,7 +7,8 @@
 
 §DEF d_0 € t_2
 	r_1 := -#_Box... ARG
-	_aValue := r_1
+	r_2 := §WITH_TYPE INT_TYPE WITH r_1
+	_aValue := r_2
 	§RETURN _aValue IF TRUE
 
 §DEF d_1 € t_4

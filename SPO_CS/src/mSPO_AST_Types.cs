@@ -19,6 +19,7 @@ mSPO_AST_Types {
 	// Updates share unchanged tree branches; only successful results publish a new snapshot.
 	public sealed record
 	tTypeState<tPos> {
+		public mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> Mappings { get; init; }
 		public mStream.tStream<(mSPO_AST.tRecordNode<tPos> Record, mSPO_AST.tIfMatchNode<tPos> Expression)>
 		RecordUpdates { get; init; }
 		
@@ -50,7 +51,7 @@ mSPO_AST_Types {
 			__ => mStd.RefEq(__.Node, aNode)
 		).TryFirst(
 		).Then(
-			__ => __.Type
+			__ => __.Type.ApplyMappings(aTypeState.Mappings)
 		);
 	}
 	
@@ -453,6 +454,41 @@ mSPO_AST_Types {
 		}
 	}
 	
+	private static mResult.tResult<mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType>, tText>
+	IsSubTypeInScope(
+		this mVM_Type.tType aActual,
+		mVM_Type.tType aExpected,
+		mStream.tStream<tScopeItem> aScope,
+		mTreeMap.tTree<mVM_Type.tType, mVM_Type.tType> aMappings = default
+	) {
+		var Parameters = mArrayList.List<(mVM_Type.tType Parameter, mVM_Type.tType Witness)>();
+		var Seen = new System.Collections.Generic.HashSet<tNat64>();
+		
+		foreach (var Item in aScope) {
+			if (Item.TypeValue.IsSome(out var Value) && Value.IsFree() && Seen.Add(Value.DebugId)) { Parameters.Push((Value, mVM_Type.Abstract(Value.Id!, Value.KindType()))); }
+		}
+		
+		if (Parameters.Size == 0) { return aActual.IsSubType(aExpected, aMappings); }
+		
+		mVM_Type.tType Freeze(mVM_Type.tType aType) {
+			foreach (var Parameter in Parameters.ToStream()) { aType = aType.Substitute(Parameter.Parameter, Parameter.Witness); }
+			return aType;
+		}
+		
+		var Frozen = aMappings;
+		foreach (var Mapping in aMappings.ToStream()) { Frozen = Frozen.Set(Mapping.Key, Freeze(Mapping.Value)); }
+		if (!Freeze(aActual).IsSubType(Freeze(aExpected), Frozen).Match(out var Found, out var Error)) { return mResult.Fail(Error); }
+		var Result = Found;
+		
+		foreach (var Mapping in Found.ToStream()) {
+			var Value = Mapping.Value;
+			foreach (var Parameter in Parameters.ToStream()) { Value = Value.Substitute(Parameter.Witness, Parameter.Parameter); }
+			Result = Result.Set(Mapping.Key, Value);
+		}
+		
+		return Result;
+	}
+	
 	private static mResult.tResult<
 		(
 			mVM_Type.tType Type,
@@ -577,11 +613,15 @@ mSPO_AST_Types {
 			aMappings = Result.Mappings;
 		}
 		
-		return Checked.Type.IsSubType(
+		if (aMappings.Deep() == 0) { aMappings = mTreeMap.Tree<mVM_Type.tType, mVM_Type.tType>((a1, a2) => a1.DebugId.CompareTo(a2.DebugId), []); }
+		foreach (var Mapping in Checked.State.Mappings.ToStream()) { aMappings = aMappings.Set(Mapping.Key, Mapping.Value); }
+		
+		return Checked.Type.IsSubTypeInScope(
 			MappedExpectedType,
+			aScope,
 			aMappings
 		).Then(
-			__ => (Checked.Type, __, Checked.State)
+			__ => (Checked.Type.ApplyMappings(__), __, Checked.State with {Mappings = __})
 		).ModifyError(
 			__ => (aArgument.Pos, __)
 		);
@@ -862,7 +902,8 @@ mSPO_AST_Types {
 							mVM_Type.Type(),
 							tTypeRelation.Equal,
 							aScope,
-							aTypeState
+							aTypeState,
+							true
 						).ThenTry(
 							aGenTypeScope => UpdatePatternTypes(
 								Lambda.Head,
@@ -878,18 +919,11 @@ mSPO_AST_Types {
 									aResTypeScope => {
 										var Proc = mVM_Type.Proc(mVM_Type.Empty(), aArgTypeScope.Type, aResTypeScope.Type);
 										
-										if (aGenTypeScope.Type.IsType()) {
-											var T = aGenTypeScope.Scope.Where(
-												__ => __.Id == GenericPattern.TryGetId().AssertNotEmpty()
-											).TryFirst(
-											).AssertNotEmpty(
-											).TypeValue.AssertNotEmpty(
-											);
-											
-											return (mVM_Type.Generic(T, Proc), aResTypeScope.State);
-										} else {
-											return (Proc, aResTypeScope.State);
+										foreach (var Parameter in aGenTypeScope.Scope.Take(aGenTypeScope.Scope.Count() - aScope.Count())) {
+											Proc = mVM_Type.Generic(Parameter.TypeValue.AssertNotEmpty(), Proc);
 										}
+										
+										return (Proc, aResTypeScope.State);
 									}
 								)
 							)
@@ -930,7 +964,8 @@ mSPO_AST_Types {
 								mVM_Type.Type(),
 								tTypeRelation.Equal,
 								Head.Scope,
-								Head.State
+								Head.State,
+								true
 							).Match(out var Bound, out var Error)
 						) {
 							return mResult.Fail(Error);
@@ -1018,8 +1053,8 @@ mSPO_AST_Types {
 					() => {
 						var ProcType = aFuncType.Type;
 						
-						while (ProcType.IsGeneric(out _, out var InnerType)) {
-							ProcType = InnerType;
+						while (ProcType.IsGeneric(out var Parameter, out var InnerType)) {
+							ProcType = InnerType.Substitute(Parameter, mVM_Type.Free(Parameter.Id!, Parameter.KindType()));
 						}
 						
 						if (!ProcType.IsProc(out _, out var FormalArgType, out var FormalResultType)) {
@@ -1206,7 +1241,7 @@ mSPO_AST_Types {
 			_ => throw mError.Error("not implemented: " + aNode.GetType().Name),
 		};
 		
-		return Result.FailIfNot(
+		return Result.Then(__ => (Type: __.Type.ApplyMappings(__.State.Mappings), __.State)).FailIfNot(
 			aInferred => !aInferred.Type.HasChildWith(
 				aHead => (
 					aHead.Kind is mVM_Type.tKind.Abstract &&
@@ -1227,8 +1262,9 @@ mSPO_AST_Types {
 			)
 		).ThenTry(
 			Inferred => TypeAnnotation.Match(
-				Annotation => Inferred.Type.IsSubType(
-					Annotation
+				Annotation => Inferred.Type.IsSubTypeInScope(
+					Annotation,
+					aScope
 				).Then(
 					_ => Inferred
 				).ModifyError(
@@ -1264,7 +1300,8 @@ mSPO_AST_Types {
 		mMaybe.tMaybe<mVM_Type.tType> aType,
 		tTypeRelation aTypeRelation,
 		mStream.tStream<tScopeItem> aScope,
-		tTypeState<tPos> aTypeState
+		tTypeState<tPos> aTypeState,
+		tBool aGenericBinding = false
 	) {
 		mResult.tResult<(mVM_Type.tType Type, mStream.tStream<tScopeItem> Scope, tTypeState<tPos> State), (tPos Pos, tText ErrorText)> Result;
 		
@@ -1278,11 +1315,12 @@ mSPO_AST_Types {
 								aType,
 								aTypeRelation,
 								aScope,
-								aTypeState
+								aTypeState,
+								aGenericBinding
 							)
 						)
 					),
-					() => UpdatePatternTypes(Pattern.Pattern, aType, aTypeRelation, aScope, aTypeState)
+					() => UpdatePatternTypes(Pattern.Pattern, aType, aTypeRelation, aScope, aTypeState, aGenericBinding)
 				);
 				
 				break;
@@ -1312,7 +1350,7 @@ mSPO_AST_Types {
 					HeadPattern = Typed.Pattern;
 				}
 				
-				var Head = mVM_Type.Abstract(Binder.Id!, Binder.KindType());
+				var Head = mVM_Type.Abstract("_sigHead" + mStd.NewDebugId(), Binder.KindType());
 				var Scope = aScope;
 				
 				if (HeadPattern is mSPO_AST.tTypePatternNode<tPos> Concrete) {
@@ -1356,7 +1394,7 @@ mSPO_AST_Types {
 							ScopeItem(
 								FreePatternId.Id,
 								__,
-								__.IsType() ? mVM_Type.Free(FreePatternId.Id, __) : mStd.cEmpty
+								__.IsType() ? (aGenericBinding ? mVM_Type.Free(FreePatternId.Id, __) : mVM_Type.Abstract(FreePatternId.Id, __)) : mStd.cEmpty
 							),
 							aScope
 						),
@@ -1437,7 +1475,7 @@ mSPO_AST_Types {
 					}
 				}
 				
-				Result = UpdatePatternTypes(PrefixPattern.Pattern, SubType, aTypeRelation, aScope, aTypeState).Then(
+				Result = UpdatePatternTypes(PrefixPattern.Pattern, SubType, aTypeRelation, aScope, aTypeState, aGenericBinding).Then(
 					__ => (mVM_Type.Prefix(PrefixPattern.Prefix, __.Type), __.Scope, __.State)
 				);
 				
@@ -1455,7 +1493,8 @@ mSPO_AST_Types {
 								mStd.cEmpty,
 								aTypeRelation,
 								Checked.Scope,
-								Checked.State
+								Checked.State,
+								aGenericBinding
 							).Match(
 								out var TS,
 								out var Error
@@ -1486,7 +1525,8 @@ mSPO_AST_Types {
 									Type,
 									aTypeRelation,
 									Checked.Scope,
-									Checked.State
+									Checked.State,
+									aGenericBinding
 								).Match(
 									out var TS,
 									out var Error
@@ -1515,7 +1555,8 @@ mSPO_AST_Types {
 									ItemType,
 									aTypeRelation,
 									Checked.Scope,
-									Checked.State
+									Checked.State,
+									aGenericBinding
 								).Match(
 									out var TS,
 									out var Error
@@ -1557,7 +1598,8 @@ mSPO_AST_Types {
 						TailType,
 						aTypeRelation,
 						aScope,
-						aTypeState
+						aTypeState,
+						aGenericBinding
 					).Match(
 						out var TailRes,
 						out var Error
@@ -1567,7 +1609,8 @@ mSPO_AST_Types {
 						HeadType,
 						aTypeRelation,
 						TailRes.Scope,
-						TailRes.State
+						TailRes.State,
+						aGenericBinding
 					).Match(
 						out var HeadRes,
 						out Error
@@ -1602,7 +1645,8 @@ mSPO_AST_Types {
 							Type,
 							aTypeRelation,
 							a1.Scope,
-							a1.State
+							a1.State,
+							aGenericBinding
 						).Then(
 							a2 => (
 								mVM_Type.Record(
@@ -1625,7 +1669,8 @@ mSPO_AST_Types {
 						aType,
 						tTypeRelation.Super,
 						aScope,
-						aTypeState
+						aTypeState,
+						aGenericBinding
 					).Match(
 						out var Res,
 						out var Error
@@ -1668,7 +1713,7 @@ mSPO_AST_Types {
 					Type,
 					mStream.Stream(
 						Type.IsType()
-						? ScopeItem(Id.Id, Type, mVM_Type.Free(Id.Id, Type))
+						? ScopeItem(Id.Id, Type, aGenericBinding ? mVM_Type.Free(Id.Id, Type) : mVM_Type.Abstract(Id.Id, Type))
 						: ScopeItem(Id.Id, Type),
 						aScope
 					),
@@ -1716,8 +1761,8 @@ mSPO_AST_Types {
 				() => {
 					var ProcType = aMethodType.Type;
 					
-					while (ProcType.IsGeneric(out _, out var InnerType)) {
-						ProcType = InnerType;
+					while (ProcType.IsGeneric(out var Parameter, out var InnerType)) {
+						ProcType = InnerType.Substitute(Parameter, mVM_Type.Free(Parameter.Id!, Parameter.KindType()));
 					}
 					
 					if (!ProcType.IsProc(out var MethObjectType, out var MethArgType, out var MethResType)) {
@@ -1731,7 +1776,7 @@ mSPO_AST_Types {
 					// Assignment becomes VAR_SET, which checks the receiver itself.
 					if (
 						aMethodCall.Method.Id is not "_=..." &&
-						!aObjectType.IsSubType(MethObjectType).Match(out Mappings, out var ObjectError)
+						!aObjectType.IsSubTypeInScope(MethObjectType, aScope).Match(out Mappings, out var ObjectError)
 					) {
 						return mResult.Fail((aMethodCall.Method.Pos, ObjectError));
 					}
@@ -1779,8 +1824,9 @@ mSPO_AST_Types {
 						aScope,
 						aSource.State
 					).ThenTry(
-						aPattern => aSource.Type.IsSubType(
-							aPattern.Type
+						aPattern => aSource.Type.IsSubTypeInScope(
+							aPattern.Type,
+							aScope
 						).Then(
 							Mappings => (
 								Scope: Def.Src is mSPO_AST.tTypeNode<tPos> &&
@@ -1835,6 +1881,7 @@ mSPO_AST_Types {
 				
 				foreach (var Item in RecProcs.List) {
 					var Head = Checked;
+					var Parameters = mStream.Stream<tScopeItem>();
 					
 					var Generic = Item.Proc switch {
 						mSPO_AST.tLambdaNode<tPos> Function => Function.Generic,
@@ -1849,7 +1896,8 @@ mSPO_AST_Types {
 								mVM_Type.Type(),
 								tTypeRelation.Equal,
 								Head.Scope,
-								Head.State
+								Head.State,
+								true
 							).Match(
 								out var GenScope,
 								out var GenError
@@ -1858,6 +1906,7 @@ mSPO_AST_Types {
 							return mResult.Fail(GenError);
 						}
 						
+						Parameters = GenScope.Scope.Take(GenScope.Scope.Count() - Head.Scope.Count());
 						Head = (GenScope.Scope, GenScope.State);
 					}
 					
@@ -1904,15 +1953,14 @@ mSPO_AST_Types {
 						return mResult.Fail(Error);
 					}
 					
+					var Signature = mVM_Type.Proc(ObjType, Result.Type, mVM_Type.Free("__" + Item.Id.Id + "_Res__", mVM_Type.Type()));
+					foreach (var Parameter in Parameters) { Signature = mVM_Type.Generic(Parameter.TypeValue.AssertNotEmpty(), Signature); }
+					
 					Checked = (
 						mStream.Stream(
 							ScopeItem(
 								Item.Id.Id,
-								mVM_Type.Proc(
-									ObjType,
-									Result.Type,
-									mVM_Type.Free("__" + Item.Id.Id + "_Res__", mVM_Type.Type())
-								)
+								Signature
 							),
 							Checked.Scope
 						),
@@ -1921,11 +1969,18 @@ mSPO_AST_Types {
 				}
 				
 				var ResultVariables = RecProcs.List.Map(
-					aLambda => Checked.Scope.Where(
-						__ => __.Id == aLambda.Id.Id
-					).TryFirst(
-					).AssertNotEmpty(
-					).Type.Refs[2]
+					aLambda => mStd.Call(
+						() => {
+							var Signature = Checked.Scope.Where(
+								__ => __.Id == aLambda.Id.Id
+							).TryFirst(
+							).AssertNotEmpty(
+							).Type;
+							
+							while (Signature.IsGeneric(out _, out var Body)) { Signature = Body; }
+							return Signature.Refs[2];
+						}
+					)
 				).ToArrayList();
 				
 				static mStream.tStream<mVM_Type.tType>

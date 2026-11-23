@@ -118,19 +118,20 @@
 
 §DEF d_2 € t_12
 	_...-... := §2ND ENV
-	r_9 := §1ST ENV
-	_Second... := §2ND r_9
-	r_10 := §1ST r_9
-	r_8 := §1ST ARG
-	r_7 := §2ND ARG
-	_Steps := r_7
-	r_1 := EMPTY, _Steps
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._Second... r_4
-	r_6 := +#Result r_5
-	§RETURN r_6 IF TRUE
+	r_10 := §1ST ENV
+	_Second... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_8
+	_Steps := r_1
+	r_2 := EMPTY, _Steps
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._Second... r_5
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
 §DEF d_3 € t_18
 	d_2 := §2ND ENV
@@ -217,19 +218,20 @@
 
 §DEF d_7 € t_12
 	_...-... := §2ND ENV
-	r_9 := §1ST ENV
-	_Third... := §2ND r_9
-	r_10 := §1ST r_9
-	r_8 := §1ST ARG
-	r_7 := §2ND ARG
-	_Steps := r_7
-	r_1 := EMPTY, _Steps
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._Third... r_4
-	r_6 := +#Result r_5
-	§RETURN r_6 IF TRUE
+	r_10 := §1ST ENV
+	_Third... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_8
+	_Steps := r_1
+	r_2 := EMPTY, _Steps
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._Third... r_5
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
 §DEF d_8 € t_30
 	d_7 := §2ND ENV
@@ -325,19 +327,20 @@
 
 §DEF d_12 € t_12
 	_...-... := §2ND ENV
-	r_9 := §1ST ENV
-	_First... := §2ND r_9
-	r_10 := §1ST r_9
-	r_8 := §1ST ARG
-	r_7 := §2ND ARG
-	_Steps := r_7
-	r_1 := EMPTY, _Steps
-	r_2 := 1
-	r_3 := r_1, r_2
-	r_4 := ._...-... r_3
-	r_5 := ._First... r_4
-	r_6 := +#Result r_5
-	§RETURN r_6 IF TRUE
+	r_10 := §1ST ENV
+	_First... := §2ND r_10
+	r_11 := §1ST r_10
+	r_9 := §1ST ARG
+	r_8 := §2ND ARG
+	r_1 := §WITH_TYPE INT_TYPE WITH r_8
+	_Steps := r_1
+	r_2 := EMPTY, _Steps
+	r_3 := 1
+	r_4 := r_2, r_3
+	r_5 := ._...-... r_4
+	r_6 := ._First... r_5
+	r_7 := +#Result r_6
+	§RETURN r_7 IF TRUE
 
 §DEF d_13 € t_30
 	d_12 := §2ND ENV

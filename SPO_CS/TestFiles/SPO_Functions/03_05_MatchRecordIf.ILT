@@ -18,12 +18,13 @@
 	t_16 := [t_14 => t_15]
 
 §DEF d_0 € t_7
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
-	r_1 := {r_3} #_Second
-	_Value := r_1
-	r_2 := +#Result _Value
-	§RETURN r_2 IF TRUE
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := {r_4} #_Second
+	r_2 := §WITH_TYPE INT_TYPE WITH r_1
+	_Value := r_2
+	r_3 := +#Result _Value
+	§RETURN r_3 IF TRUE
 
 §DEF d_1 € t_12
 	d_0 := ENV

@@ -9,28 +9,28 @@
 	t_7 := [.t_3 t_6]
 	t_8 := [t_5, t_7]
 	t_9 := [§SIG_WITH t_3 IN t_8]
-	t_10 := [§ABSTRACT t_2]
-	t_11 := [EMPTY_TYPE, t_9]
-	t_12 := [#Result t_9]
-	t_13 := [t_11 => t_12]
-	t_14 := [EMPTY_TYPE => t_13]
-	t_15 := [t_14 => t_13]
-	t_16 := [EMPTY_TYPE, INT]
-	t_17 := [t_16, t_6]
-	t_18 := [t_16, FALSE]
-	t_19 := [t_17 | t_18]
+	t_10 := [EMPTY_TYPE, INT]
+	t_11 := [t_10, t_6]
+	t_12 := [§ABSTRACT t_2]
+	t_13 := [EMPTY_TYPE, t_9]
+	t_14 := [#Result t_9]
+	t_15 := [t_13 => t_14]
+	t_16 := [EMPTY_TYPE => t_15]
+	t_17 := [t_16 => t_15]
+	t_18 := [t_10, FALSE]
+	t_19 := [t_11 | t_18]
 	t_20 := [#Result t_19]
-	t_21 := [t_11 => t_20]
+	t_21 := [t_13 => t_20]
 	t_22 := [EMPTY_TYPE => t_21]
-	t_23 := [t_11 => t_6]
+	t_23 := [t_13 => t_6]
 	t_24 := [EMPTY_TYPE => t_23]
 	t_25 := [§ABSTRACT t_2]
 	t_26 := [EMPTY_TYPE, t_22]
 	t_27 := [t_26, t_24]
 	t_28 := [t_27, t_22]
 	t_29 := [t_28 => t_21]
-	t_30 := [EMPTY_TYPE, t_14]
-	t_31 := [t_30, t_15]
+	t_30 := [EMPTY_TYPE, t_16]
+	t_31 := [t_30, t_17]
 	t_32 := [t_31, t_22]
 	t_33 := [t_32, t_24]
 	t_34 := [t_33, t_22]
@@ -38,19 +38,20 @@
 	t_36 := [EMPTY_TYPE => t_19]
 	t_37 := [t_35 => t_36]
 
-§DEF d_0 € t_14
-	r_7 := §1ST ARG
-	r_6 := §2ND ARG
-	r_1 := §SIG_HEAD r_6 AS t_10
-	r_2 := §SIG_BODY r_6
+§DEF d_0 € t_16
+	r_8 := §1ST ARG
+	r_7 := §2ND ARG
+	r_1 := §SIG_HEAD r_7 AS t_12
+	r_2 := §SIG_BODY r_7
 	_F := r_1
+	r_3 := §BIND_TYPE _F AS t_12
 	_Body := r_2
-	r_3 := _F, _Body
-	r_4 := §SIG t_9 WITH r_3
-	r_5 := +#Result r_4
-	§RETURN r_5 IF TRUE
+	r_4 := r_3, _Body
+	r_5 := §SIG t_9 WITH r_4
+	r_6 := +#Result r_5
+	§RETURN r_6 IF TRUE
 
-§DEF d_1 € t_15
+§DEF d_1 € t_17
 	d_0 := ENV
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
@@ -60,21 +61,23 @@
 	§RETURN EMPTY IF TRUE
 
 §DEF d_2 € t_22
-	r_12 := §1ST ARG
-	r_11 := §2ND ARG
-	r_1 := §TRY r_11 HAS_HEAD_TYPE t_1
+	r_14 := §1ST ARG
+	r_13 := §2ND ARG
+	r_1 := §TRY r_13 HAS_HEAD_TYPE t_1
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := §1ST r_3
 	r_5 := §2ND r_3
 	r_6 := §1ST r_4
 	r_7 := §2ND r_4
-	_IntValue := r_7
-	_BoolValue := r_5
-	r_8 := EMPTY, _IntValue
-	r_9 := r_8, _BoolValue
-	r_10 := +#Result r_9
-	§RETURN r_10 IF TRUE
+	r_8 := §WITH_TYPE INT_TYPE WITH r_7
+	_IntValue := r_8
+	r_9 := §WITH_TYPE t_6 WITH r_5
+	_BoolValue := r_9
+	r_10 := EMPTY, _IntValue
+	r_11 := r_10, _BoolValue
+	r_12 := +#Result r_11
+	§RETURN r_12 IF TRUE
 
 §DEF d_3 € t_24
 	r_9 := §1ST ARG
@@ -95,6 +98,7 @@
 	r_7 := §2ND ARG
 	r_1 := §SIG_HEAD r_7 AS t_25
 	r_2 := §SIG_BODY r_7
+	_sigHead14074018 := r_1
 	r_3 := 0
 	r_4 := EMPTY, r_3
 	r_5 := r_4, FALSE
@@ -122,39 +126,41 @@
 
 §DEF d_6 € t_37
 	d_5 := §2ND ENV
-	r_21 := §1ST ENV
-	d_4 := §2ND r_21
-	r_22 := §1ST r_21
-	d_3 := §2ND r_22
-	r_23 := §1ST r_22
-	d_2 := §2ND r_23
+	r_23 := §1ST ENV
+	d_4 := §2ND r_23
 	r_24 := §1ST r_23
-	d_1 := §2ND r_24
+	d_3 := §2ND r_24
 	r_25 := §1ST r_24
-	d_0 := §2ND r_25
+	d_2 := §2ND r_25
 	r_26 := §1ST r_25
+	d_1 := §2ND r_26
+	r_27 := §1ST r_26
+	d_0 := §2ND r_27
+	r_28 := §1ST r_27
 	r_1 := §WITH_TYPE t_2 WITH t_1
 	_tIdentity... := r_1
-	_Contract := t_9
-	r_2 := 1
-	r_3 := EMPTY, r_2
-	r_4 := r_3, TRUE
-	r_5 := t_1, r_4
-	r_6 := §SIG t_9 WITH r_5
-	_Package := r_6
-	r_7 := §CLOSURE d_1 d_0
-	r_8 := EMPTY, _Package
-	r_9 := OBJ, r_7
-	r_10 := §OBJ:r_9 r_8
-	r_11 := -#Result r_10
-	r_12 := §WITH_TYPE t_9 WITH r_11
-	_Repacked := r_12
-	r_13 := EMPTY, d_2
-	r_14 := r_13, d_3
-	r_15 := r_14, d_4
-	r_16 := §CLOSURE d_5 r_15
-	r_17 := EMPTY, _Repacked
-	r_18 := OBJ, r_16
-	r_19 := §OBJ:r_18 r_17
-	r_20 := -#Result r_19
-	§RETURN r_20 IF TRUE
+	r_2 := §WITH_TYPE Type_TYPE WITH t_9
+	_Contract := r_2
+	r_3 := 1
+	r_4 := EMPTY, r_3
+	r_5 := r_4, TRUE
+	r_6 := §WITH_TYPE t_11 WITH r_5
+	r_7 := t_1, r_6
+	r_8 := §SIG t_9 WITH r_7
+	_Package := r_8
+	r_9 := §CLOSURE d_1 d_0
+	r_10 := EMPTY, _Package
+	r_11 := OBJ, r_9
+	r_12 := §OBJ:r_11 r_10
+	r_13 := -#Result r_12
+	r_14 := §WITH_TYPE t_9 WITH r_13
+	_Repacked := r_14
+	r_15 := EMPTY, d_2
+	r_16 := r_15, d_3
+	r_17 := r_16, d_4
+	r_18 := §CLOSURE d_5 r_17
+	r_19 := EMPTY, _Repacked
+	r_20 := OBJ, r_18
+	r_21 := §OBJ:r_20 r_19
+	r_22 := -#Result r_21
+	§RETURN r_22 IF TRUE

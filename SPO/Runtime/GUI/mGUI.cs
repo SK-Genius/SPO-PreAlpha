@@ -94,11 +94,14 @@ mGUI {
 	) {
 		var Active = true;
 		var Handle = mVM_Data.Var(mVM_Data.Empty());
+		var Contract = Signature("Surface");
 		
 		mVM_Data.tData
 		Bind(
+			tText aName,
 			mStd.tFunc<mVM_Data.tData, mVM_Data.tData> aOperation
 		) => mVM_Data.ExternProc(
+			Contract.TryGetInterfaceMethod(aName).AssertNotEmpty(),
 			(_, aObject, aArgument, _) => {
 				if (!Active || !ReferenceEquals(aObject, Handle)) {
 					throw new System.InvalidOperationException("Invalid or expired GUI capability.");
@@ -137,6 +140,7 @@ mGUI {
 				(
 					"_Size",
 					Bind(
+						"_Size",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							var Size = aSurface.Size();
@@ -158,17 +162,19 @@ mGUI {
 				(
 					"_ClearWith...",
 					Bind(
+						"_ClearWith...",
 						a => {
 							aSurface.Clear(Color(a));
 							return mVM_Data.Empty();
 						}
 					)
 				),
-				("_Fill...With...", Bind(a => Rectangle(a, true))),
-				("_Stroke...With...", Bind(a => Rectangle(a, false))),
+				("_Fill...With...", Bind("_Fill...With...", a => Rectangle(a, true))),
+				("_Stroke...With...", Bind("_Stroke...With...", a => Rectangle(a, false))),
 				(
 					"_Draw...At...InColor...",
 					Bind(
+						"_Draw...At...InColor...",
 						a => {
 							mAssert.IsTrue(a.IsTuple(out var Text, out var Position, out var RGB));
 							mAssert.IsTrue(Position.IsTuple(out var X, out var Y));
@@ -180,6 +186,7 @@ mGUI {
 				(
 					"_ClipTo...",
 					Bind(
+						"_ClipTo...",
 						a => {
 							var Bounds = a.Rect();
 							
@@ -197,6 +204,7 @@ mGUI {
 				(
 					"_ResetClip",
 					Bind(
+						"_ResetClip",
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							aSurface.Clip(null);
@@ -207,6 +215,7 @@ mGUI {
 				(
 					"_SetTitle...",
 					Bind(
+						"_SetTitle...",
 						a => {
 							aSurface.Title(a.Text());
 							return mVM_Data.Empty();
@@ -217,7 +226,7 @@ mGUI {
 		);
 		
 		try {
-			aRun(mVM_Data.Interface(Signature("Surface"), Handle, Operations));
+			aRun(mVM_Data.DynamicInterface(Contract, Handle, Operations));
 		} finally {
 			Active = false;
 		}

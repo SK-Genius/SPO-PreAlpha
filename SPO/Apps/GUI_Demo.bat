@@ -1,0 +1,1 @@
+dotnet ../src/Program.cs -- GUI_Demo

@@ -18,7 +18,8 @@
 	_aValue := ARG
 	r_2 := _aValue, _Get
 	r_1 := §OBJ:r_2 EMPTY
-	_Result := r_1
+	r_3 := §WITH_TYPE INT_TYPE WITH r_1
+	_Result := r_3
 	§RETURN _Result IF TRUE
 
 §DEF d_2 € t_7

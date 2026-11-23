@@ -51,6 +51,88 @@ mVM_Type_Tests {
 		nameof(mVM_Type),
 		[
 			mTest.Test(
+				"Recursive text extensions are proved without binding recursive heads",
+				aDebug => {
+					var Text = mVM_Type.Text();
+					var Head = mVM_Type.Free("Extended", mVM_Type.Type());
+					var Extended = mVM_Type.Recursive(Head, mVM_Type.Set(Text, mVM_Type.Pair(Head, mVM_Type.Char())));
+					mAssert.IsTrue(Extended.IsSubType(Text).ElseThrow().Deep() == 0);
+					mAssert.IsTrue(Text.IsSubType(Extended).ElseThrow().Deep() == 0);
+					var OtherHead = mVM_Type.Free("Other", mVM_Type.Type());
+					var Booleans = mVM_Type.Recursive(OtherHead, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(OtherHead, mVM_Type.Bool())));
+					mAssert.IsTrue(Extended.IsSubType(Booleans).IsFail(out _, out _));
+				}
+			),
+			mTest.Test(
+				"A recursive assumption does not hide incompatible fields or unguarded targets",
+				aDebug => {
+					static mVM_Type.tType Node(mVM_Type.tType aValue) {
+						var Head = mVM_Type.Free("Node", mVM_Type.Type());
+						return mVM_Type.Recursive(Head, mVM_Type.Record([("Next", Head), ("Value", aValue)]));
+					}
+					
+					mAssert.IsTrue(Node(mVM_Type.Int()).IsSubType(Node(mVM_Type.Bool())).IsFail(out _, out _));
+					var Loop = mVM_Type.Free("Loop", mVM_Type.Type());
+					mAssert.IsTrue(mVM_Type.Int().IsSubType(mVM_Type.Recursive(Loop, Loop)).IsFail(out _, out _));
+				}
+			),
+			mTest.Test(
+				"Fold inference checks both accumulator bounds after choosing its type",
+				aDebug => {
+					var Result = mVM_Type.Free("Result", mVM_Type.Type());
+					var Empty = mVM_Type.Empty();
+					var Signature = mVM_Type.Generic(Result, mVM_Type.Proc(Empty, mVM_Type.Tuple([Result, mVM_Type.Proc(Empty, Result, Result)]), Result));
+					var Initial = mVM_Type.Record([("Value", mVM_Type.False())]);
+					var State = mVM_Type.Record([("Value", mVM_Type.Bool())]);
+					var Callback = mVM_Type.Proc(Empty, State, State);
+					var Inferred = mVM_Type.InferCall(Signature, Empty, mVM_Type.Tuple([Initial, Callback]), _ => {}).ElseThrow();
+					mAssert.IsTrue(Inferred.Result.IsSubType(State).Match(out _, out _));
+					mAssert.IsTrue(State.IsSubType(Inferred.Result).Match(out _, out _));
+					var Invalid = mVM_Type.Proc(Empty, mVM_Type.Int(), mVM_Type.Bool());
+					mAssert.IsTrue(mVM_Type.InferCall(Signature, Empty, mVM_Type.Tuple([mVM_Type.Int(), Invalid]), _ => {}).IsFail(out _, out _));
+				}
+			),
+			mTest.Test(
+				"Recursive list refinements retain their closed head",
+				aDebug => {
+					var Head = mVM_Type.Free("List", mVM_Type.Type());
+					var List = mVM_Type.Recursive(Head, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Head, mVM_Type.Int())));
+					var Expanded = List.Refs[1].Substitute(Head, List);
+					mAssert.IsTrue(List.IsSubType(Expanded).Match(out _, out _));
+					mAssert.IsTrue(Expanded.IsSubType(List).Match(out _, out _));
+					var One = mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int());
+					var Remaining = List.Subtract(One).AssertNotEmpty();
+					mAssert.IsTrue(Remaining.IsSubType(List).Match(out _, out _));
+					mAssert.IsFalse(One.IsSubType(Remaining).Match(out _, out _));
+					mAssert.IsTrue(mVM_Type.Pair(One, mVM_Type.Int()).IsSubType(Remaining).Match(out _, out _));
+				}
+			),
+			mTest.Test(
+				"Opening a type constructor preserves opaque argument views",
+				aDebug => {
+					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
+					var Constructor = mVM_Type.Abstract("List", Kind);
+					var Parameter = mVM_Type.Free("Element", mVM_Type.Type());
+					var Head = mVM_Type.Free("Node", mVM_Type.Type());
+					var Known = mVM_Type.Generic(Parameter, mVM_Type.Recursive(Head, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Head, Parameter))));
+					var Inner = Constructor.ApplyType(mVM_Type.Int());
+					var Nested = Constructor.ApplyType(Inner);
+					var Opened = Nested.ResolveWitnesses(new(Constructor, Known, false), false);
+					mAssert.IsTrue(Opened.SameType(Known.ApplyType(Inner)));
+					mAssert.IsFalse(Opened.SameType(Known.ApplyType(Known.ApplyType(mVM_Type.Int()))));
+				}
+			),
+			mTest.Test(
+				"A function argument constrained by BOOL retains both alternatives",
+				aDebug => {
+					var Parameter = mVM_Type.Free("Value", mVM_Type.Type());
+					var Source = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Bool(), mVM_Type.Int());
+					var Target = mVM_Type.Proc(mVM_Type.Empty(), Parameter, mVM_Type.Int());
+					var Mappings = Source.IsSubType(Target).ElseThrow();
+					mAssert.IsTrue(Parameter.ApplyMappings(Mappings).SameType(mVM_Type.Bool()));
+				}
+			),
+			mTest.Test(
 				"A record is immutable exactly when its declared fields are immutable",
 				aDebug => {
 					var Inner = mVM_Type.Record([("Value", mVM_Type.Int())]);
@@ -180,6 +262,38 @@ mVM_Type_Tests {
 					mAssert.IsTrue(
 						Free.ApplyMappings(Updated).SameType(mVM_Type.Set(mVM_Type.Int(), mVM_Type.False()))
 					);
+				}
+			),
+			mTest.Test(
+				"Inference rejects an unbound type containing itself",
+				aDebug => {
+					var Parameter = mVM_Type.Free("t", mVM_Type.Type());
+					mAssert.IsFalse(mVM_Type.Pair(mVM_Type.Empty(), Parameter).IsSubType(Parameter).Match(out _, out _));
+					mAssert.IsTrue(Parameter.IsSubType(Parameter).Match(out _, out _));
+				}
+			),
+			mTest.Test(
+				"Generic calls instantiate their binder separately from caller variables",
+				aDebug => {
+					var Parameter = mVM_Type.Free("t", mVM_Type.Type());
+					var Function = mVM_Type.Generic(Parameter, mVM_Type.Proc(mVM_Type.Empty(), Parameter, Parameter));
+					var Argument = mVM_Type.Set(Parameter, mVM_Type.Empty());
+					var Bound = mVM_Type.BindCall(Function, mVM_Type.Empty(), Argument, _ => {}).AssertNotError(__ => __);
+					mAssert.IsTrue(Bound.Result.SameType(Argument));
+					mAssert.IsTrue(Bound.Mappings.TryGet(Parameter).IsNone());
+				}
+			),
+			mTest.Test(
+				"Universal signatures keep parameter identities separate",
+				aDebug => {
+					var A = mVM_Type.Free("a", mVM_Type.Type());
+					var B = mVM_Type.Free("b", mVM_Type.Type());
+					var First = mVM_Type.Generic(A, mVM_Type.Generic(B, mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(A, B), A)));
+					var Second = mVM_Type.Generic(A, mVM_Type.Generic(B, mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(A, B), B)));
+					mAssert.IsFalse(First.IsSubType(Second).Match(out _, out _));
+					var Identity = mVM_Type.Generic(A, mVM_Type.Proc(mVM_Type.Empty(), A, A));
+					var Outer = mVM_Type.Free("outer", mVM_Type.Type());
+					mAssert.IsFalse(mVM_Type.Proc(mVM_Type.Empty(), Outer, Outer).IsSubType(Identity).Match(out _, out _));
 				}
 			),
 			mTest.Test(

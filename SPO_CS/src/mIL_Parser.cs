@@ -120,6 +120,10 @@ mIL_Parser {
 			.ModifyS((aSpan, a1, _, a2, a3) => mIL_AST.CreateSig(aSpan, a1.Text, a2.Text, a3.Text))
 			.SetDebugName([nameof(mIL_AST.CreateSig)]),
 
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("BIND_TYPE") +Id, -Token("AS") +Id)
+			.ModifyS((aSpan, aId, _, aValue, aSymbol) => mIL_AST.BindType(aSpan, aId.Text, aValue.Text, aSymbol.Text))
+			.SetDebugName([nameof(mIL_AST.BindType)]),
+			
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("SIG_HEAD") +Id, -Token("AS") +Id)
 			.ModifyS((aSpan, aId, _, aSig, aWitness) => mIL_AST.GetSigHeadAs(aSpan, aId.Text, aSig.Text, aWitness.Text))
 			.SetDebugName([nameof(mIL_AST.GetSigHeadAs)]),

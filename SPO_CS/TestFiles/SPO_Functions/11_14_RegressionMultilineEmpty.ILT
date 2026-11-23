@@ -39,13 +39,13 @@
 
 §DEF d_4 € t_16
 	d_3 := §2ND ENV
-	r_17 := §1ST ENV
-	d_2 := §2ND r_17
-	r_18 := §1ST r_17
-	d_1 := §2ND r_18
-	r_19 := §1ST r_18
-	d_0 := §2ND r_19
+	r_19 := §1ST ENV
+	d_2 := §2ND r_19
 	r_20 := §1ST r_19
+	d_1 := §2ND r_20
+	r_21 := §1ST r_20
+	d_0 := §2ND r_21
+	r_22 := §1ST r_21
 	r_1 := §CLOSURE d_0 EMPTY
 	_Empty := r_1
 	r_2 := §CLOSURE d_1 EMPTY
@@ -58,15 +58,17 @@
 	_Cell := §VAR r_5
 	r_7 := _Cell, _Read
 	r_6 := §OBJ:r_7 EMPTY
-	_BareMethod := r_6
-	r_9 := _Cell, _Read...
-	r_8 := §OBJ:r_9 EMPTY
-	_ExplicitMethod := r_8
-	r_10 := ._Empty EMPTY
-	r_11 := EMPTY, r_10
-	r_12 := ._Empty... EMPTY
-	r_13 := r_11, r_12
-	r_14 := r_13, _BareMethod
-	r_15 := r_14, _ExplicitMethod
-	r_16 := r_15, EMPTY
-	§RETURN r_16 IF TRUE
+	r_8 := §WITH_TYPE INT_TYPE WITH r_6
+	_BareMethod := r_8
+	r_10 := _Cell, _Read...
+	r_9 := §OBJ:r_10 EMPTY
+	r_11 := §WITH_TYPE INT_TYPE WITH r_9
+	_ExplicitMethod := r_11
+	r_12 := ._Empty EMPTY
+	r_13 := EMPTY, r_12
+	r_14 := ._Empty... EMPTY
+	r_15 := r_13, r_14
+	r_16 := r_15, _BareMethod
+	r_17 := r_16, _ExplicitMethod
+	r_18 := r_17, EMPTY
+	§RETURN r_18 IF TRUE

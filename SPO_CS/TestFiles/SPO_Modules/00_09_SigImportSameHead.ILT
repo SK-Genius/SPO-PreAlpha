@@ -1,16 +1,16 @@
 §TYPES
 	t_0 := [§ABSTRACT TYPE]
-	t_1 := [§FREE TYPE]
-	t_2 := [t_1 => INT]
-	t_3 := [§SIG_WITH t_1 IN t_2]
-	t_4 := [#_SigReader t_3]
-	t_5 := [{EMPTY_TYPE} + t_4]
-	t_6 := [§FREE TYPE]
-	t_7 := [§SIG_WITH t_6 IN t_6]
-	t_8 := [#_SigValue t_7]
-	t_9 := [{t_5} + t_8]
-	t_10 := [EMPTY_TYPE | INT]
-	t_11 := [t_9 => t_10]
+	t_1 := [EMPTY_TYPE | INT]
+	t_2 := [§FREE TYPE]
+	t_3 := [t_2 => INT]
+	t_4 := [§SIG_WITH t_2 IN t_3]
+	t_5 := [#_SigReader t_4]
+	t_6 := [{EMPTY_TYPE} + t_5]
+	t_7 := [§FREE TYPE]
+	t_8 := [§SIG_WITH t_7 IN t_7]
+	t_9 := [#_SigValue t_8]
+	t_10 := [{t_6} + t_9]
+	t_11 := [t_10 => t_1]
 	t_12 := [EMPTY_TYPE => t_11]
 
 §DEF d_0 € t_12
@@ -18,12 +18,14 @@
 	r_2 := §SIG_HEAD r_1 AS t_0
 	r_3 := §SIG_BODY r_1
 	_t := r_2
+	r_4 := §BIND_TYPE _t AS t_0
 	_Value := r_3
-	r_4 := {ARG} #_SigReader
-	r_5 := §TRY r_4 HAS_HEAD_TYPE _t
-	r_6 := §SIG_HEAD r_5 AS t_0
-	r_7 := §SIG_BODY r_5
-	_Read... := r_7
-	r_8 := ._Read... _Value
-	_Result := r_8
+	r_5 := {ARG} #_SigReader
+	r_6 := §TRY r_5 HAS_HEAD_TYPE r_4
+	r_7 := §SIG_HEAD r_6 AS t_0
+	r_8 := §SIG_BODY r_6
+	_Read... := r_8
+	r_9 := ._Read... _Value
+	r_10 := §WITH_TYPE t_1 WITH r_9
+	_Result := r_10
 	§RETURN _Result IF TRUE

@@ -7,6 +7,18 @@
 
 public static class
 mRuntime {
+	public static tBool
+	OpenSig(
+		this (mVM_Data.tData Data, mVM_Type.tType Type) aPackage,
+		out mVM_Type.tType aContract,
+		out mVM_Data.tData aHead,
+		out mVM_Data.tData aBody
+	) {
+		if (!aPackage.IsSig(out aContract, out aHead, out aBody)) { return false; }
+		aBody = mVM.OpenSig<mSpan.tSpan<mTextStream.tPos>>(aPackage).Data;
+		return true;
+	}
+	
 	public static tInt32
 	WithCompilerStack(
 		mStd.tFunc<tInt32> aRun

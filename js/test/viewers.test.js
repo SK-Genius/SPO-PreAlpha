@@ -2,6 +2,7 @@ import * as spo from "../viewer.spo.js";
 import * as jni from "../viewer.jni.js";
 import * as txt from "../viewer.txt.js";
 import * as ini from "../viewer.ini.js";
+import * as cs from "../viewer.cs.js";
 
 // Import and run in a browser served from the repository root.
 export async function run() {
@@ -43,7 +44,8 @@ export async function run() {
 			[spo, "spo", 'root (\n\tname = "text"\n)\n'],
 			[spo, "ilt", 'IF true\n\tFROM source\n'],
 			[jni, "jni", "root:\n|key=value\n|body:\n||<script>raw</script>\n"],
-			[ini, "ini", "; comment\n[section]\nkey=<script>raw</script>\n"]
+			[ini, "ini", "; comment\n[section]\nkey=<script>raw</script>\n"],
+			[cs, "cs", 'public static class mExample {\n\tconst tText cText = "<script>raw</script>";\n}\n']
 		]) {
 			for (const mode of ["file", "embedded", "inline"]) {
 				await render(viewer, source, extension, mode);
@@ -71,6 +73,24 @@ export async function run() {
 		for (const viewer of [spo, txt]) {
 			await render(viewer, ["root", "\tchild", ...Array.from({ length: 70 }, (_, i) => "\t\tleaf " + i)].join("\n"), viewer === spo ? "spo" : "txt");
 			assert(JSON.stringify(await scrollTo(20)) === "[1,2]", "SPO and TXT share whitespace indentation hierarchy");
+		}
+		const body = Array.from({ length: 90 }, (_, index) => "\t\tvalue " + index);
+		for (const extension of ["spo", "sig", "ilt"]) {
+			for (const mode of ["file", "embedded"]) {
+				for (const [lines, expected, description] of [
+					[["Start(", ")", "]", "}", ">", ")", "]", "}", "> {"], [1,2,3,4,5,6,7,8,9], "keeps a whole closer chain beyond six lines"],
+					[["Old(", "\targument", ")", "New(", "\targument", ") {"], [4,6], "stops at the first non-closing sibling"],
+					[["Start(", ")", "", "]", "> {"], [1,2,4,5], "skips blank lines"],
+					[["Old {", "\tFirst(", "\t) {", "\t\targument", "}", "New {", "\t) {"], [6,7], "stays within the enclosing scope"],
+					[["\tHeader(", "    ) {"], [1,2], "compares tab and space indentation by columns"],
+					[["Outer (", "\tInner (", "\t\targument", ") {"], [1,2,4], "retains matching bracket context alongside same-level context"],
+					[['"unclosed', ")"], [2], "ignores closing characters inside string tokens"]
+				]) {
+					await render(spo, [...lines, ...body].join("\n"), extension, mode);
+					const actual = await scrollTo(lines.length + 10);
+					assert(JSON.stringify(actual) === JSON.stringify(expected), extension + " " + mode + ": " + description + " (got " + actual + ")");
+				}
+			}
 		}
 		await render(ini, ["[first]", ...Array.from({ length: 65 }, (_, i) => "key" + i + "=value"), "[second]", ...Array.from({ length: 40 }, (_, i) => "key" + i + "=value")].join("\n"), "ini");
 		assert(JSON.stringify(await scrollTo(20)) === "[1]", "INI section remains sticky");

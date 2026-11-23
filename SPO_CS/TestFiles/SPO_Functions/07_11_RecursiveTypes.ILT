@@ -28,19 +28,20 @@
 
 §DEF d_1 € t_14
 	d_0 := ENV
-	_tIntArray := t_3
-	r_1 := §CLOSURE d_0 EMPTY
-	_...Append... := r_1
-	r_2 := EMPTY, EMPTY
-	r_3 := 1
-	r_4 := r_2, r_3
-	r_5 := ._...Append... r_4
-	r_6 := EMPTY, r_5
-	r_7 := 2
-	r_8 := r_6, r_7
-	r_9 := ._...Append... r_8
-	r_10 := EMPTY, r_9
-	r_11 := 3
-	r_12 := r_10, r_11
-	r_13 := ._...Append... r_12
-	§RETURN r_13 IF TRUE
+	r_1 := §WITH_TYPE Type_TYPE WITH t_3
+	_tIntArray := r_1
+	r_2 := §CLOSURE d_0 EMPTY
+	_...Append... := r_2
+	r_3 := EMPTY, EMPTY
+	r_4 := 1
+	r_5 := r_3, r_4
+	r_6 := ._...Append... r_5
+	r_7 := EMPTY, r_6
+	r_8 := 2
+	r_9 := r_7, r_8
+	r_10 := ._...Append... r_9
+	r_11 := EMPTY, r_10
+	r_12 := 3
+	r_13 := r_11, r_12
+	r_14 := ._...Append... r_13
+	§RETURN r_14 IF TRUE

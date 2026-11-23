@@ -379,7 +379,8 @@
 §DEF d_5 € t_31
 	_a := ARG
 	r_1 := -#_Char... _a
-	_Ord := r_1
+	r_2 := §WITH_TYPE INT_TYPE WITH r_1
+	_Ord := r_2
 	§RETURN _Ord IF TRUE
 
 §DEF d_6 € t_33

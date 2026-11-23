@@ -3,19 +3,30 @@
 #:property OutputType = "Library"
 #:include _GlobalUsings.cs
 #:ref mIL_TypeChecker.cs
+#:ref mIL_Specialize.cs
 
 using tIL_CommandType = mIL_AST.tCommandNodeType;
 
 public static class
 mIL_GenerateOpcodes {
+	public static (mStream.tStream<mVM_Data.tProcDef<tPos>> Defs, mTreeMap.tTree<tText, tNat32> DefIdToIndex) GenerateOpcodes<tPos>(
+		mIL_AST.tModule<tPos> aModule,
+		(mVM_Data.tData Data, mVM_Type.tType Type) aImport,
+		mStream.tStream<(mVM_Type.tType Function, mVM_Type.tType Object, mVM_Type.tType Argument)> aNativeCalls = default
+	) {
+		var Templates = GenerateTemplates(aModule);
+		var Definitions = Templates.Defs.ToArrayList();
+		Definitions.Set(Definitions.Size - 1, mIL_Specialize.Prepare(Templates.Defs, aImport, aNativeCalls));
+		return (Definitions.ToStream(), Templates.DefIdToIndex);
+	}
+	
 	// The caller validates the IL and its import types before generating code.
 	public static (
 		mStream.tStream<mVM_Data.tProcDef<tPos>> Defs,
 		mTreeMap.tTree<tText, tNat32> DefIdToIndex
 	)
-	GenerateOpcodes<tPos>(
-		mIL_AST.tModule<tPos> aModule,
-		(mVM_Data.tData Data, mVM_Type.tType Type) aImport
+	GenerateTemplates<tPos>(
+		mIL_AST.tModule<tPos> aModule
 	) {
 		var Types = mIL_TypeChecker.ModuleTypes(aModule).ModifyError(mIL_TypeChecker.ErrorText).ElseThrow();
 		var TypeIdToIndex = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
@@ -178,7 +189,22 @@ mIL_GenerateOpcodes {
 					};
 					
 					Proc.PosList.Push(Command.Pos);
+					
+					if (Opcode is mVM_Data.tOpCode.NewSig) {
+						var Payload = mAssert.IsNotNull(RegBuffer.Get(aReg2Index).Data);
+						mAssert.IsTrue(Payload.IsPair(out var Head, out _));
+						Proc.SigHeads = Proc.SigHeads.Set(Proc.Commands.Size, Head.TypeExpressionValue());
+					}
+					
 					Proc.Commands.Push((Opcode, aReg1Index, aReg2Index, mStd.NewDebugId()));
+					
+					Proc.OperandTypes.Push(
+						(
+							aReg1Index < RegBuffer.Size ? RegBuffer.Get(aReg1Index).Type : mVM_Type.Empty(),
+							aReg2Index < RegBuffer.Size ? RegBuffer.Get(aReg2Index).Type : mVM_Type.Empty(),
+							aType
+						)
+					);
 					
 					if (aType is null) {
 						return Proc._LastReg;
@@ -201,7 +227,11 @@ mIL_GenerateOpcodes {
 					}
 					
 					var Type = Types.TryGet(aRegId).AssertNotEmpty();
-					Reg = Proc.LoadConstant(Command.Pos, TypeIdToIndex.TryGet(aRegId).AssertNotEmpty());
+					Reg = RegBuffer.Size;
+					Proc.PosList.Push(Command.Pos);
+					Proc.Commands.Push((mVM_Data.tOpCode.LoadConstant, TypeIdToIndex.TryGet(aRegId).AssertNotEmpty(), 0u, mStd.NewDebugId()));
+					Proc.OperandTypes.Push((mVM_Type.Empty(), mVM_Type.Empty(), Type.KindType()));
+					Proc._LastReg = Reg;
 					RegBuffer.Push((Type.KindType(), mVM_Data.TypeExpression(Type)));
 					Proc.Types.Push(Type.KindType());
 					RegIdToIndex = RegIdToIndex.Set(aRegId, Reg);
@@ -262,6 +292,14 @@ mIL_GenerateOpcodes {
 						RegIdToIndex = RegIdToIndex.Set(ResId, GetRegIndex(Command._2.AssertNotEmpty()));
 						continue;
 					}
+					case tIL_CommandType.BindType: {
+						var Register = GetRegIndex(Command._2.AssertNotEmpty());
+						var Symbol = Types.TryGet(Command._3.AssertNotEmpty()).AssertNotEmpty();
+						Proc.TypeBindings.Push((Symbol, Register));
+						RegIdToIndex = RegIdToIndex.Set(ResId, Register);
+						RegBuffer.Update(Register, __ => (__.Type, mVM_Data.TypeExpression(Symbol)));
+						continue;
+					}
 					case tIL_CommandType.Int: {
 						RegIdToIndex = RegIdToIndex.Set(
 							ResId,
@@ -298,8 +336,6 @@ mIL_GenerateOpcodes {
 								Guard,
 								mVM_Type.Pair(Type, RegBuffer.Get(Guard).Type)
 							);
-						} else if (RegBuffer.Get(Argument).Type.Subtract(ExpectedArgument).IsSome(out var Remainder)) {
-							RegBuffer.Update(Argument, __ => (Remainder, __.Data));
 						}
 						
 						if (Command._3.IsNone() && MatchType.IsAny()) {
@@ -327,10 +363,12 @@ mIL_GenerateOpcodes {
 						);
 						
 						Emit(tIL_CommandType.ReturnIfNotEmpty, Temporary);
-						var (_, Success) = Result.SplitBy(__ => __.IsEmpty());
 						
-						if (Success.IsSome(out var SuccessType)) {
-							ReturnType = mVM_Type.Set(ReturnType, SuccessType);
+						if (Command._3.IsNone() && RegBuffer.Get(Argument).Type.Subtract(ExpectedArgument).IsSome(out var Remainder)) {
+							Proc.PosList.Push(Command.Pos);
+							Proc.Commands.Push((mVM_Data.tOpCode.Narrow, Argument, 0u, mStd.NewDebugId()));
+							Proc.OperandTypes.Push((RegBuffer.Get(Argument).Type, Remainder, null));
+							RegBuffer.Update(Argument, __ => (Remainder, __.Data));
 						}
 						
 						continue;
@@ -354,12 +392,6 @@ mIL_GenerateOpcodes {
 				
 				switch (IL_CommandType) {
 					case tIL_CommandType.ReturnIfNotEmpty: {
-						var (_, Returned) = Reg1_Type.SplitBy(__ => __.IsEmpty());
-						
-						if (Returned.IsSome(out var Type)) {
-							ReturnType = mVM_Type.Set(ReturnType, Type);
-						}
-						
 						Emit(IL_CommandType, Reg1_Id);
 						RegBuffer.Update(Reg1_Id, __ => (mVM_Type.Empty(), __.Data));
 						continue;
@@ -421,7 +453,15 @@ mIL_GenerateOpcodes {
 							Head = Witness;
 						}
 						
-						RegBuffer.Update(Reg1_Id, __ => (mVM_Type.Sig(Head, Body), __.Data));
+						var Refined = mVM_Type.Sig(Head, Body);
+						
+						if (!Reg1_Type.SameType(Refined)) {
+							Proc.PosList.Push(Command.Pos);
+							Proc.Commands.Push((mVM_Data.tOpCode.Narrow, Reg1_Id, 0u, mStd.NewDebugId()));
+							Proc.OperandTypes.Push((Reg1_Type, Refined, null));
+						}
+						
+						RegBuffer.Update(Reg1_Id, __ => (Refined, __.Data));
 						
 						(Res_Type, Res_Value) = (
 							IL_CommandType is tIL_CommandType.SigBody
@@ -487,10 +527,6 @@ mIL_GenerateOpcodes {
 						);
 						
 						Res_Type = Success.AssertNotEmpty();
-						
-						if (Failure.IsSome(out var FailureType)) {
-							ReturnType = mVM_Type.Set(ReturnType, FailureType);
-						}
 						
 						if (IL_CommandType is tIL_CommandType.TryRemovePrefixFrom) {
 							mAssert.IsTrue(Res_Type.IsPrefix(Reg2, out Res_Type!));

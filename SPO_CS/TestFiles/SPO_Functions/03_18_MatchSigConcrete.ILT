@@ -63,6 +63,7 @@
 	r_5 := §2ND ARG
 	r_1 := §SIG_HEAD r_5 AS t_10
 	r_2 := §SIG_BODY r_5
+	_sigHead7105790 := r_1
 	r_3 := 0
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
@@ -97,30 +98,32 @@
 
 §DEF d_6 € t_19
 	d_5 := §2ND ENV
-	r_14 := §1ST ENV
-	d_4 := §2ND r_14
-	r_15 := §1ST r_14
-	d_3 := §2ND r_15
-	r_16 := §1ST r_15
-	d_2 := §2ND r_16
+	r_16 := §1ST ENV
+	d_4 := §2ND r_16
 	r_17 := §1ST r_16
-	d_1 := §2ND r_17
+	d_3 := §2ND r_17
 	r_18 := §1ST r_17
-	d_0 := §2ND r_18
+	d_2 := §2ND r_18
 	r_19 := §1ST r_18
-	_Contract := t_1
-	_tBool := t_2
-	r_1 := 1
-	r_2 := INT_TYPE, r_1
-	r_3 := §SIG t_1 WITH r_2
-	r_4 := EMPTY, d_0
-	r_5 := r_4, d_1
-	r_6 := r_5, d_2
-	r_7 := r_6, d_3
-	r_8 := r_7, d_4
-	r_9 := §CLOSURE d_5 r_8
-	r_10 := EMPTY, r_3
-	r_11 := OBJ, r_9
-	r_12 := §OBJ:r_11 r_10
-	r_13 := -#Result r_12
-	§RETURN r_13 IF TRUE
+	d_1 := §2ND r_19
+	r_20 := §1ST r_19
+	d_0 := §2ND r_20
+	r_21 := §1ST r_20
+	r_1 := §WITH_TYPE Type_TYPE WITH t_1
+	_Contract := r_1
+	r_2 := §WITH_TYPE Type_TYPE WITH t_2
+	_tBool := r_2
+	r_3 := 1
+	r_4 := INT_TYPE, r_3
+	r_5 := §SIG t_1 WITH r_4
+	r_6 := EMPTY, d_0
+	r_7 := r_6, d_1
+	r_8 := r_7, d_2
+	r_9 := r_8, d_3
+	r_10 := r_9, d_4
+	r_11 := §CLOSURE d_5 r_10
+	r_12 := EMPTY, r_5
+	r_13 := OBJ, r_11
+	r_14 := §OBJ:r_13 r_12
+	r_15 := -#Result r_14
+	§RETURN r_15 IF TRUE

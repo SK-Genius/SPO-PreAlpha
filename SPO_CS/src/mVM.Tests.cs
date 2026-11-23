@@ -12,6 +12,18 @@
 
 public static class
 mVM_Tests {
+	private static mVM_Data.tData CallPrepared(
+		mVM_Data.tData aFunction,
+		mVM_Data.tData aObject,
+		mVM_Data.tData aArgument,
+		mStd.tFunc<mStd.tEmpty, tText> aPosition,
+		mStd.tAction<mStd.tFunc<tText>> aTrace
+	) {
+		mAssert.IsTrue(aFunction.IsProc<mStd.tEmpty>(out var Definition, out _));
+		var Signature = Definition.DefType.Refs[2];
+		mIL_Specialize.PrepareNativeCall<mStd.tEmpty>((aFunction, Signature), (aObject, Signature.Refs[0]), (aArgument, Signature.Refs[1]));
+		return mVM.Call(aFunction, aObject, aArgument, aPosition, aTrace);
+	}
 	private static
 	mVM_Data.tData
 	Add (
@@ -45,15 +57,17 @@ mVM_Tests {
 		Definition.TryAsSig(mStd.cEmpty, mVM_Data.cArgReg, 0);
 		Definition.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, mVM_Data.cTrueReg);
 		
-		var Result = mVM.Call<mStd.tEmpty>(
-			mVM_Data.Proc(Definition, mVM_Data.Empty()),
-			mVM_Data.Empty(),
-			mVM_Data.Sig(Contract, mVM_Data.TypeExpression(mVM_Type.Int()), aValue),
-			_ => "",
-			_ => {}
-		);
+		try {
+			var Result = CallPrepared(
+				mVM_Data.Proc(Definition, mVM_Data.Empty()),
+				mVM_Data.Empty(),
+				mVM_Data.DynamicSig(Contract, mVM_Data.TypeExpression(mVM_Type.Int()), aValue),
+				_ => "",
+				_ => {}
+			);
 		
-		return Result.IsBool(out var Accepted) && Accepted;
+			return Result.IsBool(out var Accepted) && Accepted;
+		} catch (mError.tError) { return false; }
 	}
 	
 	public static readonly mTest.tTest
@@ -94,7 +108,7 @@ mVM_Tests {
 					
 					var Receiver = mVM_Type.Free(mVM_Type.Type());
 					
-					var WrongReceiver = mVM_Data.Interface(
+					var WrongReceiver = mVM_Data.DynamicInterface(
 						mVM_Type.Interface(
 							Receiver,
 							mVM_Type.Record([("Read", mVM_Type.Proc(Receiver, mVM_Type.Int(), mVM_Type.Int()))])
@@ -106,8 +120,10 @@ mVM_Tests {
 					mAssert.ThrowsError(
 						() => mVM.CallMethod<mStd.tEmpty>(WrongReceiver, "Read", mVM_Data.Int(1), _ => "", Trace)
 					);
+					
 					mAssert.AreEquals(0, Traces);
-					var Result = mVM.Call<mStd.tEmpty>(
+					
+					var Result = CallPrepared(
 						Function,
 						mVM_Data.Int(1),
 						mVM_Data.Int(2),
@@ -115,7 +131,7 @@ mVM_Tests {
 						Trace
 					);
 					
-					mAssert.AreEquals(mVM_Data.Int(1), Result);
+					mAssert.IsTrue(Result.IsInt(out var Value) && Value == 1);
 					mAssert.IsTrue(Traces > 0);
 				}
 			),
@@ -141,13 +157,16 @@ mVM_Tests {
 						mVM_Type.Record([("Echo", mVM_Type.Proc(Receiver, ArgumentType, mVM_Type.Any()))])
 					);
 					
-					var Capability = mVM_Data.Interface(
+					var Capability = mVM_Data.DynamicInterface(
 						Contract,
 						mVM_Data.Int(1),
 						mVM_Data.Record([("Echo", mVM_Data.Proc(Implementation, mVM_Data.Empty()))])
 					);
 					
 					var Argument = mVM_Data.Record([("Value", mVM_Data.Int(7)), ("Extra", mVM_Data.Int(9))]);
+					var Function = Capability._Value.To<mVM_Data.tDynamicValue>().Data._Value.To<mVM_Data.tInterface>().Methods.GetField("Echo".PrefixHash());
+					var Signature = mVM_Type.Proc(mVM_Type.Int(), ArgumentType, mVM_Type.Any());
+					mIL_Specialize.PrepareNativeCall<mStd.tEmpty>((Function, Signature), (mVM_Data.Int(1), mVM_Type.Int()), (Argument, ArgumentType));
 					
 					var Result = mVM.CallMethod<mStd.tEmpty>(
 						Capability,
@@ -159,11 +178,51 @@ mVM_Tests {
 					
 					mAssert.IsTrue(Result.IsRecord(out var Fields));
 					mAssert.IsTrue(Fields.TryGet("Value".PrefixHash()).IsSome(out var Value));
-					mAssert.AreEquals(mVM_Data.Int(7), Value);
+					mAssert.IsTrue(Value.IsInt(out var Number) && Number == 7);
 					mAssert.IsTrue(Fields.TryGet("Extra".PrefixHash()).IsSome(out _));
-					mAssert.AreEquals(Argument, Result);
+					mAssert.IsTrue(ReferenceEquals(Argument, Result._Value.To<mVM_Data.tDynamicValue>().Data));
 					mAssert.IsTrue(Argument.IsRecord(out var OriginalFields));
 					mAssert.AreEquals(2u, OriginalFields.ToStream().Count());
+				}
+			),
+			mTest.Test(
+				"Public native interface calls use the declared implementation argument layout",
+				_ => {
+					var Empty = mVM_Type.Empty();
+					var Head = mVM_Type.Free(mVM_Type.Type());
+					var Contract = mVM_Type.Interface(Head, mVM_Type.Record([("Read", mVM_Type.Proc(Head, mVM_Type.Int(), mVM_Type.Int()))]));
+					var Calls = 0;
+					
+					var Native = mVM_Data.ExternProc(
+						mVM_Type.Proc(mVM_Type.Int(), mVM_Type.Any(), mVM_Type.Int()),
+						(_, aObject, aArgument, _) => {
+							Calls += 1;
+							mAssert.IsTrue(aObject.IsInt(out var Receiver) && Receiver == 7);
+							mAssert.IsTrue(aArgument._Value.Is(out mVM_Data.tDynamicValue Value) && Value.ActualType.IsInt());
+							return aArgument._Value.To<mVM_Data.tDynamicValue>().Data;
+						},
+						mVM_Data.Empty()
+					);
+					
+					var Capability = mVM_Data.DynamicInterface(Contract, mVM_Data.Int(7), mVM_Data.Record([("Read", Native)]));
+					mAssert.ThrowsError(() => mVM.CallMethod<mStd.tEmpty>(Capability, "Read", mVM_Data.Bool(false), _ => "", mVM.cNoTrace));
+					mAssert.AreEquals(Calls, 0);
+					var Result = mVM.CallMethod<mStd.tEmpty>(Capability, "Read", mVM_Data.Int(42), _ => "", mVM.cNoTrace);
+					mAssert.IsTrue(Result.IsInt(out var Number) && Number == 42);
+					mAssert.AreEquals(Calls, 1);
+					var WrongReceiver = mVM_Data.DynamicInterface(Contract, mVM_Data.Bool(false), mVM_Data.Record([("Read", Native)]));
+					mAssert.ThrowsError(() => mVM.CallMethod<mStd.tEmpty>(WrongReceiver, "Read", mVM_Data.Int(42), _ => "", mVM.cNoTrace));
+					mAssert.AreEquals(Calls, 1);
+					
+					var HiddenResult = mVM_Data.ExternProc(
+						mVM_Type.Proc(mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Opaque(mVM_Type.Int())),
+						(_, _, _, _) => { Calls += 1; return mVM_Data.Empty(); },
+						mVM_Data.Empty()
+					);
+					
+					var Invalid = mVM_Data.DynamicInterface(Contract, mVM_Data.Int(7), mVM_Data.Record([("Read", HiddenResult)]));
+					mAssert.ThrowsError(() => mVM.CallMethod<mStd.tEmpty>(Invalid, "Read", mVM_Data.Int(42), _ => "", mVM.cNoTrace));
+					mAssert.AreEquals(Calls, 1);
 				}
 			),
 			mTest.Test(
@@ -172,9 +231,10 @@ mVM_Tests {
 					var Calls = 0;
 					
 					var Native = mVM_Data.ExternProc(
+						mVM_Type.Proc(mVM_Type.Int(), mVM_Type.Int(), mVM_Type.Int()),
 						(aEnvironment, aObject, aArgument, aTrace) => {
 							Calls += 1;
-							mAssert.AreEquals(mVM_Data.Int(7), aObject);
+							mAssert.IsTrue(aObject.IsInt(out var Number) && Number == 7);
 							return aArgument;
 						},
 						mVM_Data.Empty()
@@ -187,7 +247,7 @@ mVM_Tests {
 						mVM_Type.Record([("Read", mVM_Type.Proc(Receiver, mVM_Type.Int(), mVM_Type.Int()))])
 					);
 					
-					var Capability = mVM_Data.Interface(
+					var Capability = mVM_Data.DynamicInterface(
 						Contract,
 						mVM_Data.Int(7),
 						mVM_Data.Record([("Read", Native)])
@@ -226,12 +286,12 @@ mVM_Tests {
 						_ => {}
 					);
 					
-					mAssert.AreEquals(mVM_Data.Int(42), Result);
+					mAssert.IsTrue(Result.IsInt(out var Number) && Number == 42);
 					mAssert.AreEquals(1, Calls);
 				}
 			),
 			mTest.Test(
-				"Runtime patterns accept matching values and reject mismatches",
+				"Native pattern inputs validate declared types before matching",
 				aDebug => {
 					foreach (
 						var Case in mStream.Stream<
@@ -249,7 +309,7 @@ mVM_Tests {
 							("True", mVM_Data.Bool(true), mVM_Type.True(), true),
 							("False", mVM_Data.Bool(false), mVM_Type.False(), true),
 							("Wrong boolean", mVM_Data.Bool(false), mVM_Type.True(), false),
-							("Any", mVM_Data.Var(mVM_Data.Int(1)), mVM_Type.Any(), true),
+							("Any", mVM_Data.Dynamic(mVM_Data.Var(mVM_Data.Int(1)), mVM_Type.Var(mVM_Type.Int())), mVM_Type.Any(), true),
 							("Free", mVM_Data.Int(1), mVM_Type.Free(mVM_Type.Type()), true),
 							("Type", mVM_Data.TypeExpression(mVM_Type.Int()), mVM_Type.Type(), true),
 							("Wrong type", mVM_Data.Int(1), mVM_Type.Type(), false),
@@ -327,15 +387,16 @@ mVM_Tests {
 					var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => {});
 					#endif
 					
-					var Env = mVM_Data.ExternDef(Add);
+					var Addition = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Int()), mVM_Type.Int());
+					var Env = mVM_Data.ExternDef(Addition, Add);
 					
 					var Proc1 = new mVM_Data.tProcDef<mStd.tEmpty>(
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
 							mVM_Type.Proc(
 								mVM_Type.Empty(),
-								mVM_Type.Tuple([mVM_Type.Int(), mVM_Type.Int()]),
-								mVM_Type.Int()
+								mVM_Type.Empty(),
+								Addition
 							),
 							mVM_Type.Proc(
 								mVM_Type.Empty(),
@@ -350,7 +411,7 @@ mVM_Tests {
 					var Reg3 = Proc1.Call(mStd.cEmpty, Reg2, Reg1);
 					Proc1.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Reg3);
 					
-					var Res = mVM.Call<mStd.tEmpty>(
+					var Res = CallPrepared(
 						mVM_Data.Proc(Proc1, Env),
 						mVM_Data.Empty(),
 						mVM_Data.Empty(),
@@ -358,7 +419,7 @@ mVM_Tests {
 						TraceOut
 					);
 					
-					mAssert.AreEquals(Res, mVM_Data.Int(2));
+					mAssert.IsTrue(Res.IsInt(out var Number) && Number == 2);
 				}
 			),
 			mTest.Test(
@@ -368,6 +429,7 @@ mVM_Tests {
 					var Trace = mStd.Action<mStd.tFunc<tText>>(aLine => Lines.Add(aLine()));
 					
 					var Native = mVM_Data.ExternProc(
+						mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int()),
 						(aEnv, aObject, aArgument, aTrace) => {
 							mAssert.IsTrue(ReferenceEquals(Trace, aTrace));
 							aTrace(() => "native trace");
@@ -376,17 +438,18 @@ mVM_Tests {
 						mVM_Data.Empty()
 					);
 					
-					static mVM_Data.tProcDef<mStd.tEmpty> Definition() => new(
+					static mVM_Data.tProcDef<mStd.tEmpty> Definition(mVM_Type.tType aEnvironment, mVM_Type.tType aArgument) => new(
 						mVM_Type.Proc(
 							mVM_Type.Empty(),
-							mVM_Type.Any(),
-							mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Any(), mVM_Type.Int())
+							aEnvironment,
+							mVM_Type.Proc(mVM_Type.Empty(), aArgument, mVM_Type.Int())
 						)
 					);
 					
-					var Method = Definition();
+					var Callback = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
+					var Method = Definition(mVM_Type.Empty(), mVM_Type.Int());
 					Method.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, mVM_Data.cArgReg);
-					var Child = Definition();
+					var Child = Definition(mVM_Type.Pair(Callback, Callback), mVM_Type.Empty());
 					var NativeReg = Child.First(mStd.cEmpty, mVM_Data.cEnvReg);
 					Child.Call(mStd.cEmpty, NativeReg, mVM_Data.cOneReg);
 					var NativeMethod = Child.Pair(mStd.cEmpty, mVM_Data.cEmptyReg, NativeReg);
@@ -395,11 +458,11 @@ mVM_Tests {
 					var BoundMethod = Child.Pair(mStd.cEmpty, mVM_Data.cEmptyReg, MethodReg);
 					var Returned = Child.Exec(mStd.cEmpty, BoundMethod, mVM_Data.cOneReg);
 					Child.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Returned);
-					var Root = Definition();
+					var Root = Definition(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Empty());
 					var Called = Root.Call(mStd.cEmpty, mVM_Data.cEnvReg, mVM_Data.cEmptyReg);
 					Root.ReturnIf(mStd.cEmpty, mVM_Data.cTrueReg, Called);
 					
-					var Result = mVM.Call<mStd.tEmpty>(
+					var Result = CallPrepared(
 						mVM_Data.Proc(
 							Root,
 							mVM_Data.Proc(
@@ -416,7 +479,7 @@ mVM_Tests {
 						Trace
 					);
 					
-					mAssert.AreEquals(mVM_Data.Int(1), Result);
+					mAssert.IsTrue(Result.IsInt(out var Number) && Number == 1);
 					
 					var Depth = 0;
 					var Entries = 0;
@@ -460,7 +523,7 @@ mVM_Tests {
 					
 					Definition.TryAsPair(mStd.cEmpty, mVM_Data.cArgReg);
 					
-					var Result = mVM.Call<mStd.tEmpty>(
+					var Result = CallPrepared(
 						mVM_Data.Proc(Definition, mVM_Data.Empty()),
 						mVM_Data.Empty(),
 						mVM_Data.Int(1),

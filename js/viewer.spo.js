@@ -37,7 +37,13 @@ export function render(source, context) {
 		createLines(text) {
 			const lines = splitTokensIntoLines(tokenizeSpo(text, language)).map(segments => {
 				const text = segments.map(segment => segment.text).join("");
-				return { text, segments, leadingTabColumns: collectLeadingTabColumns(text), leadingOpenerIndices: [] };
+				return {
+					text,
+					segments,
+					leadingTabColumns: collectLeadingTabColumns(text),
+					leadingOpenerIndices: [],
+					pinPreviousSibling: /^\s*[)}\]>]/.test(text) && segments.find(segment => segment.text.trim())?.type !== "string"
+				};
 			});
 			assignBracketLinks(lines);
 			return lines;

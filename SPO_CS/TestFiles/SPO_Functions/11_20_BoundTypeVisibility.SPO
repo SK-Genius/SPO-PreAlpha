@@ -1,0 +1,47 @@
+§DEF tPackage = [§SIG_WITH t € §TYPE IN t]
+
+§DEF Box... = (§DEF aPackage € tPackage) => §IF aPackage MATCH {
+	§SIG tPackage WITH §DEF Head IN §DEF Value: {
+		§DEF Boxed € §ANY = Value
+		§RETURN Boxed
+	}
+}
+
+§DEF HasHead... = (§DEF aPackage € tPackage, §DEF aValue € §ANY) => §IF aPackage MATCH {
+	§SIG tPackage WITH §DEF OtherHead IN _: §IF aValue MATCH {
+		§DEF Candidate € OtherHead: §TRUE
+		_: §FALSE
+	}
+}
+
+§DEF Probe... = (§DEF aType € §TYPE, §DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € aType: §TRUE
+	_: §FALSE
+}
+
+§DEF IsInteger... = (§DEF aValue € §ANY) => §IF aValue MATCH {
+	§DEF Candidate € §INT: §TRUE
+	_: §FALSE
+}
+
+§DEF tFirst = [< First: §INT >]
+§DEF tSecond = [< Second: §INT >]
+§DEF cOriginal = {First: 1, Second: 2, Hidden: 3}
+§DEF cNarrow € tFirst = cOriginal
+§DEF cUnion € [tFirst | tSecond] = cOriginal
+§DEF cInteger = §SIG tPackage WITH §INT IN 7
+§DEF cOtherInteger = §SIG tPackage WITH §INT IN 9
+§DEF cBoolean = §SIG tPackage WITH §BOOL IN §TRUE
+§DEF cBoxed = .Box cInteger
+
+§EXPORT (
+	.HasHead (cOtherInteger, cBoxed)
+	.HasHead (cBoolean, cBoxed)
+	.IsInteger cBoxed
+	.Probe (tFirst, cNarrow)
+	.Probe (tSecond, cNarrow)
+	.Probe (tFirst, cUnion)
+	.Probe (tSecond, cUnion)
+	.Probe ([< First: §INT, Second: §INT >], cUnion)
+	.Probe ([< Hidden: §INT >], cUnion)
+)

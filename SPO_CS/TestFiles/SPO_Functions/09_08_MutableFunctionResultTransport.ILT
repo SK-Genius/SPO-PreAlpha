@@ -31,15 +31,16 @@
 	_Pass... := r_1
 	r_2 := ._Pass... _aOpaque
 	r_3 := {r_2} #_Handle
-	_Result := r_3
+	r_4 := §WITH_TYPE t_0 WITH r_3
+	_Result := r_4
 	§RETURN _Result IF TRUE
 	§RETURN EMPTY IF TRUE
 
 §DEF d_2 € t_13
 	d_1 := §2ND ENV
-	r_7 := §1ST ENV
-	d_0 := §2ND r_7
-	r_8 := §1ST r_7
+	r_8 := §1ST ENV
+	d_0 := §2ND r_8
+	r_9 := §1ST r_8
 	r_1 := §CLOSURE d_1 d_0
 	_OpaqueResultTransport... := r_1
 	r_2 := 9
@@ -48,6 +49,7 @@
 	_Receiver01 := §VAR r_3
 	r_5 := _Receiver01, _OpaqueResultTransport...
 	r_4 := §OBJ:r_5 _Opaque
-	_Result01 := r_4
-	r_6 := §VAR _Result01 ->
-	§RETURN r_6 IF TRUE
+	r_6 := §WITH_TYPE t_0 WITH r_4
+	_Result01 := r_6
+	r_7 := §VAR _Result01 ->
+	§RETURN r_7 IF TRUE

@@ -325,25 +325,6 @@ InstallNodeModules(
 		return;
 	}
 	
-	if (TryResolveNpmExecutable() is { } npmExecutable) {
-		var exitCode = RunProcess(
-			fileName: npmExecutable,
-			workingDirectory: targetDir,
-			arguments: [
-				"install",
-				"--omit=dev",
-				"--no-fund",
-				"--no-audit",
-				"--package-lock=false"
-			]
-		);
-		if (exitCode != 0) {
-			throw new InvalidOperationException($"npm install failed with exit code {exitCode}.");
-		}
-		
-		return;
-	}
-	
 	InstallDependenciesFromRegistry(
 		packageJson: packageJson,
 		nodeModulesDir: targetNodeModulesDir
@@ -356,38 +337,6 @@ HasDependencies(
 ) => packageJson.TryGetProperty("dependencies", out var dependencies) &&
 	dependencies.ValueKind == JsonValueKind.Object &&
 	dependencies.EnumerateObject().Any();
-
-static string?
-TryResolveNpmExecutable(
-) {
-	var executableNames = OperatingSystem.IsWindows()
-		? new[] { "npm.cmd", "npm.exe" }
-		: new[] { "npm" };
-	
-	foreach (var executableName in executableNames) {
-		var directCandidate = Path.Combine(
-			Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-			"nodejs",
-			executableName
-		);
-		if (File.Exists(directCandidate)) {
-			return directCandidate;
-		}
-	}
-	
-	foreach (var pathEntry in (Environment.GetEnvironmentVariable("PATH") ?? "")
-		.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-	) {
-		foreach (var executableName in executableNames) {
-			var candidate = Path.Combine(pathEntry, executableName);
-			if (File.Exists(candidate)) {
-				return candidate;
-			}
-		}
-	}
-	
-	return null;
-}
 
 static void
 InstallDependenciesFromRegistry(

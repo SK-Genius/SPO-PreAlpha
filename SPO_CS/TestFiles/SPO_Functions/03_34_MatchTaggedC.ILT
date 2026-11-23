@@ -34,12 +34,13 @@
 	§RETURN TRUE IF TRUE
 
 §DEF d_2 € t_4
-	r_4 := §1ST ARG
-	r_3 := §2ND ARG
-	r_1 := -#_Box... r_3
-	_Value := r_1
-	r_2 := +#Result _Value
-	§RETURN r_2 IF TRUE
+	r_5 := §1ST ARG
+	r_4 := §2ND ARG
+	r_1 := -#_Box... r_4
+	r_2 := §WITH_TYPE INT_TYPE WITH r_1
+	_Value := r_2
+	r_3 := +#Result _Value
+	§RETURN r_3 IF TRUE
 
 §DEF d_3 € t_11
 	d_2 := §2ND ENV
