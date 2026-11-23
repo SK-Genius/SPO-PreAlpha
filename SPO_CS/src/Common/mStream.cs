@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -73,6 +73,7 @@ mStream {
 				get {
 					var LimitedStream = aStream.Take(100);
 					var Count = LimitedStream.Count();
+					
 					return LimitedStream.MapWithIndex(
 						[DebuggerHidden] (aIndex, aItem) => (Index: aIndex, Value: aItem)
 					).Reduce(
@@ -151,9 +152,11 @@ mStream {
 		params System.ReadOnlySpan<t> aStream
 	) {
 		var Result = Stream<t>();
+		
 		for (var I = aStream.Length; I --> 0;) {
 			Result = Stream(aStream[I], Result);
 		}
+		
 		return Result;
 	}
 	
@@ -163,9 +166,11 @@ mStream {
 		System.Span<t> aStream
 	) {
 		var Result = Stream<t>();
+		
 		for (var I = aStream.Length; I --> 0;) {
 			Result = Stream(aStream[I], Result);
 		}
+		
 		return Result;
 	}
 	
@@ -337,9 +342,11 @@ mStream {
 		#else
 		) {
 			var Result = aInitialAggregate;
+			
 			foreach (var Item in aStream) {
 				Result = aAggregatorFunc(Result, Item);
 			}
+			
 			return Result;
 		}
 		#endif
@@ -368,8 +375,10 @@ mStream {
 					if (!Equals(First, Next)) {
 						return Stream(First, () => Tail.DontRepeat());
 					}
+					
 					Tail = NextTail;
 				}
+				
 				return Stream([First]);
 			} else {
 				return mStd.cEmpty;
@@ -383,16 +392,19 @@ mStream {
 		) {
 			var Res = new t[aStream.Count()];
 			var I = 0;
+			
 			foreach (var Item in aStream) {
 				Res[I] = Item;
 				I += 1;
 			}
+			
 			System.Array.Sort(
 				Res,
 				System.Collections.Generic.Comparer<t>.Create(
 					(a1, a2) => aCompare(a1, a2)
 				)
 			);
+			
 			return Stream(System.MemoryExtensions.AsSpan(Res));
 		}
 		
@@ -465,6 +477,7 @@ mStream {
 					return Stream(Head, aStream);
 				}
 			}
+			
 			return mStd.cEmpty;
 		}
 		
@@ -501,6 +514,7 @@ mStream {
 					return Stream(Head, [DebuggerHidden] () => aStream.Where(aPredicate));
 				}
 			}
+			
 			return mStd.cEmpty;
 			#endif
 		}
@@ -520,9 +534,11 @@ mStream {
 		TryLast(
 		) {
 			var Result = mMaybe.None<t>();
+			
 			foreach (var Item in aStream) {
 				Result = Item;
 			}
+			
 			return Result;
 		}
 		
@@ -549,9 +565,11 @@ mStream {
 		Reverse(
 		) {
 			var Result = Stream<t>([]);
+			
 			foreach (var Item in aStream) {
 				Result = Stream(Item, Result);
 			}
+			
 			return Result;
 		}
 	}
@@ -575,6 +593,7 @@ mStream {
 				return true;
 			}
 		}
+		
 		return false;
 		#endif
 	}
@@ -586,10 +605,12 @@ mStream {
 	) where t : System.IComparable<t> {
 		var Res = new t[aStream.Count()];
 		var I = 0;
+		
 		foreach (var Item in aStream) {
 			Res[I] = Item;
 			I += 1;
 		}
+		
 		System.Array.Sort(Res);
 		return Stream(System.MemoryExtensions.AsSpan(Res));
 	}

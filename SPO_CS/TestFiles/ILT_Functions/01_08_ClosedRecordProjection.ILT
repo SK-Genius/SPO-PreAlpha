@@ -1,0 +1,51 @@
+§TYPES
+	V := [§VAR INT]
+	H := [#Handle V]
+	N := [#Number INT]
+	W := [{EMPTY_TYPE} + H]
+	Wide := [{W} + N]
+	Narrow := [{EMPTY_TYPE} + N]
+	Pass := [Narrow => Narrow]
+	MF := [EMPTY_TYPE => INT]
+	M := [Narrow : MF]
+	E := [Pass, M]
+	F := [Wide => INT]
+	P := [EMPTY_TYPE : F]
+	D := [E => P]
+	PassDef := [EMPTY_TYPE => Pass]
+	MethodDef := [EMPTY_TYPE => M]
+	Defs1 := [EMPTY_TYPE, PassDef]
+	Defs2 := [Defs1, MethodDef]
+	Defs := [Defs2, D]
+	Main := [EMPTY_TYPE => INT]
+	MainDef := [Defs => Main]
+§DEF pass € PassDef
+	§RETURN ARG IF TRUE
+§DEF method € MethodDef
+	number := {OBJ} #Number
+	§RETURN number IF TRUE
+§DEF f € D
+	pass := §1ST ENV
+	method := §2ND ENV
+	result := .pass ARG
+	pair := result, method
+	value := §OBJ:pair EMPTY
+	§RETURN value IF TRUE
+§DEF main € MainDef
+	defs2 := §1ST ENV
+	f_def := §2ND ENV
+	defs1 := §1ST defs2
+	method_def := §2ND defs2
+	pass_def := §2ND defs1
+	pass := .pass_def EMPTY
+	method := .method_def EMPTY
+	functions := pass, method
+	function := .f_def functions
+	seven := 7
+	cell := §VAR seven
+	handle := +#Handle cell
+	with_handle := {EMPTY} + handle
+	number := +#Number seven
+	wide := {with_handle} + number
+	value := .function wide
+	§RETURN value IF TRUE

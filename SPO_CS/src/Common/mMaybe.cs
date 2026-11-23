@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -89,7 +89,7 @@ mMaybe {
 			mStd.tFunc<t, tOut> aOnSome,
 			mStd.tFunc<tOut> aOnNone
 		) => (
-		a.IsSome(out var Value)
+			a.IsSome(out var Value)
 			? aOnSome(Value)
 			: aOnNone()
 		);

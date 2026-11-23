@@ -1,0 +1,13 @@
+entry=Logic
+modules:
+|Logic:
+||path=../../Apps/2048/Logic.spo
+||imports:
+|||Std=Std
+|||Random=Random
+|Std:
+||path=../../src/Std.ILT
+|Random:
+||path=../../Libs/Random.SPO
+||imports:
+|||Std=Std

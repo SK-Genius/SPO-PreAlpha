@@ -14,19 +14,24 @@ mWindowsTerminal {
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tCoord {
-		public tInt16 X, Y;
+		public tInt16 X;
+		public tInt16 Y;
 	}
 	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tRect {
-		public tInt16 Left, Top, Right, Bottom;
+		public tInt16 Left;
+		public tInt16 Top;
+		public tInt16 Right;
+		public tInt16 Bottom;
 	}
 	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tScreenInfo {
-		public tCoord Size, Cursor;
+		public tCoord Size;
+		public tCoord Cursor;
 		public tNat16 Attributes;
 		public tRect Window;
 		public tCoord MaximumWindowSize;
@@ -42,7 +47,8 @@ mWindowsTerminal {
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tCell {
-		public tNat16 Character, Attributes;
+		public tNat16 Character;
+		public tNat16 Attributes;
 	}
 	
 	[StructLayout(LayoutKind.Explicit, Size = 20)]
@@ -50,22 +56,31 @@ mWindowsTerminal {
 	tInput {
 		[FieldOffset(0)]
 		public tNat16 Type;
+		
 		[FieldOffset(4)]
 		public tInt32 Down;
+		
 		[FieldOffset(8)]
 		public tNat16 Repeat;
+		
 		[FieldOffset(10)]
 		public tNat16 Key;
+		
 		[FieldOffset(14)]
 		public tNat16 Character;
+		
 		[FieldOffset(16)]
 		public tNat32 KeyModifiers;
+		
 		[FieldOffset(4)]
 		public tCoord Position;
+		
 		[FieldOffset(8)]
 		public tNat32 Buttons;
+		
 		[FieldOffset(12)]
 		public tNat32 MouseModifiers;
+		
 		[FieldOffset(16)]
 		public tNat32 MouseFlags;
 	}
@@ -256,10 +271,13 @@ mWindowsTerminal {
 			>= 0x70 and <= 0x87 => "Function",
 			_ => "Unknown"
 		};
+		
 		var KeyValue = Key switch {
 			"Character" => mVM_Data.Prefix("_Char...", mVM_Data.Int(aInput.Key)),
 			"Function" => mVM_Data.Int(aInput.Key - 0x70 + 1),
-			_ => mVM_Data.Empty()};
+			_ => mVM_Data.Empty()
+		};
+		
 		return aInput.Type switch {
 			cKeyEvent => mVM_Data.Prefix(
 				"_Key...",
@@ -302,7 +320,8 @@ mWindowsTerminal {
 				)
 			),
 			cFocusEvent => mVM_Data.Prefix("_Focus...", mVM_Data.Bool(aInput.Down != 0)),
-			_ => mVM_Data.Empty()};
+			_ => mVM_Data.Empty()
+		};
 	}
 	
 	public static void
@@ -319,6 +338,7 @@ mWindowsTerminal {
 		const tNat32 cOpenExisting = 3;
 		const tNat32 cTextModeBuffer = 1;
 		var Input = CreateFileW("CONIN$", cReadWriteAccess, cShareReadWrite, 0, cOpenExisting, 0, 0);
+		
 		if (Input == -1) {
 			Check(AllocConsole());
 			Allocated = true;
@@ -330,6 +350,7 @@ mWindowsTerminal {
 		var OriginalMode = 0u;
 		var RestoreMode = false;
 		var Active = true;
+		
 		try {
 			Check(Input != -1);
 			OriginalOutput = CreateFileW("CONOUT$", cReadWriteAccess, cShareReadWrite, 0, cOpenExisting, 0, 0);
@@ -338,12 +359,18 @@ mWindowsTerminal {
 			Check(Output != -1);
 			Check(GetConsoleMode(Input, out OriginalMode));
 			RestoreMode = true;
+			
 			// Raw key down/up, mouse and buffer-size events; disable Quick Edit,
 			// line/echo input and VT input. Ctrl+C becomes an ordinary key event.
 			{
-				const tNat32 cProcessedInput = 0x0001, cLineInput = 0x0002, cEchoInput = 0x0004;
-				const tNat32 cWindowInput = 0x0008, cMouseInput = 0x0010;
-				const tNat32 cQuickEdit = 0x0040, cExtendedFlags = 0x0080, cVirtualTerminalInput = 0x0200;
+				const tNat32 cProcessedInput = 0x0001;
+				const tNat32 cLineInput = 0x0002;
+				const tNat32 cEchoInput = 0x0004;
+				const tNat32 cWindowInput = 0x0008;
+				const tNat32 cMouseInput = 0x0010;
+				const tNat32 cQuickEdit = 0x0040;
+				const tNat32 cExtendedFlags = 0x0080;
+				const tNat32 cVirtualTerminalInput = 0x0200;
 				var Disabled = cProcessedInput | cLineInput | cEchoInput | cQuickEdit | cVirtualTerminalInput;
 				var Enabled = cWindowInput | cMouseInput | cExtendedFlags;
 				Check(SetConsoleMode(Input, (OriginalMode & ~Disabled) | Enabled));
@@ -376,10 +403,12 @@ mWindowsTerminal {
 			var Buffer = System.Array.Empty<(tCell Cell, tBool Blink)>();
 			var Frame = System.Array.Empty<tCell>();
 			var Cursor = Info().Cursor;
+			
 			var EmptyCell = new tCell {
 				Character = ' ',
 				Attributes = (tNat16)mTerminal.tColor.Gray
 			};
+			
 			const tInt32 cBlinkPeriodMilliseconds = 500;
 			var Clock = System.Diagnostics.Stopwatch.StartNew();
 			
@@ -393,6 +422,7 @@ mWindowsTerminal {
 				
 				var Resized = new (tCell Cell, tBool Blink)[aSize.X * aSize.Y];
 				System.Array.Fill(Resized, (EmptyCell, false));
+				
 				for (var Row = 0; Row < System.Math.Min(aSize.Y, BufferSize.Y); Row += 1) {
 					System.Array.Copy(
 						Buffer,
@@ -414,6 +444,7 @@ mWindowsTerminal {
 			Size() {
 				var Current = Info();
 				ResizeBuffer(Current.Size);
+				
 				return new(
 					(Current.Size.X, Current.Size.Y),
 					(Current.Window.Left, Current.Window.Top),
@@ -434,14 +465,17 @@ mWindowsTerminal {
 				ResizeBuffer(Current.Size);
 				var BlinkVisible = (Clock.ElapsedMilliseconds / cBlinkPeriodMilliseconds) % 2 == 0;
 				var Changed = false;
+				
 				for (var Index = 0; Index < Buffer.Length; Index += 1) {
 					var(Cell, Blink) = Buffer[Index];
+					
 					if (Blink && !BlinkVisible) {
 						Cell.Character = ' ';
 					}
 					
 					Changed |= Cell.Character != Frame[Index].Character ||
 					Cell.Attributes != Frame[Index].Attributes;
+					
 					Frame[Index] = Cell;
 				}
 				
@@ -450,7 +484,9 @@ mWindowsTerminal {
 						Right = (tInt16)(BufferSize.X - 1),
 						Bottom = (tInt16)(BufferSize.Y - 1)
 					};
+					
 					Check(WriteConsoleOutputW(Output, Frame, BufferSize, default, ref Target));
+					
 					if (Target.Right != BufferSize.X - 1 || Target.Bottom != BufferSize.Y - 1) {
 						// A concurrent resize clipped the copy; repaint on the next presentation.
 						System.Array.Clear(Frame);
@@ -467,6 +503,7 @@ mWindowsTerminal {
 					Size = Size,
 					Cursor = (aX, aY) => {
 						EnsureActive();
+						
 						if (aX < 0 || aY < 0 || aX >= BufferSize.X || aY >= BufferSize.Y) {
 							throw new System.ArgumentOutOfRangeException(
 								nameof(aX),
@@ -482,6 +519,7 @@ mWindowsTerminal {
 					CursorVisible = () => CursorInfo().Visible != 0,
 					SetCursorVisible = aVisible => {
 						var Current = CursorInfo();
+						
 						if ((Current.Visible != 0) != aVisible) {
 							Current.Visible = aVisible ? 1 : 0;
 							Check(SetConsoleCursorInfo(Output, Current));
@@ -489,6 +527,7 @@ mWindowsTerminal {
 					},
 					Draw = (aText, aPosition, aStyle) => {
 						EnsureActive();
+						
 						if (
 							aPosition.X < 0 || aPosition.Y < 0 || aPosition.X >= BufferSize.X ||
 							aPosition.Y >= BufferSize.Y
@@ -502,6 +541,7 @@ mWindowsTerminal {
 						var Length = System.Math.Min(aText.Length, BufferSize.X - aPosition.X);
 						var Foreground = aStyle.Foreground;
 						var Background = aStyle.Background;
+						
 						if (aStyle.Inverse) {
 							(Foreground, Background) = (Background, Foreground);
 						}
@@ -513,11 +553,13 @@ mWindowsTerminal {
 								: 0
 							)
 						);
+						
 						for (var Index = 0; Index < Length; Index += 1) {
 							var Cell = new tCell {
 								Character = tChar.IsControl(aText[Index]) ? (tNat16)' ' : aText[Index],
 								Attributes = Attributes
 							};
+							
 							Buffer[aPosition.Y * BufferSize.X + aPosition.X + Index] = (Cell, aStyle.Blink);
 						}
 					},
@@ -528,12 +570,15 @@ mWindowsTerminal {
 					},
 					Present = Present,
 					ReadEvent = aWait => {
-						const tNat32 cWaitSignaled = 0, cWaitTimeout = 258;
+						const tNat32 cWaitSignaled = 0;
+						const tNat32 cWaitTimeout = 258;
 						System.ArgumentOutOfRangeException.ThrowIfNegative(aWait);
 						var Deadline = Clock.ElapsedMilliseconds + aWait;
+						
 						while (true) {
 							Present();
 							var CurrentSize = Size();
+							
 							if (CurrentSize != PreviousSize) {
 								PreviousSize = CurrentSize;
 								return mVM_Data.Prefix("_Resize...", CurrentSize.ToData());
@@ -544,14 +589,18 @@ mWindowsTerminal {
 							var UntilBlink = cBlinkPeriodMilliseconds - Now % cBlinkPeriodMilliseconds;
 							var Wait = (tNat32)System.Math.Min(Remaining, UntilBlink);
 							var Status = WaitForSingleObject(Input, Wait);
+							
 							if (Status == cWaitSignaled) {
 								Check(ReadConsoleInputW(Input, out var InputEvent, 1, out var Read));
+								
 								var IsRepeat = (
 									InputEvent.Type == cKeyEvent && InputEvent.Down != 0 &&
 									InputEvent.Key < HeldKeys.Length &&
 									HeldKeys[InputEvent.Key]
 								);
+								
 								var Event = InputEvent.ToEvent(PreviousButtons, IsRepeat, CurrentSize.WindowOrigin);
+								
 								if (InputEvent.Type == cKeyEvent && InputEvent.Key < HeldKeys.Length) {
 									HeldKeys[InputEvent.Key] = InputEvent.Down != 0;
 								} else if (InputEvent.Type == cMouseEvent) {
@@ -577,6 +626,7 @@ mWindowsTerminal {
 			);
 		} finally {
 			Active = false;
+			
 			if (OriginalOutput != -1) {
 				SetConsoleActiveScreenBuffer(OriginalOutput);
 			}

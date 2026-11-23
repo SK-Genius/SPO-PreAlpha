@@ -113,7 +113,7 @@
 §DEF d_1 € t_20
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	r_1 := §SUBINTERFACE t_12 WITH r_3
+	r_1 := §WITH_TYPE t_12 WITH r_3
 	_aCandidate := r_1
 	r_2 := +#Result TRUE
 	§RETURN r_2 IF TRUE
@@ -157,21 +157,18 @@
 	§RETURN r_7 IF TRUE
 
 §DEF d_5 € t_31
-	r_1 := §SUBINTERFACE t_12 WITH ARG
-	_aValue := r_1
+	_aValue := ARG
 	§RETURN _aValue IF TRUE
 
 §DEF d_6 € t_33
-	r_1 := §SUBINTERFACE t_30 WITH ARG
-	_aFunction := r_1
+	_aFunction := ARG
 	§RETURN _aFunction IF TRUE
 
 §DEF d_7 € t_42
 	_HasAdmin... := ENV
-	r_1 := §SUBINTERFACE t_38 WITH ARG
-	_aValue := r_1
-	r_2 := ._HasAdmin... _aValue
-	§RETURN r_2 IF TRUE
+	_aValue := ARG
+	r_1 := ._HasAdmin... _aValue
+	§RETURN r_1 IF TRUE
 
 §DEF d_8 € t_44
 	_Identity... := ENV
@@ -180,8 +177,7 @@
 
 §DEF d_9 € t_48
 	§RETURN ARG IF_NOT_EMPTY
-	r_1 := §SUBINTERFACE t_12 WITH OBJ
-	_aSelf := r_1
+	_aSelf := OBJ
 	§RETURN _aSelf IF TRUE
 
 §DEF d_10 € t_58
@@ -219,7 +215,7 @@
 	r_6 := §1ST ARG
 	r_5 := §2ND ARG
 	_Full := r_6
-	r_1 := §SUBINTERFACE t_39 WITH r_5
+	r_1 := §WITH_TYPE t_39 WITH r_5
 	_aFunction... := r_1
 	r_2 := ._aFunction... _Full
 	r_3 := ._HasAdmin... r_2
@@ -252,37 +248,37 @@
 
 §DEF d_16 € t_103
 	d_15 := §2ND ENV
-	r_76 := §1ST ENV
-	d_14 := §2ND r_76
+	r_70 := §1ST ENV
+	d_14 := §2ND r_70
+	r_71 := §1ST r_70
+	d_13 := §2ND r_71
+	r_72 := §1ST r_71
+	d_12 := §2ND r_72
+	r_73 := §1ST r_72
+	d_11 := §2ND r_73
+	r_74 := §1ST r_73
+	d_10 := §2ND r_74
+	r_75 := §1ST r_74
+	d_9 := §2ND r_75
+	r_76 := §1ST r_75
+	d_8 := §2ND r_76
 	r_77 := §1ST r_76
-	d_13 := §2ND r_77
+	d_7 := §2ND r_77
 	r_78 := §1ST r_77
-	d_12 := §2ND r_78
+	d_6 := §2ND r_78
 	r_79 := §1ST r_78
-	d_11 := §2ND r_79
+	d_5 := §2ND r_79
 	r_80 := §1ST r_79
-	d_10 := §2ND r_80
+	d_4 := §2ND r_80
 	r_81 := §1ST r_80
-	d_9 := §2ND r_81
+	d_3 := §2ND r_81
 	r_82 := §1ST r_81
-	d_8 := §2ND r_82
+	d_2 := §2ND r_82
 	r_83 := §1ST r_82
-	d_7 := §2ND r_83
+	d_1 := §2ND r_83
 	r_84 := §1ST r_83
-	d_6 := §2ND r_84
+	d_0 := §2ND r_84
 	r_85 := §1ST r_84
-	d_5 := §2ND r_85
-	r_86 := §1ST r_85
-	d_4 := §2ND r_86
-	r_87 := §1ST r_86
-	d_3 := §2ND r_87
-	r_88 := §1ST r_87
-	d_2 := §2ND r_88
-	r_89 := §1ST r_88
-	d_1 := §2ND r_89
-	r_90 := §1ST r_89
-	d_0 := §2ND r_90
-	r_91 := §1ST r_90
 	_tReader := t_5
 	_tAdmin := t_12
 	r_1 := §CLOSURE d_0 EMPTY
@@ -293,92 +289,86 @@
 	r_5 := §CLOSURE d_4 r_4
 	_HasAdmin... := r_5
 	r_6 := §CLOSURE d_5 EMPTY
-	r_7 := §SUBINTERFACE t_30 WITH r_6
-	_Identity... := r_7
-	r_8 := §CLOSURE d_6 EMPTY
-	r_9 := §SUBINTERFACE t_40 WITH r_8
-	_Adapt... := r_9
-	r_10 := §CLOSURE d_7 _HasAdmin...
-	r_11 := §SUBINTERFACE t_41 WITH r_10
-	_Inspect... := r_11
-	r_12 := §SUBINTERFACE t_43 WITH _Inspect...
-	_InspectAdmin... := r_12
-	r_13 := §CLOSURE d_8 _Identity...
-	r_14 := §SUBINTERFACE t_45 WITH r_13
-	_Make := r_14
-	r_15 := §CLOSURE d_9 EMPTY
-	r_16 := §SUBINTERFACE t_47 WITH r_15
-	_Give := r_16
-	r_17 := §SUBINTERFACE t_50 WITH _Give
-	_GiveReader := r_17
-	r_18 := 17
-	_Cell := §VAR r_18
-	r_19 := +#_Read _ReadCell
-	r_20 := {EMPTY} + r_19
-	r_21 := +#_Admin _ReadCell
-	r_22 := {r_20} + r_21
-	r_23 := _Cell, r_22
-	r_24 := §INTERFACE t_12 WITH r_23
-	r_25 := §SUBINTERFACE t_12 WITH r_24
-	_Full := r_25
-	r_26 := ._Adapt... _Identity...
-	r_27 := §SUBINTERFACE t_39 WITH r_26
-	_Adapted... := r_27
-	r_28 := ._Make EMPTY
-	r_29 := §SUBINTERFACE t_39 WITH r_28
-	_Made... := r_29
-	r_30 := +#_Run _Identity...
-	r_31 := {EMPTY} + r_30
-	r_32 := 31
-	r_33 := +#_Tag r_32
-	r_34 := {r_31} + r_33
-	r_35 := §SUBINTERFACE t_52 WITH r_34
-	_Package := r_35
-	r_36 := {_Package} #_Run
-	r_37 := §SUBINTERFACE t_39 WITH r_36
-	_Run... := r_37
+	_Identity... := r_6
+	r_7 := §CLOSURE d_6 EMPTY
+	r_8 := §WITH_TYPE t_40 WITH r_7
+	_Adapt... := r_8
+	r_9 := §CLOSURE d_7 _HasAdmin...
+	_Inspect... := r_9
+	r_10 := §WITH_TYPE t_43 WITH _Inspect...
+	_InspectAdmin... := r_10
+	r_11 := §CLOSURE d_8 _Identity...
+	r_12 := §WITH_TYPE t_45 WITH r_11
+	_Make := r_12
+	r_13 := §CLOSURE d_9 EMPTY
+	_Give := r_13
+	r_14 := §WITH_TYPE t_50 WITH _Give
+	_GiveReader := r_14
+	r_15 := 17
+	_Cell := §VAR r_15
+	r_16 := +#_Read _ReadCell
+	r_17 := {EMPTY} + r_16
+	r_18 := +#_Admin _ReadCell
+	r_19 := {r_17} + r_18
+	r_20 := _Cell, r_19
+	r_21 := §INTERFACE t_12 WITH r_20
+	_Full := r_21
+	r_22 := ._Adapt... _Identity...
+	_Adapted... := r_22
+	r_23 := ._Make EMPTY
+	_Made... := r_23
+	r_24 := +#_Run _Identity...
+	r_25 := {EMPTY} + r_24
+	r_26 := 31
+	r_27 := +#_Tag r_26
+	r_28 := {r_25} + r_27
+	r_29 := §WITH_TYPE t_52 WITH r_28
+	_Package := r_29
+	r_30 := {_Package} #_Run
+	r_31 := §WITH_TYPE t_39 WITH r_30
+	_Run... := r_31
 	_Erased := _Package
-	r_38 := EMPTY, d_10
-	r_39 := r_38, d_11
-	r_40 := §CLOSURE d_12 r_39
-	r_41 := EMPTY, _Erased
-	r_42 := OBJ, r_40
-	r_43 := §OBJ:r_42 r_41
-	r_44 := -#Result r_43
-	_Tag := r_44
-	r_45 := §SUBINTERFACE t_64 WITH _Identity...
-	_Selected := r_45
-	r_46 := EMPTY, _HasAdmin...
-	r_47 := r_46, d_13
-	r_48 := r_47, d_14
-	r_49 := §CLOSURE d_15 r_48
-	r_50 := _Full, _Selected
-	r_51 := OBJ, r_49
-	r_52 := §OBJ:r_51 r_50
-	r_53 := -#Result r_52
-	_SelectedHasAdmin := r_53
-	r_55 := _Full, _GiveReader
-	r_54 := §OBJ:r_55 EMPTY
-	r_56 := §SUBINTERFACE t_38 WITH r_54
-	_Returned := r_56
-	r_57 := +#_Read EMPTY
-	r_59 := _Returned, r_57
-	r_58 := §OBJ:r_59 EMPTY
-	_Number := r_58
-	r_60 := EMPTY, _Number
-	r_61 := ._Adapted... _Full
+	r_32 := EMPTY, d_10
+	r_33 := r_32, d_11
+	r_34 := §CLOSURE d_12 r_33
+	r_35 := EMPTY, _Erased
+	r_36 := OBJ, r_34
+	r_37 := §OBJ:r_36 r_35
+	r_38 := -#Result r_37
+	_Tag := r_38
+	r_39 := §WITH_TYPE t_64 WITH _Identity...
+	_Selected := r_39
+	r_40 := EMPTY, _HasAdmin...
+	r_41 := r_40, d_13
+	r_42 := r_41, d_14
+	r_43 := §CLOSURE d_15 r_42
+	r_44 := _Full, _Selected
+	r_45 := OBJ, r_43
+	r_46 := §OBJ:r_45 r_44
+	r_47 := -#Result r_46
+	_SelectedHasAdmin := r_47
+	r_49 := _Full, _GiveReader
+	r_48 := §OBJ:r_49 EMPTY
+	r_50 := §WITH_TYPE t_38 WITH r_48
+	_Returned := r_50
+	r_51 := +#_Read EMPTY
+	r_53 := _Returned, r_51
+	r_52 := §OBJ:r_53 EMPTY
+	_Number := r_52
+	r_54 := EMPTY, _Number
+	r_55 := ._Adapted... _Full
+	r_56 := ._HasAdmin... r_55
+	r_57 := r_54, r_56
+	r_58 := ._Made... _Full
+	r_59 := ._HasAdmin... r_58
+	r_60 := r_57, r_59
+	r_61 := ._Run... _Full
 	r_62 := ._HasAdmin... r_61
 	r_63 := r_60, r_62
-	r_64 := ._Made... _Full
-	r_65 := ._HasAdmin... r_64
-	r_66 := r_63, r_65
-	r_67 := ._Run... _Full
-	r_68 := ._HasAdmin... r_67
-	r_69 := r_66, r_68
-	r_70 := ._InspectAdmin... _Full
-	r_71 := r_69, r_70
-	r_72 := r_71, _SelectedHasAdmin
-	r_73 := r_72, _Tag
-	r_74 := ._HasAdmin... _Returned
-	r_75 := r_73, r_74
-	§RETURN r_75 IF TRUE
+	r_64 := ._InspectAdmin... _Full
+	r_65 := r_63, r_64
+	r_66 := r_65, _SelectedHasAdmin
+	r_67 := r_66, _Tag
+	r_68 := ._HasAdmin... _Returned
+	r_69 := r_67, r_68
+	§RETURN r_69 IF TRUE

@@ -29,14 +29,15 @@
 §DEF d_1 € t_9
 	d_0 := ENV
 	r_1 := {ARG} #_...*...
-	_...*... := r_1
-	r_2 := §CLOSURE d_0 _...*...
-	_F... := r_2
-	r_3 := 3
-	r_4 := EMPTY, r_3
-	r_5 := 5
-	r_6 := r_4, r_5
-	r_7 := 7
-	r_8 := r_6, r_7
-	r_9 := ._F... r_8
-	§RETURN r_9 IF TRUE
+	r_2 := §WITH_TYPE t_2 WITH r_1
+	_...*... := r_2
+	r_3 := §CLOSURE d_0 _...*...
+	_F... := r_3
+	r_4 := 3
+	r_5 := EMPTY, r_4
+	r_6 := 5
+	r_7 := r_5, r_6
+	r_8 := 7
+	r_9 := r_7, r_8
+	r_10 := ._F... r_9
+	§RETURN r_10 IF TRUE

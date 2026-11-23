@@ -73,7 +73,7 @@ mIL_AST {
 		Second,                     // X := §2ND X
 		Sig,                        // X := §SIG T WITH X (T may be a declared type or a type-valued register)
 		Interface,                  // X := §INTERFACE T WITH (object, methods)
-		SubInterface,               // X := §SUBINTERFACE T WITH X
+		WithType,                   // X := §WITH_TYPE T WITH X
 		SigHead,                    // X := §SIG_HEAD X
 		SigHeadAs,                  // X := §SIG_HEAD X AS T
 		SigBody,                    // X := §SIG_BODY X
@@ -87,10 +87,10 @@ mIL_AST {
 		VarDef,                     // X := §VAR X
 		VarGet,                     // X := §VAR X ->
 		DefRecProcs,                // §REC X := .X X
-		                            //    §REC (r1, r2, ..., rn) := .D (a1, a2, ..., am, (r1, r2, ..., rn))
-		                            //      (r1, r2,  ..., rn) implicit arguments
-		                            //      with rx € [T : T -> T]
-		                            //      =>   D € [[T, ..., [[T : T -> T], ...]] -> [[T : T -> T], ...]
+		//    §REC (r1, r2, ..., rn) := .D (a1, a2, ..., am, (r1, r2, ..., rn))
+		//      (r1, r2,  ..., rn) implicit arguments
+		//      with rx € [T : T -> T]
+		//      =>   D € [[T, ..., [[T : T -> T], ...]] -> [[T : T -> T], ...]
 		_EndExpressions_,
 		
 		_BeginCommands_ = _EndExpressions_,
@@ -167,6 +167,7 @@ mIL_AST {
 			a1._2.Eq(a2._2, (_, __) => _ == __) &&
 			a1._3.Eq(a2._3, (_, __) => _ == __)
 		);
+		
 		return res;
 	}
 	
@@ -195,7 +196,7 @@ mIL_AST {
 		tCommandNodeType.Second => $"{a._1} := §2ND {a._2}",
 		tCommandNodeType.Sig => $"{a._1} := §SIG {a._2} WITH {a._3}",
 		tCommandNodeType.Interface => $"{a._1} := §INTERFACE {a._2} WITH {a._3}",
-		tCommandNodeType.SubInterface => $"{a._1} := §SUBINTERFACE {a._2} WITH {a._3}",
+		tCommandNodeType.WithType => $"{a._1} := §WITH_TYPE {a._2} WITH {a._3}",
 		tCommandNodeType.SigHead => $"{a._1} := §SIG_HEAD {a._2}",
 		tCommandNodeType.SigHeadAs => $"{a._1} := §SIG_HEAD {a._2} AS {a._3}",
 		tCommandNodeType.SigBody => $"{a._1} := §SIG_BODY {a._2}",
@@ -258,8 +259,8 @@ mIL_AST {
 	GetResultReg<tPos>(
 		this tCommandNode<tPos> aNode
 	) => (aNode.NodeType < tCommandNodeType._BeginCommands_)
-		? aNode._1
-		: mStd.cEmpty;
+	? aNode._1
+	: mStd.cEmpty;
 	
 	public static tCommandNode<tPos>
 	CommandNode<tPos>(
@@ -327,6 +328,7 @@ mIL_AST {
 		out tText aId
 	) {
 		aPos = aNode.Pos;
+		
 		if (aNode.NodeType == aNodeType) {
 			aId = aNode._1;
 			return true;
@@ -345,6 +347,7 @@ mIL_AST {
 		out tText aId2
 	) {
 		aPos = aNode.Pos;
+		
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
 			aId2 = aNode._2.AssertNotEmpty();
@@ -366,6 +369,7 @@ mIL_AST {
 		out tText aId3
 	) {
 		aPos = aNode.Pos;
+		
 		if (aNode.NodeType == aNodeType) {
 			aId1 = aNode._1;
 			aId2 = aNode._2.AssertNotEmpty();
@@ -834,8 +838,8 @@ mIL_AST {
 	=> CommandNode(tCommandNodeType.Interface, aPos, aId, aContract, aPayload);
 
 	public static tCommandNode<tPos>
-	Subinterface<tPos>(tPos aPos, tText aId, tText aType, tText aValue)
-	=> CommandNode(tCommandNodeType.SubInterface, aPos, aId, aType, aValue);
+	WithType<tPos>(tPos aPos, tText aId, tText aType, tText aValue)
+	=> CommandNode(tCommandNodeType.WithType, aPos, aId, aType, aValue);
 
 	public static tCommandNode<tPos>
 	TypeGeneric<tPos>(

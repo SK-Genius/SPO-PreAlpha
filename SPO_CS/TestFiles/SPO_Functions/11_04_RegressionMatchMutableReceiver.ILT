@@ -86,28 +86,29 @@
 
 §DEF d_4 € t_26
 	d_3 := §2ND ENV
-	r_13 := §1ST ENV
-	d_2 := §2ND r_13
-	r_14 := §1ST r_13
-	d_1 := §2ND r_14
+	r_14 := §1ST ENV
+	d_2 := §2ND r_14
 	r_15 := §1ST r_14
-	d_0 := §2ND r_15
+	d_1 := §2ND r_15
 	r_16 := §1ST r_15
+	d_0 := §2ND r_16
+	r_17 := §1ST r_16
 	r_1 := {ARG} #_...+...
-	_...+... := r_1
-	r_2 := §CLOSURE d_0 _...+...
-	_Add... := r_2
-	r_3 := EMPTY, _Add...
-	r_4 := r_3, d_1
-	r_5 := r_4, d_2
-	r_6 := §CLOSURE d_3 r_5
-	_Run := r_6
-	r_7 := 1
-	_Value := §VAR r_7
-	r_9 := _Value, _Run
-	r_8 := §OBJ:r_9 EMPTY
-	_Result := r_8
-	r_10 := EMPTY, _Result
-	r_11 := §VAR _Value ->
-	r_12 := r_10, r_11
-	§RETURN r_12 IF TRUE
+	r_2 := §WITH_TYPE t_2 WITH r_1
+	_...+... := r_2
+	r_3 := §CLOSURE d_0 _...+...
+	_Add... := r_3
+	r_4 := EMPTY, _Add...
+	r_5 := r_4, d_1
+	r_6 := r_5, d_2
+	r_7 := §CLOSURE d_3 r_6
+	_Run := r_7
+	r_8 := 1
+	_Value := §VAR r_8
+	r_10 := _Value, _Run
+	r_9 := §OBJ:r_10 EMPTY
+	_Result := r_9
+	r_11 := EMPTY, _Result
+	r_12 := §VAR _Value ->
+	r_13 := r_11, r_12
+	§RETURN r_13 IF TRUE

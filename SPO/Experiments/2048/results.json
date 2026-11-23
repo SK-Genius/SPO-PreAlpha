@@ -1,0 +1,1684 @@
+{
+  "MeasuredAtUtc": "2026-10-29T08:41:44.1802613+00:00",
+  "Runtime": ".NET 11.0.0-rc.3.26522.148",
+  "Architecture": "X64",
+  "OperatingSystem": "Microsoft Windows 10.0.26300",
+  "ProcessorCount": 12,
+  "BuildConfiguration": "Release",
+  "SamplesPerCase": 7,
+  "MinimumCalibrationMilliseconds": 100,
+  "BatchCalibration": "Per variant; at least 100 ms before seven samples",
+  "Fixtures": 87,
+  "SourceStats": [
+    {
+      "Path": "D:\\Projekte\\SPO-PreAlpha_main\\SPO\\Apps\\2048\\Logic.spo",
+      "Sha256": "0296F6788C89AC7DE128B47349A509D3C215EC847F624BBD3D9CA6BC47CA711E",
+      "Lines": 276,
+      "NonblankLines": 268,
+      "NonblankAfterImports": 251,
+      "TypeAnnotations": 33
+    },
+    {
+      "Path": "D:\\Projekte\\SPO-PreAlpha_main\\SPO\\Experiments\\2048\\Logic.spo",
+      "Sha256": "DD3B42FA68CEB8A6B05869AD23073B286E598EE605088F011B692127BA6CD169",
+      "Lines": 208,
+      "NonblankLines": 199,
+      "NonblankAfterImports": 167,
+      "TypeAnnotations": 42
+    }
+  ],
+  "DependencyHashes": [
+    {
+      "Path": "D:\\Projekte\\SPO-PreAlpha_main\\SPO\\Experiments\\2048\\Compare.cs",
+      "Sha256": "E4AB1D47F7168622F74FB9161169EC7CBBC3CB3898002A41DB91591391248D7B"
+    },
+    {
+      "Path": "D:\\Projekte\\SPO-PreAlpha_main\\SPO\\Libs\\List.SPO",
+      "Sha256": "1ECFD66B86637B276630BBC598AD0C76F18A845FDFA7B821A4B8AC422293C2DC"
+    },
+    {
+      "Path": "D:\\Projekte\\SPO-PreAlpha_main\\SPO\\src\\Std.ILT",
+      "Sha256": "A87449447E117B7F83C670175FBEE3BF8D538F71B7A9BB27A338C33A8067D522"
+    }
+  ],
+  "Summaries": [
+    {
+      "Operation": "Startup/check",
+      "Variant": "tuple",
+      "Iterations": 1,
+      "MedianMicroseconds": 286225.5,
+      "MinimumMicroseconds": 251393.1,
+      "MaximumMicroseconds": 321617.8,
+      "MedianBytes": 670147680,
+      "Samples": [
+        {
+          "Microseconds": 306724.3,
+          "Bytes": 673508336
+        },
+        {
+          "Microseconds": 321617.8,
+          "Bytes": 670147680
+        },
+        {
+          "Microseconds": 297504.5,
+          "Bytes": 670157200
+        },
+        {
+          "Microseconds": 251393.1,
+          "Bytes": 670121120
+        },
+        {
+          "Microseconds": 284877.2,
+          "Bytes": 670158856
+        },
+        {
+          "Microseconds": 286225.5,
+          "Bytes": 670145280
+        },
+        {
+          "Microseconds": 281754.7,
+          "Bytes": 670136752
+        }
+      ]
+    },
+    {
+      "Operation": "Startup/init",
+      "Variant": "tuple",
+      "Iterations": 1,
+      "MedianMicroseconds": 112654.3,
+      "MinimumMicroseconds": 107898.4,
+      "MaximumMicroseconds": 167236.9,
+      "MedianBytes": 670172256,
+      "Samples": [
+        {
+          "Microseconds": 167236.9,
+          "Bytes": 670172256
+        },
+        {
+          "Microseconds": 115760.6,
+          "Bytes": 670172256
+        },
+        {
+          "Microseconds": 110300.3,
+          "Bytes": 670172256
+        },
+        {
+          "Microseconds": 133127.9,
+          "Bytes": 670172256
+        },
+        {
+          "Microseconds": 109717.4,
+          "Bytes": 670172256
+        },
+        {
+          "Microseconds": 112654.3,
+          "Bytes": 670172368
+        },
+        {
+          "Microseconds": 107898.4,
+          "Bytes": 670172368
+        }
+      ]
+    },
+    {
+      "Operation": "Startup/check",
+      "Variant": "list",
+      "Iterations": 1,
+      "MedianMicroseconds": 1066045.6,
+      "MinimumMicroseconds": 1037470.1,
+      "MaximumMicroseconds": 1427559.5,
+      "MedianBytes": 4148978264,
+      "Samples": [
+        {
+          "Microseconds": 1427559.5,
+          "Bytes": 4149404688
+        },
+        {
+          "Microseconds": 1066045.6,
+          "Bytes": 4148984712
+        },
+        {
+          "Microseconds": 1137686.6,
+          "Bytes": 4148985328
+        },
+        {
+          "Microseconds": 1111572.6,
+          "Bytes": 4148948680
+        },
+        {
+          "Microseconds": 1037470.1,
+          "Bytes": 4148961664
+        },
+        {
+          "Microseconds": 1063180,
+          "Bytes": 4148978264
+        },
+        {
+          "Microseconds": 1054405.6,
+          "Bytes": 4148954832
+        }
+      ]
+    },
+    {
+      "Operation": "Startup/init",
+      "Variant": "list",
+      "Iterations": 1,
+      "MedianMicroseconds": 2133377.5,
+      "MinimumMicroseconds": 1960441.5,
+      "MaximumMicroseconds": 2211029.7,
+      "MedianBytes": 10946428472,
+      "Samples": [
+        {
+          "Microseconds": 2143403.6,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 2016176.3,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 2211029.7,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 2156206.9,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 1960441.5,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 2133377.5,
+          "Bytes": 10946428472
+        },
+        {
+          "Microseconds": 2020418.3,
+          "Bytes": 10946428696
+        }
+      ]
+    },
+    {
+      "Operation": "NewGame/1",
+      "Variant": "tuple",
+      "Iterations": 64,
+      "MedianMicroseconds": 1710.4046875,
+      "MinimumMicroseconds": 1560.8890625,
+      "MaximumMicroseconds": 1906.771875,
+      "MedianBytes": 8466792,
+      "Samples": [
+        {
+          "Microseconds": 1824.4375,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1571.425,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1830.43125,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1560.8890625,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1906.771875,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1592.2828125,
+          "Bytes": 8466792
+        },
+        {
+          "Microseconds": 1710.4046875,
+          "Bytes": 8466792
+        }
+      ]
+    },
+    {
+      "Operation": "NewGame/1",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 9845.88125,
+      "MinimumMicroseconds": 9760.86875,
+      "MaximumMicroseconds": 10269.525,
+      "MedianBytes": 45952792,
+      "Samples": [
+        {
+          "Microseconds": 9845.88125,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 9760.86875,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 9960.26875,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 9837.30625,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 9942.5375,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 9827.4125,
+          "Bytes": 45952792
+        },
+        {
+          "Microseconds": 10269.525,
+          "Bytes": 45952792
+        }
+      ]
+    },
+    {
+      "Operation": "NewGame/13",
+      "Variant": "tuple",
+      "Iterations": 64,
+      "MedianMicroseconds": 1832.7765625,
+      "MinimumMicroseconds": 1824.25,
+      "MaximumMicroseconds": 1898.1328125,
+      "MedianBytes": 9794376,
+      "Samples": [
+        {
+          "Microseconds": 1824.56875,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1846.4921875,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1831.4671875,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1824.25,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1898.1328125,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1841.121875,
+          "Bytes": 9794376
+        },
+        {
+          "Microseconds": 1832.7765625,
+          "Bytes": 9794376
+        }
+      ]
+    },
+    {
+      "Operation": "NewGame/13",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 10322.50625,
+      "MinimumMicroseconds": 10109.70625,
+      "MaximumMicroseconds": 11494.4,
+      "MedianBytes": 47294576,
+      "Samples": [
+        {
+          "Microseconds": 10322.50625,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 11016.99375,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 10274.1875,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 10916.16875,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 10133.225,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 11494.4,
+          "Bytes": 47294576
+        },
+        {
+          "Microseconds": 10109.70625,
+          "Bytes": 47294576
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/first",
+      "Variant": "tuple",
+      "Iterations": 8192,
+      "MedianMicroseconds": 14.595703125,
+      "MinimumMicroseconds": 14.30240478515625,
+      "MaximumMicroseconds": 16.74227294921875,
+      "MedianBytes": 80912,
+      "Samples": [
+        {
+          "Microseconds": 14.97435302734375,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 16.74227294921875,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 14.595703125,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 14.6812744140625,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 14.3454833984375,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 14.36820068359375,
+          "Bytes": 80912
+        },
+        {
+          "Microseconds": 14.30240478515625,
+          "Bytes": 80912
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/first",
+      "Variant": "list",
+      "Iterations": 1024,
+      "MedianMicroseconds": 180.01015625,
+      "MinimumMicroseconds": 173.923828125,
+      "MaximumMicroseconds": 192.18994140625,
+      "MedianBytes": 897296,
+      "Samples": [
+        {
+          "Microseconds": 180.01015625,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 175.699609375,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 173.923828125,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 192.18994140625,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 174.06640625,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 191.90126953125,
+          "Bytes": 897296
+        },
+        {
+          "Microseconds": 184.8982421875,
+          "Bytes": 897296.0078125
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/last",
+      "Variant": "tuple",
+      "Iterations": 8192,
+      "MedianMicroseconds": 22.68868408203125,
+      "MinimumMicroseconds": 21.7159912109375,
+      "MaximumMicroseconds": 23.95244140625,
+      "MedianBytes": 124448,
+      "Samples": [
+        {
+          "Microseconds": 21.7159912109375,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 21.805322265625,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 22.72713623046875,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 22.68868408203125,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 23.4466552734375,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 21.96827392578125,
+          "Bytes": 124448
+        },
+        {
+          "Microseconds": 23.95244140625,
+          "Bytes": 124448
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/last",
+      "Variant": "list",
+      "Iterations": 512,
+      "MedianMicroseconds": 306.873046875,
+      "MinimumMicroseconds": 298.386328125,
+      "MaximumMicroseconds": 329.0197265625,
+      "MedianBytes": 1550688,
+      "Samples": [
+        {
+          "Microseconds": 298.386328125,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 329.0197265625,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 326.1021484375,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 307.7943359375,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 306.873046875,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 305.876171875,
+          "Bytes": 1550688
+        },
+        {
+          "Microseconds": 298.91015625,
+          "Bytes": 1550688
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/outside",
+      "Variant": "tuple",
+      "Iterations": 8192,
+      "MedianMicroseconds": 18.57684326171875,
+      "MinimumMicroseconds": 18.50377197265625,
+      "MaximumMicroseconds": 19.068310546875,
+      "MedianBytes": 104264,
+      "Samples": [
+        {
+          "Microseconds": 18.50377197265625,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 18.80626220703125,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 18.78349609375,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 18.57684326171875,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 18.53018798828125,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 18.57427978515625,
+          "Bytes": 104264
+        },
+        {
+          "Microseconds": 19.068310546875,
+          "Bytes": 104264
+        }
+      ]
+    },
+    {
+      "Operation": "TileAt/outside",
+      "Variant": "list",
+      "Iterations": 512,
+      "MedianMicroseconds": 270.8787109375,
+      "MinimumMicroseconds": 244.1517578125,
+      "MaximumMicroseconds": 279.3904296875,
+      "MedianBytes": 1268488,
+      "Samples": [
+        {
+          "Microseconds": 271.6625,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 244.1517578125,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 279.3904296875,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 248.1173828125,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 276.0333984375,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 247.9763671875,
+          "Bytes": 1268488
+        },
+        {
+          "Microseconds": 270.8787109375,
+          "Bytes": 1268488
+        }
+      ]
+    },
+    {
+      "Operation": "Largest/dense",
+      "Variant": "tuple",
+      "Iterations": 256,
+      "MedianMicroseconds": 465.595703125,
+      "MinimumMicroseconds": 456.421875,
+      "MaximumMicroseconds": 527.0984375,
+      "MedianBytes": 2539328,
+      "Samples": [
+        {
+          "Microseconds": 456.421875,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 465.978125,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 527.0984375,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 465.595703125,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 521.8765625,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 459.77421875,
+          "Bytes": 2539328
+        },
+        {
+          "Microseconds": 463.94140625,
+          "Bytes": 2539328
+        }
+      ]
+    },
+    {
+      "Operation": "Largest/dense",
+      "Variant": "list",
+      "Iterations": 64,
+      "MedianMicroseconds": 1920.353125,
+      "MinimumMicroseconds": 1876.1953125,
+      "MaximumMicroseconds": 2086.74375,
+      "MedianBytes": 9053768,
+      "Samples": [
+        {
+          "Microseconds": 1905.81875,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 1951.1953125,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 1941.94375,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 1901.7515625,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 1876.1953125,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 1920.353125,
+          "Bytes": 9053768
+        },
+        {
+          "Microseconds": 2086.74375,
+          "Bytes": 9053768
+        }
+      ]
+    },
+    {
+      "Operation": "Largest/sparse",
+      "Variant": "tuple",
+      "Iterations": 256,
+      "MedianMicroseconds": 468.97265625,
+      "MinimumMicroseconds": 457.93984375,
+      "MaximumMicroseconds": 532.225390625,
+      "MedianBytes": 2557720,
+      "Samples": [
+        {
+          "Microseconds": 461.025,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 457.93984375,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 518.071484375,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 461.805078125,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 532.225390625,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 488.961328125,
+          "Bytes": 2557720
+        },
+        {
+          "Microseconds": 468.97265625,
+          "Bytes": 2557720
+        }
+      ]
+    },
+    {
+      "Operation": "Largest/sparse",
+      "Variant": "list",
+      "Iterations": 64,
+      "MedianMicroseconds": 1904.771875,
+      "MinimumMicroseconds": 1891.7046875,
+      "MaximumMicroseconds": 2140.7421875,
+      "MedianBytes": 9072160,
+      "Samples": [
+        {
+          "Microseconds": 1901.725,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 1903.7984375,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 1904.771875,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 1912.8859375,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 1891.7046875,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 1912.3265625,
+          "Bytes": 9072160
+        },
+        {
+          "Microseconds": 2140.7421875,
+          "Bytes": 9072160
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/sparse",
+      "Variant": "tuple",
+      "Iterations": 512,
+      "MedianMicroseconds": 320.1025390625,
+      "MinimumMicroseconds": 310.341796875,
+      "MaximumMicroseconds": 346.6853515625,
+      "MedianBytes": 1746320,
+      "Samples": [
+        {
+          "Microseconds": 318.8205078125,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 346.6853515625,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 315.8328125,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 342.0310546875,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 310.341796875,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 342.1904296875,
+          "Bytes": 1746320
+        },
+        {
+          "Microseconds": 320.1025390625,
+          "Bytes": 1746320
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/sparse",
+      "Variant": "list",
+      "Iterations": 128,
+      "MedianMicroseconds": 920.1515625,
+      "MinimumMicroseconds": 899.64609375,
+      "MaximumMicroseconds": 941.76953125,
+      "MedianBytes": 4412968,
+      "Samples": [
+        {
+          "Microseconds": 900.66796875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 920.1515625,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 899.64609375,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 929.16171875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 905.2296875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 941.76953125,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 931.31015625,
+          "Bytes": 4412968
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/blocked",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1292.1859375,
+      "MinimumMicroseconds": 1179.63046875,
+      "MaximumMicroseconds": 1350.5921875,
+      "MedianBytes": 6324936,
+      "Samples": [
+        {
+          "Microseconds": 1292.1859375,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1182.2828125,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1350.5921875,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1192.85,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1302.8296875,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1179.63046875,
+          "Bytes": 6324936
+        },
+        {
+          "Microseconds": 1307.99609375,
+          "Bytes": 6324936
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/blocked",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 7760.95,
+      "MinimumMicroseconds": 7573.975,
+      "MaximumMicroseconds": 8663.95625,
+      "MedianBytes": 37220240,
+      "Samples": [
+        {
+          "Microseconds": 7573.975,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 7628.15,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 8577.725,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 8663.95625,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 7760.95,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 7727.9875,
+          "Bytes": 37220240
+        },
+        {
+          "Microseconds": 8153.675,
+          "Bytes": 37220240
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/horizontal",
+      "Variant": "tuple",
+      "Iterations": 2048,
+      "MedianMicroseconds": 77.38037109375,
+      "MinimumMicroseconds": 75.58564453125,
+      "MaximumMicroseconds": 84.071484375,
+      "MedianBytes": 431112,
+      "Samples": [
+        {
+          "Microseconds": 78.251513671875,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 76.339013671875,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 77.75537109375,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 77.22744140625,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 77.38037109375,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 84.071484375,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 75.58564453125,
+          "Bytes": 431112
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/horizontal",
+      "Variant": "list",
+      "Iterations": 32,
+      "MedianMicroseconds": 3319.203125,
+      "MinimumMicroseconds": 3227.1375,
+      "MaximumMicroseconds": 3730.05625,
+      "MedianBytes": 15842336,
+      "Samples": [
+        {
+          "Microseconds": 3286.95625,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3730.05625,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3319.203125,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3695.8125,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3238.996875,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3557.771875,
+          "Bytes": 15842336
+        },
+        {
+          "Microseconds": 3227.1375,
+          "Bytes": 15842336
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/vertical",
+      "Variant": "tuple",
+      "Iterations": 2048,
+      "MedianMicroseconds": 81.77998046875,
+      "MinimumMicroseconds": 78.159423828125,
+      "MaximumMicroseconds": 84.463623046875,
+      "MedianBytes": 431112,
+      "Samples": [
+        {
+          "Microseconds": 84.463623046875,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 79.518310546875,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 83.912158203125,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 78.159423828125,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 83.081005859375,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 78.68701171875,
+          "Bytes": 431112
+        },
+        {
+          "Microseconds": 81.77998046875,
+          "Bytes": 431112
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/vertical",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 7689.36875,
+      "MinimumMicroseconds": 7380.7625,
+      "MaximumMicroseconds": 8137.34375,
+      "MedianBytes": 37147952,
+      "Samples": [
+        {
+          "Microseconds": 7782.86875,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 7696.2625,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 7628.15625,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 7689.36875,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 7565.3,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 8137.34375,
+          "Bytes": 37147952
+        },
+        {
+          "Microseconds": 7380.7625,
+          "Bytes": 37147952
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/last-free",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1117.0515625,
+      "MinimumMicroseconds": 1093.30390625,
+      "MaximumMicroseconds": 1214.94140625,
+      "MedianBytes": 6232048,
+      "Samples": [
+        {
+          "Microseconds": 1115.34375,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1093.30390625,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1117.0515625,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1192.24140625,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1117.22265625,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1214.94140625,
+          "Bytes": 6232048
+        },
+        {
+          "Microseconds": 1103.125,
+          "Bytes": 6232048
+        }
+      ]
+    },
+    {
+      "Operation": "CanMove/last-free",
+      "Variant": "list",
+      "Iterations": 128,
+      "MedianMicroseconds": 889.159375,
+      "MinimumMicroseconds": 876.07421875,
+      "MaximumMicroseconds": 984.03671875,
+      "MedianBytes": 4412968,
+      "Samples": [
+        {
+          "Microseconds": 876.07421875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 984.03671875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 877.0171875,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 946.97265625,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 889.159375,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 937.63203125,
+          "Bytes": 4412968
+        },
+        {
+          "Microseconds": 881.275,
+          "Bytes": 4412968
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-left",
+      "Variant": "tuple",
+      "Iterations": 64,
+      "MedianMicroseconds": 1425.0984375,
+      "MinimumMicroseconds": 1414.196875,
+      "MaximumMicroseconds": 1661.0984375,
+      "MedianBytes": 7743920,
+      "Samples": [
+        {
+          "Microseconds": 1421.4625,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1621.1140625,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1414.271875,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1439.7640625,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1661.0984375,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1414.196875,
+          "Bytes": 7743920
+        },
+        {
+          "Microseconds": 1425.0984375,
+          "Bytes": 7743920
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-left",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 6724.79375,
+      "MinimumMicroseconds": 6592.41875,
+      "MaximumMicroseconds": 7091.325,
+      "MedianBytes": 33475920,
+      "Samples": [
+        {
+          "Microseconds": 6826.98125,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 7036.89375,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 6705.35625,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 6724.79375,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 6592.41875,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 6621.99375,
+          "Bytes": 33475920
+        },
+        {
+          "Microseconds": 7091.325,
+          "Bytes": 33475920
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-right",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1352.421875,
+      "MinimumMicroseconds": 1334.78046875,
+      "MaximumMicroseconds": 1454.36875,
+      "MedianBytes": 7227592,
+      "Samples": [
+        {
+          "Microseconds": 1337.26484375,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1443.42578125,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1352.421875,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1424.6625,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1336.128125,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1454.36875,
+          "Bytes": 7227592
+        },
+        {
+          "Microseconds": 1334.78046875,
+          "Bytes": 7227592
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-right",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 7580.34375,
+      "MinimumMicroseconds": 7485.74375,
+      "MaximumMicroseconds": 7721.14375,
+      "MedianBytes": 37498800,
+      "Samples": [
+        {
+          "Microseconds": 7564.54375,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7721.14375,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7662.475,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7580.34375,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7690.5375,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7556.34375,
+          "Bytes": 37498800
+        },
+        {
+          "Microseconds": 7485.74375,
+          "Bytes": 37498800
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-up",
+      "Variant": "tuple",
+      "Iterations": 64,
+      "MedianMicroseconds": 1799.1453125,
+      "MinimumMicroseconds": 1625.6046875,
+      "MaximumMicroseconds": 1913.0734375,
+      "MedianBytes": 9063880,
+      "Samples": [
+        {
+          "Microseconds": 1883.834375,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1687.059375,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1799.1453125,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1913.0734375,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1668.4828125,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1849.8453125,
+          "Bytes": 9063880
+        },
+        {
+          "Microseconds": 1625.6046875,
+          "Bytes": 9063880
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-up",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 12009.6875,
+      "MinimumMicroseconds": 11802.85,
+      "MaximumMicroseconds": 12321.75,
+      "MedianBytes": 59455416,
+      "Samples": [
+        {
+          "Microseconds": 12009.6875,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 11847.5375,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 12022.15625,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 11869.65625,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 11802.85,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 12153.95625,
+          "Bytes": 59455416
+        },
+        {
+          "Microseconds": 12321.75,
+          "Bytes": 59455416
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-down",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 967.0578125,
+      "MinimumMicroseconds": 959.728125,
+      "MaximumMicroseconds": 1069.90390625,
+      "MedianBytes": 5204248,
+      "Samples": [
+        {
+          "Microseconds": 969.24453125,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 967.0578125,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 963.21875,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 1063.94296875,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 966.37421875,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 1069.90390625,
+          "Bytes": 5204248
+        },
+        {
+          "Microseconds": 959.728125,
+          "Bytes": 5204248
+        }
+      ]
+    },
+    {
+      "Operation": "Move/mixed-down",
+      "Variant": "list",
+      "Iterations": 8,
+      "MedianMicroseconds": 12716.7625,
+      "MinimumMicroseconds": 12675.6125,
+      "MaximumMicroseconds": 14208.8625,
+      "MedianBytes": 63080384,
+      "Samples": [
+        {
+          "Microseconds": 12675.6125,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 14208.8625,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 12716.7625,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 13079.9625,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 12697.2625,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 12696.5375,
+          "Bytes": 63080384
+        },
+        {
+          "Microseconds": 12777.7125,
+          "Bytes": 63080384
+        }
+      ]
+    },
+    {
+      "Operation": "Move/packed-noop",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1011.1203125,
+      "MinimumMicroseconds": 967.16796875,
+      "MaximumMicroseconds": 1109.68359375,
+      "MedianBytes": 5417880,
+      "Samples": [
+        {
+          "Microseconds": 967.16796875,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 998.95078125,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 1011.1203125,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 1048.02734375,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 1102.15703125,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 1109.68359375,
+          "Bytes": 5417880
+        },
+        {
+          "Microseconds": 988.51015625,
+          "Bytes": 5417880
+        }
+      ]
+    },
+    {
+      "Operation": "Move/packed-noop",
+      "Variant": "list",
+      "Iterations": 64,
+      "MedianMicroseconds": 3008.4296875,
+      "MinimumMicroseconds": 2974.4984375,
+      "MaximumMicroseconds": 3119.746875,
+      "MedianBytes": 14833952,
+      "Samples": [
+        {
+          "Microseconds": 3108.2640625,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 2974.4984375,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 3119.746875,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 3017.80625,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 2996.4234375,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 3008.4296875,
+          "Bytes": 14833952
+        },
+        {
+          "Microseconds": 3005.3484375,
+          "Bytes": 14833952
+        }
+      ]
+    },
+    {
+      "Operation": "Move/blocked-noop",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1074.44140625,
+      "MinimumMicroseconds": 1070.11640625,
+      "MaximumMicroseconds": 1104.20703125,
+      "MedianBytes": 5872944,
+      "Samples": [
+        {
+          "Microseconds": 1074.44140625,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1070.11640625,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1086.80390625,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1071.9125,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1104.20703125,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1071.84765625,
+          "Bytes": 5872944
+        },
+        {
+          "Microseconds": 1080.73984375,
+          "Bytes": 5872944
+        }
+      ]
+    },
+    {
+      "Operation": "Move/blocked-noop",
+      "Variant": "list",
+      "Iterations": 32,
+      "MedianMicroseconds": 4498.309375,
+      "MinimumMicroseconds": 4185.18125,
+      "MaximumMicroseconds": 4623.2625,
+      "MedianBytes": 20958728,
+      "Samples": [
+        {
+          "Microseconds": 4550.7625,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4201.30625,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4569.871875,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4224.959375,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4498.309375,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4185.18125,
+          "Bytes": 20958728
+        },
+        {
+          "Microseconds": 4623.2625,
+          "Bytes": 20958728
+        }
+      ]
+    },
+    {
+      "Operation": "Move/last-cell",
+      "Variant": "tuple",
+      "Iterations": 128,
+      "MedianMicroseconds": 1080.44609375,
+      "MinimumMicroseconds": 1060.13203125,
+      "MaximumMicroseconds": 1196.503125,
+      "MedianBytes": 5704104,
+      "Samples": [
+        {
+          "Microseconds": 1075.7859375,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1186.05546875,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1061.55390625,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1196.503125,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1080.44609375,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1188.34453125,
+          "Bytes": 5704104
+        },
+        {
+          "Microseconds": 1060.13203125,
+          "Bytes": 5704104
+        }
+      ]
+    },
+    {
+      "Operation": "Move/last-cell",
+      "Variant": "list",
+      "Iterations": 16,
+      "MedianMicroseconds": 7684.6625,
+      "MinimumMicroseconds": 7622.8875,
+      "MaximumMicroseconds": 7863.8625,
+      "MedianBytes": 37069080,
+      "Samples": [
+        {
+          "Microseconds": 7751.3375,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7643.41875,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7656.4625,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7863.8625,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7684.6625,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7622.8875,
+          "Bytes": 37069080
+        },
+        {
+          "Microseconds": 7687.95,
+          "Bytes": 37069080
+        }
+      ]
+    }
+  ]
+}

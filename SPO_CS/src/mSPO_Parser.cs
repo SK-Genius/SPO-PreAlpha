@@ -271,7 +271,9 @@ mSPO_Parser {
 		mParserGen.tParser<tPos, tToken, tChild, tError> aChildParser
 	) => (
 		mParserGen.Seq(
-			SpecialToken("."), Id, Infix(aChildParser)
+			SpecialToken("."),
+			Id,
+			Infix(aChildParser)
 		).ModifyS(
 			(aSpan, _, aFirstId, aInfix) => (
 				Id: mSPO_AST.Id(
@@ -338,7 +340,8 @@ mSPO_Parser {
 		[
 			InfixCall(ExpressionInCall).Modify((aId, aArgs) => ((mSPO_AST.tExpressionNode<tSpan>)aId, aArgs)),
 			mParserGen.Seq(
-				-SpecialToken(".") +C(Expression), Expression.Modify(__ => mStream.Stream(__))
+				-SpecialToken(".") +C(Expression),
+				Expression.Modify(__ => mStream.Stream(__))
 			)
 		]
 	)
@@ -635,7 +638,8 @@ mSPO_Parser {
 		[
 			InfixCall(Type).Modify((aId, aTypes) => ((mSPO_AST.tTypeNode<tSpan>)aId, aTypes)),
 			mParserGen.Seq(
-				-SpecialToken(".") +C(TypeInSet), Type.Modify(__ => mStream.Stream(__))
+				-SpecialToken(".") +C(TypeInSet),
+				Type.Modify(__ => mStream.Stream(__))
 			)
 		]
 	)
@@ -678,14 +682,15 @@ mSPO_Parser {
 				if (LoadPath.Any(__ => __.IsSameFile(SigFile))) {
 					return mResult.Fail(
 						"recursive §LOAD: " + LoadPath.Reverse().Map(__ => __.Path.ToText()).Join(
-							(a1, a2) => a1 + " -> " + a2, ""
+							(a1, a2) => a1 + " -> " + a2,
+							""
 						) + " -> " + SigFile.Path
 					);
 				}
 				
 				var Source = aSigFileToken.FileContext is { } Context
-					? Context.ReadText(SigFile)
-					: SigFile.TryReadText();
+				? Context.ReadText(SigFile)
+				: SigFile.TryReadText();
 				
 				return Source.ThenTry(
 					aSource => Signature.TryParseText(

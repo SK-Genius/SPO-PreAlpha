@@ -101,7 +101,8 @@ mIL_Parser_Tests {
 		}.AsStream(
 		).Map(
 			aTestCase => mStream.Stream(
-				mTest.Test($"{nameof(mTextParser.TryParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+				mTest.Test(
+					$"{nameof(mTextParser.TryParseText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
 					aStreamOut => {
 						mAssert.AreEquals(
 							mIL_Parser.Command.TryParseText(aTestCase.Expr, "", __ => aStreamOut(__())).ElseThrow(),
@@ -110,7 +111,8 @@ mIL_Parser_Tests {
 						);
 					}
 				),
-				mTest.Test($"{nameof(mIL_AST.ToText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
+				mTest.Test(
+					$"{nameof(mIL_AST.ToText)} {aTestCase.Command.NodeType}: {aTestCase.Expr}",
 					aStreamOut => {
 						mAssert.AreEquals(
 							aTestCase.Command.ToText(),

@@ -16,9 +16,9 @@ TestFiles/ILT_Function_Errors/00_01_ParserUnexpectedToken.ILT:5 ERROR
  ├ expect '§SIG'
  ├ expect '§SIG_BODY'
  ├ expect '§SIG_HEAD'
- ├ expect '§SUBINTERFACE'
  ├ expect '§TRY'
  ├ expect '§TRY_REMOVE'
  ├ expect '§VAR'
+ ├ expect '§WITH_TYPE'
  ├ expect Identifier
  ├ expect number

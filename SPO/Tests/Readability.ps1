@@ -6,9 +6,12 @@ $Sources = @(
 	Get-ChildItem -LiteralPath (Join-Path $SpoRoot 'Apps'), (Join-Path $SpoRoot 'Libs') -File -Recurse |
 		Where-Object { $_.Extension -in '.spo', '.sig' }
 	Get-ChildItem -LiteralPath (Join-Path $SpoRoot 'Runtime') -File -Recurse -Filter '*.cs'
+	Get-ChildItem -LiteralPath (Join-Path $SpoRoot 'Experiments') -File -Recurse |
+		Where-Object { $_.Extension -in '.spo', '.sig', '.cs' }
 	Get-Item -LiteralPath (Join-Path $SpoRoot 'Tests/GUI.Scopes.spo'),
 		(Join-Path $SpoRoot 'Tests/GUI.Tests.cs'), (Join-Path $SpoRoot 'Tests/SDL3.Tests.cs'),
-		(Join-Path $SpoRoot 'Tests/Launcher.Tests.cs')
+		(Join-Path $SpoRoot 'Tests/Launcher.Tests.cs'), (Join-Path $SpoRoot 'Tests/2048.Tests.cs')
+	Get-Item -LiteralPath (Join-Path $SpoRoot 'Tests/Runtime.Call.Tests.cs')
 	Get-Item -LiteralPath (Join-Path $SpoRoot 'src/Program.cs'), (Join-Path $SpoRoot 'src/mStartup.cs')
 
 )

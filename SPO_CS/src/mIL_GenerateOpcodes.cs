@@ -17,8 +17,6 @@ mIL_GenerateOpcodes {
 		mIL_AST.tModule<tPos> aModule,
 		(mVM_Data.tData Data, mVM_Type.tType Type) aImport
 	) {
-		mAssert.IsFalse(aImport.Data._IsMutable, "mutable module import is not allowed");
-		
 		var Types = mIL_TypeChecker.ModuleTypes(aModule).ModifyError(mIL_TypeChecker.ErrorText).ElseThrow();
 		var TypeIdToIndex = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		var Constants = mArrayList.List<mVM_Data.tData>();
@@ -31,266 +29,45 @@ mIL_GenerateOpcodes {
 		var Definitions = mArrayList.List<mVM_Data.tProcDef<tPos>>();
 		var DefIdToIndex = mTreeMap.Tree<tText, tNat32>((a1, a2) => tText.CompareOrdinal(a1, a2).Sign(), []);
 		
-		var Helpers = mArrayList.List<mVM_Data.tProcDef<tPos>>();
-		var Converters = mTreeMap.Tree<tNat64, tNat32>((a1, a2) => a1.CompareTo(a2), []);
-		
-		mVM_Data.tProcDef<tPos>
-		NewHelper(mVM_Type.tType aEnvironment, mVM_Type.tType aCallable) {
-			var Body = aCallable;
-			while (Body.IsGeneric(out _, out var Inner)) {
-				Body = Inner;
+		// A pattern only needs to inspect the parts not already guaranteed by its input type.
+		static mVM_Type.tType
+		RequiredMatch(
+			mVM_Type.tType aSource,
+			mVM_Type.tType aTarget
+		) {
+			if (
+				aSource.IsSubType(aTarget).Match(out var Mappings, out _) &&
+				aSource.ApplyMappings(Mappings).SameType(aSource)
+			) {
+				return mVM_Type.Any();
 			}
 			
-			mAssert.IsTrue(Body.IsProc(out var Object, out var Argument, out var Result));
-			
-			var Helper = new mVM_Data.tProcDef<tPos>(
-				mVM_Type.Proc(mVM_Type.Empty(), aEnvironment, aCallable)
+			var (Unknown, _) = aSource.SplitBy(
+				__ => __.Kind is (
+					mVM_Type.tKind.Any or
+					mVM_Type.tKind.Free or
+					mVM_Type.tKind.Abstract or
+					mVM_Type.tKind.TypeApply
+				)
 			);
 			
-			Helper.Types.Push(
-				[
-					mVM_Type.Empty(),
-					mVM_Type.Int(),
-					mVM_Type.False(),
-					mVM_Type.True(),
-					mVM_Type.Type(),
-					mVM_Type.Type(),
-					mVM_Type.Type(),
-					aEnvironment,
-					Object,
-					Argument,
-					Result
-				]
-			);
-			
-			Helpers.Push(Helper);
-			
-			return Helper;
-		}
-		
-		static tNat32
-		Append(
-			mVM_Data.tProcDef<tPos> aProc,
-			tPos aPos,
-			mVM_Data.tOpCode aCode,
-			tNat32 aFirst,
-			tNat32 aSecond,
-			mVM_Type.tType aType
-		) {
-			aProc.PosList.Push(aPos);
-			aProc.Commands.Push((aCode, aFirst, aSecond, mStd.NewDebugId()));
-			aProc.Types.Push(aType);
-			aProc._LastReg += 1;
-			return aProc._LastReg;
-		}
-		
-		tNat32
-		Load(
-			mVM_Data.tProcDef<tPos> aProc,
-			tPos aPos,
-			mVM_Data.tData aValue,
-			mVM_Type.tType aType
-		) {
-			var Index = Constants.Size;
-			Constants.Push(aValue);
-			return Append(aProc, aPos, mVM_Data.tOpCode.LoadConstant, Index, 0, aType);
-		}
-		
-		tNat32
-		Adapt(
-			mVM_Data.tProcDef<tPos> aProc,
-			tPos aPos,
-			tNat32 aValue,
-			mVM_Type.tType aType
-		) {
-			if (!aType.HasInterfaceValues()) {
-				return aValue;
+			if (
+				Unknown.IsNone() &&
+				aTarget.IsPair(out var TargetFirst, out var TargetSecond) &&
+				aSource.TryProjectPair(out var SourceFirst, out var SourceSecond)
+			) {
+				return mVM_Type.Pair(
+					RequiredMatch(SourceFirst, TargetFirst),
+					RequiredMatch(SourceSecond, TargetSecond)
+				);
 			}
 			
-			var Converter = ConverterFor(aType, aPos);
-			var Callable = Append(
-				aProc,
-				aPos,
-				mVM_Data.tOpCode.LoadConstant,
-				Converter,
-				0,
-				mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Any(), aType)
-			);
-			return Append(aProc, aPos, mVM_Data.tOpCode.CallFunc, Callable, aValue, aType);
-		}
-		
-		tNat32
-		ConverterFor(
-			mVM_Type.tType aType,
-			tPos aPos
-		) {
-			if (Converters.TryGet(aType.DebugId).IsSome(out var Existing)) {
-				return Existing;
-			}
-			
-			var Converter = NewHelper(
-				mVM_Type.Empty(),
-				mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Any(), aType)
-			);
-			
-			var Index = Constants.Size;
-			
-			Constants.Push(mVM_Data.Proc(Converter, mVM_Data.Empty()));
-			
-			// Register before lowering the body so recursive data conversions can call themselves.
-			Converters = Converters.Set(aType.DebugId, Index);
-			
-			var Value = mVM_Data.cArgReg;
-			var Type = aType;
-			
-			while (Type.IsGeneric(out _, out var GenericBody)) {
-				Type = GenericBody;
-			}
-			
-			if (Type.IsProc(out var Object, out var Argument, out var Result)) {
-				var Adapter = NewHelper(aType, aType);
-				var ObjectReg = Adapt(Adapter, aPos, mVM_Data.cObjReg, Object);
-				var ArgumentReg = Adapt(Adapter, aPos, mVM_Data.cArgReg, Argument);
-				var Function = mVM_Data.cEnvReg;
-				
-				if (!Object.IsEmpty()) {
-					Function = Append(
-						Adapter,
-						aPos,
-						mVM_Data.tOpCode.NewPair,
-						ObjectReg,
-						Function,
-						mVM_Type.Pair(Object, mVM_Type.Any())
-					);
-				}
-				
-				var Returned = Append(
-					Adapter,
-					aPos,
-					Object.IsEmpty() ? mVM_Data.tOpCode.CallFunc : mVM_Data.tOpCode.CallProc,
-					Function,
-					ArgumentReg,
-					mVM_Type.Any()
-				);
-				
-				Returned = Adapt(Adapter, aPos, Returned, Result);
-				Adapter.ReturnIf(aPos, mVM_Data.cTrueReg, Returned);
-				
-				var Definition = Load(Converter, aPos, mVM_Data.Def(Adapter), Adapter.DefType);
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.CallFunc, Definition, Value, aType);
-			} else if (Type.IsInterface(out _, out _)) {
-				var Contract = Load(Converter, aPos, mVM_Data.TypeExpression(Type), mVM_Type.Type());
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.SubInterface, Contract, Value, aType);
-			} else if (Type.IsPair(out var First, out var Second)) {
-				var Left = Append(Converter, aPos, mVM_Data.tOpCode.First, Value, 0, First);
-				var Right = Append(Converter, aPos, mVM_Data.tOpCode.Second, Value, 0, Second);
-				Left = Adapt(Converter, aPos, Left, First);
-				Right = Adapt(Converter, aPos, Right, Second);
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.NewPair, Left, Right, aType);
-			} else if (Type.IsPrefix(out var Prefix, out var Inner)) {
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.DelPrefix, Prefix.PrefixHash(), Value, Inner);
-				Value = Adapt(Converter, aPos, Value, Inner);
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.AddPrefix, Prefix.PrefixHash(), Value, aType);
-			} else if (Type.IsRecord(out var Fields)) {
-				foreach (var Field in Fields.ToStream()) {
-					if (!Field.Value.HasInterfaceValues()) {
-						continue;
-					}
-					
-					var Content = Append(
-						Converter,
-						aPos,
-						mVM_Data.tOpCode.GetField,
-						Value,
-						Field.Key.PrefixHash(),
-						Field.Value
-					);
-					
-					Content = Adapt(
-						Converter,
-						aPos,
-						Content,
-						Field.Value
-					);
-					
-					Content = Append(
-						Converter,
-						aPos,
-						mVM_Data.tOpCode.AddPrefix,
-						Field.Key.PrefixHash(),
-						Content,
-						mVM_Type.Prefix(Field.Key, Field.Value)
-					);
-					
-					Value = Append(Converter, aPos, mVM_Data.tOpCode.SetField, Value, Content, aType);
-				}
-			} else if (Type.IsSet(out var LeftType, out var RightType)) {
-				var Tagged = mVM_Type.Prefix("InterfaceConversion", aType);
-				var Choice = NewHelper(mVM_Type.Empty(), mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Any(), Tagged));
-				var Left = NewHelper(mVM_Type.Empty(), mVM_Type.Proc(mVM_Type.Empty(), LeftType, Tagged));
-				var Adapted = Adapt(Left, aPos, mVM_Data.cArgReg, LeftType);
-				Adapted = Append(
-					Left,
-					aPos,
-					mVM_Data.tOpCode.AddPrefix,
-					"InterfaceConversion".PrefixHash(),
-					Adapted,
-					Tagged
-				);
-				Left.ReturnIf(aPos, mVM_Data.cTrueReg, Adapted);
-				var LeftProc = Load(Choice, aPos, mVM_Data.Proc(Left, mVM_Data.Empty()), Left.DefType.Refs[2]);
-				var Selected = Append(
-					Choice,
-					aPos,
-					mVM_Data.tOpCode.TryReturn,
-					LeftProc,
-					mVM_Data.cArgReg,
-					mVM_Type.Set(mVM_Type.Empty(), Tagged)
-				);
-				Choice.ReturnIfNotEmpty(aPos, Selected);
-				var Right = Adapt(Choice, aPos, mVM_Data.cArgReg, RightType);
-				Right = Append(
-					Choice,
-					aPos,
-					mVM_Data.tOpCode.AddPrefix,
-					"InterfaceConversion".PrefixHash(),
-					Right,
-					Tagged
-				);
-				Choice.ReturnIf(aPos, mVM_Data.cTrueReg, Right);
-				var Choose = Load(Converter, aPos, mVM_Data.Proc(Choice, mVM_Data.Empty()), Choice.DefType.Refs[2]);
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.CallFunc, Choose, Value, Tagged);
-				Value = Append(
-					Converter,
-					aPos,
-					mVM_Data.tOpCode.DelPrefix,
-					"InterfaceConversion".PrefixHash(),
-					Value,
-					aType
-				);
-			} else if (Type.IsRecursive(out var Head, out var Body)) {
-				Value = Adapt(Converter, aPos, Value, Body.Substitute(Head, Type));
-			} else if (Type.IsSig(out _, out var SigBody)) {
-				var Witness = Append(Converter, aPos, mVM_Data.tOpCode.SigHead, Value, 0, mVM_Type.Type());
-				var Content = Append(Converter, aPos, mVM_Data.tOpCode.SigBody, Value, 0, SigBody);
-				Content = Adapt(Converter, aPos, Content, SigBody);
-				var Payload = Append(
-					Converter,
-					aPos,
-					mVM_Data.tOpCode.NewPair,
-					Witness,
-					Content,
-					mVM_Type.Pair(mVM_Type.Type(), SigBody)
-				);
-				var Contract = Load(Converter, aPos, mVM_Data.TypeExpression(aType), mVM_Type.Type());
-				Value = Append(Converter, aPos, mVM_Data.tOpCode.NewSig, Contract, Payload, aType);
-			}
-			Converter.ReturnIf(aPos, mVM_Data.cTrueReg, Value);
-			return Index;
+			return aTarget;
 		}
 		
 		foreach (var Def in aModule.Defs) {
 			var DefType = Types.TryGet(Def.Type).AssertNotEmpty();
+			
 			if (DefType.IsRecursive(out var RecursiveHead, out var RecursiveBody)) {
 				DefType = RecursiveBody.Substitute(RecursiveHead, DefType);
 			}
@@ -330,20 +107,6 @@ mIL_GenerateOpcodes {
 			Builtin(mIL_AST.cArg, ArgumentType);
 			Builtin(mIL_AST.cRes, ReturnType);
 			
-			tNat32
-			AdaptValue(tNat32 aValue, mVM_Type.tType aType, tPos aPos) {
-				var Adapted = Adapt(Proc, aPos, aValue, aType);
-				while (RegBuffer.Size < Proc.Types.Size) {
-					RegBuffer.Push((Proc.Types.Get(RegBuffer.Size), null));
-				}
-				return Adapted;
-			}
-			
-			var Position = Def.Commands.TryFirst().Then(__ => __.Pos).ElseUse(default!);
-			RegIdToIndex = RegIdToIndex.Set(mIL_AST.cEnv, AdaptValue(mVM_Data.cEnvReg, EnvType, Position));
-			RegIdToIndex = RegIdToIndex.Set(mIL_AST.cObj, AdaptValue(mVM_Data.cObjReg, ObjectType, Position));
-			RegIdToIndex = RegIdToIndex.Set(mIL_AST.cArg, AdaptValue(mVM_Data.cArgReg, ArgumentType, Position));
-			
 			foreach (var Command in Def.Commands) {
 				tNat32
 				Emit(
@@ -379,7 +142,7 @@ mIL_GenerateOpcodes {
 						tIL_CommandType.Second => mVM_Data.tOpCode.Second,
 						tIL_CommandType.Sig => mVM_Data.tOpCode.NewSig,
 						tIL_CommandType.Interface => mVM_Data.tOpCode.NewInterface,
-						tIL_CommandType.SubInterface => mVM_Data.tOpCode.SubInterface,
+						tIL_CommandType.WithType => mVM_Data.tOpCode.WithType,
 						tIL_CommandType.SigBody => mVM_Data.tOpCode.SigBody,
 						tIL_CommandType.SigHead or tIL_CommandType.SigHeadAs => mVM_Data.tOpCode.SigHead,
 						tIL_CommandType.TryAsBool => mVM_Data.tOpCode.TryAsBool,
@@ -414,33 +177,6 @@ mIL_GenerateOpcodes {
 						_ => throw mError.Error($"invalid IL command: {aKind}"),
 					};
 					
-					mVM_Type.tType? CallResult = null;
-					if (aKind is tIL_CommandType.CallFunc or tIL_CommandType.Closure or tIL_CommandType.CallProc) {
-						var Function = RegBuffer.Get(aReg1Index).Type;
-						var Object = mVM_Type.Empty();
-						if (aKind is tIL_CommandType.CallProc) {
-							mAssert.IsTrue(Function.IsPair(out Object, out Function));
-							if (Function.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
-								Function = Object.FirstObjectType().TryGetInterfaceMethod(Name).AssertNotEmpty();
-							}
-						}
-						var Call = mVM_Type.InferCall(Function, Object, RegBuffer.Get(aReg2Index).Type, __ => {}).ElseThrow();
-						if (aKind is tIL_CommandType.CallProc && Call.Object.HasInterfaceValues()) {
-							var First = Emit(tIL_CommandType.First, aReg1Index, aType: Object);
-							First = AdaptValue(First, Call.Object, Command.Pos);
-							var Second = Emit(tIL_CommandType.Second, aReg1Index, aType: Function);
-							aReg1Index = Emit(tIL_CommandType.Pair, First, Second, mVM_Type.Pair(Call.Object, Function));
-						}
-						aReg2Index = AdaptValue(aReg2Index, Call.Argument, Command.Pos);
-						CallResult = Call.Result;
-					} else if (aKind is tIL_CommandType.SubInterface) {
-						return AdaptValue(aReg2Index, aType!, Command.Pos);
-					} else if (aKind is tIL_CommandType.ReturnIf) {
-						aReg2Index = AdaptValue(aReg2Index, ReturnType, Command.Pos);
-					} else if (aKind is tIL_CommandType.ReturnIfNotEmpty) {
-						aReg1Index = AdaptValue(aReg1Index, mVM_Type.Set(mVM_Type.Empty(), ReturnType), Command.Pos);
-					}
-					
 					Proc.PosList.Push(Command.Pos);
 					Proc.Commands.Push((Opcode, aReg1Index, aReg2Index, mStd.NewDebugId()));
 					
@@ -453,7 +189,7 @@ mIL_GenerateOpcodes {
 					Proc.Types.Push(aType);
 					Proc._LastReg = RegIndex;
 					
-					return CallResult is null ? RegIndex : AdaptValue(RegIndex, CallResult, Command.Pos);
+					return RegIndex;
 				}
 				
 				tNat32
@@ -531,6 +267,7 @@ mIL_GenerateOpcodes {
 							ResId,
 							Emit(IL_CommandType, (tNat32)tInt32.Parse(Command._2.AssertNotEmpty()), aType: mVM_Type.Int())
 						);
+						
 						continue;
 					}
 					case tIL_CommandType.VarSet:
@@ -548,10 +285,13 @@ mIL_GenerateOpcodes {
 							Type = Body.Substitute(Parameter, mVM_Type.Free(Parameter.KindType()));
 						}
 						
-						mAssert.IsTrue(Type.IsProc(out _, out var ExpectedArgument, out var Result));
+						mAssert.IsTrue(Type.IsProc(out var Object, out var ExpectedArgument, out var Result));
+						var MatchType = RequiredMatch(RegBuffer.Get(Argument).Type, ExpectedArgument);
+						var CallKind = tIL_CommandType.TryReturn;
 						
 						if (Command._3.IsSome(out var GuardId)) {
 							var Guard = GetRegIndex(GuardId);
+							
 							Function = Emit(
 								tIL_CommandType.Pair,
 								Function,
@@ -562,24 +302,50 @@ mIL_GenerateOpcodes {
 							RegBuffer.Update(Argument, __ => (Remainder, __.Data));
 						}
 						
-						var Temporary = Emit(tIL_CommandType.TryReturn, Function, Argument, mVM_Type.Empty());
+						if (Command._3.IsNone() && MatchType.IsAny()) {
+							CallKind = tIL_CommandType.CallFunc;
+							
+							if (!Object.IsEmpty()) {
+								Function = Emit(
+									tIL_CommandType.Pair,
+									mVM_Data.cObjReg,
+									Function,
+									mVM_Type.Pair(ObjectType, Type)
+								);
+								
+								CallKind = tIL_CommandType.CallProc;
+							}
+						} else {
+							Proc.TryReturnTypes = Proc.TryReturnTypes.Set(Proc.Commands.Size, MatchType);
+						}
+						
+						var Temporary = Emit(
+							CallKind,
+							Function,
+							Argument,
+							CallKind is tIL_CommandType.TryReturn ? mVM_Type.Set(mVM_Type.Empty(), Result) : Result
+						);
+						
 						Emit(tIL_CommandType.ReturnIfNotEmpty, Temporary);
 						var (_, Success) = Result.SplitBy(__ => __.IsEmpty());
 						
 						if (Success.IsSome(out var SuccessType)) {
 							ReturnType = mVM_Type.Set(ReturnType, SuccessType);
 						}
+						
 						continue;
 					}
 				}
 				
 				var Reg1 = Command._2.AssertNotEmpty();
 				var Reg2 = Command._3.ElseUse("");
+				
 				var Reg1_Id = GetRegIndex(
 					IL_CommandType is tIL_CommandType.PrefixApply or tIL_CommandType.PrefixRemove
 					? Reg2
 					: Reg1
 				);
+				
 				var (Reg1_Type, Reg1_Data) = RegBuffer.Get(Reg1_Id);
 				
 				mVM_Type.tType Res_Type;
@@ -589,9 +355,11 @@ mIL_GenerateOpcodes {
 				switch (IL_CommandType) {
 					case tIL_CommandType.ReturnIfNotEmpty: {
 						var (_, Returned) = Reg1_Type.SplitBy(__ => __.IsEmpty());
+						
 						if (Returned.IsSome(out var Type)) {
 							ReturnType = mVM_Type.Set(ReturnType, Type);
 						}
+						
 						Emit(IL_CommandType, Reg1_Id);
 						RegBuffer.Update(Reg1_Id, __ => (mVM_Type.Empty(), __.Data));
 						continue;
@@ -600,9 +368,11 @@ mIL_GenerateOpcodes {
 					case tIL_CommandType.Second: {
 						mAssert.IsTrue(Reg1_Type.TryProjectPair(out var First, out var Second));
 						Res_Type = IL_CommandType is tIL_CommandType.First ? First : Second;
+						
 						if (Reg1_Data is not null && Reg1_Data.IsPair(out var FirstData, out var SecondData)) {
 							Res_Value = IL_CommandType is tIL_CommandType.First ? FirstData : SecondData;
 						}
+						
 						break;
 					}
 					case tIL_CommandType.PrefixApply:
@@ -640,6 +410,7 @@ mIL_GenerateOpcodes {
 					case tIL_CommandType.SigHeadAs:
 					case tIL_CommandType.SigBody: {
 						mAssert.IsTrue(Reg1_Type.IsSig(out var Head, out var Body));
+						
 						if (IL_CommandType is tIL_CommandType.SigHeadAs) {
 							var Witness = Types.TryGet(Reg2).AssertNotEmpty();
 							Body = Body.Substitute(Head, Witness);
@@ -651,6 +422,7 @@ mIL_GenerateOpcodes {
 						}
 						
 						RegBuffer.Update(Reg1_Id, __ => (mVM_Type.Sig(Head, Body), __.Data));
+						
 						(Res_Type, Res_Value) = (
 							IL_CommandType is tIL_CommandType.SigBody
 							? (Body, null)
@@ -674,12 +446,20 @@ mIL_GenerateOpcodes {
 						Reg2_Id = GetRegIndex(Reg2);
 						break;
 					}
+					case tIL_CommandType.WithType: {
+						Reg2_Id = GetRegIndex(Reg2);
+						Res_Type = TypeValue(Reg1);
+						Res_Value = RegBuffer.Get(Reg2_Id).Data;
+						break;
+					}
 					case tIL_CommandType.CallProc: {
 						Reg2_Id = GetRegIndex(Reg2);
 						mAssert.IsTrue(Reg1_Type.IsPair(out var Object, out var Method));
+						
 						if (Method.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
 							Method = Object.FirstObjectType().TryGetInterfaceMethod(Name).AssertNotEmpty();
 						}
+						
 						Res_Type = mVM_Type.Infer(Method, Object, RegBuffer.Get(Reg2_Id).Type, __ => {}).ElseThrow();
 						break;
 					}
@@ -756,8 +536,7 @@ mIL_GenerateOpcodes {
 							).ElseThrow(),
 							
 							tIL_CommandType.Sig or
-							tIL_CommandType.Interface or
-							tIL_CommandType.SubInterface
+							tIL_CommandType.Interface
 							=> TypeValue(Reg1),
 							
 							_
@@ -773,6 +552,7 @@ mIL_GenerateOpcodes {
 							
 							var Data1 = RegBuffer.Get(Reg1_Id).Data ?? mVM_Data.Empty();
 							var Data2 = RegBuffer.Get(Reg2_Id).Data ?? mVM_Data.Empty();
+							
 							Res_Value = (
 								!Data1.IsEmpty() || !Data2.IsEmpty()
 								? mVM_Data.Pair(Data1, Data2)
@@ -783,21 +563,26 @@ mIL_GenerateOpcodes {
 						break;
 					}
 				}
+				
 				RegIdToIndex = RegIdToIndex.Set(ResId, Emit(IL_CommandType, Reg1_Id, Reg2_Id, Res_Type, Res_Value));
 			}
 			
 			RegBuffer.Update(mVM_Data.cResReg, __ => (ReturnType, __.Data));
+			
 			for (tNat32 Register = 0; Register < RegBuffer.Size; Register++) {
 				Proc.Types.Set(Register, RegBuffer.Get(Register).Type);
 			}
+			
 			DefIdToIndex = DefIdToIndex.Set(Def.Id, Definitions.Size);
 			Definitions.Push(Proc);
 		}
 		
 		var Pool = Constants.ToArray();
-		foreach (var Definition in mStream.Concat(Definitions.ToStream(), Helpers.ToStream())) {
+		
+		foreach (var Definition in Definitions.ToStream()) {
 			Definition.Constants = Pool;
 		}
+		
 		return (Definitions.ToStream(), DefIdToIndex);
 	}
 }

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include _GlobalUsings.cs
@@ -37,7 +37,8 @@ mTokenizer_Tests {
 	Tests = mTest.Tests(
 		nameof(mTokenizer),
 		[
-			mTest.Test("Identifiers beginning with numbers and numeric token boundaries",
+			mTest.Test(
+				"Identifiers beginning with numbers and numeric token boundaries",
 				aDebug => {
 					var Tokens = mTokenizer.Tokenizer.TryParseText(
 						"01_03_xyz 1abc 1_234 -2 +3 1..2 1.Foo 1... 1...2",
@@ -66,7 +67,8 @@ mTokenizer_Tests {
 					);
 				}
 			),
-			mTest.Test("Numeric tokens and identifiers stop before reserved characters",
+			mTest.Test(
+				"Numeric tokens and identifiers stop before reserved characters",
 				aDebug => {
 					foreach (
 						var (Source, Type, Text) in mStream.Stream(
@@ -104,11 +106,14 @@ mTokenizer_Tests {
 							)
 						) {
 							var Input = Source + Suffix;
+							
 							var Result = mTokenizer.Token.StartParse(
 								Input.ToStream("").Map(a => (mSpan.Span(a.Pos), a.Char)),
 								a => aDebug(a())
 							).AssertNotError(a => a.ToText(Input.Split('\n')));
+							
 							var Token = Result.Result.Value;
+							
 							mAssert.AreEquals(
 								(
 									Token.Type,
@@ -127,7 +132,8 @@ mTokenizer_Tests {
 					}
 				}
 			),
-			mTest.Test("TwoLines",
+			mTest.Test(
+				"TwoLines",
 				aDebugStream => {
 					var TokenList = mTokenizer.Tokenizer.TryParseText(
 						"""

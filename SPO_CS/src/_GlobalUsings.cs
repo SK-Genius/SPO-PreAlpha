@@ -1,4 +1,4 @@
-﻿#:property LangVersion = "preview"
+#:property LangVersion = "preview"
 #:property TargetFramework = "net11.0"
 
 #:property DefineConstants = "noMY_TRACE;noDISABLE_DEBUGGER_HIDDEN"
@@ -9,6 +9,8 @@
 #:property NoWarn = "659,661,8604,8618"
 #:property EnableSourceControlManagerQueries = "false"
 #:property Optimize = "true"
+
+#:ref Common/mCodeAnalyser.cs OutputItemType=Analyzer ReferenceOutputAssembly=false
 
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;

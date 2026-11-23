@@ -41,6 +41,7 @@ mGUI {
 		this mVM_Data.tData aValue
 	) {
 		var Buffer = new System.Text.StringBuilder();
+		
 		while (aValue.IsPair(out var Prefix, out var Character)) {
 			mAssert.IsTrue(Character.IsPrefix("_Char...", out var Ordinal));
 			Buffer.Append(checked((tChar)Ordinal.Int()));
@@ -58,6 +59,7 @@ mGUI {
 		tText aText
 	) {
 		var Result = mVM_Data.Empty();
+		
 		foreach (var Character in aText) {
 			Result = mVM_Data.Pair(Result, mVM_Data.Prefix("_Char...", mVM_Data.Int(Character)));
 		}
@@ -122,6 +124,7 @@ mGUI {
 		) {
 			mAssert.IsTrue(aArgument.IsTuple(out var Bounds, out var RGB));
 			var Rect = Bounds.Rect();
+			
 			if (Rect.Width > 0 && Rect.Height > 0) {
 				aSurface.Rectangle(Rect, Color(RGB), aFilled);
 			}
@@ -137,6 +140,7 @@ mGUI {
 						a => {
 							mAssert.IsTrue(a.IsEmpty());
 							var Size = aSurface.Size();
+							
 							return mVM_Data.Record(
 								[
 									("_Width", mVM_Data.Int(Size.Width)),
@@ -178,12 +182,14 @@ mGUI {
 					Bind(
 						a => {
 							var Bounds = a.Rect();
+							
 							aSurface.Clip(
 								Bounds with {
 									Width = System.Math.Max(0, Bounds.Width),
 									Height = System.Math.Max(0, Bounds.Height)
 								}
 							);
+							
 							return mVM_Data.Empty();
 						}
 					)
@@ -209,6 +215,7 @@ mGUI {
 				)
 			]
 		);
+		
 		try {
 			aRun(mVM_Data.Interface(Signature("Surface"), Handle, Operations));
 		} finally {

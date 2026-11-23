@@ -161,6 +161,14 @@ SPO_CS C# code style
 	  Break compound types, lists, chains, and expressions at structural boundaries.
 	- Use an indented blank line between declarations or logical steps. Avoid
 	  decorative vertical spacing and unrelated reformatting.
+	- Separate a multiline statement from each adjacent statement with a blank line.
+	  The first statement needs no leading blank line; the last needs no trailing one.
+	  Apply this within blocks, switch sections, and top-level statement sequences.
+	  An if/else, try/catch/finally, or do/while construct remains one statement.
+	- Apply a separate rule to multiline fields, requiring a blank line to adjacent
+	  members, except at the start/end of the containing type. Method declarations
+	  do not themselves trigger this spacing requirement. Leading/trailing comments
+	  do not make a statement or field multiline; multiline literal content does.
 
 7) Braces and declarations
 
@@ -178,6 +186,11 @@ SPO_CS C# code style
 		}
 
 	- Short fields, delegates, properties, and helpers may stay on one line.
+	- Declare each variable or constant separately, repeating its type and modifiers:
+	  const tNat32 cWaitSignaled = 0;
+	  const tNat32 cWaitTimeout = 258;
+	  This includes fields, event fields, and local/for/using/fixed declarations.
+	  Tuple deconstruction remains a single declaration.
 	- Use expression bodies for simple value-producing operations and blocks for
 	  sequences of steps. Neither form is universally required.
 	- Prefer braces for control flow; short empty callbacks/simple blocks may remain
@@ -364,3 +377,43 @@ SPO_CS C# code style
 	https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
 	https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
 	https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/coding-style.md
+
+14) Analyzer and automatic fixes
+
+	Common/mCodeAnalyser.cs supplies SPO001 (opening delimiters), SPO002 (closing
+	delimiters), SPO003 (tab indentation), SPO004 (comma/semicolon line breaks),
+	SPO005 (one variable/constant per declaration), SPO006 (multiline statement
+	spacing), SPO007 (multiline field spacing), SPO008 (no final newline or trailing
+	blank lines), and SPO009 (no byte order mark). The severities are configured
+	independently in .editorconfig.
+	_GlobalUsings.cs loads the analyzer for each file-based module that includes it.
+	The same assembly exports a Roslyn code fix with document/project/solution Fix All.
+	It uses SDK assemblies directly; no NuGet package is needed.
+
+	The analyzer source file is also the command-line entry point:
+
+		dotnet run --file SPO_CS/src/Common/mCodeAnalyser.cs
+		dotnet run --file SPO_CS/src/Common/mCodeAnalyser.cs -- --check
+		dotnet run --file SPO_CS/src/Common/mCodeAnalyser.cs -- SPO_CS/src/Common/mAny.cs
+
+	The examples use paths relative to the repository root. Without explicit paths,
+	the CLI scans SPO_CS/src and SPO relative to the analyzer source. --check writes
+	nothing and exits with 1 if changes are needed; invalid input exits with 2.
+	Pass --define=SYMBOLS to replace the default preprocessor symbols listed by --help.
+	Only active C# branches are formatted; file-end and encoding rules apply to the file.
+	SPO008 removes the trailing newline and blank lines, preserving literal content.
+	SPO009 removes a BOM even if the source text otherwise stays unchanged, converting
+	the file to UTF-8 without BOM. Unicode characters and internal line endings remain.
+
+	The exported code fix also supports dotnet format analyzers with --diagnostics
+	SPO001 SPO002 SPO003 SPO004 SPO005 SPO006 SPO007 SPO008 SPO009.
+	The pinned SDK cannot load the repository's virtual #:ref *.cs.csproj graph
+	in that workspace, so use the direct CLI for this repo.
+	Both entry points use the same FixAsync operation. Structural fixes also reindent
+	affected documents. SPO005 repeats types/modifiers and replaces declaration commas
+	with semicolons. For declarations move into a surrounding block to retain their
+	scope; using/await using and fixed statements nest in declaration order. Initializer
+	order and reverse resource disposal are preserved. Declarations containing internal
+	preprocessor directives require manual splitting. Other fixes change whitespace
+	or the file encoding only. Comments, literal values, and internal line endings are
+	preserved; applying the fixes again leaves the result unchanged.

@@ -38,7 +38,7 @@ mVM_Data {
 		// SIG
 		NewSig,
 		NewInterface,
-		SubInterface,
+		WithType,
 		SigHead,
 		SigBody,
 		
@@ -136,8 +136,10 @@ mVM_Data {
 		
 		public readonly mArrayList.tArrayList<mVM_Type.tType>
 		Types = mArrayList.List<mVM_Type.tType>();
-
-				
+		
+		public mTreeMap.tTree<tNat32, mVM_Type.tType>
+		TryReturnTypes = mTreeMap.Tree<tNat32, mVM_Type.tType>((a1, a2) => a1.CompareTo(a2), []);
+		
 		public tData[]
 		Constants = [];
 		
@@ -444,7 +446,7 @@ mVM_Data {
 	) {
 		aDef._AddCommand(aPos, tOpCode.ReturnIfNotEmpty, aResReg);
 	}
-
+	
 	public static tNat32
 	TryReturn<tPos>(
 		this tProcDef<tPos> aDef,
@@ -549,7 +551,7 @@ mVM_Data {
 		tPos aPos,
 		tNat32 aConstantIndex
 	) => aDef._AddReg(aPos, tOpCode.LoadConstant, aConstantIndex);
-
+	
 	public static tNat32
 	TypeEmpty<tPos>(
 		this tProcDef<tPos> aDef,
@@ -713,21 +715,26 @@ mVM_Data {
 		public mTreeMap.tTree<tNat32, tData>
 		_Fields = mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), []);
 		
-		public tBool
-		_IsMutable;
-		
 		public tNat64
 		_DebugId = mStd.NewDebugId();
 		
 		public tBool
 		Equals(
 			tData a
-		) => (
-			a is not null &&
-			this._DataType.Equals(a._DataType) &&
-			this._Value.Equals(a._Value) &&
-			this._Fields.Equals(a._Fields)
-		);
+		) {
+			if (a is null) {
+				return false;
+			}
+			
+			return (
+				this._DataType == a._DataType &&
+				(
+					this._DataType is tDataType.Record
+					? this._Fields.Equals(a._Fields)
+					: this._Value.Equals(a._Value)
+				)
+			);
+		}
 		
 		public override tBool
 		Equals(
@@ -738,34 +745,28 @@ mVM_Data {
 	private static tData
 	Data<t>(
 		tDataType aType,
-		tBool aIsMutable,
 		t aValue
 	) => new() {
 		_DataType = aType,
-		_IsMutable = aIsMutable,
 		_Value = mAny.Any(aValue)
 	};
 	
 	private static tData
 	Data(
 		tDataType aType,
-		tBool aIsMutable,
 		mTreeMap.tTree<tNat32, tData> aFields
 	) => new() {
 		_DataType = aType,
-		_IsMutable = aIsMutable,
 		_Fields = aFields,
 	};
 	
 	private static tData
 	Data<t1, t2>(
 		tDataType aType,
-		tBool aIsMutable,
 		t1 aValue1,
 		t2 aValue2
 	) => new() {
 		_DataType = aType,
-		_IsMutable = aIsMutable,
 		_Value = mAny.Any((aValue1, aValue2))
 	};
 	
@@ -776,6 +777,7 @@ mVM_Data {
 		out t aValue
 	) {
 		aValue = default!;
+		
 		return (
 			aData._DataType.Equals(aType) &&
 			aData._Value.Is(out aValue)
@@ -804,7 +806,7 @@ mVM_Data {
 	
 	public static tData
 	Empty(
-	) => Data(tDataType.Empty, false, 1);
+	) => Data(tDataType.Empty, 1);
 	
 	public static tBool
 	IsEmpty(
@@ -814,7 +816,7 @@ mVM_Data {
 	public static tData
 	Bool(
 		tBool aValue
-	) => Data(tDataType.Bool, false, aValue);
+	) => Data(tDataType.Bool, aValue);
 	
 	public static tBool
 	IsBool(
@@ -825,7 +827,7 @@ mVM_Data {
 	public static tData
 	Int(
 		tInt32 aValue
-	) => Data(tDataType.Int, false, aValue);
+	) => Data(tDataType.Int, aValue);
 	
 	public static tBool
 	IsInt(
@@ -837,7 +839,7 @@ mVM_Data {
 	Pair(
 		tData aFirst,
 		tData aSecond
-	) => Data(tDataType.Pair, aFirst._IsMutable || aSecond._IsMutable, aFirst, aSecond);
+	) => Data(tDataType.Pair, aFirst, aSecond);
 	
 	public static tBool
 	IsPair(
@@ -850,6 +852,7 @@ mVM_Data {
 			aSecond = Empty();
 			return false;
 		}
+		
 		return true;
 	}
 	
@@ -858,7 +861,10 @@ mVM_Data {
 		mVM_Type.tType aContract,
 		tData aHead,
 		tData aBody
-	) => Data(tDataType.Sig, aBody._IsMutable, (aContract, aHead, aBody));
+	) => Data(
+		tDataType.Sig,
+		(aContract, aHead, aBody)
+	);
 	
 	public static tBool
 	IsSig(
@@ -867,38 +873,41 @@ mVM_Data {
 		out tData aHead,
 		out tData aBody
 	) {
-		aContract = default!;
-		aHead = default!;
-		aBody = default!;
 		if (!aData.Is(tDataType.Sig, out (mVM_Type.tType Contract, tData Head, tData Body) Sig)) {
+			aContract = default!;
+			aHead = default!;
+			aBody = default!;
 			return false;
 		}
+		
 		(aContract, aHead, aBody) = Sig;
 		return true;
 	}
 	
 	public static tData
 	Interface(mVM_Type.tType aContract, tData aObject, tData aMethods)
-	=> Data(tDataType.Interface, aObject._IsMutable || aMethods._IsMutable, (aContract, aObject, aMethods));
+	=> Data(tDataType.Interface, (aContract, aObject, aMethods));
 
 	public static tBool
 	IsInterface(this tData aData, out mVM_Type.tType aContract, out tData aObject, out tData aMethods) {
 		aContract = default!;
 		aObject = default!;
 		aMethods = default!;
+		
 		if (!aData.Is(tDataType.Interface, out (mVM_Type.tType Contract, tData Object, tData Methods) Value)) {
 			return false;
 		}
+		
 		(aContract, aObject, aMethods) = Value;
 		return true;
 	}
-
+	
 	public static tData
 	Type(
 		mVM_Type.tType aValue
 	) {
 		mAssert.IsTrue(aValue.KindType().IsType(), "expected type value");
-		return Data(tDataType.Type, false, aValue);
+		return Data(tDataType.Type, aValue);
 	}
 	
 	// Type expressions may also denote constructors or type parameters.
@@ -907,7 +916,6 @@ mVM_Data {
 		mVM_Type.tType aValue
 	) => Data(
 		tDataType.Type,
-		false,
 		aValue
 	);
 	
@@ -918,6 +926,7 @@ mVM_Data {
 		if (aValue.IsBool(out var Bool)) {
 			return Bool ? mVM_Type.True() : mVM_Type.False();
 		}
+		
 		mAssert.IsTrue(aValue._DataType is tDataType.Type);
 		mAssert.IsTrue(aValue._Value.Is(out mVM_Type.tType Expression));
 		return Expression;
@@ -940,7 +949,7 @@ mVM_Data {
 		mAssert.IsTrue(Value.KindType().IsType(), "expected type value");
 		return Value;
 	}
-
+	
 	public static tData
 	Tuple(
 		System.Span<tData> a
@@ -953,6 +962,7 @@ mVM_Data {
 		out tData a2
 	) {
 		a1 = default!;
+		
 		return (
 			aData.IsPair(out var Rest2, out a2) &&
 			Rest2.IsPair(out var Rest_, out a1) &&
@@ -969,6 +979,7 @@ mVM_Data {
 	) {
 		a1 = default!;
 		a2 = default!;
+		
 		return (
 			aData.IsPair(out var Rest23, out a3) &&
 			Rest23.IsPair(out var Rest3, out a2) &&
@@ -988,6 +999,7 @@ mVM_Data {
 		a1 = default!;
 		a2 = default!;
 		a3 = default!;
+		
 		return (
 			aData.IsPair(out var Rest234, out a4) &&
 			Rest234.IsPair(out var Rest34, out a3) &&
@@ -1001,7 +1013,7 @@ mVM_Data {
 	Prefix(
 		tNat32 aPrefixId,
 		tData aData
-	) => Data(tDataType.Prefix, aData._IsMutable, aPrefixId, aData);
+	) => Data(tDataType.Prefix, aPrefixId, aData);
 	
 	public static tBool
 	IsPrefix(
@@ -1021,7 +1033,7 @@ mVM_Data {
 	Prefix(
 		tText aPrefix,
 		tData aData
-	) => Data(tDataType.Prefix, aData._IsMutable, aPrefix.PrefixHash(), aData);
+	) => Data(tDataType.Prefix, aPrefix.PrefixHash(), aData);
 	
 	public static tBool
 	IsPrefix(
@@ -1038,7 +1050,6 @@ mVM_Data {
 		if (aRecord.IsEmpty()) {
 			aRecord = Data(
 				tDataType.Record,
-				aPrefix._IsMutable,
 				mTreeMap.Tree<tNat32, tData>((a1, a2) => a1.CompareTo(a2), [])
 			);
 		}
@@ -1049,7 +1060,6 @@ mVM_Data {
 		
 		return Data(
 			tDataType.Record,
-			aRecord._IsMutable || aPrefix._IsMutable,
 			Fields.Set(PrefixHash, Data_)
 		);
 	}
@@ -1081,22 +1091,18 @@ mVM_Data {
 	
 	public static tData
 	GetField(
-		tData aRecord,
-		tText aFieldName
-	) {
-		mAssert.Fail(); // TODO
-		return default;
-	}
+		this tData aRecord,
+		tNat32 aFieldName
+	) => aRecord._Fields.TryGet(aFieldName).AssertNotEmpty();
 	
 	public static tData
 	Proc<tPos>(
 		tProcDef<tPos> aDef,
 		tData aEnv
 	) {
-		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
-		return Data(tDataType.Proc, false, aDef, aEnv);
+		return Data(tDataType.Proc, aDef, aEnv);
 	}
-
+	
 	public static tBool
 	IsProc(
 		this tData aData,
@@ -1131,8 +1137,7 @@ mVM_Data {
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> aExternDef,
 		tData aEnv
 	) {
-		mAssert.IsFalse(aEnv._IsMutable, "mutable closure environment is not allowed");
-		return Data(tDataType.ExternProc, false, aExternDef, aEnv);
+		return Data(tDataType.ExternProc, aExternDef, aEnv);
 	}
 	
 	public static tBool
@@ -1145,7 +1150,7 @@ mVM_Data {
 	public static tData
 	Def<tPos>(
 		tProcDef<tPos> aDef
-	) => Data(tDataType.Def, false, aDef);
+	) => Data(tDataType.Def, aDef);
 	
 	public static tBool
 	IsDef(
@@ -1170,7 +1175,7 @@ mVM_Data {
 	public static tData
 	Var(
 		tData aValue
-	) => Data(tDataType.Var, true, new mRef.tRefBox<tData> { _Value = aValue });
+	) => Data(tDataType.Var, new mRef.tRefBox<tData> { _Value = aValue });
 	
 	public static tBool
 	IsVar(
@@ -1181,6 +1186,7 @@ mVM_Data {
 			aValue = Cell._Value;
 			return true;
 		}
+		
 		aValue = default!;
 		return false;
 	}
@@ -1188,7 +1194,7 @@ mVM_Data {
 	public static tData
 	ExternDef(
 		mStd.tFunc<tData, tData, tData, mStd.tAction<mStd.tFunc<tText>>, tData> a
-	) => Data(tDataType.ExternDef, false, a);
+	) => Data(tDataType.ExternDef, a);
 	
 	public static tBool
 	IsExternDef(
@@ -1198,23 +1204,23 @@ mVM_Data {
 	
 	public static tData
 	TypeType(
-	) => Data(tDataType.Type, false, mVM_Type.Type());
+	) => Data(tDataType.Type, mVM_Type.Type());
 	
 	// TODO: Matches for Types ???
 	
 	public static tData
 	TypeEmpty(
-	) => Data(tDataType.Type, false, mVM_Type.Empty());
+	) => Data(tDataType.Type, mVM_Type.Empty());
 	
 	public static tData
 	TypeInt(
-	) => Data(tDataType.Type, false, mVM_Type.Int());
+	) => Data(tDataType.Type, mVM_Type.Int());
 	
 	public static tData
 	TypePair(
 		mVM_Type.tType aType1,
 		mVM_Type.tType aType2
-	) => Data(tDataType.Type, false, mVM_Type.Pair(aType1, aType2));
+	) => Data(tDataType.Type, mVM_Type.Pair(aType1, aType2));
 	
 	public static tText
 	ToText(
@@ -1224,6 +1230,7 @@ mVM_Data {
 		if (aLimit == 0) {
 			return "...";
 		}
+		
 		var NextLimit = aLimit - 1;
 		
 		return 0 switch {
@@ -1240,35 +1247,44 @@ mVM_Data {
 			=> $"(#{Prefix} {Value.ToText(NextLimit)})",
 			
 			_ when a.IsRecord(out var Fields)
-			=> mStd.Call(() => {
-				var Result = $"{{ ";
-				foreach (var (Key, Value) in Fields.ToStream()) {
-					Result += $", {Key}: {Value.ToText(NextLimit)}";
+			=> mStd.Call(
+				() => {
+					var Result = $"{{ ";
+					
+					foreach (var (Key, Value) in Fields.ToStream()) {
+						Result += $", {Key}: {Value.ToText(NextLimit)}";
+					}
+					
+					return Result + " }";
 				}
-				return Result + " }";
-			}),
+			),
 			
 			_ when a.IsVar(out var Value)
-				=> $"(§VAR {Value.ToText(NextLimit)})",
+			=> $"(§VAR {Value.ToText(NextLimit)})",
 			
 			_ when a.IsPair(out var Left, out var Right)
-			=> mStd.Call(() => {
-				var Result = Right.ToText(NextLimit) + ")";
-				while (Left.IsPair(out Left, out Right)) {
-					Result = Right.ToText(NextLimit) + ", " + Result;
+			=> mStd.Call(
+				() => {
+					var Result = Right.ToText(NextLimit) + ")";
+					
+					while (Left.IsPair(out Left, out Right)) {
+						Result = Right.ToText(NextLimit) + ", " + Result;
+					}
+					
+					if (!Left.IsEmpty()) {
+						Result = Left.ToText(NextLimit) + "; " + Result;
+					}
+					
+					return "(" + Result;
 				}
-				if (!Left.IsEmpty()) {
-					Result = Left.ToText(NextLimit) + "; " + Result;
-				}
-				return "(" + Result;
-			}),
+			),
 			
 			_ when a.IsSig(out _, out var Head, out var Body)
 			=> $"(§SIG {Head.ToText(NextLimit)} IN {Body.ToText(NextLimit)})",
 			
 			_ when a.IsInterface(out _, out _, out _)
 			=> "(§INTERFACE)",
-
+			
 			_ when a.IsProc(out var Def, out var Env)
 			=> $"(Proc @ {Def.FirstPosText})",
 			
@@ -1295,6 +1311,7 @@ mVM_Data {
 		
 		// FNV-1a over UTF-16 code units; IDs stay deterministic across runs.
 		var Hash = 2166136261u;
+		
 		unchecked {
 			foreach (var Character in aPrefix) {
 				Hash = (Hash ^ Character) * 16777619u;
@@ -1306,6 +1323,7 @@ mVM_Data {
 		} else {
 			mAssert.IsTrue(Existing == aPrefix, "prefix hash collision");
 		}
+		
 		return Hash;
 	}
 }

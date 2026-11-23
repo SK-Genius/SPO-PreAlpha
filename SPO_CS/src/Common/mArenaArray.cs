@@ -30,6 +30,7 @@ mArenaArray {
 			get {
 				var Start = aRange.Start.IsFromEnd ? _Count - aRange.Start.Value : aRange.Start.Value;
 				var End = aRange.End.IsFromEnd ? _Count - aRange.End.Value : aRange.End.Value;
+				
 				return new tArenaArray<t>(
 					this._Offset + Start * sizeof(t),
 					End - Start
@@ -68,11 +69,13 @@ mArenaArray {
 			in t aValue
 		) where t : unmanaged {
 			var Array = new tArenaArray<t>(aArena._NextOffset, aCount);
+			
 			while (aCount --> 0) {
 				var Des = (t*)(aArena._NextOffset);
 				*Des = aValue;
 				aArena._NextOffset += sizeof(t);
 			}
+			
 			return Array;
 		}
 		
@@ -82,11 +85,13 @@ mArenaArray {
 			params System.Span<t> aValues
 		) where t : unmanaged {
 			var Array = new tArenaArray<t>(aArena._NextOffset, aValues.Length);
+			
 			foreach (var Value in aValues) {
 				var Des = (t*)(aArena._Buffer + aArena._NextOffset);
 				*Des = Value;
 				aArena._NextOffset += sizeof(t);
 			}
+			
 			return Array;
 		}
 	}

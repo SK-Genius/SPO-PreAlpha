@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -18,27 +18,32 @@ mTreeMap_Tests {
 	Tests = mTest.Tests(
 		nameof(mTreeMap),
 		[
-			mTest.Test("Create",
+			mTest.Test(
+				"Create",
 				aDebugStream => {
 					{
 						var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare, []);
 						mAssert.AreEquals(Tree.Deep(), 0);
 						mAssert.AreEquals(Tree.TryGet(0), mStd.cEmpty);
 					}
+					
 					{
 						var Tree = mTreeMap.Tree(
 							Int32Compare,
 							[(1, "bla")]
 						);
+						
 						mAssert.AreEquals(Tree.Deep(), 1);
 						mAssert.AreEquals(Tree.TryGet(1), "bla");
 						mAssert.AreEquals(Tree.TryGet(0), mStd.cEmpty);
 					}
+					
 					{
 						var Tree = mTreeMap.Tree(
 							Int32Compare,
 							[(1, "bla"), (2, "blub")]
 						);
+						
 						mAssert.AreEquals(Tree.Deep(), 2);
 						mAssert.AreEquals(Tree.TryGet(0), mStd.cEmpty);
 						mAssert.AreEquals(Tree.TryGet(1), "bla");
@@ -46,14 +51,16 @@ mTreeMap_Tests {
 					}
 				}
 			),
-			mTest.Test("Remove",
+			mTest.Test(
+				"Remove",
 				aDebugStream => {
 					{
 						var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare, [])
-							.Set(1, "bla")
-							.Set(3, "foo")
-							.Set(2, "blub")
-							.Remove(3);
+						.Set(1, "bla")
+						.Set(3, "foo")
+						.Set(2, "blub")
+						.Remove(3);
+						
 						mAssert.AreEquals(Tree.TryGet(0), mStd.cEmpty);
 						mAssert.AreEquals(Tree.TryGet(1), "bla");
 						mAssert.AreEquals(Tree.TryGet(2), "blub");
@@ -61,20 +68,22 @@ mTreeMap_Tests {
 					}
 				}
 			),
-			mTest.Test("Big",
+			mTest.Test(
+				"Big",
 				aDebugStream => {
 					{
 						var Tree = mTreeMap.Tree<tInt32, tText>(Int32Compare, [])
-							.Set(0, "_0")
-							.Set(1, "_1")
-							.Set(2, "_2")
-							.Set(3, "_3")
-							.Set(4, "_4")
-							.Set(5, "_5")
-							.Set(6, "_6")
-							.Set(7, "_7")
-							.Set(8, "_8")
-							.Set(9, "_9");
+						.Set(0, "_0")
+						.Set(1, "_1")
+						.Set(2, "_2")
+						.Set(3, "_3")
+						.Set(4, "_4")
+						.Set(5, "_5")
+						.Set(6, "_6")
+						.Set(7, "_7")
+						.Set(8, "_8")
+						.Set(9, "_9");
+						
 						mAssert.AreEquals(Tree.TryGet(0), "_0");
 						mAssert.AreEquals(Tree.TryGet(1), "_1");
 						mAssert.AreEquals(Tree.TryGet(2), "_2");

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -129,10 +129,12 @@ public static class mStd {
 	NewDebugId(
 	) {
 		var DebugId = gNextDebugId;
+		
 		if (DebugId == gDebugId) {
 			System.Diagnostics.Debugger.Launch();
 			System.Diagnostics.Debugger.Break();
 		}
+		
 		gNextDebugId += 1;
 		return DebugId;
 	}

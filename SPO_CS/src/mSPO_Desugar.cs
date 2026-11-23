@@ -25,10 +25,12 @@ mSPO_Desugar {
 		tNat32 aUpdateIndex
 	) {
 		var Seen = mStream.Stream<tText>();
+		
 		foreach (var (Key, _) in aRecord.Elements) {
 			if (Seen.Any(__ => __ == Key.Id)) {
 				return mResult.Fail((Key.Pos, $"duplicate record update field '{Key.Id}'"));
 			}
+			
 			Seen = mStream.Stream(Key.Id, Seen);
 		}
 		
@@ -70,7 +72,7 @@ mSPO_Desugar {
 	) => aType switch {
 		mSPO_AST.tTupleTypeNode<tPos> Node
 		=> Node.ItemTypes.Map(
-				DesugarType
+			DesugarType
 		).Reduce(
 			(mSPO_AST.tTypeNode<tPos>)mSPO_AST.EmptyType(Node.Pos),
 			(aAccu, aDesugaredItem) => mSPO_AST.PairType(Node.Pos, aAccu, aDesugaredItem)
@@ -141,7 +143,11 @@ mSPO_Desugar {
 		=> Pattern.Head.DesugarPattern().ThenTry(
 			aHead => Pattern.Body.DesugarPattern().Then(
 				aBody => (mSPO_AST.tPatternNode<tPos>)mSPO_AST.SigPattern(
-					Pattern.Pos, Pattern.Contract, aHead, aBody, Pattern.TypeAnnotation
+					Pattern.Pos,
+					Pattern.Contract,
+					aHead,
+					aBody,
+					Pattern.TypeAnnotation
 				)
 			)
 		),
@@ -263,13 +269,16 @@ mSPO_Desugar {
 		> aDesugar
 	) {
 		var Values = mStream.Stream<tOut>();
+		
 		foreach (var Value in aValues) {
 			if (!aDesugar(Value, aNextArgIndex).Match(out var Desugared, out var Error)) {
 				return mResult.Fail(Error);
 			}
+			
 			Values = mStream.Stream(Desugared.Value, Values);
 			aNextArgIndex = Desugared.NextArgIndex;
 		}
+		
 		return (Values.Reverse(), aNextArgIndex);
 	}
 	
@@ -285,6 +294,7 @@ mSPO_Desugar {
 		=> Body.DesugarExpression(0).ThenTry(
 			aDesugaredBody => {
 				var ArgumentPatterns = mStream.Stream<mSPO_AST.tPatternNode<tPos>>();
+				
 				for (var Index = 0; Index < aDesugaredBody.NextArgIndex; Index += 1) {
 					ArgumentPatterns = mStream.Stream(
 						mSPO_AST.UnnamedArgId(Pos, Index),
@@ -454,13 +464,16 @@ mSPO_Desugar {
 			() => {
 				var Source = Record.Source;
 				var NextArgIndex = aNextArgIndex;
+				
 				if (Source.IsSome(out var Expression)) {
 					if (!Expression.DesugarExpression(NextArgIndex).Match(out var Desugared, out var Error)) {
 						return mResult.Fail(Error);
 					}
+					
 					Source = mMaybe.Some(Desugared.Expression);
 					NextArgIndex = Desugared.NextArgIndex;
 				}
+				
 				return DesugarAll(
 					Record.Elements,
 					NextArgIndex,
@@ -469,10 +482,12 @@ mSPO_Desugar {
 					)
 				).Then(
 					aElements => (
-						(mSPO_AST.tExpressionNode<tPos>)(Record with {
-							Source = Source,
-							Elements = aElements.Values
-						}),
+						(mSPO_AST.tExpressionNode<tPos>)(
+							Record with {
+								Source = Source,
+								Elements = aElements.Values
+							}
+						),
 						aElements.NextArgIndex
 					)
 				);
@@ -572,6 +587,7 @@ mSPO_Desugar {
 						Call.TypeAnnotation
 					);
 				}
+				
 				return Result.DesugarExpression(aNextArgIndex);
 			}
 		),

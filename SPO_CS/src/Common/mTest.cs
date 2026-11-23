@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -139,6 +139,7 @@ mTest {
 			
 			var TestName = aTest.Name();
 			aDebugStream(TestName);
+			
 			if (aHasToMatchAll) {
 				aFilters = aFilters.Where(__ => !TestName.Contains(__));
 			} else {
@@ -146,12 +147,15 @@ mTest {
 					aFilters = mStd.cEmpty;
 				}
 			}
+			
 			switch (aTest) {
 				case tTestCollection Collection: {
 					var PrintLn = mStd.Action((tText aLine) => aDebugStream(cTab + aLine));
+					
 					foreach (var Test in Collection.Tests) {
 						Test.List(PrintLn, aFilters, aHasToMatchAll);
 					}
+					
 					break;
 				}
 				case tTestRun Run: {
@@ -166,7 +170,7 @@ mTest {
 		}
 		
 		[DebuggerHidden]
-		public (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count)
+		public (tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count, tText SumText)
 		Run(
 			mStd.tAction<tText> aDebugStream,
 			tTestSettings aSettings
@@ -191,19 +195,24 @@ mTest {
 			}
 			
 			var BufferedLines = mStream.Stream<tText>();
+			
 			var DebugStream = LineByLine(
 				[DebuggerHidden] (_) => {
 					BufferedLines = mStream.Stream(_, BufferedLines);
 				}
 			);
+			
 			DebugStream(aTest.Name());
+			
 			switch (aTest) {
 				case tTestRun Run: {
 					if (!aSettings.HidePassedTests) {
 						DebugStream = aDebugStream;
+						
 						foreach (var Line in BufferedLines.Reverse()) {
 							DebugStream(Line);
 						}
+						
 						BufferedLines = mStd.cEmpty;
 					}
 					
@@ -214,19 +223,22 @@ mTest {
 					if (!aSettings.Filters.IsEmpty() && !aSettings.Filters.Any(Run.Name.Contains)) {
 						DebugStream(mConsole.Color(mConsole.tColorCode.Yellow, "> Skipped"));
 						DebugStream("");
-						return (tResult.Skip, 0, 1, 0);
+						return (tResult.Skip, 0, 1, 0, "");
 					}
 					
 					try {
 						var ClocksStart = mPerf.ThreadCycles();
+						
 						if (aSettings.DebuggerBreak) {
 							Debugger.Launch();
 						}
+						
 						Run.TestFunc(
 							aSettings.OutputLevel >= 4
-								? LineByLine([DebuggerHidden] (_) => DebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
-								: _ => { }
+							? LineByLine([DebuggerHidden] (_) => DebugStream(cTab + mConsole.Color(mConsole.tColorCode.Gray, _)))
+							: _ => { }
 						);
+						
 						var ClocksEnd = mPerf.ThreadCycles();
 						
 						var Clocks = (ClocksEnd - ClocksStart);
@@ -238,15 +250,15 @@ mTest {
 							_ => (100 * Clocks, "")
 						};
 						
-						DebugStream(
-							tText.Concat(
-								$"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")}",
-								$" ({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit}Clocks)"
-							)
+						var SumText = tText.Concat(
+							$"> {mConsole.Color(mConsole.tColorCode.Green, $"OK")}",
+							$" ({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit}Clocks)"
 						);
 						
+						DebugStream(SumText);
+						
 						DebugStream("");
-						return (tResult.OK, 0, 0, 1);
+						return (tResult.OK, 0, 0, 1, SumText);
 					} catch (System.Exception Exception) {
 						foreach (var Line in BufferedLines.Reverse()) {
 							aDebugStream(Line);
@@ -259,9 +271,10 @@ mTest {
 						if (aSettings.OutputLevel >= 3) {
 							LineByLine([DebuggerHidden] (_) => aDebugStream(cTab + cTab + mConsole.Color(mConsole.tColorCode.Yellow, _)))(Exception.StackTrace!.Replace(":line ", ":"));
 						}
+						
 						aDebugStream(mConsole.Color(mConsole.tColorCode.Red, "> Fail"));
 						aDebugStream("");
-						return (tResult.Fail, 1, 0, 0);
+						return (tResult.Fail, 1, 0, 0, "");
 					}
 				}
 				case tTestCollection Collection: {
@@ -284,14 +297,17 @@ mTest {
 					
 					if (!aSettings.HidePassedGroups && !aSettings.HidePassedTests) {
 						DebugStream = aDebugStream;
+						
 						foreach (var Line in BufferedLines.Reverse()) {
 							DebugStream(Line);
 						}
+						
 						BufferedLines = mStd.cEmpty;
 					}
 					
 					var StopWatch = new Stopwatch();
 					StopWatch.Start();
+					
 					foreach (var Test in Collection.Tests) {
 						var SubResult = Test.Run(
 							LineByLine(__ => { DebugStream(cTab + __); }),
@@ -303,6 +319,7 @@ mTest {
 								}
 							)
 						);
+						
 						OK_CountSum += SubResult.OK_Count;
 						SkipCountSum += SubResult.SkipCount;
 						FailCountSum += SubResult.FailCount;
@@ -310,21 +327,27 @@ mTest {
 						switch (SubResult.Result) {
 							case tResult.OK: {
 								OK_Count += 1;
+								
 								if (Result != tResult.Fail) {
 									Result = tResult.OK;
 								}
+								
 								break;
 							}
 							case tResult.Fail: {
 								FailCount += 1;
 								Result = tResult.Fail;
+								
 								foreach (var Line in BufferedLines.Reverse()) {
 									aDebugStream(Line);
 								}
+								
 								BufferedLines = mStd.cEmpty;
+								
 								if (!aSettings.HidePassedTests) {
 									DebugStream = aDebugStream;
 								}
+								
 								break;
 							}
 							case tResult.Skip: {
@@ -340,8 +363,10 @@ mTest {
 							break;
 						}
 					}
+					
 					StopWatch.Stop();
 					var MSec = StopWatch.ElapsedMilliseconds;
+					
 					var (_100xValue, Unit) = MSec switch {
 						>= 60 * 60_000 => (100 * MSec / (60 * 60_000), "Hour"),
 						>= 60_000 => (100 * MSec / 60_000, "Min"),
@@ -353,29 +378,34 @@ mTest {
 						DebugStream = aDebugStream;
 					}
 					
-					DebugStream(
-						tText.Concat(
-							(
-								"> "
-							), (
-								FailCountSum == 0 ? "" :
-								FailCount == FailCountSum ? mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount} ") :
-								mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount}|{FailCountSum} ")
-							), (
-								OK_CountSum == 0 ? "" :
-								OK_Count == OK_CountSum ? mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count} ") :
-								mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count}|{OK_CountSum} ")
-							), (
-								SkipCountSum == 0 ? "" :
-								SkipCount == SkipCountSum ? mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount} ") :
-								mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount}|{SkipCountSum} ")
-							), (
-								$"({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit})"
-							)
+					var SumText = tText.Concat(
+						(
+							"> "
+						),
+						(
+							FailCountSum == 0 ? "" :
+							FailCount == FailCountSum ? mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount} ") :
+							mConsole.Color(mConsole.tColorCode.Red, $"Fail:{FailCount}|{FailCountSum} ")
+						),
+						(
+							OK_CountSum == 0 ? "" :
+							OK_Count == OK_CountSum ? mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count} ") :
+							mConsole.Color(mConsole.tColorCode.Green, $"OK:{OK_Count}|{OK_CountSum} ")
+						),
+						(
+							SkipCountSum == 0 ? "" :
+							SkipCount == SkipCountSum ? mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount} ") :
+							mConsole.Color(mConsole.tColorCode.Yellow, $"Skip:{SkipCount}|{SkipCountSum} ")
+						),
+						(
+							$"({_100xValue / 100}.{(_100xValue / 10) % 10}{_100xValue % 10} {Unit})"
 						)
 					);
+					
+					DebugStream(SumText);
+					
 					DebugStream("");
-					return (Result, FailCountSum, SkipCountSum, OK_CountSum);
+					return (Result, FailCountSum, SkipCountSum, OK_CountSum, SumText);
 				}
 				default: {
 					throw mError.Error("impossible");

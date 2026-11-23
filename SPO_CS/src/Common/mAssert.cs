@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -78,6 +78,7 @@ mAssert {
 		
 		tText Text1;
 		tText Text2;
+		
 		if (aToText is null) {
 			Text1 = a1?.ToString() ?? "null";
 			Text2 = a2?.ToString() ?? "null";
@@ -92,6 +93,7 @@ mAssert {
 				Text2
 			)
 		);
+		
 		return a1;
 	}
 	
@@ -106,27 +108,28 @@ mAssert {
 		(aIndex, Line) => {
 			var Line1 = Line._2.IsSome(out var Temp2) ? Temp2 : null;
 			var Line2 = Line._1.IsSome(out var Temp1) ? Temp1 : null;
+			
 			return (
 				Line2 is null ? $"""
-					
-					{Gray($">{aIndex + 1}:")} {Green(Line1)}
-					""" :
+				
+				{Gray($">{aIndex + 1}:")} {Green(Line1)}
+				""" :
 				
 				Line1 is null ? $"""
-					
-					{Gray($"<{aIndex + 1}:")} {Red(Line2)}
-					""" :
+				
+				{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+				""" :
 				
 				Line2 == Line1 ? $"""
-					
-					{Gray($"={aIndex + 1}:{Line1}")}
-					""" :
+				
+				{Gray($"={aIndex + 1}:{Line1}")}
+				""" :
 				
 				$"""
-					
-					{Gray($"<{aIndex + 1}:")} {Red(Line2)}
-					{Gray($">{aIndex + 1}:")} {Green(Line1)}
-					"""
+				
+				{Gray($"<{aIndex + 1}:")} {Red(Line2)}
+				{Gray($">{aIndex + 1}:")} {Green(Line1)}
+				"""
 			);
 		}
 	).Join(
@@ -175,6 +178,7 @@ mAssert {
 				return a1;
 			}
 		}
+		
 		Fail($"{a1} in {a2.AsStream().Map(__ => "" + __).TryReduce((a1, a2) => a1 + ", " + a2).ElseUse("")}");
 		return a1;
 	}
@@ -190,6 +194,7 @@ mAssert {
 				Fail($"{a1} not in {a2.ToString()}");
 			}
 		}
+		
 		return a1;
 	}
 	
@@ -204,6 +209,7 @@ mAssert {
 				Fail($"{a1} not in {a2}");
 			}
 		}
+		
 		return a1;
 	}
 	
@@ -216,6 +222,7 @@ mAssert {
 		foreach (var Element in a2) {
 			IsFalse(Equals(a1, Element), () => $"{a1} not in {a2}");
 		}
+		
 		return a1;
 	}
 	
@@ -238,6 +245,7 @@ mAssert {
 		} catch {
 			return;
 		}
+		
 		Fail("Error expected");
 	}
 	

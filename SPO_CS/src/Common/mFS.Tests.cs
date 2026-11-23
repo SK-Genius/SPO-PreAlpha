@@ -14,7 +14,8 @@ mFS_Tests {
 	Tests = mTest.Tests(
 		nameof(mFS),
 		[
-			mTest.Test("File paths",
+			mTest.Test(
+				"File paths",
 				aDebug => {
 					var Relative = mFS.File("Signature Tests/Int #1.sig");
 					var Absolute = mFS.CWD().GetFile(Relative.Path);
@@ -31,7 +32,8 @@ mFS_Tests {
 					mAssert.AreEquals(mFS.Path("Folder%20Name/Type%23.sig").ToText(), "Folder%20Name/Type%23.sig");
 				}
 			),
-			mTest.Test("Absolute roots",
+			mTest.Test(
+				"Absolute roots",
 				aDebug => {
 					if (System.OperatingSystem.IsWindows()) {
 						mAssert.AreEquals(mFS.Path("C:/").ToText(), "C:/");

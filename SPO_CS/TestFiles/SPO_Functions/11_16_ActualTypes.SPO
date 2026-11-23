@@ -1,0 +1,87 @@
+§DEF tFirst = [< First: §INT >]
+§DEF tSecond = [< Second: §INT >]
+
+§DEF HasFirst... = (
+	§DEF aData € §ANY
+) => §IF aData MATCH {
+	§DEF Candidate € tFirst: §TRUE
+	_: §FALSE
+}
+
+§DEF HasSecond... = (
+	§DEF aData € §ANY
+) => §IF aData MATCH {
+	§DEF Candidate € tSecond: §TRUE
+	_: §FALSE
+}
+
+§DEF tIntegerPackage = [§SIG_WITH t € §TYPE IN §INT]
+§DEF tAnyPackage = [§SIG_WITH t € §TYPE IN §ANY]
+§DEF cOriginalPackage = §SIG tIntegerPackage WITH §BOOL IN 7
+§DEF cLimitedPackage € tAnyPackage = cOriginalPackage
+
+§DEF HasIntegerPackage... = (
+	§DEF aData € §ANY
+) => §IF aData MATCH {
+	§SIG tIntegerPackage WITH _ IN _: §TRUE
+	_: §FALSE
+}
+
+§DEF Identity... = (§DEF aNumber € §INT) => aNumber
+§DEF cLimitedFunction € [§INT => §ANY] = Identity...
+
+§DEF HasIntegerFunction... = (
+	§DEF aData € §ANY
+) => §IF aData MATCH {
+	§DEF Candidate € [§INT => §INT]: §TRUE
+	_: §FALSE
+}
+
+§DEF tName = [< Name: §INT >]
+§DEF Create... = () => {Name: 1, Age: 2}
+§DEF cNameFunction € [[] => tName] = Create...
+§DEF cAnyResultFunction € [[] => §ANY] = cNameFunction
+§DEF cUnionResultFunction € [[] => [tName | §INT]] = cNameFunction
+§DEF cUnionFunction € [[[] => tName] | §INT] = cNameFunction
+
+§DEF HasNameFunction... = (
+	§DEF aFunction € §ANY
+) => §IF aFunction MATCH {
+	§DEF Candidate € [[] => tName]: §TRUE
+	_: §FALSE
+}
+
+§DEF CallName... = (
+	§DEF aFunction € §ANY
+) => §IF aFunction MATCH {
+	§DEF Produce... € [[] => tName]: .Produce ()
+	_: {Name: 0}
+}
+
+§DEF cBoth = {First: 1, Second: 2}
+§DEF cUnion € [tFirst | tSecond] = cBoth
+§DEF cReversed € [tSecond | tFirst] = cBoth
+§DEF cNarrow € tFirst = cBoth
+§DEF cNested € [< Item: tFirst >] = {Item: cBoth}
+{Item: §DEF cItem} = cNested
+
+§EXPORT (
+	.HasFirst cUnion
+	.HasSecond cUnion
+	.HasFirst cReversed
+	.HasSecond cReversed
+	.HasFirst cNarrow
+	.HasSecond cNarrow
+	.HasFirst cItem
+	.HasSecond cItem
+	.HasIntegerPackage cOriginalPackage
+	.HasIntegerPackage cLimitedPackage
+	.HasIntegerFunction Identity...
+	.HasIntegerFunction cLimitedFunction
+	.HasNameFunction cAnyResultFunction
+	.HasNameFunction cUnionResultFunction
+	.HasNameFunction cUnionFunction
+	.CallName cAnyResultFunction
+	.CallName cUnionResultFunction
+	.CallName cUnionFunction
+)

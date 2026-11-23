@@ -56,6 +56,28 @@ Sie verwenden den gemeinsamen SPO-Modullader sowie `mRuntime.cs` für VM-Aufrufe
 GUI benötigt keine Terminal-Implementierung.
 Eine externe Runtime kann ihren eigenen Einstieg verwenden und erhält dieselbe Konfiguration.
 
+Die VM stellt mit `mVM.Call<tPos>` und `mVM.CallMethod<tPos>` Aufrufe für Runtime-Implementierungen bereit.
+Diese Aufrufe vertrauen den statisch geprüften Verträgen.
+Native Hosts und Callbacks müssen Werte passend zu ihren deklarierten Typen liefern.
+Argumente, Empfänger und native Ergebnisse werden nicht bei jedem Aufruf vollständig erneut geprüft.
+`CallMethod` verwendet den im Interface hinterlegten Empfänger.
+`mRuntime.Call` und `mRuntime.CallMethod` ergänzen die SPO-Namenskonvention und die Quellpositionsformatierung.
+
+Typverengungen ändern nur den statischen Vertrag.
+Ein Record behält seine zusätzlichen Felder, ein Interface seine ursprünglichen Methoden.
+Das gilt auch innerhalb von Containern, SIGs und Funktionsergebnissen.
+Ein späteres `MATCH` über `ANY` kann diese erhaltenen Bestandteile wiederfinden.
+Die VM erzeugt dafür weder Typ-Wrapper noch konvertierte Kopien.
+Mutabilität und Zugriffsrechte werden vom Compiler geprüft und nicht zusätzlich an jedem Laufzeitwert gespeichert.
+
+Dynamische Musterprüfungen bleiben Teil der Programmausführung.
+Der Generator beschränkt sie auf Bestandteile, die aus den statischen Typen noch nicht feststehen.
+Bei einer bekannten Liste prüft er beispielsweise nur die offene Unterscheidung zwischen leer und nichtleer,
+ohne erneut alle Elemente zu durchlaufen.
+Vollständig bewiesene Aufrufe ohne Guard werden direkt ausgeführt; Guards bleiben Laufzeitbedingungen.
+
+`CallMethod` erwartet den VM-Feldnamen; SPO übersetzt beispielsweise `Size` zu `_Size`.
+
 Bei `.cs`-Plugins übernimmt das installierte .NET SDK Restore und Build des Plugins.
 Das vor `--` angegebene `--no-restore` betrifft den Launcher.
 Für eine bereits veröffentlichte Runtime kann `runtime` direkt auf deren DLL oder EXE zeigen.
@@ -64,6 +86,7 @@ Für eine bereits veröffentlichte Runtime kann `runtime` direkt auf deren DLL o
 
 ```powershell
 dotnet run --file SPO/Tests/Launcher.Tests.cs
+dotnet run --file SPO/Tests/Runtime.Call.Tests.cs
 dotnet run --file SPO/src/Program.cs -- SPO/Apps/GUI_Demo --check
 dotnet run --file SPO/src/Program.cs -- SPO/Apps/Snake --check
 ```

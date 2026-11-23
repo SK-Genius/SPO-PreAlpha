@@ -33,80 +33,80 @@
 	t_31 := [t_29, t_30]
 	t_32 := [ANY => t_21]
 	t_33 := [t_31 => t_32]
-	t_34 := [t_5 => t_5]
-	t_35 := [EMPTY_TYPE => t_34]
-	t_36 := [t_14 => t_14]
-	t_37 := [EMPTY_TYPE => t_36]
-	t_38 := [t_14 => t_5]
-	t_39 := [t_5 => t_21]
-	t_40 := [EMPTY_TYPE, t_5]
-	t_41 := [t_40, t_21]
-	t_42 := [t_41 => t_5]
-	t_43 := [t_5, TRUE]
-	t_44 := [#Result t_5]
-	t_45 := [t_43 => t_44]
-	t_46 := [t_42 => t_45]
-	t_47 := [t_5, FALSE]
-	t_48 := [t_47 => t_44]
-	t_49 := [EMPTY_TYPE => t_48]
-	t_50 := [EMPTY_TYPE, t_42]
-	t_51 := [t_50, t_46]
-	t_52 := [t_51, t_49]
-	t_53 := [t_5, t_21]
-	t_54 := [t_53 => t_44]
-	t_55 := [t_52 => t_54]
-	t_56 := [t_52, t_55]
-	t_57 := [t_56 => t_42]
-	t_58 := [EMPTY_TYPE, t_46]
-	t_59 := [t_58, t_49]
-	t_60 := [t_59, t_55]
-	t_61 := [t_60, t_57]
-	t_62 := [t_42 => t_42]
-	t_63 := [t_61 => t_62]
-	t_64 := [EMPTY_TYPE, t_36]
-	t_65 := [t_64 => t_22]
-	t_66 := [EMPTY_TYPE => t_65]
-	t_67 := [EMPTY_TYPE, t_66]
-	t_68 := [t_67, t_27]
-	t_69 := [t_68 => t_26]
-	t_70 := [#_Reader t_5]
-	t_71 := [{EMPTY_TYPE} + t_70]
-	t_72 := [#_Reader t_14]
-	t_73 := [{EMPTY_TYPE} + t_72]
-	t_74 := [EMPTY_TYPE, t_73]
-	t_75 := [t_74 => t_22]
-	t_76 := [EMPTY_TYPE => t_75]
-	t_77 := [EMPTY_TYPE, t_76]
-	t_78 := [t_77, t_27]
-	t_79 := [t_78 => t_26]
-	t_80 := [t_40, INT]
-	t_81 := [#_Reader... t_5]
-	t_82 := [INT | t_5]
-	t_83 := [EMPTY_TYPE, t_17]
-	t_84 := [t_83, t_19]
-	t_85 := [t_84, t_24]
-	t_86 := [t_85, t_27]
-	t_87 := [t_86, t_30]
-	t_88 := [t_87, t_33]
-	t_89 := [t_88, t_35]
-	t_90 := [t_89, t_37]
-	t_91 := [t_90, t_46]
-	t_92 := [t_91, t_49]
-	t_93 := [t_92, t_55]
-	t_94 := [t_93, t_57]
-	t_95 := [t_94, t_63]
-	t_96 := [t_95, t_66]
-	t_97 := [t_96, t_27]
-	t_98 := [t_97, t_69]
-	t_99 := [t_98, t_76]
-	t_100 := [t_99, t_27]
-	t_101 := [t_100, t_79]
-	t_102 := [EMPTY_TYPE, t_21]
-	t_103 := [t_102, t_21]
-	t_104 := [t_103, t_21]
-	t_105 := [t_104, t_21]
-	t_106 := [t_105, t_21]
-	t_107 := [t_106, t_21]
+	t_34 := [§FREE TYPE]
+	t_35 := [t_34 : t_1]
+	t_36 := [#_Read t_35]
+	t_37 := [{EMPTY_TYPE} + t_36]
+	t_38 := [§ANY t_34 => t_37]
+	t_39 := [t_38 => t_38]
+	t_40 := [EMPTY_TYPE => t_39]
+	t_41 := [t_14 => t_14]
+	t_42 := [EMPTY_TYPE => t_41]
+	t_43 := [t_14 => t_38]
+	t_44 := [t_38 => t_21]
+	t_45 := [EMPTY_TYPE, t_38]
+	t_46 := [t_45, t_21]
+	t_47 := [t_46 => t_38]
+	t_48 := [t_38, TRUE]
+	t_49 := [#Result t_38]
+	t_50 := [t_48 => t_49]
+	t_51 := [t_47 => t_50]
+	t_52 := [t_38, FALSE]
+	t_53 := [t_52 => t_49]
+	t_54 := [EMPTY_TYPE => t_53]
+	t_55 := [EMPTY_TYPE, t_47]
+	t_56 := [t_55, t_51]
+	t_57 := [t_56, t_54]
+	t_58 := [t_38, t_21]
+	t_59 := [t_58 => t_49]
+	t_60 := [t_57 => t_59]
+	t_61 := [t_57, t_60]
+	t_62 := [t_61 => t_47]
+	t_63 := [EMPTY_TYPE, t_51]
+	t_64 := [t_63, t_54]
+	t_65 := [t_64, t_60]
+	t_66 := [t_65, t_62]
+	t_67 := [t_47 => t_47]
+	t_68 := [t_66 => t_67]
+	t_69 := [EMPTY_TYPE, t_41]
+	t_70 := [t_69 => t_22]
+	t_71 := [EMPTY_TYPE => t_70]
+	t_72 := [EMPTY_TYPE, t_71]
+	t_73 := [t_72, t_27]
+	t_74 := [t_73 => t_26]
+	t_75 := [#_Reader t_38]
+	t_76 := [{EMPTY_TYPE} + t_75]
+	t_77 := [#_Reader t_14]
+	t_78 := [{EMPTY_TYPE} + t_77]
+	t_79 := [EMPTY_TYPE, t_78]
+	t_80 := [t_79 => t_22]
+	t_81 := [EMPTY_TYPE => t_80]
+	t_82 := [EMPTY_TYPE, t_81]
+	t_83 := [t_82, t_27]
+	t_84 := [t_83 => t_26]
+	t_85 := [t_45, INT]
+	t_86 := [#_Reader... t_38]
+	t_87 := [INT | t_38]
+	t_88 := [EMPTY_TYPE, t_17]
+	t_89 := [t_88, t_19]
+	t_90 := [t_89, t_24]
+	t_91 := [t_90, t_27]
+	t_92 := [t_91, t_30]
+	t_93 := [t_92, t_33]
+	t_94 := [t_93, t_40]
+	t_95 := [t_94, t_42]
+	t_96 := [t_95, t_51]
+	t_97 := [t_96, t_54]
+	t_98 := [t_97, t_60]
+	t_99 := [t_98, t_62]
+	t_100 := [t_99, t_68]
+	t_101 := [t_100, t_71]
+	t_102 := [t_101, t_27]
+	t_103 := [t_102, t_74]
+	t_104 := [t_103, t_81]
+	t_105 := [t_104, t_27]
+	t_106 := [t_105, t_84]
+	t_107 := [EMPTY_TYPE, t_21]
 	t_108 := [t_107, t_21]
 	t_109 := [t_108, t_21]
 	t_110 := [t_109, t_21]
@@ -114,9 +114,14 @@
 	t_112 := [t_111, t_21]
 	t_113 := [t_112, t_21]
 	t_114 := [t_113, t_21]
-	t_115 := [t_114, INT]
-	t_116 := [EMPTY_TYPE => t_115]
-	t_117 := [t_101 => t_116]
+	t_115 := [t_114, t_21]
+	t_116 := [t_115, t_21]
+	t_117 := [t_116, t_21]
+	t_118 := [t_117, t_21]
+	t_119 := [t_118, t_21]
+	t_120 := [t_119, INT]
+	t_121 := [EMPTY_TYPE => t_120]
+	t_122 := [t_106 => t_121]
 
 §DEF d_0 € t_17
 	§RETURN ARG IF_NOT_EMPTY
@@ -133,7 +138,7 @@
 §DEF d_2 € t_24
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	r_1 := §SUBINTERFACE t_14 WITH r_3
+	r_1 := §WITH_TYPE t_14 WITH r_3
 	_Candidate := r_1
 	r_2 := +#Result TRUE
 	§RETURN r_2 IF TRUE
@@ -176,17 +181,15 @@
 	r_7 := -#Result r_6
 	§RETURN r_7 IF TRUE
 
-§DEF d_6 € t_35
-	r_1 := §SUBINTERFACE t_5 WITH ARG
-	_aReader := r_1
+§DEF d_6 € t_40
+	_aReader := ARG
 	§RETURN _aReader IF TRUE
 
-§DEF d_7 € t_37
-	r_1 := §SUBINTERFACE t_14 WITH ARG
-	_aAdmin := r_1
+§DEF d_7 € t_42
+	_aAdmin := ARG
 	§RETURN _aAdmin IF TRUE
 
-§DEF d_8 € t_46
+§DEF d_8 € t_51
 	_Relay... := ENV
 	r_6 := §1ST ARG
 	r_5 := §2ND ARG
@@ -197,14 +200,14 @@
 	r_4 := +#Result r_3
 	§RETURN r_4 IF TRUE
 
-§DEF d_9 € t_49
+§DEF d_9 € t_54
 	r_3 := §1ST ARG
 	r_2 := §2ND ARG
 	_aReader := r_3
 	r_1 := +#Result _aReader
 	§RETURN r_1 IF TRUE
 
-§DEF d_10 € t_55
+§DEF d_10 € t_60
 	d_9 := §2ND ENV
 	r_7 := §1ST ENV
 	d_8 := §2ND r_7
@@ -222,34 +225,33 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_11 € t_57
+§DEF d_11 € t_62
 	d_10 := §2ND ENV
-	r_14 := §1ST ENV
-	d_9 := §2ND r_14
+	r_13 := §1ST ENV
+	d_9 := §2ND r_13
+	r_14 := §1ST r_13
+	d_8 := §2ND r_14
 	r_15 := §1ST r_14
-	d_8 := §2ND r_15
+	_Relay... := §2ND r_15
 	r_16 := §1ST r_15
-	_Relay... := §2ND r_16
-	r_17 := §1ST r_16
 	r_1 := §2ND ARG
 	_aAgain := r_1
 	r_2 := §1ST ARG
 	r_3 := §2ND r_2
-	r_4 := §SUBINTERFACE t_5 WITH r_3
-	_aReader := r_4
-	r_5 := §1ST r_2
-	§RETURN r_5 IF_NOT_EMPTY
-	r_6 := EMPTY, _Relay...
-	r_7 := r_6, d_8
-	r_8 := r_7, d_9
-	r_9 := §CLOSURE d_10 r_8
-	r_10 := _aReader, _aAgain
-	r_11 := OBJ, r_9
-	r_12 := §OBJ:r_11 r_10
-	r_13 := -#Result r_12
-	§RETURN r_13 IF TRUE
+	_aReader := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
+	r_5 := EMPTY, _Relay...
+	r_6 := r_5, d_8
+	r_7 := r_6, d_9
+	r_8 := §CLOSURE d_10 r_7
+	r_9 := _aReader, _aAgain
+	r_10 := OBJ, r_8
+	r_11 := §OBJ:r_10 r_9
+	r_12 := -#Result r_11
+	§RETURN r_12 IF TRUE
 
-§DEF d_12 € t_63
+§DEF d_12 € t_68
 	d_11 := §2ND ENV
 	r_6 := §1ST ENV
 	d_10 := §2ND r_6
@@ -266,10 +268,10 @@
 	r_5 := §CLOSURE d_11 r_4
 	§RETURN r_5 IF TRUE
 
-§DEF d_13 € t_66
+§DEF d_13 € t_71
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	r_1 := §SUBINTERFACE t_36 WITH r_3
+	r_1 := §WITH_TYPE t_41 WITH r_3
 	_Candidate := r_1
 	r_2 := +#Result TRUE
 	§RETURN r_2 IF TRUE
@@ -280,7 +282,7 @@
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_15 € t_69
+§DEF d_15 € t_74
 	d_14 := §2ND ENV
 	r_7 := §1ST ENV
 	d_13 := §2ND r_7
@@ -295,10 +297,10 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_16 € t_76
+§DEF d_16 € t_81
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	r_1 := §SUBINTERFACE t_73 WITH r_3
+	r_1 := §WITH_TYPE t_78 WITH r_3
 	_Candidate := r_1
 	r_2 := +#Result TRUE
 	§RETURN r_2 IF TRUE
@@ -309,7 +311,7 @@
 	r_1 := +#Result FALSE
 	§RETURN r_1 IF TRUE
 
-§DEF d_18 € t_79
+§DEF d_18 € t_84
 	d_17 := §2ND ENV
 	r_7 := §1ST ENV
 	d_16 := §2ND r_7
@@ -324,45 +326,45 @@
 	§TRY_RETURN .r_3 r_4
 	§RETURN EMPTY IF TRUE
 
-§DEF d_19 € t_117
+§DEF d_19 € t_122
 	d_18 := §2ND ENV
-	r_98 := §1ST ENV
-	d_17 := §2ND r_98
+	r_92 := §1ST ENV
+	d_17 := §2ND r_92
+	r_93 := §1ST r_92
+	d_16 := §2ND r_93
+	r_94 := §1ST r_93
+	d_15 := §2ND r_94
+	r_95 := §1ST r_94
+	d_14 := §2ND r_95
+	r_96 := §1ST r_95
+	d_13 := §2ND r_96
+	r_97 := §1ST r_96
+	d_12 := §2ND r_97
+	r_98 := §1ST r_97
+	d_11 := §2ND r_98
 	r_99 := §1ST r_98
-	d_16 := §2ND r_99
+	d_10 := §2ND r_99
 	r_100 := §1ST r_99
-	d_15 := §2ND r_100
+	d_9 := §2ND r_100
 	r_101 := §1ST r_100
-	d_14 := §2ND r_101
+	d_8 := §2ND r_101
 	r_102 := §1ST r_101
-	d_13 := §2ND r_102
+	d_7 := §2ND r_102
 	r_103 := §1ST r_102
-	d_12 := §2ND r_103
+	d_6 := §2ND r_103
 	r_104 := §1ST r_103
-	d_11 := §2ND r_104
+	d_5 := §2ND r_104
 	r_105 := §1ST r_104
-	d_10 := §2ND r_105
+	d_4 := §2ND r_105
 	r_106 := §1ST r_105
-	d_9 := §2ND r_106
+	d_3 := §2ND r_106
 	r_107 := §1ST r_106
-	d_8 := §2ND r_107
+	d_2 := §2ND r_107
 	r_108 := §1ST r_107
-	d_7 := §2ND r_108
+	d_1 := §2ND r_108
 	r_109 := §1ST r_108
-	d_6 := §2ND r_109
+	d_0 := §2ND r_109
 	r_110 := §1ST r_109
-	d_5 := §2ND r_110
-	r_111 := §1ST r_110
-	d_4 := §2ND r_111
-	r_112 := §1ST r_111
-	d_3 := §2ND r_112
-	r_113 := §1ST r_112
-	d_2 := §2ND r_113
-	r_114 := §1ST r_113
-	d_1 := §2ND r_114
-	r_115 := §1ST r_114
-	d_0 := §2ND r_115
-	r_116 := §1ST r_115
 	_iReader := t_5
 	_iAdmin := t_14
 	r_1 := §CLOSURE d_0 EMPTY
@@ -375,117 +377,111 @@
 	r_6 := §CLOSURE d_5 r_5
 	_HasAdmin... := r_6
 	r_7 := §CLOSURE d_6 EMPTY
-	r_8 := §SUBINTERFACE t_34 WITH r_7
-	_Forward... := r_8
-	r_9 := §CLOSURE d_7 EMPTY
-	r_10 := §SUBINTERFACE t_38 WITH r_9
-	_GiveReader... := r_10
-	r_11 := §SUBINTERFACE t_39 WITH _HasAdmin...
-	_InspectReader... := r_11
-	r_12 := EMPTY, d_8
-	r_13 := r_12, d_9
-	r_14 := r_13, d_10
-	r_15 := r_14, d_11
-	§REC r_16 := .d_12 r_15
-	_Relay... := r_16
-	r_17 := 7
-	_Cell := §VAR r_17
-	r_18 := +#_Read _ReadCell
-	r_19 := {EMPTY} + r_18
-	r_20 := +#_Admin... _AdminCell...
-	r_21 := {r_19} + r_20
-	r_22 := _Cell, r_21
-	r_23 := §INTERFACE t_14 WITH r_22
-	r_24 := §SUBINTERFACE t_14 WITH r_23
-	_Full := r_24
-	r_25 := §SUBINTERFACE t_5 WITH _Full
-	_Limited := r_25
+	_Forward... := r_7
+	r_8 := §CLOSURE d_7 EMPTY
+	r_9 := §WITH_TYPE t_43 WITH r_8
+	_GiveReader... := r_9
+	r_10 := §WITH_TYPE t_44 WITH _HasAdmin...
+	_InspectReader... := r_10
+	r_11 := EMPTY, d_8
+	r_12 := r_11, d_9
+	r_13 := r_12, d_10
+	r_14 := r_13, d_11
+	§REC r_15 := .d_12 r_14
+	_Relay... := r_15
+	r_16 := 7
+	_Cell := §VAR r_16
+	r_17 := +#_Read _ReadCell
+	r_18 := {EMPTY} + r_17
+	r_19 := +#_Admin... _AdminCell...
+	r_20 := {r_18} + r_19
+	r_21 := _Cell, r_20
+	r_22 := §INTERFACE t_14 WITH r_21
+	_Full := r_22
+	r_23 := §WITH_TYPE t_38 WITH _Full
+	_Limited := r_23
 	_Erased := _Limited
-	r_26 := ._Forward... _Full
-	r_27 := §SUBINTERFACE t_5 WITH r_26
-	_Relayed := r_27
-	r_28 := ._GiveReader... _Full
-	r_29 := §SUBINTERFACE t_5 WITH r_28
-	_Returned := r_29
-	r_30 := EMPTY, _Full
-	r_31 := r_30, TRUE
-	r_32 := ._Relay... r_31
-	r_33 := §SUBINTERFACE t_5 WITH r_32
-	_RecursiveReader := r_33
+	r_24 := ._Forward... _Full
+	_Relayed := r_24
+	r_25 := ._GiveReader... _Full
+	_Returned := r_25
+	r_26 := EMPTY, _Full
+	r_27 := r_26, TRUE
+	r_28 := ._Relay... r_27
+	_RecursiveReader := r_28
 	_ErasedFunction := _GiveReader...
-	r_34 := EMPTY, d_13
-	r_35 := r_34, d_14
-	r_36 := §CLOSURE d_15 r_35
-	r_37 := EMPTY, _ErasedFunction
-	r_38 := OBJ, r_36
-	r_39 := §OBJ:r_38 r_37
-	r_40 := -#Result r_39
-	_FunctionHasAdmin := r_40
+	r_29 := EMPTY, d_13
+	r_30 := r_29, d_14
+	r_31 := §CLOSURE d_15 r_30
+	r_32 := EMPTY, _ErasedFunction
+	r_33 := OBJ, r_31
+	r_34 := §OBJ:r_33 r_32
+	r_35 := -#Result r_34
+	_FunctionHasAdmin := r_35
 	_Stored := §VAR _Limited
-	r_41 := +#_Reader _Full
-	r_42 := {EMPTY} + r_41
-	r_43 := §SUBINTERFACE t_71 WITH r_42
-	_Package := r_43
+	r_36 := +#_Reader _Full
+	r_37 := {EMPTY} + r_36
+	r_38 := §WITH_TYPE t_76 WITH r_37
+	_Package := r_38
 	_ErasedPackage := _Package
-	r_44 := EMPTY, d_16
-	r_45 := r_44, d_17
-	r_46 := §CLOSURE d_18 r_45
-	r_47 := EMPTY, _ErasedPackage
-	r_48 := OBJ, r_46
-	r_49 := §OBJ:r_48 r_47
-	r_50 := -#Result r_49
-	_RecordHasAdmin := r_50
-	r_51 := EMPTY, _Full
-	r_52 := 1
-	r_53 := r_51, r_52
-	r_54 := §SUBINTERFACE t_80 WITH r_53
-	_Pair := r_54
-	r_55 := §2ND _Pair
-	r_56 := §1ST _Pair
-	r_57 := §2ND r_56
-	r_58 := §SUBINTERFACE t_5 WITH r_57
-	_Paired := r_58
-	r_59 := §1ST r_56
-	r_60 := +#_Reader... _Full
-	r_61 := §SUBINTERFACE t_81 WITH r_60
-	_Tagged := r_61
-	r_62 := -#_Reader... _Tagged
-	r_63 := §SUBINTERFACE t_5 WITH r_62
-	_Untagged := r_63
-	r_64 := §SUBINTERFACE t_82 WITH _Full
-	_Union := r_64
-	r_65 := 19
-	r_66 := +#_Admin... EMPTY
-	r_68 := _Full, r_66
-	r_67 := §OBJ:r_68 r_65
-	r_69 := +#_Read EMPTY
-	r_71 := _Limited, r_69
-	r_70 := §OBJ:r_71 EMPTY
-	_Value := r_70
-	r_72 := ._HasAdmin... _Full
-	r_73 := EMPTY, r_72
-	r_74 := ._HasAdmin... _Limited
+	r_39 := EMPTY, d_16
+	r_40 := r_39, d_17
+	r_41 := §CLOSURE d_18 r_40
+	r_42 := EMPTY, _ErasedPackage
+	r_43 := OBJ, r_41
+	r_44 := §OBJ:r_43 r_42
+	r_45 := -#Result r_44
+	_RecordHasAdmin := r_45
+	r_46 := EMPTY, _Full
+	r_47 := 1
+	r_48 := r_46, r_47
+	r_49 := §WITH_TYPE t_85 WITH r_48
+	_Pair := r_49
+	r_50 := §2ND _Pair
+	r_51 := §1ST _Pair
+	r_52 := §2ND r_51
+	_Paired := r_52
+	r_53 := §1ST r_51
+	r_54 := +#_Reader... _Full
+	r_55 := §WITH_TYPE t_86 WITH r_54
+	_Tagged := r_55
+	r_56 := -#_Reader... _Tagged
+	r_57 := §WITH_TYPE t_38 WITH r_56
+	_Untagged := r_57
+	r_58 := §WITH_TYPE t_87 WITH _Full
+	_Union := r_58
+	r_59 := 19
+	r_60 := +#_Admin... EMPTY
+	r_62 := _Full, r_60
+	r_61 := §OBJ:r_62 r_59
+	r_63 := +#_Read EMPTY
+	r_65 := _Limited, r_63
+	r_64 := §OBJ:r_65 EMPTY
+	_Value := r_64
+	r_66 := ._HasAdmin... _Full
+	r_67 := EMPTY, r_66
+	r_68 := ._HasAdmin... _Limited
+	r_69 := r_67, r_68
+	r_70 := ._HasAdmin... _Erased
+	r_71 := r_69, r_70
+	r_72 := ._HasAdmin... _Relayed
+	r_73 := r_71, r_72
+	r_74 := ._HasAdmin... _Returned
 	r_75 := r_73, r_74
-	r_76 := ._HasAdmin... _Erased
+	r_76 := ._InspectReader... _Full
 	r_77 := r_75, r_76
-	r_78 := ._HasAdmin... _Relayed
-	r_79 := r_77, r_78
-	r_80 := ._HasAdmin... _Returned
-	r_81 := r_79, r_80
-	r_82 := ._InspectReader... _Full
-	r_83 := r_81, r_82
-	r_84 := r_83, _FunctionHasAdmin
-	r_85 := ._HasAdmin... _RecursiveReader
+	r_78 := r_77, _FunctionHasAdmin
+	r_79 := ._HasAdmin... _RecursiveReader
+	r_80 := r_78, r_79
+	r_81 := §VAR _Stored ->
+	r_82 := ._HasAdmin... r_81
+	r_83 := r_80, r_82
+	r_84 := r_83, _RecordHasAdmin
+	r_85 := ._HasAdmin... _Paired
 	r_86 := r_84, r_85
-	r_87 := §VAR _Stored ->
-	r_88 := ._HasAdmin... r_87
-	r_89 := r_86, r_88
-	r_90 := r_89, _RecordHasAdmin
-	r_91 := ._HasAdmin... _Paired
-	r_92 := r_90, r_91
-	r_93 := ._HasAdmin... _Untagged
-	r_94 := r_92, r_93
-	r_95 := ._HasAdmin... _Union
-	r_96 := r_94, r_95
-	r_97 := r_96, _Value
-	§RETURN r_97 IF TRUE
+	r_87 := ._HasAdmin... _Untagged
+	r_88 := r_86, r_87
+	r_89 := ._HasAdmin... _Union
+	r_90 := r_88, r_89
+	r_91 := r_90, _Value
+	§RETURN r_91 IF TRUE

@@ -16,6 +16,8 @@ coverage.xml
 opencover.xml
 *.bat
 
+*.new.txt
+
 # Demo modules regenerate these files from their SPO sources.
 /SPO/Apps/**/*.ILT
 /SPO/Apps/**/*.ILB

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -13,7 +13,8 @@ mAny_Tests {
 	Tests = mTest.Tests(
 		nameof(mAny),
 		[
-			mTest.Test("tAny.Equals()",
+			mTest.Test(
+				"tAny.Equals()",
 				aStreamOut => {
 					mAssert.AreEquals(mAny.Any(1), mAny.Any(1));
 					mAssert.AreEquals(mAny.Any("1"), mAny.Any("1"));

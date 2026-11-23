@@ -76,6 +76,7 @@ mSPO2IL_Tests {
 	) {
 		aStreamOut($"Def Count: {aSPO_Defs.Count()}");
 		var DefIndex = 0u;
+		
 		foreach (var (SPO_Def, IL_Def) in mStream.ZipShort(aSPO_Defs, mStream.Stream(aIL_Defs))) {
 			aStreamOut(mSPO2IL.GetDefId(DefIndex));
 			AssertCommandsAre(SPO_Def.Commands.ToStream(), IL_Def);
@@ -85,12 +86,15 @@ mSPO2IL_Tests {
 		
 		if (aSPO_Defs.Count() > aIL_Defs.Length) {
 			aStreamOut("miss additional defs:");
+			
 			foreach (var (_, Commands) in aSPO_Defs.Skip((tNat32)aIL_Defs.Length)) {
 				foreach (var command in Commands.ToStream()) {
 					aStreamOut(command.ToText());
 				}
+				
 				aStreamOut("");
 			}
+			
 			aStreamOut("");
 			mAssert.Fail();
 		}
@@ -99,17 +103,23 @@ mSPO2IL_Tests {
 	}
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(nameof(mSPO2IL),
+	Tests = mTest.Tests(
+		nameof(mSPO2IL),
 		[
-			mTest.Test("If lowering uses validated types without changing AST annotations",
+			mTest.Test(
+				"If lowering uses validated types without changing AST annotations",
 				aStreamOut => {
 					var Expression = mSPO_Parser.Expression.TryParseText(
-						"§IF {\n\tFlag: Value\n\t§TRUE: 0\n}", "", __ => aStreamOut(__())
+						"§IF {\n\tFlag: Value\n\t§TRUE: 0\n}",
+						"",
+						__ => aStreamOut(__())
 					).ElseThrow();
+					
 					var Scope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem("_Flag", mVM_Type.Bool()),
 						mSPO_AST_Types.ScopeItem("_Value", mVM_Type.Int())
 					);
+					
 					var Checked = Expression.UpdateTypes(Scope, new()).AssertNotError(__ => __.ToText());
 					var Def = mSPO2IL.NewDefConstructor(Checked.State);
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
@@ -118,7 +128,8 @@ mSPO2IL_Tests {
 					mAssert.AreEquals(Def.TypeState, Checked.State);
 				}
 			),
-			mTest.Test("MapExpression",
+			mTest.Test(
+				"MapExpression",
 				aStreamOut => {
 					var ExpressionNode = mSPO_Parser.Expression.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -158,7 +169,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapDef1",
+			mTest.Test(
+				"MapDef1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -172,6 +184,7 @@ mSPO2IL_Tests {
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
+					
 					mAssert.IsTrue(
 						DefConstructor.MapDef(Module, DefNode, out var Error),
 						Error.ToText()
@@ -191,7 +204,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapDefMatch",
+			mTest.Test(
+				"MapDefMatch",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -235,7 +249,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MatchTuple",
+			mTest.Test(
+				"MatchTuple",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -275,7 +290,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapMatchPrefix",
+			mTest.Test(
+				"MapMatchPrefix",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -326,7 +342,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda1",
+			mTest.Test(
+				"MapLambda1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -406,12 +423,14 @@ mSPO2IL_Tests {
 						aStreamOut("==================");
 						aStreamOut(DefTypeId);
 						aStreamOut("------------------");
+						
 						foreach (var Command in DefCommands.ToStream()) {
 							aStreamOut(Command.ToText());
 						}
 					}
 					
 					mAssert.AreEquals(Module.Defs.Size, 2u);
+					
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -452,7 +471,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda2",
+			mTest.Test(
+				"MapLambda2",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -483,6 +503,7 @@ mSPO2IL_Tests {
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
 					var Scope = Checked.Scope;
+					
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("...*...+..."),
@@ -494,11 +515,13 @@ mSPO2IL_Tests {
 						),
 						InitScope
 					);
+					
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
+					
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -550,12 +573,14 @@ mSPO2IL_Tests {
 						aStreamOut("------------------");
 						aStreamOut(DefTypeId);
 						aStreamOut("------------------");
+						
 						foreach (var Command in DefCommands.ToStream()) {
 							aStreamOut(Command.ToText());
 						}
 					}
 					
 					mAssert.AreEquals(Module.Defs.Size, 2u);
+					
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -613,7 +638,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapLambda3",
+			mTest.Test(
+				"MapLambda3",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -644,6 +670,7 @@ mSPO2IL_Tests {
 					
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
 					var Scope = Checked.Scope;
+					
 					var ExpScope = mStream.Stream(
 						mSPO_AST_Types.ScopeItem(
 							mSPO2IL.GetId("TestTest..."),
@@ -655,11 +682,13 @@ mSPO2IL_Tests {
 						),
 						InitScope
 					);
+					
 					mAssert.AreEquals(Scope, ExpScope);
 					
 					var Module = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
+					
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -708,6 +737,7 @@ mSPO2IL_Tests {
 					);
 					
 					mAssert.AreEquals(Module.Defs.Size, 2u);
+					
 					mAssert.AreEquals(
 						Module.Defs.Get(0).Commands.ToStream(),
 						mStream.Stream(
@@ -765,7 +795,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapIfMatch_1",
+			mTest.Test(
+				"MapIfMatch_1",
 				aStreamOut => {
 					var DefNode = mSPO_Parser.Def.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -784,6 +815,7 @@ mSPO2IL_Tests {
 					var InitScope = mStream.Stream<mSPO_AST_Types.tScopeItem>([]);
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(DefNode, InitScope, new()).AssertNotError(__ => __.ToText());
 					var Scope = Checked.Scope;
+					
 					mAssert.AreEquals(
 						Scope,
 						mStream.Stream(
@@ -799,6 +831,7 @@ mSPO2IL_Tests {
 					var DefConstructor = mSPO2IL.NewDefConstructor(Checked.State);
 					
 					mAssert.IsTrue(DefConstructor.MapDef(Module, DefNode, out var Error), Error.ToText());
+					
 					DefConstructor.FinishMapProc(
 						default,
 						Module,
@@ -916,7 +949,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapIfMatch_2_WithSet",
+			mTest.Test(
+				"MapIfMatch_2_WithSet",
 				aStreamOut => {
 					var ModuleNode = mSPO_Parser.Module.TryParseText(
 						//       1         2         3         4         5         6         7         8
@@ -1019,7 +1053,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapNestedMatch",
+			mTest.Test(
+				"MapNestedMatch",
 				aStreamOut => {
 					var LambdaNode = mSPO_Parser.Lambda.TryParseText(
 						//        1         2         3         4         5         6         7         8
@@ -1042,6 +1077,7 @@ mSPO2IL_Tests {
 					
 					var ModuleConstructor = mSPO2IL.NewModuleConstructor<tSpan>(mSpan.Merge);
 					var Checked = LambdaNode.UpdateTypes(InitScope, new()).AssertNotError(__ => __.ToText());
+					
 					mAssert.AreEquals(
 						Checked.Type,
 						mVM_Type.Proc(
@@ -1075,6 +1111,7 @@ mSPO2IL_Tests {
 					
 					mAssert.AreEquals(ModuleConstructor.Defs.Size, 1u);
 					mAssert.AreEquals(DefIndex, 0u);
+					
 					mAssert.AreEquals(
 						ModuleConstructor.Defs.Get(DefIndex).Commands.ToStream(),
 						mStream.Stream<(tText Command, (tNat32, tNat32) Start, (tNat32, tNat32) End)>(
@@ -1114,7 +1151,8 @@ mSPO2IL_Tests {
 					);
 				}
 			),
-			mTest.Test("MapRecursion2",
+			mTest.Test(
+				"MapRecursion2",
 				aStreamOut => {
 					var ModuleNode = mSPO_Parser.Module.TryParseText(
 						//        1         2         3         4         5         6         7         8
@@ -1187,8 +1225,10 @@ mSPO2IL_Tests {
 	) {
 		var Count = (tNat32)aDefs2.Length;
 		mAssert.AreEquals(aDefs1.Size, Count);
+		
 		for (var I = 0u; I < Count; I += 1) {
 			aDebugStream($"Def {I}:");
+			
 			mAssert.AreEquals(
 				aDefs1.Get(I).Commands.ToStream(),
 				mStream.Stream(System.MemoryExtensions.AsSpan(aDefs2[I])).Map(__ => ParseCommand(__.Command, Span(__.From, __.To), aDebugStream)),
@@ -1203,15 +1243,19 @@ mSPO2IL_Tests {
 		mStd.tAction<tText> aStreamOut
 	) {
 		var DefIndex = 0u;
+		
 		foreach (var (_, Commands) in aDefs) {
 			aStreamOut(mSPO2IL.GetDefId(DefIndex));
 			aStreamOut("---");
+			
 			foreach (var command in Commands.ToStream()) {
 				aStreamOut(command.ToText());
 			}
+			
 			DefIndex += 1;
 			aStreamOut("");
 		}
+		
 		aStreamOut("");
 	}
 }

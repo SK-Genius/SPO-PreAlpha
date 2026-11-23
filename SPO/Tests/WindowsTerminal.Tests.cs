@@ -12,19 +12,24 @@ mWindowsTerminal_Tests {
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tCoord {
-		public tInt16 X, Y;
+		public tInt16 X;
+		public tInt16 Y;
 	}
 	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tRect {
-		public tInt16 Left, Top, Right, Bottom;
+		public tInt16 Left;
+		public tInt16 Top;
+		public tInt16 Right;
+		public tInt16 Bottom;
 	}
 	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tScreenInfo {
-		public tCoord Size, Cursor;
+		public tCoord Size;
+		public tCoord Cursor;
 		public tNat16 Attributes;
 		public tRect Window;
 		public tCoord MaximumWindowSize;
@@ -42,22 +47,31 @@ mWindowsTerminal_Tests {
 	tInput {
 		[FieldOffset(0)]
 		public tNat16 Type;
+		
 		[FieldOffset(4)]
 		public tInt32 Down;
+		
 		[FieldOffset(8)]
 		public tNat16 Repeat;
+		
 		[FieldOffset(10)]
 		public tNat16 Key;
+		
 		[FieldOffset(14)]
 		public tNat16 Character;
+		
 		[FieldOffset(16)]
 		public tNat32 KeyModifiers;
+		
 		[FieldOffset(4)]
 		public tCoord Position;
+		
 		[FieldOffset(8)]
 		public tNat32 Buttons;
+		
 		[FieldOffset(12)]
 		public tNat32 MouseModifiers;
+		
 		[FieldOffset(16)]
 		public tNat32 MouseFlags;
 	}
@@ -174,12 +188,14 @@ mWindowsTerminal_Tests {
 			Check(Input != -1);
 			Check(GetConsoleMode(Input, out var OriginalMode));
 			mTerminal.tTerminal? SavedTerminal = null;
+			
 			try {
 				mWindowsTerminal.Run(
 					Terminal => {
 						SavedTerminal = Terminal;
 						var Output = CreateFileW("CONOUT$", 0xC0000000, 3, 0, 3, 0, 0);
 						Check(Output != -1);
+						
 						try {
 							tChar
 							Character(
@@ -187,6 +203,7 @@ mWindowsTerminal_Tests {
 								tInt16 aY = 2
 							) {
 								var Text = new tChar[1];
+								
 								Check(
 									ReadConsoleOutputCharacterW(
 										Output,
@@ -199,6 +216,7 @@ mWindowsTerminal_Tests {
 										out var Read
 									)
 								);
+								
 								mAssert.AreEquals(1u, Read);
 								return Text[0];
 							}
@@ -217,6 +235,7 @@ mWindowsTerminal_Tests {
 							
 							Terminal.Clear();
 							Terminal.Present();
+							
 							// Query native changes and preserve cursor size when changing visibility.
 							Check(
 								SetConsoleCursorInfo(
@@ -227,6 +246,7 @@ mWindowsTerminal_Tests {
 									}
 								)
 							);
+							
 							mAssert.IsTrue(Terminal.CursorVisible());
 							Terminal.Cursor(2, 2);
 							mAssert.IsTrue(Terminal.CursorVisible());
@@ -235,6 +255,7 @@ mWindowsTerminal_Tests {
 							Check(GetConsoleCursorInfo(Output, out var Cursor));
 							mAssert.AreEquals(65u, Cursor.Size);
 							mAssert.AreEquals(0, Cursor.Visible);
+							
 							Terminal.Draw(
 								"A\u001b",
 								(2, 2),
@@ -245,6 +266,7 @@ mWindowsTerminal_Tests {
 									Inverse = true
 								}
 							);
+							
 							Terminal.Cursor(4, 3);
 							Terminal.Draw("B", (4, 3), new() { Foreground = mTerminal.tColor.Yellow });
 							// Text and cursor changes remain private until the complete frame is presented.
@@ -260,6 +282,7 @@ mWindowsTerminal_Tests {
 							mAssert.AreEquals((tInt16)4, ScreenInfo.Cursor.X);
 							mAssert.AreEquals((tInt16)3, ScreenInfo.Cursor.Y);
 							var Attributes = new tNat16[2];
+							
 							Check(
 								ReadConsoleOutputAttribute(
 									Output,
@@ -272,8 +295,10 @@ mWindowsTerminal_Tests {
 									out _
 								)
 							);
+							
 							mAssert.AreEquals((tNat16)0x80A1, Attributes[0]);
 							var Text = new tChar[2];
+							
 							Check(
 								ReadConsoleOutputCharacterW(
 									Output,
@@ -286,6 +311,7 @@ mWindowsTerminal_Tests {
 									out _
 								)
 							);
+							
 							mAssert.AreEquals(' ', Text[1]);
 							// Clearing and redrawing must not expose the empty intermediate frame.
 							Terminal.Clear();
@@ -297,6 +323,7 @@ mWindowsTerminal_Tests {
 							Terminal.Present();
 							mAssert.AreEquals('C', Character());
 							mAssert.AreEquals(' ', Character(4, 3));
+							
 							var Key = Send(
 								new() {
 									Type = 1,
@@ -308,17 +335,21 @@ mWindowsTerminal_Tests {
 								},
 								"_Key..."
 							);
+							
 							mAssert.IsTrue(Key.Field("Key").IsPrefix("_Character...", out var Letter));
 							mAssert.IsTrue(Letter.IsPrefix("_Char...", out var Ordinal));
 							mAssert.AreEquals((tInt32)'A', Int(Ordinal));
 							mAssert.AreEquals(3, Int(Key.Field("RepeatCount")));
+							
 							mAssert.IsTrue(
 								Key.Field("Modifiers").Field("Control").IsBool(out var Control) &&
 								Control
 							);
+							
 							mAssert.IsTrue(Key.Field("Modifiers").Field("Shift").IsBool(out var Shift) && Shift);
 							mAssert.IsTrue(Key.Field("IsDown").IsBool(out var Down) && Down);
 							mAssert.IsTrue(Key.Field("IsRepeat").IsBool(out var IsRepeat) && !IsRepeat);
+							
 							Key = Send(
 								new() {
 									Type = 1,
@@ -328,7 +359,9 @@ mWindowsTerminal_Tests {
 								},
 								"_Key..."
 							);
+							
 							mAssert.IsTrue(Key.Field("IsRepeat").IsBool(out IsRepeat) && IsRepeat);
+							
 							Key = Send(
 								new() {
 									Type = 1,
@@ -338,7 +371,9 @@ mWindowsTerminal_Tests {
 								},
 								"_Key..."
 							);
+							
 							mAssert.IsTrue(Key.Field("IsDown").IsBool(out Down) && !Down);
+							
 							var Mouse = Send(
 								new() {
 									Type = 2,
@@ -352,19 +387,24 @@ mWindowsTerminal_Tests {
 								},
 								"_Mouse..."
 							);
+							
 							mAssert.IsTrue(Mouse.Field("Position").IsTuple(out var MouseX, out var MouseY));
 							mAssert.AreEquals(7 - Terminal.Size().WindowOrigin.X, Int(MouseX));
 							mAssert.AreEquals(9 - Terminal.Size().WindowOrigin.Y, Int(MouseY));
 							mAssert.IsTrue(Mouse.Field("Buttons").Field("Left").IsBool(out var Left) && Left);
+							
 							mAssert.IsTrue(
 								Mouse.Field("PressedButtons").Field("Left").IsBool(out var Pressed) &&
 								Pressed
 							);
+							
 							mAssert.AreEquals(-120, Int(Mouse.Field("WheelDelta")));
 							mAssert.IsTrue(Mouse.Field("Modifiers").Field("Alt").IsBool(out var Alt) && Alt);
+							
 							mAssert.IsTrue(
 								Mouse.Field("IsHorizontalWheel").IsBool(out var Horizontal) && Horizontal
 							);
+							
 							Mouse = Send(
 								new() {
 									Type = 2,
@@ -373,17 +413,22 @@ mWindowsTerminal_Tests {
 								},
 								"_Mouse..."
 							);
+							
 							mAssert.IsTrue(
 								Mouse.Field("PressedButtons").Field("Left").IsBool(out Pressed) &&
 								!Pressed
 							);
+							
 							Mouse = Send(new() { Type = 2 }, "_Mouse...");
+							
 							mAssert.IsTrue(
 								Mouse.Field("ReleasedButtons").Field("Left").IsBool(out var Released) &&
 								Released
 							);
+							
 							Terminal.Cursor(2, 2);
 							mAssert.IsFalse(Terminal.CursorVisible());
+							
 							Terminal.Draw(
 								"*",
 								(2, 2),
@@ -392,9 +437,11 @@ mWindowsTerminal_Tests {
 									Blink = true
 								}
 							);
+							
 							var Clock = System.Diagnostics.Stopwatch.StartNew();
 							var SawStar = false;
 							var SawSpace = false;
+							
 							while (Clock.ElapsedMilliseconds < 1100) {
 								Terminal.ReadEvent(25);
 								SawStar |= Character() == '*';
@@ -406,12 +453,14 @@ mWindowsTerminal_Tests {
 							Terminal.Draw("Z", (2, 2), new() { Foreground = mTerminal.tColor.Gray });
 							Terminal.Present();
 							Clock.Restart();
+							
 							while (Clock.ElapsedMilliseconds < 600) {
 								Terminal.ReadEvent(25);
 								mAssert.AreEquals('Z', Character());
 							}
 							
 							var Size = Terminal.Size();
+							
 							Check(
 								SetConsoleScreenBufferSize(
 									Output,
@@ -421,6 +470,7 @@ mWindowsTerminal_Tests {
 									}
 								)
 							);
+							
 							mAssert.IsTrue(Terminal.ReadEvent(100).IsPrefix("_Resize...", out var Resized));
 							mAssert.AreEquals(Terminal.Size().WindowSize.X, Int(Resized.Field("Width")));
 							mAssert.AreEquals(Terminal.Size().WindowSize.Y, Int(Resized.Field("Height")));
@@ -428,16 +478,19 @@ mWindowsTerminal_Tests {
 							mAssert.AreEquals('Z', Character());
 							mAssert.AreEquals(' ', Character((tInt16)Size.BufferSize.X, (tInt16)Size.BufferSize.Y));
 							Terminal.Cursor(Size.BufferSize.X, Size.BufferSize.Y);
+							
 							Terminal.Draw(
 								"Gone",
 								(Size.BufferSize.X, Size.BufferSize.Y),
 								new() { Foreground = mTerminal.tColor.Green }
 							);
+							
 							Terminal.Present();
 							mAssert.AreEquals('G', Character((tInt16)Size.BufferSize.X, (tInt16)Size.BufferSize.Y));
 							Terminal.Cursor(0, 0);
 							Terminal.Present(); // Keep the native viewport inside the size we shrink to.
 							Terminal.Cursor(Size.BufferSize.X, Size.BufferSize.Y);
+							
 							Check(
 								SetConsoleScreenBufferSize(
 									Output,
@@ -447,8 +500,10 @@ mWindowsTerminal_Tests {
 									}
 								)
 							);
+							
 							Terminal.Size();
 							Terminal.Present(); // The virtual cursor is clamped to the smaller buffer.
+							
 							Check(
 								SetConsoleScreenBufferSize(
 									Output,
@@ -458,10 +513,12 @@ mWindowsTerminal_Tests {
 									}
 								)
 							);
+							
 							Terminal.Present();
 							mAssert.AreEquals('Z', Character());
 							mAssert.AreEquals(' ', Character((tInt16)Size.BufferSize.X, (tInt16)Size.BufferSize.Y));
 							Terminal.Cursor(5, 5);
+							
 							Terminal.Draw(
 								"*",
 								(5, 5),
@@ -470,11 +527,13 @@ mWindowsTerminal_Tests {
 									Blink = true
 								}
 							);
+							
 							Terminal.Clear();
 							mAssert.AreEquals('Z', Character());
 							Terminal.Present();
 							mAssert.AreEquals(' ', Character());
 							Clock.Restart();
+							
 							while (Clock.ElapsedMilliseconds < 600) {
 								Terminal.ReadEvent(25);
 								mAssert.AreEquals(' ', Character()); // Clear also removes blink metadata.
@@ -485,20 +544,25 @@ mWindowsTerminal_Tests {
 						}
 					}
 				);
+				
 				Check(GetConsoleMode(Input, out var RestoredMode));
 				mAssert.AreEquals(OriginalMode, RestoredMode);
 				// Exercise the complete host, SPO compiler and native backend together.
 				const tInt32 cHostTimeoutMilliseconds = 300000;
 				var LastHostLine = "";
+				
 				var Quit = System.Threading.Tasks.Task.Run(
 					() => {
 						var Clock = System.Diagnostics.Stopwatch.StartNew();
 						var SawSnake = false;
+						
 						while (Clock.ElapsedMilliseconds < cHostTimeoutMilliseconds && !SawSnake) {
 							var Output = CreateFileW("CONOUT$", 0xC0000000, 3, 0, 3, 0, 0);
+							
 							try {
 								Check(GetConsoleScreenBufferInfo(Output, out var Info));
 								var Line = new tChar[System.Math.Min(32, Info.Window.Right - Info.Window.Left + 1)];
+								
 								Check(
 									ReadConsoleOutputCharacterW(
 										Output,
@@ -511,7 +575,9 @@ mWindowsTerminal_Tests {
 										out _
 									)
 								);
+								
 								LastHostLine = new tText(Line);
+								
 								SawSnake = LastHostLine.StartsWith("SNAKE in SPO") ||
 								LastHostLine.StartsWith("Resize to at least ");
 							} finally {
@@ -535,19 +601,24 @@ mWindowsTerminal_Tests {
 								out _
 							)
 						);
+						
 						return SawSnake;
 					}
 				);
-				using (var App = System.Diagnostics.Process.Start(
+				
+				using (
+					var App = System.Diagnostics.Process.Start(
 						new System.Diagnostics.ProcessStartInfo {
 							FileName = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Program.exe"),
 							UseShellExecute = false,
 							RedirectStandardOutput = true,
 							RedirectStandardError = true
 						}
-					)!) {
+					)!
+				) {
 					var StandardOutput = App.StandardOutput.ReadToEndAsync();
 					var StandardError = App.StandardError.ReadToEndAsync();
+					
 					try {
 						mAssert.IsTrue(App.WaitForExit(cHostTimeoutMilliseconds), "Snake host did not exit.");
 						mAssert.IsTrue(App.ExitCode == 0, StandardError.GetAwaiter().GetResult());
@@ -564,10 +635,13 @@ mWindowsTerminal_Tests {
 					"Snake did not draw its title/resize hint: " +
 					LastHostLine
 				);
+				
 				System.Console.WriteLine("Host frame: " + LastHostLine.TrimEnd());
 				Check(GetConsoleMode(Input, out RestoredMode));
 				mAssert.AreEquals(OriginalMode, RestoredMode);
-				foreach (var Operation in new mStd.tAction[] {
+				
+				foreach (
+					var Operation in new mStd.tAction[] {
 						() => SavedTerminal!.Size(),
 						() => SavedTerminal!.Present(),
 						() => SavedTerminal!.Draw("expired", (0, 0), default),

@@ -29,18 +29,21 @@ mIL_GenerateOpcodes_Tests {
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
 		var IL = mIL_Parser.Module.TryParseText(aSourceCode, aId, aTrace).ElseThrow();
+		
 		mAssert.IsTrue(
 			mIL_TypeChecker.AreModuleTypesValid(IL, out var Error),
 			() => mIL_TypeChecker.ErrorText(Error)
 		);
+		
 		return mIL_GenerateOpcodes.GenerateOpcodes(IL, (mVM_Data.Empty(), mVM_Type.Empty()));
 	}
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(nameof(mIL_GenerateOpcodes),
+	Tests = mTest.Tests(
+		nameof(mIL_GenerateOpcodes),
 		[
 			mTest.Tests(
-				"Interface adapters are ordinary compiled procedures",
+				"Function views retain their original implementations",
 				mStream.Stream(
 					"Function",
 					"Method",
@@ -71,7 +74,7 @@ mIL_GenerateOpcodes_Tests {
 								§RETURN ARG IF TRUE
 							§DEF main € tMainDef
 								Original := §CLOSURE ENV EMPTY
-								Adapter := §SUBINTERFACE tView WITH Original
+								Adapter := §WITH_TYPE tView WITH Original
 								§RETURN Adapter IF TRUE
 							
 							""";
@@ -126,36 +129,29 @@ mIL_GenerateOpcodes_Tests {
 								Module.DefLookup.TryGet("main").AssertNotEmpty()
 							).AssertNotEmpty();
 							
-							var Result = mVM_Data.Empty();
-							
 							var Implementation = (
 								aCase == "External function"
 								? mVM_Data.ExternDef((aEnv, aObject, aArgument, aTrace) => aArgument)
 								: mVM_Data.Def(Original)
 							);
 							
-							mVM.Run<tSpan>(
+							var Result = mVM.Call<tSpan>(
 								mVM_Data.Proc(Main, Implementation),
 								mVM_Data.Empty(),
 								mVM_Data.Empty(),
-								Result,
 								mTextParser.ToText,
 								__ => aDebug(__())
 							);
 							
-							mAssert.IsTrue(
-								Result.IsProc<tSpan>(out var Adapter, out _),
-								"expected an ordinary compiled adapter"
-							);
+							mAssert.IsTrue(Result.IsTyped(out var Callable, out _));
 							
-							mAssert.IsTrue(
-								Adapter.Commands.ToStream().Any(
-									__ => __.Item1 is mVM_Data.tOpCode.CallFunc or mVM_Data.tOpCode.CallProc
-								)
-							);
-							
-							var Callable = Adapter.DefType.Refs[2];
-							
+							if (aCase == "External function") {
+								mAssert.IsTrue(Result.IsExternProc(out _, out _));
+							} else {
+								mAssert.IsTrue(Result.IsProc<tSpan>(out var OriginalDefinition, out _));
+								mAssert.IsTrue(mStd.RefEq(OriginalDefinition, Original));
+							}
+
 							while (Callable.IsGeneric(out _, out var Body)) {
 								Callable = Body;
 							}
@@ -171,7 +167,8 @@ mIL_GenerateOpcodes_Tests {
 							}
 							
 							var Method = mVM_Data.ExternProc(
-								(aEnv, aObject, aArgument, aTrace) => mVM_Data.Int(7), mVM_Data.Empty()
+								(aEnv, aObject, aArgument, aTrace) => mVM_Data.Int(7),
+								mVM_Data.Empty()
 							);
 							
 							var Full = mVM_Data.Interface(
@@ -186,13 +183,10 @@ mIL_GenerateOpcodes_Tests {
 								_ => Full,
 							};
 							
-							var Returned = mVM_Data.Empty();
-							
-							mVM.Run<tSpan>(
+							var Returned = mVM.Call<tSpan>(
 								Result,
 								aCase == "Method" ? Full : mVM_Data.Empty(),
 								Argument,
-								Returned,
 								mTextParser.ToText,
 								__ => aDebug(__())
 							);
@@ -217,6 +211,7 @@ mIL_GenerateOpcodes_Tests {
 							var Constant = mVM_Data.Int(7);
 							
 							mVM_Data.tData Closure;
+							
 							if (aExtern) {
 								mAssert.ThrowsError(
 									() => mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aEnv, Mutable)
@@ -244,15 +239,23 @@ mIL_GenerateOpcodes_Tests {
 								Closure = mVM_Data.Proc(Def, Constant);
 							}
 							
-							mAssert.IsFalse(Closure._IsMutable);
+							var Contract = mVM_Type.Interface(
+								mVM_Type.Free(mVM_Type.Type()),
+								mVM_Type.Record(
+									[("Read", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int()))]
+								)
+							);
 							
-							var Result = mVM_Data.Empty();
+							var Capability = mVM_Data.Interface(
+								Contract,
+								mVM_Data.Empty(),
+								mVM_Data.Record([("Read", Closure)])
+							);
 							
-							mVM.Run<tSpan>(
-								Closure,
+							var Result = mVM.CallMethod<tSpan>(
+								Capability,
+								"Read",
 								mVM_Data.Empty(),
-								mVM_Data.Empty(),
-								Result,
 								mTextParser.ToText,
 								__ => aDebug(__())
 							);
@@ -264,7 +267,8 @@ mIL_GenerateOpcodes_Tests {
 				).ToArrayList(
 				).ToArray()
 			),
-			mTest.Test("ALL is callable and describes generic function signatures",
+			mTest.Test(
+				"ALL is callable and describes generic function signatures",
 				aDebug => {
 					const tText Source = """
 					§TYPES
@@ -288,6 +292,7 @@ mIL_GenerateOpcodes_Tests {
 						§RETURN result IF TRUE
 					
 					""";
+					
 					var Module = CompileModule(Source, "", __ => aDebug(__()));
 					var IdDef = Module.Defs.TryFirst().AssertNotEmpty();
 					var Def = Module.Defs.TryGet(Module.DefLookup.TryGet("main").AssertNotEmpty()).AssertNotEmpty();
@@ -297,7 +302,8 @@ mIL_GenerateOpcodes_Tests {
 					mAssert.IsTrue(Def.Types.Get(Def._LastReg).IsType());
 				}
 			),
-			mTest.Test("SIG uses type values while head registers have type TYPE",
+			mTest.Test(
+				"SIG uses type values while head registers have type TYPE",
 				aDebug => {
 					const tText Source = """
 					§TYPES
@@ -313,6 +319,7 @@ mIL_GenerateOpcodes_Tests {
 						§RETURN head IF TRUE
 					
 					""";
+					
 					var Def = CompileModule(Source, "", __ => aDebug(__())).Defs.TryFirst().AssertNotEmpty();
 					mAssert.IsTrue(Def.Types.Get(mVM_Data.cIntTypeReg).IsType());
 					mAssert.IsTrue(Def.Types.Get(Def._LastReg).IsType());

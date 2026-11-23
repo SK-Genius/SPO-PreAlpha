@@ -16,6 +16,7 @@ mSDL3_Tests {
 			System.Environment.SetEnvironmentVariable("SDL_VIDEODRIVER", "dummy");
 			var Screenshot = System.IO.Path.GetFullPath(".tmp/GUI_Demo.bmp");
 			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Screenshot)!);
+			
 			mSDL3.WithWindow(
 				aSurface => aSurface.WithCapability(
 					aCapability => {
@@ -25,9 +26,11 @@ mSDL3_Tests {
 								"../Apps/GUI_Demo/startup.jni"
 							)
 						);
+						
 						var App = Startup.Entry.Init(
 							_ => {}
 						).ElseThrow().Data;
+						
 						mAssert.IsTrue(App.IsSig(out _, out _, out var Body));
 						var State = Body.Field("Initial");
 						
@@ -38,6 +41,7 @@ mSDL3_Tests {
 							var Result = Body.Field("Frame...").Call(mVM_Data.Tuple([State, aEvent]), aCapability);
 							mAssert.IsTrue(Result.IsTuple(out State, out var Continue));
 							mAssert.IsTrue(Continue.IsBool(out var Running) && Running);
+							
 							if (!aEvent.IsPrefix("_Redraw", out _)) {
 								Send(mVM_Data.Prefix("_Redraw", mVM_Data.Empty()));
 							}
@@ -52,6 +56,7 @@ mSDL3_Tests {
 						var Renderer = SDL_GetRenderer(Window);
 						var Pixels = SDL_RenderReadPixels(Renderer, tCPtr.Zero);
 						mAssert.IsTrue(Pixels != tCPtr.Zero, "SDL produced a readable frame.");
+						
 						try {
 							mAssert.IsTrue(SDL_SaveBMP(Pixels, Screenshot));
 						} finally {
@@ -76,8 +81,10 @@ mSDL3_Tests {
 								Key = 9
 							}
 						);
+						
 						mAssert.AreEquals(1, State.Field("UI").Field("Interaction").Field("Focus").Int());
 						var Text = Marshal.StringToCoTaskMemUTF8("Ada");
+						
 						try {
 							Push(
 								new() {
@@ -95,13 +102,16 @@ mSDL3_Tests {
 								Key = 9
 							}
 						);
+						
 						Push(
 							new() {
 								Type = 0x300,
 								Key = 13
 							}
 						);
+						
 						mAssert.AreEquals("Saved: Ada", State.Field("Status").Text());
+						
 						Push(
 							new() {
 								Type = 0x401,
@@ -110,23 +120,27 @@ mSDL3_Tests {
 								Y = 25
 							}
 						);
+						
 						mAssert.AreEquals(0, State.Field("UI").Field("Interaction").Field("Focus").Int());
 						mAssert.IsTrue(SDL_SetWindowSize(Window, 640, 400));
 						Send(mVM_Data.Prefix("_Redraw", mVM_Data.Empty()));
 						mAssert.AreEquals((640, 400), aSurface.Size());
 						aSurface.Present();
+						
 						System.Console.WriteLine(
 							"OK: native SDL drawing, clip, text, title, input events and window resize."
 						);
 					}
 				)
 			);
+			
 			// A second initialization verifies teardown and reusable library binding.
 			mSDL3.WithWindow(
 				aSurface => {
 					mAssert.AreEquals((1024, 768), aSurface.Size());
 				}
 			);
+			
 			System.Console.WriteLine("OK: SDL cleanup and reinitialization. Screenshot: " + Screenshot);
 			return 0;
 		}

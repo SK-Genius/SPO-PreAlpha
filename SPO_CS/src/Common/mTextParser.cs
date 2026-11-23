@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -58,9 +58,10 @@ mTextParser {
 				__ => __.Sort(
 					(a1, a2) => {
 						var RowComp = (tInt32)a2.Pos.Row - (tInt32)a1.Pos.Row;
+						
 						return RowComp != 0
-							? RowComp
-							: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
+						? RowComp
+						: (tInt32)a2.Pos.Col - (tInt32)a1.Pos.Col;
 					}
 				).DontRepeat(
 				).ToText(
@@ -76,6 +77,7 @@ mTextParser {
 				var Pos = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start;
 				var Line = aText.Split('\n')[Pos.Row - 1];
 				var StartSpacesCount = Line.Length - Line.TrimStart().Length;
+				
 				return mResult.Fail(
 					$"""
 					{Pos.Id}:{Pos.Row} expected end of text
@@ -167,10 +169,12 @@ mTextParser {
 		mAssert.AreNotEquals(aToken.Length, 0);
 		var I = aToken.Length - 1;
 		var Parser = -GetChar(aToken[I]);
+		
 		while (I --> 0) {
 			var Char = aToken[I];
 			Parser = -GetChar(Char) -Parser;
 		}
+		
 		return Parser
 		.Modify(aSpan => aToken)
 		.ModifyErrors((_, a) => mStream.Stream((a.Span.Start, $"expect '{aToken}'")))

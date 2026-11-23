@@ -106,6 +106,7 @@ mSPO_Interpreter {
 		}
 		
 		var IL = Module.ToIL();
+		
 		return (
 			mIL_TypeChecker.AreModuleTypesValid(IL, out var Error)
 			? IL
@@ -137,12 +138,14 @@ mSPO_Interpreter {
 			
 			var TypeCommand_ = TypeCommand;
 			TypeCommand_._1 = mSPO2IL.GetTypeId(TypeIndex);
+			
 			TypeCommand_._2 = TypeCommand_._2.Then(
 				__ => Map.TryGet(__).Match(
 					() => __,
 					mSPO2IL.GetTypeId
 				)
 			);
+			
 			TypeCommand_._3 = TypeCommand_._3.Then(
 				__ => Map.TryGet(__).Match(
 					() => __,
@@ -176,6 +179,7 @@ mSPO_Interpreter {
 				
 				SB.Append('\t').Append(Command.ToText()).Append('\n');
 			}
+			
 			DefIndex += 1;
 		}
 		

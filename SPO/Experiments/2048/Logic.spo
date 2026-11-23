@@ -1,0 +1,208 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...*...: §DEF ...*...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...==...: §DEF ...==...
+		...<...: §DEF ...<...
+		Not...: §DEF Not...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Random: {...NextRandom: §DEF ...NextRandom} € [§LOAD "../../Libs/Random.SIG"]
+	List: §SIG [§LOAD "../../Libs/List.SIG"] WITH [§LOAD "../../Libs/ListType.SIG"] IN {
+		...TryGet...: §DEF ...TryGet...
+		...Flatten: §DEF ...Flatten
+		...Reduce...: §DEF ...Reduce...
+		...Map...: §DEF ...Map...
+		...MapWithIndex...: §DEF ...MapWithIndex...
+		...WithIndex: §DEF ...WithIndex
+		...Where...: §DEF ...Where...
+		...Count: §DEF ...Count
+		...Reverse: §DEF ...Reverse
+		...TrySplitLast: §DEF ...TrySplitLast
+		...FollowedBy...: §DEF ...FollowedBy...
+		...Take...: §DEF ...Take...
+		Concat...: §DEF Concat...
+		...Any...: §DEF ...Any...
+		...Skip...: §DEF ...Skip...
+		ZipShort...: §DEF ZipShort...
+		...==...With...: §DEF ...==...With...
+	}
+}
+
+§DEF tBoard = [§LOAD "Board.SIG"]
+§DEF tRow = [§LOAD "Row.SIG"]
+§DEF tState = [§LOAD "State.SIG"]
+§DEF cBoardSize = 4
+§DEF cIndices € tRow = (((((); 0); 1); 2); 3)
+§DEF cEmptyRow € tRow = cIndices .Map ((_ € §INT) => 0)
+
+§DEF ...TileAt... = (
+	§DEF aBoard € tBoard
+	(§DEF aColumn € §INT, §DEF aRow € §INT)
+) => §IF (aBoard .TryGet aRow) MATCH {
+	(): 0
+	§DEF Row: §IF (Row .TryGet aColumn) MATCH {
+		(): 0
+		§DEF Tile: Tile
+	}
+}
+
+§DEF ...Transposed = (
+	§DEF aBoard € tBoard
+) => cIndices .Map (
+	(§DEF aColumn € §INT) => aBoard .Map (
+		(§DEF aRow € tRow) => §IF (aRow .TryGet aColumn) MATCH {
+			(): 0
+			§DEF Tile: Tile
+		}
+	)
+)
+
+§DEF ...WithRandomTile = (
+	§DEF aState € tState
+) => {
+	{Board: §DEF Board, RandomState: §DEF RandomState} = aState
+	§DEF FreeCells = ((Board .Flatten) .WithIndex) .Where (
+		(_ € §INT, §DEF aTile € §INT) => aTile .== 0
+	)
+	§DEF FreeCellCount = FreeCells .Count
+	§RETURN aState IF FreeCellCount .== 0
+	§DEF PositionRandom = RandomState .NextRandom
+	§DEF ValueRandom = PositionRandom .NextRandom
+	§DEF Value = §IF ((ValueRandom .% 10) .== 0) MATCH {
+		§TRUE: 4
+		§FALSE: 2
+	}
+	§RETURN §IF (FreeCells .TryGet ((PositionRandom .- 1) .% FreeCellCount)) MATCH {
+		(): aState
+		(§DEF Index, _): {
+			§DEF Column = Index .% cBoardSize
+			§DEF Row = Index ./ cBoardSize
+			§DEF NextBoard = Board .MapWithIndex (
+				(§DEF aRow € §INT, §DEF aCells € tRow) => §IF (aRow .== Row) MATCH {
+					§FALSE: aCells
+					§TRUE: aCells .MapWithIndex (
+						(§DEF aColumn € §INT, §DEF aTile € §INT) => §IF (aColumn .== Column) MATCH {
+							§TRUE: Value
+							§FALSE: aTile
+						}
+					)
+				}
+			)
+			§RETURN { aState; Board: NextBoard, RandomState: ValueRandom }
+		}
+	}
+}
+
+§DEF NewGameWithSeed... = (
+	§DEF aSeed € §INT
+) => {
+	§DEF Empty = {
+		Board: cIndices .Map ((_ € §INT) => cEmptyRow)
+		Score: 0
+		RandomState: aSeed
+	}
+	§RETURN (Empty .WithRandomTile) .WithRandomTile
+}
+
+§DEF ...AfterMove... = (
+	§DEF aState € tState
+	§DEF aDirection € [§LOAD "../../Apps/2048/Direction.SIG"]
+) => {
+	§DEF tSlidRow = [<
+		Row: tRow
+		Score: §INT
+	>]
+	§DEF ...ReversedRows = (
+		§DEF aBoard € tBoard
+	) => aBoard .Map ((§DEF aRow € tRow) => aRow .Reverse)
+	§DEF ...SlidLeft = (
+		§DEF aRow € tRow
+	) => {
+		§RECURSIVE {
+			§DEF Merge...Into...Adding... = (
+				§DEF aRemaining € tRow
+				§DEF aResult € tRow
+				§DEF aScore € §INT
+			) => §IF (aRemaining .TrySplitLast) MATCH {
+				(): {Row: aResult, Score: aScore}
+				(§DEF Rest, §DEF First): §IF (Rest .TrySplitLast) MATCH {
+					(): {Row: aResult .FollowedBy First, Score: aScore}
+					(§DEF Tail, §DEF Second): §IF (First .== Second) MATCH {
+						§TRUE: .Merge Tail Into (aResult .FollowedBy (First .* 2)) Adding (aScore .+ (First .* 2))
+						§FALSE: .Merge Rest Into (aResult .FollowedBy First) Adding aScore
+					}
+				}
+			}
+		}
+		§DEF Nonzero = aRow .Where ((§DEF aTile € §INT) => .Not (aTile .== 0))
+		§DEF Merged € tSlidRow = .Merge (Nonzero .Reverse) Into () Adding 0
+		{Row: §DEF Row, Score: §DEF Score} = Merged
+		§RETURN {Row: (.Concat (Row, cEmptyRow)) .Take cBoardSize, Score: Score}
+	}
+	{Board: §DEF Board, Score: §DEF Score} = aState
+	§DEF Oriented = §IF aDirection MATCH {
+		#Left: Board
+		#Right: Board .ReversedRows
+		#Up: Board .Transposed
+		#Down: (Board .Transposed) .ReversedRows
+	}
+	§DEF RowResults = Oriented .Map ...SlidLeft
+	§DEF Slid = RowResults .Map (
+		(§DEF aResult € tSlidRow) => {
+			{Row: §DEF Row} = aResult
+			§RETURN Row
+		}
+	)
+	§DEF NextBoard = §IF aDirection MATCH {
+		#Left: Slid
+		#Right: Slid .ReversedRows
+		#Up: Slid .Transposed
+		#Down: (Slid .ReversedRows) .Transposed
+	}
+	§DEF Unchanged = Board .== NextBoard With (
+		(§DEF aLeft € tRow, §DEF aRight € tRow) => aLeft .== aRight With ...==...
+	)
+	§RETURN aState IF Unchanged
+	§DEF GainedScore = RowResults .Reduce (
+		0
+		(§DEF aScore € §INT, §DEF aResult € tSlidRow) => {
+			{Score: §DEF Score} = aResult
+			§RETURN aScore .+ Score
+		}
+	)
+	§RETURN { aState; Board: NextBoard, Score: Score .+ GainedScore } .WithRandomTile
+}
+
+§DEF ...CanMove = (
+	§DEF aBoard € tBoard
+) => {
+	§RETURN §TRUE IF (aBoard .Flatten) .Any ((§DEF aTile € §INT) => aTile .== 0)
+	§DEF ...HasEqualNeighbors = (
+		§DEF aRow € tRow
+	) => (.ZipShort (aRow, aRow .Skip 1)) .Any ...==...
+	§RETURN §TRUE IF aBoard .Any ...HasEqualNeighbors
+	§RETURN (aBoard .Transposed) .Any ...HasEqualNeighbors
+}
+
+§DEF ...LargestTile = (
+	§DEF aBoard € tBoard
+) => (aBoard .Flatten) .Reduce (
+	0
+	(§DEF aLargest € §INT, §DEF aTile € §INT) => §IF (aLargest .< aTile) MATCH {
+		§TRUE: aTile
+		§FALSE: aLargest
+	}
+)
+
+§DEF cModule € [§LOAD "Logic.SIG"] = {
+	BoardSize: cBoardSize
+	NewGameWithSeed...: NewGameWithSeed...
+	...AfterMove...: ...AfterMove...
+	...TileAt...: ...TileAt...
+	...CanMove: ...CanMove
+	...LargestTile: ...LargestTile
+}
+§EXPORT cModule

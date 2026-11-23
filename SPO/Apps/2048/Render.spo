@@ -1,0 +1,167 @@
+§IMPORT {
+	Std: {
+		...+...: §DEF ...+...
+		...-...: §DEF ...-...
+		...*...: §DEF ...*...
+		.../...: §DEF .../...
+		...%...: §DEF ...%...
+		...==...: §DEF ...==...
+		...<=...: §DEF ...<=...
+		...And...: §DEF ...And...
+		Not...: §DEF Not...
+	} € [§LOAD "../../Libs/Std.SIG"]
+	Text: {
+		...Length: §DEF ...Length
+		...FollowedBy...: §DEF ...FollowedBy...
+		...Repeated...: §DEF ...Repeated...
+		...AsDecimalText: §DEF ...AsDecimalText
+	} € [§LOAD "../../Libs/Text.SIG"]
+	Logic: {
+		BoardSize: §DEF cBoardSize
+		...TileAt...: §DEF ...TileAt...
+		...CanMove: §DEF ...CanMove
+		...LargestTile: §DEF ...LargestTile
+	} € [§LOAD "Logic.SIG"]
+}
+
+§DEF cDefaultStyle = {
+	Foreground: #Gray
+	Background: #Black
+	Blink: §FALSE
+	Underline: §FALSE
+	Inverse: §FALSE
+}
+§DEF cAccentStyle = { cDefaultStyle; Foreground: #Yellow }
+§DEF cBoardTop = 4
+§DEF cTileWidth = 8
+§DEF cBorderWidth = 1
+§DEF cCellWidth = cTileWidth .+ cBorderWidth
+§DEF cCellHeight = 2
+§DEF cHelpRow = cBoardTop .+ (cBoardSize .* cCellHeight) §> .+ 2
+§DEF cHelpText = "Pfeile/WASD: Zug | R: Neustart | Esc/Q: Ende"
+§DEF cBorder = ("+" .FollowedBy ("-" .Repeated cTileWidth)) .Repeated cBoardSize §> .FollowedBy "+"
+
+§DEF ...CanFit2048 = (
+	§DEF aSize € [§LOAD "../../Libs/Size.SIG"]
+) => {
+	{Width: §DEF Width, Height: §DEF Height} = aSize
+	§RETURN ((cHelpText .Length) .<= Width) .And ((cHelpRow .+ 1) .<= Height)
+}
+
+§DEF DrawGame... = (
+	§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+) : (
+	§DEF aState € [§LOAD "State.SIG"]
+) {
+	aTerminal : Size => §DEF Size, HideCursor .
+	§DEF CanDrawBoard = §IF (Size .CanFit2048) MATCH {
+		§TRUE: §TRUE
+		§FALSE: {
+			§DEF cWidthHint = "Fenster mindestens " .FollowedBy ((cHelpText .Length) .AsDecimalText)
+			§DEF cHeightHint = " x " .FollowedBy ((cHelpRow .+ 1) .AsDecimalText)
+			§DEF cHint = cWidthHint .FollowedBy cHeightHint
+			aTerminal : Draw cHint At (0, 0) WithStyle cAccentStyle .
+			§RETURN §FALSE
+		}
+	}
+	
+	§RETURN () IF .Not CanDrawBoard
+	
+	{Board: §DEF Board, Score: §DEF Score} = aState
+	{Width: §DEF Width} = Size
+	
+	§DEF CanMove = Board .CanMove
+	§DEF Won = 2048 .<= (Board .LargestTile)
+	
+	§DEF Status = §IF (CanMove, Won) MATCH {
+		(§FALSE, §TRUE): "2048 erreicht! Spielende - R: Neustart"
+		(§FALSE, §FALSE): "Keine Zuege mehr - R: Neustart"
+		(§TRUE, §TRUE): "2048 erreicht! Du kannst weiterspielen."
+		_: "Gleiche Zahlen zusammenschieben!"
+	}
+	
+	aTerminal :
+		Draw "2048 in SPO" At (0, 0) WithStyle cAccentStyle
+		Draw (" " .Repeated Width) At (0, 1) WithStyle cDefaultStyle
+		Draw ("Points: " .FollowedBy (Score .AsDecimalText)) At (0, 1) WithStyle cAccentStyle
+		Draw (" " .Repeated Width) At (0, 2) WithStyle cDefaultStyle
+		Draw Status At (0, 2) WithStyle cAccentStyle
+		Draw cHelpText At (0, cHelpRow) WithStyle cDefaultStyle
+	.
+	
+	§RECURSIVE {
+		§DEF DrawBorderFrom... = (
+			§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+		) : (
+			§DEF aRow € §INT
+		) {
+			§RETURN () IF .Not (aRow .<= cBoardSize)
+			aTerminal :
+				Draw cBorder At (0, cBoardTop .+ (aRow .* cCellHeight)) WithStyle cDefaultStyle
+				DrawBorderFrom (aRow .+ 1)
+			.
+		}
+	}
+	
+	§RECURSIVE {
+		§DEF DrawTileFrom... = (
+			§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+		) : (
+			§DEF aIndex € §INT
+		) {
+			§RETURN () IF aIndex .== (cBoardSize .* cBoardSize)
+			
+			§DEF Column = aIndex .% cBoardSize
+			§DEF Row = aIndex ./ cBoardSize
+			§DEF Tile = Board .TileAt (Column, Row)
+			
+			§DEF Text = §IF Tile MATCH {
+				0: ""
+				_: Tile .AsDecimalText
+			}
+			
+			§DEF Colors € [[§LOAD "../../Libs/Color.SIG"], [§LOAD "../../Libs/Color.SIG"]] = §IF Tile MATCH {
+				0: (#Gray, #Black)
+				2: (#Black, #Gray)
+				4: (#Black, #White)
+				8: (#Black, #Cyan)
+				16: (#Black, #Green)
+				32: (#Black, #Yellow)
+				64: (#White, #Red)
+				128: (#White, #Magenta)
+				256: (#White, #Blue)
+				512: (#White, #DarkCyan)
+				1024: (#White, #DarkGreen)
+				_: (#White, #DarkYellow)
+			}
+			
+			(§DEF Foreground, §DEF Background) = Colors
+			§DEF Style = { cDefaultStyle; Foreground: Foreground, Background: Background }
+			§DEF LeftPadding = (cTileWidth .- (Text .Length)) ./ 2
+			§DEF RightPadding = cTileWidth .- LeftPadding §> .- (Text .Length)
+			§DEF PaddedLeft = (" " .Repeated LeftPadding) .FollowedBy Text
+			§DEF TileText = PaddedLeft .FollowedBy (" " .Repeated RightPadding)
+			§DEF X = Column .* cCellWidth
+			§DEF Y = cBoardTop .+ (Row .* cCellHeight) §> .+ 1
+			
+			aTerminal :
+				Draw "|" At (X, Y) WithStyle cDefaultStyle
+				Draw TileText At (X .+ cBorderWidth, Y) WithStyle Style
+				Draw "|" At (X .+ cCellWidth, Y) WithStyle cDefaultStyle
+				DrawTileFrom (aIndex .+ 1)
+			.
+		}
+	}
+	
+	aTerminal :
+		DrawBorderFrom 0
+		DrawTileFrom 0
+	.
+}
+
+§DEF cModule € [§LOAD "Render.SIG"] = {
+	DrawGame...: DrawGame...
+	...CanFit2048: ...CanFit2048
+}
+
+§EXPORT cModule

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -28,6 +28,7 @@ mArrayList {
 					return false;
 				}
 			}
+			
 			return true;
 		}
 		
@@ -73,6 +74,7 @@ mArrayList {
 			if (aList._CurrSize == aList._Items.Length) {
 				aList.Resize();
 			}
+			
 			aList._Items[aList._CurrSize] = aNewItem;
 			aList._CurrSize += 1;
 			return aList;
@@ -86,6 +88,7 @@ mArrayList {
 			foreach (var NewItem in aNewItems) {
 				aList = aList.Push(NewItem);
 			}
+			
 			return aList;
 		}
 		
@@ -95,9 +98,11 @@ mArrayList {
 		) {
 			var Item = aList._Items[aList._CurrSize - 1];
 			aList._CurrSize -= 1;
+			
 			if (aList._CurrSize < (aList._Items.Length >> 1)) {
 				aList.Resize();
 			}
+			
 			return Item;
 		}
 		
@@ -148,6 +153,7 @@ mArrayList {
 		var Array = new t[a1._CurrSize + a2._CurrSize];
 		System.Array.Copy(a1._Items, Array, a1._CurrSize);
 		System.Array.Copy(a2._Items, 0, Array, a1._CurrSize, a2._CurrSize);
+		
 		return new tArrayList<t> {
 			_CurrSize = (tNat32)Array.Length,
 			_Items = Array,
@@ -193,9 +199,11 @@ mArrayList {
 	) {
 		var Count = a._CurrSize;
 		var Res = new t[Count];
+		
 		while (Count --> 0) {
 			Res[Count] = a._Items[Count];
 		}
+		
 		return Res;
 	}
 }

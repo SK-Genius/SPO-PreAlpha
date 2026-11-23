@@ -22,7 +22,7 @@ mVM {
 	const tText cEnterMarker = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
 	const tText cExitMarker = "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
 	
-	public sealed class
+	private sealed class
 	tCallStack<tPos> {
 		internal mMaybe.tMaybe<tCallStack<tPos>> _Parent;
 		internal mArrayList.tArrayList<mVM_Data.tData> _Regs = default!;
@@ -31,7 +31,7 @@ mVM {
 		internal mStd.tAction<mStd.tFunc<tText>> _TraceOut = default!;
 	}
 	
-	public static mMaybe.tMaybe<tCallStack<tPos>>
+	private static mMaybe.tMaybe<tCallStack<tPos>>
 	NewCallStack<tPos>(
 		mMaybe.tMaybe<tCallStack<tPos>> aParent,
 		mVM_Data.tProcDef<tPos> aProcDef,
@@ -60,6 +60,7 @@ mVM {
 				aRes
 			),
 		};
+		
 		aTraceOut(() => cEnterMarker);
 		aTraceOut(() => "______________________________________");
 		aTraceOut(() => " 0 := EMPTY");
@@ -107,16 +108,21 @@ mVM {
 		mTreeMap.tTree<(tNat64 Data, tNat64 Type), tBool> aVisited = default
 	) {
 		while (true) {
-			if (aData._DataType is mVM_Data.tDataType.Type &&
-				aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc) {
+			if (
+				aData._DataType is mVM_Data.tDataType.Type &&
+				aType.Kind is mVM_Type.tKind.Type or mVM_Type.tKind.Proc
+			) {
 				return aData.TypeExpressionValue().KindType().SameType(aType);
 			}
+			
 			if (aType.IsFree() || aType.IsAny()) {
 				return true;
 			}
+			
 			if (aData.IsDef(out var Definition) && aType.Kind is mVM_Type.tKind.Proc) {
 				return Definition.DefType.IsSubType(aType).Match(out _, out _);
 			}
+			
 			// Leaves cannot form cycles. Match them before allocating a visited tree.
 			switch (aType.Kind) {
 				case mVM_Type.tKind.Empty: return aData.IsEmpty();
@@ -126,6 +132,7 @@ mVM {
 				// Opaque types have no representation to inspect at runtime.
 				case mVM_Type.tKind.Abstract or mVM_Type.tKind.TypeApply: return true;
 			}
+			
 			if (aVisited.Deep() == 0) {
 				aVisited = mTreeMap.Tree<(tNat64 Data, tNat64 Type), tBool>(
 					(aLeft, aRight) => (
@@ -140,7 +147,9 @@ mVM {
 			if (aVisited.TryGet((aData._DebugId, aType.DebugId)).IsSome(out _)) {
 				return true;
 			}
+			
 			aVisited = aVisited.Set((aData._DebugId, aType.DebugId), true);
+			
 			if (
 				aData.IsProc(out var Def, out _) &&
 				Def.DefType.IsProc(out _, out _, out var FuncType) &&
@@ -149,12 +158,15 @@ mVM {
 				while (aType.Kind is mVM_Type.tKind.Proc && FuncType.IsGeneric(out _, out var FuncBody)) {
 					FuncType = FuncBody;
 				}
+				
 				// Compiled closures retain symbolic witnesses from opened SIGs. Their
 				// identities are checked statically; runtime matching instantiates the
 				// erased symbols locally against the concrete package signature.
 				var Opened = mStream.Stream<(mVM_Type.tType Symbol, mVM_Type.tType Type)>([]);
+				
 				mVM_Type.tType OpenWitnesses(mVM_Type.tType aValue) {
 					var Constructor = aValue;
+					
 					while (Constructor.Kind is mVM_Type.tKind.TypeApply) {
 						Constructor = Constructor.Refs[0];
 					}
@@ -184,19 +196,21 @@ mVM {
 					}
 					
 					return aValue.Kind is mVM_Type.tKind.Free || aValue.Refs.Length == 0 ? aValue : new() {
-						Kind = aValue.Kind, Id = aValue.Id, Prefix = aValue.Prefix,
+						Kind = aValue.Kind,
+						Id = aValue.Id,
+						Prefix = aValue.Prefix,
 						Refs = mStream.Stream(aValue.Refs).Map(OpenWitnesses).ToArrayList().ToArray()
 					};
 				}
+				
 				FuncType = OpenWitnesses(FuncType);
 				return FuncType.IsSubType(aType).Match(out _, out _);
 			}
-			if (aType.IsSig(out var Binder, out var SigBody)) {
+			
+			if (aType.IsSig(out _, out _)) {
 				return (
-					aData.IsSig(out var Contract, out var Head, out var Body) &&
-					Contract.IsSubType(aType).Match(out _, out _) &&
-					Head.TypeExpressionValue().KindType().SameType(Binder.KindType()) &&
-					Body.Matches(SigBody.Substitute(Binder, Head.TypeExpressionValue()), aVisited)
+					aData.IsSig(out var Contract, out _, out _) &&
+					Contract.IsSubType(aType).Match(out _, out _)
 				);
 			} else if (aType.IsSet(out var Type1, out var Type2)) {
 				// Avoid native recursion along recursive snoc lists (text and app state).
@@ -204,9 +218,11 @@ mVM {
 					if (aData.IsEmpty()) {
 						return true;
 					}
+					
 					aType = Type1.IsEmpty() ? Type2 : Type1;
 					continue;
 				}
+				
 				return aData.Matches(Type1, aVisited) || aData.Matches(Type2, aVisited);
 			} else if (aType.IsRecursive(out var HeadType, out var BodyType)) {
 				aType = BodyType.Substitute(HeadType, aType);
@@ -220,6 +236,7 @@ mVM {
 				if (!aData.IsPair(out var First, out var Second) || !Second.Matches(SecondType, aVisited)) {
 					return false;
 				}
+				
 				aData = First;
 				aType = FirstType;
 				continue;
@@ -284,11 +301,14 @@ mVM {
 	) {
 		if (aProc.IsProc<tPos>(out var Def, out var Env)) {
 			mAssert.IsTrue(Def.DefType.IsProc(out _, out _, out var ProcType));
+			
 			while (ProcType.IsGeneric(out _, out var Body)) {
 				ProcType = Body;
 			}
+			
 			mAssert.IsTrue(ProcType.IsProc(out var ObjectType, out _, out _));
 			var Res = mVM_Data.Empty();
+			
 			Run(
 				mVM_Data.Proc(Def, Env),
 				ObjectType.IsEmpty() ? mVM_Data.Empty() : aObject,
@@ -297,6 +317,7 @@ mVM {
 				aPosToText,
 				aTraceOut
 			);
+			
 			return Res;
 		} else if (aProc.IsExternProc(out var ExternDef, out var ExternEnv)) {
 			return ExternDef(ExternEnv, aObject, aArg, aTraceOut);
@@ -305,7 +326,7 @@ mVM {
 		}
 	}
 	
-	public static mMaybe.tMaybe<tCallStack<tPos>>
+	private static mMaybe.tMaybe<tCallStack<tPos>>
 	Step<tPos>(
 		this tCallStack<tPos> aCallStack,
 		mStd.tFunc<tPos, tText> aPosToText
@@ -325,40 +346,40 @@ mVM {
 			case mVM_Data.tOpCode.And: {
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
-				mAssert.IsTrue(BoolData2.IsBool(out var Bool2));
+				var Bool1 = BoolData1._Value.To<tBool>();
+				var Bool2 = BoolData2._Value.To<tBool>();
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 && Bool2));
 				break;
 			}
 			case mVM_Data.tOpCode.Or: {
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
-				mAssert.IsTrue(BoolData2.IsBool(out var Bool2));
+				var Bool1 = BoolData1._Value.To<tBool>();
+				var Bool2 = BoolData2._Value.To<tBool>();
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 || Bool2));
 				break;
 			}
 			case mVM_Data.tOpCode.XOr: {
 				var BoolData1 = aCallStack._Regs.Get(Arg1);
 				var BoolData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(BoolData1.IsBool(out var Bool1));
-				mAssert.IsTrue(BoolData2.IsBool(out var Bool2));
+				var Bool1 = BoolData1._Value.To<tBool>();
+				var Bool2 = BoolData2._Value.To<tBool>();
 				aCallStack._Regs.Push(mVM_Data.Bool(Bool1 ^ Bool2));
 				break;
 			}
 			case mVM_Data.tOpCode.IntsAreEq: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1), () => $"{IntData1.ToText(100)}//DebugId:{IntData1._DebugId}");
-				mAssert.IsTrue(IntData2.IsInt(out var Int2), () => $"{IntData2.ToText(100)}//DebugId:{IntData2._DebugId}");
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
 				aCallStack._Regs.Push(mVM_Data.Bool(Int1 == Int2));
 				break;
 			}
 			case mVM_Data.tOpCode.IntsComp: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
 				var Diff = Int1 - Int2;
 				aCallStack._Regs.Push(mVM_Data.Int(Diff.Sign()));
 				break;
@@ -366,38 +387,40 @@ mVM {
 			case mVM_Data.tOpCode.IntsAdd: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 + Int2));
 				break;
 			}
 			case mVM_Data.tOpCode.IntsSub: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 - Int2));
 				break;
 			}
 			case mVM_Data.tOpCode.IntsMul: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
 				aCallStack._Regs.Push(mVM_Data.Int(Int1 * Int2));
 				break;
 			}
 			case mVM_Data.tOpCode.IntsDiv: {
 				var IntData1 = aCallStack._Regs.Get(Arg1);
 				var IntData2 = aCallStack._Regs.Get(Arg2);
-				mAssert.IsTrue(IntData1.IsInt(out var Int1));
-				mAssert.IsTrue(IntData2.IsInt(out var Int2));
+				var Int1 = IntData1._Value.To<tInt32>();
+				var Int2 = IntData2._Value.To<tInt32>();
+				
 				aCallStack._Regs.Push(
 					mVM_Data.Pair(
 						mVM_Data.Int(Int1 / Int2),
 						mVM_Data.Int(Int1 % Int2)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.NewPair: {
@@ -407,27 +430,17 @@ mVM {
 						aCallStack._Regs.Get(Arg2)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.First: {
-				mAssert.IsTrue(
-					aCallStack._Regs.Get(Arg1).IsPair(
-						out var Var1,
-						out var Var2
-					),
-					() => $"{CommandLine()} # expect pair but is {aCallStack._Regs.Get(Arg1).ToText(20)}"
-				);
-				aCallStack._Regs.Push(Var1);
+				var Pair = aCallStack._Regs.Get(Arg1)._Value.To<(mVM_Data.tData First, mVM_Data.tData Second)>();
+				aCallStack._Regs.Push(Pair.First);
 				break;
 			}
 			case mVM_Data.tOpCode.Second: {
-				mAssert.IsTrue(
-					aCallStack._Regs.Get(Arg1).IsPair(
-						out var Var1,
-						out var Var2
-					)
-				);
-				aCallStack._Regs.Push(Var2);
+				var Pair = aCallStack._Regs.Get(Arg1)._Value.To<(mVM_Data.tData First, mVM_Data.tData Second)>();
+				aCallStack._Regs.Push(Pair.Second);
 				break;
 			}
 			case mVM_Data.tOpCode.AddPrefix: {
@@ -435,21 +448,20 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.DelPrefix: {
-				mAssert.IsTrue(
-					aCallStack._Regs.Get(Arg2).IsPrefix(out var Prefix, out var Data_)
-				);
-				mAssert.AreEquals(Prefix, Arg1, (a1, a2) => a1 == a2);
-				aCallStack._Regs.Push(Data_);
+				var Prefix = aCallStack._Regs.Get(Arg2)._Value.To<(tNat32 Name, mVM_Data.tData Body)>();
+				aCallStack._Regs.Push(Prefix.Body);
 				break;
 			}
 			case mVM_Data.tOpCode.TryRemovePrefixFrom: {
 				var Data = aCallStack._Regs.Get(Arg2);
+				
 				if (Data.IsPrefix(out var PrefixId, out var Inner) && PrefixId == Arg1) {
 					aCallStack._Regs.Push(Inner);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.AddField: {
@@ -459,33 +471,32 @@ mVM {
 						aCallStack._Regs.Get(Arg2)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.SetField: {
 				var Record = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Record.IsRecord(out var Fields));
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPrefix(out var Key, out var Value));
+				
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Record,
 						_Fields = Fields.Set(Key, Value),
-						_IsMutable = Record._IsMutable || Value._IsMutable
 					}
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.GetField: {
-				var Arg = aCallStack._Regs.Get(Arg1);
-				mAssert.IsTrue(Arg.IsRecord(out var Fields));
-				aCallStack._Regs.Push(
-					Fields.TryGet(Arg2).ElseFail(() => $"{aCallStack._CodePointer}: {OpCode} {Arg2} {Arg.ToText(3)}").ElseThrow()
-				);
+				aCallStack._Regs.Push(aCallStack._Regs.Get(Arg1).GetField(Arg2));
 				break;
 			}
 			case mVM_Data.tOpCode.Assert: {
 				if (aCallStack._Regs.Get(Arg1).IsBool(out var Bool) && Bool) {
 					mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsBool(out Bool) && Bool);
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.VarDef: {
@@ -493,13 +504,13 @@ mVM {
 				break;
 			}
 			case mVM_Data.tOpCode.VarSet: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1)._Value.Is(out mRef.tRefBox<mVM_Data.tData> Cell));
+				var Cell = aCallStack._Regs.Get(Arg1)._Value.To<mRef.tRefBox<mVM_Data.tData>>();
 				Cell._Value = aCallStack._Regs.Get(Arg2);
 				break;
 			}
 			case mVM_Data.tOpCode.VarGet: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsVar(out var X));
-				aCallStack._Regs.Push(X);
+				var Cell = aCallStack._Regs.Get(Arg1)._Value.To<mRef.tRefBox<mVM_Data.tData>>();
+				aCallStack._Regs.Push(Cell._Value);
 				break;
 			}
 			case mVM_Data.tOpCode.DefRecProcs: {
@@ -507,19 +518,24 @@ mVM {
 				var Env = aCallStack._Regs.Get(Arg2);
 				
 				var RecProcs = mVM_Data.Empty();
+				
 				{
 					// Build the result's tuple shape before the closures capture its placeholders.
 					var RecType = aCallStack._ProcDef.Types.Get(aCallStack._Regs.Size);
+					
 					while (RecType.IsGeneric(out _, out var BodyType)) {
 						RecType = BodyType;
 					}
+					
 					while (RecType.IsPair(out RecType, out _)) {
 						RecProcs = mVM_Data.Pair(RecProcs, mVM_Data.Empty());
 					}
 				}
+				
 				aCallStack._Regs.Push(RecProcs);
 				
 				mVM_Data.tData Closed;
+				
 				switch (0) {
 					case 0 when Func.IsExternDef(out var ExternDef): {
 						Closed = mVM_Data.ExternProc(ExternDef, Env);
@@ -532,6 +548,7 @@ mVM {
 							Env,
 							aCallStack._TraceOut
 						);
+						
 						break;
 					}
 					case 0 when Func.IsDef<tPos>(out var Def): {
@@ -546,6 +563,7 @@ mVM {
 						throw mError.Error("impossible: " + Func._DataType);
 					}
 				}
+				
 				var Res = mVM_Data.Empty();
 				Run(Closed, mVM_Data.Empty(), RecProcs, Res, aPosToText, aCallStack._TraceOut);
 				
@@ -558,17 +576,19 @@ mVM {
 					aPlaceholder._DataType = aResult._DataType;
 					aPlaceholder._Value = aResult._Value;
 					aPlaceholder._Fields = aResult._Fields;
-					aPlaceholder._IsMutable = aResult._IsMutable;
 				}
+				
 				if (RecProcs.IsPair(out _, out _)) {
 					while (RecProcs.IsPair(out RecProcs, out var Placeholder)) {
 						mAssert.IsTrue(Res.IsPair(out Res, out var Result));
 						InitializePlaceholder(Placeholder, Result);
 					}
+					
 					mAssert.IsTrue(RecProcs.IsEmpty() && Res.IsEmpty());
 				} else {
 					InitializePlaceholder(RecProcs, Res);
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.CallFunc: {
@@ -585,6 +605,7 @@ mVM {
 								Proc.TypeExpressionValue().ApplyType(Arg.TypeValue())
 							)
 						);
+						
 						break;
 					}
 					case 0 when Proc.IsExternDef(out var ExternDef): {
@@ -600,6 +621,7 @@ mVM {
 								aCallStack._TraceOut
 							)
 						);
+						
 						break;
 					}
 					case 0 when Proc.IsDef<tPos>(out var Def): {
@@ -609,6 +631,7 @@ mVM {
 					case 0 when Proc.IsProc<tPos>(out var Def_, out var Env): {
 						var Res = mVM_Data.Empty();
 						aCallStack._Regs.Push(Res);
+						
 						return NewCallStack(
 							aCallStack,
 							Def_,
@@ -623,6 +646,7 @@ mVM {
 						throw mError.Error("expected proc or def but is: " + Proc._DataType);
 					}
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.CallProc: {
@@ -630,6 +654,7 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg2);
 				
 				mAssert.IsTrue(Proc_.IsPair(out var Obj, out var Proc));
+				
 				if (Proc.IsPrefix(out var Name, out var Marker) && Marker.IsEmpty()) {
 					(Obj, Proc) = ResolveInterfaceCall(Obj, Name);
 				}
@@ -648,6 +673,7 @@ mVM {
 								aCallStack._TraceOut
 							)
 						);
+						
 						break;
 					}
 					case 0 when Proc.IsDef<tPos>(out var Def): {
@@ -657,6 +683,7 @@ mVM {
 					case 0 when Proc.IsProc<tPos>(out var Def, out var Env): {
 						var Res = mVM_Data.Empty();
 						aCallStack._Regs.Push(Res);
+						
 						return NewCallStack(
 							aCallStack,
 							Def,
@@ -671,33 +698,36 @@ mVM {
 						throw mError.Error("impossible: " + Proc._DataType);
 					}
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.ReturnIf: {
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg1).IsBool(out var Cond), () => CommandLine());
+				var Cond = aCallStack._Regs.Get(Arg1)._Value.To<tBool>();
+				
 				if (Cond) {
 					var Res = aCallStack._Regs.Get(Arg2);
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
 					Des._Fields = Res._Fields;
-					Des._IsMutable = Res._IsMutable;
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.ReturnIfNotEmpty: {
 				var Res = aCallStack._Regs.Get(Arg1);
-				if (Res._DataType is not mVM_Data.tDataType.Empty) {
+				
+				if (!Res.IsEmpty()) {
 					var Des = aCallStack._Regs.Get(mVM_Data.cResReg);
 					Des._DataType = Res._DataType;
 					Des._Value = Res._Value;
 					Des._Fields = Res._Fields;
-					Des._IsMutable = Res._IsMutable;
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryReturn: {
@@ -711,8 +741,14 @@ mVM {
 				
 				var Arg = aCallStack._Regs.Get(Arg2);
 				var Object = aCallStack._Regs.Get(mVM_Data.cObjReg);
+				var MatchType = aCallStack._ProcDef.TryReturnTypes.TryGet(aCallStack._CodePointer - 1);
+				
+				if (MatchType.IsNone()) {
+					MatchType = TryGetProcArgType(Proc);
+				}
+				
 				if (
-					TryGetProcArgType(Proc).IsSome(out var ArgType) &&
+					MatchType.IsSome(out var ArgType) &&
 					Arg.Matches(ArgType) &&
 					(
 						!Guard.IsSome(out var GuardProc) ||
@@ -726,36 +762,43 @@ mVM {
 				} else {
 					aCallStack._Regs.Push(mVM_Data.Empty());
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsPair: {
 				var Arg = aCallStack._Regs.Get(Arg1);
+				
 				if (Arg.IsPair(out _, out _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsRecord: {
 				var Arg = aCallStack._Regs.Get(Arg1);
+				
 				if (Arg.IsRecord(out var _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsVar: {
 				var Arg = aCallStack._Regs.Get(Arg1);
+				
 				if (Arg.IsVar(out var _)) {
 					aCallStack._Regs.Push(Arg);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.LoadConstant: {
@@ -769,40 +812,27 @@ mVM {
 				aCallStack._Regs.Push(mVM_Data.Interface(Contract, Object, Methods));
 				break;
 			}
-			case mVM_Data.tOpCode.SubInterface: {
-				var Type = aCallStack._Regs.Get(Arg1).TypeExpressionValue();
-				mAssert.IsTrue(Type.IsInterface(out _, out var Body));
-				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsInterface(out var Contract, out var Object, out var Methods));
-				mAssert.IsTrue(Contract.IsSubType(Type).Match(out _, out _), "subinterface cannot add endpoints");
-				var Restricted = mVM_Data.Empty();
-				if (Body.IsRecord(out var Required)) {
-					mAssert.IsTrue(Methods.IsRecord(out var Fields));
-					foreach (var Field in Required.ToStream()) {
-						Restricted = mVM_Data.Record(
-							Restricted,
-							mVM_Data.Prefix(Field.Key, Fields.TryGet(Field.Key.PrefixHash()).AssertNotEmpty())
-						);
-					}
-				}
-				aCallStack._Regs.Push(mVM_Data.Interface(Type, Object, Restricted));
+			case mVM_Data.tOpCode.WithType: {
+				// Type views are checked by the compiler and preserve the original data.
+				aCallStack._Regs.Push(aCallStack._Regs.Get(Arg2));
 				break;
 			}
 			case mVM_Data.tOpCode.NewSig: {
 				var Contract = aCallStack._Regs.Get(Arg1).TypeValue();
 				mAssert.IsTrue(aCallStack._Regs.Get(Arg2).IsPair(out var Head, out var Body));
 				mAssert.IsTrue(Contract.IsSig(out var Binder, out var BodyType));
-				mAssert.IsTrue(Head.TypeExpressionValue().KindType().SameType(Binder.KindType()));
-				mAssert.IsTrue(Body.Matches(BodyType.Substitute(Binder, Head.TypeExpressionValue())));
 				aCallStack._Regs.Push(mVM_Data.Sig(Contract, Head, Body));
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsSig: {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				var Contract = aCallStack._ProcDef.Constants[Arg2].TypeExpressionValue();
+				
 				if (!Arg.Matches(Contract)) {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				aCallStack._Regs.Push(Arg);
 				break;
 			}
@@ -810,10 +840,12 @@ mVM {
 				var Arg = aCallStack._Regs.Get(Arg1);
 				mAssert.IsTrue(Arg.IsSig(out _, out var Head, out _));
 				var Expected = aCallStack._Regs.Get(Arg2).TypeExpressionValue();
+				
 				if (!Head.TypeExpressionValue().SameType(Expected)) {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				aCallStack._Regs.Push(Arg);
 				break;
 			}
@@ -860,11 +892,13 @@ mVM {
 						}
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypeAbstract:
 			case mVM_Data.tOpCode.TypeFree: {
 				var Kind = aCallStack._Regs.Get(Arg1).TypeValue();
+				
 				aCallStack._Regs.Push(
 					mVM_Data.TypeExpression(
 						OpCode is mVM_Data.tOpCode.TypeFree
@@ -872,6 +906,7 @@ mVM {
 						: mVM_Type.Abstract("runtime", Kind)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypePair: {
@@ -879,13 +914,14 @@ mVM {
 				var Type2 = aCallStack._Regs.Get(Arg2);
 				var T1 = Type1.SignatureValue();
 				var T2 = Type2.SignatureValue();
+				
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
-						_IsMutable = false,
 						_Value = mAny.Any(mVM_Type.Pair(T1, T2))
 					}
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypeSet: {
@@ -893,13 +929,14 @@ mVM {
 				var Type2 = aCallStack._Regs.Get(Arg2);
 				var T1 = Type1.SignatureValue();
 				var T2 = Type2.SignatureValue();
+				
 				aCallStack._Regs.Push(
 					new mVM_Data.tData {
 						_DataType = mVM_Data.tDataType.Type,
-						_IsMutable = false,
 						_Value = mAny.Any(mVM_Type.Set(T1, T2))
 					}
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypeInterface: {
@@ -911,6 +948,7 @@ mVM {
 						)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypeRecursive: {
@@ -922,36 +960,43 @@ mVM {
 						)
 					)
 				);
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsEmpty: {
 				var Data = aCallStack._Regs.Get(Arg1);
+				
 				if (Data.IsEmpty()) {
 					aCallStack._Regs.Push(Data);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsBool: {
 				var Data = aCallStack._Regs.Get(Arg1);
+				
 				if (Data.IsBool(out _)) {
 					aCallStack._Regs.Push(Data);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TryAsInt: {
 				var Data = aCallStack._Regs.Get(Arg1);
+				
 				if (Data.IsInt(out _)) {
 					aCallStack._Regs.Push(Data);
 				} else {
 					aCallStack._TraceOut(() => cExitMarker);
 					return aCallStack._Parent;
 				}
+				
 				break;
 			}
 			case mVM_Data.tOpCode.TypeGeneric: {
@@ -963,6 +1008,7 @@ mVM {
 						)
 					)
 				);
+				
 				break;
 			}
 			// TODO: missing IL Command
@@ -973,9 +1019,11 @@ mVM {
 				throw mError.Error("TODO " + OpCode);
 			}
 		}
+		
 		aCallStack._TraceOut(
 			() => $@"    \ {aCallStack._Regs.Size - 1} = {aCallStack._Regs.Get(aCallStack._Regs.Size - 1).ToText(20)}"
 		);
+		
 		return aCallStack;
 	}
 	
@@ -985,6 +1033,7 @@ mVM {
 	) {
 		var Env = mVM_Data.Empty();
 		mAssert.IsTrue(aDefs.Is(out var LastDef, out aDefs));
+		
 		foreach (var Def in aDefs) {
 			Env = mVM_Data.Pair(Env, mVM_Data.Def(LastDef));
 			LastDef = Def;
@@ -993,7 +1042,37 @@ mVM {
 		return mVM_Data.Proc(LastDef, Env);
 	}
 	
-	public static void
+	public static mVM_Data.tData
+	Call<tPos>(
+		this mVM_Data.tData aFunction,
+		mVM_Data.tData aObject,
+		mVM_Data.tData aArgument,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
+	) {
+		var Result = mVM_Data.Empty();
+		Run(aFunction, aObject, aArgument, Result, aPosToText, aTraceOut);
+		return Result;
+	}
+	
+	public static mVM_Data.tData
+	CallMethod<tPos>(
+		this mVM_Data.tData aCapability,
+		tText aName,
+		mVM_Data.tData aArgument,
+		mStd.tFunc<tPos, tText> aPosToText,
+		mStd.tAction<mStd.tFunc<tText>> aTraceOut
+	) {
+		mAssert.IsTrue(aCapability.IsInterface(out _, out var Receiver, out var Methods));
+		mAssert.IsTrue(Methods.IsRecord(out var Implementations));
+		var Method = Implementations.TryGet(aName.PrefixHash()).AssertNotEmpty();
+		var Result = mVM_Data.Empty();
+		Run(Method, Receiver, aArgument, Result, aPosToText, aTraceOut);
+		return Result;
+	}
+	
+	// Calls rely on compiler-checked bytecode; native hosts supply values matching their declared contracts.
+	private static void
 	Run<tPos>(
 		mVM_Data.tData aProc,
 		mVM_Data.tData aObj,
@@ -1003,12 +1082,15 @@ mVM {
 		mStd.tAction<mStd.tFunc<tText>> aTraceOut
 	) {
 		using var _ = mPerf.Measure();
+		
 		switch (0) {
 			case 0 when aProc.IsProc<tPos>(out var Def, out var Env): {
 				var CallStack = NewCallStack(mStd.cEmpty, Def, Env, aObj, aArg, aRes, aTraceOut);
+				
 				while (CallStack.IsSome(out var CallStack_)) {
 					CallStack = CallStack_.Step(aPosToText);
 				}
+				
 				break;
 			}
 			case 0 when aProc.IsExternProc(out var ExternDef, out var Env): {
@@ -1016,7 +1098,6 @@ mVM {
 				aRes._DataType = Res._DataType;
 				aRes._Value = Res._Value;
 				aRes._Fields = Res._Fields;
-				aRes._IsMutable = Res._IsMutable;
 				break;
 			}
 			default: {
@@ -1035,6 +1116,7 @@ mVM {
 		if (!mIL_TypeChecker.AreModuleTypesValid(aModule, out var Error)) {
 			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
 		}
+		
 		return RunValidModule(aModule, aImport, aPosToText, aTrace);
 	}
 	
@@ -1048,9 +1130,7 @@ mVM {
 		if (!mIL_TypeChecker.AreImportTypesValid(aModule, aImport.Type, out var Error)) {
 			return mResult.Fail(mIL_TypeChecker.ErrorText(Error));
 		}
-		if (aImport.Data._IsMutable) {
-			return mResult.Fail("mutable module import is not allowed");
-		}
+		
 		var Compiled = mIL_GenerateOpcodes.GenerateOpcodes(aModule, aImport);
 		return RunModule(Compiled.Defs, aImport.Data, aPosToText, aTrace);
 	}
@@ -1062,7 +1142,6 @@ mVM {
 		mStd.tFunc<tPos, tText> aPosToText,
 		mStd.tAction<mStd.tFunc<tText>> aTrace
 	) {
-		mAssert.IsFalse(aImport._IsMutable, "mutable module import is not allowed");
 		var Res = mVM_Data.Empty();
 		var Defs = aModule.Reverse().Skip(1).Reverse();
 		
@@ -1077,12 +1156,13 @@ mVM {
 				)
 			),
 		};
+		
 		var InitProc = aModule.TryLast().AssertNotEmpty();
 		
 		#if MY_TRACE_VM
 			var TraceOut = aTrace;
 		#else
-			var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
+		var TraceOut = mStd.Action<mStd.tFunc<tText>>(_ => { });
 		#endif
 		
 		Run(
@@ -1092,11 +1172,6 @@ mVM {
 			Res,
 			aPosToText,
 			TraceOut
-		);
-		
-		mAssert.IsFalse(
-			Res._IsMutable,
-			"mutable module export is not allowed"
 		);
 		
 		mAssert.IsTrue(

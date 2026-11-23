@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -15,21 +15,25 @@ mMap_Tests {
 	Tests = mTest.Tests(
 		nameof(mMap),
 		[
-			mTest.Test("tMap.Get",
+			mTest.Test(
+				"tMap.Get",
 				aStreamOut => {
 					var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 					.Set("one", 1)
 					.Set("two", 2);
+					
 					mAssert.AreEquals(TextToInt.TryGet("one"), 1);
 					mAssert.AreEquals(TextToInt.TryGet("two"), 2);
 					mAssert.AreEquals(TextToInt.TryGet("zero"), mStd.cEmpty);
 				}
 			),
-			mTest.Test("tMap.Remove",
+			mTest.Test(
+				"tMap.Remove",
 				aStreamOut => {
 					var TextToInt = mMap.Map<tText, tInt32>((a1, a2) => a1 == a2)
 					.Set("one", 1)
 					.Set("two", 2);
+					
 					mAssert.AreEquals(TextToInt.TryGet("one"), 1);
 					mAssert.AreEquals(TextToInt.TryGet("two"), 2);
 					TextToInt = TextToInt.Remove("one");

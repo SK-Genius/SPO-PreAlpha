@@ -170,6 +170,16 @@ dotnet_diagnostic.IDE0047.severity  = none # Remove unnecessary parentheses
 dotnet_diagnostic.IDE0055.severity  = none # Fix formatting
 dotnet_diagnostic.IDE0062.severity  = error # Local functions must be static; pass state explicitly
 
+dotnet_diagnostic.SPO001.severity = warning # Multiline opening delimiters
+dotnet_diagnostic.SPO002.severity = warning # Multiline closing delimiters
+dotnet_diagnostic.SPO003.severity = warning # Indentation by delimiter depth
+dotnet_diagnostic.SPO004.severity = warning # Comma and semicolon line breaks
+dotnet_diagnostic.SPO005.severity = warning # One variable or constant per declaration
+dotnet_diagnostic.SPO006.severity = warning # Blank lines around multiline statements
+dotnet_diagnostic.SPO007.severity = warning # Blank lines around multiline fields
+dotnet_diagnostic.SPO008.severity = warning # No final newline or trailing blank lines
+dotnet_diagnostic.SPO009.severity = warning # No byte order mark (BOM)
+
 dotnet_diagnostic.SA1131.severity = none # Constant values should appear on the right-hand side of comparisons !!! not true for "<" and "<=" in speacel for ranges "0 <= X && X < 10"
 dotnet_diagnostic.SA1407.severity = none # Arithmetic expressions should declare precedence !!! hmm ..., just no
 

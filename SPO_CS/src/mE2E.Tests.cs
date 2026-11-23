@@ -136,6 +136,7 @@ mE2E_Tests {
 					(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
 					[]
 				);
+				
 				var CheckedSources = mTreeMap.Tree<
 					tText,
 					mResult.tResult<
@@ -157,9 +158,11 @@ mE2E_Tests {
 					> aCheckedSources
 				) {
 					var Id = aFile.Path.ToText();
+					
 					if (aCheckedSources.TryGet(Id).IsSome(out var Cached)) {
 						return Cached;
 					}
+					
 					var Result = aFile.TryReadText().ThenTry(
 						aSource => (
 							aFile.Extension is "SPO"
@@ -183,6 +186,7 @@ mE2E_Tests {
 							)
 						)
 					);
+					
 					aCheckedSources = aCheckedSources.Set(Id, Result);
 					return Result;
 				}
@@ -226,6 +230,7 @@ mE2E_Tests {
 					}
 					
 					var Dependencies = mArrayList.List<(tText Key, mModule.tModuleSetup Module)>();
+					
 					foreach (var Name in Names) {
 						if (!aModules.TryGet(Name).IsSome(out var File)) {
 							return mResult.Fail("Module not available: " + Name);
@@ -262,22 +267,28 @@ mE2E_Tests {
 					if (CheckSource(aFile, aDebug, ref CheckedSources).IsFail(out var SourceError, out var Source)) {
 						return SourceError;
 					}
+					
 					if (ImportNames(aFile, aDebug).IsFail(out var ImportError, out var Names)) {
 						return ImportError;
 					}
+					
 					var Setups = mArrayList.List<mModule.tModuleSetup>();
 					var ImportType = mVM_Type.Empty();
+					
 					foreach (var Name in Names) {
 						var Direct = aModules.TryGet(Name).IsSome(out var File);
+						
 						if (!Direct && !aModules.TryGet("Std").IsSome(out File)) {
 							return mResult.Fail("Module not available: " + Name);
 						}
+						
 						if (
 							Setup(File!, aModules, mStd.cEmpty, aDebug).IsFail(out var SetupError, out var Module) ||
 							Module.Check(aDebug).IsFail(out SetupError, out var Checked)
 						) {
 							return SetupError;
 						}
+						
 						Setups.Push(Module);
 						
 						var Export = mIL_TypeChecker.ModuleSignature(
@@ -291,10 +302,13 @@ mE2E_Tests {
 							if (!Export.IsRecord(out var Fields) || !Fields.TryGet("_" + Name).IsSome(out var Field)) {
 								return mResult.Fail("Module not available: " + Name);
 							}
+							
 							Export = Field;
 						}
+						
 						ImportType = mVM_Type.Record(ImportType, mVM_Type.Prefix("_" + Name, Export));
 					}
+					
 					foreach (var Module in Setups.ToStream()) {
 						if (Module.Link(aDebug).IsFail(out var LinkError, out _)) {
 							return LinkError;
@@ -356,6 +370,7 @@ mE2E_Tests {
 							}
 							
 							mAssert.IsTrue(Std.Data.IsRecord(out var Values));
+							
 							Value = (
 								Values.TryGet(mVM_Data.PrefixHash("_" + Name)).AssertNotEmpty(),
 								FieldType
@@ -405,6 +420,7 @@ mE2E_Tests {
 						var Case = FolderName + "/" + SourceFile.Name.Replace('\\', '/');
 						var SourceId = "TestFiles/" + Case;
 						var BaseName = SourceFile.NameWithoutExtension;
+						
 						var Modules = mTreeMap.Tree<tText, mFS.tFile>(
 							(a1, a2) => tText.CompareOrdinal(a1, a2).Sign(),
 							GroupModules.Where(
@@ -469,10 +485,12 @@ mE2E_Tests {
 												Actual is not null,
 												"Expected a compiler diagnostic, compilation succeeded"
 											);
+											
 											mAssert.IsTrue(
 												Expected is not null,
 												"Missing expected diagnostic: " + ExpectedFile.Path.ToText()
 											);
+											
 											mAssert.AreEquals(
 												Actual,
 												Expected
@@ -489,6 +507,7 @@ mE2E_Tests {
 						
 						var ResultFile = Folder.GetFile(BaseName + ".result.SPO");
 						var ILT = Extension is "ILT" ? SourceFile : Folder.GetFile(BaseName + ".ILT");
+						
 						var Expected = mLazy.Lazy(
 							() => mSPO_Interpreter.Run(
 								ResultFile.TryReadText().ElseThrow(),
@@ -497,6 +516,7 @@ mE2E_Tests {
 								_ => {}
 							).ElseThrow()
 						);
+						
 						var Cases = mArrayList.List<mTest.tTest>();
 						
 						void
@@ -540,9 +560,12 @@ mE2E_Tests {
 											Error
 										);
 										
-										mAssert.AreEquals(
-											Actual.Data.ToText(1000),
-											Expected.Value.Data.ToText(1000)
+										mAssert.IsTrue(
+											Actual.SameVisibleValue(Expected.Value),
+											() => $"""
+											Actual: {Actual.ToVisibleText(1000)}
+											Expected: {Expected.Value.ToVisibleText(1000)}
+											"""
 										);
 									},
 									aFile.Path.ToText(),
@@ -560,6 +583,7 @@ mE2E_Tests {
 						Tests.Push(mTest.Tests(FolderName + "/" + BaseName, Cases.ToArray()));
 					}
 				}
+				
 				return Tests.ToArray();
 			}
 		)

@@ -26,12 +26,16 @@ mLauncher_Tests {
 			"SPO launcher " +
 			System.Guid.NewGuid()
 		);
+		
 		System.IO.Directory.CreateDirectory(FolderPath);
 		var Config = System.IO.Path.Combine(FolderPath, "startup.jni");
 		var Observed = System.IO.Path.Combine(FolderPath, "observed.txt");
+		
 		try {
 			var Assembly = System.Reflection.Assembly.GetExecutingAssembly().Location;
-			foreach (var Plugin in new[] {
+			
+			foreach (
+				var Plugin in new[] {
 					Assembly,
 					System.IO.Path.ChangeExtension(Assembly, ".exe")
 				}
@@ -48,6 +52,7 @@ mLauncher_Tests {
 			System.Console.WriteLine(
 				"OK: unregistered DLL/EXE plugins, paths with spaces, arguments and exit codes."
 			);
+			
 			var Source = System.IO.Path.Combine(FolderPath, "Runtime plugin.cs");
 			System.IO.File.WriteAllText(Source, "return 29;");
 			System.IO.File.WriteAllText(Config, "runtime=Runtime plugin.cs");
@@ -55,9 +60,12 @@ mLauncher_Tests {
 			System.Console.WriteLine("OK: a standalone C# runtime plugin.");
 			var Errors = new System.IO.StringWriter();
 			var PreviousError = System.Console.Error;
+			
 			try {
 				System.Console.SetError(Errors);
-				foreach (var (Text, Message) in new[] {
+				
+				foreach (
+					var (Text, Message) in new[] {
 						("|orphan", "startup.jni:1: Expected key=value"),
 						("runtime=first.cs\nruntime=second.cs", "startup.jni:2: Duplicate key 'runtime'"),
 						("entry=Demo", "nonempty 'runtime'"),

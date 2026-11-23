@@ -29,7 +29,8 @@ mSPO_AST_Types_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_AST_Types),
 		[
-			mTest.Test("Recursive tuple results are inferred from base cases in either order",
+			mTest.Test(
+				"Recursive tuple results are inferred from base cases in either order",
 				aDebug => {
 					foreach (
 						var Cases in new[] {
@@ -79,7 +80,8 @@ mSPO_AST_Types_Tests {
 					}
 				}
 			),
-			mTest.Test("Recursive inference propagates through more than two function signatures",
+			mTest.Test(
+				"Recursive inference propagates through more than two function signatures",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_Parser.Command.TryParseText(
@@ -114,7 +116,8 @@ mSPO_AST_Types_Tests {
 					}
 				}
 			),
-			mTest.Test("Recursive inference preserves multiple base result types",
+			mTest.Test(
+				"Recursive inference preserves multiple base result types",
 				aDebug => {
 					var Result = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_Parser.Command.TryParseText(
@@ -145,7 +148,8 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Test("Mutual recursion combines base result types from both functions",
+			mTest.Test(
+				"Mutual recursion combines base result types from both functions",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_Parser.Command.TryParseText(
@@ -170,13 +174,15 @@ mSPO_AST_Types_Tests {
 					).AssertNotError(__ => __.ErrorText);
 					
 					var Expected = mVM_Type.Set(mVM_Type.Int(), mVM_Type.True());
+					
 					foreach (var Item in Checked.Scope) {
 						mAssert.IsTrue(Item.Type.IsProc(out _, out _, out var Result));
 						mAssert.IsTrue(Result.SameType(Expected), Result.ToText());
 					}
 				}
 			),
-			mTest.Test("Recursion without a base case does not invent a concrete result type",
+			mTest.Test(
+				"Recursion without a base case does not invent a concrete result type",
 				aDebug => {
 					var Checked = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_Parser.Command.TryParseText(
@@ -200,59 +206,87 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Test("Declared annotations survive checks in different scopes",
+			mTest.Test(
+				"Declared annotations survive checks in different scopes",
 				aDebug => {
 					var Annotation = mVM_Type.Set(mVM_Type.Int(), mVM_Type.Text());
 					var Id = mSPO_AST.Id(cNoPos, "value", Annotation);
+					
 					var First = Id.UpdateTypes(
-						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Int())), new()
+						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Int())),
+						new()
 					).AssertNotError(__ => __.ErrorText);
+					
 					var Second = Id.UpdateTypes(
-						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Text())), new()
+						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Text())),
+						new()
 					).AssertNotError(__ => __.ErrorText);
+					
 					mAssert.IsTrue(mStd.RefEq(Annotation, Id.TypeAnnotation.AssertNotEmpty()));
 					mAssert.IsTrue(First.State.TryGetValidatedType(Id).AssertNotEmpty().IsInt());
 					mAssert.IsTrue(Second.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Text()));
-					mAssert.IsFalse(Id.UpdateTypes(
-						mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Bool())), Second.State
-					).Match(out _, out var Error));
+					
+					mAssert.IsFalse(
+						Id.UpdateTypes(
+							mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Bool())),
+							Second.State
+						).Match(out _, out var Error)
+					);
+					
 					mAssert.AreEquals(Error.Pos, Id.Pos);
 					mAssert.IsTrue(Error.ErrorText.Contains("found:") && Error.ErrorText.Contains("expected:"));
 					mAssert.IsFalse(Error.ErrorText.Contains("in:"));
 					mAssert.IsTrue(mStd.RefEq(Annotation, Id.TypeAnnotation.AssertNotEmpty()));
 				}
 			),
-			mTest.Test("Successful and failed expression checks leave child annotations unchanged",
+			mTest.Test(
+				"Successful and failed expression checks leave child annotations unchanged",
 				aDebug => {
 					var Tail = mSPO_AST.Int(cNoPos, 1);
 					var Head = mSPO_AST.Id(cNoPos, "value");
 					var Pair = mSPO_AST.Pair(cNoPos, Tail, Head);
 					mAssert.IsFalse(Pair.UpdateTypes(mStd.cEmpty, new()).Match(out _, out _));
 					mAssert.IsFalse(Tail.TypeAnnotation.IsSome(out _));
+					
 					var Checked = Pair.UpdateTypes(
-						mStream.Stream(mSPO_AST_Types.ScopeItem(Head.Id, mVM_Type.Text())), new()
+						mStream.Stream(mSPO_AST_Types.ScopeItem(Head.Id, mVM_Type.Text())),
+						new()
 					).AssertNotError(__ => __.ErrorText);
+					
 					mAssert.IsFalse(Tail.TypeAnnotation.IsSome(out _));
 					mAssert.IsFalse(Head.TypeAnnotation.IsSome(out _));
 					mAssert.IsFalse(Pair.TypeAnnotation.IsSome(out _));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Pair).AssertNotEmpty().SameType(Checked.Type));
 				}
 			),
-			mTest.Test("Pattern types belong to independent snapshots",
+			mTest.Test(
+				"Pattern types belong to independent snapshots",
 				aDebug => {
 					var Pattern = mSPO_AST.FreeIdPattern(cNoPos, "value");
+					
 					var First = mSPO_AST_Types.UpdatePatternTypes(
-						Pattern, mVM_Type.Int(), mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty, new()
+						Pattern,
+						mVM_Type.Int(),
+						mSPO_AST_Types.tTypeRelation.Sub,
+						mStd.cEmpty,
+						new()
 					).AssertNotError(__ => __.ErrorText);
+					
 					var Second = mSPO_AST_Types.UpdatePatternTypes(
-						Pattern, mVM_Type.Text(), mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty, First.State
+						Pattern,
+						mVM_Type.Text(),
+						mSPO_AST_Types.tTypeRelation.Sub,
+						mStd.cEmpty,
+						First.State
 					).AssertNotError(__ => __.ErrorText);
+					
 					mAssert.IsFalse(Pattern.TypeAnnotation.IsSome(out _));
 					mAssert.IsTrue(First.State.TryGetValidatedType(Pattern).AssertNotEmpty().IsInt());
 					mAssert.IsTrue(Second.State.TryGetValidatedType(Pattern).AssertNotEmpty().SameType(mVM_Type.Text()));
 				}
 			),
-			mTest.Test("Type state snapshots persist across checks and branches",
+			mTest.Test(
+				"Type state snapshots persist across checks and branches",
 				aDebug => {
 					var Id = mSPO_AST.Id(cNoPos, "value");
 					var IntScope = mStream.Stream(mSPO_AST_Types.ScopeItem(Id.Id, mVM_Type.Int()));
@@ -270,7 +304,8 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Branch.State.TryGetValidatedType(Id).AssertNotEmpty().SameType(mVM_Type.Int()));
 				}
 			),
-			mTest.Test("Failed checks preserve the input type state tree",
+			mTest.Test(
+				"Failed checks preserve the input type state tree",
 				aDebug => {
 					var Valid = mSPO_AST.Int(cNoPos, 1);
 					var Seed = Valid.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText);
@@ -285,7 +320,8 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Seed.State.TryGetValidatedType(Valid).AssertNotEmpty().SameType(mVM_Type.Int()));
 				}
 			),
-			mTest.Test("Composite checks return the state of every checked child",
+			mTest.Test(
+				"Composite checks return the state of every checked child",
 				aDebug => {
 					var Tail = mSPO_AST.Int(cNoPos, 1);
 					var Head = mSPO_AST.Text(cNoPos, "two");
@@ -296,36 +332,47 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Pair).AssertNotEmpty().SameType(Checked.Type));
 				}
 			),
-			mTest.Test("Expression folds retain all child states and the input snapshot",
+			mTest.Test(
+				"Expression folds retain all child states and the input snapshot",
 				aDebug => {
 					var SeedNode = mSPO_AST.Empty(cNoPos);
 					var Seed = SeedNode.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText);
+					
 					foreach (var Kind in new[] { 0, 1, 2 }) {
 						var First = mSPO_AST.Int(cNoPos, 1);
 						var Last = mSPO_AST.Text(cNoPos, "two");
 						var Condition = mSPO_AST.True(cNoPos);
 						var Otherwise = mSPO_AST.False(cNoPos);
+						
 						mSPO_AST.tExpressionNode<tInt32> Expression = Kind switch {
 							0 => mSPO_AST.Tuple(cNoPos, mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>([First, Last])),
 							1 => mSPO_AST.Record(
 								cNoPos,
-								mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tExpressionNode<tInt32> Value)>([
-									(mSPO_AST.Id(cNoPos, "first"), First), (mSPO_AST.Id(cNoPos, "last"), Last)
-								])
+								mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tExpressionNode<tInt32> Value)>(
+									[
+										(mSPO_AST.Id(cNoPos, "first"), First),
+										(mSPO_AST.Id(cNoPos, "last"), Last)
+									]
+								)
 							),
 							_ => mSPO_AST.If(
 								cNoPos,
-								mStream.Stream<(mSPO_AST.tExpressionNode<tInt32>, mSPO_AST.tExpressionNode<tInt32>)>([
-									(Condition, First), (Otherwise, Last)
-								])
+								mStream.Stream<(mSPO_AST.tExpressionNode<tInt32>, mSPO_AST.tExpressionNode<tInt32>)>(
+									[
+										(Condition, First),
+										(Otherwise, Last)
+									]
+								)
 							)
 						};
+						
 						var Checked = Expression.UpdateTypes(mStd.cEmpty, Seed.State).AssertNotError(__ => __.ErrorText);
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(First).AssertNotEmpty().SameType(mVM_Type.Int()));
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(Last).AssertNotEmpty().SameType(mVM_Type.Text()));
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(Expression).AssertNotEmpty().SameType(Checked.Type));
 						mAssert.IsTrue(Checked.State.TryGetValidatedType(SeedNode).AssertNotEmpty().SameType(mVM_Type.Empty()));
 						mAssert.IsFalse(Seed.State.TryGetValidatedType(First).IsSome(out _));
+						
 						if (Kind == 2) {
 							mAssert.IsTrue(Checked.State.TryGetValidatedType(Condition).AssertNotEmpty().SameType(mVM_Type.True()));
 							mAssert.IsTrue(Checked.State.TryGetValidatedType(Otherwise).AssertNotEmpty().SameType(mVM_Type.False()));
@@ -333,24 +380,29 @@ mSPO_AST_Types_Tests {
 					}
 				}
 			),
-			mTest.Test("Failed expression folds skip later child checks",
+			mTest.Test(
+				"Failed expression folds skip later child checks",
 				aDebug => {
 					var First = mSPO_AST.Int(cNoPos, 1);
 					var Last = mSPO_AST.Id(cNoPos, "last");
 					var Scope = mStream.Stream(mSPO_AST_Types.ScopeItem(Last.Id, mVM_Type.Type(), mVM_Type.Int()));
+					
 					var Tuple = mSPO_AST.Tuple(
 						cNoPos,
 						mStream.Stream<mSPO_AST.tExpressionNode<tInt32>>([First, mSPO_AST.Id(cNoPos, "missing"), Last])
 					);
+					
 					mAssert.IsFalse(Tuple.UpdateTypes(Scope, new()).Match(out _, out _));
 					mAssert.IsFalse(Last.TypeValue.IsSome(out _));
 					mAssert.IsFalse(Tuple.TypeAnnotation.IsSome(out _));
 				}
 			),
-			mTest.Test("Commands return pattern scopes and carry expression state forward",
+			mTest.Test(
+				"Commands return pattern scopes and carry expression state forward",
 				aDebug => {
 					var Value = mSPO_AST.Int(cNoPos, 1);
 					var FirstId = mSPO_AST.Id(cNoPos, "first");
+					
 					var First = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_AST.Def(cNoPos, FirstId, Value),
 						mStd.cEmpty,
@@ -360,6 +412,7 @@ mSPO_AST_Types_Tests {
 					);
 					
 					var Reference = mSPO_AST.Id(cNoPos, "first");
+					
 					var Second = mSPO_AST_Types.UpdateCommandTypes(
 						mSPO_AST.Def(cNoPos, mSPO_AST.Id(cNoPos, "second"), Reference),
 						First.Scope,
@@ -374,16 +427,19 @@ mSPO_AST_Types_Tests {
 					mAssert.IsFalse(First.State.TryGetValidatedType(Reference).IsSome(out _));
 				}
 			),
-			mTest.Test("Pair patterns retain both child states and the guard state",
+			mTest.Test(
+				"Pair patterns retain both child states and the guard state",
 				aDebug => {
 					var Tail = mSPO_AST.Int(cNoPos, 1);
 					var Head = mSPO_AST.Text(cNoPos, "two");
 					var Guard = mSPO_AST.True(cNoPos);
+					
 					var Pattern = mSPO_AST.PairPattern(
 						cNoPos,
 						mSPO_AST.Pattern(cNoPos, Tail, mStd.cEmpty),
 						mSPO_AST.GuardPattern(cNoPos, Head, Guard)
 					);
+					
 					var Checked = mSPO_AST_Types.UpdatePatternTypes(
 						Pattern,
 						mStd.cEmpty,
@@ -393,26 +449,33 @@ mSPO_AST_Types_Tests {
 					).AssertNotError(
 						__ => __.ErrorText
 					);
+					
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Tail).AssertNotEmpty().SameType(mVM_Type.Int()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Head).AssertNotEmpty().SameType(mVM_Type.Text()));
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Guard).AssertNotEmpty().SameType(mVM_Type.True()));
 				}
 			),
-			mTest.Test("Tuple patterns carry child states with and without an expected type",
+			mTest.Test(
+				"Tuple patterns carry child states with and without an expected type",
 				aDebug => {
 					foreach (var HasExpectedType in new[] { false, true }) {
 						var Tail = mSPO_AST.Int(cNoPos, 1);
 						var Head = mSPO_AST.Text(cNoPos, "two");
+						
 						var Pattern = mSPO_AST.TuplePattern(
 							cNoPos,
 							mStream.Stream<mSPO_AST.tPatternNode<tInt32>>([Tail, Head])
 						);
+						
 						mMaybe.tMaybe<mVM_Type.tType> ExpectedType = HasExpectedType
-							? mVM_Type.Pair(mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Text())
-							: mStd.cEmpty;
+						? mVM_Type.Pair(mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int()), mVM_Type.Text())
+						: mStd.cEmpty;
 						
 						var Checked = mSPO_AST_Types.UpdatePatternTypes(
-							Pattern, ExpectedType, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
+							Pattern,
+							ExpectedType,
+							mSPO_AST_Types.tTypeRelation.Sub,
+							mStd.cEmpty,
 							new()
 						).AssertNotError(
 							__ => __.ErrorText
@@ -423,10 +486,12 @@ mSPO_AST_Types_Tests {
 					}
 				}
 			),
-			mTest.Test("Record patterns retain earlier fields through prefix patterns",
+			mTest.Test(
+				"Record patterns retain earlier fields through prefix patterns",
 				aDebug => {
 					var First = mSPO_AST.Int(cNoPos, 1);
 					var Last = mSPO_AST.Text(cNoPos, "two");
+					
 					var Pattern = mSPO_AST.RecordPattern(
 						cNoPos,
 						mStream.Stream<(mSPO_AST.tIdNode<tInt32> Key, mSPO_AST.tPatternNode<tInt32> Pattern)>(
@@ -438,7 +503,10 @@ mSPO_AST_Types_Tests {
 					);
 					
 					var Checked = mSPO_AST_Types.UpdatePatternTypes(
-						Pattern, mStd.cEmpty, mSPO_AST_Types.tTypeRelation.Sub, mStd.cEmpty,
+						Pattern,
+						mStd.cEmpty,
+						mSPO_AST_Types.tTypeRelation.Sub,
+						mStd.cEmpty,
 						new()
 					).AssertNotError(
 						__ => __.ErrorText
@@ -448,13 +516,15 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Checked.State.TryGetValidatedType(Last).AssertNotEmpty().SameType(mVM_Type.Text()));
 				}
 			),
-			mTest.Test("Generic values and signatures use the same type abstraction",
+			mTest.Test(
+				"Generic values and signatures use the same type abstraction",
 				aDebug => {
 					var Expression = mSPO_Parser.Expression.TryParseText(
 						"[§GENERIC t [t => t]]",
 						"",
 						__ => aDebug(__())
 					).ElseThrow();
+					
 					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
 					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					mAssert.IsTrue(Value.KindType().SameType(Kind));
@@ -468,8 +538,10 @@ mSPO_AST_Types_Tests {
 					var Scope = mStream.Stream(mSPO_AST_Types.ScopeItem("_T", Kind, Value));
 					var Alias = mSPO_Parser.Expression.TryParseText("T", "", __ => aDebug(__())).ElseThrow();
 					mAssert.IsTrue(Alias.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText).SameType(Value));
+					
 					var Applied = mSPO_Parser.Expression.TryParseText("[.T §INT]", "", __ => aDebug(__())).ElseThrow()
-						.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText);
+					.AsVM_Type(Scope).AssertNotError(__ => __.ErrorText);
+					
 					mAssert.IsTrue(Applied.SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int())));
 					var Mono = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
 					mAssert.IsFalse(Mono.IsSubType(Signature).Match(out _, out _));
@@ -482,13 +554,15 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(AB.IsSubType(BA).Match(out _, out _));
 				}
 			),
-			mTest.Test("Curried type abstractions retain their function kind until fully applied",
+			mTest.Test(
+				"Curried type abstractions retain their function kind until fully applied",
 				aDebug => {
 					var Expression = mSPO_Parser.Expression.TryParseText(
 						"[§GENERIC a [§GENERIC b [a => b]]]",
 						"",
 						__ => aDebug(__())
 					).ElseThrow();
+					
 					var Value = Expression.AsVM_Value(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
 					var FunctionKind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
 					mAssert.IsTrue(Value.KindType().SameType(mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), FunctionKind)));
@@ -500,7 +574,8 @@ mSPO_AST_Types_Tests {
 					mAssert.ThrowsError(() => { Value.ApplyType(Partial); });
 				}
 			),
-			mTest.Test("SIG type function bindings cannot be inferred as types",
+			mTest.Test(
+				"SIG type function bindings cannot be inferred as types",
 				aDebug => {
 					var Kind = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type());
 					var F = mVM_Type.Abstract("F", Kind);
@@ -515,7 +590,8 @@ mSPO_AST_Types_Tests {
 					mAssert.ThrowsError(() => { mVM_Type.Sig(F, F); });
 				}
 			),
-			mTest.Test("SIG heads and type literals have type TYPE",
+			mTest.Test(
+				"SIG heads and type literals have type TYPE",
 				aDebug => {
 					var Literal = mSPO_Parser.Expression.TryParseText("§INT", "", __ => aDebug(__())).ElseThrow();
 					var Type = Literal.UpdateTypes(mStd.cEmpty, new()).AssertNotError(__ => __.ErrorText).Type;
@@ -547,25 +623,30 @@ mSPO_AST_Types_Tests {
 					mAssert.IsTrue(Body.Type.SameType(Head.TypeValue.AssertNotEmpty()));
 				}
 			),
-			mTest.Test("BOOL desugars to singleton types",
+			mTest.Test(
+				"BOOL desugars to singleton types",
 				aDebugStream => {
 					var Type = mSPO_Parser.Type.TryParseText(
 						"§BOOL",
 						"",
 						__ => aDebugStream(__())
 					).ElseThrow().DesugarType();
+					
 					mAssert.IsTrue(Type is mSPO_AST.tSetTypeNode<mSpan.tSpan<mTextStream.tPos>>);
 					var DesugaredType = Type.AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					
 					var ExpandedType = mSPO_Parser.Type.TryParseText(
 						"[§TRUE | §FALSE]",
 						"",
 						__ => aDebugStream(__())
 					).ElseThrow().AsVM_Type(mStd.cEmpty).AssertNotError(__ => __.ErrorText);
+					
 					DesugaredType.IsSubType(ExpandedType).AssertNotError(__ => __);
 					ExpandedType.IsSubType(DesugaredType).AssertNotError(__ => __);
 				}
 			),
-			mTest.Test("Is",
+			mTest.Test(
+				"Is",
 				aDebugStream => {
 					mAssert.AreEquals(
 						mSPO_AST.Is(
@@ -586,7 +667,8 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Test("Match cases consume the remaining union type",
+			mTest.Test(
+				"Match cases consume the remaining union type",
 				aDebugStream => {
 					var Match = (mSPO_AST.tIfMatchNode<mSpan.tSpan<mTextStream.tPos>>)mSPO_Parser.Expression.TryParseText(
 						"""
@@ -598,23 +680,27 @@ mSPO_AST_Types_Tests {
 						"",
 						__ => aDebugStream(__())
 					).ElseThrow();
+					
 					var Checked = Match.UpdateTypes(
-							mStream.Stream(
-								mSPO_AST_Types.ScopeItem(
-									"_X",
-									mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())
-								)
-							),
+						mStream.Stream(
+							mSPO_AST_Types.ScopeItem(
+								"_X",
+								mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())
+							)
+						),
 						new()
 					).AssertNotError(__ => __.ToText());
+					
 					mAssert.AreEquals(Checked.Type, mVM_Type.Int());
+					
 					mAssert.AreEquals(
 						Checked.State.TryGetValidatedType(Match.Cases.Skip(1).TryFirst().AssertNotEmpty().Pattern).AssertNotEmpty(),
 						mVM_Type.Int()
 					);
 				}
 			),
-			mTest.Tests("Split match type",
+			mTest.Tests(
+				"Split match type",
 				mStream.Stream(
 					[
 						(mStd.File(), mStd.LineNr(), "[[[] | §INT]; §TRUE]", "((); _)", "[[]; §TRUE]", "[§INT; §TRUE]"),
@@ -632,7 +718,8 @@ mSPO_AST_Types_Tests {
 						),
 					]
 				).Map(
-					((tText File, tInt32 LineNr, tText Type, tText Pattern, tText PatternTypeUsed, tText RemainingType) a) => mTest.Test($"{a.Type} : {a.Pattern}",
+					((tText File, tInt32 LineNr, tText Type, tText Pattern, tText PatternTypeUsed, tText RemainingType) a) => mTest.Test(
+						$"{a.Type} : {a.Pattern}",
 						aDebugStream => {
 							var Type = mSPO_Parser.Type.TryParseText(a.Type, "", __ => aDebugStream(__())).ElseThrow()
 							.AsVM_Type(mStd.cEmpty)
@@ -669,7 +756,8 @@ mSPO_AST_Types_Tests {
 					)
 				).ToArrayList().ToArray()
 			),
-			mTest.Test("Lambda",
+			mTest.Test(
+				"Lambda",
 				aDebugStream => {
 					mAssert.AreEquals(
 						mSPO_AST.Lambda(
@@ -737,7 +825,8 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Test("Higher-order arguments reach a recursive fixed point",
+			mTest.Test(
+				"Higher-order arguments reach a recursive fixed point",
 				aDebugStream => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -786,7 +875,8 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Test("Higher-order method arguments are retried",
+			mTest.Test(
+				"Higher-order method arguments are retried",
 				aDebugStream => {
 					var Scope = mSPO_AST_Types.UpdateMethodCallTypes(
 						mSPO_Parser.MethodCall.TryParseText(
@@ -821,7 +911,8 @@ mSPO_AST_Types_Tests {
 					);
 				}
 			),
-			mTest.Tests("Types",
+			mTest.Tests(
+				"Types",
 				mStream.Stream<(tText FileLine, tText Code, mVM_Type.tType Type)>(
 					[
 						(
@@ -881,7 +972,8 @@ mSPO_AST_Types_Tests {
 						var FilePath = Groups[1].Value;
 						var LineNr = tInt32.Parse(Groups[2].Value);
 						
-						return mTest.Test(a.Code,
+						return mTest.Test(
+							a.Code,
 							aDebugStream => {
 								mAssert.AreEquals(
 									mSPO_Parser.Expression.TryParseText(

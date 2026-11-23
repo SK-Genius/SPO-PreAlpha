@@ -194,4 +194,5 @@
 	BoardSize: cBoardSize
 	InitialSnakeLength: cInitialSnakeBody .Count
 }
+
 §EXPORT cModule

@@ -8,6 +8,7 @@
 
 §DEF d_0 € t_5
 	r_1 := {ARG} #_Not...
-	_Not... := r_1
-	r_2 := ._Not... TRUE
-	§RETURN r_2 IF TRUE
+	r_2 := §WITH_TYPE t_1 WITH r_1
+	_Not... := r_2
+	r_3 := ._Not... TRUE
+	§RETURN r_3 IF TRUE

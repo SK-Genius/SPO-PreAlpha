@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -107,12 +107,14 @@ mTextStream {
 		).Map(
 			aChar => {
 				var Result = (Pos(aId, Row.Value, Col.Value), aChar);
+				
 				if (aChar == '\n') {
 					Col = 1;
 					Row += 1;
 				} else {
 					Col += 1;
 				}
+				
 				return Result;
 			}
 		);

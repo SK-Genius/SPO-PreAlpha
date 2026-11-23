@@ -47,11 +47,23 @@ mVM_Type_Tests {
 	);
 	
 	public static readonly mTest.tTest
-	Tests = mTest.Tests(nameof(mVM_Type),
+	Tests = mTest.Tests(
+		nameof(mVM_Type),
 		[
-			mTest.Tests("Type error output",
+			mTest.Test(
+				"A record is immutable exactly when its declared fields are immutable",
+				aDebug => {
+					var Inner = mVM_Type.Record([("Value", mVM_Type.Int())]);
+					mAssert.IsTrue(Inner.IsImmutable);
+					mAssert.IsTrue(mVM_Type.Record([("Inner", Inner)]).IsImmutable);
+					mAssert.IsFalse(mVM_Type.Record([("Cell", mVM_Type.Var(Inner))]).IsImmutable);
+				}
+			),
+			mTest.Tests(
+				"Type error output",
 				[
-					mTest.Test("Nested differences retain their path in a single comparison",
+					mTest.Test(
+						"Nested differences retain their path in a single comparison",
 						aDebug => {
 							mVM_Type.tType Type(mVM_Type.tType aValue) => mVM_Type.Proc(
 								mVM_Type.Empty(),
@@ -68,6 +80,7 @@ mVM_Type_Tests {
 								),
 								mVM_Type.Int()
 							);
+							
 							var Error = TypeError(Type(mVM_Type.True()), Type(mVM_Type.Int()));
 							aDebug(Error);
 							mAssert.AreEquals(Error.Split("found:").Length, 2);
@@ -78,13 +91,15 @@ mVM_Type_Tests {
 							mAssert.IsTrue(Error.Contains("-> ..."));
 						}
 					),
-					mTest.Test("Different prefix names remain visible around common payloads",
+					mTest.Test(
+						"Different prefix names remain visible around common payloads",
 						aDebug => mAssert.AreEquals(
 							TypeError(mVM_Type.Prefix("Left", mVM_Type.Int()), mVM_Type.Prefix("Right", mVM_Type.Int())),
 							"found:\n  [ #Left ... ]\nexpected:\n  [ #Right ... ]"
 						)
 					),
-					mTest.Test("Missing fields retain their names and types",
+					mTest.Test(
+						"Missing fields retain their names and types",
 						aDebug => mAssert.AreEquals(
 							TypeError(
 								mVM_Type.Record([("Common", mVM_Type.Int())]),
@@ -93,10 +108,12 @@ mVM_Type_Tests {
 							"missing field 'Missing'\nfound:\n  [{ ... }]\nexpected:\n  [{ ...,  Missing : §TRUE }]"
 						)
 					),
-					mTest.Test("Generic omissions align bound parameters by identity",
+					mTest.Test(
+						"Generic omissions align bound parameters by identity",
 						aDebug => {
 							var Left = mVM_Type.Free("t", mVM_Type.Type());
 							var Right = mVM_Type.Free("u", mVM_Type.Type());
+							
 							mAssert.AreEquals(
 								TypeError(
 									mVM_Type.Generic(Left, mVM_Type.Proc(mVM_Type.Empty(), Left, mVM_Type.True())),
@@ -106,17 +123,21 @@ mVM_Type_Tests {
 							);
 						}
 					),
-					mTest.Test("Recursive omissions retain the data shape without unfolding it",
+					mTest.Test(
+						"Recursive omissions retain the data shape without unfolding it",
 						aDebug => {
 							var Left = mVM_Type.Free("List", mVM_Type.Type());
 							var Right = mVM_Type.Free("Other", mVM_Type.Type());
+							
 							mAssert.AreEquals(
 								TypeError(
 									mVM_Type.Recursive(
-										Left, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Left, mVM_Type.True()))
+										Left,
+										mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Left, mVM_Type.True()))
 									),
 									mVM_Type.Recursive(
-										Right, mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Right, mVM_Type.Int()))
+										Right,
+										mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Pair(Right, mVM_Type.Int()))
 									)
 								),
 								"found:\n  [ §RECURSIVE ... = [ ... | [ ...; §TRUE ] ] ]\n" +
@@ -135,9 +156,11 @@ mVM_Type_Tests {
 					var Contract = mVM_Type.Sig(F, F.ApplyType(mVM_Type.Int()));
 					var Renamed = mVM_Type.Sig(G, G.ApplyType(mVM_Type.Int()));
 					mAssert.IsTrue(Contract.SameType(Renamed));
+					
 					mAssert.IsTrue(
 						Contract.IsSubType(Renamed).AssertNotError(__ => __).ToStream().IsEmpty()
 					);
+					
 					mAssert.IsFalse(
 						Contract.IsSubType(
 							mVM_Type.Sig(G, G.ApplyType(mVM_Type.Bool()))
@@ -153,14 +176,17 @@ mVM_Type_Tests {
 					var Updated = mVM_Type.False().IsSubType(Free, First).AssertNotError(__ => __);
 					mAssert.AreEquals(Updated.ToStream().Count(), 1u);
 					mAssert.IsTrue(Free.ApplyMappings(First).IsInt());
+					
 					mAssert.IsTrue(
 						Free.ApplyMappings(Updated).SameType(mVM_Type.Set(mVM_Type.Int(), mVM_Type.False()))
 					);
 				}
 			),
-			mTest.Test("ApplyMappings uses free type instances",
+			mTest.Test(
+				"ApplyMappings uses free type instances",
 				aDebugStream => {
 					var Outer = mVM_Type.Free("t", mVM_Type.Type());
+					
 					var Gen = mVM_Type.Generic(
 						mVM_Type.Free("t", mVM_Type.Type()).Def(out var Bound),
 						mVM_Type.Proc(mVM_Type.Empty(), Outer, Bound)
@@ -194,7 +220,8 @@ mVM_Type_Tests {
 					).AssertNotError(__ => __);
 				}
 			),
-			mTest.Tests("Pair projection",
+			mTest.Tests(
+				"Pair projection",
 				mStream.Stream(
 					[
 						(
@@ -244,14 +271,17 @@ mVM_Type_Tests {
 					)
 				).ToArrayList().ToArray()
 			),
-			mTest.Test("Pair projection fails for non pairs",
+			mTest.Test(
+				"Pair projection fails for non pairs",
 				aDebugStream => {
 					mAssert.IsFalse(mVM_Type.Int().TryProjectPair(out _, out _));
 				}
 			),
-			mTest.Test("SplitBy expands recursive types",
+			mTest.Test(
+				"SplitBy expands recursive types",
 				aDebugStream => {
 					var Head = mVM_Type.Free("RecursiveSplit", mVM_Type.Type());
+					
 					var Recursive = mVM_Type.Recursive(
 						Head,
 						mVM_Type.Set(
@@ -259,28 +289,31 @@ mVM_Type_Tests {
 							mVM_Type.Pair(Head, mVM_Type.Int())
 						)
 					);
+					
 					var Split = Recursive.SplitBy(__ => __.IsPair(out _, out _));
+					
 					mAssert.AreEquals(
 						Split.Matched.AssertNotEmpty(),
 						mVM_Type.Pair(Recursive, mVM_Type.Int())
 					);
+					
 					mAssert.AreEquals(Split.Remainder.AssertNotEmpty(), mVM_Type.Empty());
 				}
 			),
 			..mStream.Stream<(tText File, tInt32 LineNr, tText Expr, tText Type)>(
-			[
-				(mStd.File(), mStd.LineNr(), "()", "[]"),
-				(mStd.File(), mStd.LineNr(), "§TRUE", "§BOOL"),
-				(mStd.File(), mStd.LineNr(), "§FALSE", "§BOOL"),
-				(mStd.File(), mStd.LineNr(), "1", "§INT"),
-				(mStd.File(), mStd.LineNr(), "...+...", "[[§INT, §INT] => §INT]"),
-				(mStd.File(), mStd.LineNr(), "1 .+ 1", "§INT"),
-				(mStd.File(), mStd.LineNr(), "a € §INT => a .+ a", "[§INT => §INT]"),
-				(mStd.File(), mStd.LineNr(), ".((a1 € §INT, a2 € §INT, a3 € §INT) => (a1 .+ a2) .+ a3)(1, 2, 3)", "§INT"),
-				(
-					mStd.File(),
-					mStd.LineNr(),
-					"""
+				[
+					(mStd.File(), mStd.LineNr(), "()", "[]"),
+					(mStd.File(), mStd.LineNr(), "§TRUE", "§BOOL"),
+					(mStd.File(), mStd.LineNr(), "§FALSE", "§BOOL"),
+					(mStd.File(), mStd.LineNr(), "1", "§INT"),
+					(mStd.File(), mStd.LineNr(), "...+...", "[[§INT, §INT] => §INT]"),
+					(mStd.File(), mStd.LineNr(), "1 .+ 1", "§INT"),
+					(mStd.File(), mStd.LineNr(), "a € §INT => a .+ a", "[§INT => §INT]"),
+					(mStd.File(), mStd.LineNr(), ".((a1 € §INT, a2 € §INT, a3 € §INT) => (a1 .+ a2) .+ a3)(1, 2, 3)", "§INT"),
+					(
+						mStd.File(),
+						mStd.LineNr(),
+						"""
 					§IF (1, 2) MATCH {
 						(1, 1) : 1
 						(1, _) : 2
@@ -288,81 +321,82 @@ mVM_Type_Tests {
 						_ : 0
 					}
 					""",
-					"§INT"
-				),
-				(
-					mStd.File(),
-					mStd.LineNr(),
-					"""
+						"§INT"
+					),
+					(
+						mStd.File(),
+						mStd.LineNr(),
+						"""
 					§IF 1 MATCH {
 						1 : 1
 						_ : ()
 					}
 					""",
-					"[§INT | []]"
-				),
-				(
-					mStd.File(),
-					mStd.LineNr(),
-					"""
+						"[§INT | []]"
+					),
+					(
+						mStd.File(),
+						mStd.LineNr(),
+						"""
 					§IF 1 MATCH {
 						1 : 1
 						_ : ()
 					}
 					""",
-					"[[] | §INT]"
-				)
-			]
-		).Map(
-			a => mTest.Test(a.Expr + " => " + a.Type,
-				aStreamOut => {
-					var AST =  mSPO_Parser.Expression.TryParseText(
-						a.Expr,
-						"",
-						__ => aStreamOut(__())
-					).ElseThrow();
+						"[[] | §INT]"
+					)
+				]
+			).Map(
+				a => mTest.Test(
+					a.Expr + " => " + a.Type,
+					aStreamOut => {
+						var AST =  mSPO_Parser.Expression.TryParseText(
+							a.Expr,
+							"",
+							__ => aStreamOut(__())
+						).ElseThrow();
 					
-					var Type = AST.UpdateTypes(
-						cTestScope,
-						new()
-					).AssertNotError(
-						__ => __.ToText()
-					).Type;
+						var Type = AST.UpdateTypes(
+							cTestScope,
+							new()
+						).AssertNotError(
+							__ => __.ToText()
+						).Type;
 					
-					var VM_Type = mSPO_Parser.Type.TryParseText(
-						a.Type,
-						"",
-						__ => { aStreamOut(__()); }
-					).ElseThrow().DesugarType(
-					).AsVM_Type(
-						cTestScope
-					).AssertNotError(
-						__ => __.ToText()
-					);
+						var VM_Type = mSPO_Parser.Type.TryParseText(
+							a.Type,
+							"",
+							__ => { aStreamOut(__()); }
+						).ElseThrow().DesugarType(
+						).AsVM_Type(
+							cTestScope
+						).AssertNotError(
+							__ => __.ToText()
+						);
 					
-					Type.IsSubType(
-						VM_Type
-					).AssertNotError(
-						_ => Type.ToText() + " != " + VM_Type.ToText()
-					);
-					
-					if (a.Expr is "§TRUE") {
-						mAssert.AreEquals(Type, mVM_Type.True());
-						mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
-					} else if (a.Expr is "§FALSE") {
-						mAssert.AreEquals(Type, mVM_Type.False());
-						mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
-					} else {
-						VM_Type.IsSubType(
-							Type
+						Type.IsSubType(
+							VM_Type
 						).AssertNotError(
 							_ => Type.ToText() + " != " + VM_Type.ToText()
 						);
-					}
-				},
-				a.File,
-				a.LineNr
-			)
+					
+						if (a.Expr is "§TRUE") {
+							mAssert.AreEquals(Type, mVM_Type.True());
+							mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
+						} else if (a.Expr is "§FALSE") {
+							mAssert.AreEquals(Type, mVM_Type.False());
+							mAssert.IsFalse(VM_Type.IsSubType(Type).Match(out _, out _));
+						} else {
+							VM_Type.IsSubType(
+								Type
+							).AssertNotError(
+								_ => Type.ToText() + " != " + VM_Type.ToText()
+							);
+						}
+					},
+					a.File,
+					a.LineNr
+				)
 			).ToArrayList(
 			).ToArray(
 			)

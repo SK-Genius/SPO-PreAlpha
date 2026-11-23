@@ -49,6 +49,7 @@ mArenaStack {
 		mArena.tArena aArena
 	) where t : unmanaged {
 		aStack.DeRef(aArena, out var Stack);
+		
 		return (
 			Head: Stack._Head,
 			Tail: Stack._Tail

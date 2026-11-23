@@ -16,6 +16,7 @@ mTerminal_Program {
 	) => mRuntime.WithCompilerStack(
 		() => {
 			var Args = mStream.Stream(System.MemoryExtensions.AsSpan(aArgs));
+			
 			if (Args.Any(__ => __ == "--help")) {
 				System.Console.WriteLine("SPO Terminal [--check] [app-folder | startup.jni]");
 				System.Console.WriteLine("Default app: Apps/Snake/startup.jni");
@@ -24,6 +25,7 @@ mTerminal_Program {
 			
 			var CheckOnly = Args.Any(__ => __ == "--check");
 			var Paths = Args.Where(__ => __ != "--check");
+			
 			if (Paths.Count() > 1 || Paths.Any(__ => __.StartsWith("--"))) {
 				System.Console.Error.WriteLine("Expected [--check] [app-folder | startup.jni].");
 				return 1;
@@ -39,6 +41,7 @@ mTerminal_Program {
 					)
 				)
 			);
+			
 			if (System.IO.Directory.Exists(Path)) {
 				Path = System.IO.Path.Combine(Path, "startup.jni");
 			}
@@ -50,15 +53,20 @@ mTerminal_Program {
 				) => aTerminal.WithCapability(
 					aCapability => {
 						var Startup = mStartup.Load(Path);
+						
 						var App = Startup.Entry.Init(
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(App.Data.IsSig(out var Contract, out _, out var Body));
+						
 						mAssert.IsTrue(
 							Contract.SameType(mTerminal.LoadSignature("App")),
 							"Expected App.SIG export."
 						);
+						
 						mAssert.IsTrue(Body.Field("TickMilliseconds").IsInt(out var Interval));
+						
 						if (Interval is < 1 or > 60000) {
 							throw new System.ArgumentOutOfRangeException(
 								nameof(Interval),
@@ -90,6 +98,7 @@ mTerminal_Program {
 						
 						var Clock = System.Diagnostics.Stopwatch.StartNew();
 						var NextTick = Clock.ElapsedMilliseconds + Interval;
+						
 						while (true) {
 							var Event = aTerminal.ReadEvent(
 								(tInt32)System.Math.Max(
@@ -97,15 +106,18 @@ mTerminal_Program {
 									NextTick - Clock.ElapsedMilliseconds
 								)
 							);
+							
 							if (!Event.IsEmpty() && !Send(Event)) {
 								break;
 							}
 							
 							var Now = Clock.ElapsedMilliseconds;
+							
 							if (Now >= NextTick) {
 								var ElapsedMilliseconds = mVM_Data.Int(
 									(tInt32)System.Math.Min(Now, tInt32.MaxValue)
 								);
+								
 								if (!Send(mVM_Data.Prefix("_Tick...", ElapsedMilliseconds))) {
 									break;
 								}
@@ -119,6 +131,7 @@ mTerminal_Program {
 				
 				if (CheckOnly) {
 					var CursorVisible = true;
+					
 					Run(
 						new() {
 							Size = () => new((80, 25), (0, 0), (80, 25)),
@@ -131,6 +144,7 @@ mTerminal_Program {
 							ReadEvent = _ => mVM_Data.Empty()
 						}
 					);
+					
 					System.Console.WriteLine("OK: " + Path);
 				} else {
 					mWindowsTerminal.Run(Run);

@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -48,9 +48,9 @@ mAny {
 			out t aValue
 		) {
 			#if DEBUG
-				if (typeof(t) == typeof(tAny)) {
-					throw mError.Error("");
-				}
+			if (typeof(t) == typeof(tAny)) {
+				throw mError.Error("");
+			}
 			#endif
 			
 			mAssert.IsNotNull(a._Value);
@@ -72,10 +72,6 @@ mAny {
 		[Pure, MethodImpl(MethodImplOptions.AggressiveInlining), DebuggerHidden]
 		public t
 		To<t>(
-		) => (
-			a.Is(out t Result)
-			? Result
-			: throw mError.Error($"To: {typeof(t).FullName} <- {a}")
-		);
+		) => (t)a._Value!;
 	}
 }

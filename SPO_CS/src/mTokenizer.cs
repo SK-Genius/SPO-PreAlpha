@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include _GlobalUsings.cs
@@ -195,17 +195,28 @@ mTokenizer {
 		if (Tokenizer.TryParseText(aText, aId, aDebugStream).IsFail(out var TokenError, out var TokenResult)) {
 			return TokenError;
 		}
+		
 		var Tokens = TokenResult.Result;
-		var MaybeResult = aParser.StartParse(Tokens.Map(__ => {
-			__.FileContext = aFileContext;
-			return (__.Span, __);
-		}), aDebugStream);
+		
+		var MaybeResult = aParser.StartParse(
+			Tokens.Map(
+				__ => {
+					__.FileContext = aFileContext;
+					return (__.Span, __);
+				}
+			),
+			aDebugStream
+		);
+		
 		var Lines = aText.Split("\n");
-		if (MaybeResult.ModifyError(
-			Errors => Errors.Map(
-				a => (a.Pos.Row > 0 ? a.Pos : mTextStream.Pos(aId, 1, 1), a.Message)
-			).ToText(Lines)
-		).IsFail(out var Error, out var Result)) {
+		
+		if (
+			MaybeResult.ModifyError(
+				Errors => Errors.Map(
+					a => (a.Pos.Row > 0 ? a.Pos : mTextStream.Pos(aId, 1, 1), a.Message)
+				).ToText(Lines)
+			).IsFail(out var Error, out var Result)
+		) {
 			return Error;
 		}
 		
@@ -214,6 +225,7 @@ mTokenizer {
 			var Col = Result.RemainingStream.TryFirst().AssertNotEmpty().Span.Start.Col;
 			var PrevLine = Row > 2 ? Lines[Row - 2] : "";
 			var Line = Lines[Row - 1];
+			
 			var MarkerLine = mStream.Stream(
 				System.MemoryExtensions.AsSpan(Line)
 			).Take(
@@ -224,6 +236,7 @@ mTokenizer {
 				"",
 				(aString, aChar) => aString + aChar
 			);
+			
 			return mResult.Fail(
 				$"""
 				{aId}:{Row} expected end of text
@@ -234,6 +247,7 @@ mTokenizer {
 				"""
 			);
 		}
+		
 		return Result.Result.Value;
 	}
 	

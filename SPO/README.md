@@ -4,6 +4,7 @@ Vom Repository-Hauptverzeichnis mit dem installierten .NET SDK starten:
 
 ```powershell
 dotnet SPO/src/Program.cs -- SPO/Apps/Snake
+dotnet SPO/src/Program.cs -- SPO/Apps/2048
 dotnet SPO/src/Program.cs -- SPO/Apps/GUI_Demo
 ```
 
@@ -12,10 +13,12 @@ Ohne App-Pfad startet Snake.
 
 ```powershell
 dotnet SPO/src/Program.cs -- SPO/Apps/Snake --check
+dotnet SPO/src/Program.cs -- SPO/Apps/2048 --check
 dotnet SPO/src/Program.cs -- SPO/Apps/GUI_Demo --check
 ```
 
 [Snake](Apps/Snake/README.md) verwendet die Windows-Konsole.
+[2048](Apps/2048/README.md) ist ein farbiges, rundenbasiertes Konsolenspiel mit Pfeiltastensteuerung.
 Die [GUI-Demo](Apps/GUI_Demo/README.md) benötigt SDL3 ab Version 3.2;
 `SDL3_LIBRARY` kann auf die native Bibliothek zeigen.
 Eine lokal installierte `SDL3-CS.Native`-Version im NuGet-Cache wird ebenfalls gefunden.
@@ -32,10 +35,13 @@ Start/Kompilierung und Frame-Ausführung getrennt messen;
 die erste Darstellung und das Neuzeichnen nach Eingaben sind unterschiedliche Arbeitslasten.
 Die vorhandenen Headless-Tests liefern reproduzierbare Abläufe und prüfen dabei die Ergebnisse.
 
+Der [2048-Vergleich von Tupeln und Listen](Experiments/2048/README.md) enthält einen reproduzierbaren
+Release-Messlauf mit getrennten Zeiten für Übersetzung, Modulinitialisierung und einzelne Spieloperationen.
+
 ## Aufbau
 
 `Apps/` enthält die Anwendungen, `Libs/` ihre gemeinsamen SPO-Bibliotheken und SIG-Verträge.
-Beide Apps verwenden die vorhandene Standardbibliothek unter `src/Std.ILT`.
+Die Apps verwenden die vorhandene Standardbibliothek unter `src/Std.ILT`.
 `src/Program.cs` startet das in `startup.jni` ausgewählte [Runtime-Plugin](Runtime/README.md).
 Runtime- und Modulpfade beziehen sich auf die jeweilige Startkonfiguration.
 
@@ -57,6 +63,7 @@ Das vermeidet Stacküberläufe der unoptimierten C#-Compilerpfade bei größeren
 ./SPO/Tests/Readability.ps1
 dotnet SPO/Tests/Launcher.Tests.cs
 dotnet SPO/Tests/Runtime.Tests.cs
+dotnet SPO/Tests/2048.Tests.cs
 dotnet SPO/Tests/GUI.Tests.cs
 dotnet SPO/Tests/SDL3.Tests.cs
 dotnet SPO/Tests/WindowsTerminal.Tests.cs

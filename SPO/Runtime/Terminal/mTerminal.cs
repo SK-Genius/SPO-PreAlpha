@@ -146,6 +146,7 @@ mTerminal {
 							mAssert.IsTrue(X.IsInt(out var Column));
 							mAssert.IsTrue(Y.IsInt(out var Row));
 							var Size = aTerminal.Size();
+							
 							if (Column < 0 || Row < 0 || Column >= Size.WindowSize.X || Row >= Size.WindowSize.Y) {
 								throw new System.ArgumentOutOfRangeException(
 									nameof(a),
@@ -201,6 +202,7 @@ mTerminal {
 							mAssert.IsTrue(Style.Field("Underline").IsBool(out var Underline));
 							mAssert.IsTrue(Style.Field("Inverse").IsBool(out var Inverse));
 							var Buffer = new System.Text.StringBuilder();
+							
 							while (Text.IsPair(out var Prefix, out var Character)) {
 								mAssert.IsTrue(Character.IsPrefix("_Char...", out var Code));
 								mAssert.IsTrue(Code.IsInt(out var Ordinal));
@@ -212,6 +214,7 @@ mTerminal {
 							var Characters = Buffer.ToString().ToCharArray();
 							System.Array.Reverse(Characters);
 							var Size = aTerminal.Size();
+							
 							// Clip to the viewport, including negative starting columns. Use long
 							// arithmetic so even the minimum SPO integer is a harmless offscreen draw.
 							var Start = (tInt32)System.Math.Min(
@@ -221,11 +224,14 @@ mTerminal {
 									-(tInt64)Column
 								)
 							);
+							
 							var VisibleColumn = System.Math.Max(0, Column);
+							
 							var Length = System.Math.Min(
 								Characters.Length - Start,
 								Size.WindowSize.X - VisibleColumn
 							);
+							
 							if (Row < 0 || Row >= Size.WindowSize.Y || Length <= 0) {
 								return mVM_Data.Empty();
 							}
@@ -241,6 +247,7 @@ mTerminal {
 									Inverse = Inverse
 								}
 							);
+							
 							return mVM_Data.Empty();
 						}
 					)
@@ -257,6 +264,7 @@ mTerminal {
 				)
 			]
 		);
+		
 		try {
 			aRun(mVM_Data.Interface(LoadSignature("Terminal"), Handle, Operations));
 		} finally {

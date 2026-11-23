@@ -16,15 +16,19 @@ mGUI_Program {
 	) => mRuntime.WithCompilerStack(
 		() => {
 			var Args = mStream.Stream(System.MemoryExtensions.AsSpan(aArgs));
+			
 			if (Args.Any(a => a == "--help")) {
 				System.Console.WriteLine("SPO GUI [--check] [app-folder | startup.jni]");
+				
 				System.Console.WriteLine(
 					"Default app: Apps/GUI_Demo. SDL3_LIBRARY may name an SDL3 native library."
 				);
+				
 				return 0;
 			}
 			
 			var Paths = Args.Where(a => a != "--check");
+			
 			if (Paths.Count() > 1 || Paths.Any(a => a.StartsWith("--"))) {
 				System.Console.Error.WriteLine("Unknown option or multiple app paths; use --help.");
 				return 1;
@@ -37,6 +41,7 @@ mGUI_Program {
 					: System.IO.Path.Combine(System.IO.Path.GetDirectoryName(mStd.File())!, "../../Apps/GUI_Demo")
 				)
 			);
+			
 			if (System.IO.Directory.Exists(Path)) {
 				Path = System.IO.Path.Combine(Path, "startup.jni");
 			}
@@ -48,11 +53,14 @@ mGUI_Program {
 				) => aSurface.WithCapability(
 					aCapability => {
 						var Startup = mStartup.Load(Path);
+						
 						var App = Startup.Entry.Init(
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(App.Data.IsSig(out var Contract, out _, out var Body));
 						mAssert.IsTrue(Contract.SameType(mGUI.Signature("App")), "Expected GUI/App.SIG export.");
+						
 						if (Args.Any(a => a == "--check")) {
 							return;
 						}
@@ -60,15 +68,18 @@ mGUI_Program {
 						var State = Body.Field("Initial");
 						var Frame = Body.Field("Frame...");
 						var Event = mVM_Data.Prefix("_Redraw", mVM_Data.Empty());
+						
 						while (true) {
 							var Result = Frame.Call(mVM_Data.Tuple([State, Event]), aCapability);
 							mAssert.IsTrue(Result.IsTuple(out State, out var Continue));
 							mAssert.IsTrue(Continue.IsBool(out var Running));
+							
 							if (!Running) {
 								break;
 							}
 							
 							aSurface.Present();
+							
 							// Rebuild once after input so earlier widgets reflect state changed later in the frame.
 							Event = (
 								Event.IsPrefix("_Redraw", out _)
@@ -93,6 +104,7 @@ mGUI_Program {
 							ReadEvent = () => mVM_Data.Prefix("_Quit", mVM_Data.Empty())
 						}
 					);
+					
 					System.Console.WriteLine("OK: GUI startup, modules and application contract.");
 				} else {
 					mSDL3.WithWindow(Run);

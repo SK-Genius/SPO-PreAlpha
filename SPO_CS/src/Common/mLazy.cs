@@ -18,6 +18,7 @@ mLazy {
 					field = this._Func();
 					this._Func = null;
 				} 
+				
 				return field;
 			}
 		}

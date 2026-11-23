@@ -174,9 +174,9 @@ mIL_Parser {
 			.ModifyS(mTokenizer.X(mIL_AST.CreateInterface))
 			.SetDebugName([nameof(mIL_AST.CreateInterface)]),
 
-			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("SUBINTERFACE") +Id, -Token("WITH") +Id)
-			.ModifyS((aSpan, aId, _, aType, aValue) => mIL_AST.Subinterface(aSpan, aId.Text, aType.Text, aValue.Text))
-			.SetDebugName([nameof(mIL_AST.Subinterface)]),
+			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), -KeyWord("WITH_TYPE") +Id, -Token("WITH") +Id)
+			.ModifyS((aSpan, aId, _, aType, aValue) => mIL_AST.WithType(aSpan, aId.Text, aType.Text, aValue.Text))
+			.SetDebugName([nameof(mIL_AST.WithType)]),
 
 			mParserGen.Seq(Id, -SpecialToken(":") -Token("="), Id)
 			.Modify((aId, _, aSource) => (aId, aSource))
@@ -264,7 +264,8 @@ mIL_Parser {
 				-SpecialToken(":") -Token("="),
 				-KeyWord("TRY") +Id,
 				-Token("AS_SIG") +Id
-			).ModifyS((aSpan, aResult, _, aArg, aContract) =>
+			).ModifyS(
+				(aSpan, aResult, _, aArg, aContract) =>
 				mIL_AST.TryAsSig(aSpan, aResult.Text, aArg.Text, aContract.Text)
 			).SetDebugName([nameof(mIL_AST.TryAsSig)]),
 
@@ -273,7 +274,8 @@ mIL_Parser {
 				-SpecialToken(":") -Token("="),
 				-KeyWord("TRY") +Id,
 				-Token("HAS_HEAD_TYPE") +Id
-			).ModifyS((aSpan, aResult, _, aSig, aHead) =>
+			).ModifyS(
+				(aSpan, aResult, _, aSig, aHead) =>
 				mIL_AST.TryHasHeadType(aSpan, aResult.Text, aSig.Text, aHead.Text)
 			).SetDebugName([nameof(mIL_AST.TryHasHeadType)]),
 			

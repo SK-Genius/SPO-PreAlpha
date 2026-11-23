@@ -1,4 +1,4 @@
-﻿﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property AllowUnsafeBlocks = true
 #:property OutputType = "Library"

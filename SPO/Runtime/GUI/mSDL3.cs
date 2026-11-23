@@ -13,24 +13,34 @@ mSDL3 {
 	tEvent {
 		[FieldOffset(0)]
 		public tNat32 Type;
+		
 		[FieldOffset(16)]
 		public tNat32 WindowId;
+		
 		[FieldOffset(24)]
 		public tCPtr Text;
+		
 		[FieldOffset(24)]
 		public tNat8 Button;
+		
 		[FieldOffset(28)]
 		public tNat32 Key;
+		
 		[FieldOffset(28)]
 		public float X;
+		
 		[FieldOffset(28)]
 		public float WheelY;
+		
 		[FieldOffset(32)]
 		public float Y;
+		
 		[FieldOffset(32)]
 		public tNat16 Modifiers;
+		
 		[FieldOffset(32)]
 		public tNat32 WheelDirection;
+		
 		[FieldOffset(37)]
 		public tNat8 Repeat;
 	}
@@ -38,13 +48,19 @@ mSDL3 {
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tFloatRect {
-		public float X, Y, Width, Height;
+		public float X;
+		public 		float Y;
+		public 		float Width;
+		public 		float Height;
 	}
 	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct
 	tIntRect {
-		public tInt32 X, Y, Width, Height;
+		public tInt32 X;
+		public 		tInt32 Y;
+		public 		tInt32 Width;
+		public 		tInt32 Height;
 	}
 	
 	public static mVM_Data.tData
@@ -108,7 +124,8 @@ mSDL3 {
 				"Scroll",
 				mVM_Data.Int((tInt32)System.Math.Round(aEvent.WheelY * (aEvent.WheelDirection == 1 ? -48 : 48)))
 			),
-			_ => mVM_Data.Empty()};
+			_ => mVM_Data.Empty()
+		};
 	}
 	
 	static mSDL3() {
@@ -120,6 +137,7 @@ mSDL3 {
 				}
 				
 				var LibraryPath = System.Environment.GetEnvironmentVariable("SDL3_LIBRARY");
+				
 				if (!tText.IsNullOrEmpty(LibraryPath)) {
 					return NativeLibrary.Load(System.IO.Path.GetFullPath(LibraryPath));
 				}
@@ -133,18 +151,23 @@ mSDL3 {
 					System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
 					".nuget/packages"
 				);
+				
 				var Package = System.IO.Path.Combine(Cache, "sdl3-cs.native");
 				var RID = RuntimeInformation.RuntimeIdentifier;
+				
 				var Filename = (
 					System.OperatingSystem.IsWindows() ? "SDL3.dll" :
 					System.OperatingSystem.IsMacOS() ? "libSDL3.dylib" : "libSDL3.so"
 				);
+				
 				if (System.IO.Directory.Exists(Package)) {
 					var Versions = System.IO.Directory.GetDirectories(Package);
 					System.Array.Sort(Versions, System.StringComparer.Ordinal);
 					System.Array.Reverse(Versions);
+					
 					foreach (var Version in Versions) {
 						LibraryPath = System.IO.Path.Combine(Version, "runtimes", RID, "native", Filename);
+						
 						if (System.IO.File.Exists(LibraryPath)) {
 							return NativeLibrary.Load(LibraryPath);
 						}
@@ -178,6 +201,7 @@ mSDL3 {
 		SDL_SetMainReady();
 		var Window = tCPtr.Zero;
 		var Renderer = tCPtr.Zero;
+		
 		try {
 			Check(SDL_Init(0x00000020)); // SDL_INIT_VIDEO
 			Window = SDL_CreateWindow("Immediate UI in SPO", 1024, 768, 0x00000020); // SDL_WINDOW_RESIZABLE
@@ -205,12 +229,14 @@ mSDL3 {
 					},
 					Rectangle = (aBounds, aColor, aFilled) => {
 						Color(aColor);
+						
 						var Rect = new tFloatRect {
 							X = aBounds.X,
 							Y = aBounds.Y,
 							Width = aBounds.Width,
 							Height = aBounds.Height
 						};
+						
 						Check(
 							aFilled
 							? SDL_RenderFillRect(Renderer, ref Rect)
@@ -229,6 +255,7 @@ mSDL3 {
 								Width = Bounds.Width,
 								Height = Bounds.Height
 							};
+							
 							Check(SDL_SetRenderClipRect(Renderer, ref Rect));
 						} else {
 							Check(SDL_ResetRenderClipRect(Renderer, tCPtr.Zero));
@@ -239,11 +266,13 @@ mSDL3 {
 					ReadEvent = () => {
 						while (true) {
 							Check(SDL_WaitEvent(out var Event));
+							
 							if (Event.Type != 0x100 && Event.WindowId != SDL_GetWindowID(Window)) {
 								continue;
 							}
 							
 							var Input = Event.Translate();
+							
 							if (!Input.IsEmpty()) {
 								return Input;
 							}

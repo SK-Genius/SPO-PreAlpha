@@ -45,7 +45,8 @@ mSPO_Parser_Tests {
 	Tests = mTest.Tests(
 		nameof(mSPO_Parser),
 		[
-			mTest.Test("LOAD",
+			mTest.Test(
+				"LOAD",
 				aDebug => {
 					var Folder = mFS.CWD() / "SignatureTests";
 					var Source = Folder.GetFile("Test.SPO").Path.ToText();
@@ -64,13 +65,18 @@ mSPO_Parser_Tests {
 
 				}
 			),
-			mTest.Test("LOAD paths",
+			mTest.Test(
+				"LOAD paths",
 				aDebug => {
 					var File = mFS.CWD().GetFile("Signature Tests/Int #1.sig");
-					var FileContext = new mTokenizer.tFileContext(aFile => {
-						mAssert.IsTrue(aFile.IsSameFile(File));
-						return "§INT";
-					});
+					
+					var FileContext = new mTokenizer.tFileContext(
+						aFile => {
+							mAssert.IsTrue(aFile.IsSameFile(File));
+							return "§INT";
+						}
+					);
+					
 					foreach (var Source in new[] { "", "Test.SPO", mFS.CWD().GetFile("Test.SPO").Path.ToText() }) {
 						foreach (var Target in new[] { "Signature Tests/Int #1.sig", File.Path.ToText() }) {
 							var Type = mSPO_Parser.Type.TryParseText($"[§LOAD \"{Target}\"]", Source, _ => {}, FileContext).ElseThrow();
@@ -81,25 +87,32 @@ mSPO_Parser_Tests {
 
 					foreach (var Target in System.OperatingSystem.IsWindows() ? new[] { "./Int #1.sig", "./INT #1.SIG" } : new[] { "./Int #1.sig" }) {
 						var Result = mSPO_Parser.Type.TryParseText(
-							$"[§LOAD \"{Target}\"]", File.Path.ToText(), _ => {}, FileContext
+							$"[§LOAD \"{Target}\"]",
+							File.Path.ToText(),
+							_ => {},
+							FileContext
 						);
+						
 						mAssert.IsFalse(Result.Match(out _, out var Error));
 						mAssert.IsTrue(Error.Contains("recursive §LOAD"));
 					}
 				}
 			),
-			mTest.Test("Atoms",
+			mTest.Test(
+				"Atoms",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Number.TryParseText("+1_234", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Literal.TryParseText("+1_234", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.ExpressionInCall.TryParseText("+1_234", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Int(Span((1, 1), (1, 6)), 1234),
@@ -111,11 +124,13 @@ mSPO_Parser_Tests {
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Literal.TryParseText("\"BLA\"", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.ExpressionInCall.TryParseText("\"BLA\"", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Text(Span((1, 1), (1, 5)), "BLA"),
@@ -129,7 +144,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Tuple",
+			mTest.Test(
+				"Tuple",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.ExpressionInCall.TryParseText(
@@ -152,7 +168,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Pair",
+			mTest.Test(
+				"Pair",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -171,7 +188,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("MatchPair",
+			mTest.Test(
+				"MatchPair",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Pattern.TryParseText("(Xs; X)", "", __ => { aStreamOut(__()); }).ElseThrow(),
@@ -184,18 +202,21 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Match1",
+			mTest.Test(
+				"Match1",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Pattern.TryParseText("12", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Int(Span((1, 1), (1, 2)), 12),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Pattern.TryParseText("x", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.Id(Span((1, 1), (1, 1)), "x"),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Pattern.TryParseText("(12, x)", "", __ => { aStreamOut(__()); }).ElseThrow(),
 						mSPO_AST.TuplePattern(
@@ -211,7 +232,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Is",
+			mTest.Test(
+				"Is",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -230,7 +252,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("FunctionCall",
+			mTest.Test(
+				"FunctionCall",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -255,6 +278,7 @@ mSPO_Parser_Tests {
 						),
 						mSPO_AST.AreEqual
 					);
+					
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
 							//        1         2         3         4         5        6          7         8
@@ -279,7 +303,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Lambda",
+			mTest.Test(
+				"Lambda",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -311,7 +336,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Tests("Unnamed lambda arguments",
+			mTest.Tests(
+				"Unnamed lambda arguments",
 				mStream.Stream(
 					[
 						(
@@ -340,7 +366,8 @@ mSPO_Parser_Tests {
 						),
 					]
 				).Map(
-					((tText File, tInt32 LineNr, tText Expr1, tText Expr2) a) => mTest.Test(a.Expr1,
+					((tText File, tInt32 LineNr, tText Expr1, tText Expr2) a) => mTest.Test(
+						a.Expr1,
 						aStreamOut => {
 							static mSPO_AST.tExpressionNode<tSpan>
 							ParseAndDesugar(
@@ -356,9 +383,11 @@ mSPO_Parser_Tests {
 							);
 							
 							var Expected = ParseAndDesugar(a.Expr2, aStreamOut).ToText();
+							
 							for (var Index = 0; Index <= 9; Index += 1) {
 								Expected = Expected.Replace($"_a{Index}", $"a{Index}");
 							}
+							
 							mAssert.AreEquals(ParseAndDesugar(a.Expr1, aStreamOut).ToText(), Expected);
 						},
 						a.File,
@@ -366,7 +395,8 @@ mSPO_Parser_Tests {
 					)
 				).ToArrayList().ToArray()
 			),
-			mTest.Test("TypedMatch",
+			mTest.Test(
+				"TypedMatch",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -402,7 +432,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Expression",
+			mTest.Test(
+				"Expression",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -440,7 +471,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("NestedMatch",
+			mTest.Test(
+				"NestedMatch",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -490,7 +522,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("PrefixMatch",
+			mTest.Test(
+				"PrefixMatch",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Expression.TryParseText(
@@ -524,7 +557,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("MethodCall",
+			mTest.Test(
+				"MethodCall",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Command.TryParseText(
@@ -566,7 +600,8 @@ mSPO_Parser_Tests {
 					);
 				}
 			),
-			mTest.Test("Record",
+			mTest.Test(
+				"Record",
 				aStreamOut => {
 					mAssert.AreEquals(
 						mSPO_Parser.Command.TryParseText(
@@ -588,7 +623,8 @@ mSPO_Parser_Tests {
 										(
 											mSPO_AST.Id(Span((1, 2), (1, 2)), "a"),
 											mSPO_AST.FreeIdPattern(Span((1, 5), (1, 10)), "x")
-										), (
+										),
+										(
 											mSPO_AST.Id(Span((1, 13), (1, 13)), "b"),
 											mSPO_AST.FreeIdPattern(Span((1, 16), (1, 21)), "y")
 										)

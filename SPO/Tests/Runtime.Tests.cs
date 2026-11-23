@@ -27,8 +27,10 @@ mRuntime_Tests {
 				var ModulePath = System.IO.Path.Combine(Folder, Name + ".spo");
 				var ILT_Path = System.IO.Path.ChangeExtension(ModulePath, ".ILT");
 				var ValuePath = System.IO.Path.Combine(Folder, Name + "-value.SPO");
+				
 				try {
 					System.IO.File.WriteAllText(ValuePath, "§EXPORT 37");
+					
 					System.IO.File.WriteAllText(
 						ModulePath,
 						(
@@ -36,6 +38,7 @@ mRuntime_Tests {
 							"(cFirst, cSecond)"
 						)
 					);
+					
 					System.IO.File.WriteAllText(
 						ConfigPath,
 						$$"""
@@ -52,18 +55,24 @@ mRuntime_Tests {
 						||path={{Name}}-value.*
 						"""
 					);
+					
 					var Setup = mStartup.Load(ConfigPath);
+					
 					mAssert.IsTrue(
 						Setup.Entry.Init(
 							_ => {}
 						).ElseThrow().Data.Equals(mVM_Data.Tuple([mVM_Data.Int(37), mVM_Data.Int(37)]))
 					);
+					
 					var Dependencies = Setup.Entry.Dependencies.ToArrayList().ToArray();
+					
 					mAssert.IsTrue(
 						ReferenceEquals(Dependencies[0].Module, Dependencies[1].Module),
 						"Shared dependency initialized once."
 					);
-					foreach (var (Config, ExpectedError) in new[] {
+					
+					foreach (
+						var (Config, ExpectedError) in new[] {
 							("", "Startup requires"),
 							("entry=Missing\nmodules:", "Unknown module 'Missing'"),
 							(
@@ -113,6 +122,7 @@ mRuntime_Tests {
 					
 					) {
 						System.IO.File.WriteAllText(ConfigPath, Config);
+						
 						try {
 							mStartup.Load(ConfigPath);
 							mAssert.Fail("Invalid startup was accepted: " + Config);
@@ -124,7 +134,9 @@ mRuntime_Tests {
 					System.IO.File.Delete(ConfigPath);
 					System.IO.File.Delete(ModulePath);
 					System.IO.File.Delete(ILT_Path);
-					foreach (var Extension in new[] {
+					
+					foreach (
+						var Extension in new[] {
 							".SPO",
 							".ILT"
 						}
@@ -143,6 +155,7 @@ mRuntime_Tests {
 			var SawBlink = false;
 			var SawGreen = false;
 			var LastStyle = default(mTerminal.tStyle);
+			
 			var Terminal = new mTerminal.tTerminal {
 				Size = () => Dimensions,
 				Cursor = (aX, aY) => {
@@ -157,6 +170,7 @@ mRuntime_Tests {
 					SawBlink |= aStyle.Blink;
 					SawGreen |= aStyle.Foreground == mTerminal.tColor.Green;
 					var Column = aPosition.X;
+					
 					foreach (var Character in aText) {
 						if (Column >= Dimensions.BufferSize.X) {
 							break;
@@ -170,6 +184,7 @@ mRuntime_Tests {
 				Present = () => {},
 				ReadEvent = _ => mVM_Data.Empty()
 			};
+			
 			var Path = System.IO.Path.GetFullPath(
 				System.IO.Path.Combine(
 					System.IO.Path.GetDirectoryName(
@@ -178,21 +193,27 @@ mRuntime_Tests {
 					"../Apps/Snake/Snake.spo"
 				)
 			);
+			
 			mVM_Data.tData? SavedCapability = null;
+			
 			Terminal.WithCapability(
 				aCapability => {
 					var StartupPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path)!, "startup.jni");
 					var Startup = mStartup.Load(StartupPath);
+					
 					var Libraries = Startup.Modules.Where(
 						aModule => aModule.Key is "Std" or "Math" or "Random" or "Char" or "Text" or "List" or
 						"Vector2"
 					).Init(
 						_ => {}
 					).ElseThrow();
+					
 					{
 						var NextRandom = Libraries.Data.Field("Random").Field("...NextRandom");
 						var RandomState = 1;
-						foreach (var Expected in new[] {
+						
+						foreach (
+							var Expected in new[] {
 								16807,
 								282475249,
 								1622650073,
@@ -205,7 +226,8 @@ mRuntime_Tests {
 							mAssert.AreEquals(Expected, RandomState);
 						}
 						
-						foreach (var Seed in new[] {
+						foreach (
+							var Seed in new[] {
 								tInt32.MinValue,
 								-1,
 								0,
@@ -217,10 +239,12 @@ mRuntime_Tests {
 						
 						) {
 							RandomState = Seed;
+							
 							for (var Step = 0; Step < 32; Step += 1) {
 								// Independent 64-bit multiplication checks the overflow-free SPO calculation.
 								const tInt64 cStateCount = tInt32.MaxValue - 1;
 								var Normalized = RandomState % cStateCount;
+								
 								if (Normalized <= 0) {
 									Normalized += cStateCount;
 								}
@@ -233,10 +257,12 @@ mRuntime_Tests {
 						}
 						
 						var First = NextRandom.Call(mVM_Data.Int(1));
+						
 						mAssert.IsTrue(
 							First.Equals(NextRandom.Call(mVM_Data.Int(1))),
 							"Generator state is explicit and immutable."
 						);
+						
 						System.Console.WriteLine("OK: random generator reference sequence and integer boundaries.");
 					}
 					
@@ -252,16 +278,20 @@ mRuntime_Tests {
 						}
 						§EXPORT (((65 .AsChar) .Ord), ((" snake " .Trim) .ToUpper) .Text== "SNAKE")
 						""";
+						
 						var Result = mSPO_Interpreter.Run(
 							Code,
 							mStd.File(),
 							Libraries,
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(Result.Data.IsTuple(out var Ordinal, out var Equal));
 						mAssert.AreEquals(65, Int(Ordinal));
 						mAssert.IsTrue(Equal.IsBool(out var IsEqual) && IsEqual);
-						foreach (var (Character, ExpectedSpace) in new[] {
+						
+						foreach (
+							var (Character, ExpectedSpace) in new[] {
 								('\t', true),
 								('\n', true),
 								('\v', true),
@@ -282,6 +312,7 @@ mRuntime_Tests {
 									)
 								)
 							);
+							
 							mAssert.IsTrue(
 								ActualSpace.IsBool(out var Space) && Space == ExpectedSpace,
 								"ASCII whitespace."
@@ -316,6 +347,7 @@ mRuntime_Tests {
 							Libraries,
 							_ => {}
 						).ElseThrow();
+						
 						var ExpectedText = mSPO_Interpreter.Run(
 							"""
 							§EXPORT ("0", "12345", "-42", "-2147483648", "2147483647", "ababab!", "", "", "", 9)
@@ -324,16 +356,19 @@ mRuntime_Tests {
 							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(
 							TextExamples.Data.Equals(ExpectedText.Data),
 							"Pure text operations and integer boundaries."
 						);
+						
 						var ConsumerPath = System.IO.Path.GetFullPath(
 							System.IO.Path.Combine(
 								System.IO.Path.GetDirectoryName(mStd.File())!,
 								"../../SPO_CS/TestFiles/SPO_Modules/00_03_ListConsumer.SPO"
 							)
 						);
+						
 						var Actual = mSPO_Interpreter.Run(
 							System.IO.File.ReadAllText(ConsumerPath).Replace("Push", "FollowedBy").Replace(
 								"TryPop",
@@ -346,26 +381,31 @@ mRuntime_Tests {
 							Libraries,
 							_ => {}
 						).ElseThrow();
+						
 						var Expected = mSPO_Interpreter.Run(
 							System.IO.File.ReadAllText(ConsumerPath.Replace(".SPO", ".result.SPO")),
 							ConsumerPath,
 							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(Actual.Data.Equals(Expected.Data), "Copied List module API");
 						var MathPath = ConsumerPath.Replace("00_03_ListConsumer.SPO", "00_04_MathConsumer.SPO");
+						
 						var MathActual = mSPO_Interpreter.Run(
 							System.IO.File.ReadAllText(MathPath).Replace("_Modules/", "../Libs/"),
 							mStd.File(),
 							Libraries,
 							_ => {}
 						).ElseThrow();
+						
 						var MathExpected = mSPO_Interpreter.Run(
 							System.IO.File.ReadAllText(MathPath.Replace(".SPO", ".result.SPO")),
 							MathPath,
 							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(
 							MathActual.Data.Equals(MathExpected.Data),
 							"Copied Math module and range boundaries"
@@ -381,7 +421,9 @@ mRuntime_Tests {
 						
 						var A = Point(3, -4);
 						var B = Point(-2, 5);
-						foreach (var (Operation, Argument, Expected) in new (tText, mVM_Data.tData, mVM_Data.tData)[] {
+						
+						foreach (
+							var (Operation, Argument, Expected) in new (tText, mVM_Data.tData, mVM_Data.tData)[] {
 								("...X", A, mVM_Data.Int(3)),
 								("...Y", A, mVM_Data.Int(-4)),
 								("-...", A, Point(-3, 4)),
@@ -409,13 +451,15 @@ mRuntime_Tests {
 					}
 					
 					mAssert.IsTrue(
-						aCapability._IsMutable,
+						aCapability.IsInterface(out _, out _, out _),
 						"The interface carries authority to its hidden mutable receiver."
 					);
+					
 					SavedCapability = aCapability;
 					var Size = aCapability.CallMethod("Size", mVM_Data.Empty());
 					mAssert.AreEquals(80, Int(Size.Field("Width")));
 					mAssert.AreEquals(25, Int(Size.Field("Height")));
+					
 					{
 						var CursorTest = mSPO_Interpreter.Run(
 							"""
@@ -435,6 +479,7 @@ mRuntime_Tests {
 							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow();
+						
 						mAssert.IsTrue(
 							CursorTest.Data.Call(mVM_Data.Empty(), aCapability).Equals(
 								mVM_Data.Tuple(
@@ -449,6 +494,7 @@ mRuntime_Tests {
 								)
 							)
 						);
+						
 						mAssert.AreEquals(18, X);
 						mAssert.AreEquals(24, Y);
 						mAssert.IsFalse(CursorVisible);
@@ -466,6 +512,7 @@ mRuntime_Tests {
 						}
 						""" +
 						"\n";
+						
 						var Styles = mSPO_Interpreter.Run(
 							cStylePrelude +
 							"""
@@ -509,15 +556,20 @@ mRuntime_Tests {
 							(mVM_Data.Empty(), mVM_Type.Empty()),
 							_ => {}
 						).ElseThrow().Data.Call(mVM_Data.Empty());
+						
 						Styles.Field("Draw").Call(Styles.Field("NewStyle"), aCapability);
+						
 						var Expected = new mTerminal.tStyle {
 							Foreground = mTerminal.tColor.Green,
 							Background = mTerminal.tColor.DarkBlue,
 							Underline = true,
 							Inverse = true
 						};
+						
 						mAssert.AreEquals(Expected, LastStyle);
-						foreach (var (Name, Style) in new (tText, mTerminal.tStyle)[] {
+						
+						foreach (
+							var (Name, Style) in new (tText, mTerminal.tStyle)[] {
 								("DefaultStyle", new() { Foreground = mTerminal.tColor.Gray }),
 								(
 									"UnderlineStyle",
@@ -541,19 +593,24 @@ mRuntime_Tests {
 						
 						) {
 							var Actual = Styles.Field(Name);
+							
 							mAssert.IsTrue(
 								Actual.Field("Foreground").IsPrefix("_" + Style.Foreground, out var FG) &&
 								FG.IsEmpty()
 							);
+							
 							mAssert.IsTrue(
 								Actual.Field("Background").IsPrefix("_" + Style.Background, out var BG) &&
 								BG.IsEmpty()
 							);
+							
 							mAssert.IsTrue(Actual.Field("Blink").IsBool(out var Blink) && Blink == Style.Blink);
+							
 							mAssert.IsTrue(
 								Actual.Field("Underline").IsBool(out var Underline) &&
 								Underline == Style.Underline
 							);
+							
 							mAssert.IsTrue(
 								Actual.Field("Inverse").IsBool(out var Inverse) &&
 								Inverse == Style.Inverse
@@ -561,14 +618,17 @@ mRuntime_Tests {
 						}
 						
 						var ColorType = mTerminal.LoadSignature("Color");
+						
 						foreach (var Color in System.Enum.GetValues<mTerminal.tColor>()) {
 							var Value = mVM_Data.Prefix("_" + Color, mVM_Data.Empty());
+							
 							mAssert.IsTrue(
 								mVM_Type.Prefix("_" + Color, mVM_Type.Empty()).IsSubType(ColorType).Match(
 									out _,
 									out _
 								)
 							);
+							
 							Styles.Field("DrawInColor...").Call(Value, aCapability);
 							mAssert.AreEquals(Expected with { Foreground = Color, Background = Color }, LastStyle);
 						}
@@ -605,7 +665,9 @@ mRuntime_Tests {
 							mAssert.AreEquals('A', Screen[44 * 100 + 89]);
 							mAssert.AreEquals('.', Screen[44 * 100 + 90]);
 							var BeforeOffscreen = new tText(Screen);
-							foreach (var (Column, Row) in new[] {
+							
+							foreach (
+								var (Column, Row) in new[] {
 									(tInt32.MinValue, 0),
 									(tInt32.MaxValue, 0),
 									(0, -1),
@@ -622,7 +684,8 @@ mRuntime_Tests {
 							mAssert.AreEquals(24, Y);
 						}
 						
-						foreach (var Invalid in new[] {
+						foreach (
+							var Invalid in new[] {
 								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle 3 .",
 								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle { cDefaultStyle; Foreground: 10 } .",
 								"aTerminal : Draw \"Bla\" At (0, 0) WithStyle { cDefaultStyle; Foreground: #Orange } .",
@@ -655,10 +718,12 @@ mRuntime_Tests {
 					var App = Startup.Entry.Init(
 						_ => {}
 					).ElseThrow();
+					
 					{
 						var Imports = Startup.Modules.Where(aModule => aModule.Key is "List" or "Render").Init(
 							_ => {}
 						).ElseThrow();
+						
 						var Code = """
 						§IMPORT {
 							List: §SIG [§LOAD "../../Libs/List.SIG"] WITH [§LOAD "../../Libs/ListType.SIG"] IN {
@@ -680,13 +745,16 @@ mRuntime_Tests {
 							aTerminal : DrawGame cState .
 						}
 						""";
+						
 						mSPO_Interpreter.Run(
 							Code,
 							Path,
 							Imports,
 							_ => {}
 						).ElseThrow().Data.Call(mVM_Data.Empty(), aCapability);
+						
 						mAssert.AreEquals('@', Screen[25 * 100 + 12]);
+						
 						mAssert.IsFalse(
 							mSPO_Interpreter.Run(
 								Code.Replace(".List (2, 2)", ".List 2"),
@@ -812,6 +880,7 @@ mRuntime_Tests {
 					Length() {
 						var Items = State.Field("SnakeBody");
 						var Count = 0;
+						
 						while (Items.IsPair(out Items, out _)) {
 							Count += 1;
 						}
@@ -856,6 +925,7 @@ mRuntime_Tests {
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_Paused", out _));
 					Send(Key("R"));
 					mAssert.AreEquals(InitialRandomState, State.Field("RandomState"));
+					
 					for (var I = 0; I < 12; I += 1) {
 						Send(Tick);
 					}
@@ -864,19 +934,23 @@ mRuntime_Tests {
 						InitialRandomState.Equals(State.Field("RandomState")),
 						"Movement does not consume randomness."
 					);
+					
 					Send(Tick);
 					Head(20, 8);
 					mAssert.AreEquals(4, Length());
 					mAssert.AreEquals(mVM_Data.Int(16807), State.Field("RandomState"));
+					
 					mAssert.AreEquals(
 						mVM_Data.Tuple([mVM_Data.Int(19), mVM_Data.Int(14)]),
 						State.Field(
 							"FoodPosition"
 						)
 					);
+					
 					mAssert.AreEquals('1', Screen[21 * 100 + 17]);
 					mAssert.IsTrue(State.Field("SnakeBody").IsPair(out _, out var Eaten));
 					mAssert.IsFalse(State.Field("FoodPosition").Equals(Eaten));
+					
 					for (var I = 0; I < 9; I += 1) {
 						Send(Tick);
 					}
@@ -884,10 +958,12 @@ mRuntime_Tests {
 					Head(28, 8);
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_GameOver", out _));
 					Send(Key("R"));
+					
 					mAssert.IsTrue(
 						InitialRandomState.Equals(State.Field("RandomState")),
 						"Restart restores the initial sequence."
 					);
+					
 					Dimensions = new((100, 70), (10, 20), (30, 2));
 					Send(mVM_Data.Prefix("_Resize...", Dimensions.ToData()));
 					Send(Tick);
@@ -897,7 +973,9 @@ mRuntime_Tests {
 					Send(Tick);
 					Head(8, 8);
 					State = Initial;
-					foreach (var (Code, ExpectedX, ExpectedY) in new[] {
+					
+					foreach (
+						var (Code, ExpectedX, ExpectedY) in new[] {
 							("W", 7, 7),
 							("A", 6, 7),
 							("S", 6, 8),
@@ -924,6 +1002,7 @@ mRuntime_Tests {
 						tInt32 aRandomState = 1
 					) {
 						var Items = mVM_Data.Empty();
+						
 						foreach (var Point in aPoints) {
 							Items = mVM_Data.Pair(
 								Items,
@@ -939,6 +1018,7 @@ mRuntime_Tests {
 						}
 						
 						var Direction = mVM_Data.Prefix("_Left", mVM_Data.Empty());
+						
 						return mVM_Data.Record(
 							[
 								("_SnakeBody", Items),
@@ -961,14 +1041,17 @@ mRuntime_Tests {
 					State = MakeState([(1, 2), (2, 2), (2, 3), (3, 3), (3, 2)], (20, 8));
 					Send(Tick);
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_GameOver", out _));
+					
 					mAssert.IsTrue(
 						InitialRandomState.Equals(State.Field("RandomState")),
 						"A collision does not consume randomness."
 					);
+					
 					{
 						var Logic = Startup.Modules.Where(aModule => aModule.Key == "Logic").Init(
 							_ => {}
 						).ElseThrow();
+						
 						var After = Logic.Data.Field("Logic").Field("...After...");
 						var Advance = mVM_Data.Prefix("_Advance", mVM_Data.Empty());
 						
@@ -981,6 +1064,7 @@ mRuntime_Tests {
 						var First = Move(BeforeEating);
 						mAssert.AreEquals(First.ToText(1000), Move(BeforeEating).ToText(1000));
 						mAssert.AreEquals(mVM_Data.Int(1), BeforeEating.Field("RandomState"));
+						
 						mAssert.IsFalse(
 							First.Field("FoodPosition").Equals(
 								Move(MakeState([(3, 2), (2, 2)], (1, 2), 2)).Field(
@@ -989,7 +1073,9 @@ mRuntime_Tests {
 							),
 							"Different generator states select different cells in this fixture."
 						);
-						foreach (var Seed in new[] {
+						
+						foreach (
+							var Seed in new[] {
 								tInt32.MinValue,
 								-1,
 								0,
@@ -1006,13 +1092,16 @@ mRuntime_Tests {
 							mAssert.IsTrue(Int(FoodX) >= 1 && Int(FoodX) <= 28);
 							mAssert.IsTrue(Int(FoodY) >= 1 && Int(FoodY) <= 16);
 							var Items = Next.Field("SnakeBody");
+							
 							while (Items.IsPair(out Items, out var Point)) {
 								mAssert.IsFalse(Food.Equals(Point), "The apple must be on a free cell.");
 							}
 						}
 						
 						var SeededState = MakeState([(3, 2), (2, 2)], (20, 8), 16807);
-						foreach (var Action in new[] {
+						
+						foreach (
+							var Action in new[] {
 								Advance,
 								mVM_Data.Prefix("_Turn...", mVM_Data.Prefix("_Up", mVM_Data.Empty())),
 								mVM_Data.Prefix("_TogglePause", mVM_Data.Empty()),
@@ -1027,6 +1116,7 @@ mRuntime_Tests {
 						System.Console.WriteLine("OK: random apple selection, replay and state preservation.");
 						var Points = new (tInt32 X, tInt32 Y)[446];
 						var PointIndex = 0;
+						
 						for (var Row = 1; Row <= 16; Row += 1) {
 							for (var Column = 1; Column <= 28; Column += 1) {
 								if ((Row != 1 || Column > 2) && (Row != 16 || Column != 28)) {
@@ -1037,10 +1127,12 @@ mRuntime_Tests {
 						
 						Points[PointIndex] = (2, 1);
 						var AlmostWon = Move(MakeState(Points, (1, 1), 16807));
+						
 						mAssert.AreEquals(
 							mVM_Data.Tuple([mVM_Data.Int(28), mVM_Data.Int(16)]),
 							AlmostWon.Field("FoodPosition")
 						);
+						
 						mAssert.AreEquals(mVM_Data.Int(282475249), AlmostWon.Field("RandomState"));
 						mAssert.IsTrue(AlmostWon.Field("Phase").IsPrefix("_Playing", out _));
 						System.Console.WriteLine("OK: random apple on the last free cell.");
@@ -1048,6 +1140,7 @@ mRuntime_Tests {
 					
 					var AlmostFull = new (tInt32 X, tInt32 Y)[447];
 					var Index = 0;
+					
 					for (var Row = 1; Row <= 16; Row += 1) {
 						for (var Column = 1; Column <= 28; Column += 1) {
 							if (Row != 1 || Column > 2) {
@@ -1062,10 +1155,12 @@ mRuntime_Tests {
 					Head(1, 1);
 					mAssert.AreEquals(448, Length());
 					mAssert.IsTrue(State.Field("Phase").IsPrefix("_Won", out _));
+					
 					mAssert.IsTrue(
 						InitialRandomState.Equals(State.Field("RandomState")),
 						"A full board needs no random choice."
 					);
+					
 					mAssert.AreEquals(
 						"445",
 						new tText(
@@ -1079,6 +1174,7 @@ mRuntime_Tests {
 							]
 						)
 					);
+					
 					mAssert.IsFalse(Send(Key("Escape")));
 					mAssert.IsFalse(Send(Key("Q")));
 					mAssert.IsFalse(Send(Key("C", aControl: true)));
@@ -1086,7 +1182,9 @@ mRuntime_Tests {
 					// A copied interface retains authority; a different hidden receiver does not.
 					mAssert.IsTrue(aCapability.IsInterface(out var Contract, out _, out var Methods));
 					var Forged = mVM_Data.Interface(Contract, mVM_Data.Var(mVM_Data.Empty()), Methods);
-					foreach (var Name in new[] {
+					
+					foreach (
+						var Name in new[] {
 							"Clear",
 							"IsCursorVisible",
 							"ShowCursor",
@@ -1101,7 +1199,9 @@ mRuntime_Tests {
 					}
 				}
 			);
-			foreach (var Name in new[] {
+			
+			foreach (
+				var Name in new[] {
 					"Clear",
 					"IsCursorVisible",
 					"ShowCursor",
@@ -1120,6 +1220,7 @@ mRuntime_Tests {
 				"Vector2, Snake gameplay/replay, " +
 				"cursor position/visibility, size pairs, input, colors/blink and capability lifetime."
 			);
+			
 			return 0;
 		}
 	);

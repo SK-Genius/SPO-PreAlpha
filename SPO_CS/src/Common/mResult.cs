@@ -1,4 +1,4 @@
-﻿#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
+#:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
@@ -84,6 +84,7 @@ mResult {
 		ToString(
 		) {
 			var DebugId = this._DebugId;
+			
 			return this.Then(
 				static __ => "" + __
 			).Else(
@@ -138,6 +139,7 @@ mResult {
 		mStd.tFunc<mStream.tStream<tIn>, tOut> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>([]);
+		
 		foreach (var Result in aResults) {
 			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);
@@ -145,6 +147,7 @@ mResult {
 				return Fail(Error, Result._DebugId);
 			}
 		}
+		
 		return OK(aOnSucceed(List.Reverse()));
 	}
 	
@@ -155,6 +158,7 @@ mResult {
 		mStd.tFunc<mStream.tStream<tIn>, tResult<tOut, tError>> aOnSucceed
 	) {
 		var List = mStream.Stream<tIn>([]);
+		
 		foreach (var Result in aResults) {
 			if (Result.Match(out var Value, out var Error)) {
 				List = mStream.Stream(Value, List);
@@ -162,6 +166,7 @@ mResult {
 				return Fail(Error, Result._DebugId);
 			}
 		}
+		
 		return aOnSucceed(List.Reverse());
 	}
 	
@@ -258,6 +263,7 @@ mResult {
 			if (aRes._IsOK) {
 				aAction(aRes._Value);
 			}
+			
 			return aRes;
 		}
 		

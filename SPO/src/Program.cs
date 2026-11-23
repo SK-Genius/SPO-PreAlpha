@@ -14,6 +14,7 @@ mProgram {
 		tText[] aArgs
 	) {
 		var Args = mStream.Stream(System.MemoryExtensions.AsSpan(aArgs));
+		
 		if (Args.Any(__ => __ == "--help")) {
 			System.Console.WriteLine(
 				"""
@@ -23,11 +24,13 @@ mProgram {
 				Default app: Apps/Snake/startup.jni
 				"""
 			);
+			
 			return 0;
 		}
 		
 		var Options = Args.Where(__ => __ == "--check");
 		var Paths = Args.Where(__ => __ != "--check");
+		
 		if (Paths.Count() > 1 || Paths.Any(__ => __.StartsWith("--"))) {
 			System.Console.Error.WriteLine("Unknown option or multiple app paths; use --help.");
 			return 1;
@@ -39,6 +42,7 @@ mProgram {
 					mFS.File(mStd.File()).Folder._Path / "../Apps/Snake/startup.jni"
 				).ToAbsolute()
 			);
+			
 			if (mFS.Folder(StartupFile.Path).Exists()) {
 				StartupFile = mFS.Folder(StartupFile.Path).GetFile("startup.jni");
 			}
@@ -68,6 +72,7 @@ mProgram {
 			var Folder = StartupFile.Folder;
 			var RuntimeFile = Folder.GetFile(RuntimePath.Trim());
 			var Launcher = mFS.File(typeof(mProgram).Assembly.Location);
+			
 			if (
 				mStream.Stream(
 					mFS.File(mStd.File()),
@@ -84,6 +89,7 @@ mProgram {
 			}
 			
 			var Extension = RuntimeFile.Extension.ToLowerInvariant();
+			
 			if (Extension is not ("cs" or "dll" or "exe")) {
 				throw new System.FormatException(
 					"Runtime plugins must be .cs, .dll or .exe files: " +
@@ -100,14 +106,17 @@ mProgram {
 				WorkingDirectory = Folder._Path.ToText(),
 				UseShellExecute = false
 			};
+			
 			if (Extension != "exe") {
 				Start.ArgumentList.Add(RuntimeFile.Path.ToText());
+				
 				if (Extension == "cs") {
 					Start.ArgumentList.Add("--");
 				}
 			}
 			
 			Start.ArgumentList.Add(StartupFile.Path.ToText());
+			
 			foreach (var Option in Options) {
 				Start.ArgumentList.Add(Option);
 			}
@@ -116,6 +125,7 @@ mProgram {
 				"Runtime plugin could not be started: " +
 				RuntimeFile.Path
 			);
+			
 			Runtime.WaitForExit();
 			return Runtime.ExitCode;
 		} catch (System.Exception Error) {

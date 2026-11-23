@@ -30,7 +30,8 @@ mSPO_AST {
 	}
 	
 	public interface
-	tLiteralNode<tPos> : tExpressionNode<tPos>, tPatternNode<tPos> {}
+	tLiteralNode<tPos> : tExpressionNode<tPos>,
+	tPatternNode<tPos> {}
 	
 	public interface
 	tTypeNode<tPos> : tExpressionNode<tPos> {}
@@ -47,54 +48,62 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tFalseNode<tPos> : tLiteralNode<tPos>, tTypeNode<tPos> {
+	tFalseNode<tPos> : tLiteralNode<tPos>,
+	tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tTrueNode<tPos> : tLiteralNode<tPos>, tTypeNode<tPos> {
+	tTrueNode<tPos> : tLiteralNode<tPos>,
+	tTypeNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tEmptyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+	tEmptyTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIntTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+	tIntTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tCharTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+	tCharTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tTextTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
-		public tPos Pos { get; init; }
-		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
-	}
-	
-	[DebuggerDisplay(cDebuggerDisplay)]
-	public sealed record
-	tAnyTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+	tTextTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tTypeTypeNode<tPos> : tTypeNode<tPos>, tLiteralNode<tPos> {
+	tAnyTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
+		public tPos Pos { get; init; }
+		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
+	}
+	
+	[DebuggerDisplay(cDebuggerDisplay)]
+	public sealed record
+	tTypeTypeNode<tPos> : tTypeNode<tPos>,
+	tLiteralNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 	}
@@ -132,7 +141,9 @@ mSPO_AST {
 	
 	[DebuggerDisplay(cDebuggerDisplay)]
 	public sealed record
-	tIdNode<tPos> : tTypeNode<tPos>, tExpressionNode<tPos>, tPatternNode<tPos> {
+	tIdNode<tPos> : tTypeNode<tPos>,
+	tExpressionNode<tPos>,
+	tPatternNode<tPos> {
 		public tPos Pos { get; init; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeAnnotation { get; set; }
 		public mMaybe.tMaybe<mVM_Type.tType> TypeValue;
@@ -1487,6 +1498,7 @@ mSPO_AST {
 		if (mStd.RefEq(a1, a2)) {
 			return true;
 		}
+		
 		if (!Equals(a1.Pos, a2.Pos)) {
 			return false;
 		}
@@ -1833,6 +1845,7 @@ mSPO_AST {
 				break;
 			}
 		}
+		
 		throw mError.Error("not implemented: " + a1.GetType().Name);
 	}
 	
@@ -1843,8 +1856,10 @@ mSPO_AST {
 	) {
 		tText __;
 		tText ____;
+		
 		if (aIndent.StartsWith('\n')) {
 			var OneLiner = aNode.ToText("");
+			
 			if (OneLiner.Length <= 80) {
 				return OneLiner;
 			}

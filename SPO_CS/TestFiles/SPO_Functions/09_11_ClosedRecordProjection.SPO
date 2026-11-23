@@ -1,3 +1,5 @@
+§DEF Create = () => {Value: 7}
+
 §DEF Fixture... = (
 	§DEF aValue € [§VAR §INT]
 ) => {
@@ -12,11 +14,27 @@
 	
 	§DEF Observe = (
 		§DEF aRecord € [< Number: §INT >]
-	) : () => 0
+	) : (
+	) => 0
 	
 	Result : Observe .
 	
 	§RETURN Result
 }
 
-§EXPORT 1
+§VAR Cell := 7 .
+§DEF Reduced = .Fixture Cell
+§DEF Erased € §ANY = Reduced
+
+§EXPORT (
+	.Create
+	Reduced
+	§IF Erased MATCH {
+		{Handle: §DEF Hidden}: §TRUE
+		_: §FALSE
+	}
+	§IF Erased MATCH {
+		{Number: §DEF Number}: §TRUE
+		_: §FALSE
+	}
+)

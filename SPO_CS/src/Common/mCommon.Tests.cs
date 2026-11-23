@@ -3,6 +3,7 @@
 #:property OutputType = "Library"
 #:include ../_GlobalUsings.cs
 #:ref mStd.cs
+#:ref mCodeAnalyser.Tests.cs
 #:ref mTest.cs
 #:ref mAny.Tests.cs
 #:ref mFS.Tests.cs
@@ -23,6 +24,7 @@ mCommon_Tests {
 	Tests = mTest.Tests(
 		"mCommon",
 		[
+			mCodeAnalyser_Tests.Tests,
 			mAny_Tests.Tests,
 			mMaybe_Tests.Tests,
 			mResult_Tests.Tests,

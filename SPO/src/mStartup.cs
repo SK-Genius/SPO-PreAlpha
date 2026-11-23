@@ -22,6 +22,7 @@ mStartup {
 			tText aLocation
 		) {
 			var Value = mJNI.ToText(aLines);
+			
 			return (
 				!tText.IsNullOrWhiteSpace(Value)
 				? Value.Trim()
@@ -30,6 +31,7 @@ mStartup {
 		}
 		
 		var Root = mJNI.TryParseTree(mJNI.ToLines(System.IO.File.ReadAllText(Path), 0), Path).ElseThrow();
+		
 		if (!Root.TryGet("entry").IsSome(out var EntryName) || !Root.TryGet("modules").IsSome(out var Definitions)) {
 			throw new System.FormatException("Startup requires 'entry' and 'modules'.");
 		}
@@ -41,6 +43,7 @@ mStartup {
 		}
 		
 		var Descriptions = mJNI.TryParseTree(Definitions, Path).ElseThrow();
+		
 		var Modules = mTreeMap.Tree<tText, mModule.tModuleSetup>(
 			(aLeft, aRight) => System.Math.Sign(
 				tText.CompareOrdinal(
@@ -72,6 +75,7 @@ mStartup {
 			}
 			
 			var Description = mJNI.TryParseTree(Definition, Path).ElseThrow();
+			
 			foreach (var (Property, _) in Description.ToStream()) {
 				if (Property is not ("path" or "imports")) {
 					throw new System.FormatException($"Module '{aName}': unexpected property '{Property}'.");
@@ -83,12 +87,14 @@ mStartup {
 			}
 			
 			var Dependencies = mStream.Stream<(tText Key, mModule.tModuleSetup Module)>();
+			
 			if (Description.TryGet("imports").IsSome(out var Imports)) {
 				foreach (var (Key, Value) in mJNI.TryParseTree(Imports, Path).ElseThrow().ToStream()) {
 					var Dependency = Resolve(
 						Text(Value, $"Module '{aName}'.imports.{Key}"),
 						mStream.Stream(aName, aPath)
 					);
+					
 					Dependencies = mStream.Stream((Key, Dependency), Dependencies);
 				}
 			}
@@ -102,14 +108,17 @@ mStartup {
 					)
 				)
 			);
+			
 			if (System.IO.Path.GetExtension(File) == ".*") {
-				foreach (var Extension in new[] {
+				foreach (
+					var Extension in new[] {
 						".spo",
 						".ILT"
 					}
 				
 				) {
 					var Candidate = System.IO.Path.ChangeExtension(File, Extension);
+					
 					if (System.IO.File.Exists(Candidate)) {
 						File = Candidate;
 						break;
@@ -127,6 +136,7 @@ mStartup {
 		}
 		
 		var Entry = Resolve(Text(EntryName, "entry"), mStd.cEmpty);
+		
 		foreach (var (Name, _) in Descriptions.ToStream()) {
 			Resolve(Name, mStd.cEmpty);
 		}
@@ -141,6 +151,7 @@ mStartup {
 	) {
 		var Data = mVM_Data.Empty();
 		var Type = mVM_Type.Empty();
+		
 		foreach (var (Key, Module) in aModules) {
 			if (Module.Init(aLogger).IsFail(out var Error, out var Value)) {
 				return Error;

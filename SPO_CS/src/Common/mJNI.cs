@@ -62,15 +62,20 @@ mJNI {
 		if (TryParseEntries(aLines, aSrcName).IsFail(out var Error, out var Entries)) {
 			return Error;
 		}
+		
 		var Tree = mTreeMap.Tree<tText, mStream.tStream<(tInt32 LineNr, tText Line)>>(
-			(aLeft, aRight) => System.Math.Sign(tText.CompareOrdinal(aLeft, aRight)), []
+			(aLeft, aRight) => System.Math.Sign(tText.CompareOrdinal(aLeft, aRight)),
+			[]
 		);
+		
 		foreach (var (Key, Lines, KeyLineNr) in Entries) {
 			if (Tree.TryGet(Key).IsSome(out _)) {
 				return mResult.Fail($"{aSrcName}:{KeyLineNr}: Duplicate key '{Key}'.");
 			}
+			
 			Tree = Tree.Set(Key, Lines);
 		}
+		
 		return Tree;
 	}
 	
@@ -82,9 +87,13 @@ mJNI {
 		mStream.tStream<(tInt32 LineNr, tText Line)> aLines,
 		tText aSrcName
 	) {
-		var Entries = mStream.Stream<(
-			tText Key, mStream.tStream<(tInt32 LineNr, tText Line)> Lines, tInt32 KeyLineNr
-		)>();
+		var Entries = mStream.Stream<
+			(
+				tText Key,
+				mStream.tStream<(tInt32 LineNr, tText Line)> Lines,
+				tInt32 KeyLineNr
+			)
+		>();
 		
 		static tBool Ignored(
 			tText aLine
@@ -115,11 +124,13 @@ mJNI {
 			}
 			
 			var Key = Multiline ? Header[..^1].Trim() : Line[..Equals].Trim();
+			
 			if (Key.Length == 0) {
 				return Error(LineNr, "Expected a nonempty key.");
 			}
 			
 			var Value = mStream.Stream<(tInt32 LineNr, tText Line)>();
+			
 			if (Multiline) {
 				while (aLines.Is(out var Next, out var Rest)) {
 					if (Next.Line.StartsWith('|')) {
@@ -127,8 +138,10 @@ mJNI {
 					} else if (!Ignored(Next.Line)) {
 						break;
 					}
+					
 					aLines = Rest;
 				}
+				
 				Value = Value.Reverse();
 			} else {
 				Value = mStream.Stream((LineNr, Line[(Equals + 1)..]), Value);

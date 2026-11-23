@@ -1,4 +1,4 @@
-﻿#!dotnet
+#!dotnet
 #:property ExperimentalFileBasedProgramEnableRefDirective = "true"
 #:property ExperimentalFileBasedProgramEnableIncludeDirective = "true"
 #:property OutputType = Exe
@@ -35,9 +35,11 @@ PrintLnNoFormat(
 	System.Console.WriteLine(
 		System.Text.RegularExpressions.Regex.Replace(
 			aLine.Replace("\t", "  "),
-			"[\x1b]\\[\\d+m", ""
+			"[\x1b]\\[\\d+m",
+			""
 		)
 	);
+	
 	System.Console.Out.Flush();
 }
 
@@ -117,6 +119,7 @@ if (Args.Any(__ => __ is cHelpCommand or cHelpCommandShort)) {
 			{cMatchAnyCommandShort} <filter text> {cMatchAnyCommand} <filter text> - must be the last argument
 		"""
 	);
+	
 	return 0;
 }
 
@@ -138,8 +141,15 @@ if (Args.Any(__ => __ is cListCommand or cListCommandShort)) {
 		MatchAll.IsEmpty() ? MatchAny : MatchAll,
 		!MatchAll.IsEmpty()
 	);
+	
 	return 0;
 }
+
+var NoFormat = Args.Any(__ => __ is cPlainText or cPlainTextShort) || System.Console.IsOutputRedirected;
+var HideSkippedTests = !Args.Any(__ => __ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort);
+var HidePassedGroups = !Args.Any(__ => __ is cShowPassedGroupsCommand or cShowPassedGroupsCommandShort);
+var HidePassedTests = !Args.Any(__ => __ is cShowPassedTestsCommand or cShowPassedTestsCommandShort);
+
 
 mStd.gDebugId = GetArgParam(
 	Args,
@@ -150,43 +160,71 @@ mStd.gDebugId = GetArgParam(
 	() => 0u
 );
 
-return Tests.Run(
-	Args.Any(__ => __ is cPlainText or cPlainTextShort) || System.Console.IsOutputRedirected ? PrintLnNoFormat : PrintLn,
-	new mTest.tTestSettings {
-		Filters = MatchAll.IsEmpty() ? MatchAny : MatchAll,
-		HasToMatchAll = !MatchAll.IsEmpty(),
-		HideSkippedTests = !Args.Any(__ => __ is cShowSkippedTestsCommand or cShowSkippedTestsCommandShort),
-		HidePassedGroups = !Args.Any(__ => __ is cShowPassedGroupsCommand or cShowPassedGroupsCommandShort),
-		HidePassedTests = !Args.Any(__ => __ is cShowPassedTestsCommand or cShowPassedTestsCommandShort),
-		OutputLevel = GetArgParam(
-			Args,
-			cOutputLevelCommandShort,
-			cOutputLevelCommand
-		).Match(
-			tInt32.Parse,
-			() => tInt32.MaxValue
-		),
-		TreeLevel = GetArgParam(
-			Args,
-			cTreeLevelCommandShort,
-			cTreeLevelCommand
-		).Match(
-			tInt32.Parse,
-			() => tInt32.MaxValue
-		),
-		DebuggerBreak = Args.Any(__ => __ is cDebugger or cDebuggerShort),
-		StopOnFirstFail = Args.Any(__ => __ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
-		: Args.Where(
-			__ => (
-				__.Length > 1 &&
-				__[0] is '-' &&
-				__[1..].ToCharArray().AsStream().All(___ => ___ is >= '0' and <= '9')
-			)
-		).TryFirst(
-		).Then(
-			__ => tInt32.Parse(__[1..])
-		).ElseUse(
-			tInt32.MaxValue
-		),
+// The recursive parser needs a larger stack for generated IL in Windows debug builds.
+(mTest.tResult Result, tInt32 FailCount, tInt32 SkipCount, tInt32 OK_Count, tText SumText) TestResult = default;
+
+var TestThread = new System.Threading.Thread(
+	() => {
+		TestResult = Tests.Run(
+			NoFormat ? PrintLnNoFormat : PrintLn,
+			new mTest.tTestSettings {
+				Filters = MatchAll.IsEmpty() ? MatchAny : MatchAll,
+				HasToMatchAll = !MatchAll.IsEmpty(),
+				HideSkippedTests = HideSkippedTests,
+				HidePassedGroups = HidePassedGroups,
+				HidePassedTests = HidePassedTests,
+				OutputLevel = GetArgParam(
+					Args,
+					cOutputLevelCommandShort,
+					cOutputLevelCommand
+				).Match(
+					tInt32.Parse,
+					() => tInt32.MaxValue
+				),
+				TreeLevel = GetArgParam(
+					Args,
+					cTreeLevelCommandShort,
+					cTreeLevelCommand
+				).Match(
+					tInt32.Parse,
+					() => tInt32.MaxValue
+				),
+				DebuggerBreak = Args.Any(__ => __ is cDebugger or cDebuggerShort),
+				StopOnFirstFail = Args.Any(__ => __ is cStopOnFirstFail or cStopOnFirstFailShort) ? 1
+				: Args.Where(
+					__ => (
+						__.Length > 1 &&
+						__[0] is '-' &&
+						__[1..].ToCharArray().AsStream().All(___ => ___ is >= '0' and <= '9')
+					)
+				).TryFirst(
+				).Then(
+					__ => tInt32.Parse(__[1..])
+				).ElseUse(
+					tInt32.MaxValue
+				),
+			}
+		);
+	},
+	maxStackSize: 32 << 20
+);
+
+TestThread.Start();
+TestThread.Join();
+
+if (
+	TestResult.FailCount == 0 &&
+	(HideSkippedTests || TestResult.SkipCount == 0) &&
+	HidePassedGroups &&
+	HidePassedTests 
+) {
+	PrintLn("All");
+	
+	if (NoFormat) {
+		PrintLnNoFormat(TestResult.SumText);
+	} else {
+		PrintLn(TestResult.SumText);
 	}
-).FailCount;
+}
+
+return TestResult.FailCount;

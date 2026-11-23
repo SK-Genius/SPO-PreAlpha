@@ -49,10 +49,12 @@ mJNI_Tests {
 							
 							last
 							
-							""");
+							"""
+						);
 					}
 					
 					mAssert.IsTrue(mJNI.ToLines("", 0).TryFirst().AssertNotEmpty() == (1, ""));
+					
 					mAssert.AreEquals(
 						mJNI.ToText(mStream.Stream<(tInt32 LineNr, tText Line)>()),
 						""
@@ -114,6 +116,7 @@ mJNI_Tests {
 							(a1, a2) => a1 == a2
 						)
 					);
+					
 					mAssert.IsTrue(
 						Entries.TryGet("tail").AssertNotEmpty().TryFirst().AssertNotEmpty() == (35, "last")
 					);
@@ -306,6 +309,7 @@ mJNI_Tests {
 							(aLeft, aRight) => aLeft == aRight
 						)
 					);
+					
 					mAssert.IsTrue(
 						Entries.Map(aEntry => aEntry.Lines).Eq(
 							mStream.Stream(
@@ -317,6 +321,7 @@ mJNI_Tests {
 							(aLeft, aRight) => aLeft.Eq(aRight, (a1, a2) => a1 == a2)
 						)
 					);
+					
 					mAssert.IsTrue(
 						mJNI.TryParseList(Source, "JNI").ElseThrow().Eq(
 							mStream.Stream(("key", "first"), ("key", "second"), ("key", ""), ("key", "")),
@@ -351,14 +356,19 @@ mJNI_Tests {
 							(a1, a2) => a1 == a2
 						)
 					);
+					
 					mAssert.IsTrue(Tree.TryGet("B").AssertNotEmpty().IsEmpty());
 					mAssert.IsTrue(Tree.TryGet("a").AssertNotEmpty().TryFirst().AssertNotEmpty() == (24, "inline"));
+					
 					mAssert.IsTrue(
 						Tree.TryGet("b").AssertNotEmpty().Eq(
-							mStream.Stream((22, "first"), (23, "second")), (aLeft, aRight) => aLeft == aRight
+							mStream.Stream((22, "first"), (23, "second")),
+							(aLeft, aRight) => aLeft == aRight
 						)
 					);
+					
 					mAssert.IsTrue(Tree.TryGet("missing").IsNone());
+					
 					mAssert.IsTrue(
 						mJNI.TryParseTree(mJNI.ToLines("# Empty", 0), "JNI").ElseThrow().ToStream().IsEmpty()
 					);
@@ -369,9 +379,11 @@ mJNI_Tests {
 				aDebug => {
 					mAssert.IsFalse(
 						mJNI.TryParseTree(
-							mStream.Stream((3, "key="), (87, "key:"), (99, "|value")), "config.jni"
+							mStream.Stream((3, "key="), (87, "key:"), (99, "|value")),
+							"config.jni"
 						).Match(out _, out var Error)
 					);
+					
 					mAssert.AreEquals("config.jni:87: Duplicate key 'key'.", Error);
 				}
 			),
@@ -408,9 +420,11 @@ mJNI_Tests {
 						aCase.Name,
 						aDebug => {
 							mAssert.IsTrue(mJNI.TryParseList(aCase.Source, "JNI").ElseThrow().Count() == 2);
+							
 							mAssert.IsFalse(
 								mJNI.TryParseTree(mJNI.ToLines(aCase.Source, 0), "JNI").Match(out _, out var Error)
 							);
+							
 							mAssert.AreEquals(aCase.Error, Error);
 						}
 					)
@@ -465,9 +479,11 @@ mJNI_Tests {
 							mAssert.AreEquals(Error, aCase.Error);
 							mAssert.IsFalse(mJNI.TryParseList(aCase.Source, "config.jni").Match(out _, out Error));
 							mAssert.AreEquals(Error, aCase.Error.Replace("JNI:", "config.jni:"));
+							
 							mAssert.IsFalse(
 								mJNI.TryParseTree(mJNI.ToLines(aCase.Source, 0), "JNI").Match(out _, out Error)
 							);
+							
 							mAssert.AreEquals(Error, aCase.Error);
 						}
 					)

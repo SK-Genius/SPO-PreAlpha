@@ -1,0 +1,43 @@
+§IMPORT {
+	Input: {ActionForEvent...: §DEF ActionForEvent...} € [§LOAD "Input.SIG"]
+	Logic: {
+		NewGameWithSeed...: §DEF NewGameWithSeed...
+		...AfterMove...: §DEF ...AfterMove...
+	} € [§LOAD "Logic.SIG"]
+	Render: {
+		DrawGame...: §DEF DrawGame...
+		...CanFit2048: §DEF ...CanFit2048
+	} € [§LOAD "Render.SIG"]
+}
+
+§DEF tState = [§LOAD "State.SIG"]
+§DEF Frame... = (
+	§DEF aTerminal € [§LOAD "../../Libs/Terminal.SIG"]
+) : (
+	§DEF aState € tState
+	§DEF aEvent € [§LOAD "../../Libs/Event.SIG"]
+) {
+	§DEF Action = .ActionForEvent aEvent
+	§RETURN (aState, §FALSE) IF Action §IS #Quit
+	§RETURN (aState, §TRUE) IF Action §IS #Ignore
+	aTerminal : Size => §DEF Size .
+	§DEF NextState € tState = §IF Action MATCH {
+		#Restart: {
+			{RandomState: §DEF RandomState} = aState
+			§RETURN .NewGameWithSeed RandomState
+		}
+		(#Move §DEF Direction): §IF (Size .CanFit2048) MATCH {
+			§TRUE: aState .AfterMove Direction
+			§FALSE: aState
+		}
+		_: aState
+	}
+	aTerminal : Clear, DrawGame NextState .
+	§RETURN (NextState, §TRUE)
+}
+
+§EXPORT §SIG [§LOAD "../../Libs/App.SIG"] WITH tState IN {
+	Initial: .NewGameWithSeed 1
+	Frame...: Frame...
+	TickMilliseconds: 60000
+}

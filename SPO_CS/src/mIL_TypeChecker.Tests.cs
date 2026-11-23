@@ -51,7 +51,7 @@ mIL_TypeChecker_Tests {
 			var Subset = cValid.Replace(
 				"§RETURN ONE IF TRUE",
 				"""
-				Subset := §SUBINTERFACE tInterface WITH Object
+				Subset := §WITH_TYPE tInterface WITH Object
 				§RETURN ONE IF TRUE
 				"""
 			);
@@ -111,13 +111,13 @@ mIL_TypeChecker_Tests {
 						"expected record"
 					),
 					(
-						"Subinterface preserves allowed methods",
+						"WithType preserves allowed methods",
 						Subset,
 						true,
 						""
 					),
 					(
-						"Subinterface cannot add unavailable methods",
+						"WithType cannot add unavailable methods",
 						Subset.Replace(
 							"tImplementation :=",
 							"""
@@ -129,7 +129,7 @@ mIL_TypeChecker_Tests {
 						).Replace(
 							"§RETURN ONE IF TRUE",
 							"""
-							Restored := §SUBINTERFACE tAdmin WITH Subset
+							Restored := §WITH_TYPE tAdmin WITH Subset
 							§RETURN ONE IF TRUE
 							"""
 						),

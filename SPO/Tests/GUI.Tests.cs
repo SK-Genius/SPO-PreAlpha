@@ -18,6 +18,7 @@ mGUI_Tests {
 			mGUI.tRect? SelectedBounds = null;
 			var Title = "";
 			var Dimensions = (Width: 1024, Height: 768);
+			
 			var Surface = new mGUI.tSurface {
 				Size = () => Dimensions,
 				Clear = _ => {
@@ -27,6 +28,7 @@ mGUI_Tests {
 				},
 				Rectangle = (aBounds, aColor, aFilled) => {
 					DrawCount += 1;
+					
 					if (aFilled && aColor == (53, 77, 98)) {
 						SelectedButtons += 1;
 						SelectedBounds = aBounds;
@@ -38,18 +40,23 @@ mGUI_Tests {
 				Present = () => {},
 				ReadEvent = () => mVM_Data.Empty()
 			};
+			
 			var StartupPath = System.IO.Path.Combine(
 				System.IO.Path.GetDirectoryName(mStd.File())!,
 				"../Apps/GUI_Demo/startup.jni"
 			);
+			
 			var Startup = mStartup.Load(StartupPath);
+			
 			var App = Startup.Entry.Init(
 				_ => {}
 			).ElseThrow().Data;
+			
 			mAssert.IsTrue(App.IsSig(out var Contract, out _, out var Body));
 			mAssert.IsTrue(Contract.SameType(mGUI.Signature("App")));
 			mAssert.IsTrue(DrawCount == 0, "App initialization needs no host operations.");
 			mVM_Data.tData? SavedCapability = null;
+			
 			Surface.WithCapability(
 				aCapability => {
 					SavedCapability = aCapability;
@@ -63,6 +70,7 @@ mGUI_Tests {
 						var Result = Frame.Call(mVM_Data.Tuple([State, aEvent]), aCapability);
 						mAssert.IsTrue(Result.IsTuple(out State, out var Continue));
 						mAssert.IsTrue(Continue.IsBool(out var Running));
+						
 						if (Running && !aEvent.IsPrefix("_Redraw", out _)) {
 							return Send(mVM_Data.Prefix("_Redraw", mVM_Data.Empty()));
 						}
@@ -89,22 +97,27 @@ mGUI_Tests {
 					var Imports = Startup.Modules.Where(a => a.Key is "GUI" or "Std").Init(
 						_ => {}
 					).ElseThrow();
+					
 					var ScopePath = System.IO.Path.Combine(
 						System.IO.Path.GetDirectoryName(mStd.File())!,
 						"GUI.Scopes.spo"
 					);
+					
 					var Scopes = mSPO_Interpreter.Run(
 						System.IO.File.ReadAllText(ScopePath),
 						ScopePath,
 						Imports,
 						_ => {}
 					).ElseThrow().Data.Call(mVM_Data.Empty());
+					
 					mAssert.AreEquals(2, Scopes.Field("Count").Int());
 					mAssert.AreEquals(91, Scopes.Field("Other").Int());
 					mAssert.AreEquals(42, Scopes.Field("Outcome").Field("Number").Int());
 					mAssert.AreEquals("plain", Scopes.Field("Outcome").Field("Text").Text());
 					var ScopeTargets = Scopes.Field("UI").Field("Targets");
-					foreach (var Id in new[] {
+					
+					foreach (
+						var Id in new[] {
 							26,
 							25,
 							24,
@@ -120,9 +133,11 @@ mGUI_Tests {
 					}
 					
 					mAssert.IsTrue(ScopeTargets.IsEmpty());
+					
 					System.Console.WriteLine(
 						"OK: nested list procedures, explicit contexts, returns and sibling layout."
 					);
+					
 					// Consume widget results directly, including two independent text inputs.
 					var Widgets = mSPO_Interpreter.Run(
 						"""
@@ -181,6 +196,7 @@ mGUI_Tests {
 						Imports,
 						_ => {}
 					).ElseThrow().Data;
+					
 					var WidgetState = Widgets.Field("Initial");
 					var WidgetDrawCount = DrawCount;
 					
@@ -195,6 +211,7 @@ mGUI_Tests {
 						tInt32 aId
 					) {
 						var Targets = aUI.Field("Targets");
+						
 						while (Targets.IsPair(out Targets, out var Target)) {
 							if (Target.Field("Id").Int() == aId) {
 								return Target.Field("Bounds").Rect();
@@ -210,6 +227,7 @@ mGUI_Tests {
 						tText aAction
 					) {
 						var Bounds = BoundsFor(WidgetState.Field("UI"), aId);
+						
 						return mVM_Data.Prefix(
 							"_Pointer...",
 							mVM_Data.Record(
@@ -261,10 +279,13 @@ mGUI_Tests {
 					WidgetSend(Pointer(13, "Release"));
 					mAssert.AreEquals(mVM_Data.Bool(false), WidgetState.Field("Clicked"));
 					mAssert.AreEquals(WidgetDrawCount, DrawCount);
+					
 					System.Console.WriteLine(
 						"OK: direct widget results, independent text inputs, mouse and keyboard activation."
 					);
+					
 					var BeforePureDrawCount = DrawCount;
+					
 					var Example = mSPO_Interpreter.Run(
 						"""
 						§IMPORT {
@@ -295,6 +316,7 @@ mGUI_Tests {
 						Imports,
 						_ => {}
 					).ElseThrow().Data.Call(mVM_Data.Empty());
+					
 					mAssert.IsTrue(BeforePureDrawCount == DrawCount, "Pure GUI calculations do not draw.");
 					var Items = Example.Field("Frame").Field("Items");
 					mAssert.IsTrue(Items.IsPair(out var Before, out var Second));
@@ -335,9 +357,11 @@ mGUI_Tests {
 					Send(mVM_Data.Prefix("_Scroll...", mVM_Data.Int(-48)));
 					mAssert.AreEquals(48, State.Field("UI").Field("Scroll").Int());
 					mAssert.IsTrue(!Send(Key("Escape")), "Escape exits the GUI application.");
+					
 					System.Console.WriteLine(
 						"OK: demo drawing, editing, save, focus, alignment, resize and scrolling."
 					);
+					
 					try {
 						mAssert.IsTrue(aCapability.IsInterface(out var SurfaceType, out _, out var Methods));
 						var Forged = mVM_Data.Interface(SurfaceType, mVM_Data.Var(mVM_Data.Empty()), Methods);
@@ -346,6 +370,7 @@ mGUI_Tests {
 					} catch (System.InvalidOperationException) {}
 				}
 			);
+			
 			try {
 				SavedCapability!.CallMethod("Size", mVM_Data.Empty());
 				mAssert.Fail("Expired GUI capability was accepted.");
@@ -356,6 +381,7 @@ mGUI_Tests {
 				Key = 9,
 				Modifiers = 1
 			}.Translate();
+			
 			mAssert.IsTrue(KeyEvent.IsPrefix("_Key...", out var KeyData));
 			mAssert.IsTrue(KeyData.Field("Shift").IsBool(out var Shift) && Shift);
 			System.Console.WriteLine("OK: pure calculations, capability identity/lifetime and SDL keys.");

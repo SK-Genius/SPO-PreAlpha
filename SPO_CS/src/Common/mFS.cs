@@ -115,6 +115,7 @@ mFS {
 				
 				tInt32 StartFromEnd;
 				tInt32 EndFromEnd; 
+				
 				if (!aRange.Start.IsFromEnd || !aRange.End.IsFromEnd) {
 					var Length = this.Length();
 					StartFromEnd = aRange.Start.IsFromEnd ? aRange.Start.Value : Length - aRange.Start.Value;
@@ -221,6 +222,7 @@ mFS {
 		}
 
 		var Path = cIdentPath;
+		
 		if (System.IO.Path.IsPathRooted(aPath)) {
 			aPath = System.IO.Path.GetFullPath(aPath);
 			var Root = System.IO.Path.GetPathRoot(aPath)!;
@@ -233,6 +235,7 @@ mFS {
 			if (Child.IsAbsoluteRootName()) {
 				throw mError.Error($"can't append absolute path '{Child}'");
 			}
+			
 			Path /= new tPath(Child);
 		}
 

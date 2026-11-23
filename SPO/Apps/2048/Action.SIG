@@ -1,0 +1,1 @@
+[#Quit | #Ignore | #Restart | #Redraw | [#Move [§LOAD "Direction.SIG"]]]

@@ -181,9 +181,11 @@ mTreeMap {
 				if (SubTree1.IsEmpty()) {
 					return SubTree2;
 				}
+				
 				if (SubTree2.IsEmpty()) {
 					return SubTree1;
 				}
+				
 				if (aNode.SubTree1.Deep() > aNode.SubTree2.Deep()) {
 					mAssert.IsTrue(SubTree1.Is(out var SubTree1_));
 					SubTree1 = SubTree1_.RemoveMax(out Key, out Value);
@@ -191,6 +193,7 @@ mTreeMap {
 					mAssert.IsTrue(SubTree2.Is(out var SubTree2_));
 					SubTree2 = SubTree2_.RemoveMin(out Key, out Value);
 				}
+				
 				break;
 			}
 			case -1: {
@@ -303,6 +306,7 @@ mTreeMap {
 		this tNode<tKey, tValue> aNode
 	) {
 		var Diff = aNode.SubTree1.Deep() - aNode.SubTree2.Deep();
+		
 		if (Diff.Abs() <= 1) {
 			return aNode;
 		}
@@ -311,6 +315,7 @@ mTreeMap {
 		switch (Diff.Sign()) {
 			case -1: {
 				mAssert.IsTrue(aNode.SubTree2.Is(out var SubTree2));
+				
 				return (
 					(SubTree2.SubTree1.Deep() > SubTree2.SubTree2.Deep())
 					? Node(
@@ -324,6 +329,7 @@ mTreeMap {
 			}
 			case 1: {
 				mAssert.IsTrue(aNode.SubTree1.Is(out var SubTree1));
+				
 				return (
 					(SubTree1.SubTree2.Deep() > SubTree1.SubTree1.Deep())
 					? Node(

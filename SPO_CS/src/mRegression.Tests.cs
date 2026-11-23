@@ -171,7 +171,9 @@ mRegression_Tests {
 				aDebug => {
 					foreach (var (Source, Name) in new[] { ("[#Prefix]", "_Prefix"), ("[#Prefix []]", "_Prefix...") }) {
 						var Prefix = (mSPO_AST.tPrefixTypeNode<tSpan>)mSPO_Parser.Type.TryParseText(
-							Source, "", __ => aDebug(__())
+							Source,
+							"",
+							__ => aDebug(__())
 						).ElseThrow();
 						
 						mAssert.AreEquals(Prefix.Prefix.Id, Name);
@@ -190,8 +192,11 @@ mRegression_Tests {
 						}
 					) {
 						var Prefix = (mSPO_AST.tPrefixPatternNode<tSpan>)mSPO_Parser.Pattern.TryParseText(
-							Source, "", __ => aDebug(__())
+							Source,
+							"",
+							__ => aDebug(__())
 						).ElseThrow();
+						
 						mAssert.AreEquals(Prefix.Prefix, Name);
 						mAssert.IsTrue(Prefix.Pattern is mSPO_AST.tEmptyNode<tSpan>);
 					}
@@ -225,6 +230,7 @@ mRegression_Tests {
 							var Value = Parser.TryParseText(Source, "", __ => aDebug(__())).ElseThrow();
 							mAssert.IsTrue(Value is mSPO_AST.tEmptyNode<tSpan>);
 						}
+						
 						var Pattern = mSPO_Parser.Pattern.TryParseText(Source, "", __ => aDebug(__())).ElseThrow();
 						mAssert.IsTrue(Pattern is mSPO_AST.tEmptyNode<tSpan>);
 					}
@@ -273,6 +279,7 @@ mRegression_Tests {
 						foreach (var Parenthesized in new[] { false, true }) {
 							var Method = "(§VAR aSelf € §INT) : () " + Body;
 							var Source = "§DEF Read = " + (Parenthesized ? "(" + Method + ")" : Method);
+							
 							var Item = mSPO_Parser.RecProcItem.TryParseText(
 								Source,
 								"",
@@ -405,6 +412,7 @@ mRegression_Tests {
 						aCase.Name,
 						aDebug => {
 							var CallCount = 0;
+							
 							var Import = mVM_Data.ExternProc(
 								(aEnv, aObj, aArg, aTrace) => {
 									CallCount++;
@@ -412,7 +420,9 @@ mRegression_Tests {
 								},
 								mVM_Data.Empty()
 							);
+							
 							var ImportType = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Empty(), mVM_Type.Int());
+							
 							var Result = mSPO_Interpreter.Run(
 								$"""
 								§IMPORT (§DEF Probe € [[] => §INT])
@@ -486,12 +496,14 @@ mRegression_Tests {
 						aCase.Name,
 						aDebug => {
 							mSPO_Parser.Module.TryParseText(aCase.Source, "", __ => aDebug(__())).ElseThrow();
+							
 							var Result = mSPO_Interpreter.Run(
 								aCase.Source,
 								"",
 								(mVM_Data.Empty(), mVM_Type.Empty()),
 								__ => aDebug(__())
 							);
+							
 							mAssert.IsFalse(Result.Match(out _, out var Error));
 							mAssert.IsTrue(Error.Contains(aCase.Error));
 						}
@@ -534,10 +546,14 @@ mRegression_Tests {
 				"Distinct record field names do not collide at runtime",
 				__ => {
 					mAssert.IsFalse("_DefaultStyle".PrefixHash() == "_OldStyle".PrefixHash());
-					var Record = mVM_Data.Record([
-						("_DefaultStyle", mVM_Data.Int(1)),
-						("_OldStyle", mVM_Data.Int(2))
-					]);
+					
+					var Record = mVM_Data.Record(
+						[
+							("_DefaultStyle", mVM_Data.Int(1)),
+							("_OldStyle", mVM_Data.Int(2))
+						]
+					);
+					
 					mAssert.IsTrue(Record.IsRecord(out var Fields));
 					mAssert.AreEquals(Fields.TryGet("_DefaultStyle".PrefixHash()).AssertNotEmpty(), mVM_Data.Int(1));
 					mAssert.AreEquals(Fields.TryGet("_OldStyle".PrefixHash()).AssertNotEmpty(), mVM_Data.Int(2));
@@ -614,15 +630,18 @@ mRegression_Tests {
 						aEmptyFirst ? "EMPTY then INT" : "INT then EMPTY",
 						aDebug => {
 							var Parameter = mVM_Type.Free("t", mVM_Type.Type());
+							
 							var Function = mVM_Type.Generic(
 								Parameter,
 								mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Pair(Parameter, Parameter), Parameter)
 							);
+							
 							var Argument = (
 								aEmptyFirst
 								? mVM_Type.Pair(mVM_Type.Empty(), mVM_Type.Int())
 								: mVM_Type.Pair(mVM_Type.Int(), mVM_Type.Empty())
 							);
+							
 							var Result = mVM_Type.Infer(Function, mVM_Type.Empty(), Argument, __ => {}).ElseThrow();
 							mAssert.IsTrue(Result.SameType(mVM_Type.Set(mVM_Type.Empty(), mVM_Type.Int())));
 						}
@@ -645,9 +664,12 @@ mRegression_Tests {
 						aMutable ? "Reject conflicting mutable payload" : "Resolve unknown payload",
 						aDebug => {
 							var Constructor = mVM_Type.Abstract(
-								"Box", mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type())
+								"Box",
+								mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Type(), mVM_Type.Type())
 							);
+							
 							var Parameter = mVM_Type.Free("Value", mVM_Type.Type());
+							
 							var Function = mVM_Type.Generic(
 								Parameter,
 								mVM_Type.Proc(
@@ -659,7 +681,9 @@ mRegression_Tests {
 									Parameter
 								)
 							);
+							
 							var Payload = aMutable ? mVM_Type.Var(mVM_Type.Int()) : mVM_Type.Free("Unknown", mVM_Type.Type());
+							
 							var Result = mVM_Type.Infer(
 								Function,
 								mVM_Type.Empty(),
@@ -705,44 +729,6 @@ mRegression_Tests {
 					)
 				).ToArrayList().ToArray()
 			),
-			mTest.Tests(
-				"Module imports enforce immutability on actual values",
-				mStream.Stream<(tText Name, mVM_Data.tData Value, tBool Denied)>(
-					("Direct cell", mVM_Data.Var(mVM_Data.Int(7)), true),
-					("Cell inside record", mVM_Data.Record([("Cell", mVM_Data.Var(mVM_Data.Int(7)))]), true),
-					("Cell inside tuple", mVM_Data.Pair(mVM_Data.Empty(), mVM_Data.Var(mVM_Data.Int(7))), true),
-					("Immutable record", mVM_Data.Record([("Value", mVM_Data.Int(7))]), false)
-				).Map(
-					aCase => mTest.Test(
-						aCase.Name,
-						aDebug => {
-							const tText cSource = """
-							§TYPES
-								F := [ANY => INT]
-								D := [EMPTY_TYPE => F]
-							§DEF main € D
-								§RETURN ONE IF TRUE
-							""";
-							
-							var Module = mIL_Parser.Module.TryParseText(cSource + "\n", "", __ => aDebug(__())).ElseThrow();
-							
-							var Result = mVM.TryRun(
-								Module,
-								(aCase.Value, mVM_Type.Any()),
-								mTextParser.ToText,
-								__ => aDebug(__())
-							);
-							
-							if (aCase.Denied) {
-								mAssert.IsFalse(Result.Match(out _, out var Error));
-								mAssert.AreEquals(Error, "mutable module import is not allowed");
-							} else {
-								mAssert.AreEquals(Result.ElseThrow().Data, mVM_Data.Int(1));
-							}
-						}
-					)
-				).ToArrayList().ToArray()
-			),
 			mTest.Test(
 				"MATCH captures immutable external callables",
 				aDebug => {
@@ -753,6 +739,7 @@ mRegression_Tests {
 							§DEF Item: .Apply Item
 						}
 						""";
+					
 					var Import = mVM_Data.ExternProc((aEnv, aObj, aArg, aTrace) => aArg, mVM_Data.Empty());
 					var Type = mVM_Type.Proc(mVM_Type.Empty(), mVM_Type.Int(), mVM_Type.Int());
 					var Result = mSPO_Interpreter.Run(cSource, "", (Import, Type), __ => aDebug(__())).ElseThrow();

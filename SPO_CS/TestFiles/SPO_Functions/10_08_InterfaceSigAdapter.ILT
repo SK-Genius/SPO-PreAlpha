@@ -97,7 +97,7 @@
 §DEF d_1 € t_46
 	r_4 := §1ST ARG
 	r_3 := §2ND ARG
-	r_1 := §SUBINTERFACE t_21 WITH r_3
+	r_1 := §WITH_TYPE t_21 WITH r_3
 	_aCandidate := r_1
 	r_2 := +#Result TRUE
 	§RETURN r_2 IF TRUE
@@ -142,13 +142,12 @@
 
 §DEF d_5 € t_59
 	r_1 := §2ND ARG
-	r_2 := §SUBINTERFACE t_21 WITH r_1
-	_aAdmin := r_2
-	r_3 := §1ST ARG
-	r_4 := §2ND r_3
-	_aNumber := r_4
-	r_5 := §1ST r_3
-	§RETURN r_5 IF_NOT_EMPTY
+	_aAdmin := r_1
+	r_2 := §1ST ARG
+	r_3 := §2ND r_2
+	_aNumber := r_3
+	r_4 := §1ST r_2
+	§RETURN r_4 IF_NOT_EMPTY
 	§RETURN _aAdmin IF TRUE
 
 §DEF d_6 € t_65
@@ -160,7 +159,7 @@
 	r_2 := §SIG_HEAD r_1
 	r_3 := §SIG_BODY r_1
 	r_4 := {r_3} #_Run
-	r_5 := §SUBINTERFACE t_60 WITH r_4
+	r_5 := §WITH_TYPE t_60 WITH r_4
 	_aRun... := r_5
 	r_6 := 1
 	r_7 := EMPTY, r_6
@@ -212,25 +211,25 @@
 
 §DEF d_10 € t_87
 	d_9 := §2ND ENV
-	r_31 := §1ST ENV
-	d_8 := §2ND r_31
+	r_28 := §1ST ENV
+	d_8 := §2ND r_28
+	r_29 := §1ST r_28
+	d_7 := §2ND r_29
+	r_30 := §1ST r_29
+	d_6 := §2ND r_30
+	r_31 := §1ST r_30
+	d_5 := §2ND r_31
 	r_32 := §1ST r_31
-	d_7 := §2ND r_32
+	d_4 := §2ND r_32
 	r_33 := §1ST r_32
-	d_6 := §2ND r_33
+	d_3 := §2ND r_33
 	r_34 := §1ST r_33
-	d_5 := §2ND r_34
+	d_2 := §2ND r_34
 	r_35 := §1ST r_34
-	d_4 := §2ND r_35
+	d_1 := §2ND r_35
 	r_36 := §1ST r_35
-	d_3 := §2ND r_36
+	d_0 := §2ND r_36
 	r_37 := §1ST r_36
-	d_2 := §2ND r_37
-	r_38 := §1ST r_37
-	d_1 := §2ND r_38
-	r_39 := §1ST r_38
-	d_0 := §2ND r_39
-	r_40 := §1ST r_39
 	_tReader := t_5
 	_tAdmin := t_12
 	_tSource := t_26
@@ -243,33 +242,30 @@
 	r_5 := §CLOSURE d_4 r_4
 	_HasAdmin... := r_5
 	r_6 := §CLOSURE d_5 EMPTY
-	r_7 := §SUBINTERFACE t_58 WITH r_6
-	_Run... := r_7
-	r_8 := +#_Run _Run...
-	r_9 := {EMPTY} + r_8
-	r_10 := INT_TYPE, r_9
-	r_11 := §SIG t_26 WITH r_10
-	r_12 := §SUBINTERFACE t_26 WITH r_11
-	_Source := r_12
-	r_13 := §SUBINTERFACE t_38 WITH _Source
-	_Limited := r_13
-	r_14 := 23
-	_Cell := §VAR r_14
-	r_15 := +#_Read _ReadCell
-	r_16 := {EMPTY} + r_15
-	r_17 := +#_Admin _ReadCell
-	r_18 := {r_16} + r_17
-	r_19 := _Cell, r_18
-	r_20 := §INTERFACE t_21 WITH r_19
-	r_21 := §SUBINTERFACE t_21 WITH r_20
-	_Full := r_21
-	r_22 := EMPTY, _HasAdmin...
-	r_23 := r_22, d_6
-	r_24 := r_23, d_7
-	r_25 := r_24, d_8
-	r_26 := §CLOSURE d_9 r_25
-	r_27 := _Full, _Limited
-	r_28 := OBJ, r_26
-	r_29 := §OBJ:r_28 r_27
-	r_30 := -#Result r_29
-	§RETURN r_30 IF TRUE
+	_Run... := r_6
+	r_7 := +#_Run _Run...
+	r_8 := {EMPTY} + r_7
+	r_9 := INT_TYPE, r_8
+	r_10 := §SIG t_26 WITH r_9
+	_Source := r_10
+	r_11 := §WITH_TYPE t_38 WITH _Source
+	_Limited := r_11
+	r_12 := 23
+	_Cell := §VAR r_12
+	r_13 := +#_Read _ReadCell
+	r_14 := {EMPTY} + r_13
+	r_15 := +#_Admin _ReadCell
+	r_16 := {r_14} + r_15
+	r_17 := _Cell, r_16
+	r_18 := §INTERFACE t_21 WITH r_17
+	_Full := r_18
+	r_19 := EMPTY, _HasAdmin...
+	r_20 := r_19, d_6
+	r_21 := r_20, d_7
+	r_22 := r_21, d_8
+	r_23 := §CLOSURE d_9 r_22
+	r_24 := _Full, _Limited
+	r_25 := OBJ, r_23
+	r_26 := §OBJ:r_25 r_24
+	r_27 := -#Result r_26
+	§RETURN r_27 IF TRUE

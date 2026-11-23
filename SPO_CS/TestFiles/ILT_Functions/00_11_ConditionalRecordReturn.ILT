@@ -1,0 +1,14 @@
+§TYPES
+	Value := [#_Value INT]
+	Record := [{EMPTY_TYPE} + Value]
+	Function := [EMPTY_TYPE => Record]
+	Definition := [EMPTY_TYPE => Function]
+§DEF main € Definition
+	§RETURN EMPTY IF FALSE
+	seven := 7
+	value := +#_Value seven
+	record := {EMPTY} + value
+	nine := 9
+	extra := +#_Extra nine
+	wide := {record} + extra
+	§RETURN wide IF TRUE

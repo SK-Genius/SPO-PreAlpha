@@ -124,6 +124,7 @@ mVM_Type {
 				var Refs = mStream.Stream(aType.Refs).Map(
 					__ => __.Substitute(aFree, aReplacement)
 				).ToArrayList().ToArray();
+				
 				return (
 					mStream.ZipShort(mStream.Stream(Refs), mStream.Stream(aType.Refs)).All(__ => mStd.RefEq(__.Item1, __.Item2)) ? aType :
 					aType.Kind is tKind.Set ? Set(Refs[0], Refs[1]) :
@@ -133,14 +134,16 @@ mVM_Type {
 			case tKind.TypeApply: {
 				var Function = aType.Refs[0].Substitute(aFree, aReplacement);
 				var Argument = aType.Refs[1].Substitute(aFree, aReplacement);
+				
 				return mStd.RefEq(Function, aType.Refs[0]) && mStd.RefEq(Argument, aType.Refs[1])
-					? aType
-					: Function.ApplyType(Argument);
+				? aType
+				: Function.ApplyType(Argument);
 			}
 			case tKind.Record: {
 				var Fields = aType.Fields.ToStream().Map(
 					__ => (__.Key, Value: __.Value.Substitute(aFree, aReplacement))
 				).ToArrayList().ToArray();
+				
 				return mStream.Stream(Fields).All(
 					__ => mStd.RefEq(__.Value, aType.Fields.TryGet(__.Key).AssertNotEmpty())
 				) ? aType : Record(Fields);
@@ -152,7 +155,9 @@ mVM_Type {
 				if (mStd.RefEq(aType.Refs[0], aFree)) {
 					return aType;
 				}
+				
 				var Body = aType.Refs[1].Substitute(aFree, aReplacement);
+				
 				return (
 					mStd.RefEq(Body, aType.Refs[1])
 					? aType
@@ -173,6 +178,7 @@ mVM_Type {
 		foreach (var (Free, Ref) in aMappings.ToStream()) {
 			mAssert.IsTrue(Free.IsFree());
 			var Replaced = aType.Substitute(Free, Ref);
+			
 			if (!mStd.RefEq(Replaced, aType)) {
 				// Resolve only bindings used here; a cycle leaves its free type unresolved.
 				var Resolved = Ref.ApplyMappings(aMappings.Set(Free, Free));
@@ -189,6 +195,7 @@ mVM_Type {
 		tType aKind
 	) {
 		mAssert.IsTrue(aKind.IsType() || aKind.IsTypeFunctionKind(), "invalid free parameter kind");
+		
 		return new() {
 			Kind = tKind.Free,
 			Id = aId,
@@ -365,9 +372,11 @@ mVM_Type {
 	) {
 		aHead = default!;
 		aBody = default!;
+		
 		if (aType.Kind is not tKind.Sig) {
 			return false;
 		}
+		
 		aHead = aType.Refs[0];
 		aBody = aType.Refs[1];
 		return true;
@@ -404,6 +413,7 @@ mVM_Type {
 				if (ReferenceEquals(aLeft.Refs[0], aRight.Refs[0])) {
 					return aLeft.Refs[1].SameType(aRight.Refs[1]);
 				}
+				
 				return (
 					(
 						aLeft.Refs[0].Kind is tKind.Free && aRight.Refs[0].Kind == aLeft.Refs[0].Kind
@@ -506,6 +516,7 @@ mVM_Type {
 		tText aKey
 	) {
 		mAssert.IsTrue(aType.IsRecord(out var Fields));
+		
 		mAssert.IsTrue(
 			Fields.TryGet(aKey).IsSome(out var FieldType),
 			$"""
@@ -572,19 +583,22 @@ mVM_Type {
 		mAssert.IsTrue(aHeadType.IsPrefix(out var Prefix, out var Type));
 		
 		mTreeMap.tTree<tText, tType> Fields;
+		
 		if (aTailType.IsEmpty()) {
 			Fields = mTreeMap.Tree<tText, tType>((a1, a2) => a1.CompareTo(a2).Sign(), []);
 		} else {
 			mAssert.IsTrue(aTailType.IsRecord(out Fields));
 		}
-		mAssert.IsTrue(Fields.TryGet(Prefix).IsNone(),
+		
+		mAssert.IsTrue(
+			Fields.TryGet(Prefix).IsNone(),
 			$"Field '{Prefix}' already exists in record [{Fields.ToStream().Map(__ => __.Key).Reduce("", (a1, a2) => a1 + "\n  " + a2)}]"
 		);
 		
 		return new tType {
 			Kind = tKind.Record,
-			// Open record types also admit additional, mutable fields.
-			Fields = Fields.Set(Prefix, Type)
+			Fields = Fields.Set(Prefix, Type),
+			IsImmutable = aTailType.IsImmutable && Type.IsImmutable
 		};
 	}
 	
@@ -593,9 +607,11 @@ mVM_Type {
 		(tText Prefix, tType InnerType)[] aFieldTypes
 	) {
 		var Result = Empty();
+		
 		foreach (var FieldType in aFieldTypes) {
 			Result = Record(Result, Prefix(FieldType.Prefix, FieldType.InnerType));
 		}
+		
 		return Result;
 	}
 	
@@ -739,6 +755,7 @@ mVM_Type {
 		// aCond
 	) {
 		mAssert.IsTrue(false); // TODO
+		
 		return new tType {
 			Kind = tKind.Cond,
 			Refs = [aType],
@@ -752,6 +769,7 @@ mVM_Type {
 		// aCond
 	) {
 		mAssert.IsTrue(false); // TODO
+		
 		if (aType.Kind is tKind.Cond) {
 			aSuperType = aType.Refs[0];
 			return true;
@@ -800,73 +818,129 @@ mVM_Type {
 			? Fields.ToStream().Reduce(0, (Count, Field) => Count + Occurrences(Field.Value, aParameter))
 			: mStream.Stream(aType.Refs).Reduce(0, (Count, Child) => Count + Occurrences(Child, aParameter))
 		);
+		
 		if (aBody.IsEmpty()) {
 			return true;
 		}
+		
 		return aBody.IsRecord(out var Methods) && Methods.ToStream().All(
 			Field => {
 				var Method = Field.Value;
+				
 				while (Method.IsGeneric(out _, out var Body)) {
 					Method = Body;
 				}
+				
 				return Method.IsProc(out var Object, out var Argument, out var Result) &&
-					Object.FirstObjectType().SameType(aParameter) && Occurrences(Object, aParameter) == 1 &&
-					Occurrences(Argument, aParameter) == 0 && Occurrences(Result, aParameter) == 0;
+				Object.FirstObjectType().SameType(aParameter) && Occurrences(Object, aParameter) == 1 &&
+				Occurrences(Argument, aParameter) == 0 && Occurrences(Result, aParameter) == 0;
 			}
 		);
 	}
-
+	
 	public static tType
 	FirstObjectType(this tType aType) {
 		while (aType.IsPair(out var Tail, out var Head)) {
 			if (Tail.IsEmpty()) {
 				return Head;
 			}
+			
 			aType = Tail;
 		}
+		
 		return aType;
 	}
-
+	
 	public static mMaybe.tMaybe<tType>
 	TryGetInterfaceMethod(this tType aType, tText aName)
 	=> aType.IsInterface(out var Parameter, out var Body) && Body.IsRecord(out var Methods)
-		? Methods.TryGet(aName).Then(__ => __.Substitute(Parameter, aType))
-		: mStd.cEmpty;
-
+	? Methods.TryGet(aName).Then(__ => __.Substitute(Parameter, aType))
+	: mStd.cEmpty;
+	
 	public static tBool
-	HasInterfaceValues(this tType aType, mStream.tStream<tNat64> aVisited = default) {
+	ContainsInterface(
+		this tType aType
+	) => aType.TypeOrChildsMatch(__ => __.Kind is tKind.Interface);
+	
+	public static tBool
+	HasUnboundParameter(
+		this tType aType,
+		mStream.tStream<tType> aBound = default
+	) {
+		if (aType.Kind is tKind.Free) {
+			return !aBound.Any(__ => mStd.RefEq(__, aType));
+		}
+		
+		if (aType.Kind is tKind.Recursive or tKind.Sig or tKind.Interface or tKind.Generic) {
+			return aType.Refs[1].HasUnboundParameter(mStream.Stream(aType.Refs[0], aBound));
+		}
+		
+		return (
+			aType.IsRecord(out var Fields)
+			? Fields.ToStream().Any(__ => __.Value.HasUnboundParameter(aBound))
+			: mStream.Stream(aType.Refs).Any(__ => __.HasUnboundParameter(aBound))
+		);
+	}
+	
+	public static tBool
+	TypeOrChildsMatch(
+		this tType aType,
+		mStd.tFunc<tType, tBool> aPredicate,
+		mStream.tStream<tNat64> aVisited = default
+	) {
+		if (aPredicate(aType)) {
+			return true;
+		}
+		
 		if (aVisited.Any(__ => __ == aType.DebugId)) {
 			return false;
 		}
+		
 		aVisited = mStream.Stream(aType.DebugId, aVisited);
+		
 		return aType.Kind switch {
-			tKind.Interface => true,
-			tKind.Record => aType.Fields.ToStream().Any(__ => __.Value.HasInterfaceValues(aVisited)),
-			tKind.Pair or tKind.Prefix or tKind.Set or tKind.Proc => mStream.Stream(aType.Refs).Any(__ => __.HasInterfaceValues(aVisited)),
-			tKind.Recursive or tKind.Sig or tKind.Generic => aType.Refs[1].HasInterfaceValues(aVisited),
-			_ => false,
+			tKind.Record
+			=> aType.Fields.ToStream().Any(__ => __.Value.TypeOrChildsMatch(aPredicate, aVisited)),
+			
+			tKind.Pair or
+			tKind.Prefix or
+			tKind.Set or
+			tKind.Proc
+			=> mStream.Stream(aType.Refs).Any(__ => __.TypeOrChildsMatch(aPredicate, aVisited)),
+			
+			tKind.Recursive or
+			tKind.Sig or
+			tKind.Generic
+			=> aType.Refs[1].TypeOrChildsMatch(aPredicate, aVisited),
+			
+			_
+			=> false,
 		};
 	}
-
+	
 	public static mResult.tResult<tType, tText>
 	CheckInterfaceImplementation(this tType aContract, tType aObject, tType aMethods) {
 		if (!aContract.IsInterface(out var Head, out var Body)) {
 			return mResult.Fail("expected interface contract");
 		}
+		
 		var Parameter = Free(Head.KindType());
+		
 		return aMethods.IsSubType(Body.Substitute(Head, Parameter)).ThenTry(
 			Mappings => {
 				var Object = Parameter.ApplyMappings(Mappings);
+				
 				if (mStd.RefEq(Object, Parameter)) {
 					Object = aObject;
 				}
+				
 				return aMethods.IsSubType(Body.Substitute(Head, Object)).ThenTry(
 					_ => aObject.IsSubType(Object)
 				).Then(_ => aContract);
 			}
 		);
 	}
-
+	
 	public static tBool
 	IsInterface(
 		this tType aType,
@@ -952,18 +1026,23 @@ mVM_Type {
 			tType aRef
 		) {
 			aRef = aRef.ApplyMappings(aTypeMappings);
+			
 			if (mStd.RefEq(aFree, aRef)) {
 				return aTypeMappings;
 			}
+			
 			if (aTypeMappings.TryGet(aFree).IsSome(out var Previous)) {
 				if (Previous.Kind is tKind.Free) {
 					return MapFree(aTypeMappings, Previous, aRef);
 				}
+				
 				if (!aFree.KindType().IsType() && !aRef.SameType(Previous)) {
 					return mResult.Fail("different type function bindings");
 				}
+				
 				aRef = aFree.KindType().IsType() ? Set(aRef, Previous) : Previous;
 			}
+			
 			return aTypeMappings.Set(aFree, aRef);
 		}
 		
@@ -976,18 +1055,20 @@ mVM_Type {
 		
 		if (aSupType.Kind is tKind.Free) {
 			return aSubType.KindType().SameType(aSupType.KindType())
-				? MapFree(aTypeMappings, aSupType, aSubType)
-				: mResult.Fail("different free parameter kinds");
+			? MapFree(aTypeMappings, aSupType, aSubType)
+			: mResult.Fail("different free parameter kinds");
 		}
 		
 		if (aSubType.Kind is tKind.Free) {
 			return aSupType.KindType().SameType(aSubType.KindType())
-				? MapFree(aTypeMappings, aSubType, aSupType)
-				: mResult.Fail("different free parameter kinds");
+			? MapFree(aTypeMappings, aSubType, aSupType)
+			: mResult.Fail("different free parameter kinds");
 		}
+		
 		if (!aSubType.IsSignature() || !aSupType.IsSignature()) {
 			return mResult.Fail("comparison requires types or declared generic signatures");
 		}
+		
 		var SubBaseType = aSubType.BaseType();
 		
 		if (SubBaseType.IsSet(out var SubType1, out var SubType2)) {
@@ -1023,8 +1104,8 @@ mVM_Type {
 			case tKind.Int:
 			case tKind.Type: {
 				return SubBaseType.Kind == aSupType.Kind
-					? aTypeMappings
-					: mResult.Fail("");
+				? aTypeMappings
+				: mResult.Fail("");
 			}
 			case tKind.Abstract: {
 				return mResult.Fail("different bound types");
@@ -1033,6 +1114,7 @@ mVM_Type {
 				if (SubBaseType.Kind is not tKind.TypeApply) {
 					return mResult.Fail("different type constructors");
 				}
+				
 				static mResult.tResult<mTreeMap.tTree<tType, tType>, tText>
 				MatchApplication(
 					tType aLeft,
@@ -1042,34 +1124,43 @@ mVM_Type {
 					if (aLeft.SameType(aRight)) {
 						return aMappings;
 					}
+					
 					if (aLeft.Kind is tKind.Free || aRight.Kind is tKind.Free) {
 						return aLeft.CheckSubType(aRight, aMappings);
 					}
+					
 					if (aLeft.Kind is not tKind.TypeApply || aRight.Kind is not tKind.TypeApply) {
 						return mResult.Fail("different type function bindings");
 					}
+					
 					return MatchApplication(aLeft.Refs[0], aRight.Refs[0], aMappings).ThenTry(
 						__ => aLeft.Refs[1].ApplyMappings(__).CheckSubType(aRight.Refs[1].ApplyMappings(__), __)
 					).ThenTry(
 						__ => aRight.Refs[1].ApplyMappings(__).CheckSubType(aLeft.Refs[1].ApplyMappings(__), __)
 					);
 				}
+				
 				return MatchApplication(SubBaseType, aSupType, aTypeMappings);
 			}
 			case tKind.Sig: {
 				if (!SubBaseType.IsSig(out var SubHead, out var SubBody)) {
 					return mResult.Fail("expected SIG");
 				}
+				
 				var SupHead = aSupType.Refs[0];
+				
 				if (!SubHead.KindType().SameType(SupHead.KindType())) {
 					return mResult.Fail("different SIG head kinds");
 				}
+				
 				if (SupHead.Kind is not tKind.Free && !SubHead.SameType(SupHead)) {
 					return mResult.Fail("different SIG heads");
 				}
+				
 				var Witness = SubHead.Kind is tKind.Free
-					? Abstract(SubHead.Id!, SubHead.KindType())
-					: SubHead;
+				? Abstract(SubHead.Id!, SubHead.KindType())
+				: SubHead;
+				
 				return SubBody.Substitute(SubHead, Witness).CheckSubType(
 					aSupType.Refs[1].Substitute(SupHead, Witness),
 					aTypeMappings
@@ -1079,6 +1170,7 @@ mVM_Type {
 				var TailSubType = SubBaseType;
 				var TailSupType = aSupType;
 				var Error = "";
+				
 				if (
 					TailSubType.IsPair(out TailSubType, out var HeadSubType) &&
 					TailSupType.IsPair(out TailSupType, out var HeadSupType) &&
@@ -1127,6 +1219,7 @@ mVM_Type {
 						return mResult.Fail(Error);
 					}
 				}
+				
 				return aTypeMappings;
 			}
 			case tKind.Proc: {
@@ -1163,6 +1256,7 @@ mVM_Type {
 			}
 			case tKind.Set: {
 				mAssert.IsTrue(aSupType.IsSet(out var SupType1, out var SupType2));
+				
 				return SubBaseType.CheckSubType(SupType1, aTypeMappings).ElseTry(
 					aError1 => SubBaseType.CheckSubType(SupType2, aTypeMappings).ElseTry(
 						aError2 => mResult.Fail(aError1 == aError2 ? aError1 : aError1 + "\n" + aError2)
@@ -1174,10 +1268,12 @@ mVM_Type {
 			}
 			case tKind.Recursive: {
 				mAssert.IsTrue(aSupType.IsRecursive(out var SupHead, out var SupBody));
+				
 				if (aSubType.IsRecursive(out var SubHead, out var SubBody)) {
 					if (!ReferenceEquals(SubHead, SupHead)) {
 						SubBody = SubBody.Substitute(SubHead, SupHead);
 					}
+					
 					return SubBody.CheckSubType(SupBody, aTypeMappings);
 				} else {
 					return aSubType.CheckSubType(
@@ -1189,10 +1285,12 @@ mVM_Type {
 			case tKind.Generic: {
 				var SupHead = aSupType.Refs[0];
 				var SupBody = aSupType.Refs[1];
+				
 				if (aSubType.IsGeneric(out var SubHead, out var SubBody)) {
 					// Signature parameters are inferred from arguments; their declaration order may differ.
 					return SubBody.Substitute(SubHead, SupHead).CheckSubType(SupBody, aTypeMappings);
 				}
+				
 				// A monomorphic function must work for an arbitrary parameter, not just one inferred type.
 				return aSubType.CheckSubType(
 					SupBody.Substitute(SupHead, Abstract(SupHead.Id!, SupHead.KindType())),
@@ -1201,9 +1299,11 @@ mVM_Type {
 			}
 			case tKind.Interface: {
 				mAssert.IsTrue(aSupType.IsInterface(out var SupHead, out var SupBody));
+				
 				if (!aSubType.IsInterface(out var SubHead, out var SubBody)) {
 					return mResult.Fail("expected interface object");
 				}
+				
 				var Object = Abstract(SupHead.Id!, SupHead.KindType());
 				return SubBody.Substitute(SubHead, Object).CheckSubType(SupBody.Substitute(SupHead, Object), aTypeMappings);
 			}
@@ -1280,13 +1380,16 @@ mVM_Type {
 		if (!aObj.IsSubType(ObjType).Match(out var TypeMappings, out var Error)) {
 			return mResult.Fail("can't convert receiver:\n" + Error);
 		}
+		
 		if (!aArg.IsSubType(ArgType, TypeMappings).Match(out TypeMappings, out Error)) {
 			return mResult.Fail("can't convert argument:\n" + Error);
 		}
+		
 		// Later operands may refine an earlier binding; validate the instantiated contract.
 		if (!aObj.ApplyMappings(TypeMappings).IsSubType(ObjType.ApplyMappings(TypeMappings)).Match(out _, out Error)) {
 			return mResult.Fail("can't convert receiver:\n" + Error);
 		}
+		
 		if (!aArg.ApplyMappings(TypeMappings).IsSubType(ArgType.ApplyMappings(TypeMappings)).Match(out _, out Error)) {
 			return mResult.Fail("can't convert argument:\n" + Error);
 		}
@@ -1380,10 +1483,13 @@ mVM_Type {
 		if (aComparedType is not null && aType.SameType(aComparedType)) {
 			return "...";
 		}
+		
 		if (aComparedType?.Kind != aType.Kind) {
 			aComparedType = null;
 		}
+		
 		var ComparedRefs = aComparedType?.Refs;
+		
 		if (
 			aComparedType is not null &&
 			aType.Kind is tKind.Generic or tKind.Recursive or tKind.Sig or tKind.Interface &&
@@ -1395,11 +1501,13 @@ mVM_Type {
 		
 		tText __;
 		tText ____;
+		
 		if (aIndent.Length is 0 || aIndent[0] is not '\n') {
 			__ = " ";
 			____ = " ";
 		} else {
 			var OneLiner = aType.ToText("", aComparedType);
+			
 			if (OneLiner.Length <= 80) {
 				return OneLiner;
 			}
@@ -1421,7 +1529,7 @@ mVM_Type {
 			tKind.Abstract => "^" + aType.Id,
 			tKind.TypeApply => $"[.{Child(0)} {Child(1)}]",
 			tKind.Sig => $"[§SIG_WITH {Child(0)} € " +
-				aType.Refs[0].KindType().ToText(____, ComparedRefs?[0].KindType()) + $" IN {Child(1)}]",
+			aType.Refs[0].KindType().ToText(____, ComparedRefs?[0].KindType()) + $" IN {Child(1)}]",
 			tKind.Prefix => $"[{____}#{aType.Prefix} {Child(0)}{__}]",
 			tKind.Record => mStd.Call(
 				() => {
@@ -1445,10 +1553,12 @@ mVM_Type {
 							Omitted = true;
 							continue;
 						}
+						
 						Omitted = false;
 						Text += ____ + $"{Field.Key} : {Field.Value.ToText(____, ComparedField)}";
 						Text += ", ";
 					}
+					
 					return "[{" + (aComparedType is null ? Text : Text.TrimEnd(' ', ',')) + __ + "}]";
 				}
 			),
@@ -1460,10 +1570,12 @@ mVM_Type {
 							tType aPair
 						) {
 							var Items = mStream.Stream<tType>();
+							
 							while (aPair.Kind is tKind.Pair) {
 								Items = mStream.Stream(aPair.Refs[1], Items);
 								aPair = aPair.Refs[0];
 							}
+							
 							return (aPair, Items);
 						}
 						
@@ -1484,6 +1596,7 @@ mVM_Type {
 							return "[" + ____ + Items.Join((a1, a2) => a1 + "," + ____ + a2, "") + __ + "]";
 						}
 					}
+					
 					var Result = Child(1);
 					
 					var Temp = aType.Refs[0];
@@ -1497,37 +1610,44 @@ mVM_Type {
 								____,
 								ComparedTail?.Kind is tKind.Pair ? ComparedTail.Refs[1] : null
 							) + "," + ____ + Result;
+							
 							Temp = Temp.Refs[0];
 							ComparedTail = ComparedTail?.Kind is tKind.Pair ? ComparedTail.Refs[0] : null;
 						}
+						
 						if (Temp.Kind is not tKind.Empty) {
 							Result = Temp.ToText(____, ComparedTail) + ";" + ____ + Result;
 						}
 					}
+					
 					return "[" + ____ + Result + __ + "]";
 				}
 			),
 			tKind.Proc => mStd.Call(
 				() => {
 					var Result = "";
+					
 					if (
 						aType.Refs[0].Kind is not tKind.Empty ||
 						ComparedRefs?[0].Kind is not null and not tKind.Empty
 					) {
 						Result += ____ + Child(0) + " :";
 					}
+					
 					if (
 						aType.Refs[1].Kind is not tKind.Empty ||
 						ComparedRefs?[1].Kind is not null and not tKind.Empty
 					) {
 						Result += ____ + Child(1);
 					}
+					
 					if (
 						aType.Refs[2].Kind is not tKind.Empty ||
 						ComparedRefs?[2].Kind is not null and not tKind.Empty
 					) {
 						Result += ____ + "-> " + Child(2);
 					}
+					
 					return "[" + Result + __ + "]";
 				}
 			),
@@ -1587,6 +1707,7 @@ mVM_Type {
 							Parts
 						);
 					}
+					
 					return "[" + ____ + Parts.Reverse().Join((a1, a2) => a1 + " |" + ____ + a2, "") + __ + "]";
 				}
 			),
